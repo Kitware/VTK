@@ -65,6 +65,7 @@
 // Bring in our fragment lit shader symbols.
 #include "vtkPolyDataEdgesGS.h"
 #include "vtkPolyDataFS.h"
+#include "vtkPolyDataGS.h"
 #include "vtkPolyDataVS.h"
 #include "vtkPolyDataWideLineGS.h"
 
@@ -346,23 +347,22 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
     }
   }
 
-  // Fix gl_PrimitiveID in fragment shader after all shader replacements.
-  // When oglRenderWindow->IsPrimIDBugPresent() returns true, the geometry shader
-  // ignores values written into gl_PrimitiveID and increments it per output primitive.
-  // So, here, undo the two increments per line segment with a divide-by-2.
-  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+  // Fix gl_PrimitiveID in fragment shader when the wide-line geometry shader is
+  // in use. When oglRenderWindow->IsPrimIDBugPresent() returns true, the geometry
+  // shader ignores values written into gl_PrimitiveID and increments it per output
+  // primitive. So, here, undo the two increments per line segment with a divide-by-2.
   if (this->HaveWideLines(ren, actor))
   {
     if (auto oglRenderWindow = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()))
     {
       if (oglRenderWindow->IsPrimIDBugPresent())
       {
+        std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
         vtkShaderProgram::Substitute(FSSource, "gl_PrimitiveID", "gl_PrimitiveID / 2");
+        shaders[vtkShader::Fragment]->SetSource(FSSource);
       }
     }
   }
-
-  shaders[vtkShader::Fragment]->SetSource(FSSource);
 }
 
 //------------------------------------------------------------------------------
@@ -387,6 +387,49 @@ bool vtkOpenGLPolyDataMapper::HaveWideLines(vtkRenderer* ren, vtkActor* actor)
   }
   return this->DrawingSelection &&
     (this->GetOpenGLMode(this->SelectionType, this->LastBoundBO->PrimitiveType) == GL_LINES);
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLPolyDataMapper::FragmentShaderUsesPrimitiveID(vtkRenderer*, vtkActor*)
+{
+  // vtkPolyDataGS is a trivial geometry shader whose only purpose is to write
+  // gl_PrimitiveID so the fragment shader can read it. It is only needed on
+  // drivers where gl_PrimitiveID is not implicitly passed to the fragment
+  // shader, and only when the fragment shader actually references it.
+
+#ifndef GL_GEOMETRY_SHADER
+  // Geometry shaders do not exist in this build of VTK (OpenGL ES / WebAssembly
+  // targets have no geometry shader stage). Requesting vtkPolyDataGS here would
+  // fail with "Geometry shaders are not supported in this build of VTK" and the
+  // shader program would not build. This gate
+  // mirrors the compile-time check in vtkShaderProgram that determines whether a
+  // geometry shader can be attached. On these platforms the fragment
+  // shader references gl_PrimitiveID directly, exactly as it did before the mesa
+  // 25.3.6 work-around was introduced.
+  return false;
+#else
+  // Cell scalar coloring fetches the color by cell using gl_PrimitiveID.
+  // See ReplaceShaderColor().
+  if (this->HaveCellScalars)
+  {
+    return true;
+  }
+
+  // Cell normals are fetched by cell using gl_PrimitiveID. See ReplaceShaderNormal().
+  if (this->HaveCellNormals)
+  {
+    return true;
+  }
+
+  // Cell-id hardware selection encodes gl_PrimitiveID. See ReplaceShaderPicking().
+  if (this->LastSelectionState == vtkHardwareSelector::CELL_ID_LOW24 ||
+    this->LastSelectionState == vtkHardwareSelector::CELL_ID_HIGH24)
+  {
+    return true;
+  }
+
+  return false;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -573,6 +616,10 @@ void vtkOpenGLPolyDataMapper::GetShaderTemplate(
     {
       shaders[vtkShader::Geometry]->SetSource(vtkPolyDataWideLineGS);
     }
+    else if (this->FragmentShaderUsesPrimitiveID(ren, actor))
+    {
+      shaders[vtkShader::Geometry]->SetSource(vtkPolyDataGS);
+    }
     else
     {
       shaders[vtkShader::Geometry]->SetSource("");
@@ -637,6 +684,48 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCustomUniforms(
   vtkShader* geometryShader = shaders[vtkShader::Geometry];
   vtkOpenGLUniforms* gu = static_cast<vtkOpenGLUniforms*>(sp->GetGeometryCustomUniforms());
   vtkShaderProgram::Substitute(geometryShader, "//VTK::CustomUniforms::Dec", gu->GetDeclarations());
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::ReplaceShaderLayout(
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkActor* actor)
+{
+  vtkShader* geometryShader = shaders[vtkShader::Geometry];
+
+  const bool pointSelectionMode = this->PointPicking && !this->DrawingSelection;
+
+  const unsigned int mode = pointSelectionMode
+    ? GL_POINTS
+    : this->GetOpenGLMode(
+        actor->GetProperty()->GetRepresentation(), this->LastBoundBO->PrimitiveType);
+
+  if (!geometryShader->GetSource().empty())
+  {
+    if (mode == GL_POINTS)
+    {
+      vtkShaderProgram::Substitute(geometryShader, "//VTK::Layout::Dec",
+        "layout(points) in;\n"
+        "layout(points, max_vertices = 1) out;\n"
+        "const int VERT_COUNT = 1;\n"
+        "\n");
+    }
+    else if (mode == GL_LINES)
+    {
+      vtkShaderProgram::Substitute(geometryShader, "//VTK::Layout::Dec",
+        "layout(lines) in;\n"
+        "layout(line_strip, max_vertices = 2) out;\n"
+        "const int VERT_COUNT = 2;\n"
+        "\n");
+    }
+    else
+    {
+      vtkShaderProgram::Substitute(geometryShader, "//VTK::Layout::Dec",
+        "layout(triangles) in;\n"
+        "layout(triangle_strip, max_vertices = 3) out;\n"
+        "const int VERT_COUNT = 3;\n"
+        "\n");
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1920,6 +2009,15 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
+  std::string vertexIDVariableDeclaration = "flat in int vertexIDVSOutput;\n";
+  std::string copyVertexIDToIdx = "  int idx = vertexIDVSOutput;\n";
+  // Change the variable name if a geometry shader is present.
+  if (!GSSource.empty())
+  {
+    vertexIDVariableDeclaration = "flat in int vertexIDGSOutput;\n";
+    copyVertexIDToIdx = "  int idx = vertexIDGSOutput;\n";
+  }
+
   if (this->LastSelectionState >= vtkHardwareSelector::MIN_KNOWN_PASS)
   {
     switch (this->LastSelectionState)
@@ -1935,12 +2033,11 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
           "flat out int vertexIDGSOutput;");
         vtkShaderProgram::Substitute(
           GSSource, "//VTK::Picking::Impl", "vertexIDGSOutput = vertexIDVSOutput[i];");
-        vtkShaderProgram::Substitute(
-          FSSource, "//VTK::Picking::Dec", "flat in int vertexIDVSOutput;\n");
+        vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Dec", vertexIDVariableDeclaration);
         vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Impl",
-          "  int idx = vertexIDVSOutput;\n"
-          "  gl_FragData[0] = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, "
-          "float((idx/65536)%256)/255.0, 1.0);\n");
+          copyVertexIDToIdx +
+            "  gl_FragData[0] = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, "
+            "float((idx/65536)%256)/255.0, 1.0);\n");
         break;
 
       case vtkHardwareSelector::POINT_ID_HIGH24:
@@ -1953,11 +2050,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
           "flat out int vertexIDGSOutput;");
         vtkShaderProgram::Substitute(
           GSSource, "//VTK::Picking::Impl", "vertexIDGSOutput = vertexIDVSOutput[i];");
-        vtkShaderProgram::Substitute(
-          FSSource, "//VTK::Picking::Dec", "flat in int vertexIDVSOutput;\n");
+        vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Dec", vertexIDVariableDeclaration);
         vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Impl",
-          "  int idx = vertexIDVSOutput;\n idx = ((idx & 0xff000000) >> 24);\n"
-          "  gl_FragData[0] = vec4(float(idx)/255.0, 0.0, 0.0, 1.0);\n");
+          copyVertexIDToIdx + "  idx = ((idx & 0xff000000) >> 24);\n" +
+            "  gl_FragData[0] = vec4(float(idx)/255.0, 0.0, 0.0, 1.0);\n");
         break;
 
       // cell ID is just gl_PrimitiveID
@@ -2020,6 +2116,15 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderClip(
         "  {\n"
         "    clipDistancesGSOutput[planeNum] = dot(clipPlanes[planeNum], clipVertexMC[i]);\n"
         "  }\n");
+
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Clip::Dec",
+        "uniform int numClipPlanes;\n"
+        "in float clipDistancesGSOutput[6];");
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Clip::Impl",
+        "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+        "    {\n"
+        "    if (clipDistancesGSOutput[planeNum] < 0.0) discard;\n"
+        "    }\n");
     }
     else // vertex shader impl
     {
@@ -2032,16 +2137,16 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderClip(
         "    {\n"
         "    clipDistancesVSOutput[planeNum] = dot(clipPlanes[planeNum], vertexMC);\n"
         "    }\n");
-    }
 
-    vtkShaderProgram::Substitute(FSSource, "//VTK::Clip::Dec",
-      "uniform int numClipPlanes;\n"
-      "in float clipDistancesVSOutput[6];");
-    vtkShaderProgram::Substitute(FSSource, "//VTK::Clip::Impl",
-      "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
-      "    {\n"
-      "    if (clipDistancesVSOutput[planeNum] < 0.0) discard;\n"
-      "    }\n");
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Clip::Dec",
+        "uniform int numClipPlanes;\n"
+        "in float clipDistancesVSOutput[6];");
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Clip::Impl",
+        "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+        "    {\n"
+        "    if (clipDistancesVSOutput[planeNum] < 0.0) discard;\n"
+        "    }\n");
+    }
   }
   shaders[vtkShader::Vertex]->SetSource(VSSource);
   shaders[vtkShader::Fragment]->SetSource(FSSource);
@@ -2458,9 +2563,20 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
       "out vec4 vertexVCGSOutput;");
     vtkShaderProgram::Substitute(
       GSSource, "//VTK::PositionVC::Impl", "vertexVCGSOutput = vertexVCVSOutput[i];");
-    vtkShaderProgram::Substitute(FSSource, "//VTK::PositionVC::Dec", "in vec4 vertexVCVSOutput;");
-    vtkShaderProgram::Substitute(
-      FSSource, "//VTK::PositionVC::Impl", "vec4 vertexVC = vertexVCVSOutput;");
+
+    // Note the VCGS vs VCVS difference below
+    if (!GSSource.empty())
+    {
+      vtkShaderProgram::Substitute(FSSource, "//VTK::PositionVC::Dec", "in vec4 vertexVCGSOutput;");
+      vtkShaderProgram::Substitute(
+        FSSource, "//VTK::PositionVC::Impl", "vec4 vertexVC = vertexVCGSOutput;");
+    }
+    else
+    {
+      vtkShaderProgram::Substitute(FSSource, "//VTK::PositionVC::Dec", "in vec4 vertexVCVSOutput;");
+      vtkShaderProgram::Substitute(
+        FSSource, "//VTK::PositionVC::Impl", "vec4 vertexVC = vertexVCVSOutput;");
+    }
   }
   else
   {
@@ -2542,6 +2658,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   this->ReplaceShaderRenderPass(shaders, ren, actor, true);
   this->ReplaceShaderCustomUniforms(shaders, actor);
   this->ReplaceShaderNormal(shaders, ren, actor);
+  this->ReplaceShaderLayout(shaders, actor);
   this->ReplaceShaderColor(shaders, ren, actor);
   this->ReplaceShaderEdges(shaders, ren, actor);
   this->ReplaceShaderLight(shaders, ren, actor);

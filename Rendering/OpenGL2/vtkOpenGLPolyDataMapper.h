@@ -243,6 +243,7 @@ protected:
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act, bool prePass);
   virtual void ReplaceShaderCustomUniforms(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkActor* act);
+  virtual void ReplaceShaderLayout(std::map<vtkShader::Type, vtkShader*> shaders, vtkActor* act);
   virtual void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act);
   virtual void ReplaceShaderEdges(
@@ -346,6 +347,11 @@ protected:
 
   // do we have wide lines that require special handling
   virtual bool HaveWideLines(vtkRenderer*, vtkActor*);
+
+  // Will the fragment shader reference gl_PrimitiveID? This drives whether the
+  // trivial vtkPolyDataGS geometry shader is needed to work around drivers that
+  // do not implicitly pass gl_PrimitiveID to the fragment shader.
+  virtual bool FragmentShaderUsesPrimitiveID(vtkRenderer*, vtkActor*);
 
   // do we have textures that require special handling
   bool HaveTextures(vtkActor* actor);
