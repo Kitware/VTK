@@ -62,23 +62,37 @@ int vtkPolyDataReader::ReadMeshSimple(const std::string& fname, vtkDataObject* d
       }
 
       std::size_t connSize = static_cast<std::size_t>(size);
-      std::vector<int> tempArray(connSize);
-      std::vector<vtkIdType> idArray(connSize);
 
-      if (!this->ReadCellsLegacy(size, tempArray.data()))
+      auto tempArray = vtkSmartPointer<vtkIntArray>::New();
+      tempArray->SetNumberOfValues(connSize);
+      int* tempBuffer = tempArray->GetPointer(0);
+
+      auto idArray = vtkSmartPointer<vtkIdTypeArray>::New();
+      idArray->SetNumberOfValues(connSize);
+      vtkIdType* idBuffer = idArray->GetPointer(0);
+
+      // For degenerate files, size may be impossibly huge, so check for allocation failure.
+      if (!tempBuffer || !idBuffer)
       {
         this->CloseVTKFile();
         return false;
       }
 
-      // Convert to id type
+      if (!this->ReadCellsLegacy(size, tempBuffer))
+      {
+        this->CloseVTKFile();
+        return false;
+      }
+
+      // Convert to vtkIdType type
       for (std::size_t connIdx = 0; connIdx < connSize; connIdx++)
       {
-        idArray[connIdx] = static_cast<vtkIdType>(tempArray[connIdx]);
+        vtkIdType tmp = static_cast<vtkIdType>(tempArray->GetValue(connIdx));
+        idArray->SetValue(connIdx, tmp);
       }
 
       cellArray = vtkSmartPointer<vtkCellArray>::New();
-      cellArray->ImportLegacyFormat(idArray.data(), size);
+      cellArray->ImportLegacyFormat(idBuffer, size);
       return true;
     } // end legacy cell read
   };
@@ -138,6 +152,13 @@ int vtkPolyDataReader::ReadMeshSimple(const std::string& fname, vtkDataObject* d
         if (!this->Read(&numPts))
         {
           vtkErrorMacro(<< "Cannot read number of points!");
+          this->CloseVTKFile();
+          return 1;
+        }
+
+        if (numPts < 0)
+        {
+          vtkErrorMacro(<< "number of points must not be negative");
           this->CloseVTKFile();
           return 1;
         }
