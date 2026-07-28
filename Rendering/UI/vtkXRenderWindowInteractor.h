@@ -106,6 +106,8 @@ protected:
   Atom KillAtom;
   int PositionBeforeStereo[2];
   vtkXRenderWindowInteractorInternals* Internal;
+  unsigned long PrevKeyReleaseSerial;
+  int KeyRepeatCount;
 
   // Drag and drop related
   int XdndSourceVersion;

@@ -326,8 +326,13 @@ static const char* MacKeyCodeToKeySymTable[128] = {
     keySym = "None";
   }
 
+  // Start at 1 to match old behavior, to be addressed in
+  // https://gitlab.kitware.com/vtk/vtk/-/work_items/20123
+  _keyRepeatCount =
+    isPress && type != NSEventTypeFlagsChanged && [theEvent isARepeat] ? _keyRepeatCount + 1 : 1;
+
   interactor->SetEventInformation(static_cast<int>(backingLoc.x), static_cast<int>(backingLoc.y),
-    controlDown, shiftDown, static_cast<char>(keyCode), 1, keySym);
+    controlDown, shiftDown, static_cast<char>(keyCode), _keyRepeatCount, keySym);
   interactor->SetAltKey(altDown);
 
   interactor->InvokeEvent(theEventId, nullptr);

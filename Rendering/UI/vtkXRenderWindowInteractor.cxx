@@ -812,9 +812,14 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       vtkKeySym keySym;
       vtkXLookupString(keyEvent, &keyCode, 1, &keySym, nullptr);
 
+      // start at 1 for backward compatibility but should start at 0
+      this->KeyRepeatCount =
+        keyEvent->serial == this->PrevKeyReleaseSerial ? this->KeyRepeatCount + 1 : 1;
+
       xp = keyEvent->x;
       yp = keyEvent->y;
-      this->SetEventInformationFlipY(xp, yp, ctrl, shift, keyCode, 1, vtkXKeysymToString(keySym));
+      this->SetEventInformationFlipY(
+        xp, yp, ctrl, shift, keyCode, this->KeyRepeatCount, vtkXKeysymToString(keySym));
       this->SetAltKey(alt);
       this->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
       this->InvokeEvent(vtkCommand::CharEvent, nullptr);
@@ -840,9 +845,11 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
 
       xp = keyEvent->x;
       yp = keyEvent->y;
-      this->SetEventInformationFlipY(xp, yp, ctrl, shift, keyCode, 1, vtkXKeysymToString(keySym));
+      this->SetEventInformationFlipY(
+        xp, yp, ctrl, shift, keyCode, this->KeyRepeatCount, vtkXKeysymToString(keySym));
       this->SetAltKey(alt);
       this->InvokeEvent(vtkCommand::KeyReleaseEvent, nullptr);
+      this->PrevKeyReleaseSerial = keyEvent->serial;
     }
     break;
 
