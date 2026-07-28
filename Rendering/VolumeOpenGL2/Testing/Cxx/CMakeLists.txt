@@ -9,6 +9,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastDepthPeelingOpaque.cxx
   TestGPURayCastDepthPeelingTransVol.cxx
   TestGPURayCastDepthPeelingTransparentPolyData.cxx
+  TestGPURayCastDepthTextureFormat.cxx
   TestGPURayCastIsosurface.cxx
   TestGPURayCastJittering.cxx
   TestGPURayCastModelTransformMatrix.cxx
