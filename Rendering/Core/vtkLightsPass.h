@@ -18,13 +18,12 @@
 #define vtkLightsPass_h
 
 #include "vtkRenderPass.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkOpenGLRenderWindow;
 
-class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkLightsPass : public vtkRenderPass
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkLightsPass : public vtkRenderPass
 {
 public:
   static vtkLightsPass* New();

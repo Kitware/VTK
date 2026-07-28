@@ -19,13 +19,13 @@
 #define vtkSequencePass_h
 
 #include "vtkRenderPass.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderPassCollection;
 
-class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkSequencePass : public vtkRenderPass
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkSequencePass : public vtkRenderPass
 {
 public:
   static vtkSequencePass* New();

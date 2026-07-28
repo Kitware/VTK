@@ -35,6 +35,7 @@ set(classes
   vtkCuller
   vtkCullerCollection
   vtkDataSetMapper
+  vtkDefaultPass
   vtkDiscretizableColorTransferFunction
   vtkDistanceToCamera
   vtkFXAAOptions
@@ -66,6 +67,7 @@ set(classes
   vtkLightActor
   vtkLightCollection
   vtkLightKit
+  vtkLightsPass
   vtkLogLookupTable
   vtkLookupTableWithEnabling
   vtkMapArrayValues
@@ -73,6 +75,8 @@ set(classes
   vtkMapper2D
   vtkMapperCollection
   vtkObserverMediator
+  vtkOpaquePass
+  vtkOverlayPass
   vtkPointGaussianMapper
   vtkPolyDataMapper
   vtkPolyDataMapper2D
@@ -86,6 +90,7 @@ set(classes
   vtkProperty2D
   vtkRenderMaterialLibrary
   vtkRenderPass
+  vtkRenderPassCollection
   vtkRenderState
   vtkRenderTimerLog
   vtkRenderWindow
@@ -98,6 +103,7 @@ set(classes
   vtkRendererSource
   vtkResizingWindowToImageFilter
   vtkSelectVisiblePoints
+  vtkSequencePass
   vtkShaderProperty
   vtkSkybox
   vtkStereoCompositor
@@ -107,6 +113,7 @@ set(classes
   vtkTexturedActor2D
   vtkTransformCoordinateSystems
   vtkTransformInterpolator
+  vtkTranslucentPass
   vtkTupleInterpolator
   vtkUniforms
   vtkViewDependentErrorMetric
@@ -115,6 +122,7 @@ set(classes
   vtkVolume
   vtkVolumeCollection
   vtkVolumeProperty
+  vtkVolumetricPass
   vtkWindowLevelLookupTable
   vtkWindowToImageFilter
 

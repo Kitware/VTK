@@ -16,13 +16,13 @@
 #define vtkRenderPassCollection_h
 
 #include "vtkCollection.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderPass;
 
-class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkRenderPassCollection : public vtkCollection
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkRenderPassCollection : public vtkCollection
 {
 public:
   static vtkRenderPassCollection* New();

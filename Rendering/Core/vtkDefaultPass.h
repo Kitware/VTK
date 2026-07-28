@@ -23,14 +23,12 @@
 #define vtkDefaultPass_h
 
 #include "vtkRenderPass.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkOpenGLRenderWindow;
-class vtkDefaultPassLayerList; // Pimpl
 
-class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkDefaultPass : public vtkRenderPass
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkDefaultPass : public vtkRenderPass
 {
 public:
   static vtkDefaultPass* New();
