@@ -2125,9 +2125,9 @@ bool vtkHDFWriter::AppendAssembly(hid_t assemblyGroup, vtkPartitionedDataSetColl
     for (auto& datasetId : assembly->GetDataSetIndices(nodeIndex, false))
     {
       const std::string datasetName = ::getBlockName(pdc, datasetId);
-      const std::string linkTarget = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
+      const std::string linkTarget = vtkHDFUtilities::VTKHDF_ROOT_PATH() + "/" + datasetName;
       const std::string linkSource =
-        vtkHDFUtilities::VTKHDF_ROOT_PATH + "/Assembly/" + nodePath + "/" + datasetName;
+        vtkHDFUtilities::VTKHDF_ROOT_PATH() + "/Assembly/" + nodePath + "/" + datasetName;
       if (!this->Impl->CreateSoftLink(
             this->Impl->GetRoot(), linkSource.c_str(), linkTarget.c_str()))
       {
@@ -2201,7 +2201,7 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
 
       // Create a soft-link from the dataset on root group to the hierarchy positions where it
       // belongs
-      const std::string linkTarget = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + uniqueSubTreeName;
+      const std::string linkTarget = vtkHDFUtilities::VTKHDF_ROOT_PATH() + "/" + uniqueSubTreeName;
       const std::string linkSource =
         this->Impl->GetGroupName(assemblyGroup) + "/" + originalSubTreeName;
 
@@ -2266,7 +2266,7 @@ bool vtkHDFWriter::AppendCompositeSubfilesDataObject(const std::string& uniqueSu
   // non-composite dataset, create array structures, and write all non-null pieces to the
   // main file.
 
-  const std::string blockPath = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" +
+  const std::string blockPath = vtkHDFUtilities::VTKHDF_ROOT_PATH() + "/" +
     uniqueSubTreeName; // All blocks are located on root group and have the same name
                        // for all subfiles
   int type = -1;

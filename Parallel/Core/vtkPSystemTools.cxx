@@ -6,6 +6,8 @@
 #include <vtkMultiProcessController.h>
 #include <vtksys/SystemTools.hxx>
 
+#include <sstream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPSystemTools);
 
@@ -123,8 +125,47 @@ bool vtkPSystemTools::FindProgramPath(const char* argv0, std::string& pathOut,
   int retVal = 1;
   if (controller->GetLocalProcessId() == 0)
   {
-    retVal = static_cast<int>(vtksys::SystemTools::FindProgramPath(
-      argv0, pathOut, errorMsg, exeName, buildDir, installPrefix));
+    std::vector<std::string> failures;
+    std::string self = argv0 ? argv0 : "";
+    failures.push_back(self);
+    vtksys::SystemTools::ConvertToUnixSlashes(self);
+    self = vtksys::SystemTools::FindProgram(self);
+    if (!vtksys::SystemTools::FileIsExecutable(self))
+    {
+      failures.push_back(self);
+      std::ostringstream msg;
+      msg << "Can not find the command line program ";
+      if (exeName)
+      {
+        msg << exeName;
+      }
+      msg << "\n";
+      if (argv0)
+      {
+        msg << "  argv[0] = \"" << argv0 << "\"\n";
+      }
+      if (buildDir)
+      {
+        msg << "  buildDir = \"" << buildDir << "\" ignored (no longer supported)\n";
+      }
+      if (installPrefix)
+      {
+        msg << "  installPrefix = \"" << installPrefix << "\" ignored (no longer supported)\n";
+      }
+      msg << "  Attempted paths:\n";
+      for (std::string const& ff : failures)
+      {
+        msg << "    \"" << ff << "\"\n";
+      }
+      errorMsg = msg.str();
+      retVal = 0;
+      ;
+    }
+    else
+    {
+      pathOut = self;
+      retVal = 1;
+    }
   }
   controller->Broadcast(&retVal, 1, 0);
   // if the retVal on proc 0 is non-zero then only information is

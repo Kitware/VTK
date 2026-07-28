@@ -25,7 +25,11 @@ vtkStandardNewMacro(vtkCriticalTime);
 
 namespace
 {
-const std::string CRITICAL_TIME_SUFFIX = "critical_time";
+const std::string& CRITICAL_TIME_SUFFIX()
+{
+  static const std::string critical_time = "critical_time";
+  return critical_time;
+}
 
 //------------------------------------------------------------------------------
 /**
@@ -366,7 +370,7 @@ int vtkCriticalTime::vtkCriticalTimeInternals::InitializeCriticalTimeArray(
   }
 
   vtkNew<vtkDoubleArray> newArray;
-  newArray->SetName(vtkCriticalTimeMangleName(array->GetName(), CRITICAL_TIME_SUFFIX).c_str());
+  newArray->SetName(vtkCriticalTimeMangleName(array->GetName(), CRITICAL_TIME_SUFFIX()).c_str());
 
   newArray->SetNumberOfComponents(1);
   newArray->SetNumberOfTuples(array->GetNumberOfTuples());
@@ -431,7 +435,7 @@ int vtkCriticalTime::vtkCriticalTimeInternals::UpdateCriticalTimeArray(
 int vtkCriticalTime::vtkCriticalTimeInternals::UpdateCriticalTimeArray(
   vtkDataArray* inArray, vtkFieldData* outFd)
 {
-  vtkDoubleArray* outTimeArray = this->GetCriticalTimeArray(outFd, inArray, CRITICAL_TIME_SUFFIX);
+  vtkDoubleArray* outTimeArray = this->GetCriticalTimeArray(outFd, inArray, CRITICAL_TIME_SUFFIX());
   if (!outTimeArray)
   {
     vtkErrorWithObjectMacro(this->Self, "Unable to retrieve output critical time array.");

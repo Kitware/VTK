@@ -35,12 +35,28 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+const std::string& vtkHDFUtilities::VTKHDF_ROOT_PATH()
+{
+  static std::string root_path = "/VTKHDF";
+  return root_path;
+}
+
+const std::vector<std::string>& vtkHDFUtilities::POLY_DATA_TOPOS()
+{
+  static std::vector<std::string> topos{ "Vertices", "Lines", "Polygons", "Strips" };
+  return topos;
+}
+
 namespace
 {
-const std::map<int, std::string> ARRAY_OFFSET_GROUPS = {
-  { vtkDataObject::POINT, "PointDataOffsets" }, { vtkDataObject::CELL, "CellDataOffsets" },
-  { vtkDataObject::FIELD, "FieldDataOffsets" }, { vtkDataObject::ROW, "RowDataOffsets" }
-};
+const std::map<int, std::string>& ARRAY_OFFSET_GROUPS()
+{
+  static const std::map<int, std::string> array_offset_groups = {
+    { vtkDataObject::POINT, "PointDataOffsets" }, { vtkDataObject::CELL, "CellDataOffsets" },
+    { vtkDataObject::FIELD, "FieldDataOffsets" }, { vtkDataObject::ROW, "RowDataOffsets" }
+  };
+  return array_offset_groups;
+}
 
 // Scoped RAII to quiet/unquiet hdf5
 class ScopedH5EQuiet
@@ -1158,7 +1174,7 @@ vtkIdType vtkHDFUtilities::GetArrayOffset(
     return -1;
   }
   std::string path = "Steps/";
-  path += ::ARRAY_OFFSET_GROUPS.at(attributeType);
+  path += ::ARRAY_OFFSET_GROUPS().at(attributeType);
   if (H5Lexists(group, path.c_str(), H5P_DEFAULT) <= 0)
   {
     return -1;

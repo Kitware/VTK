@@ -262,7 +262,11 @@ namespace
 {
 
 // Naming convention for an internal buffer array
-const std::string Cell2PointWeightsName = "Cell2PointWeights";
+const std::string& Cell2PointWeightsName()
+{
+  static const std::string name = "Cell2PointWeights";
+  return name;
+}
 
 // True if data array uses 64-bit representation for its storage
 bool Is64BitArray(const vtkDataArray* array)
@@ -8622,7 +8626,7 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
    * This method gets called multiple times for a single data set (once for each cell to point
    * transport operation). This check is to avoid re-calculating it if we already have.
    */
-  if (!inCellData->HasArray(::Cell2PointWeightsName.c_str()))
+  if (!inCellData->HasArray(::Cell2PointWeightsName().c_str()))
   {
     vtkNew<vtkConstantArray<double>> ones;
     ones->ConstructBackend(1.0);
@@ -8682,11 +8686,11 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
         weights = buffer;
       }
     }
-    weights->SetName(::Cell2PointWeightsName.c_str());
+    weights->SetName(::Cell2PointWeightsName().c_str());
     inCellData->AddArray(weights);
   }
 
-  auto weights = inCellData->GetArray(::Cell2PointWeightsName.c_str());
+  auto weights = inCellData->GetArray(::Cell2PointWeightsName().c_str());
 
   if (nComponents == 1)
   {
@@ -11183,7 +11187,7 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
       continue;
     }
     // will do nothing if no array by this name
-    cData->RemoveArray(::Cell2PointWeightsName.c_str());
+    cData->RemoveArray(::Cell2PointWeightsName().c_str());
   }
 
   if (this->Parent->GetCacheMesh())

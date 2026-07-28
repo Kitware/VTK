@@ -203,18 +203,19 @@ std::string GetMimeType(const std::string& textureFileName)
   }
 }
 
-std::map<int, int> vtkToGLType = { { VTK_UNSIGNED_CHAR, GL_UNSIGNED_BYTE },
-  { VTK_UNSIGNED_SHORT, GL_UNSIGNED_SHORT }, { VTK_FLOAT, GL_FLOAT } };
-
 int GetGLType(vtkDataArray* da)
 {
+  static const std::map<int, int> vtkToGLType = { { VTK_UNSIGNED_CHAR, GL_UNSIGNED_BYTE },
+    { VTK_UNSIGNED_SHORT, GL_UNSIGNED_SHORT }, { VTK_FLOAT, GL_FLOAT } };
+
   int vtkType = da->GetDataType();
-  if (vtkToGLType.find(vtkType) == vtkToGLType.end())
+  auto i = vtkToGLType.find(vtkType);
+  if (i == vtkToGLType.end())
   {
     vtkLog(WARNING, "No GL type mapping for VTK type: " << vtkType);
     return GL_UNSIGNED_BYTE;
   }
-  return vtkToGLType[vtkType];
+  return i->second;
 }
 
 std::string WriteTextureBufferAndView(const std::string& gltfFullDir,
