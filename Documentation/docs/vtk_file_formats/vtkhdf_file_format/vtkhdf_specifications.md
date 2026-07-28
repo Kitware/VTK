@@ -22,7 +22,7 @@ any new specification is made.
 
 It ensures that any file will be read/write correctly for any different minor version in the same major by an implementation.
 
-See the [changelog](vtkhdf_introduction.md#changelog) to be up-to-date regarding any addition or API break.
+See the [changelog](vtkhdf_changelog.md) to be up-to-date regarding any addition or API break.
 
 ### Type
 
