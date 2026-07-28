@@ -26,7 +26,6 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -102,6 +101,8 @@ std::size_t CachedTextureBufferCount(vtkRenderWindow* renderWindow)
 
 int TestArrayTextureBufferCacheSharing(int argc, char* argv[])
 {
+  (void)argc;
+  (void)argv;
   // One mesh shared by every mapper: the points/normals arrays are the same
   // vtkDataArray instances, so the cache should dedupe them.
   vtkSmartPointer<vtkPolyData> sharedMesh = MakeSphere();
@@ -152,18 +153,6 @@ int TestArrayTextureBufferCacheSharing(int argc, char* argv[])
   }
 
   if (!ok)
-  {
-    return EXIT_FAILURE;
-  }
-
-  const int retVal = vtkRegressionTestImage(sharedWindow);
-  if (retVal == vtkTesting::DO_INTERACTOR)
-  {
-    interactor->Start();
-  }
-  // NO_VALID: there is no committed baseline; the cache assertions above are the
-  // real verification. Treat only an explicit image failure as fatal.
-  if (retVal == vtkTesting::FAILED)
   {
     return EXIT_FAILURE;
   }

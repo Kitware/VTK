@@ -3141,6 +3141,10 @@ void vtkOpenGLRenderWindow::Render()
   }
   if (this->Initialized)
   {
+    if (auto* atbCache = this->GetArrayTextureBufferCache())
+    {
+      atbCache->RemoveUnusedTextureBuffers(this);
+    }
     vtkOpenGLRenderUtilities::MarkDebugEvent("Completed vtkOpenGLRenderWIndow::Render");
   }
 }
