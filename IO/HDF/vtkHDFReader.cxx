@@ -415,6 +415,8 @@ void vtkHDFReader::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
   os << indent << "PointDataArraySelection: " << this->DataArraySelection[vtkDataObject::POINT]
      << "\n";
+  os << indent << "FieldDataArraySelection: " << this->DataArraySelection[vtkDataObject::FIELD]
+     << "\n";
   os << indent << "RowDataArraySelection: " << this->DataArraySelection[vtkDataObject::ROW] << "\n";
   os << indent << "HasTemporalData: " << (this->HasTemporalData ? "true" : "false") << "\n";
   os << indent << "NumberOfSteps: " << this->NumberOfSteps << "\n";
@@ -1944,13 +1946,12 @@ bool vtkHDFReader::RetrieveDataArraysFromAssembly()
       return false;
     }
 
-    for (int attrIdx = vtkDataObject::AttributeTypes::POINT;
-         attrIdx <= vtkDataObject::AttributeTypes::CELL; ++attrIdx)
+    for (const auto& attrType : vtkHDFUtilities::GetAttributeTypes())
     {
-      const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attrIdx);
+      const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attrType);
       for (const std::string& arrayName : arrayNames)
       {
-        this->DataArraySelection[attrIdx]->AddArray(arrayName.c_str());
+        this->DataArraySelection[attrType]->AddArray(arrayName.c_str());
       }
     }
   }
