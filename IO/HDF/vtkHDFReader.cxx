@@ -1159,13 +1159,13 @@ bool vtkHDFReader::ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
             vtkErrorMacro("Error reading array " << name);
             return false;
           }
-          if (!cacheArray)
-          {
-            array->SetName(name.c_str());
-            vtkDataSetAttributes* attributes = dataSet->GetAttributes(attributeType);
-            this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
-            attributes->AddArray(array);
-          }
+
+          // Static mesh is not implemented for AMR in the reader, so set array in all cases
+          // see https://gitlab.kitware.com/vtk/vtk/-/work_items/20129
+          array->SetName(name.c_str());
+          vtkDataSetAttributes* attributes = dataSet->GetAttributes(attributeType);
+          this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
+          attributes->AddArray(array);
         }
       }
     }
