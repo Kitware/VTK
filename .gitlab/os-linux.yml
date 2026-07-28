@@ -944,6 +944,7 @@
         - python -m pip install --upgrade --no-cache-dir sphinx readthedocs-sphinx-ext
         - python -m pip install --exists-action=w --no-cache-dir -r Documentation/docs/requirements.txt
         - make -C Documentation/docs html |& tee sphinx_output.log
+        - . .gitlab/ci/check_sphinx_log.sh sphinx_output.log
     interruptible: true
 
 .install_nodejs_linux: &install_nodejs_linux
