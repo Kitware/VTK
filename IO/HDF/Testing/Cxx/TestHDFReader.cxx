@@ -3,6 +3,7 @@
 
 #include "vtkAppendDataSets.h"
 #include "vtkAxisAlignedTransformFilter.h"
+#include "vtkFieldData.h"
 #include "vtkFileResourceStream.h"
 #include "vtkGroupDataSetsFilter.h"
 #include "vtkHDFReader.h"
@@ -47,7 +48,9 @@ vtkSmartPointer<vtkDataObject> GetMergedBlocks(vtkHDFReader* reader, int output_
     append->AddInputData(pds->GetPartition(iPiece));
   }
   append->Update();
-  return append->GetOutputDataObject(0);
+  vtkDataObject* output = append->GetOutputDataObject(0);
+  output->SetFieldData(pds->GetFieldData());
+  return output;
 }
 
 //----------------------------------------------------------------------------
@@ -260,6 +263,7 @@ int TestPartitionedUnstructuredGrid(const std::string& dataRoot, bool parallel)
     appender->Update();
 
     data->ShallowCopy(vtkUnstructuredGrid::SafeDownCast(appender->GetOutput()));
+    data->SetFieldData(pds->GetFieldData());
   }
   else
   {
@@ -450,6 +454,11 @@ int TestOverlappingAMR(const std::string& dataRoot, unsigned int maxLevel)
     {
       vtkImageData* dataset = data->GetDataSetAsImageData(levelIndex, datasetIndex);
       vtkImageData* expectedDataset = expectedData->GetDataSetAsImageData(levelIndex, datasetIndex);
+
+      // No field data at AMR-box level
+      vtkNew<vtkFieldData> emptyField;
+      expectedDataset->SetFieldData(emptyField);
+
       if (!vtkTestUtilities::CompareDataObjects(dataset, expectedDataset))
       {
         std::cerr << "Datasets does not match for level " << levelIndex << " dataset "
