@@ -46,6 +46,7 @@
 #if VTK_OCCT_USE_PROGRESS
 #include <Message_ProgressIndicator.hxx>
 #endif
+#include <NCollection_IndexedDataMap.hxx>
 #include <NCollection_Sequence.hxx>
 #include <PCDM_ReaderStatus.hxx>
 #include <Poly.hxx>
@@ -63,7 +64,10 @@
 #include <TopAbs_Orientation.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopLoc_Location.hxx>
+#include <TopTools_ShapeMapHasher.hxx>
 #include <TopoDS.hxx>
+#include <TopoDS_Builder.hxx>
+#include <TopoDS_Compound.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>
@@ -71,11 +75,14 @@
 #include <XCAFDoc_ColorTool.hxx>
 #include <XCAFDoc_DocumentTool.hxx>
 #include <XCAFDoc_ShapeTool.hxx>
+#include <XCAFPrs.hxx>
+#include <XCAFPrs_Style.hxx>
 
 #include <algorithm>
 #include <array>
 #include <cctype>
 #include <cstring>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -326,6 +333,8 @@ using OCC_LabelSequence = NCollection_Sequence<TDF_Label>;
 class vtkOCCTPDCReader::vtkInternals
 {
 public:
+  using StyleMap = NCollection_IndexedDataMap<TopoDS_Shape, XCAFPrs_Style, TopTools_ShapeMapHasher>;
+
   vtkInternals(vtkOCCTPDCReader* parent);
 
   // Get the hash representation of a label
@@ -350,13 +359,21 @@ public:
     XCAFDoc_ColorType type, OCC_ColorType& color);
 
   // Convert an OCCT color to an RGBA tuple.
-  static std::array<unsigned char, 4> GetRGBA(const OCC_ColorType& color);
+  static std::array<unsigned char, 4> GetRGBA(const Quantity_Color& color);
+#if VTK_OCCT_VERSION(7, 5, 0) <= OCC_VERSION_HEX
+  static std::array<unsigned char, 4> GetRGBA(const Quantity_ColorRGBA& color);
+#endif
+
+  // Collect definition-level XCAF styles and propagate them to face and edge leaves.
+  StyleMap CollectInheritedStyles(const TDF_Label& label, const TopoDS_Shape& shape);
+  static void PassDownStyle(const XCAFPrs_Style& parent, XCAFPrs_Style& child);
 
   // Create a polydata representation for the faces of a shape
-  vtkSmartPointer<vtkPolyData> SurfacesToPolyData(const TopoDS_Shape& shape);
+  vtkSmartPointer<vtkPolyData> SurfacesToPolyData(
+    const TopoDS_Shape& shape, const StyleMap& styles);
 
   // Create a polydata representation for the wires/curves of a shape
-  vtkSmartPointer<vtkPolyData> WiresToPolyData(const TopoDS_Shape& shape);
+  vtkSmartPointer<vtkPolyData> WiresToPolyData(const TopoDS_Shape& shape, const StyleMap& styles);
 
   // Populate a vtkPartitionedDataSetCollection with a label's contents
   void AddLabelToOutput(const TDF_Label& label, const TopLoc_Location& parentLocation,
@@ -630,20 +647,122 @@ bool vtkOCCTPDCReader::vtkInternals::GetSubShapeColor(const TopoDS_Shape& subSha
 
 //----------------------------------------------------------------------------
 // Convert an OCCT color to an RGBA tuple.
-std::array<unsigned char, 4> vtkOCCTPDCReader::vtkInternals::GetRGBA(const OCC_ColorType& color)
+std::array<unsigned char, 4> vtkOCCTPDCReader::vtkInternals::GetRGBA(const Quantity_Color& color)
 {
 #if VTK_OCCT_VERSION(7, 5, 0) <= OCC_VERSION_HEX
-  const Quantity_Color& rgb = color.GetRGB();
+  // OCCT stores color components in linear RGB. VTK color arrays are consumed
+  // as display (sRGB) values, so convert them before quantizing to bytes.
+  double rgb[3];
+  color.Values(rgb[0], rgb[1], rgb[2], Quantity_TOC_sRGB);
 #else
-  const Quantity_Color& rgb = color;
+  // The explicit sRGB conversion API is not available in older OCCT releases.
+  const double rgb[3] = { color.Red(), color.Green(), color.Blue() };
 #endif
-  std::array<unsigned char, 4> rgba = { static_cast<unsigned char>(255.0 * rgb.Red()),
-    static_cast<unsigned char>(255.0 * rgb.Green()), static_cast<unsigned char>(255.0 * rgb.Blue()),
-    255 };
+  return { static_cast<unsigned char>(255.0 * rgb[0]), static_cast<unsigned char>(255.0 * rgb[1]),
+    static_cast<unsigned char>(255.0 * rgb[2]), 255 };
+}
+
 #if VTK_OCCT_VERSION(7, 5, 0) <= OCC_VERSION_HEX
+//----------------------------------------------------------------------------
+std::array<unsigned char, 4> vtkOCCTPDCReader::vtkInternals::GetRGBA(
+  const Quantity_ColorRGBA& color)
+{
+  auto rgba = vtkOCCTPDCReader::vtkInternals::GetRGBA(color.GetRGB());
   rgba[3] = static_cast<unsigned char>(255.0 * color.Alpha());
-#endif
   return rgba;
+}
+#endif
+
+//----------------------------------------------------------------------------
+void vtkOCCTPDCReader::vtkInternals::PassDownStyle(
+  const XCAFPrs_Style& parent, XCAFPrs_Style& child)
+{
+  if (!child.IsSetColorCurv() && parent.IsSetColorCurv())
+  {
+    child.SetColorCurv(parent.GetColorCurv());
+  }
+  if (!child.IsSetColorSurf() && parent.IsSetColorSurf())
+  {
+#if VTK_OCCT_VERSION(7, 5, 0) <= OCC_VERSION_HEX
+    child.SetColorSurf(parent.GetColorSurfRGBA());
+#else
+    child.SetColorSurf(parent.GetColorSurf());
+#endif
+  }
+}
+
+//----------------------------------------------------------------------------
+vtkOCCTPDCReader::vtkInternals::StyleMap vtkOCCTPDCReader::vtkInternals::CollectInheritedStyles(
+  const TDF_Label& label, const TopoDS_Shape& shape)
+{
+  StyleMap inheritedStyles;
+  // Only collect styles from shape definitions. Assembly and instance styling
+  // is deliberately outside the scope of this reader.
+  if (label.IsNull() || this->ShapeTool->IsAssembly(label))
+  {
+    return inheritedStyles;
+  }
+
+  StyleMap collectedStyles;
+  XCAFPrs::CollectStyleSettings(label, TopLoc_Location(), collectedStyles);
+
+  // Process the most-specific topology first. PassDownStyle only fills unset
+  // properties, so a face or edge color takes precedence over its ancestors.
+  const auto compareShapeDepth = [](const TopoDS_Shape& left, const TopoDS_Shape& right)
+  { return left.ShapeType() > right.ShapeType(); };
+  std::multimap<TopoDS_Shape, XCAFPrs_Style, decltype(compareShapeDepth)> sortedStyles(
+    compareShapeDepth);
+  for (StyleMap::Iterator styleIt(collectedStyles); styleIt.More(); styleIt.Next())
+  {
+    sortedStyles.emplace(styleIt.Key(), styleIt.Value());
+  }
+
+  const auto passDownToLeaves = [&](TopAbs_ShapeEnum leafType)
+  {
+    for (const auto& entry : sortedStyles)
+    {
+      const auto applyStyle = [&](const TopoDS_Shape& leaf)
+      {
+        if (inheritedStyles.Contains(leaf))
+        {
+          this->PassDownStyle(entry.second, inheritedStyles.ChangeFromKey(leaf));
+        }
+        else
+        {
+          inheritedStyles.Add(leaf, entry.second);
+        }
+      };
+
+      // TopExp_Explorer visits descendants, but not a root that already has
+      // the requested type. Preserve styles assigned directly to a face/edge.
+      if (entry.first.ShapeType() == leafType)
+      {
+        applyStyle(entry.first);
+        continue;
+      }
+      for (TopExp_Explorer leafIt(entry.first, leafType); leafIt.More(); leafIt.Next())
+      {
+        applyStyle(leafIt.Current());
+      }
+    }
+  };
+  passDownToLeaves(TopAbs_FACE);
+  if (this->Parent->GetReadWire())
+  {
+    passDownToLeaves(TopAbs_EDGE);
+  }
+
+  // Complete partially specified leaf styles with the definition's default.
+  if (collectedStyles.Contains(shape))
+  {
+    const XCAFPrs_Style& defaultStyle = collectedStyles.FindFromKey(shape);
+    for (StyleMap::Iterator styleIt(inheritedStyles); styleIt.More(); styleIt.Next())
+    {
+      this->PassDownStyle(defaultStyle, inheritedStyles.ChangeFromKey(styleIt.Key()));
+    }
+  }
+
+  return inheritedStyles;
 }
 
 //----------------------------------------------------------------------------
@@ -651,7 +770,7 @@ std::array<unsigned char, 4> vtkOCCTPDCReader::vtkInternals::GetRGBA(const OCC_C
 // to the shape - if any of the faces have normals, colors, or uv data then
 // the resulting polydata will contain the appropriate point/cell data
 vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::SurfacesToPolyData(
-  const TopoDS_Shape& shape)
+  const TopoDS_Shape& shape, const StyleMap& styles)
 {
   vtkNew<vtkPoints> points;
   vtkNew<vtkFloatArray> normals;
@@ -697,11 +816,23 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::SurfacesToPolyData(
     }
 
     std::array<unsigned char, 4> rgba = { 255, 255, 255, 255 };
-    OCC_ColorType faceColor;
-    if (this->GetSubShapeColor(face, shape, XCAFDoc_ColorSurf, faceColor))
+    if (styles.Contains(face) && styles.FindFromKey(face).IsSetColorSurf())
     {
-      rgba = this->GetRGBA(faceColor);
+#if VTK_OCCT_VERSION(7, 5, 0) <= OCC_VERSION_HEX
+      rgba = this->GetRGBA(styles.FindFromKey(face).GetColorSurfRGBA());
+#else
+      rgba = this->GetRGBA(styles.FindFromKey(face).GetColorSurf());
+#endif
       hasColors = true;
+    }
+    else
+    {
+      OCC_ColorType faceColor;
+      if (this->GetSubShapeColor(face, shape, XCAFDoc_ColorSurf, faceColor))
+      {
+        rgba = this->GetRGBA(faceColor);
+        hasColors = true;
+      }
     }
 
     Poly::ComputeNormals(poly);
@@ -807,7 +938,7 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::SurfacesToPolyData(
 // to the shape - if any of the wires have colors then
 // the resulting polydata will contain the appropriate cell data
 vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::WiresToPolyData(
-  const TopoDS_Shape& shape)
+  const TopoDS_Shape& shape, const StyleMap& styles)
 {
   vtkNew<vtkPoints> points;
   vtkNew<vtkUnsignedCharArray> colors;
@@ -818,24 +949,26 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::WiresToPolyData(
 
   Standard_Integer shift = 0;
 
-  // Add all wires to polydata
+  // Meshing each edge independently can leave Polygon3D unavailable. As in
+  // vtkF3DOCCTReader, mesh one compound containing every edge instead.
+  std::vector<TopoDS_Edge> edges;
+  TopoDS_Builder builder;
+  TopoDS_Compound compound;
+  builder.MakeCompound(compound);
   for (TopExp_Explorer exEdge(shape, TopAbs_EDGE); exEdge.More(); exEdge.Next())
   {
     TopoDS_Edge edge = TopoDS::Edge(exEdge.Current());
+    builder.Add(compound, edge);
+    edges.push_back(edge);
+  }
+  BRepMesh_IncrementalMesh(compound, this->Parent->GetLinearDeflection(),
+    this->Parent->GetRelativeDeflection(), this->Parent->GetAngularDeflection(), Standard_True);
 
+  // Add all wires to polydata
+  for (const TopoDS_Edge& edge : edges)
+  {
     TopLoc_Location location;
     Handle(Poly_Polygon3D) poly = BRep_Tool::Polygon3D(edge, location);
-
-    // Create a tessellation if none exists for the wire
-    if (poly.IsNull() || poly->Nodes().Length() <= 0)
-    {
-      // meshing
-      BRepMesh_IncrementalMesh(edge, this->Parent->GetLinearDeflection(),
-        this->Parent->GetRelativeDeflection(), this->Parent->GetAngularDeflection(), Standard_True);
-
-      // Refresh the handle after meshing
-      poly = BRep_Tool::Polygon3D(edge, location);
-    }
 
     // skip all wires without tessellation
     if (poly.IsNull() || poly->Nodes().Length() == 0)
@@ -844,11 +977,28 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::WiresToPolyData(
     }
 
     std::array<unsigned char, 4> rgba = { 255, 255, 255, 255 };
-    OCC_ColorType edgeColor;
-    if (this->GetSubShapeColor(edge, shape, XCAFDoc_ColorCurv, edgeColor))
+    if (styles.Contains(edge) && styles.FindFromKey(edge).IsSetColorCurv())
     {
-      rgba = this->GetRGBA(edgeColor);
+      rgba = this->GetRGBA(styles.FindFromKey(edge).GetColorCurv());
+#if VTK_OCCT_VERSION(7, 5, 0) <= OCC_VERSION_HEX
+      // XCAFPrs_Style stores curve color as RGB. Recover alpha from an exact
+      // edge color assignment when the OCCT RGBA color API is available.
+      OCC_ColorType edgeColor;
+      if (this->GetShapeColor(edge, XCAFDoc_ColorCurv, edgeColor))
+      {
+        rgba[3] = this->GetRGBA(edgeColor)[3];
+      }
+#endif
       hasColors = true;
+    }
+    else
+    {
+      OCC_ColorType edgeColor;
+      if (this->GetSubShapeColor(edge, shape, XCAFDoc_ColorCurv, edgeColor))
+      {
+        rgba = this->GetRGBA(edgeColor);
+        hasColors = true;
+      }
     }
 
     Standard_Integer nbV = poly->NbNodes();
@@ -1218,8 +1368,9 @@ int vtkOCCTPDCReader::RequestData(
     TopoDS_Shape shape;
     this->Internals->ShapeTool->GetShape(label, shape);
 
+    const auto styles = this->Internals->CollectInheritedStyles(label, shape);
     auto id = this->Internals->GetHash(label);
-    vtkSmartPointer<vtkPolyData> pd = this->Internals->SurfacesToPolyData(shape);
+    vtkSmartPointer<vtkPolyData> pd = this->Internals->SurfacesToPolyData(shape, styles);
     if (pd)
     {
       this->Internals->ShapeMap[id] = pd;
@@ -1227,7 +1378,7 @@ int vtkOCCTPDCReader::RequestData(
 
     if (this->GetReadWire())
     {
-      vtkSmartPointer<vtkPolyData> pd = this->Internals->WiresToPolyData(shape);
+      vtkSmartPointer<vtkPolyData> pd = this->Internals->WiresToPolyData(shape, styles);
       if (pd)
       {
         this->Internals->WireMap[id] = pd;
