@@ -1,7 +1,9 @@
 vtk_module_test_data(
+  Data/BaselineData/TestContourImplicitArrays.vtkhdf
   Data/CuspySurface.vtp
   Data/Delaunay/,REGEX:.*
   Data/HTG/generate_ids.vtkhdf
+  Data/SynchronizedTemplates2D.vtp
   Data/beach.jpg
   Data/can.ex2
   Data/cow.vtp
@@ -16,6 +18,7 @@ vtk_module_test_data(
   Data/ghostBrokenScalars/ghostBrokenScalars_2.vtp
   Data/ghostBrokenScalars/ghostBrokenScalars_3.vtp
   Data/label_map.vti
+  Data/nonplanar_quad.vtk
   Data/sliding_multi_block_end.vtm
   Data/sliding_multi_block_end/sliding_multi_block_end_0_0.vtu
   Data/sliding_multi_block_end/sliding_multi_block_end_1_0.vtu
@@ -27,13 +30,11 @@ vtk_module_test_data(
   Data/sliding_multi_block_start/sliding_multi_block_start_2_0.vtu
   Data/sliding_multi_block_start/sliding_multi_block_start_3_0.vtu
   Data/slightlyRotated.vtu
+  Data/tex_debug.jpg
+  Data/vtkHDF/append_slice.vtkhdf
   Data/vtkHDF/static_harmonic_slice0.vtkhdf
   Data/vtkHDF/static_harmonic_slice1.vtkhdf
-  Data/vtkHDF/append_slice.vtkhdf
-  Data/SynchronizedTemplates2D.vtp
-  Data/tex_debug.jpg
   Data/wavelet300Arrays.vti
-  Data/nonplanar_quad.vtk
   )
 
 if (NOT vtk_testing_cxx_disabled)

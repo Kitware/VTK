@@ -1,20 +1,12 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkCamera.h"
-#include "vtkRegressionTestImage.h"
-#include <vtkActor.h>
 #include <vtkContourFilter.h>
 #include <vtkDataSet.h>
 #include <vtkImageData.h>
 #include <vtkImplicitArray.h>
 #include <vtkMath.h>
 #include <vtkPointData.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-
-#include <cstdlib>
+#include <vtkTestUtilities.h>
 
 namespace
 {
@@ -41,7 +33,7 @@ struct SphereLevelSetBackend
 int TestContourImplicitArrays(int argc, char* argv[])
 {
   vtkNew<vtkImageData> baseGrid;
-  int nPix = 300;
+  int nPix = 30;
   int halfCells = nPix / 2 - 1;
   baseGrid->SetExtent(-halfCells, halfCells, -halfCells, halfCells, -halfCells, halfCells);
   baseGrid->SetSpacing(1.0 / nPix, 1.0 / nPix, 1.0 / nPix);
@@ -56,28 +48,10 @@ int TestContourImplicitArrays(int argc, char* argv[])
   vtkNew<vtkContourFilter> contour;
   contour->SetInputData(baseGrid);
   contour->SetContourValues({ 0.0 });
-
   contour->Update();
 
-  vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection(contour->GetOutputPort());
-
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper);
-
-  vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor);
-
-  vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(renderer);
-
-  renWin->Render();
-
-  vtkCamera* camera = renderer->GetActiveCamera();
-  camera->SetPosition(9, 9, 9);
-  renderer->ResetCamera();
-
-  return (vtkRegressionTester::Test(argc, argv, renWin, 10) == vtkRegressionTester::PASSED)
+  return vtkTestUtilities::RegressionTest(
+           argc, argv, contour->GetOutput(), "/Data/BaselineData/TestContourImplicitArrays.vtkhdf")
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
 }

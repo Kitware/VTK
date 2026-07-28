@@ -104,7 +104,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestVaryRadiusTubeFilter.cxx
   UnitTestMaskPoints.cxx,NO_VALID
   UnitTestMergeFilter.cxx,NO_VALID
-  TestContourImplicitArrays.cxx
+  TestContourImplicitArrays.cxx,NO_VALID
   TestContourConstantScalarUG.cxx,NO_VALID
   )
 
