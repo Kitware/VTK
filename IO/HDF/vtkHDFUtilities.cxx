@@ -336,7 +336,6 @@ bool vtkHDFUtilities::ReadDataSetType(hid_t groupID, int& dataSetType)
 {
   if (H5Aexists(groupID, "Type") <= 0)
   {
-    vtkDebugWithObjectMacro(nullptr, "Can't find the `Type` attribute.");
     return false;
   }
 

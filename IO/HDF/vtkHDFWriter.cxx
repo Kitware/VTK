@@ -734,11 +734,8 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsi
   input->GetDimensions(dims);
   this->Impl->CreateVectorAttribute(group, "Dimensions", H5T_NATIVE_INT, 3, dims);
 
-  if (input->GetTransposedRootIndexing())
-  {
-    this->Impl->CreateScalarAttribute(
-      group, "TransposedRootIndexing", input->GetTransposedRootIndexing());
-  }
+  this->Impl->CreateScalarAttribute(
+    group, "TransposedRootIndexing", input->GetTransposedRootIndexing());
   if (input->GetHasInterface())
   {
     this->Impl->CreateStringAttribute(
@@ -747,17 +744,31 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsi
       group, "InterfaceNormalsName", input->GetInterfaceNormalsName());
   }
 
-  auto xcoords = input->GetXCoordinates();
-  this->Impl->AddOrCreateDataset(
-    group, "XCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(xcoords->GetDataType()), xcoords);
+  if (input->GetMaxNumberOfTrees() > 0)
+  {
+    auto xcoords = input->GetXCoordinates();
+    this->Impl->AddOrCreateDataset(group, "XCoordinates",
+      vtkHDFUtilities::getH5TypeFromVtkType(xcoords->GetDataType()), xcoords);
+    auto ycoords = input->GetYCoordinates();
+    this->Impl->AddOrCreateDataset(group, "YCoordinates",
+      vtkHDFUtilities::getH5TypeFromVtkType(ycoords->GetDataType()), ycoords);
 
-  auto ycoords = input->GetYCoordinates();
-  this->Impl->AddOrCreateDataset(
-    group, "YCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(ycoords->GetDataType()), ycoords);
-
-  auto zcoords = input->GetZCoordinates();
-  this->Impl->AddOrCreateDataset(
-    group, "ZCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(zcoords->GetDataType()), zcoords);
+    auto zcoords = input->GetZCoordinates();
+    this->Impl->AddOrCreateDataset(group, "ZCoordinates",
+      vtkHDFUtilities::getH5TypeFromVtkType(zcoords->GetDataType()), zcoords);
+  }
+  else
+  {
+    // When HTG are initialized without any trees, an empty tuple is pushed in coordinate arrays.
+    // We don't want to write it to the file.
+    vtkNew<vtkDoubleArray> empty;
+    this->Impl->AddOrCreateDataset(
+      group, "XCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(VTK_DOUBLE), empty);
+    this->Impl->AddOrCreateDataset(
+      group, "YCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(VTK_DOUBLE), empty);
+    this->Impl->AddOrCreateDataset(
+      group, "ZCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(VTK_DOUBLE), empty);
+  }
 
   vtkNew<vtkBitArray> descriptors;
   vtkNew<vtkTypeInt64Array> treeIds;
@@ -2178,13 +2189,13 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
       {
         // Create a subgroup in root, write the data into it and softlink it to the assembly
         this->Impl->CreateHdfGroupWithLinkOrder(this->Impl->GetRoot(), uniqueSubTreeName.c_str());
-        if (treeIter->GetCurrentDataObject())
-        {
-          this->AppendIterDataObject(treeIter, leafIndex, uniqueSubTreeName);
-        }
-        else if (this->Impl->GetSubFilesReady())
+        if (this->Impl->GetSubFilesReady())
         {
           this->AppendCompositeSubfilesDataObject(uniqueSubTreeName);
+        }
+        else if (treeIter->GetCurrentDataObject())
+        {
+          this->AppendIterDataObject(treeIter, leafIndex, uniqueSubTreeName);
         }
       }
 
@@ -2281,6 +2292,42 @@ bool vtkHDFWriter::AppendCompositeSubfilesDataObject(const std::string& uniqueSu
     this->Impl->CreateArraysFromNonNullPart(nonNullPart, pd);
     ret = this->DispatchDataObject(
       this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()), pd);
+  }
+  else if (type == VTK_HYPER_TREE_GRID)
+  {
+    vtkNew<vtkHyperTreeGrid> htg;
+    htg->Initialize();
+    if (H5Lexists(nonNullPart, "Mask", H5P_DEFAULT) > 0)
+    {
+      vtkNew<vtkBitArray> mask;
+      mask->SetNumberOfTuples(1); // Required for the mask to be detected
+      htg->SetMask(mask);
+    }
+
+    // Copy attributes, because we have no way to know the HTG dimensions only present in other
+    // parts
+    int branchFactor = 0;
+    vtkHDFUtilities::GetAttribute(nonNullPart, "BranchFactor", 1, &branchFactor);
+    htg->SetBranchFactor(branchFactor);
+    int transposedRoot = 0;
+    vtkHDFUtilities::GetAttribute(nonNullPart, "TransposedRootIndexing", 1, &transposedRoot);
+    htg->SetTransposedRootIndexing(transposedRoot);
+    std::array<int, 3> dimensions;
+    vtkHDFUtilities::GetAttribute(nonNullPart, "Dimensions", 3, dimensions.data());
+    htg->SetDimensions(dimensions.data());
+    if (H5Aexists(nonNullPart, "InterfaceNormalsName") > 0)
+    {
+      std::string tmp;
+      vtkHDFUtilities::GetStringAttribute(nonNullPart, "InterfaceInterceptsName", tmp);
+      htg->SetInterfaceInterceptsName(tmp.c_str());
+      vtkHDFUtilities::GetStringAttribute(nonNullPart, "InterfaceNormalsName", tmp);
+      htg->SetInterfaceNormalsName(tmp.c_str());
+      htg->SetHasInterface(true);
+    }
+
+    this->Impl->CreateArraysFromNonNullPart(nonNullPart, htg);
+    ret = this->DispatchDataObject(
+      this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()), htg);
   }
   return ret;
 }

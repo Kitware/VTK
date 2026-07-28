@@ -2235,9 +2235,25 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfTrees,
     return 0;
   }
 
-  const vtkIdType XCoordsOffset = htgTemporalOffsets.XCoordinatesOffset + filePiece * dimensions[0];
-  const vtkIdType YCoordsOffset = htgTemporalOffsets.YCoordinatesOffset + filePiece * dimensions[1];
-  const vtkIdType ZCoordsOffset = htgTemporalOffsets.ZCoordinatesOffset + filePiece * dimensions[2];
+  // Check the number of non-null pieces prior to this one to get the coordinate offset
+  // Null partitions won't have valid coordinate arrays, including the one being read
+  int nonNullPieces = 0;
+  for (int piece = 0; piece <= filePiece; piece++)
+  {
+    if (numberOfCells[piece] > 0)
+    {
+      nonNullPieces++;
+    }
+  }
+  // Take off offset from the current piece, but make sure offset is at least 0
+  nonNullPieces = std::max(0, nonNullPieces - 1);
+
+  const vtkIdType XCoordsOffset =
+    htgTemporalOffsets.XCoordinatesOffset + nonNullPieces * dimensions[0];
+  const vtkIdType YCoordsOffset =
+    htgTemporalOffsets.YCoordinatesOffset + nonNullPieces * dimensions[1];
+  const vtkIdType ZCoordsOffset =
+    htgTemporalOffsets.ZCoordinatesOffset + nonNullPieces * dimensions[2];
 
   // Build trees from descriptors
   if (!this->Impl->ReadHyperTreeGridData(pieceData,
