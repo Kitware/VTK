@@ -56,8 +56,8 @@ The VTKHDF File Format is not considered complete, and lacks support for some VT
 ### Who maintains this specification?
 
 Current maintainer of this file format are :
-- Lucas Givord (gitlab: @lucas.givord, discourse: @lgivord)
 - Louis Gombert (gitlab: @louis.gombert, discourse: @Louis_Gombert)
+- Lucas Givord (gitlab: @lucas.givord, discourse: @lgivord)
 - Mathieu Westphal (gitlab: @mwestphal, discourse: @mwestphal)
 
 Do not hesitate to reach out on [discourse](https://discourse.vtk.org/) or [gitlab](https://gitlab.kitware.com/vtk/vtk/).
