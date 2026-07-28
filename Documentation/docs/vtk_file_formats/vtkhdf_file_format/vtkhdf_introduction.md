@@ -3,7 +3,19 @@
 The `VTKHDF` file format is a file format relying on [HDF5](https://www.hdfgroup.org/solutions/hdf5/).
 It is meant to provide good I/O performance as well as robust and flexible parallel I/O capabilities.
 
-It currently supports basic types: `PolyData`, `UnstructuredGrid`, `ImageData`, `HyperTreeGrid` and composite types such as `OverlappingAMR`, `MultiBlockDataSet` and the `PartitionedDataSetCollection`.
+It currently supports basic types:
+- `PolyData`
+- `UnstructuredGrid`
+- `ImageData`
+- `RectilinearGrid`
+- `StructuredGrid`
+- `HyperTreeGrid`
+- `Table`
+
+For composite types, it supports:
+- `OverlappingAMR`
+- `MultiBlockDataSet`
+- `PartitionedDataSetCollection`
 
 The current file format version is **2.8**.
 
