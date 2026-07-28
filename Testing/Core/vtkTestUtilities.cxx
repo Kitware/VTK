@@ -2052,6 +2052,12 @@ template <template <class...> class ImplT, class DataObjectT>
 bool DispatchDataObjectImpl(
   vtkCompositeDataSet* do1, vtkCompositeDataSet* do2, double toleranceFactor, bool& retVal)
 {
+  if (!do1 || !do2)
+  {
+    vtkLog(ERROR, "Dispatching nullptr data, something is wrong");
+    return false;
+  }
+
   if (auto pd1 = vtkPartitionedDataSet::SafeDownCast(do1))
   {
     if (auto pd2 = vtkPartitionedDataSet::SafeDownCast(do2))
