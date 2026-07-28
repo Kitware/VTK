@@ -5,7 +5,7 @@ It is meant to provide good I/O performance as well as robust and flexible paral
 
 It currently supports basic types: `PolyData`, `UnstructuredGrid`, `ImageData`, `HyperTreeGrid` and composite types such as `OverlappingAMR`, `MultiBlockDataSet` and the `PartitionedDataSetCollection`.
 
-The current file format version is **2.5**.
+The current file format version is **2.8**.
 
 ---
 ## Python examples and tutorial
