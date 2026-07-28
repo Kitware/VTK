@@ -7,6 +7,7 @@ set(TestGDALRasterPalette_ARGS
 
 vtk_add_test_cxx(vtkIOGDALCxxTests tests
   TestGDALVectorReader.cxx
+  TestGDALRasterReaderBadBands.cxx,NO_VALID,NO_OUTPUT
   TestGDALRasterReader.cxx
   TestGDALRasterNoDataValue.cxx,NO_VALID,NO_OUTPUT
   TestGDALRasterPalette.cxx

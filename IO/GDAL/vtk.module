@@ -14,6 +14,7 @@ DEPENDS
   VTK::IOImage
 PRIVATE_DEPENDS
   VTK::CommonDataModel
+  VTK::CommonMisc
 TEST_DEPENDS
   VTK::InteractionStyle
   VTK::RenderingOpenGL2
