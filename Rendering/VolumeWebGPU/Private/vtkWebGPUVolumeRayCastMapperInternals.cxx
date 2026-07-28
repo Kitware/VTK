@@ -386,7 +386,6 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeTexture(
   }
 
   input.Data->GetDimensions(input.Dimensions);
-  input.Data->GetSpacing(input.Spacing);
   scalars->GetRange(input.DataRange, 0);
 
   const int* dimensions = input.Dimensions;

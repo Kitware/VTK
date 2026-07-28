@@ -33,7 +33,6 @@ class vtkWebGPURenderWindow;
 class vtkWebGPUVolumeRayCastMapper::vtkInternals
 {
 public:
-  static constexpr int MaximumVolumes = vtkWebGPUVolumeRayCastMapper::MaximumNumberOfVolumes;
   static constexpr int MaximumLights = 6;
   static constexpr int MaximumClipPlanes = 6;
   static constexpr int TransferFunctionSize = 256;
@@ -72,7 +71,6 @@ private:
     wgpu::TextureView TextureView;
 
     int Dimensions[3] = { 0, 0, 0 };
-    double Spacing[3] = { 1.0, 1.0, 1.0 };
     float ValueScale = 1.0f;
     float ValueBias = 0.0f;
 
