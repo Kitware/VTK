@@ -30,6 +30,8 @@
  * - starting with VTK 9.0 this class now also overrides initWithCoder:.
  * It also implements draggingEntered: and performDragOperation: and thus
  * declares conformance to the NSDraggingDestination protocol.
+ * - starting with VTK 10.0 this class no longer overrides
+ * viewWillMoveToWindow: and instead overrides viewDidMoveToWindow.
  *
  * @sa
  * vtkCocoaRenderWindow vtkCocoaRenderWindowInteractor

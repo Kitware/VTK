@@ -574,7 +574,7 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
 
 //-------------------------------------------------------------------------------------------------
 // Private
-- (void)modifyDPIForBackingScaleFactorOfWindow:(/*nullable*/ NSWindow*)window
+- (void)modifyDPIForBackingScaleFactorOfWindow
 {
   vtkCocoaHardwareWindow* renderWindow = [self getHardwareWindow];
   if (renderWindow)
@@ -585,11 +585,10 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
 
 //-------------------------------------------------------------------------------------------------
 // Overridden (from NSView).
-- (void)viewWillMoveToWindow:(/*nullable*/ NSWindow*)inNewWindow
+- (void)viewDidMoveToWindow
 {
-  [super viewWillMoveToWindow:inNewWindow];
-
-  [self modifyDPIForBackingScaleFactorOfWindow:inNewWindow];
+  [super viewDidMoveToWindow];
+  [self modifyDPIForBackingScaleFactorOfWindow];
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -597,9 +596,7 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
 - (void)viewDidChangeBackingProperties
 {
   [super viewDidChangeBackingProperties];
-
-  NSWindow* window = [self window];
-  [self modifyDPIForBackingScaleFactorOfWindow:window];
+  [self modifyDPIForBackingScaleFactorOfWindow];
 }
 
 @end

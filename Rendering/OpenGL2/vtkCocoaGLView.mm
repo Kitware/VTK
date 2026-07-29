@@ -618,7 +618,7 @@ static const char* MacKeyCodeToKeySymTable[128] = {
 
 //----------------------------------------------------------------------------
 // Private
-- (void)modifyDPIForBackingScaleFactorOfWindow:(/*nullable*/ NSWindow*)window
+- (void)modifyDPIForBackingScaleFactorOfWindow
 {
   vtkCocoaRenderWindow* renderWindow = [self getVTKRenderWindow];
   if (renderWindow)
@@ -629,11 +629,10 @@ static const char* MacKeyCodeToKeySymTable[128] = {
 
 //----------------------------------------------------------------------------
 // Overridden (from NSView).
-- (void)viewWillMoveToWindow:(/*nullable*/ NSWindow*)inNewWindow
+- (void)viewDidMoveToWindow
 {
-  [super viewWillMoveToWindow:inNewWindow];
-
-  [self modifyDPIForBackingScaleFactorOfWindow:inNewWindow];
+  [super viewDidMoveToWindow];
+  [self modifyDPIForBackingScaleFactorOfWindow];
 }
 
 //----------------------------------------------------------------------------
@@ -641,9 +640,7 @@ static const char* MacKeyCodeToKeySymTable[128] = {
 - (void)viewDidChangeBackingProperties
 {
   [super viewDidChangeBackingProperties];
-
-  NSWindow* window = [self window];
-  [self modifyDPIForBackingScaleFactorOfWindow:window];
+  [self modifyDPIForBackingScaleFactorOfWindow];
 }
 
 @end
