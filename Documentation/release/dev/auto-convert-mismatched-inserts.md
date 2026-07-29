@@ -1,0 +1,1 @@
+vtkCellArray mutations now auto-convert fixed-size (affine-offset) storage to explicit storage whenever an inserted or appended cell's size differs from the fixed cell size, eliminating the silent offsets/connectivity corruption

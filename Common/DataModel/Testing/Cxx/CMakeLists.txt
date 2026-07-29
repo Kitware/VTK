@@ -21,6 +21,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestAMRBox.cxx
   TestAMRIterator.cxx
   TestBiQuadraticQuad.cxx
+  TestCellArrayFixedSizeAutoConvert.cxx
   TestCellArrayFixedSizeInt32.cxx
   TestCellArrayFixedSizeInt64.cxx
   TestCellArrayGeneric1.cxx
