@@ -14,6 +14,7 @@ vtk_module_test_data(
   Data/explicitStructuredGrid.vtu
   Data/fullhead15.png
   Data/hexa.vtk
+  Data/mb-of-mb.vtkhdf
   Data/mb-of-mps.vtm
   Data/mb_single_piece_empty_data.vtm
   Data/mine_with_dates.vtp

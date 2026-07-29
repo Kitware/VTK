@@ -4,6 +4,7 @@
 #include "vtkAxisAlignedReflectionFilter.h"
 #include "vtkCellData.h"
 #include "vtkClipDataSet.h"
+#include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataObjectMeshCache.h"
 #include "vtkExplicitStructuredGrid.h"
@@ -752,6 +753,30 @@ int TestStaticMesh(int argc, char* argv[])
 
   return ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }
+//------------------------------------------------------------------------------
+int TestCacheMultiBlockOfMultiBlock(int argc, char* argv[])
+{
+  vtkLogScopeFunction(INFO);
+  ReadFileMacro("Data/mb-of-mb.vtkhdf", vtkHDFReader);
+
+  vtkNew<vtkAxisAlignedReflectionFilter> reflect;
+  reflect->SetInputConnection(reader->GetOutputPort());
+  reflect->SetCopyInput(true);
+  reflect->SetPlaneMode(vtkAxisAlignedReflectionFilter::X_MAX);
+  reflect->Update();
+  reader->GetPointDataArraySelection()->DisableAllArrays();
+  reflect->Update(); // Check if we don't have segfault
+
+  auto reflectOutputCollection =
+    vtkPartitionedDataSetCollection::SafeDownCast(reflect->GetOutput());
+
+  if (reflectOutputCollection->GetNumberOfPartitionedDataSets() != 8)
+  {
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
 
 // This function tests all the input types, and each input type will test a different plane mode.
 int TestAxisAlignedReflectionFilter(int argc, char* argv[])
@@ -761,5 +786,6 @@ int TestAxisAlignedReflectionFilter(int argc, char* argv[])
     TestStructuredGrid(argc, argv) || TestPolyData(argc, argv) || TestHyperTreeGrid(argc, argv) ||
     TestPartitionedDataSetCollection(argc, argv) || TestMultiBlockMultiPiece(argc, argv) ||
     TestMultiBlockOnlyDataSets(argc, argv) || TestMultiBlockEmptyPiece(argc, argv) ||
-    TestUnstructuredGridWithGlobalIds(argc, argv) || TestStaticMesh(argc, argv);
+    TestUnstructuredGridWithGlobalIds(argc, argv) || TestStaticMesh(argc, argv) ||
+    TestCacheMultiBlockOfMultiBlock(argc, argv);
 }
