@@ -91,8 +91,15 @@ static void vtkWrapSerDes_DefineClassRegistrars(FILE* fp, const ClassInfo* class
         "  {\n"
         "    if (auto* deserializer = vtkDeserializer::SafeDownCast(asObjectBase))\n"
         "    {\n"
-        "      deserializer->RegisterHandler(typeid(%s), Deserialize_%s);\n"
-        "      deserializer->RegisterConstructor(\"%s\", []() { return %s::New(); });\n"
+        "      deserializer->RegisterHandler(typeid(%s), Deserialize_%s);\n",
+        classInfo->Name, classInfo->Name, classInfo->Name, classInfo->Name, classInfo->Name);
+      if (!classInfo->IsAbstract)
+      {
+        fprintf(fp,
+          "      deserializer->RegisterConstructor(\"%s\", []() { return %s::New(); });\n",
+          classInfo->Name, classInfo->Name);
+      }
+      fprintf(fp,
         "      success = 1;\n"
         "    }\n"
         "  }\n"
@@ -106,8 +113,7 @@ static void vtkWrapSerDes_DefineClassRegistrars(FILE* fp, const ClassInfo* class
         "  }\n"
         "  return success;\n"
         "}\n",
-        classInfo->Name, classInfo->Name, classInfo->Name, classInfo->Name, classInfo->Name,
-        classInfo->Name, classInfo->Name, classInfo->Name, classInfo->Name);
+        classInfo->Name, classInfo->Name);
       break;
     case VTK_MARSHAL_MANUAL_MODE:
       fprintf(fp,
