@@ -1132,6 +1132,38 @@ void vtkCocoaRenderWindow::Render()
 }
 
 //----------------------------------------------------------------------------
+bool vtkCocoaRenderWindow::DetectDPI()
+{
+  NSView* view = (NSView*)this->GetWindowId();
+  NSWindow* window = [view window];
+
+  // Convert from points to pixels.
+  NSRect viewRect = [view frame];
+  NSRect backingViewRect = [view convertRectToBacking:viewRect];
+  CGFloat viewHeight = NSHeight(viewRect);
+  CGFloat backingViewHeight = NSHeight(backingViewRect);
+  CGFloat backingScaleFactor = 1.0;
+  if (viewHeight > 0.0 && backingViewHeight > 0.0)
+  {
+    // the scale factor based on convertRectToBacking
+    backingScaleFactor = backingViewHeight / viewHeight;
+  }
+  else if (window)
+  {
+    // fall back to less reliable method
+    backingScaleFactor = [window backingScaleFactor];
+  }
+  assert(backingScaleFactor >= 1.0);
+
+  // Ordinarily, DPI is hardcoded to 72, but in order for vtkTextActors
+  // to have the correct apparent size, we adjust it per the NSWindow's
+  // scaling factor.
+  this->SetDPI(lround(72.0 * backingScaleFactor));
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 int* vtkCocoaRenderWindow::GetSize()
 {
   // if we aren't mapped then just call super

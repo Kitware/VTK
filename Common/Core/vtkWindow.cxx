@@ -4,6 +4,8 @@
 
 #include "vtkCommand.h"
 
+#include <algorithm>
+
 //------------------------------------------------------------------------------
 // Construct an instance of vtkRenderWindow with its screen size
 // set to 300x300, borders turned on, positioned at (0,0), double
@@ -95,6 +97,17 @@ void vtkWindow::SetPosition(int x, int y)
     this->Modified();
     this->Position[0] = x;
     this->Position[1] = y;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWindow::SetDPI(int dpi)
+{
+  if (this->DPI != dpi)
+  {
+    this->DPI = std::clamp(dpi, 1, VTK_INT_MAX);
+    this->InvokeEvent(vtkCommand::DPIChangedEvent, &this->DPI);
+    this->Modified();
   }
 }
 

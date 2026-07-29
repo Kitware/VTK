@@ -338,6 +338,12 @@ public:
    */
   bool SetSwapControl(int i) override;
 
+  /**
+   * Look for Xft.dpi value in Xresources database and set the DPI accordingly.
+   * Returns true if the call succeeded.
+   */
+  bool DetectDPI() override;
+
 protected:
   vtkXOpenGLRenderWindow();
   ~vtkXOpenGLRenderWindow() override;

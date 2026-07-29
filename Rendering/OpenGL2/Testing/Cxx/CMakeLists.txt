@@ -121,6 +121,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestVBOPLYMapper.cxx
   TestVBOPointsLines.cxx
   TestWindowBlits.cxx,NO_SERDES
+  TestWindowDPI.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   UnitTestOpenGLUniforms.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   )
 

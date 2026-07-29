@@ -90,6 +90,11 @@ DEFINE_POINTER_TO_FUNCTION(vtkXClearWindow);
 DEFINE_POINTER_TO_FUNCTION(vtkXFreeColormap);
 DEFINE_POINTER_TO_FUNCTION(vtkXMapRaised);
 DEFINE_POINTER_TO_FUNCTION(vtkXWindowEvent);
+DEFINE_POINTER_TO_FUNCTION(vtkXResourceManagerString);
+DEFINE_POINTER_TO_FUNCTION(vtkXrmInitialize);
+DEFINE_POINTER_TO_FUNCTION(vtkXrmGetStringDatabase);
+DEFINE_POINTER_TO_FUNCTION(vtkXrmGetResource);
+DEFINE_POINTER_TO_FUNCTION(vtkXrmDestroyDatabase);
 
 // Xcursor API
 #if VTK_HAVE_XCURSOR
@@ -193,6 +198,11 @@ extern "C"
       LOAD_POINTER_TO_FUNCTION(libX11, XFreeColormap, vtkXFreeColormap);
       LOAD_POINTER_TO_FUNCTION(libX11, XMapRaised, vtkXMapRaised);
       LOAD_POINTER_TO_FUNCTION(libX11, XWindowEvent, vtkXWindowEvent);
+      LOAD_POINTER_TO_FUNCTION(libX11, XResourceManagerString, vtkXResourceManagerString);
+      LOAD_POINTER_TO_FUNCTION(libX11, XrmInitialize, vtkXrmInitialize);
+      LOAD_POINTER_TO_FUNCTION(libX11, XrmGetStringDatabase, vtkXrmGetStringDatabase);
+      LOAD_POINTER_TO_FUNCTION(libX11, XrmGetResource, vtkXrmGetResource);
+      LOAD_POINTER_TO_FUNCTION(libX11, XrmDestroyDatabase, vtkXrmDestroyDatabase);
 #if VTK_HAVE_XCURSOR
       for (const char** libName = XCURSOR_LIBRARY_NAMES; *libName != nullptr; ++libName)
       {
@@ -286,6 +296,11 @@ extern "C"
       NULLIFY_POINTER_TO_FUNCTION(vtkXFreeColormap);
       NULLIFY_POINTER_TO_FUNCTION(vtkXMapRaised);
       NULLIFY_POINTER_TO_FUNCTION(vtkXWindowEvent);
+      NULLIFY_POINTER_TO_FUNCTION(vtkXResourceManagerString);
+      NULLIFY_POINTER_TO_FUNCTION(vtkXrmInitialize);
+      NULLIFY_POINTER_TO_FUNCTION(vtkXrmGetStringDatabase);
+      NULLIFY_POINTER_TO_FUNCTION(vtkXrmGetResource);
+      NULLIFY_POINTER_TO_FUNCTION(vtkXrmDestroyDatabase);
 
 // Xcursor API
 #if VTK_HAVE_XCURSOR

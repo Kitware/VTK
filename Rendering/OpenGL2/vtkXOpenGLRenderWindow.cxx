@@ -1986,4 +1986,33 @@ void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
       break;
   }
 }
+
+//------------------------------------------------------------------------------
+bool vtkXOpenGLRenderWindow::DetectDPI()
+{
+  char* resourceString = vtkXResourceManagerString(this->DisplayId);
+  if (!resourceString)
+  {
+    return false;
+  }
+
+  vtkXrmInitialize();
+
+  XrmDatabase db = vtkXrmGetStringDatabase(resourceString);
+  if (!db)
+  {
+    return false;
+  }
+
+  XrmValue value;
+  char* type = nullptr;
+  bool found = vtkXrmGetResource(db, "Xft.dpi", "Xft.Dpi", &type, &value);
+  vtkXrmDestroyDatabase(db);
+
+  if (found)
+  {
+    this->SetDPI(std::atof(value.addr));
+  }
+  return found;
+}
 VTK_ABI_NAMESPACE_END

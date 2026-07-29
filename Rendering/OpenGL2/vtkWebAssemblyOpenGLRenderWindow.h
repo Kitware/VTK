@@ -195,6 +195,13 @@ public:
    */
   void SetShowWindow(bool) override {}
 
+  /**
+   * Detect the DPI of the window.
+   * Equivalent to window.devicePixelRatio * 96.
+   * Returns true if successful, false otherwise.
+   */
+  bool DetectDPI() override;
+
 protected:
   vtkWebAssemblyOpenGLRenderWindow();
   ~vtkWebAssemblyOpenGLRenderWindow() override;
