@@ -109,7 +109,6 @@ bool vtkCellGridIOQuery::InsertCellTypeAttributeInfo(vtkCellGrid* grid,
 {
   (void)grid;
   bool ok = true;
-  nlohmann::json jCellTypeInfo;
   nlohmann::json jCellBlock;
   nlohmann::json arraysByRole;
   for (const auto& entry : cellTypeInfo.ArraysByRole)
@@ -136,8 +135,7 @@ bool vtkCellGridIOQuery::InsertCellTypeAttributeInfo(vtkCellGrid* grid,
   {
     jCellBlock["dof-sharing"] = cellTypeInfo.DOFSharing.Data();
   }
-  jCellTypeInfo[cellTypeName.Data()] = jCellBlock;
-  jsonInfo["cell-info"] = jCellTypeInfo;
+  jsonInfo["cell-info"][cellTypeName.Data()] = jCellBlock;
   return ok;
 }
 
