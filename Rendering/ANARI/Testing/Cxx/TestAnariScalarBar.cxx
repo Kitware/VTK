@@ -29,7 +29,7 @@ int TestAnariScalarBar(int argc, char* argv[])
 
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i], "-trace"))
+    if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
@@ -94,7 +94,8 @@ int TestAnariScalarBar(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren1->SetPass(anariPass);
 
-  SetParameterDefaults(anariPass, ren1, useDebugDevice, "TestAnariScalarBar");
+  vtkAnariTestUtilities::SetParameterDefaults(
+    anariPass, ren1, useDebugDevice, "TestAnariScalarBar");
 
   renWin->Render();
 

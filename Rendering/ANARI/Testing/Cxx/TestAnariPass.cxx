@@ -37,7 +37,7 @@ int TestAnariPass(int argc, char* argv[])
 
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i], "-trace"))
+    if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
@@ -74,7 +74,7 @@ int TestAnariPass(int argc, char* argv[])
   renWin->Render();
 
   vtkNew<vtkAnariPass> anariPass;
-  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPass");
+  vtkAnariTestUtilities::SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPass");
 
   for (int i = 1; i < 10; i++)
   {

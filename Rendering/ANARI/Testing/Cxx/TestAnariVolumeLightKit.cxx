@@ -42,7 +42,7 @@ int TestAnariVolumeLightKit(int argc, char* argv[])
 
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i], "-trace"))
+    if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
@@ -110,7 +110,8 @@ int TestAnariVolumeLightKit(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariVolumeLightKit");
+  vtkAnariTestUtilities::SetParameterDefaults(
+    anariPass, ren, useDebugDevice, "TestAnariVolumeLightKit");
 
   renWin->Render();
   ren->ResetCamera();

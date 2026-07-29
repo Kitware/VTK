@@ -36,7 +36,7 @@ int TestAnariVolumeRenderer(int argc, char* argv[])
 
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i], "-trace"))
+    if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
@@ -112,7 +112,8 @@ int TestAnariVolumeRenderer(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariVolumeRenderer");
+  vtkAnariTestUtilities::SetParameterDefaults(
+    anariPass, ren, useDebugDevice, "TestAnariVolumeRenderer");
 
   auto cam = ren->GetActiveCamera();
   cam->SetFocalPoint(85.7721, 88.4044, 33.8576);

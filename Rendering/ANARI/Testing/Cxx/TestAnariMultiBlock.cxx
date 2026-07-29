@@ -33,7 +33,7 @@ int TestAnariMultiBlock(int argc, char* argv[])
 
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i], "-trace"))
+    if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
@@ -67,7 +67,8 @@ int TestAnariMultiBlock(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariMultiBlock");
+  vtkAnariTestUtilities::SetParameterDefaults(
+    anariPass, renderer, useDebugDevice, "TestAnariMultiBlock");
 
   renWin->Render();
   int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);

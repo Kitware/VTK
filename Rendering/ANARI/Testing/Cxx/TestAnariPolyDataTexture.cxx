@@ -31,12 +31,12 @@ int TestAnariPolyDataTexture(int argc, char* argv[])
 
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i], "-trace"))
+    if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
-    else if (!strcmp(argv[i], "-gl"))
+    else if (!strcmp(argv[i], "--gl"))
     {
       useGL = true;
     }
@@ -116,7 +116,7 @@ int TestAnariPolyDataTexture(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
 
   vtkNew<vtkAnariPass> anariPass;
-  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPass");
+  vtkAnariTestUtilities::SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPass");
   if (!useGL)
   {
     renderer->SetPass(anariPass);

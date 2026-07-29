@@ -44,7 +44,7 @@ int TestAnariPBRMapping(int argc, char* argv[])
 
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i], "-trace"))
+    if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
@@ -154,7 +154,8 @@ int TestAnariPBRMapping(int argc, char* argv[])
 
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
-  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPBRMapping");
+  vtkAnariTestUtilities::SetParameterDefaults(
+    anariPass, renderer, useDebugDevice, "TestAnariPBRMapping");
 
   renWin->Render();
   renderer->GetActiveCamera()->Zoom(1.5);
