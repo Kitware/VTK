@@ -85,8 +85,12 @@ def get_vtk_array_type(numpy_array_type):
         'Could not find a suitable VTK type for %s' % (str(numpy_array_type)))
 
 def get_vtk_to_numpy_typemap():
-    """Returns the VTK array type to numpy array type mapping."""
-    return _vtk_np
+    """Returns the VTK array type to numpy array type mapping.
+
+    The result is a copy, so mutating it does not affect the mapping used
+    by this module.
+    """
+    return dict(_vtk_np)
 
 def get_numpy_array_type(vtk_array_type):
     """Returns a numpy array typecode given a VTK array type."""
