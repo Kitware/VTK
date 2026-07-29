@@ -12,6 +12,7 @@
 vtk_add_test_python(
    TestFidesBasic.py,NO_VALID,NO_OUTPUT
    TestFidesCellGrid.py,NO_VALID,NO_OUTPUT
+   TestFidesCollectionFields.py,NO_DATA,NO_VALID
    TestFidesPolyData.py,NO_DATA,NO_VALID
    TestFidesWriterBasic.py,NO_DATA,NO_VALID
    TestFidesWriterTime.py,NO_DATA,NO_VALID

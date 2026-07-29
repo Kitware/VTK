@@ -145,10 +145,6 @@ struct vtkFidesReader::vtkFidesReaderImpl
   {
     std::size_t NumberOfBlocks;
     std::string Name;
-    std::set<std::string> PointDataArrays;
-    std::set<std::string> CellDataArrays;
-    std::set<std::string> FieldDataArrays;
-    std::set<std::string> CellGridAttributeArrays;
   };
   std::vector<GroupMetaData> GroupMetaDataCollection;
 
@@ -763,22 +759,18 @@ int vtkFidesReader::RequestInformation(
       {
         if (IsPointField(field.Association))
         {
-          groupMetaData.PointDataArrays.insert(field.Name);
           this->PointDataArraySelection->AddArray(field.Name.c_str());
         }
         else if (IsCellField(field.Association))
         {
-          groupMetaData.CellDataArrays.insert(field.Name);
           this->CellDataArraySelection->AddArray(field.Name.c_str());
         }
         else if (IsWholeDataSetField(field.Association))
         {
-          groupMetaData.FieldDataArrays.insert(field.Name);
           this->FieldDataArraySelection->AddArray(field.Name.c_str());
         }
         else if (field.Association == fides::FieldAssociation::CellGrid)
         {
-          groupMetaData.CellGridAttributeArrays.insert(field.Name);
           this->CellGridAttributeArraySelection->AddArray(field.Name.c_str());
         }
       }
@@ -1078,43 +1070,28 @@ int vtkFidesReader::RequestData(
 
     using FieldInfoType = fides::metadata::Vector<fides::metadata::FieldInformation>;
     FieldInfoType arraySelection;
-    // pick selected arrays from the global data array selection instances.
-    for (const auto& aname : groupMetaData.PointDataArrays)
+    // Even though we're currently processing a single group, include arrays
+    // from all groups, using the reader's global array selection, because if
+    // we end up reading a collection below, we don't want Fides to drop fields
+    // from any datasets. On the flip side, if we end up reading just a single
+    // partition, Fides has machinery to ignore fields a partition doesn't have
+    // (see FilterFieldsForModel(), internal to DataSetReader).
+    auto addEnabledArrays = [&arraySelection](
+                              vtkDataArraySelection* selection, fides::FieldAssociation association)
     {
-      if (this->PointDataArraySelection->ArrayIsEnabled(aname.c_str()))
+      for (int i = 0; i < selection->GetNumberOfArrays(); ++i)
       {
-        // if this array was enabled on the global point data array selection.
-        arraySelection.Data.emplace_back(
-          MakeFieldInformation(aname, fides::FieldAssociation::Points));
+        const char* aname = selection->GetArrayName(i);
+        if (aname && selection->ArrayIsEnabled(aname))
+        {
+          arraySelection.Data.emplace_back(MakeFieldInformation(aname, association));
+        }
       }
-    }
-    for (const auto& aname : groupMetaData.CellDataArrays)
-    {
-      if (this->CellDataArraySelection->ArrayIsEnabled(aname.c_str()))
-      {
-        // if this array was enabled on the global cell data array selection.
-        arraySelection.Data.emplace_back(
-          MakeFieldInformation(aname, fides::FieldAssociation::Cells));
-      }
-    }
-    for (const auto& aname : groupMetaData.FieldDataArrays)
-    {
-      if (this->FieldDataArraySelection->ArrayIsEnabled(aname.c_str()))
-      {
-        // if this array was enabled on the global field data array selection.
-        arraySelection.Data.emplace_back(
-          MakeFieldInformation(aname, fides::FieldAssociation::WholeDataSet));
-      }
-    }
-    for (const auto& aname : groupMetaData.CellGridAttributeArrays)
-    {
-      if (this->CellGridAttributeArraySelection->ArrayIsEnabled(aname.c_str()))
-      {
-        // if this cell-grid attribute was enabled on the global selection.
-        arraySelection.Data.emplace_back(
-          MakeFieldInformation(aname, fides::FieldAssociation::CellGrid));
-      }
-    }
+    };
+    addEnabledArrays(this->PointDataArraySelection, fides::FieldAssociation::Points);
+    addEnabledArrays(this->CellDataArraySelection, fides::FieldAssociation::Cells);
+    addEnabledArrays(this->FieldDataArraySelection, fides::FieldAssociation::WholeDataSet);
+    addEnabledArrays(this->CellGridAttributeArraySelection, fides::FieldAssociation::CellGrid);
     selections.Set(fides::keys::FIELDS(), arraySelection);
 
     std::unique_ptr<fides::DataContainer> container;
