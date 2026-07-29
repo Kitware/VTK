@@ -264,7 +264,7 @@ void vtkFidesReader::SetFileName(const std::string& fname)
   this->FileName = fname;
   auto parts = vtksys::SystemTools::SplitString(fname, '.');
   // though adios by default uses .bp, some users have changed their files to be .bp3, .bp4, .bp5
-  if (vtksys::SystemTools::StringStartsWith(parts.back().c_str(), "bp"))
+  if (!parts.empty() && vtksys::SystemTools::StringStartsWith(parts.back().c_str(), "bp"))
   {
     this->Impl->UsePresetModel = true;
     vtkDebugMacro(<< "Using a preset data model");
