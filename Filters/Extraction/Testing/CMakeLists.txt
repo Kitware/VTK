@@ -3,6 +3,7 @@ vtk_module_test_data(
   Data/can.ex2
   Data/vtkHDF/TestExtractGeometryBaseline.vtkhdf
   Data/vtkHDF/TestExtractGeometryCompositeBaseline.vtkhdf
+  Data/BaselineData/TestExpandMarkedElements.vtkhdf 
 )
 
 if (NOT vtk_testing_cxx_disabled)

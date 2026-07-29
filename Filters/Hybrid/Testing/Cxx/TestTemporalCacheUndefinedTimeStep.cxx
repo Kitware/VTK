@@ -1,19 +1,15 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <vtkActor.h>
 #include <vtkCompositeDataGeometryFilter.h>
 #include <vtkIOSSReader.h>
 #include <vtkNew.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
 #include <vtkTemporalDataSetCache.h>
 #include <vtkTestUtilities.h>
 #include <vtkTransform.h>
 #include <vtkTransformFilter.h>
 
+#include <iostream>
 int TestTemporalCacheUndefinedTimeStep(int argc, char* argv[])
 {
   vtkNew<vtkIOSSReader> reader;
@@ -24,35 +20,13 @@ int TestTemporalCacheUndefinedTimeStep(int argc, char* argv[])
   temporalCache->SetInputConnection(reader->GetOutputPort());
   temporalCache->SetCacheSize(43);
 
-  vtkNew<vtkTransform> transform;
-  transform->RotateX(90);
-
-  vtkNew<vtkTransformFilter> transformFilter;
-  transformFilter->SetInputConnection(temporalCache->GetOutputPort());
-  transformFilter->SetTransform(transform);
-
+  // Reduce size of output
   vtkNew<vtkCompositeDataGeometryFilter> geometryFilter;
-  geometryFilter->SetInputConnection(transformFilter->GetOutputPort());
+  geometryFilter->SetInputConnection(temporalCache->GetOutputPort());
   geometryFilter->UpdateTimeStep(0.00165); // Doesn't exist
 
-  vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputDataObject(geometryFilter->GetOutputDataObject(0));
-
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper);
-
-  vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor);
-
-  vtkNew<vtkRenderWindow> renWin;
-  renWin->SetSize(300, 300);
-  renWin->AddRenderer(renderer);
-
-  vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin);
-
-  renWin->Render();
-  iren->Start();
-
-  return EXIT_SUCCESS;
+  return vtkTestUtilities::RegressionTest(argc, argv, geometryFilter->GetOutputDataObject(0),
+           "/Data/BaselineData/TestTemporalCacheUndefinedTimeStep.vtkhdf")
+    ? EXIT_SUCCESS
+    : EXIT_FAILURE;
 }

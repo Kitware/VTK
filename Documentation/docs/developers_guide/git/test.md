@@ -165,6 +165,10 @@ This function writes a file in the `Testing/Temporary` directory when the genera
 does not match the expected baseline data.
 The file is a VTKHDF file named filename.vtkhdf that contains the test output.
 
+Unless required for specific reasons, data baseline should be stored in
+`Testing/Data/BaselineData/TestName.vtkhdf` or `Testing/Data/BaselineData/TestName_TestCase.vtkhdf`
+when testing multiple cases.
+
 ### Add test to CTest ###
 
 Tests for the classes in each module of VTK are placed underneath the module's

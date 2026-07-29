@@ -1,6 +1,7 @@
 vtk_module_test_data(
   Data/can.ex2
-  Data/cow.vtp)
+  Data/cow.vtp
+  Data/BaselineData/TestTemporalCacheUndefinedTimeStep.vtkhdf)
 
 if (NOT vtk_testing_cxx_disabled)
   add_subdirectory(Cxx)

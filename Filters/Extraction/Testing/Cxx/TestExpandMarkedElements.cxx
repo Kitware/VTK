@@ -1,20 +1,14 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkActor.h"
 #include "vtkCellData.h"
-#include "vtkCompositePolyDataMapper.h"
 #include "vtkExpandMarkedElements.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
-#include "vtkProperty.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
 #include "vtkSignedCharArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
+#include "vtkTestUtilities.h"
 
 namespace
 {
@@ -52,29 +46,10 @@ int TestExpandMarkedElements(int argc, char* argv[])
   filter->RemoveIntermediateLayersOn();
   filter->RemoveSeedOn();
   filter->SetNumberOfLayers(3);
+  filter->Update();
 
-  vtkNew<vtkCompositePolyDataMapper> mapper;
-  mapper->SetInputConnection(filter->GetOutputPort());
-  mapper->SetScalarModeToUseCellFieldData();
-  mapper->SelectColorArray("MarkedCells");
-
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper);
-  actor->GetProperty()->EdgeVisibilityOn();
-
-  vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor);
-
-  vtkNew<vtkRenderWindow> renWin;
-  vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin);
-  renWin->AddRenderer(renderer);
-
-  int retVal = vtkRegressionTestImage(renWin);
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
-  {
-    iren->Start();
-  }
-
-  return !retVal;
+  return vtkTestUtilities::RegressionTest(
+           argc, argv, filter->GetOutput(), "/Data/BaselineData/TestExpandMarkedElements.vtkhdf")
+    ? EXIT_SUCCESS
+    : EXIT_FAILURE;
 }
