@@ -10,6 +10,7 @@ build_wasm_emscripten
 build_for_mobile
 build_documentation
 object_manager
+object_factory
 object_serialization
 json_type_manifests
 observer_invocation_order
