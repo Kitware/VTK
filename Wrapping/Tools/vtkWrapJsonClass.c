@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWrapJsonClass.h"
+#include "vtkParseData.h"
 #include "vtkParseExtras.h"
 #include "vtkParseProperties.h"
 #include "vtkParseType.h"
@@ -233,45 +234,48 @@ static void vtkWrapJson_WritePropertySchema(
    the same properties are selected. */
 static void vtkWrapJson_WriteProperties(FILE* fp, ClassInfo* classInfo, const HierarchyInfo* hinfo)
 {
-  ClassProperties* properties = vtkParseProperties_Create(classInfo, hinfo);
-  int* isWritten = (int*)calloc(properties->NumberOfProperties, sizeof(int));
-  int first = 1;
-  int i = 0;
-
   fprintf(fp, "  \"properties\": {");
-  for (i = 0; i < classInfo->NumberOfFunctions; ++i)
+  int first = 1;
+  if (classInfo->MarshalType == VTK_MARSHAL_AUTO_MODE)
   {
-    FunctionInfo* theFunc = classInfo->Functions[i];
-    if (!theFunc->IsPublic || vtkWrap_IsInheritedMethod(classInfo, theFunc))
+    ClassProperties* properties = vtkParseProperties_Create(classInfo, hinfo);
+    int* isWritten = (int*)calloc(properties->NumberOfProperties, sizeof(int));
+    int i = 0;
+
+    for (i = 0; i < classInfo->NumberOfFunctions; ++i)
     {
-      continue;
+      FunctionInfo* theFunc = classInfo->Functions[i];
+      if (!theFunc->IsPublic || vtkWrap_IsInheritedMethod(classInfo, theFunc))
+      {
+        continue;
+      }
+      if (!properties->MethodHasProperty[i])
+      {
+        continue;
+      }
+      int j = properties->MethodProperties[i];
+      if (isWritten[j])
+      {
+        continue;
+      }
+      PropertyInfo* theProp = properties->Properties[j];
+      const char* skipReason = NULL;
+      if (!vtkWrapSerDes_IsAllowable(hinfo, classInfo, theFunc, theProp, &skipReason) &&
+        !theFunc->MarshalPropertyName)
+      {
+        continue;
+      }
+      isWritten[j] = 1;
+      const int readOnly = (theProp->PublicMethods & VTK_JSON_WRITE_METHODS) == 0;
+      fprintf(fp, "%s\n    \"%s\": ", first ? "" : ",", theProp->Name);
+      vtkWrapJson_WritePropertySchema(fp, theProp, hinfo, readOnly);
+      first = 0;
     }
-    if (!properties->MethodHasProperty[i])
-    {
-      continue;
-    }
-    int j = properties->MethodProperties[i];
-    if (isWritten[j])
-    {
-      continue;
-    }
-    PropertyInfo* theProp = properties->Properties[j];
-    const char* skipReason = NULL;
-    if (!vtkWrapSerDes_IsAllowable(hinfo, classInfo, theFunc, theProp, &skipReason) &&
-      !theFunc->MarshalPropertyName)
-    {
-      continue;
-    }
-    isWritten[j] = 1;
-    const int readOnly = (theProp->PublicMethods & VTK_JSON_WRITE_METHODS) == 0;
-    fprintf(fp, "%s\n    \"%s\": ", first ? "" : ",", theProp->Name);
-    vtkWrapJson_WritePropertySchema(fp, theProp, hinfo, readOnly);
-    first = 0;
+
+    free(isWritten);
+    vtkParseProperties_Free(properties);
   }
   fprintf(fp, "%s  }", first ? "" : "\n");
-
-  free(isWritten);
-  vtkParseProperties_Free(properties);
 }
 
 /* -------------------------------------------------------------------- */
