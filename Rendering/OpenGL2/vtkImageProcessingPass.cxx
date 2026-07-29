@@ -5,8 +5,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
 #include "vtkRenderState.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkTextureObject.h"
 #include "vtk_glad.h"
@@ -59,28 +61,26 @@ void vtkImageProcessingPass::PrintSelf(ostream& os, vtkIndent indent)
 // \pre fbo_has_context: fbo->GetContext()!=0
 // \pre target_exists: target!=0
 // \pre target_has_context: target->GetContext()!=0
-void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* s, int width, int height,
+void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* states, int width, int height,
   int newWidth, int newHeight, vtkOpenGLFramebufferObject* fbo, vtkTextureObject* target)
 {
-  assert("pre: s_exists" && s != nullptr);
+  assert("pre: s_exists" && states != nullptr);
   assert("pre: fbo_exists" && fbo != nullptr);
   assert("pre: fbo_has_context" && fbo->GetContext() != nullptr);
   assert("pre: target_exists" && target != nullptr);
   assert("pre: target_has_context" && target->GetContext() != nullptr);
 
-  vtkRenderer* r = s->GetRenderer();
-  vtkRenderState s2(r);
-  s2.SetPropArrayAndCount(s->GetPropArray(), s->GetPropArrayCount());
+  vtkRenderer* renderer = states->GetRenderer();
+  vtkRenderState delegateStates(renderer);
+  delegateStates.SetPropArrayAndCount(states->GetPropArray(), states->GetPropArrayCount());
 
   // Adapt camera to new window size
-  vtkCamera* savedCamera = r->GetActiveCamera();
+  vtkCamera* savedCamera = renderer->GetActiveCamera();
   savedCamera->Register(this);
   vtkCamera* newCamera = vtkCamera::New();
   newCamera->DeepCopy(savedCamera);
 
-  vtkOpenGLState* ostate = static_cast<vtkOpenGLRenderWindow*>(r->GetVTKWindow())->GetState();
-
-  r->SetActiveCamera(newCamera);
+  renderer->SetActiveCamera(newCamera);
 
   if (newCamera->GetParallelProjection())
   {
@@ -108,14 +108,13 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* s, int width, 
     newCamera->SetViewAngle(vtkMath::DegreesFromRadians(angle));
   }
 
-  s2.SetFrameBuffer(fbo);
-
   if (target->GetWidth() != static_cast<unsigned int>(newWidth) ||
     target->GetHeight() != static_cast<unsigned int>(newHeight))
   {
     target->Create2D(newWidth, newHeight, 4, VTK_UNSIGNED_CHAR, false);
   }
 
+  delegateStates.SetFrameBuffer(fbo);
   fbo->Bind();
   fbo->AddColorAttachment(0, target);
 
@@ -126,24 +125,49 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* s, int width, 
 
   fbo->AddDepthAttachment();
   fbo->StartNonOrtho(newWidth, newHeight);
-  if (r->Transparent())
-  {
-    // Clear is not called on transparent renderers. But since this is a offscreen render target we
-    // want it cleared
-    ostate->vtkglClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    ostate->vtkglClear(GL_COLOR_BUFFER_BIT);
-  }
+
+  this->InitializeRenderTarget(target, states);
+
+  vtkOpenGLState* ostate =
+    vtkOpenGLRenderWindow::SafeDownCast(states->GetRenderer()->GetRenderWindow())->GetState();
   ostate->vtkglViewport(0, 0, newWidth, newHeight);
   ostate->vtkglScissor(0, 0, newWidth, newHeight);
 
   // 2. Delegate render in FBO
   ostate->vtkglEnable(GL_DEPTH_TEST);
-  this->DelegatePass->Render(&s2);
+  this->DelegatePass->Render(&delegateStates);
   this->NumberOfRenderedProps += this->DelegatePass->GetNumberOfRenderedProps();
 
   newCamera->Delete();
-  r->SetActiveCamera(savedCamera);
+  renderer->SetActiveCamera(savedCamera);
   savedCamera->UnRegister(this);
+}
+
+//------------------------------------------------------------------------------
+void vtkImageProcessingPass::InitializeRenderTarget(
+  vtkTextureObject* textureTarget, const vtkRenderState* states)
+{
+  vtkRenderer* renderer = states->GetRenderer();
+  vtkOpenGLRenderWindow* renderWindow =
+    vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+  vtkOpenGLState* ostate = renderWindow->GetState();
+
+  // We want to preserve the color buffer, thus copying the existing data from the render window
+  // frame in the target color texture.
+  vtkOpenGLRenderer* glRen = vtkOpenGLRenderer::SafeDownCast(renderer);
+  if (glRen->GetPreserveColorBuffer())
+  {
+    ostate->PushReadFramebufferBinding();
+    renderWindow->GetRenderFramebuffer()->Bind(vtkOpenGLFramebufferObject::GetReadMode());
+
+    int renderWindowWidth = renderWindow->GetSize()[0];
+    int renderWindowHeight = renderWindow->GetSize()[1];
+    int targetWidth = textureTarget->GetWidth();
+    int targetHeight = textureTarget->GetHeight();
+    ostate->vtkglBlitFramebuffer(0, 0, renderWindowWidth, renderWindowHeight, 0, 0, targetWidth,
+      targetHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    ostate->PopReadFramebufferBinding();
+  }
 }
 
 //------------------------------------------------------------------------------
