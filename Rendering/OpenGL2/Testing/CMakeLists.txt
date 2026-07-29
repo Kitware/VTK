@@ -16,6 +16,10 @@ vtk_module_test_data(
   Data/skybox/,REGEX:.*\.jpg
   Data/spiaggia_di_mondello_1k.hdr
   Data/,REGEX:vtk_.*\.png
+  Data/TestSkyboxBlurWithRenderPasses_Result_GaussianBlur.png
+  Data/TestSkyboxBlurWithRenderPasses_Result_SobelGradientMagnitude.png
+  Data/TestSkyboxBlurWithRenderPasses_Result_SSAO.png
+  Data/TestSkyboxBlurWithRenderPasses_Result_ToneMapping.png
   Data/wintersun.jpg)
 
 if (NOT vtk_testing_cxx_disabled)
