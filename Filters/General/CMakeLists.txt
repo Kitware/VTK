@@ -119,6 +119,7 @@ set(classes
 
   vtkTableBasedClipDataSet
   vtkTableFFT
+  vtkTableProbe
   vtkTableToPolyData
   vtkTableToRectilinearGrid
   vtkTableToStructuredGrid

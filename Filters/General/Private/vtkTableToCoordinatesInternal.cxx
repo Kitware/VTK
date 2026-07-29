@@ -69,7 +69,6 @@ vtkIdType vtkTableToCoordinatesInternal::GetPointIdxInSpace(
     auto coordArray = space->GetArray(dimensionIdx);
     auto inputArray = inputPoints->GetArray(coordArray->GetName());
 
-    // this really does allocation at each call ??
     double target = inputArray->GetComponent(inputPointId, 0);
     auto coordRange = vtk::DataArrayValueRange(coordArray);
     auto coord = std::lower_bound(coordRange.begin(), coordRange.end(), target);
@@ -125,22 +124,35 @@ void vtkTableToCoordinatesInternal::GetSurroundingPoints(vtkFieldData* space,
   for (int dimensionIdx = 0; dimensionIdx < space->GetNumberOfArrays(); dimensionIdx++)
   {
     auto coordArray = space->GetArray(dimensionIdx);
-    auto target = pickedPoint[dimensionIdx];
+    auto pickedCoordinate = pickedPoint[dimensionIdx];
 
     auto coordRange = vtk::DataArrayValueRange(coordArray);
-    auto coord = std::upper_bound(coordRange.begin(), coordRange.end(), target);
-    vtkIdType upStructuredCoord =
+    auto coord = std::upper_bound(coordRange.begin(), coordRange.end(), pickedCoordinate);
+    const vtkIdType upStructuredCoord =
       std::min(std::distance(coordRange.begin(), coord), coordArray->GetNumberOfValues() - 1);
-    vtkIdType lowStructuredCoord = std::max(upStructuredCoord - 1, vtkIdType(0));
+    const vtkIdType lowStructuredCoord = std::max(upStructuredCoord - 1, vtkIdType(0));
 
-    double param = (target - coordRange[lowStructuredCoord]) /
-      (coordRange[upStructuredCoord] - coordRange[lowStructuredCoord]);
+    const double lowCoord = coordRange[lowStructuredCoord];
+    const double upCoord = coordRange[upStructuredCoord];
 
-    param = vtkMathUtilities::NearlyEqual(param, 0., 1.e-6) ? 0
-      : vtkMathUtilities::NearlyEqual(param, 1., 1.e-6)     ? 1
-                                                            : param;
-    const double lowWeight = 1 - param;
-    const double upWeight = param;
+    double lowWeight = 0;
+    double upWeight = 0;
+    // when inside bounds, compute weight from parametric position
+    if (pickedCoordinate >= lowCoord && pickedCoordinate <= upCoord)
+    {
+      double parametricPosition = 1;
+      if (vtkMathUtilities::NearlyEqual(lowCoord, upCoord))
+      {
+        parametricPosition = 0;
+      }
+      else
+      {
+        parametricPosition = (pickedCoordinate - coordRange[lowStructuredCoord]) /
+          (coordRange[upStructuredCoord] - coordRange[lowStructuredCoord]);
+      }
+      upWeight = parametricPosition;
+      lowWeight = 1 - upWeight;
+    }
 
     // iteratively fill the indices. For each axis of the input space, get two indices: nearest
     // upper and lower bounds for the input point. Duplicates previously computed indices for both

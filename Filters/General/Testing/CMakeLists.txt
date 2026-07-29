@@ -1,4 +1,5 @@
 vtk_module_test_data(
+  Data/BaselineData/TestTableProbe.vtkhdf
   Data/HTG/random_attributes.vtkhdf
   Data/HTG/random_attributes_composite.vtkhdf
   Data/HTG/random_partial_ZX.htg
@@ -13,6 +14,8 @@ vtk_module_test_data(
   Data/distTest.vtm
   Data/explicitStructuredGrid.vtu
   Data/fullhead15.png
+  Data/harmonics.csv
+  Data/harmonics.vtkhdf
   Data/hexa.vtk
   Data/mb-of-mb.vtkhdf
   Data/mb-of-mps.vtm

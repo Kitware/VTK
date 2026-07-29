@@ -40,17 +40,19 @@ bool ComputeUniqueAndSorted(vtkDataArray* input, vtkDataArray* output);
 void ConstructSpace(vtkFieldData* space, vtkDataSetAttributes* inputPoints);
 
 /**
- * Map every point index from space to the randomly ordered and sparsed source arrays.
+ * Map every point index from space to the randomly ordered and sparsed source arrays
+ * from inputPoints.
  *
  * @arg space: an extension to N-dimension of a vtkRectilinearGrid.
  * Thus, arrays in space should have unique and ordered values.
  * But they can have different number of tuples.
  *
  * @arg inputPoints: a list of point in space, without any requirement on order.
- * So each arrays have the same number of tuples: a tuple is point in the n-space.
- * Some point may also be missing. In that case, inputToSpaceMap will point to invalidMapping id.
+ * So each arrays should have the same number of tuples.
  *
  * @arg inputToSpaceMap: the map filled by this method.
+ * Some inputPoint may not exists in space. In that case, inputToSpaceMap will point to
+ * invalidMapping id.
  * @arg invalidMapping: the value to use in the map for invalid input point.
  *
  * @see ConstructSpace to get such space from the inputPoint container.
@@ -58,10 +60,24 @@ void ConstructSpace(vtkFieldData* space, vtkDataSetAttributes* inputPoints);
 void MapSpaceToInput(vtkFieldData* space, vtkDataSetAttributes* inputPoints,
   vtkIdTypeArray* inputToSpaceMap, vtkIdType invalidMapping);
 
+/**
+ * Given a structured N-dimension space,
+ * compute the structured coordinates from an inputPoint and return its idx in space.
+ */
 vtkIdType GetPointIdxInSpace(
   vtkFieldData* space, vtkDataSetAttributes* inputPoints, vtkIdType inputPointId);
 
+/**
+ * Given a random point, return its surrounding point in space with associated weight.
+ * @arg space: as filled by ConstructSpace. Each array has unique, sorted values.
+ * @arg point: coordinates of a random point in space.
+ * @arg pointIdx: output variable with the list of surrounding point indices.
+ * In some way, they represent the structured cell that includes the given point.
+ * @arg weights: output variable with the weights of each surrounding point,
+ * for linear interpolation purpose.
+ */
 void GetSurroundingPoints(vtkFieldData* space, const std::vector<double>& point,
-  vtkIdTypeArray* pointIdx, vtkDoubleArray* distance2);
+  vtkIdTypeArray* pointIdx, vtkDoubleArray* weights);
+
 }
 VTK_ABI_NAMESPACE_END
