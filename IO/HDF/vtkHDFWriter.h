@@ -389,7 +389,7 @@ private:
    */
   bool AppendDataArrays(hid_t group, vtkDataObject* input, unsigned int partId = 0);
   bool AppendDataSetAttributes(hid_t group, vtkDataObject* input, unsigned int partId = 0,
-    vtkIdList* cellIdMap = nullptr, const int* dims = nullptr);
+    vtkIdList* cellIdMap = nullptr, const std::vector<int>& dims = {});
   bool AppendFieldDataArrays(hid_t group, vtkDataObject* input, unsigned int partId = 0);
   ///@}
 

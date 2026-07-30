@@ -6,3 +6,7 @@ When writing VTKHDF files using `vtkHDFWriter`, chunk size is now constrained be
 
 Writing and reading HyperTreeGrids as part of a multi-block compositer dataset has been improved.
 You can now write and read HyperTreeGrid with a null partition on rank 0 without issues.
+
+## ImageData: 2D and extent support
+
+The ImageData writer & reader now supports 2D and 1D Images, and has improved support for reading sub-extents.

@@ -163,6 +163,8 @@ vtk_module_test_data(
   Data/vtkHDF/temporal_structured.vtkhdf
   Data/vtkHDF/structured_coords.vtkhdf
 
+  Data/vtkHDF/temporal_2Dimage.vtkhdf
+  Data/vtkHDF/temporal_1Dimage.vtkhdf
   Data/vtkHDF/temporal_image.vtkhdf
   Data/vtkHDF/temporal_image_0.vti
   Data/vtkHDF/temporal_image_1.vti

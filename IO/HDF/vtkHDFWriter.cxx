@@ -510,8 +510,8 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkImageData* input, unsigned
   writeSuccess &= this->Impl->CreateVectorAttribute(
                     group, "Direction", H5T_NATIVE_DOUBLE, 9, direction) != H5I_INVALID_HID;
 
-  int dims[3];
-  input->GetDimensions(dims);
+  std::vector<int> dims(3);
+  input->GetDimensions(dims.data());
 
   writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, dims);
   return writeSuccess;
@@ -539,12 +539,12 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkRectilinearGrid* input, un
     return false;
   }
 
-  int dims[3];
-  input->GetDimensions(dims);
+  std::vector<int> dims(3);
+  input->GetDimensions(dims.data());
 
   bool writeSuccess = true;
-  writeSuccess &= this->Impl->CreateVectorAttribute(group, "Dimensions", H5T_NATIVE_INT, 3, dims) !=
-    H5I_INVALID_HID;
+  writeSuccess &= this->Impl->CreateVectorAttribute(
+                    group, "Dimensions", H5T_NATIVE_INT, 3, dims.data()) != H5I_INVALID_HID;
 
   writeSuccess &= this->AppendRectilinearCoordinates(group, input);
   writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, dims);
@@ -606,7 +606,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkStructuredGrid* input, uns
       this->Impl->InitDynamicDataset(group, "Points", datatype, dimensions, pointChunkSize);
   }
   writeSuccess &= this->AppendPoints(group, input, dims.data());
-  writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, dims.data());
+  writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, dims);
   return writeSuccess;
 }
 
@@ -617,7 +617,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkTable* input, unsigned int
 
   writeSuccess &=
     this->Impl->AddOrCreateSingleRowDataset(group, "NumberOfRows", { input->GetNumberOfRows() });
-  writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, nullptr);
+  writeSuccess &= this->AppendDataSetAttributes(group, input, partId);
   return writeSuccess;
 }
 
@@ -1779,8 +1779,8 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input, unsig
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendDataSetAttributes(
-  hid_t baseGroup, vtkDataObject* input, unsigned int partId, vtkIdList* cellIdMap, const int* dims)
+bool vtkHDFWriter::AppendDataSetAttributes(hid_t baseGroup, vtkDataObject* input,
+  unsigned int partId, vtkIdList* cellIdMap, const std::vector<int>& dims)
 {
   constexpr std::array<int, 3> attributeTypes = { vtkDataObject::AttributeTypes::POINT,
     vtkDataObject::AttributeTypes::CELL, vtkDataObject::AttributeTypes::ROW };
@@ -1859,26 +1859,25 @@ bool vtkHDFWriter::AppendDataSetAttributes(
       // For temporal data, also add the offset in the steps group
       if (this->IsTemporal &&
         !this->AppendDataArrayOffset(
-          baseGroup, array, arrayName, offsetsGroupName, partId, dims != nullptr))
+          baseGroup, array, arrayName, offsetsGroupName, partId, !dims.empty()))
       {
         return false;
       }
 
       bool writeSuccess = false;
-      if (dims != nullptr)
+      if (!dims.empty())
       {
         // Compute dataset dimensions from point or cell data.
-        std::vector<hsize_t> dsetDims;
-        if (iAttribute == vtkDataObject::POINT)
+        std::vector<hsize_t> fileDims;
+        hsize_t cellModifier =
+          iAttribute == vtkDataObject::CELL ? -1 : 0; // Cell arrays have N-1 elements for N points
+        for (size_t i = 0; i < dims.size(); i++)
         {
-          dsetDims = { static_cast<hsize_t>(dims[2]), static_cast<hsize_t>(dims[1]),
-            static_cast<hsize_t>(dims[0]) };
-        }
-        else
-        {
-          dsetDims = { static_cast<hsize_t>(std::max(dims[2] - 1, 0)),
-            static_cast<hsize_t>(std::max(dims[1] - 1, 0)),
-            static_cast<hsize_t>(std::max(dims[0] - 1, 0)) };
+          // More than 1 point: dimension is non-null
+          if (dims[dims.size() - i - 1] > 1)
+          {
+            fileDims.push_back(std::max<hsize_t>(dims[dims.size() - i - 1] + cellModifier, 0));
+          }
         }
 
         if (this->IsTemporal)
@@ -1886,7 +1885,7 @@ bool vtkHDFWriter::AppendDataSetAttributes(
           // For structured temporal data, initialize as a dynamic dataset with
           // unlimited timestep dimension before appending the current slice.
           std::vector<hsize_t> initDims = { 0 };
-          initDims.insert(initDims.end(), dsetDims.begin(), dsetDims.end());
+          initDims.insert(initDims.end(), fileDims.begin(), fileDims.end());
           if (array->GetNumberOfComponents() > 1)
           {
             initDims.push_back(static_cast<hsize_t>(array->GetNumberOfComponents()));
@@ -1907,7 +1906,7 @@ bool vtkHDFWriter::AppendDataSetAttributes(
         }
 
         writeSuccess = this->Impl->AddOrCreateDataset(
-          attributeGroup, arrayName.c_str(), dataType, array, dsetDims);
+          attributeGroup, arrayName.c_str(), dataType, array, fileDims);
       }
       else
       {
