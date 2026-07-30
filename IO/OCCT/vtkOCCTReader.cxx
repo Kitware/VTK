@@ -22,13 +22,13 @@
 #if VTK_OCCT_USE_PROGRESS
 #include <Message_ProgressIndicator.hxx>
 #endif
+#include <NCollection_Sequence.hxx>
 #include <Poly.hxx>
 #include <Poly_Triangulation.hxx>
 #include <Quantity_Color.hxx>
 #include <STEPCAFControl_Reader.hxx>
-#include <Standard_PrimitiveTypes.hxx>
-#include <TColgp_Array1OfVec.hxx>
 #include <TDF_ChildIterator.hxx>
+#include <TDF_Label.hxx>
 #include <TDataStd_Name.hxx>
 #include <TDocStd_Document.hxx>
 #include <TopExp_Explorer.hxx>
@@ -66,6 +66,8 @@
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+using OCC_LabelSequence = NCollection_Sequence<TDF_Label>;
 
 class vtkOCCTReader::vtkInternals
 {
@@ -120,7 +122,7 @@ public:
         Standard_Integer nbV = poly->NbNodes();
 
         // Points
-        const TColgp_Array1OfPnt& aNodes = poly->Nodes();
+        const auto& aNodes = poly->Nodes();
         for (Standard_Integer i = 1; i <= nbV; i++)
         {
           gp_Pnt pt = aNodes(i).Transformed(location);
@@ -489,7 +491,7 @@ int vtkOCCTReader::RequestData(
   this->Internals->ShapeTool = XCAFDoc_DocumentTool::ShapeTool(doc->Main());
   this->Internals->ColorTool = XCAFDoc_DocumentTool::ColorTool(doc->Main());
 
-  TDF_LabelSequence topLevelShapes;
+  OCC_LabelSequence topLevelShapes;
 
   // create polydata leaves
   this->Internals->ShapeTool->GetShapes(topLevelShapes);
@@ -525,7 +527,7 @@ int vtkOCCTReader::RequestData(
 void vtkOCCTReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: " << (this->FileName ? "(none)" : this->FileName) << "\n";
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "none") << "\n";
   os << indent << "LinearDeflection: " << this->LinearDeflection << "\n";
   os << indent << "AngularDeflection: " << this->AngularDeflection << "\n";
   os << indent << "RelativeDeflection: " << (this->RelativeDeflection ? "true" : "false") << "\n";
