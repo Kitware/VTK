@@ -95,6 +95,13 @@ class Histogram
 public:
   struct Bin
   {
+    Bin()
+      : Index(-1)
+      , Count(1)
+      , Value(std::numeric_limits<double>::max())
+    {
+    }
+
     // A histogram bin is comprised of the following:
     // index: the point index associated with the bin
     // count: the number of elements in the bin
@@ -120,14 +127,14 @@ public:
 
   Histogram() = default;
 
-  void Initialize(vtkIdType size) { this->Bins.assign(size + 1, Histogram::Init); }
+  void Initialize(vtkIdType size) { this->Bins.assign(size + 1, Bin()); }
 
   // Reset the fields of the bins in the histogram.
   void Reset(vtkIdType size)
   {
     for (vtkIdType i = 0; i < size + 1; i++)
     {
-      this->Bins[i] = Histogram::Init;
+      this->Bins[i] = Bin();
     }
     this->Counter = 0;
   }
@@ -147,13 +154,9 @@ public:
   // value).
   vtkIdType IndexOfLargestBin();
 
-  static Bin Init;
   HistogramBins Bins;
   vtkIdType Counter;
 };
-
-//------------------------------------------------------------------------------
-Histogram::Bin Histogram::Init(-1, 1, std::numeric_limits<double>::max());
 
 //------------------------------------------------------------------------------
 bool BinCountCmp(const Histogram::Bin& b1, const Histogram::Bin& b2)
