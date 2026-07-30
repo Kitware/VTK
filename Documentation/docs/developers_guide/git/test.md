@@ -139,7 +139,7 @@ int MyTest(int argc, char* argv[])
 ```
 
 Example of output:
-```log
+```console
 2638: (   0.009s) [main thread     ] MyTest.cxx:51   INFO| { TestCase1
 2638: (   0.102s) [main thread     ] MyTest.cxx:66    ERR|   .   Intermediate error
 2638: (   0.102s) [main thread     ] MyTest.cxx:51   INFO| } 0.093 s: TestCase1
