@@ -7,12 +7,11 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 
-#include <map>
 #include <string_view>
 
 namespace
 {
-std::map<int, std::string_view>& CellTypesClasseName = {
+constexpr std::pair<int, std::string_view> CellTypesClassName[] = {
   { VTK_EMPTY_CELL, "vtkEmptyCell" }, { VTK_VERTEX, "vtkVertex" },
   { VTK_POLY_VERTEX, "vtkPolyVertex" }, { VTK_LINE, "vtkLine" }, { VTK_POLY_LINE, "vtkPolyLine" },
   { VTK_TRIANGLE, "vtkTriangle" }, { VTK_TRIANGLE_STRIP, "vtkTriangleStrip" },
@@ -53,7 +52,7 @@ std::map<int, std::string_view>& CellTypesClasseName = {
   // { VTK_BEZIER_PYRAMID, "vtkBezierPyramid" }
 };
 
-std::map<int, std::string_view> CellTypesName = {
+constexpr std::pair<int, std::string_view> CellTypesName[] = {
   { VTK_EMPTY_CELL, "Empty Cell" }, { VTK_VERTEX, "Vertex" }, { VTK_POLY_VERTEX, "Polyvertex" },
   { VTK_LINE, "Line" }, { VTK_POLY_LINE, "Polyline" }, { VTK_TRIANGLE, "Triangle" },
   { VTK_TRIANGLE_STRIP, "Triangle Strip" }, { VTK_POLYGON, "Polygon" }, { VTK_PIXEL, "Pixel" },
@@ -108,9 +107,11 @@ void vtkCellTypeUtilities::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 std::string vtkCellTypeUtilities::GetTypeAsString(int typeId)
 {
-  if (::CellTypesName.find(typeId) != ::CellTypesName.end())
+  auto it = std::find_if(std::begin(CellTypesName), std::end(CellTypesName),
+    [typeId](std::pair<int, std::string_view> const& mapping) { return mapping.first == typeId; });
+  if (it != std::end(CellTypesName))
   {
-    return std::string(::CellTypesName[typeId]);
+    return std::string(it->second);
   }
 
   return "Unknown Cell";
@@ -134,10 +135,12 @@ int vtkCellTypeUtilities::GetTypeIdFromName(const std::string& name)
 //------------------------------------------------------------------------------
 const char* vtkCellTypeUtilities::GetClassNameFromTypeId(int type)
 {
-  if (::CellTypesClasseName.find(type) != ::CellTypesClasseName.end())
+  auto it = std::find_if(std::begin(CellTypesClassName), std::end(CellTypesClassName),
+    [type](std::pair<int, std::string_view> const& mapping) { return mapping.first == type; });
+  if (it != std::end(CellTypesClassName))
   {
     // NOLINTNEXTLINE(bugprone-suspicious-stringview-data-usage): static data is NUL-terminated
-    return ::CellTypesClasseName[type].data();
+    return it->second.data();
   }
 
   return "UnknownClass";
@@ -151,7 +154,7 @@ int vtkCellTypeUtilities::GetTypeIdFromClassName(const char* classname)
     return -1;
   }
 
-  for (const auto& classStr : ::CellTypesClasseName)
+  for (const auto& classStr : ::CellTypesClassName)
   {
     if (classStr.second == classname)
     {
