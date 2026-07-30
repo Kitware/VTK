@@ -45,14 +45,14 @@ vtkStandardExtendedNewMacro(vtkPolyData);
 // "marks" empty lists so that the traversal method "GetNextCell"
 // works properly.
 
-struct vtkPolyDataDummyContainter
+struct vtkPolyDataDummyContainer
 {
   vtkSmartPointer<vtkCellArray> Dummy;
 
-  vtkPolyDataDummyContainter() { this->Dummy.TakeReference(vtkCellArray::New()); }
+  vtkPolyDataDummyContainer() { this->Dummy.TakeReference(vtkCellArray::New()); }
 };
 
-vtkPolyDataDummyContainter vtkPolyData::DummyContainer;
+vtkPolyDataDummyContainer vtkPolyData::DummyContainer;
 
 //------------------------------------------------------------------------------
 unsigned char vtkPolyData::GetCell(vtkIdType cellId, vtkIdType const*& cell)
