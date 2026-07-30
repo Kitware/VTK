@@ -1494,8 +1494,15 @@ void vtkWin32OpenGLRenderWindow::SetCurrentCursor(int shape)
 //------------------------------------------------------------------------------
 bool vtkWin32OpenGLRenderWindow::DetectDPI()
 {
-  UINT dpi = GetDpiForWindow(this->WindowId);
-  this->SetDPI(dpi);
-  return true;
+  if (this->WindowId != 0)
+  {
+    UINT dpi = GetDpiForWindow(this->WindowId);
+    if (dpi != 0)
+    {
+      this->SetDPI(dpi);
+      return true;
+    }
+  }
+  return false;
 }
 VTK_ABI_NAMESPACE_END

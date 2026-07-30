@@ -374,7 +374,7 @@ void vtkWebAssemblyOpenGLRenderWindow::ShowCursor()
 bool vtkWebAssemblyOpenGLRenderWindow::DetectDPI()
 {
   // 96 is the default DPI for browsers
-  this->DPI = static_cast<int>(emscripten_get_device_pixel_ratio() * 96.0);
+  this->SetDPI(static_cast<int>(emscripten_get_device_pixel_ratio() * 96.0));
   return true;
 }
 VTK_ABI_NAMESPACE_END

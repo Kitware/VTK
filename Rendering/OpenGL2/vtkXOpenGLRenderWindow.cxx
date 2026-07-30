@@ -2007,12 +2007,20 @@ bool vtkXOpenGLRenderWindow::DetectDPI()
   XrmValue value;
   char* type = nullptr;
   bool found = vtkXrmGetResource(db, "Xft.dpi", "Xft.Dpi", &type, &value);
-  vtkXrmDestroyDatabase(db);
-
   if (found)
   {
-    this->SetDPI(std::atof(value.addr));
+    auto dpi = vtk::scan_value<double>(std::string_view(value.addr));
+    if (dpi)
+    {
+      this->SetDPI(dpi->value());
+    }
+    else
+    {
+      found = false;
+    }
   }
+
+  vtkXrmDestroyDatabase(db);
   return found;
 }
 VTK_ABI_NAMESPACE_END
