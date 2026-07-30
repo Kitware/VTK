@@ -727,7 +727,7 @@ void vtkDataObjectMeshCache::ForwardAttributes(
   if (this->PreservedInputAttributes.count(attribute) > 0)
   {
     vtkCacheLog(INFO, "ShallowCopy Attribute");
-    outAttribute->DeepCopy(inAttribute);
+    outAttribute->ShallowCopy(inAttribute);
     return;
   }
 

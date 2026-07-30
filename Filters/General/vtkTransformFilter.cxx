@@ -190,24 +190,6 @@ void vtkTransformFilter::InitializeOutputPointSet(vtkPointSet* input, vtkPointSe
     newNormals.TakeReference(this->CreateFromArray(inNormals));
     outPD->SetNormals(newNormals);
   }
-
-  // Initialize new empty arrays when required.
-  // Looks like Transform need empty but allocated buffers
-  if (this->TransformAllInputVectors)
-  {
-    int nArrays = pd->GetNumberOfArrays();
-    vtkSmartPointer<vtkDataArray> outArray;
-    for (int arrayIndex = 0; arrayIndex < nArrays; arrayIndex++)
-    {
-      vtkDataArray* inputArray = pd->GetArray(arrayIndex);
-      if (inputArray != inVectors && inputArray != inNormals &&
-        inputArray->GetNumberOfComponents() == 3)
-      {
-        outArray.TakeReference(this->CreateFromArray(inputArray));
-        outPD->AddArray(outArray);
-      }
-    }
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -235,9 +217,9 @@ void vtkTransformFilter::TransformPointData(
         continue;
       }
 
-      vtkSmartPointer<vtkDataArray> outArray = outPD->GetArray(inArray->GetName());
-      // The vtkTransform API append data to the output array. Thus we need to clear it.
-      outArray->Initialize();
+      vtkSmartPointer<vtkDataArray> outArray;
+      outArray.TakeReference(this->CreateFromArray(inArray));
+      outPD->AddArray(outArray);
 
       /**
        * Here we identify the arrays to transform.

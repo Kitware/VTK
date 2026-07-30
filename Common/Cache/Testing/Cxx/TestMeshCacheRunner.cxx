@@ -89,11 +89,11 @@ bool ThirdStepInitOutput(vtkDataObjectMeshCache* cache, vtkPolyData* input, vtkP
       vtkLog(ERROR, "Output should not be empty");
       return false;
     }
-  }
-  if (!vtkTestUtilities::CompareDataObjects(input, output))
-  {
-    vtkLog(ERROR, "Output should have been initialized from input");
-    return false;
+    if (!vtkTestUtilities::CompareDataObjects(input, output))
+    {
+      vtkLog(ERROR, "Output should have been initialized from input");
+      return false;
+    }
   }
 
   return true;
