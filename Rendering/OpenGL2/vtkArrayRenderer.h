@@ -123,7 +123,6 @@ protected:
   /// The mods will be loaded one by one and applied in the order they were added.
   std::vector<std::string> ModNames;
   std::set<std::string> ModNamesUnique;
-  static std::vector<std::string> DefaultModNames;
 
 private:
   vtkArrayRenderer(const vtkArrayRenderer&) = delete;
