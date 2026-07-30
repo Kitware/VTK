@@ -23,6 +23,8 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 
+#include <cstring>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStandardRenderView);
 
@@ -75,6 +77,11 @@ vtkStandardRenderView::~vtkStandardRenderView()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetBackground(double r, double g, double b)
 {
+  double* current = this->GetBackground();
+  if (current[0] == r && current[1] == g && current[2] == b)
+  {
+    return;
+  }
   this->Renderer->SetBackground(r, g, b);
   this->Modified();
 }
@@ -88,6 +95,11 @@ double* vtkStandardRenderView::GetBackground()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetBackground2(double r, double g, double b)
 {
+  double* current = this->GetBackground2();
+  if (current[0] == r && current[1] == g && current[2] == b)
+  {
+    return;
+  }
   this->Renderer->SetBackground2(r, g, b);
   this->Modified();
 }
@@ -101,6 +113,10 @@ double* vtkStandardRenderView::GetBackground2()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetGradientBackground(bool val)
 {
+  if (this->GetGradientBackground() == val)
+  {
+    return;
+  }
   this->Renderer->SetGradientBackground(val);
   this->Modified();
 }
@@ -114,6 +130,11 @@ bool vtkStandardRenderView::GetGradientBackground()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetWindowSize(int w, int h)
 {
+  int* current = this->GetWindowSize();
+  if (current[0] == w && current[1] == h)
+  {
+    return;
+  }
   this->GetRenderWindow()->SetSize(w, h);
   this->Modified();
 }
@@ -127,6 +148,11 @@ int* vtkStandardRenderView::GetWindowSize()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetWindowTitle(const char* title)
 {
+  const char* current = this->GetWindowTitle();
+  if (current == title || (current && title && strcmp(current, title) == 0))
+  {
+    return;
+  }
   this->GetRenderWindow()->SetWindowName(title);
   this->Modified();
 }
@@ -140,6 +166,10 @@ const char* vtkStandardRenderView::GetWindowTitle()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetOrientationAxesVisibility(bool val)
 {
+  if (this->GetOrientationAxesVisibility() == val)
+  {
+    return;
+  }
   this->OrientationWidget->SetEnabled(val);
   this->Modified();
 }
@@ -153,6 +183,10 @@ bool vtkStandardRenderView::GetOrientationAxesVisibility()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetOrientationAxesInteractive(bool val)
 {
+  if (this->GetOrientationAxesInteractive() == val)
+  {
+    return;
+  }
   this->OrientationWidget->SetInteractive(val);
   this->Modified();
 }
@@ -201,6 +235,10 @@ bool vtkStandardRenderView::GetUseLightKit()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetKeyLightIntensity(double val)
 {
+  if (this->GetKeyLightIntensity() == val)
+  {
+    return;
+  }
   this->LightKit->SetKeyLightIntensity(val);
   this->Modified();
 }
@@ -214,6 +252,10 @@ double vtkStandardRenderView::GetKeyLightIntensity()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetKeyToFillRatio(double val)
 {
+  if (this->GetKeyToFillRatio() == val)
+  {
+    return;
+  }
   this->LightKit->SetKeyToFillRatio(val);
   this->Modified();
 }
@@ -227,6 +269,10 @@ double vtkStandardRenderView::GetKeyToFillRatio()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetKeyToHeadRatio(double val)
 {
+  if (this->GetKeyToHeadRatio() == val)
+  {
+    return;
+  }
   this->LightKit->SetKeyToHeadRatio(val);
   this->Modified();
 }
@@ -240,6 +286,10 @@ double vtkStandardRenderView::GetKeyToHeadRatio()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetKeyToBackRatio(double val)
 {
+  if (this->GetKeyToBackRatio() == val)
+  {
+    return;
+  }
   this->LightKit->SetKeyToBackRatio(val);
   this->Modified();
 }
@@ -253,6 +303,10 @@ double vtkStandardRenderView::GetKeyToBackRatio()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetKeyLightWarmth(double val)
 {
+  if (this->GetKeyLightWarmth() == val)
+  {
+    return;
+  }
   this->LightKit->SetKeyLightWarmth(val);
   this->Modified();
 }
@@ -266,6 +320,10 @@ double vtkStandardRenderView::GetKeyLightWarmth()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetFillLightWarmth(double val)
 {
+  if (this->GetFillLightWarmth() == val)
+  {
+    return;
+  }
   this->LightKit->SetFillLightWarmth(val);
   this->Modified();
 }
@@ -279,6 +337,10 @@ double vtkStandardRenderView::GetFillLightWarmth()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetHeadLightWarmth(double val)
 {
+  if (this->GetHeadLightWarmth() == val)
+  {
+    return;
+  }
   this->LightKit->SetHeadLightWarmth(val);
   this->Modified();
 }
@@ -292,6 +354,10 @@ double vtkStandardRenderView::GetHeadLightWarmth()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetBackLightWarmth(double val)
 {
+  if (this->GetBackLightWarmth() == val)
+  {
+    return;
+  }
   this->LightKit->SetBackLightWarmth(val);
   this->Modified();
 }
@@ -305,6 +371,11 @@ double vtkStandardRenderView::GetBackLightWarmth()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetKeyLightAngle(double elevation, double azimuth)
 {
+  double* current = this->GetKeyLightAngle();
+  if (current[0] == elevation && current[1] == azimuth)
+  {
+    return;
+  }
   this->LightKit->SetKeyLightAngle(elevation, azimuth);
   this->Modified();
 }
@@ -318,6 +389,11 @@ double* vtkStandardRenderView::GetKeyLightAngle()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetFillLightAngle(double elevation, double azimuth)
 {
+  double* current = this->GetFillLightAngle();
+  if (current[0] == elevation && current[1] == azimuth)
+  {
+    return;
+  }
   this->LightKit->SetFillLightAngle(elevation, azimuth);
   this->Modified();
 }
@@ -331,6 +407,11 @@ double* vtkStandardRenderView::GetFillLightAngle()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetBackLightAngle(double elevation, double azimuth)
 {
+  double* current = this->GetBackLightAngle();
+  if (current[0] == elevation && current[1] == azimuth)
+  {
+    return;
+  }
   this->LightKit->SetBackLightAngle(elevation, azimuth);
   this->Modified();
 }
@@ -344,6 +425,10 @@ double* vtkStandardRenderView::GetBackLightAngle()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetMaintainLuminance(bool val)
 {
+  if (this->GetMaintainLuminance() == val)
+  {
+    return;
+  }
   this->LightKit->SetMaintainLuminance(val);
   this->Modified();
 }

@@ -291,6 +291,18 @@ private:
   vtkSurfaceRepresentation(const vtkSurfaceRepresentation&) = delete;
   void operator=(const vtkSurfaceRepresentation&) = delete;
 
+  /**
+   * Return true when the mapper already colors by `arrayName` in `scalarMode`,
+   * so the ColorBy*Array() methods can skip a redundant modification.
+   */
+  bool IsColoringBy(const char* arrayName, int scalarMode);
+
+  /**
+   * Map the given component of the active color array, used by the
+   * ColorBy*Array() overloads that take a component.
+   */
+  void ColorByComponent(int component);
+
   vtkNew<vtkGeometryFilterDispatcher> GeometryFilter;
   vtkNew<vtkCompositePolyDataMapper> Mapper;
   vtkNew<vtkActor> Actor;

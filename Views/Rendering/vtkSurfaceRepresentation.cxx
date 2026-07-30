@@ -29,6 +29,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 
+#include <cstring>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -122,30 +123,38 @@ bool vtkSurfaceRepresentation::RemoveFromView(vtkView* view)
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetRepresentation(int type)
 {
-  this->RepresentationValue = type;
-  vtkProperty* prop = this->Actor->GetProperty();
+  int representation;
+  bool edgeVisibility;
   switch (type)
   {
     case POINTS:
-      prop->SetRepresentationToPoints();
-      prop->SetEdgeVisibility(false);
+      representation = VTK_POINTS;
+      edgeVisibility = false;
       break;
     case WIREFRAME:
-      prop->SetRepresentationToWireframe();
-      prop->SetEdgeVisibility(false);
+      representation = VTK_WIREFRAME;
+      edgeVisibility = false;
       break;
     case SURFACE:
-      prop->SetRepresentationToSurface();
-      prop->SetEdgeVisibility(false);
+      representation = VTK_SURFACE;
+      edgeVisibility = false;
       break;
     case SURFACE_WITH_EDGES:
-      prop->SetRepresentationToSurface();
-      prop->SetEdgeVisibility(true);
+      representation = VTK_SURFACE;
+      edgeVisibility = true;
       break;
     default:
       vtkWarningMacro("Unknown representation type: " << type);
       return;
   }
+  if (this->RepresentationValue == type)
+  {
+    return;
+  }
+  this->RepresentationValue = type;
+  vtkProperty* prop = this->Actor->GetProperty();
+  prop->SetRepresentation(representation);
+  prop->SetEdgeVisibility(edgeVisibility);
   this->Modified();
 }
 
@@ -176,6 +185,11 @@ const char* vtkSurfaceRepresentation::GetRepresentationAsString()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetColor(double r, double g, double b)
 {
+  double* current = this->GetColor();
+  if (current[0] == r && current[1] == g && current[2] == b)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetColor(r, g, b);
   this->Modified();
 }
@@ -189,6 +203,10 @@ double* vtkSurfaceRepresentation::GetColor()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetOpacity(double val)
 {
+  if (this->GetOpacity() == val)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetOpacity(val);
   this->Modified();
 }
@@ -202,6 +220,11 @@ double vtkSurfaceRepresentation::GetOpacity()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetEdgeColor(double r, double g, double b)
 {
+  double* current = this->GetEdgeColor();
+  if (current[0] == r && current[1] == g && current[2] == b)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetEdgeColor(r, g, b);
   this->Modified();
 }
@@ -215,6 +238,10 @@ double* vtkSurfaceRepresentation::GetEdgeColor()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetEdgeOpacity(double val)
 {
+  if (this->GetEdgeOpacity() == val)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetEdgeOpacity(val);
   this->Modified();
 }
@@ -228,6 +255,10 @@ double vtkSurfaceRepresentation::GetEdgeOpacity()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetAmbient(double val)
 {
+  if (this->GetAmbient() == val)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetAmbient(val);
   this->Modified();
 }
@@ -241,6 +272,10 @@ double vtkSurfaceRepresentation::GetAmbient()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetDiffuse(double val)
 {
+  if (this->GetDiffuse() == val)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetDiffuse(val);
   this->Modified();
 }
@@ -254,6 +289,10 @@ double vtkSurfaceRepresentation::GetDiffuse()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetSpecular(double val)
 {
+  if (this->GetSpecular() == val)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetSpecular(val);
   this->Modified();
 }
@@ -267,6 +306,10 @@ double vtkSurfaceRepresentation::GetSpecular()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetSpecularPower(double val)
 {
+  if (this->GetSpecularPower() == val)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetSpecularPower(val);
   this->Modified();
 }
@@ -280,6 +323,10 @@ double vtkSurfaceRepresentation::GetSpecularPower()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetLineWidth(double val)
 {
+  if (this->GetLineWidth() == val)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetLineWidth(val);
   this->Modified();
 }
@@ -293,6 +340,10 @@ double vtkSurfaceRepresentation::GetLineWidth()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetPointSize(double val)
 {
+  if (this->GetPointSize() == val)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetPointSize(val);
   this->Modified();
 }
@@ -306,6 +357,10 @@ double vtkSurfaceRepresentation::GetPointSize()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetLighting(bool val)
 {
+  if (this->GetLighting() == val)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetLighting(val);
   this->Modified();
 }
@@ -319,6 +374,10 @@ bool vtkSurfaceRepresentation::GetLighting()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetInterpolation(int val)
 {
+  if (this->GetInterpolation() == val)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetInterpolation(val);
   this->Modified();
 }
@@ -332,6 +391,10 @@ int vtkSurfaceRepresentation::GetInterpolation()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetRenderPointsAsSpheres(bool val)
 {
+  if (this->GetRenderPointsAsSpheres() == val)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetRenderPointsAsSpheres(val);
   this->Modified();
 }
@@ -345,6 +408,10 @@ bool vtkSurfaceRepresentation::GetRenderPointsAsSpheres()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetRenderLinesAsTubes(bool val)
 {
+  if (this->GetRenderLinesAsTubes() == val)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetRenderLinesAsTubes(val);
   this->Modified();
 }
@@ -358,6 +425,10 @@ bool vtkSurfaceRepresentation::GetRenderLinesAsTubes()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetRoughness(double val)
 {
+  if (this->GetRoughness() == val)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetRoughness(val);
   this->Modified();
 }
@@ -371,6 +442,10 @@ double vtkSurfaceRepresentation::GetRoughness()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetMetallic(double val)
 {
+  if (this->GetMetallic() == val)
+  {
+    return;
+  }
   this->Actor->GetProperty()->SetMetallic(val);
   this->Modified();
 }
@@ -384,6 +459,10 @@ double vtkSurfaceRepresentation::GetMetallic()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetUseOutline(bool val)
 {
+  if (this->GetUseOutline() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetUseOutline(val);
   this->Modified();
 }
@@ -397,6 +476,10 @@ bool vtkSurfaceRepresentation::GetUseOutline()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetGenerateFeatureEdges(bool val)
 {
+  if (this->GetGenerateFeatureEdges() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetGenerateFeatureEdges(val);
   this->Modified();
 }
@@ -410,6 +493,10 @@ bool vtkSurfaceRepresentation::GetGenerateFeatureEdges()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetGeneratePointNormals(bool val)
 {
+  if (this->GetGeneratePointNormals() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetGeneratePointNormals(val);
   this->Modified();
 }
@@ -423,6 +510,10 @@ bool vtkSurfaceRepresentation::GetGeneratePointNormals()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetGenerateCellNormals(bool val)
 {
+  if (this->GetGenerateCellNormals() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetGenerateCellNormals(val);
   this->Modified();
 }
@@ -436,6 +527,10 @@ bool vtkSurfaceRepresentation::GetGenerateCellNormals()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetFeatureAngle(double val)
 {
+  if (this->GetFeatureAngle() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetFeatureAngle(val);
   this->Modified();
 }
@@ -449,6 +544,10 @@ double vtkSurfaceRepresentation::GetFeatureAngle()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetSplitting(bool val)
 {
+  if (this->GetSplitting() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetSplitting(val);
   this->Modified();
 }
@@ -462,6 +561,10 @@ bool vtkSurfaceRepresentation::GetSplitting()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetTriangulate(bool val)
 {
+  if (this->GetTriangulate() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetTriangulate(val);
   this->Modified();
 }
@@ -475,6 +578,10 @@ bool vtkSurfaceRepresentation::GetTriangulate()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetNonlinearSubdivisionLevel(int val)
 {
+  if (this->GetNonlinearSubdivisionLevel() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetNonlinearSubdivisionLevel(val);
   this->Modified();
 }
@@ -488,6 +595,10 @@ int vtkSurfaceRepresentation::GetNonlinearSubdivisionLevel()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetMatchBoundariesIgnoringCellOrder(bool val)
 {
+  if (this->GetMatchBoundariesIgnoringCellOrder() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetMatchBoundariesIgnoringCellOrder(val);
   this->Modified();
 }
@@ -501,6 +612,10 @@ bool vtkSurfaceRepresentation::GetMatchBoundariesIgnoringCellOrder()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetPassThroughCellIds(bool val)
 {
+  if (this->GetPassThroughCellIds() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetPassThroughCellIds(val);
   this->Modified();
 }
@@ -514,6 +629,10 @@ bool vtkSurfaceRepresentation::GetPassThroughCellIds()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetPassThroughPointIds(bool val)
 {
+  if (this->GetPassThroughPointIds() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetPassThroughPointIds(val);
   this->Modified();
 }
@@ -527,6 +646,10 @@ bool vtkSurfaceRepresentation::GetPassThroughPointIds()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetBlockColorsDistinctValues(int val)
 {
+  if (this->GetBlockColorsDistinctValues() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetBlockColorsDistinctValues(val);
   this->Modified();
 }
@@ -540,6 +663,10 @@ int vtkSurfaceRepresentation::GetBlockColorsDistinctValues()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetHideInternalAMRFaces(bool val)
 {
+  if (this->GetHideInternalAMRFaces() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetHideInternalAMRFaces(val);
   this->Modified();
 }
@@ -553,6 +680,10 @@ bool vtkSurfaceRepresentation::GetHideInternalAMRFaces()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetUseNonOverlappingAMRMetaDataForOutlines(bool val)
 {
+  if (this->GetUseNonOverlappingAMRMetaDataForOutlines() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetUseNonOverlappingAMRMetaDataForOutlines(val);
   this->Modified();
 }
@@ -566,6 +697,10 @@ bool vtkSurfaceRepresentation::GetUseNonOverlappingAMRMetaDataForOutlines()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetGenerateProcessIds(bool val)
 {
+  if (this->GetGenerateProcessIds() == val)
+  {
+    return;
+  }
   this->GeometryFilter->SetGenerateProcessIds(val);
   this->Modified();
 }
@@ -579,6 +714,10 @@ bool vtkSurfaceRepresentation::GetGenerateProcessIds()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetScalarVisibility(bool val)
 {
+  if (this->GetScalarVisibility() == val)
+  {
+    return;
+  }
   this->Mapper->SetScalarVisibility(val);
   this->Modified();
 }
@@ -592,6 +731,10 @@ bool vtkSurfaceRepresentation::GetScalarVisibility()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::ColorByPointArray(const char* arrayName)
 {
+  if (this->IsColoringBy(arrayName, VTK_SCALAR_MODE_USE_POINT_FIELD_DATA))
+  {
+    return;
+  }
   this->Mapper->SetScalarVisibility(true);
   this->Mapper->SetScalarModeToUsePointFieldData();
   this->Mapper->SelectColorArray(arrayName);
@@ -602,15 +745,16 @@ void vtkSurfaceRepresentation::ColorByPointArray(const char* arrayName)
 void vtkSurfaceRepresentation::ColorByPointArray(const char* arrayName, int component)
 {
   this->ColorByPointArray(arrayName);
-  this->Mapper->SetColorModeToMapScalars();
-  this->Mapper->GetLookupTable()->SetVectorModeToComponent();
-  this->Mapper->GetLookupTable()->SetVectorComponent(component);
-  this->Modified();
+  this->ColorByComponent(component);
 }
 
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::ColorByCellArray(const char* arrayName)
 {
+  if (this->IsColoringBy(arrayName, VTK_SCALAR_MODE_USE_CELL_FIELD_DATA))
+  {
+    return;
+  }
   this->Mapper->SetScalarVisibility(true);
   this->Mapper->SetScalarModeToUseCellFieldData();
   this->Mapper->SelectColorArray(arrayName);
@@ -621,15 +765,47 @@ void vtkSurfaceRepresentation::ColorByCellArray(const char* arrayName)
 void vtkSurfaceRepresentation::ColorByCellArray(const char* arrayName, int component)
 {
   this->ColorByCellArray(arrayName);
+  this->ColorByComponent(component);
+}
+
+//------------------------------------------------------------------------------
+bool vtkSurfaceRepresentation::IsColoringBy(const char* arrayName, int scalarMode)
+{
+  if (!this->Mapper->GetScalarVisibility() || this->Mapper->GetScalarMode() != scalarMode ||
+    this->Mapper->GetArrayAccessMode() != VTK_GET_ARRAY_BY_NAME)
+  {
+    return false;
+  }
+  const char* current = this->Mapper->GetArrayName();
+  if (!current || !arrayName)
+  {
+    return current == arrayName;
+  }
+  return strcmp(current, arrayName) == 0;
+}
+
+//------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::ColorByComponent(int component)
+{
+  vtkScalarsToColors* lut = this->Mapper->GetLookupTable();
+  if (this->Mapper->GetColorMode() == VTK_COLOR_MODE_MAP_SCALARS &&
+    lut->GetVectorMode() == vtkScalarsToColors::COMPONENT && lut->GetVectorComponent() == component)
+  {
+    return;
+  }
   this->Mapper->SetColorModeToMapScalars();
-  this->Mapper->GetLookupTable()->SetVectorModeToComponent();
-  this->Mapper->GetLookupTable()->SetVectorComponent(component);
+  lut->SetVectorModeToComponent();
+  lut->SetVectorComponent(component);
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetLookupTable(vtkScalarsToColors* lut)
 {
+  if (this->GetLookupTable() == lut)
+  {
+    return;
+  }
   this->Mapper->SetLookupTable(lut);
   this->ScalarBar->SetLookupTable(lut);
   this->Modified();
@@ -644,6 +820,11 @@ vtkScalarsToColors* vtkSurfaceRepresentation::GetLookupTable()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetScalarRange(double min, double max)
 {
+  double* current = this->GetScalarRange();
+  if (current[0] == min && current[1] == max)
+  {
+    return;
+  }
   this->Mapper->SetScalarRange(min, max);
   this->Modified();
 }
@@ -657,6 +838,10 @@ double* vtkSurfaceRepresentation::GetScalarRange()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetInterpolateScalarsBeforeMapping(bool val)
 {
+  if (this->GetInterpolateScalarsBeforeMapping() == val)
+  {
+    return;
+  }
   this->Mapper->SetInterpolateScalarsBeforeMapping(val);
   this->Modified();
 }
@@ -670,6 +855,10 @@ bool vtkSurfaceRepresentation::GetInterpolateScalarsBeforeMapping()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetVisibility(bool val)
 {
+  if (this->GetVisibility() == val)
+  {
+    return;
+  }
   this->Actor->SetVisibility(val);
   this->ScalarBar->SetVisibility(val && this->ScalarBarVisible);
   this->Modified();
@@ -684,6 +873,10 @@ bool vtkSurfaceRepresentation::GetVisibility()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetPickable(bool val)
 {
+  if (this->GetPickable() == val)
+  {
+    return;
+  }
   this->Actor->SetPickable(val);
   this->Modified();
 }
@@ -697,6 +890,11 @@ bool vtkSurfaceRepresentation::GetPickable()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetPosition(double x, double y, double z)
 {
+  double* current = this->GetPosition();
+  if (current[0] == x && current[1] == y && current[2] == z)
+  {
+    return;
+  }
   this->Actor->SetPosition(x, y, z);
   this->Modified();
 }
@@ -710,6 +908,11 @@ double* vtkSurfaceRepresentation::GetPosition()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetOrientation(double x, double y, double z)
 {
+  double* current = this->GetOrientation();
+  if (current[0] == x && current[1] == y && current[2] == z)
+  {
+    return;
+  }
   this->Actor->SetOrientation(x, y, z);
   this->Modified();
 }
@@ -723,6 +926,11 @@ double* vtkSurfaceRepresentation::GetOrientation()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetScale(double x, double y, double z)
 {
+  double* current = this->GetScale();
+  if (current[0] == x && current[1] == y && current[2] == z)
+  {
+    return;
+  }
   this->Actor->SetScale(x, y, z);
   this->Modified();
 }
@@ -736,6 +944,10 @@ double* vtkSurfaceRepresentation::GetScale()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetScalarBarVisibility(bool val)
 {
+  if (this->ScalarBarVisible == val)
+  {
+    return;
+  }
   this->ScalarBarVisible = val;
   this->ScalarBar->SetVisibility(val && (this->Actor->GetVisibility() != 0));
   this->Modified();
@@ -1026,6 +1238,11 @@ vtkSelection* vtkSurfaceRepresentation::ConvertSelection(
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetSelectionColor(double r, double g, double b)
 {
+  double* current = this->GetSelectionColor();
+  if (current[0] == r && current[1] == g && current[2] == b)
+  {
+    return;
+  }
   this->SelectionActor->GetProperty()->SetColor(r, g, b);
   this->Modified();
 }
@@ -1039,6 +1256,10 @@ double* vtkSurfaceRepresentation::GetSelectionColor()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetSelectionOpacity(double val)
 {
+  if (this->GetSelectionOpacity() == val)
+  {
+    return;
+  }
   this->SelectionActor->GetProperty()->SetOpacity(val);
   this->Modified();
 }
@@ -1052,6 +1273,10 @@ double vtkSurfaceRepresentation::GetSelectionOpacity()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetSelectionLineWidth(double val)
 {
+  if (this->GetSelectionLineWidth() == val)
+  {
+    return;
+  }
   this->SelectionActor->GetProperty()->SetLineWidth(val);
   this->Modified();
 }
@@ -1065,6 +1290,10 @@ double vtkSurfaceRepresentation::GetSelectionLineWidth()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetSelectionPointSize(double val)
 {
+  if (this->GetSelectionPointSize() == val)
+  {
+    return;
+  }
   this->SelectionActor->GetProperty()->SetPointSize(val);
   this->Modified();
 }
@@ -1078,25 +1307,37 @@ double vtkSurfaceRepresentation::GetSelectionPointSize()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetSelectionRepresentation(int type)
 {
-  vtkProperty* prop = this->SelectionActor->GetProperty();
+  int representation;
+  bool edgeVisibility;
   switch (type)
   {
     case POINTS:
-      prop->SetRepresentationToPoints();
+      representation = VTK_POINTS;
+      edgeVisibility = false;
       break;
     case WIREFRAME:
-      prop->SetRepresentationToWireframe();
+      representation = VTK_WIREFRAME;
+      edgeVisibility = false;
       break;
     case SURFACE:
-      prop->SetRepresentationToSurface();
+      representation = VTK_SURFACE;
+      edgeVisibility = false;
       break;
     case SURFACE_WITH_EDGES:
-      prop->SetRepresentationToSurface();
-      prop->SetEdgeVisibility(true);
+      representation = VTK_SURFACE;
+      edgeVisibility = true;
       break;
     default:
       return;
   }
+  vtkProperty* prop = this->SelectionActor->GetProperty();
+  if (prop->GetRepresentation() == representation &&
+    (prop->GetEdgeVisibility() != 0) == edgeVisibility)
+  {
+    return;
+  }
+  prop->SetRepresentation(representation);
+  prop->SetEdgeVisibility(edgeVisibility);
   this->Modified();
 }
 

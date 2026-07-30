@@ -164,9 +164,15 @@ bool vtkVolumeRepresentation::RemoveFromView(vtkView* view)
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetColorTransferFunction(vtkColorTransferFunction* ctf)
 {
+  // Record the user's intent even when the function is unchanged, so a default
+  // one is never generated over it.
+  this->UserSetColorTransferFunction = true;
+  if (this->GetColorTransferFunction() == ctf)
+  {
+    return;
+  }
   this->VolumeProperty->SetColor(ctf);
   this->ScalarBar->SetLookupTable(ctf);
-  this->UserSetColorTransferFunction = true;
   this->Modified();
 }
 
@@ -179,8 +185,14 @@ vtkColorTransferFunction* vtkVolumeRepresentation::GetColorTransferFunction()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetScalarOpacity(vtkPiecewiseFunction* pf)
 {
-  this->VolumeProperty->SetScalarOpacity(pf);
+  // Record the user's intent even when the function is unchanged, so a default
+  // one is never generated over it.
   this->UserSetScalarOpacity = true;
+  if (this->GetScalarOpacity() == pf)
+  {
+    return;
+  }
+  this->VolumeProperty->SetScalarOpacity(pf);
   this->Modified();
 }
 
@@ -193,6 +205,10 @@ vtkPiecewiseFunction* vtkVolumeRepresentation::GetScalarOpacity()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetScalarOpacityUnitDistance(double distance)
 {
+  if (this->GetScalarOpacityUnitDistance() == distance)
+  {
+    return;
+  }
   this->VolumeProperty->SetScalarOpacityUnitDistance(distance);
   this->Modified();
 }
@@ -206,6 +222,10 @@ double vtkVolumeRepresentation::GetScalarOpacityUnitDistance()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetShade(bool val)
 {
+  if (this->GetShade() == val)
+  {
+    return;
+  }
   this->VolumeProperty->SetShade(val ? 1 : 0);
   this->Modified();
 }
@@ -219,6 +239,10 @@ bool vtkVolumeRepresentation::GetShade()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetAmbient(double val)
 {
+  if (this->GetAmbient() == val)
+  {
+    return;
+  }
   this->VolumeProperty->SetAmbient(val);
   this->Modified();
 }
@@ -232,6 +256,10 @@ double vtkVolumeRepresentation::GetAmbient()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetDiffuse(double val)
 {
+  if (this->GetDiffuse() == val)
+  {
+    return;
+  }
   this->VolumeProperty->SetDiffuse(val);
   this->Modified();
 }
@@ -245,6 +273,10 @@ double vtkVolumeRepresentation::GetDiffuse()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetSpecular(double val)
 {
+  if (this->GetSpecular() == val)
+  {
+    return;
+  }
   this->VolumeProperty->SetSpecular(val);
   this->Modified();
 }
@@ -258,6 +290,10 @@ double vtkVolumeRepresentation::GetSpecular()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetSpecularPower(double val)
 {
+  if (this->GetSpecularPower() == val)
+  {
+    return;
+  }
   this->VolumeProperty->SetSpecularPower(val);
   this->Modified();
 }
@@ -271,6 +307,10 @@ double vtkVolumeRepresentation::GetSpecularPower()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetInterpolationType(int val)
 {
+  if (this->GetInterpolationType() == val)
+  {
+    return;
+  }
   this->VolumeProperty->SetInterpolationType(val);
   this->Modified();
 }
@@ -284,6 +324,10 @@ int vtkVolumeRepresentation::GetInterpolationType()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetBlendMode(int mode)
 {
+  if (this->GetBlendMode() == mode)
+  {
+    return;
+  }
   this->VolumeMapper->SetBlendMode(mode);
   this->Modified();
 }
@@ -297,6 +341,10 @@ int vtkVolumeRepresentation::GetBlendMode()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetRequestedRenderMode(int mode)
 {
+  if (this->GetRequestedRenderMode() == mode)
+  {
+    return;
+  }
   this->VolumeMapper->SetRequestedRenderMode(mode);
   this->Modified();
 }
@@ -310,6 +358,10 @@ int vtkVolumeRepresentation::GetRequestedRenderMode()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetVisibility(bool val)
 {
+  if (this->GetVisibility() == val)
+  {
+    return;
+  }
   this->VolumeActor->SetVisibility(val);
   this->ScalarBar->SetVisibility(val && this->ScalarBarVisible);
   this->Modified();
@@ -324,6 +376,11 @@ bool vtkVolumeRepresentation::GetVisibility()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetPosition(double x, double y, double z)
 {
+  double* current = this->GetPosition();
+  if (current[0] == x && current[1] == y && current[2] == z)
+  {
+    return;
+  }
   this->VolumeActor->SetPosition(x, y, z);
   this->Modified();
 }
@@ -337,6 +394,11 @@ double* vtkVolumeRepresentation::GetPosition()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetOrientation(double x, double y, double z)
 {
+  double* current = this->GetOrientation();
+  if (current[0] == x && current[1] == y && current[2] == z)
+  {
+    return;
+  }
   this->VolumeActor->SetOrientation(x, y, z);
   this->Modified();
 }
@@ -350,6 +412,11 @@ double* vtkVolumeRepresentation::GetOrientation()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetScale(double x, double y, double z)
 {
+  double* current = this->GetScale();
+  if (current[0] == x && current[1] == y && current[2] == z)
+  {
+    return;
+  }
   this->VolumeActor->SetScale(x, y, z);
   this->Modified();
 }
@@ -363,6 +430,10 @@ double* vtkVolumeRepresentation::GetScale()
 //------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetScalarBarVisibility(bool val)
 {
+  if (this->ScalarBarVisible == val)
+  {
+    return;
+  }
   this->ScalarBarVisible = val;
   this->ScalarBar->SetVisibility(val && (this->VolumeActor->GetVisibility() != 0));
   this->Modified();
