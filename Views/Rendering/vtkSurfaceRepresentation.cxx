@@ -29,6 +29,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 
+#include <algorithm>
 #include <cstring>
 #include <vector>
 
@@ -118,6 +119,22 @@ bool vtkSurfaceRepresentation::RemoveFromView(vtkView* view)
   rv->GetRenderer()->RemoveActor(this->SelectionActor);
   rv->GetRenderer()->RemoveViewProp(this->ScalarBar);
   return true;
+}
+
+//------------------------------------------------------------------------------
+vtkMTimeType vtkSurfaceRepresentation::GetMTime()
+{
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  mTime = std::max(mTime, this->GeometryFilter->GetMTime());
+  mTime = std::max(mTime, this->Mapper->GetMTime());
+  // vtkActor::GetMTime() already accounts for the property.
+  mTime = std::max(mTime, this->Actor->GetMTime());
+  mTime = std::max(mTime, this->ScalarBar->GetMTime());
+  mTime = std::max(mTime, this->SelectionExtractor->GetMTime());
+  mTime = std::max(mTime, this->SelectionGeometryFilter->GetMTime());
+  mTime = std::max(mTime, this->SelectionMapper->GetMTime());
+  mTime = std::max(mTime, this->SelectionActor->GetMTime());
+  return mTime;
 }
 
 //------------------------------------------------------------------------------

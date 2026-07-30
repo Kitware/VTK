@@ -23,6 +23,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 
+#include <algorithm>
 #include <cstring>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -72,6 +73,20 @@ vtkStandardRenderView::~vtkStandardRenderView()
     this->LightKit->RemoveLightsFromRenderer(this->Renderer);
   }
   this->OrientationWidget->SetEnabled(0);
+}
+
+//------------------------------------------------------------------------------
+vtkMTimeType vtkStandardRenderView::GetMTime()
+{
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  // The background colors live on the renderer and the size and title on the
+  // render window; neither is touched by rendering itself.
+  mTime = std::max(mTime, this->Renderer->GetMTime());
+  mTime = std::max(mTime, this->GetRenderWindow()->GetMTime());
+  mTime = std::max(mTime, this->LightKit->GetMTime());
+  mTime = std::max(mTime, this->OrientationWidget->GetMTime());
+  mTime = std::max(mTime, this->HardwareSelector->GetMTime());
+  return mTime;
 }
 
 //------------------------------------------------------------------------------

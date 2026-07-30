@@ -49,6 +49,15 @@ public:
   vtkTypeMacro(vtkStandardRenderView, vtkRenderViewBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * The view stores its configuration on the renderer, render window, light kit
+   * and orientation marker widget rather than in its own ivars, so the modified
+   * time reported here is the latest of this object's own and theirs.  Note
+   * that this makes the view report scene changes too, since adding or removing
+   * a representation modifies the renderer.
+   */
+  vtkMTimeType GetMTime() override;
+
   ///@{
   /**
    * Set/Get the background color of the renderer.  SetBackground sets the

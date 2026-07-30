@@ -20,6 +20,8 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVolumeRepresentation);
 
@@ -159,6 +161,18 @@ bool vtkVolumeRepresentation::RemoveFromView(vtkView* view)
   rv->GetRenderer()->RemoveVolume(this->VolumeActor);
   rv->GetRenderer()->RemoveViewProp(this->ScalarBar);
   return true;
+}
+
+//------------------------------------------------------------------------------
+vtkMTimeType vtkVolumeRepresentation::GetMTime()
+{
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  mTime = std::max(mTime, this->VolumeMapper->GetMTime());
+  // vtkVolume::GetMTime() already accounts for the volume property, which in
+  // turn accounts for the transfer functions.
+  mTime = std::max(mTime, this->VolumeActor->GetMTime());
+  mTime = std::max(mTime, this->ScalarBar->GetMTime());
+  return mTime;
 }
 
 //------------------------------------------------------------------------------

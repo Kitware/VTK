@@ -46,6 +46,14 @@ public:
   vtkTypeMacro(vtkVolumeRepresentation, vtkDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * The representation stores its properties on the volume mapper, volume and
+   * scalar bar it owns rather than in its own ivars.  Those objects are also
+   * reachable through GetVolume(), GetScalarBarActor() and friends, so the
+   * modified time reported here is the latest of this object's own and theirs.
+   */
+  vtkMTimeType GetMTime() override;
+
   ///@{
   /**
    * Transfer functions for color and opacity.

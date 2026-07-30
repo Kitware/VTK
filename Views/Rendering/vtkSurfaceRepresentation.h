@@ -51,6 +51,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * The representation stores its properties on the geometry filter, mapper,
+   * actor and scalar bar it owns rather than in its own ivars.  Those objects
+   * are also reachable through GetActor(), GetScalarBarActor() and friends, so
+   * the modified time reported here is the latest of this object's own and
+   * theirs.
+   */
+  vtkMTimeType GetMTime() override;
+
+  /**
    * Representation type constants.
    */
   enum RepresentationType
