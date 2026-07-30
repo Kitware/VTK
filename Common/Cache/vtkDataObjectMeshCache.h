@@ -172,18 +172,18 @@ public:
    * Original Ids.
    * When original ids are present for an attribute types, all arrays of this
    * attribute are forwarded to the output.
-   * @sa CopyCacheToOutput
+   * @sa CopyCacheToDataObject
    */
   ///@{
   /**
    * Add original ids array name for attribute type.
-   * @sa RemoveOriginalIds, ClearOriginalIds, CopyCacheToOutput
+   * @sa RemoveOriginalIds, ClearOriginalIds, CopyCacheToDataObject
    */
   void AddOriginalIds(int attribute, const std::string& name);
 
   /**
    * Remove ids array name for attribute type.
-   * @sa AddOriginalIds, ClearOriginalIds, CopyCacheToOutput
+   * @sa AddOriginalIds, ClearOriginalIds, CopyCacheToDataObject
    */
   void RemoveOriginalIds(int attribute);
 
