@@ -1,5 +1,7 @@
 vtk_module_test_data(
   Data/42400-IDGH.stl
+  Data/multiple_patches.stl
+  Data/malformed_binary.stl
   Data/AMR/Enzo/DD0010/,REGEX:.*
   Data/IncOctPntLocData.dat
   Data/IncOctPntLocResult.dat
@@ -63,6 +65,10 @@ vtk_module_test_data(
   Data/OpenFOAM/valuePointPatch/system/,RECURSE:,REGEX:.*$
   Data/OpenFOAM/valuePointPatch/constant/,RECURSE:,REGEX:.*$
   Data/OpenFOAM/valuePointPatch/2002/,RECURSE:,REGEX:.*$
+
+  Data/BaselineData/TestSTLReader_standard.vtkhdf
+  Data/BaselineData/TestSTLReader_malformed_binary.vtkhdf
+  Data/BaselineData/TestSTLReader_multiple_patches.vtkhdf
 
   Data/TecPlot/,REGEX:.*
   Data/Viewpoint/cow.obj
