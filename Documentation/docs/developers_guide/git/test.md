@@ -401,7 +401,7 @@ discuss details of the workflow implementation.
 ### ExternalData ###
 
 While [CMake runs](#run-cmake) the [ExternalData][] module evaluates
-[DATA{} references](#add-test).  VTK sets in [vtkExternalData.cmake][]
+[DATA{} references](#add-data).  VTK sets in [vtkExternalData.cmake][]
 the `ExternalData_LINK_CONTENT` option to `SHA512` to enable automatic
 conversion of raw data files into content links.  When the module detects
 a real data file in the source tree it performs the following
