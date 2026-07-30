@@ -19,8 +19,6 @@
 
 int TestWebGPUVolumeMixedGeometry(int argc, char* argv[])
 {
-  vtkWebGPUVolumeTest::UseWebGPUBackend();
-
   vtkNew<vtkRTAnalyticSource> source;
   source->SetWholeExtent(-31, 31, -31, 31, -31, 31);
   source->Update();

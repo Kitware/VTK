@@ -81,8 +81,6 @@ vtkWebGPUVolumeTest::Frame RenderOrder(const int order[3], vtkRenderWindow* wind
 
 int TestWebGPUVolumeOverlap(int argc, char* argv[])
 {
-  vtkWebGPUVolumeTest::UseWebGPUBackend();
-
   vtkNew<vtkRenderWindow> window;
   window->SetSize(400, 320);
   if (!vtkWebGPUVolumeTest::CheckClass(window, "vtkWebGPURenderWindow"))

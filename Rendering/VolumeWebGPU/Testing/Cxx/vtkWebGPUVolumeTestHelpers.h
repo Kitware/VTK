@@ -12,7 +12,6 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
-#include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkRenderWindow.h"
@@ -28,14 +27,6 @@
 
 namespace vtkWebGPUVolumeTest
 {
-
-/**
- * Ask the object factory for WebGPU before anything is instantiated. Call this first in main().
- */
-inline void UseWebGPUBackend()
-{
-  vtkObjectFactory::SetPreferences("RenderingBackend=WebGPU");
-}
 
 /**
  * Fail loudly when the factory handed back something other than the class under test, rather
