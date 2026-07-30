@@ -193,7 +193,7 @@ int TestSVGExporterContextPolyData(int argc, char* argv[])
   view->Render();
 
   std::string filename =
-    vtkTestingInteractor::TempDirectory + std::string("/TestSVGExporterContextPolyData.svg");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestSVGExporterContextPolyData.svg");
 
   vtkNew<vtkSVGExporter> exp;
   exp->SetRenderWindow(view->GetRenderWindow());

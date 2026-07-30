@@ -56,7 +56,7 @@ int TestSVGContextShading(int, char*[])
   view->GetRenderWindow()->Render();
 
   std::string filename =
-    vtkTestingInteractor::TempDirectory + std::string("/TestSVGContextShading.svg");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestSVGContextShading.svg");
 
   vtkNew<vtkSVGExporter> exp;
   exp->SetRenderWindow(view->GetRenderWindow());

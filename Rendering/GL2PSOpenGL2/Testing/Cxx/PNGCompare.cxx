@@ -32,20 +32,21 @@ int PNGCompare(int argc, char* argv[])
 
   // Location of the temp directory for testing
   testing->AddArgument("-T");
-  testing->AddArgument(vtkTestingInteractor::TempDirectory.c_str());
+  testing->AddArgument(vtkTestingInteractor::GetTempDirectory().c_str());
 
   // Location of the Data directory
   testing->AddArgument("-D");
-  testing->AddArgument(vtkTestingInteractor::DataDirectory.c_str());
+  testing->AddArgument(vtkTestingInteractor::GetDataDirectory().c_str());
 
   // The name of the valid baseline image
   testing->AddArgument("-V");
-  testing->AddArgument(vtkTestingInteractor::ValidBaseline.c_str());
+  testing->AddArgument(vtkTestingInteractor::GetValidBaseline().c_str());
 
   // Regression test the image
-  int result = testing->RegressionTest(testImageFileName, vtkTestingInteractor::ErrorThreshold);
+  int result =
+    testing->RegressionTest(testImageFileName, vtkTestingInteractor::GetErrorThreshold());
 
-  vtkTestingInteractor::TestReturnStatus = result;
+  vtkTestingInteractor::SetTestReturnStatus(result);
 
   if (result == vtkTesting::PASSED)
   {

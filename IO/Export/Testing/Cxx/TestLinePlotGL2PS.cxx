@@ -97,7 +97,8 @@ int TestLinePlotGL2PS(int, char*[])
   exp->CompressOff();
   exp->DrawBackgroundOn();
 
-  std::string fileprefix = vtkTestingInteractor::TempDirectory + std::string("/TestLinePlotGL2PS");
+  std::string fileprefix =
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestLinePlotGL2PS");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

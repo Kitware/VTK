@@ -219,7 +219,7 @@ int TestGL2PSFontDPIScaling(int argc, char* argv[])
   exp->DrawBackgroundOn();
 
   std::string fileprefix =
-    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSFontDPIScaling");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestGL2PSFontDPIScaling");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

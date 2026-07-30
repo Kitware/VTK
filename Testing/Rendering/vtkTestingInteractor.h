@@ -15,6 +15,7 @@
 #ifndef vtkTestingInteractor_h
 #define vtkTestingInteractor_h
 
+#include "vtkDeprecation.h"             // For deprecation macros
 #include "vtkObjectFactoryCollection.h" // Generated object overrides
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"           // For vtkSmartPointer
@@ -43,10 +44,30 @@ public:
 
   void Start() override;
 
-  static int TestReturnStatus;      // Return status of the test
-  static double ErrorThreshold;     // Error Threshold
+  static void SetTestReturnStatus(int status);
+  static int GetTestReturnStatus();
+
+  static void SetErrorThreshold(double threshold);
+  static double GetErrorThreshold();
+
+  static void SetValidBaseline(std::string baseline);
+  static std::string const& GetValidBaseline();
+
+  static void SetTempDirectory(std::string dir);
+  static std::string const& GetTempDirectory();
+
+  static void SetDataDirectory(std::string dir);
+  static std::string const& GetDataDirectory();
+
+  VTK_DEPRECATED_IN_9_8_0("Use `SetTestReturnStatus`/`GetTestReturnStatus`")
+  static int TestReturnStatus; // Return status of the test
+  VTK_DEPRECATED_IN_9_8_0("Use `SetErrorThreshold`/`GetErrorThreshold`")
+  static double ErrorThreshold; // Error Threshold
+  VTK_DEPRECATED_IN_9_8_0("Use `SetValidBaseline`/`GetValidBaseline`")
   static std::string ValidBaseline; // Name of the Baseline image
+  VTK_DEPRECATED_IN_9_8_0("Use `SetTempDirectory`/`GetTempDirectory`")
   static std::string TempDirectory; // Location of Testing/Temporary
+  VTK_DEPRECATED_IN_9_8_0("Use `SetDataDirectory`/`GetDataDirectory`")
   static std::string DataDirectory; // Location of VTKData
 
   ///@{

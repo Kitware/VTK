@@ -256,7 +256,7 @@ int TestPDFTransformedText(int, char*[])
   view->GetRenderWindow()->Render();
 
   std::string filename =
-    vtkTestingInteractor::TempDirectory + std::string("/TestPDFTransformedText.pdf");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestPDFTransformedText.pdf");
 
   vtkNew<vtkPDFExporter> exp;
   exp->SetRenderWindow(view->GetRenderWindow());

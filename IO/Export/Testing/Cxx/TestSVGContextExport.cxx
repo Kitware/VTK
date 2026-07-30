@@ -106,7 +106,7 @@ int TestSVGContextExport(int, char*[])
   view->GetRenderWindow()->Render();
 
   std::string filename =
-    vtkTestingInteractor::TempDirectory + std::string("/TestSVGContextExport.svg");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestSVGContextExport.svg");
 
   vtkNew<vtkSVGExporter> exp;
   exp->SetRenderWindow(view->GetRenderWindow());

@@ -50,7 +50,7 @@ static inline void generatePixelData(std::vector<float>& data, size_t width, siz
 int TestGL2PSAddPolyPrimitive(int, char*[])
 {
   std::string filename =
-    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSAddPolyPrimitive.ps");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestGL2PSAddPolyPrimitive.ps");
   FILE* stream = vtksys::SystemTools::Fopen(filename, "wb");
   if (stream == nullptr)
   {

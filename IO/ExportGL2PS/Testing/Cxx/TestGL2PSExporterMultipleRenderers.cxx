@@ -61,7 +61,7 @@ int TestGL2PSExporterMultipleRenderers(int, char*[])
   exp->DrawBackgroundOn();
 
   std::string fileprefix =
-    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSExporterMultipleRenderers");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestGL2PSExporterMultipleRenderers");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

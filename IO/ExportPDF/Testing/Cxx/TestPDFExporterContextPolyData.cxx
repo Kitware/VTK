@@ -194,7 +194,7 @@ int TestPDFExporterContextPolyData(int argc, char* argv[])
   view->Render();
 
   std::string filename =
-    vtkTestingInteractor::TempDirectory + std::string("/TestPDFExporterContextPolyData.pdf");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestPDFExporterContextPolyData.pdf");
 
   vtkNew<vtkPDFExporter> exp;
   exp->SetRenderWindow(view->GetRenderWindow());
