@@ -27,8 +27,10 @@
 
 namespace
 {
+// vtkBuffer invokes this with a byte count (size = numElements * sizeof(vtkStdString)),
+// matching the malloc() convention, so convert back to an element count for new[].
 vtkMallocingFunction DefaultNewFunction = [](size_t size) -> void*
-{ return new vtkStdString[size]; };
+{ return new vtkStdString[size / sizeof(vtkStdString)]; };
 vtkFreeingFunction DefaultDeleteFunction = [](void* ptr)
 { delete[] static_cast<vtkStdString*>(ptr); };
 }

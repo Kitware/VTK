@@ -17,6 +17,8 @@
 
 namespace
 {
+// vtkBuffer invokes this with a byte count (size = numElements * sizeof(unsigned char)).
+// sizeof(unsigned char) == 1, so no conversion back to an element count is needed here.
 vtkMallocingFunction DefaultNewFunction = [](size_t size) -> void*
 { return new unsigned char[size]; };
 vtkFreeingFunction DefaultDeleteFunction = [](void* ptr)
