@@ -33,6 +33,8 @@
 
 #elif defined(VISKORES_CUDA)
 
+#include <cuda.h>
+
 #define VISKORES_EXEC __device__ __host__
 #define VISKORES_EXEC_CONT __device__ __host__
 
@@ -84,7 +86,7 @@
 //
 // Solution:
 // The solution is fairly simple, but annoying. You need to mark every single
-// header only class that is tempgit lated on non value types to be marked as
+// header only class that is templated on non value types to be marked as
 // always exported ( or never pass fvisibility=hidden ).
 //
 // TL;DR:
@@ -93,8 +95,17 @@
 //    resolve to a single type instance
 //  - Be a type ( or component of a types signature ) that can be passed between
 //    dynamic libraries and requires RTTI support ( dynamic_cast ).
-#if defined(VISKORES_MSVC) || defined(VISKORES_CUDA) || defined(VISKORES_DOXYGEN_ONLY)
+#if defined(VISKORES_MSVC) || defined(VISKORES_DOXYGEN_ONLY)
 #define VISKORES_ALWAYS_EXPORT
+#define VISKORES_NEVER_EXPORT
+#elif defined(VISKORES_CUDA)
+// Before CUDA 11.0, the visibility attribute was not supported. Later version
+// require declaring the visibility for exported symbols, but not hidden symbols.
+#if CUDA_VERSION >= 11000
+#define VISKORES_ALWAYS_EXPORT __attribute__((visibility("default")))
+#else
+#define VISKORES_ALWAYS_EXPORT
+#endif
 #define VISKORES_NEVER_EXPORT
 #else
 #define VISKORES_ALWAYS_EXPORT __attribute__((visibility("default")))

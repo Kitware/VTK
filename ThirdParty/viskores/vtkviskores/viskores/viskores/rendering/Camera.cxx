@@ -378,8 +378,9 @@ viskores::rendering::raytracing::Camera Camera::CreateRaytracingCamera(viskores:
   rayCamera.SetIsOrthogonalProjection(this->GetMode() == Mode::TwoD);
   rayCamera.SetCamera3D(this->Camera3D);
   rayCamera.SetCamera2D(this->Camera2D);
-  rayCamera.SetViewport(
-    this->ViewportLeft, this->ViewportRight, this->ViewportBottom, this->ViewportTop);
+  viskores::Float32 left, right, bottom, top;
+  this->GetRealViewport(width, height, left, right, bottom, top);
+  rayCamera.SetViewport(left, right, bottom, top);
   return rayCamera;
 }
 

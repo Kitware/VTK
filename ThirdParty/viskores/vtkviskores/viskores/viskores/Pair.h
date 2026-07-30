@@ -34,7 +34,7 @@ namespace viskores
 /// only in the control environment).
 ///
 template <typename T1, typename T2>
-struct Pair
+struct VISKORES_ALWAYS_EXPORT Pair
 {
   /// The type of the first object.
   ///
