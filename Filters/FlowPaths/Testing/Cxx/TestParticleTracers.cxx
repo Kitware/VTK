@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAppendDataSets.h"
+#include "vtkFieldData.h"
 #include "vtkGenerateTimeSteps.h"
 #include "vtkGradientFilter.h"
 #include "vtkImageData.h"
@@ -36,6 +37,10 @@ bool Execute(vtkAlgorithm* input, vtkPolyData* seeds, bool vorticity,
   {
     tracer->UpdateTimeStep(t);
   }
+
+  // Remove meta-data from XML reader for comparison
+  vtkNew<vtkFieldData> dummyField;
+  expected->SetFieldData(dummyField);
 
   if (!vtkTestUtilities::CompareDataObjects(tracer->GetOutputDataObject(0), expected))
   {
