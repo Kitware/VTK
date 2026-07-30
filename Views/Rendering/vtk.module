@@ -28,4 +28,5 @@ TEST_DEPENDS
   VTK::ImagingCore
   VTK::IOImage
   VTK::IOXML
+  VTK::RenderingAnnotation
   VTK::TestingRendering
