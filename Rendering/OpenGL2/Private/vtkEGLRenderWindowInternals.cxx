@@ -37,20 +37,30 @@ typedef EGLDisplay (*EGLGetPlatformDisplayEXTType)(EGLenum, void*, const EGLint*
  */
 struct vtkEGLDisplayInitializationHelper
 {
-  static std::map<EGLDisplay, std::atomic<int64_t>> DisplayUsageCounts;
+  static std::map<EGLDisplay, std::atomic<int64_t>>& DisplayUsageCounts()
+  {
+    static std::map<EGLDisplay, std::atomic<int64_t>> usageCounts;
+    return usageCounts;
+  }
 
 public:
   static EGLBoolean Initialize(EGLDisplay dpy, EGLint* major, EGLint* minor)
   {
-    ++DisplayUsageCounts[dpy];
+    ++DisplayUsageCounts()[dpy];
     return eglInitialize(dpy, major, minor);
   }
   static EGLBoolean Terminate(EGLDisplay dpy)
   {
-    assert(DisplayUsageCounts.find(dpy) != DisplayUsageCounts.end());
-    if (--DisplayUsageCounts[dpy] == 0)
+    auto& usageCounts = DisplayUsageCounts();
+    auto i = usageCounts.find(dpy);
+    if (i == usageCounts.end())
     {
-      DisplayUsageCounts.erase(dpy);
+      vtkErrorWithObjectMacro(
+        nullptr, << "The EGL Display " << dpy << " is not managed by VTK; ignoring");
+    }
+    else if (--i->second == 0)
+    {
+      usageCounts.erase(i);
       return eglTerminate(dpy);
     }
     return EGL_TRUE;
@@ -59,7 +69,6 @@ public:
   static int DefaultDeviceIndex;
 };
 
-std::map<EGLDisplay, std::atomic<int64_t>> vtkEGLDisplayInitializationHelper::DisplayUsageCounts;
 int vtkEGLDisplayInitializationHelper::DefaultDeviceIndex = VTK_DEFAULT_EGL_DEVICE_INDEX;
 
 //------------------------------------------------------------------------------
