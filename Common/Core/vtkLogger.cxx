@@ -67,12 +67,24 @@ namespace detail
 VTK_ABI_NAMESPACE_BEGIN
 #if VTK_MODULE_ENABLE_VTK_loguru
 using scope_pair = std::pair<std::string, std::shared_ptr<loguru::LogScopeRAII>>;
-static std::mutex g_mutex;
-static std::unordered_map<std::thread::id, std::vector<scope_pair>> g_vectors;
+
+struct vtkLoggerData
+{
+  std::unordered_map<std::thread::id, std::vector<scope_pair>> vectors;
+  std::mutex mtx;
+};
+
+vtkLoggerData& GetLoggerData()
+{
+  static vtkLoggerData Data;
+  return Data;
+}
+
 static std::vector<scope_pair>& get_vector()
 {
-  std::scoped_lock<std::mutex> guard(g_mutex);
-  return g_vectors[std::this_thread::get_id()];
+  auto& Data = GetLoggerData();
+  std::scoped_lock<std::mutex> guard(Data.mtx);
+  return Data.vectors[std::this_thread::get_id()];
 }
 
 static void push_scope(const char* id, std::shared_ptr<loguru::LogScopeRAII> ptr)
@@ -89,8 +101,9 @@ static void pop_scope(const char* id)
 
     if (vector.empty())
     {
-      std::scoped_lock<std::mutex> guard(g_mutex);
-      g_vectors.erase(std::this_thread::get_id());
+      auto& Data = GetLoggerData();
+      std::scoped_lock<std::mutex> guard(Data.mtx);
+      Data.vectors.erase(std::this_thread::get_id());
     }
   }
   else
