@@ -54,11 +54,13 @@ protected:
 private:
   /// Invert the reference-to-world mapping for \a testPoint in cell \a cellId via
   /// Newton-Raphson. Returns true and sets \a rst to the parametric coordinates if
-  /// Newton converged and the result lies inside the reference element.
+  /// Newton converged and the result lies inside the reference element or within
+  /// \a tolerance of its boundary (see vtkCellGridEvaluator::ClassifierTolerance;
+  /// the effective tolerance is floored at the iteration's convergence precision).
   /// \a xyz and \a jacobian are caller-supplied working buffers reused across calls.
   static bool EvaluatePosition(vtkInterpolateCalculator* calc, vtkDGCell* dgCell, vtkIdType cellId,
-    const vtkVector3d& testPoint, std::vector<double>& xyz, std::vector<double>& jacobian,
-    vtkVector3d& rst);
+    const vtkVector3d& testPoint, double tolerance, std::vector<double>& xyz,
+    std::vector<double>& jacobian, vtkVector3d& rst);
 
   vtkDGEvaluator(const vtkDGEvaluator&) = delete;
   void operator=(const vtkDGEvaluator&) = delete;

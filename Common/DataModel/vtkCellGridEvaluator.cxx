@@ -45,6 +45,7 @@ void vtkCellGridEvaluator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "CellAttribute: " << this->CellAttribute << "\n";
+  os << indent << "ClassifierTolerance: " << this->ClassifierTolerance << "\n";
   os << indent << "PhasesToPerform: " << this->PhasesToPerform << "\n";
   os << indent << "InputPoints: " << this->InputPoints << "\n";
   os << indent << "ClassifierCellTypes: " << this->ClassifierCellTypes << "\n";

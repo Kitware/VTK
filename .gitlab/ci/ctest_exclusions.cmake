@@ -1,8 +1,6 @@
 set(test_exclusions
   # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19896
   "^VTK::RenderingOpenGL2Cxx-TestFluidMapper(SerDes)?$"
-  # Flaky when run with threads enabled. See #19471.
-  "^VTK::FiltersCellGridCxx-TestCellGridEvaluator(SerDes)?$"
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
   "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability(SerDes)?$")
 

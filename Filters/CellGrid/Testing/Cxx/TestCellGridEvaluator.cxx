@@ -16,6 +16,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkVector.h"
 
+#include <algorithm>
 #include <iostream>
 
 namespace
@@ -70,6 +71,9 @@ bool LoadAndEvaluate(const char* filename, const std::vector<std::array<double, 
   auto cellAtt =
     grid->GetCellAttributeByName(attributeName); // TODO: Try one of every field type we support
   evaluator->SetCellAttribute(cellAtt);
+  // Some test points lie exactly on boundaries shared between neighboring cells;
+  // use a small tolerance so they classify into every cell that contains them.
+  evaluator->SetClassifierTolerance(1e-8);
   // evaluator->ClassifyPoints(coords); // TODO: Test in each mode
   evaluator->InterpolatePoints(coords);
   grid->Query(evaluator);
@@ -89,31 +93,46 @@ bool LoadAndEvaluate(const char* filename, const std::vector<std::array<double, 
   std::set<vtkIdType> pointsInside;
   std::vector<double> tuple;
   tuple.resize(values->GetNumberOfComponents());
+  // The evaluator does not preserve input-point order in its output (points
+  // are grouped by containing cell), so compare the interpolated values as a
+  // sorted multiset rather than row by row.
+  std::vector<std::vector<double>> actualValues;
   for (vtkIdType jj = 0; jj < cellOffsets->GetNumberOfTuples() - 1; ++jj)
   {
     vtkIdType startRow = cellOffsets->GetValue(jj);
     vtkIdType endRow = cellOffsets->GetValue(jj + 1);
     std::cout << "Cell type " << vtkStringToken(cellTypes->GetValue(jj)).Data() << "  rows ["
               << startRow << ", " << endRow << "[\n";
-    // std::cout << " Idx | PointId |          CellId   | Params | Values\n";
-    // vtkVector3d rst;
     for (ii = startRow; ii < endRow; ++ii)
     {
-      // pointParams->GetTuple(ii, rst.GetData());
-      // std::cout << "  " << ii << " point " << pointIDs->GetValue(ii)
-      //   << " contained in cell " << cellIndices->GetValue(ii) << " " << rst << "\n";
       pointsInside.insert(pointIDs->GetValue(ii));
       values->GetTuple(ii, tuple.data());
-      double err = tupleDiffMag(tuple, expectedValues[ii], ok);
+      actualValues.push_back(tuple);
+    }
+  }
+  dumpTable->Dump(/* column width */ 24);
+  if (actualValues.size() != expectedValues.size())
+  {
+    std::cerr << "ERROR: Expected " << expectedValues.size() << " classified rows, got "
+              << actualValues.size() << ".\n";
+    ok = false;
+  }
+  else
+  {
+    auto sortedExpected = expectedValues;
+    std::sort(sortedExpected.begin(), sortedExpected.end());
+    std::sort(actualValues.begin(), actualValues.end());
+    for (std::size_t vv = 0; vv < actualValues.size(); ++vv)
+    {
+      double err = tupleDiffMag(actualValues[vv], sortedExpected[vv], ok);
       if (err > 1e-5)
       {
-        std::cerr << "ERROR: Value " << ii << " expected to be " << expectedValues[ii][0] << " got "
-                  << tuple[0] << "\n";
+        std::cerr << "ERROR: Value " << vv << " expected to be " << sortedExpected[vv][0] << " got "
+                  << actualValues[vv][0] << "\n";
         ok = false;
       }
     }
   }
-  dumpTable->Dump(/* column width */ 24);
   for (std::size_t jj = 0; jj < expectedClassifications.size(); ++jj)
   {
     bool isInside = (pointsInside.find(static_cast<vtkIdType>(jj)) != pointsInside.end());
