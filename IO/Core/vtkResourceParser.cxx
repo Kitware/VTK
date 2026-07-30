@@ -549,15 +549,22 @@ void vtkResourceParser::vtkParserContext::PrintSelf(ostream& os, vtkIndent inden
 }
 
 //------------------------------------------------------------------------------
-const vtkResourceParser::PredicateType vtkResourceParser::DiscardNone = [](char) { return false; };
+bool vtkResourceParser::DiscardNone(char)
+{
+  return false;
+}
 
 //------------------------------------------------------------------------------
-const vtkResourceParser::PredicateType vtkResourceParser::DiscardWhitespace = [](char c)
-{ return std::isspace(static_cast<unsigned char>(c)); };
+bool vtkResourceParser::DiscardWhitespace(char c)
+{
+  return std::isspace(static_cast<unsigned char>(c));
+}
 
 //------------------------------------------------------------------------------
-const vtkResourceParser::PredicateType vtkResourceParser::DiscardNonAlphaNumeric = [](char c)
-{ return !std::isalnum(static_cast<unsigned char>(c)); };
+bool vtkResourceParser::DiscardNonAlphaNumeric(char c)
+{
+  return !std::isalnum(static_cast<unsigned char>(c));
+}
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkResourceParser);
