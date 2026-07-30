@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPolyData.h"
 
+#include "vtkAbstractCellLinks.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -47,12 +48,14 @@ vtkStandardExtendedNewMacro(vtkPolyData);
 
 struct vtkPolyDataDummyContainer
 {
-  vtkSmartPointer<vtkCellArray> Dummy;
-
-  vtkPolyDataDummyContainer() { this->Dummy.TakeReference(vtkCellArray::New()); }
+  vtkNew<vtkCellArray> Dummy;
 };
 
-vtkPolyDataDummyContainer vtkPolyData::DummyContainer;
+static vtkCellArray* GetDummy()
+{
+  static vtkPolyDataDummyContainer container;
+  return container.Dummy;
+}
 
 //------------------------------------------------------------------------------
 unsigned char vtkPolyData::GetCell(vtkIdType cellId, vtkIdType const*& cell)
@@ -419,7 +422,7 @@ void vtkPolyData::GetCellsBounds(double bounds[6])
 // Set the cell array defining vertices.
 void vtkPolyData::SetVerts(vtkCellArray* v)
 {
-  if (v == vtkPolyData::DummyContainer.Dummy)
+  if (v == GetDummy())
   {
     v = nullptr;
   }
@@ -442,7 +445,7 @@ vtkCellArray* vtkPolyData::GetVerts()
 {
   if (!this->Verts)
   {
-    return vtkPolyData::DummyContainer.Dummy;
+    return GetDummy();
   }
   else
   {
@@ -454,7 +457,7 @@ vtkCellArray* vtkPolyData::GetVerts()
 // Set the cell array defining lines.
 void vtkPolyData::SetLines(vtkCellArray* l)
 {
-  if (l == vtkPolyData::DummyContainer.Dummy)
+  if (l == GetDummy())
   {
     l = nullptr;
   }
@@ -477,7 +480,7 @@ vtkCellArray* vtkPolyData::GetLines()
 {
   if (!this->Lines)
   {
-    return vtkPolyData::DummyContainer.Dummy;
+    return GetDummy();
   }
   else
   {
@@ -489,7 +492,7 @@ vtkCellArray* vtkPolyData::GetLines()
 // Set the cell array defining polygons.
 void vtkPolyData::SetPolys(vtkCellArray* p)
 {
-  if (p == vtkPolyData::DummyContainer.Dummy)
+  if (p == GetDummy())
   {
     p = nullptr;
   }
@@ -512,7 +515,7 @@ vtkCellArray* vtkPolyData::GetPolys()
 {
   if (!this->Polys)
   {
-    return vtkPolyData::DummyContainer.Dummy;
+    return GetDummy();
   }
   else
   {
@@ -524,7 +527,7 @@ vtkCellArray* vtkPolyData::GetPolys()
 // Set the cell array defining triangle strips.
 void vtkPolyData::SetStrips(vtkCellArray* s)
 {
-  if (s == vtkPolyData::DummyContainer.Dummy)
+  if (s == GetDummy())
   {
     s = nullptr;
   }
@@ -548,7 +551,7 @@ vtkCellArray* vtkPolyData::GetStrips()
 {
   if (!this->Strips)
   {
-    return vtkPolyData::DummyContainer.Dummy;
+    return GetDummy();
   }
   else
   {
