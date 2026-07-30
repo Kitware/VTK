@@ -336,6 +336,20 @@ void vtkOutlineGlowPass::Render(const vtkRenderState* s)
 }
 
 // ----------------------------------------------------------------------------
+void vtkOutlineGlowPass::InitializeRenderTarget(vtkTextureObject*, const vtkRenderState* states)
+{
+  if (states->GetRenderer()->Transparent())
+  {
+    vtkOpenGLState* ostate =
+      vtkOpenGLRenderWindow::SafeDownCast(states->GetRenderer()->GetRenderWindow())->GetState();
+    // Clear is not called on transparent renderers. But since this is a offscreen render target we
+    // want it cleared
+    ostate->vtkglClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    ostate->vtkglClear(GL_COLOR_BUFFER_BIT);
+  }
+}
+
+// ----------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources.

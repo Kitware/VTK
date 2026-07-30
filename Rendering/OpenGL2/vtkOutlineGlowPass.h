@@ -75,15 +75,14 @@ public:
   vtkSetMacro(OutlineIntensity, float);
 
 protected:
-  /**
-   * Default constructor. DelegatePass is set to NULL.
-   */
   vtkOutlineGlowPass();
 
-  /**
-   * Destructor.
-   */
   ~vtkOutlineGlowPass() override;
+
+  /**
+   * This override makes sure that the target is initialized with a cleared texture.
+   */
+  void InitializeRenderTarget(vtkTextureObject*, const vtkRenderState* states) override;
 
   /**
    * Graphics resources.
