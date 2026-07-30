@@ -54,10 +54,15 @@ vtkInformationKeyMacro(vtkAlgorithm, CAN_HANDLE_PIECE_REQUEST, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, ABORTED, Integer);
 
 vtkExecutive* vtkAlgorithm::DefaultExecutivePrototype = nullptr;
-vtkTimeStamp vtkAlgorithm::LastAbortTime;
 
 namespace
 {
+
+vtkTimeStamp& GetLastAbortTime()
+{
+  static vtkTimeStamp abortTime;
+  return abortTime;
+}
 
 // Returns true if the FIELD_ATTRIBUTE_COMPONENT() of \a info matches \a component.
 // This includes testing whether the key is present or absent as well as its value.
@@ -241,7 +246,7 @@ bool vtkAlgorithm::CheckAbort()
     return containerResult;
   }
 
-  if (this->LastAbortTime.GetMTime() > this->LastAbortCheckTime.GetMTime())
+  if (GetLastAbortTime().GetMTime() > this->LastAbortCheckTime.GetMTime())
   {
     this->LastAbortCheckTime.Modified();
     for (int port = 0; port < this->GetNumberOfInputPorts(); port++)
@@ -265,7 +270,7 @@ bool vtkAlgorithm::CheckAbort()
 void vtkAlgorithm::SetAbortExecuteAndUpdateTime()
 {
   this->AbortExecute = 1;
-  this->LastAbortTime.Modified();
+  GetLastAbortTime().Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -281,7 +286,7 @@ bool vtkAlgorithm::CheckUpstreamAbort()
     return true;
   }
 
-  if (this->LastAbortTime.GetMTime() > this->LastAbortCheckTime.GetMTime())
+  if (GetLastAbortTime().GetMTime() > this->LastAbortCheckTime.GetMTime())
   {
     this->LastAbortCheckTime.Modified();
     for (int port = 0; port < this->GetNumberOfInputPorts(); port++)
