@@ -30,7 +30,10 @@
 
 namespace
 {
-vtkMallocingFunction DefaultNewFunction = [](size_t size) -> void* { return new vtkVariant[size]; };
+// vtkBuffer invokes this with a byte count (size = numElements * sizeof(vtkVariant)),
+// matching the malloc() convention, so convert back to an element count for new[].
+vtkMallocingFunction DefaultNewFunction = [](size_t size) -> void*
+{ return new vtkVariant[size / sizeof(vtkVariant)]; };
 vtkFreeingFunction DefaultDeleteFunction = [](void* ptr)
 { delete[] static_cast<vtkVariant*>(ptr); };
 }
