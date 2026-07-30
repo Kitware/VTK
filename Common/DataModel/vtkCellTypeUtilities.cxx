@@ -8,10 +8,11 @@
 #include "vtkObjectFactory.h"
 
 #include <map>
+#include <string_view>
 
 namespace
 {
-std::map<int, std::string> CellTypesClasseName = {
+std::map<int, std::string_view>& CellTypesClasseName = {
   { VTK_EMPTY_CELL, "vtkEmptyCell" }, { VTK_VERTEX, "vtkVertex" },
   { VTK_POLY_VERTEX, "vtkPolyVertex" }, { VTK_LINE, "vtkLine" }, { VTK_POLY_LINE, "vtkPolyLine" },
   { VTK_TRIANGLE, "vtkTriangle" }, { VTK_TRIANGLE_STRIP, "vtkTriangleStrip" },
@@ -52,7 +53,7 @@ std::map<int, std::string> CellTypesClasseName = {
   // { VTK_BEZIER_PYRAMID, "vtkBezierPyramid" }
 };
 
-std::map<int, std::string> CellTypesName = {
+std::map<int, std::string_view> CellTypesName = {
   { VTK_EMPTY_CELL, "Empty Cell" }, { VTK_VERTEX, "Vertex" }, { VTK_POLY_VERTEX, "Polyvertex" },
   { VTK_LINE, "Line" }, { VTK_POLY_LINE, "Polyline" }, { VTK_TRIANGLE, "Triangle" },
   { VTK_TRIANGLE_STRIP, "Triangle Strip" }, { VTK_POLYGON, "Polygon" }, { VTK_PIXEL, "Pixel" },
@@ -109,7 +110,7 @@ std::string vtkCellTypeUtilities::GetTypeAsString(int typeId)
 {
   if (::CellTypesName.find(typeId) != ::CellTypesName.end())
   {
-    return ::CellTypesName[typeId];
+    return std::string(::CellTypesName[typeId]);
   }
 
   return "Unknown Cell";
@@ -135,7 +136,8 @@ const char* vtkCellTypeUtilities::GetClassNameFromTypeId(int type)
 {
   if (::CellTypesClasseName.find(type) != ::CellTypesClasseName.end())
   {
-    return ::CellTypesClasseName[type].c_str();
+    // NOLINTNEXTLINE(bugprone-suspicious-stringview-data-usage): static data is NUL-terminated
+    return ::CellTypesClasseName[type].data();
   }
 
   return "UnknownClass";
