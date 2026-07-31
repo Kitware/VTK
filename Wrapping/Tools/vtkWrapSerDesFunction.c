@@ -14,7 +14,23 @@
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
 
-/* -------------------------------------------------------------------- */
+/* A zero copy pointer refers to memory that outlives the call and that neither side copies. Its
+ * length is not part of the signature, so its contents cannot be copied in or out. It travels as
+ * the literal numeric address (uintptr_t) of its first element instead. The type of the elements
+ * behind that address must be inferred from the type manifest.
+ *
+ * Which side owns the memory depends on the direction, and neither direction transfers it:
+ * - a parameter, as in SetArray(VTK_ZEROCOPY T* array, ...), points at memory of the client's
+ *   that the object borrows for as long as it holds on to it.
+ * - a return value, as in VTK_ZEROCOPY T* GetPointer(vtkIdType), points into memory of the
+ *   object's that the client borrows until the object reallocates or goes away.
+ */
+int vtkWrapSerDes_CanMarshalZeroCopyPointer(const ValueInfo* valInfo)
+{
+  return (
+    vtkWrap_IsZeroCopyPointer(valInfo) && vtkWrap_IsNumeric(valInfo) && !vtkWrap_IsBool(valInfo));
+}
+
 static int vtkWrapSerDes_IsIdentifierChar(char c)
 {
   return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_');
@@ -250,7 +266,11 @@ static int vtkWrapSerDes_CanMarshalValue(
   }
   else if (isNumeric)
   {
-    if (isScalar)
+    if (vtkWrapSerDes_CanMarshalZeroCopyPointer(valInfo))
+    {
+      isAllowed = 1;
+    }
+    else if (isScalar)
     {
       isAllowed = 1;
     }
@@ -661,6 +681,13 @@ static void vtkWrapSerDes_WriteReturnValueSerializer(FILE* fp, const ClassInfo* 
   }
   if (isNumeric)
   {
+    /* The memory stays with the object. The client receives its address and reads what is behind
+     * it in place, for as long as the object keeps that memory. */
+    if (vtkWrapSerDes_CanMarshalZeroCopyPointer(valInfo))
+    {
+      fprintf(fp, "    result[\"Value\"] = reinterpret_cast<std::uintptr_t>(methodReturnValue);\n");
+      return;
+    }
     if (isScalar)
     {
       fprintf(fp, "    result[\"Value\"] = methodReturnValue;\n");

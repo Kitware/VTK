@@ -389,6 +389,10 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
         fprintf(fp, "#include \"vtk_nlohmannjson.h\"\n");
         fprintf(fp, "#include VTK_NLOHMANN_JSON(json.hpp)\n");
         fprintf(fp, "//clang-format on\n");
+        /* for the addresses of zero copy buffers and the sizes of arrays */
+        fprintf(fp, "#include <cstddef>\n");
+        fprintf(fp, "#include <cstdint>\n");
+        fprintf(fp, "#include <vector>\n");
         registrarsExist = 1;
       }
       vtkWrapSerDes_Class(fp, hinfo, classInfo);
