@@ -19,6 +19,7 @@
 #include "vtkBuffer.h"           // For vtkBuffer
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <cassert> // for assert
 #include <vector>  // for vector
@@ -26,7 +27,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArrayLookup;
 
-class VTKCOMMONCORE_EXPORT vtkBitArray : public vtkDataArray
+class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkBitArray : public vtkDataArray
 {
 public:
   enum DeleteMethod
@@ -135,11 +136,13 @@ public:
    * Get a pointer to a tuple at the ith location. This is a dangerous method
    * (it is not thread safe since a pointer is returned).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   double* GetTuple(vtkIdType i) override;
 
   /**
    * Copy the tuple value into a user-provided array.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void GetTuple(vtkIdType i, double* tuple) override;
 
   ///@{
@@ -148,7 +151,9 @@ public:
    *
    * NOT THREAD-SAFE
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetTuple(vtkIdType i, const float* tuple) override;
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetTuple(vtkIdType i, const double* tuple) override;
   ///@}
 
@@ -223,21 +228,22 @@ public:
   /**
    * Copy the tuple at @a tupleIdx into @a tuple.
    */
-  void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+  void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const VTK_EXPECTS(
+    0 <= tupleIdx && tupleIdx < GetNumberOfTuples()) VTK_SIZEHINT(tuple, GetNumberOfComponents());
   ///@}
 
   ///@{
   /**
    * Set this array's tuple at @a tupleIdx to the values in @a tuple.
    */
-  void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+  void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple) VTK_EXPECTS(
+    0 <= tupleIdx && tupleIdx < GetNumberOfTuples()) VTK_SIZEHINT(tuple, GetNumberOfComponents());
   ///@}
 
   /**
    * Get the data at a particular index.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   int GetValue(vtkIdType id) const;
 
   /**
@@ -246,6 +252,7 @@ public:
    *
    * NOT THREAD-SAFE
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetValue(vtkIdType id, int value);
 
   /**
@@ -287,14 +294,14 @@ public:
   /**
    * Direct manipulation of the underlying data.
    */
-  ValueType* GetPointer(vtkIdType id) { return this->Buffer->GetBuffer() + id / 8; }
+  VTK_ZEROCOPY ValueType* GetPointer(vtkIdType id) { return this->Buffer->GetBuffer() + id / 8; }
 
   /**
    * Get the address of a particular data index. Make sure data is allocated
    * for the number of items requested. Set MaxId according to the number of
    * data values requested.
    */
-  ValueType* WritePointer(vtkIdType id, vtkIdType number);
+  VTK_ZEROCOPY ValueType* WritePointer(vtkIdType id, vtkIdType number);
 
   VTK_DEPRECATED_IN_9_7_0("Use vtkBitArray::WritePointer(valueIdx, numValues) or "
                           "vtkAbstractArray::SetNumberOf[Values/Tuples]() instead")
@@ -345,6 +352,10 @@ public:
 #ifndef __VTK_WRAP__
   void SetArray(
     ValueType* array, vtkIdType size, int save, int deleteMethod = VTK_DATA_ARRAY_DELETE);
+#else
+  // the wrappers do not handle a default argument, so the overloads are spelled out for them.
+  void SetArray(VTK_ZEROCOPY ValueType* array, vtkIdType size, int save);
+  void SetArray(VTK_ZEROCOPY ValueType* array, vtkIdType size, int save, int deleteMethod);
 #endif
   void SetVoidArray(void* array, vtkIdType size, int save) override
   {

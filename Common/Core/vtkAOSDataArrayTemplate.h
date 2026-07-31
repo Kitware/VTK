@@ -409,11 +409,17 @@ VTK_ABI_NAMESPACE_END
 // This macro is used by the subclasses to create dummy
 // declarations for these functions such that the wrapper
 // can see them.
+//
+// VTK_ZEROCOPY marks the pointers that a wrapper passes along as a bare address rather than
+// copying what is behind them, since their length is not part of the signature. It reads in both
+// directions: on SetArray the address is the caller's own memory, which the array borrows until
+// it is handed something else; on GetPointer and WritePointer it is the array's memory, which the
+// caller borrows until the array reallocates or goes away.
 #define vtkCreateWrappedArrayInterface(T)                                                          \
   vtkCreateWrappedArrayReadInterface(T);                                                           \
   vtkCreateWrappedArrayWriteInterface(T);                                                          \
-  T* WritePointer(vtkIdType id, vtkIdType number);                                                 \
-  T* GetPointer(vtkIdType id);                                                                     \
+  VTK_ZEROCOPY T* WritePointer(vtkIdType id, vtkIdType number);                                    \
+  VTK_ZEROCOPY T* GetPointer(vtkIdType id);                                                        \
   void SetArray(VTK_ZEROCOPY T* array, vtkIdType size, int save);                                  \
   void SetArray(VTK_ZEROCOPY T* array, vtkIdType size, int save, int deleteMethod);                \
   vtkAbstractBuffer* GetBuffer();                                                                  \

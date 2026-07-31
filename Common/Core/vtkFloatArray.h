@@ -15,6 +15,7 @@
 #include "vtkAOSDataArrayTemplate.h" // Real Superclass
 #include "vtkCommonCoreModule.h"     // For export macro
 #include "vtkDataArray.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 // Fake the superclass for non-Python wrappers.
 // Python can handle the templated superclass; Java and others cannot.
@@ -22,7 +23,7 @@
 #define vtkDataArray vtkAOSDataArrayTemplate<float>
 #endif
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONCORE_EXPORT vtkFloatArray : public vtkDataArray
+class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkFloatArray : public vtkDataArray
 {
 public:
   vtkTypeMacro(vtkFloatArray, vtkDataArray);
