@@ -653,6 +653,10 @@ if(!RegisterClasses_${_vtk_serdes_library_name}(serializer, deserializer, invoke
     OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_serdes_OUTPUT_NAME}.post.js"
     CONTENT "globalThis.createVTKWASM = ${_vtk_serdes_OUTPUT_NAME};\n")
   set(emscripten_link_options)
+  set(emscripten_heap_types "'HEAP8', 'HEAP16', 'HEAP32', 'HEAPU8', 'HEAPU16', 'HEAPU32', 'HEAPF32', 'HEAPF64'")
+  if (CMAKE_SIZEOF_VOID_P EQUAL "8")
+    set(emscripten_heap_types "${emscripten_heap_types}, 'HEAP64', 'HEAPU64'")
+  endif ()
   list(APPEND emscripten_link_options
     # Keep Debug/RelWithDebInfo builds debuggable without shipping giant in-wasm DWARF sections.
     "$<$<CONFIG:Debug>:-gseparate-dwarf>"
@@ -663,7 +667,8 @@ if(!RegisterClasses_${_vtk_serdes_library_name}(serializer, deserializer, invoke
     "-sALLOW_TABLE_GROWTH=1"
     "-sEXPORT_NAME=${_vtk_serdes_OUTPUT_NAME}"
     "-sENVIRONMENT=node,web"
-    "-sEXPORTED_RUNTIME_METHODS=['addFunction','UTF8ToString','FS', 'ENV', 'specialHTMLTargets']")
+    "-sEXPORTED_FUNCTIONS=['_malloc', '_free']"
+    "-sEXPORTED_RUNTIME_METHODS=['addFunction','UTF8ToString','FS', 'ENV', 'specialHTMLTargets', ${emscripten_heap_types}]")
   if (CMAKE_SIZEOF_VOID_P EQUAL "8")
     list(APPEND emscripten_link_options
       "-sMAXIMUM_MEMORY=16GB")
