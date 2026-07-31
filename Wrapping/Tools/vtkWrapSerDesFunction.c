@@ -18,6 +18,35 @@ static int vtkWrapSerDes_IsIdentifierChar(char c)
   return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_');
 }
 
+/* Report whether a size hint refers to one of the parameters of the method, as in
+ * VTK_SIZEHINT(values, numValues). Such a hint cannot be evaluated before the arguments have been
+ * read out of the json. */
+static int vtkWrapSerDes_HintNamesParameter(const FunctionInfo* functionInfo, const char* hint)
+{
+  int i = 0;
+  for (i = 0; i < functionInfo->NumberOfParameters; ++i)
+  {
+    const char* name = functionInfo->Parameters[i]->Name;
+    if (name == NULL || name[0] == '\0')
+    {
+      continue;
+    }
+    const size_t length = strlen(name);
+    const char* at = hint;
+    while ((at = strstr(at, name)) != NULL)
+    {
+      const char before = (at == hint) ? '\0' : at[-1];
+      const char after = at[length];
+      if (!vtkWrapSerDes_IsIdentifierChar(before) && !vtkWrapSerDes_IsIdentifierChar(after))
+      {
+        return 1;
+      }
+      at += length;
+    }
+  }
+  return 0;
+}
+
 static int vtkWrapSerDes_CanMarshalValue(
   ValueInfo* valInfo, const ClassInfo* classInfo, const HierarchyInfo* hinfo, int isReturnValue)
 {
