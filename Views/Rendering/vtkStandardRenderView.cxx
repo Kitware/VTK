@@ -11,6 +11,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkHardwareSelector.h"
 #include "vtkInteractorObserver.h"
+#include "vtkInteractorStyleRubberBand2D.h"
 #include "vtkInteractorStyleRubberBand3D.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkLight.h"
@@ -28,6 +29,37 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStandardRenderView);
+
+namespace
+{
+//------------------------------------------------------------------------------
+// Read the rubber-band rectangle out of the interactor style that reported a
+// selection.  Returns false for a style that has no such rectangle to offer.
+bool GetStyleSelectionRegion(vtkObject* style, int region[4])
+{
+  const int* start = nullptr;
+  const int* end = nullptr;
+  if (auto* band3D = vtkInteractorStyleRubberBand3D::SafeDownCast(style))
+  {
+    start = band3D->GetStartPosition();
+    end = band3D->GetEndPosition();
+  }
+  else if (auto* band2D = vtkInteractorStyleRubberBand2D::SafeDownCast(style))
+  {
+    start = band2D->GetStartPosition();
+    end = band2D->GetEndPosition();
+  }
+  else
+  {
+    return false;
+  }
+  region[0] = start[0];
+  region[1] = start[1];
+  region[2] = end[0];
+  region[3] = end[1];
+  return true;
+}
+}
 
 //------------------------------------------------------------------------------
 vtkStandardRenderView::vtkStandardRenderView()
@@ -570,6 +602,47 @@ void vtkStandardRenderView::SelectPoints()
 }
 
 //------------------------------------------------------------------------------
+void vtkStandardRenderView::SelectRegion(int x0, int y0, int x1, int y1, bool extend)
+{
+  // Normalize and clamp in signed arithmetic.  The interactor reports positions
+  // outside the window as negative numbers, and those must not be allowed to
+  // reach the unsigned display coordinates the selectors work in.
+  int minX = std::min(x0, x1);
+  int maxX = std::max(x0, x1);
+  int minY = std::min(y0, y1);
+  int maxY = std::max(y0, y1);
+
+  // A click selects nothing at all unless the region is given some area.
+  const int stretch = 2;
+  if (minX == maxX && minY == maxY)
+  {
+    minX -= stretch;
+    minY -= stretch;
+    maxX += stretch;
+    maxY += stretch;
+  }
+
+  const int* size = this->Renderer->GetSize();
+  const int limitX = size[0] > 0 ? size[0] - 1 : 0;
+  const int limitY = size[1] > 0 ? size[1] - 1 : 0;
+  const int region[4] = { std::clamp(minX, 0, limitX), std::clamp(minY, 0, limitY),
+    std::clamp(maxX, 0, limitX), std::clamp(maxY, 0, limitY) };
+
+  vtkNew<vtkSelection> selection;
+  this->GenerateSelection(region, selection);
+
+  for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
+  {
+    this->GetRepresentation(i)->Select(this, selection, extend);
+  }
+
+  // Store the selection and notify observers on the view.
+  this->CurrentSelection = selection;
+  this->InvokeEvent(vtkCommand::SelectionChangedEvent, selection.GetPointer());
+  this->Render();
+}
+
+//------------------------------------------------------------------------------
 void vtkStandardRenderView::ClearSelection()
 {
   vtkNew<vtkSelection> empty;
@@ -594,21 +667,22 @@ void vtkStandardRenderView::ProcessEvents(vtkObject* caller, unsigned long event
   if (caller == this->GetInteractor()->GetInteractorStyle() &&
     eventId == vtkCommand::SelectionChangedEvent)
   {
-    vtkNew<vtkSelection> selection;
-    this->GenerateSelection(callData, selection);
-
-    unsigned int* data = reinterpret_cast<unsigned int*>(callData);
-    bool extend = (data[4] == vtkInteractorStyleRubberBand3D::SELECT_UNION);
-
-    for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
+    // The region is read from the style rather than from the event's call
+    // data: the call data is an untyped blob whose layout only the rubber-band
+    // styles define, while the style itself exposes the same numbers through
+    // typed accessors.
+    int region[4];
+    if (GetStyleSelectionRegion(caller, region))
     {
-      this->GetRepresentation(i)->Select(this, selection, extend);
+      this->SelectRegion(
+        region[0], region[1], region[2], region[3], this->GetInteractor()->GetShiftKey() != 0);
     }
-
-    // Store the selection and notify observers on the view.
-    this->CurrentSelection = selection;
-    this->InvokeEvent(vtkCommand::SelectionChangedEvent, selection.GetPointer());
-    this->Render();
+    else
+    {
+      vtkWarningMacro("Ignoring SelectionChangedEvent from an interactor style that does not "
+                      "expose a selection region.  Call SelectRegion() to drive selection from a "
+                      "custom style.");
+    }
   }
   else if (vtkDataRepresentation::SafeDownCast(caller) &&
     eventId == vtkCommand::SelectionChangedEvent)
@@ -619,29 +693,12 @@ void vtkStandardRenderView::ProcessEvents(vtkObject* caller, unsigned long event
 }
 
 //------------------------------------------------------------------------------
-void vtkStandardRenderView::GenerateSelection(void* callData, vtkSelection* sel)
+void vtkStandardRenderView::GenerateSelection(const int region[4], vtkSelection* sel)
 {
-  unsigned int* rect = reinterpret_cast<unsigned int*>(callData);
-  unsigned int pos1X = rect[0];
-  unsigned int pos1Y = rect[1];
-  unsigned int pos2X = rect[2];
-  unsigned int pos2Y = rect[3];
-
-  // For single-click (start == end), expand the area a bit.  Clamp against
-  // the stretch amount using an unsigned comparison so a click near the
-  // lower-left corner does not underflow to a huge value.
-  unsigned int stretch = 2;
-  if (pos1X == pos2X && pos1Y == pos2Y)
-  {
-    pos1X = pos1X > stretch ? pos1X - stretch : 0;
-    pos1Y = pos1Y > stretch ? pos1Y - stretch : 0;
-    pos2X = pos2X + stretch;
-    pos2Y = pos2Y + stretch;
-  }
-  unsigned int screenMinX = pos1X < pos2X ? pos1X : pos2X;
-  unsigned int screenMaxX = pos1X < pos2X ? pos2X : pos1X;
-  unsigned int screenMinY = pos1Y < pos2Y ? pos1Y : pos2Y;
-  unsigned int screenMaxY = pos1Y < pos2Y ? pos2Y : pos1Y;
+  const unsigned int screenMinX = static_cast<unsigned int>(region[0]);
+  const unsigned int screenMinY = static_cast<unsigned int>(region[1]);
+  const unsigned int screenMaxX = static_cast<unsigned int>(region[2]);
+  const unsigned int screenMaxY = static_cast<unsigned int>(region[3]);
 
   if (this->SelectionMode == SELECTION_MODE_FRUSTUM)
   {

@@ -107,6 +107,42 @@ int TestStandardRenderViewSelection(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   CHECK(!rep->GetSelectionActor()->GetVisibility(),
     "Selection actor should be invisible after ClearSelection");
 
+  // --- Test region selection ---
+  // SelectRegion drives the same path as a rubber-band drag, without needing
+  // to synthesize interactor events.
+  view->SelectRegion(0, 0, 400, 400);
+  CHECK(view->GetCurrentSelection(), "SelectRegion should produce a selection");
+  CHECK(rep->GetSelectionActor()->GetVisibility(),
+    "Selection actor should be visible after selecting the whole viewport");
+
+  // The corners may be given in any order.
+  view->ClearSelection();
+  view->SelectRegion(400, 400, 0, 0);
+  CHECK(rep->GetSelectionActor()->GetVisibility(),
+    "A region given from the far corner should select the same thing");
+
+  // A click is degenerate; it must still be given enough area to pick with.
+  view->ClearSelection();
+  view->SelectRegion(200, 200, 200, 200);
+  CHECK(view->GetCurrentSelection(), "A single-point region should still select");
+
+  // Positions outside the window are reported as negative numbers by the
+  // interactor.  They must be clamped, not reinterpreted as huge unsigned
+  // coordinates.
+  view->ClearSelection();
+  view->SelectRegion(-50, -50, 200, 200);
+  CHECK(view->GetCurrentSelection(), "A region starting off-window should select");
+  view->ClearSelection();
+  view->SelectRegion(-100, -100, -50, -50);
+  CHECK(view->GetCurrentSelection(), "A fully off-window region should not crash");
+
+  // Selecting past the far edge is clamped the same way.
+  view->ClearSelection();
+  view->SelectRegion(200, 200, 100000, 100000);
+  CHECK(view->GetCurrentSelection(), "A region past the far edge should select");
+
+  view->ClearSelection();
+
   // --- Test selection color/style API ---
   rep->SetSelectionColor(0.0, 1.0, 0.0);
   double* color = rep->GetSelectionActor()->GetProperty()->GetColor();

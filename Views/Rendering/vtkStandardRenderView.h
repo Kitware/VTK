@@ -235,6 +235,24 @@ public:
   ///@}
 
   /**
+   * Select the screen-space region bounded by the two corner points, exactly
+   * as an interactive rubber-band selection would.  The corners are given in
+   * display coordinates and may be in any order; the region is normalized and
+   * clamped to the renderer.  A degenerate region (a click) is expanded
+   * slightly so that it still picks.
+   *
+   * The selection honors the current selection mode and field association, is
+   * applied to every representation, becomes the current selection, and fires
+   * SelectionChangedEvent.  When extend is true it adds to the existing
+   * selection instead of replacing it.
+   *
+   * This is the entry point the built-in rubber-band interaction uses, and the
+   * supported way for application code or a custom interactor style to drive
+   * selection without synthesizing interactor events.
+   */
+  void SelectRegion(int x0, int y0, int x1, int y1, bool extend = false);
+
+  /**
    * Clear the current selection on all representations.
    */
   void ClearSelection();
@@ -271,7 +289,11 @@ private:
   vtkStandardRenderView(const vtkStandardRenderView&) = delete;
   void operator=(const vtkStandardRenderView&) = delete;
 
-  void GenerateSelection(void* callData, vtkSelection* sel);
+  /**
+   * Build a selection for the given display-space region, which must already
+   * be normalized and clamped to the renderer.
+   */
+  void GenerateSelection(const int region[4], vtkSelection* sel);
 
   vtkNew<vtkOrientationMarkerWidget> OrientationWidget;
   vtkNew<vtkLightKit> LightKit;
