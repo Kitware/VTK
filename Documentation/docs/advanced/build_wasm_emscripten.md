@@ -11,8 +11,8 @@ Guide created using
 - CMake 3.31.3
 - Ninja 1.12.1
 - Emscripten 4.0.20
-- NodeJS 24.0.1
-- Chrome For Testing 133.0.6943.98
+- NodeJS 24.9.0
+- Chrome For Testing 138.0.7204.183
 ```
 
 ## Prerequisites
@@ -40,7 +40,7 @@ For this guide, you will need the following:
 
 5. **Chrome For Testing**: This is optional. It is useful if you intend to run the test suite with `ctest`.
   This is a Chrome flavor that specifically targets web app testing and automation use cases.
-  Please download the 133.0.6943.98 version from [vtk.org/files/support](https://vtk.org/files/support)
+  Please download the 138.0.7204.183 version from [vtk.org/files/support](https://vtk.org/files/support)
 
 ### Install prerequisites
 
@@ -51,8 +51,8 @@ For this guide, you will need the following:
 # Download and install fnm:
 curl -o- https://fnm.vercel.app/install | bash
 # Download and install Node.js
-fnm install 24.0.1
-fnm use 24.0.1
+fnm install 24.9.0
+fnm use 24.9.0
 
 # Download and install EMSDK
 git clone https://github.com/emscripten-core/emsdk.git
@@ -67,9 +67,9 @@ export PATH=$PWD/emsdk/upstream/bin:$PWD/emsdk/upstream/emscripten:$PATH
 # Download and install fnm:
 winget install Schniz.fnm
 # Download and install Node.js
-fnm install 24.0.1
+fnm install 24.9.0
 fnm env --use-on-cd --shell power-shell | Out-String | Invoke-Expression
-fnm use 24.0.1
+fnm use 24.9.0
 
 git clone https://github.com/emscripten-core/emsdk.git
 .\emsdk\emsdk install 4.0.20
