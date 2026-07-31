@@ -37,7 +37,7 @@ class vtkMemoryResourceStream;
 
 namespace vtkHDFUtilities
 {
-const std::string& VTKHDF_ROOT_PATH();
+const std::string VTKHDF_ROOT_PATH = "/VTKHDF";
 
 /*
  * The number of PolyData topologies saved in vtkHDF format
@@ -48,7 +48,7 @@ constexpr std::size_t NUM_POLY_DATA_TOPOS = 4;
  * A vector of the topology names that are saved in vtkHDF
  * Can be used for the name of the HDF group only
  */
-const std::vector<std::string>& POLY_DATA_TOPOS();
+const std::vector<std::string> POLY_DATA_TOPOS{ "Vertices", "Lines", "Polygons", "Strips" };
 
 /*
  * Attribute tag used in the cache storage to indicate arrays related to the geometry of the data
