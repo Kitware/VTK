@@ -84,6 +84,46 @@ static void vtkWrapSerDes_WriteCountExpression(
   fprintf(fp, "object->%s", hint);
 }
 
+/* An out parameter is a numeric array that the method fills in rather than reads. The client does
+ * not supply it. The invoker sizes it, hands it to the method and returns its contents as the
+ * value of the call.
+ */
+static int vtkWrapSerDes_IsOutParameter(const FunctionInfo* functionInfo, const ValueInfo* valInfo)
+{
+  return (vtkWrap_IsArray(valInfo) && vtkWrap_IsNumeric(valInfo) && !vtkWrap_IsConst(valInfo) &&
+    !vtkWrap_IsRef(valInfo) && vtkWrapSerDes_HasTrivialCountExpression(functionInfo, valInfo));
+}
+
+/* Return the index of the single out parameter of a method, or -1 when it has none. A result
+ * carries one value, so a method that returns something, or that fills in more than one array,
+ * keeps the plain treatment where every parameter is read from the arguments.
+ */
+int vtkWrapSerDes_FindOutParameterPosition(const FunctionInfo* functionInfo)
+{
+  int i = 0;
+  int found = -1;
+  if (!vtkWrap_IsVoid(functionInfo->ReturnValue))
+  {
+    return -1;
+  }
+  if (strncmp(functionInfo->Name, "Get", 3) != 0)
+  {
+    return -1;
+  }
+  for (i = 0; i < functionInfo->NumberOfParameters; ++i)
+  {
+    if (vtkWrapSerDes_IsOutParameter(functionInfo, functionInfo->Parameters[i]))
+    {
+      if (found >= 0)
+      {
+        return -1;
+      }
+      found = i;
+    }
+  }
+  return found;
+}
+
 static int vtkWrapSerDes_CanMarshalValue(
   ValueInfo* valInfo, const ClassInfo* classInfo, const HierarchyInfo* hinfo, int isReturnValue)
 {
