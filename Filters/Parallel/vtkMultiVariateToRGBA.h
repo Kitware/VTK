@@ -109,8 +109,8 @@ public:
   vtkGetMacro(LensRadius, double);
   /**
    * Alpha (opacity) cap for points outside the lens. Each point's alpha is
-   * clamped to min(its alpha, OutsideLensAlphaCap). Default is 1 (no change).
-   * Set to 0 to make points outside the lens fully transparent.
+   * clamped to min(its alpha, OutsideLensAlphaCap). Default is 0
+   * (points outside the lens fully transparent).
    */
   vtkSetMacro(OutsideLensAlphaCap, double);
   vtkGetMacro(OutsideLensAlphaCap, double);
@@ -178,7 +178,7 @@ protected:
   /**
    * Alpha cap for points outside the lens.
    */
-  double OutsideLensAlphaCap = 1.0;
+  double OutsideLensAlphaCap = 0.0;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
