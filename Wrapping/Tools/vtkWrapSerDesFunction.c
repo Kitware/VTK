@@ -3,7 +3,9 @@
 #include "vtkWrapSerDesFunction.h"
 #include "vtkParseExtras.h"
 #include "vtkParseHierarchy.h"
+#include "vtkParseString.h"
 #include "vtkWrap.h"
+#include "vtkWrapText.h"
 
 #include <assert.h>
 #include <stddef.h>
@@ -82,6 +84,77 @@ static void vtkWrapSerDes_WriteCountExpression(
     hint += 6;
   }
   fprintf(fp, "object->%s", hint);
+}
+
+/* -------------------------------------------------------------------- */
+/* Write out an expression that a header states about a method, as in
+ * VTK_EXPECTS(0 <= i && i < GetNumberOfTuples()), in terms of the locals of the invoker. An
+ * unqualified name is the object under the call, a parameter or a member of the class. */
+static void vtkWrapSerDes_SubstituteCode(
+  FILE* fp, const ClassInfo* classInfo, const FunctionInfo* functionInfo, const char* code)
+{
+  StringTokenizer tokenizer;
+  int qualified = 0;
+  int j = 0;
+  (void)classInfo;
+
+  vtkParse_InitTokenizer(&tokenizer, code, WS_DEFAULT);
+  do
+  {
+    int matched = 0;
+    /* TOK_ID == "any C++ identifier" */
+    if (tokenizer.tok == TOK_ID && !qualified)
+    {
+      /* 'this' transforms to 'object' */
+      if (tokenizer.len == 4 && !strncmp(tokenizer.text, "this", 4))
+      {
+        fprintf(fp, "object");
+        matched = 1;
+      }
+      /* match function arguments to 'arg_j' */
+      for (j = 0; !matched && j < functionInfo->NumberOfParameters; ++j)
+      {
+        const char* name = functionInfo->Parameters[j]->Name;
+        if (name && strlen(name) == tokenizer.len && !strncmp(name, tokenizer.text, tokenizer.len))
+        {
+          fprintf(fp, "arg_%d", j);
+          matched = 1;
+        }
+      }
+      /* a name that opens a call is a method of the class. The superclasses of the class are not
+       * merged into it here, so the name is not looked up any further than that. */
+      if (!matched && tokenizer.text[tokenizer.len] == '(')
+      {
+        fprintf(fp, "object->%*.*s", (int)tokenizer.len, (int)tokenizer.len, tokenizer.text);
+        matched = 1;
+      }
+    }
+    if (!matched)
+    {
+      /* anything else like '(', ')' lands here */
+      fprintf(fp, "%*.*s", (int)tokenizer.len, (int)tokenizer.len, tokenizer.text);
+    }
+    /* a name that follows one of these is looked up in a scope of its own */
+    qualified = (tokenizer.tok == '.' || tokenizer.tok == TOK_ARROW || tokenizer.tok == TOK_SCOPE ||
+      tokenizer.tok == TOK_ARROW_STAR || tokenizer.tok == TOK_DOT_STAR);
+    fprintf(fp, " ");
+  } while (vtkParse_NextToken(&tokenizer));
+}
+
+/* Write the checks that run the preconditions of a method. They guard against arguments that
+ * would make the method read or write out of bounds. */
+static void vtkWrapSerDes_WritePreconditionCheck(
+  FILE* fp, const ClassInfo* classInfo, const FunctionInfo* functionInfo)
+{
+  int i = 0;
+  fprintf(fp, "    if (");
+  for (i = 0; i < functionInfo->NumberOfPreconds; ++i)
+  {
+    fprintf(fp, "%s(", (i == 0 ? "" : "\n      && "));
+    vtkWrapSerDes_SubstituteCode(fp, classInfo, functionInfo, functionInfo->Preconds[i]);
+    fprintf(fp, ")");
+  }
+  fprintf(fp, ")\n    {\n");
 }
 
 /* An out parameter is a numeric array that the method fills in rather than reads. The client does
@@ -898,6 +971,11 @@ static int vtkWrapSerDes_WriteMemberFunctionCall(
     argStart = "\n";
     argEnd = "    ";
   }
+  /* the arguments are valid to use with the method only when its preconditions are met. */
+  if (functionInfo->NumberOfPreconds > 0)
+  {
+    vtkWrapSerDes_WritePreconditionCheck(fp, classInfo, functionInfo);
+  }
   fprintf(fp,
     "    vtkVLog(invoker->GetInvokerLogVerbosity(), \"Calling %s::%s with args\" << "
     "args.dump());\n",
@@ -952,6 +1030,25 @@ static int vtkWrapSerDes_WriteMemberFunctionCall(
     "std::string(\"::\") + \"%s\" + std::string(\" is successful.\");\n",
     functionInfo->Name);
   fprintf(fp, "    result[\"Success\"] = true;\n");
+  /* an out parameter takes the place of an argument, so two overloads can now read the same
+   * number of arguments. Stop at the one that ran instead of calling the other one too. */
+  fprintf(fp, "    return;\n");
+  if (functionInfo->NumberOfPreconds > 0)
+  {
+    fprintf(fp, "    }\n");
+    fprintf(fp, "    else\n    {\n");
+    fprintf(fp,
+      "      result[\"Message\"] = std::string(\"Call to \") + object->GetClassName() + "
+      "std::string(\"::\") + \"%s\" + std::string(\" expects \") + \"",
+      functionInfo->Name);
+    for (i = 0; i < functionInfo->NumberOfPreconds; ++i)
+    {
+      fprintf(fp, "%s%s", (i == 0 ? "" : " and "),
+        vtkWrapText_QuoteString(functionInfo->Preconds[i], 200));
+    }
+    fprintf(fp, "\" + std::string(\", got \") + args.dump();\n");
+    fprintf(fp, "    }\n");
+  }
   fprintf(fp, "  }\n"); // end if arguments check
   fprintf(fp, "  }\n");
   return 1;
