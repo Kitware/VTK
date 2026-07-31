@@ -802,7 +802,7 @@ WGPUBuffer vtkWebGPUConfiguration::CreateBuffer(const WGPUBufferDescriptor& buff
     return nullptr;
   }
   const auto label = vtkWebGPUStringViewToStdString(bufferDescriptor.label);
-  if (!vtkWebGPUBufferInternals::CheckBufferSize(internals.Device, bufferDescriptor.size))
+  if (!vtkWebGPUBufferInternals::CheckBufferSize(internals.Device.Get(), bufferDescriptor.size))
   {
     wgpu::Limits supportedDeviceLimits;
     internals.Device.GetLimits(&supportedDeviceLimits);

@@ -3,10 +3,10 @@
 #include "Private/vtkWebGPUBufferInternals.h"
 
 //------------------------------------------------------------------------------
-bool vtkWebGPUBufferInternals::CheckBufferSize(const wgpu::Device& device, unsigned long sizeBytes)
+bool vtkWebGPUBufferInternals::CheckBufferSize(WGPUDevice device, unsigned long sizeBytes)
 {
-  wgpu::Limits supportedDeviceLimits;
-  device.GetLimits(&supportedDeviceLimits);
+  WGPULimits supportedDeviceLimits = WGPU_LIMITS_INIT;
+  wgpuDeviceGetLimits(device, &supportedDeviceLimits);
 
   return !(sizeBytes > supportedDeviceLimits.maxStorageBufferBindingSize);
 }
