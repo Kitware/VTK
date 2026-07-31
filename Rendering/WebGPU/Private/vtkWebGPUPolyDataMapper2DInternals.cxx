@@ -776,7 +776,6 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
         static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage), false,
         label.c_str()));
     this->Mapper2DStateData.Size = sizeof(Mapper2DState);
-    const auto& device = wgpuConfiguration->GetDevice();
     recreateMeshBindGroup = true;
   }
   if ((this->Mapper2DStateData.BuildTimeStamp < actor->GetProperty()->GetMTime()) ||
