@@ -7,7 +7,7 @@
 #include "vtkDataArray.h"
 #include "vtkRenderingWebGPUModule.h"
 #include "vtkWebGPUConfiguration.h"
-#include "vtk_wgpu_impl.h"
+#include "vtk_wgpu.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -18,8 +18,8 @@ public:
    * Upload byteSize of data from the data pointer to the given texture using the given device and
    * assuming bytesPerRow bytes of data per row of the texture.
    */
-  static void Upload(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration,
-    wgpu::Texture texture, std::uint32_t bytesPerRow, std::uint32_t byteSize, const void* data,
+  static void Upload(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, WGPUTexture texture,
+    std::uint32_t bytesPerRow, std::uint32_t byteSize, const void* data,
     const char* description = nullptr);
 
   /**
@@ -27,21 +27,21 @@ public:
    * of data per row of the texture.
    */
   static void UploadFromDataArray(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration,
-    wgpu::Texture texture, std::uint32_t bytesPerRow, vtkDataArray* dataArray,
+    WGPUTexture texture, std::uint32_t bytesPerRow, vtkDataArray* dataArray,
     const char* description = nullptr);
 
   /**
    * Get the image copy texture from the given texture for use in uploading data to the texture
    */
-  static wgpu::TexelCopyTextureInfo GetTexelCopyTextureInfo(
-    wgpu::Texture texture, wgpu::Origin3D origin = { 0, 0, 0 }, std::uint32_t mipLevel = 0);
+  static WGPUTexelCopyTextureInfo GetTexelCopyTextureInfo(
+    WGPUTexture texture, WGPUOrigin3D origin = { 0, 0, 0 }, std::uint32_t mipLevel = 0);
 
   /**
    * Get the texture data layout from the given texture and bytes per row for use in uploading data
    * to the texture
    */
-  static wgpu::TexelCopyBufferLayout GetDataLayout(
-    wgpu::Texture texture, std::uint32_t bytesPerRow, std::uint32_t srcOffset = 0);
+  static WGPUTexelCopyBufferLayout GetDataLayout(
+    WGPUTexture texture, std::uint32_t bytesPerRow, std::uint32_t srcOffset = 0);
 };
 
 VTK_ABI_NAMESPACE_END

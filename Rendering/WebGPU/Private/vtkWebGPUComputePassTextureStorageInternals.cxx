@@ -471,7 +471,7 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
       {
         if (texture->GetDataPointer() != nullptr)
         {
-          vtkWebGPUTextureInternals::Upload(this->ParentPassWGPUConfiguration, wgpuTexture,
+          vtkWebGPUTextureInternals::Upload(this->ParentPassWGPUConfiguration, wgpuTexture.Get(),
             texture->GetBytesPerPixel() * textureExtents.width, texture->GetByteSize(),
             texture->GetDataPointer());
         }
@@ -493,7 +493,7 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
         if (texture->GetDataArray() != nullptr)
         {
           vtkWebGPUTextureInternals::UploadFromDataArray(this->ParentPassWGPUConfiguration,
-            wgpuTexture, texture->GetBytesPerPixel() * textureExtents.width,
+            wgpuTexture.Get(), texture->GetBytesPerPixel() * textureExtents.width,
             texture->GetDataArray());
         }
         else if (textureReadOnly)

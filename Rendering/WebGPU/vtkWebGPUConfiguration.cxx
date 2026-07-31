@@ -947,14 +947,11 @@ void vtkWebGPUConfiguration::WriteTexture(WGPUTexture texture, uint32_t bytesPer
     vtkWarningMacro(<< "Cannot write data into texture because device is not ready.");
     return;
   }
-  // NOTE: GetTexelCopyTextureInfo/GetDataLayout still return the C++ wrapper structs; they are
-  // bridged here (the wgpu:: and WGPU structs are layout-compatible) until
-  // vtkWebGPUTextureInternals is migrated to the C API.
-  const auto copyTexture = vtkWebGPUTextureInternals::GetTexelCopyTextureInfo(
-    wgpu::Texture(texture), *reinterpret_cast<wgpu::Origin3D*>(&dstOffset), dstMipLevel);
+  const auto copyTexture =
+    vtkWebGPUTextureInternals::GetTexelCopyTextureInfo(texture, dstOffset, dstMipLevel);
 
   const auto textureDataLayout =
-    vtkWebGPUTextureInternals::GetDataLayout(wgpu::Texture(texture), bytesPerRow, srcOffset);
+    vtkWebGPUTextureInternals::GetDataLayout(texture, bytesPerRow, srcOffset);
 
   // Compute the number of layers to copy from the data size rather than the full texture depth.
   // This ensures individual array layer writes (e.g. cube map faces) copy only 1 layer.
@@ -968,9 +965,7 @@ void vtkWebGPUConfiguration::WriteTexture(WGPUTexture texture, uint32_t bytesPer
     "Write texture {description: \"" << (description ? description : "null")
                                      << "\", size: " << sizeBytes << "}");
   WGPUQueue queue = wgpuDeviceGetQueue(internals.Device);
-  wgpuQueueWriteTexture(queue, reinterpret_cast<const WGPUTexelCopyTextureInfo*>(&copyTexture),
-    data, sizeBytes, reinterpret_cast<const WGPUTexelCopyBufferLayout*>(&textureDataLayout),
-    &textureExtents);
+  wgpuQueueWriteTexture(queue, &copyTexture, data, sizeBytes, &textureDataLayout, &textureExtents);
   wgpuQueueRelease(queue);
 }
 
