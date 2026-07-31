@@ -16,13 +16,14 @@
 #include <iostream>
 
 #define CHECK(expr, msg)                                                                           \
+  do                                                                                               \
   {                                                                                                \
     if (!(expr))                                                                                   \
     {                                                                                              \
       std::cerr << "FAILED: " << msg << "\n";                                                      \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
-  }
+  } while (false)
 
 int TestStandardRenderViewSelection(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
