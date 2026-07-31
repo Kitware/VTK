@@ -47,6 +47,22 @@ static int vtkWrapSerDes_HintNamesParameter(const FunctionInfo* functionInfo, co
   return 0;
 }
 
+/* Report whether the number of elements of an array value can be written out here.
+ * 'Trivial' means the expression is not relying on any function parameter. This means
+ * we can write the expression without deserializing any function parameter.
+ */
+static int vtkWrapSerDes_HasTrivialCountExpression(
+  const FunctionInfo* functionInfo, const ValueInfo* valInfo)
+{
+  // If we know the exact count, use it.
+  if (valInfo->Count > 0)
+  {
+    return 1;
+  }
+  return (valInfo->CountHint != NULL &&
+    !vtkWrapSerDes_HintNamesParameter(functionInfo, valInfo->CountHint));
+}
+
 static int vtkWrapSerDes_CanMarshalValue(
   ValueInfo* valInfo, const ClassInfo* classInfo, const HierarchyInfo* hinfo, int isReturnValue)
 {
