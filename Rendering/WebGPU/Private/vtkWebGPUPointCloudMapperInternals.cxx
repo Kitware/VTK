@@ -130,8 +130,9 @@ void vtkWebGPUPointCloudMapperInternals::CreateCopyDepthBufferRenderPipeline(
     });
   bgl.SetLabel("FSQ bind group layout");
 
-  wgpu::PipelineLayout pipelineLayout =
-    vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(device, &bgl);
+  WGPUBindGroupLayout fsqBgl = bgl.Get();
+  wgpu::PipelineLayout pipelineLayout = wgpu::PipelineLayout::Acquire(
+    vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(device.Get(), &fsqBgl));
   pipelineLayout.SetLabel("FSQ graphics pipeline layout");
 
   auto bufferStorage = this->CopyDepthPass->Internals->BufferStorage;

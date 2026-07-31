@@ -871,8 +871,9 @@ void vtkWebGPURenderWindow::CreateColorCopyPipeline()
     },
     std::string("ColorCopy-") + this->GetObjectDescription());
 
-  wgpu::PipelineLayout pipelineLayout =
-    vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(device, &bgl);
+  WGPUBindGroupLayout colorCopyBgl = bgl.Get();
+  wgpu::PipelineLayout pipelineLayout = wgpu::PipelineLayout::Acquire(
+    vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(device, &colorCopyBgl));
   pipelineLayout.SetLabel("FSQ Color Copy pipeline layout");
 
   this->ColorCopyRenderPipeline.BindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(device, bgl,

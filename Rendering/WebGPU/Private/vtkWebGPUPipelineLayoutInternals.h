@@ -4,19 +4,20 @@
 #define vtkWebGPUPipelineLayoutInternals_h
 
 #include "vtkRenderingWebGPUModule.h"
-#include "vtk_wgpu_impl.h"
+#include "vtk_wgpu.h"
 
+#include <string>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPipelineLayoutInternals
 {
 public:
-  static wgpu::PipelineLayout MakeBasicPipelineLayout(const wgpu::Device& device,
-    const wgpu::BindGroupLayout* bindGroupLayout, std::string label = "");
+  static WGPUPipelineLayout MakeBasicPipelineLayout(
+    WGPUDevice device, const WGPUBindGroupLayout* bindGroupLayout, std::string label = "");
 
-  static wgpu::PipelineLayout MakePipelineLayout(
-    const wgpu::Device& device, std::vector<wgpu::BindGroupLayout> bgls, std::string label = "");
+  static WGPUPipelineLayout MakePipelineLayout(
+    WGPUDevice device, std::vector<WGPUBindGroupLayout> bgls, std::string label = "");
 };
 VTK_ABI_NAMESPACE_END
 

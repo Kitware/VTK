@@ -1259,8 +1259,15 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       auto bgls = basicBGLayouts;
       bgls.emplace_back(this->CreateTopologyBindGroupLayout(
         device, "TopologyBindGroupLayout", homogeneousCellSize));
-      descriptor.layout = vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
-        device, bgls, "vtkPolyDataMapper2DPipelineLayout");
+      std::vector<WGPUBindGroupLayout> cBgls;
+      cBgls.reserve(bgls.size());
+      for (const auto& b : bgls)
+      {
+        cBgls.push_back(b.Get());
+      }
+      descriptor.layout =
+        wgpu::PipelineLayout::Acquire(vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
+          device, cBgls, "vtkPolyDataMapper2DPipelineLayout"));
       descriptor.label = this->GetGraphicsPipelineTypeAsString(pipelineType);
       descriptor.primitive.topology = this->GraphicsPipeline2DPrimitiveTypes[i];
       std::string vertexShaderSource = vtkPolyData2DVSWGSL;

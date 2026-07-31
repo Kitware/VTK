@@ -2,14 +2,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "Private/vtkWebGPUPipelineLayoutInternals.h"
 
+#include "Private/vtkWebGPUHelpersPrivate.h"
+
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
-wgpu::PipelineLayout vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(
-  const wgpu::Device& device, const wgpu::BindGroupLayout* bindGroupLayout,
-  std::string label /*=""*/)
+WGPUPipelineLayout vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(
+  WGPUDevice device, const WGPUBindGroupLayout* bindGroupLayout, std::string label /*=""*/)
 {
-  wgpu::PipelineLayoutDescriptor descriptor;
-  descriptor.label = label.c_str();
+  WGPUPipelineLayoutDescriptor descriptor = WGPU_PIPELINE_LAYOUT_DESCRIPTOR_INIT;
+  descriptor.label = vtkWebGPUMakeStringView(label);
   if (bindGroupLayout != nullptr)
   {
     descriptor.bindGroupLayoutCount = 1;
@@ -20,17 +21,17 @@ wgpu::PipelineLayout vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(
     descriptor.bindGroupLayoutCount = 0;
     descriptor.bindGroupLayouts = nullptr;
   }
-  return device.CreatePipelineLayout(&descriptor);
+  return wgpuDeviceCreatePipelineLayout(device, &descriptor);
 }
 
 //------------------------------------------------------------------------------
-wgpu::PipelineLayout vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
-  const wgpu::Device& device, std::vector<wgpu::BindGroupLayout> bgls, std::string label /*=""*/)
+WGPUPipelineLayout vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
+  WGPUDevice device, std::vector<WGPUBindGroupLayout> bgls, std::string label /*=""*/)
 {
-  wgpu::PipelineLayoutDescriptor descriptor;
-  descriptor.label = label.c_str();
+  WGPUPipelineLayoutDescriptor descriptor = WGPU_PIPELINE_LAYOUT_DESCRIPTOR_INIT;
+  descriptor.label = vtkWebGPUMakeStringView(label);
   descriptor.bindGroupLayoutCount = uint32_t(bgls.size());
   descriptor.bindGroupLayouts = bgls.data();
-  return device.CreatePipelineLayout(&descriptor);
+  return wgpuDeviceCreatePipelineLayout(device, &descriptor);
 }
 VTK_ABI_NAMESPACE_END

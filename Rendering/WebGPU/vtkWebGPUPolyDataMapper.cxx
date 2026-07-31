@@ -2120,15 +2120,9 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
       this->GetObjectDescription() + "TopologyBindGroupLayout", homogeneousCellSize,
       useEdgeArrray));
 
-    // Convert C API bind group layouts to C++ wrappers for the pipeline layout helper.
-    std::vector<wgpu::BindGroupLayout> wgpuBgls;
-    wgpuBgls.reserve(bgls.size());
-    for (const auto& bgl : bgls)
-    {
-      wgpuBgls.emplace_back(bgl);
-    }
-    descriptor.layout = vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
-      wgpu::Device(device), wgpuBgls, this->GetObjectDescription() + "-PipelineLayout");
+    descriptor.layout =
+      wgpu::PipelineLayout::Acquire(vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
+        device, bgls, this->GetObjectDescription() + "-PipelineLayout"));
 
     const auto label =
       this->GetObjectDescription() + this->GetGraphicsPipelineTypeAsString(pipelineType);
