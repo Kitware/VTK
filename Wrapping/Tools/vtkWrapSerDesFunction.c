@@ -913,6 +913,15 @@ static int vtkWrapSerDes_WriteMemberFunctionCall(
       fprintf(fp, "\n");
     }
     fprintf(fp, "%s);\n", argEnd);
+    /* the out parameter holds what the method produced, so it is the value of the call. */
+    if (outParameterId >= 0)
+    {
+      fprintf(fp, "    {\n");
+      fprintf(fp, "      auto& dst = result[\"Value\"] = nlohmann::json::array();\n");
+      fprintf(fp, "      for (const auto& element : elements_%d) { dst.push_back(element); }\n",
+        outParameterId);
+      fprintf(fp, "    }\n");
+    }
   }
   else
   {
