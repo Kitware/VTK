@@ -485,8 +485,8 @@ void vtkWebGPUComputePassInternals::WebGPUDispatch(
 //------------------------------------------------------------------------------
 void vtkWebGPUComputePassInternals::CreateShaderModule()
 {
-  this->ShaderModule = vtkWebGPUShaderModuleInternals::CreateFromWGSL(
-    this->WGPUConfiguration->GetDevice(), this->ParentPass->ShaderSource);
+  this->ShaderModule = wgpu::ShaderModule::Acquire(vtkWebGPUShaderModuleInternals::CreateFromWGSL(
+    this->WGPUConfiguration->GetDevice(), this->ParentPass->ShaderSource));
 }
 
 //------------------------------------------------------------------------------

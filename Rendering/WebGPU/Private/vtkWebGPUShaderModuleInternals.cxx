@@ -2,30 +2,32 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "Private/vtkWebGPUShaderModuleInternals.h"
 
+#include "Private/vtkWebGPUHelpersPrivate.h"
+
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
-wgpu::ShaderModule vtkWebGPUShaderModuleInternals::CreateFromWGSL(
-  const wgpu::Device& device, const std::string& source)
+WGPUShaderModule vtkWebGPUShaderModuleInternals::CreateFromWGSL(
+  WGPUDevice device, const std::string& source)
 {
-  wgpu::ShaderSourceWGSL wgslDesc;
-  wgslDesc.code = source.c_str();
+  WGPUShaderSourceWGSL wgslDesc = WGPU_SHADER_SOURCE_WGSL_INIT;
+  wgslDesc.code = vtkWebGPUMakeStringView(source);
 
-  wgpu::ShaderModuleDescriptor descriptor;
-  descriptor.nextInChain = &wgslDesc;
+  WGPUShaderModuleDescriptor descriptor = WGPU_SHADER_MODULE_DESCRIPTOR_INIT;
+  descriptor.nextInChain = &wgslDesc.chain;
 
-  return device.CreateShaderModule(&descriptor);
+  return wgpuDeviceCreateShaderModule(device, &descriptor);
 }
 
 //------------------------------------------------------------------------------
-wgpu::ShaderModule vtkWebGPUShaderModuleInternals::CreateFromSPIRV(
-  const wgpu::Device& device, const uint32_t* code)
+WGPUShaderModule vtkWebGPUShaderModuleInternals::CreateFromSPIRV(
+  WGPUDevice device, const uint32_t* code)
 {
-  wgpu::ShaderSourceSPIRV sprivDescriptor;
+  WGPUShaderSourceSPIRV sprivDescriptor = WGPU_SHADER_SOURCE_SPIRV_INIT;
   sprivDescriptor.code = code;
 
-  wgpu::ShaderModuleDescriptor descriptor;
-  descriptor.nextInChain = &sprivDescriptor;
+  WGPUShaderModuleDescriptor descriptor = WGPU_SHADER_MODULE_DESCRIPTOR_INIT;
+  descriptor.nextInChain = &sprivDescriptor.chain;
 
-  return device.CreateShaderModule(&descriptor);
+  return wgpuDeviceCreateShaderModule(device, &descriptor);
 }
 VTK_ABI_NAMESPACE_END

@@ -143,7 +143,8 @@ void vtkWebGPUPointCloudMapperInternals::CreateCopyDepthBufferRenderPipeline(
     });
 
   wgpu::ShaderModule shaderModule =
-    vtkWebGPUShaderModuleInternals::CreateFromWGSL(device, PointCloudMapperCopyDepthToWindow);
+    wgpu::ShaderModule::Acquire(vtkWebGPUShaderModuleInternals::CreateFromWGSL(
+      device.Get(), PointCloudMapperCopyDepthToWindow));
 
   vtkWebGPURenderPipelineDescriptorInternals pipelineDesc;
   pipelineDesc.label = "Point cloud mapper - Copy point depth buffer graphics pipeline description";

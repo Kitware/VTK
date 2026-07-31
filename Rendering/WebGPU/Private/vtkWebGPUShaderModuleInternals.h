@@ -5,7 +5,6 @@
 
 #include "vtkRenderingWebGPUModule.h"
 #include "vtk_wgpu.h"
-#include "webgpu/webgpu_cpp.h"
 
 #include <string>
 
@@ -13,8 +12,8 @@ VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUShaderModuleInternals
 {
 public:
-  static wgpu::ShaderModule CreateFromWGSL(const wgpu::Device& device, const std::string& source);
-  static wgpu::ShaderModule CreateFromSPIRV(const wgpu::Device& device, const uint32_t* code);
+  static WGPUShaderModule CreateFromWGSL(WGPUDevice device, const std::string& source);
+  static WGPUShaderModule CreateFromSPIRV(WGPUDevice device, const uint32_t* code);
 };
 VTK_ABI_NAMESPACE_END
 

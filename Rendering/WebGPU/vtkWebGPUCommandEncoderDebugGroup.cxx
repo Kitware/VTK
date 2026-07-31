@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUCommandEncoderDebugGroup.h"
-#include "vtk_wgpu_impl.h"
+#include "vtk_wgpu.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -12,8 +12,7 @@ vtkWebGPUCommandEncoderDebugGroup::vtkWebGPUCommandEncoderDebugGroup(
   : PassEncoder(&passEncoder)
 {
 #if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
-  wgpu::RenderPassEncoder wrappedEncoder(passEncoder);
-  wrappedEncoder.PushDebugGroup(groupLabel);
+  wgpuRenderPassEncoderPushDebugGroup(passEncoder, WGPUStringView{ groupLabel, WGPU_STRLEN });
 #else
   (void)this->PassEncoder;
   (void)groupLabel;
@@ -26,8 +25,7 @@ vtkWebGPUCommandEncoderDebugGroup::vtkWebGPUCommandEncoderDebugGroup(
   : BundleEncoder(&bundleEncoder)
 {
 #if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
-  wgpu::RenderBundleEncoder wrappedEncoder(bundleEncoder);
-  wrappedEncoder.PushDebugGroup(groupLabel);
+  wgpuRenderBundleEncoderPushDebugGroup(bundleEncoder, WGPUStringView{ groupLabel, WGPU_STRLEN });
 #else
   (void)this->BundleEncoder;
   (void)groupLabel;
@@ -40,8 +38,7 @@ vtkWebGPUCommandEncoderDebugGroup::vtkWebGPUCommandEncoderDebugGroup(
   : CommandEncoder(&commandEncoder)
 {
 #if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
-  wgpu::CommandEncoder wrappedEncoder(commandEncoder);
-  wrappedEncoder.PushDebugGroup(groupLabel);
+  wgpuCommandEncoderPushDebugGroup(commandEncoder, WGPUStringView{ groupLabel, WGPU_STRLEN });
 #else
   (void)this->CommandEncoder;
   (void)groupLabel;
@@ -54,18 +51,15 @@ vtkWebGPUCommandEncoderDebugGroup::~vtkWebGPUCommandEncoderDebugGroup()
 {
   if (this->PassEncoder)
   {
-    wgpu::RenderPassEncoder wrappedPassEncoder(*this->PassEncoder);
-    wrappedPassEncoder.PopDebugGroup();
+    wgpuRenderPassEncoderPopDebugGroup(*this->PassEncoder);
   }
   if (this->BundleEncoder)
   {
-    wgpu::RenderBundleEncoder wrappedBundleEncoder(*this->BundleEncoder);
-    wrappedBundleEncoder.PopDebugGroup();
+    wgpuRenderBundleEncoderPopDebugGroup(*this->BundleEncoder);
   }
   if (this->CommandEncoder)
   {
-    wgpu::CommandEncoder wrappedCommandEncoder(*this->CommandEncoder);
-    wrappedCommandEncoder.PopDebugGroup();
+    wgpuCommandEncoderPopDebugGroup(*this->CommandEncoder);
   }
 }
 #else

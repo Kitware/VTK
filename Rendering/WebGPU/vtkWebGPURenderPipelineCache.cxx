@@ -216,8 +216,8 @@ void vtkWebGPURenderPipelineCache::CreateRenderPipeline(WGPURenderPipelineDescri
   wgpu::ShaderModule shaderModule = this->Internals->HasShaderModule(shaderHash);
   if (shaderModule == nullptr)
   {
-    shaderModule =
-      vtkWebGPUShaderModuleInternals::CreateFromWGSL(wgpuRenderWindow->GetDevice(), source);
+    shaderModule = wgpu::ShaderModule::Acquire(
+      vtkWebGPUShaderModuleInternals::CreateFromWGSL(wgpuRenderWindow->GetDevice(), source));
     this->Internals->InsertShader(shaderHash, shaderModule);
   }
 
@@ -298,8 +298,8 @@ void vtkWebGPURenderPipelineCache::CreateRenderPipeline(WGPURenderPipelineDescri
   wgpu::ShaderModule vertexShaderModule = this->Internals->HasShaderModule(vertexShaderHash);
   if (vertexShaderModule == nullptr)
   {
-    vertexShaderModule = vtkWebGPUShaderModuleInternals::CreateFromWGSL(
-      wgpuRenderWindow->GetDevice(), vertexShaderSourceFinal);
+    vertexShaderModule = wgpu::ShaderModule::Acquire(vtkWebGPUShaderModuleInternals::CreateFromWGSL(
+      wgpuRenderWindow->GetDevice(), vertexShaderSourceFinal));
     this->Internals->InsertShader(vertexShaderHash, vertexShaderModule);
   }
   std::string fragmentShaderHash;
@@ -307,8 +307,9 @@ void vtkWebGPURenderPipelineCache::CreateRenderPipeline(WGPURenderPipelineDescri
   wgpu::ShaderModule fragmentShaderModule = this->Internals->HasShaderModule(fragmentShaderHash);
   if (fragmentShaderModule == nullptr)
   {
-    fragmentShaderModule = vtkWebGPUShaderModuleInternals::CreateFromWGSL(
-      wgpuRenderWindow->GetDevice(), fragmentShaderSourceFinal);
+    fragmentShaderModule =
+      wgpu::ShaderModule::Acquire(vtkWebGPUShaderModuleInternals::CreateFromWGSL(
+        wgpuRenderWindow->GetDevice(), fragmentShaderSourceFinal));
     this->Internals->InsertShader(fragmentShaderHash, fragmentShaderModule);
   }
 
