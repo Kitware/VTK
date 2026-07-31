@@ -34,9 +34,13 @@
 #include "vtkRenderViewBase.h"
 #include "vtkSmartPointer.h"         // For ivars
 #include "vtkViewsRenderingModule.h" // For export macro
+#include "vtkWrappingHints.h"        // For VTK_MARSHALEXCLUDE
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHardwareSelector;
+class vtkInteractorObserver;
+class vtkInteractorStyleRubberBand3D;
+class vtkInteractorStyleTrackballCamera;
 class vtkLight;
 class vtkLightKit;
 class vtkOrientationMarkerWidget;
@@ -190,16 +194,45 @@ public:
    * INTERACTION_MODE_SELECTION uses vtkInteractorStyleRubberBand3D for
    * rubber-band selection.  Mode switching is programmatic; applications
    * typically expose it through a toolbar or keyboard shortcut.
+   * INTERACTION_MODE_CUSTOM reports that a style supplied through
+   * SetInteractorStyle() is installed; it cannot be selected directly.
+   *
+   * The view owns one instance of each built-in style and switches between
+   * them, so any configuration applied to a style survives a mode change.
    */
   enum
   {
     INTERACTION_MODE_3D = 0,
-    INTERACTION_MODE_SELECTION = 1
+    INTERACTION_MODE_SELECTION = 1,
+    INTERACTION_MODE_CUSTOM = 2
   };
   void SetInteractionMode(int mode);
   int GetInteractionMode();
   void SetInteractionModeTo3D() { this->SetInteractionMode(INTERACTION_MODE_3D); }
   void SetInteractionModeToSelection() { this->SetInteractionMode(INTERACTION_MODE_SELECTION); }
+  ///@}
+
+  ///@{
+  /**
+   * Install an interactor style of your own, for interaction the built-in
+   * modes do not cover -- a 2D or terrain camera, or a
+   * vtkInteractorStyleManipulator configured with your own button bindings.
+   * The view holds a reference to the style and reports
+   * INTERACTION_MODE_CUSTOM until a built-in mode is selected again, at which
+   * point the custom style is remembered and can be restored by setting it
+   * once more.  Passing nullptr returns to INTERACTION_MODE_3D.
+   *
+   * To drive selection from a custom style, call SelectRegion() from its event
+   * handling.  The view does not interpret events from a style it does not
+   * know.
+   *
+   * GetInteractorStyle() returns the style currently installed on the
+   * interactor, built-in or custom.
+   */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
+  void SetInteractorStyle(vtkInteractorObserver* style);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
+  vtkInteractorObserver* GetInteractorStyle();
   ///@}
 
   ///@{
@@ -299,6 +332,12 @@ private:
   vtkNew<vtkLightKit> LightKit;
   vtkNew<vtkHardwareSelector> HardwareSelector;
   vtkSmartPointer<vtkSelection> CurrentSelection;
+
+  // One instance of each built-in style, so switching modes preserves whatever
+  // the application configured on them.
+  vtkSmartPointer<vtkInteractorStyleTrackballCamera> TrackballStyle;
+  vtkSmartPointer<vtkInteractorStyleRubberBand3D> RubberBandStyle;
+  vtkSmartPointer<vtkInteractorObserver> CustomStyle;
   bool UseLightKitFlag;
   bool FirstRender;
   int InteractionMode;

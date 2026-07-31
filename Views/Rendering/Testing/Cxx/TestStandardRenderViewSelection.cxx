@@ -4,6 +4,8 @@
 #include "vtkActor.h"
 #include "vtkDataObject.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInteractorStyleTerrain.h"
+#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
@@ -57,6 +59,41 @@ int TestStandardRenderViewSelection(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   view->SetInteractionMode(vtkStandardRenderView::INTERACTION_MODE_SELECTION);
   CHECK(view->GetInteractionMode() == vtkStandardRenderView::INTERACTION_MODE_SELECTION,
     "SetInteractionMode with enum should work");
+
+  // --- Test that style state survives a mode round trip ---
+  view->SetInteractionModeTo3D();
+  vtkInteractorObserver* trackball = view->GetInteractorStyle();
+  CHECK(trackball, "The view should have an interactor style in 3D mode");
+  vtkInteractorStyleTrackballCamera::SafeDownCast(trackball)->SetMotionFactor(42.0);
+  view->SetInteractionModeToSelection();
+  view->SetInteractionModeTo3D();
+  CHECK(view->GetInteractorStyle() == trackball,
+    "The view should reuse its trackball style rather than build a new one");
+  CHECK(vtkInteractorStyleTrackballCamera::SafeDownCast(view->GetInteractorStyle())
+          ->GetMotionFactor() == 42.0,
+    "Style configuration should survive an interaction mode round trip");
+
+  // --- Test custom interactor styles ---
+  vtkNew<vtkInteractorStyleTerrain> terrain;
+  view->SetInteractorStyle(terrain);
+  CHECK(view->GetInteractionMode() == vtkStandardRenderView::INTERACTION_MODE_CUSTOM,
+    "Setting a custom style should report INTERACTION_MODE_CUSTOM");
+  CHECK(view->GetInteractorStyle() == terrain.Get(),
+    "The custom style should be the one installed on the interactor");
+
+  // A built-in mode takes over, and the custom style can be restored.
+  view->SetInteractionModeTo3D();
+  CHECK(view->GetInteractorStyle() == trackball, "A built-in mode should replace the custom style");
+  view->SetInteractionMode(vtkStandardRenderView::INTERACTION_MODE_CUSTOM);
+  CHECK(view->GetInteractorStyle() == terrain.Get(),
+    "The remembered custom style should be restorable by mode");
+
+  // Passing null returns to the default mode.
+  view->SetInteractorStyle(nullptr);
+  CHECK(view->GetInteractionMode() == vtkStandardRenderView::INTERACTION_MODE_3D,
+    "A null custom style should return to 3D");
+
+  view->SetInteractionMode(vtkStandardRenderView::INTERACTION_MODE_SELECTION);
 
   // --- Test selection mode API ---
   CHECK(view->GetSelectionMode() == vtkStandardRenderView::SELECTION_MODE_SURFACE,

@@ -70,10 +70,14 @@ vtkStandardRenderView::vtkStandardRenderView()
   this->FieldAssociation = vtkDataObject::FIELD_ASSOCIATION_CELLS;
   this->UseLightKitFlag = false;
 
-  // Set up trackball camera interaction style
-  vtkInteractorStyleTrackballCamera* style = vtkInteractorStyleTrackballCamera::New();
-  this->GetInteractor()->SetInteractorStyle(style);
-  style->Delete();
+  // Both built-in styles are created up front and kept for the life of the
+  // view, so that switching interaction modes does not discard whatever the
+  // application configured on them.  The selection observer is attached once
+  // here rather than on every mode change.
+  this->TrackballStyle = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
+  this->RubberBandStyle = vtkSmartPointer<vtkInteractorStyleRubberBand3D>::New();
+  this->RubberBandStyle->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
+  this->GetInteractor()->SetInteractorStyle(this->TrackballStyle);
 
   // Set sensible defaults
   this->GetRenderWindow()->SetSize(1024, 768);
@@ -520,34 +524,58 @@ void vtkStandardRenderView::RemoveAllLights()
 //------------------------------------------------------------------------------
 void vtkStandardRenderView::SetInteractionMode(int mode)
 {
+  vtkInteractorObserver* style = nullptr;
+  switch (mode)
+  {
+    case INTERACTION_MODE_3D:
+      style = this->TrackballStyle;
+      break;
+    case INTERACTION_MODE_SELECTION:
+      style = this->RubberBandStyle;
+      break;
+    case INTERACTION_MODE_CUSTOM:
+      if (!this->CustomStyle)
+      {
+        vtkWarningMacro("INTERACTION_MODE_CUSTOM requires a style set with SetInteractorStyle().");
+        return;
+      }
+      style = this->CustomStyle;
+      break;
+    default:
+      vtkWarningMacro("Unknown interaction mode: " << mode);
+      return;
+  }
   if (this->InteractionMode == mode)
   {
     return;
   }
   this->InteractionMode = mode;
-  vtkInteractorObserver* oldStyle = this->GetInteractor()->GetInteractorStyle();
-  if (mode == INTERACTION_MODE_3D)
-  {
-    if (oldStyle)
-    {
-      oldStyle->RemoveObserver(this->GetObserver());
-    }
-    vtkInteractorStyleTrackballCamera* style = vtkInteractorStyleTrackballCamera::New();
-    this->GetInteractor()->SetInteractorStyle(style);
-    style->Delete();
-  }
-  else if (mode == INTERACTION_MODE_SELECTION)
-  {
-    if (oldStyle)
-    {
-      oldStyle->RemoveObserver(this->GetObserver());
-    }
-    vtkInteractorStyleRubberBand3D* style = vtkInteractorStyleRubberBand3D::New();
-    this->GetInteractor()->SetInteractorStyle(style);
-    style->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
-    style->Delete();
-  }
+  this->GetInteractor()->SetInteractorStyle(style);
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkStandardRenderView::SetInteractorStyle(vtkInteractorObserver* style)
+{
+  if (!style)
+  {
+    this->SetInteractionModeTo3D();
+    return;
+  }
+  if (this->CustomStyle == style && this->InteractionMode == INTERACTION_MODE_CUSTOM)
+  {
+    return;
+  }
+  this->CustomStyle = style;
+  this->InteractionMode = INTERACTION_MODE_CUSTOM;
+  this->GetInteractor()->SetInteractorStyle(style);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+vtkInteractorObserver* vtkStandardRenderView::GetInteractorStyle()
+{
+  return this->GetInteractor() ? this->GetInteractor()->GetInteractorStyle() : nullptr;
 }
 
 //------------------------------------------------------------------------------
