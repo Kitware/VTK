@@ -45,9 +45,9 @@ const std::uint32_t SAMSUNG_PCI_VENDOR_ID = 0x144d;
 
 template <typename CharT, typename Traits>
 std::basic_ostream<CharT, Traits>& operator<<(
-  std::basic_ostream<CharT, Traits>& o, wgpu::StringView value)
+  std::basic_ostream<CharT, Traits>& o, WGPUStringView value)
 {
-  o << std::string_view(value);
+  o << vtkWebGPUStringViewToStdString(value);
   return o;
 }
 
@@ -87,35 +87,35 @@ ostream& operator<<(ostream& os, const vtkWebGPUConfiguration::BackendType& back
   return os;
 }
 
-ostream& operator<<(ostream& os, const wgpu::BackendType& backend)
+ostream& operator<<(ostream& os, const WGPUBackendType& backend)
 {
   switch (backend)
   {
-    case wgpu::BackendType::Null:
+    case WGPUBackendType_Null:
       os << "Null";
       break;
-    case wgpu::BackendType::WebGPU:
+    case WGPUBackendType_WebGPU:
       os << "WebGPU";
       break;
-    case wgpu::BackendType::D3D11:
+    case WGPUBackendType_D3D11:
       os << "D3D11";
       break;
-    case wgpu::BackendType::D3D12:
+    case WGPUBackendType_D3D12:
       os << "D3D12";
       break;
-    case wgpu::BackendType::Metal:
+    case WGPUBackendType_Metal:
       os << "Metal";
       break;
-    case wgpu::BackendType::Vulkan:
+    case WGPUBackendType_Vulkan:
       os << "Vulkan";
       break;
-    case wgpu::BackendType::OpenGL:
+    case WGPUBackendType_OpenGL:
       os << "OpenGL";
       break;
-    case wgpu::BackendType::OpenGLES:
+    case WGPUBackendType_OpenGLES:
       os << "OpenGLES";
       break;
-    case wgpu::BackendType::Undefined:
+    case WGPUBackendType_Undefined:
     default:
       os << "Undefined";
       break;
@@ -141,20 +141,21 @@ ostream& operator<<(ostream& os, const vtkWebGPUConfiguration::PowerPreferenceTy
   return os;
 }
 
-ostream& operator<<(ostream& os, const wgpu::AdapterType& type)
+ostream& operator<<(ostream& os, const WGPUAdapterType& type)
 {
   switch (type)
   {
-    case wgpu::AdapterType::DiscreteGPU:
+    case WGPUAdapterType_DiscreteGPU:
       os << "discrete GPU";
       break;
-    case wgpu::AdapterType::IntegratedGPU:
+    case WGPUAdapterType_IntegratedGPU:
       os << "integrated GPU";
       break;
-    case wgpu::AdapterType::CPU:
+    case WGPUAdapterType_CPU:
       os << "CPU";
       break;
-    case wgpu::AdapterType::Unknown:
+    case WGPUAdapterType_Unknown:
+    default:
       os << "unknown";
       break;
   }
@@ -185,7 +186,7 @@ std::string FormatNumber(uint64_t num)
   return ret.str();
 }
 
-void PrintLimits(ostream& os, vtkIndent indent, const wgpu::Limits& limits)
+void PrintLimits(ostream& os, vtkIndent indent, const WGPULimits& limits)
 {
   os << indent << "maxTextureDimension1D: " << FormatNumber(limits.maxTextureDimension1D) << '\n';
   os << indent << "maxTextureDimension2D: " << FormatNumber(limits.maxTextureDimension2D) << '\n';
@@ -249,14 +250,15 @@ void PrintLimits(ostream& os, vtkIndent indent, const wgpu::Limits& limits)
      << FormatNumber(limits.maxComputeWorkgroupsPerDimension) << '\n';
 }
 
-void PrintAdapterInfo(ostream& os, vtkIndent indent, const wgpu::Adapter& adapter)
+void PrintAdapterInfo(ostream& os, vtkIndent indent, WGPUAdapter adapter)
 {
-  wgpu::AdapterInfo info{};
+  WGPUAdapterInfo info = WGPU_ADAPTER_INFO_INIT;
 #if VTK_USE_DAWN_WEBGPU
-  wgpu::DawnAdapterPropertiesPowerPreference power_props{};
-  info.nextInChain = &power_props;
+  WGPUDawnAdapterPropertiesPowerPreference power_props =
+    WGPU_DAWN_ADAPTER_PROPERTIES_POWER_PREFERENCE_INIT;
+  info.nextInChain = &power_props.chain;
 #endif
-  adapter.GetInfo(&info);
+  wgpuAdapterGetInfo(adapter, &info);
   os << indent << "VendorID: " << AsHex(info.vendorID) << '\n';
   os << indent << "Vendor: " << info.vendor << '\n';
   os << indent << "Architecture: " << info.architecture << '\n';
@@ -269,38 +271,40 @@ void PrintAdapterInfo(ostream& os, vtkIndent indent, const wgpu::Adapter& adapte
 #if VTK_USE_DAWN_WEBGPU
   switch (power_props.powerPreference)
   {
-    case wgpu::PowerPreference::LowPower:
+    case WGPUPowerPreference_LowPower:
       os << "low power\n";
       break;
-    case wgpu::PowerPreference::HighPerformance:
+    case WGPUPowerPreference_HighPerformance:
       os << "high performance\n";
       break;
-    case wgpu::PowerPreference::Undefined:
+    case WGPUPowerPreference_Undefined:
+    default:
       os << "<undefined>\n";
       break;
   }
 #else
   os << "Unknown\n";
 #endif
+  wgpuAdapterInfoFreeMembers(info);
 }
 
-void PrintAdapterFeatures(ostream& os, vtkIndent indent, const wgpu::Adapter& adapter)
+void PrintAdapterFeatures(ostream& os, vtkIndent indent, WGPUAdapter adapter)
 {
-  wgpu::SupportedFeatures supportedFeatures = {};
-  adapter.GetFeatures(&supportedFeatures);
+  WGPUSupportedFeatures supportedFeatures = WGPU_SUPPORTED_FEATURES_INIT;
+  wgpuAdapterGetFeatures(adapter, &supportedFeatures);
   os << indent << "Features\n";
   os << indent << "========\n";
   for (std::size_t i = 0; i < supportedFeatures.featureCount; ++i)
   {
     const auto feature = supportedFeatures.features[i];
 #if VTK_USE_DAWN_WEBGPU
-    auto info = dawn::native::GetFeatureInfo(feature);
+    auto info = dawn::native::GetFeatureInfo(static_cast<wgpu::FeatureName>(feature));
     os << indent << "   * " << info->name << '\n';
     os << indent << info->description << '\n';
     os << indent << "      " << info->url << '\n';
 #elif defined(__EMSCRIPTEN__)
     // Look up the list of feature strings in `WebGPU.FeatureName`
-    const auto featureIdx = static_cast<std::underlying_type<wgpu::FeatureName>::type>(feature);
+    const auto featureIdx = static_cast<std::underlying_type<WGPUFeatureName>::type>(feature);
     // clang-format off
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdollar-in-identifier-extension"
@@ -322,12 +326,13 @@ void PrintAdapterFeatures(ostream& os, vtkIndent indent, const wgpu::Adapter& ad
        << ")\n";
 #endif
   }
+  wgpuSupportedFeaturesFreeMembers(supportedFeatures);
 }
 
-void PrintAdapterLimits(ostream& os, vtkIndent indent, const wgpu::Adapter& adapter)
+void PrintAdapterLimits(ostream& os, vtkIndent indent, WGPUAdapter adapter)
 {
-  wgpu::Limits adapterLimits;
-  if (adapter.GetLimits(&adapterLimits))
+  WGPULimits adapterLimits = WGPU_LIMITS_INIT;
+  if (wgpuAdapterGetLimits(adapter, &adapterLimits) == WGPUStatus_Success)
   {
     os << indent << '\n';
     os << indent << "Adapter Limits\n";
@@ -336,7 +341,7 @@ void PrintAdapterLimits(ostream& os, vtkIndent indent, const wgpu::Adapter& adap
   }
 }
 
-void PrintAdapter(ostream& os, vtkIndent indent, const wgpu::Adapter& adapter)
+void PrintAdapter(ostream& os, vtkIndent indent, WGPUAdapter adapter)
 {
   os << indent << "Adapter\n";
   os << indent << "=======\n";
@@ -384,9 +389,9 @@ void vtkWebGPUConfiguration::PrintSelf(ostream& os, vtkIndent indent)
   os << "PowerPreference: " << this->PowerPreference << '\n';
   os << "DeviceReady: " << (this->Internals->DeviceReady ? "yes\n" : "no\n");
   os << "Timeout:" << this->Timeout << "ms\n";
-  os << "Instance: " << vtkWebGPUConfigurationInternals::Instance.Get() << '\n';
-  os << "Adapter: " << this->Internals->Adapter.Get() << '\n';
-  os << "Device: " << this->Internals->Device.Get() << '\n';
+  os << "Instance: " << vtkWebGPUConfigurationInternals::Instance << '\n';
+  os << "Adapter: " << this->Internals->Adapter << '\n';
+  os << "Device: " << this->Internals->Device << '\n';
   this->Superclass::PrintSelf(os, indent.GetNextIndent());
 }
 
@@ -399,19 +404,19 @@ void vtkWebGPUConfiguration::SetDefaultTimeout(double t)
 //------------------------------------------------------------------------------
 WGPUAdapter vtkWebGPUConfiguration::GetAdapter()
 {
-  return this->Internals->Adapter.Get();
+  return this->Internals->Adapter;
 }
 
 //------------------------------------------------------------------------------
 WGPUDevice vtkWebGPUConfiguration::GetDevice()
 {
-  return this->Internals->Device.Get();
+  return this->Internals->Device;
 }
 
 //------------------------------------------------------------------------------
 WGPUInstance vtkWebGPUConfiguration::GetInstance()
 {
-  return vtkWebGPUConfigurationInternals::Instance.Get();
+  return vtkWebGPUConfigurationInternals::Instance;
 }
 
 //------------------------------------------------------------------------------
@@ -438,29 +443,34 @@ bool vtkWebGPUConfiguration::Initialize()
   vtkWebGPUConfigurationInternals::AddInstanceRef();
   this->InstanceRefHeld = true;
 
-  wgpu::RequestAdapterOptions adapterOptions = {};
+  WGPURequestAdapterOptions adapterOptions = WGPU_REQUEST_ADAPTER_OPTIONS_INIT;
   adapterOptions.backendType = internals.ToWGPUBackendType(this->Backend);
   adapterOptions.powerPreference = internals.ToWGPUPowerPreferenceType(this->PowerPreference);
 
   std::uint64_t timeoutNS = UINT64_MAX;
   internals.Timedout = false;
-  auto waitStatus = vtkWebGPUConfigurationInternals::Instance.WaitAny(
-    vtkWebGPUConfigurationInternals::Instance.RequestAdapter(
-      &adapterOptions, wgpu::CallbackMode::WaitAnyOnly,
-      [](wgpu::RequestAdapterStatus status, wgpu::Adapter adapter, wgpu::StringView message,
-        vtkWebGPUConfigurationInternals* internalsData)
-      {
-        if (status != wgpu::RequestAdapterStatus::Success)
-        {
-          vtkGenericWarningMacro(
-            "Failed to get an adapter:" << vtkWebGPUStringViewToStdString(message));
-          return;
-        }
-        internalsData->Adapter = std::move(adapter);
-      },
-      this->Internals.get()),
-    timeoutNS);
-  if (waitStatus == wgpu::WaitStatus::TimedOut)
+  WGPURequestAdapterCallbackInfo adapterCallbackInfo = {};
+  adapterCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
+  adapterCallbackInfo.callback = [](WGPURequestAdapterStatus status, WGPUAdapter adapter,
+                                   WGPUStringView message, void* userdata1, void* /*userdata2*/)
+  {
+    auto* internalsData = static_cast<vtkWebGPUConfigurationInternals*>(userdata1);
+    if (status != WGPURequestAdapterStatus_Success)
+    {
+      vtkGenericWarningMacro(
+        "Failed to get an adapter:" << vtkWebGPUStringViewToStdString(message));
+      return;
+    }
+    // The callback owns the adapter handle; store it and release it later.
+    internalsData->Adapter = adapter;
+  };
+  adapterCallbackInfo.userdata1 = this->Internals.get();
+  WGPUFutureWaitInfo adapterWaitInfo = {};
+  adapterWaitInfo.future = wgpuInstanceRequestAdapter(
+    vtkWebGPUConfigurationInternals::Instance, &adapterOptions, adapterCallbackInfo);
+  auto waitStatus =
+    wgpuInstanceWaitAny(vtkWebGPUConfigurationInternals::Instance, 1, &adapterWaitInfo, timeoutNS);
+  if (waitStatus == WGPUWaitStatus_TimedOut)
   {
     vtkWarningMacro(<< "Request adapter timed out!");
     return internals.DeviceReady;
@@ -468,55 +478,56 @@ bool vtkWebGPUConfiguration::Initialize()
   internals.Timedout = false;
 
   // Create device descriptor with callbacks and toggles
-  wgpu::DeviceDescriptor deviceDescriptor = {};
-  deviceDescriptor.SetDeviceLostCallback(wgpu::CallbackMode::AllowSpontaneous,
-    [](const wgpu::Device&, wgpu::DeviceLostReason reason, wgpu::StringView message)
+  WGPUDeviceDescriptor deviceDescriptor = WGPU_DEVICE_DESCRIPTOR_INIT;
+  deviceDescriptor.deviceLostCallbackInfo.mode = WGPUCallbackMode_AllowSpontaneous;
+  deviceDescriptor.deviceLostCallbackInfo.callback =
+    [](WGPUDevice const*, WGPUDeviceLostReason reason, WGPUStringView message, void*, void*)
+  {
+    const char* reasonName = "";
+    switch (reason)
     {
-      const char* reasonName = "";
-      switch (reason)
-      {
-        case wgpu::DeviceLostReason::Unknown:
-          reasonName = "Unknown";
-          break;
-        case wgpu::DeviceLostReason::Destroyed:
-          reasonName = "Destroyed";
-          break;
-        case wgpu::DeviceLostReason::CallbackCancelled:
-          reasonName = "CallbackCancelled";
-          break;
-        case wgpu::DeviceLostReason::FailedCreation:
-          reasonName = "FailedCreation";
-          break;
-        default:
-          break;
-      }
-      vtkLog(INFO, << "Device lost, reason=" << reasonName << ". "
-                   << vtkWebGPUStringViewToStdString(message));
-    });
-  deviceDescriptor.SetUncapturedErrorCallback(
-    [](const wgpu::Device&, wgpu::ErrorType type, wgpu::StringView message)
+      case WGPUDeviceLostReason_Unknown:
+        reasonName = "Unknown";
+        break;
+      case WGPUDeviceLostReason_Destroyed:
+        reasonName = "Destroyed";
+        break;
+      case WGPUDeviceLostReason_CallbackCancelled:
+        reasonName = "CallbackCancelled";
+        break;
+      case WGPUDeviceLostReason_FailedCreation:
+        reasonName = "FailedCreation";
+        break;
+      default:
+        break;
+    }
+    vtkLog(INFO, << "Device lost, reason=" << reasonName << ". "
+                 << vtkWebGPUStringViewToStdString(message));
+  };
+  deviceDescriptor.uncapturedErrorCallbackInfo.callback =
+    [](WGPUDevice const*, WGPUErrorType type, WGPUStringView message, void*, void*)
+  {
+    const char* errorTypeName = "";
+    switch (type)
     {
-      const char* errorTypeName = "";
-      switch (type)
-      {
-        case wgpu::ErrorType::Validation:
-          errorTypeName = "Validation";
-          break;
-        case wgpu::ErrorType::OutOfMemory:
-          errorTypeName = "Out of memory";
-          break;
-        case wgpu::ErrorType::Unknown:
-          errorTypeName = "Unknown";
-          break;
-        case wgpu::ErrorType::Internal:
-          errorTypeName = "Internal";
-          break;
-        default:
-          break;
-      }
-      vtkGenericWarningMacro(<< errorTypeName
-                             << " error: " << vtkWebGPUStringViewToStdString(message));
-    });
+      case WGPUErrorType_Validation:
+        errorTypeName = "Validation";
+        break;
+      case WGPUErrorType_OutOfMemory:
+        errorTypeName = "Out of memory";
+        break;
+      case WGPUErrorType_Unknown:
+        errorTypeName = "Unknown";
+        break;
+      case WGPUErrorType_Internal:
+        errorTypeName = "Internal";
+        break;
+      default:
+        break;
+    }
+    vtkGenericWarningMacro(<< errorTypeName
+                           << " error: " << vtkWebGPUStringViewToStdString(message));
+  };
 
   // Populating limits of the device
   internals.PopulateRequiredLimits(internals.Adapter);
@@ -529,24 +540,27 @@ bool vtkWebGPUConfiguration::Initialize()
 
   // Synchronously create the device
   internals.Timedout = false;
-  waitStatus = vtkWebGPUConfigurationInternals::Instance.WaitAny(
-    internals.Adapter.RequestDevice(
-      &deviceDescriptor, wgpu::CallbackMode::WaitAnyOnly,
-      [](wgpu::RequestDeviceStatus status, wgpu::Device device, wgpu::StringView message,
-        vtkWebGPUConfigurationInternals* internalsData)
-      {
-        if (status != wgpu::RequestDeviceStatus::Success)
-        {
-          vtkGenericWarningMacro(
-            "Failed to get a device:" << vtkWebGPUStringViewToStdString(message));
-          return;
-        }
-        internalsData->Device = std::move(device);
-        // internalsData->Queue = internals->Device.GetQueue();
-      },
-      this->Internals.get()),
-    UINT64_MAX);
-  if (waitStatus == wgpu::WaitStatus::TimedOut)
+  WGPURequestDeviceCallbackInfo deviceCallbackInfo = {};
+  deviceCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
+  deviceCallbackInfo.callback = [](WGPURequestDeviceStatus status, WGPUDevice device,
+                                  WGPUStringView message, void* userdata1, void* /*userdata2*/)
+  {
+    auto* internalsData = static_cast<vtkWebGPUConfigurationInternals*>(userdata1);
+    if (status != WGPURequestDeviceStatus_Success)
+    {
+      vtkGenericWarningMacro("Failed to get a device:" << vtkWebGPUStringViewToStdString(message));
+      return;
+    }
+    // The callback owns the device handle; store it and release it later.
+    internalsData->Device = device;
+  };
+  deviceCallbackInfo.userdata1 = this->Internals.get();
+  WGPUFutureWaitInfo deviceWaitInfo = {};
+  deviceWaitInfo.future =
+    wgpuAdapterRequestDevice(internals.Adapter, &deviceDescriptor, deviceCallbackInfo);
+  waitStatus =
+    wgpuInstanceWaitAny(vtkWebGPUConfigurationInternals::Instance, 1, &deviceWaitInfo, UINT64_MAX);
+  if (waitStatus == WGPUWaitStatus_TimedOut)
   {
     vtkWarningMacro(<< "Request device timed out!");
     return internals.DeviceReady;
@@ -566,8 +580,16 @@ void vtkWebGPUConfiguration::FinalizeDevice()
   {
     return;
   }
-  internals.Adapter = nullptr;
-  internals.Device = nullptr;
+  if (internals.Device != nullptr)
+  {
+    wgpuDeviceRelease(internals.Device);
+    internals.Device = nullptr;
+  }
+  if (internals.Adapter != nullptr)
+  {
+    wgpuAdapterRelease(internals.Adapter);
+    internals.Adapter = nullptr;
+  }
   internals.DeviceReady = false;
   // Deliberately does NOT call ReleaseInstanceRef() so the Vulkan instance
   // stays alive (keeping GLX libraries loaded) until Finalize() is called.
@@ -588,7 +610,7 @@ void vtkWebGPUConfiguration::Finalize()
 void vtkWebGPUConfiguration::ProcessEvents()
 {
 #if defined(__EMSCRIPTEN__)
-  vtkWebGPUConfigurationInternals::Instance.ProcessEvents();
+  wgpuInstanceProcessEvents(vtkWebGPUConfigurationInternals::Instance);
   if (emscripten_has_asyncify())
   {
     // gives a chance for webgpu callback code to execute
@@ -600,7 +622,7 @@ void vtkWebGPUConfiguration::ProcessEvents()
                      "Please compile VTK with ASYNCIFY or JSPI.");
   }
 #else
-  vtkWebGPUConfigurationInternals::Instance.ProcessEvents();
+  wgpuInstanceProcessEvents(vtkWebGPUConfigurationInternals::Instance);
 #endif
 }
 
@@ -612,9 +634,11 @@ vtkWebGPUConfiguration::BackendType vtkWebGPUConfiguration::GetBackendInUse()
   {
     return vtkWebGPUConfiguration::BackendType::Undefined;
   }
-  wgpu::AdapterInfo info{};
-  internals.Adapter.GetInfo(&info);
-  return internals.FromWGPUBackendType(info.backendType);
+  WGPUAdapterInfo info = WGPU_ADAPTER_INFO_INIT;
+  wgpuAdapterGetInfo(internals.Adapter, &info);
+  const auto backend = internals.FromWGPUBackendType(info.backendType);
+  wgpuAdapterInfoFreeMembers(info);
+  return backend;
 }
 
 //------------------------------------------------------------------------------
@@ -623,27 +647,29 @@ std::string vtkWebGPUConfiguration::GetBackendInUseAsString()
   auto& internals = (*this->Internals);
   if (internals.DeviceReady)
   {
-    wgpu::AdapterInfo info{};
-    internals.Adapter.GetInfo(&info);
-    switch (info.backendType)
+    WGPUAdapterInfo info = WGPU_ADAPTER_INFO_INIT;
+    wgpuAdapterGetInfo(internals.Adapter, &info);
+    const WGPUBackendType backendType = info.backendType;
+    wgpuAdapterInfoFreeMembers(info);
+    switch (backendType)
     {
-      case wgpu::BackendType::Null:
+      case WGPUBackendType_Null:
         return "Null";
-      case wgpu::BackendType::WebGPU:
+      case WGPUBackendType_WebGPU:
         return "WebGPU";
-      case wgpu::BackendType::D3D11:
+      case WGPUBackendType_D3D11:
         return "D3D11";
-      case wgpu::BackendType::D3D12:
+      case WGPUBackendType_D3D12:
         return "D3D12";
-      case wgpu::BackendType::Metal:
+      case WGPUBackendType_Metal:
         return "Metal";
-      case wgpu::BackendType::Vulkan:
+      case WGPUBackendType_Vulkan:
         return "Vulkan";
-      case wgpu::BackendType::OpenGL:
+      case WGPUBackendType_OpenGL:
         return "OpenGL";
-      case wgpu::BackendType::OpenGLES:
+      case WGPUBackendType_OpenGLES:
         return "OpenGL ES";
-      case wgpu::BackendType::Undefined:
+      case WGPUBackendType_Undefined:
       default:
         return "Undefined";
     }
@@ -694,9 +720,11 @@ std::uint32_t vtkWebGPUConfiguration::GetAdapterVendorID()
 {
   if (this->Internals->DeviceReady)
   {
-    wgpu::AdapterInfo info{};
-    this->Internals->Adapter.GetInfo(&info);
-    return info.vendorID;
+    WGPUAdapterInfo info = WGPU_ADAPTER_INFO_INIT;
+    wgpuAdapterGetInfo(this->Internals->Adapter, &info);
+    const auto vendorID = info.vendorID;
+    wgpuAdapterInfoFreeMembers(info);
+    return vendorID;
   }
   else
   {
@@ -709,9 +737,11 @@ std::uint32_t vtkWebGPUConfiguration::GetAdapterDeviceID()
 {
   if (this->Internals->DeviceReady)
   {
-    wgpu::AdapterInfo info{};
-    this->Internals->Adapter.GetInfo(&info);
-    return info.deviceID;
+    WGPUAdapterInfo info = WGPU_ADAPTER_INFO_INIT;
+    wgpuAdapterGetInfo(this->Internals->Adapter, &info);
+    const auto deviceID = info.deviceID;
+    wgpuAdapterInfoFreeMembers(info);
+    return deviceID;
   }
   else
   {
@@ -802,10 +832,10 @@ WGPUBuffer vtkWebGPUConfiguration::CreateBuffer(const WGPUBufferDescriptor& buff
     return nullptr;
   }
   const auto label = vtkWebGPUStringViewToStdString(bufferDescriptor.label);
-  if (!vtkWebGPUBufferInternals::CheckBufferSize(internals.Device.Get(), bufferDescriptor.size))
+  if (!vtkWebGPUBufferInternals::CheckBufferSize(internals.Device, bufferDescriptor.size))
   {
-    wgpu::Limits supportedDeviceLimits;
-    internals.Device.GetLimits(&supportedDeviceLimits);
+    WGPULimits supportedDeviceLimits = WGPU_LIMITS_INIT;
+    wgpuDeviceGetLimits(internals.Device, &supportedDeviceLimits);
     vtkLog(ERROR,
       "The current WebGPU Device cannot create buffers larger than: "
         << supportedDeviceLimits.maxStorageBufferBindingSize << " bytes but the buffer with label "
@@ -815,13 +845,7 @@ WGPUBuffer vtkWebGPUConfiguration::CreateBuffer(const WGPUBufferDescriptor& buff
   }
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
     "Create buffer {label: \"" << label << "\", size: " << bufferDescriptor.size << "}");
-  wgpu::BufferDescriptor wgpuDesc{};
-  wgpuDesc.label = bufferDescriptor.label;
-  wgpuDesc.size = bufferDescriptor.size;
-  wgpuDesc.usage = static_cast<wgpu::BufferUsage>(bufferDescriptor.usage);
-  wgpuDesc.mappedAtCreation = bufferDescriptor.mappedAtCreation;
-  wgpu::Buffer buffer = internals.Device.CreateBuffer(&wgpuDesc);
-  return buffer.MoveToCHandle();
+  return wgpuDeviceCreateBuffer(internals.Device, &bufferDescriptor);
 }
 
 //------------------------------------------------------------------------------
@@ -837,8 +861,9 @@ void vtkWebGPUConfiguration::WriteBuffer(WGPUBuffer buffer, std::uint64_t offset
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
     "Write buffer {description: \"" << (description ? description : "null")
                                     << "\", offset: " << offset << ", size: " << sizeBytes << "}");
-  wgpu::Buffer wrappedBuffer(buffer);
-  internals.Device.GetQueue().WriteBuffer(wrappedBuffer, offset, data, sizeBytes);
+  WGPUQueue queue = wgpuDeviceGetQueue(internals.Device);
+  wgpuQueueWriteBuffer(queue, buffer, offset, data, sizeBytes);
+  wgpuQueueRelease(queue);
 }
 
 //------------------------------------------------------------------------------
@@ -874,21 +899,7 @@ WGPUTexture vtkWebGPUConfiguration::CreateTexture(const WGPUTextureDescriptor& t
     "Create texture {label: \"" << label << "\", size: [" << textureDescriptor.size.width << ','
                                 << textureDescriptor.size.height << ','
                                 << textureDescriptor.size.depthOrArrayLayers << "]}");
-  wgpu::TextureDescriptor wgpuDesc{};
-  wgpuDesc.dimension = static_cast<wgpu::TextureDimension>(textureDescriptor.dimension);
-  wgpuDesc.format = static_cast<wgpu::TextureFormat>(textureDescriptor.format);
-  wgpuDesc.size = *reinterpret_cast<const wgpu::Extent3D*>(&textureDescriptor.size);
-  wgpuDesc.mipLevelCount = textureDescriptor.mipLevelCount;
-  wgpuDesc.nextInChain =
-    reinterpret_cast<const wgpu::ChainedStruct*>(textureDescriptor.nextInChain);
-  wgpuDesc.sampleCount = textureDescriptor.sampleCount;
-  wgpuDesc.usage = static_cast<wgpu::TextureUsage>(textureDescriptor.usage);
-  wgpuDesc.viewFormatCount = textureDescriptor.viewFormatCount;
-  wgpuDesc.viewFormats = reinterpret_cast<wgpu::TextureFormat*>(
-    const_cast<WGPUTextureFormat*>(textureDescriptor.viewFormats));
-  wgpuDesc.label = textureDescriptor.label;
-  wgpu::Texture texture = internals.Device.CreateTexture(&wgpuDesc);
-  return texture.MoveToCHandle();
+  return wgpuDeviceCreateTexture(internals.Device, &textureDescriptor);
 }
 
 //------------------------------------------------------------------------------
@@ -921,19 +932,7 @@ WGPUTextureView vtkWebGPUConfiguration::CreateView(
     vtkWarningMacro(<< "Cannot create texture because device is not ready.");
     return nullptr;
   }
-  wgpu::Texture wrappedTexture(texture);
-  wgpu::TextureViewDescriptor wgpuDesc{};
-  wgpuDesc.arrayLayerCount = viewDescriptor.arrayLayerCount;
-  wgpuDesc.aspect = static_cast<wgpu::TextureAspect>(viewDescriptor.aspect);
-  wgpuDesc.baseArrayLayer = viewDescriptor.baseArrayLayer;
-  wgpuDesc.baseMipLevel = viewDescriptor.baseMipLevel;
-  wgpuDesc.dimension = static_cast<wgpu::TextureViewDimension>(viewDescriptor.dimension);
-  wgpuDesc.format = static_cast<wgpu::TextureFormat>(viewDescriptor.format);
-  wgpuDesc.label = viewDescriptor.label;
-  wgpuDesc.mipLevelCount = viewDescriptor.mipLevelCount;
-  wgpuDesc.nextInChain = reinterpret_cast<const wgpu::ChainedStruct*>(viewDescriptor.nextInChain);
-  wgpu::TextureView view = wrappedTexture.CreateView(&wgpuDesc);
-  return view.MoveToCHandle();
+  return wgpuTextureCreateView(texture, &viewDescriptor);
 }
 
 //------------------------------------------------------------------------------
@@ -948,26 +947,31 @@ void vtkWebGPUConfiguration::WriteTexture(WGPUTexture texture, uint32_t bytesPer
     vtkWarningMacro(<< "Cannot write data into texture because device is not ready.");
     return;
   }
-  wgpu::Texture wrappedTexture(texture);
+  // NOTE: GetTexelCopyTextureInfo/GetDataLayout still return the C++ wrapper structs; they are
+  // bridged here (the wgpu:: and WGPU structs are layout-compatible) until
+  // vtkWebGPUTextureInternals is migrated to the C API.
   const auto copyTexture = vtkWebGPUTextureInternals::GetTexelCopyTextureInfo(
-    wrappedTexture, *reinterpret_cast<wgpu::Origin3D*>(&dstOffset), dstMipLevel);
+    wgpu::Texture(texture), *reinterpret_cast<wgpu::Origin3D*>(&dstOffset), dstMipLevel);
 
   const auto textureDataLayout =
-    vtkWebGPUTextureInternals::GetDataLayout(wrappedTexture, bytesPerRow, srcOffset);
+    vtkWebGPUTextureInternals::GetDataLayout(wgpu::Texture(texture), bytesPerRow, srcOffset);
 
   // Compute the number of layers to copy from the data size rather than the full texture depth.
   // This ensures individual array layer writes (e.g. cube map faces) copy only 1 layer.
-  const uint32_t rowsPerImage = wrappedTexture.GetHeight();
+  const uint32_t rowsPerImage = wgpuTextureGetHeight(texture);
   const uint32_t layerSizeBytes = bytesPerRow * rowsPerImage;
   const uint32_t depthOrArrayLayers =
     layerSizeBytes > 0 ? std::max(1u, sizeBytes / layerSizeBytes) : 1;
-  wgpu::Extent3D textureExtents{ wrappedTexture.GetWidth(), wrappedTexture.GetHeight(),
+  WGPUExtent3D textureExtents{ wgpuTextureGetWidth(texture), wgpuTextureGetHeight(texture),
     depthOrArrayLayers };
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
     "Write texture {description: \"" << (description ? description : "null")
                                      << "\", size: " << sizeBytes << "}");
-  internals.Device.GetQueue().WriteTexture(
-    &copyTexture, data, sizeBytes, &textureDataLayout, &textureExtents);
+  WGPUQueue queue = wgpuDeviceGetQueue(internals.Device);
+  wgpuQueueWriteTexture(queue, reinterpret_cast<const WGPUTexelCopyTextureInfo*>(&copyTexture),
+    data, sizeBytes, reinterpret_cast<const WGPUTexelCopyBufferLayout*>(&textureDataLayout),
+    &textureExtents);
+  wgpuQueueRelease(queue);
 }
 
 //------------------------------------------------------------------------------
