@@ -2666,6 +2666,51 @@ macos-arm64-kits-python-qt-serialization:test:
    needs:
        - macos-arm64-kits-python-qt:build
 
+macos-arm64-webgpu:build:
+    extends:
+        - .macos_arm64_webgpu
+        - .cmake_build_macos
+        - .macos_arm64_builder_tags
+        - .cmake_build_artifacts
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
+    timeout: 150 minutes
+    needs: []
+
+macos-arm64-webgpu:test:
+    extends:
+        - .macos_arm64_webgpu
+        - .cmake_test_macos
+        - .macos_arm64_builder_tags
+        - .cmake_test_artifacts
+        - .rules
+    needs:
+        - macos-arm64-webgpu:build
+
+macos-x86_64-webgpu:build:
+    extends:
+        - .macos_x86_64_webgpu
+        - .cmake_build_macos
+        - .macos_x86_64_builder_tags
+        - .cmake_build_artifacts
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
+    timeout: 150 minutes
+    needs: []
+
+macos-x86_64-webgpu:test:
+    extends:
+        - .macos_x86_64_webgpu
+        - .cmake_test_macos
+        - .macos_x86_64_builder_tags
+        - .cmake_test_artifacts
+        - .rules
+    needs:
+        - macos-x86_64-webgpu:build
+    timeout: 2 hours
+
 macos-x86_64-kits-python-qt:build:
     extends:
         - .macos_x86_64_kits_python_qt
@@ -2994,6 +3039,29 @@ windows-vs2022-debug-mpi-qt:build:
 #         - .rules
 #     needs:
 #         - windows-vs2022-debug-mpi-qt:build
+
+windows-vs2022-webgpu:build:
+    extends:
+        - .windows_vs2022_webgpu
+        - .cmake_build_windows
+        - .windows_builder_tags
+        - .cmake_build_artifacts
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
+    timeout: 180 minutes
+    needs: []
+
+windows-vs2022-webgpu:test:
+    extends:
+        - .windows_vs2022_webgpu
+        - .cmake_test_windows
+        - .windows_tester_tags
+        - .cmake_test_artifacts
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - windows-vs2022-webgpu:build
 
 windows-vs2022-kits-mpi-python-qt:build:
     extends:
