@@ -9,7 +9,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkWebGPURenderer.h"
-#include "webgpu/webgpu_cpp.h" // for wgpu C++ wrappers
+#include "vtk_wgpu.h" // for WebGPU C API
 
 #include <cstdint> // for uint32_t
 
@@ -133,25 +133,24 @@ void vtkWebGPUCamera::UpdateViewport(vtkRenderer* renderer)
   auto rpassEncoder = reinterpret_cast<vtkWebGPURenderer*>(renderer)->GetRenderPassEncoder();
   auto [originX, originY, width, height] = this->ComputeYInvertedViewport(renderer);
   // Set viewport frustum
-  wgpu::RenderPassEncoder(rpassEncoder)
-    .SetViewport(originX, originY, static_cast<float>(width), static_cast<float>(height), 0.0, 1.0);
+  wgpuRenderPassEncoderSetViewport(rpassEncoder, originX, originY, static_cast<float>(width),
+    static_cast<float>(height), 0.0, 1.0);
   if (this->UseScissor)
   {
     // Set scissor rectangle
-    wgpu::RenderPassEncoder(rpassEncoder)
-      .SetScissorRect(static_cast<uint32_t>(this->ScissorRect.GetLeft()),
-        static_cast<uint32_t>(this->ScissorRect.GetBottom()),
-        static_cast<uint32_t>(this->ScissorRect.GetWidth()),
-        static_cast<uint32_t>(this->ScissorRect.GetHeight()));
+    wgpuRenderPassEncoderSetScissorRect(rpassEncoder,
+      static_cast<uint32_t>(this->ScissorRect.GetLeft()),
+      static_cast<uint32_t>(this->ScissorRect.GetBottom()),
+      static_cast<uint32_t>(this->ScissorRect.GetWidth()),
+      static_cast<uint32_t>(this->ScissorRect.GetHeight()));
     this->UseScissor = false;
   }
   else if (width > 0 && height > 0)
   {
     // zero width/height case causes validation error. it can happen for certail tiled
     // configurations.
-    wgpu::RenderPassEncoder(rpassEncoder)
-      .SetScissorRect(
-        originX, originY, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+    wgpuRenderPassEncoderSetScissorRect(
+      rpassEncoder, originX, originY, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
   }
 }
 
