@@ -92,8 +92,6 @@ int TestSurfaceRepresentationSetters()
   CHECK_NOOP(rep, SetRepresentation, GetRepresentation);
 
   // Geometry filter forwarding.
-  CHECK_NOOP(rep, SetUseOutline, GetUseOutline);
-  CHECK_NOOP(rep, SetGenerateFeatureEdges, GetGenerateFeatureEdges);
   CHECK_NOOP(rep, SetFeatureAngle, GetFeatureAngle);
   CHECK_NOOP(rep, SetTriangulate, GetTriangulate);
   CHECK_NOOP(rep, SetNonlinearSubdivisionLevel, GetNonlinearSubdivisionLevel);
@@ -137,6 +135,11 @@ int TestSurfaceRepresentationSetters()
   CHECK_MODIFIES(rep, rep->SetColor(0.1, 0.2, 0.3));
   CHECK_MODIFIES(rep, rep->SetOpacity(0.25));
   CHECK_MODIFIES(rep, rep->SetRepresentationToWireframe());
+  // The geometry-level modes reconfigure the extraction filter, so they must be
+  // seen as changes too, including on the way back to a property-level mode.
+  CHECK_MODIFIES(rep, rep->SetRepresentationToOutline());
+  CHECK_MODIFIES(rep, rep->SetRepresentationToFeatureEdges());
+  CHECK_MODIFIES(rep, rep->SetRepresentationToSurface());
   CHECK_MODIFIES(rep, rep->SetVisibility(false));
   CHECK_MODIFIES(rep, rep->SetScalarBarVisibility(true));
   CHECK_MODIFIES(rep, rep->SetFeatureAngle(12.5));

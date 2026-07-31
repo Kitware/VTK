@@ -60,22 +60,23 @@ int TestSurfaceRepresentation(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  // Test geometry filter options
-  rep->SetUseOutline(true);
-  if (!rep->GetUseOutline())
+  // Test the geometry-level representation modes
+  rep->SetRepresentationToOutline();
+  if (rep->GetRepresentation() != vtkSurfaceRepresentation::OUTLINE)
   {
-    std::cerr << "SetUseOutline failed." << std::endl;
+    std::cerr << "SetRepresentationToOutline() failed." << std::endl;
     return EXIT_FAILURE;
   }
-  rep->SetUseOutline(false);
 
-  rep->SetGenerateFeatureEdges(true);
-  if (!rep->GetGenerateFeatureEdges())
+  rep->SetRepresentationToFeatureEdges();
+  if (rep->GetRepresentation() != vtkSurfaceRepresentation::FEATURE_EDGES)
   {
-    std::cerr << "SetGenerateFeatureEdges failed." << std::endl;
+    std::cerr << "SetRepresentationToFeatureEdges() failed." << std::endl;
     return EXIT_FAILURE;
   }
-  rep->SetGenerateFeatureEdges(false);
+
+  // Going back to a property-level mode must restore surface extraction.
+  rep->SetRepresentationToSurfaceWithEdges();
 
   rep->SetGeneratePointNormals(true);
   if (!rep->GetGeneratePointNormals())

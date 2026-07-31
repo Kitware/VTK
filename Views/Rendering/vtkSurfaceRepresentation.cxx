@@ -69,6 +69,8 @@ vtkSurfaceRepresentation::vtkSurfaceRepresentation()
   this->SelectionActor->GetProperty()->SetPointSize(8.0);
   this->SelectionActor->GetProperty()->SetRenderPointsAsSpheres(true);
   this->SelectionActor->GetProperty()->SetRepresentationToWireframe();
+  this->SelectionRepresentationValue = WIREFRAME;
+  this->UserSetSelectionRepresentation = false;
   this->SelectionActor->GetProperty()->LightingOff();
   this->SelectionActor->SetVisibility(false);
   this->SelectionActor->SetPickable(false);
@@ -140,25 +142,52 @@ vtkMTimeType vtkSurfaceRepresentation::GetMTime()
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetRepresentation(int type)
 {
+  // POINTS through SURFACE_WITH_EDGES only configure the property; OUTLINE and
+  // FEATURE_EDGES also change what the geometry filter extracts.  Because the
+  // modes are mutually exclusive, every case sets all four values.
   int representation;
   bool edgeVisibility;
+  bool useOutline;
+  bool generateFeatureEdges;
   switch (type)
   {
     case POINTS:
       representation = VTK_POINTS;
       edgeVisibility = false;
+      useOutline = false;
+      generateFeatureEdges = false;
       break;
     case WIREFRAME:
       representation = VTK_WIREFRAME;
       edgeVisibility = false;
+      useOutline = false;
+      generateFeatureEdges = false;
       break;
     case SURFACE:
       representation = VTK_SURFACE;
       edgeVisibility = false;
+      useOutline = false;
+      generateFeatureEdges = false;
       break;
     case SURFACE_WITH_EDGES:
       representation = VTK_SURFACE;
       edgeVisibility = true;
+      useOutline = false;
+      generateFeatureEdges = false;
+      break;
+    case OUTLINE:
+      // The filter emits the bounding box as lines, so the property mode only
+      // has to avoid asking for a surface.
+      representation = VTK_WIREFRAME;
+      edgeVisibility = false;
+      useOutline = true;
+      generateFeatureEdges = false;
+      break;
+    case FEATURE_EDGES:
+      representation = VTK_WIREFRAME;
+      edgeVisibility = false;
+      useOutline = false;
+      generateFeatureEdges = true;
       break;
     default:
       vtkWarningMacro("Unknown representation type: " << type);
@@ -172,6 +201,8 @@ void vtkSurfaceRepresentation::SetRepresentation(int type)
   vtkProperty* prop = this->Actor->GetProperty();
   prop->SetRepresentation(representation);
   prop->SetEdgeVisibility(edgeVisibility);
+  this->GeometryFilter->SetUseOutline(useOutline);
+  this->GeometryFilter->SetGenerateFeatureEdges(generateFeatureEdges);
   this->Modified();
 }
 
@@ -194,6 +225,10 @@ const char* vtkSurfaceRepresentation::GetRepresentationAsString()
       return "Surface";
     case SURFACE_WITH_EDGES:
       return "SurfaceWithEdges";
+    case OUTLINE:
+      return "Outline";
+    case FEATURE_EDGES:
+      return "FeatureEdges";
     default:
       return "Unknown";
   }
@@ -471,40 +506,6 @@ void vtkSurfaceRepresentation::SetMetallic(double val)
 double vtkSurfaceRepresentation::GetMetallic()
 {
   return this->Actor->GetProperty()->GetMetallic();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetUseOutline(bool val)
-{
-  if (this->GetUseOutline() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetUseOutline(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetUseOutline()
-{
-  return this->GeometryFilter->GetUseOutline() != 0;
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetGenerateFeatureEdges(bool val)
-{
-  if (this->GetGenerateFeatureEdges() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetGenerateFeatureEdges(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetGenerateFeatureEdges()
-{
-  return this->GeometryFilter->GetGenerateFeatureEdges();
 }
 
 //------------------------------------------------------------------------------
@@ -1193,13 +1194,12 @@ vtkSelection* vtkSurfaceRepresentation::ConvertSelection(
   }
 
   // For point selections, render as points; for cell selections, as wireframe.
-  if (isPointSelection)
+  // An explicit SetSelectionRepresentation() opts out of this entirely.
+  if (!this->UserSetSelectionRepresentation)
   {
-    this->SelectionActor->GetProperty()->SetRepresentationToPoints();
-  }
-  else
-  {
-    this->SelectionActor->GetProperty()->SetRepresentationToWireframe();
+    this->SelectionRepresentationValue = isPointSelection ? POINTS : WIREFRAME;
+    this->SelectionActor->GetProperty()->SetRepresentation(
+      isPointSelection ? VTK_POINTS : VTK_WIREFRAME);
   }
 
   this->SelectionExtractor->SetInputConnection(0, inputPort);
@@ -1344,15 +1344,24 @@ void vtkSurfaceRepresentation::SetSelectionRepresentation(int type)
       representation = VTK_SURFACE;
       edgeVisibility = true;
       break;
+    case OUTLINE:
+    case FEATURE_EDGES:
+      vtkWarningMacro("The selection is drawn from the representation's own geometry, so the "
+        << (type == OUTLINE ? "OUTLINE" : "FEATURE_EDGES") << " mode cannot be applied to it.");
+      return;
     default:
+      vtkWarningMacro("Unknown selection representation type: " << type);
       return;
   }
-  vtkProperty* prop = this->SelectionActor->GetProperty();
-  if (prop->GetRepresentation() == representation &&
-    (prop->GetEdgeVisibility() != 0) == edgeVisibility)
+  // Record the user's intent even when the style is unchanged, so the
+  // automatic point/wireframe choice never overrides it later.
+  this->UserSetSelectionRepresentation = true;
+  if (this->SelectionRepresentationValue == type)
   {
     return;
   }
+  this->SelectionRepresentationValue = type;
+  vtkProperty* prop = this->SelectionActor->GetProperty();
   prop->SetRepresentation(representation);
   prop->SetEdgeVisibility(edgeVisibility);
   this->Modified();
@@ -1361,7 +1370,7 @@ void vtkSurfaceRepresentation::SetSelectionRepresentation(int type)
 //------------------------------------------------------------------------------
 int vtkSurfaceRepresentation::GetSelectionRepresentation()
 {
-  return this->SelectionActor->GetProperty()->GetRepresentation();
+  return this->SelectionRepresentationValue;
 }
 
 //------------------------------------------------------------------------------
@@ -1374,10 +1383,11 @@ vtkActor* vtkSurfaceRepresentation::GetSelectionActor()
 void vtkSurfaceRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "RepresentationValue: " << this->RepresentationValue << "\n";
+  os << indent << "RepresentationValue: " << this->RepresentationValue << " ("
+     << this->GetRepresentationAsString() << ")\n";
   os << indent << "ScalarBarVisible: " << this->ScalarBarVisible << "\n";
-  os << indent << "UseOutline: " << this->GeometryFilter->GetUseOutline() << "\n";
-  os << indent << "GenerateFeatureEdges: " << this->GeometryFilter->GetGenerateFeatureEdges()
+  os << indent << "SelectionRepresentationValue: " << this->SelectionRepresentationValue << "\n";
+  os << indent << "UserSetSelectionRepresentation: " << this->UserSetSelectionRepresentation
      << "\n";
   os << indent << "GeneratePointNormals: " << this->GeometryFilter->GetGeneratePointNormals()
      << "\n";

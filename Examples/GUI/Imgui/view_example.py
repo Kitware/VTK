@@ -67,7 +67,7 @@ class RepState:
         self.style = 0  # index into STYLE_NAMES
 
 
-STYLE_NAMES = ["Surface", "Wireframe", "Points"]
+STYLE_NAMES = ["Surface", "Wireframe", "Points", "Outline", "FeatureEdges"]
 
 rep_states = {
     "Sphere": RepState(sphere_rep, (0.2, 0.6, 0.9)),

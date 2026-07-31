@@ -61,13 +61,21 @@ public:
 
   /**
    * Representation type constants.
+   *
+   * POINTS, WIREFRAME, SURFACE and SURFACE_WITH_EDGES draw the extracted
+   * surface and differ only in how the actor's property renders it.  OUTLINE
+   * and FEATURE_EDGES change what geometry is extracted in the first place:
+   * OUTLINE produces the bounding box of the input and FEATURE_EDGES produces
+   * the edges whose adjacent faces meet at more than the feature angle.
    */
   enum RepresentationType
   {
     POINTS = 0,
     WIREFRAME = 1,
     SURFACE = 2,
-    SURFACE_WITH_EDGES = 3
+    SURFACE_WITH_EDGES = 3,
+    OUTLINE = 4,
+    FEATURE_EDGES = 5
   };
 
   ///@{
@@ -76,6 +84,9 @@ public:
    * SetRepresentationTo* convenience methods.  The Python wrapping also accepts
    * the matching string names (case-insensitive), e.g. "Wireframe" or
    * "SurfaceWithEdges".
+   *
+   * The modes are mutually exclusive: there is no way to ask for an outline and
+   * feature edges at the same time.  The default is SURFACE.
    */
   void SetRepresentation(int type);
   int GetRepresentation();
@@ -83,6 +94,8 @@ public:
   void SetRepresentationToWireframe() { this->SetRepresentation(WIREFRAME); }
   void SetRepresentationToSurface() { this->SetRepresentation(SURFACE); }
   void SetRepresentationToSurfaceWithEdges() { this->SetRepresentation(SURFACE_WITH_EDGES); }
+  void SetRepresentationToOutline() { this->SetRepresentation(OUTLINE); }
+  void SetRepresentationToFeatureEdges() { this->SetRepresentation(FEATURE_EDGES); }
   const char* GetRepresentationAsString();
   ///@}
 
@@ -144,24 +157,12 @@ public:
 
   ///@{
   /**
-   * Geometry extraction mode (forwarded to vtkGeometryFilterDispatcher).
-   * UseOutline produces a bounding-box outline instead of a surface.
-   * GenerateFeatureEdges extracts feature edges instead of surfaces.
-   * The default is surface extraction (UseOutline off, GenerateFeatureEdges off).
-   */
-  void SetUseOutline(bool val);
-  bool GetUseOutline();
-  void SetGenerateFeatureEdges(bool val);
-  bool GetGenerateFeatureEdges();
-  ///@}
-
-  ///@{
-  /**
    * Normal generation (forwarded to vtkGeometryFilterDispatcher).
    * GeneratePointNormals enables smooth-shading normals (default off).
    * GenerateCellNormals enables flat-shading normals (default off).
    * FeatureAngle is the angle (degrees) that defines a sharp edge for
-   * normal splitting (default 30).
+   * normal splitting, and the angle used to select the edges extracted by
+   * the FEATURE_EDGES representation (default 30).
    * Splitting controls whether sharp edges cause point duplication so
    * that normals are discontinuous across them (default on).
    */
@@ -271,6 +272,17 @@ public:
   double GetSelectionLineWidth();
   void SetSelectionPointSize(double val);
   double GetSelectionPointSize();
+  /**
+   * The selection is drawn from the same geometry as the representation
+   * itself, so only the property-level RepresentationType values (POINTS,
+   * WIREFRAME, SURFACE, SURFACE_WITH_EDGES) apply here.  OUTLINE and
+   * FEATURE_EDGES are rejected with a warning.
+   *
+   * Until this is set, the selection style follows the selection itself:
+   * point selections are drawn as points and cell selections as wireframe.
+   * Calling this setter pins the style to the requested value for every
+   * subsequent selection.  The getter always reports the style in effect.
+   */
   void SetSelectionRepresentation(int type);
   int GetSelectionRepresentation();
   ///@}
@@ -323,6 +335,8 @@ private:
   vtkNew<vtkGeometryFilterDispatcher> SelectionGeometryFilter;
   vtkNew<vtkCompositePolyDataMapper> SelectionMapper;
   vtkNew<vtkActor> SelectionActor;
+  int SelectionRepresentationValue;
+  bool UserSetSelectionRepresentation;
 };
 
 VTK_ABI_NAMESPACE_END

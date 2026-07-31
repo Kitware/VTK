@@ -125,6 +125,25 @@ int TestStandardRenderViewSelection(int vtkNotUsed(argc), char* vtkNotUsed(argv)
   CHECK(rep->GetSelectionActor()->GetProperty()->GetPointSize() == 8.0,
     "Selection point size should be 8.0");
 
+  // Without an explicit style, the selection picks one from its field type.
+  CHECK(rep->GetSelectionRepresentation() == vtkSurfaceRepresentation::WIREFRAME,
+    "A cell selection should be drawn as wireframe");
+
+  rep->SetSelectionRepresentation(vtkSurfaceRepresentation::SURFACE_WITH_EDGES);
+  CHECK(rep->GetSelectionRepresentation() == vtkSurfaceRepresentation::SURFACE_WITH_EDGES,
+    "GetSelectionRepresentation should report the value that was set");
+  CHECK(rep->GetSelectionActor()->GetProperty()->GetRepresentation() == VTK_SURFACE &&
+      rep->GetSelectionActor()->GetProperty()->GetEdgeVisibility(),
+    "SURFACE_WITH_EDGES should be a surface with edges on");
+
+  // An explicit style must survive a selection, which would otherwise reset it
+  // to points or wireframe.
+  rep->Select(view, selection, false);
+  CHECK(rep->GetSelectionRepresentation() == vtkSurfaceRepresentation::SURFACE_WITH_EDGES,
+    "An explicit selection representation should survive a selection");
+  CHECK(rep->GetSelectionActor()->GetProperty()->GetRepresentation() == VTK_SURFACE,
+    "The selection actor should still be a surface after a selection");
+
   rep->SetSelectionRepresentation(vtkSurfaceRepresentation::SURFACE);
   CHECK(rep->GetSelectionActor()->GetProperty()->GetRepresentation() == VTK_SURFACE,
     "Selection representation should be SURFACE");
