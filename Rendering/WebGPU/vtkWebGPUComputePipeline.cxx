@@ -144,16 +144,26 @@ void vtkWebGPUComputePipeline::Update()
 {
   this->EnsureConfigured();
 
-  wgpu::QueueWorkDoneStatus workStatus = wgpu::QueueWorkDoneStatus::Error;
+  WGPUQueueWorkDoneStatus workStatus = WGPUQueueWorkDoneStatus_Error;
   bool done = false;
-  wgpu::Device(this->WGPUConfiguration->GetDevice())
-    .GetQueue()
-    .OnSubmittedWorkDone(wgpu::CallbackMode::AllowProcessEvents,
-      [&workStatus, &done](wgpu::QueueWorkDoneStatus status, wgpu::StringView)
-      {
-        workStatus = status;
-        done = true;
-      });
+  struct WorkDoneData
+  {
+    WGPUQueueWorkDoneStatus* status;
+    bool* done;
+  } workDoneData{ &workStatus, &done };
+  WGPUQueue queue = wgpuDeviceGetQueue(this->WGPUConfiguration->GetDevice());
+  WGPUQueueWorkDoneCallbackInfo workDoneCallbackInfo = {};
+  workDoneCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+  workDoneCallbackInfo.callback =
+    [](WGPUQueueWorkDoneStatus status, WGPUStringView, void* userdata1, void* /*userdata2*/)
+  {
+    auto* data = static_cast<WorkDoneData*>(userdata1);
+    *data->status = status;
+    *data->done = true;
+  };
+  workDoneCallbackInfo.userdata1 = &workDoneData;
+  wgpuQueueOnSubmittedWorkDone(queue, workDoneCallbackInfo);
+  wgpuQueueRelease(queue);
   // Wait not only for the submitted GPU work to finish, but also for any in-flight asynchronous
   // buffer map (readback) callbacks to run. Those callbacks fire during ProcessEvents() and
   // complete slightly after the queue work they depend on, so exiting as soon as the queue work is
@@ -162,7 +172,7 @@ void vtkWebGPUComputePipeline::Update()
   {
     this->WGPUConfiguration->ProcessEvents();
   }
-  if (workStatus != wgpu::QueueWorkDoneStatus::Success)
+  if (workStatus != WGPUQueueWorkDoneStatus_Success)
   {
     vtkErrorMacro(<< "Submitted work did not complete!");
   }
