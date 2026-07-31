@@ -173,6 +173,18 @@ static void vtkWrapJson_WriteValueSchema(
     free((char*)arg);
     return;
   }
+  /* A zero copy pointer travels as the address of its first element, because its length is not
+     part of the signature and neither side copies what is behind it. The address is an unsigned
+     integer of the target word width; "pointer" names the type of those elements, so a client can
+     view that memory in place. As a parameter the address is the client's own memory, which the
+     object borrows; as a return value it is the object's memory, which the client borrows for as
+     long as the object keeps it. */
+  if (vtkWrapSerDes_CanMarshalZeroCopyPointer(val))
+  {
+    fprintf(fp, "{ \"type\": \"%s\", \"pointer\": \"%s\" }",
+      (vtkWrapJson_TargetWordSize == 8) ? UINT64 : UINT32, vtkWrapJson_NumericType(val->Type));
+    return;
+  }
   /* numeric scalars and numeric C arrays */
   if (vtkWrap_IsNumeric(val))
   {
