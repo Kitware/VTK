@@ -526,8 +526,8 @@ static void vtkWrapSerDes_WriteArgumentDeserializer(FILE* fp, int paramId, int a
 }
 
 /* -------------------------------------------------------------------- */
-static void vtkWrapSerDes_WriteReturnValueSerializer(
-  FILE* fp, const ClassInfo* classInfo, const HierarchyInfo* hinfo, ValueInfo* valInfo)
+static void vtkWrapSerDes_WriteReturnValueSerializer(FILE* fp, const ClassInfo* classInfo,
+  const HierarchyInfo* hinfo, FunctionInfo* functionInfo, ValueInfo* valInfo)
 {
   const int isVTKObject = vtkWrap_IsVTKObjectBaseType(hinfo, valInfo->Class);
   const int isVTKSmartPointer = vtkWrap_IsVTKSmartPointer(valInfo);
@@ -598,8 +598,12 @@ static void vtkWrapSerDes_WriteReturnValueSerializer(
       fprintf(fp, "    if(methodReturnValue != nullptr)\n");
       fprintf(fp, "    {\n");
       fprintf(fp, "      auto& dst = result[\"Value\"] = nlohmann::json::array();\n");
-      fprintf(fp, "      for (int i = 0; i < %d; ++i) { dst.push_back(methodReturnValue[i]); }\n",
-        valInfo->Count);
+      fprintf(fp, "      const auto count = ");
+      vtkWrapSerDes_WriteCountExpression(fp, functionInfo, valInfo);
+      fprintf(fp, ";\n");
+      fprintf(fp,
+        "      for (int i = 0; i < static_cast<int>(count); ++i) "
+        "{ dst.push_back(methodReturnValue[i]); }\n");
       fprintf(fp, "    }\n");
       return;
     }
@@ -940,7 +944,8 @@ static int vtkWrapSerDes_WriteMemberFunctionCall(
       }
     }
     fprintf(fp, "%s);\n", argEnd);
-    vtkWrapSerDes_WriteReturnValueSerializer(fp, classInfo, hinfo, functionInfo->ReturnValue);
+    vtkWrapSerDes_WriteReturnValueSerializer(
+      fp, classInfo, hinfo, functionInfo, functionInfo->ReturnValue);
   }
   fprintf(fp,
     "    result[\"Message\"] = std::string(\"Call to \") + object->GetClassName() + "
