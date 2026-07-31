@@ -330,22 +330,33 @@ static void vtkWrapJson_WriteMethods(FILE* fp, ClassInfo* classInfo, const Hiera
       }
     }
 
+    /* the invoker fills an out parameter in itself and hands it back as the value of the call,
+       so it belongs under "returns" and not under "parameters". */
+    const int outParameterId = vtkWrapSerDes_FindOutParameterPosition(theFunc);
+    int written = 0;
     fprintf(fp, "%s\n    \"%s\": {\n      \"parameters\": {", first ? "" : ",", theFunc->Name);
     for (p = 0; p < theFunc->NumberOfParameters; ++p)
     {
       ValueInfo* paramInfo = theFunc->Parameters[p];
+      if (p == outParameterId)
+      {
+        continue;
+      }
       if (paramInfo->Name)
       {
-        fprintf(fp, "%s \"%s\": ", p ? "," : "", paramInfo->Name);
+        fprintf(fp, "%s \"%s\": ", written ? "," : "", paramInfo->Name);
       }
       else
       {
-        fprintf(fp, "%s \"arg%d\": ", p ? "," : "", p);
+        fprintf(fp, "%s \"arg%d\": ", written ? "," : "", p);
       }
       vtkWrapJson_WriteValueSchema(fp, paramInfo, hinfo, classInfo);
+      ++written;
     }
-    fprintf(fp, "%s},\n      \"returns\": ", theFunc->NumberOfParameters ? " " : "");
-    vtkWrapJson_WriteValueSchema(fp, theFunc->ReturnValue, hinfo, classInfo);
+    fprintf(fp, "%s},\n      \"returns\": ", written ? " " : "");
+    vtkWrapJson_WriteValueSchema(fp,
+      (outParameterId >= 0 ? theFunc->Parameters[outParameterId] : theFunc->ReturnValue), hinfo,
+      classInfo);
     if (maySuspend)
     {
       fprintf(fp, ",\n      \"maySuspend\": true");
