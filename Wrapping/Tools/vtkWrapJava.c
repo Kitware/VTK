@@ -1093,8 +1093,10 @@ int checkFunctionSignature(ClassInfo* data)
 
     if (((aType & VTK_PARSE_INDIRECT) == VTK_PARSE_POINTER) &&
       (thisFunction->Parameters[i]->Count <= 0) && (aType != VTK_PARSE_OBJECT_PTR) &&
-      (aType != VTK_PARSE_CHAR_PTR))
+      ((aType != VTK_PARSE_CHAR_PTR) || (thisFunction->Parameters[i]->CountHint != NULL)))
+    {
       args_ok = 0;
+    }
   }
 
   /* if we need a return type hint make sure we have one */
