@@ -77,7 +77,7 @@ class Factory
 
 template <class Base, class... Args>
 template <class T>
-volatile bool Factory<Base, Args...>::Registrar<T>::registered = Factory<Base, Args...>::Registrar<T>::registerT();
+volatile bool Factory<Base, Args...>::template Registrar<T>::registered = Factory<Base, Args...>::template Registrar<T>::registerT();
 
 }
 
