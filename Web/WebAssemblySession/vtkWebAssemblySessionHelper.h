@@ -7,15 +7,10 @@
 #include <emscripten/val.h>
 
 #include "vtkABINamespace.h"
-#include "vtkArrayDispatch.h"
-#include "vtkBitArray.h"
-#include "vtkDataArrayMeta.h"
 #include "vtkObjectManager.h"
 #include "vtkSession.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-
-using Arrays = vtkTypeList::Append<vtkArrayDispatch::AOSArrays, vtkBitArray>::Result;
 
 // Implement vtkSessionJsonImpl as a wrapper around emscripten::val
 struct vtkSessionJsonImpl
@@ -34,21 +29,6 @@ thread_local const val Uint32Array = val::global("Uint32Array");
 thread_local const val JSON = val::global("JSON");
 thread_local const val Array = val::global("Array");
 
-// clang-format off
-std::map<std::string, std::function<bool(const vtkDataArray*)>> IsJSArraySameTypeAsVtkDataArray = {
-  {"Uint8Array", [](const vtkDataArray* dataArray) -> bool { return dataArray->GetDataType() == VTK_TYPE_UINT8; }},
-  {"Uint8ClampedArray", [](const vtkDataArray* dataArray) -> bool { return dataArray->GetDataType() == VTK_TYPE_UINT8; }},
-  {"Uint16Array", [](const vtkDataArray* dataArray) -> bool { return dataArray->GetDataType() == VTK_TYPE_UINT16; }},
-  {"Uint32Array", [](const vtkDataArray* dataArray) -> bool { return dataArray->GetDataType() == VTK_TYPE_UINT32; }},
-  {"Int8Array", [](const vtkDataArray* dataArray) -> bool { return dataArray->GetDataType() == VTK_TYPE_INT8; }},
-  {"Int16Array", [](const vtkDataArray* dataArray) -> bool { return dataArray->GetDataType() == VTK_TYPE_INT16; }},
-  {"Float32Array", [](const vtkDataArray* dataArray) -> bool { return dataArray->GetDataType() == VTK_TYPE_FLOAT32; }},
-  {"Float64Array", [](const vtkDataArray* dataArray) -> bool { return dataArray->GetDataType() == VTK_TYPE_FLOAT64; }},
-  {"Int32Array", [](const vtkDataArray* dataArray) -> bool { return dataArray->GetDataType() == VTK_TYPE_INT32; }},
-  {"BigInt64Array", [](const vtkDataArray* dataArray) -> bool { return dataArray->GetDataType() == VTK_TYPE_INT64; }},
-  {"BigUint64Array", [](const vtkDataArray* dataArray) -> bool { return dataArray->GetDataType() == VTK_TYPE_UINT64; }},
-};
-// clang-format on
 /**
  * Creates a new VTK interface for JavaScript.
  *
@@ -79,16 +59,6 @@ vtkSession NewVTKInterfaceForJavaScript()
   return vtkCreateSession(&descriptor);
 }
 
-struct CopyJSArrayToVTKDataArray
-{
-  template <typename ArrayT>
-  void operator()(ArrayT* dataArray, const emscripten::val& jsArray)
-  {
-    const auto length = jsArray["length"].as<std::size_t>();
-    auto memoryView = emscripten::val{ typed_memory_view(length, dataArray->GetPointer(0)) };
-    memoryView.call<void>("set", jsArray);
-  }
-};
 }
 VTK_ABI_NAMESPACE_END
 

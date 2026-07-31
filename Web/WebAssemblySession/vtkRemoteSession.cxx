@@ -135,51 +135,6 @@ emscripten::val vtkRemoteSession::Invoke(
       ERROR, << "Invoke must be called with an objectId: u32, methodName: string, args: Array");
     return emscripten::val::undefined();
   }
-  if (auto* manager = static_cast<vtkObjectManager*>(vtkSessionGetManager(this->Session)))
-  {
-    if (auto* dataArray = vtkDataArray::SafeDownCast(manager->GetObjectAtId(object)))
-    {
-      if (methodName == "SetArray")
-      {
-        if (args["length"].as<std::size_t>() == 1)
-        {
-          auto jsArray = args[0];
-          for (const auto& it : IsJSArraySameTypeAsVtkDataArray)
-          {
-            const auto& typeName = it.first;
-            if (jsArray.instanceof (val::global(typeName.c_str())) && it.second(dataArray))
-            {
-              const auto length = jsArray["length"].as<std::size_t>();
-              dataArray->SetNumberOfValues(length);
-              // Copy the data from the JS array to the VTK data array
-              CopyJSArrayToVTKDataArray worker;
-              if (!vtkArrayDispatch::DispatchByArray<Arrays>::Execute(dataArray, worker, jsArray))
-              {
-                vtkLog(ERROR, << dataArray->GetClassName() << " does not support SetArray");
-              }
-              return emscripten::val::undefined();
-            }
-          }
-          vtkLog(ERROR,
-            "Unsupported argument constructed by "
-              << jsArray["constructor"].call<std::string>("toString") << " for "
-              << dataArray->GetClassName() << "::SetArray"
-              << " method.");
-          return emscripten::val::undefined();
-        }
-        else
-        {
-          vtkLog(ERROR, << "vtkDataArray::SetArray expects a list of a single TypedArray");
-          return emscripten::val::undefined();
-        }
-      }
-    }
-  }
-  else
-  {
-    vtkLog(ERROR, "Invalid session: " << this->Session);
-    return emscripten::val::undefined();
-  }
   vtkSessionJsonImpl argsJsonImpl{ args };
   auto resultImpl = vtkSessionInvoke(this->Session, object, methodName.c_str(), &argsJsonImpl);
   auto result = std::move(resultImpl->JsonValue);
