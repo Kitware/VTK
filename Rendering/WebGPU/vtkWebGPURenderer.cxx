@@ -360,7 +360,8 @@ void vtkWebGPURenderer::RecordRenderCommands()
         wgpuRenderWindow->GetHardwareSelectorAttachmentView() },
       wgpuRenderWindow->GetDepthStencilView(),
       /*clearColor=*/false, /*clearDepth=*/false, /*clearStencil=*/false);
-    renderPassDescriptor.label = "vtkWebGPURenderer::RecordRenderCommands";
+    renderPassDescriptor.label =
+      WGPUStringView{ "vtkWebGPURenderer::RecordRenderCommands", WGPU_STRLEN };
     this->WGPURenderEncoder = wgpuRenderWindow->NewRenderPass(
       *reinterpret_cast<WGPURenderPassDescriptor*>(&renderPassDescriptor));
     this->BeginRecording();

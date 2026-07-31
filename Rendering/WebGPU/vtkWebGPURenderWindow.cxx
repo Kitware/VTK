@@ -1317,9 +1317,9 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
   }
 
   wgpu::TextureView surfaceView = surfaceTexture.texture.CreateView();
-  vtkWebGPURenderPassDescriptorInternals renderPassDescriptor({ surfaceView });
-  renderPassDescriptor.label = "Render offscreen texture";
-  renderPassDescriptor.ColorAttachments[0].clearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
+  vtkWebGPURenderPassDescriptorInternals renderPassDescriptor({ surfaceView.Get() });
+  renderPassDescriptor.label = WGPUStringView{ "Render offscreen texture", WGPU_STRLEN };
+  renderPassDescriptor.ColorAttachments[0].clearValue = { 0.0, 0.0, 0.0, 1.0 };
 
   if (auto encoderHandle =
         this->NewRenderPass(*reinterpret_cast<WGPURenderPassDescriptor*>(&renderPassDescriptor)))

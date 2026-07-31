@@ -8,32 +8,34 @@ vtkWebGPURenderPassDescriptorInternals::~vtkWebGPURenderPassDescriptorInternals(
 
 //------------------------------------------------------------------------------
 vtkWebGPURenderPassDescriptorInternals::vtkWebGPURenderPassDescriptorInternals(
-  const std::vector<wgpu::TextureView>& colorAttachmentInfo,
-  wgpu::TextureView depthStencil /*= wgpu::TextureView()*/, bool clearColor /*= true*/,
+  const std::vector<WGPUTextureView>& colorAttachmentInfo,
+  WGPUTextureView depthStencil /*= nullptr*/, bool clearColor /*= true*/,
   bool clearDepth /*= true*/, bool clearStencil /*= true*/)
+  : WGPURenderPassDescriptor(WGPU_RENDER_PASS_DESCRIPTOR_INIT)
 {
-  const wgpu::LoadOp colorLoadOp = clearColor ? wgpu::LoadOp::Clear : wgpu::LoadOp::Load;
+  const WGPULoadOp colorLoadOp = clearColor ? WGPULoadOp_Clear : WGPULoadOp_Load;
   for (uint32_t i = 0; i < kMaxColorAttachments; ++i)
   {
+    this->ColorAttachments[i] = WGPU_RENDER_PASS_COLOR_ATTACHMENT_INIT;
     this->ColorAttachments[i].loadOp = colorLoadOp;
-    this->ColorAttachments[i].storeOp = wgpu::StoreOp::Store;
-    this->ColorAttachments[i].clearValue = { 0.0f, 0.0f, 0.0f, 0.0f };
+    this->ColorAttachments[i].storeOp = WGPUStoreOp_Store;
+    this->ColorAttachments[i].clearValue = { 0.0, 0.0, 0.0, 0.0 };
   }
 
-  const wgpu::LoadOp depthLoadOp = clearDepth ? wgpu::LoadOp::Clear : wgpu::LoadOp::Load;
-  const wgpu::LoadOp stencilLoadOp = clearStencil ? wgpu::LoadOp::Clear : wgpu::LoadOp::Load;
+  const WGPULoadOp depthLoadOp = clearDepth ? WGPULoadOp_Clear : WGPULoadOp_Load;
+  const WGPULoadOp stencilLoadOp = clearStencil ? WGPULoadOp_Clear : WGPULoadOp_Load;
   this->DepthStencilAttachmentInfo.depthClearValue = 1.0f;
   this->DepthStencilAttachmentInfo.stencilClearValue = 0;
   this->DepthStencilAttachmentInfo.depthLoadOp = depthLoadOp;
-  this->DepthStencilAttachmentInfo.depthStoreOp = wgpu::StoreOp::Store;
+  this->DepthStencilAttachmentInfo.depthStoreOp = WGPUStoreOp_Store;
   this->DepthStencilAttachmentInfo.stencilLoadOp = stencilLoadOp;
-  this->DepthStencilAttachmentInfo.stencilStoreOp = wgpu::StoreOp::Store;
+  this->DepthStencilAttachmentInfo.stencilStoreOp = WGPUStoreOp_Store;
 
   colorAttachmentCount = static_cast<uint32_t>(colorAttachmentInfo.size());
   uint32_t colorAttachmentIndex = 0;
-  for (const wgpu::TextureView& colorAttachment : colorAttachmentInfo)
+  for (const WGPUTextureView& colorAttachment : colorAttachmentInfo)
   {
-    if (colorAttachment.Get() != nullptr)
+    if (colorAttachment != nullptr)
     {
       this->ColorAttachments[colorAttachmentIndex].view = colorAttachment;
     }
@@ -49,7 +51,7 @@ vtkWebGPURenderPassDescriptorInternals::vtkWebGPURenderPassDescriptorInternals(
     colorAttachments = nullptr;
   }
 
-  if (depthStencil.Get() != nullptr)
+  if (depthStencil != nullptr)
   {
     this->DepthStencilAttachmentInfo.view = depthStencil;
     depthStencilAttachment = &this->DepthStencilAttachmentInfo;
@@ -63,7 +65,7 @@ vtkWebGPURenderPassDescriptorInternals::vtkWebGPURenderPassDescriptorInternals(
 //------------------------------------------------------------------------------
 vtkWebGPURenderPassDescriptorInternals::vtkWebGPURenderPassDescriptorInternals(
   const vtkWebGPURenderPassDescriptorInternals& other)
-  : RenderPassDescriptor(other)
+  : WGPURenderPassDescriptor(other)
 {
   *this = other;
 }
@@ -90,19 +92,19 @@ const vtkWebGPURenderPassDescriptorInternals& vtkWebGPURenderPassDescriptorInter
 
 //------------------------------------------------------------------------------
 void vtkWebGPURenderPassDescriptorInternals::UnsetDepthStencilLoadStoreOpsForFormat(
-  wgpu::TextureFormat format)
+  WGPUTextureFormat format)
 {
   switch (format)
   {
-    case wgpu::TextureFormat::Depth24Plus:
-    case wgpu::TextureFormat::Depth32Float:
-    case wgpu::TextureFormat::Depth16Unorm:
-      this->DepthStencilAttachmentInfo.stencilLoadOp = wgpu::LoadOp::Undefined;
-      this->DepthStencilAttachmentInfo.stencilStoreOp = wgpu::StoreOp::Undefined;
+    case WGPUTextureFormat_Depth24Plus:
+    case WGPUTextureFormat_Depth32Float:
+    case WGPUTextureFormat_Depth16Unorm:
+      this->DepthStencilAttachmentInfo.stencilLoadOp = WGPULoadOp_Undefined;
+      this->DepthStencilAttachmentInfo.stencilStoreOp = WGPUStoreOp_Undefined;
       break;
-    case wgpu::TextureFormat::Stencil8:
-      this->DepthStencilAttachmentInfo.depthLoadOp = wgpu::LoadOp::Undefined;
-      this->DepthStencilAttachmentInfo.depthStoreOp = wgpu::StoreOp::Undefined;
+    case WGPUTextureFormat_Stencil8:
+      this->DepthStencilAttachmentInfo.depthLoadOp = WGPULoadOp_Undefined;
+      this->DepthStencilAttachmentInfo.depthStoreOp = WGPUStoreOp_Undefined;
       break;
     default:
       break;

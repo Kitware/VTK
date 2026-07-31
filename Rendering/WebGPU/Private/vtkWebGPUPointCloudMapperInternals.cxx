@@ -174,14 +174,14 @@ void vtkWebGPUPointCloudMapperInternals::CreateCopyDepthBufferRenderPipeline(
 void vtkWebGPUPointCloudMapperInternals::CopyDepthBufferToRenderWindow(
   vtkWebGPURenderWindow* wgpuRenderWindow)
 {
-  std::vector<wgpu::TextureView> colorAttachment;
+  std::vector<WGPUTextureView> colorAttachment;
   colorAttachment.push_back(wgpuRenderWindow->GetOffscreenColorAttachmentView());
 
   vtkWebGPURenderPassDescriptorInternals renderPassDescriptor(colorAttachment,
     wgpuRenderWindow->GetDepthStencilView(),
     /* Don't clear the color/depth buffer with this pass */ false);
   // Discarding anything that we write to the color attachment
-  renderPassDescriptor.ColorAttachments[0].storeOp = wgpu::StoreOp::Store;
+  renderPassDescriptor.ColorAttachments[0].storeOp = WGPUStoreOp_Store;
 
   int* windowSize = wgpuRenderWindow->GetSize();
 
@@ -194,7 +194,8 @@ void vtkWebGPUPointCloudMapperInternals::CopyDepthBufferToRenderWindow(
   encDesc.label = "vtkWebGPURenderWindow::CommandEncoder";
   wgpu::CommandEncoder commandEncoder = device.CreateCommandEncoder(&encDesc);
 
-  auto encoder = commandEncoder.BeginRenderPass(&renderPassDescriptor);
+  auto encoder = commandEncoder.BeginRenderPass(
+    reinterpret_cast<const wgpu::RenderPassDescriptor*>(&renderPassDescriptor));
   encoder.SetLabel("Point cloud mapper - Encode copy point depth buffer to render window");
   encoder.SetViewport(0, 0, windowSize[0], windowSize[1], 0.0, 1.0);
   if (windowSize[0] > 0 && windowSize[1] > 0)

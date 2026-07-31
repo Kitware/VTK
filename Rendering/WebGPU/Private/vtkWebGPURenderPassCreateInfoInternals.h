@@ -5,25 +5,25 @@
 
 #include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "vtkRenderingWebGPUModule.h"
-#include "vtk_wgpu_impl.h"
+#include "vtk_wgpu.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPURenderPassCreateInfoInternals
 {
 public:
   vtkWebGPURenderPassCreateInfoInternals();
-  vtkWebGPURenderPassCreateInfoInternals(uint32_t width, uint32_t height, wgpu::Texture color,
-    wgpu::TextureFormat texture = DefaultColorFormat);
+  vtkWebGPURenderPassCreateInfoInternals(uint32_t width, uint32_t height, WGPUTexture color,
+    WGPUTextureFormat texture = DefaultColorFormat);
 
-  static constexpr wgpu::TextureFormat DefaultColorFormat = wgpu::TextureFormat::RGBA8Unorm;
+  static constexpr WGPUTextureFormat DefaultColorFormat = WGPUTextureFormat_RGBA8Unorm;
 
-  static vtkWebGPURenderPassCreateInfoInternals CreateBasicRenderPass(const wgpu::Device& device,
-    uint32_t width, uint32_t height, wgpu::TextureFormat format = DefaultColorFormat);
+  static vtkWebGPURenderPassCreateInfoInternals CreateBasicRenderPass(WGPUDevice device,
+    uint32_t width, uint32_t height, WGPUTextureFormat format = DefaultColorFormat);
 
   uint32_t width;
   uint32_t height;
-  wgpu::Texture color;
-  wgpu::TextureFormat colorFormat;
+  WGPUTexture color;
+  WGPUTextureFormat colorFormat;
   vtkWebGPURenderPassDescriptorInternals renderPassInfo;
 };
 VTK_ABI_NAMESPACE_END
