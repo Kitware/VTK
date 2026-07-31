@@ -12,6 +12,12 @@
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
 
+/* -------------------------------------------------------------------- */
+static int vtkWrapSerDes_IsIdentifierChar(char c)
+{
+  return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_');
+}
+
 static int vtkWrapSerDes_CanMarshalValue(
   ValueInfo* valInfo, const ClassInfo* classInfo, const HierarchyInfo* hinfo, int isReturnValue)
 {
