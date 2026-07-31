@@ -234,8 +234,14 @@ static int vtkWrapSerDes_CanMarshalValue(
   const int isStdVector = vtkWrap_IsStdVector(valInfo);
 
   int isAllowed = -1;
+  // vtkAbstractBuffer is not exposed.
+  if (strstr(valInfo->Class, "vtkAbstractBuffer") != NULL ||
+    strstr(valInfo->Class, "vtkBuffer") != NULL)
+  {
+    isAllowed = 0;
+  }
   // Array classes do not get recognized as a template class through valInfo->Template.
-  if (strstr(valInfo->Class, "vtkAOSDataArrayTemplate") != NULL ||
+  else if (strstr(valInfo->Class, "vtkAOSDataArrayTemplate") != NULL ||
     strstr(valInfo->Class, "vtkScaledSOADataArrayTemplate") != NULL || // VTK_DEPRECATED_IN_9_7_0
     strstr(valInfo->Class, "vtkSOADataArrayTemplate") != NULL ||
     strstr(valInfo->Class, "vtkAffineArray") != NULL ||
