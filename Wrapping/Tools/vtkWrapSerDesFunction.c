@@ -63,6 +63,27 @@ static int vtkWrapSerDes_HasTrivialCountExpression(
     !vtkWrapSerDes_HintNamesParameter(functionInfo, valInfo->CountHint));
 }
 
+/* Write the expression that gives the number of elements of an array value. A size hint is an
+ * expression in terms of the members of the class, as in VTK_SIZEHINT(GetNumberOfComponents()). */
+static void vtkWrapSerDes_WriteCountExpression(
+  FILE* fp, const FunctionInfo* functionInfo, const ValueInfo* valInfo)
+{
+  assert(vtkWrapSerDes_HasTrivialCountExpression(functionInfo, valInfo));
+  (void)functionInfo;
+  if (valInfo->Count > 0)
+  {
+    fprintf(fp, "%d", valInfo->Count);
+    return;
+  }
+  const char* hint = valInfo->CountHint;
+  // we do not have 'this' here, replace with 'object'
+  if (!strncmp(hint, "this->", 6))
+  {
+    hint += 6;
+  }
+  fprintf(fp, "object->%s", hint);
+}
+
 static int vtkWrapSerDes_CanMarshalValue(
   ValueInfo* valInfo, const ClassInfo* classInfo, const HierarchyInfo* hinfo, int isReturnValue)
 {
