@@ -72,22 +72,30 @@ int PostCreateSession(vtkSession session, const char** error)
 }
 
 /**
- * This function configures the session to use WebAssembly-specific handlers
- * for serialization and deserialization. It removes the default
- * vtkOpenGLPolyDataMapper handler, as it is not used in the WebAssembly build.
- *
+ * Remove deserialization constructors for classes that are not suitable on the web platform.
  * @param session The vtkSession for which to set up WebAssembly handlers.
  */
-void PatchOpenGLDeserializer(vtkSession session)
+inline void RemovePlatformUnsuitableConstructors(vtkSession session)
 {
   if (auto* manager = static_cast<vtkObjectManager*>(vtkSessionGetManager(session)))
   {
+    // 1. Module: RenderingUI
+    // vtkGenericRenderWindowInteractor is compiled on every platform, so a state which names it
+    // would be constructed verbatim even though it does not integrate with the browser event loop.
+    // Dropping its exact-match constructor makes such states fall back to the constructor of the
+    // nearest superclass, vtkRenderWindowInteractor, whose object factory instantiates
+    // vtkWebAssemblyRenderWindowInteractor. This is the same path taken by states which name other
+    // platform-specific interactors, e.g. vtkCocoaRenderWindowInteractor or
+    // vtkWin32RenderWindowInteractor, as those classes are absent from web builds.
+    manager->GetDeserializer()->UnRegisterConstructor("vtkGenericRenderWindowInteractor");
+
+    // 2. Module: RenderingOpenGL2
+    // removes the default vtkOpenGLPolyDataMapper handler, as it is not used in the
+    // WebAssembly build.
 #if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
     // Remove the default vtkOpenGLPolyDataMapper[2D] constructors as they are not used in wasm
     manager->GetDeserializer()->UnRegisterConstructor("vtkOpenGLPolyDataMapper");
     manager->GetDeserializer()->UnRegisterConstructor("vtkOpenGLPolyDataMapper2D");
-#else
-    (void)manager;
 #endif
   }
 }
@@ -101,7 +109,6 @@ vtkStandaloneSession* makeStandaloneSession()
     vtkLogF(ERROR, "post create standalone session failed: %s", error);
     return nullptr;
   }
-  PatchOpenGLDeserializer(standaloneSession->Session);
   return standaloneSession;
 }
 
@@ -114,7 +121,7 @@ vtkRemoteSession* makeRemoteSession()
     vtkLogF(ERROR, "post create remote session failed: %s", error);
     return nullptr;
   }
-  PatchOpenGLDeserializer(remoteSession->Session);
+  RemovePlatformUnsuitableConstructors(remoteSession->Session);
   return remoteSession;
 }
 }

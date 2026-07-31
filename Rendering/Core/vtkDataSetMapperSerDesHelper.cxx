@@ -35,6 +35,10 @@ static nlohmann::json Serialize_vtkDataSetMapper(
   state["SuperClassNames"].push_back("vtkMapper");
   if (object->GetInput()->IsA("vtkPolyData"))
   {
+    if (auto* inputAlgorithm = object->GetInputAlgorithm())
+    {
+      inputAlgorithm->Update();
+    }
     state["ExtractedPolyData"] = serializer->SerializeJSON(object->GetInput());
   }
   else if (auto polyDataMapper = object->GetPolyDataMapper())
