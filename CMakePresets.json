@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 6,
   "configurePresets": [
     {
       "name": "default",
@@ -40,6 +40,108 @@
         "VTK_GROUP_ENABLE_Web": { "type": "STRING", "value": "DONT_WANT" },
         "VTK_SMP_ENABLE_STDTHREAD": { "type": "BOOL", "value": "OFF" }
       }
+    },
+    {
+      "name": "wasm",
+      "hidden": true,
+      "description": "Common settings for the Emscripten cross builds",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "toolchainFile": "${sourceDir}/CMake/wasm/vtkEmscriptenToolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": { "type": "STRING", "value": "Release" },
+        "CMAKE_EXPORT_COMPILE_COMMANDS": { "type": "BOOL", "value": "ON" },
+        "BUILD_SHARED_LIBS": { "type": "BOOL", "value": "OFF" },
+        "VTK_BUILD_TYPES_JSON": { "type": "BOOL", "value": "ON" },
+        "VTK_ENABLE_WEBGPU": { "type": "BOOL", "value": "ON" },
+        "VTK_WRAP_SERIALIZATION": { "type": "BOOL", "value": "ON" }
+      }
+    },
+    {
+      "name": "wasm32",
+      "inherits": "wasm",
+      "displayName": "WebAssembly 32-bit",
+      "description": "Release build for wasm32-emscripten. Installs an Emscripten SDK under .gitlab/emsdk if none is found."
+    },
+    {
+      "name": "wasm64",
+      "inherits": "wasm",
+      "displayName": "WebAssembly 64-bit",
+      "description": "Release build for wasm64-emscripten, which raises the addressable memory limit from 4GB to 16GB",
+      "cacheVariables": {
+        "VTK_WEBASSEMBLY_64_BIT": { "type": "BOOL", "value": "ON" }
+      }
+    },
+    {
+      "name": "wasm32-testing",
+      "inherits": "wasm32",
+      "displayName": "WebAssembly 32-bit with testing",
+      "description": "wasm32 build with the unit tests enabled. Set VTK_TESTING_WASM_ENGINE to the browser that should run them.",
+      "cacheVariables": {
+        "VTK_BUILD_TESTING": { "type": "STRING", "value": "WANT" },
+        "VTK_TESTING_WASM_ENGINE": { "type": "FILEPATH", "value": "$env{VTK_TESTING_WASM_ENGINE}" }
+      }
+    },
+    {
+      "name": "wasm64-testing",
+      "inherits": "wasm64",
+      "displayName": "WebAssembly 64-bit with testing",
+      "description": "wasm64 build with the unit tests enabled. Set VTK_TESTING_WASM_ENGINE to the browser that should run them.",
+      "cacheVariables": {
+        "VTK_BUILD_TESTING": { "type": "STRING", "value": "WANT" },
+        "VTK_TESTING_WASM_ENGINE": { "type": "FILEPATH", "value": "$env{VTK_TESTING_WASM_ENGINE}" }
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "wasm32", "configurePreset": "wasm32" },
+    { "name": "wasm64", "configurePreset": "wasm64" },
+    { "name": "wasm32-testing", "configurePreset": "wasm32-testing" },
+    { "name": "wasm64-testing", "configurePreset": "wasm64-testing" }
+  ],
+  "testPresets": [
+    {
+      "name": "wasm32-testing",
+      "configurePreset": "wasm32-testing",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "wasm64-testing",
+      "configurePreset": "wasm64-testing",
+      "output": { "outputOnFailure": true }
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "wasm32",
+      "steps": [
+        { "type": "configure", "name": "wasm32" },
+        { "type": "build", "name": "wasm32" }
+      ]
+    },
+    {
+      "name": "wasm64",
+      "steps": [
+        { "type": "configure", "name": "wasm64" },
+        { "type": "build", "name": "wasm64" }
+      ]
+    },
+    {
+      "name": "wasm32-testing",
+      "steps": [
+        { "type": "configure", "name": "wasm32-testing" },
+        { "type": "build", "name": "wasm32-testing" },
+        { "type": "test", "name": "wasm32-testing" }
+      ]
+    },
+    {
+      "name": "wasm64-testing",
+      "steps": [
+        { "type": "configure", "name": "wasm64-testing" },
+        { "type": "build", "name": "wasm64-testing" },
+        { "type": "test", "name": "wasm64-testing" }
+      ]
     }
   ]
 }
