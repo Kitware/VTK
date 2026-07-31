@@ -618,8 +618,8 @@ static void vtkWrapSerDes_WriteArgumentDeserializer(FILE* fp, int paramId, int a
   const int declarationLength = vtkParse_ValueInfoToString(valInfo, NULL, VTK_PARSE_EVERYTHING);
   char* declaration = (char*)malloc((declarationLength + 1) * sizeof(char));
   vtkParse_ValueInfoToString(valInfo, declaration, VTK_PARSE_EVERYTHING);
-  fprintf(
-    stderr, "%s:%d Unexpected parameter %s in %s!\n", __FILE__, __LINE__, declaration, __func__);
+  fprintf(stderr, "ERROR Unexpected parameter %s in %s at %s:%d!\n", declaration, __func__,
+    __FILE__, __LINE__);
   free(declaration);
   abort();
 }
