@@ -357,9 +357,30 @@ static void vtkWrapSerDes_FreeTemplatedTupleDecomposition(char** elementType)
   free(*elementType);
 }
 
-static void vtkWrapSerDes_WriteArgumentDeserializer(
-  FILE* fp, int paramId, ValueInfo* valInfo, const ClassInfo* classInfo, const HierarchyInfo* hinfo)
+static void vtkWrapSerDes_WriteArgumentDeserializer(FILE* fp, int paramId, int argId,
+  FunctionInfo* functionInfo, ValueInfo* valInfo, const ClassInfo* classInfo,
+  const HierarchyInfo* hinfo)
 {
+  /* An out parameter is not read from the arguments. It is sized here, filled in by the method
+   * and returned as the value of the call. */
+  if (argId < 0)
+  {
+    fprintf(fp, "    std::vector<%s> elements_%d(", valInfo->Class, paramId);
+    vtkWrapSerDes_WriteCountExpression(fp, functionInfo, valInfo);
+    fprintf(fp, ");\n");
+    fprintf(fp, "    auto* arg_%d = elements_%d.data();\n", paramId, paramId);
+    return;
+  }
+  /* The argument is the address of memory of the client's. The object borrows it as it stands,
+   * so nothing is read out of the json beyond the address itself. */
+  if (vtkWrapSerDes_CanMarshalZeroCopyPointer(valInfo))
+  {
+    fprintf(fp,
+      "    // NOLINTNEXTLINE(performance-no-int-to-ptr)\n"
+      "    auto* arg_%d = reinterpret_cast<%s*>(args[%d].get<std::uintptr_t>());\n",
+      paramId, valInfo->Class, argId);
+    return;
+  }
   const int isVTKObject = vtkWrap_IsVTKObjectBaseType(hinfo, valInfo->Class);
   const int isVTKSmartPointer = vtkWrap_IsVTKSmartPointer(valInfo);
   const int isPointer = vtkWrap_IsPointer(valInfo);
@@ -390,7 +411,7 @@ static void vtkWrapSerDes_WriteArgumentDeserializer(
     fprintf(fp,
       "    auto* arg_%d = "
       "reinterpret_cast<%s*>(args[%d].is_null() ? nullptr : objectFromContext%d.GetPointer());\n",
-      paramId, className, paramId, paramId);
+      paramId, className, argId, paramId);
     free(className);
     return;
   }
@@ -398,19 +419,19 @@ static void vtkWrapSerDes_WriteArgumentDeserializer(
   {
     if (isScalar)
     {
-      fprintf(fp, "    auto arg_%d = args[%d].get<%s>();\n", paramId, paramId, valInfo->Class);
+      fprintf(fp, "    auto arg_%d = args[%d].get<%s>();\n", paramId, argId, valInfo->Class);
       return;
     }
     if (isArray)
     {
-      fprintf(fp, "    auto elements_%d = args[%d].get<std::vector<%s>>();\n", paramId, paramId,
+      fprintf(fp, "    auto elements_%d = args[%d].get<std::vector<%s>>();\n", paramId, argId,
         valInfo->Class);
       fprintf(fp, "    auto* arg_%d = elements_%d.data();\n", paramId, paramId);
       return;
     }
     if (isCharPointer)
     {
-      fprintf(fp, "    auto elements_%d = args[%d].get<std::string>();\n", paramId, paramId);
+      fprintf(fp, "    auto elements_%d = args[%d].get<std::string>();\n", paramId, argId);
       fprintf(fp, "    auto* arg_%d = elements_%d.data();\n", paramId, paramId);
       return;
     }
@@ -424,7 +445,7 @@ static void vtkWrapSerDes_WriteArgumentDeserializer(
   }
   if (isString)
   {
-    fprintf(fp, "    auto arg_%d = args[%d].get<std::string>();\n", paramId, paramId);
+    fprintf(fp, "    auto arg_%d = args[%d].get<std::string>();\n", paramId, argId);
     return;
   }
   if (isEnumMember)
@@ -432,7 +453,7 @@ static void vtkWrapSerDes_WriteArgumentDeserializer(
     fprintf(fp,
       "    auto arg_%d = "
       "static_cast<%s::%s>(args[%d].get<std::underlying_type<%s::%s>::type>());\n",
-      paramId, classInfo->Name, valInfo->Class, paramId, classInfo->Name, valInfo->Class);
+      paramId, classInfo->Name, valInfo->Class, argId, classInfo->Name, valInfo->Class);
     return;
   }
   if (isEnum)
@@ -452,13 +473,13 @@ static void vtkWrapSerDes_WriteArgumentDeserializer(
       fprintf(fp,
         "    auto arg_%d = "
         "static_cast<%*.*s::%s>(args[%d].get<std::underlying_type<%*.*s::%s>::type>());\n",
-        paramId, (int)l, (int)l, cp, &cp[l + 2], paramId, (int)l, (int)l, cp, &cp[l + 2]);
+        paramId, (int)l, (int)l, cp, &cp[l + 2], argId, (int)l, (int)l, cp, &cp[l + 2]);
     }
     else
     {
       fprintf(fp,
         "    auto arg_%d = static_cast<%s>(args[%d].get<std::underlying_type<%s>::type>());\n",
-        paramId, cp, paramId, cp);
+        paramId, cp, argId, cp);
     }
     return;
   }
@@ -467,7 +488,7 @@ static void vtkWrapSerDes_WriteArgumentDeserializer(
   {
     char* elementType = NULL;
     const int elementCount = vtkWrapSerDes_DecomposeTemplatedTuple(valInfo, &elementType, hinfo);
-    fprintf(fp, "    auto elements_%d = args[%d].get<std::array<%s, %d>>();\n", paramId, paramId,
+    fprintf(fp, "    auto elements_%d = args[%d].get<std::array<%s, %d>>();\n", paramId, argId,
       elementType, elementCount);
     fprintf(fp, "    %s arg_%d{elements_%d.data()};\n", valInfo->Class, paramId, paramId);
     vtkWrapSerDes_FreeTemplatedTupleDecomposition(&elementType);
@@ -475,8 +496,7 @@ static void vtkWrapSerDes_WriteArgumentDeserializer(
   }
   if (!strcmp(valInfo->Class, "vtkBoundingBox"))
   {
-    fprintf(
-      fp, "    auto elements_%d = args[%d].get<std::array<double, 6>>();\n", paramId, paramId);
+    fprintf(fp, "    auto elements_%d = args[%d].get<std::array<double, 6>>();\n", paramId, argId);
     fprintf(fp, "    vtkBoundingBox arg_%d{elements_%d.data()};\n", paramId, paramId);
     return;
   }
@@ -489,8 +509,8 @@ static void vtkWrapSerDes_WriteArgumentDeserializer(
     /* check that type is a string or real or integer */
     if (vtkWrap_IsString(element) || vtkWrap_IsRealNumber(element) || vtkWrap_IsInteger(element))
     {
-      fprintf(fp, "    auto arg_%d = args[%d].get<std::vector<%s>>();\n", paramId, paramId,
-        element->Class);
+      fprintf(
+        fp, "    auto arg_%d = args[%d].get<std::vector<%s>>();\n", paramId, argId, element->Class);
       free(element);
       return;
     }
@@ -864,7 +884,8 @@ static int vtkWrapSerDes_WriteMemberFunctionCall(
     // args ... etc."}
 
     ValueInfo* paramInfo = functionInfo->Parameters[i];
-    vtkWrapSerDes_WriteArgumentDeserializer(fp, i, paramInfo, classInfo, hinfo);
+    vtkWrapSerDes_WriteArgumentDeserializer(
+      fp, i, (i == outParameterId ? -1 : argId++), functionInfo, paramInfo, classInfo, hinfo);
   }
   const char* argStart = "";
   const char* argEnd = "";
