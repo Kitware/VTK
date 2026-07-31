@@ -875,7 +875,16 @@ static void vtkWrapSerDes_WriteArgumentCheck(FILE* fp, FunctionInfo* functionInf
     }
     else if (isNumeric)
     {
-      if (isScalar)
+      /* The client hands over the address of its own memory for the object to borrow. Zero is
+       * never the address of such a buffer, so it is rejected along with the non numeric
+       * arguments. */
+      if (vtkWrapSerDes_CanMarshalZeroCopyPointer(valInfo))
+      {
+        fprintf(fp,
+          "\n   && args[%d].is_number_unsigned() && (args[%d].get<std::uintptr_t>() != 0)",
+          argIndex, argIndex);
+      }
+      else if (isScalar)
       {
         if (vtkWrap_IsBool(valInfo))
         {
