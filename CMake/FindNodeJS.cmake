@@ -24,6 +24,7 @@ if (NodeJS_INTERPRETER)
       set(_nodejs_version_minor ${CMAKE_MATCH_2})
       set(_nodejs_version_patch ${CMAKE_MATCH_3})
       set(_nodejs_version_string "${_nodejs_version_major}.${_nodejs_version_minor}.${_nodejs_version_patch}")
+      set(NodeJS_VERSION "${_nodejs_version_string}")
   endif ()
 endif ()
 
