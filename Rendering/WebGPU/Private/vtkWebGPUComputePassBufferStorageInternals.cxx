@@ -116,8 +116,8 @@ int vtkWebGPUComputePassBufferStorageInternals::AddBuffer(
       case vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY:
         if (buffer->GetDataArray() != nullptr)
         {
-          vtkWebGPUComputeBufferInternals::UploadFromDataArray(
-            this->ParentPassWGPUConfiguration, wgpuBuffer, buffer->GetDataArray(), bufferLabelCStr);
+          vtkWebGPUComputeBufferInternals::UploadFromDataArray(this->ParentPassWGPUConfiguration,
+            wgpuBuffer.Get(), buffer->GetDataArray(), bufferLabelCStr);
         }
         else if (bufferReadOnly)
         {
@@ -364,7 +364,7 @@ void vtkWebGPUComputePassBufferStorageInternals::UpdateBufferData(
   const std::string bufferLabel = buffer->GetLabel();
   const char* bufferLabelCStr = bufferLabel.c_str();
   vtkWebGPUComputeBufferInternals::UploadFromDataArray(
-    this->ParentPassWGPUConfiguration, wgpuBuffer, newData, bufferLabelCStr);
+    this->ParentPassWGPUConfiguration, wgpuBuffer.Get(), newData, bufferLabelCStr);
 }
 
 //------------------------------------------------------------------------------
@@ -396,7 +396,7 @@ void vtkWebGPUComputePassBufferStorageInternals::UpdateBufferData(
   const std::string bufferLabel = buffer->GetLabel();
   const char* bufferLabelCStr = bufferLabel.c_str();
   vtkWebGPUComputeBufferInternals::UploadFromDataArray(
-    this->ParentPassWGPUConfiguration, wgpuBuffer, byteOffset, newData, bufferLabelCStr);
+    this->ParentPassWGPUConfiguration, wgpuBuffer.Get(), byteOffset, newData, bufferLabelCStr);
 }
 
 //------------------------------------------------------------------------------

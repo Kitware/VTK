@@ -12,7 +12,7 @@ namespace
 class DispatchDataWriter
 {
 public:
-  DispatchDataWriter(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, wgpu::Buffer buffer,
+  DispatchDataWriter(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, WGPUBuffer buffer,
     vtkIdType byteOffset)
     : WGPUConfiguration(wgpuConfiguration)
     , Buffer(buffer)
@@ -33,20 +33,20 @@ public:
     {
       data.push_back(value);
     }
-    this->WGPUConfiguration->WriteBuffer(this->Buffer.Get(), this->ByteOffset, data.data(),
+    this->WGPUConfiguration->WriteBuffer(this->Buffer, this->ByteOffset, data.data(),
       data.size() * srcArray->GetDataTypeSize(), description);
   }
 
 private:
   vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
-  wgpu::Buffer Buffer;
+  WGPUBuffer Buffer;
   vtkIdType ByteOffset;
 };
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputeBufferInternals::UploadFromDataArray(
-  vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, wgpu::Buffer buffer,
+  vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, WGPUBuffer buffer,
   vtkDataArray* dataArray, const char* description /*=nullptr*/)
 {
   UploadFromDataArray(wgpuConfiguration, buffer, 0, dataArray, description);
@@ -54,7 +54,7 @@ void vtkWebGPUComputeBufferInternals::UploadFromDataArray(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputeBufferInternals::UploadFromDataArray(
-  vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, wgpu::Buffer buffer,
+  vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, WGPUBuffer buffer,
   vtkIdType byteOffset, vtkDataArray* dataArray, const char* description /*=nullptr*/)
 {
   using ArrayTypes = vtkTypeList::Unique<vtkTypeList::Append<vtkArrayDispatch::AllArrays,
