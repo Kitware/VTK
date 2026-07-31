@@ -279,6 +279,13 @@ int vtkWrapSerDes_IsFunctionAllowed(FunctionInfo* functionInfo, const ClassInfo*
     *rejectReason = "rejected-return-type";
     return 0;
   }
+  /* A returned array is copied out element by element, so its length has to be known. */
+  if (functionInfo->ReturnValue != NULL && vtkWrap_IsArray(functionInfo->ReturnValue) &&
+    !vtkWrapSerDes_HasTrivialCountExpression(functionInfo, functionInfo->ReturnValue))
+  {
+    *rejectReason = "unsized-return-array";
+    return 0;
+  }
   /* Inherited methods and overridden methods are handled by superclasses */
   if (vtkWrap_IsInheritedMethod(classInfo, functionInfo) || functionInfo->IsOverride)
   {
