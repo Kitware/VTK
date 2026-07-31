@@ -699,10 +699,12 @@ static void vtkWrapSerDes_WriteReturnValueSerializer(
   abort();
 }
 
-static void vtkWrapSerDes_WriteArgumentCheck(
-  FILE* fp, FunctionInfo* functionInfo, const ClassInfo* classInfo, const HierarchyInfo* hinfo)
+static void vtkWrapSerDes_WriteArgumentCheck(FILE* fp, FunctionInfo* functionInfo,
+  const ClassInfo* classInfo, const HierarchyInfo* hinfo, int outParameterId)
 {
   int i = 0;
+  int argId = 0; // incremented per item used from the input array 'args'.
+  const int numberOfArguments = functionInfo->NumberOfParameters - (outParameterId >= 0 ? 1 : 0);
   for (i = 0; i < functionInfo->NumberOfParameters; ++i)
   {
     ValueInfo* valInfo = functionInfo->Parameters[i];
@@ -715,17 +717,23 @@ static void vtkWrapSerDes_WriteArgumentCheck(
       fprintf(fp, "  vtkSmartPointer<vtkObjectBase> objectFromContext%d;\n", i);
     }
   }
-  if (functionInfo->NumberOfParameters == 0)
+  if (numberOfArguments == 0)
   {
     fprintf(fp, "  if (args.empty())\n");
   }
   else
   {
-    fprintf(fp, "  if (args.size() == %d", functionInfo->NumberOfParameters);
+    fprintf(fp, "  if (args.size() == %d", numberOfArguments);
   }
   for (i = 0; i < functionInfo->NumberOfParameters; ++i)
   {
+    /* the out parameter does not come from the arguments, so there is nothing to check. */
+    if (i == outParameterId)
+    {
+      continue;
+    }
     ValueInfo* valInfo = functionInfo->Parameters[i];
+    const int argIndex = argId++;
     const int isVTKObject = vtkWrap_IsVTKObjectBaseType(hinfo, valInfo->Class);
     const int isVTKSmartPointer = vtkWrap_IsVTKSmartPointer(valInfo);
     const int isPointer = vtkWrap_IsPointer(valInfo);
@@ -765,7 +773,7 @@ static void vtkWrapSerDes_WriteArgumentCheck(
         "\n   && (objectFromContext%d = context->GetObjectAtId(*idIter%d))"
         "\n   && context->GetObjectAtId(*idIter%d)->IsA(\"%s\"))"
         "\n   || args[%d].is_null())",
-        i, i, i, i, i, i, i, i, i, className, i);
+        argIndex, i, argIndex, i, argIndex, i, i, i, i, className, argIndex);
       free(className);
     }
     else if (isNumeric)
@@ -774,56 +782,65 @@ static void vtkWrapSerDes_WriteArgumentCheck(
       {
         if (vtkWrap_IsBool(valInfo))
         {
-          fprintf(fp, "\n   && args[%d].is_boolean()", i);
+          fprintf(fp, "\n   && args[%d].is_boolean()", argIndex);
         }
         else if (vtkWrap_IsInteger(valInfo))
         {
-          fprintf(fp, "\n   && args[%d].is_number_integer()", i);
+          fprintf(fp, "\n   && args[%d].is_number_integer()", argIndex);
         }
         else
         {
-          fprintf(fp, "\n   && args[%d].is_number()", i);
+          fprintf(fp, "\n   && args[%d].is_number()", argIndex);
         }
       }
       else if (isArray)
       {
-        fprintf(fp, "\n   && args[%d].is_array()", i);
+        fprintf(fp, "\n   && args[%d].is_array()", argIndex);
+        /* the method reads a fixed number of elements out of the array, so a shorter one would
+         * make it read past the end. */
+        if (vtkWrapSerDes_HasTrivialCountExpression(functionInfo, valInfo))
+        {
+          fprintf(fp, "\n   && (args[%d].size() == static_cast<std::size_t>(", argIndex);
+          vtkWrapSerDes_WriteCountExpression(fp, functionInfo, valInfo);
+          fprintf(fp, "))");
+        }
       }
       else if (isCharPointer)
       {
-        fprintf(fp, "\n   && args[%d].is_string()", i);
+        fprintf(fp, "\n   && args[%d].is_string()", argIndex);
       }
     }
     else if (isString)
     {
-      fprintf(fp, "\n   && args[%d].is_string()", i);
+      fprintf(fp, "\n   && args[%d].is_string()", argIndex);
     }
     else if (isEnumMember)
     {
-      fprintf(fp, "\n   && args[%d].is_number_integer()", i);
+      fprintf(fp, "\n   && args[%d].is_number_integer()", argIndex);
     }
     else if (isEnum)
     {
-      fprintf(fp, "\n   && args[%d].is_number_integer()", i);
+      fprintf(fp, "\n   && args[%d].is_number_integer()", argIndex);
     }
     else if (!strncmp(valInfo->Class, "vtkVector", 9) || !strncmp(valInfo->Class, "vtkTuple", 8) ||
       !strncmp(valInfo->Class, "vtkColor", 8) || !strncmp(valInfo->Class, "vtkRect", 7))
     {
       char* elementType = NULL;
       const int elementCount = vtkWrapSerDes_DecomposeTemplatedTuple(valInfo, &elementType, hinfo);
-      fprintf(fp, "\n   && args[%d].is_array() && (args[%d].size() == %d)", i, i, elementCount);
+      fprintf(fp, "\n   && args[%d].is_array() && (args[%d].size() == %d)", argIndex, argIndex,
+        elementCount);
       vtkWrapSerDes_FreeTemplatedTupleDecomposition(&elementType);
     }
     else if (!strcmp(valInfo->Class, "vtkBoundingBox"))
     {
-      fprintf(fp, "\n   && args[%d].is_array() && (args[%d].size() == 6)", i, i);
+      fprintf(fp, "\n   && args[%d].is_array() && (args[%d].size() == 6)", argIndex, argIndex);
     }
     else if (isStdVector)
     {
-      fprintf(fp, "\n   && args[%d].is_array()", i);
+      fprintf(fp, "\n   && args[%d].is_array()", argIndex);
     }
   }
-  if (functionInfo->NumberOfParameters > 0)
+  if (numberOfArguments > 0)
   {
     fprintf(fp, "\n     )\n");
   }
@@ -833,8 +850,10 @@ static int vtkWrapSerDes_WriteMemberFunctionCall(
   FILE* fp, const ClassInfo* classInfo, FunctionInfo* functionInfo, const HierarchyInfo* hinfo)
 {
   int i = 0;
+  int argId = 0;
+  const int outParameterId = vtkWrapSerDes_FindOutParameterPosition(functionInfo);
   fprintf(fp, "  {\n"); // some arguments need locals, so scope them.
-  vtkWrapSerDes_WriteArgumentCheck(fp, functionInfo, classInfo, hinfo);
+  vtkWrapSerDes_WriteArgumentCheck(fp, functionInfo, classInfo, hinfo, outParameterId);
   fprintf(fp, "  {\n");
   for (i = 0; i < functionInfo->NumberOfParameters; ++i)
   {
