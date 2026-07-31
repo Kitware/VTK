@@ -265,17 +265,18 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
   this->ParentComputePass->Internals->SubmitCommandEncoderToQueue(commandEncoder);
 
   auto internalCallback =
-    [](wgpu::MapAsyncStatus status, wgpu::StringView message, void* wgpuUserData)
+    [](WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* /*userdata2*/)
   {
     InternalMapBufferAsyncData* callbackData =
-      reinterpret_cast<InternalMapBufferAsyncData*>(wgpuUserData);
+      reinterpret_cast<InternalMapBufferAsyncData*>(userdata1);
 
-    if (status == wgpu::MapAsyncStatus::Success)
+    if (status == WGPUMapAsyncStatus_Success)
     {
-      const void* mappedRange = callbackData->buffer.GetConstMappedRange(0, callbackData->byteSize);
+      const void* mappedRange =
+        wgpuBufferGetConstMappedRange(callbackData->buffer.Get(), 0, callbackData->byteSize);
       callbackData->userCallback(mappedRange, callbackData->userdata);
 
-      callbackData->buffer.Unmap();
+      wgpuBufferUnmap(callbackData->buffer.Get());
     }
     else
     {
@@ -302,9 +303,12 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
   // See https://issues.chromium.org/issues/399131918
   wgpuBufferAddRef(internalCallbackData->buffer.Get());
 #endif
-  internalCallbackData->buffer.MapAsync(wgpu::MapMode::Read, 0, byteSize,
-    wgpu::CallbackMode::AllowProcessEvents, internalCallback,
-    static_cast<void*>(internalCallbackData));
+  WGPUBufferMapCallbackInfo mapCallbackInfo = {};
+  mapCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+  mapCallbackInfo.callback = internalCallback;
+  mapCallbackInfo.userdata1 = static_cast<void*>(internalCallbackData);
+  wgpuBufferMapAsync(
+    internalCallbackData->buffer.Get(), WGPUMapMode_Read, 0, byteSize, mapCallbackInfo);
 }
 
 //------------------------------------------------------------------------------

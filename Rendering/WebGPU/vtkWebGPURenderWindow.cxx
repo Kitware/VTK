@@ -1189,22 +1189,15 @@ void vtkWebGPURenderWindow::ReadTextureFromGPU(WGPUTexture& cWgpuTexture, WGPUTe
   wgpu::Device(this->WGPUConfiguration->GetDevice()).GetQueue().Submit(1, &commandBuffer);
 
   auto bufferMapCallback =
-    [](wgpu::MapAsyncStatus status, wgpu::StringView message, InternalMapTextureAsyncData* mapData)
+    [](WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* /*userdata2*/)
   {
-#ifdef Success
-    // Avoiding macro collision on Xlib systems where Success is defined as 0 with the definition
-    // wgpu::MapAsyncStatus::Success in dawn's webgpu_cpp.h.
-    // See X11/Xlib.h: #define Success 0
-    // We undefine preprocessor macro Success here and redefine it as a `constexpr auto` variable.
-    constexpr auto Success_ = Success;
-#undef Success
-    [[maybe_unused]] constexpr auto Success = Success_;
-#endif
-    if (status == wgpu::MapAsyncStatus::Success)
+    auto* mapData = static_cast<InternalMapTextureAsyncData*>(userdata1);
+    if (status == WGPUMapAsyncStatus_Success)
     {
-      const void* mappedRange = mapData->buffer.GetConstMappedRange(0, mapData->byteSize);
+      const void* mappedRange =
+        wgpuBufferGetConstMappedRange(mapData->buffer.Get(), 0, mapData->byteSize);
       mapData->userCallback(mappedRange, mapData->bytesPerRow, mapData->userData);
-      mapData->buffer.Unmap();
+      wgpuBufferUnmap(mapData->buffer.Get());
     }
     else
     {
@@ -1236,8 +1229,12 @@ void vtkWebGPURenderWindow::ReadTextureFromGPU(WGPUTexture& cWgpuTexture, WGPUTe
   // See https://issues.chromium.org/issues/399131918
   wgpuBufferAddRef(callbackData->buffer.Get());
 #endif
-  callbackData->buffer.MapAsync(wgpu::MapMode::Read, 0, bufferDescriptor.size,
-    wgpu::CallbackMode::AllowProcessEvents, bufferMapCallback, callbackData);
+  WGPUBufferMapCallbackInfo mapCallbackInfo = {};
+  mapCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+  mapCallbackInfo.callback = bufferMapCallback;
+  mapCallbackInfo.userdata1 = callbackData;
+  wgpuBufferMapAsync(
+    callbackData->buffer.Get(), WGPUMapMode_Read, 0, bufferDescriptor.size, mapCallbackInfo);
 }
 
 //------------------------------------------------------------------------------
@@ -2122,21 +2119,31 @@ void vtkWebGPURenderWindow::WaitForCompletion()
   }
   if (auto queue = wgpu::Device(device).GetQueue())
   {
-    wgpu::QueueWorkDoneStatus workStatus = wgpu::QueueWorkDoneStatus::Error;
+    WGPUQueueWorkDoneStatus workStatus = WGPUQueueWorkDoneStatus_Error;
     bool done = false;
-    wgpu::Device(this->WGPUConfiguration->GetDevice())
-      .GetQueue()
-      .OnSubmittedWorkDone(wgpu::CallbackMode::AllowProcessEvents,
-        [&workStatus, &done](wgpu::QueueWorkDoneStatus status, wgpu::StringView)
-        {
-          workStatus = status;
-          done = true;
-        });
+    struct WorkDoneData
+    {
+      WGPUQueueWorkDoneStatus* status;
+      bool* done;
+    } workDoneData{ &workStatus, &done };
+    WGPUQueue workQueue = wgpuDeviceGetQueue(this->WGPUConfiguration->GetDevice());
+    WGPUQueueWorkDoneCallbackInfo workDoneCallbackInfo = {};
+    workDoneCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+    workDoneCallbackInfo.callback =
+      [](WGPUQueueWorkDoneStatus status, WGPUStringView, void* userdata1, void* /*userdata2*/)
+    {
+      auto* data = static_cast<WorkDoneData*>(userdata1);
+      *data->status = status;
+      *data->done = true;
+    };
+    workDoneCallbackInfo.userdata1 = &workDoneData;
+    wgpuQueueOnSubmittedWorkDone(workQueue, workDoneCallbackInfo);
+    wgpuQueueRelease(workQueue);
     while (!done)
     {
       this->WGPUConfiguration->ProcessEvents();
     }
-    if (workStatus != wgpu::QueueWorkDoneStatus::Success)
+    if (workStatus != WGPUQueueWorkDoneStatus_Success)
     {
       vtkErrorMacro(<< "Submitted work did not complete!");
     }

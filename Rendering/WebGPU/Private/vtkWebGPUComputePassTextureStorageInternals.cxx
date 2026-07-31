@@ -869,18 +869,19 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   wgpu::CommandBuffer commandBuffer = commandEncoder.Finish();
   wgpu::Device(this->ParentPassWGPUConfiguration->GetDevice()).GetQueue().Submit(1, &commandBuffer);
 
-  auto bufferMapCallback = [](
-                             wgpu::MapAsyncStatus status, wgpu::StringView message, void* userdata2)
+  auto bufferMapCallback =
+    [](WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* /*userdata2*/)
   {
     InternalMapTextureAsyncData* mapData =
-      reinterpret_cast<InternalMapTextureAsyncData*>(userdata2);
+      reinterpret_cast<InternalMapTextureAsyncData*>(userdata1);
 
-    if (status == wgpu::MapAsyncStatus::Success)
+    if (status == WGPUMapAsyncStatus_Success)
     {
-      const void* mappedRange = mapData->buffer.GetConstMappedRange(0, mapData->byteSize);
+      const void* mappedRange =
+        wgpuBufferGetConstMappedRange(mapData->buffer.Get(), 0, mapData->byteSize);
       mapData->userCallback(mappedRange, mapData->bytesPerRow, mapData->userdata);
 
-      mapData->buffer.Unmap();
+      wgpuBufferUnmap(mapData->buffer.Get());
     }
     else
     {
@@ -913,8 +914,11 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   // See https://issues.chromium.org/issues/399131918
   wgpuBufferAddRef(callbackData->buffer.Get());
 #endif
-  buffer.MapAsync(wgpu::MapMode::Read, 0, bufferDescriptor.size,
-    wgpu::CallbackMode::AllowProcessEvents, +bufferMapCallback, static_cast<void*>(callbackData));
+  WGPUBufferMapCallbackInfo mapCallbackInfo = {};
+  mapCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+  mapCallbackInfo.callback = bufferMapCallback;
+  mapCallbackInfo.userdata1 = static_cast<void*>(callbackData);
+  wgpuBufferMapAsync(buffer.Get(), WGPUMapMode_Read, 0, bufferDescriptor.size, mapCallbackInfo);
 }
 
 //-----------------------------------------------------------------------------
