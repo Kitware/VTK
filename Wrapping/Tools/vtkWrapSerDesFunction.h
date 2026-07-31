@@ -15,6 +15,12 @@
 int vtkWrapSerDes_IsFunctionAllowed(FunctionInfo* functionInfo, const ClassInfo* classInfo,
   const HierarchyInfo* hinfo, const char** rejectReason, int* rejectedParameterId);
 
+/* Returns the index of the parameter that the method fills in and that the invoker returns as
+   the value of the call, or -1 when the method has none. Exposed so the JSON type-manifest
+   emitter leaves that parameter out of "parameters" and reports it under "returns", which is
+   where a caller of the invoker finds it. */
+int vtkWrapSerDes_FindOutParameterPosition(const FunctionInfo* functionInfo);
+
 /* Define function void Invoke_ClassName_FuncName(..) for all methods in class*/
 void vtkWrapSerDes_DefineFunctions(FILE* fp, ClassInfo* classInfo, const HierarchyInfo* hinfo);
 
