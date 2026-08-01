@@ -10,7 +10,7 @@ These overrides add the few things the wrapping does not provide on its own:
 
 * named colors -- ``color="tomato"``, resolved via :mod:`vtkmodules.util.colors`
 * a fluent ``view.show(source, color=...)`` helper that creates, configures,
-  and adds a surface representation in one call
+  and adds a representation in one call
 * ``view += representation`` / ``view -= representation``
 * ``view.size = (width, height)``
 
@@ -20,7 +20,40 @@ imported.
 """
 
 from vtkmodules.util import colors as _colors
-from vtkmodules.vtkViewsRendering import vtkStandardRenderView, vtkSurfaceRepresentation
+from vtkmodules.vtkViewsRendering import (
+    vtkStandardRenderView,
+    vtkSurfaceRepresentation,
+    vtkVolumeRepresentation,
+)
+
+#: Representation classes :meth:`StandardRenderView.show` can build, keyed by
+#: the name accepted as its ``representation_type`` argument.  Add an entry to
+#: make a representation of your own available by name; ``show()`` also accepts
+#: a class directly, so registering is a convenience rather than a requirement.
+REPRESENTATION_TYPES = {
+    "surface": vtkSurfaceRepresentation,
+    "volume": vtkVolumeRepresentation,
+}
+
+
+def _make_representation(representation_type):
+    """Build a representation for *representation_type*.
+
+    Accepts ``None`` (a surface representation), a name from
+    :data:`REPRESENTATION_TYPES`, or a representation class.
+    """
+    if representation_type is None:
+        return vtkSurfaceRepresentation()
+    if isinstance(representation_type, str):
+        try:
+            factory = REPRESENTATION_TYPES[representation_type.lower()]
+        except KeyError:
+            raise ValueError(
+                f"unknown representation type {representation_type!r}; use one of "
+                f"{sorted(REPRESENTATION_TYPES)} or pass a representation class"
+            ) from None
+        return factory()
+    return representation_type()
 
 
 def _resolve_color(color):
@@ -99,8 +132,8 @@ class StandardRenderView(vtkStandardRenderView):
         self.RemoveRepresentation(representation)
         return self
 
-    def show(self, input, **properties):
-        """Add a surface representation for *input* to the view and return it.
+    def show(self, input, representation_type=None, **properties):
+        """Add a representation for *input* to the view and return it.
 
         *input* is a ``vtkAlgorithm`` (its output port is connected) or a
         ``vtkDataObject``.  Keyword arguments are applied as properties on the
@@ -108,8 +141,15 @@ class StandardRenderView(vtkStandardRenderView):
 
             view.show(sphere, color="tomato", opacity=0.8,
                       representation="surfacewithedges")
+
+        *representation_type* selects what to build: a name from
+        :data:`REPRESENTATION_TYPES`, a representation class, or ``None`` for a
+        surface representation::
+
+            view.show(wavelet, "volume", scalar_opacity_unit_distance=0.8)
+            view.show(wavelet, MyRepresentation)
         """
-        representation = vtkSurfaceRepresentation()
+        representation = _make_representation(representation_type)
         input >> representation
         for name, value in properties.items():
             setattr(representation, name, value)
