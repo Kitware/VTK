@@ -50,6 +50,11 @@ vtkSurfaceRepresentation::vtkSurfaceRepresentation()
   this->ScalarBarVisible = false;
   this->RepresentationValue = SURFACE;
 
+  // The lookup table owns the range that scalars are mapped through.  Without
+  // this the mapper writes its own range over the table's on every render,
+  // which silently discards the range of a table handed to SetLookupTable().
+  this->Mapper->UseLookupTableScalarRangeOn();
+
   this->Actor->SetMapper(this->Mapper);
 
   // Scalar bar (always created; visibility controls whether it draws).
@@ -870,24 +875,6 @@ void vtkSurfaceRepresentation::SetLookupTable(vtkScalarsToColors* lut)
 vtkScalarsToColors* vtkSurfaceRepresentation::GetLookupTable()
 {
   return this->Mapper->GetLookupTable();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetScalarRange(double min, double max)
-{
-  double* current = this->GetScalarRange();
-  if (current[0] == min && current[1] == max)
-  {
-    return;
-  }
-  this->Mapper->SetScalarRange(min, max);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double* vtkSurfaceRepresentation::GetScalarRange()
-{
-  return this->Mapper->GetScalarRange();
 }
 
 //------------------------------------------------------------------------------

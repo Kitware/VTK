@@ -150,6 +150,12 @@ public:
    * The overloads taking a component select which component of a
    * multi-component array to map; the others map the array as the lookup table
    * sees fit, which for vectors is the magnitude.
+   *
+   * The range that scalars are mapped through belongs to the lookup table, not
+   * to the representation: set it with GetLookupTable()->SetRange(), or on a
+   * table of your own before handing it over.  A table shared between
+   * representations therefore keeps one range, and the representation never
+   * writes over the range you gave it.
    */
   void SetScalarVisibility(bool val);
   bool GetScalarVisibility();
@@ -161,8 +167,6 @@ public:
   void ColorByFieldArray(const char* arrayName, int component);
   void SetLookupTable(vtkScalarsToColors* lut);
   vtkScalarsToColors* GetLookupTable();
-  void SetScalarRange(double min, double max);
-  double* GetScalarRange() VTK_SIZEHINT(2);
   void SetInterpolateScalarsBeforeMapping(bool val);
   bool GetInterpolateScalarsBeforeMapping();
   ///@}

@@ -48,8 +48,8 @@ view = vtkStandardRenderView(use_light_kit=True)
 rep = view.show(pdsc, specular=0.3, specular_power=20, scalar_bar_visibility=True)
 # Color by composite index to distinguish partitions.
 rep.ColorByCellArray("vtkCompositeIndex")
-rep.scalar_range = (2, 5)
 
+# The lookup table carries the range that scalars are mapped through.
 lut = vtkLookupTable(number_of_table_values=4, range=(2, 5))
 lut.SetTableValue(0, 0.23, 0.30, 0.75, 1.0)  # blue  (index 2)
 lut.SetTableValue(1, 0.87, 0.40, 0.20, 1.0)  # orange (index 3)
@@ -166,7 +166,6 @@ def custom_gui():
         if changed:
             if state.color_by_composite:
                 rep.ColorByCellArray("vtkCompositeIndex")
-                rep.scalar_range = (2, 5)
                 rep.lookup_table = lut
             else:
                 rep.scalar_visibility = False

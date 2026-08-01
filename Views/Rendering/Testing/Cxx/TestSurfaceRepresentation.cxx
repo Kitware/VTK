@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "vtkActor.h"
+#include "vtkLookupTable.h"
 #include "vtkMapper.h"
 #include "vtkNew.h"
 #include "vtkRenderWindow.h"
@@ -71,11 +72,44 @@ int TestFieldArrayColoring()
   return EXIT_SUCCESS;
 }
 
+// The range belongs to the lookup table, so rendering must not write over it.
+int TestLookupTableRangeSurvivesRendering()
+{
+  vtkNew<vtkSphereSource> sphere;
+  vtkNew<vtkSurfaceRepresentation> rep;
+  rep->SetInputConnection(sphere->GetOutputPort());
+  rep->ColorByPointArray("Normals");
+
+  vtkNew<vtkLookupTable> lut;
+  lut->SetRange(30.0, 280.0);
+  rep->SetLookupTable(lut);
+
+  vtkNew<vtkStandardRenderView> view;
+  view->GetRenderWindow()->SetOffScreenRendering(true);
+  view->SetWindowSize(120, 120);
+  view->AddRepresentation(rep);
+  view->ResetCamera();
+  view->Render();
+
+  double* range = lut->GetRange();
+  if (range[0] != 30.0 || range[1] != 280.0)
+  {
+    std::cerr << "Rendering overwrote the lookup table range with [" << range[0] << ", " << range[1]
+              << "]." << std::endl;
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
+}
+
 }
 
 int TestSurfaceRepresentation(int argc, char* argv[])
 {
   if (TestFieldArrayColoring() != EXIT_SUCCESS)
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestLookupTableRangeSurvivesRendering() != EXIT_SUCCESS)
   {
     return EXIT_FAILURE;
   }

@@ -101,13 +101,6 @@ int TestSurfaceRepresentationSetters()
   CHECK_NOOP(rep, SetScalarVisibility, GetScalarVisibility);
   CHECK_NOOP(rep, SetInterpolateScalarsBeforeMapping, GetInterpolateScalarsBeforeMapping);
   CHECK_NOOP(rep, SetLookupTable, GetLookupTable);
-  {
-    const double v0 = rep->GetScalarRange()[0];
-    const double v1 = rep->GetScalarRange()[1];
-    const vtkMTimeType before = rep->GetMTime();
-    rep->SetScalarRange(v0, v1);
-    CHECK(rep->GetMTime() == before, "SetScalarRange modified the object when given its own value");
-  }
 
   // Scalar bar and selection display properties.
   CHECK_NOOP(rep, SetScalarBarVisibility, GetScalarBarVisibility);
