@@ -11,7 +11,6 @@
 #include <vtkImageData.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
-#include <vtkOpenGLRenderer.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkProperty.h>
 #include <vtkRTAnalyticSource.h>

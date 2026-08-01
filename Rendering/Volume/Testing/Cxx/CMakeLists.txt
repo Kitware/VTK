@@ -10,6 +10,7 @@ set (VolumeCxxTests
   TestGPURayCastCameraInsideNonUniformScaleTransform.cxx
   TestGPURayCastCameraInsideSmallSpacing.cxx
   TestGPURayCastCameraInsideTransformation.cxx
+  TestGPURayCastChangedArray.cxx
   TestGPURayCastClipping.cxx
   TestGPURayCastClippingPolyData.cxx
   TestGPURayCastClippingUserTransform.cxx
@@ -36,6 +37,7 @@ set (VolumeCxxTests
   TestGPURayCastImageSampleXY.cxx
   TestGPURayCastIndependentComponentsLightParameters.cxx
   TestGPURayCastIndependentVectorMode.cxx
+  TestGPURayCastIsosurface.cxx
   TestGPURayCastLabelMap.cxx
   TestGPURayCastLabelMap1Label.cxx
   TestGPURayCastLabelMapValidity.cxx
@@ -46,8 +48,10 @@ set (VolumeCxxTests
   TestGPURayCastMapperRectilinearGrid.cxx
   TestGPURayCastMapperSampleDistance.cxx
   TestGPURayCastMapperShadows.cxx
+  TestGPURayCastModelTransformMatrix.cxx
   TestGPURayCastMultiVolumeAddRemove.cxx
   TestGPURayCastMultiVolumeCellData.cxx
+  TestGPURayCastMultiVolumeClipping.cxx
   TestGPURayCastMultiVolumeOverlapping.cxx
   TestGPURayCastMultiVolumeRGBA.cxx
   TestGPURayCastMultiVolumeShade.cxx
@@ -61,6 +65,7 @@ set (VolumeCxxTests
   TestGPURayCastRenderDepthToImage2.cxx
   TestGPURayCastRenderToTexture.cxx
   TestGPURayCastShadedClipping.cxx
+  TestGPURayCastSlicePlane.cxx
   TestGPURayCastThreeComponentsAdditive.cxx
   TestGPURayCastThreeComponentsIndependent.cxx
   TestGPURayCastTransfer2D.cxx
