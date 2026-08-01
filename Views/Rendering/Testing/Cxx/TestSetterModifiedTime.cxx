@@ -130,6 +130,14 @@ int TestSurfaceRepresentationSetters()
     rep->ColorByPointArray("RTData", 2);
     CHECK(rep->GetMTime() == before, "ColorByPointArray(component) repeated and modified");
   }
+  CHECK_MODIFIES(rep, rep->ColorByFieldArray("BlockId"));
+  {
+    const vtkMTimeType before = rep->GetMTime();
+    rep->ColorByFieldArray("BlockId");
+    CHECK(rep->GetMTime() == before, "ColorByFieldArray repeated its own value and modified");
+  }
+  CHECK_NOOP(rep, SetFieldDataTupleId, GetFieldDataTupleId);
+  CHECK_MODIFIES(rep, rep->SetFieldDataTupleId(3));
 
   // Real changes must still be seen.
   CHECK_MODIFIES(rep, rep->SetColor(0.1, 0.2, 0.3));

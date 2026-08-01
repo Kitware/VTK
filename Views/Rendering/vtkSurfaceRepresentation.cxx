@@ -787,6 +787,43 @@ void vtkSurfaceRepresentation::ColorByCellArray(const char* arrayName, int compo
 }
 
 //------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::ColorByFieldArray(const char* arrayName)
+{
+  if (this->IsColoringBy(arrayName, VTK_SCALAR_MODE_USE_FIELD_DATA))
+  {
+    return;
+  }
+  this->Mapper->SetScalarVisibility(true);
+  this->Mapper->SetScalarModeToUseFieldData();
+  this->Mapper->SelectColorArray(arrayName);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::ColorByFieldArray(const char* arrayName, int component)
+{
+  this->ColorByFieldArray(arrayName);
+  this->ColorByComponent(component);
+}
+
+//------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::SetFieldDataTupleId(vtkIdType id)
+{
+  if (this->GetFieldDataTupleId() == id)
+  {
+    return;
+  }
+  this->Mapper->SetFieldDataTupleId(id);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkSurfaceRepresentation::GetFieldDataTupleId()
+{
+  return this->Mapper->GetFieldDataTupleId();
+}
+
+//------------------------------------------------------------------------------
 bool vtkSurfaceRepresentation::IsColoringBy(const char* arrayName, int scalarMode)
 {
   if (!this->Mapper->GetScalarVisibility() || this->Mapper->GetScalarMode() != scalarMode ||
@@ -1386,6 +1423,7 @@ void vtkSurfaceRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RepresentationValue: " << this->RepresentationValue << " ("
      << this->GetRepresentationAsString() << ")\n";
   os << indent << "ScalarBarVisible: " << this->ScalarBarVisible << "\n";
+  os << indent << "FieldDataTupleId: " << this->Mapper->GetFieldDataTupleId() << "\n";
   os << indent << "SelectionRepresentationValue: " << this->SelectionRepresentationValue << "\n";
   os << indent << "UserSetSelectionRepresentation: " << this->UserSetSelectionRepresentation
      << "\n";

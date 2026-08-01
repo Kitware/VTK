@@ -140,6 +140,16 @@ public:
   ///@{
   /**
    * Scalar coloring (forwarded to mapper).
+   *
+   * ColorByPointArray and ColorByCellArray color by an array attached to the
+   * points or the cells.  ColorByFieldArray colors by an array in the field
+   * data, which carries no per-element association of its own: by default its
+   * tuples are consumed one per cell, and SetFieldDataTupleId() switches to
+   * coloring the whole surface with a single tuple.
+   *
+   * The overloads taking a component select which component of a
+   * multi-component array to map; the others map the array as the lookup table
+   * sees fit, which for vectors is the magnitude.
    */
   void SetScalarVisibility(bool val);
   bool GetScalarVisibility();
@@ -147,12 +157,26 @@ public:
   void ColorByPointArray(const char* arrayName, int component);
   void ColorByCellArray(const char* arrayName);
   void ColorByCellArray(const char* arrayName, int component);
+  void ColorByFieldArray(const char* arrayName);
+  void ColorByFieldArray(const char* arrayName, int component);
   void SetLookupTable(vtkScalarsToColors* lut);
   vtkScalarsToColors* GetLookupTable();
   void SetScalarRange(double min, double max);
   double* GetScalarRange() VTK_SIZEHINT(2);
   void SetInterpolateScalarsBeforeMapping(bool val);
   bool GetInterpolateScalarsBeforeMapping();
+  ///@}
+
+  ///@{
+  /**
+   * Which tuple of the array selected by ColorByFieldArray() to color with.
+   * The default, -1, consumes the array one tuple per cell.  An index of 0 or
+   * more colors the entire surface with the tuple at that index, which is how
+   * a per-block or per-dataset value is drawn.  Has no effect when coloring by
+   * a point or cell array.
+   */
+  void SetFieldDataTupleId(vtkIdType id);
+  vtkIdType GetFieldDataTupleId();
   ///@}
 
   ///@{

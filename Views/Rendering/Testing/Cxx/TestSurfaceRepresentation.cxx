@@ -1,8 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include <cstring>
 #include <iostream>
 
+#include "vtkActor.h"
+#include "vtkMapper.h"
 #include "vtkNew.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -14,8 +17,69 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
+namespace
+{
+
+// Coloring by a field data array.  Uses its own representation so that the
+// rendered state below is untouched.
+int TestFieldArrayColoring()
+{
+  vtkNew<vtkSphereSource> sphere;
+  vtkNew<vtkSurfaceRepresentation> rep;
+  rep->SetInputConnection(sphere->GetOutputPort());
+
+  rep->ColorByFieldArray("BlockId");
+  vtkMapper* mapper = rep->GetActor()->GetMapper();
+  if (mapper->GetScalarMode() != VTK_SCALAR_MODE_USE_FIELD_DATA)
+  {
+    std::cerr << "ColorByFieldArray did not select field data scalars." << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!mapper->GetArrayName() || strcmp(mapper->GetArrayName(), "BlockId") != 0)
+  {
+    std::cerr << "ColorByFieldArray did not select the named array." << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!mapper->GetScalarVisibility())
+  {
+    std::cerr << "ColorByFieldArray left scalar coloring off." << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // The default consumes the array one tuple per cell.
+  if (rep->GetFieldDataTupleId() != -1)
+  {
+    std::cerr << "The field data tuple id should start at -1." << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // A tuple id colors the whole surface with that one tuple.
+  rep->SetFieldDataTupleId(2);
+  if (rep->GetFieldDataTupleId() != 2 || mapper->GetFieldDataTupleId() != 2)
+  {
+    std::cerr << "SetFieldDataTupleId did not reach the mapper." << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Switching to a point array leaves field data mode behind.
+  rep->ColorByPointArray("Normals");
+  if (mapper->GetScalarMode() != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
+  {
+    std::cerr << "ColorByPointArray did not replace the field data mode." << std::endl;
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
+}
+
+}
+
 int TestSurfaceRepresentation(int argc, char* argv[])
 {
+  if (TestFieldArrayColoring() != EXIT_SUCCESS)
+  {
+    return EXIT_FAILURE;
+  }
+
   vtkNew<vtkSphereSource> sphere;
   sphere->SetThetaResolution(32);
   sphere->SetPhiResolution(32);
