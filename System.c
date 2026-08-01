@@ -1,15 +1,16 @@
 /* Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
    file Copyright.txt or https://cmake.org/licensing#kwsys for details.  */
 #include "kwsysPrivate.h"
+#include KWSYS_HEADER(String.h)
 #include KWSYS_HEADER(System.h)
 
 /* Work-around CMake dependency scanning limitation.  This must
    duplicate the above list of headers.  */
 #if 0
+#  include "String.h.in"
 #  include "System.h.in"
 #endif
 
-#include <ctype.h>  /* isspace */
 #include <stddef.h> /* ptrdiff_t */
 #include <stdlib.h> /* malloc, free */
 #include <string.h> /* memcpy */
@@ -22,7 +23,7 @@ typedef ptrdiff_t kwsysSystem_ptrdiff_t;
 typedef int kwsysSystem_ptrdiff_t;
 #endif
 
-static int kwsysSystem__AppendByte(const char* local, char** begin, char** end,
+static int kwsysSystem__AppendByte(char const* local, char** begin, char** end,
                                    int* size, char c)
 {
   /* Allocate space for the character.  */
@@ -91,7 +92,7 @@ static int kwsysSystem__AppendArgument(char** local, char*** begin,
 
 #define KWSYSPE_LOCAL_BYTE_COUNT 1024
 #define KWSYSPE_LOCAL_ARGS_COUNT 32
-static char** kwsysSystem__ParseUnixCommand(const char* command, int flags)
+static char** kwsysSystem__ParseUnixCommand(char const* command, int flags)
 {
   /* Create a buffer for argument pointers during parsing.  */
   char* local_pointers[KWSYSPE_LOCAL_ARGS_COUNT];
@@ -107,7 +108,7 @@ static char** kwsysSystem__ParseUnixCommand(const char* command, int flags)
 
   /* Parse the command string.  Try to behave like a UNIX shell.  */
   char** newCommand = 0;
-  const char* c = command;
+  char const* c = command;
   int in_argument = 0;
   int in_escape = 0;
   int in_single = 0;
@@ -148,7 +149,7 @@ static char** kwsysSystem__ParseUnixCommand(const char* command, int flags)
           in_argument = 1;
         }
       }
-    } else if (isspace((unsigned char)*c)) {
+    } else if (kwsysString_isspace(*c)) {
       if (in_argument) {
         if (in_single || in_double) {
           /* This space belongs to a quoted argument.  */
@@ -224,7 +225,7 @@ static char** kwsysSystem__ParseUnixCommand(const char* command, int flags)
   return newCommand;
 }
 
-char** kwsysSystem_Parse_CommandForUnix(const char* command, int flags)
+char** kwsysSystem_Parse_CommandForUnix(char const* command, int flags)
 {
   /* Validate the flags.  */
   if (flags != 0) {

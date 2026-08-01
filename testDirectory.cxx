@@ -19,10 +19,10 @@ file Copyright.txt or https://cmake.org/licensing#kwsys for details.  */
 
 #include <testSystemTools.h>
 
-static int _doLongPathTest()
+static int doLongPathTest()
 {
   using namespace kwsys;
-  static const int LONG_PATH_THRESHOLD = 512;
+  static int const LONG_PATH_THRESHOLD = 512;
   int res = 0;
   std::string topdir(TEST_SYSTEMTOOLS_BINARY_DIR "/directory_testing/");
   std::stringstream testpathstrm;
@@ -77,7 +77,7 @@ static int _doLongPathTest()
   return res;
 }
 
-static int _nonExistentDirectoryTest()
+static int nonExistentDirectoryTest()
 {
   using namespace kwsys;
   int res = 0;
@@ -105,23 +105,23 @@ static int _nonExistentDirectoryTest()
   return res;
 }
 
-static int _copyDirectoryTest()
+static int copyDirectoryTest()
 {
   using namespace kwsys;
-  const std::string source(TEST_SYSTEMTOOLS_BINARY_DIR
+  std::string const source(TEST_SYSTEMTOOLS_BINARY_DIR
                            "/directory_testing/copyDirectoryTestSrc");
   if (SystemTools::PathExists(source)) {
     std::cerr << source << " shouldn't exist before test" << std::endl;
     return 1;
   }
-  const std::string destination(TEST_SYSTEMTOOLS_BINARY_DIR
+  std::string const destination(TEST_SYSTEMTOOLS_BINARY_DIR
                                 "/directory_testing/copyDirectoryTestDst");
   if (SystemTools::PathExists(destination)) {
     std::cerr << destination << " shouldn't exist before test" << std::endl;
     return 2;
   }
-  const Status copysuccess = SystemTools::CopyADirectory(source, destination);
-  const bool destinationexists = SystemTools::PathExists(destination);
+  Status const copysuccess = SystemTools::CopyADirectory(source, destination);
+  bool const destinationexists = SystemTools::PathExists(destination);
   if (copysuccess.IsSuccess()) {
     std::cerr << "CopyADirectory should have returned false" << std::endl;
     SystemTools::RemoveADirectory(destination);
@@ -136,8 +136,7 @@ static int _copyDirectoryTest()
   return 0;
 }
 
-int testDirectory(int, char* [])
+int testDirectory(int, char*[])
 {
-  return _doLongPathTest() + _nonExistentDirectoryTest() +
-    _copyDirectoryTest();
+  return doLongPathTest() + nonExistentDirectoryTest() + copyDirectoryTest();
 }

@@ -34,7 +34,7 @@
 namespace KWSYS_NAMESPACE {
 
 // RegularExpression -- Copies the given regular expression.
-RegularExpression::RegularExpression(const RegularExpression& rxp)
+RegularExpression::RegularExpression(RegularExpression const& rxp)
 {
   if (!rxp.program) {
     this->program = nullptr;
@@ -48,7 +48,7 @@ RegularExpression::RegularExpression(const RegularExpression& rxp)
   // Copy pointers into last successful "find" operation
   this->regmatch = rxp.regmatch;
   this->regmust = rxp.regmust; // Copy field
-  if (rxp.regmust != nullptr) {
+  if (rxp.regmust) {
     char* dum = rxp.program;
     ind = 0;
     while (dum != rxp.regmust) {
@@ -60,10 +60,11 @@ RegularExpression::RegularExpression(const RegularExpression& rxp)
   this->regstart = rxp.regstart; // Copy starting index
   this->reganch = rxp.reganch;   // Copy remaining private data
   this->regmlen = rxp.regmlen;   // Copy remaining private data
+  this->regnpar = rxp.regnpar;
 }
 
 // operator= -- Copies the given regular expression.
-RegularExpression& RegularExpression::operator=(const RegularExpression& rxp)
+RegularExpression& RegularExpression::operator=(RegularExpression const& rxp)
 {
   if (this == &rxp) {
     return *this;
@@ -81,7 +82,7 @@ RegularExpression& RegularExpression::operator=(const RegularExpression& rxp)
   // Copy pointers into last successful "find" operation
   this->regmatch = rxp.regmatch;
   this->regmust = rxp.regmust; // Copy field
-  if (rxp.regmust != nullptr) {
+  if (rxp.regmust) {
     char* dum = rxp.program;
     ind = 0;
     while (dum != rxp.regmust) {
@@ -93,13 +94,14 @@ RegularExpression& RegularExpression::operator=(const RegularExpression& rxp)
   this->regstart = rxp.regstart; // Copy starting index
   this->reganch = rxp.reganch;   // Copy remaining private data
   this->regmlen = rxp.regmlen;   // Copy remaining private data
+  this->regnpar = rxp.regnpar;
 
   return *this;
 }
 
 // operator== -- Returns true if two regular expressions have the same
 // compiled program for pattern matching.
-bool RegularExpression::operator==(const RegularExpression& rxp) const
+bool RegularExpression::operator==(RegularExpression const& rxp) const
 {
   if (this != &rxp) {         // Same address?
     int ind = this->progsize; // Get regular expression size
@@ -115,7 +117,7 @@ bool RegularExpression::operator==(const RegularExpression& rxp) const
 // deep_equal -- Returns true if have the same compiled regular expressions
 // and the same start and end pointers.
 
-bool RegularExpression::deep_equal(const RegularExpression& rxp) const
+bool RegularExpression::deep_equal(RegularExpression const& rxp) const
 {
   int ind = this->progsize;                     // Get regular expression size
   if (ind != rxp.progsize)                      // If different size regexp
@@ -218,7 +220,7 @@ bool RegularExpression::deep_equal(const RegularExpression& rxp) const
   20 // no   Mark this point in input as start of
      // #n.
 // OPEN+1 is number 1, etc.
-#define CLOSE 30 // no   Analogous to OPEN.
+#define CLOSE 52 // no   Analogous to OPEN.
 
 /*
  * Opcode notes:
@@ -257,7 +259,7 @@ bool RegularExpression::deep_equal(const RegularExpression& rxp) const
 #define NEXT(p) (((*((p) + 1) & 0377) << 8) + (*((p) + 2) & 0377))
 #define OPERAND(p) ((p) + 3)
 
-const unsigned char MAGIC = 0234;
+unsigned char const MAGIC = 0234;
 /*
  * Utility definitions.
  */
@@ -293,7 +295,7 @@ static char* const regdummyptr = &regdummy;
 class RegExpCompile
 {
 public:
-  const char* regparse; // Input-scan pointer.
+  char const* regparse; // Input-scan pointer.
   int regnpar;          // () count.
   char* regcode;        // Code-emit pointer; regdummyptr = don't.
   long regsize;         // Code size.
@@ -305,11 +307,11 @@ public:
   char* regnode(char);
   void regc(char);
   void reginsert(char, char*);
-  static void regtail(char*, const char*);
-  static void regoptail(char*, const char*);
+  static void regtail(char*, char const*);
+  static void regoptail(char*, char const*);
 };
 
-static const char* regnext(const char*);
+static char const* regnext(char const*);
 static char* regnext(char*);
 
 #ifdef STRCSPN
@@ -333,13 +335,13 @@ static int strcspn();
 // compile -- compile a regular expression into internal code
 // for later pattern matching.
 
-bool RegularExpression::compile(const char* exp)
+bool RegularExpression::compile(char const* exp)
 {
-  const char* scan;
-  const char* longest;
+  char const* scan;
+  char const* longest;
   int flags;
 
-  if (exp == nullptr) {
+  if (!exp) {
     // RAISE Error, SYM(RegularExpression), SYM(No_Expr),
     printf("RegularExpression::compile(): No expression supplied.\n");
     return false;
@@ -366,17 +368,22 @@ bool RegularExpression::compile(const char* exp)
   }
 
   // Allocate space.
-  //#ifndef _WIN32
+  // #ifndef _WIN32
   delete[] this->program;
-  //#endif
+  // #endif
   this->program = new char[comp.regsize];
   this->progsize = static_cast<int>(comp.regsize);
+  this->regnpar = comp.regnpar;
 
-  if (this->program == nullptr) {
+  if (!this->program) {
     // RAISE Error, SYM(RegularExpression), SYM(Out_Of_Memory),
     printf("RegularExpression::compile(): Out of memory.\n");
     return false;
   }
+
+#ifdef __clang_analyzer__ /* Convince it that the program is initialized.  */
+  memset(this->program, 0, comp.regsize);
+#endif
 
   // Second pass: emit code.
   comp.regparse = exp;
@@ -411,7 +418,7 @@ bool RegularExpression::compile(const char* exp)
     if (flags & SPSTART) {
       longest = nullptr;
       size_t len = 0;
-      for (; scan != nullptr; scan = regnext(scan))
+      for (; scan; scan = regnext(scan))
         if (OP(scan) == EXACTLY && strlen(OPERAND(scan)) >= len) {
           longest = OPERAND(scan);
           len = strlen(OPERAND(scan));
@@ -457,9 +464,9 @@ char* RegExpCompile::reg(int paren, int* flagp)
 
   // Pick up the branches, linking them together.
   br = regbranch(&flags);
-  if (br == nullptr)
+  if (!br)
     return (nullptr);
-  if (ret != nullptr)
+  if (ret)
     regtail(ret, br); // OPEN -> first.
   else
     ret = br;
@@ -469,7 +476,7 @@ char* RegExpCompile::reg(int paren, int* flagp)
   while (*regparse == '|') {
     regparse++;
     br = regbranch(&flags);
-    if (br == nullptr)
+    if (!br)
       return (nullptr);
     regtail(ret, br); // BRANCH -> BRANCH.
     if (!(flags & HASWIDTH))
@@ -482,7 +489,7 @@ char* RegExpCompile::reg(int paren, int* flagp)
   regtail(ret, ender);
 
   // Hook the tails of the branches to the closing node.
-  for (br = ret; br != nullptr; br = regnext(br))
+  for (br = ret; br; br = regnext(br))
     regoptail(br, ender);
 
   // Check for proper termination.
@@ -523,16 +530,16 @@ char* RegExpCompile::regbranch(int* flagp)
   chain = nullptr;
   while (*regparse != '\0' && *regparse != '|' && *regparse != ')') {
     latest = regpiece(&flags);
-    if (latest == nullptr)
+    if (!latest)
       return (nullptr);
     *flagp |= flags & HASWIDTH;
-    if (chain == nullptr) // First piece.
+    if (!chain) // First piece.
       *flagp |= flags & SPSTART;
     else
       regtail(chain, latest);
     chain = latest;
   }
-  if (chain == nullptr) // Loop ran zero times.
+  if (!chain) // Loop ran zero times.
     regnode(NOTHING);
 
   return (ret);
@@ -555,7 +562,7 @@ char* RegExpCompile::regpiece(int* flagp)
   int flags;
 
   ret = regatom(&flags);
-  if (ret == nullptr)
+  if (!ret)
     return (nullptr);
 
   op = *regparse;
@@ -674,7 +681,7 @@ char* RegExpCompile::regatom(int* flagp)
     } break;
     case '(':
       ret = reg(1, &flags);
-      if (ret == nullptr)
+      if (!ret)
         return (nullptr);
       *flagp |= flags & (HASWIDTH | SPSTART);
       break;
@@ -795,7 +802,7 @@ void RegExpCompile::reginsert(char op, char* opnd)
 /*
  - regtail - set the next-pointer at the end of a node chain
  */
-void RegExpCompile::regtail(char* p, const char* val)
+void RegExpCompile::regtail(char* p, char const* val)
 {
   char* scan;
   char* temp;
@@ -808,7 +815,7 @@ void RegExpCompile::regtail(char* p, const char* val)
   scan = p;
   for (;;) {
     temp = regnext(scan);
-    if (temp == nullptr)
+    if (!temp)
       break;
     scan = temp;
   }
@@ -824,10 +831,10 @@ void RegExpCompile::regtail(char* p, const char* val)
 /*
  - regoptail - regtail on operand of first argument; nop if operandless
  */
-void RegExpCompile::regoptail(char* p, const char* val)
+void RegExpCompile::regoptail(char* p, char const* val)
 {
   // "Operandless" and "op != BRANCH" are synonymous in practice.
-  if (p == nullptr || p == regdummyptr || OP(p) != BRANCH)
+  if (!p || p == regdummyptr || OP(p) != BRANCH)
     return;
   regtail(OPERAND(p), val);
 }
@@ -844,22 +851,25 @@ void RegExpCompile::regoptail(char* p, const char* val)
 class RegExpFind
 {
 public:
-  const char* reginput;   // String-input pointer.
-  const char* regbol;     // Beginning of input, for ^ check.
-  const char** regstartp; // Pointer to startp array.
-  const char** regendp;   // Ditto for endp.
+  char const* reginput;   // String-input pointer.
+  char const* regbol;     // Beginning of input, for ^ check.
+  char const** regstartp; // Pointer to startp array.
+  char const** regendp;   // Ditto for endp.
+  char const* regreject; // Reject matches ending here, for NONEMPTY_AT_OFFSET.
 
-  int regtry(const char*, const char**, const char**, const char*);
-  int regmatch(const char*);
-  int regrepeat(const char*);
+  int regtry(char const*, char const**, char const**, char const*);
+  int regmatch(char const*);
+  int regrepeat(char const*);
 };
 
 // find -- Matches the regular expression to the given string.
 // Returns true if found, and sets start and end indexes accordingly.
 bool RegularExpression::find(char const* string,
-                             RegularExpressionMatch& rmatch) const
+                             RegularExpressionMatch& rmatch,
+                             std::string::size_type offset,
+                             unsigned options) const
 {
-  const char* s;
+  char const* s;
 
   rmatch.clear();
   rmatch.searchstring = string;
@@ -877,32 +887,32 @@ bool RegularExpression::find(char const* string,
   }
 
   // If there is a "must appear" string, look for it.
-  if (this->regmust != nullptr) {
-    s = string;
-    while ((s = strchr(s, this->regmust[0])) != nullptr) {
+  if (this->regmust) {
+    s = string + offset;
+    while ((s = strchr(s, this->regmust[0]))) {
       if (strncmp(s, this->regmust, this->regmlen) == 0)
         break; // Found it.
       s++;
     }
-    if (s == nullptr) // Not present.
+    if (!s) // Not present.
       return false;
   }
 
   RegExpFind regFind;
+  s = string + offset;
 
   // Mark beginning of line for ^ .
-  regFind.regbol = string;
+  regFind.regbol = (options & BOL_AT_OFFSET) ? s : string;
+  regFind.regreject = (options & NONEMPTY_AT_OFFSET) ? s : nullptr;
 
   // Simplest case:  anchored match need be tried only once.
   if (this->reganch)
-    return (
-      regFind.regtry(string, rmatch.startp, rmatch.endp, this->program) != 0);
+    return (regFind.regtry(s, rmatch.startp, rmatch.endp, this->program) != 0);
 
   // Messy cases:  unanchored match.
-  s = string;
   if (this->regstart != '\0')
     // We know what char it must start with.
-    while ((s = strchr(s, this->regstart)) != nullptr) {
+    while ((s = strchr(s, this->regstart))) {
       if (regFind.regtry(s, rmatch.startp, rmatch.endp, this->program))
         return true;
       s++;
@@ -922,12 +932,12 @@ bool RegularExpression::find(char const* string,
  - regtry - try match at specific point
    0 failure, 1 success
  */
-int RegExpFind::regtry(const char* string, const char** start,
-                       const char** end, const char* prog)
+int RegExpFind::regtry(char const* string, char const** start,
+                       char const** end, char const* prog)
 {
   int i;
-  const char** sp1;
-  const char** ep;
+  char const** sp1;
+  char const** ep;
 
   reginput = string;
   regstartp = start;
@@ -958,14 +968,14 @@ int RegExpFind::regtry(const char* string, const char** start,
  * by recursion.
  * 0 failure, 1 success
  */
-int RegExpFind::regmatch(const char* prog)
+int RegExpFind::regmatch(char const* prog)
 {
-  const char* scan; // Current node.
-  const char* next; // Next node.
+  char const* scan; // Current node.
+  char const* next; // Next node.
 
   scan = prog;
 
-  while (scan != nullptr) {
+  while (scan) {
 
     next = regnext(scan);
 
@@ -985,7 +995,7 @@ int RegExpFind::regmatch(const char* prog)
         break;
       case EXACTLY: {
         size_t len;
-        const char* opnd;
+        char const* opnd;
 
         opnd = OPERAND(scan);
         // Inline the first character, for speed.
@@ -997,12 +1007,12 @@ int RegExpFind::regmatch(const char* prog)
         reginput += len;
       } break;
       case ANYOF:
-        if (*reginput == '\0' || strchr(OPERAND(scan), *reginput) == nullptr)
+        if (*reginput == '\0' || !strchr(OPERAND(scan), *reginput))
           return (0);
         reginput++;
         break;
       case ANYBUT:
-        if (*reginput == '\0' || strchr(OPERAND(scan), *reginput) != nullptr)
+        if (*reginput == '\0' || strchr(OPERAND(scan), *reginput))
           return (0);
         reginput++;
         break;
@@ -1018,9 +1028,32 @@ int RegExpFind::regmatch(const char* prog)
       case OPEN + 6:
       case OPEN + 7:
       case OPEN + 8:
-      case OPEN + 9: {
+      case OPEN + 9:
+      case OPEN + 10:
+      case OPEN + 11:
+      case OPEN + 12:
+      case OPEN + 13:
+      case OPEN + 14:
+      case OPEN + 15:
+      case OPEN + 16:
+      case OPEN + 17:
+      case OPEN + 18:
+      case OPEN + 19:
+      case OPEN + 20:
+      case OPEN + 21:
+      case OPEN + 22:
+      case OPEN + 23:
+      case OPEN + 24:
+      case OPEN + 25:
+      case OPEN + 26:
+      case OPEN + 27:
+      case OPEN + 28:
+      case OPEN + 29:
+      case OPEN + 30:
+      case OPEN + 31:
+      case OPEN + 32: {
         int no;
-        const char* save;
+        char const* save;
 
         no = OP(scan) - OPEN;
         save = reginput;
@@ -1031,7 +1064,7 @@ int RegExpFind::regmatch(const char* prog)
           // Don't set startp if some later invocation of the
           // same parentheses already has.
           //
-          if (regstartp[no] == nullptr)
+          if (!regstartp[no])
             regstartp[no] = save;
           return (1);
         } else
@@ -1046,9 +1079,32 @@ int RegExpFind::regmatch(const char* prog)
       case CLOSE + 6:
       case CLOSE + 7:
       case CLOSE + 8:
-      case CLOSE + 9: {
+      case CLOSE + 9:
+      case CLOSE + 10:
+      case CLOSE + 11:
+      case CLOSE + 12:
+      case CLOSE + 13:
+      case CLOSE + 14:
+      case CLOSE + 15:
+      case CLOSE + 16:
+      case CLOSE + 17:
+      case CLOSE + 18:
+      case CLOSE + 19:
+      case CLOSE + 20:
+      case CLOSE + 21:
+      case CLOSE + 22:
+      case CLOSE + 23:
+      case CLOSE + 24:
+      case CLOSE + 25:
+      case CLOSE + 26:
+      case CLOSE + 27:
+      case CLOSE + 28:
+      case CLOSE + 29:
+      case CLOSE + 30:
+      case CLOSE + 31:
+      case CLOSE + 32: {
         int no;
-        const char* save;
+        char const* save;
 
         no = OP(scan) - CLOSE;
         save = reginput;
@@ -1059,7 +1115,7 @@ int RegExpFind::regmatch(const char* prog)
           // Don't set endp if some later invocation of the
           // same parentheses already has.
           //
-          if (regendp[no] == nullptr)
+          if (!regendp[no])
             regendp[no] = save;
           return (1);
         } else
@@ -1068,7 +1124,7 @@ int RegExpFind::regmatch(const char* prog)
       //              break;
       case BRANCH: {
 
-        const char* save;
+        char const* save;
 
         if (OP(next) != BRANCH) // No choice.
           next = OPERAND(scan); // Avoid recursion.
@@ -1079,7 +1135,7 @@ int RegExpFind::regmatch(const char* prog)
               return (1);
             reginput = save;
             scan = regnext(scan);
-          } while (scan != nullptr && OP(scan) == BRANCH);
+          } while (scan && OP(scan) == BRANCH);
           return (0);
           // NOTREACHED
         }
@@ -1088,7 +1144,7 @@ int RegExpFind::regmatch(const char* prog)
       case PLUS: {
         char nextch;
         int no;
-        const char* save;
+        char const* save;
         int min_no;
 
         //
@@ -1114,7 +1170,9 @@ int RegExpFind::regmatch(const char* prog)
       }
       //              break;
       case END:
-        return (1); // Success!
+        if (reginput == regreject)
+          return (0); // Can't end a match here
+        return (1);   // Success!
 
       default:
         // RAISE Error, SYM(RegularExpression), SYM(Internal_Error),
@@ -1137,11 +1195,11 @@ int RegExpFind::regmatch(const char* prog)
 /*
  - regrepeat - repeatedly match something simple, report how many
  */
-int RegExpFind::regrepeat(const char* p)
+int RegExpFind::regrepeat(char const* p)
 {
   int count = 0;
-  const char* scan;
-  const char* opnd;
+  char const* scan;
+  char const* opnd;
 
   scan = reginput;
   opnd = OPERAND(p);
@@ -1157,13 +1215,13 @@ int RegExpFind::regrepeat(const char* p)
       }
       break;
     case ANYOF:
-      while (*scan != '\0' && strchr(opnd, *scan) != nullptr) {
+      while (*scan != '\0' && strchr(opnd, *scan)) {
         count++;
         scan++;
       }
       break;
     case ANYBUT:
-      while (*scan != '\0' && strchr(opnd, *scan) == nullptr) {
+      while (*scan != '\0' && !strchr(opnd, *scan)) {
         count++;
         scan++;
       }
@@ -1180,7 +1238,7 @@ int RegExpFind::regrepeat(const char* p)
 /*
  - regnext - dig the "next" pointer out of a node
  */
-static const char* regnext(const char* p)
+static char const* regnext(char const* p)
 {
   int offset;
 

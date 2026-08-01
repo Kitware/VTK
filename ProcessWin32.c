@@ -89,7 +89,7 @@ static int kwsysProcessInitialize(kwsysProcess* cp);
 static DWORD kwsysProcessCreate(kwsysProcess* cp, int index,
                                 kwsysProcessCreateInformation* si);
 static void kwsysProcessDestroy(kwsysProcess* cp, int event);
-static DWORD kwsysProcessSetupOutputPipeFile(PHANDLE handle, const char* name);
+static DWORD kwsysProcessSetupOutputPipeFile(PHANDLE handle, char const* name);
 static void kwsysProcessSetupSharedPipe(DWORD nStdHandle, PHANDLE handle);
 static void kwsysProcessSetupPipeNative(HANDLE native, PHANDLE handle);
 static void kwsysProcessCleanupHandle(PHANDLE h);
@@ -654,7 +654,7 @@ void kwsysProcess_SetTimeout(kwsysProcess* cp, double timeout)
   cp->TimeoutTime.QuadPart = -1;
 }
 
-int kwsysProcess_SetWorkingDirectory(kwsysProcess* cp, const char* dir)
+int kwsysProcess_SetWorkingDirectory(kwsysProcess* cp, char const* dir)
 {
   if (!cp) {
     return 0;
@@ -666,14 +666,14 @@ int kwsysProcess_SetWorkingDirectory(kwsysProcess* cp, const char* dir)
   if (dir && dir[0]) {
     wchar_t* wdir = kwsysEncoding_DupToWide(dir);
     /* We must convert the working directory to a full path.  */
-    DWORD length = GetFullPathNameW(wdir, 0, 0, 0);
+    DWORD length = GetFullPathNameW(wdir, 0, NULL, NULL);
     if (length > 0) {
       wchar_t* work_dir = malloc(length * sizeof(wchar_t));
       if (!work_dir) {
         free(wdir);
         return 0;
       }
-      if (!GetFullPathNameW(wdir, length, work_dir, 0)) {
+      if (!GetFullPathNameW(wdir, length, work_dir, NULL)) {
         free(work_dir);
         free(wdir);
         return 0;
@@ -685,7 +685,7 @@ int kwsysProcess_SetWorkingDirectory(kwsysProcess* cp, const char* dir)
   return 1;
 }
 
-int kwsysProcess_SetPipeFile(kwsysProcess* cp, int pipe, const char* file)
+int kwsysProcess_SetPipeFile(kwsysProcess* cp, int pipe, char const* file)
 {
   char** pfile;
   if (!cp) {
@@ -867,7 +867,7 @@ int kwsysProcess_GetExitCode(kwsysProcess* cp)
     : 0;
 }
 
-const char* kwsysProcess_GetErrorString(kwsysProcess* cp)
+char const* kwsysProcess_GetErrorString(kwsysProcess* cp)
 {
   if (!cp) {
     return "Process management structure could not be allocated";
@@ -877,7 +877,7 @@ const char* kwsysProcess_GetErrorString(kwsysProcess* cp)
   return "Success";
 }
 
-const char* kwsysProcess_GetExceptionString(kwsysProcess* cp)
+char const* kwsysProcess_GetExceptionString(kwsysProcess* cp)
 {
   if (!(cp && cp->ProcessResults && (cp->NumberOfCommands > 0))) {
     return "GetExceptionString called with NULL process management structure";
@@ -918,7 +918,7 @@ int kwsysProcess_GetExitCodeByIndex(kwsysProcess* cp, int idx)
   return cp->CommandExitCodes[idx];
 }
 
-const char* kwsysProcess_GetExceptionStringByIndex(kwsysProcess* cp, int idx)
+char const* kwsysProcess_GetExceptionStringByIndex(kwsysProcess* cp, int idx)
 {
   KWSYSPE_IDX_CHK("GetExceptionString called with NULL process management "
                   "structure or index out of bound")
@@ -1706,16 +1706,17 @@ DWORD kwsysProcessCreate(kwsysProcess* cp, int index,
   }
 
   /* Create inherited copies of the handles.  */
-  (error = kwsysProcessCreateChildHandle(&si->StartupInfo.hStdInput,
-                                         si->hStdInput, 1)) ||
-    (error = kwsysProcessCreateChildHandle(&si->StartupInfo.hStdOutput,
-                                           si->hStdOutput, 0)) ||
-    (error = kwsysProcessCreateChildHandle(&si->StartupInfo.hStdError,
-                                           si->hStdError, 0)) ||
-    /* Create the process.  */
-    (!CreateProcessW(0, cp->Commands[index], 0, 0, TRUE, creationFlags, 0, 0,
-                     &si->StartupInfo, &cp->ProcessInformation[index]) &&
-     (error = GetLastError()));
+  (void)((error = kwsysProcessCreateChildHandle(&si->StartupInfo.hStdInput,
+                                                si->hStdInput, 1)) ||
+         (error = kwsysProcessCreateChildHandle(&si->StartupInfo.hStdOutput,
+                                                si->hStdOutput, 0)) ||
+         (error = kwsysProcessCreateChildHandle(&si->StartupInfo.hStdError,
+                                                si->hStdError, 0)) ||
+         /* Create the process.  */
+         (!CreateProcessW(0, cp->Commands[index], 0, 0, TRUE, creationFlags, 0,
+                          0, &si->StartupInfo,
+                          &cp->ProcessInformation[index]) &&
+          (error = GetLastError())));
 
   /* Close the inherited copies of the handles. */
   if (si->StartupInfo.hStdInput != si->hStdInput) {
@@ -1796,7 +1797,7 @@ void kwsysProcessDestroy(kwsysProcess* cp, int event)
   }
 }
 
-DWORD kwsysProcessSetupOutputPipeFile(PHANDLE phandle, const char* name)
+DWORD kwsysProcessSetupOutputPipeFile(PHANDLE phandle, char const* name)
 {
   HANDLE fout;
   wchar_t* wname;
@@ -2145,7 +2146,7 @@ static void kwsysProcessSetExitExceptionByIndex(kwsysProcess* cp, int code,
     default:
       cp->ProcessResults[idx].ExitException = kwsysProcess_Exception_Other;
       snprintf(cp->ProcessResults[idx].ExitExceptionString,
-               KWSYSPE_PIPE_BUFFER_SIZE, "Exit code 0x%x\n", code);
+               KWSYSPE_PIPE_BUFFER_SIZE, "Exit code 0x%x", code);
       break;
   }
 }
@@ -2354,7 +2355,7 @@ static int kwsysProcess_List__New_NT4(kwsysProcess_List* self)
   if (hNT) {
     /* Get pointers to the needed API functions.  */
     self->P_ZwQuerySystemInformation =
-      ((ZwQuerySystemInformationType)GetProcAddress(
+      ((ZwQuerySystemInformationType)(void*)GetProcAddress(
         hNT, "ZwQuerySystemInformation"));
   }
   if (!self->P_ZwQuerySystemInformation) {
@@ -2406,8 +2407,9 @@ static int kwsysProcess_List__Next_NT4(kwsysProcess_List* self)
 {
   if (self->CurrentInfo) {
     if (self->CurrentInfo->NextEntryDelta > 0) {
-      self->CurrentInfo = ((PSYSTEM_PROCESS_INFORMATION)(
-        (char*)self->CurrentInfo + self->CurrentInfo->NextEntryDelta));
+      self->CurrentInfo =
+        ((PSYSTEM_PROCESS_INFORMATION)((char*)self->CurrentInfo +
+                                       self->CurrentInfo->NextEntryDelta));
       return 1;
     }
     self->CurrentInfo = 0;
@@ -2417,12 +2419,13 @@ static int kwsysProcess_List__Next_NT4(kwsysProcess_List* self)
 
 static int kwsysProcess_List__GetProcessId_NT4(kwsysProcess_List* self)
 {
-  return self->CurrentInfo ? self->CurrentInfo->ProcessId : -1;
+  return self->CurrentInfo ? (int)self->CurrentInfo->ProcessId : -1;
 }
 
 static int kwsysProcess_List__GetParentId_NT4(kwsysProcess_List* self)
 {
-  return self->CurrentInfo ? self->CurrentInfo->InheritedFromProcessId : -1;
+  return self->CurrentInfo ? (int)self->CurrentInfo->InheritedFromProcessId
+                           : -1;
 }
 
 static int kwsysProcess_List__New_Snapshot(kwsysProcess_List* self)
@@ -2434,12 +2437,12 @@ static int kwsysProcess_List__New_Snapshot(kwsysProcess_List* self)
   HMODULE hKernel = GetModuleHandleW(L"kernel32.dll");
   if (hKernel) {
     self->P_CreateToolhelp32Snapshot =
-      ((CreateToolhelp32SnapshotType)GetProcAddress(
+      ((CreateToolhelp32SnapshotType)(void*)GetProcAddress(
         hKernel, "CreateToolhelp32Snapshot"));
     self->P_Process32First =
-      ((Process32FirstType)GetProcAddress(hKernel, "Process32First"));
+      ((Process32FirstType)(void*)GetProcAddress(hKernel, "Process32First"));
     self->P_Process32Next =
-      ((Process32NextType)GetProcAddress(hKernel, "Process32Next"));
+      ((Process32NextType)(void*)GetProcAddress(hKernel, "Process32Next"));
   }
   return (self->P_CreateToolhelp32Snapshot && self->P_Process32First &&
           self->P_Process32Next)
@@ -2487,12 +2490,12 @@ static int kwsysProcess_List__Next_Snapshot(kwsysProcess_List* self)
 
 static int kwsysProcess_List__GetProcessId_Snapshot(kwsysProcess_List* self)
 {
-  return self->Snapshot ? self->CurrentEntry.th32ProcessID : -1;
+  return self->Snapshot ? (int)self->CurrentEntry.th32ProcessID : -1;
 }
 
 static int kwsysProcess_List__GetParentId_Snapshot(kwsysProcess_List* self)
 {
-  return self->Snapshot ? self->CurrentEntry.th32ParentProcessID : -1;
+  return self->Snapshot ? (int)self->CurrentEntry.th32ParentProcessID : -1;
 }
 
 static void kwsysProcessKill(DWORD pid)
