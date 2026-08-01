@@ -1,7 +1,4 @@
 set (VolumeCxxTests
-  ProjectedTetrahedraZoomIn.cxx,NO_VALID
-  TestFinalColorWindowLevel.cxx
-  TestFixedPointRayCastLightComponents.cxx
   TestGPURayCastAdditive.cxx
   TestGPURayCastAverageIP.cxx
   TestGPURayCastBlendModes.cxx
@@ -41,7 +38,6 @@ set (VolumeCxxTests
   TestGPURayCastLabelMap.cxx
   TestGPURayCastLabelMap1Label.cxx
   TestGPURayCastLabelMapValidity.cxx
-  TestGPURayCastLargeColorTransferFunction.cxx
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
   TestGPURayCastMapperBenchmark.cxx
@@ -88,18 +84,28 @@ set (VolumeCxxTests
   TestGPURayCastVolumeUpdate.cxx
   TestGPUVolumeRayCastMapper.cxx
   TestGPUVolumeRayCastMapperManyLights.cxx
-  TestMinIntensityRendering.cxx
   TestMultiBlockMapper.cxx
   TestMultiBlockMapperRectilinearGrid.cxx
+  TestRemoveVolumeNonCurrentContext.cxx
+  TestSmartVolumeMapperImplicitArray.cxx,NO_SERDES
+  TestSmartVolumeMapperVolumeUpdate.cxx
+  )
+
+# These reach for a volume mapper that only the OpenGL backend implements, either the fixed
+# point ray caster and the image display helper behind it, or the tetrahedra and
+# unstructured grid mappers. They cannot run against another backend.
+set (VolumeOpenGLOnlyCxxTests
+  ProjectedTetrahedraZoomIn.cxx,NO_VALID
+  TestFinalColorWindowLevel.cxx
+  TestFixedPointRayCastLightComponents.cxx
+  TestGPURayCastLargeColorTransferFunction.cxx
+  TestMinIntensityRendering.cxx
   TestMultiBlockUnstructuredGridVolumeMapper.cxx
   TestProjectedTetrahedra.cxx
   TestProjectedTetrahedraOffscreen.cxx
   TestProjectedTetrahedraTransform.cxx
   TestProjectedTetrahedraVectorComponent.cxx
-  TestRemoveVolumeNonCurrentContext.cxx
   TestSmartVolumeMapper.cxx
-  TestSmartVolumeMapperImplicitArray.cxx,NO_SERDES
-  TestSmartVolumeMapperVolumeUpdate.cxx
   TestSmartVolumeMapperWindowLevel.cxx
   )
 
@@ -111,6 +117,7 @@ if (TARGET VTK::RenderingVolumeOpenGL2)
   vtk_add_test_cxx(vtkRenderingVolumeCxxTests tests
     --vtk-factory-prefer RenderingBackend=OpenGL
     ${VolumeCxxTests}
+    ${VolumeOpenGLOnlyCxxTests}
     )
   unset(vtk_test_prefix)
 endif ()
