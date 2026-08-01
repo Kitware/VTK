@@ -57,6 +57,12 @@ public:
   ///@{
   /**
    * Transfer functions for color and opacity.
+   *
+   * The representation builds both from the scalar range of its input the
+   * first time it executes, and stops maintaining whichever one you set here.
+   * The getters always return the function actually in use, generated or your
+   * own; before the first execution they return whatever the volume property
+   * was constructed with.
    */
   void SetColorTransferFunction(vtkColorTransferFunction* ctf);
   vtkColorTransferFunction* GetColorTransferFunction();
@@ -64,6 +70,21 @@ public:
   vtkPiecewiseFunction* GetScalarOpacity();
   void SetScalarOpacityUnitDistance(double distance);
   double GetScalarOpacityUnitDistance();
+  ///@}
+
+  ///@{
+  /**
+   * Give a transfer function back to the representation: discard the one set
+   * with SetColorTransferFunction() or SetScalarOpacity() and rebuild the
+   * generated one from the current scalar range.  Resetting one function
+   * leaves the other alone, whether it is generated or your own.
+   *
+   * These also serve as a way to re-derive the generated functions after the
+   * input data changes, which the representation does not do on its own.
+   */
+  void ResetColorTransferFunction();
+  void ResetScalarOpacity();
+  void ResetTransferFunctions();
   ///@}
 
   ///@{

@@ -217,6 +217,33 @@ vtkPiecewiseFunction* vtkVolumeRepresentation::GetScalarOpacity()
 }
 
 //------------------------------------------------------------------------------
+void vtkVolumeRepresentation::ResetColorTransferFunction()
+{
+  // CreateDefaultTransferFunctions() rebuilds only the functions that are not
+  // the user's, so the opacity is left alone whether or not it was set.
+  this->UserSetColorTransferFunction = false;
+  this->CreateDefaultTransferFunctions();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkVolumeRepresentation::ResetScalarOpacity()
+{
+  this->UserSetScalarOpacity = false;
+  this->CreateDefaultTransferFunctions();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkVolumeRepresentation::ResetTransferFunctions()
+{
+  this->UserSetColorTransferFunction = false;
+  this->UserSetScalarOpacity = false;
+  this->CreateDefaultTransferFunctions();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkVolumeRepresentation::SetScalarOpacityUnitDistance(double distance)
 {
   if (this->GetScalarOpacityUnitDistance() == distance)
