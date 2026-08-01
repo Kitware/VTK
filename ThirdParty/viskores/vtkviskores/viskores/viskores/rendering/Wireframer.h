@@ -143,7 +143,10 @@ struct CopyIntoFrameBuffer : public viskores::worklet::WorkletMapField
   using ExecutionSignature = void(_1, _2, _3);
 
   VISKORES_CONT
-  CopyIntoFrameBuffer() {}
+  CopyIntoFrameBuffer(bool clearDepth)
+    : ClearExistingDepth(clearDepth)
+  {
+  }
 
   VISKORES_EXEC
   void operator()(const viskores::Vec4f_32& color,
@@ -152,9 +155,11 @@ struct CopyIntoFrameBuffer : public viskores::worklet::WorkletMapField
   {
     PackedValue packed;
     packed.Ints.Color = PackColor(color);
-    packed.Floats.Depth = depth;
+    packed.Floats.Depth = this->ClearExistingDepth ? 1.0f : depth;
     outValue = packed.Raw;
   }
+
+  bool ClearExistingDepth;
 }; //struct CopyIntoFrameBuffer
 
 template <typename DeviceTag>
@@ -413,7 +418,10 @@ struct BufferConverter : public viskores::worklet::WorkletMapField
 {
 public:
   VISKORES_CONT
-  BufferConverter() {}
+  BufferConverter(bool ignoreExistingDepth)
+    : IgnoreExistingDepth(ignoreExistingDepth)
+  {
+  }
 
   using ControlSignature = void(FieldIn, WholeArrayOut, WholeArrayOut);
   using ExecutionSignature = void(_1, _2, _3, WorkIndex);
@@ -427,7 +435,9 @@ public:
     PackedValue packed;
     packed.Raw = packedValue;
     float depth = packed.Floats.Depth;
-    if (depth <= depthBuffer.Get(index))
+    if ((this->IgnoreExistingDepth &&
+         packed.Ints.Depth != static_cast<viskores::UInt32>(ClearDepth)) ||
+        (!this->IgnoreExistingDepth && depth <= depthBuffer.Get(index)))
     {
       viskores::Vec4f_32 color;
       UnpackColor(packed.Ints.Color, color);
@@ -435,6 +445,8 @@ public:
       depthBuffer.Set(index, depth);
     }
   }
+
+  bool IgnoreExistingDepth;
 };
 
 } // namespace
@@ -507,6 +519,8 @@ private:
     viskores::Id width = static_cast<viskores::Id>(Canvas->GetWidth());
     viskores::Id height = static_cast<viskores::Id>(Canvas->GetHeight());
     viskores::Id pixelCount = width * height;
+    bool ortho2d = Camera.GetMode() == viskores::rendering::Camera::Mode::TwoD;
+    bool ignoreExistingDepth = this->IsOverlay && ortho2d;
 
     if (this->ShowInternalZones && !this->IsOverlay)
     {
@@ -516,7 +530,7 @@ private:
     else
     {
       VISKORES_ASSERT(this->SolidDepthBuffer.GetNumberOfValues() == pixelCount);
-      CopyIntoFrameBuffer bufferCopy;
+      CopyIntoFrameBuffer bufferCopy(ignoreExistingDepth);
       viskores::worklet::DispatcherMapField<CopyIntoFrameBuffer>(bufferCopy)
         .Invoke(this->Canvas->GetColorBuffer(), this->SolidDepthBuffer, this->FrameBuffer);
     }
@@ -531,7 +545,6 @@ private:
     viskores::Id subsetWidth = width;
     viskores::Id subsetHeight = height;
 
-    bool ortho2d = Camera.GetMode() == viskores::rendering::Camera::Mode::TwoD;
     if (ortho2d)
     {
       viskores::Float32 vl, vr, vb, vt;
@@ -576,7 +589,7 @@ private:
                                viskores::rendering::raytracing::GetScalarFieldArray(ScalarField));
     }
 
-    BufferConverter converter;
+    BufferConverter converter(ignoreExistingDepth);
     viskores::worklet::DispatcherMapField<BufferConverter> converterDispatcher(converter);
     converterDispatcher.SetDevice(DeviceTag());
     converterDispatcher.Invoke(FrameBuffer, Canvas->GetDepthBuffer(), Canvas->GetColorBuffer());

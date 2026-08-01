@@ -8,7 +8,7 @@ readonly name="viskores"
 readonly ownership="Viskores upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name/$name"
 readonly repo="https://github.com/Viskores/viskores.git"
-readonly tag="v1.2.0-rc1"
+readonly tag="v1.2.0-rc2"
 readonly paths="
 CMake/testing/ViskoresTestWrappers.cmake
 CMake/FindPyexpander.cmake
@@ -43,11 +43,6 @@ viskoresstd/
 extract_source () {
     git_archive
     pushd "$extractdir/$name-reduced"
-
-    # Apply formatting patch: hhttps://github.com/Viskores/viskores/pull/356
-    curl -OL https://github.com/Viskores/viskores/commit/970fcddbc328dc75496cfd384d6f1d917db01fc5.patch
-    patch -p1 < 970fcddbc328dc75496cfd384d6f1d917db01fc5.patch
-    rm 970fcddbc328dc75496cfd384d6f1d917db01fc5.patch
 
     # VTK CI sets CMAKE_OSX_DEPLOYMENT_TARGET=10.10 which hides std::filesystem::absolute
     # This patch use getcwd as opposed to std::filesystem::absolute in macos version < 10.15
