@@ -1,3 +1,11 @@
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "imgui-bundle",
+#     # VTK::ViewsRendering is not part of a released wheel yet.
+#     "vtk>=9.7",
+# ]
+# ///
 # tet_example.py
 # Renders vtkRTAnalyticSource -> vtkDataSetTriangleFilter (tetrahedral mesh)
 # as a surface with selection support.

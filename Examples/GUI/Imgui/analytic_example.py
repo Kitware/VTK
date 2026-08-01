@@ -1,3 +1,11 @@
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "imgui-bundle",
+#     # VTK::ViewsRendering is not part of a released wheel yet.
+#     "vtk>=9.7",
+# ]
+# ///
 # analytic_example.py
 # Renders vtkRTAnalyticSource as a surface with selection support.
 # Surface selection picks voxels on the visible surface.

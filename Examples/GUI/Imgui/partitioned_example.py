@@ -1,3 +1,11 @@
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "imgui-bundle",
+#     # VTK::ViewsRendering is not part of a released wheel yet.
+#     "vtk>=9.7",
+# ]
+# ///
 # partitioned_example.py
 # Tests vtkPartitionedDataSetCollection with vtkSurfaceRepresentation.
 # Creates a tetrahedral mesh, redistributes into 4 partitions,

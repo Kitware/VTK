@@ -1,3 +1,11 @@
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "imgui-bundle",
+#     # VTK::ViewsRendering is not part of a released wheel yet.
+#     "vtk>=9.7",
+# ]
+# ///
 # view_example.py
 # Demonstrates vtkStandardRenderView + representations in imgui-bundle
 # with interactive GUI controls for lighting, materials, and selection.

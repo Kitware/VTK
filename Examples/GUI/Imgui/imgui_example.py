@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "imgui-bundle",
+#     "vtk",
+# ]
+# ///
 from vtk_viewer import VtkViewer
 
 from vtkmodules.vtkFiltersSources import vtkConeSource

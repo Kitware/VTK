@@ -1,7 +1,18 @@
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     # VTK::ViewsRendering is not part of a released wheel yet.
+#     "vtk>=9.7",
+# ]
+# ///
 """Demo of vtkStandardRenderView and vtkSurfaceRepresentation."""
 
 from vtkmodules.vtkFiltersSources import vtkConeSource, vtkSphereSource, vtkCylinderSource
 from vtkmodules.vtkViewsRendering import vtkStandardRenderView
+
+# Registers the OpenGL implementations of the rendering classes.  Without it the
+# view builds a base vtkRenderWindow and nothing is drawn.
+import vtkmodules.vtkRenderingOpenGL2  # noqa: F401
 
 # Create a view
 view = vtkStandardRenderView(window_title="StandardRenderView Demo")
