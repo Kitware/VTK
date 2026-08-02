@@ -59,11 +59,11 @@ static void testProcess_sleep(unsigned int sec)
 }
 #endif
 
-int runChild(const char* cmd[], int state, int exception, int value, int share,
+int runChild(char const* cmd[], int state, int exception, int value, int share,
              int output, int delay, double timeout, int poll, int repeat,
              int disown, int createNewGroup, unsigned int interruptDelay);
 
-static int test1(int argc, const char* argv[])
+static int test1(int argc, char const* argv[])
 {
   /* This is a very basic functional test of kwsysProcess.  It is repeated
      numerous times to verify that there are no resource leaks in kwsysProcess
@@ -82,7 +82,7 @@ static int test1(int argc, const char* argv[])
   return 0;
 }
 
-static int test2(int argc, const char* argv[])
+static int test2(int argc, char const* argv[])
 {
   (void)argc;
   (void)argv;
@@ -91,7 +91,7 @@ static int test2(int argc, const char* argv[])
   return 123;
 }
 
-static int test3(int argc, const char* argv[])
+static int test3(int argc, char const* argv[])
 {
   (void)argc;
   (void)argv;
@@ -105,7 +105,7 @@ static int test3(int argc, const char* argv[])
   return 0;
 }
 
-static int test4(int argc, const char* argv[])
+static int test4(int argc, char const* argv[])
 {
 #ifndef CRASH_USING_ABORT
   /* Prepare a pointer to an invalid address.  Don't use null, because
@@ -113,7 +113,7 @@ static int test4(int argc, const char* argv[])
   do whatever they want. ex: Clang will warn at compile time, or even
   optimize away the write. We hope to 'outsmart' them by using
   'volatile' and a slightly larger address, based on a runtime value. */
-  volatile int* invalidAddress = 0;
+  int volatile* invalidAddress = 0;
   invalidAddress += argc ? 1 : 2;
 #endif
 
@@ -133,19 +133,26 @@ static int test4(int argc, const char* argv[])
 #ifdef CRASH_USING_ABORT
   abort();
 #else
+#  if defined(__GNUC__) || defined(__clang__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Warray-bounds"
+#  endif
   assert(invalidAddress); /* Quiet Clang scan-build. */
   /* Provoke deliberate crash by writing to the invalid address. */
   *invalidAddress = 0;
+#  if defined(__GNUC__) || defined(__clang__)
+#    pragma GCC diagnostic pop
+#  endif
 #endif
   fprintf(stdout, "Output after crash on stdout from crash test.\n");
   fprintf(stderr, "Output after crash on stderr from crash test.\n");
   return 0;
 }
 
-static int test5(int argc, const char* argv[])
+static int test5(int argc, char const* argv[])
 {
   int r;
-  const char* cmd[4];
+  char const* cmd[4];
   (void)argc;
   cmd[0] = argv[0];
   cmd[1] = "run";
@@ -170,7 +177,7 @@ static int test5(int argc, const char* argv[])
 }
 
 #define TEST6_SIZE (4096 * 2)
-static void test6(int argc, const char* argv[])
+static void test6(int argc, char const* argv[])
 {
   int i;
   char runaway[TEST6_SIZE + 1];
@@ -193,7 +200,7 @@ static void test6(int argc, const char* argv[])
    delaying 1/10th of a second should ever have to poll.  */
 #define MINPOLL 5
 #define MAXPOLL 20
-static int test7(int argc, const char* argv[])
+static int test7(int argc, char const* argv[])
 {
   (void)argc;
   (void)argv;
@@ -210,12 +217,12 @@ static int test7(int argc, const char* argv[])
   return 0;
 }
 
-static int test8(int argc, const char* argv[])
+static int test8(int argc, char const* argv[])
 {
   /* Create a disowned grandchild to test handling of processes
      that exit before their children.  */
   int r;
-  const char* cmd[4];
+  char const* cmd[4];
   (void)argc;
   cmd[0] = argv[0];
   cmd[1] = "run";
@@ -234,7 +241,7 @@ static int test8(int argc, const char* argv[])
   return r;
 }
 
-static int test8_grandchild(int argc, const char* argv[])
+static int test8_grandchild(int argc, char const* argv[])
 {
   (void)argc;
   (void)argv;
@@ -252,7 +259,7 @@ static int test8_grandchild(int argc, const char* argv[])
   return 0;
 }
 
-static int test9(int argc, const char* argv[])
+static int test9(int argc, char const* argv[])
 {
   /* Test Ctrl+C behavior: the root test program will send a Ctrl+C to this
      process.  Here, we start a child process that sleeps for a long time
@@ -262,7 +269,7 @@ static int test9(int argc, const char* argv[])
      WARNING:  This test will falsely pass if the share parameter of runChild
      was set to 0 when invoking the test9 process.  */
   int r;
-  const char* cmd[4];
+  char const* cmd[4];
   (void)argc;
   cmd[0] = argv[0];
   cmd[1] = "run";
@@ -296,7 +303,7 @@ static BOOL WINAPI test9_grandchild_handler(DWORD dwCtrlType)
 }
 #endif
 
-static int test9_grandchild(int argc, const char* argv[])
+static int test9_grandchild(int argc, char const* argv[])
 {
   /* The grandchild just sleeps for a few seconds while ignoring signals.  */
   (void)argc;
@@ -327,7 +334,7 @@ static int test9_grandchild(int argc, const char* argv[])
   return 0;
 }
 
-static int test10(int argc, const char* argv[])
+static int test10(int argc, char const* argv[])
 {
   /* Test Ctrl+C behavior: the root test program will send a Ctrl+C to this
      process.  Here, we start a child process that sleeps for a long time and
@@ -335,7 +342,7 @@ static int test10(int argc, const char* argv[])
      process group - ensuring that Ctrl+C we receive is sent to our process
      groups.  We make sure it exits anyway.  */
   int r;
-  const char* cmd[4];
+  char const* cmd[4];
   (void)argc;
   cmd[0] = argv[0];
   cmd[1] = "run";
@@ -355,7 +362,7 @@ static int test10(int argc, const char* argv[])
   return r;
 }
 
-static int test10_grandchild(int argc, const char* argv[])
+static int test10_grandchild(int argc, char const* argv[])
 {
   /* The grandchild just sleeps for a few seconds and handles signals.  */
   (void)argc;
@@ -373,7 +380,7 @@ static int test10_grandchild(int argc, const char* argv[])
   return 0;
 }
 
-static int runChild2(kwsysProcess* kp, const char* cmd[], int state,
+static int runChild2(kwsysProcess* kp, char const* cmd[], int state,
                      int exception, int value, int share, int output,
                      int delay, double timeout, int poll, int disown,
                      int createNewGroup, unsigned int interruptDelay)
@@ -478,6 +485,8 @@ static int runChild2(kwsysProcess* kp, const char* cmd[], int state,
       printf("Error in administrating child process: [%s]\n",
              kwsysProcess_GetErrorString(kp));
       break;
+    default:
+      break;
   }
 
   if (result) {
@@ -541,7 +550,7 @@ static int runChild2(kwsysProcess* kp, const char* cmd[], int state,
  *                  BEFORE any reading/polling of pipes occurs and before any
  *                  detachment occurs.
  */
-int runChild(const char* cmd[], int state, int exception, int value, int share,
+int runChild(char const* cmd[], int state, int exception, int value, int share,
              int output, int delay, double timeout, int poll, int repeat,
              int disown, int createNewGroup, unsigned int interruptDelay)
 {
@@ -562,7 +571,7 @@ int runChild(const char* cmd[], int state, int exception, int value, int share,
   return result;
 }
 
-int main(int argc, const char* argv[])
+int main(int argc, char const* argv[])
 {
   int n = 0;
 
@@ -629,6 +638,8 @@ int main(int argc, const char* argv[])
         return test9_grandchild(argc, argv);
       case 110:
         return test10_grandchild(argc, argv);
+      default:
+        break;
     }
     fprintf(stderr, "Invalid test number %d.\n", n);
     return 1;
@@ -665,7 +676,7 @@ int main(int argc, const char* argv[])
     int createNewGroups[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 };
     unsigned int interruptDelays[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 3, 2 };
     int r;
-    const char* cmd[4];
+    char const* cmd[4];
 #ifdef _WIN32
     char* argv0 = 0;
 #endif
@@ -715,7 +726,7 @@ int main(int argc, const char* argv[])
   if (argc > 2 && strcmp(argv[1], "0") == 0) {
     /* This is the special debugging test to run a given command
        line.  */
-    const char** cmd = argv + 2;
+    char const** cmd = argv + 2;
     int state = kwsysProcess_State_Exited;
     int exception = kwsysProcess_Exception_None;
     int value = 0;
