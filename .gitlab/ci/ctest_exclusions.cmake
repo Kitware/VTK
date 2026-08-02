@@ -38,7 +38,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64" OR
     "^VTK::InteractionWidgetsPython-TestTensorWidget2$"
     "^VTK::RenderingOpenGL2Cxx-TestCoincident(SerDes)?$"
     "^VTK::RenderingOpenGL2Python-TestTopologyResolution$"
-    "^VTK::RenderingVolumeCxx-TestGPURayCastMapperRectilinearGrid(SerDes)?$"
+    "^VTK::RenderingVolumeCxx-OpenGL-TestGPURayCastMapperRectilinearGrid(SerDes)?$"
 
     # Timeout; needs investigation
     "^VTK::RenderingOpenGL2Cxx-TestFloor(SerDes)?$"
@@ -799,6 +799,47 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingCoreCxx-WebGPU-TestTStripsNormalsTCoords$"
     "^VTK::RenderingCoreCxx-WebGPU-TestTStripsTCoords$"
     "^VTK::RenderingCoreCxx-WebGPU-TestWindowToImageFilter$"
+    # RenderingVolumeCxx tests that fail with WebGPU. The volume mapper does not implement
+    # masks, cropping, multi component and two dimensional transfer functions, rendering to a
+    # depth image or to a texture yet, and its shading and sampling differ from the OpenGL
+    # mapper closely enough to render but not closely enough to match its baselines.
+    # see https://gitlab.kitware.com/vtk/vtk/-/issues/19921
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCameraInside$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCameraInsideNonUniformScaleTransform$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCameraInsideSmallSpacing$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCameraInsideTransformation$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastChangedArray$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastClippingUserTransform$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCompositeBinaryMask$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCompositeBinaryMask1$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastComputeNormalFromOpacity$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCropping1$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastFourComponentsDependentGradient$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastIndependentVectorMode$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastIsosurface$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastMapperRectilinearGrid$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastMapperSampleDistance$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastMIPBinaryMask$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastPositionalLights$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastRenderDepthToImage$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastRenderDepthToImage2$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastRenderToTexture$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastShadedClipping$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastSlicePlane$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastThreeComponentsAdditive$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastThreeComponentsIndependent$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastTransfer2DYScalars$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastTwoComponentsDependent$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastTwoComponentsDependentGradient$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastTwoComponentsGradient$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastTwoComponentsIndependent$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastVolumeGhostArrays$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastVolumeGhostArraysCellData$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastVolumeLightKit$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastVolumePicking$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastVolumePlane$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastVolumeUniformGridBlanking$"
+    "^VTK::RenderingVolumeCxx-WebGPU-TestMultiBlockMapperRectilinearGrid$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataOverlappingCells$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussian$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussianSelection$"
@@ -940,7 +981,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows" AND
     "^VTK::GUISupportQtCxx-TestQVTKTableModelAdapter$"
     "^VTK::IOCGNSReaderCxx-TestCGNSUnsteadyTemporalSolution$"
     "^VTK::ParallelCoreCxx-TestThreadedCallbackQueue$"
-    "^VTK::RenderingVolumeCxx-TestGPURayCastLabelMapValidity$")
+    "^VTK::RenderingVolumeCxx-OpenGL-TestGPURayCastLabelMapValidity$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "helide")
