@@ -881,7 +881,7 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
       vtkLog(WARNING, << "Failed to map [Texture \'"
                       << (mapData->bufferLabel.empty() ? "(nolabel)" : mapData->bufferLabel)
                       << "\'] with error status: " << static_cast<std::uint32_t>(status) << " "
-                      << vtkWebGPUHelpers::StringViewToStdString(message));
+                      << vtkWebGPUStringViewToStdString(message));
     }
 #if defined(__EMSCRIPTEN__)
     wgpuBufferRelease(mapData->buffer.Get());

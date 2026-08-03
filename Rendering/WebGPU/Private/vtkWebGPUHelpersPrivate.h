@@ -7,9 +7,9 @@
 #include "webgpu/webgpu_cpp.h"
 #include <string>
 
-namespace vtkWebGPUHelpers
-{
-inline std::string StringViewToStdString(wgpu::StringView sv)
+// Helper function for converting wgpu::StringView to std::string
+// This is used internally by WebGPU implementations
+inline std::string vtkWebGPUStringViewToStdString(wgpu::StringView sv)
 {
   if (sv.length == wgpu::kStrlen)
   {
@@ -21,6 +21,5 @@ inline std::string StringViewToStdString(wgpu::StringView sv)
   }
   return { sv.data, sv.length };
 }
-} // namespace vtkWebGPUHelpers
 
 #endif

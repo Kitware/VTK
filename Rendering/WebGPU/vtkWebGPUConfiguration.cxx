@@ -453,7 +453,7 @@ bool vtkWebGPUConfiguration::Initialize()
         if (status != wgpu::RequestAdapterStatus::Success)
         {
           vtkGenericWarningMacro(
-            "Failed to get an adapter:" << vtkWebGPUHelpers::StringViewToStdString(message));
+            "Failed to get an adapter:" << vtkWebGPUStringViewToStdString(message));
           return;
         }
         internalsData->Adapter = std::move(adapter);
@@ -491,7 +491,7 @@ bool vtkWebGPUConfiguration::Initialize()
           break;
       }
       vtkLog(INFO, << "Device lost, reason=" << reasonName << ". "
-                   << vtkWebGPUHelpers::StringViewToStdString(message));
+                   << vtkWebGPUStringViewToStdString(message));
     });
   deviceDescriptor.SetUncapturedErrorCallback(
     [](const wgpu::Device&, wgpu::ErrorType type, wgpu::StringView message)
@@ -515,7 +515,7 @@ bool vtkWebGPUConfiguration::Initialize()
           break;
       }
       vtkGenericWarningMacro(<< errorTypeName
-                             << " error: " << vtkWebGPUHelpers::StringViewToStdString(message));
+                             << " error: " << vtkWebGPUStringViewToStdString(message));
     });
 
   // Populating limits of the device
@@ -538,7 +538,7 @@ bool vtkWebGPUConfiguration::Initialize()
         if (status != wgpu::RequestDeviceStatus::Success)
         {
           vtkGenericWarningMacro(
-            "Failed to get a device:" << vtkWebGPUHelpers::StringViewToStdString(message));
+            "Failed to get a device:" << vtkWebGPUStringViewToStdString(message));
           return;
         }
         internalsData->Device = std::move(device);
@@ -801,7 +801,7 @@ WGPUBuffer vtkWebGPUConfiguration::CreateBuffer(const WGPUBufferDescriptor& buff
     vtkWarningMacro(<< "Cannot create buffer because device is not ready.");
     return nullptr;
   }
-  const auto label = vtkWebGPUHelpers::StringViewToStdString(bufferDescriptor.label);
+  const auto label = vtkWebGPUStringViewToStdString(bufferDescriptor.label);
   if (!vtkWebGPUBufferInternals::CheckBufferSize(internals.Device, bufferDescriptor.size))
   {
     wgpu::Limits supportedDeviceLimits;
@@ -869,7 +869,7 @@ WGPUTexture vtkWebGPUConfiguration::CreateTexture(const WGPUTextureDescriptor& t
     vtkWarningMacro(<< "Cannot create texture because device is not ready.");
     return nullptr;
   }
-  const auto label = vtkWebGPUHelpers::StringViewToStdString(textureDescriptor.label);
+  const auto label = vtkWebGPUStringViewToStdString(textureDescriptor.label);
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
     "Create texture {label: \"" << label << "\", size: [" << textureDescriptor.size.width << ','
                                 << textureDescriptor.size.height << ','

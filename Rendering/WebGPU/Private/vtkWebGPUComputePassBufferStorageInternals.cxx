@@ -276,7 +276,7 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
         WARNING, << "Failed to map [Buffer \'"
                  << (callbackData->bufferLabel.empty() ? "(nolabel)" : callbackData->bufferLabel)
                  << "\'] with error status: " << static_cast<std::uint32_t>(status) << " "
-                 << vtkWebGPUHelpers::StringViewToStdString(message));
+                 << vtkWebGPUStringViewToStdString(message));
     }
 #if defined(__EMSCRIPTEN__)
     wgpuBufferRelease(callbackData->buffer.Get());
