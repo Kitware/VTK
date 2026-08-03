@@ -302,6 +302,26 @@
         - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
     interruptible: true
 
+# Build/test steps for configurations that do not enable Python wrapping (e.g.
+# the WebGPU jobs). These skip the wheel-Python download, the venv creation and
+# the `vtkpython` sanity checks that the Python-oriented variants above rely on.
+.cmake_build_macos_nopython:
+    stage: build
+    extends: .warning_policy
+    script:
+        - *before_script_macos
+        - *before_script_macos_deps
+        - *script_macos
+    interruptible: true
+
+.cmake_test_macos_nopython:
+    stage: test
+    script:
+        - *before_script_macos
+        - *before_script_macos_deps
+        - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
+    interruptible: true
+
 .cmake_test_external_macos:
     stage: test-ext
     extends: .warning_policy

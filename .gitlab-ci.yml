@@ -2669,7 +2669,7 @@ macos-arm64-kits-python-qt-serialization:test:
 macos-arm64-webgpu:build:
     extends:
         - .macos_arm64_webgpu
-        - .cmake_build_macos
+        - .cmake_build_macos_nopython
         - .macos_arm64_builder_tags
         - .cmake_build_artifacts
         - .rules
@@ -2681,7 +2681,7 @@ macos-arm64-webgpu:build:
 macos-arm64-webgpu:test:
     extends:
         - .macos_arm64_webgpu
-        - .cmake_test_macos
+        - .cmake_test_macos_nopython
         - .macos_arm64_builder_tags
         - .cmake_test_artifacts
         - .rules
@@ -2691,7 +2691,7 @@ macos-arm64-webgpu:test:
 macos-x86_64-webgpu:build:
     extends:
         - .macos_x86_64_webgpu
-        - .cmake_build_macos
+        - .cmake_build_macos_nopython
         - .macos_x86_64_builder_tags
         - .cmake_build_artifacts
         - .rules
@@ -2703,7 +2703,7 @@ macos-x86_64-webgpu:build:
 macos-x86_64-webgpu:test:
     extends:
         - .macos_x86_64_webgpu
-        - .cmake_test_macos
+        - .cmake_test_macos_nopython
         - .macos_x86_64_builder_tags
         - .cmake_test_artifacts
         - .rules
