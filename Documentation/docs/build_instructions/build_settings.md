@@ -137,6 +137,8 @@ that the above condition is always met on all supported platforms.
     windows.
   * `VTK_USE_WAYLAND_OPENGL` (default `OFF`; requires `VTK_OPENGL_HAS_EGL`):
     Use Wayland as backend for EGL render windows instead of X.
+  * `VTK_USE_MESA_SOFTWARE_RENDERING` (default `OFF`; requires `VTK_OPENGL_HAS_EGL`):
+    Force EGL to use MESA software offscreen rendering.
   * `VTK_ENABLE_WEBGPU` (default `OFF`; required if using Emscripten): Enable
     WebGPU rendering support.
   * `VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN` (default `OFF`): Whether to default

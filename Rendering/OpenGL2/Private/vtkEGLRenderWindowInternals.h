@@ -7,9 +7,13 @@
 #include "Private/vtkEGLConfig.h"
 #include "vtkOpenGLRenderer.h"
 
+#include "vtk_glad.h" // OpenGL functions
 #include "vtkglad/include/glad/egl.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkRecti;
+class vtkRendererCollection;
 
 /**
  * Internal class used to store and control EGL state.
@@ -37,18 +41,10 @@ public:
   void SetContext(EGLContext context) { this->Context = context; }
   ///@}
 
-  ///@{
   /**
-   * Get/Set the EGLWindow
+   * Set the EGLWindow
    */
-  [[nodiscard]] EGLNativeWindowType GetWindow() const { return this->Window; }
   void SetWindow(EGLNativeWindowType window) { this->Window = window; }
-  ///@}
-
-  /**
-   * Ensure to call the SwapBuffers() on the correct display and surface.
-   */
-  void SwapBuffer();
 
   /**
    * Get the number of devices (graphic cards) from the system.
@@ -102,7 +98,41 @@ public:
   vtkEGLRenderWindowInternals();
   ~vtkEGLRenderWindowInternals() = default;
 
+  /**
+   * Return true if the current build is using Mesa software rendering backend.
+   * For more details, see the CMake option VTK_USE_MESA_SOFTWARE_RENDERING.
+   */
+  bool IsMesaSoftwareRenderer() const;
+
 private:
+  /**
+   * Initialize a software EGL display via EGL_MESA_device_software or
+   * EGL_PLATFORM_SURFACELESS_MESA.
+   */
+  bool TryInitializeMesaSoftware(EGLint& major, EGLint& minor);
+
+  /**
+   * Initialize a hardware EGL display using deviceIndex, fallback devices, or eglGetDisplay.
+   */
+  bool TryInitializeHardware(int deviceIndex, EGLint& major, EGLint& minor);
+
+  /**
+   * Load EGL extensions and bind EGL_OPENGL_API (skipped on Android).
+   */
+  bool FinalizeDisplaySetup(EGLint major, EGLint minor);
+
+  /**
+   * Create a custom framebuffer object for offscreen rendering as
+   * Mesa surfaceless mode does not provide a default drawing surface.
+   */
+  void InitializeOffscreenFramebuffer();
+
+  /**
+   * Destroy the offscreen framebuffer linked to SurfacelessFBO, ColorTexture and DepthBuffer. This
+   * is required to avoid memory leaks when the EGL context is destroyed.
+   */
+  void DestroyOffscreenFramebuffer();
+
   EGLNativeWindowType Window;
   EGLDisplay Display;
   EGLSurface Surface;
@@ -112,6 +142,13 @@ private:
   bool UseOnscreenRendering = false;
 
   std::unique_ptr<vtkEGLConfig> Config;
+
+  unsigned int Height = 0;
+  unsigned int Width = 0;
+
+  unsigned int SurfacelessFBO = 0;
+  unsigned int ColorTexture = 0;
+  unsigned int DepthBuffer = 0;
 };
 
 VTK_ABI_NAMESPACE_END

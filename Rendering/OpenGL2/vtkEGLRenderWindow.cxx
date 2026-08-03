@@ -257,10 +257,17 @@ void vtkEGLRenderWindow::WindowInitialize()
     this->Internals->SetContext(eglGetCurrentContext());
   }
 
-  // Initialize OpenGL state
+  this->Mapped = 1;
+  this->MakeCurrent();
+
   this->OpenGLInit();
 
-  // Notify renderers
+  if (!this->Initialized)
+  {
+    vtkLog(ERROR, "Aborting WindowInitialize: failed to initialize GL.");
+    return;
+  }
+
   vtkRenderer* ren;
   for (this->Renderers->InitTraversal(); (ren = this->Renderers->GetNextItem());)
   {
@@ -343,7 +350,7 @@ void vtkEGLRenderWindow::MakeCurrent()
     this->Internals->GetContext() != EGL_NO_CONTEXT &&
     this->Internals->GetSurface() != EGL_NO_SURFACE)
   {
-    if (this->Internals->MakeCurrent())
+    if (!this->Internals->MakeCurrent())
     {
       vtkWarningMacro("Unable to eglMakeCurrent: " << eglGetError());
       return;
