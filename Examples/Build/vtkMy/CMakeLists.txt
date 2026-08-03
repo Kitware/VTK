@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8...3.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
 #
 # Set the project name.  The version number is optional.
