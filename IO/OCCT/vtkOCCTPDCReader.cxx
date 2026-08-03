@@ -136,6 +136,99 @@ private:
 #endif
 
 //----------------------------------------------------------------------------
+// Make sure a non-empty name is valid to be used as a vtkDataAssembly node name
+std::string MakeNameValid(const std::string& input)
+{
+  // return empty name
+  if (input.empty())
+  {
+    return input;
+  }
+
+  const auto isAsciiLetter = [](unsigned char c)
+  { return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'); };
+
+  const auto isAsciiDigit = [](unsigned char c) { return c >= '0' && c <= '9'; };
+
+  std::string result;
+  result.reserve(input.size());
+
+  const auto appendUnderscore = [&result]()
+  {
+    // Collapse consecutive unsupported characters into one underscore.
+    if (result.empty() || result.back() != '_')
+    {
+      result.push_back('_');
+    }
+  };
+
+  for (std::size_t i = 0; i < input.size();)
+  {
+    const auto c = static_cast<unsigned char>(input[i]);
+
+    if (c < 0x80)
+    {
+      // ASCII character.
+      if (isAsciiLetter(c) || isAsciiDigit(c) || c == '_')
+      {
+        result.push_back(static_cast<char>(c));
+      }
+      else
+      {
+        appendUnderscore();
+      }
+
+      ++i;
+      continue;
+    }
+
+    // Replace one complete UTF-8 code point with one underscore.
+    appendUnderscore();
+
+    std::size_t sequenceLength = 1;
+
+    if ((c & 0xE0) == 0xC0)
+    {
+      sequenceLength = 2;
+    }
+    else if ((c & 0xF0) == 0xE0)
+    {
+      sequenceLength = 3;
+    }
+    else if ((c & 0xF8) == 0xF0)
+    {
+      sequenceLength = 4;
+    }
+
+    // Skip only valid continuation bytes that belong to this sequence.
+    ++i;
+    for (std::size_t j = 1; j < sequenceLength && i < input.size(); ++j)
+    {
+      const auto continuation = static_cast<unsigned char>(input[i]);
+      if ((continuation & 0xC0) != 0x80)
+      {
+        break;
+      }
+
+      ++i;
+    }
+  }
+
+  if (result.empty())
+  {
+    result = "value";
+  }
+
+  // An identifier cannot begin with a digit.
+  if (isAsciiDigit(static_cast<unsigned char>(result.front())))
+  {
+    result.insert(0, "_");
+  }
+
+  return result;
+}
+
+//----------------------------------------------------------------------------
 // Template for reading either STEP or IGES files
 template <typename T>
 bool TransferToDocument(vtkOCCTPDCReader* that, T& reader, Handle(TDocStd_Document) doc)
@@ -446,7 +539,7 @@ std::string vtkOCCTPDCReader::vtkInternals::GetLabelName(const TDF_Label& label)
   Handle(TDataStd_Name) nameAttr;
   if (label.FindAttribute(TDataStd_Name::GetID(), nameAttr))
   {
-    return TCollection_AsciiString(nameAttr->Get()).ToCString();
+    return MakeNameValid(TCollection_AsciiString(nameAttr->Get()).ToCString());
   }
   return "";
 }
@@ -1053,7 +1146,6 @@ void vtkOCCTPDCReader::vtkInternals::AddToDataSetCollection(const std::string& n
     pds->SetPartition(0, surfaces);
 
     output->SetPartitionedDataSet(datasetIndex, pds);
-    output->GetMetaData(datasetIndex)->Set(vtkCompositeDataSet::NAME(), name.c_str());
 
     assembly->AddDataSetIndex(node, datasetIndex);
     ++datasetIndex;
@@ -1066,10 +1158,6 @@ void vtkOCCTPDCReader::vtkInternals::AddToDataSetCollection(const std::string& n
     pds->SetPartition(0, curves);
 
     output->SetPartitionedDataSet(datasetIndex, pds);
-    // If we have also added surfaces, lets append _curves to the
-    // name to make it unique
-    std::string curveName = (surfaces ? name + "_curves" : name);
-    output->GetMetaData(datasetIndex)->Set(vtkCompositeDataSet::NAME(), curveName.c_str());
 
     assembly->AddDataSetIndex(node, datasetIndex);
     ++datasetIndex;
