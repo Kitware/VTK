@@ -9,11 +9,11 @@
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkTesting.h"
 #include "vtkWebGPURenderWindow.h"
+#include "vtkWebGPURenderer.h"
 
 #include <QApplication>
 #include <QEventLoop>
@@ -50,7 +50,7 @@ int TestQVTKWebGPUWidgetWithDisabledInteractor(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  vtkNew<vtkRenderer> ren;
+  vtkNew<vtkWebGPURenderer> ren;
   ren->GradientBackgroundOn();
   ren->SetBackground(0.2, 0.2, 0.2);
   ren->SetBackground2(0.7, 0.7, 0.7);

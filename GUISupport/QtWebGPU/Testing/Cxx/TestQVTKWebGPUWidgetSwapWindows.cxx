@@ -5,8 +5,8 @@
 #include "QVTKWebGPUWidget.h"
 
 #include "vtkNew.h"
-#include "vtkRenderer.h"
 #include "vtkWebGPURenderWindow.h"
+#include "vtkWebGPURenderer.h"
 
 #include <QApplication>
 #include <QBoxLayout>
@@ -15,6 +15,11 @@
 #include <QWidget>
 
 #include <iostream>
+
+#include <vtkActor.h>
+#include <vtkConeSource.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkSphereSource.h>
 
 namespace
 {
@@ -48,10 +53,18 @@ int TestQVTKWebGPUWidgetSwapWindows(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  vtkNew<vtkRenderer> leftRenderer;
+  vtkNew<vtkWebGPURenderer> leftRenderer;
   leftRenderer->SetBackground(1.0, 0.0, 0.0); // Red
   leftRenWin->AddRenderer(leftRenderer);
   leftLayout->addWidget(leftVTKWidget);
+
+  vtkNew<vtkSphereSource> sphere;
+  vtkNew<vtkPolyDataMapper> sphereMapper;
+  sphereMapper->SetInputConnection(sphere->GetOutputPort());
+  vtkNew<vtkActor> sphereActor;
+  sphereActor->SetMapper(sphereMapper);
+  leftRenderer->AddActor(sphereActor);
+  leftRenderer->ResetCamera();
 
   // Right panel with green background
   QWidget* rightPanel = new QWidget(&frame);
@@ -65,10 +78,18 @@ int TestQVTKWebGPUWidgetSwapWindows(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  vtkNew<vtkRenderer> rightRenderer;
+  vtkNew<vtkWebGPURenderer> rightRenderer;
   rightRenderer->SetBackground(0.0, 1.0, 0.0); // Green
   rightRenWin->AddRenderer(rightRenderer);
   rightLayout->addWidget(rightVTKWidget);
+
+  vtkNew<vtkConeSource> cone;
+  vtkNew<vtkPolyDataMapper> coneMapper;
+  coneMapper->SetInputConnection(cone->GetOutputPort());
+  vtkNew<vtkActor> coneActor;
+  coneActor->SetMapper(coneMapper);
+  rightRenderer->AddActor(coneActor);
+  rightRenderer->ResetCamera();
 
   layout->addWidget(leftPanel);
   layout->addWidget(rightPanel);
@@ -115,6 +136,8 @@ int TestQVTKWebGPUWidgetSwapWindows(int argc, char* argv[])
     std::cerr << "Right widget was not properly moved to left panel" << std::endl;
     return EXIT_FAILURE;
   }
+
+  app.exec();
 
   return EXIT_SUCCESS;
 }

@@ -8,10 +8,10 @@
 #include "vtkConeSource.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkSphereSource.h"
 #include "vtkWebGPURenderWindow.h"
+#include "vtkWebGPURenderer.h"
 
 #include <QApplication>
 #include <QEventLoop>
@@ -45,7 +45,7 @@ int TestQVTKWebGPUWidgetMultipleRenderers(int argc, char* argv[])
   }
 
   // Create left renderer with a sphere (left half of window)
-  vtkNew<vtkRenderer> leftRenderer;
+  vtkNew<vtkWebGPURenderer> leftRenderer;
   leftRenderer->SetViewport(0.0, 0.0, 0.5, 1.0);
   leftRenderer->SetBackground(0.1, 0.1, 0.4);
   renWin->AddRenderer(leftRenderer);
@@ -64,7 +64,7 @@ int TestQVTKWebGPUWidgetMultipleRenderers(int argc, char* argv[])
   leftRenderer->ResetCamera();
 
   // Create right renderer with a cone (right half of window)
-  vtkNew<vtkRenderer> rightRenderer;
+  vtkNew<vtkWebGPURenderer> rightRenderer;
   rightRenderer->SetViewport(0.5, 0.0, 1.0, 1.0);
   rightRenderer->SetBackground(0.4, 0.1, 0.1);
   renWin->AddRenderer(rightRenderer);

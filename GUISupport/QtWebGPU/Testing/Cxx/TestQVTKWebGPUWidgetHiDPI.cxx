@@ -5,8 +5,8 @@
 #include "QVTKWebGPUWidget.h"
 
 #include "vtkNew.h"
-#include "vtkRenderer.h"
 #include "vtkWebGPURenderWindow.h"
+#include "vtkWebGPURenderer.h"
 
 #include <QApplication>
 #include <QEventLoop>
@@ -40,7 +40,7 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  vtkNew<vtkRenderer> ren;
+  vtkNew<vtkWebGPURenderer> ren;
   ren->SetBackground(0.1, 0.2, 0.4);
   renWin->AddRenderer(ren);
 

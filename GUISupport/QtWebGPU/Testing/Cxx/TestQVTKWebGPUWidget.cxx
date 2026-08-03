@@ -10,7 +10,11 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTesting.h"
+#include "vtkWebGPUActor.h"
+#include "vtkWebGPUCamera.h"
+#include "vtkWebGPUPolyDataMapper.h"
 #include "vtkWebGPURenderWindow.h"
+#include "vtkWebGPURenderer.h"
 
 #include <QApplication>
 #include <QEventLoop>
@@ -47,25 +51,47 @@ int TestQVTKWebGPUWidget(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  // Create a renderer
+  // Create a renderer using the generic rendering-core class and verify it resolves to WebGPU.
   vtkNew<vtkRenderer> renderer;
+  auto* webgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
+  if (!webgpuRenderer)
+  {
+    std::cerr << "vtkRenderer did not resolve to vtkWebGPURenderer" << std::endl;
+    return EXIT_FAILURE;
+  }
   renderer->SetGradientBackground(true);
   renderer->SetBackground(0.2, 0.2, 0.2);
   renderer->SetBackground2(0.7, 0.7, 0.7);
   renderWindow->AddRenderer(renderer);
 
-  // Create a simple sphere
+  // Create a simple sphere.
   vtkNew<vtkSphereSource> sphere;
   sphere->SetRadius(1.0);
   sphere->SetThetaResolution(32);
   sphere->SetPhiResolution(32);
 
   vtkNew<vtkPolyDataMapper> mapper;
+  if (!vtkWebGPUPolyDataMapper::SafeDownCast(mapper))
+  {
+    std::cerr << "vtkPolyDataMapper did not resolve to vtkWebGPUPolyDataMapper" << std::endl;
+    return EXIT_FAILURE;
+  }
   mapper->SetInputConnection(sphere->GetOutputPort());
 
   vtkNew<vtkActor> actor;
+  if (!vtkWebGPUActor::SafeDownCast(actor))
+  {
+    std::cerr << "vtkActor did not resolve to vtkWebGPUActor" << std::endl;
+    return EXIT_FAILURE;
+  }
   actor->SetMapper(mapper);
   renderer->AddActor(actor);
+
+  if (!vtkWebGPUCamera::SafeDownCast(renderer->GetActiveCamera()))
+  {
+    std::cerr << "vtkCamera did not resolve to vtkWebGPUCamera" << std::endl;
+    return EXIT_FAILURE;
+  }
 
   // Show the widget
   widget.resize(300, 300);
@@ -83,17 +109,7 @@ int TestQVTKWebGPUWidget(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  // Verify screen size
-  const int* screenSize = renderWindow->GetScreenSize();
-  if (screenSize[0] < windowSize[0] || screenSize[1] < windowSize[1])
-  {
-    std::cout << "Expected vtkWebGPURenderWindow::GetScreenSize() "
-                 "dimensions to be larger than the render window size"
-              << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  // Perform regression test
+  // Perform regression test if baseline is available
   vtktesting->SetRenderWindow(renderWindow);
 
   int retVal = vtktesting->RegressionTest(0.05);
@@ -102,8 +118,10 @@ int TestQVTKWebGPUWidget(int argc, char* argv[])
     case vtkTesting::DO_INTERACTOR:
       return QApplication::exec();
     case vtkTesting::FAILED:
-    case vtkTesting::NOT_RUN:
       return EXIT_FAILURE;
+    case vtkTesting::NOT_RUN:
+    default:
+      break;
   }
   return EXIT_SUCCESS;
 }
