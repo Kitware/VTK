@@ -13,7 +13,7 @@
         - dnf install -y --setopt=install_weak_deps=False rsync openssh-clients
         - chmod 400 $RSYNC_KEY_PATH
         - ssh-keygen -y -f $RSYNC_KEY_PATH > $RSYNC_KEY_PATH.pub
-        - rsync -tv $RSYNC_DELETE_ARG --recursive -e "ssh -i $RSYNC_KEY_PATH -o StrictHostKeyChecking=no" $RSYNC_SOURCE kitware@web.kitware.com:$RSYNC_DESTINATION/
+        - rsync -tv $RSYNC_DELETE_ARG --mkpath --recursive -e "ssh -i $RSYNC_KEY_PATH -o StrictHostKeyChecking=no" $RSYNC_SOURCE kitware@web.kitware.com:$RSYNC_DESTINATION/
 
 .rsync_upload_docs:
     extends: .rsync_upload
@@ -30,15 +30,13 @@
     environment:
         name: rsync-upload-versioned-docs
     before_script:
-        - dnf install -y --setopt=install_weak_deps=False python3 openssh-clients
+        - dnf install -y --setopt=install_weak_deps=False python3 rsync openssh-clients
         - chmod 400 $RSYNC_KEY_PATH
         - ssh-keygen -y -f $RSYNC_KEY_PATH > $RSYNC_KEY_PATH.pub
         - .gitlab/ci/prepare-docs-upload-env.sh "$RSYNC_KEY_PATH"
         # Compute the major.minor version from the tag.
         - 'version="$( echo "$CI_COMMIT_TAG" | sed -e "s/^v//" | cut -d. -f1,2 )"'
         - 'export RSYNC_DESTINATION="VTKDoxygen/release/${version}/html"'
-        # Create the parent directory structure on the remote server
-        - 'ssh -i $RSYNC_KEY_PATH -o StrictHostKeyChecking=no kitware@web.kitware.com "mkdir -p /home/kitware/filepush/VTKDoxygen/release/${version}"'
     after_script:
         - chmod 400 $RSYNC_KEY_PATH
         - ssh-keygen -y -f $RSYNC_KEY_PATH > $RSYNC_KEY_PATH.pub
