@@ -86,6 +86,9 @@ public:
   struct xkb_state* XkbState = nullptr;
 
 protected:
+  uint32_t PrevKeyReleaseSerial;
+  int KeyRepeatCount;
+
   vtkWaylandRenderWindowInteractor();
   ~vtkWaylandRenderWindowInteractor() override;
 
