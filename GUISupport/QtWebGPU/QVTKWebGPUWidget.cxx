@@ -25,17 +25,57 @@
 #include "QVTKInteractorAdapter.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkWebGPURenderWindow.h"
+
+#include <string>
 
 #include <webgpu/webgpu_cpp.h>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+void EnsureWebGPUObjectFactoryPreference()
+{
+  constexpr const char* webgpuPreference = "RenderingBackend=WebGPU";
+  std::string preferences = vtkObjectFactory::GetPreferences();
+  if (preferences == webgpuPreference ||
+    preferences.rfind(std::string(webgpuPreference) + ';', 0) == 0)
+  {
+    return;
+  }
+
+  std::string updatedPreferences = webgpuPreference;
+  std::size_t start = 0;
+  while (start < preferences.size())
+  {
+    const auto end = preferences.find(';', start);
+    const auto entry =
+      preferences.substr(start, end == std::string::npos ? std::string::npos : end - start);
+    if (!entry.empty() && entry.rfind("RenderingBackend=", 0) != 0)
+    {
+      updatedPreferences += ';';
+      updatedPreferences += entry;
+    }
+    if (end == std::string::npos)
+    {
+      break;
+    }
+    start = end + 1;
+  }
+
+  vtkObjectFactory::SetPreferences(updatedPreferences);
+}
+}
 
 //------------------------------------------------------------------------------
 QVTKWebGPUWidget::QVTKWebGPUWidget(QWidget* parentWdg, Qt::WindowFlags f)
   : Superclass(parentWdg, f)
   , DefaultCursor(QCursor(Qt::ArrowCursor))
 {
+  EnsureWebGPUObjectFactoryPreference();
+
   // Use native window for direct surface access
   this->setAttribute(Qt::WA_NativeWindow);
   this->setAttribute(Qt::WA_PaintOnScreen);
@@ -54,7 +94,6 @@ QVTKWebGPUWidget::QVTKWebGPUWidget(QWidget* parentWdg, Qt::WindowFlags f)
   // Create a default interactor
   vtkNew<QVTKInteractor> iren;
   this->RenderWindow->SetInteractor(iren);
-  iren->Initialize();
 
   // Set default interactor style
   vtkNew<vtkInteractorStyleTrackballCamera> style;
@@ -71,6 +110,11 @@ QVTKWebGPUWidget::QVTKWebGPUWidget(QWidget* parentWdg, Qt::WindowFlags f)
 //------------------------------------------------------------------------------
 QVTKWebGPUWidget::~QVTKWebGPUWidget()
 {
+  // Explicitly destroy the InteractorAdapter first to prevent it from receiving
+  // events during widget destruction. When the unique_ptr deletes the adapter,
+  // Qt sends a ChildRemoved event which could otherwise try to use the adapter.
+  this->InteractorAdapter.reset();
+
   if (this->RenderWindow)
   {
     this->RenderWindow->SetCustomSurfaceDescriptor(nullptr);
@@ -232,6 +276,13 @@ void QVTKWebGPUWidget::initializeWebGPU()
   // Initialize the render window
   this->RenderWindow->Initialize();
 
+  // Initialize the interactor only after the render window is bound to the
+  // Qt-provided native surface.
+  if (auto* iren = this->interactor(); iren && !iren->GetInitialized())
+  {
+    iren->Initialize();
+  }
+
   this->Initialized = true;
 }
 
@@ -279,6 +330,11 @@ void QVTKWebGPUWidget::paintEvent(QPaintEvent* event)
 {
   Q_UNUSED(event);
 
+  if (this->InPaint)
+  {
+    return;
+  }
+
   if (!this->Initialized)
   {
     this->initializeWebGPU();
@@ -286,16 +342,24 @@ void QVTKWebGPUWidget::paintEvent(QPaintEvent* event)
 
   if (this->RenderWindow && this->Initialized)
   {
+    this->InPaint = true;
     this->RenderWindow->Render();
+    this->InPaint = false;
   }
 }
 
 //------------------------------------------------------------------------------
 bool QVTKWebGPUWidget::event(QEvent* evt)
 {
+  // Check if InteractorAdapter is valid before using it. During destruction,
+  // Qt can send events (like ChildRemoved) after the adapter has been deleted.
   if (this->InteractorAdapter && this->RenderWindow)
   {
-    if (this->InteractorAdapter->ProcessEvent(evt, this->RenderWindow->GetInteractor()))
+    // Get the interactor and check if it's valid before processing the event.
+    // During widget destruction, the interactor may be null even though
+    // InteractorAdapter hasn't been fully destroyed yet.
+    vtkRenderWindowInteractor* iren = this->RenderWindow->GetInteractor();
+    if (iren && this->InteractorAdapter->ProcessEvent(evt, iren))
     {
       return true;
     }

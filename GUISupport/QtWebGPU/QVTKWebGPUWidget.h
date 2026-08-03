@@ -133,6 +133,7 @@ private:
   Q_DISABLE_COPY(QVTKWebGPUWidget);
 
   bool Initialized = false;
+  bool InPaint = false;
   bool EnableHiDPI = true;
   int UnscaledDPI = 72;
   double CustomDevicePixelRatio = 0.0;

@@ -261,7 +261,10 @@ wgpu::Surface vtkWebGPURenderWindow::CreateSurfaceFromHardwareWindow(wgpu::Insta
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::Initialize()
 {
-  this->CreateAWindow();
+  if (this->CustomSurfaceDescriptor == nullptr)
+  {
+    this->CreateAWindow();
+  }
   if (this->WGPUInit())
   {
     this->CreateSurface();
