@@ -112,7 +112,7 @@ endif ()
 cmake_dependent_option(
   VTK_USE_OPENGL_DELAYED_LOAD
   "Use delay loading for OpenGL"
-  OFF "VTK_USE_WIN32_OPENGL;COMMAND target_link_options" OFF)
+  OFF "VTK_USE_WIN32_OPENGL" OFF)
 mark_as_advanced(VTK_USE_OPENGL_DELAYED_LOAD)
 
 #-----------------------------------------------------------------------------

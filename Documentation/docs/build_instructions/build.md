@@ -58,7 +58,7 @@ build configuration.
 Required:
 
   * [CMake][cmake]
-    - Version 3.12 or newer, however, the latest version is always recommended.
+    - Version 3.13 or newer, however, the latest version is always recommended.
     If the system package management utilities do not offer cmake or if the offered version is too old
     Precompiled binaries available on [CMake's download page][cmake-download].
 

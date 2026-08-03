@@ -123,13 +123,7 @@ if (BUILD_SHARED_LIBS)
       "/DELAYLOAD:$<TARGET_FILE_NAME:${mfc_library_dependency}>")
   endforeach ()
 
-  if (NOT CMAKE_VERSION VERSION_LESS "3.13") # XXX(cmake-3.13): target_link_options.
-    vtk_module_link_options(VTK::GUISupportMFC
-      PRIVATE
-        ${vtk_mfc_link_options})
-  else ()
-    vtk_module_link(VTK::GUISupportMFC
-      PRIVATE
-        ${vtk_mfc_link_options})
-  endif ()
+  vtk_module_link_options(VTK::GUISupportMFC
+    PRIVATE
+      ${vtk_mfc_link_options})
 endif ()
