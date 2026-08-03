@@ -740,7 +740,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
         }
       }
       pointCoordinatesBuffer->SetData(concatenatedCoordinates.GetPointer());
-      pointCoordinatesBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
+      pointCoordinatesBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::DATA_ARRAY);
     }
     else
     {
@@ -951,7 +951,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
       cellArray->GetObjectDescription());
     inputConnectivityBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
     inputConnectivityBuffer->SetData(cellArray->GetConnectivityArray());
-    inputConnectivityBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
+    inputConnectivityBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::DATA_ARRAY);
 
     // create input buffer for offsets
     vtkNew<vtkWebGPUComputeBuffer> offsetsBuffer;
@@ -961,7 +961,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
       std::string("Offsets-") + cellTypeAsString + "-" + cellArray->GetObjectDescription());
     offsetsBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
     offsetsBuffer->SetData(cellArray->GetOffsetsArray());
-    offsetsBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
+    offsetsBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::DATA_ARRAY);
 
     // create input buffer for primitive offsets
     vtkNew<vtkWebGPUComputeBuffer> primitiveCountsBuffer;
@@ -1062,7 +1062,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
         }
         pointCoordinatesBuffer->SetData(floatCoords.GetPointer());
       }
-      pointCoordinatesBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
+      pointCoordinatesBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::DATA_ARRAY);
     }
     else
     {

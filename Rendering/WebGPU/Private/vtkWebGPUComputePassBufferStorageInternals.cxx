@@ -113,7 +113,7 @@ int vtkWebGPUComputePassBufferStorageInternals::AddBuffer(
         }
         break;
 
-      case vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY:
+      case vtkWebGPUComputeBuffer::BufferDataType::DATA_ARRAY:
         if (buffer->GetDataArray() != nullptr)
         {
           vtkWebGPUComputeBufferInternals::UploadFromDataArray(this->ParentPassWGPUConfiguration,
@@ -124,10 +124,9 @@ int vtkWebGPUComputePassBufferStorageInternals::AddBuffer(
           // Only warning if we're using a read only buffer without uploading data to initialize it
 
           vtkLog(WARNING,
-            "The buffer with label \""
-              << bufferLabel
-              << "\" has data type VTK_DATA_ARRAY but no vtkDataArray data "
-                 "was given. No data uploaded.");
+            "The buffer with label \"" << bufferLabel
+                                       << "\" has data type DATA_ARRAY but no vtkDataArray data "
+                                          "was given. No data uploaded.");
         }
         break;
 

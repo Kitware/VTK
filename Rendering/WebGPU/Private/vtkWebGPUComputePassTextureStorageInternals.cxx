@@ -488,7 +488,7 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
         break;
       }
 
-      case vtkWebGPUComputeTexture::TextureDataType::VTK_DATA_ARRAY:
+      case vtkWebGPUComputeTexture::TextureDataType::DATA_ARRAY:
       {
         if (texture->GetDataArray() != nullptr)
         {
@@ -501,10 +501,9 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
           // Only warning if we're using a read only texture without uploading data to initialize it
 
           vtkLog(WARNING,
-            "The texture with label \""
-              << textureLabel
-              << "\" has data type VTK_DATA_ARRAY but no vtkDataArray data "
-                 "was given. No data uploaded.");
+            "The texture with label \"" << textureLabel
+                                        << "\" has data type DATA_ARRAY but no vtkDataArray data "
+                                           "was given. No data uploaded.");
         }
         break;
       }

@@ -46,7 +46,7 @@ int TestComputePipelineUniform(int, char*[])
   inputValues1Buffer->SetBinding(0);
   inputValues1Buffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
   inputValues1Buffer->SetData(inputVector1Values);
-  inputValues1Buffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
+  inputValues1Buffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::DATA_ARRAY);
 
   // Creating the second input buffer for the compute shader
   vtkNew<vtkWebGPUComputeBuffer> inputValues2Buffer;

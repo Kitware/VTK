@@ -45,7 +45,7 @@ int TestComputePassChained(int, char*[])
   inputValues1Buffer->SetGroup(0);
   inputValues1Buffer->SetBinding(0);
   inputValues1Buffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
-  inputValues1Buffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
+  inputValues1Buffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::DATA_ARRAY);
   inputValues1Buffer->SetData(inputDataArray);
 
   // Creating the second input buffer for the compute shader
