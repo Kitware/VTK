@@ -35,18 +35,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-const std::string& vtkHDFUtilities::VTKHDF_ROOT_PATH()
-{
-  static std::string root_path = "/VTKHDF";
-  return root_path;
-}
-
-const std::vector<std::string>& vtkHDFUtilities::POLY_DATA_TOPOS()
-{
-  static std::vector<std::string> topos{ "Vertices", "Lines", "Polygons", "Strips" };
-  return topos;
-}
-
 namespace
 {
 const std::map<int, std::string>& ARRAY_OFFSET_GROUPS()
