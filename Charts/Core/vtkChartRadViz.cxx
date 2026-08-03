@@ -183,7 +183,7 @@ bool vtkChartRadViz::MouseEnterEvent(const vtkContextMouseEvent&)
 //------------------------------------------------------------------------------
 bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
-  if (!this->Scene->GetDirty())
+  if (!this->Scene->GetDirty() && this->Internals->Plot)
   {
     vtkVector2f pos{ mouse.GetScenePos() };
     if (this->Internals->DragVertexIndex >= 0)
