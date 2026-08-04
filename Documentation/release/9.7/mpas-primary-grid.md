@@ -1,4 +1,4 @@
-## Read primary grid from MPAS
+# Read primary grid from MPAS
 
 The `vtkMPASReader` now can read the primary grid from MPAS files. MPAS files
 provide the connectivity for two complementary grids. The first "primary" grid

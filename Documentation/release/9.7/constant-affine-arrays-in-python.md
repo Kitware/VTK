@@ -1,10 +1,10 @@
-## VTKConstantArray and VTKAffineArray: NumPy-Compatible Mixins
+# VTKConstantArray and VTKAffineArray: NumPy-Compatible Mixins
 
 `vtkConstantArray` and `vtkAffineArray` instances are now automatically wrapped
 with numpy-compatible mixin classes (`VTKConstantArray` and `VTKAffineArray`)
 that support efficient operations without materializing large arrays.
 
-### VTKConstantArray
+## VTKConstantArray
 
 ```python
 from vtkmodules.vtkCommonCore import vtkConstantArray
@@ -28,7 +28,7 @@ const2 = arr * 2  # Returns VTKConstantArray with value 10.0
 np.sqrt(arr)      # Returns constant array with sqrt(5.0)
 ```
 
-### VTKAffineArray
+## VTKAffineArray
 
 ```python
 from vtkmodules.vtkCommonCore import vtkAffineArray
@@ -45,7 +45,7 @@ result = arr * 3      # Returns VTKAffineArray with slope=6.0, intercept=15.0
 result = arr + 10     # Returns VTKAffineArray with slope=2.0, intercept=15.0
 ```
 
-### Automatic Detection in Data Model
+## Automatic Detection in Data Model
 
 When accessing arrays through the data model API, constant and affine arrays
 are returned directly with metadata set:

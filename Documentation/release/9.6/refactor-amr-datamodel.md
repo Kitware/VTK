@@ -1,4 +1,4 @@
-## Refactor of the AMR data model
+# Refactor of the AMR data model
 
 The AMR data model has been refactored for future proofing.
 vtkUniformGridAMR now inherits from vtkPartitionedDataSetCollection instead of vtkCompositeDataSet.

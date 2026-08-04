@@ -1,4 +1,4 @@
-## Fix vtkSSAAPass null program error when changing renderers
+# Fix vtkSSAAPass null program error when changing renderers
 
 You can now safely change the list of renderers without encountering null program errors in `vtkSSAAPass`.
 

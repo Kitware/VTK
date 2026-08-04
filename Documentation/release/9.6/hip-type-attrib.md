@@ -1,4 +1,4 @@
-## Fixed compile errors for IsHipDevicePointer
+# Fixed compile errors for IsHipDevicePointer
 
 This function was trying to reference a member named `TYPE_ATTR` in the
 `hipPointerAttribute_t`. This member does not exist.

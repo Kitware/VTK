@@ -1,4 +1,4 @@
-## Multiple Scattering Approximation for Image-Based Lighting
+# Multiple Scattering Approximation for Image-Based Lighting
 
 VTK's PBR renderer now applies a multiple scattering energy-compensation
 approximation when using image-based lighting (IBL). Previously, high-roughness

@@ -1,4 +1,4 @@
-## vtkWeakPtr
+# vtkWeakPtr
 
 There is now a `vtkWeakPtr<T>`, a weak reference to `vtkObjectBase` instances,
 which is thread-safe to management of the underlying object on other threads

@@ -1,4 +1,4 @@
-## Fix OpenGL initialization error handling and version check
+# Fix OpenGL initialization error handling and version check
 
 VTK now properly handles OpenGL initialization errors and validates version compatibility. Previously, the OpenGL version check logic would incorrectly warn about incompatible versions even when OpenGL functions failed to initialize for other reasons.
 

@@ -1,4 +1,4 @@
-## Mesh cache improvements
+# Mesh cache improvements
 
 `vtkDataObjectMeshCache` has better performance to forward attribute to output:
 - `PreservedInputAttributes` flags a field from the OriginalDataObject so its arrays are shallow copied,
@@ -16,7 +16,7 @@ Its constructor does some sanity checks, can add implicit `OriginalIds`
 if needed and copy the cache to the given output if the cache is valid.
 Optionally performs cache update in its destructor.
 
-### Fix for composite data
+## Fix for composite data
 
 `vtkDataObjectMeshCache` stores the MeshMTime for each input leaf.
 Previously, only the most recent (i.e. the greater) was stored for comparison.

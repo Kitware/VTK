@@ -1,4 +1,4 @@
-## Adding stream support to various readers
+# Adding stream support to various readers
 
 vtkResourceStream can now be encapsulated into a std::streambuf using
 vtkResourceStream::ToStreambuf().

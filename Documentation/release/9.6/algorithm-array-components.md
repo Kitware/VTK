@@ -1,4 +1,4 @@
-## Querying and resetting arrays to process
+# Querying and resetting arrays to process
 
 To support filters that allow users to configure an arbitrary number of
 arrays to process, `vtkAlgorithm` now provides two new methods:

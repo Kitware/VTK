@@ -1,4 +1,4 @@
-## Add behavior to clear one axis or all axes selection in vtkChartParallelCoordinates
+# Add behavior to clear one axis or all axes selection in vtkChartParallelCoordinates
 
 For parallel coordinates charts, data selection can now be interactively cleared:
 - Left clicking without dragging on an axis clears the selected axis.

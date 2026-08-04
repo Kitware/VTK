@@ -1,4 +1,4 @@
-## Pythonic APIs for vtkCellArray, vtkPoints, and vtkUnstructuredGrid
+# Pythonic APIs for vtkCellArray, vtkPoints, and vtkUnstructuredGrid
 
 `vtkCellArray`, `vtkPoints`, and `vtkUnstructuredGrid` now have Pythonic
 constructors and improved string representations, making it easier to create

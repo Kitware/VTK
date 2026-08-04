@@ -9,7 +9,7 @@ In terms of available features:
 
 Note that the algs intermediate layer is still useful to access some VTK specific features, such as MPI related algs.
 
-### Developer notes:
+## Developer notes:
 
 NumPy supports extension of its core functionality to non-`ndarray` types using two key protocols which were overridden in the `VTKCompositeDataArray` class:
 - `__array_ufunc__`\

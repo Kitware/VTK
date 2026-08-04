@@ -1,4 +1,4 @@
-## vtkPolyhedron: remove per-call allocation from IsInside
+# vtkPolyhedron: remove per-call allocation from IsInside
 
 `vtkPolyhedron::IsInside` triangulated faces with more than four vertices by
 constructing a `vtkPolygon` and a `vtkIdList`, then repopulating that polygon's

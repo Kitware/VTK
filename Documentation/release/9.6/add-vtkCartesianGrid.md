@@ -1,4 +1,4 @@
-## Add an abstract vtkCartesianGrid
+# Add an abstract vtkCartesianGrid
 
 A new abstract class, vtkCartesianGrid add a layer of abstraction
 on both vtkImageData and vtkRectilinearGrid.

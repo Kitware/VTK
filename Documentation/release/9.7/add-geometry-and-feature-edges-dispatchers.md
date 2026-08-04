@@ -1,11 +1,11 @@
-## Geometry and Feature Edges Dispatcher Filters
+# Geometry and Feature Edges Dispatcher Filters
 
 Two new dispatcher filters provide unified geometry extraction and feature edge
 detection across all VTK data types. These filters were previously part of
 ParaView's rendering infrastructure and are now available as standalone VTK
 components.
 
-### vtkGeometryFilterDispatcher
+## vtkGeometryFilterDispatcher
 
 `vtkGeometryFilterDispatcher` extracts renderable geometry (surfaces or outlines)
 from any VTK data object, automatically dispatching to the appropriate
@@ -46,7 +46,7 @@ geometry->SetGeneratePointNormals(true);
 geometry->Update();
 ```
 
-### vtkFeatureEdgesDispatcher
+## vtkFeatureEdgesDispatcher
 
 `vtkFeatureEdgesDispatcher` extracts feature edges from either `vtkPolyData` or
 `vtkHyperTreeGrid` input, dispatching to `vtkFeatureEdges` or

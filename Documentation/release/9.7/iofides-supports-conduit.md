@@ -1,4 +1,4 @@
-### `vtkFidesReader` supports reading from `Conduit` nodes
+# `vtkFidesReader` supports reading from `Conduit` nodes
 
 The `vtkFidesReader`, which historically only supported reading from ADIOS2 files, now allows you to pass in-memory Conduit nodes directly into the `vtkFidesReader`, bypassing the filesystem entirely.
 

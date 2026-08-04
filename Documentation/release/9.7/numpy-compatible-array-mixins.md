@@ -1,4 +1,4 @@
-## NumPy-compatible array mixins for VTK data arrays
+# NumPy-compatible array mixins for VTK data arrays
 
 VTK data arrays now behave like NumPy arrays in Python. The new `VTKAOSArray`
 and `VTKSOAArray` mixin classes are automatically applied to all
@@ -6,7 +6,7 @@ and `VTKSOAArray` mixin classes are automatically applied to all
 obtained from VTK support arithmetic, indexing, reductions, and ufuncs without
 manual conversion.
 
-### Zero-copy NumPy integration
+## Zero-copy NumPy integration
 
 AOS arrays expose a single contiguous buffer as a zero-copy NumPy view. SOA
 arrays expose per-component buffers as zero-copy NumPy views and perform
@@ -30,7 +30,7 @@ print(np.mean(points, axis=0))
 print(np.min(points), np.max(points))
 ```
 
-### SOA per-component operations
+## SOA per-component operations
 
 SOA arrays preserve their structure-of-arrays layout through operations,
 avoiding the overhead of interleaving components:
@@ -49,7 +49,7 @@ print(soa.components)        # [x_array, y_array, z_array]
 print(np.sum(soa, axis=0))   # per-component sum
 ```
 
-### Features
+## Features
 
 - **Arithmetic operators**: `+`, `-`, `*`, `/`, `//`, `**`, `%` and their
   reverse variants

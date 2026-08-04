@@ -1,4 +1,4 @@
-## Introduce the implicit vtkStridedArray: a strided view on a buffer
+# Introduce the implicit vtkStridedArray: a strided view on a buffer
 
 The `vtkStridedArray` is a `vtkImplicitArray` providing a strided view on an existing memory buffer.
 

@@ -1,4 +1,4 @@
-## Convert constant and affine arrays to Viskores
+# Convert constant and affine arrays to Viskores
 
 Previously, if a dataset field was represented by a `vtkConstantArray` or a
 `vtkAffineArray`, the entire conversion process would fail. The Viskores data

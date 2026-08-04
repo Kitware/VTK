@@ -1,4 +1,4 @@
-## Improved `vtkCellGrid` evaluation performance and API
+# Improved `vtkCellGrid` evaluation performance and API
 
 `vtkDGEvaluator::ClassifyPoints` has been rewritten for substantially better performance.
 

@@ -1,4 +1,4 @@
-## Performance: Faster observer operations in `vtkObject`.
+# Performance: Faster observer operations in `vtkObject`.
 
 `vtkObject` now stores observers in a `std::map` (replacing the custom linked list). This improves the runtime cost of
 `AddObserver`, `RemoveObserver`, and `InvokeEvent`, especially for objects with many observers.

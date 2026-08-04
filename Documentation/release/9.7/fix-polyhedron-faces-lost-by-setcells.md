@@ -1,4 +1,4 @@
-## Polyhedron faces lost when cells are handed to SetCells()
+# Polyhedron faces lost when cells are handed to SetCells()
 
 `vtkUnstructuredGrid::SetCells(cellTypes, cells)` interprets its cell array as a
 legacy face stream (`[nCell0Faces, nFace0Pts, i, j, k, ...]`) as soon as any

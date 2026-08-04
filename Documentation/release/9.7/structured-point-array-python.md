@@ -1,10 +1,10 @@
-## vtkStructuredPointArray Python Integration
+# vtkStructuredPointArray Python Integration
 
 VTK now provides full Python support for `vtkStructuredPointArray`, enabling
 efficient lazy access to structured grid point coordinates without
 materializing the full (N, 3) array.
 
-### C++ API Additions
+## C++ API Additions
 
 `vtkStructuredPointArray` now exposes the coordinate arrays stored in its
 backend:
@@ -19,7 +19,7 @@ bool GetUsesDirectionMatrix();
 These methods are available on all `vtkStructuredPointArray` template
 instantiations and are accessible from Python.
 
-### VTKStructuredPointArray: Lazy NumPy Integration
+## VTKStructuredPointArray: Lazy NumPy Integration
 
 With the mixin override, `vtkStructuredPointArray` instances are
 automatically `VTKStructuredPointArray` objects that support
@@ -48,7 +48,7 @@ print(arr[0])  # [1.0, 2.0, 3.0]
 x = arr[:, 0]  # VTKStructuredAxisArray, only 100 unique values stored
 ```
 
-### Lazy Arithmetic and Ufuncs
+## Lazy Arithmetic and Ufuncs
 
 Ufuncs and scalar arithmetic operate per-axis and return lazy results:
 
@@ -60,7 +60,7 @@ result = np.sqrt(arr)   # VTKStructuredPointArray (lazy)
 result = -arr           # VTKStructuredPointArray (lazy)
 ```
 
-### Optimized Reductions
+## Optimized Reductions
 
 Reductions use O(nx + ny + nz) formulas:
 
@@ -71,7 +71,7 @@ np.max(arr, axis=0)    # computed from axis maxes
 np.mean(arr, axis=0)   # computed from axis means
 ```
 
-### Explicit Materialization
+## Explicit Materialization
 
 When the full array is needed:
 
@@ -80,7 +80,7 @@ full = arr.to_numpy()       # explicit (N, 3) ndarray
 full = np.asarray(arr)      # also materializes
 ```
 
-### Data Model Integration
+## Data Model Integration
 
 The `points` property on `ImageData` and `RectilinearGrid` returns a
 lazy `VTKStructuredPointArray`:

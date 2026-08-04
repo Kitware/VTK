@@ -1,4 +1,4 @@
-## Fix vtkCellValidator for vtkVoxel and vtkPixel
+# Fix vtkCellValidator for vtkVoxel and vtkPixel
 
 The `vtkCellValidator` filter now properly access point coordinates for `vtkVoxel` and `vtkPixel`
 to position the `IntersectingEdges` flag.

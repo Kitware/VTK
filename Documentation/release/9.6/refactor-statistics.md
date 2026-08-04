@@ -1,4 +1,4 @@
-## Statistics algorithms refactored
+# Statistics algorithms refactored
 
 `vtkStatisticsAlgorithm` and its subclasses have been refactored to produce
 instances of a new data object (`vtkStatisticalModel`) for models rather than

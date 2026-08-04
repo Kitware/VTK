@@ -1,4 +1,4 @@
-## Add `vtkSurfaceNetsAtlas`
+# Add `vtkSurfaceNetsAtlas`
 
 `vtkSurfaceNetsAtlas` is a new filter that consumes the polygonal output of any SurfaceNets filter
 (`vtkSurfaceNets2D`, `vtkSurfaceNets3D`, or `vtkGeneralizedSurfaceNets3D`) and exposes it as a
@@ -9,7 +9,7 @@ The atlas is built once per input mesh change (gated on the input `vtkPolyData` 
 extraction parameters does not trigger a rebuild, making iterative workflows (e.g. interactive label
 visibility toggling) inexpensive.
 
-### Output
+## Output
 
 The filter produces a `vtkPartitionedDataSetCollection` with a `vtkDataAssembly` organized into two
 subtrees: `Regions` (one PDS per label) and `Patches` (one PDS per adjacent label pair). Assembly
@@ -30,7 +30,7 @@ the assembly:
 
 Constant arrays are backed by `vtkConstantArray` (O(1) storage).
 
-### Extraction
+## Extraction
 
 - `GenerateRegions` (default: on) emits one Region PDS per selected label.
 - `GeneratePatches` (default: on) emits one Patch PDS per adjacent label pair where at least one
@@ -52,7 +52,7 @@ Constant arrays are backed by `vtkConstantArray` (O(1) storage).
   `GenerateSelectedLabels(rangeStart, rangeEnd)` selects every integer in the range, covering the
   common case of sequential segmentation labels.
 
-### Label names
+## Label names
 
 `SetLabelName` / `AddLabelName` / `RemoveLabelName` / `ClearLabelNames` / `GetLabelName` /
 `GetNumberOfLabelNames` assign human-readable names to labels. Names are independent of the
@@ -61,7 +61,7 @@ Constant arrays are backed by `vtkConstantArray` (O(1) storage).
 attributes on each node. Default names are filled in automatically at atlas build time for any label
 without a user-provided name.
 
-### Topological queries
+## Topological queries
 
 Post-`Update()` queries cover label↔LID mapping, adjacency, and patch topology:
 `GetNumberOfLabels`, `HasLabel`, `GetLIDForLabel`, `GetLabelForLID`, `GetLabelForName`,
@@ -69,7 +69,7 @@ Post-`Update()` queries cover label↔LID mapping, adjacency, and patch topology
 `GetPatchCellCount`, `GetPatchesForLabel`. All methods that accept a label value also have a
 `const std::string&` name-based overload that resolves via `GetLabelForName`.
 
-### Optional post-processing
+## Optional post-processing
 
 `ResolveNonManifoldPoints` splits non-manifold points in each output partition by local connected
 component. If the input carries a `NonManifoldTableIndices` point-data array (produced by

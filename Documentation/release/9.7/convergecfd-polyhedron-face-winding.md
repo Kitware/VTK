@@ -1,4 +1,4 @@
-## CONVERGE reader: consistent polyhedron face orientation
+# CONVERGE reader: consistent polyhedron face orientation
 
 The CONVERGE CFD reader now builds polyhedra with consistently oriented faces.
 Each interior face is shared by two cells but is stored once with a single

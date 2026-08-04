@@ -1,4 +1,4 @@
-## Dictionary interface for vtkDataArraySelection
+# Dictionary interface for vtkDataArraySelection
 
 `vtkDataArraySelection` now supports a Python dictionary interface. You can
 get, set, and delete array enable/disable states using standard dictionary

@@ -1,4 +1,4 @@
-## Macro VTK_PYTHON_HAS_GIL introduced in vtkPython.h
+# Macro VTK_PYTHON_HAS_GIL introduced in vtkPython.h
 
 The macro `VTK_PYTHON_HAS_GIL` has been added to `vtkPython.h` with the aim to
 consolidate the state of effectively no GIL. Before this change, this was

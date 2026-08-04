@@ -1,4 +1,4 @@
-## Voronoi Framework
+# Voronoi Framework
 
 A parallel, general framework for computing 2D and 3D Voronoi tessellations
 and Delaunay triangulations has been added. In addition, three filters (which

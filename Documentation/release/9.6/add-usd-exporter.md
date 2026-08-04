@@ -1,4 +1,4 @@
-## New USD exporter added
+# New USD exporter added
 
 `vtkUSDExporter` is a new class that exports VTK scenes to Universal Scene Description (USD) files (.usd, .usda (ASCII), and .usdc (binary)). It is part of a new `vtk::IOUSD` module that depends on [OpenUSD](https://github.com/PixarAnimationStudios/OpenUSD) to write USD files
 

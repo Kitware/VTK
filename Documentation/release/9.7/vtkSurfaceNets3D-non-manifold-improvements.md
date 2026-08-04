@@ -1,4 +1,4 @@
-## vtkSurfaceNets3D: Identify and correct non-manifold points
+# vtkSurfaceNets3D: Identify and correct non-manifold points
 
 `vtkSurfaceNets3D` now detects local 2x2x2 voxel neighborhoods which can yield non-manifold
 edges/vertices if incident faces share points naively. These configurations can occur even for

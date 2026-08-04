@@ -1,4 +1,4 @@
-## Look up algorithms in a Pipeline by `object_name`
+# Look up algorithms in a Pipeline by `object_name`
 
 `Pipeline` (the result of any `>>` chain in `vtkmodules.util.execution_model`) now supports `pipeline[name]` lookup. The pipeline graph is traversed from the last algorithm backward through every input port and every connection per port, and the first algorithm whose
 `GetObjectName()` matches *name* is returned. A missing name raises

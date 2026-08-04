@@ -1,4 +1,4 @@
-## vtkIndexedArray Python mixin
+# vtkIndexedArray Python mixin
 
 `vtkIndexedArray` now has a numpy-compatible Python mixin (`VTKIndexedArray`)
 that provides seamless numpy integration for indexed implicit arrays.
@@ -8,7 +8,7 @@ Indexed arrays provide reindexed access to a base array via an index list:
 filters (threshold, contour, cell size) and the probe filter for zero-copy
 subset views that save memory by storing indices rather than duplicating values.
 
-### Lazy evaluation
+## Lazy evaluation
 
 The mixin avoids materializing the full array wherever possible by exploiting
 the two-array structure (base array + index array):
@@ -40,7 +40,7 @@ the two-array structure (base array + index array):
   so the indexed array must be materialized to match.
 - **Explicit materialization** (`numpy.asarray(arr)`, `arr.to_numpy()`).
 
-### API
+## API
 
 - `base_array` / `index_array` properties to access the underlying arrays
 - `numpy.asarray()` support via efficient numpy fancy indexing
@@ -49,7 +49,7 @@ the two-array structure (base array + index array):
 - Numpy ufunc and function dispatch
 - Read-only enforcement (`__setitem__` raises `TypeError`)
 
-### C++ changes
+## C++ changes
 
 New accessors `GetBaseArray()` and `GetIndexArray()` on both
 `vtkIndexedArray` and `vtkIndexedImplicitBackend` expose the original

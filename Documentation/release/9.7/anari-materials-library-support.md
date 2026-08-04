@@ -1,4 +1,4 @@
-## ANARI material library support
+# ANARI material library support
 
 VTK now offers material library support for ANARI rendering through a shared
 `vtkRenderMaterialLibrary` base class in RenderingCore. This replaces
