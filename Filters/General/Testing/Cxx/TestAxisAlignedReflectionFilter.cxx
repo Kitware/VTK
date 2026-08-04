@@ -770,7 +770,7 @@ int TestCacheMultiBlockOfMultiBlock(int argc, char* argv[])
   auto reflectOutputCollection =
     vtkPartitionedDataSetCollection::SafeDownCast(reflect->GetOutput());
 
-  if (reflectOutputCollection->GetNumberOfPartitionedDataSets() != 8)
+  if (reflectOutputCollection->GetNumberOfPartitionedDataSets() != 6)
   {
     return EXIT_FAILURE;
   }

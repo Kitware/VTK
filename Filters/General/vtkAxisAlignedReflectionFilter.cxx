@@ -298,13 +298,14 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
         vtkSmartPointer<vtkDataObjectTreeIterator>::New();
       iter->SetDataSet(inputTree);
       iter->InitTraversal();
+      iter->SkipEmptyNodesOff();
       for (const auto id : dataSetIds)
       {
         auto outLeaf = vtkDataSet::SafeDownCast(outputPDSC->GetPartition(id, 0));
         auto inLeaf = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
 
         iter->GoToNextItem();
-        if (!inLeaf)
+        if (!inLeaf || !outLeaf)
         {
           continue;
         }
