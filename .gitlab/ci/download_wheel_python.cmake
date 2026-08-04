@@ -10,15 +10,9 @@ set(python312_version "3.12.7")
 set(python313_version "3.13.0")
 set(python314_version "3.14.0")
 
-# We have different patch versions between windows and mac
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
-  set(python314t_version "3.14.2t")
-elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
-  set(python314t_version "3.14.0t")
-else ()
-  message(FATAL_ERROR
-    "Unknown platform for Python")
-endif ()
+# Windows only; macOS Python (including free-threaded builds) comes from
+# python-build-standalone via `uv` instead (see `.gitlab/ci/python_macos.sh`).
+set(python314t_version "3.14.2t")
 
 # Hashes for various deployments.
 set(python310_windows_x86_64_hash "b02692c7905dea2829e4204eab2343b226f0c9f244df89502ba8d483d5f8f9d3")
@@ -28,26 +22,10 @@ set(python313_windows_x86_64_hash "b733a8c7d8d30aa5d0742c00de419294ec38579758667
 set(python314_windows_x86_64_hash "1cf39a0c36aa6047f0982deaf400dbb327e676be60aedeef274088520a5a2887")
 set(python314t_windows_x86_64_hash "28a94269cf82bd3a4dab3229e7ebe9357e777c012b4a65608c7737b74b3b10b1")
 
-set(python310_macos_arm64_hash "5e5a2124abfdc3bb85751e6a544ab81d0624473afe7bab41a7cb78c72e3ccc8d")
-set(python310_macos_x86_64_hash "edb762a34ea20c6876f9f583158e7f65c1a428aecea1971717fc05e26415f55b")
-set(python311_macos_arm64_hash "ea62d4a6b7b3c397280994d6204227095188c8641671286bf5a220ec95ccc637")
-set(python311_macos_x86_64_hash "c296ba92c7fa47bb2953d466846ca46ff9d6f822a7b342afbd2e17ba4c0f16d8")
-set(python312_macos_arm64_hash "866db20c9153509bc2edff7799d96ed2a467e48efd1a18c43cf9c84f8b922522")
-set(python312_macos_x86_64_hash "96d3149615bf76e1ea0ba2d6fa5590ad3d4f7dbe039647a98a9ccfdba6642742")
-set(python313_macos_arm64_hash "0833901d0b91c5c59bfeff3e155e3bc0bfe41d4ba730e94e5f6db4f6eb72cbe4")
-set(python313_macos_x86_64_hash "367962d9e5e7cb7346e78840d806c117cae12830fa57e739f88d5bb7b052924e")
-set(python314_macos_arm64_hash "51e27f2ee656cd578cd95caa8178e7f0e058514e1bb01357f597cf6a2805cd83")
-set(python314_macos_x86_64_hash "5da3ede989b800d5997df0a160b7dc5dc15bf8e98233f9dafb8763fd83e7e17f")
-set(python314t_macos_arm64_hash "6c2aa86a4fa24d0a4c51c1fbd8f54936b0b4ee97ffc3902f743448ed927e87d0")
-set(python314t_macos_x86_64_hash "a04567e6320e45edb4f7234fb5f1cef951abc281ab20042462b91b537004065a")
-
 # Extracting information from the build configuration.
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   set(python_platform "windows")
   set(python_ext "zip")
-elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
-  set(python_platform "macos")
-  set(python_ext "tar.xz")
 else ()
   message(FATAL_ERROR
     "Unknown platform for Python")

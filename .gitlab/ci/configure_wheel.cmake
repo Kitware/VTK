@@ -10,25 +10,39 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "x86_64")
-    if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "python31.") # 3.10+ binaries target at least 11.0
-      set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
-    else ()
-      set(CMAKE_OSX_DEPLOYMENT_TARGET "10.10" CACHE STRING "")
-    endif ()
+    # All macOS wheel interpreters come from python-build-standalone (via
+    # uv), which targets 10.15 for x86_64.
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "")
   elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "arm64")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
   endif ()
 endif ()
 
 # Is this a free-threading python dist?
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "(linux|macos|windows)[0-9]+t")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "(linux|macos|windows)([0-9]+)t")
+  set(python_version_no_dot "${CMAKE_MATCH_2}")
+
   # Python xarray deps not available yet for free threading
   set(VTK_MODULE_ENABLE_VTK_IONetCDF NO CACHE STRING "")
 
-  # CPython in Windows does not set the Py_GIL_DISABLED macro in free-thread builds:
+  # CPython in Windows shares `pyconfig.h` between the regular and
+  # free-threaded ABIs; the build system must define `Py_GIL_DISABLED` itself:
   # https://docs.python.org/3/howto/free-threading-extensions.html
+  # The CI CMake also predates `FindPython`'s free-threading support, so point
+  # it at the free-threaded import library explicitly.
+  # XXX(ci-cmake): 3.30
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
-    set(VTK_NO_PYTHON_THREADS ON CACHE BOOL "")
+    # Setting `CMAKE_C_FLAGS`/`CMAKE_CXX_FLAGS` directly as CACHE entries here
+    # (before `project()` runs) would pre-empt CMake's own MSVC default flags,
+    # since it only populates them from `CMAKE_<LANG>_FLAGS_INIT` when the
+    # cache entry doesn't already exist; `add_compile_definitions()` has no
+    # effect at all from a `-C` script (it never reaches the generated build
+    # files). Go through `CFLAGS`/`CXXFLAGS` instead: CMake's own
+    # `CMAKE_<LANG>_FLAGS_INIT` logic prepends the environment variable, so
+    # this combines with the MSVC defaults rather than replacing them.
+    set(ENV{CFLAGS} "$ENV{CFLAGS} -DPy_GIL_DISABLED=1")
+    set(ENV{CXXFLAGS} "$ENV{CXXFLAGS} -DPy_GIL_DISABLED=1")
+    set(Python3_LIBRARY "$ENV{PYTHON_PREFIX}/libs/python${python_version_no_dot}t.lib" CACHE FILEPATH "")
   endif()
 endif()
 
