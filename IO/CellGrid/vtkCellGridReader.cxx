@@ -106,13 +106,24 @@ void addCachedRange(vtkCellGridRangeQuery::CacheMap& rangeCache, vtkCellAttribut
     }
     else
     {
+      // Ranges of array's components are written to json by converting the component
+      // index to a string, and using that as the key (so range of component c is
+      // written under "c"). But the vector of ComponentRanges for the attribute
+      // store L2, L1 norms in the first two slots, and component ranges after
+      // that. So here the entry's key should be treated as the actual component
+      // index, and when the values are stored in the vector, we add 2 to that
+      // index to put the range in the correct slot.
       VTK_FROM_CHARS_IF_ERROR_RETURN(entry.key(), comp, );
-      if (comp < 2 || comp > attribute->GetNumberOfComponents() + 2)
+      if (comp < 0 || comp >= attribute->GetNumberOfComponents())
       {
         vtkWarningWithObjectMacro(attribute,
-          "Range for unexpected component " << (comp - 2) << " of " << attribute->GetName().Data()
+          "Range for unexpected component " << comp << " of " << attribute->GetName().Data()
                                             << ".");
         comp = 0;
+      }
+      else
+      {
+        comp += 2;
       }
     }
     ranges[comp].FiniteRange[0] = entry.value().at("min");
