@@ -9,6 +9,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlotRadViz.h"
 #include "vtkPoints2D.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
 #include "vtkTextProperty.h"
 #include <sstream>
 
@@ -125,6 +127,7 @@ vtkPlot* vtkChartRadViz::AddPlot(int /* type */)
   if (!this->Internals->Plot)
   {
     this->Internals->Plot = vtkSmartPointer<vtkPlotRadViz>::New();
+    this->Internals->Plot->SetParent(this);
     this->AddItem(this->Internals->Plot);
   }
   return this->Internals->Plot;
@@ -138,7 +141,99 @@ void vtkChartRadViz::SetPlot(vtkPlotRadViz* plot)
     this->RemoveItem(this->Internals->Plot);
   }
   this->Internals->Plot = plot;
+  this->Internals->Plot->SetParent(this);
   this->AddItem(this->Internals->Plot);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkChartRadViz::SetColumnVisibility(const vtkStdString& name, bool visible)
+{
+  if (visible)
+  {
+    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+    {
+      if (this->VisibleColumns->GetValue(i) == name)
+      {
+        // Already there, nothing more needs to be done
+        return;
+      }
+    }
+    // Add the column to the end of the list
+    this->VisibleColumns->InsertNextValue(name);
+    this->Modified();
+  }
+  else
+  {
+    // Remove the value if present
+    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+    {
+      if (this->VisibleColumns->GetValue(i) == name)
+      {
+        // Move all the later elements down by one, and reduce the size
+        while (i < this->VisibleColumns->GetNumberOfTuples() - 1)
+        {
+          this->VisibleColumns->SetValue(i, this->VisibleColumns->GetValue(i + 1));
+          ++i;
+        }
+        this->VisibleColumns->SetNumberOfTuples(this->VisibleColumns->GetNumberOfTuples() - 1);
+        this->Modified();
+        return;
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkChartRadViz::SetColumnVisibilityAll(bool visible)
+{
+  // We always need to clear the current visible columns.
+  this->VisibleColumns->Initialize();
+  if (visible && this->GetPlot(0))
+  {
+    vtkTable* table = this->GetPlot(0)->GetInput();
+    if (table)
+    {
+      for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
+      {
+        this->SetColumnVisibility(table->GetColumnName(i), visible);
+      }
+    }
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+bool vtkChartRadViz::GetColumnVisibility(const vtkStdString& name)
+{
+  for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+  {
+    if (this->VisibleColumns->GetValue(i) == name)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+vtkStringArray* vtkChartRadViz::GetVisibleColumns()
+{
+  return this->VisibleColumns;
+}
+
+//------------------------------------------------------------------------------
+void vtkChartRadViz::SetVisibleColumns(vtkStringArray* visColumns)
+{
+  if (!visColumns || visColumns->GetNumberOfTuples() == 0)
+  {
+    this->VisibleColumns->Initialize();
+  }
+  else
+  {
+    this->VisibleColumns->SetNumberOfTuples(visColumns->GetNumberOfTuples());
+    this->VisibleColumns->DeepCopy(visColumns);
+  }
   this->Modified();
 }
 

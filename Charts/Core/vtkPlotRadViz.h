@@ -83,6 +83,12 @@ public:
 
   virtual void SetInputDataSet(vtkDataSet* dataset);
   /**
+   * Sets the table used by the plot. When the table changes, the visible
+   * columns of the parent vtkChartRadViz are reset to make all of the new
+   * table's columns visible.
+   */
+  void SetInputData(vtkTable* table) override;
+  /**
    * Paint event for the item.
    */
   bool Paint(vtkContext2D* painter) override;

@@ -554,6 +554,37 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     this->ComponentsPartition[0].resize(numComponents);
     std::iota(this->ComponentsPartition[0].begin(), this->ComponentsPartition[0].end(), 0);
   }
+  else
+  {
+    // check if valid partition
+    std::size_t totalElements = std::accumulate(this->ComponentsPartition.begin(),
+      this->ComponentsPartition.end(), std::size_t{ 0 },
+      [](std::size_t sum, const std::vector<int>& innerVec) { return sum + innerVec.size(); });
+    if (numComponents != totalElements)
+    {
+      vtkErrorMacro(
+        << fmt::format(
+             "Invalid partition: number of elements in the partition: {}, number of components {}",
+             totalElements, numComponents));
+      return 0;
+    }
+    // check if every element in the partition is a valid index
+    bool allValid = std::all_of(this->ComponentsPartition.begin(), this->ComponentsPartition.end(),
+      [numComponents](const std::vector<int>& group)
+      {
+        return std::all_of(
+          group.begin(), group.end(), [numComponents](int val) { return val < numComponents; });
+      });
+    if (!allValid)
+    {
+      vtkErrorMacro(
+        << fmt::format(
+             "Invalid partition: some element of the partition is >= than number of components {}",
+             numComponents));
+      return 0;
+    }
+  }
+
   vtkNew<vtkDoubleArray> normalizedScalars;
   normalizedScalars->SetName("normalized");
   normalizedScalars->SetNumberOfComponents(scalars->GetNumberOfComponents());

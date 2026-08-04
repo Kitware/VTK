@@ -12,12 +12,16 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 #include "vtkTesting.h"
 #include "vtkXMLTableWriter.h"
 
 //------------------------------------------------------------------------------
 int TestRadVizChartTable(int argc, char* argv[])
 {
+  int hideColumn;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], hideColumn, EXIT_FAILURE);
+
   vtkNew<vtkTesting> testUtils;
   testUtils->AddArguments(argc, argv);
 
@@ -37,11 +41,20 @@ int TestRadVizChartTable(int argc, char* argv[])
 
   // Add a RadViz plot
   vtkPlotRadViz* plot = vtkPlotRadViz::SafeDownCast(chart->AddPlot(0));
-  plot->SetComponentsPartition({ { 0 }, { 1, 2 }, { 3 } });
+
   plot->GetPen()->SetWidth(4);
-  plot->vtkPlot::SetInputData(table);
+  plot->SetInputData(table);
 
   chart->SetShowLegend(false);
+  if (hideColumn)
+  {
+    chart->SetColumnVisibility("tangent", false);
+    plot->SetComponentsPartition({ { 0 }, { 1, 2 } });
+  }
+  else
+  {
+    plot->SetComponentsPartition({ { 0 }, { 1, 2 }, { 3 } });
+  }
 
   // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

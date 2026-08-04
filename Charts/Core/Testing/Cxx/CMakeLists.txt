@@ -114,7 +114,6 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestPlotPoints.cxx
   TestPlotRangeHandlesItem.cxx,NO_DATA,NO_VALID
   TestPropItem.cxx
-  TestRadVizChartTable.cxx
   TestRangeHandlesItemEvents.cxx,NO_DATA,NO_VALID
   TestScalarsToColors.cxx
   TestScatterPlot.cxx,LOOSE_VALID
@@ -130,13 +129,25 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestZoomIndividualAxis.cxx
 )
 
-# Test several display variants for the plot
+# scalar visibility off
 vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestRadVizChartDataSet,TestRadVizChartDataSet.cxx 0
 )
+# scalar visibility on
 vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestRadVizChartDataSetNoBackground,TestRadVizChartDataSet.cxx 1
 )
+
+# show all columns
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartTable,TestRadVizChartTable.cxx 0
+)
+# hide one column
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartTableHideColumn,TestRadVizChartTable.cxx 1
+)
+
+
 vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestRadVizChartInteractionVertices,TestRadVizChartInteraction.cxx 0
 )

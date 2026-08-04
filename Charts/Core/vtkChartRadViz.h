@@ -29,6 +29,7 @@
 
 #include "vtkChart.h"
 #include "vtkChartsCoreModule.h" // For export macro
+#include "vtkNew.h"              // For vtkNew
 #include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
 #include <memory>
 
@@ -36,6 +37,8 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkChartLegend;
 class vtkTooltipItem;
 class vtkPlotRadViz;
+class vtkStdString;
+class vtkStringArray;
 
 class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkChartRadViz : public vtkChart
 {
@@ -83,10 +86,39 @@ public:
    */
   vtkIdType GetNumberOfPlots() override;
 
+  ///@{
+  /**
+   * Set the visibility of the specified column. Only visible columns
+   * (components) are used to compute the RadViz plot.
+   */
+  void SetColumnVisibility(const vtkStdString& name, bool visible);
+
+  /**
+   * Set the visibility of all columns (true will make them all visible, false
+   * will remove all visible columns).
+   */
+  void SetColumnVisibilityAll(bool visible);
+
+  /**
+   * Get the visibility of the specified column.
+   */
+  bool GetColumnVisibility(const vtkStdString& name);
+
+  /**
+   * Get a list of the columns, and the order in which they are used.
+   */
+  virtual vtkStringArray* GetVisibleColumns();
+
+  /**
+   * Set the list of visible columns, and the order in which they will be used.
+   */
+  virtual void SetVisibleColumns(vtkStringArray* visColumns);
+
   /**
    * Set the vtkContextScene for the item, always set for an item in a scene.
    */
   void SetScene(vtkContextScene* scene) override;
+  ///@}
 
   ///@{
   /**
@@ -139,6 +171,11 @@ protected:
    */
   void GetActiveElement(const vtkVector2f& pos, int& activeVertexIndex, bool& activeLensOutline,
     bool& activeLensInterior);
+
+  /**
+   * Strongly owned internal data for the column visibility.
+   */
+  vtkNew<vtkStringArray> VisibleColumns;
 
 private:
   vtkChartRadViz(const vtkChartRadViz&) = delete;

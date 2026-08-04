@@ -54,8 +54,8 @@ public:
 //------------------------------------------------------------------------------
 int TestRadVizChartDataSet(int argc, char* argv[])
 {
-  int variant;
-  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], variant, EXIT_FAILURE);
+  int scalarVisibility;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], scalarVisibility, EXIT_FAILURE);
 
   vtkNew<vtkTesting> testUtils;
   testUtils->AddArguments(argc, argv);
@@ -77,7 +77,7 @@ int TestRadVizChartDataSet(int argc, char* argv[])
   plot->GetPen()->SetOpacity(20);
   plot->SetLensVisibility(true);
   plot->GetPen()->SetWidth(6);
-  if (variant)
+  if (scalarVisibility)
   {
     plot->ColorWheelVisibilityOff();
     plot->ScalarVisibilityOn();

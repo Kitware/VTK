@@ -7,6 +7,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkBrush.h"
 #include "vtkCellData.h"
+#include "vtkChartRadViz.h"
 #include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
 #include "vtkDataArrayRange.h"
@@ -201,6 +202,20 @@ void vtkPlotRadViz::SetInputDataSet(vtkDataSet* dataset)
   this->AutoLabels = nullptr; // No longer valid
 }
 
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::SetInputData(vtkTable* table)
+{
+  vtkTable* previousTable = this->Data->GetInput();
+  bool tableChanged = table != previousTable;
+  this->Superclass::SetInputData(table);
+  vtkChartRadViz* parent = vtkChartRadViz::SafeDownCast(this->Parent);
+  if (parent && tableChanged)
+  {
+    // by default make all of the new table's columns visible.
+    parent->SetColumnVisibilityAll(table != nullptr);
+  }
+}
+
 void vtkPlotRadViz::ComputeAutoLabels(vtkDataObject* input, vtkDataArray* array)
 {
   vtkTable* table = vtkTable::SafeDownCast(input);
@@ -307,6 +322,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
   {
     vtkDebugMacro(<< "Paint event called.");
     vtkDataObject* input = this->Data->GetInputDataObject(0, 0);
+    vtkTable* table = vtkTable::SafeDownCast(input);
     vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
     vtkDataArray* array = nullptr;
     int association = vtkDataObject::FIELD_ASSOCIATION_NONE;
@@ -314,6 +330,27 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     {
       // get the array to process and association from vtkContextMapper2D
       array = this->GetData()->GetInputArrayToProcess(0, input, association);
+    }
+    vtkSmartPointer<vtkTable> visibleTable;
+    if (table)
+    {
+      // only keep the columns marked visible by the parent chart, since
+      // vtkMultiVariateToRGBA uses every column of a table as a component.
+      vtkChartRadViz* parent = vtkChartRadViz::SafeDownCast(this->Parent);
+      if (parent)
+      {
+        visibleTable = vtkSmartPointer<vtkTable>::New();
+        vtkStringArray* cols = parent->GetVisibleColumns();
+        for (vtkIdType i = 0; i < cols->GetNumberOfTuples(); ++i)
+        {
+          vtkAbstractArray* column = table->GetColumnByName(cols->GetValue(i).c_str());
+          if (column)
+          {
+            visibleTable->AddColumn(column);
+          }
+        }
+        input = visibleTable;
+      }
     }
     ComputeAutoLabels(input, array);
 
