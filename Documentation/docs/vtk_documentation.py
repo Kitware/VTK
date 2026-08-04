@@ -347,14 +347,14 @@ def create_release_index(basedir):
                                     os.makedirs(dst_img_dir, exist_ok=True)
                                     shutil.copy(src_img, os.path.join(dst_img_dir, img_file))
                             else:
-                                print(f"Warning: '{short_tag}/{fn}' is not referenced from '{release_file_path}'")
+                                print(f"WARNING: '{short_tag}/{fn}' is not referenced from '{release_file_path}'")
                 content = CONTENT_TEMPLATE2.format(version=short_tag, date=date, author_notes="\n".join(sorted(author_notes)).strip())
                 create_release_file(
                     path=os.path.join(basedir, f"{short_tag}.md"), content=content
                 )
                 files.append(f"{short_tag}.md")
             else:
-                print(f"Warning: could not find release notes for tag {tag}")
+                print(f"WARNING: could not find release notes for tag {tag}")
     # now create the base index file. We do it here to control the order they appear in the index
     # we could do it using a custom sphinx toctree class but I didn't had much luck with that
     content = """\
