@@ -1,6 +1,8 @@
 vtk_module_test_data(
   Data/42400-IDGH.stl
   Data/multiple_patches.stl
+  Data/box_leading_spaces.stl
+  Data/box_binary_solid.stl
   Data/malformed_binary.stl
   Data/AMR/Enzo/DD0010/,REGEX:.*
   Data/IncOctPntLocData.dat
@@ -69,6 +71,8 @@ vtk_module_test_data(
   Data/BaselineData/TestSTLReader_standard.vtkhdf
   Data/BaselineData/TestSTLReader_malformed_binary.vtkhdf
   Data/BaselineData/TestSTLReader_multiple_patches.vtkhdf
+  Data/BaselineData/TestSTLReader_binary_solid.vtkhdf
+  Data/BaselineData/TestSTLReader_leading_spaces.vtkhdf
 
   Data/TecPlot/,REGEX:.*
   Data/Viewpoint/cow.obj
