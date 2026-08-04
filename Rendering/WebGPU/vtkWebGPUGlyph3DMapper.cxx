@@ -118,48 +118,43 @@ public:
     // sent as vertex attributes and the shader assembles
     // matrices from the individual columns.
     std::size_t instanceAttributesIdx = 0;
-    std::vector<wgpu::VertexBufferLayout> layouts;
+    std::vector<WGPUVertexBufferLayout> layouts;
     {
-      wgpu::VertexBufferLayout layout = {};
+      WGPUVertexBufferLayout layout = {};
       layout.arrayStride = 4 * sizeof(vtkTypeFloat32);
       layout.attributeCount = 1;
       layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
-      layout.stepMode = wgpu::VertexStepMode::Instance;
+      layout.stepMode = WGPUVertexStepMode_Instance;
       layouts.emplace_back(layout);
       instanceAttributesIdx += 1;
     }
     {
-      wgpu::VertexBufferLayout layout = {};
+      WGPUVertexBufferLayout layout = {};
       layout.arrayStride = 4 * 4 * sizeof(vtkTypeFloat32);
       layout.attributeCount = 4; // 1 attribute per column which is a vec4f
       layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
-      layout.stepMode = wgpu::VertexStepMode::Instance;
+      layout.stepMode = WGPUVertexStepMode_Instance;
       layouts.emplace_back(layout);
       instanceAttributesIdx += 4;
     }
     {
-      wgpu::VertexBufferLayout layout = {};
+      WGPUVertexBufferLayout layout = {};
       layout.arrayStride = 3 * 3 * sizeof(vtkTypeFloat32);
       layout.attributeCount = 3; // 1 attribute per column which is a vec3f
       layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
-      layout.stepMode = wgpu::VertexStepMode::Instance;
+      layout.stepMode = WGPUVertexStepMode_Instance;
       layouts.emplace_back(layout);
       instanceAttributesIdx += 3;
     }
     {
-      wgpu::VertexBufferLayout layout = {};
+      WGPUVertexBufferLayout layout = {};
       layout.arrayStride = sizeof(vtkTypeUInt32);
       layout.attributeCount = 1;
       layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
-      layout.stepMode = wgpu::VertexStepMode::Instance;
+      layout.stepMode = WGPUVertexStepMode_Instance;
       layouts.emplace_back(layout);
     }
-    std::vector<WGPUVertexBufferLayout> result(layouts.size());
-    for (std::size_t i = 0; i < layouts.size(); ++i)
-    {
-      result[i] = *reinterpret_cast<WGPUVertexBufferLayout*>(&layouts[i]);
-    }
-    return result;
+    return layouts;
   }
 
   /**
@@ -304,7 +299,7 @@ protected:
   {
     std::uint32_t shaderLocation = 0;
     this->InstanceAttributes[shaderLocation].nextInChain = nullptr;
-    this->InstanceAttributes[shaderLocation].format = wgpu::VertexFormat::Float32x4;
+    this->InstanceAttributes[shaderLocation].format = WGPUVertexFormat_Float32x4;
     this->InstanceAttributes[shaderLocation].offset = 0;
     this->InstanceAttributes[shaderLocation].shaderLocation = shaderLocation;
     shaderLocation++;
@@ -316,7 +311,7 @@ protected:
     for (int i = 0; i < 4; ++i)
     {
       this->InstanceAttributes[shaderLocation].nextInChain = nullptr;
-      this->InstanceAttributes[shaderLocation].format = wgpu::VertexFormat::Float32x4;
+      this->InstanceAttributes[shaderLocation].format = WGPUVertexFormat_Float32x4;
       this->InstanceAttributes[shaderLocation].offset = i * 4 * sizeof(float);
       this->InstanceAttributes[shaderLocation].shaderLocation = shaderLocation;
       shaderLocation++;
@@ -325,14 +320,14 @@ protected:
     for (int i = 0; i < 3; ++i)
     {
       this->InstanceAttributes[shaderLocation].nextInChain = nullptr;
-      this->InstanceAttributes[shaderLocation].format = wgpu::VertexFormat::Float32x3;
+      this->InstanceAttributes[shaderLocation].format = WGPUVertexFormat_Float32x3;
       this->InstanceAttributes[shaderLocation].offset = i * 3 * sizeof(float);
       this->InstanceAttributes[shaderLocation].shaderLocation = shaderLocation;
       shaderLocation++;
     }
 
     this->InstanceAttributes[shaderLocation].nextInChain = nullptr;
-    this->InstanceAttributes[shaderLocation].format = wgpu::VertexFormat::Uint32;
+    this->InstanceAttributes[shaderLocation].format = WGPUVertexFormat_Uint32;
     this->InstanceAttributes[shaderLocation].offset = 0;
     this->InstanceAttributes[shaderLocation].shaderLocation = shaderLocation;
     shaderLocation++;
@@ -347,7 +342,7 @@ protected:
   };
   wgpu::Buffer InstancePropertiesBuffer;
   AttributeBuffer InstanceAttributesBuffers[NUM_INSTANCE_ATTRIBUTES];
-  wgpu::VertexAttribute InstanceAttributes[1 + 4 + 3 + 1]; // matrices sent as column vectors
+  WGPUVertexAttribute InstanceAttributes[1 + 4 + 3 + 1]; // matrices sent as column vectors
 
   vtkTimeStamp InstanceAttributesBuildTimestamp[NUM_INSTANCE_ATTRIBUTES];
 
