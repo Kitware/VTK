@@ -58,6 +58,19 @@ static void AtExitCallback()
 }
 #endif // VTK_COMPILED_USING_MPI
 
+static bool FindProgramPath(const char* argv0, std::string& pathOut)
+{
+  std::string self = argv0 ? argv0 : "";
+  vtksys::SystemTools::ConvertToUnixSlashes(self);
+  self = vtksys::SystemTools::FindProgram(self);
+  if (!vtksys::SystemTools::FileIsExecutable(self))
+  {
+    return false;
+  }
+  pathOut = self;
+  return true;
+}
+
 #if defined(_WIN32) && !defined(__MINGW32__)
 int wmain(int argc, wchar_t* wargv[])
 #else
@@ -90,8 +103,7 @@ int main(int argc, char** argv)
 
   // For static builds, help with finding `vtk` packages.
   std::string fullpath;
-  std::string error;
-  if (argc > 0 && vtksys::SystemTools::FindProgramPath(argv[0], fullpath, error))
+  if (argc > 0 && FindProgramPath(argv[0], fullpath))
   {
     const auto dir = vtksys::SystemTools::GetProgramPath(fullpath);
 #if defined(VTK_BUILD_SHARED_LIBS)

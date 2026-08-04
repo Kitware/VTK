@@ -22,12 +22,13 @@
 // Consider using these on Win32/Win64 for some of them:
 //
 // IsProcessorFeaturePresent
-// http://msdn.microsoft.com/en-us/library/ms724482(VS.85).aspx
+// https://msdn.microsoft.com/en-us/library/ms724482(VS.85).aspx
 //
 // GetProcessMemoryInfo
-// http://msdn.microsoft.com/en-us/library/ms683219(VS.85).aspx
+// https://msdn.microsoft.com/en-us/library/ms683219(VS.85).aspx
 
 #include "kwsysPrivate.h"
+#include KWSYS_HEADER(String.h)
 #include KWSYS_HEADER(SystemInformation.hxx)
 #include KWSYS_HEADER(Process.h)
 
@@ -35,6 +36,7 @@
 // duplicate the above list of headers.
 #if 0
 #  include "Process.h.in"
+#  include "String.h.in"
 #  include "SystemInformation.hxx.in"
 #endif
 
@@ -44,6 +46,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <set>
 #include <sstream>
 #include <string>
@@ -59,8 +62,9 @@
 #    include <psapi.h>
 #  endif
 #  if !defined(siginfo_t)
-typedef int siginfo_t;
+using siginfo_t = int;
 #  endif
+#  include <powerbase.h>
 #else
 #  include <sys/types.h>
 
@@ -135,7 +139,7 @@ typedef int siginfo_t;
 using ResourceLimitType = struct rlimit64;
 #    define GetResourceLimit getrlimit64
 #  else
-typedef struct rlimit ResourceLimitType;
+using ResourceLimitType = struct rlimit;
 #    define GetResourceLimit getrlimit
 #  endif
 #elif defined(__hpux)
@@ -163,7 +167,6 @@ typedef struct rlimit ResourceLimitType;
 #  undef KWSYS_SYSTEMINFORMATION_HAS_SYMBOL_LOOKUP
 #endif
 
-#include <cctype> // int isdigit(int c);
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -272,15 +275,15 @@ public:
   SystemInformationImplementation();
   ~SystemInformationImplementation() = default;
 
-  const char* GetVendorString() const;
-  const char* GetVendorID();
+  char const* GetVendorString() const;
+  char const* GetVendorID();
   std::string GetTypeID() const;
   std::string GetFamilyID() const;
   std::string GetModelID() const;
   std::string GetModelName() const;
   std::string GetSteppingCode() const;
-  const char* GetExtendedProcessorName() const;
-  const char* GetProcessorSerialNumber() const;
+  char const* GetExtendedProcessorName() const;
+  char const* GetProcessorSerialNumber() const;
   int GetProcessorCacheSize() const;
   unsigned int GetLogicalProcessorsPerPhysical() const;
   float GetProcessorClockFrequency() const;
@@ -288,12 +291,12 @@ public:
   int GetProcessorCacheXSize(long int) const;
   bool DoesCPUSupportFeature(long int) const;
 
-  const char* GetOSName();
-  const char* GetHostname();
+  char const* GetOSName();
+  char const* GetHostname();
   int GetFullyQualifiedDomainName(std::string& fqdn);
-  const char* GetOSRelease();
-  const char* GetOSVersion();
-  const char* GetOSPlatform();
+  char const* GetOSRelease();
+  char const* GetOSVersion();
+  char const* GetOSPlatform();
 
   bool Is64Bits() const;
 
@@ -312,11 +315,11 @@ public:
 
   // Retrieve memory information in KiB.
   long long GetHostMemoryTotal();
-  long long GetHostMemoryAvailable(const char* hostLimitEnvVarName);
+  long long GetHostMemoryAvailable(char const* hostLimitEnvVarName);
   long long GetHostMemoryUsed();
 
-  long long GetProcMemoryAvailable(const char* hostLimitEnvVarName,
-                                   const char* procLimitEnvVarName);
+  long long GetProcMemoryAvailable(char const* hostLimitEnvVarName,
+                                   char const* procLimitEnvVarName);
   long long GetProcMemoryUsed();
 
   double GetLoadAverage();
@@ -333,101 +336,58 @@ public:
   void RunMemoryCheck();
 
 public:
-  using ID = struct tagID
-
+  struct ID
   {
-
     int Type;
-
     int Family;
-
     int Model;
-
     int Revision;
-
     int ExtendedFamily;
-
     int ExtendedModel;
-
     std::string ProcessorName;
-
     std::string Vendor;
-
     std::string SerialNumber;
-
     std::string ModelName;
   };
 
-  using CPUPowerManagement = struct tagCPUPowerManagement
-
+  struct CPUPowerManagement
   {
-
     bool HasVoltageID;
-
     bool HasFrequencyID;
-
     bool HasTempSenseDiode;
   };
 
-  using CPUExtendedFeatures = struct tagCPUExtendedFeatures
-
+  struct CPUExtendedFeatures
   {
-
     bool Has3DNow;
-
     bool Has3DNowPlus;
-
     bool SupportsMP;
-
     bool HasMMXPlus;
-
     bool HasSSEMMX;
-
     unsigned int LogicalProcessorsPerPhysical;
-
     int APIC_ID;
-
     CPUPowerManagement PowerManagement;
   };
 
-  using CPUFeatures = struct CPUtagFeatures
-
+  struct CPUFeatures
   {
-
     bool HasFPU;
-
     bool HasTSC;
-
     bool HasMMX;
-
     bool HasSSE;
-
     bool HasSSEFP;
-
     bool HasSSE2;
-
     bool HasIA64;
-
     bool HasAPIC;
-
     bool HasCMOV;
-
     bool HasMTRR;
-
     bool HasACPI;
-
     bool HasSerial;
-
     bool HasThermal;
-
     int CPUSpeed;
-
     int L1CacheSize;
-
     int L2CacheSize;
-
     int L3CacheSize;
-
     CPUExtendedFeatures ExtendedFeatures;
   };
 
@@ -482,8 +442,8 @@ protected:
                                        unsigned int); // For windows
 
   // For Linux and Cygwin, /proc/cpuinfo formats are slightly different
-  bool RetreiveInformationFromCpuInfoFile();
-  std::string ExtractValueFromCpuInfoFile(std::string buffer, const char* word,
+  bool RetrieveInformationFromCpuInfoFile();
+  std::string ExtractValueFromCpuInfoFile(std::string buffer, char const* word,
                                           size_t init = 0);
 
   bool QueryLinuxMemory();
@@ -492,20 +452,20 @@ protected:
   static void Delay(unsigned int);
   static void DelayOverhead(unsigned int);
 
-  void FindManufacturer(const std::string& family = "");
+  void FindManufacturer(std::string const& family = "");
 
   // For Mac
   bool ParseSysCtl();
-  int CallSwVers(const char* arg, std::string& ver);
+  int CallSwVers(char const* arg, std::string& ver);
   void TrimNewline(std::string&);
-  std::string ExtractValueFromSysCtl(const char* word);
+  std::string ExtractValueFromSysCtl(char const* word);
   std::string SysCtlBuffer;
 
   // For Solaris
   bool QuerySolarisMemory();
   bool QuerySolarisProcessor();
-  std::string ParseValueFromKStat(const char* arguments);
-  std::string RunProcess(std::vector<const char*> args);
+  std::string ParseValueFromKStat(char const* arguments);
+  std::string RunProcess(std::vector<char const*> args);
 
   // For Haiku OS
   bool QueryHaikuInfo();
@@ -561,12 +521,12 @@ SystemInformation::~SystemInformation()
   delete this->Implementation;
 }
 
-const char* SystemInformation::GetVendorString()
+char const* SystemInformation::GetVendorString()
 {
   return this->Implementation->GetVendorString();
 }
 
-const char* SystemInformation::GetVendorID()
+char const* SystemInformation::GetVendorID()
 {
   return this->Implementation->GetVendorID();
 }
@@ -596,12 +556,12 @@ std::string SystemInformation::GetSteppingCode()
   return this->Implementation->GetSteppingCode();
 }
 
-const char* SystemInformation::GetExtendedProcessorName()
+char const* SystemInformation::GetExtendedProcessorName()
 {
   return this->Implementation->GetExtendedProcessorName();
 }
 
-const char* SystemInformation::GetProcessorSerialNumber()
+char const* SystemInformation::GetProcessorSerialNumber()
 {
   return this->Implementation->GetProcessorSerialNumber();
 }
@@ -642,7 +602,7 @@ std::string SystemInformation::GetCPUDescription()
   oss << this->GetNumberOfPhysicalCPU() << " core ";
   if (this->GetModelName().empty()) {
     oss << this->GetProcessorClockFrequency() << " MHz "
-        << this->GetVendorString() << " " << this->GetExtendedProcessorName();
+        << this->GetVendorString() << ' ' << this->GetExtendedProcessorName();
   } else {
     oss << this->GetModelName();
   }
@@ -657,12 +617,12 @@ std::string SystemInformation::GetCPUDescription()
   return tmp;
 }
 
-const char* SystemInformation::GetOSName()
+char const* SystemInformation::GetOSName()
 {
   return this->Implementation->GetOSName();
 }
 
-const char* SystemInformation::GetHostname()
+char const* SystemInformation::GetHostname()
 {
   return this->Implementation->GetHostname();
 }
@@ -674,17 +634,17 @@ std::string SystemInformation::GetFullyQualifiedDomainName()
   return fqdn;
 }
 
-const char* SystemInformation::GetOSRelease()
+char const* SystemInformation::GetOSRelease()
 {
   return this->Implementation->GetOSRelease();
 }
 
-const char* SystemInformation::GetOSVersion()
+char const* SystemInformation::GetOSVersion()
 {
   return this->Implementation->GetOSVersion();
 }
 
-const char* SystemInformation::GetOSPlatform()
+char const* SystemInformation::GetOSPlatform()
 {
   return this->Implementation->GetOSPlatform();
 }
@@ -719,7 +679,7 @@ int SystemInformation::GetOSIsApple()
 std::string SystemInformation::GetOSDescription()
 {
   std::ostringstream oss;
-  oss << this->GetOSName() << " " << this->GetOSRelease() << " "
+  oss << this->GetOSName() << ' ' << this->GetOSRelease() << ' '
       << this->GetOSVersion();
 
   return oss.str();
@@ -767,7 +727,7 @@ size_t SystemInformation::GetAvailablePhysicalMemory()
 }
 
 std::string SystemInformation::GetMemoryDescription(
-  const char* hostLimitEnvVarName, const char* procLimitEnvVarName)
+  char const* hostLimitEnvVarName, char const* procLimitEnvVarName)
 {
   std::ostringstream oss;
   oss << "Host Total: " << this->GetHostMemoryTotal()
@@ -786,7 +746,7 @@ long long SystemInformation::GetHostMemoryTotal()
 }
 
 long long SystemInformation::GetHostMemoryAvailable(
-  const char* hostLimitEnvVarName)
+  char const* hostLimitEnvVarName)
 {
   return this->Implementation->GetHostMemoryAvailable(hostLimitEnvVarName);
 }
@@ -798,7 +758,7 @@ long long SystemInformation::GetHostMemoryUsed()
 
 // process memory info in units of KiB.
 long long SystemInformation::GetProcMemoryAvailable(
-  const char* hostLimitEnvVarName, const char* procLimitEnvVarName)
+  char const* hostLimitEnvVarName, char const* procLimitEnvVarName)
 {
   return this->Implementation->GetProcMemoryAvailable(hostLimitEnvVarName,
                                                       procLimitEnvVarName);
@@ -870,11 +830,11 @@ int LoadLines(FILE* file, std::vector<std::string>& lines)
 {
   // Load each line in the given file into a the vector.
   int nRead = 0;
-  const int bufSize = 1024;
+  int const bufSize = 1024;
   char buf[bufSize] = { '\0' };
   while (!feof(file) && !ferror(file)) {
     errno = 0;
-    if (fgets(buf, bufSize, file) == nullptr) {
+    if (!fgets(buf, bufSize, file)) {
       if (ferror(file) && (errno == EINTR)) {
         clearerr(file);
       }
@@ -897,10 +857,10 @@ int LoadLines(FILE* file, std::vector<std::string>& lines)
 
 #  if defined(__linux) || defined(__CYGWIN__)
 // *****************************************************************************
-int LoadLines(const char* fileName, std::vector<std::string>& lines)
+int LoadLines(char const* fileName, std::vector<std::string>& lines)
 {
   FILE* file = fopen(fileName, "r");
-  if (file == nullptr) {
+  if (!file) {
     return 0;
   }
   int nRead = LoadLines(file, lines);
@@ -931,14 +891,14 @@ int NameValue(std::vector<std::string> const& lines, std::string const& name,
 #if defined(__linux) || defined(__CYGWIN__)
 // ****************************************************************************
 template <typename T>
-int GetFieldsFromFile(const char* fileName, const char** fieldNames, T* values)
+int GetFieldsFromFile(char const* fileName, char const** fieldNames, T* values)
 {
   std::vector<std::string> fields;
   if (!LoadLines(fileName, fields)) {
     return -1;
   }
   int i = 0;
-  while (fieldNames[i] != nullptr) {
+  while (fieldNames[i]) {
     int ierr = NameValue(fields, fieldNames[i], values[i]);
     if (ierr) {
       return -(i + 2);
@@ -950,9 +910,9 @@ int GetFieldsFromFile(const char* fileName, const char** fieldNames, T* values)
 
 // ****************************************************************************
 template <typename T>
-int GetFieldFromFile(const char* fileName, const char* fieldName, T& value)
+int GetFieldFromFile(char const* fileName, char const* fieldName, T& value)
 {
-  const char* fieldNames[2] = { fieldName, nullptr };
+  char const* fieldNames[2] = { fieldName, nullptr };
   T values[1] = { T(0) };
   int ierr = GetFieldsFromFile(fileName, fieldNames, values);
   if (ierr) {
@@ -966,11 +926,11 @@ int GetFieldFromFile(const char* fileName, const char* fieldName, T& value)
 // ****************************************************************************
 #if defined(__APPLE__)
 template <typename T>
-int GetFieldsFromCommand(const char* command, const char** fieldNames,
+int GetFieldsFromCommand(char const* command, char const** fieldNames,
                          T* values)
 {
   FILE* file = popen(command, "r");
-  if (file == nullptr) {
+  if (!file) {
     return -1;
   }
   std::vector<std::string> fields;
@@ -980,7 +940,7 @@ int GetFieldsFromCommand(const char* command, const char** fieldNames,
     return -1;
   }
   int i = 0;
-  while (fieldNames[i] != nullptr) {
+  while (fieldNames[i]) {
     int ierr = NameValue(fields, fieldNames[i], values[i]);
     if (ierr) {
       return -(i + 2);
@@ -1001,7 +961,7 @@ void StacktraceSignalHandler(int sigNo, siginfo_t* sigInfo,
   oss << std::endl
       << "========================================================="
       << std::endl
-      << "Process id " << getpid() << " ";
+      << "Process id " << getpid() << ' ';
   switch (sigNo) {
     case SIGINT:
       oss << "Caught SIGINT";
@@ -1016,8 +976,8 @@ void StacktraceSignalHandler(int sigNo, siginfo_t* sigInfo,
       break;
 
     case SIGFPE:
-      oss << "Caught SIGFPE at " << (sigInfo->si_addr == nullptr ? "0x" : "")
-          << sigInfo->si_addr << " ";
+      oss << "Caught SIGFPE at " << (sigInfo->si_addr ? "" : "0x")
+          << sigInfo->si_addr << ' ';
       switch (sigInfo->si_code) {
 #    if defined(FPE_INTDIV)
         case FPE_INTDIV:
@@ -1064,8 +1024,8 @@ void StacktraceSignalHandler(int sigNo, siginfo_t* sigInfo,
       break;
 
     case SIGSEGV:
-      oss << "Caught SIGSEGV at " << (sigInfo->si_addr == nullptr ? "0x" : "")
-          << sigInfo->si_addr << " ";
+      oss << "Caught SIGSEGV at " << (sigInfo->si_addr ? "" : "0x")
+          << sigInfo->si_addr << ' ';
       switch (sigInfo->si_code) {
         case SEGV_MAPERR:
           oss << "address not mapped to object";
@@ -1082,8 +1042,8 @@ void StacktraceSignalHandler(int sigNo, siginfo_t* sigInfo,
       break;
 
     case SIGBUS:
-      oss << "Caught SIGBUS at " << (sigInfo->si_addr == nullptr ? "0x" : "")
-          << sigInfo->si_addr << " ";
+      oss << "Caught SIGBUS at " << (sigInfo->si_addr ? "" : "0x")
+          << sigInfo->si_addr << ' ';
       switch (sigInfo->si_code) {
         case BUS_ADRALN:
           oss << "invalid address alignment";
@@ -1122,8 +1082,8 @@ void StacktraceSignalHandler(int sigNo, siginfo_t* sigInfo,
       break;
 
     case SIGILL:
-      oss << "Caught SIGILL at " << (sigInfo->si_addr == nullptr ? "0x" : "")
-          << sigInfo->si_addr << " ";
+      oss << "Caught SIGILL at " << (sigInfo->si_addr ? "" : "0x")
+          << sigInfo->si_addr << ' ';
       switch (sigInfo->si_code) {
         case ILL_ILLOPC:
           oss << "illegal opcode";
@@ -1224,14 +1184,14 @@ public:
   // Description:
   // Set/Get the name of the binary file that the symbol
   // is found in.
-  void SetBinary(const char* binary) { this->Binary = safes(binary); }
+  void SetBinary(char const* binary) { this->Binary = safes(binary); }
 
   std::string GetBinary() const;
 
   // Description:
   // Set the name of the function that the symbol is found in.
   // If c++ demangling is supported it will be demangled.
-  void SetFunction(const char* function)
+  void SetFunction(char const* function)
   {
     this->Function = this->Demangle(function);
   }
@@ -1241,7 +1201,7 @@ public:
   // Description:
   // Set/Get the name of the source file where the symbol
   // is defined.
-  void SetSourceFile(const char* sourcefile)
+  void SetSourceFile(char const* sourcefile)
   {
     this->SourceFile = safes(sourcefile);
   }
@@ -1271,8 +1231,8 @@ private:
                                static_cast<char*>(this->BinaryBaseAddress));
   }
 
-  std::string GetFileName(const std::string& path) const;
-  std::string Demangle(const char* symbol) const;
+  std::string GetFileName(std::string const& path) const;
+  std::string Demangle(char const* symbol) const;
 
 private:
   std::string Binary;
@@ -1284,12 +1244,12 @@ private:
   int ReportPath;
 };
 
-std::ostream& operator<<(std::ostream& os, const SymbolProperties& sp)
+std::ostream& operator<<(std::ostream& os, SymbolProperties const& sp)
 {
 #  if defined(KWSYS_SYSTEMINFORMATION_HAS_SYMBOL_LOOKUP)
   os << std::hex << sp.GetAddress() << " : " << sp.GetFunction() << " [("
-     << sp.GetBinary() << ") " << sp.GetSourceFile() << ":" << std::dec
-     << sp.GetLineNumber() << "]";
+     << sp.GetBinary() << ") " << sp.GetSourceFile() << ':' << std::dec
+     << sp.GetLineNumber() << ']';
 #  elif defined(KWSYS_SYSTEMINFORMATION_HAS_BACKTRACE)
   void* addr = sp.GetAddress();
   char** syminfo = backtrace_symbols(&addr, 1);
@@ -1320,7 +1280,7 @@ SymbolProperties::SymbolProperties()
   this->GetLineNumber();
 }
 
-std::string SymbolProperties::GetFileName(const std::string& path) const
+std::string SymbolProperties::GetFileName(std::string const& path) const
 {
   std::string file(path);
   if (!this->ReportPath) {
@@ -1352,7 +1312,7 @@ std::string SymbolProperties::GetBinary() const
   return this->GetFileName(this->Binary);
 }
 
-std::string SymbolProperties::Demangle(const char* symbol) const
+std::string SymbolProperties::Demangle(char const* symbol) const
 {
   std::string result = safes(symbol);
 #  if defined(KWSYS_SYSTEMINFORMATION_HAS_CPP_DEMANGLE)
@@ -1520,7 +1480,7 @@ void SystemInformationImplementation::RunCPUCheck()
 #elif defined(__hpux)
   this->QueryHPUXProcessor();
 #elif defined(__linux) || defined(__CYGWIN__)
-  this->RetreiveInformationFromCpuInfoFile();
+  this->RetrieveInformationFromCpuInfoFile();
 #else
   this->QueryProcessor();
 #endif
@@ -1560,19 +1520,19 @@ void SystemInformationImplementation::RunMemoryCheck()
 }
 
 /** Get the vendor string */
-const char* SystemInformationImplementation::GetVendorString() const
+char const* SystemInformationImplementation::GetVendorString() const
 {
   return this->ChipID.Vendor.c_str();
 }
 
 /** Get the OS Name */
-const char* SystemInformationImplementation::GetOSName()
+char const* SystemInformationImplementation::GetOSName()
 {
   return this->OSName.c_str();
 }
 
 /** Get the hostname */
-const char* SystemInformationImplementation::GetHostname()
+char const* SystemInformationImplementation::GetHostname()
 {
   if (this->Hostname.empty()) {
     this->Hostname = "localhost";
@@ -1659,14 +1619,14 @@ int SystemInformationImplementation::GetFullyQualifiedDomainName(
     return -2;
   }
 
-  for (ifa = ifas; ifa != nullptr; ifa = ifa->ifa_next) {
+  for (ifa = ifas; ifa; ifa = ifa->ifa_next) {
     int fam = ifa->ifa_addr ? ifa->ifa_addr->sa_family : -1;
     // Skip Loopback interfaces
     if (((fam == AF_INET) || (fam == AF_INET6)) &&
         !(ifa->ifa_flags & IFF_LOOPBACK)) {
       char host[NI_MAXHOST] = { '\0' };
 
-      const size_t addrlen = (fam == AF_INET ? sizeof(struct sockaddr_in)
+      size_t const addrlen = (fam == AF_INET ? sizeof(struct sockaddr_in)
                                              : sizeof(struct sockaddr_in6));
 
       ierr = getnameinfo(ifa->ifa_addr, static_cast<socklen_t>(addrlen), host,
@@ -1699,25 +1659,25 @@ int SystemInformationImplementation::GetFullyQualifiedDomainName(
 }
 
 /** Get the OS release */
-const char* SystemInformationImplementation::GetOSRelease()
+char const* SystemInformationImplementation::GetOSRelease()
 {
   return this->OSRelease.c_str();
 }
 
 /** Get the OS version */
-const char* SystemInformationImplementation::GetOSVersion()
+char const* SystemInformationImplementation::GetOSVersion()
 {
   return this->OSVersion.c_str();
 }
 
 /** Get the OS platform */
-const char* SystemInformationImplementation::GetOSPlatform()
+char const* SystemInformationImplementation::GetOSPlatform()
 {
   return this->OSPlatform.c_str();
 }
 
 /** Get the vendor ID */
-const char* SystemInformationImplementation::GetVendorID()
+char const* SystemInformationImplementation::GetVendorID()
 {
   // Return the vendor ID.
   switch (this->ChipManufacturer) {
@@ -1799,14 +1759,14 @@ std::string SystemInformationImplementation::GetSteppingCode() const
 }
 
 /** Return the stepping code of the CPU present. */
-const char* SystemInformationImplementation::GetExtendedProcessorName() const
+char const* SystemInformationImplementation::GetExtendedProcessorName() const
 {
   return this->ChipID.ProcessorName.c_str();
 }
 
 /** Return the serial number of the processor
  *  in hexadecimal: xxxx-xxxx-xxxx-xxxx-xxxx-xxxx. */
-const char* SystemInformationImplementation::GetProcessorSerialNumber() const
+char const* SystemInformationImplementation::GetProcessorSerialNumber() const
 {
   return this->ChipID.SerialNumber.c_str();
 }
@@ -1847,6 +1807,8 @@ int SystemInformationImplementation::GetProcessorCacheXSize(
       return this->Features.L2CacheSize;
     case SystemInformation::CPU_FEATURE_L3CACHE:
       return this->Features.L3CacheSize;
+    default:
+      break;
   }
   return -1;
 }
@@ -2098,7 +2060,7 @@ bool SystemInformationImplementation::RetrieveCPUFeatures()
 
 /** Find the manufacturer given the vendor id */
 void SystemInformationImplementation::FindManufacturer(
-  const std::string& family)
+  std::string const& family)
 {
   if (this->ChipID.Vendor == "GenuineIntel")
     this->ChipManufacturer = Intel; // Intel Corp.
@@ -2530,38 +2492,61 @@ bool SystemInformationImplementation::RetrieveClassicalCPUCacheDetails()
 #endif
 }
 
+#if defined(_WIN32)
+typedef struct _PROCESSOR_POWER_INFORMATION
+{
+  ULONG Number;
+  ULONG MaxMhz;
+  ULONG CurrentMhz;
+  ULONG MhzLimit;
+  ULONG MaxIdleState;
+  ULONG CurrentIdleState;
+} PROCESSOR_POWER_INFORMATION, *PPROCESSOR_POWER_INFORMATION;
+#endif
+
 /** */
 bool SystemInformationImplementation::RetrieveCPUClockSpeed()
 {
   bool retrieved = false;
 
 #if defined(_WIN32)
-  unsigned int uiRepetitions = 1;
-  unsigned int uiMSecPerRepetition = 50;
-  __int64 i64Total = 0;
-  __int64 i64Overhead = 0;
+  PROCESSOR_POWER_INFORMATION powerInfo[64];
+  NTSTATUS status =
+    CallNtPowerInformation(ProcessorInformation, nullptr, 0, powerInfo,
+                           sizeof(PROCESSOR_POWER_INFORMATION) * 64);
 
-  // Check if the TSC implementation works at all
-  if (this->Features.HasTSC &&
-      GetCyclesDifference(SystemInformationImplementation::Delay,
-                          uiMSecPerRepetition) > 0) {
-    for (unsigned int nCounter = 0; nCounter < uiRepetitions; nCounter++) {
-      i64Total += GetCyclesDifference(SystemInformationImplementation::Delay,
-                                      uiMSecPerRepetition);
-      i64Overhead += GetCyclesDifference(
-        SystemInformationImplementation::DelayOverhead, uiMSecPerRepetition);
-    }
-
-    // Calculate the MHz speed.
-    i64Total -= i64Overhead;
-    i64Total /= uiRepetitions;
-    i64Total /= uiMSecPerRepetition;
-    i64Total /= 1000;
-
-    // Save the CPU speed.
-    this->CPUSpeedInMHz = (float)i64Total;
-
+  if (status == 0) {
+    this->CPUSpeedInMHz = (float)powerInfo[0].MaxMhz;
     retrieved = true;
+  }
+
+  if (!retrieved) {
+    unsigned int uiRepetitions = 1;
+    unsigned int uiMSecPerRepetition = 50;
+    __int64 i64Total = 0;
+    __int64 i64Overhead = 0;
+
+    // Check if the TSC implementation works at all
+    if (this->Features.HasTSC &&
+        GetCyclesDifference(SystemInformationImplementation::Delay,
+                            uiMSecPerRepetition) > 0) {
+      for (unsigned int nCounter = 0; nCounter < uiRepetitions; nCounter++) {
+        i64Total += GetCyclesDifference(SystemInformationImplementation::Delay,
+                                        uiMSecPerRepetition);
+        i64Overhead += GetCyclesDifference(
+          SystemInformationImplementation::DelayOverhead, uiMSecPerRepetition);
+      }
+
+      // Calculate the MHz speed.
+      i64Total -= i64Overhead;
+      i64Total /= uiRepetitions;
+      i64Total /= uiMSecPerRepetition;
+      i64Total /= 1000;
+
+      // Save the CPU speed.
+      this->CPUSpeedInMHz = (float)i64Total;
+      retrieved = true;
+    }
   }
 
   // If RDTSC is not supported, we fallback to trying to read this value
@@ -2847,14 +2832,13 @@ bool SystemInformationImplementation::RetrieveCPUPowerManagement()
 
 #if USE_CPUID
 // Used only in USE_CPUID implementation below.
-static void SystemInformationStripLeadingSpace(std::string& str)
+static void SystemInformationTrimSpace(std::string& s)
 {
-  // Because some manufacturers have leading white space - we have to
-  // post-process the name.
-  std::string::size_type pos = str.find_first_not_of(" ");
-  if (pos != std::string::npos) {
-    str.erase(0, pos);
-  }
+  // Because some manufacturers have leading and/or trailing white space,
+  // we have to post-process the name.
+  auto const not_space = [](char c) { return c != ' '; };
+  s.erase(s.begin(), std::find_if(s.begin(), s.end(), not_space));
+  s.erase(std::find_if(s.rbegin(), s.rend(), not_space).base(), s.end());
 }
 #endif
 
@@ -2900,9 +2884,10 @@ bool SystemInformationImplementation::RetrieveExtendedCPUIdentity()
   this->ChipID.ProcessorName = nbuf;
   this->ChipID.ModelName = nbuf;
 
-  // Because some manufacturers have leading white space - we have to
-  // post-process the name.
-  SystemInformationStripLeadingSpace(this->ChipID.ProcessorName);
+  // Because some manufacturers have leading and/or trailing white space,
+  // we have to post-process the names.
+  SystemInformationTrimSpace(this->ChipID.ProcessorName);
+  SystemInformationTrimSpace(this->ChipID.ModelName);
   return true;
 #else
   return false;
@@ -3406,7 +3391,7 @@ bool SystemInformationImplementation::RetrieveClassicalCPUIdentity()
 
 /** Extract a value from the CPUInfo file */
 std::string SystemInformationImplementation::ExtractValueFromCpuInfoFile(
-  std::string buffer, const char* word, size_t init)
+  std::string buffer, char const* word, size_t init)
 {
   size_t pos = buffer.find(word, init);
   if (pos != std::string::npos) {
@@ -3435,7 +3420,7 @@ std::string SystemInformationImplementation::ExtractValueFromCpuInfoFile(
 }
 
 /** Query for the cpu status */
-bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
+bool SystemInformationImplementation::RetrieveInformationFromCpuInfoFile()
 {
   this->NumberOfLogicalCPU = 0;
   this->NumberOfPhysicalCPU = 0;
@@ -3443,23 +3428,34 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
 
   FILE* fd = fopen("/proc/cpuinfo", "r");
   if (!fd) {
-    std::cout << "Problem opening /proc/cpuinfo" << std::endl;
+    std::cerr << "Problem opening /proc/cpuinfo\n";
     return false;
   }
 
   size_t fileSize = 0;
-  while (!feof(fd)) {
-    buffer += static_cast<char>(fgetc(fd));
+  int fc;
+  while ((fc = fgetc(fd)) != EOF) {
+    buffer += static_cast<char>(fc);
     fileSize++;
   }
   fclose(fd);
+  if (fileSize < 2) {
+    std::cerr << "No data in /proc/cpuinfo\n";
+    return false;
+  }
   buffer.resize(fileSize - 2);
   // Number of logical CPUs (combination of multiple processors, multi-core
   // and SMT)
-  size_t pos = buffer.find("processor\t");
+  char const* processor_string =
+#ifdef __s390x__
+    "cpu number";
+#else
+    "processor\t";
+#endif
+  size_t pos = buffer.find(processor_string);
   while (pos != std::string::npos) {
     this->NumberOfLogicalCPU++;
-    pos = buffer.find("processor\t", pos + 1);
+    pos = buffer.find(processor_string, pos + 1);
   }
 
 #if defined(__linux) || defined(__CYGWIN__)
@@ -3473,7 +3469,6 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
                                             this->CurrentPositionInFile + 1);
   }
   uint64_t NumberOfSockets = PhysicalIDs.size();
-  NumberOfSockets = std::max(NumberOfSockets, (uint64_t)1);
   // Physical ids returned by Linux don't distinguish cores.
   // We want to record the total number of cores in this->NumberOfPhysicalCPU
   // (checking only the first proc)
@@ -3483,9 +3478,11 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
     Cores = this->ExtractValueFromCpuInfoFile(buffer, "ncpus probed");
   }
   auto NumberOfCoresPerSocket = (unsigned int)atoi(Cores.c_str());
-  NumberOfCoresPerSocket = std::max(NumberOfCoresPerSocket, 1u);
-  this->NumberOfPhysicalCPU =
-    NumberOfCoresPerSocket * (unsigned int)NumberOfSockets;
+  // If either one is 0, will be assigned with NumberOfLogicalCPU or 1 below.
+  if (NumberOfSockets > 0 && NumberOfCoresPerSocket > 0) {
+    this->NumberOfPhysicalCPU =
+      NumberOfCoresPerSocket * (unsigned int)NumberOfSockets;
+  }
 
 #else
   // For systems which do not have "physical id" entries, neither "cpu cores"
@@ -3497,10 +3494,11 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
 #endif
   // gotta have one, and if this is 0 then we get a / by 0n
   // better to have a bad answer than a crash
-  if (this->NumberOfPhysicalCPU <= 0) {
-    this->NumberOfPhysicalCPU = 1;
-  }
-  if (this->NumberOfLogicalCPU == 0) {
+  if (this->NumberOfPhysicalCPU == 0 && this->NumberOfLogicalCPU == 0) {
+    this->NumberOfPhysicalCPU = this->NumberOfLogicalCPU = 1;
+  } else if (this->NumberOfPhysicalCPU == 0) {
+    this->NumberOfPhysicalCPU = this->NumberOfLogicalCPU;
+  } else if (this->NumberOfLogicalCPU == 0) {
     this->NumberOfLogicalCPU = this->NumberOfPhysicalCPU;
   }
   // LogicalProcessorsPerPhysical>1 => SMT.
@@ -3580,7 +3578,7 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
   // L1 Cache size
   // Different architectures may show different names for the caches.
   // Sum up everything we find.
-  std::vector<const char*> cachename;
+  std::vector<char const*> cachename;
   cachename.clear();
 
   cachename.push_back("cache size"); // e.g. x86
@@ -3603,7 +3601,7 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
   std::string cpuflags = this->ExtractValueFromCpuInfoFile(buffer, "flags");
   if (!cpurev.empty()) {
     // now we can match every flags as space + flag + space
-    cpuflags = " " + cpuflags + " ";
+    cpuflags = ' ' + cpuflags + ' ';
     if ((cpuflags.find(" fpu ") != std::string::npos)) {
       this->Features.HasFPU = true;
     }
@@ -3708,7 +3706,7 @@ Get total system RAM in units of KiB. This may differ from the
 host total if a host-wide resource limit is applied.
 */
 long long SystemInformationImplementation::GetHostMemoryAvailable(
-  const char* hostLimitEnvVarName)
+  char const* hostLimitEnvVarName)
 {
   long long memTotal = this->GetHostMemoryTotal();
 
@@ -3719,7 +3717,7 @@ long long SystemInformationImplementation::GetHostMemoryAvailable(
   // access to it is severely restricted. The system will
   // apply a limit across a set of processes. Units are in KiB.
   if (hostLimitEnvVarName) {
-    const char* hostLimitEnvVarValue = getenv(hostLimitEnvVarName);
+    char const* hostLimitEnvVarValue = getenv(hostLimitEnvVarName);
     if (hostLimitEnvVarValue) {
       long long hostLimit = std::atoll(hostLimitEnvVarValue);
       if (hostLimit > 0) {
@@ -3736,14 +3734,14 @@ Get total system RAM in units of KiB. This may differ from the
 host total if a per-process resource limit is applied.
 */
 long long SystemInformationImplementation::GetProcMemoryAvailable(
-  const char* hostLimitEnvVarName, const char* procLimitEnvVarName)
+  char const* hostLimitEnvVarName, char const* procLimitEnvVarName)
 {
   long long memAvail = this->GetHostMemoryAvailable(hostLimitEnvVarName);
 
   // the following mechanism is provide for systems where rlimits
   // are not employed. Units are in KiB.
   if (procLimitEnvVarName) {
-    const char* procLimitEnvVarValue = getenv(procLimitEnvVarName);
+    char const* procLimitEnvVarValue = getenv(procLimitEnvVarName);
     if (procLimitEnvVarValue) {
       long long procLimit = std::atoll(procLimitEnvVarValue);
       if (procLimit > 0) {
@@ -3799,7 +3797,7 @@ long long SystemInformationImplementation::GetHostMemoryUsed()
   return (statex.ullTotalPhys - statex.ullAvailPhys) / 1024;
 #  endif
 #elif defined(__CYGWIN__)
-  const char* names[3] = { "MemTotal:", "MemFree:", nullptr };
+  char const* names[3] = { "MemTotal:", "MemFree:", nullptr };
   long long values[2] = { 0 };
   int ierr = GetFieldsFromFile("/proc/meminfo", names, values);
   if (ierr) {
@@ -3810,11 +3808,11 @@ long long SystemInformationImplementation::GetHostMemoryUsed()
   return memTotal - memFree;
 #elif defined(__linux)
   // First try to use MemAvailable, but it only works on newer kernels
-  const char* names2[3] = { "MemTotal:", "MemAvailable:", nullptr };
+  char const* names2[3] = { "MemTotal:", "MemAvailable:", nullptr };
   long long values2[2] = { 0 };
   int ierr = GetFieldsFromFile("/proc/meminfo", names2, values2);
   if (ierr) {
-    const char* names4[5] = { "MemTotal:", "MemFree:", "Buffers:", "Cached:",
+    char const* names4[5] = { "MemTotal:", "MemFree:", "Buffers:", "Cached:",
                               nullptr };
     long long values4[4] = { 0 };
     ierr = GetFieldsFromFile("/proc/meminfo", names4, values4);
@@ -3835,7 +3833,7 @@ long long SystemInformationImplementation::GetHostMemoryUsed()
   if (psz < 1) {
     return -1;
   }
-  const char* names[3] = { "Pages wired down:", "Pages active:", nullptr };
+  char const* names[3] = { "Pages wired down:", "Pages active:", nullptr };
   long long values[2] = { 0 };
   int ierr = GetFieldsFromCommand("vm_stat", names, values);
   if (ierr) {
@@ -3882,7 +3880,7 @@ long long SystemInformationImplementation::GetProcMemoryUsed()
   std::ostringstream oss;
   oss << "ps -o rss= -p " << pid;
   FILE* file = popen(oss.str().c_str(), "r");
-  if (file == nullptr) {
+  if (!file) {
     return -1;
   }
   oss.str("");
@@ -3919,11 +3917,10 @@ double SystemInformationImplementation::GetLoadAverage()
   return -0.0;
 #elif defined(KWSYS_SYSTEMINFORMATION_USE_GetSystemTimes)
   // Old windows.h headers do not provide GetSystemTimes.
-  typedef BOOL(WINAPI * GetSystemTimesType)(LPFILETIME, LPFILETIME,
-                                            LPFILETIME);
+  using GetSystemTimesType = BOOL(WINAPI*)(LPFILETIME, LPFILETIME, LPFILETIME);
   static GetSystemTimesType pGetSystemTimes =
-    (GetSystemTimesType)GetProcAddress(GetModuleHandleW(L"kernel32"),
-                                       "GetSystemTimes");
+    (GetSystemTimesType)(void*)GetProcAddress(GetModuleHandleW(L"kernel32"),
+                                              "GetSystemTimes");
   FILETIME idleTime, kernelTime, userTime;
   if (pGetSystemTimes && pGetSystemTimes(&idleTime, &kernelTime, &userTime)) {
     unsigned __int64 const idleTicks = fileTimeToUInt64(idleTime);
@@ -4135,6 +4132,10 @@ bool SystemInformationImplementation::QueryWindowsMemory()
   this->TotalPhysicalMemory = tp >> 10 >> 10;
   this->AvailableVirtualMemory = av >> 10 >> 10;
   this->AvailablePhysicalMemory = ap >> 10 >> 10;
+
+  // The virtual WinAPI memory contains both physical memory and page file.
+  this->TotalVirtualMemory -= this->TotalPhysicalMemory;
+  this->AvailableVirtualMemory -= this->AvailablePhysicalMemory;
   return true;
 #else
   return false;
@@ -4158,7 +4159,7 @@ bool SystemInformationImplementation::QueryLinuxMemory()
   struct utsname unameInfo;
   int errorFlag = uname(&unameInfo);
   if (errorFlag != 0) {
-    std::cout << "Problem calling uname(): " << strerror(errno) << std::endl;
+    std::cerr << "Problem calling uname(): " << strerror(errno) << "\n";
     return false;
   }
 
@@ -4167,18 +4168,18 @@ bool SystemInformationImplementation::QueryLinuxMemory()
     char majorChar = unameInfo.release[0];
     char minorChar = unameInfo.release[2];
 
-    if (isdigit(majorChar)) {
+    if (kwsysString_isdigit(majorChar)) {
       linuxMajor = majorChar - '0';
     }
 
-    if (isdigit(minorChar)) {
+    if (kwsysString_isdigit(minorChar)) {
       linuxMinor = minorChar - '0';
     }
   }
 
   FILE* fd = fopen("/proc/meminfo", "r");
   if (!fd) {
-    std::cout << "Problem opening /proc/meminfo" << std::endl;
+    std::cerr << "Problem opening /proc/meminfo\n";
     return false;
   }
 
@@ -4196,7 +4197,7 @@ bool SystemInformationImplementation::QueryLinuxMemory()
       mSwapTotal,
       mSwapFree
     };
-    const char* format[6] = { "MemTotal:%lu kB",  "MemFree:%lu kB",
+    char const* format[6] = { "MemTotal:%lu kB",  "MemFree:%lu kB",
                               "Buffers:%lu kB",   "Cached:%lu kB",
                               "SwapTotal:%lu kB", "SwapFree:%lu kB" };
     bool have[6] = { false, false, false, false, false, false };
@@ -4217,7 +4218,7 @@ bool SystemInformationImplementation::QueryLinuxMemory()
       this->TotalVirtualMemory = value[mSwapTotal] / 1024;
       this->AvailableVirtualMemory = value[mSwapFree] / 1024;
     } else {
-      std::cout << "Problem parsing /proc/meminfo" << std::endl;
+      std::cerr << "Problem parsing /proc/meminfo\n";
       fclose(fd);
       return false;
     }
@@ -4244,7 +4245,7 @@ bool SystemInformationImplementation::QueryLinuxMemory()
       this->AvailablePhysicalMemory =
         (ap + buffersMem + cachedMem) >> 10 >> 10;
     } else {
-      std::cout << "Problem parsing /proc/meminfo" << std::endl;
+      std::cerr << "Problem parsing /proc/meminfo\n";
       fclose(fd);
       return false;
     }
@@ -4261,7 +4262,7 @@ bool SystemInformationImplementation::QueryCygwinMemory()
 {
 #ifdef __CYGWIN__
   // _SC_PAGE_SIZE does return the mmap() granularity on Cygwin,
-  // see http://cygwin.com/ml/cygwin/2006-06/msg00350.html
+  // see https://sourceware.org/legacy-ml/cygwin/2006-06/msg00350.html
   // Therefore just use 4096 as the page size of Windows.
   long m = sysconf(_SC_PHYS_PAGES);
   if (m < 0) {
@@ -4451,7 +4452,7 @@ unsigned char SystemInformationImplementation::GetAPICId()
 #if USE_CPUID
   if (!this->IsSMTSupported()) {
     return static_cast<unsigned char>(-1); // HT not supported
-  }                                        // Logical processor = 1
+  } // Logical processor = 1
   call_cpuid(1, Regs);
 #endif
 
@@ -4465,11 +4466,11 @@ void SystemInformationImplementation::CPUCountWindows()
   this->NumberOfPhysicalCPU = 0;
   this->NumberOfLogicalCPU = 0;
 
-  typedef BOOL(WINAPI * GetLogicalProcessorInformationType)(
-    PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
+  using GetLogicalProcessorInformationType =
+    BOOL(WINAPI*)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
   static GetLogicalProcessorInformationType pGetLogicalProcessorInformation =
-    (GetLogicalProcessorInformationType)GetProcAddress(
-      GetModuleHandleW(L"kernel32"), "GetLogicalProcessorInformation");
+    reinterpret_cast<GetLogicalProcessorInformationType>((void*)GetProcAddress(
+      GetModuleHandleW(L"kernel32"), "GetLogicalProcessorInformation"));
 
   if (!pGetLogicalProcessorInformation) {
     // Fallback to approximate implementation on ancient Windows versions.
@@ -4495,10 +4496,7 @@ void SystemInformationImplementation::CPUCountWindows()
     (void)rc; // Silence unused variable warning
   }
 
-  typedef std::vector<SYSTEM_LOGICAL_PROCESSOR_INFORMATION>::iterator
-    pinfoIt_t;
-  for (pinfoIt_t it = ProcInfo.begin(); it != ProcInfo.end(); ++it) {
-    SYSTEM_LOGICAL_PROCESSOR_INFORMATION PInfo = *it;
+  for (SYSTEM_LOGICAL_PROCESSOR_INFORMATION const& PInfo : ProcInfo) {
     if (PInfo.Relationship != RelationProcessorCore) {
       continue;
     }
@@ -4532,7 +4530,7 @@ unsigned int SystemInformationImplementation::GetNumberOfPhysicalCPU() const
 }
 
 #if defined(__APPLE__)
-static int kw_sysctlbyname_int32(const char* name, int32_t* value)
+static int kw_sysctlbyname_int32(char const* name, int32_t* value)
 {
   size_t len = sizeof(int32_t);
   int err = sysctlbyname(name, value, &len, nullptr, 0);
@@ -4542,7 +4540,7 @@ static int kw_sysctlbyname_int32(const char* name, int32_t* value)
   return err;
 }
 
-static int kw_sysctlbyname_int64(const char* name, int64_t* value)
+static int kw_sysctlbyname_int64(char const* name, int64_t* value)
 {
   size_t len = sizeof(int64_t);
   int err = sysctlbyname(name, value, &len, nullptr, 0);
@@ -4642,7 +4640,7 @@ bool SystemInformationImplementation::ParseSysCtl()
     err = sysctlbyname("hw.machine", &tempBuff, &len, nullptr, 0);
     if (err == 0) {
       std::string machineBuf(tempBuff);
-      if (machineBuf.find_first_of("Power") != std::string::npos) {
+      if (machineBuf.find("Power") != std::string::npos) {
         this->ChipID.Vendor = "IBM";
 
         err = kw_sysctlbyname_int32("hw.cputype", &tempInt32);
@@ -4656,10 +4654,15 @@ bool SystemInformationImplementation::ParseSysCtl()
         }
 
         this->FindManufacturer();
-      } else if (machineBuf.find_first_of("arm64") != std::string::npos) {
+      } else if (machineBuf.find("arm64") != std::string::npos) {
         this->ChipID.Vendor = "Apple";
 
         this->FindManufacturer();
+
+        err = kw_sysctlbyname_int32("hw.optional.floatingpoint", &tempInt32);
+        if (err == 0) {
+          this->Features.HasFPU = static_cast<bool>(tempInt32);
+        }
       }
     }
   } else {
@@ -4779,7 +4782,7 @@ bool SystemInformationImplementation::ParseSysCtl()
 
 /** Extract a value from sysctl command */
 std::string SystemInformationImplementation::ExtractValueFromSysCtl(
-  const char* word)
+  char const* word)
 {
   size_t pos = this->SysCtlBuffer.find(word);
   if (pos != std::string::npos) {
@@ -4794,9 +4797,9 @@ std::string SystemInformationImplementation::ExtractValueFromSysCtl(
 
 /** Run a given process */
 std::string SystemInformationImplementation::RunProcess(
-  std::vector<const char*> args)
+  std::vector<char const*> args)
 {
-  std::string buffer;
+  std::string out;
 
   // Run the application
   kwsysProcess* gp = kwsysProcess_New();
@@ -4815,7 +4818,10 @@ std::string SystemInformationImplementation::RunProcess(
           (pipe == kwsysProcess_Pipe_STDOUT ||
            pipe == kwsysProcess_Pipe_STDERR))) // wait for 1s
   {
-    buffer.append(data, length);
+    // Keep stdout, ignore stderr.
+    if (pipe == kwsysProcess_Pipe_STDOUT) {
+      out.append(data, length);
+    }
   }
   kwsysProcess_WaitForExit(gp, nullptr);
 
@@ -4840,16 +4846,18 @@ std::string SystemInformationImplementation::RunProcess(
       std::cerr << "Unexpected ending state after running " << args[0]
                 << std::endl;
     } break;
+    default:
+      break;
   }
   kwsysProcess_Delete(gp);
   if (result) {
     std::cerr << "Error " << args[0] << " returned :" << result << "\n";
   }
-  return buffer;
+  return out;
 }
 
 std::string SystemInformationImplementation::ParseValueFromKStat(
-  const char* arguments)
+  char const* arguments)
 {
   std::vector<std::string> args_string;
   std::string command = arguments;
@@ -4882,11 +4890,11 @@ std::string SystemInformationImplementation::ParseValueFromKStat(
   command.erase(0, start + 1);
   args_string.push_back(command);
 
-  std::vector<const char*> args;
+  std::vector<char const*> args;
   args.reserve(3 + args_string.size());
   args.push_back("kstat");
   args.push_back("-p");
-  for (auto& i : args_string) {
+  for (auto const& i : args_string) {
     args.push_back(i.c_str());
   }
   args.push_back(nullptr);
@@ -5048,7 +5056,7 @@ bool SystemInformationImplementation::QueryQNXMemory()
 {
 #if defined(__QNX__)
   std::string buffer;
-  std::vector<const char*> args;
+  std::vector<char const*> args;
   args.clear();
 
   args.push_back("showmem");
@@ -5060,7 +5068,7 @@ bool SystemInformationImplementation::QueryQNXMemory()
   size_t pos = buffer.find("System RAM:");
   if (pos == std::string::npos)
     return false;
-  pos = buffer.find(":", pos);
+  pos = buffer.find(':', pos);
   size_t pos2 = buffer.find("M (", pos);
   if (pos2 == std::string::npos)
     return false;
@@ -5108,7 +5116,7 @@ bool SystemInformationImplementation::QueryQNXProcessor()
   // the output on my QNX 6.4.1 looks like this:
   // Processor1: 686 Pentium II Stepping 3 2175MHz FPU
   std::string buffer;
-  std::vector<const char*> args;
+  std::vector<char const*> args;
   args.clear();
 
   args.push_back("pidin");
@@ -5133,7 +5141,7 @@ bool SystemInformationImplementation::QueryQNXProcessor()
 
   pos2 = buffer.find(" Stepping", pos);
   if (pos2 != std::string::npos) {
-    pos2 = buffer.find(" ", pos2 + 1);
+    pos2 = buffer.find(' ', pos2 + 1);
     if (pos2 != std::string::npos && pos2 < pos3) {
       this->ChipID.Revision =
         atoi(buffer.substr(pos2 + 1, pos3 - pos2).c_str());
@@ -5159,7 +5167,11 @@ bool SystemInformationImplementation::QueryBSDProcessor()
   defined(__DragonFly__)
   int k;
   size_t sz = sizeof(k);
+#  ifdef HW_NCPUONLINE
+  int ctrl[2] = { CTL_HW, HW_NCPUONLINE };
+#  else
   int ctrl[2] = { CTL_HW, HW_NCPU };
+#  endif
 
   if (sysctl(ctrl, 2, &k, &sz, nullptr, 0) != 0) {
     return false;
@@ -5318,14 +5330,8 @@ bool SystemInformationImplementation::QueryOSInformation()
 
   this->OSName = "Windows";
 
-  OSVERSIONINFOEXW osvi;
-  BOOL bIsWindows64Bit;
-  BOOL bOsVersionInfoEx;
-  char operatingSystem[256];
-
-  // Try calling GetVersionEx using the OSVERSIONINFOEX structure.
-  ZeroMemory(&osvi, sizeof(OSVERSIONINFOEXW));
-  osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
+  OSVERSIONINFOEXW osvi = {};
+  osvi.dwOSVersionInfoSize = sizeof(osvi);
 #  ifdef KWSYS_WINDOWS_DEPRECATED_GetVersionEx
 #    pragma warning(push)
 #    ifdef __INTEL_COMPILER
@@ -5337,12 +5343,8 @@ bool SystemInformationImplementation::QueryOSInformation()
 #      pragma warning(disable : 4996)
 #    endif
 #  endif
-  bOsVersionInfoEx = GetVersionExW((OSVERSIONINFOW*)&osvi);
-  if (!bOsVersionInfoEx) {
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOW);
-    if (!GetVersionExW((OSVERSIONINFOW*)&osvi)) {
-      return false;
-    }
+  if (!GetVersionExW((OSVERSIONINFOW*)&osvi)) {
+    return false;
   }
 #  ifdef KWSYS_WINDOWS_DEPRECATED_GetVersionEx
 #    ifdef __clang__
@@ -5352,167 +5354,91 @@ bool SystemInformationImplementation::QueryOSInformation()
 #    endif
 #  endif
 
-  switch (osvi.dwPlatformId) {
-    case VER_PLATFORM_WIN32_NT:
-      // Test for the product.
-      if (osvi.dwMajorVersion <= 4) {
-        this->OSRelease = "NT";
-      }
-      if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0) {
-        this->OSRelease = "2000";
-      }
-      if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1) {
-        this->OSRelease = "XP";
-      }
-      // XP Professional x64
-      if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2) {
-        this->OSRelease = "XP";
-      }
-#  ifdef VER_NT_WORKSTATION
-      // Test for product type.
-      if (bOsVersionInfoEx) {
-        if (osvi.wProductType == VER_NT_WORKSTATION) {
-          if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0) {
-            this->OSRelease = "Vista";
-          }
-          if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 1) {
-            this->OSRelease = "7";
-          }
-// VER_SUITE_PERSONAL may not be defined
-#    ifdef VER_SUITE_PERSONAL
-          else {
-            if (osvi.wSuiteMask & VER_SUITE_PERSONAL) {
-              this->OSRelease += " Personal";
-            } else {
-              this->OSRelease += " Professional";
-            }
-          }
-#    endif
-        } else if (osvi.wProductType == VER_NT_SERVER) {
-          // Check for .NET Server instead of Windows XP.
-          if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1) {
-            this->OSRelease = ".NET";
-          }
+  // Produce the release like it is displayed in `cmd`
+  this->OSRelease = std::to_string(osvi.dwMajorVersion) + '.' +
+    std::to_string(osvi.dwMinorVersion) + '.' +
+    std::to_string(osvi.dwBuildNumber & 0xFFFF);
 
-          // Continue with the type detection.
-          if (osvi.wSuiteMask & VER_SUITE_DATACENTER) {
-            this->OSRelease += " DataCenter Server";
-          } else if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE) {
-            this->OSRelease += " Advanced Server";
-          } else {
-            this->OSRelease += " Server";
-          }
-        }
+  struct VersionNames
+  {
+    char const* workstation;
+    char const* server;
+  };
 
-        snprintf(operatingSystem, sizeof(operatingSystem), "%ls (Build %ld)",
-                 osvi.szCSDVersion, osvi.dwBuildNumber & 0xFFFF);
-        this->OSVersion = operatingSystem;
-      } else
-#  endif // VER_NT_WORKSTATION
-      {
-        HKEY hKey;
-        wchar_t szProductType[80];
-        DWORD dwBufLen;
+  std::map<std::pair<DWORD, DWORD>, VersionNames> const products = {
+    // clang-format off
+    { { 10,  0 }, { "10",    "2016"    } },
+    { {  6,  3 }, { "8.1",   "2012 R2" } },
+    { {  6,  2 }, { "8",     "2012"    } },
+    { {  6,  1 }, { "7",     "2008 R2" } },
+    { {  6,  0 }, { "Vista", "2008"    } },
+    { {  5,  2 }, { "XP",    "2003"    } },
+    { {  5,  1 }, { "XP",    ".NET"    } },
+    { {  5,  0 }, { "2000",  "2000"    } },
+    { {  4, 90 }, { "Me",    ""        } },
+    { {  4, 10 }, { "98",    ""        } },
+    { {  4,  0 }, { "95",    "NT 4.0"  } },
+    { {  3, 51 }, {   "",    "NT 3.51" } },
+    { {  3, 10 }, { "3.1",   ""        } },
+    { {  3,  0 }, { "3.0",   ""        } },
+    { {  2,  0 }, { "2.0",   ""        } },
+    // clang-format on
+  };
 
-        // Query the registry to retrieve information.
-        RegOpenKeyExW(HKEY_LOCAL_MACHINE,
-                      L"SYSTEM\\CurrentControlSet\\Control\\ProductOptions", 0,
-                      KEY_QUERY_VALUE, &hKey);
-        RegQueryValueExW(hKey, L"ProductType", nullptr, nullptr,
-                         (LPBYTE)szProductType, &dwBufLen);
-        RegCloseKey(hKey);
+  this->OSVersion = "Windows ";
+  if (osvi.wProductType == VER_NT_SERVER) {
+    this->OSVersion += "Server ";
+  }
 
-        if (lstrcmpiW(L"WINNT", szProductType) == 0) {
-          this->OSRelease += " Professional";
-        }
-        if (lstrcmpiW(L"LANMANNT", szProductType) == 0) {
-          // Decide between Windows 2000 Advanced Server and Windows .NET
-          // Enterprise Server.
-          if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1) {
-            this->OSRelease += " Standard Server";
-          } else {
-            this->OSRelease += " Server";
-          }
-        }
-        if (lstrcmpiW(L"SERVERNT", szProductType) == 0) {
-          // Decide between Windows 2000 Advanced Server and Windows .NET
-          // Enterprise Server.
-          if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1) {
-            this->OSRelease += " Enterprise Server";
-          } else {
-            this->OSRelease += " Advanced Server";
-          }
-        }
-      }
+  auto const it = products.find({ osvi.dwMajorVersion, osvi.dwMinorVersion });
+  if (it != products.end()) {
+    bool const useServer =
+      (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT &&
+       (osvi.dwMajorVersion <= 4 || osvi.wProductType != VER_NT_WORKSTATION));
+    this->OSVersion += useServer ? it->second.server : it->second.workstation;
+  } else {
+    this->OSVersion += "Unknown Version";
+  }
 
-      // Display version, service pack (if any), and build number.
-      if (osvi.dwMajorVersion <= 4) {
-        // NB: NT 4.0 and earlier.
-        snprintf(operatingSystem, sizeof(operatingSystem),
-                 "version %ld.%ld %ls (Build %ld)", osvi.dwMajorVersion,
-                 osvi.dwMinorVersion, osvi.szCSDVersion,
-                 osvi.dwBuildNumber & 0xFFFF);
-        this->OSVersion = operatingSystem;
-      } else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1) {
-        // Windows XP and .NET server.
-        typedef BOOL(CALLBACK * LPFNPROC)(HANDLE, BOOL*);
-        HINSTANCE hKernelDLL;
-        LPFNPROC DLLProc;
+  if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2) {
+    // special case for Windows XP x64
+    if (osvi.wProductType == VER_NT_WORKSTATION) {
+      this->OSVersion += " x64";
+    }
 
-        // Load the Kernel32 DLL.
-        hKernelDLL = LoadLibraryW(L"kernel32");
-        if (hKernelDLL != nullptr) {
-          // Only XP and .NET Server support IsWOW64Process so... Load
-          // dynamically!
-          DLLProc = (LPFNPROC)GetProcAddress(hKernelDLL, "IsWow64Process");
+    // special case for Windows Server 2003 R2
+    else if (GetSystemMetrics(SM_SERVERR2) != 0) {
+      this->OSVersion += " R2";
+    }
+  }
 
-          // If the function address is valid, call the function.
-          if (DLLProc != nullptr)
-            (DLLProc)(GetCurrentProcess(), &bIsWindows64Bit);
-          else
-            bIsWindows64Bit = false;
+  // special case for Windows 98 SE
+  else if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 10) {
+    if (osvi.szCSDVersion[1] == 'A') {
+      this->OSVersion += " SE";
+    }
+  }
 
-          // Free the DLL module.
-          FreeLibrary(hKernelDLL);
-        }
-      } else {
-        // Windows 2000 and everything else.
-        snprintf(operatingSystem, sizeof(operatingSystem), "%ls (Build %ld)",
-                 osvi.szCSDVersion, osvi.dwBuildNumber & 0xFFFF);
-        this->OSVersion = operatingSystem;
-      }
-      break;
+  // special case for Windows 95 OSR 2
+  else if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0) {
+    if (osvi.szCSDVersion[1] == 'C') {
+      this->OSVersion += " OSR 2.5";
+    } else if (osvi.szCSDVersion[1] == 'B') {
+      this->OSVersion += " OSR 2";
+    }
+  }
 
-    case VER_PLATFORM_WIN32_WINDOWS:
-      // Test for the product.
-      if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0) {
-        this->OSRelease = "95";
-        if (osvi.szCSDVersion[1] == 'C') {
-          this->OSRelease += "OSR 2.5";
-        } else if (osvi.szCSDVersion[1] == 'B') {
-          this->OSRelease += "OSR 2";
-        }
-      }
+  if (osvi.wSuiteMask & VER_SUITE_DATACENTER) {
+    this->OSVersion += " DataCenter";
+  } else if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE) {
+    this->OSVersion += " Enterprise";
+  }
 
-      if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 10) {
-        this->OSRelease = "98";
-        if (osvi.szCSDVersion[1] == 'A') {
-          this->OSRelease += "SE";
-        }
-      }
-
-      if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 90) {
-        this->OSRelease = "Me";
-      }
-      break;
-
-    case VER_PLATFORM_WIN32s:
-      this->OSRelease = "Win32s";
-      break;
-
-    default:
-      this->OSRelease = "Unknown";
-      break;
+  // append service pack (if any)
+  if (osvi.szCSDVersion[0] != 0 && osvi.szCSDVersion[0] != ' ') {
+    char buffer[256];
+    snprintf(buffer, sizeof(buffer), " %ls", osvi.szCSDVersion);
+    this->OSVersion += buffer;
   }
 
   // Get the hostname
@@ -5527,8 +5453,8 @@ bool SystemInformationImplementation::QueryOSInformation()
   }
   this->Hostname = name;
 
-  const char* arch = getenv("PROCESSOR_ARCHITECTURE");
-  const char* wow64 = getenv("PROCESSOR_ARCHITEW6432");
+  char const* arch = getenv("PROCESSOR_ARCHITECTURE");
+  char const* wow64 = getenv("PROCESSOR_ARCHITEW6432");
   if (arch) {
     this->OSPlatform = arch;
   }
@@ -5575,11 +5501,11 @@ bool SystemInformationImplementation::QueryOSInformation()
   return true;
 }
 
-int SystemInformationImplementation::CallSwVers(const char* arg,
+int SystemInformationImplementation::CallSwVers(char const* arg,
                                                 std::string& ver)
 {
 #ifdef __APPLE__
-  std::vector<const char*> args;
+  std::vector<char const*> args;
   args.push_back("sw_vers");
   args.push_back(arg);
   args.push_back(nullptr);

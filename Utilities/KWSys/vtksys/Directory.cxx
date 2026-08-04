@@ -43,12 +43,12 @@ public:
   {
     std::string Name;
 #if defined(_WIN32) && !defined(__CYGWIN__)
-    _wfinddata_t FindData;
+    WIN32_FIND_DATAW FindData;
 #endif
     FileData(std::string name
 #if defined(_WIN32) && !defined(__CYGWIN__)
              ,
-             _wfinddata_t data
+             WIN32_FIND_DATAW data
 #endif
              )
       : Name(std::move(name))
@@ -92,7 +92,7 @@ unsigned long Directory::GetNumberOfFiles() const
   return static_cast<unsigned long>(this->Internal->Files.size());
 }
 
-const char* Directory::GetFile(unsigned long dindex) const
+char const* Directory::GetFile(unsigned long dindex) const
 {
   return this->Internal->Files[dindex].Name.c_str();
 }
@@ -115,8 +115,8 @@ std::string Directory::GetFilePath(std::size_t i) const
 bool Directory::FileIsDirectory(std::size_t i) const
 {
 #if defined(_WIN32) && !defined(__CYGWIN__)
-  _wfinddata_t const& data = this->Internal->Files[i].FindData;
-  return (data.attrib & FILE_ATTRIBUTE_DIRECTORY) != 0;
+  auto const& data = this->Internal->Files[i].FindData;
+  return (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 #else
   std::string const& path = this->GetFilePath(i);
   return kwsys::SystemTools::FileIsDirectory(path);
@@ -127,15 +127,15 @@ bool Directory::FileIsSymlink(std::size_t i) const
 {
   std::string const& path = this->GetFilePath(i);
 #if defined(_WIN32) && !defined(__CYGWIN__)
-  _wfinddata_t const& data = this->Internal->Files[i].FindData;
+  auto const& data = this->Internal->Files[i].FindData;
   return kwsys::SystemTools::FileIsSymlinkWithAttr(
-    Encoding::ToWindowsExtendedPath(path), data.attrib);
+    Encoding::ToWindowsExtendedPath(path), data.dwFileAttributes);
 #else
   return kwsys::SystemTools::FileIsSymlink(path);
 #endif
 }
 
-const char* Directory::GetPath() const
+char const* Directory::GetPath() const
 {
   return this->Internal->Path.c_str();
 }
@@ -157,7 +157,7 @@ namespace KWSYS_NAMESPACE {
 Status Directory::Load(std::string const& name, std::string* errorMessage)
 {
   this->Clear();
-  intptr_t srchHandle;
+  HANDLE srchHandle;
   char* buf;
   size_t bufLength;
   size_t n = name.size();
@@ -176,15 +176,15 @@ Status Directory::Load(std::string const& name, std::string* errorMessage)
       snprintf(buf, bufLength, "%s/*", name.c_str());
     }
   }
-  struct _wfinddata_t data; // data of current file
+  WIN32_FIND_DATAW data; // data of current file
 
   // Now put them into the file array
   srchHandle =
-    _wfindfirst((wchar_t*)Encoding::ToWindowsExtendedPath(buf).c_str(), &data);
+    FindFirstFileW(Encoding::ToWindowsExtendedPath(buf).c_str(), &data);
   delete[] buf;
 
-  if (srchHandle == -1) {
-    Status status = Status::POSIX_errno();
+  if (srchHandle == INVALID_HANDLE_VALUE) {
+    Status status = Status::Windows_GetLastError();
     if (errorMessage) {
       *errorMessage = status.GetString();
     }
@@ -193,11 +193,12 @@ Status Directory::Load(std::string const& name, std::string* errorMessage)
 
   // Loop through names
   do {
-    this->Internal->Files.emplace_back(Encoding::ToNarrow(data.name), data);
-  } while (_wfindnext(srchHandle, &data) != -1);
+    this->Internal->Files.emplace_back(Encoding::ToNarrow(data.cFileName),
+                                       data);
+  } while (FindNextFileW(srchHandle, &data));
   this->Internal->Path = name;
-  if (_findclose(srchHandle) == -1) {
-    Status status = Status::POSIX_errno();
+  if (!FindClose(srchHandle)) {
+    Status status = Status::Windows_GetLastError();
     if (errorMessage) {
       *errorMessage = status.GetString();
     }
@@ -206,10 +207,10 @@ Status Directory::Load(std::string const& name, std::string* errorMessage)
   return Status::Success();
 }
 
-unsigned long Directory::GetNumberOfFilesInDirectory(const std::string& name,
+unsigned long Directory::GetNumberOfFilesInDirectory(std::string const& name,
                                                      std::string* errorMessage)
 {
-  intptr_t srchHandle;
+  HANDLE srchHandle;
   char* buf;
   size_t bufLength;
   size_t n = name.size();
@@ -222,13 +223,13 @@ unsigned long Directory::GetNumberOfFilesInDirectory(const std::string& name,
     buf = new char[n + 2 + 1];
     snprintf(buf, bufLength, "%s/*", name.c_str());
   }
-  struct _wfinddata_t data; // data of current file
+  WIN32_FIND_DATAW data; // data of current file
 
   // Now put them into the file array
-  srchHandle = _wfindfirst((wchar_t*)Encoding::ToWide(buf).c_str(), &data);
+  srchHandle = FindFirstFileW(Encoding::ToWide(buf).c_str(), &data);
   delete[] buf;
 
-  if (srchHandle == -1) {
+  if (srchHandle == INVALID_HANDLE_VALUE) {
     if (errorMessage) {
       if (unsigned int errorId = GetLastError()) {
         LPSTR message = nullptr;
@@ -250,8 +251,8 @@ unsigned long Directory::GetNumberOfFilesInDirectory(const std::string& name,
   unsigned long count = 0;
   do {
     count++;
-  } while (_wfindnext(srchHandle, &data) != -1);
-  _findclose(srchHandle);
+  } while (FindNextFileW(srchHandle, &data));
+  FindClose(srchHandle);
   return count;
 }
 
@@ -268,7 +269,7 @@ unsigned long Directory::GetNumberOfFilesInDirectory(const std::string& name,
 #  include <string.h>
 
 // PGI with glibc has trouble with dirent and large file support:
-//  http://www.pgroup.com/userforum/viewtopic.php?
+//  https://www.pgroup.com/userforum/viewtopic.php?
 //  p=1992&sid=f16167f51964f1a68fe5041b8eb213b6
 // Work around the problem by mapping dirent the same way as readdir.
 #  if defined(__PGI) && defined(__GLIBC__)
@@ -291,7 +292,7 @@ Status Directory::Load(std::string const& name, std::string* errorMessage)
   DIR* dir = opendir(name.c_str());
 
   if (!dir) {
-    if (errorMessage != nullptr) {
+    if (errorMessage) {
       *errorMessage = std::string(strerror(errno));
     }
     return Status::POSIX_errno();
@@ -302,7 +303,7 @@ Status Directory::Load(std::string const& name, std::string* errorMessage)
     this->Internal->Files.emplace_back(d->d_name);
   }
   if (errno != 0) {
-    if (errorMessage != nullptr) {
+    if (errorMessage) {
       *errorMessage = std::string(strerror(errno));
     }
     return Status::POSIX_errno();
@@ -313,14 +314,14 @@ Status Directory::Load(std::string const& name, std::string* errorMessage)
   return Status::Success();
 }
 
-unsigned long Directory::GetNumberOfFilesInDirectory(const std::string& name,
+unsigned long Directory::GetNumberOfFilesInDirectory(std::string const& name,
                                                      std::string* errorMessage)
 {
   errno = 0;
   DIR* dir = opendir(name.c_str());
 
   if (!dir) {
-    if (errorMessage != nullptr) {
+    if (errorMessage) {
       *errorMessage = std::string(strerror(errno));
     }
     return 0;
@@ -331,7 +332,7 @@ unsigned long Directory::GetNumberOfFilesInDirectory(const std::string& name,
     count++;
   }
   if (errno != 0) {
-    if (errorMessage != nullptr) {
+    if (errorMessage) {
       *errorMessage = std::string(strerror(errno));
     }
     return false;

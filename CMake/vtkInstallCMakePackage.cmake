@@ -159,7 +159,6 @@ set(vtk_cmake_module_files
   vtk-use-file-deprecated.cmake
   vtk-use-file-error.cmake)
 set(vtk_cmake_patch_files
-  patches/3.13/FindZLIB.cmake
   patches/3.16/FindPostgreSQL.cmake
   patches/3.19/FindJPEG.cmake
   patches/3.19/FindLibArchive.cmake

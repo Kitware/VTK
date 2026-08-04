@@ -106,7 +106,7 @@ cmake_dependent_option(VTK_PYTHON_OPTIONAL_LINK
   # We shouldn't do it for static builds and we can't do it without
   # `target_link_options`. Windows also always needs to link against libpython
   # directly.
-  "NOT WIN32;BUILD_SHARED_LIBS;COMMAND target_link_options" OFF)
+  "NOT WIN32;BUILD_SHARED_LIBS" OFF)
 
 add_library(PythonUsed INTERFACE)
 add_library(VTK::PythonUsed ALIAS PythonUsed)
