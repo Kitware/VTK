@@ -14,6 +14,7 @@
 
     variables:
         VTK_INSTALL: 1
+        _PYTHON_HOST_PLATFORM: "macosx-11.0-arm64"
 
 .wheel_macos310_arm64:
     extends: .wheel_macos_arm64
@@ -21,7 +22,6 @@
     variables:
         CMAKE_CONFIGURATION: wheel_macos310_arm64
         PYTHON_VERSION_SUFFIX: "3.10"
-        _PYTHON_HOST_PLATFORM: "macosx-11.0-arm64"
 
 .wheel_macos311_arm64:
     extends: .wheel_macos_arm64
@@ -29,7 +29,6 @@
     variables:
         CMAKE_CONFIGURATION: wheel_macos311_arm64
         PYTHON_VERSION_SUFFIX: "3.11"
-        _PYTHON_HOST_PLATFORM: "macosx-11.0-arm64"
 
 .wheel_macos312_arm64:
     extends: .wheel_macos_arm64
@@ -37,7 +36,6 @@
     variables:
         CMAKE_CONFIGURATION: wheel_macos312_arm64
         PYTHON_VERSION_SUFFIX: "3.12"
-        _PYTHON_HOST_PLATFORM: "macosx-11.0-arm64"
 
 .wheel_macos313_arm64:
     extends: .wheel_macos_arm64
@@ -45,7 +43,6 @@
     variables:
         CMAKE_CONFIGURATION: wheel_macos313_arm64
         PYTHON_VERSION_SUFFIX: "3.13"
-        _PYTHON_HOST_PLATFORM: "macosx-11.0-arm64"
 
 .wheel_macos314_arm64:
     extends: .wheel_macos_arm64
@@ -53,21 +50,20 @@
     variables:
         CMAKE_CONFIGURATION: wheel_macos314_arm64
         PYTHON_VERSION_SUFFIX: "3.14"
-        _PYTHON_HOST_PLATFORM: "macosx-11.0-arm64"
 
 .wheel_macos314t_arm64:
     extends: .wheel_macos_arm64
 
     variables:
         CMAKE_CONFIGURATION: wheel_macos314t_arm64
-        PYTHON_VERSION_SUFFIX: "3.14"
-        _PYTHON_HOST_PLATFORM: "macosx-11.0-arm64"
+        PYTHON_VERSION_SUFFIX: "3.14t"
 
 .wheel_macos_x86_64:
     extends: .macos
 
     variables:
         VTK_INSTALL: 1
+        _PYTHON_HOST_PLATFORM: "macosx-10.15-x86_64"
 
 .wheel_macos310_x86_64:
     extends: .wheel_macos_x86_64
@@ -75,7 +71,6 @@
     variables:
         CMAKE_CONFIGURATION: wheel_macos310_x86_64
         PYTHON_VERSION_SUFFIX: "3.10"
-        _PYTHON_HOST_PLATFORM: "macosx-10.10-x86_64"
 
 .wheel_macos311_x86_64:
     extends: .wheel_macos_x86_64
@@ -83,7 +78,6 @@
     variables:
         CMAKE_CONFIGURATION: wheel_macos311_x86_64
         PYTHON_VERSION_SUFFIX: "3.11"
-        _PYTHON_HOST_PLATFORM: "macosx-10.10-x86_64"
 
 .wheel_macos312_x86_64:
     extends: .wheel_macos_x86_64
@@ -91,7 +85,6 @@
     variables:
         CMAKE_CONFIGURATION: wheel_macos312_x86_64
         PYTHON_VERSION_SUFFIX: "3.12"
-        _PYTHON_HOST_PLATFORM: "macosx-10.10-x86_64"
 
 .wheel_macos313_x86_64:
     extends: .wheel_macos_x86_64
@@ -99,7 +92,6 @@
     variables:
         CMAKE_CONFIGURATION: wheel_macos313_x86_64
         PYTHON_VERSION_SUFFIX: "3.13"
-        _PYTHON_HOST_PLATFORM: "macosx-10.10-x86_64"
 
 .wheel_macos314_x86_64:
     extends: .wheel_macos_x86_64
@@ -107,15 +99,13 @@
     variables:
         CMAKE_CONFIGURATION: wheel_macos314_x86_64
         PYTHON_VERSION_SUFFIX: "3.14"
-        _PYTHON_HOST_PLATFORM: "macosx-10.10-x86_64"
 
 .wheel_macos314t_x86_64:
     extends: .wheel_macos_x86_64
 
     variables:
         CMAKE_CONFIGURATION: wheel_macos314t_x86_64
-        PYTHON_VERSION_SUFFIX: "3.14"
-        _PYTHON_HOST_PLATFORM: "macosx-10.10-x86_64"
+        PYTHON_VERSION_SUFFIX: "3.14t"
 
 ### Build and test
 
@@ -268,8 +258,8 @@
     script:
         - *before_script_macos
         - *before_script_macos_deps
-        - env "CMAKE_CONFIGURATION=macos314_$(uname -m)" cmake -P .gitlab/ci/download_wheel_python.cmake
-        - export PYTHON_PREFIX=$GIT_CLONE_PATH/.gitlab/python/Python.framework/Versions/Current
+        - export PYTHON_VERSION_SUFFIX=3.14
+        - . .gitlab/ci/python_macos.sh
         - "$PYTHON_PREFIX/bin/python3 -m venv build/ci-venv"
         - . build/ci-venv/bin/activate
         - PYTHON_VERSION_SUFFIX=`python -c 'import sys;print(f"{sys.version_info[0]}.{sys.version_info[1]}")'`
@@ -283,9 +273,8 @@
     script:
         - *before_script_macos
         - *before_script_macos_deps
-        - env "CMAKE_CONFIGURATION=macos314_$(uname -m)" cmake -P .gitlab/ci/download_wheel_python.cmake
-        - export PYTHON_PREFIX=$GIT_CLONE_PATH/.gitlab/python/Python.framework/Versions/Current
-        - PYTHON_VERSION_SUFFIX=`"$PYTHON_PREFIX/bin/python3" -c 'import sys;print(f"{sys.version_info[0]}.{sys.version_info[1]}")'`
+        - export PYTHON_VERSION_SUFFIX=3.14
+        - . .gitlab/ci/python_macos.sh
         # Reuse the venv from the build step (avoids version changes between
         # build and testing).
         # This is set up manually because venv activate does not set
@@ -315,8 +304,7 @@
     script:
         - *before_script_macos
         - .gitlab/ci/sccache.sh
-        - cmake -P .gitlab/ci/download_wheel_python.cmake
-        - export PYTHON_PREFIX=$GIT_CLONE_PATH/.gitlab/python/Python.framework/Versions/Current
+        - . .gitlab/ci/python_macos.sh
         # Allow the server to already be running.
         - "sccache --start-server || :"
         - sccache --show-stats
@@ -351,14 +339,14 @@
 
     script:
         - *before_script_macos
-        - cmake -P .gitlab/ci/download_wheel_python.cmake
-        - export PYTHON_PREFIX=$GIT_CLONE_PATH/.gitlab/python/Python.framework/Versions/Current
+        - . .gitlab/ci/python_macos.sh
         - "$PYTHON_PREFIX/bin/python$PYTHON_VERSION_SUFFIX -m venv venv"
         - . venv/bin/activate
           # Needed to rebuild some dependencies which don't have arm64-compatible wheels yet.
         - '[ "$( uname -m )" = "arm64" ] && pip install wheel'
         - pip install twine
-        - pip install -r $PWD/.gitlab/ci/requirements-wheel$PYTHON_VERSION_SUFFIX-test.txt
+        # Python xarray deps not available yet for free threading.
+        - '[[ "$CMAKE_CONFIGURATION" =~ macos[[:digit:]]{2,3}t ]] || pip install -r $PWD/.gitlab/ci/requirements-wheel$PYTHON_VERSION_SUFFIX-test.txt'
         - twine check build/dist/*.whl
         - pip install build/dist/*.whl
         - python -c "import vtk"
