@@ -3040,28 +3040,33 @@ windows-vs2022-debug-mpi-qt:build:
 #     needs:
 #         - windows-vs2022-debug-mpi-qt:build
 
-windows-vs2022-webgpu:build:
-    extends:
-        - .windows_vs2022_webgpu
-        - .cmake_build_windows
-        - .windows_builder_tags
-        - .cmake_build_artifacts
-        - .rules
-    variables:
-        VTK_CI_RUN_MANUALLY: "true"
-    timeout: 180 minutes
-    needs: []
+# Disabled until VTK's WebGPU module stops compiling Dawn's `webgpu_cpp.h`.
+# That header uses `decltype(<templated lambda>(...))::type` without `typename`,
+# which is valid C++20 (P0634R3 makes `typename` optional in an alias-declaration)
+# but is rejected by the MSVC in the CI image with C2061. Re-enable once the
+# module builds against the WebGPU C API only.
+# windows-vs2022-webgpu:build:
+#     extends:
+#         - .windows_vs2022_webgpu
+#         - .cmake_build_windows
+#         - .windows_builder_tags
+#         - .cmake_build_artifacts
+#         - .rules
+#     variables:
+#         VTK_CI_RUN_MANUALLY: "true"
+#     timeout: 180 minutes
+#     needs: []
 
-windows-vs2022-webgpu:test:
-    extends:
-        - .windows_vs2022_webgpu
-        - .cmake_test_windows
-        - .windows_tester_tags
-        - .cmake_test_artifacts
-        - .rules
-        - .cdash_annotations_artifacts
-    needs:
-        - windows-vs2022-webgpu:build
+# windows-vs2022-webgpu:test:
+#     extends:
+#         - .windows_vs2022_webgpu
+#         - .cmake_test_windows
+#         - .windows_tester_tags
+#         - .cmake_test_artifacts
+#         - .rules
+#         - .cdash_annotations_artifacts
+#     needs:
+#         - windows-vs2022-webgpu:build
 
 windows-vs2022-kits-mpi-python-qt:build:
     extends:
