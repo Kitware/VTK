@@ -50,15 +50,11 @@ struct GlobalUniforms {
   max_steps: u32,
   min_step_factor: f32,
   max_step_factor: f32,
-  num_clip_planes: u32,
-  padding0: f32,
   // Window the average intensity mode restricts itself to, in data units.
   average_range_minimum: f32,
   average_range_maximum: f32,
-  padding1: vec2<f32>,
   light_directions: array<vec4<f32>, MAX_LIGHTS>,
   light_colors: array<vec4<f32>, MAX_LIGHTS>,
-  clip_planes: array<vec4<f32>, MAX_CLIP_PLANES>,
 }
 
 struct VolumeParams {
@@ -83,6 +79,12 @@ struct VolumeParams {
   gradient_opacity_min: f32,
   gradient_opacity_scale: f32,
   flags: u32,
+  // Clipping planes belong to the mapper that owns this input, so every input carries its own.
+  clip_plane_count: u32,
+  padding0: f32,
+  padding1: f32,
+  padding2: f32,
+  clip_planes: array<vec4<f32>, MAX_CLIP_PLANES>,
 }
 
 @group(0) @binding(0) var<uniform> globals: GlobalUniforms;
@@ -294,11 +296,13 @@ fn intersectUnitBox(origin: vec3<f32>, direction: vec3<f32>) -> vec2<f32> {
                    min(min(t_max.x, t_max.y), t_max.z));
 }
 
-// Clip the ray against the mapper clipping planes, in world space.
-fn applyClippingPlanes(origin: vec3<f32>, direction: vec3<f32>, range: vec2<f32>) -> vec2<f32> {
+// Clip the ray against the clipping planes of one input, in world space.
+fn applyClippingPlanes(volume_index: u32, origin: vec3<f32>, direction: vec3<f32>,
+                       range: vec2<f32>) -> vec2<f32> {
   var clipped = range;
-  for (var i = 0u; i < globals.num_clip_planes; i++) {
-    let plane = globals.clip_planes[i];
+  let count = volumes[volume_index].clip_plane_count;
+  for (var i = 0u; i < count; i++) {
+    let plane = volumes[volume_index].clip_planes[i];
     // Keep the half space where dot(normal, point) + offset >= 0.
     let denominator = dot(plane.xyz, direction);
     let numerator = dot(plane.xyz, origin) + plane.w;
@@ -375,7 +379,7 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
     direction_of[i] = direction;
 
     var span = intersectUnitBox(origin, direction);
-    span = applyClippingPlanes(near_point, ray_direction, span);
+    span = applyClippingPlanes(i, near_point, ray_direction, span);
     span.x = max(span.x, 0.0);
     span.y = min(span.y, t_limit);
 
