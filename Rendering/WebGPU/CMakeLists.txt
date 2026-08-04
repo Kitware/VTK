@@ -72,6 +72,7 @@ set(private_headers
   "Private/vtkWebGPUComputePassTextureStorageInternals.h"
   "Private/vtkWebGPUComputePassBufferStorageInternals.h"
   "Private/vtkWebGPUConfigurationInternals.h"
+  "Private/vtkWebGPUHandle.h"
   "Private/vtkWebGPUPipelineLayoutInternals.h"
   "Private/vtkWebGPUPointCloudMapperInternals.h"
   "Private/vtkWebGPUPolyDataMapper2DInternals.h"
