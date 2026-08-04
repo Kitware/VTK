@@ -41,11 +41,11 @@ vtkSurfaceRepresentation::vtkSurfaceRepresentation()
 {
   this->SetNumberOfInputPorts(1);
 
-  this->GeometryFilter->SetUseOutline(0);
+  this->GeometryFilter->UseOutlineOff();
   // Explicitly enable pass-through of original IDs so that ConvertSelection
   // can map rendered surface cell/point IDs back to the original dataset.
-  this->GeometryFilter->SetPassThroughCellIds(1);
-  this->GeometryFilter->SetPassThroughPointIds(1);
+  this->GeometryFilter->PassThroughCellIdsOn();
+  this->GeometryFilter->PassThroughPointIdsOn();
 
   this->ScalarBarVisible = false;
   this->RepresentationValue = SURFACE;
@@ -63,7 +63,7 @@ vtkSurfaceRepresentation::vtkSurfaceRepresentation()
   this->ScalarBar->SetVisibility(this->ScalarBarVisible);
 
   // Selection visualization pipeline
-  this->SelectionGeometryFilter->SetUseOutline(0);
+  this->SelectionGeometryFilter->UseOutlineOff();
   this->SelectionGeometryFilter->SetInputConnection(this->SelectionExtractor->GetOutputPort());
   this->SelectionMapper->SetInputConnection(this->SelectionGeometryFilter->GetOutputPort());
   this->SelectionMapper->ScalarVisibilityOff();
