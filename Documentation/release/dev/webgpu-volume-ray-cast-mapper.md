@@ -35,3 +35,15 @@ sample regions that carry detail more densely than regions that do not. Turn
 this off with `SetAdaptiveSampling(false)` to march with the same distance
 everywhere; `SetMinimumSampleDistanceFactor` and
 `SetMaximumSampleDistanceFactor` bound how far the distance is allowed to move.
+
+The `VTK::RenderingVolume` C++ tests now run once per rendering backend, the way
+the `VTK::RenderingCore` ones do, so their names carry a backend prefix:
+`VTK::RenderingVolumeCxx-TestGPURayCastAdditive` is now
+`VTK::RenderingVolumeCxx-OpenGL-TestGPURayCastAdditive` and
+`VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastAdditive`. The
+`VTK::RenderingVolumeOpenGL2` tests that only used the mappers through their base
+classes moved to `VTK::RenderingVolume` to be run the same way; the ones that
+reach for depth peeling, user shaders, screen space ambient occlusion, texture
+streaming or the surface probe mapper stayed behind, as did the tests of the
+fixed point, tetrahedra and unstructured grid mappers, which only OpenGL
+implements.
