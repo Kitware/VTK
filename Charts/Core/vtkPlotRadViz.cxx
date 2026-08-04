@@ -7,7 +7,6 @@
 #include "vtkArrayDispatch.h"
 #include "vtkBrush.h"
 #include "vtkCellData.h"
-#include "vtkChartRadViz.h"
 #include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
 #include "vtkDataArrayRange.h"
@@ -200,55 +199,53 @@ void vtkPlotRadViz::SetInputDataSet(vtkDataSet* dataset)
 {
   this->Data->SetInputDataObject(0, dataset);
   this->AutoLabels = nullptr; // No longer valid
+  this->ComputeGBC->SetInputDataObject(0, dataset);
 }
 
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::SetInputData(vtkTable* table)
 {
-  vtkTable* previousTable = this->Data->GetInput();
-  bool tableChanged = table != previousTable;
   this->Superclass::SetInputData(table);
-  vtkChartRadViz* parent = vtkChartRadViz::SafeDownCast(this->Parent);
-  if (parent && tableChanged)
-  {
-    // by default make all of the new table's columns visible.
-    parent->SetColumnVisibilityAll(table != nullptr);
-  }
+  this->ComputeGBC->SetInputDataObject(0, table);
 }
 
-void vtkPlotRadViz::ComputeAutoLabels(vtkDataObject* input, vtkDataArray* array)
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::SetColumnVisibility(const std::string& name, bool visible)
 {
-  vtkTable* table = vtkTable::SafeDownCast(input);
-  vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
-  if (table)
-  {
-    this->AutoLabels = vtkSmartPointer<vtkStringArray>::New();
-    int nColumns = table->GetNumberOfColumns();
-    this->AutoLabels->SetNumberOfValues(nColumns);
-    for (int i = 0; i < nColumns; ++i)
-    {
-      const char* name = table->GetColumnName(i);
-      if (name)
-      {
-        this->AutoLabels->SetValue(i, name);
-      }
-    }
-  }
-  else if (dataset)
-  {
-    this->AutoLabels = vtkSmartPointer<vtkStringArray>::New();
-    int nComponents = array->GetNumberOfComponents();
-    this->AutoLabels->SetNumberOfValues(nComponents);
-    for (int i = 0; i < nComponents; ++i)
-    {
-      const char* name = array->GetComponentName(i);
-      if (name)
-      {
-        this->AutoLabels->SetValue(i, name);
-      }
-    }
-  }
-  // different type of data, no auto labels
+  this->ComputeGBC->SetColumnVisibility(name, visible);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::SetColumnVisibilityAll(bool visible)
+{
+  this->ComputeGBC->SetColumnVisibilityAll(visible);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+bool vtkPlotRadViz::GetColumnVisibility(const std::string& name)
+{
+  return this->ComputeGBC->GetColumnVisibility(name);
+}
+
+//------------------------------------------------------------------------------
+vtkStringArray* vtkPlotRadViz::GetVisibleColumns()
+{
+  return this->ComputeGBC->GetVisibleColumns();
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::SetVisibleColumns(vtkStringArray* visColumns)
+{
+  this->ComputeGBC->SetVisibleColumns(visColumns);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::ComputeAutoLabels()
+{
+  this->AutoLabels = this->ComputeGBC->GetProcessedColumnNames();
 }
 
 //------------------------------------------------------------------------------
@@ -322,7 +319,6 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
   {
     vtkDebugMacro(<< "Paint event called.");
     vtkDataObject* input = this->Data->GetInputDataObject(0, 0);
-    vtkTable* table = vtkTable::SafeDownCast(input);
     vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
     vtkDataArray* array = nullptr;
     int association = vtkDataObject::FIELD_ASSOCIATION_NONE;
@@ -331,49 +327,30 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
       // get the array to process and association from vtkContextMapper2D
       array = this->GetData()->GetInputArrayToProcess(0, input, association);
     }
-    vtkSmartPointer<vtkTable> visibleTable;
-    if (table)
-    {
-      // only keep the columns marked visible by the parent chart, since
-      // vtkMultiVariateToRGBA uses every column of a table as a component.
-      vtkChartRadViz* parent = vtkChartRadViz::SafeDownCast(this->Parent);
-      if (parent)
-      {
-        visibleTable = vtkSmartPointer<vtkTable>::New();
-        vtkStringArray* cols = parent->GetVisibleColumns();
-        for (vtkIdType i = 0; i < cols->GetNumberOfTuples(); ++i)
-        {
-          vtkAbstractArray* column = table->GetColumnByName(cols->GetValue(i).c_str());
-          if (column)
-          {
-            visibleTable->AddColumn(column);
-          }
-        }
-        input = visibleTable;
-      }
-    }
-    ComputeAutoLabels(input, array);
 
-    vtkNew<vtkMultiVariateToRGBA> computeGBC;
-    computeGBC->SetInputDataObject(0, input);
-    computeGBC->SetStoreGBC(true);
-    computeGBC->SetStoreVertices(true);
-    computeGBC->SetVerticesRotation(this->VerticesRotation);
-    computeGBC->SetStoreRGBA(this->ScalarVisibility);
-    computeGBC->SetLensRadius(this->LensRadius / this->Internals->Radius);
-    computeGBC->SetOutsideLensAlphaCap(this->OutsideLensAlphaCap);
-    computeGBC->SetComponentsPartition(this->ComponentsPartition);
-    std::array<double, 2> lensCenter = { (this->LensCenter[0] - this->Internals->Center[0]) /
-        this->Internals->Radius,
-      (this->LensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius };
-    computeGBC->SetLensCenter(lensCenter.data());
+    // vtkMultiVariateToRGBA does the column/component visibility filtering
+    // itself (see SetColumnVisibility), so the raw input is passed as-is.
+    this->ComputeGBC->SetInputDataObject(0, input);
     if (array)
     {
       // set the array to process and association to vtkMultiVariateToRGBA
-      computeGBC->SetInputArrayToProcess(array->GetName(), association);
+      this->ComputeGBC->SetInputArrayToProcess(array->GetName(), association);
     }
-    computeGBC->Update();
-    vtkDataObject* output = computeGBC->GetOutputDataObject(0);
+    ComputeAutoLabels();
+
+    this->ComputeGBC->SetStoreGBC(true);
+    this->ComputeGBC->SetStoreVertices(true);
+    this->ComputeGBC->SetVerticesRotation(this->VerticesRotation);
+    this->ComputeGBC->SetStoreRGBA(this->ScalarVisibility);
+    this->ComputeGBC->SetLensRadius(this->LensRadius / this->Internals->Radius);
+    this->ComputeGBC->SetOutsideLensAlphaCap(this->OutsideLensAlphaCap);
+    this->ComputeGBC->SetComponentsPartition(this->ComponentsPartition);
+    std::array<double, 2> lensCenter = { (this->LensCenter[0] - this->Internals->Center[0]) /
+        this->Internals->Radius,
+      (this->LensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius };
+    this->ComputeGBC->SetLensCenter(lensCenter.data());
+    this->ComputeGBC->Update();
+    vtkDataObject* output = this->ComputeGBC->GetOutputDataObject(0);
     auto [vertices, gbc, rgba] = this->GetVerticesGbcRgba(output);
     if (this->ColorWheelVisibility)
     {

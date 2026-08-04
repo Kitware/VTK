@@ -9,6 +9,7 @@
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
+#include "vtkImplicitArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -19,6 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include <vtk_fmt.h>
 // clang-format off
@@ -30,6 +32,7 @@
 #include <array>
 #include <cmath>
 #include <numeric>
+#include <set>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMultiVariateToRGBA);
@@ -414,33 +417,37 @@ struct ComputeLensAlphaWorker
   double OutsideLensAlpha;
 };
 
+/**
+ * Creats a SOA array from a list of column arrays.
+ */
 template <typename DataType>
-vtkSmartPointer<vtkDataArray> createSOAArray(vtkDataSetAttributes* attributes)
+vtkSmartPointer<vtkDataArray> createSOAArray(const std::vector<vtkAbstractArray*>& columns)
 {
   vtkAOSDataArrayTemplate<DataType>* a0 =
-    vtkAOSDataArrayTemplate<DataType>::FastDownCast(attributes->GetArray(0));
+    vtkAOSDataArrayTemplate<DataType>::FastDownCast(columns[0]);
   vtkIdType size = a0->GetNumberOfTuples();
   auto soaArray = vtkSmartPointer<vtkSOADataArrayTemplate<DataType>>::New();
-  soaArray->SetNumberOfComponents(attributes->GetNumberOfArrays());
+  soaArray->SetNumberOfComponents(static_cast<int>(columns.size()));
   soaArray->SetNumberOfTuples(size);
-  for (int i = 0; i < attributes->GetNumberOfArrays(); ++i)
+  for (size_t i = 0; i < columns.size(); ++i)
   {
     vtkAOSDataArrayTemplate<DataType>* a =
-      vtkAOSDataArrayTemplate<DataType>::FastDownCast(attributes->GetArray(i));
+      vtkAOSDataArrayTemplate<DataType>::FastDownCast(columns[i]);
     if (!a)
     {
-      // arrays in attributes are of different type
+      // arrays in columns are of different type
       return nullptr;
     }
-    soaArray->SetArray(i, a->GetPointer(0), size, false /*updateMaxId*/, true /*save*/);
+    soaArray->SetArray(
+      static_cast<int>(i), a->GetPointer(0), size, false /*updateMaxId*/, true /*save*/);
   }
   return soaArray;
 }
 
 struct CreateSOAWorker
 {
-  CreateSOAWorker(vtkDataSetAttributes* attributes)
-    : Attributes(attributes)
+  CreateSOAWorker(const std::vector<vtkAbstractArray*>& columns)
+    : Columns(columns)
   {
   }
   template <typename Input>
@@ -449,11 +456,57 @@ struct CreateSOAWorker
     auto scalars = vtk::DataArrayTupleRange(scalarsArray);
     using ScalarsRangeType = decltype(scalars);
     using ValueType = typename ScalarsRangeType::ComponentType;
-    this->SOAArray = createSOAArray<ValueType>(this->Attributes);
+    this->SOAArray = createSOAArray<ValueType>(this->Columns);
   }
-  vtkDataSetAttributes* Attributes;
+  std::vector<vtkAbstractArray*> Columns;
   vtkSmartPointer<vtkDataArray> SOAArray;
 };
+
+/**
+ * Read-only view over a subset of components of a vtkDataArray, used to
+ * expose only the components marked visible via
+ * vtkMultiVariateToRGBA::SetColumnVisibility without copying the underlying
+ * data. ComponentMap[i] is the index, in the original array, of the i-th
+ * component of this view.
+ */
+struct VisibleComponentsBackend
+{
+  vtkSmartPointer<vtkDataArray> Array;
+  std::vector<int> ComponentMap;
+
+  double mapComponent(vtkIdType tupleIdx, int comp) const
+  {
+    return this->Array->GetComponent(tupleIdx, this->ComponentMap[comp]);
+  }
+
+  double operator()(vtkIdType valueIdx) const
+  {
+    vtkIdType numComponents = static_cast<vtkIdType>(this->ComponentMap.size());
+    return this->mapComponent(valueIdx / numComponents, static_cast<int>(valueIdx % numComponents));
+  }
+};
+
+/**
+ * Builds a new SOA array exposing only the components listed in
+ * 'componentIndices', by borrowing (not copying) the per-component buffers
+ * of 'soaArray'.
+ */
+template <typename DataType>
+vtkSmartPointer<vtkDataArray> createFilteredSOAArray(
+  vtkSOADataArrayTemplate<DataType>* soaArray, const std::vector<int>& componentIndices)
+{
+  auto result = vtkSmartPointer<vtkSOADataArrayTemplate<DataType>>::New();
+  result->SetNumberOfComponents(static_cast<int>(componentIndices.size()));
+  vtkIdType numTuples = soaArray->GetNumberOfTuples();
+  result->SetNumberOfTuples(numTuples);
+  for (size_t i = 0; i < componentIndices.size(); ++i)
+  {
+    result->SetArray(static_cast<int>(i), soaArray->GetComponentArrayPointer(componentIndices[i]),
+      numTuples, false /*updateMaxId*/, true /*save*/);
+    result->SetComponentName(static_cast<int>(i), soaArray->GetComponentName(componentIndices[i]));
+  }
+  return result;
+}
 }
 
 //------------------------------------------------------------------------------
@@ -497,6 +550,243 @@ std::vector<std::vector<int>> vtkMultiVariateToRGBA::GetComponentsPartition() VT
 {
   vtkDebugMacro(<< " returning ModalityGroups of " << fmt::format("{}", this->ComponentsPartition));
   return this->ComponentsPartition;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetAllColumnNames()
+{
+  vtkSmartPointer<vtkStringArray> names = vtkSmartPointer<vtkStringArray>::New();
+  vtkDataObject* input = this->GetInputDataObject(0, 0);
+  if (!input)
+  {
+    return names;
+  }
+  vtkTable* table = vtkTable::SafeDownCast(input);
+  vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
+  if (table)
+  {
+    for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
+    {
+      names->InsertNextValue(table->GetColumnName(i));
+    }
+  }
+  else if (dataset)
+  {
+    int association = vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS;
+    vtkDataArray* array = this->GetInputArrayToProcess(0, input, association);
+    if (array)
+    {
+      for (int i = 0; i < array->GetNumberOfComponents(); ++i)
+      {
+        const char* name = array->GetComponentName(i);
+        names->InsertNextValue(name ? name : std::to_string(i));
+      }
+    }
+  }
+  return names;
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::SetColumnVisibility(const std::string& name, bool visible)
+{
+  if (visible)
+  {
+    if (this->VisibleColumns->GetNumberOfTuples() == 0)
+    {
+      // Empty list means "everything visible" by default: name is already
+      // visible, nothing to do.
+      return;
+    }
+    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+    {
+      if (this->VisibleColumns->GetValue(i) == name)
+      {
+        // Already there, nothing more needs to be done
+        return;
+      }
+    }
+    // Add the column to the end of the list
+    this->VisibleColumns->InsertNextValue(name);
+    this->Modified();
+  }
+  else
+  {
+    if (this->VisibleColumns->GetNumberOfTuples() == 0)
+    {
+      // Materialize the implicit "everything visible" list before hiding
+      // 'name', otherwise there would be nothing to remove it from.
+      vtkSmartPointer<vtkStringArray> all = this->GetAllColumnNames();
+      for (vtkIdType i = 0; i < all->GetNumberOfTuples(); ++i)
+      {
+        this->VisibleColumns->InsertNextValue(all->GetValue(i));
+      }
+    }
+    // Remove the value if present
+    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+    {
+      if (this->VisibleColumns->GetValue(i) == name)
+      {
+        // Move all the later elements down by one, and reduce the size
+        while (i < this->VisibleColumns->GetNumberOfTuples() - 1)
+        {
+          this->VisibleColumns->SetValue(i, this->VisibleColumns->GetValue(i + 1));
+          ++i;
+        }
+        this->VisibleColumns->SetNumberOfTuples(this->VisibleColumns->GetNumberOfTuples() - 1);
+        this->Modified();
+        return;
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::SetColumnVisibilityAll(bool vtkNotUsed(visible))
+{
+  // Clearing the list reverts to the default of using every
+  // column/component, which covers both `visible == true` and
+  // `visible == false` (a filter with nothing to process has no meaningful
+  // output, so "hide everything" also falls back to the default).
+  this->VisibleColumns->Initialize();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+bool vtkMultiVariateToRGBA::GetColumnVisibility(const std::string& name)
+{
+  if (this->VisibleColumns->GetNumberOfTuples() == 0)
+  {
+    // no explicit configuration: everything is visible
+    return true;
+  }
+  for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+  {
+    if (this->VisibleColumns->GetValue(i) == name)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+vtkStringArray* vtkMultiVariateToRGBA::GetVisibleColumns()
+{
+  return this->VisibleColumns;
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::SetVisibleColumns(vtkStringArray* visColumns)
+{
+  if (!visColumns || visColumns->GetNumberOfTuples() == 0)
+  {
+    this->VisibleColumns->Initialize();
+  }
+  else
+  {
+    this->VisibleColumns->SetNumberOfTuples(visColumns->GetNumberOfTuples());
+    this->VisibleColumns->DeepCopy(visColumns);
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetProcessedColumnNames()
+{
+  if (this->VisibleColumns->GetNumberOfTuples() == 0)
+  {
+    return this->GetAllColumnNames();
+  }
+  // keep only the visible names that actually exist in the current input,
+  // preserving the configured order.
+  vtkSmartPointer<vtkStringArray> all = this->GetAllColumnNames();
+  std::set<std::string> allNames;
+  for (vtkIdType i = 0; i < all->GetNumberOfTuples(); ++i)
+  {
+    allNames.insert(all->GetValue(i));
+  }
+  vtkSmartPointer<vtkStringArray> result = vtkSmartPointer<vtkStringArray>::New();
+  for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+  {
+    if (allNames.find(this->VisibleColumns->GetValue(i)) != allNames.end())
+    {
+      result->InsertNextValue(this->VisibleColumns->GetValue(i));
+    }
+  }
+  return result;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::GetVisibleComponentsArray(vtkDataArray* array)
+{
+  std::vector<int> componentIndices;
+  if (this->VisibleColumns->GetNumberOfTuples() > 0)
+  {
+    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+    {
+      const vtkStdString& name = this->VisibleColumns->GetValue(i);
+      for (int c = 0; c < array->GetNumberOfComponents(); ++c)
+      {
+        const char* compName = array->GetComponentName(c);
+        if (compName && name == compName)
+        {
+          componentIndices.push_back(c);
+          break;
+        }
+      }
+    }
+  }
+  else
+  {
+    componentIndices.resize(array->GetNumberOfComponents());
+    std::iota(componentIndices.begin(), componentIndices.end(), 0);
+  }
+  if (componentIndices.empty())
+  {
+    return nullptr;
+  }
+
+  // Fast path: nothing filtered out, use the original array directly so
+  // that vtkArrayDispatch can still fast-path on its concrete type.
+  bool identity = static_cast<int>(componentIndices.size()) == array->GetNumberOfComponents();
+  for (size_t i = 0; identity && i < componentIndices.size(); ++i)
+  {
+    identity = componentIndices[i] == static_cast<int>(i);
+  }
+  if (identity)
+  {
+    return array;
+  }
+
+  // For SOA-backed arrays, borrow only the visible components' buffers
+  // directly into a new (smaller) SOA array: no data copy, and no need for
+  // the implicit-array indirection below.
+  if (auto* soaDouble = vtkSOADataArrayTemplate<double>::FastDownCast(array))
+  {
+    return createFilteredSOAArray(soaDouble, componentIndices);
+  }
+  if (auto* soaFloat = vtkSOADataArrayTemplate<float>::FastDownCast(array))
+  {
+    return createFilteredSOAArray(soaFloat, componentIndices);
+  }
+
+  // Fallback for AOS (and any other) arrays, whose components cannot be
+  // cheaply borrowed since they are interleaved in memory: wrap with a
+  // read-only implicit array view over the visible components.
+  auto backend = std::make_shared<VisibleComponentsBackend>();
+  backend->Array = array;
+  backend->ComponentMap = componentIndices;
+
+  vtkNew<vtkImplicitArray<VisibleComponentsBackend>> implicitArray;
+  implicitArray->SetBackend(backend);
+  implicitArray->SetNumberOfComponents(static_cast<int>(componentIndices.size()));
+  implicitArray->SetNumberOfTuples(array->GetNumberOfTuples());
+  for (size_t i = 0; i < componentIndices.size(); ++i)
+  {
+    implicitArray->SetComponentName(
+      static_cast<int>(i), array->GetComponentName(componentIndices[i]));
+  }
+  return implicitArray;
 }
 
 //------------------------------------------------------------------------------
@@ -682,16 +972,48 @@ vtkMultiVariateToRGBA::getAttributesAndScalars(
       vtkErrorWithObjectMacro(input, "No arrays found: ");
       return { attributes, nullptr };
     }
-    auto* array0 = attributes->GetArray(0);
-    int dataType = array0->GetDataType();
+
+    // Only keep the columns marked visible (or every column, if none has
+    // been explicitly configured), in the configured order.
+    std::vector<vtkAbstractArray*> columns;
+    if (this->VisibleColumns->GetNumberOfTuples() > 0)
+    {
+      for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+      {
+        vtkAbstractArray* column = attributes->GetArray(this->VisibleColumns->GetValue(i).c_str());
+        if (column)
+        {
+          columns.push_back(column);
+        }
+      }
+    }
+    else
+    {
+      for (vtkIdType i = 0; i < attributes->GetNumberOfArrays(); ++i)
+      {
+        columns.push_back(attributes->GetArray(i));
+      }
+    }
+    if (columns.empty())
+    {
+      vtkErrorWithObjectMacro(input, "No visible columns found: ");
+      return { attributes, nullptr };
+    }
+
+    auto* array0 = vtkDataArray::FastDownCast(columns[0]);
+    if (!array0)
+    {
+      vtkErrorWithObjectMacro(input, "Column is not a numeric array: " << columns[0]->GetName());
+      return { attributes, nullptr };
+    }
     // for a table, convert the columns into a SOA array with multiple components
-    if (attributes->GetNumberOfArrays() > 1)
+    if (columns.size() > 1)
     {
       typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals> Dispatcher;
-      CreateSOAWorker worker(attributes);
+      CreateSOAWorker worker(columns);
       if (!Dispatcher::Execute(array0, worker))
       {
-        vtkErrorWithObjectMacro(input, "Array type not supported: " << dataType);
+        vtkErrorWithObjectMacro(input, "Array type not supported: " << array0->GetDataType());
         return { attributes, nullptr };
       }
       else
@@ -701,7 +1023,7 @@ vtkMultiVariateToRGBA::getAttributesAndScalars(
     }
     else
     {
-      // otherwise, we just use the existing arrays with multiple components
+      // otherwise, we just use the existing array with multiple components
       if (array0->GetNumberOfComponents() > 1)
       {
         return { attributes, array0 };
@@ -723,21 +1045,31 @@ vtkMultiVariateToRGBA::getAttributesAndScalars(
       {
         case vtkDataObject::FIELD_ASSOCIATION_CELLS:
           attributes = dataset->GetCellData();
-          return { attributes, array };
+          break;
         case vtkDataObject::FIELD_ASSOCIATION_POINTS:
           attributes = dataset->GetPointData();
-          return { attributes, array };
+          break;
         case vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS:
           attributes = dataset->GetPointData();
           if (!attributes)
           {
             attributes = dataset->GetCellData();
           }
-          return { attributes, array };
+          break;
         default:
           vtkErrorWithObjectMacro(input, "Invalid association: " << association);
           return { nullptr, nullptr };
       }
+      // Only keep the components marked visible (or every component, if
+      // none has been explicitly configured), using a read-only implicit
+      // array view so the underlying data is not copied.
+      vtkSmartPointer<vtkDataArray> visibleArray = this->GetVisibleComponentsArray(array);
+      if (!visibleArray)
+      {
+        vtkErrorWithObjectMacro(input, "No visible components found: ");
+        return { attributes, nullptr };
+      }
+      return { attributes, visibleArray };
     }
     else
     {

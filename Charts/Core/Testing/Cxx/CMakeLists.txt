@@ -137,6 +137,10 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
 vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestRadVizChartDataSetNoBackground,TestRadVizChartDataSet.cxx 1
 )
+# hide one column (Co)
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartDataSetHideColumn,TestRadVizChartDataSet.cxx 2
+)
 
 # show all columns
 vtk_add_test_cxx(vtkChartsCoreCxxTests tests

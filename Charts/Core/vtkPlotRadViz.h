@@ -54,6 +54,7 @@
 #define vtkPlotRadViz_h
 
 #include "vtkChartsCoreModule.h" // For export macro
+#include "vtkNew.h"              // For vtkNew
 #include "vtkPen.h"              // For SetSmartPointerMacro
 #include "vtkPlot.h"             // For the base class
 #include "vtkPoints2D.h"         // For GetSmartPointerMacro
@@ -63,13 +64,17 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
+#include <string> // For column names
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
 class vtkColorSeries;
 class vtkDataObject;
 class vtkDataSet;
 class vtkDataArray;
+class vtkMultiVariateToRGBA;
 class vtkPoints2D;
+class vtkStringArray;
 class vtkTextProperty;
 class vtkUnsignedCharArray;
 
@@ -82,16 +87,25 @@ public:
   static vtkPlotRadViz* New();
 
   virtual void SetInputDataSet(vtkDataSet* dataset);
-  /**
-   * Sets the table used by the plot. When the table changes, the visible
-   * columns of the parent vtkChartRadViz are reset to make all of the new
-   * table's columns visible.
-   */
   void SetInputData(vtkTable* table) override;
   /**
    * Paint event for the item.
    */
   bool Paint(vtkContext2D* painter) override;
+
+  ///@{
+  /**
+   * Set the visibility of the specified column/component by name. Only
+   * visible columns/components are used to compute the plot. This is a
+   * passthrough to the underlying vtkMultiVariateToRGBA; see
+   * vtkMultiVariateToRGBA::SetColumnVisibility for details.
+   */
+  void SetColumnVisibility(const std::string& name, bool visible);
+  void SetColumnVisibilityAll(bool visible);
+  bool GetColumnVisibility(const std::string& name);
+  vtkStringArray* GetVisibleColumns();
+  void SetVisibleColumns(vtkStringArray* visColumns);
+  ///@}
 
   ///@{
   /**
@@ -281,7 +295,7 @@ protected:
     vtkContext2D* painter, vtkDataArray* points, vtkPen* pen, int activeIndex = -1);
   void DrawLabels(vtkContext2D* painter, vtkDataArray* vertices, vtkPen* pen);
   void DrawLens(vtkContext2D* painter);
-  void ComputeAutoLabels(vtkDataObject* input, vtkDataArray* array);
+  void ComputeAutoLabels();
   vtkSmartPointer<vtkPoints2D> TransformPoints(vtkDataArray* points);
   vtkSmartPointer<vtkUnsignedCharArray> TransformColors(vtkDataArray* rgba);
   /**
@@ -362,6 +376,15 @@ protected:
   bool ColorWheelClockwiseOrdering = true;
   bool ColorWheelVisibility = true;
   bool ScalarVisibility = false;
+
+  /**
+   * Persistent filter used to compute the GBC/RGBA values, and that also
+   * owns the column/component visibility configuration (see
+   * SetColumnVisibility). Kept alive across Paint() calls so that the
+   * visibility configuration and the vtkAlgorithm modified-time tracking
+   * both persist between renders.
+   */
+  vtkNew<vtkMultiVariateToRGBA> ComputeGBC;
 
 private:
   vtkPlotRadViz(const vtkPlotRadViz&) = delete;

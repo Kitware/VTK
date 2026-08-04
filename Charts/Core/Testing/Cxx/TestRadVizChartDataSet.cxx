@@ -51,11 +51,17 @@ public:
   vtkContextView* View = nullptr;
 };
 
+enum TestType
+{
+  COLOR_WHEEL_VISIBLE,
+  SCALAR_COLOR,
+  HIDE_COLUMN
+};
 //------------------------------------------------------------------------------
 int TestRadVizChartDataSet(int argc, char* argv[])
 {
-  int scalarVisibility;
-  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], scalarVisibility, EXIT_FAILURE);
+  int testType;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], testType, EXIT_FAILURE);
 
   vtkNew<vtkTesting> testUtils;
   testUtils->AddArguments(argc, argv);
@@ -77,13 +83,23 @@ int TestRadVizChartDataSet(int argc, char* argv[])
   plot->GetPen()->SetOpacity(20);
   plot->SetLensVisibility(true);
   plot->GetPen()->SetWidth(6);
-  if (scalarVisibility)
+
+  // The input must be set before configuring column visibility, since
+  // hiding a column needs to know the full column list of the current
+  // input to keep every other column visible.
+  plot->SetInputDataSet(vtkDataSet::SafeDownCast(reader->GetOutputDataObject(0)));
+
+  if (testType == SCALAR_COLOR)
   {
     plot->ColorWheelVisibilityOff();
     plot->ScalarVisibilityOn();
   }
-
-  plot->SetInputDataSet(vtkDataSet::SafeDownCast(reader->GetOutputDataObject(0)));
+  if (testType == HIDE_COLUMN)
+  {
+    plot->ColorWheelVisibilityOff();
+    plot->ScalarVisibilityOn();
+    plot->SetColumnVisibility("Co", false);
+  }
 
   chart->SetShowLegend(false);
 

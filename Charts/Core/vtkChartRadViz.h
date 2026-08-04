@@ -29,7 +29,6 @@
 
 #include "vtkChart.h"
 #include "vtkChartsCoreModule.h" // For export macro
-#include "vtkNew.h"              // For vtkNew
 #include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
 #include <memory>
 
@@ -88,29 +87,33 @@ public:
 
   ///@{
   /**
-   * Set the visibility of the specified column. Only visible columns
-   * (components) are used to compute the RadViz plot.
+   * Set the visibility of the specified column/component. Only visible
+   * columns/components are used to compute the RadViz plot. This is a
+   * passthrough to the underlying vtkPlotRadViz (and, in turn, to its
+   * vtkMultiVariateToRGBA); see vtkMultiVariateToRGBA::SetColumnVisibility
+   * for details. A no-op if the chart has no plot yet.
    */
   void SetColumnVisibility(const vtkStdString& name, bool visible);
 
   /**
-   * Set the visibility of all columns (true will make them all visible, false
-   * will remove all visible columns).
+   * Set the visibility of all columns/components.
    */
   void SetColumnVisibilityAll(bool visible);
 
   /**
-   * Get the visibility of the specified column.
+   * Get the visibility of the specified column/component.
    */
   bool GetColumnVisibility(const vtkStdString& name);
 
   /**
-   * Get a list of the columns, and the order in which they are used.
+   * Get a list of the columns/components explicitly marked visible, and
+   * the order in which they are used. Returns nullptr if the chart has no
+   * plot yet.
    */
   virtual vtkStringArray* GetVisibleColumns();
 
   /**
-   * Set the list of visible columns, and the order in which they will be used.
+   * Set the list of visible columns/components, and the order in which they will be used.
    */
   virtual void SetVisibleColumns(vtkStringArray* visColumns);
 
@@ -171,11 +174,6 @@ protected:
    */
   void GetActiveElement(const vtkVector2f& pos, int& activeVertexIndex, bool& activeLensOutline,
     bool& activeLensInterior);
-
-  /**
-   * Strongly owned internal data for the column visibility.
-   */
-  vtkNew<vtkStringArray> VisibleColumns;
 
 private:
   vtkChartRadViz(const vtkChartRadViz&) = delete;

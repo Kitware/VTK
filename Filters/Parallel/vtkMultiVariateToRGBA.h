@@ -44,12 +44,15 @@
 
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersParallelModule.h" // For export macro
+#include "vtkNew.h"                   // For vtkNew
 #include <functional>                 // For std::function
+#include <string>                     // For column names
 #include <vector>                     // For components partition
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationVector;
 class vtkMultiProcessController;
+class vtkStringArray;
 
 class VTKFILTERSPARALLEL_EXPORT vtkMultiVariateToRGBA : public vtkDataObjectAlgorithm
 {
@@ -159,6 +162,51 @@ public:
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   std::vector<std::vector<int>> GetComponentsPartition() VTK_FUTURE_CONST;
 
+  ///@{
+  /**
+   * Set the visibility of the specified column/component by name (a table
+   * column name, or a component name of the dataset array being
+   * processed). Only visible columns/components are used to compute the
+   * RGBA/GBC values, letting a subset of a multivariate dataset be
+   * visualized. If no column/component has been explicitly hidden (the
+   * default), all of them are used, exactly as if this feature was not
+   * used at all.
+   */
+  void SetColumnVisibility(const std::string& name, bool visible);
+  /**
+   * Set the visibility of all columns/components. Passing true is
+   * equivalent to the default (unconfigured) state. Passing false clears
+   * any explicit configuration and also reverts to the default of using
+   * every column/component, since a filter with nothing to process has no
+   * meaningful output.
+   */
+  void SetColumnVisibilityAll(bool visible);
+  /**
+   * Get the visibility of the specified column/component. Returns true for
+   * any column/component that has not been explicitly hidden.
+   */
+  bool GetColumnVisibility(const std::string& name);
+  /**
+   * Get the list of the columns/components explicitly marked visible, and
+   * the order in which they are used. An empty list means every
+   * column/component of the current input is used (the default).
+   */
+  virtual vtkStringArray* GetVisibleColumns();
+  /**
+   * Set the list of visible columns/components, and the order in which
+   * they will be used. Passing a null or empty array reverts to the
+   * default of using every column/component of the current input.
+   */
+  virtual void SetVisibleColumns(vtkStringArray* visColumns);
+  /**
+   * Returns the names of the columns/components that will actually be used
+   * to compute the RGBA/GBC values: either GetVisibleColumns() (when
+   * non-empty), or every column/component found in the current input
+   * (when GetVisibleColumns() is empty, i.e. not configured).
+   */
+  vtkSmartPointer<vtkStringArray> GetProcessedColumnNames();
+  ///@}
+
 protected:
   vtkMultiVariateToRGBA();
   ~vtkMultiVariateToRGBA() override;
@@ -179,6 +227,12 @@ protected:
    * Alpha cap for points outside the lens.
    */
   double OutsideLensAlphaCap = 0.0;
+  /**
+   * Strongly owned internal data for the column/component visibility. An
+   * empty array means "no explicit configuration", so every
+   * column/component of the current input is used.
+   */
+  vtkNew<vtkStringArray> VisibleColumns;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
@@ -189,6 +243,17 @@ private:
   void operator=(const vtkMultiVariateToRGBA&) = delete;
   std::pair<vtkDataSetAttributes*, vtkSmartPointer<vtkDataArray>> getAttributesAndScalars(
     vtkDataObject* input, vtkInformationVector** inputVector);
+  /**
+   * Returns the names of every column (table) or component (dataset array)
+   * found in the current input, in their natural order.
+   */
+  vtkSmartPointer<vtkStringArray> GetAllColumnNames();
+  /**
+   * Returns a read-only view exposing only the components of 'array' whose
+   * names are in GetVisibleColumns() (or 'array' itself, unmodified, if
+   * every component is visible).
+   */
+  vtkSmartPointer<vtkDataArray> GetVisibleComponentsArray(vtkDataArray* array);
 };
 
 VTK_ABI_NAMESPACE_END
