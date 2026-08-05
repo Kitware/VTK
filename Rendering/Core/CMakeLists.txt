@@ -20,6 +20,7 @@ set(classes
   vtkBillboardTextActor3D
   vtkCamera
   vtkCameraActor
+  vtkCameraPass
   vtkCameraInterpolator
   vtkCellCenterDepthSort
   vtkCellGraphicsPrimitiveMap

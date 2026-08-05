@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkCameraPass.h"
+#include "vtkOpenGLCameraPass.h"
 #include "vtkCamera.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
@@ -10,58 +10,38 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderState.h"
 #include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkCameraPass);
-vtkCxxSetObjectMacro(vtkCameraPass, DelegatePass, vtkRenderPass);
+vtkStandardNewMacro(vtkOpenGLCameraPass);
 
 //------------------------------------------------------------------------------
-vtkCameraPass::vtkCameraPass()
+vtkOpenGLCameraPass::vtkOpenGLCameraPass() = default;
+
+//------------------------------------------------------------------------------
+vtkOpenGLCameraPass::~vtkOpenGLCameraPass() = default;
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkOpenGLCameraPass::CreateOverrideAttributes()
 {
-  this->DelegatePass = nullptr;
-  this->AspectRatioOverride = 1.0;
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
 }
 
 //------------------------------------------------------------------------------
-vtkCameraPass::~vtkCameraPass()
-{
-  if (this->DelegatePass != nullptr)
-  {
-    this->DelegatePass->Delete();
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkCameraPass::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLCameraPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "AspectRatioOverride: " << this->AspectRatioOverride << endl;
-  os << indent << "DelegatePass:";
-  if (this->DelegatePass != nullptr)
-  {
-    this->DelegatePass->PrintSelf(os, indent);
-  }
-  else
-  {
-    os << "(none)" << endl;
-  }
-}
-
-void vtkCameraPass::GetTiledSizeAndOrigin(
-  const vtkRenderState* render_state, int* width, int* height, int* originX, int* originY)
-{
-  vtkRenderer* ren = render_state->GetRenderer();
-  ren->GetTiledSizeAndOrigin(width, height, originX, originY);
 }
 
 //------------------------------------------------------------------------------
 // Description:
 // Perform rendering according to a render state \p s.
 // \pre s_exists: s!=0
-void vtkCameraPass::Render(const vtkRenderState* s)
+void vtkOpenGLCameraPass::Render(const vtkRenderState* s)
 {
   assert("pre: s_exists" && s != nullptr);
 
@@ -150,19 +130,5 @@ void vtkCameraPass::Render(const vtkRenderState* s)
     vtkWarningMacro(<< " no delegate.");
   }
   vtkOpenGLCheckErrorMacro("failed after delegate pass");
-}
-
-//------------------------------------------------------------------------------
-// Description:
-// Release graphics resources and ask components to release their own
-// resources.
-// \pre w_exists: w!=0
-void vtkCameraPass::ReleaseGraphicsResources(vtkWindow* w)
-{
-  assert("pre: w_exists" && w != nullptr);
-  if (this->DelegatePass != nullptr)
-  {
-    this->DelegatePass->ReleaseGraphicsResources(w);
-  }
 }
 VTK_ABI_NAMESPACE_END

@@ -197,6 +197,12 @@ vtkRenderer::~vtkRenderer()
   {
     this->EnvironmentTexture->Delete();
   }
+
+  if (this->Pass != nullptr)
+  {
+    this->Pass->UnRegister(this);
+    this->Pass = nullptr;
+  }
 }
 
 void vtkRenderer::SetLeftBackgroundTexture(vtkTexture* texture)

@@ -28,6 +28,7 @@ set(classes
   vtkWebGPUBatchedLabeledDataMapper
   vtkWebGPUBatchedPolyDataMapper
   vtkWebGPUCamera
+  vtkWebGPUCameraPass
   vtkWebGPUCellToPrimitiveConverter
   vtkWebGPUCommandEncoderDebugGroup
   vtkWebGPUCompositePolyDataMapperDelegator
@@ -114,6 +115,7 @@ set(webgpu_overrides
   BatchedLabeledDataMapper
   # NI: BillboardTextActor3D
   Camera
+  CameraPass
   CompositePolyDataMapperDelegator
   # NI: LabeledContourMapper
   HardwareSelector
