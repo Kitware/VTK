@@ -3,6 +3,7 @@
 #include "vtkWebGPUVolumeRayCastMapper.h"
 
 #include "Private/vtkWebGPUVolumeRayCastMapperInternals.h"
+#include "vtkWebGPUVolumeRayCastCoordinator.h"
 
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -58,6 +59,16 @@ int vtkWebGPUVolumeRayCastMapper::IsRenderSupported(
 void vtkWebGPUVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow* vtkNotUsed(window))
 {
   this->Internals->ReleaseGraphicsResources();
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastMapper::ReleaseGraphicsResources(vtkRenderer* renderer)
+{
+  this->Internals->ReleaseGraphicsResources();
+  if (auto* coordinator = vtkWebGPUVolumeRayCastCoordinator::GetForRenderer(renderer))
+  {
+    coordinator->ReleaseGraphicsResources(this);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -126,10 +137,14 @@ void vtkWebGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
     return;
   }
 
+  // The volumes of a renderer are marched together, so the mapper prepares its own inputs and
+  // hands them over rather than drawing them itself.
+  auto* coordinator = vtkWebGPUVolumeRayCastCoordinator::GetForRenderer(ren);
+
   switch (renderer->GetRenderStage())
   {
     case vtkWebGPURenderer::RenderStageEnum::SyncDeviceResources:
-      this->Internals->SyncDeviceResources(window, vol);
+      this->Internals->SyncDeviceResources(window, coordinator, vol);
       break;
 
     case vtkWebGPURenderer::RenderStageEnum::RecordingCommands:
@@ -139,7 +154,11 @@ void vtkWebGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
       break;
 
     case vtkWebGPURenderer::RenderStageEnum::RenderPostRasterization:
-      this->Internals->Render(window, ren, vol);
+      // Whichever volume gets here first draws them all; the rest find the work already done.
+      if (coordinator != nullptr)
+      {
+        coordinator->Render(ren);
+      }
       break;
 
     default:

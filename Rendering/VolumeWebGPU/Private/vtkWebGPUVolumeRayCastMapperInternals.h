@@ -2,7 +2,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkWebGPUVolumeRayCastMapperInternals
- * @brief   Device side state of vtkWebGPUVolumeRayCastMapper
+ * @brief   Per input device state of vtkWebGPUVolumeRayCastMapper
+ *
+ * The mapper prepares its own inputs and nothing else: it uploads a volume texture, tabulates the
+ * transfer functions and classifies the blocks of each connected port. What it does not do is
+ * draw. The prepared inputs are offered to the vtkWebGPUVolumeRayCastCoordinator of the renderer,
+ * which marches them together with the volumes of every other mapper in the scene.
  *
  * Everything that names a WebGPU type lives here so that the public header of the mapper stays
  * free of webgpu_cpp.h and of the C++ handle wrappers it brings with it.
@@ -13,7 +18,10 @@
 
 #include "vtkWebGPUVolumeRayCastMapper.h"
 
+#include "Private/vtkWebGPUVolumeRayCastContribution.h"
+
 #include "vtkSmartPointer.h"
+#include "vtkTimeStamp.h"
 #include "vtk_wgpu.h"
 
 #include <array>
@@ -25,17 +33,15 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class vtkImageData;
 class vtkMatrix4x4;
-class vtkRenderer;
 class vtkVolume;
 class vtkVolumeProperty;
 class vtkWebGPURenderWindow;
+class vtkWebGPUVolumeRayCastCoordinator;
 
 class vtkWebGPUVolumeRayCastMapper::vtkInternals
 {
 public:
-  static constexpr int MaximumLights = 6;
-  static constexpr int MaximumClipPlanes = 6;
-  static constexpr int TransferFunctionSize = 256;
+  static constexpr int TableSize = vtkWebGPUVolumeTransferFunctionSize;
 
   explicit vtkInternals(vtkWebGPUVolumeRayCastMapper* self)
     : Self(self)
@@ -43,20 +49,15 @@ public:
   }
 
   /**
-   * Upload whatever the device needs that does not depend on the camera or on the depth left
-   * behind by the opaque geometry. Called in the SyncDeviceResources stage.
+   * Bring every connected input up to date on the device and offer it to \a coordinator. Called
+   * in the SyncDeviceResources stage, before anything is drawn.
    */
-  void SyncDeviceResources(vtkWebGPURenderWindow* window, vtkVolume* volume);
-
-  /**
-   * Update the camera dependent state and record the ray casting pass. Called after the main
-   * rasterization pass has been flushed, so the depth buffer is complete and free to sample.
-   */
-  void Render(vtkWebGPURenderWindow* window, vtkRenderer* renderer, vtkVolume* volume);
+  void SyncDeviceResources(vtkWebGPURenderWindow* window,
+    vtkWebGPUVolumeRayCastCoordinator* coordinator, vtkVolume* volume);
 
   void ReleaseGraphicsResources();
 
-  /// Per port appearance overrides, used when the inputs are not wrapped in a vtkMultiVolume.
+  /// Per port appearance overrides, used when a port is not backed by its own vtkVolume.
   std::map<int, vtkSmartPointer<vtkVolumeProperty>> PortProperties;
 
 private:
@@ -75,75 +76,45 @@ private:
     float ValueBias = 0.0f;
 
     double DataRange[2] = { 0.0, 1.0 };
-    /// Range the color and opacity functions are tabulated over.
+    /// Range the colour and opacity functions are tabulated over.
     double ScalarRange[2] = { 0.0, 1.0 };
     /// Range the gradient opacity function is tabulated over.
     double GradientRange[2] = { 0.0, 1.0 };
 
-    /// Scalar extremes of each block, in raw data units.
+    /// Scalar extremes of each block, in data units.
     int BrickDimensions[3] = { 0, 0, 0 };
     int BrickSize = 0;
     std::vector<float> BrickMinimum;
     std::vector<float> BrickMaximum;
-    std::uint32_t BrickOffset = 0;
+    /// Two floats per block: largest opacity the transfer functions map it to, and how much it
+    /// varies. Rebuilt whenever the transfer functions change.
+    std::vector<float> BrickClassification;
+
+    /// RGBA16Float texels ready to be dropped into a layer of the shared arrays.
+    std::vector<std::uint16_t> ColorTable;
+    std::vector<std::uint16_t> OpacityTable;
+    std::vector<std::uint16_t> GradientTable;
+    /// The opacity table again, unpacked, so blocks can be classified without asking the
+    /// transfer functions again.
+    std::array<float, TableSize> OpacityCurve = {};
 
     vtkMTimeType DataTime = 0;
+    vtkMTimeType TransferFunctionTime = 0;
+    /// Bumped whenever anything above is rebuilt.
+    vtkTimeStamp ContentTime;
   };
 
   bool CollectInputs(vtkVolume* volume);
   void UpdateVolumeTexture(vtkWebGPURenderWindow* window, Input& input);
-  void UpdateTransferFunctions(vtkWebGPURenderWindow* window);
-  void UpdateBrickClassification(vtkWebGPURenderWindow* window);
-  void UpdateDepthView(vtkWebGPURenderWindow* window);
-  void UpdateUniforms(vtkWebGPURenderWindow* window, vtkRenderer* renderer, vtkVolume* volume);
-  void UpdateBindGroup(vtkWebGPURenderWindow* window);
-  void EnsurePipeline(vtkWebGPURenderWindow* window);
-  void EnsurePlaceholders(vtkWebGPURenderWindow* window);
-  void RecordRenderPass(vtkWebGPURenderWindow* window);
+  void UpdateTransferFunctions(Input& input);
+  void UpdateBrickClassification(Input& input);
 
   vtkWebGPUVolumeRayCastMapper* Self = nullptr;
 
   /// Device state of every port that has ever been rendered, keyed by port.
   std::map<int, Input> InputCache;
-  /// Ports rendered this frame. The position in this list is the index the shader uses.
+  /// Ports offered this frame.
   std::vector<int> ActivePorts;
-
-  wgpu::Buffer GlobalUniformBuffer;
-  wgpu::Buffer VolumeParamsBuffer;
-  wgpu::Buffer BrickBuffer;
-  std::size_t BrickBufferElements = 0;
-
-  wgpu::Texture ColorTransferFunctions;
-  wgpu::TextureView ColorTransferFunctionsView;
-  wgpu::Texture OpacityTransferFunctions;
-  wgpu::TextureView OpacityTransferFunctionsView;
-  wgpu::Texture GradientTransferFunctions;
-  wgpu::TextureView GradientTransferFunctionsView;
-  wgpu::Sampler TransferFunctionSampler;
-
-  wgpu::Texture PlaceholderVolume;
-  wgpu::TextureView PlaceholderVolumeView;
-  /// Depth left behind by the opaque geometry, rebuilt every frame because the attachment is
-  /// recreated whenever the window is resized.
-  wgpu::TextureView OpaqueDepthView;
-
-  wgpu::BindGroupLayout BindGroupLayout;
-  wgpu::BindGroup BindGroup;
-  wgpu::RenderPipeline Pipeline;
-  wgpu::TextureFormat PipelineColorFormat = wgpu::TextureFormat::Undefined;
-
-  /// Opacity table of every input, kept so blocks can be reclassified without asking the
-  /// transfer functions again.
-  std::vector<std::array<float, TransferFunctionSize>> OpacityTables;
-  vtkMTimeType TransferFunctionTime = 0;
-  vtkMTimeType BrickClassificationTime = 0;
-
-  /// Whether the depth of the opaque geometry can be sampled this frame.
-  bool DepthAvailable = false;
-
-  /// Renderer viewport in framebuffer pixels: origin x, origin y, width, height.
-  float ViewportRectangle[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
-  bool DrawFullScreen = false;
 };
 
 VTK_ABI_NAMESPACE_END

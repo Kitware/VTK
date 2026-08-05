@@ -11,14 +11,18 @@
  *
  * Two aspects differ from the OpenGL implementation:
  *
- * - Any number of inputs (up to MaximumNumberOfVolumes) are ray cast together
- *   in a single pass, and the inputs are allowed to overlap in space. A
- *   secondary vtkMultiVolume prop is not required; connect the inputs to
- *   consecutive ports and, optionally, give each port its own
- *   vtkVolumeProperty with SetVolumeProperty(). A vtkMultiVolume is still
- *   accepted for source compatibility. Overlapping samples are blended as
- *   co-located participating media, so the result is independent of the order
- *   in which the inputs were connected.
+ * - Volumes that share a renderer are ray cast together, in one pass, and are
+ *   allowed to overlap in space. Adding several vtkVolume props to a renderer
+ *   is all it takes, each with its own mapper and its own transfer functions;
+ *   neither a vtkMultiVolume nor several inputs on one mapper is needed,
+ *   though both still work. Overlapping samples are blended as co-located
+ *   participating media, so the result does not depend on the order the props
+ *   were added in. See vtkWebGPUVolumeRayCastCoordinator, which is where the
+ *   volumes of a renderer are brought back together.
+ *
+ *   A single mapper may still carry several inputs on consecutive ports, each
+ *   with its own vtkVolumeProperty set through SetVolumeProperty(); those are
+ *   gathered into the same pass as everything else.
  *
  * - The distance between samples is not fixed along a ray. The mapper
  *   maintains a coarse min/max acceleration structure over each input and uses
@@ -27,7 +31,8 @@
  *   more densely than regions that do not. See SetAdaptiveSampling().
  *
  * @sa
- * vtkGPUVolumeRayCastMapper vtkOpenGLGPUVolumeRayCastMapper
+ * vtkWebGPUVolumeRayCastCoordinator vtkGPUVolumeRayCastMapper
+ * vtkOpenGLGPUVolumeRayCastMapper
  */
 
 #ifndef vtkWebGPUVolumeRayCastMapper_h
@@ -54,13 +59,6 @@ public:
   static vtkOverrideAttribute* CreateOverrideAttributes();
 
   /**
-   * The largest number of inputs that can be ray cast in a single pass. The
-   * limit comes from the number of sampled textures a WebGPU bind group may
-   * hold for one shader stage.
-   */
-  static constexpr int MaximumNumberOfVolumes = 12;
-
-  /**
    * Bounds of every connected input taken together, so that a mapper with several inputs is
    * framed and culled as a whole even when it is not held by a vtkMultiVolume.
    */
@@ -70,6 +68,12 @@ public:
   void GPURender(vtkRenderer* ren, vtkVolume* vol) override;
   int IsRenderSupported(vtkRenderWindow* window, vtkVolumeProperty* property) override;
   void ReleaseGraphicsResources(vtkWindow* window) override;
+
+  /**
+   * Let go of what this mapper contributed to the pass of \a renderer as well as of its own
+   * resources.
+   */
+  void ReleaseGraphicsResources(vtkRenderer* renderer);
   void GetReductionRatio(double ratio[3]) override;
 
   ///@{
