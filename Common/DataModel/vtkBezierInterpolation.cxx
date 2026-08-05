@@ -341,7 +341,7 @@ void vtkBezierInterpolation::Tensor3EvaluateDerivative(const int order[3], const
 void vtkBezierInterpolation::WedgeShapeFunctions(
   const int order[3], vtkIdType numberOfPoints, const double pcoords[3], double* shape)
 {
-  static vtkNew<vtkBezierTriangle> tri;
+  vtkNew<vtkBezierTriangle> tri;
   vtkHigherOrderInterpolation::WedgeShapeFunctions(
     order, numberOfPoints, pcoords, shape, *tri, vtkBezierInterpolation::EvaluateShapeFunctions);
 }
@@ -350,7 +350,7 @@ void vtkBezierInterpolation::WedgeShapeFunctions(
 void vtkBezierInterpolation::WedgeShapeDerivatives(
   const int order[3], vtkIdType numberOfPoints, const double pcoords[3], double* derivs)
 {
-  static vtkNew<vtkBezierTriangle> tri;
+  vtkNew<vtkBezierTriangle> tri;
   vtkHigherOrderInterpolation::WedgeShapeDerivatives(
     order, numberOfPoints, pcoords, derivs, *tri, vtkBezierInterpolation::EvaluateShapeAndGradient);
 }
@@ -358,7 +358,7 @@ void vtkBezierInterpolation::WedgeShapeDerivatives(
 void vtkBezierInterpolation::WedgeEvaluate(const int order[3], vtkIdType numberOfPoints,
   const double* pcoords, double* fieldVals, int fieldDim, double* fieldAtPCoords)
 {
-  static vtkNew<vtkBezierTriangle> tri;
+  vtkNew<vtkBezierTriangle> tri;
   this->vtkHigherOrderInterpolation::WedgeEvaluate(order, numberOfPoints, pcoords, fieldVals,
     fieldDim, fieldAtPCoords, *tri, vtkBezierInterpolation::EvaluateShapeFunctions);
 }
@@ -366,7 +366,7 @@ void vtkBezierInterpolation::WedgeEvaluate(const int order[3], vtkIdType numberO
 void vtkBezierInterpolation::WedgeEvaluateDerivative(const int order[3], const double* pcoords,
   vtkPoints* points, const double* fieldVals, int fieldDim, double* fieldDerivs)
 {
-  static vtkNew<vtkBezierTriangle> tri;
+  vtkNew<vtkBezierTriangle> tri;
   this->vtkHigherOrderInterpolation::WedgeEvaluateDerivative(order, pcoords, points, fieldVals,
     fieldDim, fieldDerivs, *tri, vtkBezierInterpolation::EvaluateShapeAndGradient);
 }
