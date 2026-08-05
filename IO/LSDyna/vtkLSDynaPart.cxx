@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <map>
+#include <type_traits>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -658,8 +659,24 @@ void vtkLSDynaPart::ReadPointBasedProperty(double* data, const vtkIdType& numTup
 }
 
 //------------------------------------------------------------------------------
-template <typename T>
-void vtkLSDynaPart::AddPointInformation(T* buffer, T* pointData, const vtkIdType& numTuples,
+void vtkLSDynaPart::ReadPointBasedProperty(std::int32_t* data, const vtkIdType& numTuples,
+  const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex)
+{
+  vtkIdType* ptr = static_cast<vtkIdType*>(this->CurrentPointPropInfo->ptr);
+  this->AddPointInformation(data, ptr, numTuples, numComps, currentGlobalPointIndex);
+}
+
+//------------------------------------------------------------------------------
+void vtkLSDynaPart::ReadPointBasedProperty(std::int64_t* data, const vtkIdType& numTuples,
+  const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex)
+{
+  vtkIdType* ptr = static_cast<vtkIdType*>(this->CurrentPointPropInfo->ptr);
+  this->AddPointInformation(data, ptr, numTuples, numComps, currentGlobalPointIndex);
+}
+
+//------------------------------------------------------------------------------
+template <typename T, typename U>
+void vtkLSDynaPart::AddPointInformation(T* buffer, U* pointData, const vtkIdType& numTuples,
   const vtkIdType& numComps, const vtkIdType& currentGlobalIndex)
 {
   // only read the subset of points of this part that fall
@@ -672,14 +689,26 @@ void vtkLSDynaPart::AddPointInformation(T* buffer, T* pointData, const vtkIdType
     [](const vtkIdType& value, const InternalPointsUsed::PointRun& run)
     { return value < run.GlobalEnd; });
 
-  // copy each run that overlaps the buffer with a single memcpy
+  // copy each run that overlaps the buffer with a single memcpy,
+  // or an element wise conversion when the file and memory types differ
   for (; runIt != runs.end() && runIt->GlobalStart < chunkEnd; ++runIt)
   {
     const vtkIdType start = std::max(runIt->GlobalStart, currentGlobalIndex);
     const vtkIdType end = std::min(runIt->GlobalEnd, chunkEnd);
     const T* src = buffer + ((start - currentGlobalIndex) * numComps);
-    T* dest = pointData + ((runIt->LocalStart + (start - runIt->GlobalStart)) * numComps);
-    memcpy(dest, src, static_cast<size_t>(end - start) * numComps * sizeof(T));
+    U* dest = pointData + ((runIt->LocalStart + (start - runIt->GlobalStart)) * numComps);
+    const vtkIdType numValues = (end - start) * numComps;
+    if constexpr (std::is_same<T, U>::value)
+    {
+      memcpy(dest, src, static_cast<size_t>(numValues) * sizeof(T));
+    }
+    else
+    {
+      for (vtkIdType i = 0; i < numValues; ++i)
+      {
+        dest[i] = static_cast<U>(src[i]);
+      }
+    }
   }
 }
 

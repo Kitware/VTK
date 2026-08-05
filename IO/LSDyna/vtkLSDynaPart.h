@@ -9,6 +9,8 @@
 #include "vtkObject.h"
 #include "vtkStdString.h" //needed for string
 
+#include <cstdint> // for std::int32_t and std::int64_t
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
 class vtkPoints;
@@ -95,6 +97,15 @@ public:
     const vtkIdType& currentGlobalPointIndex);
 
   // Description:
+  // Given a chunk of integer point property memory (user ids) copy it
+  // to the id type property on the part, converting each value
+  void ReadPointBasedProperty(std::int32_t* data, const vtkIdType& numTuples,
+    const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex);
+
+  void ReadPointBasedProperty(std::int64_t* data, const vtkIdType& numTuples,
+    const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex);
+
+  // Description:
   // Adds a property to the part
   void AddCellProperty(const char* name, const int& offset, const int& numComps);
 
@@ -167,8 +178,8 @@ protected:
   InternalCurrentPointInfo* CurrentPointPropInfo;
 
 private:
-  template <typename T>
-  void AddPointInformation(T* buffer, T* pointData, const vtkIdType& numTuples,
+  template <typename T, typename U>
+  void AddPointInformation(T* buffer, U* pointData, const vtkIdType& numTuples,
     const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex);
 
   vtkLSDynaPart(const vtkLSDynaPart&) = delete;
