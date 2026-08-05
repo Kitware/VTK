@@ -357,8 +357,13 @@ public:
    * If set, CreateSurface() will use this descriptor instead of the platform-specific
    * surface descriptor derived from the hardware window.
    * Pass nullptr to clear and revert to default behavior.
+   *
+   * @note This property is excluded from marshalling/serialization because it contains
+   * platform-specific WebGPU surface descriptors that cannot be serialized or replayed.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void SetCustomSurfaceDescriptor(const wgpu::SurfaceDescriptor* descriptor);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   const wgpu::SurfaceDescriptor* GetCustomSurfaceDescriptor() const;
   ///@}
 
