@@ -362,7 +362,7 @@ private:
    * `primitive` is the column offset to use when reading into a 2-D meta-data array for Poly Data.
    * Unless `primitive` is specified, assume that the array is 1-D.
    */
-  hsize_t GetSubfileNumberOf(const std::string& base, const std::string& qualifier,
+  hsize_t GetSubfileNumberOf(const std::string& base, const std::string_view& qualifier,
     std::size_t subfileId, hsize_t part, char primitive = 0xff);
 
   std::string GetBasePath(const std::string& fullPath);
