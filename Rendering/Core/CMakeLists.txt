@@ -69,6 +69,7 @@ set(classes
   vtkLightActor
   vtkLightCollection
   vtkLightKit
+  vtkLightingMapPass
   vtkLightsPass
   vtkLogLookupTable
   vtkLookupTableWithEnabling

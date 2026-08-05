@@ -22,7 +22,6 @@ set(classes
   vtkGenericOpenGLRenderWindow
   vtkHiddenLineRemovalPass
   vtkImageProcessingPass
-  vtkLightingMapPass
   vtkOSOpenGLRenderWindow
   vtkOpenGLActor
   vtkOpenGLArrayTextureBufferAdapter
