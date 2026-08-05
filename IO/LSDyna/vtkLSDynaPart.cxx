@@ -75,6 +75,7 @@ public:
   InternalCellProperties()
     : DeadCells(nullptr)
     , DeadIndex(0)
+    , DeadCellCount(0)
     , UserIds(nullptr)
     , UserIdIndex(0)
   {
@@ -126,9 +127,20 @@ public:
 
   void SetDeadCells(unsigned char* dead, const vtkIdType& size)
   {
+    if (this->DeadIndex == 0)
+    {
+      // starting the dead cell info of a new time step
+      this->DeadCellCount = 0;
+    }
+    for (vtkIdType i = 0; i < size; ++i)
+    {
+      this->DeadCellCount += dead[i];
+    }
     memcpy(this->DeadCells + this->DeadIndex, dead, sizeof(unsigned char) * size);
     this->DeadIndex += size;
   }
+
+  vtkIdType GetDeadCellCount() const { return this->DeadCellCount; }
 
   bool IsCellDead(const vtkIdType& index) const { return this->DeadCells[index] == 0; }
 
@@ -165,6 +177,7 @@ protected:
   // the two cell data arrays that aren't packed with cell state info
   unsigned char* DeadCells;
   vtkIdType DeadIndex;
+  vtkIdType DeadCellCount;
 
   vtkIdType* UserIds;
   vtkIdType UserIdIndex;
@@ -475,8 +488,11 @@ vtkUnstructuredGrid* vtkLSDynaPart::GenerateGrid()
     pd->GetArray(i)->Modified();
   }
 
-  if (!this->HasDeadCells || this->DeadCellsAsGhostArray)
+  if (!this->HasDeadCells || this->DeadCellsAsGhostArray ||
+    this->CellProperties->GetDeadCellCount() == 0)
   {
+    // nothing to remove when no cell of this part is dead at this
+    // time step, so skip the expensive extraction below
     return this->Grid;
   }
   else
