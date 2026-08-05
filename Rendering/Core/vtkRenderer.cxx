@@ -1147,7 +1147,7 @@ void vtkRenderer::ResetCamera(const double bounds[6])
   this->ActiveCamera->SetPosition(
     center[0] + distance * vn[0], center[1] + distance * vn[1], center[2] + distance * vn[2]);
 
-  this->ResetCameraClippingRange(expandedBounds);
+  this->ResetCameraClippingRange(bounds);
 
   // setup default parallel scale
   this->ActiveCamera->SetParallelScale(parallelScale);
@@ -1348,9 +1348,6 @@ void vtkRenderer::ResetCameraScreenSpace(const double bounds[6], const double of
   // Make sure all bounds are visible to project into screen space
   this->ResetCamera(bounds);
 
-  double expandedBounds[6] = { bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5] };
-  this->ExpandBounds(expandedBounds, this->ActiveCamera->GetModelTransformMatrix());
-
   // 1) Compute the screen space bounding box
   double xmin = VTK_DOUBLE_MAX;
   double ymin = VTK_DOUBLE_MAX;
@@ -1363,8 +1360,7 @@ void vtkRenderer::ResetCameraScreenSpace(const double bounds[6], const double of
     {
       for (int k = 0; k < 2; ++k)
       {
-        double currentPoint[4] = { expandedBounds[i], expandedBounds[j + 2], expandedBounds[k + 4],
-          1.0 };
+        double currentPoint[4] = { bounds[i], bounds[j + 2], bounds[k + 4], 1.0 };
 
         this->SetWorldPoint(currentPoint);
         this->WorldToDisplay();
