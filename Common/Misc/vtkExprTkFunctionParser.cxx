@@ -276,21 +276,9 @@ exprtk::rtl::vecops::package<double>& vectorOperationsPackage()
   static exprtk::rtl::vecops::package<double> package;
   return package;
 }
-std::vector<double>& iHat()
-{
-  static std::vector<double> ihat = { 1, 0, 0 };
-  return ihat;
-}
-std::vector<double>& jHat()
-{
-  static std::vector<double> jhat = { 0, 1, 0 };
-  return jhat;
-}
-std::vector<double>& kHat()
-{
-  static std::vector<double> khat = { 0, 0, 1 };
-  return khat;
-}
+double iHat[] = { 1, 0, 0 };
+double jHat[] = { 0, 1, 0 };
+double kHat[] = { 0, 0, 1 };
 mag<double>& magnitude()
 {
   static mag<double> magnitude;
@@ -379,9 +367,9 @@ vtkExprTkFunctionParser::vtkExprTkFunctionParser()
   this->ExprTkTools->SymbolTable.add_infinity();
   this->ExprTkTools->SymbolTable.add_pi();
   // add unit vectors
-  this->ExprTkTools->SymbolTable.add_vector("iHat", iHat());
-  this->ExprTkTools->SymbolTable.add_vector("jHat", jHat());
-  this->ExprTkTools->SymbolTable.add_vector("kHat", kHat());
+  this->ExprTkTools->SymbolTable.add_vector("iHat", iHat);
+  this->ExprTkTools->SymbolTable.add_vector("jHat", jHat);
+  this->ExprTkTools->SymbolTable.add_vector("kHat", kHat);
   // add ln and sign
   this->ExprTkTools->SymbolTable.add_function("ln", std::log);
   this->ExprTkTools->SymbolTable.add_function("sign", sign);
@@ -620,7 +608,8 @@ std::string vtkExprTkFunctionParser::FixVectorReturningFunctionOccurrences(
   std::sort(variableNamesContainingFunction.begin(), variableNamesContainingFunction.end(),
     [](const std::string& s1, const std::string& s2) -> bool { return s1.size() > s2.size(); });
 
-  static const std::string allowedChars = "01234565789.,()+-*/%^|&=<>!";
+  static const char allowedChars[] = { '0', '1', '2', '3', '4', '5', '6', '5', '7', '8', '9', '.',
+    ',', '(', ')', '+', '-', '*', '/', '%', '^', '|', '&', '=', '<', '>', '!' };
   std::string::size_type pos = 0;
   std::string function = this->FunctionWithUsedVariableNames;
   while ((pos = function.find(desiredFunction, pos)) != std::string::npos)
