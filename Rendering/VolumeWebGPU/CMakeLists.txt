@@ -1,10 +1,14 @@
 set(classes
+  vtkWebGPUVolumeRayCastCoordinator
   vtkWebGPUVolumeRayCastMapper)
 
 set(private_headers
+  "Private/vtkWebGPUVolumeRayCastContribution.h"
+  "Private/vtkWebGPUVolumeRayCastCoordinatorInternals.h"
   "Private/vtkWebGPUVolumeRayCastMapperInternals.h")
 
 set(private_sources
+  "Private/vtkWebGPUVolumeRayCastCoordinatorInternals.cxx"
   "Private/vtkWebGPUVolumeRayCastMapperInternals.cxx")
 
 set(shader_files
