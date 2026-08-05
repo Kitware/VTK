@@ -374,7 +374,7 @@ VTK_SPACE_EXP_ACTION(SpaceExp7, 7);
 VTK_SPACE_EXP_ACTION(SpaceExp8, 8);
 VTK_SPACE_EXP_ACTION(SpaceExp9, 9);
 #else
-bool consume(const std::string& source, std::size_t& loc, const std::string& match)
+bool consume(const std::string& source, std::size_t& loc, const std::string_view& match)
 {
   if (source.size() - loc < match.size())
   {
@@ -396,17 +396,17 @@ struct SpaceAction<SpaceExp>
   {
     (void)base;
     (void)halfspace;
-    static std::string zero("⁰");
-    static std::string oneA("\xc2\xb9");     // ¹
-    static std::string oneB("\xe2\x81\xb1"); // ⁱ
-    static std::string two("²");
-    static std::string three("³");
-    static std::string four("⁴");
-    static std::string five("⁵");
-    static std::string six("⁶");
-    static std::string seven("⁷");
-    static std::string eight("⁸");
-    static std::string nine("⁹");
+    constexpr std::string_view zero("⁰");
+    constexpr std::string_view oneA("\xc2\xb9");     // ¹
+    constexpr std::string_view oneB("\xe2\x81\xb1"); // ⁱ
+    constexpr std::string_view two("²");
+    constexpr std::string_view three("³");
+    constexpr std::string_view four("⁴");
+    constexpr std::string_view five("⁵");
+    constexpr std::string_view six("⁶");
+    constexpr std::string_view seven("⁷");
+    constexpr std::string_view eight("⁸");
+    constexpr std::string_view nine("⁹");
     exp = 0.0;
     std::string source = in.string();
     std::size_t loc = 0;
