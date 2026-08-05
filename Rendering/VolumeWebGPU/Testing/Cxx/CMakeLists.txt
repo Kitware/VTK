@@ -6,7 +6,8 @@ vtk_add_test_cxx(vtkRenderingVolumeWebGPUCxxTests tests
   TestWebGPUVolumeCameraInside.cxx,NO_DATA,NO_VALID
   TestWebGPUVolumeMixedGeometry.cxx,NO_DATA,NO_VALID
   TestWebGPUVolumeOverlap.cxx,NO_DATA,NO_VALID
-  TestWebGPUVolumeRayCast.cxx,NO_DATA,NO_VALID)
+  TestWebGPUVolumeRayCast.cxx,NO_DATA,NO_VALID
+  TestWebGPUVolumeSeparateProps.cxx,NO_DATA,NO_VALID)
 
 vtk_test_cxx_executable(vtkRenderingVolumeWebGPUCxxTests tests
   RENDERING_FACTORY
