@@ -30,7 +30,7 @@ int TestAnariLayers(int argc, char* argv[])
 
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i], "-trace"))
+    if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
@@ -75,7 +75,8 @@ int TestAnariLayers(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer2->SetPass(anariPass);
 
-  SetParameterDefaults(anariPass, renderer2, useDebugDevice, "TestAnariLayers");
+  vtkAnariTestUtilities::SetParameterDefaults(
+    anariPass, renderer2, useDebugDevice, "TestAnariLayers");
 
   renWin->SetSize(400, 400);
   renWin->Render();

@@ -26,6 +26,7 @@ set(classes
   vtkAnariPass
   vtkAnariPolyDataMapperNode
   vtkAnariRenderer
+  vtkAnariRenderWindow
   vtkAnariSceneGraph
   vtkAnariViewNodeFactory
   vtkAnariFollowerNode

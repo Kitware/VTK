@@ -4,7 +4,6 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkDummyController.h"
@@ -398,6 +397,15 @@ int vtkTesting::RegressionTest(double thresh, ostream& os)
 {
   vtkNew<vtkWindowToImageFilter> rtW2if;
   rtW2if->SetInput(this->RenderWindow);
+  switch (this->RegressionPixelFormat)
+  {
+    case PixelFormat::RGB:
+      rtW2if->SetInputBufferTypeToRGB();
+      break;
+    case PixelFormat::RGBA:
+      rtW2if->SetInputBufferTypeToRGBA();
+      break;
+  }
 
   for (unsigned int i = 0; i < this->Args.size(); ++i)
   {
@@ -605,20 +613,12 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     return FAILED;
   }
 
-  imageSource->Update();
-
   vtkNew<vtkPNGReader> rtPng;
 #ifdef __EMSCRIPTEN__
   rtPng->SetFileName(validName.c_str());
 #else
   rtPng->SetFileName(this->ValidImageFileName);
 #endif
-  rtPng->Update();
-
-  vtkNew<vtkImageExtractComponents> rtExtract;
-  rtExtract->SetInputConnection(rtPng->GetOutputPort());
-  rtExtract->SetComponents(0, 1, 2);
-  rtExtract->Update();
 
   auto createLegacyDiffFilter = [](vtkAlgorithm* source, vtkAlgorithm* extract)
   {
@@ -628,7 +628,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     return alg;
   };
 
-  auto createSSIMFilter = [](vtkAlgorithm* source, vtkAlgorithm* extract)
+  auto createSSIMFilter = [](vtkAlgorithm* source, vtkAlgorithm* extract, PixelFormat pixelFormat)
   {
     auto createPipeline = [](vtkAlgorithm* alg)
     {
@@ -645,15 +645,31 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
       return xyz2lab;
     };
 
-    auto pipeline1 = createPipeline(source);
-    auto pipeline2 = createPipeline(extract);
-
     auto ssim = vtkImageSSIM::New();
     ssim->SetInputToLab();
     ssim->ClampNegativeValuesOn();
     auto alg = vtkSmartPointer<vtkAlgorithm>::Take(ssim);
-    alg->SetInputConnection(pipeline1->GetOutputPort());
-    alg->SetInputConnection(1, pipeline2->GetOutputPort());
+
+    switch (pixelFormat)
+    {
+      case PixelFormat::RGB:
+      {
+        auto pipeline1 = createPipeline(source);
+        auto pipeline2 = createPipeline(extract);
+
+        alg->SetInputConnection(pipeline1->GetOutputPort());
+        alg->SetInputConnection(1, pipeline2->GetOutputPort());
+        break;
+      }
+      case PixelFormat::RGBA:
+      {
+        alg->SetInputConnection(source->GetOutputPort());
+        alg->SetInputConnection(1, extract->GetOutputPort());
+        ssim->SetInputToRGBA();
+        break;
+      }
+    }
+
     return alg;
   };
 
@@ -663,7 +679,26 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
 
   vtkNew<vtkImageClip> ic2;
   ic2->SetClipData(1);
-  ic2->SetInputConnection(rtExtract->GetOutputPort());
+
+  switch (this->RegressionPixelFormat)
+  {
+    case PixelFormat::RGB:
+    {
+      vtkNew<vtkImageExtractComponents> rtExtract;
+      rtExtract->SetInputConnection(rtPng->GetOutputPort());
+      rtExtract->SetComponents(0, 1, 2);
+      ic2->SetInputConnection(rtExtract->GetOutputPort());
+      break;
+    }
+    case PixelFormat::RGBA:
+    {
+      ic2->SetInputConnection(rtPng->GetOutputPort());
+      break;
+    }
+  }
+
+  ic1->Update();
+  ic2->Update();
 
   const int* wExt1 =
     ic1->GetInputInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
@@ -675,10 +710,11 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   ic2->SetOutputWholeExtent(wExt2[0] + this->BorderOffset, wExt2[1] - this->BorderOffset,
     wExt2[2] + this->BorderOffset, wExt2[3] - this->BorderOffset, wExt2[4], wExt2[5]);
 
-  int ext1[6], ext2[6];
   ic1->Update();
-  ic1->GetOutput()->GetExtent(ext1);
   ic2->Update();
+
+  int ext1[6], ext2[6];
+  ic1->GetOutput()->GetExtent(ext1);
   ic2->GetOutput()->GetExtent(ext2);
 
   double minError = VTK_DOUBLE_MAX;
@@ -720,8 +756,9 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     return NONE;
   }();
 
-  auto rtId =
-    imageCompareMethod == LEGACY ? createLegacyDiffFilter(ic1, ic2) : createSSIMFilter(ic1, ic2);
+  auto rtId = imageCompareMethod == LEGACY
+    ? createLegacyDiffFilter(ic1, ic2)
+    : createSSIMFilter(ic1, ic2, this->RegressionPixelFormat);
 
   auto executeComparison = [&](double& err)
   {
@@ -1088,6 +1125,13 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
 //------------------------------------------------------------------------------
 int vtkTesting::Test(int argc, char* argv[], vtkRenderWindow* rw, double thresh)
 {
+  return vtkTesting::Test(argc, argv, rw, PixelFormat::RGB, thresh);
+}
+
+//------------------------------------------------------------------------------
+int vtkTesting::Test(
+  int argc, char* argv[], vtkRenderWindow* rw, PixelFormat pixelFormat, double thresh)
+{
   vtkNew<vtkTesting> testing;
   for (int i = 0; i < argc; ++i)
   {
@@ -1102,6 +1146,7 @@ int vtkTesting::Test(int argc, char* argv[], vtkRenderWindow* rw, double thresh)
   if (testing->IsValidImageSpecified())
   {
     testing->SetRenderWindow(rw);
+    testing->RegressionPixelFormat = pixelFormat;
 
 #if VTK_MODULE_ENABLE_VTK_SerializationManager
     if (testing->IsFlagSpecified("--serdes"))

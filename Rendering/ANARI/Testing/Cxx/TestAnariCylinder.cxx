@@ -38,7 +38,7 @@ int TestAnariCylinder(int argc, char* argv[])
 
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i], "-trace"))
+    if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
@@ -58,7 +58,8 @@ int TestAnariCylinder(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariCylinder");
+  vtkAnariTestUtilities::SetParameterDefaults(
+    anariPass, renderer, useDebugDevice, "TestAnariCylinder");
 
   vtkNew<vtkAnariTestInteractor> style;
   iren->SetInteractorStyle(style);

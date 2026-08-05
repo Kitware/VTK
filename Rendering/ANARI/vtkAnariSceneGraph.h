@@ -249,6 +249,7 @@ private:
 
   // only allow these classes to set the Anari device + renderer
   friend class vtkAnariPass;
+  friend class vtkAnariRenderWindow;
 };
 
 VTK_ABI_NAMESPACE_END

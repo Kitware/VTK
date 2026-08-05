@@ -31,7 +31,7 @@ int TestAnariPerspectiveParallel(int argc, char* argv[])
 
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i], "-trace"))
+    if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
@@ -66,7 +66,8 @@ int TestAnariPerspectiveParallel(int argc, char* argv[])
   renderer->ResetCamera();
   renderWindow->Render();
 
-  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPerspectiveParallel");
+  vtkAnariTestUtilities::SetParameterDefaults(
+    anariPass, renderer, useDebugDevice, "TestAnariPerspectiveParallel");
 
   auto anariRendererNode = anariPass->GetSceneGraph();
   const auto& extensions = anariRendererNode->GetAnariDeviceExtensions();

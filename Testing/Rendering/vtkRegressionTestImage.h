@@ -30,6 +30,10 @@ private:
 #define vtkRegressionTestImage(rw)                                                                 \
   vtkTesting::Test(argc, argv, rw, vtkRegressionTester::ErrorThreshold)
 
+#define vtkRegressionTestImageRGBA(rw)                                                             \
+  vtkTesting::Test(                                                                                \
+    argc, argv, rw, vtkTesting::PixelFormat::RGBA, vtkRegressionTester::ErrorThreshold)
+
 #define vtkRegressionTestImageThreshold(rw, t) vtkTesting::Test(argc, argv, rw, t)
 
 #define vtkRegressionTestPassForMesaLessThan(rw, major, minor, patch)                              \

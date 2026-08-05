@@ -34,7 +34,7 @@ int TestAnariCellData(int argc, char* argv[])
 
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i], "-trace"))
+    if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
@@ -107,7 +107,7 @@ int TestAnariCellData(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariCellData");
+  vtkAnariTestUtilities::SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariCellData");
   auto* ar = anariPass->GetAnariRenderer();
   ar->SetParameterf("ambientRadiance", 0.5f);
 

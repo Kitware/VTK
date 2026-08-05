@@ -30,7 +30,7 @@ int TestAnariStereo(int argc, char* argv[])
   int stereoType = VTK_STEREO_SPLITVIEWPORT_HORIZONTAL;
   for (int i = 0; i < argc; ++i)
   {
-    if (!strcmp(argv[i], "-trace"))
+    if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
@@ -127,7 +127,8 @@ int TestAnariStereo(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariStereo");
+  vtkAnariTestUtilities::SetParameterDefaults(
+    anariPass, renderer, useDebugDevice, "TestAnariStereo");
 
   vtkNew<vtkRenderWindow> renwin;
   renwin->AddRenderer(renderer);

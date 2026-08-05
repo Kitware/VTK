@@ -105,7 +105,7 @@ int TestAnariSmartVolumeMapper(int argc, char* argv[])
 
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
-  SetParameterDefaults(anariPass, ren, false, "TestAnariSmartVolumeMapper");
+  vtkAnariTestUtilities::SetParameterDefaults(anariPass, ren, false, "TestAnariSmartVolumeMapper");
 
   ren->AddViewProp(volume);
   ren->AddActor(dssActor);

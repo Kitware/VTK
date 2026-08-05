@@ -52,7 +52,7 @@ int TestAnariVolumeWavelet(int argc, char* argv[])
 
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i], "-trace"))
+    if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
@@ -108,7 +108,8 @@ int TestAnariVolumeWavelet(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariVolumeWavelet");
+  vtkAnariTestUtilities::SetParameterDefaults(
+    anariPass, renderer, useDebugDevice, "TestAnariVolumeWavelet");
 
   renderer->ResetCamera();
   renderWindow->Render();

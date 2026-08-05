@@ -35,7 +35,7 @@ int TestAnariShadows(int argc, char* argv[])
 
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i], "-trace"))
+    if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
@@ -89,7 +89,8 @@ int TestAnariShadows(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariShadows");
+  vtkAnariTestUtilities::SetParameterDefaults(
+    anariPass, renderer, useDebugDevice, "TestAnariShadows");
 
   for (double i = 0.; i < 2.0; i += 0.25)
   {

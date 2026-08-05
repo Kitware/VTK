@@ -88,7 +88,25 @@ public:
     DO_INTERACTOR = 3
   };
 
+  /**
+   * Describe the number of components per pixel for regression tests.
+   */
+  enum PixelFormat
+  {
+    RGB = 0,
+    RGBA
+  };
+
+  ///@{
+  /**
+   * Run a image comparison test against a baseline.
+   * The baseline is recovered from argv.
+   * If the pixel format is not specified, it will test in RGB format.
+   */
   static int Test(int argc, char* argv[], vtkRenderWindow* rw, double thresh);
+  static int Test(
+    int argc, char* argv[], vtkRenderWindow* rw, PixelFormat pixelFormat, double thresh);
+  ///@}
 
   /**
    * This method is intended to be a comprehensive, one line replacement for
@@ -342,6 +360,8 @@ protected:
 private:
   vtkTesting(const vtkTesting&) = delete;
   void operator=(const vtkTesting&) = delete;
+
+  PixelFormat RegressionPixelFormat = PixelFormat::RGB;
 };
 
 VTK_ABI_NAMESPACE_END

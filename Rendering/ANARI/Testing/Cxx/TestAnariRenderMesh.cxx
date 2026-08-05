@@ -210,15 +210,15 @@ int TestAnariRenderMesh(int argc, char* argv[])
 
   for (int i = 0; i < argc; i++)
   {
-    if (!strcmp(argv[i], "-type"))
+    if (!strcmp(argv[i], "--type"))
     {
       VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i + 1], type, EXIT_FAILURE);
     }
-    else if (!strcmp(argv[i], "-rep"))
+    else if (!strcmp(argv[i], "--rep"))
     {
       VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i + 1], rep, EXIT_FAILURE);
     }
-    else if (!strcmp(argv[i], "-trace"))
+    else if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
       vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
@@ -243,7 +243,8 @@ int TestAnariRenderMesh(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariRendererMesh");
+  vtkAnariTestUtilities::SetParameterDefaults(
+    anariPass, renderer, useDebugDevice, "TestAnariRendererMesh");
 
   // Now, vary most of the many parameters that rendering can vary by.
 
