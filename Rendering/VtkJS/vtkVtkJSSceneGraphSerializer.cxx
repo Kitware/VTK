@@ -3,6 +3,7 @@
 #include "vtkVtkJSSceneGraphSerializer.h"
 
 #include "vtksys/MD5.h"
+#include <initializer_list>
 #include <vtkActor.h>
 #include <vtkAlgorithm.h>
 #include <vtkCamera.h>
@@ -56,18 +57,25 @@ const std::array<char, 13> arrayTypes = {
   'L'  // VTK_ID_TYPE        12
 };
 
-const std::unordered_map<char, std::string>& javascriptMapping()
-{
-  static const std::unordered_map<char, std::string> mappings = { { 'b', "Int8Array" },
-    { 'B', "Uint8Array" }, { 'h', "Int16Array" }, { 'H', "Int16Array" }, { 'i', "Int32Array" },
-    { 'I', "Uint32Array" }, { 'l', "Int32Array" }, { 'L', "Uint32Array" }, { 'f', "Float32Array" },
-    { 'd', "Float64Array" } };
-  return mappings;
-}
+constexpr std::array<std::pair<char, std::string_view>, 10> javascriptMapping = {
+  { { 'b', "Int8Array" }, { 'B', "Uint8Array" }, { 'h', "Int16Array" }, { 'H', "Int16Array" },
+    { 'i', "Int32Array" }, { 'I', "Uint32Array" }, { 'l', "Int32Array" }, { 'L', "Uint32Array" },
+    { 'f', "Float32Array" }, { 'd', "Float64Array" } }
+};
 
 std::string getJSArrayType(vtkDataArray* array)
 {
-  return javascriptMapping().at(arrayTypes.at(array->GetDataType()));
+  char const arrayType = arrayTypes.at(array->GetDataType());
+  for (auto const& mapping : javascriptMapping)
+  {
+    if (arrayType == mapping.first)
+    {
+      return std::string(mapping.second);
+    }
+  }
+
+  vtkErrorWithObjectMacro(nullptr, << "Unsupported array type " << array->GetDataType());
+  return {};
 }
 
 Json::Value getRangeInfo(vtkDataArray* array, vtkIdType component)
@@ -310,7 +318,7 @@ namespace
 void SetColorAndOpacity(
   Json::Value& property, vtkCompositePolyDataMapper* mapper, vtkDataObject* block)
 {
-  static const std::array<std::string, 4> colorProperties = { "ambientColor", "color",
+  static const std::initializer_list<std::string_view> colorProperties = { "ambientColor", "color",
     "diffuseColor", "specularColor" };
 
   // Set the color and opacity according to the dataset's corresponding block
@@ -322,7 +330,7 @@ void SetColorAndOpacity(
     {
       for (auto& colorProperty : colorProperties)
       {
-        property["properties"][colorProperty][i] = atts->GetBlockColor(block)[i];
+        property["properties"][colorProperty.data()][i] = atts->GetBlockColor(block)[i];
       }
     }
   }
