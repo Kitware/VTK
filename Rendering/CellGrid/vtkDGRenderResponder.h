@@ -152,7 +152,6 @@ protected:
 
   std::vector<std::string> ModNames;
   std::set<std::string> ModNamesUnique;
-  static std::vector<std::string> DefaultModNames;
 
   /// Default is None. When this value is not None, that quantity is visualized
   /// instead of the currently set color array.
