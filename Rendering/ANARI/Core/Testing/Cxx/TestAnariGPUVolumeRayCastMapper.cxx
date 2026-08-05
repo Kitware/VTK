@@ -1,37 +1,31 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test verifies that we can hot swap ANARI Volume rendering and
-// GL volume rendering for float volume data.
 
-#include <vtkCamera.h>
-#include <vtkColorTransferFunction.h>
-#include <vtkDataSet.h>
-#include <vtkImageData.h>
-#include <vtkImageResize.h>
-#include <vtkInteractorStyleTrackballCamera.h>
-#include <vtkLogger.h>
-#include <vtkNew.h>
-#include <vtkNrrdReader.h>
-#include <vtkOpenGLGPUVolumeRayCastMapper.h>
-#include <vtkPiecewiseFunction.h>
-#include <vtkRegressionTestImage.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkTestUtilities.h>
-#include <vtkVolume16Reader.h>
-#include <vtkVolumeProperty.h>
+#include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkDataSet.h"
+#include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkImageResize.h"
+#include "vtkLogger.h"
+#include "vtkNew.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
+#include "vtkVolume16Reader.h"
+#include "vtkVolumeProperty.h"
 
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
-#include "vtkAnariVolumeMapper.h"
 
-#include <iostream>
-
-int TestAnariVolumeRenderer(int argc, char* argv[])
+/**
+ * This test verifies that we can hot swap ANARI Volume rendering and
+ * GL volume rendering for float volume data.
+ */
+int TestAnariGPUVolumeRayCastMapper(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -39,7 +33,6 @@ int TestAnariVolumeRenderer(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -59,7 +52,7 @@ int TestAnariVolumeRenderer(int argc, char* argv[])
   resample->SetOutputDimensions(512, 512, 512);
   resample->Update();
 
-  vtkNew<vtkOpenGLGPUVolumeRayCastMapper> volumeMapper;
+  vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
   volumeMapper->SetInputConnection(resample->GetOutputPort());
 
   double scalarRange[2];
@@ -77,8 +70,6 @@ int TestAnariVolumeRenderer(int argc, char* argv[])
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
-  //  vtkNew<vtkInteractorStyleTrackballCamera> style;
-  //  iren->SetInteractorStyle(style);
 
   vtkNew<vtkPiecewiseFunction> pf;
   pf->AddPoint(0, 0.00);
@@ -98,7 +89,6 @@ int TestAnariVolumeRenderer(int argc, char* argv[])
   ctf->AddRGBPoint(1150, 1.0, 1.0, 0.9);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
-  // volumeProperty->ShadeOff();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
   volumeProperty->SetScalarOpacity(pf);
   volumeProperty->SetGradientOpacity(gf);
@@ -109,11 +99,7 @@ int TestAnariVolumeRenderer(int argc, char* argv[])
   volume->SetProperty(volumeProperty);
   ren->AddVolume(volume);
 
-  vtkNew<vtkAnariPass> anariPass;
-  ren->SetPass(anariPass);
-
-  vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, ren, useDebugDevice, "TestAnariVolumeRenderer");
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariVolumeRenderer");
 
   auto cam = ren->GetActiveCamera();
   cam->SetFocalPoint(85.7721, 88.4044, 33.8576);
@@ -122,9 +108,7 @@ int TestAnariVolumeRenderer(int argc, char* argv[])
 
   renWin->Render();
 
-  auto anariRendererNode = anariPass->GetSceneGraph();
-  auto extensions = anariRendererNode->GetAnariDeviceExtensions();
-
+  const auto& extensions = vtkAnariTestUtilities::GetDeviceExtensions(renWin);
   if (extensions.ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR)
   {
     int retVal = vtkRegressionTestImage(renWin);
@@ -139,6 +123,6 @@ int TestAnariVolumeRenderer(int argc, char* argv[])
     return !retVal;
   }
 
-  std::cout << "Required feature KHR_VOLUME_TRANSFER_FUNCTION1D not supported." << std::endl;
+  vtkLogF(WARNING, "Required feature KHR_VOLUME_TRANSFER_FUNCTION1D not supported.");
   return VTK_SKIP_RETURN_CODE;
 }

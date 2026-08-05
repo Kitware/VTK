@@ -1,20 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test verifies that we can do simple mesh rendering with ANARI
-// and that VTK's many standard rendering modes (points, lines, surface, with
-// a variety of color controls (actor, point, cell, texture) etc work as
-// they should.
-//
-// The command line arguments are:
-// -I        => run in interactive mode; unless this is used, the program will
-//              not allow interaction and exit.
-//              In interactive mode it responds to the keys listed
-//              vtkAnariTestInteractor.h
-// -GL       => users OpenGL instead of ANARI to render
-// -type N   => where N is one of 0,1,2, or 3 makes meshes consisting of
-//              points, wireframes, triangles (=the default) or triangle strips
-// -rep N    => where N is one of 0,1 or 2 draws the meshes as points, lines
-//              or surfaces
 
 #include "vtkActor.h"
 #include "vtkActorCollection.h"
@@ -23,13 +8,8 @@
 #include "vtkDoubleArray.h"
 #include "vtkExtractEdges.h"
 #include "vtkImageData.h"
-#include "vtkInformation.h"
 #include "vtkLight.h"
-#include "vtkLightCollection.h"
-#include "vtkLogger.h"
 #include "vtkNew.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -48,48 +28,46 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVertexGlyphFilter.h"
 
-#include <string>
-#include <vector>
-
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
-class renderable
+namespace
 {
-public:
-  vtkNew<vtkSphereSource> s;
-  vtkNew<vtkPolyDataMapper> m;
-  vtkNew<vtkActor> a;
+
+struct Renderable
+{
+  vtkNew<vtkSphereSource> Sphere;
+  vtkNew<vtkPolyDataMapper> Mapper;
+  vtkNew<vtkActor> Actor;
 };
 
-std::unique_ptr<renderable> MakeSphereAt(
-  double x, double y, double z, int res, int type, int rep, const char* name)
+std::unique_ptr<Renderable> MakeSphereAt(double x, double y, double z, int res, int type, int rep)
 {
-  vtkAnariTestInteractor::AddName(name);
-  std::unique_ptr<renderable> ret(new renderable);
-  ret->s->SetEndTheta(180); // half spheres better show variation and f and back
-  ret->s->SetStartPhi(30);
-  ret->s->SetEndPhi(150);
-  ret->s->SetPhiResolution(res);
-  ret->s->SetThetaResolution(res);
-  ret->s->SetCenter(x, y, z);
+  std::unique_ptr<Renderable> ret = std::make_unique<Renderable>();
+  ret->Sphere->SetEndTheta(180); // half spheres better show variation and f and back
+  ret->Sphere->SetStartPhi(30);
+  ret->Sphere->SetEndPhi(150);
+  ret->Sphere->SetPhiResolution(res);
+  ret->Sphere->SetThetaResolution(res);
+  ret->Sphere->SetCenter(x, y, z);
+
   // make texture coordinate
   vtkNew<vtkTextureMapToSphere> tc;
   tc->SetCenter(x, y, z);
   tc->PreventSeamOn();
   tc->AutomaticSphereGenerationOff();
-  tc->SetInputConnection(ret->s->GetOutputPort());
+  tc->SetInputConnection(ret->Sphere->GetOutputPort());
   vtkNew<vtkTransformTextureCoords> tt;
   tt->SetInputConnection(tc->GetOutputPort());
-  // tt->SetScale(1,0.5,1);
+
   // make normals
   vtkNew<vtkPolyDataNormals> nl;
   nl->SetInputConnection(tt->GetOutputPort());
   nl->Update();
+
   // make more attribute arrays
   vtkPolyData* pd = nl->GetOutput();
+
   // point aligned
   vtkNew<vtkDoubleArray> da1;
   da1->SetName("testarray1");
@@ -110,7 +88,6 @@ std::unique_ptr<renderable> MakeSphereAt(
     double vals[3] = { (double)i / (double)np, (double)(i * 4) / (double)np - 2.0, 42.0 };
     da2->InsertNextTuple3(vals[0], vals[1], vals[2]);
   }
-
   vtkNew<vtkUnsignedCharArray> pac;
   pac->SetName("testarrayc1");
   pac->SetNumberOfComponents(3);
@@ -121,7 +98,6 @@ std::unique_ptr<renderable> MakeSphereAt(
       static_cast<unsigned char>(255 * ((double)(i * 4) / (double)np - 2.0)), 42 };
     pac->InsertNextTuple3(vals[0], vals[1], vals[2]);
   }
-
   vtkNew<vtkUnsignedCharArray> ca1;
   ca1->SetName("testarray3");
   ca1->SetNumberOfComponents(3);
@@ -160,7 +136,7 @@ std::unique_ptr<renderable> MakeSphereAt(
       static_cast<unsigned char>((double)(1 - i) / (double)np), 42 };
     ca2->InsertNextTuple3(vals[0], vals[1], vals[2]);
   }
-  ret->m->SetInputData(pd);
+  ret->Mapper->SetInputData(pd);
 
   switch (type)
   {
@@ -169,7 +145,7 @@ std::unique_ptr<renderable> MakeSphereAt(
       vtkNew<vtkVertexGlyphFilter> filter;
       filter->SetInputData(pd);
       filter->Update();
-      ret->m->SetInputData(filter->GetOutput());
+      ret->Mapper->SetInputData(filter->GetOutput());
       break;
     }
     case 1: // lines
@@ -177,7 +153,7 @@ std::unique_ptr<renderable> MakeSphereAt(
       vtkNew<vtkExtractEdges> filter;
       filter->SetInputData(pd);
       filter->Update();
-      ret->m->SetInputData(filter->GetOutput());
+      ret->Mapper->SetInputData(filter->GetOutput());
       break;
     }
     case 2: // polys
@@ -187,23 +163,36 @@ std::unique_ptr<renderable> MakeSphereAt(
       vtkNew<vtkStripper> filter;
       filter->SetInputData(pd);
       filter->Update();
-      ret->m->SetInputData(filter->GetOutput());
+      ret->Mapper->SetInputData(filter->GetOutput());
       break;
     }
   }
-  ret->a->SetMapper(ret->m);
-  ret->a->GetProperty()->SetPointSize(20.0f);
-  ret->a->GetProperty()->SetLineWidth(1.0f);
+  ret->Actor->SetMapper(ret->Mapper);
+  ret->Actor->GetProperty()->SetPointSize(20.0f);
+  ret->Actor->GetProperty()->SetLineWidth(1.0f);
   if (rep != -1)
   {
-    ret->a->GetProperty()->SetRepresentation(rep);
+    ret->Actor->GetProperty()->SetRepresentation(rep);
   }
   return ret;
 }
 
+}
+
+/**
+ * This test verifies that we can do simple mesh rendering with ANARI
+ * and that VTK's many standard rendering modes (points, lines, surface, with
+ * a variety of color controls (actor, point, cell, texture) etc work as
+ * they should.
+ *
+ * The command line arguments are:
+ * -type N   => where N is one of 0,1,2, or 3 makes meshes consisting of
+ *              points, wireframes, triangles (=the default) or triangle strips
+ * -rep N    => where N is one of 0,1 or 2 draws the meshes as points, lines
+ *              or surfaces
+ */
 int TestAnariRenderMesh(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
   int type = 2;
   int rep = -1;
@@ -221,138 +210,133 @@ int TestAnariRenderMesh(int argc, char* argv[])
     else if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
-  vtkNew<vtkRenderWindowInteractor> iren;
-  vtkNew<vtkRenderWindow> renWin;
-  iren->SetRenderWindow(renWin);
   vtkNew<vtkRenderer> renderer;
-  renWin->AddRenderer(renderer);
   renderer->AutomaticLightCreationOn();
   renderer->SetBackground(0.75, 0.75, 0.75);
-  renWin->SetSize(600, 550);
   vtkNew<vtkCamera> camera;
   camera->SetPosition(2.5, 11, -3);
   camera->SetFocalPoint(2.5, 0, -3);
   camera->SetViewUp(0, 0, 1);
   renderer->SetActiveCamera(camera);
-  renWin->Render();
 
-  vtkNew<vtkAnariPass> anariPass;
-  renderer->SetPass(anariPass);
+  vtkNew<vtkRenderWindow> renWin;
+  renWin->AddRenderer(renderer);
+  renWin->SetSize(600, 550);
+  vtkNew<vtkRenderWindowInteractor> iren;
+  iren->SetRenderWindow(renWin);
 
-  vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, renderer, useDebugDevice, "TestAnariRendererMesh");
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariRendererMesh");
 
   // Now, vary most of the many parameters that rendering can vary by.
 
   // representations points, wireframe, surface
-  std::unique_ptr<renderable> ren = MakeSphereAt(5, 0, -5, 10, type, 0, "points");
-  renderer->AddActor(ren->a);
+  std::unique_ptr<::Renderable> ren = ::MakeSphereAt(5, 0, -5, 10, type, 0);
+  renderer->AddActor(ren->Actor);
 
-  ren = MakeSphereAt(5, 0, -4, 10, 1, 1, "wireframe");
-  ren->a->GetProperty()->SetColor(1, 0, 0);
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(5, 0, -4, 10, 1, 1);
+  ren->Actor->GetProperty()->SetColor(1, 0, 0);
+  renderer->AddActor(ren->Actor);
 
-  ren = MakeSphereAt(5, 0, -3, 10, type, rep, "surface");
-  ren->a->GetProperty()->SetRepresentationToSurface();
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(5, 0, -3, 10, type, rep);
+  ren->Actor->GetProperty()->SetRepresentationToSurface();
+  renderer->AddActor(ren->Actor);
 
   // actor color
-  ren = MakeSphereAt(4, 0, -5, 10, type, rep, "actor_color");
-  ren->a->GetProperty()->SetColor(0, 1, 0);
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(4, 0, -5, 10, type, rep);
+  ren->Actor->GetProperty()->SetColor(0, 1, 0);
+  renderer->AddActor(ren->Actor);
 
   // ambient, diffuse, and specular components
-  ren = MakeSphereAt(4, 0, -4, 7, type, rep, "amb/diff/spec");
-  ren->a->GetProperty()->SetAmbient(0.5);
-  ren->a->GetProperty()->SetAmbientColor(0.1, 0.1, 0.3);
-  ren->a->GetProperty()->SetDiffuse(0.4);
-  ren->a->GetProperty()->SetDiffuseColor(0.5, 0.1, 0.1);
-  ren->a->GetProperty()->SetSpecular(0.2);
-  ren->a->GetProperty()->SetSpecularColor(1, 1, 1);
-  ren->a->GetProperty()->SetSpecularPower(100);
-  ren->a->GetProperty()->SetInterpolationToPhong();
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(4, 0, -4, 7, type, rep);
+  ren->Actor->GetProperty()->SetAmbient(0.5);
+  ren->Actor->GetProperty()->SetAmbientColor(0.1, 0.1, 0.3);
+  ren->Actor->GetProperty()->SetDiffuse(0.4);
+  ren->Actor->GetProperty()->SetDiffuseColor(0.5, 0.1, 0.1);
+  ren->Actor->GetProperty()->SetSpecular(0.2);
+  ren->Actor->GetProperty()->SetSpecularColor(1, 1, 1);
+  ren->Actor->GetProperty()->SetSpecularPower(100);
+  ren->Actor->GetProperty()->SetInterpolationToPhong();
+  renderer->AddActor(ren->Actor);
 
   // opacity
-  ren = MakeSphereAt(4, 0, -3, 10, type, rep, "opacity");
-  ren->a->GetProperty()->SetOpacity(0.2);
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(4, 0, -3, 10, type, rep);
+  ren->Actor->GetProperty()->SetOpacity(0.2);
+  renderer->AddActor(ren->Actor);
 
   // color map cell values
-  ren = MakeSphereAt(3, 0, -5, 10, type, rep, "cell_value");
-  ren->m->SetScalarModeToUseCellFieldData();
-  ren->m->SelectColorArray(0);
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(3, 0, -5, 10, type, rep);
+  ren->Mapper->SetScalarModeToUseCellFieldData();
+  ren->Mapper->SelectColorArray(0);
+  renderer->AddActor(ren->Actor);
 
   // default color component
-  ren = MakeSphereAt(3, 0, -4, 10, type, rep, "cell_default_comp");
-  ren->m->SetScalarModeToUseCellFieldData();
-  ren->m->SelectColorArray(1);
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(3, 0, -4, 10, type, rep);
+  ren->Mapper->SetScalarModeToUseCellFieldData();
+  ren->Mapper->SelectColorArray(1);
+  renderer->AddActor(ren->Actor);
 
   // choose color component
-  ren = MakeSphereAt(3, 0, -3, 10, type, rep, "cell_comp_1");
-  ren->m->SetScalarModeToUseCellFieldData();
-  ren->m->SelectColorArray(1);
-  ren->m->ColorByArrayComponent(1, 1); // todo, use lut since this is deprecated
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(3, 0, -3, 10, type, rep);
+  ren->Mapper->SetScalarModeToUseCellFieldData();
+  ren->Mapper->SelectColorArray(1);
+  ren->Mapper->ColorByArrayComponent(1, 1); // todo, use lut since this is deprecated
+  renderer->AddActor(ren->Actor);
 
   // RGB direct
-  ren = MakeSphereAt(3, 0, -2, 10, type, rep, "cell_rgb");
-  ren->m->SetScalarModeToUseCellFieldData();
-  ren->m->SelectColorArray(2);
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(3, 0, -2, 10, type, rep);
+  ren->Mapper->SetScalarModeToUseCellFieldData();
+  ren->Mapper->SelectColorArray(2);
+  renderer->AddActor(ren->Actor);
 
   // RGB through LUT
-  ren = MakeSphereAt(3, 0, -1, 10, type, rep, "cell_rgb_through_LUT");
-  ren->m->SetScalarModeToUseCellFieldData();
-  ren->m->SelectColorArray(2);
-  ren->m->SetColorModeToMapScalars();
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(3, 0, -1, 10, type, rep);
+  ren->Mapper->SetScalarModeToUseCellFieldData();
+  ren->Mapper->SelectColorArray(2);
+  ren->Mapper->SetColorModeToMapScalars();
+  renderer->AddActor(ren->Actor);
 
   // color map point values
-  ren = MakeSphereAt(2, 0, -5, 6, type, rep, "point_value");
-  ren->m->SetScalarModeToUsePointFieldData();
-  ren->m->SelectColorArray("testarray1");
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(2, 0, -5, 6, type, rep);
+  ren->Mapper->SetScalarModeToUsePointFieldData();
+  ren->Mapper->SelectColorArray("testarray1");
+  renderer->AddActor(ren->Actor);
 
   // interpolate scalars before mapping
-  ren = MakeSphereAt(2, 0, -4, 6, type, rep, "point_interp");
-  ren->m->SetScalarModeToUsePointFieldData();
-  ren->m->SelectColorArray("testarray1");
-  ren->m->InterpolateScalarsBeforeMappingOn();
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(2, 0, -4, 6, type, rep);
+  ren->Mapper->SetScalarModeToUsePointFieldData();
+  ren->Mapper->SelectColorArray("testarray1");
+  ren->Mapper->InterpolateScalarsBeforeMappingOn();
+  renderer->AddActor(ren->Actor);
 
   // RGB direct
-  ren = MakeSphereAt(2, 0, -3, 10, type, rep, "point_rgb");
-  ren->m->SetScalarModeToUsePointFieldData();
-  ren->m->SetColorModeToDefault();
-  ren->m->SelectColorArray("testarrayc1");
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(2, 0, -3, 10, type, rep);
+  ren->Mapper->SetScalarModeToUsePointFieldData();
+  ren->Mapper->SetColorModeToDefault();
+  ren->Mapper->SelectColorArray("testarrayc1");
+  renderer->AddActor(ren->Actor);
 
   // RGB mapped
-  ren = MakeSphereAt(2, 0, -2, 10, type, rep, "point_rgb_through_LUT");
-  ren->m->SetScalarModeToUsePointFieldData();
-  ren->m->SetColorModeToMapScalars();
-  ren->m->SelectColorArray("testarrayc1");
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(2, 0, -2, 10, type, rep);
+  ren->Mapper->SetScalarModeToUsePointFieldData();
+  ren->Mapper->SetColorModeToMapScalars();
+  ren->Mapper->SelectColorArray("testarrayc1");
+  renderer->AddActor(ren->Actor);
 
   // unlit, flat, and gouraud lighting
-  ren = MakeSphereAt(1, 0, -5, 7, type, rep, "not_lit");
-  ren->a->GetProperty()->LightingOff();
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(1, 0, -5, 7, type, rep);
+  ren->Actor->GetProperty()->LightingOff();
+  renderer->AddActor(ren->Actor);
 
-  ren = MakeSphereAt(1, 0, -4, 7, type, rep, "flat");
-  ren->a->GetProperty()->SetInterpolationToFlat();
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(1, 0, -4, 7, type, rep);
+  ren->Actor->GetProperty()->SetInterpolationToFlat();
+  renderer->AddActor(ren->Actor);
 
-  ren = MakeSphereAt(1, 0, -3, 7, type, rep, "gouraud");
-  ren->a->GetProperty()->SetInterpolationToGouraud();
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(1, 0, -3, 7, type, rep);
+  ren->Actor->GetProperty()->SetInterpolationToGouraud();
+  renderer->AddActor(ren->Actor);
 
   // texture
   int maxi = 100;
@@ -382,28 +366,21 @@ int TestAnariRenderMesh(int argc, char* argv[])
       idx = idx + 1;
     }
   }
-  ren = MakeSphereAt(0, 0, -5, 20, type, rep, "texture");
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(0, 0, -5, 20, type, rep);
+  renderer->AddActor(ren->Actor);
   vtkNew<vtkTexture> texture;
   texture->SetInputData(texin);
-  ren->a->SetTexture(texture);
+  ren->Actor->SetTexture(texture);
 
   // imagespace positional transformations
-  ren = MakeSphereAt(0, 0, -4, 10, type, rep, "transform");
-  ren->a->SetScale(1.2, 1.0, 0.87);
-  renderer->AddActor(ren->a);
+  ren = ::MakeSphereAt(0, 0, -4, 10, type, rep);
+  ren->Actor->SetScale(1.2, 1.0, 0.87);
+  renderer->AddActor(ren->Actor);
 
-  renWin->Render();
-
-  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
+  int retVal = vtkRegressionTestImage(renWin);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
-    vtkNew<vtkAnariTestInteractor> style;
-    style->SetPipelineControlPoints(renderer, anariPass, nullptr);
-    style->SetCurrentRenderer(renderer);
-
-    iren->SetInteractorStyle(style);
     iren->Start();
   }
 

@@ -1,18 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-/**
- * This test verifies that soft shadows work with ANARI.
- *
- * This test requires the ANARI_KHR_AREA_LIGHTS ANARI extension. If this extension is not available
- * (with helide backend for example), it behaves as a smoke test to make sure the VTK API does not
- * crash. If the loaded backend supports the extension, it will perform an image comparison.
- */
-
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkLight.h"
-#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
@@ -23,14 +14,18 @@
 #include "vtkTesting.h"
 
 #include "vtkAnariLightNode.h"
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
+/**
+ * This test verifies that soft shadows work with ANARI.
+ *
+ * This test requires the ANARI_KHR_AREA_LIGHTS ANARI extension. If this extension is not available
+ * (with helide backend for example), it behaves as a smoke test to make sure the VTK API does not
+ * crash. If the loaded backend supports the extension, it will perform an image comparison.
+ */
 int TestAnariShadows(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -38,7 +33,6 @@ int TestAnariShadows(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -86,11 +80,7 @@ int TestAnariShadows(int argc, char* argv[])
   renderer->AddActor(actor2);
   actor2->SetMapper(mapper2);
 
-  vtkNew<vtkAnariPass> anariPass;
-  renderer->SetPass(anariPass);
-
-  vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, renderer, useDebugDevice, "TestAnariShadows");
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariShadows");
 
   for (double i = 0.; i < 2.0; i += 0.25)
   {
@@ -98,21 +88,14 @@ int TestAnariShadows(int argc, char* argv[])
     renWin->Render();
   }
 
-  auto anariRendererNode = anariPass->GetSceneGraph();
-  auto extensions = anariRendererNode->GetAnariDeviceExtensions();
-
   bool testSuccess = true;
-  if (extensions.ANARI_KHR_AREA_LIGHTS)
+  const auto& extensions = vtkAnariTestUtilities::GetDeviceExtensions(renWin);
+  if (extensions.ANARI_KHR_LIGHT_QUAD)
   {
-    int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
+    int retVal = vtkRegressionTestImage(renWin);
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-      vtkNew<vtkAnariTestInteractor> style;
-      style->SetPipelineControlPoints(renderer, anariPass, nullptr);
-      style->SetCurrentRenderer(renderer);
-
-      iren->SetInteractorStyle(style);
       iren->Start();
     }
 

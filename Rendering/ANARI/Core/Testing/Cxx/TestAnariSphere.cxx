@@ -1,23 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test verifies that actor level materials work with the ANARI back-end
-//
-// The command line arguments are:
-// -I        => run in interactive mode; unless this is used, the program will
-//              not allow interaction and exit.
-//              In interactive mode it responds to the keys listed
-//              vtkAnariTestInteractor.h
 
 #include "vtkActor.h"
-#include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
-#include "vtkImageData.h"
-#include "vtkJPEGReader.h"
-#include "vtkLogger.h"
 #include "vtkNew.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -26,17 +14,16 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-#include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
+/**
+ * This test verifies that actor level materials work with the ANARI back-end
+ */
 int TestAnariSphere(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -44,7 +31,6 @@ int TestAnariSphere(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -57,16 +43,7 @@ int TestAnariSphere(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   renWin->SetSize(700, 700);
 
-  // set up ANARI
-  vtkNew<vtkAnariPass> anariPass;
-  renderer->SetPass(anariPass);
-
-  vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, renderer, useDebugDevice, "TestAnariSphere");
-
-  vtkNew<vtkAnariTestInteractor> style;
-  iren->SetInteractorStyle(style);
-  style->SetCurrentRenderer(renderer);
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariSphere");
 
   // make some predictable data to test with
   // anything will do, but should have normals and textures coordinates
@@ -97,8 +74,6 @@ int TestAnariSphere(int argc, char* argv[])
   i = 0;
   j = 0;
   {
-    style->AddName("actor color");
-
     vtkNew<vtkActor> actor1;
     actor1->SetPosition(xo + xr * 1.15 * i, yo, zo + zr * 1.1 * j);
 
@@ -116,8 +91,6 @@ int TestAnariSphere(int argc, char* argv[])
   // color mapping
   j++;
   {
-    style->AddName("point color mapping");
-
     vtkNew<vtkActor> actor2;
     actor2->SetPosition(xo + xr * 1.15 * i, yo, zo + zr * 1.1 * j);
 
@@ -142,8 +115,6 @@ int TestAnariSphere(int argc, char* argv[])
 
   j++;
   {
-    style->AddName("cell color mapping");
-
     vtkNew<vtkActor> actor3;
     actor3->SetPosition(xo + xr * 1.15 * i, yo, zo + zr * 1.1 * j);
 
@@ -169,8 +140,6 @@ int TestAnariSphere(int argc, char* argv[])
   i = 1;
   j = 0;
   {
-    style->AddName("invalid material");
-
     vtkNew<vtkActor> actor4;
     actor4->SetPosition(xo + xr * 1.15 * i, yo, zo + zr * 1.1 * j);
     prop = actor4->GetProperty();
@@ -186,8 +155,6 @@ int TestAnariSphere(int argc, char* argv[])
   // matte
   j++;
   {
-    style->AddName("matte");
-
     vtkNew<vtkActor> actor5;
     actor5->SetPosition(xo + xr * 1.15 * i, yo, zo + zr * 1.1 * j);
     prop = actor5->GetProperty();
@@ -203,8 +170,6 @@ int TestAnariSphere(int argc, char* argv[])
   // transparent matte
   j++;
   {
-    style->AddName("transparent matte");
-
     vtkNew<vtkActor> actor6;
     actor6->SetPosition(xo + xr * 1.15 * i, yo, zo + zr * 1.1 * j);
     prop = actor6->GetProperty();
@@ -217,8 +182,7 @@ int TestAnariSphere(int argc, char* argv[])
     renderer->AddActor(actor6);
   }
 
-  // now finally draw
-  renWin->Render();                           // let vtk pick a decent camera
+  renderer->ResetCamera();
   renderer->GetActiveCamera()->Elevation(30); // adjust to show more
   renWin->Render();
 
@@ -226,18 +190,6 @@ int TestAnariSphere(int argc, char* argv[])
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
-    // hook up ability to focus on each object as RenderMesh test does
-    style->SetPipelineControlPoints(renderer, anariPass, nullptr);
-
-    // set up progressive rendering
-    vtkCommand* looper = style->GetLooper(renWin);
-    vtkCamera* cam = renderer->GetActiveCamera();
-    iren->AddObserver(vtkCommand::KeyPressEvent, looper);
-    cam->AddObserver(vtkCommand::ModifiedEvent, looper);
-    iren->CreateRepeatingTimer(10); // every 10 msec we'll rerender if needed
-    iren->AddObserver(vtkCommand::TimerEvent, looper);
-
-    // todo: use standard vtk testing conventions
     iren->Start();
   }
 

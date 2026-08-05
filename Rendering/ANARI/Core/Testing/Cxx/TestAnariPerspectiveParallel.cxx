@@ -1,10 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-/**
- * This test covers switch from perspective to parallel projection.
- * This test renders a cube with a 45 degree camera angle on the pitch and yaw. With this view
- * angle, we can easily check if the parallel projection works correctly.
- */
 
 #include "vtkCamera.h"
 #include "vtkCubeSource.h"
@@ -17,16 +12,16 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
-#include <iostream>
-
+/**
+ * This test covers switch from perspective to parallel projection.
+ * This test renders a cube with a 45 degree camera angle on the pitch and yaw. With this view
+ * angle, we can easily check if the parallel projection works correctly.
+ */
 int TestAnariPerspectiveParallel(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
-  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -34,7 +29,6 @@ int TestAnariPerspectiveParallel(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -56,10 +50,6 @@ int TestAnariPerspectiveParallel(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> interactor;
   interactor->SetRenderWindow(renderWindow);
 
-  // Attach ANARI render pass
-  vtkNew<vtkAnariPass> anariPass;
-  renderer->SetPass(anariPass);
-
   renderer->GetActiveCamera()->ParallelProjectionOn();
   renderer->GetActiveCamera()->Pitch(45.0);
   renderer->GetActiveCamera()->Yaw(45.0);
@@ -67,10 +57,9 @@ int TestAnariPerspectiveParallel(int argc, char* argv[])
   renderWindow->Render();
 
   vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, renderer, useDebugDevice, "TestAnariPerspectiveParallel");
+    renderWindow, useDebugDevice, "TestAnariPerspectiveParallel");
 
-  auto anariRendererNode = anariPass->GetSceneGraph();
-  const auto& extensions = anariRendererNode->GetAnariDeviceExtensions();
+  const auto& extensions = vtkAnariTestUtilities::GetDeviceExtensions(renderWindow);
   if (extensions.ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR)
   {
     int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.05);
@@ -83,6 +72,6 @@ int TestAnariPerspectiveParallel(int argc, char* argv[])
     return !retVal;
   }
 
-  std::cout << "Required feature KHR_VOLUME_SCIVIS not supported." << std::endl;
+  vtkLogF(WARNING, "Required feature KHR_VOLUME_SCIVIS not supported.");
   return VTK_SKIP_RETURN_CODE;
 }

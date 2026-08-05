@@ -7,33 +7,22 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositePolyDataMapper.h"
 #include "vtkCullerCollection.h"
+#include "vtkCylinderSource.h"
 #include "vtkInformation.h"
-#include "vtkLogger.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTimerLog.h"
-#include "vtkTrivialProducer.h"
 
-#include "vtkRegressionTestImage.h"
-#include "vtkTestUtilities.h"
-
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
-
-#include "vtkCylinderSource.h"
-
-#include <iostream>
 
 int TestAnariCompositePolyDataMapper(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = true;
 
   for (int i = 0; i < argc; i++)
@@ -41,20 +30,12 @@ int TestAnariCompositePolyDataMapper(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
-
-  vtkNew<vtkRenderWindow> win;
-  vtkNew<vtkRenderWindowInteractor> iren;
-  vtkNew<vtkRenderer> ren;
-  win->AddRenderer(ren);
-  win->SetInteractor(iren);
 
   vtkNew<vtkCompositePolyDataMapper> mapper;
   vtkNew<vtkCompositeDataDisplayAttributes> cdsa;
   mapper->SetCompositeDataDisplayAttributes(cdsa);
-
   int resolution = 18;
   vtkNew<vtkCylinderSource> cyl;
   cyl->CappingOn();
@@ -114,30 +95,24 @@ int TestAnariCompositePolyDataMapper(int argc, char* argv[])
     levelEnd = static_cast<unsigned>(blocks.size());
   }
 
+  vtkNew<vtkRenderWindow> renWin;
+  vtkNew<vtkRenderWindowInteractor> iren;
+  vtkNew<vtkRenderer> ren;
+
+  renWin->SetSize(400, 400);
+  renWin->AddRenderer(ren);
+  iren->SetRenderWindow(renWin);
+
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
-  // actor->GetProperty()->SetEdgeColor(1,0,0);
-  // actor->GetProperty()->EdgeVisibilityOn();
   ren->AddActor(actor);
-  win->SetSize(400, 400);
-
   ren->RemoveCuller(ren->GetCullers()->GetLastItem());
-  vtkNew<vtkAnariPass> anariPass;
-  ren->SetPass(anariPass);
+  ren->ResetCamera();
 
   vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, ren, useDebugDevice, "TestAnariCompositePolyDataMapper");
+    renWin, useDebugDevice, "TestAnariCompositePolyDataMapper");
 
-  ren->ResetCamera();
-  vtkNew<vtkTimerLog> timer;
-  win->Render(); // get the window up
-
-  timer->StartTimer();
-  win->Render();
-  timer->StopTimer();
-  std::cout << "First frame time: " << timer->GetElapsedTime() << "\n";
-
-  timer->StartTimer();
+  renWin->Render();
 
   int numFrames = 2;
   for (int i = 0; i <= numFrames; i++)
@@ -145,22 +120,13 @@ int TestAnariCompositePolyDataMapper(int argc, char* argv[])
     ren->GetActiveCamera()->Elevation(40.0 / numFrames);
     ren->GetActiveCamera()->Zoom(pow(2.0, 1.0 / numFrames));
     ren->GetActiveCamera()->Roll(20.0 / numFrames);
-    win->Render();
+    renWin->Render();
   }
 
-  timer->StopTimer();
-  double t = timer->GetElapsedTime();
-  std::cout << "Avg Frame time: " << t / numFrames << " Frame Rate: " << numFrames / t << "\n";
-
-  int retVal = vtkRegressionTestImage(win);
+  int retVal = vtkRegressionTestImage(renWin);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
-    vtkNew<vtkAnariTestInteractor> style;
-    style->SetPipelineControlPoints(ren, anariPass, nullptr);
-    iren->SetInteractorStyle(style);
-    style->SetCurrentRenderer(ren);
-
     iren->Start();
   }
 

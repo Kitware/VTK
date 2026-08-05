@@ -1,18 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test verifies that treatment of multiblock data is correct
-//
-// The command line arguments are:
-// -I        => run in interactive mode; unless this is used, the program will
-//              not allow interaction and exit
-//              In interactive mode it responds to the keys listed
-//              vtkAnariTestInteractor.h
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositePolyDataMapper.h"
-#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
@@ -21,14 +12,14 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLMultiBlockDataReader.h"
 
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
+/**
+ * This test verifies that treatment of multiblock data is correct
+ */
 int TestAnariMultiBlock(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -36,7 +27,6 @@ int TestAnariMultiBlock(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -64,21 +54,12 @@ int TestAnariMultiBlock(int argc, char* argv[])
   vtkCamera* cam = renderer->GetActiveCamera();
   cam->SetPosition(1.5, 1.5, 0.75);
 
-  vtkNew<vtkAnariPass> anariPass;
-  renderer->SetPass(anariPass);
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariMultiBlock");
 
-  vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, renderer, useDebugDevice, "TestAnariMultiBlock");
-
-  renWin->Render();
   int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
-    vtkNew<vtkAnariTestInteractor> style;
-    style->SetPipelineControlPoints(renderer, anariPass, nullptr);
-    style->SetCurrentRenderer(renderer);
-    iren->SetInteractorStyle(style);
     iren->Start();
   }
 

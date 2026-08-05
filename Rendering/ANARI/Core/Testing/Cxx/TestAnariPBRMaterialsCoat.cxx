@@ -1,19 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-/**
- * This test covers the PBR Clear coat feature
- * It renders spheres with different coat materials using a skybox as image based lighting
- *
- * This test requires the ANARI_KHR_MATERIAL_PHYSICALLY_BASED ANARI extension. If this extension is
- * not available (with helide backend for example), it behaves as a smoke test to make sure the VTK
- * API does not crash. If the loaded backend supports the extension, it will perform an image
- * comparison.
- */
-
 #include "vtkActor.h"
 #include "vtkActorCollection.h"
-#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -24,15 +13,20 @@
 #include "vtkSphereSource.h"
 #include "vtkTexture.h"
 
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
-//----------------------------------------------------------------------------
+/**
+ * This test covers the PBR Clear coat feature
+ * It renders spheres with different coat materials using a skybox as image based lighting
+ *
+ * This test requires the ANARI_KHR_MATERIAL_PHYSICALLY_BASED ANARI extension. If this extension is
+ * not available (with helide backend for example), it behaves as a smoke test to make sure the VTK
+ * API does not crash. If the loaded backend supports the extension, it will perform an image
+ * comparison.
+ */
 int TestAnariPBRMaterialsCoat(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -40,7 +34,6 @@ int TestAnariPBRMaterialsCoat(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -126,29 +119,18 @@ int TestAnariPBRMaterialsCoat(int argc, char* argv[])
     renderer->AddActor(actorSphere);
   }
 
-  vtkNew<vtkAnariPass> anariPass;
-  renderer->SetPass(anariPass);
-
-  vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, renderer, useDebugDevice, "TestAnariPBRMaterialsCoat");
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariPBRMaterialsCoat");
 
   renWin->Render();
 
-  auto anariRendererNode = anariPass->GetSceneGraph();
-  auto extensions = anariRendererNode->GetAnariDeviceExtensions();
-
   bool testSuccess = true;
+  const auto& extensions = vtkAnariTestUtilities::GetDeviceExtensions(renWin);
   if (extensions.ANARI_KHR_MATERIAL_PHYSICALLY_BASED)
   {
     int retVal = vtkRegressionTestImage(renWin);
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-      vtkNew<vtkAnariTestInteractor> style;
-      style->SetPipelineControlPoints(renderer, anariPass, nullptr);
-      iren->SetInteractorStyle(style);
-      style->SetCurrentRenderer(renderer);
-
       iren->Start();
     }
 

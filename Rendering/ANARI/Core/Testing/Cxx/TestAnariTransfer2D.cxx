@@ -1,22 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-/**
- * Test 2D transfer function support in ANARI Volume Mapper.  The transfer
- * function is created manually using known value/gradient histogram information
- * of the test data (tooth.hdr). A filter to create these histograms will be
- * added in the future.
- *
- * 2D transfer functions are currently not supported in ANARI and should result
- * in switching to essentially the TF_1D mode and using separate 1D functions
- * for color and opacity.
- */
 
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkFloatArray.h"
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
-#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkNrrdReader.h"
@@ -30,12 +19,8 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
-
-#include <iostream>
 
 typedef vtkSmartPointer<vtkImageData> Transfer2DPtr;
 Transfer2DPtr Create2DTransfer()
@@ -73,10 +58,18 @@ Transfer2DPtr Create2DTransfer()
   return image;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+/**
+ * Test 2D transfer function support in ANARI Volume Mapper.  The transfer
+ * function is created manually using known value/gradient histogram information
+ * of the test data (tooth.hdr). A filter to create these histograms will be
+ * added in the future.
+ *
+ * 2D transfer functions are currently not supported in ANARI and should result
+ * in switching to essentially the TF_1D mode and using separate 1D functions
+ * for color and opacity.
+ */
 int TestAnariTransfer2D(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -84,11 +77,8 @@ int TestAnariTransfer2D(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
-
-  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   // Load data
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tooth.nhdr");
@@ -143,8 +133,7 @@ int TestAnariTransfer2D(int argc, char* argv[])
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(512, 512);
   renWin->SetMultiSamples(0);
-  vtkSmartPointer<vtkRenderWindowInteractor> iren =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
   vtkNew<vtkRenderer> ren;
@@ -164,11 +153,7 @@ int TestAnariTransfer2D(int argc, char* argv[])
   volume->SetProperty(volumeProperty);
   ren->AddVolume(volume);
 
-  vtkNew<vtkAnariPass> anariPass;
-  ren->SetPass(anariPass);
-
-  vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, ren, useDebugDevice, "TestAnariTransfer2D");
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariTransfer2D");
 
   auto cam = ren->GetActiveCamera();
   cam->SetFocalPoint(85.7721, 88.4044, 33.8576);
@@ -178,12 +163,10 @@ int TestAnariTransfer2D(int argc, char* argv[])
   cam->Zoom(1.2);
   renWin->Render();
 
-  auto anariRendererNode = anariPass->GetSceneGraph();
-  auto extensions = anariRendererNode->GetAnariDeviceExtensions();
-
+  const auto& extensions = vtkAnariTestUtilities::GetDeviceExtensions(renWin);
   if (extensions.ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR)
   {
-    int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
+    int retVal = vtkRegressionTestImage(renWin);
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
@@ -195,6 +178,6 @@ int TestAnariTransfer2D(int argc, char* argv[])
     return !retVal;
   }
 
-  std::cout << "Required feature KHR_SPATIAL_FIELD_STRUCTURED_REGULAR not supported." << std::endl;
+  vtkLogF(WARNING, "Required feature KHR_SPATIAL_FIELD_STRUCTURED_REGULAR not supported.");
   return VTK_SKIP_RETURN_CODE;
 }

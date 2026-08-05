@@ -1,15 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-/**
- * This test volume renders a synthetic dataset with four different
- * positional lights in the scene.
- *
- * This test requires the ANARI_KHR_LIGHT_SPOT ANARI extension. If this extension is not available
- * (with helide backend for example), it behaves as a smoke test to make sure the VTK API does not
- * crash. If the loaded backend supports the extension, it will perform an image comparison.
- */
-
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
@@ -17,7 +8,6 @@
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkLight.h"
 #include "vtkLightActor.h"
-#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPolyDataMapper.h"
@@ -29,13 +19,19 @@
 #include "vtkVolumeProperty.h"
 #include "vtkXMLImageDataReader.h"
 
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
+/**
+ * This test volume renders a synthetic dataset with four different
+ * positional lights in the scene.
+ *
+ * This test requires the ANARI_KHR_LIGHT_SPOT ANARI extension. If this extension is not available
+ * (with helide backend for example), it behaves as a smoke test to make sure the VTK API does not
+ * crash. If the loaded backend supports the extension, it will perform an image comparison.
+ */
 int TestAnariPositionalLights(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -43,7 +39,6 @@ int TestAnariPositionalLights(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -128,24 +123,16 @@ int TestAnariPositionalLights(int argc, char* argv[])
   ac1->SetPosition(0, 0, 0);
   ren->SetTwoSidedLighting(0);
 
-  // Attach ANARI render pass
-  vtkNew<vtkAnariPass> anariPass;
-  ren->SetPass(anariPass);
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariPositionalLights");
 
-  vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, ren, useDebugDevice, "TestAnariPositionalLights");
-
-  renWin->Render();
-  ren->ResetCamera();
   iren->Initialize();
-
-  auto anariRendererNode = anariPass->GetSceneGraph();
-  auto extensions = anariRendererNode->GetAnariDeviceExtensions();
+  ren->ResetCamera();
 
   bool testSuccess = true;
+  const auto& extensions = vtkAnariTestUtilities::GetDeviceExtensions(renWin);
   if (extensions.ANARI_KHR_LIGHT_SPOT)
   {
-    int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
+    int retVal = vtkRegressionTestImage(renWin);
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {

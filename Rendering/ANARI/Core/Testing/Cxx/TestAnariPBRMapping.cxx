@@ -1,23 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-/**
- * This test covers the PBR Interpolation shading. It renders a cube with custom texture mapping
- *
- * This test requires the ANARI_KHR_MATERIAL_PHYSICALLY_BASED ANARI extension. If this extension is
- * not available (with helide backend for example), it behaves as a smoke test to make sure the VTK
- * API does not crash. If the loaded backend supports the extension, it will perform an image
- * comparison.
- */
-
 #include "vtkActor.h"
 #include "vtkActorCollection.h"
 #include "vtkCamera.h"
 #include "vtkCubeSource.h"
-#include "vtkImageFlip.h"
-#include "vtkJPEGReader.h"
 #include "vtkLight.h"
-#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPNGReader.h"
 #include "vtkPolyDataMapper.h"
@@ -31,15 +19,19 @@
 #include "vtkTexture.h"
 #include "vtkTriangleFilter.h"
 
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
-//------------------------------------------------------------------------------
+/**
+ * This test covers the PBR Interpolation shading. It renders a cube with custom texture mapping
+ *
+ * This test requires the ANARI_KHR_MATERIAL_PHYSICALLY_BASED ANARI extension. If this extension is
+ * not available (with helide backend for example), it behaves as a smoke test to make sure the VTK
+ * API does not crash. If the loaded backend supports the extension, it will perform an image
+ * comparison.
+ */
 int TestAnariPBRMapping(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = true;
 
   for (int i = 0; i < argc; i++)
@@ -47,7 +39,6 @@ int TestAnariPBRMapping(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -152,30 +143,20 @@ int TestAnariPBRMapping(int argc, char* argv[])
   actor->GetProperty()->SetAnisotropyTexture(anisotropy);
   renderer->AddActor(actor);
 
-  vtkNew<vtkAnariPass> anariPass;
-  renderer->SetPass(anariPass);
-  vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, renderer, useDebugDevice, "TestAnariPBRMapping");
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariPBRMapping");
 
   renWin->Render();
   renderer->GetActiveCamera()->Zoom(1.5);
   renWin->Render();
 
-  auto anariRendererNode = anariPass->GetSceneGraph();
-  auto extensions = anariRendererNode->GetAnariDeviceExtensions();
-
   bool testSuccess = true;
+  const auto& extensions = vtkAnariTestUtilities::GetDeviceExtensions(renWin);
   if (extensions.ANARI_KHR_MATERIAL_PHYSICALLY_BASED)
   {
     int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-      vtkNew<vtkAnariTestInteractor> style;
-      style->SetPipelineControlPoints(renderer, anariPass, nullptr);
-      iren->SetInteractorStyle(style);
-      style->SetCurrentRenderer(renderer);
-
       iren->Start();
     }
 

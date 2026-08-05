@@ -1,12 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// Description
-// This is a test for clipping of volume using the camera near plane when the
-// camera is inside the volume. The test renders the ironProt dataset after
-// changing it to have a very small spacing and dollies the camera inside the
-// volume geometry.
-
 #include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageChangeInformation.h"
@@ -26,11 +20,8 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
-
-#include <iostream>
 
 static const char* TestAnariCameraInsideSmallSpacingLog =
   "# StreamVersion 1\n"
@@ -996,10 +987,15 @@ static const char* TestAnariCameraInsideSmallSpacingLog =
   "MouseMoveEvent 276 298 0 0 0 0 0\n"
   "LeaveEvent 276 300 0 0 0 0 0\n";
 
+/**
+ * Description
+ * This is a test for clipping of volume using the camera near plane when the
+ * camera is inside the volume. The test renders the ironProt dataset after
+ * changing it to have a very small spacing and dollies the camera inside the
+ * volume geometry.
+ */
 int TestAnariCameraInsideSmallSpacing(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
-  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -1007,7 +1003,6 @@ int TestAnariCameraInsideSmallSpacing(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -1070,20 +1065,14 @@ int TestAnariCameraInsideSmallSpacing(int argc, char* argv[])
   vtkNew<vtkRenderer> ren;
   renWin->AddRenderer(ren);
 
-  // Attach ANARI render pass
-  vtkNew<vtkAnariPass> anariPass;
-  ren->SetPass(anariPass);
-
   vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, ren, useDebugDevice, "TestAnariCameraInsideSmallSpacing");
+    renWin, useDebugDevice, "TestAnariCameraInsideSmallSpacing");
 
   ren->AddVolume(volume);
   ren->ResetCamera();
   renWin->Render();
 
-  auto anariRendererNode = anariPass->GetSceneGraph();
-  auto extensions = anariRendererNode->GetAnariDeviceExtensions();
-
+  const auto& extensions = vtkAnariTestUtilities::GetDeviceExtensions(renWin);
   if (extensions.ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR)
   {
     iren->Initialize();
@@ -1099,6 +1088,6 @@ int TestAnariCameraInsideSmallSpacing(int argc, char* argv[])
     return !retVal;
   }
 
-  std::cout << "Required feature KHR_SPATIAL_FIELD_STRUCTURED_REGULAR not supported." << std::endl;
+  vtkLogF(WARNING, "Required feature KHR_SPATIAL_FIELD_STRUCTURED_REGULAR not supported.");
   return VTK_SKIP_RETURN_CODE;
 }

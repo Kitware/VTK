@@ -1,35 +1,33 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This tests whether ANARI properly handles cell data
-#include "vtkAnariPass.h"
+
+#include "vtkAnariRenderWindow.h"
+#include "vtkAnariRenderer.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
-#include <vtkColorTransferFunction.h>
-#include <vtkGPUVolumeRayCastMapper.h>
-#include <vtkImageData.h>
-#include <vtkInteractorStyleTrackballCamera.h>
-#include <vtkLogger.h>
-#include <vtkNew.h>
-#include <vtkOutlineFilter.h>
-#include <vtkPiecewiseFunction.h>
-#include <vtkPointDataToCellData.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkRegressionTestImage.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkTestUtilities.h>
-#include <vtkTesting.h>
-#include <vtkVolumeProperty.h>
-#include <vtkXMLImageDataReader.h>
+#include "vtkColorTransferFunction.h"
+#include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkLogger.h"
+#include "vtkNew.h"
+#include "vtkOutlineFilter.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkPointDataToCellData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
+#include "vtkTesting.h"
+#include "vtkVolumeProperty.h"
+#include "vtkXMLImageDataReader.h"
 
-#include <iostream>
-
+/**
+ * This tests whether ANARI properly handles cell data
+ */
 int TestAnariCellData(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
-  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -37,7 +35,6 @@ int TestAnariCellData(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -103,38 +100,28 @@ int TestAnariCellData(int argc, char* argv[])
 
   ren->AddActor(outlineActor);
   ren->AddVolume(volume);
-
-  vtkNew<vtkAnariPass> anariPass;
-  ren->SetPass(anariPass);
-
-  vtkAnariTestUtilities::SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariCellData");
-  auto* ar = anariPass->GetAnariRenderer();
-  ar->SetParameterf("ambientRadiance", 0.5f);
-
-  renWin->Render();
   ren->ResetCamera();
 
-  auto anariRendererNode = anariPass->GetSceneGraph();
-  auto extensions = anariRendererNode->GetAnariDeviceExtensions();
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariCellData");
 
+  vtkAnariRenderer* anariRenderer = vtkAnariRenderWindow::SafeDownCast(renWin)->GetAnariRenderer();
+  anariRenderer->SetParameterf("ambientRadiance", 0.5f);
+
+  renWin->Render();
+
+  const auto& extensions = vtkAnariTestUtilities::GetDeviceExtensions(renWin);
   if (extensions.ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR)
   {
     int retVal = vtkRegressionTestImage(renWin);
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-      vtkNew<vtkAnariTestInteractor> anariStyle;
-      anariStyle->SetPipelineControlPoints(ren, anariPass, nullptr);
-      anariStyle->SetCurrentRenderer(ren);
-
-      iren->SetInteractorStyle(anariStyle);
-      iren->SetDesiredUpdateRate(30.0);
       iren->Start();
     }
 
     return !retVal;
   }
 
-  std::cout << "Required feature KHR_SPATIAL_FIELD_STRUCTURED_REGULAR not supported." << std::endl;
+  vtkLogF(WARNING, "Required feature KHR_SPATIAL_FIELD_STRUCTURED_REGULAR not supported.");
   return VTK_SKIP_RETURN_CODE;
 }

@@ -1,50 +1,65 @@
-vtk_add_test_cxx(
-  vtkRenderingAnariCxxTests
-  tests
-  TestAnariAmbient.cxx
-  TestAnariCameraInside.cxx,NO_SERDES
-  TestAnariCameraInsideSmallSpacing.cxx,NO_SERDES
-  TestAnariCellData.cxx,NO_SERDES
-  TestAnariCompositePolyDataMapper.cxx,NO_SERDES
-  TestAnariCylinder.cxx,NO_SERDES
-  TestAnariDynamicObject.cxx,NO_SERDES
-  TestAnariImplicits.cxx,NO_SERDES
-  TestAnariLayers.cxx,NO_SERDES
-  TestAnariLights.cxx
-  TestAnariMaterialLibrary.cxx
-  TestAnariMaterials.cxx,NO_SERDES
-  TestAnariMultiBlock.cxx,NO_SERDES
-  TestAnariMultiBlockPartialArrayFieldData.cxx,NO_SERDES
-  TestAnariOrthographic.cxx,NO_SERDES
-  TestAnariPass.cxx,NO_SERDES
-  TestAnariPassVisibility.cxx,NO_SERDES
-  TestAnariPBRMapping.cxx
-  TestAnariPBRMaterials.cxx
-  TestAnariPBRMaterialsCoat.cxx
-  TestAnariPerspectiveParallel.cxx,NO_SERDES
-  TestAnariPolyDataTexture.cxx,NO_SERDES
-  TestAnariPositionalLights.cxx,
-  TestAnariRendererParameters.cxx,NO_DATA,NO_VALID
-  TestAnariRendererType.cxx,NO_SERDES
-  TestAnariRenderMesh.cxx,NO_SERDES
-  TestAnariRenderWindowRGB.cxx,NO_SERDES
-  TestAnariRenderWindowRGBA.cxx,NO_SERDES
-  TestAnariScalarBar.cxx,NO_SERDES
-  TestAnariShadows.cxx
-  TestAnariSmartVolumeMapper.cxx,NO_SERDES
-  TestAnariSphere.cxx,NO_SERDES
-  TestAnariStereo.cxx,NO_SERDES
-  TestAnariTransfer2D.cxx,NO_SERDES
-  TestAnariVolumeLightKit.cxx,NO_SERDES
-  TestAnariVolumeRenderer.cxx,NO_SERDES
-  TestAnariVolumeWavelet.cxx,NO_SERDES
+set(tests_with_baseline
+  TestAnariActorVisibility
+  TestAnariAmbient
+  TestAnariCameraInside
+  TestAnariCameraInsideSmallSpacing
+  TestAnariCellData
+  TestAnariCompositePolyDataMapper
+  TestAnariCylinder
+  TestAnariDynamicObject
+  TestAnariGPUVolumeRayCastMapper
+  TestAnariImplicits
+  TestAnariLights
+  TestAnariMaterialLibrary
+  TestAnariMaterials
+  TestAnariMultiBlock
+  TestAnariMultiBlockPartialArrayFieldData
+  TestAnariOrthographic
+  TestAnariPBRMapping
+  TestAnariPBRMaterials
+  TestAnariPBRMaterialsCoat
+  TestAnariPerspectiveParallel
+  TestAnariPolyDataTexture
+  TestAnariPositionalLights
+  TestAnariRendererType
+  TestAnariRenderMesh
+  TestAnariRenderWindowRGB
+  TestAnariRenderWindowRGBA
+  TestAnariSphere
+  TestAnariTransfer2D
+  TestAnariVolumeLightKit
+  TestAnariVolumeWavelet
 )
 
+set(tests_without_baseline
+  TestAnariRendererParameters
+)
+
+foreach(test_name IN LISTS tests_with_baseline)
+  vtk_add_test_cxx(vtkRenderingAnariCoreCxxTests anari_tests_with_baseline
+    ${test_name}.cxx,NO_SERDES)
+endforeach()
+
+foreach(test_name IN LISTS tests_without_baseline)
+  vtk_add_test_cxx(vtkRenderingAnariCoreCxxTests anari_tests_without_baseline
+    ${test_name}.cxx,NO_SERDES,NO_VALID)
+endforeach()
+
+foreach(test_name IN LISTS tests_with_baseline tests_without_baseline)
+  set_tests_properties(VTK::RenderingAnariCoreCxx-${test_name}
+    PROPERTIES
+    ENVIRONMENT "VTK_FACTORY_PREFER=SupportRenderPass=false;VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID"
+    TIMEOUT 150)
+endforeach()
+
+set(all_tests
+  ${anari_tests_with_baseline}
+  ${anari_tests_without_baseline}
+)
 vtk_test_cxx_executable(
-  vtkRenderingAnariCxxTests
-  tests
+  vtkRenderingAnariCoreCxxTests
+  all_tests
   RENDERING_FACTORY
   DISABLE_FLOATING_POINT_EXCEPTIONS
-  vtkAnariTestInteractor.cxx
   vtkAnariTestUtilities.cxx
 )

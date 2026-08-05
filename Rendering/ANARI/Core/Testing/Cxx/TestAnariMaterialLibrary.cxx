@@ -1,9 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test verifies that we can load a set of ANARI materials specification
-// from disk and use them.
-
-#include "vtkTestUtilities.h"
 
 #include "vtkANARIMaterialLibrary.h"
 #include "vtkActor.h"
@@ -19,20 +15,21 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
-#include <iostream>
 #include <set>
 #include <string>
 
+/**
+ * This test verifies that we can load a set of ANARI materials specification
+ * from disk and use them.
+ */
 int TestAnariMaterialLibrary(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -40,7 +37,6 @@ int TestAnariMaterialLibrary(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -48,54 +44,52 @@ int TestAnariMaterialLibrary(int argc, char* argv[])
 
   // Try MTL file first (simpler format)
   const char* mtlFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/anari_mats.mtl");
-  std::cout << "Open " << mtlFile << std::endl;
+  vtkLogF(INFO, "Open %s", mtlFile);
   lib->ReadFile(mtlFile);
-  std::cout << "Parsed MTL file OK, now check for expected contents." << std::endl;
+  vtkLogF(INFO, "Parsed MTL file OK, now check for expected contents.");
   std::set<std::string> mats = lib->GetMaterialNames();
 
-  std::cout << "Materials are:" << std::endl;
-  std::set<std::string>::iterator it = mats.begin();
-  while (it != mats.end())
+  vtkLogF(INFO, "Materials are:");
+  for (const std::string& materialName : mats)
   {
-    std::cout << *it << std::endl;
-    ++it;
+    vtkLogF(INFO, " - %s", materialName.c_str());
   }
 
   // Test mat1 from MTL file
   if (mats.find("mat1") == mats.end())
   {
-    std::cerr << "Problem, could not find expected material named mat1 from MTL." << std::endl;
+    vtkLogF(ERROR, "Problem, could not find expected material named mat1 from MTL.");
     return VTK_ERROR;
   }
-  std::cout << "Found mat1 material from MTL." << std::endl;
+  vtkLogF(INFO, "Found mat1 material from MTL.");
 
   if (lib->LookupImplName("mat1") != "obj")
   {
-    std::cerr << "Problem, expected mat1 to be of type obj." << std::endl;
+    vtkLogF(ERROR, "Problem, expected mat1 to be of type obj.");
     return VTK_ERROR;
   }
-  std::cout << "mat1 is the correct type." << std::endl;
+  vtkLogF(INFO, "mat1 is the correct type.");
 
   if (mats.find("mat2") == mats.end())
   {
-    std::cerr << "Problem, could not find expected material named mat2." << std::endl;
+    vtkLogF(ERROR, "Problem, could not find expected material named mat2.");
     return VTK_ERROR;
   }
-  std::cout << "Found mat2 material." << std::endl;
+  vtkLogF(INFO, "Found mat2 material.");
 
   if (mats.find("mat3") == mats.end())
   {
-    std::cerr << "Problem, could not find expected material named mat3." << std::endl;
+    vtkLogF(ERROR, "Problem, could not find expected material named mat3.");
     return VTK_ERROR;
   }
   if (lib->LookupImplName("mat3") != "metal")
   {
-    std::cerr << "Problem, expected mat3 to be implemented by the metal material." << std::endl;
+    vtkLogF(ERROR, "Problem, expected mat3 to be implemented by the metal material.");
     return VTK_ERROR;
   }
-  std::cout << "mat3 is the right type." << std::endl;
+  vtkLogF(INFO, "mat3 is the right type.");
 
-  std::cout << "We're all clear kid." << std::endl;
+  vtkLogF(INFO, "We're all clear kid.");
 
   // Add matte material programmatically for the rendering test
   lib->AddMaterial("armadillo_matte", "matte");
@@ -103,10 +97,10 @@ int TestAnariMaterialLibrary(int argc, char* argv[])
   lib->AddShaderVariable("armadillo_matte", "color", 3, matteColor);
 
   // serialize and deserialize
-  std::cout << "Serialize" << std::endl;
+  vtkLogF(INFO, "Serialize");
   const char* buf = lib->WriteBuffer();
 
-  std::cout << "Deserialize" << std::endl;
+  vtkLogF(INFO, "Deserialize");
   lib->ReadBuffer(buf);
 
   // Set up rendering pipeline
@@ -120,11 +114,7 @@ int TestAnariMaterialLibrary(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  vtkNew<vtkAnariPass> anariPass;
-  renderer->SetPass(anariPass);
-
-  vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, renderer, useDebugDevice, "TestAnariMaterialLibrary");
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariMaterialLibrary");
   vtkAnariSceneGraph::SetMaterialLibrary(lib, renderer);
 
   // Load armadillo model once and create three instances with different materials
@@ -160,11 +150,6 @@ int TestAnariMaterialLibrary(int argc, char* argv[])
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
-    vtkNew<vtkAnariTestInteractor> style;
-    style->SetPipelineControlPoints(renderer, anariPass, nullptr);
-    iren->SetInteractorStyle(style);
-    style->SetCurrentRenderer(renderer);
-
     iren->Start();
   }
 

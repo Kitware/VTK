@@ -2,20 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // This test verifies that lighting works as expected with ANARI.
 
-/**
- * When advanced materials are exposed in ANARI, it will also validate refractions and reflections
- *
- * This test requires the ANARI_KHR_LIGHT_SPOT ANARI extension. If this extension is not available
- * (with helide backend for example), it behaves as a smoke test to make sure the VTK API does not
- * crash. If the loaded backend supports the extension, it will perform an image comparison.
- */
-
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkLight.h"
-#include "vtkLogger.h"
 #include "vtkNew.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkPLYReader.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
@@ -29,14 +19,20 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 
-#include "vtkAnariPass.h"
+#include "vtkAnariRenderWindow.h"
+#include "vtkAnariRenderer.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
+/**
+ * When advanced materials are exposed in ANARI, it will also validate refractions and reflections
+ *
+ * This test requires the ANARI_KHR_LIGHT_SPOT ANARI extension. If this extension is not available
+ * (with helide backend for example), it behaves as a smoke test to make sure the VTK API does not
+ * crash. If the loaded backend supports the extension, it will perform an image comparison.
+ */
 int TestAnariLights(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -44,7 +40,6 @@ int TestAnariLights(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -197,19 +192,13 @@ int TestAnariLights(int argc, char* argv[])
   renderer->UseShadowsOn();
   renWin->SetSize(400, 400);
 
-  vtkNew<vtkAnariPass> anariPass;
-  renderer->SetPass(anariPass);
-
-  vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, renderer, useDebugDevice, "TestAnariLights");
-  auto* ar = anariPass->GetAnariRenderer();
-  ar->SetParameterf("ambientRadiance", 0.2f);
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariLights");
+  vtkAnariRenderer* anariRenderer = vtkAnariRenderWindow::SafeDownCast(renWin)->GetAnariRenderer();
+  anariRenderer->SetParameterf("ambientRadiance", 0.2f);
 
   renWin->Render();
 
-  auto anariRendererNode = anariPass->GetSceneGraph();
-  auto extensions = anariRendererNode->GetAnariDeviceExtensions();
-
+  const auto& extensions = vtkAnariTestUtilities::GetDeviceExtensions(renWin);
   bool testSuccess = true;
   if (extensions.ANARI_KHR_LIGHT_SPOT)
   {
@@ -217,11 +206,6 @@ int TestAnariLights(int argc, char* argv[])
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-      vtkNew<vtkAnariTestInteractor> style;
-      style->SetPipelineControlPoints(renderer, anariPass, nullptr);
-      style->SetCurrentRenderer(renderer);
-
-      iren->SetInteractorStyle(style);
       iren->Start();
     }
 

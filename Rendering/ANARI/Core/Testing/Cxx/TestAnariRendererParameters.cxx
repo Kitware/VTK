@@ -1,19 +1,14 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-/**Description
- * This test checks the anari renderer parameter introspection code.
- */
-
-#include "vtkAnariPass.h"
-#include "vtkAnariRenderer.h"
 #include "vtkLogger.h"
 #include "vtkStringFormatter.h"
-#include "vtkTesting.h"
+
+#include "vtkAnariRenderWindow.h"
+#include "vtkAnariRenderer.h"
+#include "vtkAnariTestUtilities.h"
 
 #include <anari/frontend/anari_enums.h>
-
-#include <iostream>
 
 namespace
 {
@@ -49,10 +44,11 @@ void PrintOptionalParameterInfo(
 
 }
 
+/**
+ * This test checks the anari renderer parameter introspection code.
+ */
 int TestAnariRendererParameters(int argc, char* argv[])
 {
-  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -60,26 +56,18 @@ int TestAnariRendererParameters(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
-  vtkNew<vtkAnariPass> anariPass;
-  auto* adev = anariPass->GetAnariDevice();
+  vtkNew<vtkRenderWindow> renderWindow;
+  vtkAnariTestUtilities::SetParameterDefaults(
+    renderWindow, useDebugDevice, "TestAnariRendererParameters");
+  // Calling render to initialize the ANARI device.
+  renderWindow->Render();
 
-  if (useDebugDevice)
-  {
-    vtkNew<vtkTesting> testing;
-    std::string traceDir = testing->GetTempDirectory();
-    traceDir += "/anari-trace/";
-    traceDir += "TestAnariRendererParameters";
-    adev->SetAnariDebugConfig(traceDir.c_str(), "code");
-  }
-
-  adev->SetupAnariDeviceFromLibrary("environment", "default", useDebugDevice);
-
-  auto* aren = anariPass->GetAnariRenderer();
-  auto renParams = aren->GetRendererParameters();
+  vtkAnariRenderer* anariRenderer =
+    vtkAnariRenderWindow::SafeDownCast(renderWindow)->GetAnariRenderer();
+  auto renParams = anariRenderer->GetRendererParameters();
 
   int retVal = EXIT_SUCCESS;
   if (renParams.empty())
@@ -95,19 +83,22 @@ int TestAnariRendererParameters(int argc, char* argv[])
     vtkLogF(INFO, "----------------------------------------");
     vtkLogF(INFO, "Parameter: %s", iter->first.c_str());
     vtkLogF(INFO, "\tType: %d", iter->second);
-    std::string parameterDescription = aren->GetRendererParameterDescription(*iter);
+    std::string parameterDescription = anariRenderer->GetRendererParameterDescription(*iter);
     ::PrintOptionalParameterInfo("Description", parameterType,
       parameterDescription.empty() ? nullptr : parameterDescription.c_str());
-    vtkLogF(INFO, "\tRequired: %s", aren->IsRendererParameterRequired((*iter)) ? "true" : "false");
+    vtkLogF(INFO, "\tRequired: %s",
+      anariRenderer->IsRendererParameterRequired((*iter)) ? "true" : "false");
 
-    ::PrintOptionalParameterInfo("Default", parameterType, aren->GetRendererParameterValue(*iter));
-    ::PrintOptionalParameterInfo("Value", parameterType, aren->GetRendererParameterValue(*iter));
+    ::PrintOptionalParameterInfo(
+      "Default", parameterType, anariRenderer->GetRendererParameterValue(*iter));
+    ::PrintOptionalParameterInfo(
+      "Value", parameterType, anariRenderer->GetRendererParameterValue(*iter));
     if (parameterType == ANARI_INT16 || parameterType == ANARI_FLOAT16)
     {
       ::PrintOptionalParameterInfo(
-        "Minimum", parameterType, aren->GetRendererParameterMinimum(*iter));
+        "Minimum", parameterType, anariRenderer->GetRendererParameterMinimum(*iter));
       ::PrintOptionalParameterInfo(
-        "Maximum", parameterType, aren->GetRendererParameterMaximum(*iter));
+        "Maximum", parameterType, anariRenderer->GetRendererParameterMaximum(*iter));
     }
   }
 

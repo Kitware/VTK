@@ -1,14 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test verifies that sizing of implicits spheres and cylinders for
-// points and lines works as expected.
-//
-// The command line arguments are:
-// -I         => run in interactive mode; unless this is used, the program will
-//               not allow interaction and exit.
-//               In interactive mode it responds to the keys listed
-//               vtkAnariTestInteractor.h
-// -GL        => uses OpenGL instead of Anari to render
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -20,9 +11,7 @@
 #include "vtkGlyphSource2D.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
-#include "vtkLogger.h"
 #include "vtkNew.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -37,17 +26,15 @@
 #include "vtkShrinkFilter.h"
 
 #include "vtkAnariActorNode.h"
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
-#include <string>
-#include <vector>
-
+/**
+ * This test verifies that sizing of implicits spheres and cylinders for
+ * points and lines works as expected.
+ */
 int TestAnariImplicits(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -55,7 +42,6 @@ int TestAnariImplicits(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -68,11 +54,7 @@ int TestAnariImplicits(int argc, char* argv[])
   renderer->SetBackground(0.7, 0.7, 0.7);
   renWin->SetSize(600, 550);
 
-  vtkNew<vtkAnariPass> anariPass;
-  renderer->SetPass(anariPass);
-
-  vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, renderer, useDebugDevice, "TestAnariImplicits");
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariImplicits");
 
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-10, 10, -10, 10, -10, 10);
@@ -125,7 +107,6 @@ int TestAnariImplicits(int argc, char* argv[])
   renderer->AddActor(actor1);
   actor1->SetPosition(x0 + dx * 0, y0 + dy * 0, z0 + dz * 0);
   actor1->GetProperty()->SetPointSize(4.0f);
-  vtkAnariTestInteractor::AddName("Points default");
 
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection(glyphFilter->GetOutputPort());
@@ -135,7 +116,6 @@ int TestAnariImplicits(int argc, char* argv[])
   renderer->AddActor(actor2);
   actor2->SetPosition(x0 + dx * 1, y0 + dy * 0, z0 + dz * 0);
   actor2->GetProperty()->SetPointSize(5.0f);
-  vtkAnariTestInteractor::AddName("Points SetPointSize()");
 
   vtkNew<vtkPolyDataMapper> mapper3;
   mapper3->SetInputConnection(glyphFilter->GetOutputPort());
@@ -147,7 +127,6 @@ int TestAnariImplicits(int argc, char* argv[])
   vtkInformation* mapInfo = mapper3->GetInformation();
   mapInfo->Set(vtkAnariActorNode::ENABLE_SCALING(), 1);
   mapInfo->Set(vtkAnariActorNode::SCALE_ARRAY_NAME(), "testarray1");
-  vtkAnariTestInteractor::AddName("Points SCALE_ARRAY");
 
   vtkNew<vtkPolyDataMapper> mapper4;
   mapper4->SetInputConnection(glyphFilter->GetOutputPort());
@@ -165,7 +144,6 @@ int TestAnariImplicits(int argc, char* argv[])
   scaleFunction1->AddPoint(0.51, 0.1);
   scaleFunction1->AddPoint(1.00, 1.2);
   mapInfo->Set(vtkAnariActorNode::SCALE_FUNCTION(), scaleFunction1);
-  vtkAnariTestInteractor::AddName("Points SCALE_FUNCTION on SCALE_ARRAY");
 
   // cylinders ////////////////
   vtkNew<vtkPolyDataMapper> mapper5;
@@ -176,7 +154,6 @@ int TestAnariImplicits(int argc, char* argv[])
   renderer->AddActor(actor5);
   actor5->SetPosition(x0 + dx * 0, y0 + dy * 2, z0 + dz * 0);
   actor5->GetProperty()->SetLineWidth(2.0f);
-  vtkAnariTestInteractor::AddName("Wireframe default");
 
   vtkNew<vtkPolyDataMapper> mapper6;
   mapper6->SetInputConnection(edgeFilter->GetOutputPort());
@@ -186,7 +163,6 @@ int TestAnariImplicits(int argc, char* argv[])
   renderer->AddActor(actor6);
   actor6->SetPosition(x0 + dx * 1, y0 + dy * 2, z0 + dz * 0);
   actor6->GetProperty()->SetLineWidth(5.0f);
-  vtkAnariTestInteractor::AddName("Wireframe LineWidth");
 
   vtkNew<vtkPolyDataMapper> mapper7;
   mapper7->SetInputConnection(edgeFilter->GetOutputPort());
@@ -197,7 +173,6 @@ int TestAnariImplicits(int argc, char* argv[])
   actor7->SetPosition(x0 + dx * 2, y0 + dy * 2, z0 + dz * 0);
   vtkAnariActorNode::SetEnableScaling(1, actor7);
   vtkAnariActorNode::SetScaleArrayName("testarray1", actor7);
-  vtkAnariTestInteractor::AddName("Wireframe SCALE_ARRAY");
 
   vtkNew<vtkPolyDataMapper> mapper8;
   mapper8->SetInputConnection(edgeFilter->GetOutputPort());
@@ -215,7 +190,6 @@ int TestAnariImplicits(int argc, char* argv[])
   scaleFunction2->AddPoint(0.51, 0.1);
   scaleFunction2->AddPoint(1.00, 1.2);
   mapInfo->Set(vtkAnariActorNode::SCALE_FUNCTION(), scaleFunction2);
-  vtkAnariTestInteractor::AddName("Wireframe SCALE_FUNCTION on SCALE_ARRAY");
 
   // reference values shown as colors /////////////////
   vtkNew<vtkPolyDataMapper> mapper9;
@@ -234,7 +208,6 @@ int TestAnariImplicits(int argc, char* argv[])
 
   renderer->AddActor(actor9);
   actor9->SetPosition(x0 + dx * 2, y0 + dy * 1, z0 + dz * 0);
-  vtkAnariTestInteractor::AddName("Reference values as colors");
 
   // just show it //////////////////
   renWin->Render();
@@ -244,11 +217,6 @@ int TestAnariImplicits(int argc, char* argv[])
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
-    vtkNew<vtkAnariTestInteractor> style;
-    style->SetPipelineControlPoints(renderer, anariPass, nullptr);
-    iren->SetInteractorStyle(style);
-    style->SetCurrentRenderer(renderer);
-
     iren->Start();
   }
 

@@ -1,34 +1,24 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// Description
-// This is a basic test that creates and volume renders the wavelet dataset.
-
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkImageData.h"
-#include "vtkInteractorEventRecorder.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRTAnalyticSource.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkTestErrorObserver.h"
 #include "vtkTesting.h"
-#include "vtkTimerLog.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
-
-#include <iostream>
 
 static const char* TestAnariVolumeWaveletLog = "# StreamVersion 1\n"
                                                "EnterEvent 299 0 0 0 0 0 0\n"
@@ -44,10 +34,11 @@ static const char* TestAnariVolumeWaveletLog = "# StreamVersion 1\n"
                                                "MouseMoveEvent 384 1 0 0 0 0 0\n"
                                                "LeaveEvent 399 -8 0 0 0 0 0\n";
 
+/**
+ * This is a basic test that creates and volume renders the wavelet dataset.
+ */
 int TestAnariVolumeWavelet(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
-  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -55,7 +46,6 @@ int TestAnariVolumeWavelet(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -104,34 +94,19 @@ int TestAnariVolumeWavelet(int argc, char* argv[])
 
   renderer->AddVolume(volume);
 
-  // Attach ANARI render pass
-  vtkNew<vtkAnariPass> anariPass;
-  renderer->SetPass(anariPass);
-
   vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, renderer, useDebugDevice, "TestAnariVolumeWavelet");
+    renderWindow, useDebugDevice, "TestAnariVolumeWavelet");
 
   renderer->ResetCamera();
   renderWindow->Render();
 
-  auto anariRendererNode = anariPass->GetSceneGraph();
-  auto extensions = anariRendererNode->GetAnariDeviceExtensions();
-
+  const auto& extensions = vtkAnariTestUtilities::GetDeviceExtensions(renderWindow);
   if (extensions.ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR)
   {
-    iren->Initialize();
-
-    vtkNew<vtkInteractorEventRecorder> recorder;
-    recorder->SetInteractor(iren);
-    recorder->ReadFromInputStringOn();
-    recorder->SetInputString(TestAnariVolumeWaveletLog);
-    recorder->Play();
-    recorder->Off();
-
-    int retVal = vtkRegressionTestImage(renderWindow);
+    int retVal = vtkTesting::InteractorEventLoop(argc, argv, iren, TestAnariVolumeWaveletLog);
     return !retVal;
   }
 
-  std::cout << "Required feature KHR_VOLUME_TRANSFER_FUNCTION1D not supported." << std::endl;
+  vtkLogF(INFO, "Required feature KHR_VOLUME_TRANSFER_FUNCTION1D not supported.");
   return VTK_SKIP_RETURN_CODE;
 }

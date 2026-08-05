@@ -2,10 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkActor.h"
-#include "vtkAnariRenderWindow.h"
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
-#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPLYReader.h"
 #include "vtkPolyDataMapper.h"
@@ -22,7 +20,6 @@
  */
 int TestAnariRenderWindowRGB(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -30,7 +27,6 @@ int TestAnariRenderWindowRGB(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -51,7 +47,7 @@ int TestAnariRenderWindowRGB(int argc, char* argv[])
   renderer->AddActor(actor);
   renderer->SetBackground(0.2, 0.2, 0.8);
 
-  vtkNew<vtkAnariRenderWindow> renderWindow;
+  vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->AddRenderer(renderer);
 
   vtkAnariTestUtilities::SetParameterDefaults(

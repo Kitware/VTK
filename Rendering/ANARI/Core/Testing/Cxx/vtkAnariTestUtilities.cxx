@@ -27,6 +27,8 @@ void SetParameterDefaults(vtkRenderWindow* renderWindow, bool useDebugDevice, co
   auto* anariDevice = anariRenderWindow->GetAnariDevice();
   auto* anariRenderer = anariRenderWindow->GetAnariRenderer();
 
+  anariDevice->SetupAnariDeviceFromLibrary("environment", "default", useDebugDevice);
+
   if (useDebugDevice)
   {
     vtkNew<vtkTesting> testing;
@@ -36,7 +38,7 @@ void SetParameterDefaults(vtkRenderWindow* renderWindow, bool useDebugDevice, co
     anariDevice->SetAnariDebugConfig(traceDir.c_str(), "code");
   }
 
-  anariDevice->SetupAnariDeviceFromLibrary("environment", "default", useDebugDevice);
+  anariRenderWindow->SetUseDebugDevice(useDebugDevice);
 
   // General renderer parameters:
   anariDevice->SetParameterf("ambientRadiance", 1.f);

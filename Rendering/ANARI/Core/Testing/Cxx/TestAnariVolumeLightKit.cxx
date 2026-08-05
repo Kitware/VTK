@@ -1,43 +1,34 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test covers using VTK light kit to add general purpose lighting
-// in a simple, flexible, and attractive way.
-// This test volume renders a synthetic dataset with unsigned char values,
-// with the additive method.
 
-#include <vtkCamera.h>
-#include <vtkColorTransferFunction.h>
-#include <vtkDataArray.h>
-#include <vtkGPUVolumeRayCastMapper.h>
-#include <vtkImageData.h>
-#include <vtkImageReader.h>
-#include <vtkImageShiftScale.h>
-#include <vtkLightKit.h>
-#include <vtkLogger.h>
-#include <vtkNew.h>
-#include <vtkOutlineFilter.h>
-#include <vtkPiecewiseFunction.h>
-#include <vtkPointData.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkRegressionTestImage.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
-#include <vtkStructuredPointsReader.h>
-#include <vtkTestUtilities.h>
-#include <vtkTimerLog.h>
-#include <vtkVolumeProperty.h>
-#include <vtkXMLImageDataReader.h>
+#include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkDataSet.h"
+#include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkLightKit.h"
+#include "vtkLogger.h"
+#include "vtkNew.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
+#include "vtkVolumeProperty.h"
+#include "vtkXMLImageDataReader.h"
 
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
-#include <iostream>
-
+/**
+ * This test covers using VTK light kit to add general purpose lighting
+ * in a simple, flexible, and attractive way.
+ * This test volume renders a synthetic dataset with unsigned char values,
+ * with the additive method.
+ */
 int TestAnariVolumeLightKit(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -45,7 +36,6 @@ int TestAnariVolumeLightKit(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -106,33 +96,23 @@ int TestAnariVolumeLightKit(int argc, char* argv[])
 
   ren->AddViewProp(volume);
 
-  // Attach ANARI render pass
-  vtkNew<vtkAnariPass> anariPass;
-  ren->SetPass(anariPass);
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariVolumeLightKit");
 
-  vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, ren, useDebugDevice, "TestAnariVolumeLightKit");
-
-  renWin->Render();
   ren->ResetCamera();
 
-  auto anariRendererNode = anariPass->GetSceneGraph();
-  auto extensions = anariRendererNode->GetAnariDeviceExtensions();
-
+  auto extensions = vtkAnariTestUtilities::GetDeviceExtensions(renWin);
   if (extensions.ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR)
   {
-    int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
+    int retVal = vtkRegressionTestImage(renWin);
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-      iren->Initialize();
-      iren->SetDesiredUpdateRate(30.0);
       iren->Start();
     }
 
     return !retVal;
   }
 
-  std::cout << "Required feature KHR_VOLUME_TRANSFER_FUNCTION1D not supported." << std::endl;
+  vtkLogF(WARNING, "Required feature KHR_VOLUME_TRANSFER_FUNCTION1D not supported.");
   return VTK_SKIP_RETURN_CODE;
 }

@@ -2,12 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkColorTransferFunction.h"
-#include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositePolyDataMapper.h"
 #include "vtkCylinderSource.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
-#include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
@@ -17,19 +15,18 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-#include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
-// Test for multiblock data sets with field data arrays defined on
-// only a subset of the blocks. The expected behavior is to have
-// coloring by scalars on the blocks with the data array and coloring
-// as though scalar mapping is turned off in the blocks without the
-// data array.
+/**
+ * Test for multiblock data sets with field data arrays defined on
+ * only a subset of the blocks. The expected behavior is to have
+ * coloring by scalars on the blocks with the data array and coloring
+ * as though scalar mapping is turned off in the blocks without the
+ * data array.
+ */
 int TestAnariMultiBlockPartialArrayFieldData(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -37,15 +34,14 @@ int TestAnariMultiBlockPartialArrayFieldData(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
-  vtkNew<vtkRenderWindow> win;
+  vtkNew<vtkRenderWindow> renderWindow;
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkRenderer> ren;
-  win->AddRenderer(ren);
-  win->SetInteractor(iren);
+  renderWindow->AddRenderer(ren);
+  renderWindow->SetInteractor(iren);
 
   // Components of the multiblock data set
   vtkNew<vtkSphereSource> sphereSource;
@@ -116,18 +112,15 @@ int TestAnariMultiBlockPartialArrayFieldData(int argc, char* argv[])
   actor->SetMapper(mapper);
   actor->GetProperty()->SetColor(1.0, 0.67, 1.0); // light purple
 
-  vtkNew<vtkAnariPass> anariPass;
-  ren->SetPass(anariPass);
-
   vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, ren, useDebugDevice, "TestAnariMultiBlockPartialArrayFieldData");
+    renderWindow, useDebugDevice, "TestAnariMultiBlockPartialArrayFieldData");
 
   ren->AddActor(actor);
-  win->SetSize(400, 400);
   ren->ResetCamera();
-  win->Render();
+  renderWindow->SetSize(400, 400);
+  renderWindow->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(win, 0.05);
+  int retVal = vtkRegressionTestImageThreshold(renderWindow, 0.05);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

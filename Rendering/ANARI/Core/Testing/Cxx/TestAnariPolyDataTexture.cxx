@@ -1,12 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// This test covers testing of actor texturing for polydata geometry. It renders a textured cube.
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkFloatArray.h"
 #include "vtkJPEGReader.h"
-#include "vtkLogger.h"
 #include "vtkPlaneSource.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -19,26 +17,23 @@
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 
-#include "vtkAnariPass.h"
+#include "vtkAnariRenderWindow.h"
+#include "vtkAnariRenderer.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
+/**
+ * This test covers testing of actor texturing for polydata geometry. It renders a textured cube.
+ */
 int TestAnariPolyDataTexture(int argc, char* argv[])
 {
   bool useDebugDevice = false;
-  bool useGL = false;
 
   for (int i = 0; i < argc; i++)
   {
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
-    }
-    else if (!strcmp(argv[i], "--gl"))
-    {
-      useGL = true;
     }
   }
 
@@ -111,36 +106,21 @@ int TestAnariPolyDataTexture(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   renWin->SetSize(400, 400);
 
-  // Interactor
-  vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin);
-
-  vtkNew<vtkAnariPass> anariPass;
-  vtkAnariTestUtilities::SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPass");
-  if (!useGL)
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariPolyDataTexture");
+  vtkAnariRenderer* anariRenderer = vtkAnariRenderWindow::SafeDownCast(renWin)->GetAnariRenderer();
+  if (anariRenderer)
   {
-    renderer->SetPass(anariPass);
-    renWin->Render();
-    auto anariRenderer = anariPass->GetAnariRenderer();
-    if (anariRenderer)
-    {
-      anariRenderer->SetParameterb("denoise", true);
-      anariRenderer->SetParameteri("pixelSamples", 5);
-      anariRenderer->SetParameterf("ambientRadiance", 1.0f);
-      anariRenderer->SetParameteri("ambientSamples", 1);
-      renWin->Render();
-    }
+    anariRenderer->SetParameteri("pixelSamples", 5);
+    anariRenderer->SetParameteri("ambientSamples", 1);
   }
 
   int retVal = vtkRegressionTestImage(renWin);
 
+  // Interactor
+  vtkNew<vtkRenderWindowInteractor> iren;
+  iren->SetRenderWindow(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
-    vtkNew<vtkAnariTestInteractor> style;
-    style->SetPipelineControlPoints(renderer, anariPass, nullptr);
-    iren->SetInteractorStyle(style);
-    style->SetCurrentRenderer(renderer);
-
     iren->Start();
   }
 

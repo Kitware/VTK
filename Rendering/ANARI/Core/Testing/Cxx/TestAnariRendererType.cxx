@@ -1,21 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test verifies that we can switch between scivis and raycast renderer
-// modes.
-//
-// The command line arguments are:
-// -I        => run in interactive mode; unless this is used, the program will
-//              not allow interaction and exit
-//              In interactive mode it responds to the keys listed
-//              vtkAnariTestInteractor.h
-
-#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkPLYReader.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
@@ -23,17 +12,19 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkAnariPass.h"
+#include "vtkAnariRenderWindow.h"
+#include "vtkAnariRenderer.h"
 #include "vtkAnariSceneGraph.h"
-#include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
-#include <iostream>
-
+/**
+ * This test verifies that we can switch between scivis and raycast renderer
+ * modes.
+ */
 int TestAnariRendererType(int argc, char* argv[])
 {
-  vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
   bool useDebugDevice = false;
 
   for (int i = 0; i < argc; i++)
@@ -41,7 +32,6 @@ int TestAnariRendererType(int argc, char* argv[])
     if (!strcmp(argv[i], "--trace"))
     {
       useDebugDevice = true;
-      vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
     }
   }
 
@@ -67,24 +57,20 @@ int TestAnariRendererType(int argc, char* argv[])
   renWin->SetSize(400, 400);
   renWin->Render();
 
-  vtkNew<vtkAnariPass> anariPass;
-  renderer->SetPass(anariPass);
+  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariRendererType");
 
-  vtkAnariTestUtilities::SetParameterDefaults(
-    anariPass, renderer, useDebugDevice, "TestAnariRendererType");
-
-  auto* ar = anariPass->GetAnariRenderer();
+  vtkAnariRenderer* anariRenderer = vtkAnariRenderWindow::SafeDownCast(renWin)->GetAnariRenderer();
   for (int i = 1; i < 9; i++)
   {
     if (i % 2)
     {
-      std::cerr << "Render via default" << std::endl;
-      ar->SetSubtype("default");
+      vtkLogF(INFO, "Render via default");
+      anariRenderer->SetSubtype("default");
     }
     else
     {
-      std::cerr << "Render via raycast" << std::endl;
-      ar->SetSubtype("raycast");
+      vtkLogF(INFO, "Render via raycast");
+      anariRenderer->SetSubtype("raycast");
     }
 
     renWin->Render();
@@ -94,11 +80,6 @@ int TestAnariRendererType(int argc, char* argv[])
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
-    vtkNew<vtkAnariTestInteractor> style;
-    style->SetPipelineControlPoints(renderer, anariPass, nullptr);
-    style->SetCurrentRenderer(renderer);
-
-    iren->SetInteractorStyle(style);
     iren->Start();
   }
 
