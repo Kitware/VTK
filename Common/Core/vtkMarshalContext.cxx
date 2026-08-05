@@ -58,6 +58,8 @@ public:
   // ephemeral storage of children in the current parent.
   // These will be added inside Tree in PopParent
   std::unordered_map<vtkTypeUInt32, std::set<vtkTypeUInt32>> CurrentTree;
+  // Id -> Hash
+  std::unordered_map<vtkTypeUInt32, std::string> BlobHashMap;
 };
 
 //------------------------------------------------------------------------------
@@ -472,6 +474,26 @@ void vtkMarshalContext::PopParent()
   }
   internals.Visited.erase(parent);
   internals.IdentifierStack.pop();
+}
+
+//------------------------------------------------------------------------------
+bool vtkMarshalContext::ShouldDataArrayBeModified(vtkTypeUInt32 id, const std::string& hash)
+{
+  auto& internals = (*this->Internals);
+  if (auto iter = internals.BlobHashMap.find(id); iter != internals.BlobHashMap.end())
+  {
+    if (iter->second != hash)
+    {
+      iter->second = hash;
+      return true;
+    }
+    return false;
+  }
+  else
+  {
+    internals.BlobHashMap[id] = hash;
+  }
+  return true;
 }
 
 //------------------------------------------------------------------------------

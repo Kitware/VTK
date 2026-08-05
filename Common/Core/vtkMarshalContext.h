@@ -263,6 +263,13 @@ public:
    */
   void PopParent();
 
+  /**
+   * Returns true if the hash for the object at id differs from last used hash.
+   * This method is useful to call Modified() on a vtkDataArray when contents
+   * have changed without re-hashing the data array or checking every single value.
+   */
+  bool ShouldDataArrayBeModified(vtkTypeUInt32 id, const std::string& hash);
+
 protected:
   vtkMarshalContext();
   ~vtkMarshalContext() override;

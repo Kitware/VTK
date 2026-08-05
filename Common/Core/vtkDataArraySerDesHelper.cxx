@@ -364,6 +364,12 @@ struct vtkDataArrayDeserializer
     const auto& content = blob.get_binary();
     std::copy_n(reinterpret_cast<const ValueT*>(content.data()), array->GetNumberOfValues(),
       array->GetPointer(0));
+    const auto id = state["Id"].get<vtkTypeUInt32>();
+    const auto hash = state["Hash"].get<std::string>();
+    if (deserializer->GetContext()->ShouldDataArrayBeModified(id, hash))
+    {
+      array->Modified();
+    }
     VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(LookupTable, vtkLookupTable, state, array, deserializer);
   }
 
@@ -383,6 +389,12 @@ struct vtkDataArrayDeserializer
         std::copy_n(reinterpret_cast<const VTK_TT*>(content.data()), array->GetNumberOfValues(),
           vtk::DataArrayValueRange<vtk::detail::DynamicTupleSize, VTK_TT>(array).begin()));
     }
+    const auto id = state["Id"].get<vtkTypeUInt32>();
+    const auto hash = state["Hash"].get<std::string>();
+    if (deserializer->GetContext()->ShouldDataArrayBeModified(id, hash))
+    {
+      array->Modified();
+    }
     VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(LookupTable, vtkLookupTable, state, array, deserializer);
   }
 
@@ -398,6 +410,12 @@ struct vtkDataArrayDeserializer
     const auto& content = blob.get_binary();
     std::copy_n(content.data(), (array->GetNumberOfValues() + 7) / 8, array->GetPointer(0));
     array->SetNumberOfValues(state["NumberOfBits"]);
+    const auto id = state["Id"].get<vtkTypeUInt32>();
+    const auto hash = state["Hash"].get<std::string>();
+    if (deserializer->GetContext()->ShouldDataArrayBeModified(id, hash))
+    {
+      array->Modified();
+    }
     VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(LookupTable, vtkLookupTable, state, array, deserializer);
   }
 };
