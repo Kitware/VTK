@@ -55,17 +55,8 @@ enum BaseNodes
 
 //------------------------------------------------------------------------------
 // Constants
-const std::vector<std::string>& BASE_NODES()
-{
-  static const std::vector<std::string> base_nodes = { "Grids", "Devices", "HRR", "Slices",
-    "Boundaries" };
-  return base_nodes;
-}
-const std::vector<std::string>& DIM_KEYWORDS()
-{
-  static const std::vector<std::string> dim_keywords = { "TRNX", "TRNY", "TRNZ" };
-  return dim_keywords;
-}
+constexpr const char* BASE_NODES[] = { "Grids", "Devices", "HRR", "Slices", "Boundaries" };
+constexpr std::array<std::string_view, 3> DIM_KEYWORDS = { "TRNX", "TRNY", "TRNZ" };
 
 //------------------------------------------------------------------------------
 struct FDSParser
@@ -1207,7 +1198,19 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
   // Fill base structure
   this->Assembly->Initialize();
-  const auto baseNodes = this->Assembly->AddNodes(BASE_NODES());
+  std::vector<int> baseNodes;
+  baseNodes.reserve(sizeof(BASE_NODES) / sizeof(BASE_NODES[0]));
+  for (auto const* name : BASE_NODES)
+  {
+    int id = this->Assembly->AddNode(name);
+    if (id == -1)
+    {
+      vtkErrorMacro(<< "Failed to add base node " << name);
+      this->Assembly->Initialize();
+      return 0;
+    }
+    baseNodes.emplace_back(id);
+  }
 
   std::string rootNodeName = vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName);
   rootNodeName = vtkDataAssembly::MakeValidNodeName(rootNodeName.c_str());
@@ -1446,9 +1449,9 @@ bool vtkFDSReader::ParseGRID(const std::vector<int>& baseNodes)
     }
 
     // We should have TRNX, TRNY or TRNZ
-    if (keyWord != ::DIM_KEYWORDS()[dim])
+    if (keyWord != ::DIM_KEYWORDS[dim])
     {
-      vtkErrorMacro(<< "Expected a " << ::DIM_KEYWORDS()[dim] << " keyword at line "
+      vtkErrorMacro(<< "Expected a " << ::DIM_KEYWORDS[dim] << " keyword at line "
                     << parser.LineNumber << ", but none was found.");
       return false;
     }
