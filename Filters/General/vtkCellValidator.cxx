@@ -312,11 +312,7 @@ namespace
 void Centroid(vtkCell* cell, double* centroid)
 {
   // Return the centroid of a cell in world coordinates.
-  static std::vector<double> weights;
-  if (weights.size() < static_cast<size_t>(cell->GetNumberOfPoints()))
-  {
-    weights.resize(cell->GetNumberOfPoints());
-  }
+  std::vector<double> weights(cell->GetNumberOfPoints());
   double pCenter[3];
   int subId = -1;
   cell->GetParametricCenter(pCenter);
