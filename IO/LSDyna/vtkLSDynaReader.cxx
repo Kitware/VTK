@@ -2888,6 +2888,14 @@ void vtkLSDynaReader::ReadCellProperties(const int& type, const int& numTuples)
   vtkIdType numCells, numSkipStart, numSkipEnd;
   this->Parts->GetPartReadInfo(type, numCells, numSkipStart, numSkipEnd);
 
+  if (!this->Parts->HasCellProperties(t))
+  {
+    // no part wants any state array of this cell type so we can
+    // skip the whole section instead of buffering it
+    this->P->Fam.SkipWords((numSkipStart + numCells + numSkipEnd) * numTuples);
+    return;
+  }
+
   this->P->Fam.SkipWords(numSkipStart * numTuples);
   vtkIdType numChunks = this->P->Fam.InitPartialChunkBuffering(numCells, numTuples);
   vtkIdType startId = 0;
@@ -3529,15 +3537,14 @@ template <typename T>
 void vtkLSDynaReader::FillDeletionArray(T* buffer, vtkUnsignedCharArray* arr,
   const vtkIdType& start, const vtkIdType& numCells, const int& deathPos, const int& cellSize)
 {
-  unsigned char val;
+  unsigned char* dest = arr->GetPointer(start);
   for (vtkIdType i = 0; i < numCells; ++i)
   {
     // Quote from LSDyna Manual:
     //"each value is set to the element material number or =0,
     // if the element is deleted"
-    val = (buffer[deathPos] == 0.0) ? 1 : 0;
+    dest[i] = (buffer[deathPos] == 0.0) ? 1 : 0;
     buffer += cellSize;
-    arr->SetTuple1(start + i, val);
   }
 }
 

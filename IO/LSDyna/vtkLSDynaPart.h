@@ -107,6 +107,10 @@ public:
     double* cellsProperties, const vtkIdType& numCells, const vtkIdType& numPropertiesInCell);
 
   // Description:
+  // Returns if any cell property has been registered on this part
+  bool HasCellProperties() const;
+
+  // Description:
   // Get the id of the lowest global point this part needs
   // Note: Presumes topology has been built already
   vtkIdType GetMinGlobalPointId() const;
@@ -127,10 +131,6 @@ protected:
 
   void GetPropertyData(const char* name, const vtkIdType& numComps, const bool& isIdTypeArray,
     const bool& isProperty, const bool& isGeometry);
-
-  template <typename T>
-  void AddPointInformation(T* buffer, T* pointData, const vtkIdType& numTuples,
-    const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex);
 
   // basic info about the part
   LSDynaMetaData::LSDYNA_TYPES Type;
@@ -160,8 +160,6 @@ protected:
   InternalCellProperties* CellProperties;
 
   class InternalPointsUsed;
-  class DensePointsUsed;
-  class SparsePointsUsed;
   InternalPointsUsed* GlobalPointsUsed;
 
   // used when reading properties
@@ -169,6 +167,10 @@ protected:
   InternalCurrentPointInfo* CurrentPointPropInfo;
 
 private:
+  template <typename T>
+  void AddPointInformation(T* buffer, T* pointData, const vtkIdType& numTuples,
+    const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex);
+
   vtkLSDynaPart(const vtkLSDynaPart&) = delete;
   void operator=(const vtkLSDynaPart&) = delete;
 };

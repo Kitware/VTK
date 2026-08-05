@@ -607,6 +607,21 @@ void vtkLSDynaPartCollection::AddProperty(const LSDynaMetaData::LSDYNA_TYPES& ty
 }
 
 //------------------------------------------------------------------------------
+bool vtkLSDynaPartCollection::HasCellProperties(const LSDynaMetaData::LSDYNA_TYPES& type)
+{
+  vtkLSDynaPart* part = nullptr;
+  this->Storage->InitPartIteration(type);
+  while (this->Storage->GetNextPart(part))
+  {
+    if (part && part->HasCellProperties())
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::FillCellProperties(float* buffer,
   const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId, const vtkIdType& numCells,
   const int& numPropertiesInCell)

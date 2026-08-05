@@ -47,14 +47,18 @@ protected:
     {
       Data = new unsigned char[numTuples * nc * sizeof(T)];
       loc = Data;
-      len = numComps * sizeof(T);
     }
     ~CellProperty() { delete[] Data; }
     template <typename T>
     void insertNextTuple(T* values)
     {
-      memcpy(loc, values + startPos, len);
-      loc = ((T*)loc) + numComps;
+      const T* src = values + this->startPos;
+      T* dest = static_cast<T*>(this->loc);
+      for (vtkIdType c = 0; c < this->numComps; ++c)
+      {
+        dest[c] = src[c];
+      }
+      this->loc = dest + this->numComps;
     }
     void resetForNextTimeStep() { loc = Data; }
 
@@ -62,7 +66,6 @@ protected:
 
   protected:
     int startPos;
-    size_t len;
     vtkIdType numComps;
     void* loc;
   };
@@ -104,14 +107,21 @@ public:
   }
 
   template <typename T>
-  void AddCellInfo(T* cellproperty)
+  void AddCellInfo(T* cellproperty, const vtkIdType& numTuples, const vtkIdType& stride)
   {
+    // single pass over the interleaved cell state block so each cell
+    // is only brought into cache once
     std::vector<CellProperty*>::iterator it;
-    for (it = Properties.begin(); it != Properties.end(); ++it)
+    for (vtkIdType i = 0; i < numTuples; ++i, cellproperty += stride)
     {
-      (*it)->insertNextTuple(cellproperty);
+      for (it = this->Properties.begin(); it != this->Properties.end(); ++it)
+      {
+        (*it)->insertNextTuple(cellproperty);
+      }
     }
   }
+
+  bool HasProperties() const { return !this->Properties.empty(); }
 
   void SetDeadCells(unsigned char* dead, const vtkIdType& size)
   {
@@ -193,18 +203,42 @@ public:
 //------------------------------------------------------------------------------
 class vtkLSDynaPart::InternalPointsUsed
 {
-  // Base class that tracks which points this part uses
+  // Tracks which points of the global point array this part uses,
+  // stored as sorted runs of consecutively used global point ids.
+  // This allows a chunk of the global point array to be distributed to the
+  // part with a single memcpy per run instead of a per-point lookup.
 public:
-  // uses the relative index based on the minId
-  InternalPointsUsed(const vtkIdType& min, const vtkIdType& max)
-    : MinId(min)
-    , MaxId(max + 1)
+  struct PointRun
   {
-  } // maxId is meant to be exclusive
+    vtkIdType GlobalStart; // first global point id of the run
+    vtkIdType GlobalEnd;   // one past the last global point id of the run
+    vtkIdType LocalStart;  // local point index that GlobalStart maps to
+  };
 
-  virtual ~InternalPointsUsed() = default;
-
-  virtual bool isUsed(const vtkIdType& index) const = 0;
+  InternalPointsUsed(const BitVector& pointsUsed, const vtkIdType& min, const vtkIdType& max)
+    : MinId(min)
+    , MaxId(max + 1) // maxId is meant to be exclusive
+  {
+    vtkIdType localIndex = 0;
+    vtkIdType i = min;
+    while (i <= max)
+    {
+      if (pointsUsed[i])
+      {
+        const vtkIdType runStart = i;
+        while (i <= max && pointsUsed[i])
+        {
+          ++i;
+        }
+        this->Runs.push_back({ runStart, i, localIndex });
+        localIndex += i - runStart;
+      }
+      else
+      {
+        ++i;
+      }
+    }
+  }
 
   // the min and max id allow the parts to be sorted in the collection
   // based on the points they need to allow for subsections of the global point
@@ -212,56 +246,12 @@ public:
   vtkIdType minId() const { return MinId; }
   vtkIdType maxId() const { return MaxId; }
 
+  const std::vector<PointRun>& runs() const { return this->Runs; }
+
 protected:
+  std::vector<PointRun> Runs;
   vtkIdType MinId;
   vtkIdType MaxId;
-};
-
-//------------------------------------------------------------------------------
-class vtkLSDynaPart::DensePointsUsed : public vtkLSDynaPart::InternalPointsUsed
-{
-  // uses a min and max id to bound the bit vector of points that this part
-  // uses. If the points for the part are all bunched up in the global point
-  // space this is used as it saves tons of space.
-public:
-  DensePointsUsed(BitVector* pointsUsed, const vtkIdType& min, const vtkIdType& max)
-    : InternalPointsUsed(min, max)
-    , UsedPoints(pointsUsed->begin() + min, pointsUsed->begin() + (max + 1))
-  {
-  }
-
-  bool isUsed(const vtkIdType& index) const override { return UsedPoints[index]; }
-
-protected:
-  BitVector UsedPoints;
-};
-
-//------------------------------------------------------------------------------
-class vtkLSDynaPart::SparsePointsUsed : public vtkLSDynaPart::InternalPointsUsed
-{
-  // uses a set to store highly unrelated points. I doubt this is used by
-  // many parts as the part would need to use a few points whose indices was
-  // at the extremes of the global point set
-public:
-  SparsePointsUsed(BitVector* pointsUsed, const vtkIdType& min, const vtkIdType& max)
-    : InternalPointsUsed(min, max)
-  {
-    for (vtkIdType i = this->MinId; i < this->MaxId; ++i)
-    {
-      // we need relative ids
-      if ((*pointsUsed)[i])
-      {
-        this->UsedPoints.insert(i - this->MinId);
-      }
-    }
-  }
-  bool isUsed(const vtkIdType& index) const override
-  {
-    return this->UsedPoints.find(index) != this->UsedPoints.end();
-  }
-
-protected:
-  std::set<vtkIdType> UsedPoints;
 };
 
 //------------------------------------------------------------------------------
@@ -270,11 +260,9 @@ class vtkLSDynaPart::InternalCurrentPointInfo
 public:
   InternalCurrentPointInfo()
     : ptr(nullptr)
-    , index(0)
   {
   }
   void* ptr;
-  vtkIdType index;
 };
 
 vtkStandardNewMacro(vtkLSDynaPart);
@@ -651,7 +639,6 @@ void vtkLSDynaPart::AddPointProperty(const char* name, const vtkIdType& numComps
 
   // first step is getting the ptr to the start of the right property
   this->GetPropertyData(name, numComps, isIdTypeProperty, isProperty, isGeometryPoints);
-  this->CurrentPointPropInfo->index = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -677,38 +664,23 @@ void vtkLSDynaPart::AddPointInformation(T* buffer, T* pointData, const vtkIdType
 {
   // only read the subset of points of this part that fall
   // inside the src buffer
-  vtkIdType start(std::max(this->GlobalPointsUsed->minId(), currentGlobalIndex));
-  vtkIdType end(std::min(this->GlobalPointsUsed->maxId(), currentGlobalIndex + numTuples));
+  const vtkIdType chunkEnd = currentGlobalIndex + numTuples;
+  const std::vector<InternalPointsUsed::PointRun>& runs = this->GlobalPointsUsed->runs();
 
-  // if the part has no place in this section of the points buffer
-  // end will be larger than start
-  if (start >= end)
+  // find the first run that ends after the start of the buffer
+  auto runIt = std::upper_bound(runs.begin(), runs.end(), currentGlobalIndex,
+    [](const vtkIdType& value, const InternalPointsUsed::PointRun& run)
+    { return value < run.GlobalEnd; });
+
+  // copy each run that overlaps the buffer with a single memcpy
+  for (; runIt != runs.end() && runIt->GlobalStart < chunkEnd; ++runIt)
   {
-    return;
+    const vtkIdType start = std::max(runIt->GlobalStart, currentGlobalIndex);
+    const vtkIdType end = std::min(runIt->GlobalEnd, chunkEnd);
+    const T* src = buffer + ((start - currentGlobalIndex) * numComps);
+    T* dest = pointData + ((runIt->LocalStart + (start - runIt->GlobalStart)) * numComps);
+    memcpy(dest, src, static_cast<size_t>(end - start) * numComps * sizeof(T));
   }
-
-  // offset all the pointers to the correct place
-  T* src = buffer + ((start - currentGlobalIndex) * numComps);
-  T* dest = pointData + (this->CurrentPointPropInfo->index * numComps);
-  const size_t msize = sizeof(T) * numComps;
-
-  // fix the start and end to be relative to the min id
-  // this is because the global point used class is relative index based
-  start -= this->GlobalPointsUsed->minId();
-  end -= this->GlobalPointsUsed->minId();
-  vtkIdType numPointsRead = 0;
-  for (; start < end; ++start, src += numComps)
-  {
-
-    if (this->GlobalPointsUsed->isUsed(start))
-    {
-      memcpy(dest, src, msize);
-      dest += numComps;
-      ++numPointsRead;
-    }
-  }
-
-  this->CurrentPointPropInfo->index += numPointsRead;
 }
 
 //------------------------------------------------------------------------------
@@ -823,23 +795,19 @@ void vtkLSDynaPart::AddCellProperty(const char* name, const int& offset, const i
 void vtkLSDynaPart::ReadCellProperties(
   float* cellProperties, const vtkIdType& numCells, const vtkIdType& numPropertiesInCell)
 {
-  float* cell = cellProperties;
-  for (vtkIdType i = 0; i < numCells; ++i)
-  {
-    this->CellProperties->AddCellInfo(cell);
-    cell += numPropertiesInCell;
-  }
+  this->CellProperties->AddCellInfo(cellProperties, numCells, numPropertiesInCell);
 }
 //------------------------------------------------------------------------------
 void vtkLSDynaPart::ReadCellProperties(
   double* cellProperties, const vtkIdType& numCells, const vtkIdType& numPropertiesInCell)
 {
-  double* cell = cellProperties;
-  for (vtkIdType i = 0; i < numCells; ++i)
-  {
-    this->CellProperties->AddCellInfo(cell);
-    cell += numPropertiesInCell;
-  }
+  this->CellProperties->AddCellInfo(cellProperties, numCells, numPropertiesInCell);
+}
+
+//------------------------------------------------------------------------------
+bool vtkLSDynaPart::HasCellProperties() const
+{
+  return this->CellProperties->HasProperties();
 }
 
 //------------------------------------------------------------------------------
@@ -965,17 +933,6 @@ void vtkLSDynaPart::BuildUniquePoints()
     }
   }
 
-  // determine the type of global point id storage is best
-  vtkIdType ratio = (this->NumberOfPoints * sizeof(vtkIdType)) / (max - min);
-  if (ratio > 0)
-  {
-    // the size of the bit array is less than the size of each number in memory
-    // by it self
-    this->GlobalPointsUsed = new vtkLSDynaPart::DensePointsUsed(&pointUsage, min, max);
-  }
-  else
-  {
-    this->GlobalPointsUsed = new vtkLSDynaPart::SparsePointsUsed(&pointUsage, min, max);
-  }
+  this->GlobalPointsUsed = new vtkLSDynaPart::InternalPointsUsed(pointUsage, min, max);
 }
 VTK_ABI_NAMESPACE_END
