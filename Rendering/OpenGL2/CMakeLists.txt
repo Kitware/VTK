@@ -93,7 +93,6 @@ set(classes
   vtkPanoramicProjectionPass
   vtkPixelBufferObject
   vtkPointFillPass
-  vtkRenderStepsPass
   vtkRenderbuffer
   vtkSSAAPass
   vtkSSAOPass

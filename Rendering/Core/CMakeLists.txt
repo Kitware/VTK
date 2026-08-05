@@ -95,6 +95,7 @@ set(classes
   vtkRenderPass
   vtkRenderPassCollection
   vtkRenderState
+  vtkRenderStepsPass
   vtkRenderTimerLog
   vtkRenderWindow
   vtkRenderWindowCollection

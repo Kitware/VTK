@@ -22,14 +22,14 @@
 #define vtkRenderStepsPass_h
 
 #include "vtkRenderPass.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSequencePass;
 class vtkCameraPass;
 
-class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkRenderStepsPass : public vtkRenderPass
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkRenderStepsPass : public vtkRenderPass
 {
 public:
   static vtkRenderStepsPass* New();
