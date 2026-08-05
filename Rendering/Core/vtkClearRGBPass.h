@@ -14,13 +14,12 @@
 #define vtkClearRGBPass_h
 
 #include "vtkRenderPass.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkOpenGLRenderWindow;
 
-class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkClearRGBPass : public vtkRenderPass
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkClearRGBPass : public vtkRenderPass
 {
 public:
   static vtkClearRGBPass* New();
@@ -30,7 +29,7 @@ public:
   /**
    * Perform rendering according to a render state s.
    */
-  void Render(const vtkRenderState* s) override;
+  void Render(const vtkRenderState*) override {}
 
   ///@{
   /**

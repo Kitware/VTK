@@ -26,6 +26,7 @@ set(classes
   vtkCellGraphicsPrimitiveMap
   vtkCellGridMapper
   vtkCellGridRenderRequest
+  vtkClearRGBPass
   vtkColorTransferFunction
   vtkCompositeCellGridMapper
   vtkCompositeDataDisplayAttributes

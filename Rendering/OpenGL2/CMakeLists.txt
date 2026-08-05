@@ -1,6 +1,5 @@
 set(classes
   vtkArrayRenderer
-  vtkClearRGBPass
   vtkClearZPass
   vtkDataTransferHelper
   vtkDepthImageProcessingPass
@@ -34,6 +33,7 @@ set(classes
   vtkOpenGLBufferObject
   vtkOpenGLCamera
   vtkOpenGLCameraPass
+  vtkOpenGLClearRGBPass
   vtkOpenGLCellToVTKCellMap
   vtkOpenGLCompositePolyDataMapperDelegator
   vtkOpenGLES30PolyDataMapper2D
@@ -234,6 +234,7 @@ set(opengl_overrides
   BillboardTextActor3D
   Camera
   CameraPass
+  ClearRGBPass
   LabeledContourMapper
   HardwareSelector
   ImageMapper
