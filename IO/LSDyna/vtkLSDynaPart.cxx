@@ -453,6 +453,11 @@ vtkUnstructuredGrid* vtkLSDynaPart::GenerateGrid()
 {
   this->CellProperties->ResetForNextTimeStep();
 
+  // the reader replaces the points of the output grid by the deflected
+  // coordinates when the mesh is deformed, so restore the original
+  // geometry points before they are used to compute this time step
+  this->Grid->SetPoints(this->Points);
+
   // we have to mark all the properties as modified so the information
   // tab will be at the correct values
   vtkCellData* cd = this->Grid->GetCellData();

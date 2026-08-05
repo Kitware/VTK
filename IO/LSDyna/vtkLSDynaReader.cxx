@@ -48,6 +48,7 @@
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -3784,7 +3785,13 @@ int vtkLSDynaReader::ComputeDeflectionAndUpdateGeometry(vtkUnstructuredGrid* ug)
 
     if (this->DeformedMesh)
     {
-      ug->GetPoints()->SetData(deflectedCoords);
+      // replace the whole vtkPoints instead of the data array of the
+      // current points, otherwise the original geometry points cached
+      // on the part would be lost and the deflection computed on the
+      // following time steps would be zero
+      vtkNew<vtkPoints> deformedPoints;
+      deformedPoints->SetData(deflectedCoords);
+      ug->SetPoints(deformedPoints);
     }
   }
   return EXIT_SUCCESS;
