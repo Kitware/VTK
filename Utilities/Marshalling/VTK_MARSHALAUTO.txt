@@ -595,8 +595,10 @@ Rendering/Core/vtkBillboardTextActor3D.h
 Rendering/Core/vtkCamera.h
 Rendering/Core/vtkCameraActor.h
 Rendering/Core/vtkCameraInterpolator.h
+Rendering/Core/vtkCameraPass.h
 Rendering/Core/vtkCellCenterDepthSort.h
 Rendering/Core/vtkCellPicker.h
+Rendering/Core/vtkClearRGBPass.h
 Rendering/Core/vtkCompositePolyDataMapper.h
 Rendering/Core/vtkCoordinate.h
 Rendering/Core/vtkCuller.h
@@ -628,6 +630,7 @@ Rendering/Core/vtkLight.h
 Rendering/Core/vtkLightActor.h
 Rendering/Core/vtkLightCollection.h
 Rendering/Core/vtkLightKit.h
+Rendering/Core/vtkLightingMapPass.h
 Rendering/Core/vtkLightsPass.h
 Rendering/Core/vtkLogLookupTable.h
 Rendering/Core/vtkLookupTableWithEnabling.h
@@ -659,6 +662,7 @@ Rendering/Core/vtkRendererSource.h
 Rendering/Core/vtkRenderMaterialLibrary.h
 Rendering/Core/vtkRenderPass.h
 Rendering/Core/vtkRenderPassCollection.h
+Rendering/Core/vtkRenderStepsPass.h
 Rendering/Core/vtkRenderWindow.h
 Rendering/Core/vtkRenderWindowCollection.h
 Rendering/Core/vtkRenderWindowInteractor.h
@@ -711,8 +715,6 @@ Rendering/LICOpenGL2/vtkCompositeSurfaceLICMapper.h
 Rendering/LICOpenGL2/vtkSurfaceLICInterface.h
 Rendering/LICOpenGL2/vtkSurfaceLICMapper.h
 Rendering/LOD/vtkLODActor.h
-Rendering/OpenGL2/vtkCameraPass.h
-Rendering/OpenGL2/vtkClearRGBPass.h
 Rendering/OpenGL2/vtkClearZPass.h
 Rendering/OpenGL2/vtkCocoaRenderWindow.h
 Rendering/OpenGL2/vtkDepthImageProcessingPass.h
@@ -728,10 +730,11 @@ Rendering/OpenGL2/vtkGaussianBlurPass.h
 Rendering/OpenGL2/vtkHexagonalBokehBlurPass.h
 Rendering/OpenGL2/vtkHiddenLineRemovalPass.h
 Rendering/OpenGL2/vtkImageProcessingPass.h
-Rendering/OpenGL2/vtkLightingMapPass.h
 Rendering/OpenGL2/vtkOpenGLActor.h
 Rendering/OpenGL2/vtkOpenGLBatchedLabeledDataMapper.h
 Rendering/OpenGL2/vtkOpenGLCamera.h
+Rendering/OpenGL2/vtkOpenGLCameraPass.h
+Rendering/OpenGL2/vtkOpenGLClearRGBPass.h
 Rendering/OpenGL2/vtkOpenGLES30PolyDataMapper2D.h
 Rendering/OpenGL2/vtkOpenGLFluidMapper.h
 Rendering/OpenGL2/vtkOpenGLFXAAPass.h
@@ -765,7 +768,6 @@ Rendering/OpenGL2/vtkPBRIrradianceTexture.h
 Rendering/OpenGL2/vtkPBRLUTTexture.h
 Rendering/OpenGL2/vtkPBRPrefilterTexture.h
 Rendering/OpenGL2/vtkPointFillPass.h
-Rendering/OpenGL2/vtkRenderStepsPass.h
 Rendering/OpenGL2/vtkShadowMapBakerPass.h
 Rendering/OpenGL2/vtkShadowMapPass.h
 Rendering/OpenGL2/vtkSimpleMotionBlurPass.h
@@ -805,6 +807,8 @@ Rendering/VolumeOpenGL2/vtkSmartVolumeMapper.h
 Rendering/WebGPU/vtkWebGPUActor.h
 Rendering/WebGPU/vtkWebGPUBatchedLabeledDataMapper.h
 Rendering/WebGPU/vtkWebGPUCamera.h
+Rendering/WebGPU/vtkWebGPUCameraPass.h
+Rendering/WebGPU/vtkWebGPUClearRGBPass.h
 Rendering/WebGPU/vtkWebGPUComputeFrustumCuller.h
 Rendering/WebGPU/vtkWebGPUComputeOcclusionCuller.h
 Rendering/WebGPU/vtkWebGPUComputePointCloudMapper.h
