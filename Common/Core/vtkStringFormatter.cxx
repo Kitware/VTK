@@ -10,218 +10,228 @@ namespace vtk
 {
 VTK_ABI_NAMESPACE_BEGIN
 
-constexpr std::string_view printf_escape_regex = "(%%)";
+static std::regex const& printf_escape_regex()
+{
+  constexpr std::string_view printf_escape_regex_expr = "(%%)";
+  static std::regex printf_escape_regex_obj{ std::string(printf_escape_regex_expr) };
+  return printf_escape_regex_obj;
+}
 
-// clang-format off
-// https://en.cppreference.com/w/cpp/io/c/fprintf
-constexpr std::string_view printf_specifier_regex =
-  // Group 1 start: entire specifier
-  "("
-    // % specifier
-    "%"
-    // Group 2 start: all classes
+static std::regex const& printf_specifier_regex()
+{
+  // clang-format off
+  // https://en.cppreference.com/w/cpp/io/c/fprintf
+  constexpr std::string_view printf_specifier_regex_expr =
+    // Group 1 start: entire specifier
     "("
-      // Group 3: character
+      // % specifier
+      "%"
+      // Group 2 start: all classes
       "("
-        // Group (1): flags
-        "(\\-)?"
-        // Groups (2 & 3): no zero-padding
-        "(())?"
-        // Group (4): width
-        "(\\*|[1-9]\\d*)?"
-        // Group (5): no precision
-        "()?"
-        // Group (6): length modifier
-        "(l)?"
-        // Group (7): character specifier
-        "(c)"
-      // Group 3 end: character
+        // Group 3: character
+        "("
+          // Group (1): flags
+          "(\\-)?"
+          // Groups (2 & 3): no zero-padding
+          "(())?"
+          // Group (4): width
+          "(\\*|[1-9]\\d*)?"
+          // Group (5): no precision
+          "()?"
+          // Group (6): length modifier
+          "(l)?"
+          // Group (7): character specifier
+          "(c)"
+        // Group 3 end: character
+        ")"
+        // OR
+        "|"
+        // Group 11 start: string
+        "("
+          // Group (1): flags
+          "(\\-)?"
+          // Groups (2 & 3): no zero-padding
+          "(())?"
+          // Group (4): width
+          "(\\*|[1-9]\\d*)?"
+          // Group (5): precision
+          "(\\.|\\.\\*|\\.\\d+)?"
+          // Group (6): length modifier
+          "(l)?"
+          // Group (7): string specifier
+          "(s)"
+        // Group 11 end: string
+        ")"
+        // OR
+        "|"
+        // Group 19 start: signed decimal integer
+        "("
+          // Group (1): flags
+          "([\\-\\+ ]{0,3})?"
+          // Groups (2 & 3): zero-padding
+          "(0(?=([1-9]|\\*)))?"
+          // Group (4): width
+          "(\\*|[1-9]\\d*)?"
+          // Group (5): precision
+          "(\\.|\\.\\*|\\.\\d+)?"
+          // Group (6): length modifier
+          "(hh|h|ll|l|j|z|t)?"
+          // Group (7): signed decimal integer specifier
+          "([di])"
+        // Group 19 end: signed decimal integer
+        ")"
+        // OR
+        "|"
+        // Group 27 start: unsigned octal/hex integer
+        "("
+          // Group (1): flags
+          "([#\\-]{0,2})?"
+          // Groups (2 & 3): zero-padding
+          "(0(?=([1-9]|\\*)))?"
+          // Group (4): width
+          "(\\*|[1-9]\\d*)?"
+          // Group (5): precision
+          "(\\.|\\.\\*|\\.\\d+)?"
+          // Group (6): length modifier
+          "(hh|h|ll|l|j|z|t)?"
+          // Group (7): unsigned octal/hex integer specifier
+          "([oxX])"
+        // Group 27 end: unsigned octal/hex integer
+        ")"
+        // OR
+        "|"
+        // Group 35 start: unsigned decimal integer
+        "("
+          // Group (1): flags
+          "(\\-)?"
+          // Groups (2 & 3): zero-padding
+          "(0(?=([1-9]|\\*)))?"
+          // Group (4): width
+          "(\\*|[1-9]\\d*)?"
+          // Group (5): precision
+          "(\\.|\\.\\*|\\.\\d+)?"
+          // Group (6): length modifier
+          "(hh|h|ll|l|j|z|t)?"
+          // Group (7): unsigned decimal integer specifier
+          "([u])"
+        // Group 35 end: unsigned decimal integer
+        ")"
+        // OR
+        "|"
+        // Group 43 start: floating point decimal
+        "("
+          // Group (1): flags
+          "([#\\-+ ]{0,4})?"
+          // Groups (2 & 3): zero-padding
+          "(0(?=([1-9]|\\*)))?"
+          // Group (4): width
+          "(\\*|[1-9]\\d*)?"
+          // Group (5): precision
+          "(\\.|\\.\\*|\\.\\d+)?"
+          // Group (6): length modifier
+          "([lL])?"
+          // Group (7): floating point decimal specifier
+          "([fF])"
+        // Group 43 end: floating point decimal
+        ")"
+        // OR
+        "|"
+        // Group 51 start: floating point decimal exponent
+        "("
+          // Group (1): flags
+          "([#\\-+ ]{0,4})?"
+          // Groups (2 & 3): zero-padding
+          "(0(?=([1-9]|\\*)))?"
+          // Group (4): width
+          "(\\*|[1-9]\\d*)?"
+          // Group (5): precision
+          "(\\.|\\.\\*|\\.\\d+)?"
+          // Group (6): length modifier
+          "([lL])?"
+          // Group (7): floating point decimal exponent specifier
+          "([eE])"
+        // Group 51 end: floating point decimal exponent
+        ")"
+        // OR
+        "|"
+        // Group 59 start: floating point hexadecimal exponent
+        "("
+          // Group (1): flags
+          "([#\\-+ ]{0,4})?"
+          // Groups (2 & 3): zero-padding
+          "(0(?=([1-9]|\\*)))?"
+          // Group (4): width
+          "(\\*|[1-9]\\d*)?"
+          // Group (5): precision
+          "(\\.|\\.\\*|\\.\\d+)?"
+          // Group (6): length modifier
+          "([lL])?"
+          // Group (7): floating point hexadecimal exponent specifier
+          "([aA])"
+        // Group 59 end: floating point hexadecimal exponent
+        ")"
+        // OR
+        "|"
+        // Group 67 start: floating point general
+        "("
+          // Group (1): flags
+          "([#\\-+ ]{0,4})?"
+          // Groups (2 & 3): zero-padding
+          "(0(?=([1-9]|\\*)))?"
+          // Group (4): width
+          "(\\*|[1-9]\\d*)?"
+          // Group (5): precision
+          "(\\.|\\.\\*|\\.\\d+)?"
+          // Group (6): length modifier
+          "([lL])?"
+          // Group (7): floating point general specifier
+          "([gG])"
+        // Group 67 end: floating point general
+        ")"
+        // OR
+        "|"
+        // Group 75 start: number of characters
+        "("
+          // Group (1): no flags
+          "()?"
+          // Groups (2 & 3): no zero-padding
+          "(())?"
+          // Group (4): no width
+          "()?"
+          // Group (5): no precision
+          "()?"
+          // Group (6): no length modifier
+          "()?"
+          // Group (7): number of characters specifier
+          "(n)"
+        // Group 75 end: number of characters
+        ")"
+        // OR
+        "|"
+        // Group 83 start: pointer
+        "("
+          // Group (1): no flags
+          "()?"
+          // Groups (2 & 3): no zero-padding
+          "(())?"
+          // Group (4): width
+          "(\\*|[1-9]\\d*)?"
+          // Group (5): no precision
+          "()?"
+          // Group (6): no length modifier
+          "()?"
+          // Group (7): pointer specifier
+          "(p)"
+        // Group 83 end: pointer
+        ")"
+      // Group 2 end: all classes
       ")"
-      // OR
-      "|"
-      // Group 11 start: string
-      "("
-        // Group (1): flags
-        "(\\-)?"
-        // Groups (2 & 3): no zero-padding
-        "(())?"
-        // Group (4): width
-        "(\\*|[1-9]\\d*)?"
-        // Group (5): precision
-        "(\\.|\\.\\*|\\.\\d+)?"
-        // Group (6): length modifier
-        "(l)?"
-        // Group (7): string specifier
-        "(s)"
-      // Group 11 end: string
-      ")"
-      // OR
-      "|"
-      // Group 19 start: signed decimal integer
-      "("
-        // Group (1): flags
-        "([\\-\\+ ]{0,3})?"
-        // Groups (2 & 3): zero-padding
-        "(0(?=([1-9]|\\*)))?"
-        // Group (4): width
-        "(\\*|[1-9]\\d*)?"
-        // Group (5): precision
-        "(\\.|\\.\\*|\\.\\d+)?"
-        // Group (6): length modifier
-        "(hh|h|ll|l|j|z|t)?"
-        // Group (7): signed decimal integer specifier
-        "([di])"
-      // Group 19 end: signed decimal integer
-      ")"
-      // OR
-      "|"
-      // Group 27 start: unsigned octal/hex integer
-      "("
-        // Group (1): flags
-        "([#\\-]{0,2})?"
-        // Groups (2 & 3): zero-padding
-        "(0(?=([1-9]|\\*)))?"
-        // Group (4): width
-        "(\\*|[1-9]\\d*)?"
-        // Group (5): precision
-        "(\\.|\\.\\*|\\.\\d+)?"
-        // Group (6): length modifier
-        "(hh|h|ll|l|j|z|t)?"
-        // Group (7): unsigned octal/hex integer specifier
-        "([oxX])"
-      // Group 27 end: unsigned octal/hex integer
-      ")"
-      // OR
-      "|"
-      // Group 35 start: unsigned decimal integer
-      "("
-        // Group (1): flags
-        "(\\-)?"
-        // Groups (2 & 3): zero-padding
-        "(0(?=([1-9]|\\*)))?"
-        // Group (4): width
-        "(\\*|[1-9]\\d*)?"
-        // Group (5): precision
-        "(\\.|\\.\\*|\\.\\d+)?"
-        // Group (6): length modifier
-        "(hh|h|ll|l|j|z|t)?"
-        // Group (7): unsigned decimal integer specifier
-        "([u])"
-      // Group 35 end: unsigned decimal integer
-      ")"
-      // OR
-      "|"
-      // Group 43 start: floating point decimal
-      "("
-        // Group (1): flags
-        "([#\\-+ ]{0,4})?"
-        // Groups (2 & 3): zero-padding
-        "(0(?=([1-9]|\\*)))?"
-        // Group (4): width
-        "(\\*|[1-9]\\d*)?"
-        // Group (5): precision
-        "(\\.|\\.\\*|\\.\\d+)?"
-        // Group (6): length modifier
-        "([lL])?"
-        // Group (7): floating point decimal specifier
-        "([fF])"
-      // Group 43 end: floating point decimal
-      ")"
-      // OR
-      "|"
-      // Group 51 start: floating point decimal exponent
-      "("
-        // Group (1): flags
-        "([#\\-+ ]{0,4})?"
-        // Groups (2 & 3): zero-padding
-        "(0(?=([1-9]|\\*)))?"
-        // Group (4): width
-        "(\\*|[1-9]\\d*)?"
-        // Group (5): precision
-        "(\\.|\\.\\*|\\.\\d+)?"
-        // Group (6): length modifier
-        "([lL])?"
-        // Group (7): floating point decimal exponent specifier
-        "([eE])"
-      // Group 51 end: floating point decimal exponent
-      ")"
-      // OR
-      "|"
-      // Group 59 start: floating point hexadecimal exponent
-      "("
-        // Group (1): flags
-        "([#\\-+ ]{0,4})?"
-        // Groups (2 & 3): zero-padding
-        "(0(?=([1-9]|\\*)))?"
-        // Group (4): width
-        "(\\*|[1-9]\\d*)?"
-        // Group (5): precision
-        "(\\.|\\.\\*|\\.\\d+)?"
-        // Group (6): length modifier
-        "([lL])?"
-        // Group (7): floating point hexadecimal exponent specifier
-        "([aA])"
-      // Group 59 end: floating point hexadecimal exponent
-      ")"
-      // OR
-      "|"
-      // Group 67 start: floating point general
-      "("
-        // Group (1): flags
-        "([#\\-+ ]{0,4})?"
-        // Groups (2 & 3): zero-padding
-        "(0(?=([1-9]|\\*)))?"
-        // Group (4): width
-        "(\\*|[1-9]\\d*)?"
-        // Group (5): precision
-        "(\\.|\\.\\*|\\.\\d+)?"
-        // Group (6): length modifier
-        "([lL])?"
-        // Group (7): floating point general specifier
-        "([gG])"
-      // Group 67 end: floating point general
-      ")"
-      // OR
-      "|"
-      // Group 75 start: number of characters
-      "("
-        // Group (1): no flags
-        "()?"
-        // Groups (2 & 3): no zero-padding
-        "(())?"
-        // Group (4): no width
-        "()?"
-        // Group (5): no precision
-        "()?"
-        // Group (6): no length modifier
-        "()?"
-        // Group (7): number of characters specifier
-        "(n)"
-      // Group 75 end: number of characters
-      ")"
-      // OR
-      "|"
-      // Group 83 start: pointer
-      "("
-        // Group (1): no flags
-        "()?"
-        // Groups (2 & 3): no zero-padding
-        "(())?"
-        // Group (4): width
-        "(\\*|[1-9]\\d*)?"
-        // Group (5): no precision
-        "()?"
-        // Group (6): no length modifier
-        "()?"
-        // Group (7): pointer specifier
-        "(p)"
-      // Group 83 end: pointer
-      ")"
-    // Group 2 end: all classes
-    ")"
-  // Group 1 end: entire specifier
-  ")";
-// clang-format on
+    // Group 1 end: entire specifier
+    ")";
+  // clang-format on
+  static std::regex printf_specifier_regex_obj{ std::string(printf_specifier_regex_expr) };
+  return printf_specifier_regex_obj;
+}
 
 constexpr std::string_view std_format_begin_escape_regex = "(\\{)";
 
@@ -292,10 +302,6 @@ static bool has_duplicates_flags(const std::string& used_flags)
 
 bool is_printf_format(const std::string& format)
 {
-  // Compile the regex objects
-  static std::regex printf_escape_regex_obj{ std::string(printf_escape_regex) };
-  static std::regex printf_specifier_regex_obj{ std::string(printf_specifier_regex) };
-
   size_t pos = 0;
   size_t escapes_found = 0;
   size_t specifiers_found = 0;
@@ -313,7 +319,7 @@ bool is_printf_format(const std::string& format)
     {
       std::smatch match;
       // Handle '%' by checking for escape sequence
-      if (std::regex_search(format.begin() + pos, format.end(), match, printf_escape_regex_obj,
+      if (std::regex_search(format.begin() + pos, format.end(), match, printf_escape_regex(),
             std::regex_constants::match_continuous))
       {
         ++escapes_found;
@@ -321,7 +327,7 @@ bool is_printf_format(const std::string& format)
       }
       // Handle any variable specifier
       else if (std::regex_search(format.begin() + pos, format.end(), match,
-                 printf_specifier_regex_obj, std::regex_constants::match_continuous))
+                 printf_specifier_regex(), std::regex_constants::match_continuous))
       {
         ++specifiers_found;
         {
@@ -723,8 +729,6 @@ static std::string printf_specifier_to_std_format(PrintfSpecifier& spec, int& ar
 std::string printf_to_std_format(const std::string& format)
 {
   // Compile the regex objects
-  static std::regex printf_escape_regex_obj{ std::string(printf_escape_regex) };
-  static std::regex printf_specifier_regex_obj{ std::string(printf_specifier_regex) };
   static std::regex std_format_begin_escape_regex_obj{ std::string(std_format_begin_escape_regex) };
   static std::regex std_format_end_escape_regex_obj{ std::string(std_format_end_escape_regex) };
 
@@ -748,7 +752,7 @@ std::string printf_to_std_format(const std::string& format)
     {
       std::smatch match;
       // Handle '%' by checking for escape sequence
-      if (std::regex_search(format.begin() + pos, format.end(), match, printf_escape_regex_obj,
+      if (std::regex_search(format.begin() + pos, format.end(), match, printf_escape_regex(),
             std::regex_constants::match_continuous))
       {
         // Handle escaped percentages (%%): add a single % to output
@@ -757,7 +761,7 @@ std::string printf_to_std_format(const std::string& format)
       }
       // Handle any variable specifier
       else if (std::regex_search(format.begin() + pos, format.end(), match,
-                 printf_specifier_regex_obj, std::regex_constants::match_continuous))
+                 printf_specifier_regex(), std::regex_constants::match_continuous))
       {
         // Parse the format Specifier components
         PrintfSpecifier spec;
