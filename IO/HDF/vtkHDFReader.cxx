@@ -1781,6 +1781,11 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
       continue;
     }
     std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
+    if (!this->Impl->HasAttribute(hdfPathName.c_str(), "Type"))
+    {
+      // Empty partition, ignore
+      continue;
+    }
     if (!this->Impl->RetrieveHDFInformation(hdfPathName))
     {
       return 0;
