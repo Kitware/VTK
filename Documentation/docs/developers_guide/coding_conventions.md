@@ -208,6 +208,18 @@ rules that say "All code".
 
    Rationale: Readability.
 
+1. Avoid static construction and destruction where possible.
+
+   Instead of `static std::string`, prefer `static const char*` or
+   `static std::string_view` where possible. In many cases, VTK APIs want a
+   `const char*` anyways, so any allocation is excessive. Instead of
+   `static std::vector<T>`, use `std::array<T, N>` if random access is
+   necessary or `std::initializer_list<T>` if not.
+
+   Rationale: Faster load time of VTK libraries when code does not need to run
+   at library initialization time. Static destructors also lack a simple
+   mechanism for ordered destruction, so it is best to avoid it when possible.
+
 ## Specific C++  Language Guidelines
 ### C++ Standard Library
 
