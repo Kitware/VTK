@@ -32,7 +32,7 @@
  * Simply calling `UnionFieldList` or `IntersectFieldList` for the first
  * vtkDataSetAttributes instance is sufficient.
  *
- * `CopyAllocate, `CopyData`, and `InterpolatePoint` methods on this class
+ * `CopyAllocate`, `CopyData`, and `InterpolatePoint` methods on this class
  * are called by similarly named variants on vtkDataSetAttributes that take in a
  * FieldList instance as an argument. Hence, either forms may be used.
  *

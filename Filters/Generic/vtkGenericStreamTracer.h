@@ -365,8 +365,8 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
-   * Compute the vorticity at point `pcoords' in cell `cell' for the
-   * vector attribute `attribute'.
+   * Compute the vorticity at point \c pcoords in cell \c cell for the
+   * vector attribute \c attribute.
    * \pre attribute_exists: attribute!=0
    * \pre  point_centered_attribute: attribute->GetCentering()==vtkPointCentered
    * \pre vector_attribute: attribute->GetType()==vtkDataSetAttributes::VECTORS);

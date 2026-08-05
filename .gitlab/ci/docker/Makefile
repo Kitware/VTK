@@ -3,7 +3,7 @@ PODMAN_BUILD_ARGS ?= --format=docker
 
 REPO ?= docker.io/kitware/vtk
 TAG_PREFIX ?= ci
-BASE_IMAGE ?= fedora42
+BASE_IMAGE ?= fedora44
 DATE ?= $(shell date +%Y%m%d)
 ARCHES ?= amd64 arm64
 

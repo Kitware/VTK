@@ -180,7 +180,6 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
   outCD->CopyAllocate(inCD);
 
   auto lineIter = vtkSmartPointer<vtkCellArrayIterator>::Take(inputLines->NewIterator());
-  vtkIdType firstVertexIndex = 0;
 
   vtkIdType polylineSize = 0;
   const vtkIdType* polyLineVerts;
@@ -189,8 +188,7 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   std::map<vtkIdType, vtkIdType> pointIdMap;
   // Decimate each polyline (represented as a single cell) in series
-  for (lineIter->GoToFirstCell(); !lineIter->IsDoneWithTraversal();
-       lineIter->GoToNextCell(), firstVertexIndex += polylineSize)
+  for (lineIter->GoToFirstCell(); !lineIter->IsDoneWithTraversal(); lineIter->GoToNextCell())
   {
     if (progessInterval % checkAbortInterval == 0 && this->CheckAbort())
     {

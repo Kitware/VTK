@@ -422,7 +422,7 @@ void* vtkFFMPEGVideoSource::Feed(vtkMultiThreader::ThreadInfo* data)
     // check to see if we are being told to quit every so often
     if (count == 10)
     {
-      std::lock_guard<std::mutex> guard(*data->ActiveFlagLock);
+      std::scoped_lock<std::mutex> guard(*data->ActiveFlagLock);
       done = done || (*(data->ActiveFlag) == 0);
       count = 0;
     }
@@ -561,7 +561,7 @@ void* vtkFFMPEGVideoSource::Drain(vtkMultiThreader::ThreadInfo* data)
     // check to see if we are being told to quit every so often
     if (count == 10)
     {
-      std::lock_guard<std::mutex> guard(*data->ActiveFlagLock);
+      std::scoped_lock<std::mutex> guard(*data->ActiveFlagLock);
       done = done || (*(data->ActiveFlag) == 0);
       count = 0;
     }
@@ -581,8 +581,6 @@ void* vtkFFMPEGVideoSource::DrainAudio(vtkMultiThreader::ThreadInfo* data)
 {
   bool done = false;
   unsigned short count = 0;
-
-  int frame = 0;
 
   while (!done)
   {
@@ -683,13 +681,12 @@ void* vtkFFMPEGVideoSource::DrainAudio(vtkMultiThreader::ThreadInfo* data)
         cbd.ClientData = this->AudioCallbackClientData;
         this->AudioCallback(cbd);
       }
-      frame++;
     }
 
     // check to see if we are being told to quit every so often
     if (count == 10)
     {
-      std::lock_guard<std::mutex> guard(*data->ActiveFlagLock);
+      std::scoped_lock<std::mutex> guard(*data->ActiveFlagLock);
       done = done || (*(data->ActiveFlag) == 0);
       count = 0;
     }

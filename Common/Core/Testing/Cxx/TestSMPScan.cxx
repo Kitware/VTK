@@ -16,7 +16,7 @@ struct SMPScanRandomValues
 {
   std::mt19937 RNG;
   std::uniform_int_distribution<int> Dist;
-  SMPScanRandomValues() { this->Dist.param(typename decltype(this->Dist)::param_type(0, 64)); }
+  SMPScanRandomValues() { this->Dist.param(decltype(this->Dist)::param_type(0, 64)); }
   void Seed(vtkIdType s) { this->RNG.seed(s); }
   vtkIdType Next() { return this->Dist(RNG); }
 };

@@ -432,8 +432,8 @@ int doTestSMP()
   const auto transformRange4 = vtk::DataArrayTupleRange<3>(transformArray4);
   auto transformRange5 = vtk::DataArrayValueRange<1>(transformArray5);
 
-  using TupleRef = typename decltype(transformRange4)::const_reference;
-  using ValueType = typename decltype(transformRange5)::ValueType;
+  using TupleRef = decltype(transformRange4)::const_reference;
+  using ValueType = decltype(transformRange5)::ValueType;
   auto computeMag = [](const TupleRef& tuple) -> ValueType
   {
     ValueType mag = 0;

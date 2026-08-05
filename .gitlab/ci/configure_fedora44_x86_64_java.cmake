@@ -1,7 +1,5 @@
 set(VTK_JAVA_RELEASE_VERSION $ENV{VTK_JAVA_VERSION} CACHE STRING "" FORCE)
 
-include("${CMAKE_CURRENT_LIST_DIR}/configure_fedora42.cmake")
-
 string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type)
 set(MAVEN_LOCAL_NATIVE_NAME "linux-amd-${cmake_build_type}" CACHE STRING "" FORCE)
 set(VTK_GENERATE_SPDX OFF CACHE BOOL "" FORCE)
@@ -28,3 +26,5 @@ set(native_artifacts
 set(MAVEN_NATIVE_ARTIFACTS "${native_artifacts}" CACHE STRING "" FORCE)
 unset(native_artifacts)
 unset(cmake_build_type)
+
+include("${CMAKE_CURRENT_LIST_DIR}/configure_fedora44.cmake")

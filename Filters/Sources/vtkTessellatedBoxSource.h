@@ -11,10 +11,10 @@
  * and inside the edges are shared between faces. In other words, faces are
  * connected. Each face looks like a grid of quads, each quad is composed of
  * 2 triangles.
- * Given a level of subdivision `l', each edge has `l'+2 points, `l' of them
+ * Given a level of subdivision \c l, each edge has \c l+2 points, \c l of them
  * are internal edge points, the 2 other ones are the vertices.
- * Each face has a total of (`l'+2)*(`l'+2) points, 4 of them are vertices,
- * 4*`l' are internal edge points, it remains `l'^2 internal face points.
+ * Each face has a total of (\c l+2)*(\c l+2) points, 4 of them are vertices,
+ * 4*\c l are internal edge points, it remains \c l^2 internal face points.
  *
  * This source only generate geometry, no DataArrays like normals or texture
  * coordinates.

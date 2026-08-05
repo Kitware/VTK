@@ -53,8 +53,7 @@ public:
    * selections, then the default expression simply combines all the selection nodes
    * using an `or` operator.
    *
-   * `SetExpression` does not validate the expression. It will be validated
-   * `internally.
+   * `SetExpression` does not validate the expression. It will be validated internally.
    *
    * NOTE: If you want to use the expression, AppendByUnion MUST be set to false,
    * and the input selection names MUST be defined.

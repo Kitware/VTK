@@ -6,24 +6,14 @@ if [ "$( uname -m )" != "x86_64" ]; then
    exit 0
 fi
 
-readonly openusd_version="25.11"
-readonly openusd_tarball="v$openusd_version.tar.gz"
-readonly openusd_sha256sum="c37c633b5037a4552f61574670ecca8836229b78326bd62622f3422671188667"
+readonly openusd_repo="https://github.com/PixarAnimationStudios/OpenUSD.git"
+readonly openusd_commit="v26.03"
 
 readonly openusd_root="$HOME/openusd"
-
 readonly openusd_src="$openusd_root/src"
 readonly openusd_build="$openusd_root/build"
 
-mkdir -p "$openusd_root" \
-    "$openusd_src" "$openusd_build"
-cd "$openusd_root"
-
-echo "$openusd_sha256sum  $openusd_tarball" > openusd.sha256sum
-curl -OL "https://github.com/PixarAnimationStudios/OpenUSD/archive/refs/tags/$openusd_tarball"
-sha256sum --check openusd.sha256sum
-
-tar -C "$openusd_src" --strip-components=1 -xf "$openusd_tarball"
+git clone -b "$openusd_commit" "$openusd_repo" "$openusd_src"
 
 # Patch to add pxr namespace to targets exported from openusd. This is needed
 # to avoid a target name collision between VTK's vendored pegtl and OpenUSD's
@@ -46,6 +36,7 @@ index b90b743..ce61efa 100644
          # object libraries in the export set so that their properties (such as
 " | patch -p1
 
+mkdir -p "$openusd_build"
 cd "$openusd_build"
 
 cmake -GNinja "$openusd_src/" \

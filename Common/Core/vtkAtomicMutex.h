@@ -33,7 +33,7 @@ public:
   /**
    * Lock/Unlock atomic operation.
    *
-   * Note: lock/unlock is lowercase, to conform to the mutex wrapper std::lock_guard
+   * Note: lock/unlock is lowercase, to conform to the mutex wrapper std::scoped_lock
    * which provides a convenient RAII-style mechanism  for owning a mutex for the
    * duration of a scoped block.
    */

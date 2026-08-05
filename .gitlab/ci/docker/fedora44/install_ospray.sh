@@ -27,6 +27,8 @@ tar -C "$ospray_src" --strip-components=1 -xf "$ospray_tarball"
 
 cd "$ospray_build"
 
+export CMAKE_POLICY_VERSION_MINIMUM=3.5
+
 cmake -GNinja "$ospray_src/scripts/superbuild" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr/local \

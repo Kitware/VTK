@@ -41,7 +41,7 @@ void vtkFileOutputWindow::Initialize()
 
 void vtkFileOutputWindow::DisplayText(const char* text)
 {
-  std::lock_guard<std::mutex> lock(vtkFileOutputWindowMutex);
+  std::scoped_lock<std::mutex> lock(vtkFileOutputWindowMutex);
   if (!text)
   {
     return;

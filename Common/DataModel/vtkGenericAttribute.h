@@ -93,7 +93,7 @@ public:
   virtual unsigned long GetActualMemorySize() = 0;
 
   /**
-   * Range of the attribute component `component'. If `component'==-1, it
+   * Range of the attribute component \c component. If \c component==-1, it
    * returns the range of the magnitude (euclidean norm).
    * It returns double, even if GetType()==VTK_INT.
    * NOT THREAD SAFE
@@ -103,7 +103,7 @@ public:
   virtual double* GetRange(int component = 0) = 0;
 
   /**
-   * Range of the attribute component `component'. If `component'==-1, it
+   * Range of the attribute component \c component. If \c component==-1, it
    * returns the range of the magnitude (euclidean norm).
    * THREAD SAFE
    * \pre valid_component: (component>=-1)&&(component<GetNumberOfComponents())
@@ -117,7 +117,7 @@ public:
   virtual double GetMaxNorm() = 0;
 
   /**
-   * Attribute at all points of cell `c'.
+   * Attribute at all points of cell \c c.
    * \pre c_exists: c!=0
    * \pre c_valid: !c->IsAtEnd()
    * \post result_exists: result!=0
@@ -126,7 +126,7 @@ public:
   virtual double* GetTuple(vtkGenericAdaptorCell* c) = 0;
 
   /**
-   * Put attribute at all points of cell `c' in `tuple'.
+   * Put attribute at all points of cell \c c in \c tuple.
    * \pre c_exists: c!=0
    * \pre c_valid: !c->IsAtEnd()
    * \pre tuple_exists: tuple!=0
@@ -135,7 +135,7 @@ public:
   virtual void GetTuple(vtkGenericAdaptorCell* c, double* tuple) = 0;
 
   /**
-   * Attribute at all points of cell `c'.
+   * Attribute at all points of cell \c c.
    * \pre c_exists: c!=0
    * \pre c_valid: !c->IsAtEnd()
    * \post result_exists: result!=0
@@ -144,7 +144,7 @@ public:
   virtual double* GetTuple(vtkGenericCellIterator* c) = 0;
 
   /**
-   * Put attribute at all points of cell `c' in `tuple'.
+   * Put attribute at all points of cell \c c in \c tuple.
    * \pre c_exists: c!=0
    * \pre c_valid: !c->IsAtEnd()
    * \pre tuple_exists: tuple!=0
@@ -153,7 +153,7 @@ public:
   virtual void GetTuple(vtkGenericCellIterator* c, double* tuple) = 0;
 
   /**
-   * Value of the attribute at position `p'.
+   * Value of the attribute at position \c p.
    * \pre p_exists: p!=0
    * \pre p_valid: !p->IsAtEnd()
    * \post result_exists: result!=0
@@ -162,7 +162,7 @@ public:
   virtual double* GetTuple(vtkGenericPointIterator* p) = 0;
 
   /**
-   * Put the value of the attribute at position `p' into `tuple'.
+   * Put the value of the attribute at position \c p into \c tuple.
    * \pre p_exists: p!=0
    * \pre p_valid: !p->IsAtEnd()
    * \pre tuple_exists: tuple!=0
@@ -171,7 +171,7 @@ public:
   virtual void GetTuple(vtkGenericPointIterator* p, double* tuple) = 0;
 
   /**
-   * Put component `i' of the attribute at all points of cell `c' in `values'.
+   * Put component \c i of the attribute at all points of cell \c c in \c values.
    * \pre valid_component: (i>=0) && (i<GetNumberOfComponents())
    * \pre c_exists: c!=0
    * \pre c_valid: !c->IsAtEnd()
@@ -181,7 +181,7 @@ public:
   virtual void GetComponent(int i, vtkGenericCellIterator* c, double* values) = 0;
 
   /**
-   * Value of the component `i' of the attribute at position `p'.
+   * Value of the component \c i of the attribute at position \c p.
    * \pre valid_component: (i>=0) && (i<GetNumberOfComponents())
    * \pre p_exists: p!=0
    * \pre p_valid: !p->IsAtEnd()
@@ -189,14 +189,14 @@ public:
   virtual double GetComponent(int i, vtkGenericPointIterator* p) = 0;
 
   /**
-   * Recursive duplication of `other' in `this'.
+   * Recursive duplication of \c other in \c this.
    * \pre other_exists: other!=0
    * \pre not_self: other!=this
    */
   virtual void DeepCopy(vtkGenericAttribute* other) = 0;
 
   /**
-   * Update `this' using fields of `other'.
+   * Update \c this using fields of \c other.
    * \pre other_exists: other!=0
    * \pre not_self: other!=this
    */

@@ -143,7 +143,7 @@ public:
     int Reference; // signed char
 
     /**
-     * Constructor with a scalar field of `size' doubles.
+     * Constructor with a scalar field of \c size doubles.
      * \pre positive_number_of_components: size>0
      */
     PointEntry(int size);

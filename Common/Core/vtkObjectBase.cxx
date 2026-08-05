@@ -413,7 +413,7 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, vtkTypeBool check)
     // situations with all the pieces they deserve.
     if (auto block = this->WeakBlock.lock())
     {
-      std::lock_guard<std::mutex> block_guard(block->Mutex);
+      std::scoped_lock<std::mutex> block_guard(block->Mutex);
       (void)block_guard;
 
       // We're going down, so inject `nullptr` into the control block.
@@ -612,7 +612,7 @@ void vtkObjectBase::vtkMemkindRAII::Restore()
 //------------------------------------------------------------------------------
 std::shared_ptr<vtkObjectBase::WeakControlBlock> vtkObjectBase::GetWeakControlBlock()
 {
-  std::lock_guard<std::mutex> guard(this->WeakBlockMutex);
+  std::scoped_lock<std::mutex> guard(this->WeakBlockMutex);
   (void)guard;
 
   auto block = this->WeakBlock.lock();

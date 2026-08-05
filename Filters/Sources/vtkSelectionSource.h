@@ -80,7 +80,7 @@ public:
    * nodes using an `or` operator.
    *
    * `SetExpression` does not validate the expression. It will be validated in
-   * `internally.
+   * internally.
    */
   vtkSetStdStringFromCharMacro(Expression);
   vtkGetCharFromStdStringMacro(Expression);

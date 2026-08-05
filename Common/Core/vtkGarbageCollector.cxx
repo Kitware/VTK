@@ -900,7 +900,7 @@ void vtkGarbageCollector::Collect(vtkObjectBase* root)
   static size_t CollectRecursionCount = 0;
 
   // Ensure that only one thread is collecting at a time.
-  std::lock_guard<std::recursive_mutex> guard(*vtkGarbageCollectorCollectionMutex);
+  std::scoped_lock<std::recursive_mutex> guard(*vtkGarbageCollectorCollectionMutex);
   (void)guard;
   // How many times are we recursing?
   ++CollectRecursionCount;

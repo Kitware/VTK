@@ -21,6 +21,7 @@
 #include "vtkTransform.h"
 #include "vtkTriangle.h"
 
+#include <random>
 #include <set>
 #include <vector>
 
@@ -97,7 +98,7 @@ vtkIdType FindContainingTriangle(const std::vector<Triangle>& topo, const double
 
     // Evaluate each edge using normalised half-plane tests (same as original).
     srand(static_cast<unsigned int>(cur));
-    int ir = rand() % 3;
+    int ir = std::random_device{}() % 3;
     int inside = 1;
     double minProj = halfPlaneTol;
     int bestEdgeOpp = -1; // index of vertex opposite the most-negative edge

@@ -111,7 +111,7 @@ static Slot* AcquireSlot(
     ThreadIdType slotThreadId = slot->ThreadId.load();
     if (!slotThreadId) // unused?
     {
-      std::lock_guard<std::mutex> lguard(slot->Mutex);
+      std::scoped_lock<std::mutex> lguard(slot->Mutex);
 
       size_t size = array->NumberOfEntries++;
       if ((size * 2) > array->Size) // load factor is above threshold
@@ -185,7 +185,7 @@ StoragePointerType& ThreadSpecific::GetStorage()
     slot = AcquireSlot(array, threadId, hash, firstAccess);
     if (!slot) // not enough room, resize
     {
-      std::lock_guard<std::mutex> lguard(this->Mutex);
+      std::scoped_lock<std::mutex> lguard(this->Mutex);
 
       if (this->Root == array)
       {

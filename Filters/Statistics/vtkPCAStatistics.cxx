@@ -664,7 +664,11 @@ void vtkPCAStatistics::Derive(vtkStatisticalModel* inMeta)
         // do nothing
         break;
     }
+#if EIGEN_VERSION_AT_LEAST(3, 4, 90)
+    Eigen::BDCSVD<Eigen::MatrixXd, Eigen::ComputeFullU> svd(cov);
+#else
     Eigen::BDCSVD<Eigen::MatrixXd> svd(cov, Eigen::ComputeFullU);
+#endif
     const Eigen::MatrixXd& u = svd.matrixU();
     const Eigen::MatrixXd& s = svd.singularValues();
     vtkVariantArray* row = vtkVariantArray::New();

@@ -41,7 +41,7 @@ void vtkAndroidOutputWindow::DisplayErrorText(const char* someText)
 //------------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayWarningText(const char* someText)
 {
-  std::lock_guard<std::mutex> lock(vtkAndroidOutputWindowMutex);
+  std::scoped_lock<std::mutex> lock(vtkAndroidOutputWindowMutex);
   if (!someText)
   {
     return;
@@ -59,7 +59,7 @@ void vtkAndroidOutputWindow::DisplayWarningText(const char* someText)
 //------------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayGenericWarningText(const char* someText)
 {
-  std::lock_guard<std::mutex> lock(vtkAndroidOutputWindowMutex);
+  std::scoped_lock<std::mutex> lock(vtkAndroidOutputWindowMutex);
   if (!someText)
   {
     return;
@@ -76,7 +76,7 @@ void vtkAndroidOutputWindow::DisplayGenericWarningText(const char* someText)
 //------------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayDebugText(const char* someText)
 {
-  std::lock_guard<std::mutex> lock(vtkAndroidOutputWindowMutex);
+  std::scoped_lock<std::mutex> lock(vtkAndroidOutputWindowMutex);
   if (!someText)
   {
     return;
@@ -93,7 +93,7 @@ void vtkAndroidOutputWindow::DisplayDebugText(const char* someText)
 //------------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayText(const char* someText)
 {
-  std::lock_guard<std::mutex> lock(vtkAndroidOutputWindowMutex);
+  std::scoped_lock<std::mutex> lock(vtkAndroidOutputWindowMutex);
   if (!someText)
   {
     return;

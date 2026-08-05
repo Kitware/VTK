@@ -19,7 +19,7 @@
  * the MaxLevel ivar limits the recursion, or no split plane can be found.
  *
  * A good reference for OBB-trees is Gottschalk & Manocha in Proceedings of
- * Siggraph `96.
+ * Siggraph `96`.
  *
  * @warning
  * vtkOBBTree utilizes the following parent class parameters:

@@ -6,7 +6,7 @@
  *
  * `vtkTemporalAlgorithm` is a class to template over a subclass of `vtkAlgorithm`.
  * It effectively implements `RequestData`, which, depending on the request,
- * will call `Initialize`, `Execute' and / or `Finalize`. Algorithms subclassing
+ * will call `Initialize`, `Execute` and / or `Finalize`. Algorithms subclassing
  * `vtkTemporalAlgorithm` should provide a temporal cache that on which to accumulate
  * data in order to provide a complete output upon calling `Finalize`.
  * This algorithm class assumes temporal integration over input port 0, connection 0.

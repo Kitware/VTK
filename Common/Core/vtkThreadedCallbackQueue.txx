@@ -589,7 +589,7 @@ void vtkThreadedCallbackQueue::PushControl(FT&& f, ArgsT&&... args)
     void operator()(vtkThreadedCallbackQueue* self, FT&& _f, ArgsT&&... _args)
     {
       _f(std::forward<ArgsT>(_args)...);
-      std::lock_guard<std::mutex> lock(self->ControlMutex);
+      std::scoped_lock<std::mutex> lock(self->ControlMutex);
       self->ControlFutures.erase(this->Future);
     }
 
@@ -609,7 +609,7 @@ void vtkThreadedCallbackQueue::PushControl(FT&& f, ArgsT&&... args)
   // depend on flaky futures.
   auto localControlFutures = [this, &invoker]
   {
-    std::lock_guard<std::mutex> lock(this->ControlMutex);
+    std::scoped_lock<std::mutex> lock(this->ControlMutex);
 
     // We create a copy of the control futures that doesn't have ourselves in yet.
     auto result = this->ControlFutures;
@@ -630,10 +630,10 @@ void vtkThreadedCallbackQueue::PushControl(FT&& f, ArgsT&&... args)
     }
 
     {
-      std::lock_guard<std::mutex> invokerLock(invoker->Mutex);
+      std::scoped_lock<std::mutex> invokerLock(invoker->Mutex);
       invoker->Status.store(ENQUEUED, std::memory_order_release);
 
-      std::lock_guard<std::mutex> lock(this->Mutex);
+      std::scoped_lock<std::mutex> lock(this->Mutex);
       invoker->InvokerIndex =
         this->InvokerQueue.empty() ? 0 : this->InvokerQueue.front()->InvokerIndex - 1;
 
@@ -662,7 +662,7 @@ vtkThreadedCallbackQueue::Push(FT&& f, ArgsT&&... args)
   invoker->Status.store(ENQUEUED, std::memory_order_release);
 
   {
-    std::lock_guard<std::mutex> lock(this->Mutex);
+    std::scoped_lock<std::mutex> lock(this->Mutex);
     invoker->InvokerIndex =
       this->InvokerQueue.empty() ? 0 : this->InvokerQueue.back()->InvokerIndex + 1;
     this->InvokerQueue.emplace_back(invoker);

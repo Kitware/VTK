@@ -18,6 +18,7 @@
 #include "vtkSmartPointer.h"
 
 #include <iostream>
+#include <random>
 
 #if defined(_MSC_VER)
 #define _USE_MATH_DEFINES
@@ -252,7 +253,7 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
     if (current_level == max_core_level)
     {
       radius = unit_radius;
-      angle = float(rand() % 100000) / 100000 * 2.0 * vtkMath::Pi();
+      angle = float(std::random_device{}() % 100000) / 100000 * 2.0 * vtkMath::Pi();
 
       // std::cout << vidx << "\t(" << radius << "," << angle << ")" << endl;
       if (this->Cartesian)
@@ -323,7 +324,7 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
 #endif
 
       // Need the angle.
-      angle = float(rand() % 100000) / 100000 * (2.0 * vtkMath::Pi());
+      angle = float(std::random_device{}() % 100000) / 100000 * (2.0 * vtkMath::Pi());
 
       // set the values
       if (this->Cartesian)

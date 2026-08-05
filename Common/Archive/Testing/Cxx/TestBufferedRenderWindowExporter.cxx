@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <random>
 #include <sstream>
 
 #include <iostream>
@@ -42,11 +43,10 @@ int TestBufferedRenderWindowExporter(int argc, char* argv[])
   std::string testDirectory = tempDir;
   delete[] tempDir;
 
-  std::srand(std::time(nullptr));
   std::string directoryName;
   {
     std::stringstream s;
-    s << testDirectory << "/ExportVTKJS_" << std::rand();
+    s << testDirectory << "/ExportVTKJS_" << std::random_device{}();
     directoryName = s.str();
   }
 

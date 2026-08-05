@@ -46,7 +46,7 @@ void vtkInformationKeyLookup::PrintSelf(std::ostream& os, vtkIndent indent)
   {
     return;
   }
-  std::lock_guard<std::mutex> lock(keys->Mutex);
+  std::scoped_lock<std::mutex> lock(keys->Mutex);
   for (auto i = keys->Map.begin(), iEnd = keys->Map.end(); i != iEnd; ++i)
   {
     os << indent << i->first.first << "::" << i->first.second << " @" << i->second << " ("
@@ -63,7 +63,7 @@ vtkInformationKey* vtkInformationKeyLookup::Find(
   {
     return nullptr;
   }
-  std::lock_guard<std::mutex> lock(keys->Mutex);
+  std::scoped_lock<std::mutex> lock(keys->Mutex);
   auto it = keys->Map.find(std::make_pair(location, name));
   return it != keys->Map.end() ? it->second : nullptr;
 }
@@ -76,7 +76,7 @@ vtkInformationKey* vtkInformationKeyLookup::FindByName(const std::string& name)
   {
     return nullptr;
   }
-  std::lock_guard<std::mutex> lock(keys->Mutex);
+  std::scoped_lock<std::mutex> lock(keys->Mutex);
   vtkInformationKey* result = nullptr;
   for (auto it = keys->Map.begin(); it != keys->Map.end(); ++it)
   {
@@ -153,7 +153,7 @@ void vtkInformationKeyLookup::RegisterKey(
   {
     return;
   }
-  std::lock_guard<std::mutex> lock(keys->Mutex);
+  std::scoped_lock<std::mutex> lock(keys->Mutex);
   keys->Map.insert(std::make_pair(std::make_pair(location, name), key));
 }
 
@@ -171,7 +171,7 @@ void vtkInformationKeyLookup::UnregisterKey(vtkInformationKey* key)
   {
     return;
   }
-  std::lock_guard<std::mutex> lock(keys->Mutex);
+  std::scoped_lock<std::mutex> lock(keys->Mutex);
   auto it = keys->Map.find(std::make_pair(std::string(location), std::string(name)));
   if (it != keys->Map.end() && it->second == key)
   {

@@ -53,7 +53,7 @@ public:
   ///@}
 
   /**
-   * Set the absolute attribute accuracy to `value'. See
+   * Set the absolute attribute accuracy to \c value. See
    * GetAbsoluteAttributeTolerance() for details.
    * It is particularly useful when some concrete implementation of
    * vtkGenericAttribute does not support GetRange() request, called
@@ -77,7 +77,7 @@ public:
   ///@}
 
   /**
-   * Set the relative attribute accuracy to `value'. See
+   * Set the relative attribute accuracy to \c value. See
    * GetAttributeTolerance() for details.
    * \pre valid_range_value: value>0 && value<1
    */
@@ -87,12 +87,12 @@ public:
    * Does the edge need to be subdivided according to the distance between
    * the value of the active attribute/component at the midpoint and the mean
    * value between the endpoints?
-   * The edge is defined by its `leftPoint' and its `rightPoint'.
-   * `leftPoint', `midPoint' and `rightPoint' have to be initialized before
+   * The edge is defined by its \c leftPoint and its \c rightPoint.
+   * \c leftPoint, \c midPoint and \c rightPoint have to be initialized before
    * calling RequiresEdgeSubdivision().
    * Their format is global coordinates, parametric coordinates and
    * point centered attributes: xyx rst abc de...
-   * `alpha' is the normalized abscissa of the midpoint along the edge.
+   * \c alpha is the normalized abscissa of the midpoint along the edge.
    * (close to 0 means close to the left point, close to 1 means close to the
    * right point)
    * \pre leftPoint_exists: leftPoint!=0

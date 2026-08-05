@@ -33,7 +33,7 @@ class VTKCOMMONCORE_EXPORT vtkBreakPoint
 public:
   ///@{
   /**
-   * Process fall asleep until local variable `i' is set to a value different
+   * Process fall asleep until local variable \c i is set to a value different
    * from 0 inside a debugger.
    */
   static void Break();

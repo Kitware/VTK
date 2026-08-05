@@ -124,17 +124,17 @@ protected:
   vtkVector2i ScreenPos;
 
   /**
-   * `Pos' at the previous mouse event.
+   * \c Pos at the previous mouse event.
    */
   vtkVector2f LastPos;
 
   /**
-   * `ScenePos'at the previous mouse event.
+   * \c ScenePosat the previous mouse event.
    */
   vtkVector2f LastScenePos;
 
   /**
-   * `ScreenPos' at the previous mouse event.
+   * \c ScreenPos at the previous mouse event.
    */
   vtkVector2i LastScreenPos;
 

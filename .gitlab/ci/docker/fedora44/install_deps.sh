@@ -19,6 +19,18 @@ dnf install -y --setopt=install_weak_deps=False \
 dnf install -y --setopt=install_weak_deps=False \
     openmpi-devel mpich-devel
 
+# External repository support
+dnf install -y --setopt=install_weak_deps=False \
+    dnf-plugins-core
+
+# RPMFusion (for ffmpeg)
+dnf install -y --setopt=install_weak_deps=False \
+    https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-44.noarch.rpm
+
+# RPMFusion external dependencies
+dnf install -y --setopt=install_weak_deps=False \
+    ffmpeg-devel
+
 # Qt6 dependencies
 dnf install -y --setopt=install_weak_deps=False \
     xcb-util-cursor
@@ -33,17 +45,18 @@ dnf install -y --setopt=install_weak_deps=False \
     eigen3-devel lz4-devel expat-devel glew-devel \
     hdf5-devel hdf5-mpich-devel hdf5-openmpi-devel hdf5-devel netcdf-devel \
     netcdf-mpich-devel netcdf-openmpi-devel libogg-devel libtheora-devel \
-    jsoncpp-devel gl2ps-devel protobuf-devel libxkbcommon libxcrypt-compat \
-    boost-devel postgresql-server-devel postgresql-private-devel \
-    mariadb-devel libiodbc-devel PDAL-devel liblas-devel openslide-devel \
-    libarchive-devel freeglut-devel sqlite-devel PEGTL-devel cgnslib-devel \
-    proj-devel wkhtmltopdf cli11-devel fmt-devel tbb-devel json-devel \
-    openxr openxr-devel libscn-devel blosc-devel
+    jsoncpp-devel gl2ps-devel protobuf-devel boost-devel PDAL-devel \
+    cgnslib-devel libxcrypt-compat libxkbcommon \
+    postgresql-server-devel postgresql-private-devel \
+    mariadb-devel libiodbc-devel liblas-devel openslide-devel \
+    libarchive-devel freeglut-devel sqlite-devel PEGTL-devel  \
+    proj-devel wkhtmltopdf cli11-devel fmt-devel openvdb-devel json-devel \
+    openxr openxr-devel fast_float-devel libharu-devel blosc-devel
 
 # Python dependencies
 dnf install -y --setopt=install_weak_deps=False \
-    python3 python3-devel python3-numpy python3-tkinter \
-    python3-pip python3-mpi4py-mpich python3-mpi4py-openmpi python3-matplotlib \
+    python3 python3-devel python3-pip python3-numpy python3-tkinter \
+    python3-mpi4py-mpich python3-mpi4py-openmpi python3-matplotlib \
     python3-xarray python3-cftime netcdf4-python
 
 # CI dependencies packages
@@ -58,26 +71,15 @@ dnf install -y --setopt=install_weak_deps=False \
 python3 -m pip install 'wslink>=1.0.4'
 
 # Java dependencies
+# The latest release that had java 11 was Fedora 41
 dnf install --releasever=41 -y --setopt=install_weak_deps=False \
     java-11-openjdk-devel xmlstarlet
 
-# RPMFusion (for ffmpeg)
-dnf install -y --setopt=install_weak_deps=False \
-    https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-42.noarch.rpm
-
-# RPMFusion external dependencies
-dnf install -y --setopt=install_weak_deps=False \
-    ffmpeg-devel
-
-# External repository support
-dnf install -y --setopt=install_weak_deps=False \
-    dnf-plugins-core
-
 if [ "$( uname -m )" = "x86_64" ]; then
     # Openturns dependencies
-    # FIXME: using Fedora 43 repo as a hotfix since the Fedora 42 repo is not available anymore
+    # FIXME: using Fedora 44 repo as a hotfix since the Fedora 42 repo is not available anymore
     dnf config-manager addrepo \
-        --from-repofile=https://download.opensuse.org/repositories/science:/openturns/Fedora_43/science:openturns.repo
+        --from-repofile=https://download.opensuse.org/repositories/science:/openturns/Fedora_44/science:openturns.repo
     dnf install -y --setopt=install_weak_deps=False \
         openturns-libs openturns-devel
 

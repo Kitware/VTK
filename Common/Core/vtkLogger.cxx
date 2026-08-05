@@ -71,7 +71,7 @@ static std::mutex g_mutex;
 static std::unordered_map<std::thread::id, std::vector<scope_pair>> g_vectors;
 static std::vector<scope_pair>& get_vector()
 {
-  std::lock_guard<std::mutex> guard(g_mutex);
+  std::scoped_lock<std::mutex> guard(g_mutex);
   return g_vectors[std::this_thread::get_id()];
 }
 
@@ -89,7 +89,7 @@ static void pop_scope(const char* id)
 
     if (vector.empty())
     {
-      std::lock_guard<std::mutex> guard(g_mutex);
+      std::scoped_lock<std::mutex> guard(g_mutex);
       g_vectors.erase(std::this_thread::get_id());
     }
   }

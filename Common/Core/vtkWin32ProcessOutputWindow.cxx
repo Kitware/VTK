@@ -57,7 +57,7 @@ void vtkWin32ProcessOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkWin32ProcessOutputWindow::DisplayText(const char* text)
 {
-  std::lock_guard<std::mutex> lock(vtkWin32ProcessOutputWindowMutex);
+  std::scoped_lock<std::mutex> lock(vtkWin32ProcessOutputWindowMutex);
   // Display the text if the pipe has not been broken.
   if (!this->Broken && text)
   {

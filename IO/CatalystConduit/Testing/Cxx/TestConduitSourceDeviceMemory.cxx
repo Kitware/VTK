@@ -1044,20 +1044,14 @@ bool ValidateMeshTypeMixed2DImpl(
 
   // check cell types
   const auto it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
-  int nTris(0), nQuads(0);
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
     const int cellType = it->GetCellType();
     switch (cellType)
     {
       case VTK_TRIANGLE:
-      {
-        ++nTris;
-        break;
-      }
       case VTK_QUAD:
       {
-        ++nQuads;
         break;
       }
       default:

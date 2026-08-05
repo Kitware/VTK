@@ -368,6 +368,7 @@ bool vtkMPASReader::Internal::ValidateDimensions(int nc_var, bool silent, int nd
         char name[NC_MAX_NAME + 1];
         if (nc_err(nc_inq_varname(ncFile, nc_var, name)))
         {
+          va_end(args);
           return false;
         }
         vtkWarningWithObjectMacro(reader, << "Expected variable '" << name << "' to have '"

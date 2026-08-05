@@ -136,7 +136,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64")
     )
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora42_x86_64" AND "$ENV{CMAKE_CONFIGURATION}" MATCHES "mpi")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora44_x86_64" AND "$ENV{CMAKE_CONFIGURATION}" MATCHES "mpi")
   list(APPEND test_exclusions
     # MPI initialization failures from inside of IOSS. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19314
@@ -734,7 +734,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingCoreCxx-WebGPU-TestHardwareSelector$")
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora42_x86_64_webgpu")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora44_x86_64_webgpu")
   list(APPEND test_exclusions
     # RenderingCoreCxx tests that fail with WebGPU.
     # see https://gitlab.kitware.com/vtk/vtk/-/issues/19921

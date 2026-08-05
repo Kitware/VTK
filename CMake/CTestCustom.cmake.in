@@ -251,7 +251,7 @@ if (NOT cdash_show_third_party_warnings)
     "xmlVFormatLegacyError.*validity warning"
 
     # Suppress deprecated CUB Swap function warning suggesting cuda::std::swap
-    "cub::CUB_200802_SM_600::Swap.*deprecated.*cuda::std::swap"
+    "cub::CUB_[0-9]+_SM_[0-9]+::Swap.*deprecated.*cuda::std::swap"
   )
 endif ()
 

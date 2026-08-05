@@ -170,6 +170,7 @@ struct GhostFinder
   void operator()(vtkIdType startId, vtkIdType endId)
   {
     auto ghosts = vtk::DataArrayValueRange<1>(this->Ghosts);
+    // NOLINTNEXTLINE(readability-redundant-typename)
     using RefType = typename decltype(ghosts)::ReferenceType;
 
     for (vtkIdType id = startId; id < endId; ++id)

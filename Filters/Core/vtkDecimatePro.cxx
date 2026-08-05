@@ -122,7 +122,7 @@ int vtkDecimatePro::RequestData(vtkInformation* vtkNotUsed(request),
   int type;
   vtkIdType npts;
   const vtkIdType* pts;
-  vtkIdType totalEliminated, numRecycles, numPops;
+  vtkIdType totalEliminated, numPops;
   vtkIdType ncells;
   vtkIdType pt1, pt2, cellId, fedges[2];
   vtkIdType* cells;
@@ -291,7 +291,7 @@ int vtkDecimatePro::RequestData(vtkInformation* vtkNotUsed(request),
   // surrounding vertex, evaluate the error and re-insert into the queue.
   // (While this is happening we keep track of operations on the data -
   // this forms the core of the progressive mesh representation.)
-  for (totalEliminated = 0, reduction = 0.0, numRecycles = 0, numPops = 0;
+  for (totalEliminated = 0, reduction = 0.0, numPops = 0;
        reduction < this->TargetReduction && (ptId = this->Pop(error)) >= 0 && !abortExecute;
        numPops++)
   {
@@ -336,7 +336,6 @@ int vtkDecimatePro::RequestData(vtkInformation* vtkNotUsed(request),
 
       else // Couldn't delete the vertex, so we'll re-insert it for splitting
       {
-        numRecycles++;
         this->Insert(ptId, VTK_RECYCLE_VERTEX);
       }
 
@@ -353,7 +352,6 @@ int vtkDecimatePro::RequestData(vtkInformation* vtkNotUsed(request),
                 << "\n\tPerformed " << totalPts - numPts << " vertex splits"
                 << "\n\tPerformed " << this->NumCollapses << " edge collapses"
                 << "\n\tPerformed " << this->NumMerges << " vertex merges"
-                << "\n\tRecycled " << numRecycles << " points"
                 << "\n\tAdded " << totalPts - numPts << " points (" << numPts << " to " << totalPts
                 << " points)");
 

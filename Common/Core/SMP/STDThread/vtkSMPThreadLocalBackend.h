@@ -18,7 +18,7 @@
 // rare.
 //
 // This implementation is the same as the OpenMP equivalent but with std::mutex
-// and std::lock_guard instead of omp_lock_t and custom lock guard.
+// and std::scoped_lock instead of omp_lock_t and custom lock guard.
 
 #ifndef STDThreadvtkSMPThreadLocalBackend_h
 #define STDThreadvtkSMPThreadLocalBackend_h
@@ -28,7 +28,7 @@
 
 #include <atomic>
 #include <cstdint> // For uint_fast32_t
-#include <mutex>   // std::mutex, std::lock_guard
+#include <mutex>   // std::mutex, std::scoped_lock
 #include <thread>
 
 namespace vtk

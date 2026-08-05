@@ -17,8 +17,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "python" AND
     NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
   # only certain images have tcl/tk installed
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
-    # no tk until python 3.14 is available
-    # set(VTK_USE_TK ON CACHE BOOL "")
+    set(VTK_USE_TK ON CACHE BOOL "")
   endif ()
 endif ()
 

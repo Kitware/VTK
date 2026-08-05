@@ -91,7 +91,7 @@ vtkWin32OutputWindow::~vtkWin32OutputWindow() {}
 //
 void vtkWin32OutputWindow::DisplayText(const char* someText)
 {
-  std::lock_guard<std::mutex> lock(vtkWin32OutputWindowMutex);
+  std::scoped_lock<std::mutex> lock(vtkWin32OutputWindowMutex);
   if (!someText)
   {
     return;
@@ -216,7 +216,7 @@ static void vtkWin32OutputWindowUIThreadFunc(std::string title, bool show)
                 << errorCode << "): " << errorMsg << "\n";
       // Signal the calling thread so it doesn't wait forever
       {
-        std::lock_guard<std::mutex> lock(vtkWin32OutputWindowUIThreadMutex);
+        std::scoped_lock<std::mutex> lock(vtkWin32OutputWindowUIThreadMutex);
         vtkWin32OutputWindowUIThreadReady = true;
       }
       vtkWin32OutputWindowUIThreadCV.notify_one();
@@ -239,7 +239,7 @@ static void vtkWin32OutputWindowUIThreadFunc(std::string title, bool show)
               << "): " << errorMsg << "\n";
     // Signal the calling thread so it doesn't wait forever
     {
-      std::lock_guard<std::mutex> lock(vtkWin32OutputWindowUIThreadMutex);
+      std::scoped_lock<std::mutex> lock(vtkWin32OutputWindowUIThreadMutex);
       vtkWin32OutputWindowUIThreadReady = true;
     }
     vtkWin32OutputWindowUIThreadCV.notify_one();
@@ -284,7 +284,7 @@ static void vtkWin32OutputWindowUIThreadFunc(std::string title, bool show)
     DestroyWindow(win);
     // Signal the calling thread so it doesn't wait forever
     {
-      std::lock_guard<std::mutex> lock(vtkWin32OutputWindowUIThreadMutex);
+      std::scoped_lock<std::mutex> lock(vtkWin32OutputWindowUIThreadMutex);
       vtkWin32OutputWindowUIThreadReady = true;
     }
     vtkWin32OutputWindowUIThreadCV.notify_one();
@@ -298,7 +298,7 @@ static void vtkWin32OutputWindowUIThreadFunc(std::string title, bool show)
 
   // Signal the calling thread that we're ready
   {
-    std::lock_guard<std::mutex> lock(vtkWin32OutputWindowUIThreadMutex);
+    std::scoped_lock<std::mutex> lock(vtkWin32OutputWindowUIThreadMutex);
     vtkWin32OutputWindowUIThreadReady = true;
   }
   vtkWin32OutputWindowUIThreadCV.notify_one();

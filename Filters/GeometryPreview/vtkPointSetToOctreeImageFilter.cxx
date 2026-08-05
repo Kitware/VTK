@@ -164,7 +164,7 @@ struct vtkPointSetToOctreeImageFilter::PointSetToImageFunctor
       octreeValue *= inPt[1] > outPt[1] ? 4 : 1;
       octreeValue *= inPt[2] > outPt[2] ? 16 : 1;
 
-      std::lock_guard<vtkAtomicMutex> lock(this->Locks[outCellId]);
+      std::scoped_lock<vtkAtomicMutex> lock(this->Locks[outCellId]);
       // this operation is deterministic because we perform a bitwise OR
       octree[outCellId] |= octreeValue;
 

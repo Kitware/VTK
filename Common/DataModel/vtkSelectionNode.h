@@ -187,7 +187,7 @@
  *   is very specific to the creator creating the selection and varies greatly
  *   with VTK.
  *
- * * `vtkSelectionNode::PROP(), `vtkSelectionNode::PROP_ID()`: similar to
+ * * `vtkSelectionNode::PROP()`, `vtkSelectionNode::PROP_ID()`: similar to
  *   SOURCE/SOURCE_ID except is used to represent a rendering prop from which
  *   the selection was created.
  *

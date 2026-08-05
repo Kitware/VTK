@@ -135,7 +135,7 @@ struct vtkRandom01Range
 {
   std::mt19937 RNG;
   std::uniform_real_distribution<double> Dist;
-  vtkRandom01Range() { this->Dist.param(typename decltype(this->Dist)::param_type(0.0, 1.0)); }
+  vtkRandom01Range() { this->Dist.param(decltype(this->Dist)::param_type(0.0, 1.0)); }
   void Seed(vtkIdType s) { this->RNG.seed(s); }
   double Next() { return this->Dist(RNG); }
 };

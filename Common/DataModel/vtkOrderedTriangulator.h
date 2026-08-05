@@ -167,7 +167,7 @@ public:
   void UpdatePointType(vtkIdType internalId, int type);
 
   /**
-   * Return the parametric coordinates of point `internalId'.
+   * Return the parametric coordinates of point \c internalId.
    * It assumes that the point has already been inserted.
    * The method should be invoked prior to the Triangulate method.
    * \pre valid_range: internalId>=0 && internalId<this->GetNumberOfPoints()
@@ -175,7 +175,7 @@ public:
   double* GetPointPosition(vtkIdType internalId);
 
   /**
-   * Return the global coordinates of point `internalId'.
+   * Return the global coordinates of point \c internalId.
    * It assumes that the point has already been inserted.
    * The method should be invoked prior to the Triangulate method.
    * \pre valid_range: internalId>=0 && internalId<this->GetNumberOfPoints()
@@ -183,7 +183,7 @@ public:
   double* GetPointLocation(vtkIdType internalId);
 
   /**
-   * Return the Id of point `internalId'. This id is the one passed in
+   * Return the Id of point \c internalId. This id is the one passed in
    * argument of InsertPoint.
    * It assumes that the point has already been inserted.
    * The method should be invoked prior to the Triangulate method.
@@ -268,7 +268,7 @@ public:
   vtkIdType AddTetras(int classification, vtkCellArray* connectivity);
 
   /**
-   * Assuming that all the inserted points come from a cell `cellId' to
+   * Assuming that all the inserted points come from a cell \c cellId to
    * triangulate, get the tetrahedra in outConnectivity, the points in locator
    * and copy point data and cell data. Return the number of added tetras.
    * \pre locator_exists: locator!=0

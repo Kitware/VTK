@@ -85,7 +85,7 @@ public:
   vtkGenericAttribute* GetAttribute(int i);
 
   /**
-   * Return the index of the attribute named `name'. Return the non-negative
+   * Return the index of the attribute named \c name. Return the non-negative
    * index if found. Return -1 otherwise.
    * \pre name_exists: name!=0
    * \post valid_result: (result==-1) || (result>=0) && (result<=GetNumberOfAttributes())
@@ -93,7 +93,7 @@ public:
   int FindAttribute(const char* name);
 
   /**
-   * Return the index of the first component of attribute `i' in an array of
+   * Return the index of the first component of attribute \c i in an array of
    * format attrib0comp0 attrib0comp1 ... attrib4comp0 ...
    * \pre valid_i: i>=0 && i<GetNumberOfAttributes()
    * \pre is_point_centered: GetAttribute(i)->GetCentering()==vtkPointCentered
@@ -101,7 +101,7 @@ public:
   int GetAttributeIndex(int i);
 
   /**
-   * Add the attribute `a' to the end of the collection.
+   * Add the attribute \c a to the end of the collection.
    * \pre a_exists: a!=0
    * \post more_items: GetNumberOfAttributes()==old GetNumberOfAttributes()+1
    * \post a_is_set: GetAttribute(GetNumberOfAttributes()-1)==a
@@ -109,7 +109,7 @@ public:
   void InsertNextAttribute(vtkGenericAttribute* a);
 
   /**
-   * Replace the attribute at index `i' by `a'.
+   * Replace the attribute at index \c i by \c a.
    * \pre not_empty: !IsEmpty()
    * \pre a_exists: a!=0
    * \pre valid_i: i>=0 && i<GetNumberOfAttributes()
@@ -119,7 +119,7 @@ public:
   void InsertAttribute(int i, vtkGenericAttribute* a);
 
   /**
-   * Remove the attribute at `i'.
+   * Remove the attribute at \c i.
    * \pre not_empty: !IsEmpty()
    * \pre valid_i: i>=0 && i<GetNumberOfAttributes()
    * \post fewer_items: GetNumberOfAttributes()==old GetNumberOfAttributes()-1
@@ -205,7 +205,7 @@ public:
   int* GetAttributesToInterpolate() VTK_SIZEHINT(GetNumberOfAttributesToInterpolate());
 
   /**
-   * Does the array `attributes' of size `size' have `attribute'?
+   * Does the array \c attributes of size \c size have \c attribute?
    * \pre positive_size: size>=0
    * \pre valid_attributes: size>0 implies attributes!=0
    */

@@ -90,7 +90,7 @@ public:
   virtual vtkIdType GetId() = 0;
 
   /**
-   * Does `this' a cell of a dataset? (otherwise, it is a boundary cell)
+   * Does \c this a cell of a dataset? (otherwise, it is a boundary cell)
    */
   virtual int IsInDataSet() = 0;
 
@@ -121,7 +121,7 @@ public:
   int IsGeometryLinear();
 
   /**
-   * Return the interpolation order of attribute `a' on the cell
+   * Return the interpolation order of attribute \c a on the cell
    * (may differ by cell).
    * \pre a_exists: a!=0
    * \post positive_result: result>=0
@@ -130,14 +130,14 @@ public:
 
   /**
    * Return the index of the first point centered attribute with the highest
-   * order in `ac'.
+   * order in \c ac.
    * \pre ac_exists: ac!=0
    * \post valid_result: result>=-1 && result<ac->GetNumberOfAttributes()
    */
   virtual int GetHighestOrderAttribute(vtkGenericAttributeCollection* ac);
 
   /**
-   * Does the attribute `a' have a non-linear interpolation?
+   * Does the attribute \c a have a non-linear interpolation?
    * \pre a_exists: a!=0
    * \post definition: result==(GetAttributeOrder()==1)
    */
@@ -155,7 +155,7 @@ public:
   virtual int GetNumberOfPoints() = 0;
 
   /**
-   * Return the number of boundaries of dimension `dim' (or all dimensions
+   * Return the number of boundaries of dimension \c dim (or all dimensions
    * greater than 0 and less than GetDimension() if -1) of the cell.
    * When \a dim is -1, the number of vertices is not included in the
    * count because vertices are a special case: a vertex will have
@@ -181,7 +181,7 @@ public:
   virtual int GetNumberOfDOFNodes() = 0;
 
   /**
-   * Return the points of cell into `it'.
+   * Return the points of cell into \c it.
    * \pre it_exists: it!=0
    */
   virtual void GetPointIterator(vtkGenericPointIterator* it) = 0;
@@ -194,7 +194,7 @@ public:
   virtual vtkGenericCellIterator* NewCellIterator() = 0;
 
   /**
-   * Return the `boundaries' cells of dimension `dim' (or all dimensions
+   * Return the \c boundaries cells of dimension \c dim (or all dimensions
    * less than GetDimension() if -1) that are part of the boundary of the cell.
    * \pre valid_dim_range: (dim==-1) || ((dim>=0)&&(dim<GetDimension()))
    * \pre boundaries_exist: boundaries!=0
@@ -204,8 +204,8 @@ public:
   ///@{
   /**
    * Number of cells (dimension>boundary->GetDimension()) of the dataset
-   * that share the boundary `boundary' of `this'.
-   * `this' IS NOT INCLUDED.
+   * that share the boundary \c boundary of \c this.
+   * \c this IS NOT INCLUDED.
    * \pre boundary_exists: boundary!=0
    * \pre real_boundary: !boundary->IsInDataSet()
    * \pre cell_of_the_dataset: IsInDataSet()
@@ -217,9 +217,9 @@ public:
   ///@}
 
   /**
-   * Put into `neighbors' the cells (dimension>boundary->GetDimension())
-   * of the dataset that share the boundary `boundary' with this cell.
-   * `this' IS NOT INCLUDED.
+   * Put into \c neighbors the cells (`dimension>boundary->GetDimension()`)
+   * of the dataset that share the boundary \c boundary with this cell.
+   * \c this IS NOT INCLUDED.
    * \pre boundary_exists: boundary!=0
    * \pre real_boundary: !boundary->IsInDataSet()
    * \pre cell_of_the_dataset: IsInDataSet()
@@ -229,9 +229,9 @@ public:
   virtual void GetNeighbors(vtkGenericAdaptorCell* boundary, vtkGenericCellIterator* neighbors) = 0;
 
   /**
-   * Compute the closest boundary of the current sub-cell `subId' for point
-   * `pcoord' (in parametric coordinates) in `boundary', and return whether
-   * the point is inside the cell or not. `boundary' is of dimension
+   * Compute the closest boundary of the current sub-cell \c subId for point
+   * \c pcoord (in parametric coordinates) in \c boundary, and return whether
+   * the point is inside the cell or not. \c boundary is of dimension
    * GetDimension()-1.
    * \pre positive_subId: subId>=0
    */
@@ -239,10 +239,10 @@ public:
     int subId, double pcoords[3], vtkGenericCellIterator*& boundary) = 0;
 
   /**
-   * Is `x' inside the current cell? It also evaluates parametric coordinates
-   * `pcoords', sub-cell id `subId' (0 means primary cell), distance squared
-   * to the sub-cell in `dist2' and closest corner point `closestPoint'.
-   * `dist2' and `closestPoint' are not evaluated if `closestPoint'==0.
+   * Is \c x inside the current cell? It also evaluates parametric coordinates
+   * \c pcoords, sub-cell id \c subId (0 means primary cell), distance squared
+   * to the sub-cell in \c dist2 and closest corner point \c closestPoint.
+   * \c dist2 and \c closestPoint are not evaluated if \c closestPoint==0.
    * If a numerical error occurred, -1 is returned and all other results
    * should be ignored.
    * \post valid_result: result==-1 || result==0 || result==1
@@ -253,8 +253,8 @@ public:
     const double x[3], double* closestPoint, int& subId, double pcoords[3], double& dist2) = 0;
 
   /**
-   * Determine the global coordinates `x' from sub-cell `subId' and parametric
-   * coordinates `pcoords' in the cell.
+   * Determine the global coordinates \c x from sub-cell \c subId and parametric
+   * coordinates \c pcoords in the cell.
    * \pre positive_subId: subId>=0
    * \pre clamped_pcoords: (0<=pcoords[0])&&(pcoords[0]<=1)&&(0<=pcoords[1])
    * &&(pcoords[1]<=1)&&(0<=pcoords[2])&&(pcoords[2]<=1)
@@ -262,8 +262,8 @@ public:
   virtual void EvaluateLocation(int subId, double pcoords[3], double x[3]) = 0;
 
   /**
-   * Interpolate the attribute `a' at local position `pcoords' of the cell into
-   * `val'.
+   * Interpolate the attribute \c a at local position \c pcoords of the cell into
+   * \c val.
    * \pre a_exists: a!=0
    * \pre a_is_point_centered: a->GetCentering()==vtkPointCentered
    * \pre clamped_point: pcoords[0]>=0 && pcoords[0]<=1 && pcoords[1]>=0 &&
@@ -274,8 +274,8 @@ public:
   virtual void InterpolateTuple(vtkGenericAttribute* a, double pcoords[3], double* val) = 0;
 
   /**
-   * Interpolate the whole collection of attributes `c' at local position
-   * `pcoords' of the cell into `val'. Only point centered attributes are
+   * Interpolate the whole collection of attributes \c c at local position
+   * \c pcoords of the cell into \c val. Only point centered attributes are
    * taken into account.
    * \pre c_exists: c!=0
    * \pre clamped_point: pcoords[0]>=0 && pcoords[0]<=1 && pcoords[1]>=0 &&
@@ -287,34 +287,34 @@ public:
     vtkGenericAttributeCollection* c, double pcoords[3], double* val) = 0;
 
   /**
-   * Generate a contour (contouring primitives) for each `values' or with
-   * respect to an implicit function `f'. Contouring is performed on the
-   * scalar attribute (`attributes->GetActiveAttribute()'
-   * `attributes->GetActiveComponent()').  Contouring interpolates the
-   * `attributes->GetNumberOfattributesToInterpolate()' attributes
-   * `attributes->GetAttributesToInterpolate()'.  The `locator', `verts',
-   * `lines', `polys', `outPd' and `outCd' are cumulative data arrays over
+   * Generate a contour (contouring primitives) for each \c values or with
+   * respect to an implicit function \c f. Contouring is performed on the
+   * scalar attribute (\c attributes->GetActiveAttribute()
+   * \c attributes->GetActiveComponent()).  Contouring interpolates the
+   * \c attributes->GetNumberOfattributesToInterpolate() attributes
+   * \c attributes->GetAttributesToInterpolate().  The \c locator, \c verts,
+   * \c lines, \c polys, \c outPd and \c outCd are cumulative data arrays over
    * cell iterations: they store the result of each call to Contour():
-   * - `locator' is a points list that merges points as they are inserted
+   * - \c locator is a points list that merges points as they are inserted
    * (i.e., prevents duplicates).
-   * - `verts' is an array of generated vertices
-   * - `lines' is an array of generated lines
-   * - `polys' is an array of generated polygons
-   * - `outPd' is an array of interpolated point data along the edge (if
+   * - \c verts is an array of generated vertices
+   * - \c lines is an array of generated lines
+   * - \c polys is an array of generated polygons
+   * - \c outPd is an array of interpolated point data along the edge (if
    * not-nullptr)
-   * - `outCd' is an array of copied cell data of the current cell (if
+   * - \c outCd is an array of copied cell data of the current cell (if
    * not-nullptr)
-   * `internalPd', `secondaryPd' and `secondaryCd' are initialized by the
-   * filter that call it from `attributes'.
-   * - `internalPd' stores the result of the tessellation pass: the
+   * \c internalPd, \c secondaryPd and \c secondaryCd are initialized by the
+   * filter that call it from \c attributes.
+   * - \c internalPd stores the result of the tessellation pass: the
    * higher-order cell is tessellated into linear sub-cells.
-   * - `secondaryPd' and `secondaryCd' are used internally as inputs to the
+   * - \c secondaryPd and \c secondaryCd are used internally as inputs to the
    * Contour() method on linear sub-cells.
-   * Note: the CopyAllocate() method must be invoked on both `outPd' and
-   * `outCd', from `secondaryPd' and `secondaryCd'.
+   * Note: the CopyAllocate() method must be invoked on both \c outPd and
+   * \c outCd, from \c secondaryPd and \c secondaryCd.
 
-   * NOTE: `vtkGenericAttributeCollection *attributes' will be replaced by a
-   * `vtkInformation'.
+   * NOTE: `vtkGenericAttributeCollection *attributes` will be replaced by a
+   * \c vtkInformation.
 
    * \pre values_exist: (values!=0 && f==0) || (values==0 && f!=0)
    * \pre attributes_exist: attributes!=0
@@ -335,35 +335,35 @@ public:
 
   /**
    * Cut (or clip) the current cell with respect to the contour defined by
-   * the `value' or the implicit function `f' of the scalar attribute
-   * (`attributes->GetActiveAttribute()',`attributes->GetActiveComponent()').
-   * If `f' exists, `value' is not used. The output is the part of the
+   * the \c value or the implicit function \c f of the scalar attribute
+   * (\c attributes->GetActiveAttribute(),\c attributes->GetActiveComponent()).
+   * If \c f exists, \c value is not used. The output is the part of the
    * current cell which is inside the contour.  The output is a set of zero,
    * one or more cells of the same topological dimension as the current
    * cell. Normally, cell points whose scalar value is greater than "value"
-   * are considered inside. If `insideOut' is on, this is reversed.  Clipping
-   * interpolates the `attributes->GetNumberOfattributesToInterpolate()'
-   * attributes `attributes->GetAttributesToInterpolate()'.  `locator',
-   * `connectivity', `outPd' and `outCd' are cumulative data arrays over cell
+   * are considered inside. If \c insideOut is on, this is reversed.  Clipping
+   * interpolates the \c attributes->GetNumberOfattributesToInterpolate()
+   * attributes \c attributes->GetAttributesToInterpolate().  \c locator,
+   * \c connectivity, \c outPd and \c outCd are cumulative data arrays over cell
    * iterations: they store the result of each call to Clip():
-   * - `locator' is a points list that merges points as they are inserted
+   * - \c locator is a points list that merges points as they are inserted
    * (i.e., prevents duplicates).
-   * - `connectivity' is an array of generated cells
-   * - `outPd' is an array of interpolated point data along the edge (if
+   * - \c connectivity is an array of generated cells
+   * - \c outPd is an array of interpolated point data along the edge (if
    * not-nullptr)
-   * - `outCd' is an array of copied cell data of the current cell (if
+   * - \c outCd is an array of copied cell data of the current cell (if
    * not-nullptr)
-   * `internalPd', `secondaryPd' and `secondaryCd' are initialized by the
-   * filter that call it from `attributes'.
-   * - `internalPd' stores the result of the tessellation pass: the
+   * \c internalPd, \c secondaryPd and \c secondaryCd are initialized by the
+   * filter that call it from \c attributes.
+   * - \c internalPd stores the result of the tessellation pass: the
    * higher-order cell is tessellated into linear sub-cells.
-   * - `secondaryPd' and `secondaryCd' are used internally as inputs to the
+   * - \c secondaryPd and \c secondaryCd are used internally as inputs to the
    * Clip() method on linear sub-cells.
-   * Note: the CopyAllocate() method must be invoked on both `outPd' and
-   * `outCd', from `secondaryPd' and `secondaryCd'.
+   * Note: the CopyAllocate() method must be invoked on both \c outPd and
+   * \c outCd, from \c secondaryPd and \c secondaryCd.
 
-   * NOTE: `vtkGenericAttributeCollection *attributes' will be replaced by a
-   * `vtkInformation'.
+   * NOTE: `vtkGenericAttributeCollection *attributes` will be replaced by a
+   * \c vtkInformation.
 
    * \pre attributes_exist: attributes!=0
    * \pre tessellator_exists: tess!=0
@@ -379,10 +379,10 @@ public:
     vtkPointData* secondaryPd, vtkCellData* secondaryCd);
 
   /**
-   * Is there an intersection between the current cell and the ray (`p1',`p2')
-   * according to a tolerance `tol'? If true, `x' is the global intersection,
-   * `t' is the parametric coordinate for the line, `pcoords' are the
-   * parametric coordinates for cell. `subId' is the sub-cell where
+   * Is there an intersection between the current cell and the ray (\c p1,\c p2)
+   * according to a tolerance \c tol? If true, \c x is the global intersection,
+   * \c t is the parametric coordinate for the line, \c pcoords are the
+   * parametric coordinates for cell. \c subId is the sub-cell where
    * the intersection occurs.
    * \pre positive_tolerance: tol>0
    */
@@ -390,9 +390,9 @@ public:
     double pcoords[3], int& subId) = 0;
 
   /**
-   * Compute derivatives `derivs' of the attribute `attribute' (from its
-   * values at the corner points of the cell) given sub-cell `subId' (0 means
-   * primary cell) and parametric coordinates `pcoords'.
+   * Compute derivatives \c derivs of the attribute \c attribute (from its
+   * values at the corner points of the cell) given sub-cell \c subId (0 means
+   * primary cell) and parametric coordinates \c pcoords.
    * Derivatives are in the x-y-z coordinate directions for each data value.
    * \pre positive_subId: subId>=0
    * \pre clamped_pcoords: (0<=pcoords[0])&&(pcoords[0]<=1)&&(0<=pcoords[1])
@@ -405,7 +405,7 @@ public:
     int subId, double pcoords[3], vtkGenericAttribute* attribute, double* derivs) = 0;
 
   /**
-   * Compute the bounding box of the current cell in `bounds' in global
+   * Compute the bounding box of the current cell in \c bounds in global
    * coordinates.
    * THREAD SAFE
    */
@@ -427,14 +427,14 @@ public:
 
   /**
    * Get the center of the current cell (in parametric coordinates) and place
-   * it in `pcoords'.  If the current cell is a composite, the return value
+   * it in \c pcoords.  If the current cell is a composite, the return value
    * is the sub-cell id that the center is in.  \post valid_result:
    * (result>=0) && (IsPrimary() implies result==0)
    */
   virtual int GetParametricCenter(double pcoords[3]) = 0;
 
   /**
-   * Return the distance of the parametric coordinate `pcoords' to the
+   * Return the distance of the parametric coordinate \c pcoords to the
    * current cell.  If inside the cell, a distance of zero is returned. This
    * is used during picking to get the correct cell picked. (The tolerance
    * will occasionally allow cells to be picked who are not really
@@ -456,15 +456,15 @@ public:
 
   /**
    * Tessellate the cell if it is not linear or if at least one attribute of
-   * `attributes' is not linear. The output are linear cells of the same
+   * \c attributes is not linear. The output are linear cells of the same
    * dimension than the cell. If the cell is linear and all attributes are
    * linear, the output is just a copy of the current cell.
-   * `points', `cellArray', `pd' and `cd' are cumulative output data arrays
+   * \c points, \c cellArray, \c pd and \c cd are cumulative output data arrays
    * over cell iterations: they store the result of each call to Tessellate().
-   * `internalPd' is initialized by the calling filter and stores the
+   * \c internalPd is initialized by the calling filter and stores the
    * result of the tessellation.
-   * If it is not null, `types' is filled with the types of the linear cells.
-   * `types' is null when it is called from vtkGenericGeometryFilter and not
+   * If it is not null, \c types is filled with the types of the linear cells.
+   * \c types is null when it is called from vtkGenericGeometryFilter and not
    * null when it is called from vtkGenericDatasetTessellator.
    * \pre attributes_exist: attributes!=0
    * \pre tessellator_exists: tess!=0
@@ -483,7 +483,7 @@ public:
   // (the hash table in particular)
 
   /**
-   * Is the face `faceId' of the current cell on the exterior boundary of the
+   * Is the face \c faceId of the current cell on the exterior boundary of the
    * dataset?
    * \pre 3d: GetDimension()==3
    */
@@ -496,7 +496,7 @@ public:
   virtual int IsOnBoundary() = 0;
 
   /**
-   * Put into `id' the list of the dataset points that define the corner points
+   * Put into \c id the list of the dataset points that define the corner points
    * of the cell.
    * \pre id_exists: id!=0
    * \pre valid_size: sizeof(id)==GetNumberOfPoints();
@@ -504,7 +504,7 @@ public:
   virtual void GetPointIds(vtkIdType* id) = 0;
 
   /**
-   * Tessellate face `index' of the cell. See Tessellate() for further
+   * Tessellate face \c index of the cell. See Tessellate() for further
    * explanations.
    * \pre cell_is_3d: GetDimension()==3
    * \pre attributes_exist: attributes!=0
@@ -522,7 +522,7 @@ public:
     vtkPointData* pd, vtkCellData* cd);
 
   /**
-   * Return the ids of the vertices defining face `faceId'.
+   * Return the ids of the vertices defining face \c faceId.
    * Ids are related to the cell, not to the dataset.
    * \pre is_3d: this->GetDimension()==3
    * \pre valid_faceId_range: faceId>=0 && faceId<this->GetNumberOfBoundaries(2)
@@ -536,7 +536,7 @@ public:
   virtual const vtkIdType* GetFaceArray(vtkIdType faceId) = 0;
 
   /**
-   * Return the number of vertices defining face `faceId'.
+   * Return the number of vertices defining face \c faceId.
    * \pre is_3d: this->GetDimension()==3
    * \pre valid_faceId_range: faceId>=0 && faceId<this->GetNumberOfBoundaries(2)
    * \post positive_result: && result>0
@@ -544,7 +544,7 @@ public:
   virtual int GetNumberOfVerticesOnFace(int faceId) = 0;
 
   /**
-   * Return the ids of the vertices defining edge `edgeId'.
+   * Return the ids of the vertices defining edge \c edgeId.
    * Ids are related to the cell, not to the dataset.
    * \pre valid_dimension: this->GetDimension()>=2
    * \pre valid_edgeId_range: edgeId>=0 && edgeId<this->GetNumberOfBoundaries(1)

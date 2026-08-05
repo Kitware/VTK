@@ -69,10 +69,10 @@ public:
   ///@}
 
   /**
-   * Tessellate a face of a 3D `cell'. The face is specified by the
+   * Tessellate a face of a 3D \c cell. The face is specified by the
    * index value.
-   * The result is a set of smaller linear triangles in `cellArray' with
-   * `points' and point data `internalPd'.
+   * The result is a set of smaller linear triangles in \c cellArray with
+   * \c points and point data \c internalPd.
    * \pre cell_exists: cell!=0
    * \pre valid_dimension: cell->GetDimension()==3
    * \pre valid_index_range: (index>=0) && (index<cell->GetNumberOfBoundaries(2))
@@ -86,8 +86,8 @@ public:
     vtkPointData* internalPd) override;
 
   /**
-   * Tessellate a 3D `cell'. The result is a set of smaller linear
-   * tetrahedra in `cellArray' with `points' and point data `internalPd'.
+   * Tessellate a 3D \c cell. The result is a set of smaller linear
+   * tetrahedra in \c cellArray with \c points and point data \c internalPd.
    * \pre cell_exists: cell!=0
    * \pre valid_dimension: cell->GetDimension()==3
    * \pre att_exists: att!=0
@@ -99,8 +99,8 @@ public:
     vtkDoubleArray* points, vtkCellArray* cellArray, vtkPointData* internalPd) override;
 
   /**
-   * Triangulate a 2D `cell'. The result is a set of smaller linear triangles
-   * in `cellArray' with `points' and point data `internalPd'.
+   * Triangulate a 2D \c cell. The result is a set of smaller linear triangles
+   * in \c cellArray with \c points and point data \c internalPd.
    * \pre cell_exists: cell!=0
    * \pre valid_dimension: cell->GetDimension()==2
    * \pre att_exists: att!=0
@@ -117,7 +117,7 @@ public:
   void Reset();
 
   /**
-   * Initialize the tessellator with a data set `ds'.
+   * Initialize the tessellator with a data set \c ds.
    */
   void Initialize(vtkGenericDataSet* ds) override;
 
@@ -128,9 +128,9 @@ public:
    * detect that a subdivision is required. 0 means no fixed subdivision:
    * there will be only adaptive subdivisions.
 
-   * The algorithm first performs `GetFixedSubdivisions' non adaptive
-   * subdivisions followed by at most `GetMaxAdaptiveSubdivisions' adaptive
-   * subdivisions. Hence, there are at most `GetMaxSubdivisionLevel'
+   * The algorithm first performs \c GetFixedSubdivisions non adaptive
+   * subdivisions followed by at most \c GetMaxAdaptiveSubdivisions adaptive
+   * subdivisions. Hence, there are at most \c GetMaxSubdivisionLevel
    * subdivisions.
    * \post positive_result: result>=0 && result<=GetMaxSubdivisionLevel()
    */
@@ -184,7 +184,7 @@ protected:
   ~vtkSimpleCellTessellator() override;
 
   /**
-   * Extract point `pointId' from the edge table to the output point and output
+   * Extract point \c pointId from the edge table to the output point and output
    * point data.
    */
   void CopyPoint(vtkIdType pointId);
@@ -202,8 +202,8 @@ protected:
   void RemoveEdgesFromEdgeTable(vtkTetraTile& tetra);
 
   /**
-   * Initialize `root' with the sub-tetra defined by the `localIds' points on
-   * the complex cell, `ids' are the global ids over the mesh of those points.
+   * Initialize \c root with the sub-tetra defined by the \c localIds points on
+   * the complex cell, \c ids are the global ids over the mesh of those points.
    * The sub-tetra is also defined by the ids of its edges and of its faces
    * relative to the complex cell. -1 means that the edge or the face of the
    * sub-tetra is not an original edge or face of the complex cell.
@@ -221,11 +221,11 @@ protected:
     vtkTetraTile& root, const vtkIdType* localIds, vtkIdType* ids, int* edgeIds, int* faceIds);
 
   /**
-   * Triangulate a triangle of `cell'. This triangle can be the top-level
+   * Triangulate a triangle of \c cell. This triangle can be the top-level
    * triangle if the cell is a triangle or a toplevel sub-triangle is the cell
    * is a polygon, or a triangular face of a 3D cell or a top-level
    * sub-triangle of a face of a 3D cell if the face is not a triangle.
-   * Arguments `localIds', `ids' and `edgeIds' have the same meaning than
+   * Arguments \c localIds, \c ids and \c edgeIds have the same meaning than
    * for InitTetraTile.
    * \pre cell_exists: cell!=0
    * \pre localIds_exists: localIds!=0
@@ -299,7 +299,7 @@ protected:
   int GetNumberOfCellsUsingEdge(int edgeId);
 
   /**
-   * Is the edge defined by vertices (`p1',`p2') in parametric coordinates on
+   * Is the edge defined by vertices (\c p1,\c p2) in parametric coordinates on
    * some edge of the original tetrahedron? If yes return on which edge it is,
    * else return -1.
    * \pre p1!=p2
@@ -309,9 +309,9 @@ protected:
   int IsEdgeOnFace(double p1[3], double p2[3]);
 
   /**
-   * Return 1 if the parent of edge defined by vertices (`p1',`p2') in
+   * Return 1 if the parent of edge defined by vertices (\c p1,\c p2) in
    * parametric coordinates, is an edge; 3 if there is no parent (the edge is
-   * inside). If the parent is an edge, return its id in `localId'.
+   * inside). If the parent is an edge, return its id in \c localId.
    * \pre p1!=p2
    * \pre p1 and p2 are in bounding box (0,0,0) (1,1,1)
    * \post valid_result: (result==1)||(result==3)
@@ -319,10 +319,10 @@ protected:
   int FindEdgeParent2D(double p1[3], double p2[3], int& localId);
 
   /**
-   * Return 1 if the parent of edge defined by vertices (`p1',`p2') in
+   * Return 1 if the parent of edge defined by vertices (\c p1,\c p2) in
    * parametric coordinates, is an edge; 2 if the parent is a face, 3 if there
    * is no parent (the edge is inside). If the parent is an edge or a face,
-   * return its id in `localId'.
+   * return its id in \c localId.
    * \pre p1!=p2
    * \pre p1 and p2 are in bounding box (0,0,0) (1,1,1)
    * \post valid_result: result>=1 && result<=3
@@ -336,7 +336,7 @@ protected:
   void AllocatePointIds(int size);
 
   /**
-   * Are the faces `originalFace' and `face' equal?
+   * Are the faces \c originalFace and \c face equal?
    * The result is independent from any order or orientation.
    * \pre originalFace_exists: originalFace!=0
    *

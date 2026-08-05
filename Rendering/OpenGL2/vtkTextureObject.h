@@ -595,7 +595,7 @@ public:
    * comparison or not.
    * Comparison happens between D_t the depth texture value in the range [0,1]
    * and with R the interpolated third texture coordinate clamped to range
-   * [0,1]. The result of the comparison is noted `r'. If this flag is false,
+   * [0,1]. The result of the comparison is noted \c r. If this flag is false,
    * r=D_t.
    * Initial value is false, as in OpenGL spec.
    * Ignored if the texture object is not a depth texture.
@@ -607,7 +607,7 @@ public:
   ///@{
   /**
    * In case DepthTextureCompare is true, specify the comparison function in
-   * use. The result of the comparison is noted `r'.
+   * use. The result of the comparison is noted \c r.
    * Valid values are:
    * - Value
    * - Lequal: r=R<=Dt ? 1.0 : 0.0

@@ -18,6 +18,7 @@
 #include "vtkVertexListIterator.h"
 
 #include <iostream>
+#include <random>
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -174,8 +175,8 @@ int TestGraphAttributes(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   for (vtkIdType i = 0; i < 10; ++i)
   {
-    stringProp = vertexLabel[rand() % 5];
-    weight = rand() % 10;
+    stringProp = vertexLabel[std::random_device{}() % 5];
+    weight = std::random_device{}() % 10;
     //    std::cout << myRank <<" vertex "<< v <<","<< stringProp <<","<<weight<< std::endl;
     vertexPropertyArr->SetValue(0, stringProp);
     vertexPropertyArr->SetValue(1, weight);

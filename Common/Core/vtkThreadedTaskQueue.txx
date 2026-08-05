@@ -30,7 +30,7 @@ public:
   void MarkDone()
   {
     {
-      std::lock_guard<std::mutex> lock(this->TasksMutex);
+      std::scoped_lock<std::mutex> lock(this->TasksMutex);
       this->Done = true;
     }
     this->TasksCV.notify_all();
@@ -46,7 +46,7 @@ public:
     }
     else
     {
-      std::lock_guard<std::mutex> lk(this->TasksMutex);
+      std::scoped_lock<std::mutex> lk(this->TasksMutex);
       // vtkLogF(INFO, "pushing-task %d", (int)this->NextTaskId);
       this->Tasks.push(std::make_pair(this->NextTaskId++, std::move(task)));
       while (this->BufferSize > 0 && static_cast<int>(this->Tasks.size()) > this->BufferSize)

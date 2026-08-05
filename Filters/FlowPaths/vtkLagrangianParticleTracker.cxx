@@ -136,7 +136,7 @@ struct IntegratingFunctor
     if (!this->Serial)
     {
       // In multithread, protect the progress event with a mutex
-      std::lock_guard<std::mutex> guard(this->Tracker->ProgressMutex);
+      std::scoped_lock<std::mutex> guard(this->Tracker->ProgressMutex);
       double progress = static_cast<double>(this->Tracker->IntegratedParticleCounter) /
         this->Tracker->ParticleCounter;
       this->Tracker->UpdateProgress(progress);

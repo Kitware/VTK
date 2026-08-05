@@ -470,6 +470,7 @@ public:
     if (status != this->CurrentStatus)
     {
       this->CurrentStatus = status;
+      // NOLINTNEXTLINE(modernize-make-shared)
       std::shared_ptr<vtkMPICommunicator::Request> sendRequest(new vtkMPICommunicator::Request);
       this->Controller->NoBlockSend(
         &this->CurrentStatus, 1, 0, LAGRANGIAN_RANG_FLAG_TAG, *sendRequest);
@@ -482,6 +483,7 @@ public:
     // no active particles - send terminate instruction to other ranks
     for (int p = 1; p < this->Controller->GetNumberOfProcesses(); ++p)
     {
+      // NOLINTNEXTLINE(modernize-make-shared)
       std::shared_ptr<vtkMPICommunicator::Request> sendRequest(new vtkMPICommunicator::Request);
       this->Controller->NoBlockSend(
         &this->GlobalStatus, 1, p, LAGRANGIAN_PARTICLE_CONTROL_TAG, *sendRequest);
@@ -920,7 +922,7 @@ int vtkPLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integ
       }
 
       // Stream out of domain particles
-      std::lock_guard<std::mutex> guard(this->StreamManagerMutex);
+      std::scoped_lock<std::mutex> guard(this->StreamManagerMutex);
       this->StreamManager->SendParticle(particle, this->ForcePManualShift);
     }
   }
@@ -1165,7 +1167,7 @@ void vtkPLagrangianParticleTracker::DeleteParticle(vtkLagrangianParticle* partic
   else
   {
     // store the particle to be deleted later
-    std::lock_guard<std::mutex> guard(this->OutOfDomainParticleMapMutex);
+    std::scoped_lock<std::mutex> guard(this->OutOfDomainParticleMapMutex);
     this->OutOfDomainParticleMap[particle->GetId()] = particle;
   }
 }
