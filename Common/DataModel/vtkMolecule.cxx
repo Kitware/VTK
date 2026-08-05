@@ -717,7 +717,7 @@ int vtkMolecule::Initialize(
     return 0;
   }
 
-  static const std::string atomicNumberName = this->GetAtomicNumberArrayName();
+  char const* const atomicNumberName = this->GetAtomicNumberArrayName();
 
   // update atoms positions
   this->ForceOwnership();
@@ -731,10 +731,10 @@ int vtkMolecule::Initialize(
 
     // if atomData contains an array with the atomic number name,
     // copy this array with a new name as we will overwrite it.
-    vtkDataArray* otherArray = atomData->GetArray(atomicNumberName.c_str());
+    vtkDataArray* otherArray = atomData->GetArray(atomicNumberName);
     if (otherArray && otherArray != static_cast<vtkAbstractArray*>(atomicNumberArray))
     {
-      this->GetVertexData()->RemoveArray(atomicNumberName.c_str());
+      this->GetVertexData()->RemoveArray(atomicNumberName);
 
       // create a new name for the copied array.
       std::string newName = std::string("Original ") + atomicNumberName;
@@ -758,7 +758,7 @@ int vtkMolecule::Initialize(
 
   // add atomic number array: if given array has the expected name, add it directly
   // (it will replace the current one). Else copy it and add it with atomic number name.
-  if (atomicNumberName == newAtomicNumberShortArray->GetName())
+  if (!strcmp(atomicNumberName, newAtomicNumberShortArray->GetName()))
   {
     this->GetVertexData()->AddArray(newAtomicNumberShortArray);
   }
@@ -766,7 +766,7 @@ int vtkMolecule::Initialize(
   {
     vtkNew<vtkUnsignedShortArray> atomicNumberArrayCopy;
     atomicNumberArrayCopy->ShallowCopy(newAtomicNumberShortArray);
-    atomicNumberArrayCopy->SetName(atomicNumberName.c_str());
+    atomicNumberArrayCopy->SetName(atomicNumberName);
     this->GetVertexData()->AddArray(atomicNumberArrayCopy.Get());
   }
 
