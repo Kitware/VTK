@@ -10,6 +10,7 @@
 #include "vtkStdString.h"
 
 #include <string>
+#include <string_view>
 
 #define VTKOSTREAM_OPERATOR(type)                                                                  \
   vtkOStreamWrapper& vtkOStreamWrapper::operator<<(type a)                                         \
@@ -78,6 +79,13 @@ VTKOSTREAM_OPERATOR_FUNC(void (*a)(void*, int*));
 vtkOStreamWrapper& vtkOStreamWrapper::operator<<(std_string const& s)
 {
   this->ostr << reinterpret_cast<std::string const&>(s);
+  return *this;
+}
+
+//------------------------------------------------------------------------------
+vtkOStreamWrapper& vtkOStreamWrapper::operator<<(std_string_view const& s)
+{
+  this->ostr << reinterpret_cast<std::string_view const&>(s);
   return *this;
 }
 
