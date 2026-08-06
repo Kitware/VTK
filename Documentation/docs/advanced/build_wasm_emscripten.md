@@ -11,9 +11,77 @@ Guide created using
 - CMake 3.31.3
 - Ninja 1.12.1
 - Emscripten 4.0.20
-- NodeJS 24.0.1
-- Chrome For Testing 133.0.6943.98
+- NodeJS 24.9.0
+- Chrome For Testing 138.0.7204.183
 ```
+
+## Quick start with CMake presets
+
+If you would rather not manage the toolchain yourself, VTK ships wasm presets that do it for you.
+They require only CMake 3.25 or newer, Ninja and a python3 interpreter:
+
+```sh
+cmake --workflow --preset wasm32   # or wasm64
+```
+
+That single command configures into `out/build/wasm32`, builds, and along the way downloads an
+Emscripten SDK and a NodeJS if it cannot find any. The first run therefore downloads roughly a
+gigabyte and takes several minutes. There is no `emcmake`, no `emsdk_env` and no `PATH` to set:
+the presets use a toolchain wrapper, `CMake/wasm/vtkEmscriptenToolchain.cmake`, which resolves the
+SDK and passes the same two settings `emcmake` would have (`CMAKE_TOOLCHAIN_FILE` and
+`CMAKE_CROSSCOMPILING_EMULATOR`).
+
+Downloaded tools go to a per-user cache rather than into the source tree, so they are shared
+between build trees and checkouts:
+
+| Platform | Location |
+| -------- | -------- |
+| Windows | `%LOCALAPPDATA%/vtk` |
+| macOS | `~/Library/Caches/vtk` |
+| Linux and others | `${XDG_CACHE_HOME:-~/.cache}/vtk` |
+
+Set the `VTK_TOOL_CACHE_DIR` environment variable to put them somewhere else. Delete the directory
+to reclaim the space.
+
+The available presets are:
+
+| Preset | Description |
+| ------ | ----------- |
+| `wasm32` | Release build for `wasm32-emscripten` |
+| `wasm64` | Release build for `wasm64-emscripten` |
+| `wasm32-testing` | `wasm32` with `VTK_BUILD_TESTING=WANT` |
+| `wasm64-testing` | `wasm64` with `VTK_BUILD_TESTING=WANT` |
+
+The configure, build and test steps can also be run separately:
+
+```sh
+cmake --preset wasm32
+cmake --build --preset wasm32
+```
+
+The testing presets read `VTK_TESTING_WASM_ENGINE` from the environment, so point it at a browser
+before configuring:
+
+```sh
+export VTK_TESTING_WASM_ENGINE=/path/to/chrome
+cmake --workflow --preset wasm32-testing
+```
+
+The presets deliberately do not use the NodeJS bundled with emsdk, which lags the standalone
+releases; wasm64 needs `--experimental-wasm-memory64` on anything older than NodeJS 24. The
+bundled copy is excluded from the search even if it is on your `PATH`. To reuse tools you already
+have, or to override what the wrapper picks:
+
+- `EMSDK` in the environment (as set by `emsdk_env.sh`) or `-DVTK_EMSDK_ROOT=/path/to/emsdk`
+- a NodeJS on `PATH`, `NODE_DIR` in the environment, or `-DNodeJS_INTERPRETER=/path/to/node`
+- `-DVTK_EMSDK_VERSION=<version>` to install a version other than the default
+- `-DVTK_BOOTSTRAP_EMSDK=OFF` to make a missing SDK an error rather than a download
+- `VTK_TOOL_CACHE_DIR` in the environment to relocate the download cache
+
+A `.gitlab/emsdk` or `.gitlab/node` left over from a CI-style local build is preferred over the
+cache, so the two flows share one copy.
+
+The rest of this page describes the manual setup, which the presets are a shortcut for.
 
 ## Prerequisites
 
@@ -40,7 +108,7 @@ For this guide, you will need the following:
 
 5. **Chrome For Testing**: This is optional. It is useful if you intend to run the test suite with `ctest`.
   This is a Chrome flavor that specifically targets web app testing and automation use cases.
-  Please download the 133.0.6943.98 version from [vtk.org/files/support](https://vtk.org/files/support)
+  Please download the 138.0.7204.183 version from [vtk.org/files/support](https://vtk.org/files/support)
 
 ### Install prerequisites
 
@@ -51,8 +119,8 @@ For this guide, you will need the following:
 # Download and install fnm:
 curl -o- https://fnm.vercel.app/install | bash
 # Download and install Node.js
-fnm install 24.0.1
-fnm use 24.0.1
+fnm install 24.9.0
+fnm use 24.9.0
 
 # Download and install EMSDK
 git clone https://github.com/emscripten-core/emsdk.git
@@ -67,9 +135,9 @@ export PATH=$PWD/emsdk/upstream/bin:$PWD/emsdk/upstream/emscripten:$PATH
 # Download and install fnm:
 winget install Schniz.fnm
 # Download and install Node.js
-fnm install 24.0.1
+fnm install 24.9.0
 fnm env --use-on-cd --shell power-shell | Out-String | Invoke-Expression
-fnm use 24.0.1
+fnm use 24.9.0
 
 git clone https://github.com/emscripten-core/emsdk.git
 .\emsdk\emsdk install 4.0.20
