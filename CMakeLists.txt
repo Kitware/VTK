@@ -14,6 +14,10 @@ if (POLICY CMP0174)
   cmake_policy(SET CMP0174 NEW) # defines a variable for an empty string after a single-value keyword
 endif ()
 
+if (POLICY CMP0177)
+  cmake_policy(SET CMP0177 NEW) # install() DESTINATION paths are normalized
+endif ()
+
 set(vtk_cmake_dir "${VTK_SOURCE_DIR}/CMake")
 list(INSERT CMAKE_MODULE_PATH 0 "${vtk_cmake_dir}")
 include(vtkCI)

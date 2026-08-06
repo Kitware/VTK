@@ -1,5 +1,12 @@
 get_filename_component(_vtkModule_dir "${CMAKE_CURRENT_LIST_FILE}" DIRECTORY)
 
+cmake_policy(PUSH)
+if (POLICY CMP0174)
+  # command defines a variable to an empty string when a single-value keyword is
+  # followed by an empty value, rather than unsetting it
+  cmake_policy(SET CMP0174 NEW)
+endif ()
+
 #[==[.rst:
 *********
 vtkModule
@@ -6611,3 +6618,5 @@ function (_vtk_module_generate_spdx)
     DEPENDS
       "${_vtk_module_generate_spdx_output_file}")
 endfunction ()
+
+cmake_policy(POP)

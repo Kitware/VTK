@@ -11,6 +11,16 @@ set(cmake_args
   "-DVTK_USE_LARGE_DATA:BOOL=ON"
   "--no-warn-unused-cli")
 
+# This project does not use the `.gitlab/ci/configure_*.cmake` files, so any
+# policy defaults needed by the dependencies found through `find_package(VTK)`
+# have to be repeated here. Fedora has Boost's own CMake config files
+# installed; without this, `find_package(Boost)` calls emit a CMP0167 dev
+# warning which the warning check turns into a failure.
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
+  list(APPEND cmake_args
+    "-DCMAKE_POLICY_DEFAULT_CMP0167:STRING=NEW")
+endif ()
+
 # Create an entry in CDash.
 ctest_start(Experimental TRACK "${ctest_track}")
 
