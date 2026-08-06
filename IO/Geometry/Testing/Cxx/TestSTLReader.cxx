@@ -113,6 +113,14 @@ int TestSTLReader(int argc, char* argv[])
   ret &= ::TestFile(argc, argv, "Data/multiple_patches.stl", "multiple_patches");
   ret &= ::TestStream(argc, argv, "Data/multiple_patches.stl", "multiple_patches");
 
+  // Ascii file with leading spaces on all lines, including "solid"
+  ret &= ::TestFile(argc, argv, "Data/box_leading_spaces.stl", "leading_spaces");
+  ret &= ::TestStream(argc, argv, "Data/box_leading_spaces.stl", "leading_spaces");
+
+  // Binary file that starts with "solid"
+  ret &= ::TestFile(argc, argv, "Data/box_binary_solid.stl", "binary_solid");
+  ret &= ::TestStream(argc, argv, "Data/box_binary_solid.stl", "binary_solid");
+
   // This binary STL file is malformed in 2 ways:
   // - it has the 80 byte header, but it incorrectly starts with the ASCII keyword `solid`
   // - it claims to have 30886 triangles, but the file is too short and actually has just 1 triangle
