@@ -487,8 +487,8 @@ vtkHDF::ScopedH5SHandle vtkHDFWriter::Implementation::CreateDataspaceFromArray(
   std::vector<hsize_t> dspaceDims;
   if (dims.empty())
   {
-    const int nTuples = dataArray ? dataArray->GetNumberOfTuples() : 0;
-    dspaceDims.emplace_back(static_cast<hsize_t>(nTuples));
+    const hsize_t nTuples = dataArray ? dataArray->GetNumberOfTuples() : 0;
+    dspaceDims.emplace_back(nTuples);
   }
   else
   {
