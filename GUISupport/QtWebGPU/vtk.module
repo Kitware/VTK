@@ -4,6 +4,8 @@ LIBRARY_NAME
   vtkGUISupportQtWebGPU
 DESCRIPTION
   Make VTK WebGPU render-windows available to Qt applications.
+CONDITION
+  VTK_ENABLE_WEBGPU
 GROUPS
   Qt
 SPDX_LICENSE_IDENTIFIER
