@@ -256,7 +256,7 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
           const auto idx = next++;
           for (unsigned int j = 0; j < tempPDC->GetNumberOfPartitions(i); ++j)
           {
-            output->SetPartition(idx, j, tempPDC->GetPartition(i, j));
+            output->SetPartition(idx, j, tempPDC->GetPartitionAsDataObject(i, j));
           }
           std::string partitionName;
           if (tempPDC->GetMetaData(i)->Has(vtkCompositeDataSet::NAME()) &&
