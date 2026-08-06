@@ -137,7 +137,5 @@ int TestQVTKWebGPUWidgetSwapWindows(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  app.exec();
-
   return EXIT_SUCCESS;
 }
