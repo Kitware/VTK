@@ -302,6 +302,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
     "^VTK::GUISupportQtSQLCxx-TestQtSQLDatabase$"
     "^VTK::RenderingCoreCxx-OpenGL-TestInteractorTimers$"
     "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$"
+    "^VTK::RenderingLICOpenGL2Cxx-TestSurfaceLICTranslucencyWithoutVectors$"
     "^VTK::RenderingQtCxx-TestQtInitialization$"
     "^VTK::RenderingTkPython"
     "^VTK::ViewsQtCxx-TestVtkQtTableView$")
