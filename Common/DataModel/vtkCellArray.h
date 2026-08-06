@@ -77,6 +77,13 @@
  * Connectivity array will have N entries per cell, and the Offsets array
  * will have values {0, N, 2N, 3N, ... }.
  *
+ * Fixed size storage cannot represent cells whose size differs from N.
+ * Whenever a cell whose size differs from N is inserted or appended, the
+ * mutating entry points (InsertNextCell(), UpdateCellCount(), Append(),
+ * AppendLegacyFormat()) automatically convert the storage to the explicit
+ * (non-fixed-size) storage of the same bit width, preserving existing data.
+ * See EnsureStorageForCellSize().
+ *
  * Methods for managing the storage type are:
  *
  * - `bool IsStorage64Bit()`
@@ -522,6 +529,27 @@ public:
   ///@}
 
   ///@{
+  /**
+   * Ensure that a cell of size @a cellSize can be safely inserted or appended.
+   *
+   * Fixed size storage can only represent cells whose size matches the fixed
+   * cell size (the slope of the affine offsets array). If the current storage
+   * is fixed size and @a cellSize differs from the fixed cell size, the
+   * storage is converted to the explicit storage of the same bit width
+   * (FixedSizeInt32 -> Int32, FixedSizeInt64 -> Int64), preserving all
+   * existing data. Otherwise this method does nothing.
+   *
+   * All mutating entry points that can add or resize cells (InsertNextCell(),
+   * UpdateCellCount(), Append(), AppendLegacyFormat()) call this method
+   * automatically: without this safeguard, inserting a mismatched cell size
+   * into fixed size storage would silently desynchronize the offsets and
+   * connectivity arrays, corrupting the topology.
+   *
+   * @return True if the storage can hold a cell of size @a cellSize after the
+   * call, false if a required conversion failed.
+   */
+  bool EnsureStorageForCellSize(vtkIdType cellSize);
+
   /**
    * Return the array used to store cell offsets. The 32/64 variants are only
    * valid when IsStorage64Bit() returns the appropriate value.
@@ -1411,8 +1439,32 @@ inline vtkIdType vtkCellArray::GetCellPointAtId(vtkIdType cellId, vtkIdType cell
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts, const vtkIdType* pts) VTK_SIZEHINT(pts, npts)
+inline bool vtkCellArray::EnsureStorageForCellSize(vtkIdType cellSize)
 {
+  switch (this->StorageType)
+  {
+    case StorageTypes::FixedSizeInt32:
+      if (this->GetOffsetsAffineArray32()->GetBackend()->Slope != cellSize)
+      {
+        return this->ConvertTo32BitStorage();
+      }
+      return true;
+    case StorageTypes::FixedSizeInt64:
+      if (this->GetOffsetsAffineArray64()->GetBackend()->Slope != cellSize)
+      {
+        return this->ConvertTo64BitStorage();
+      }
+      return true;
+    default:
+      return true;
+  }
+}
+
+//----------------------------------------------------------------------------
+inline vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts, const vtkIdType* pts)
+  VTK_SIZEHINT(pts, npts)
+{
+  this->EnsureStorageForCellSize(npts);
   vtkIdType cellId;
   this->Dispatch(vtkCellArray_detail::InsertNextCellImpl{}, npts, pts, cellId);
   return cellId;
@@ -1421,6 +1473,7 @@ vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts, const vtkIdType* pts) VTK
 //----------------------------------------------------------------------------
 vtkIdType vtkCellArray::InsertNextCell(int npts)
 {
+  this->EnsureStorageForCellSize(npts);
   vtkIdType cellId;
   this->Dispatch(vtkCellArray_detail::InsertNextCellImpl{}, npts, cellId);
   return cellId;
@@ -1435,26 +1488,21 @@ inline void vtkCellArray::InsertCellPoint(vtkIdType id)
 //----------------------------------------------------------------------------
 inline void vtkCellArray::UpdateCellCount(int npts)
 {
+  this->EnsureStorageForCellSize(npts);
   this->Dispatch(vtkCellArray_detail::UpdateCellCountImpl{}, npts);
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkCellArray::InsertNextCell(vtkIdList* pts)
 {
-  vtkIdType cellId;
-  this->Dispatch(
-    vtkCellArray_detail::InsertNextCellImpl{}, pts->GetNumberOfIds(), pts->GetPointer(0), cellId);
-  return cellId;
+  return this->InsertNextCell(pts->GetNumberOfIds(), pts->GetPointer(0));
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkCellArray::InsertNextCell(vtkCell* cell)
 {
   vtkIdList* pts = cell->GetPointIds();
-  vtkIdType cellId;
-  this->Dispatch(
-    vtkCellArray_detail::InsertNextCellImpl{}, pts->GetNumberOfIds(), pts->GetPointer(0), cellId);
-  return cellId;
+  return this->InsertNextCell(pts->GetNumberOfIds(), pts->GetPointer(0));
 }
 
 //----------------------------------------------------------------------------

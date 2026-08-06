@@ -584,6 +584,12 @@ void vtkCellArray::Append(vtkCellArray* src, vtkIdType pointOffset)
 {
   if (src->GetNumberOfCells() > 0)
   {
+    if (this->IsStorageFixedSize())
+    {
+      // IsHomogeneous() returns -1 for heterogeneous sources, which never
+      // matches the fixed cell size and thus forces conversion.
+      this->EnsureStorageForCellSize(src->IsHomogeneous());
+    }
     this->Dispatch(AppendImpl{}, src, pointOffset);
   }
 }
@@ -1266,6 +1272,13 @@ void vtkCellArray::AppendLegacyFormat(vtkIdTypeArray* data, vtkIdType ptOffset)
 //------------------------------------------------------------------------------
 void vtkCellArray::AppendLegacyFormat(const vtkIdType* data, vtkIdType len, vtkIdType ptOffset)
 {
+  const vtkIdType* cell = data;
+  const vtkIdType* const dataEnd = data + len;
+  while (this->IsStorageFixedSize() && cell < dataEnd)
+  {
+    this->EnsureStorageForCellSize(*cell);
+    cell += *cell + 1;
+  }
   this->Dispatch(AppendLegacyFormatImpl{}, data, len, ptOffset);
 }
 
