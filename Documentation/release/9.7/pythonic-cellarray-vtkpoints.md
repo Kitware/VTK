@@ -18,7 +18,7 @@ cells = vtkCellArray(offsets=[0, 3, 6], connectivity=[0, 1, 2, 3, 4, 5])
 array, a list of coordinate tuples, or a `vtkDataArray`:
 
 ```python
-from vtkmodules.vtkCommonDataModel import vtkPoints
+from vtkmodules.vtkCommonCore import vtkPoints
 
 points = vtkPoints(data=[[0, 0, 0], [1, 0, 0], [0, 1, 0]])
 ```
