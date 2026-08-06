@@ -72,6 +72,8 @@ protected:
 private:
   vtkAnariPolyDataMapperNode(const vtkAnariPolyDataMapperNode&) = delete;
   void operator=(const vtkAnariPolyDataMapperNode&) = delete;
+
+  vtkMTimeType PolyDataMTime = 0;
 };
 
 VTK_ABI_NAMESPACE_END
