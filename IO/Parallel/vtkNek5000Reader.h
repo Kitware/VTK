@@ -15,6 +15,8 @@
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+#include <cstdint>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkPoints;
@@ -143,7 +145,7 @@ protected:
   // copy the data from nek5000 to pv
   void updateVtuData(vtkUnstructuredGrid* pv_ugrid); //, vtkUnstructuredGrid* pv_boundary_ugrid);
   void addCellsToContinuumMesh();
-  void addSpectralElementId(int nelements);
+  void addSpectralElementId(int64_t nelements);
   void copyContinuumPoints(vtkPoints* points);
   // void interpolateAndCopyContinuumData(vtkUnstructuredGrid* pv_ugrid, double **data_array, int
   // interp_res, int num_verts);
@@ -177,12 +179,12 @@ protected:
   int blockDims[3];
   int totalBlockSize;
   int ActualTimeStep;
-  int numBlocks;
-  int myNumBlocks;
+  int64_t numBlocks;
+  int64_t myNumBlocks;
   int myNumBlockReads;
   int* myBlockIDs;
-  int* proc_numBlocks;
-  long* myBlockPositions;
+  int64_t* proc_numBlocks;
+  int64_t* myBlockPositions;
   int NumberOfTimeSteps;
   double TimeValue;
   int TimeStepRange[2];
