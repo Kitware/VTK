@@ -45,9 +45,7 @@ void vtkEGLMesaConfig::CreateWindowSurface(
     surface = eglCreatePbufferSurface(display, config, pbufferAttribs);
     if (surface == EGL_NO_SURFACE)
     {
-      vtkLog(WARNING,
-        "Failed to create EGL PBuffer surface (eglGetError=0x"
-          << std::hex << eglGetError() << std::dec << "). Falling back to surfaceless mode.");
+      vtkLog(WARNING, "Failed to create EGL PBuffer surface. Falling back to surfaceless mode.");
       surface = EGL_NO_SURFACE;
     }
     else
