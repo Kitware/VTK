@@ -684,7 +684,7 @@ def launch_web_test(*args, **kwargs):
     # The test name will be generated from the python script name, so
     # match and capture a bunch of contiguous characters which are
     # not '.', '\', or '/', followed immediately by the string '.py'.
-    fnamePattern = re.compile("([^\.\/\\\]+)\.py")
+    fnamePattern = re.compile(r"([^./\\]+)\.py")
     fmatch = re.search(fnamePattern, testScriptFile)
     if fmatch:
         testName = fmatch.group(1)
