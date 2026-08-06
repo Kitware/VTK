@@ -17,6 +17,7 @@
 #include "vtkHDFWriter.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridSource.h"
+#include "vtkIOSSReader.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -806,6 +807,25 @@ bool TestPartitionedDataSetCollection(const std::string& tempDir, const std::str
 }
 
 //----------------------------------------------------------------------------
+bool TestPDCWiththEmptyPartition(const std::string& tempDir, const std::string& dataRoot)
+{
+  // This is an example of a PDC with some empty partitioned datasets
+  vtkNew<vtkIOSSReader> reader;
+  std::string fileName = dataRoot + "/Data/can.ex2";
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  auto can = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutputDataObject(0));
+
+  std::string tempPath = tempDir + "/HDFWriter_canex2";
+  if (!TestWriteAndReadConfigurations(can, tempPath))
+  {
+    return false;
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool TestFieldDataReadWrite(const std::string& tempDir)
 {
   vtkNew<vtkIntArray> arr;
@@ -955,6 +975,7 @@ int TestHDFWriter(int argc, char* argv[])
   testPasses &= TestFieldDataReadWrite(tempDir);
   testPasses &= TestWriteAfterReadComposite(tempDir);
   testPasses &= TestTable(tempDir, dataRoot);
+  testPasses &= TestPDCWiththEmptyPartition(tempDir, dataRoot);
 
   return testPasses ? EXIT_SUCCESS : EXIT_FAILURE;
 }

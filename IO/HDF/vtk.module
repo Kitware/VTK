@@ -33,6 +33,7 @@ TEST_DEPENDS
   VTK::ImagingCore
   VTK::IOGeometry
   VTK::IOXML
+  VTK::IOIOSS
   VTK::TestingCore
   VTK::TestingRendering
   # We need vtkIOExodus as otherwise an information key will be missing, generating
