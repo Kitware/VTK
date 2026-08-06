@@ -157,7 +157,7 @@ void vtkHexagonalBokehBlurPass::RenderDirectionalBlur(
 
     std::stringstream ssImpl;
 
-    ssImpl << "  vec2 blurDir = vec2(cos(PI/2), sin(PI/2));\n";
+    ssImpl << "  vec2 blurDir = vec2(cos(PI/2.0), sin(PI/2.0));\n";
     ssImpl << "  vec3 color1 = BlurTexture(backgroundTexture, texCoord, blurDir).rgb;\n";
     ssImpl << "  blurDir = vec2(cos(-PI/6), sin(-PI/6));\n";
     ssImpl << "  vec3 color2 = BlurTexture(backgroundTexture, texCoord, blurDir).rgb;\n";
