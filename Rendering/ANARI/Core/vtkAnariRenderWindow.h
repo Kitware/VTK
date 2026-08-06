@@ -46,6 +46,17 @@ public:
    */
   vtkGetObjectMacro(AnariRenderer, vtkAnariRenderer);
 
+  ///@{
+  /**
+   * If true, the ANARI device will be wrapped to a debug layer, giving validation info about
+   * subtypes, parameters and properties.
+   * Default is false.
+   */
+  vtkGetMacro(UseDebugDevice, bool);
+  vtkSetMacro(UseDebugDevice, bool);
+  vtkBooleanMacro(UseDebugDevice, bool);
+  ///@}
+
   /**
    * @name Pixel query functions
    *
@@ -126,6 +137,7 @@ private:
   vtkSmartPointer<vtkAnariSceneGraph> AnariSceneGraph;
 
   vtkNew<vtkAnariDevice> AnariDevice;
+  bool UseDebugDevice = false;
   vtkNew<vtkAnariRenderer> AnariRenderer;
 
   vtkNew<vtkAnariViewNodeFactory> AnariFactory;
