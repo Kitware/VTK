@@ -550,6 +550,23 @@ bool TestMultiBlock(const std::string& tempDir, const std::string& dataRoot)
   baseReader->SetFileName(basePath.c_str());
   baseReader->Update();
   vtkMultiBlockDataSet* baseData = vtkMultiBlockDataSet::SafeDownCast(baseReader->GetOutput());
+
+  // Append field data
+  vtkNew<vtkIntArray> fieldArray1;
+  fieldArray1->InsertNextTuple1(0.0);
+  fieldArray1->InsertNextTuple1(2.0);
+  fieldArray1->SetName("Field1");
+  baseData->GetBlock(0)->GetFieldData()->AddArray(fieldArray1);
+
+  vtkNew<vtkDoubleArray> fieldArray2;
+  fieldArray2->SetNumberOfComponents(2);
+  fieldArray2->InsertNextTuple2(3.0, 0.0);
+  fieldArray2->SetName("Field2");
+  vtkMultiBlockDataSet::SafeDownCast(baseData->GetBlock(1))
+    ->GetBlock(1)
+    ->GetFieldData()
+    ->AddArray(fieldArray2);
+
   if (baseData == nullptr)
   {
     std::cerr << "Can't read base data from: " << basePath << std::endl;

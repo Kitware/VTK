@@ -415,6 +415,8 @@ void vtkHDFReader::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
   os << indent << "PointDataArraySelection: " << this->DataArraySelection[vtkDataObject::POINT]
      << "\n";
+  os << indent << "FieldDataArraySelection: " << this->DataArraySelection[vtkDataObject::FIELD]
+     << "\n";
   os << indent << "RowDataArraySelection: " << this->DataArraySelection[vtkDataObject::ROW] << "\n";
   os << indent << "HasTemporalData: " << (this->HasTemporalData ? "true" : "false") << "\n";
   os << indent << "NumberOfSteps: " << this->NumberOfSteps << "\n";
@@ -1157,13 +1159,13 @@ bool vtkHDFReader::ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
             vtkErrorMacro("Error reading array " << name);
             return false;
           }
-          if (!cacheArray)
-          {
-            array->SetName(name.c_str());
-            vtkDataSetAttributes* attributes = dataSet->GetAttributes(attributeType);
-            this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
-            attributes->AddArray(array);
-          }
+
+          // Static mesh is not implemented for AMR in the reader, so set array in all cases
+          // see https://gitlab.kitware.com/vtk/vtk/-/work_items/20129
+          array->SetName(name.c_str());
+          vtkDataSetAttributes* attributes = dataSet->GetAttributes(attributeType);
+          this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
+          attributes->AddArray(array);
         }
       }
     }
@@ -1942,13 +1944,12 @@ bool vtkHDFReader::RetrieveDataArraysFromAssembly()
       return false;
     }
 
-    for (int attrIdx = vtkDataObject::AttributeTypes::POINT;
-         attrIdx <= vtkDataObject::AttributeTypes::CELL; ++attrIdx)
+    for (const auto& attrType : vtkHDFUtilities::GetAttributeTypes())
     {
-      const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attrIdx);
+      const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attrType);
       for (const std::string& arrayName : arrayNames)
       {
-        this->DataArraySelection[attrIdx]->AddArray(arrayName.c_str());
+        this->DataArraySelection[attrType]->AddArray(arrayName.c_str());
       }
     }
   }

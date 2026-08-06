@@ -4,6 +4,7 @@
 #include "vtkAppendDataSets.h"
 #include "vtkDataAssemblyUtilities.h"
 #include "vtkDataSetSurfaceFilter.h"
+#include "vtkFieldData.h"
 #include "vtkForceStaticMesh.h"
 #include "vtkGenerateTimeSteps.h"
 #include "vtkGroupDataSetsFilter.h"
@@ -464,6 +465,9 @@ bool TestCompositeTemporalDistributedObject(
       vtkUnstructuredGrid* ugBlock = vtkUnstructuredGrid::SafeDownCast(ugMP->GetPartition(myRank));
       vtkPolyData* pdBlock = vtkPolyData::SafeDownCast(pdMP->GetPartition(myRank));
       vtkPolyData* pdBlock2 = vtkPolyData::SafeDownCast(readPart->GetBlock(1));
+
+      pdBlock2->GetFieldData()->RemoveArray("Time");
+      ugBlock2->GetFieldData()->RemoveArray("Time");
 
       if (!vtkTestUtilities::CompareDataObjects(pdBlock, pdBlock2))
       {

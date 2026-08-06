@@ -1,14 +1,16 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkDataObject.h"
-#include "vtkHDFReader.h"
-
 #include "vtkAppendDataSets.h"
+#include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
 #include "vtkDataArray.h"
+#include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
+#include "vtkHDFReader.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridSource.h"
 #include "vtkImageData.h"
@@ -59,6 +61,37 @@ int TestOverlappingAMRTemporalLegacy(const std::string& dataRoot);
 int TestPartialArrayWithCompositeDataset(const std::string& dataRoot);
 int TestPDCPolyDataUGTemporal(const std::string& dataRoot);
 int TestMBPolyDataUGTemporal(const std::string& dataRoot);
+
+/**
+ * Remove time field arrays added by the readers for rigorous data comparisons to succeed.
+ * 'TimeValue' is added by the XML reader but not HDF
+ * 'Time' is added by both, but is not present on ad-hoc datasets
+ */
+void RemoveTimeFields(vtkDataObject* src)
+{
+  auto removeArraysFromField = [](vtkDataObject* obj)
+  {
+    const std::array timeArrays = { "Time", "TimeValue" };
+    for (const auto& timeName : timeArrays)
+    {
+      if (obj->GetFieldData()->HasArray(timeName))
+      {
+        obj->GetFieldData()->RemoveArray(timeName);
+      }
+    }
+  };
+  if (auto composite = vtkCompositeDataSet::SafeDownCast(src))
+  {
+    for (auto obj : vtk::Range(composite))
+    {
+      removeArraysFromField(obj);
+    }
+  }
+  else
+  {
+    removeArraysFromField(src);
+  }
+}
 }
 
 //------------------------------------------------------------------------------
@@ -163,6 +196,9 @@ int TestUGTemporal(const std::string& dataRoot)
       return EXIT_FAILURE;
     }
 
+    ::RemoveTimeFields(refData);
+    ::RemoveTimeFields(data);
+
     if (!vtkTestUtilities::CompareDataObjects(data, refData))
     {
       std::cerr << "Unstructured grids are not the same for timestep " << iStep << std::endl;
@@ -250,6 +286,8 @@ int TestPartitionedUGTemporal(const std::string& dataRoot)
       return EXIT_FAILURE;
     }
 
+    ::RemoveTimeFields(refData);
+
     if (!vtkTestUtilities::CompareDataObjects(data, refData))
     {
       std::cerr << "Unstructured grids are not the same for timestep " << iStep << std::endl;
@@ -302,8 +340,9 @@ int TestUGTemporalPolyhedron(const std::string& dataRoot)
     readerXML->SetFileName(vtuFile.c_str());
     readerXML->Update();
     vtkUnstructuredGrid* readDataXML = vtkUnstructuredGrid::SafeDownCast(readerXML->GetOutput());
-    vtkNew<vtkFieldData> fd;
-    readDataXML->SetFieldData(fd);
+
+    ::RemoveTimeFields(readDataXML);
+    ::RemoveTimeFields(readData);
 
     if (!vtkTestUtilities::CompareDataObjects(readDataXML, readData))
     {
@@ -354,8 +393,7 @@ int TestImageDataTemporal(const std::string& dataRoot)
     readerXML->Update();
     vtkDataObject* refData = readerXML->GetOutputDataObject(0);
 
-    // Remove TimeValue added by XML reader
-    refData->GetFieldData()->RemoveArray("TimeValue");
+    ::RemoveTimeFields(refData);
 
     // Local Time Checks
     if (!vtkMathUtilities::FuzzyCompare(
@@ -380,6 +418,9 @@ int TestImageDataTemporal(const std::string& dataRoot)
                 << " != " << static_cast<double>(iStep) / 10 << std::endl;
       return EXIT_FAILURE;
     }
+
+    ::RemoveTimeFields(refData);
+    ::RemoveTimeFields(data);
 
     if (!vtkTestUtilities::CompareDataObjects(refData, data))
     {
@@ -528,6 +569,9 @@ int TestPartitionedPolyDataTemporal(const std::string& dataRoot)
     refReader->Update();
     vtkDataObject* refData = refReader->GetOutputDataObject(0);
 
+    ::RemoveTimeFields(data);
+    ::RemoveTimeFields(refData);
+
     if (!vtkTestUtilities::CompareDataObjects(data, refData))
     {
       std::cerr << "Partitioned polydata are not the same for timestep " << iStep << std::endl;
@@ -624,6 +668,8 @@ int TestPartitionedPolyDataTemporalWithOffset(const std::string& dataRoot)
         .c_str());
     refReader->Update();
     vtkDataObject* refData = refReader->GetOutputDataObject(0);
+
+    ::RemoveTimeFields(refData);
 
     if (!vtkTestUtilities::CompareDataObjects(data, refData))
     {
@@ -1009,6 +1055,15 @@ int TestOverlappingAMRTemporalBase(const std::string& dataRoot, const std::strin
         vtkImageData* dataset = data->GetDataSetAsImageData(levelIndex, datasetIndex);
         vtkImageData* expectedDataset =
           expectedData->GetDataSetAsImageData(levelIndex, datasetIndex);
+
+        // No field data at AMR-box level
+        vtkNew<vtkFieldData> dummy;
+        expectedDataset->SetFieldData(dummy);
+
+        // Not written to file
+        expectedDataset->GetPointData()->RemoveArray("vtkOriginalPointIds");
+        expectedDataset->GetCellData()->RemoveArray("vtkOriginalCellIds");
+
         if (!vtkTestUtilities::CompareDataObjects(dataset, expectedDataset))
         {
           std::cerr << "Datasets does not match for level " << levelIndex << " dataset "
@@ -1079,6 +1134,9 @@ int TestPDCPolyDataUGTemporal(const std::string& dataRoot)
     refReader->Update();
     vtkDataObject* refData = refReader->GetOutputDataObject(0);
 
+    ::RemoveTimeFields(data);
+    ::RemoveTimeFields(refData);
+
     if (!vtkTestUtilities::CompareDataObjects(data, refData))
     {
       std::cerr << "Partitioned Polydata with offsects are not the same for timestep " << iStep
@@ -1143,6 +1201,9 @@ int TestMBPolyDataUGTemporal(const std::string& dataRoot)
         .c_str());
     refReader->Update();
     vtkDataObject* refData = refReader->GetOutputDataObject(0);
+
+    ::RemoveTimeFields(data);
+    ::RemoveTimeFields(refData);
 
     if (!vtkTestUtilities::CompareDataObjects(data, refData))
     {
