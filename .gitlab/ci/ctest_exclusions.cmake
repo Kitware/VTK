@@ -567,7 +567,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingCoreCxx-WebGPU-TestGlyph3DMapperPicking$")
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora44_x86_64_webgpu")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "webgpu")
   list(APPEND test_exclusions
     # RenderingCoreCxx tests that fail with WebGPU.
     # see https://gitlab.kitware.com/vtk/vtk/-/issues/19921
@@ -639,7 +639,11 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora44_x86_64_webgpu")
     "^VTK::RenderingLabelCxx-WebGPU-TestLabelPlacementMapperCoincidentPoints$"
     "^VTK::RenderingLabelCxx-WebGPU-TestLabelPlacer$"
     "^VTK::RenderingLabelCxx-WebGPU-TestLabelPlacementMapper$"
-    "^VTK::RenderingLabelCxx-WebGPU-TestClipLabels$"
+    "^VTK::RenderingLabelCxx-WebGPU-TestClipLabels$")
+endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora42_x86_64_webgpu")
+  list(APPEND test_exclusions
     # Crashes randomly with mesa-vulkan-drivers
     "^VTK::RenderingWebGPUCxx-TestComputeFrustumCulling$")
 endif ()
