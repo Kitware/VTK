@@ -1,9 +1,27 @@
 # VTK::RenderingVolumeWebGPU
 
-Volume rendering for the WebGPU backend. The module holds one class,
-`vtkWebGPUVolumeRayCastMapper`, registered as an object factory override of
-`vtkGPUVolumeRayCastMapper` and tagged with `RenderingBackend=WebGPU` so that
-`vtkObjectFactory` preferences pick between it and the OpenGL mapper.
+Volume rendering for the WebGPU backend. Two classes:
+
+- `vtkWebGPUVolumeRayCastMapper`, an object factory override of
+  `vtkGPUVolumeRayCastMapper` tagged with `RenderingBackend=WebGPU` so that
+  `vtkObjectFactory` preferences pick between it and the OpenGL mapper. It
+  prepares inputs; it does not draw.
+- `vtkWebGPUVolumeRayCastCoordinator`, one per renderer, which gathers the
+  inputs of every volume in that renderer and marches them together.
+
+## Why a coordinator
+
+Volume rendering only composites correctly when the volumes that share a ray are
+sampled together. If each mapper drew its own volume in turn, each would
+composite a finished image over the last, which is wrong wherever two volumes
+occupy the same space and order dependent everywhere else. That is the reason
+the OpenGL backend needs a `vtkMultiVolume` and refuses to let its inputs
+overlap.
+
+Here the volumes are brought back together at the renderer instead. Adding
+several `vtkVolume` props is enough, each with its own mapper and its own
+transfer functions, overlapping or not. Several inputs on one mapper still work
+and join the same pass, and so does a `vtkMultiVolume`.
 
 ## How a frame is put together
 
@@ -12,15 +30,28 @@ through.
 
 | Stage | What happens |
 | --- | --- |
-| `SyncDeviceResources` | Collect the connected ports, upload the volume textures, tabulate the transfer functions, classify the blocks. |
+| `SyncDeviceResources` | Upload the volume textures, tabulate the transfer functions, classify the blocks, and offer one contribution per connected port to the coordinator of the renderer. |
 | `RecordingCommands` | Hand the volume to `vtkWebGPURenderer::AddPostRasterizationProp`. |
-| `RenderPostRasterization` | Write the uniforms, build the bind group around the finished depth buffer, and record the ray casting pass. |
+| `RenderPostRasterization` | Whichever volume arrives first has the coordinator write the uniforms, build the bind group around the finished depth buffer, and record one ray casting pass for all of them. The rest find the work already done. |
+
+The mapper keeps what belongs to one input: its 3D texture, the tabulated
+transfer functions and the block classification. The coordinator keeps what the
+pass shares: the transfer function texture arrays, the block buffer, the
+parameter buffers, the bind group and the pipeline. A contribution
+(`Private/vtkWebGPUVolumeRayCastContribution.h`) is how one crosses to the
+other, and carries a time stamp so that layers and blocks that did not change
+are not uploaded again.
+
+Settings that describe the march rather than a single volume, the blend mode
+above all, are taken from the mapper of the first input, with a warning if the
+others disagree; a pass can only be marched one way. Everything that is genuinely
+per volume, including clipping planes, lives in the per volume parameters.
 
 Nothing is drawn in the main render pass. That pass owns the depth attachment,
 and the ray march has to read the depth the opaque geometry left behind in order
 to stop rays at surfaces, which a pass cannot do with an attachment it is still
-writing to. Waiting until the main pass has been flushed also means the volume
-is composited over a finished frame.
+writing to. Waiting until the main pass has been flushed also means the volumes
+are composited over a finished frame.
 
 ## The shader
 
@@ -58,8 +89,9 @@ when the samples are evenly spaced, so adaptive sampling is bypassed for them.
 
 ## Limits
 
-- Twelve inputs per pass, set by how many sampled textures a bind group may hold
-  for one shader stage.
+- Twelve volumes per renderer per pass, set by how many sampled textures a bind
+  group may hold for one shader stage. Anything beyond that is not drawn, with a
+  warning.
 - Six lights and six clipping planes.
 - The first component of the scalars is rendered; independent multi-component
   volumes and two dimensional transfer functions are not implemented.

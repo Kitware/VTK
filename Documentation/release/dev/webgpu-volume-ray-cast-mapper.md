@@ -13,20 +13,24 @@ terminates rays against the opaque geometry already in the frame.
 
 Two things work differently from `vtkOpenGLGPUVolumeRayCastMapper`.
 
-You can hand the mapper several inputs and let them overlap in space:
+Volumes that share a renderer are ray cast together and may overlap in space.
+Adding the props is all it takes:
 
 ```cpp
-mapper->SetInputConnection(0, ct->GetOutputPort());
-mapper->SetInputConnection(1, pet->GetOutputPort());
-mapper->SetVolumeProperty(0, ctProperty);
-mapper->SetVolumeProperty(1, petProperty);
+renderer->AddVolume(ct);   // its own mapper and transfer functions
+renderer->AddVolume(pet);  // its own mapper and transfer functions
 ```
 
-No `vtkMultiVolume` is needed to hold them together, and the inputs may occupy
-the same space. Where they do, the mapper blends them as media that share the
-sample, so the picture does not depend on the order the inputs were connected
-in. Up to twelve inputs are ray cast in one pass. A `vtkMultiVolume` is still
-accepted for source compatibility.
+There is nothing to assemble by hand: no `vtkMultiVolume`, and no second input
+port on one mapper. Where two volumes occupy the same space they are blended as
+media that share the sample, so the picture does not depend on the order the
+props were added in. A single mapper may still carry several inputs on
+consecutive ports, each with its own `vtkVolumeProperty` set through
+`SetVolumeProperty()`, and those join the same pass; a `vtkMultiVolume` still
+works too. Up to twelve volumes are ray cast in one pass.
+
+`vtkWebGPUVolumeRayCastCoordinator` is where this happens. There is one per
+renderer, created on demand, and it is not something you normally touch.
 
 The distance between samples is not fixed along a ray. The mapper keeps a
 coarse min/max structure over each input and combines it with the current
