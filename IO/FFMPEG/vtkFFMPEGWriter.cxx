@@ -259,14 +259,46 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData* id)
 {
   this->Writer->GetInputAlgorithm(0, 0)->UpdateWholeExtent();
 
-  // copy the image from the input to the RGB buffer while flipping Y
-  unsigned char* rgb = (unsigned char*)id->GetScalarPointer();
-  unsigned char* src;
-  for (int y = 0; y < this->avCodecContext->height; y++)
+  // --- Validate the incoming frame against what the codec was opened with. ---
+  int dims[3];
+  id->GetDimensions(dims);
+  const int comps = id->GetNumberOfScalarComponents();
+  const int scalarType = id->GetScalarType();
+
+  if (dims[0] != this->avCodecContext->width || dims[1] != this->avCodecContext->height)
   {
-    src = rgb + (this->avCodecContext->height - y - 1) * this->avCodecContext->width * 3; // flip Y
-    unsigned char* dest = &this->rgbInput->data[0][y * this->rgbInput->linesize[0]];
-    memcpy((void*)dest, (void*)src, this->avCodecContext->width * 3);
+    vtkGenericWarningMacro(<< "Input frame " << dims[0] << "x" << dims[1]
+                           << " does not match the encoder stream dimensions "
+                           << this->avCodecContext->width << "x" << this->avCodecContext->height
+                           << "; refusing to encode this frame.");
+    return 0;
+  }
+
+  if (comps != 3 || scalarType != VTK_UNSIGNED_CHAR)
+  {
+    vtkGenericWarningMacro(<< "Input frame must be 3-component unsigned char RGB (got " << comps
+                           << " component(s), scalar type " << scalarType << ").");
+    return 0;
+  }
+
+  unsigned char* rgb = static_cast<unsigned char*>(id->GetScalarPointer());
+  if (!rgb)
+  {
+    vtkGenericWarningMacro(<< "Input frame has no scalar data.");
+    return 0;
+  }
+
+  const int width = this->avCodecContext->width;
+  const int height = this->avCodecContext->height;
+  // Source rows are tightly packed: width * comps bytes (comps == 3, uchar).
+  const vtkIdType srcRowBytes = static_cast<vtkIdType>(width) * comps;
+
+  // copy the image from the input to the RGB buffer while flipping Y
+  for (int y = 0; y < height; y++)
+  {
+    const unsigned char* srcRow = rgb + static_cast<vtkIdType>(height - y - 1) * srcRowBytes;
+    unsigned char* destRow = &this->rgbInput->data[0][y * this->rgbInput->linesize[0]];
+    memcpy(destRow, srcRow, static_cast<size_t>(srcRowBytes));
   }
 
   // convert that to YUV for input to the codec
