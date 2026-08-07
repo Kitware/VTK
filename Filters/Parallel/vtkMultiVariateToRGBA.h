@@ -166,43 +166,40 @@ public:
   /**
    * Set the visibility of the specified column/component by name (a table
    * column name, or a component name of the dataset array being
-   * processed). Only visible columns/components are used to compute the
-   * RGBA/GBC values, letting a subset of a multivariate dataset be
-   * visualized. If no column/component has been explicitly hidden (the
-   * default), all of them are used, exactly as if this feature was not
-   * used at all.
+   * processed). Only visible (i.e. not hidden) columns/components are used
+   * to compute the RGBA/GBC values, letting a subset of a multivariate
+   * dataset be visualized. By default (an empty HiddenColumns list), every
+   * column/component is visible.
    */
   void SetColumnVisibility(const std::string& name, bool visible);
   /**
-   * Set the visibility of all columns/components. Passing true is
-   * equivalent to the default (unconfigured) state. Passing false clears
-   * any explicit configuration and also reverts to the default of using
-   * every column/component, since a filter with nothing to process has no
-   * meaningful output.
+   * Set the visibility of all columns/components. Passing true clears the
+   * hidden list, so every column/component of the current input is
+   * visible. Passing false marks every column/component of the current
+   * input as hidden, so the filter has nothing to process.
    */
   void SetColumnVisibilityAll(bool visible);
   /**
-   * Get the visibility of the specified column/component. Returns true for
-   * any column/component that has not been explicitly hidden.
+   * Get the visibility of the specified column/component. Returns true
+   * unless the column/component has been explicitly marked hidden.
    */
   bool GetColumnVisibility(const std::string& name);
   /**
-   * Get the list of the columns/components explicitly marked visible, and
-   * the order in which they are used. An empty list means every
-   * column/component of the current input is used (the default).
+   * Get the list of the columns/components of the current input that are
+   * visible (i.e. not hidden), in their natural order. Empty when the
+   * current input has no visible column/component.
    */
   virtual vtkStringArray* GetVisibleColumns();
   /**
-   * Set the list of visible columns/components, and the order in which
-   * they will be used. Passing a null or empty array reverts to the
-   * default of using every column/component of the current input.
+   * Set the list of visible columns/components: every column/component of
+   * the current input not in this list is marked hidden. Passing a null or
+   * empty array marks every column/component of the current input hidden.
    */
   virtual void SetVisibleColumns(vtkStringArray* visColumns);
   /**
    * Returns the names of the columns/components that will actually be used
-   * to compute the RGBA/GBC values: either GetVisibleColumns() (when
-   * non-empty), or every column/component found in the current input
-   * (when GetVisibleColumns() is empty, i.e. not configured).
+   * to compute the RGBA/GBC values: the columns/components of the current
+   * input that are visible (i.e. not hidden), in their natural order.
    */
   vtkSmartPointer<vtkStringArray> GetProcessedColumnNames();
   ///@}
@@ -228,11 +225,11 @@ protected:
    */
   double OutsideLensAlphaCap = 0.0;
   /**
-   * Strongly owned internal data for the column/component visibility. An
-   * empty array means "no explicit configuration", so every
-   * column/component of the current input is used.
+   * Strongly owned internal data for the column/component visibility,
+   * storing the names of the columns/components that are hidden. An empty
+   * array (the default) means every column/component is visible.
    */
-  vtkNew<vtkStringArray> VisibleColumns;
+  vtkNew<vtkStringArray> HiddenColumns;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
@@ -249,11 +246,15 @@ private:
    */
   vtkSmartPointer<vtkStringArray> GetAllColumnNames();
   /**
-   * Returns a read-only view exposing only the components of 'array' whose
-   * names are in GetVisibleColumns() (or 'array' itself, unmodified, if
-   * every component is visible).
+   * Returns a read-only view exposing only the visible (i.e. not hidden)
+   * named components of 'array' (or 'array' itself, unmodified, if every
+   * component of 'array' happens to be visible).
    */
   vtkSmartPointer<vtkDataArray> GetVisibleComponentsArray(vtkDataArray* array);
+  /**
+   * Backing storage for the pointer returned by GetVisibleColumns().
+   */
+  vtkSmartPointer<vtkStringArray> VisibleColumnsCache;
 };
 
 VTK_ABI_NAMESPACE_END

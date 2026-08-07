@@ -98,7 +98,9 @@ public:
    * Set the visibility of the specified column/component by name. Only
    * visible columns/components are used to compute the plot. This is a
    * passthrough to the underlying vtkMultiVariateToRGBA; see
-   * vtkMultiVariateToRGBA::SetColumnVisibility for details.
+   * vtkMultiVariateToRGBA::SetColumnVisibility for details. Every
+   * column/component of the input set with SetInputDataSet/SetInputData is
+   * visible by default.
    */
   void SetColumnVisibility(const std::string& name, bool visible);
   void SetColumnVisibilityAll(bool visible);

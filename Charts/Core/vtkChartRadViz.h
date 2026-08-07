@@ -91,7 +91,9 @@ public:
    * columns/components are used to compute the RadViz plot. This is a
    * passthrough to the underlying vtkPlotRadViz (and, in turn, to its
    * vtkMultiVariateToRGBA); see vtkMultiVariateToRGBA::SetColumnVisibility
-   * for details. A no-op if the chart has no plot yet.
+   * and vtkPlotRadViz::SetColumnVisibility for details, including the
+   * default visibility of every column/component before this is called.
+   * A no-op if the chart has no plot yet.
    */
   void SetColumnVisibility(const vtkStdString& name, bool visible);
 

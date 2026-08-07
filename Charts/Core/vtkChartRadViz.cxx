@@ -48,6 +48,7 @@ vtkStandardNewMacro(vtkChartRadViz);
 vtkChartRadViz::vtkChartRadViz()
 {
   this->Internals = std::make_unique<vtkChartRadViz::vtkInternals>();
+  this->AddPlot(0 /*type*/);
 }
 
 //------------------------------------------------------------------------------
@@ -107,9 +108,8 @@ bool vtkChartRadViz::Paint(vtkContext2D* painter)
     this->Internals->Plot->SetDimensions(this->Size.GetX() + BORDER_SIZE,
       this->Size.GetY() + BORDER_SIZE, this->Geometry[0] - 2 * BORDER_SIZE,
       this->Geometry[1] - 2 * BORDER_SIZE - titleSize);
+    this->Internals->Plot->Paint(painter);
   }
-
-  this->PaintChildren(painter);
 
   return true;
 }
@@ -322,6 +322,10 @@ void vtkChartRadViz::GetActiveElement(
   activeLensInterior = false;
   const int SIZE = 5;
   auto vertices = this->Internals->Plot->GetVertices();
+  if (!vertices || vertices->GetNumberOfPoints() < 3)
+  {
+    return;
+  }
   for (int i = 0; i < vertices->GetNumberOfPoints(); ++i)
   {
     double xy[2];

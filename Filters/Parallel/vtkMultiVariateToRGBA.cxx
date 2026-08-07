@@ -589,103 +589,97 @@ vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetAllColumnNames()
 //------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetColumnVisibility(const std::string& name, bool visible)
 {
-  if (visible)
+  vtkIdType foundIndex = -1;
+  for (vtkIdType i = 0; i < this->HiddenColumns->GetNumberOfTuples(); ++i)
   {
-    if (this->VisibleColumns->GetNumberOfTuples() == 0)
+    if (this->HiddenColumns->GetValue(i) == name)
     {
-      // Empty list means "everything visible" by default: name is already
-      // visible, nothing to do.
+      foundIndex = i;
+      break;
+    }
+  }
+  if (!visible)
+  {
+    if (foundIndex >= 0)
+    {
+      // Already hidden, nothing more needs to be done
       return;
     }
-    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
-    {
-      if (this->VisibleColumns->GetValue(i) == name)
-      {
-        // Already there, nothing more needs to be done
-        return;
-      }
-    }
     // Add the column to the end of the list
-    this->VisibleColumns->InsertNextValue(name);
+    this->HiddenColumns->InsertNextValue(name);
     this->Modified();
   }
   else
   {
-    if (this->VisibleColumns->GetNumberOfTuples() == 0)
+    if (foundIndex < 0)
     {
-      // Materialize the implicit "everything visible" list before hiding
-      // 'name', otherwise there would be nothing to remove it from.
-      vtkSmartPointer<vtkStringArray> all = this->GetAllColumnNames();
-      for (vtkIdType i = 0; i < all->GetNumberOfTuples(); ++i)
-      {
-        this->VisibleColumns->InsertNextValue(all->GetValue(i));
-      }
+      // Already visible, nothing more needs to be done
+      return;
     }
-    // Remove the value if present
-    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+    // Move all the later elements down by one, and reduce the size
+    for (vtkIdType i = foundIndex; i < this->HiddenColumns->GetNumberOfTuples() - 1; ++i)
     {
-      if (this->VisibleColumns->GetValue(i) == name)
-      {
-        // Move all the later elements down by one, and reduce the size
-        while (i < this->VisibleColumns->GetNumberOfTuples() - 1)
-        {
-          this->VisibleColumns->SetValue(i, this->VisibleColumns->GetValue(i + 1));
-          ++i;
-        }
-        this->VisibleColumns->SetNumberOfTuples(this->VisibleColumns->GetNumberOfTuples() - 1);
-        this->Modified();
-        return;
-      }
+      this->HiddenColumns->SetValue(i, this->HiddenColumns->GetValue(i + 1));
     }
+    this->HiddenColumns->SetNumberOfTuples(this->HiddenColumns->GetNumberOfTuples() - 1);
+    this->Modified();
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkMultiVariateToRGBA::SetColumnVisibilityAll(bool vtkNotUsed(visible))
+void vtkMultiVariateToRGBA::SetColumnVisibilityAll(bool visible)
 {
-  // Clearing the list reverts to the default of using every
-  // column/component, which covers both `visible == true` and
-  // `visible == false` (a filter with nothing to process has no meaningful
-  // output, so "hide everything" also falls back to the default).
-  this->VisibleColumns->Initialize();
+  if (visible)
+  {
+    this->HiddenColumns->Initialize();
+  }
+  else
+  {
+    this->HiddenColumns->DeepCopy(this->GetAllColumnNames());
+  }
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
 bool vtkMultiVariateToRGBA::GetColumnVisibility(const std::string& name)
 {
-  if (this->VisibleColumns->GetNumberOfTuples() == 0)
+  for (vtkIdType i = 0; i < this->HiddenColumns->GetNumberOfTuples(); ++i)
   {
-    // no explicit configuration: everything is visible
-    return true;
-  }
-  for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
-  {
-    if (this->VisibleColumns->GetValue(i) == name)
+    if (this->HiddenColumns->GetValue(i) == name)
     {
-      return true;
+      return false;
     }
   }
-  return false;
+  return true;
 }
 
 //------------------------------------------------------------------------------
 vtkStringArray* vtkMultiVariateToRGBA::GetVisibleColumns()
 {
-  return this->VisibleColumns;
+  this->VisibleColumnsCache = this->GetProcessedColumnNames();
+  return this->VisibleColumnsCache;
 }
 
 //------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetVisibleColumns(vtkStringArray* visColumns)
 {
-  if (!visColumns || visColumns->GetNumberOfTuples() == 0)
+  std::set<std::string> visibleNames;
+  if (visColumns)
   {
-    this->VisibleColumns->Initialize();
+    for (vtkIdType i = 0; i < visColumns->GetNumberOfTuples(); ++i)
+    {
+      visibleNames.insert(visColumns->GetValue(i));
+    }
   }
-  else
+  vtkSmartPointer<vtkStringArray> all = this->GetAllColumnNames();
+  this->HiddenColumns->Initialize();
+  for (vtkIdType i = 0; i < all->GetNumberOfTuples(); ++i)
   {
-    this->VisibleColumns->SetNumberOfTuples(visColumns->GetNumberOfTuples());
-    this->VisibleColumns->DeepCopy(visColumns);
+    const vtkStdString& name = all->GetValue(i);
+    if (visibleNames.find(name) == visibleNames.end())
+    {
+      this->HiddenColumns->InsertNextValue(name);
+    }
   }
   this->Modified();
 }
@@ -693,24 +687,16 @@ void vtkMultiVariateToRGBA::SetVisibleColumns(vtkStringArray* visColumns)
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetProcessedColumnNames()
 {
-  if (this->VisibleColumns->GetNumberOfTuples() == 0)
-  {
-    return this->GetAllColumnNames();
-  }
-  // keep only the visible names that actually exist in the current input,
-  // preserving the configured order.
+  // keep only the names of the current input that are not hidden,
+  // preserving their natural order.
   vtkSmartPointer<vtkStringArray> all = this->GetAllColumnNames();
-  std::set<std::string> allNames;
+  vtkSmartPointer<vtkStringArray> result = vtkSmartPointer<vtkStringArray>::New();
   for (vtkIdType i = 0; i < all->GetNumberOfTuples(); ++i)
   {
-    allNames.insert(all->GetValue(i));
-  }
-  vtkSmartPointer<vtkStringArray> result = vtkSmartPointer<vtkStringArray>::New();
-  for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
-  {
-    if (allNames.find(this->VisibleColumns->GetValue(i)) != allNames.end())
+    const vtkStdString& name = all->GetValue(i);
+    if (this->GetColumnVisibility(name))
     {
-      result->InsertNextValue(this->VisibleColumns->GetValue(i));
+      result->InsertNextValue(name);
     }
   }
   return result;
@@ -720,26 +706,13 @@ vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetProcessedColumnNames()
 vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::GetVisibleComponentsArray(vtkDataArray* array)
 {
   std::vector<int> componentIndices;
-  if (this->VisibleColumns->GetNumberOfTuples() > 0)
+  for (int c = 0; c < array->GetNumberOfComponents(); ++c)
   {
-    for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+    const char* compName = array->GetComponentName(c);
+    if (compName && this->GetColumnVisibility(compName))
     {
-      const vtkStdString& name = this->VisibleColumns->GetValue(i);
-      for (int c = 0; c < array->GetNumberOfComponents(); ++c)
-      {
-        const char* compName = array->GetComponentName(c);
-        if (compName && name == compName)
-        {
-          componentIndices.push_back(c);
-          break;
-        }
-      }
+      componentIndices.push_back(c);
     }
-  }
-  else
-  {
-    componentIndices.resize(array->GetNumberOfComponents());
-    std::iota(componentIndices.begin(), componentIndices.end(), 0);
   }
   if (componentIndices.empty())
   {
@@ -973,25 +946,14 @@ vtkMultiVariateToRGBA::getAttributesAndScalars(
       return { attributes, nullptr };
     }
 
-    // Only keep the columns marked visible (or every column, if none has
-    // been explicitly configured), in the configured order.
+    // Only keep the columns that are not hidden, in their natural order.
     std::vector<vtkAbstractArray*> columns;
-    if (this->VisibleColumns->GetNumberOfTuples() > 0)
+    for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
     {
-      for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
+      const char* name = table->GetColumnName(i);
+      if (name && this->GetColumnVisibility(name))
       {
-        vtkAbstractArray* column = attributes->GetArray(this->VisibleColumns->GetValue(i).c_str());
-        if (column)
-        {
-          columns.push_back(column);
-        }
-      }
-    }
-    else
-    {
-      for (vtkIdType i = 0; i < attributes->GetNumberOfArrays(); ++i)
-      {
-        columns.push_back(attributes->GetArray(i));
+        columns.push_back(table->GetColumn(i));
       }
     }
     if (columns.empty())
@@ -1009,6 +971,12 @@ vtkMultiVariateToRGBA::getAttributesAndScalars(
     // for a table, convert the columns into a SOA array with multiple components
     if (columns.size() > 1)
     {
+      if (columns.size() < 3)
+      {
+        vtkErrorWithObjectMacro(
+          input, "Number of visible columns is less than 3: " << columns.size());
+        return { attributes, nullptr };
+      }
       typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals> Dispatcher;
       CreateSOAWorker worker(columns);
       if (!Dispatcher::Execute(array0, worker))
@@ -1024,13 +992,13 @@ vtkMultiVariateToRGBA::getAttributesAndScalars(
     else
     {
       // otherwise, we just use the existing array with multiple components
-      if (array0->GetNumberOfComponents() > 1)
+      if (array0->GetNumberOfComponents() > 2)
       {
         return { attributes, array0 };
       }
       else
       {
-        vtkErrorWithObjectMacro(input, "Array has only one components: " << array0->GetName());
+        vtkErrorWithObjectMacro(input, "Array has less than 3 components: " << array0->GetName());
         return { attributes, nullptr };
       }
     }
@@ -1067,6 +1035,12 @@ vtkMultiVariateToRGBA::getAttributesAndScalars(
       if (!visibleArray)
       {
         vtkErrorWithObjectMacro(input, "No visible components found: ");
+        return { attributes, nullptr };
+      }
+      if (visibleArray->GetNumberOfComponents() < 3)
+      {
+        vtkErrorWithObjectMacro(input,
+          "Number of visible components is less than 3: " << visibleArray->GetNumberOfComponents());
         return { attributes, nullptr };
       }
       return { attributes, visibleArray };

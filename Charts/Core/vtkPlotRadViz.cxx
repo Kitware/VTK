@@ -317,15 +317,26 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
 {
   try
   {
-    vtkDebugMacro(<< "Paint event called.");
     vtkDataObject* input = this->Data->GetInputDataObject(0, 0);
-    vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
+    if (!input)
+    {
+      // no input, we don't render anything
+      return true;
+    }
+    auto* dataset = vtkDataSet::SafeDownCast(input);
+    auto* table = vtkTable::SafeDownCast(input);
     vtkDataArray* array = nullptr;
     int association = vtkDataObject::FIELD_ASSOCIATION_NONE;
+    int numberOfVisibleColumns = this->GetVisibleColumns()->GetNumberOfTuples();
     if (dataset)
     {
       // get the array to process and association from vtkContextMapper2D
       array = this->GetData()->GetInputArrayToProcess(0, input, association);
+    }
+    if (numberOfVisibleColumns < 3)
+    {
+      // RadViz does not work for < 3 components, so we don't render anything
+      return true;
     }
 
     // vtkMultiVariateToRGBA does the column/component visibility filtering

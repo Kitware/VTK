@@ -16,11 +16,18 @@
 #include "vtkTesting.h"
 #include "vtkXMLTableWriter.h"
 
+enum TestType
+{
+  ALL_COLUMNS,
+  HIDE_COLUMN,
+  HIDE_TWO_COLUMNS,
+};
+
 //------------------------------------------------------------------------------
 int TestRadVizChartTable(int argc, char* argv[])
 {
-  int hideColumn;
-  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], hideColumn, EXIT_FAILURE);
+  int testType;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], testType, EXIT_FAILURE);
 
   vtkNew<vtkTesting> testUtils;
   testUtils->AddArguments(argc, argv);
@@ -46,14 +53,23 @@ int TestRadVizChartTable(int argc, char* argv[])
   plot->SetInputData(table);
 
   chart->SetShowLegend(false);
-  if (hideColumn)
+  if (testType == ALL_COLUMNS)
+  {
+    plot->SetComponentsPartition({ { 0 }, { 1, 2 }, { 3 } });
+  }
+  else if (testType == HIDE_COLUMN)
   {
     chart->SetColumnVisibility("tangent", false);
     plot->SetComponentsPartition({ { 0 }, { 1, 2 } });
   }
+  else if (testType == HIDE_TWO_COLUMNS)
+  {
+    chart->SetColumnVisibility("tangent", false);
+    chart->SetColumnVisibility("x", false);
+  }
   else
   {
-    plot->SetComponentsPartition({ { 0 }, { 1, 2 }, { 3 } });
+    return EXIT_FAILURE;
   }
 
   // Finally render the scene and compare the image to a reference image
