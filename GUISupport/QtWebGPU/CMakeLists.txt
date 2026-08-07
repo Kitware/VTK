@@ -23,4 +23,16 @@ endforeach()
 
 vtk_module_definitions(VTK::GUISupportQtWebGPU PRIVATE QT_NO_KEYWORDS)
 vtk_module_link(VTK::GUISupportQtWebGPU PUBLIC ${qt_modules})
+
+# QVTKWebGPUWidget builds the WebGPU surface descriptor from the native window
+# handle, so it needs to know which windowing system is in use. Only the flag is
+# needed: Qt hands out the native handles and Dawn takes them as opaque
+# void*/uint64_t, so neither libX11 nor libwayland-client is a compile-time or
+# link-time dependency of this module.
+if(VTK_USE_Wayland)
+  vtk_module_definitions(VTK::GUISupportQtWebGPU PRIVATE VTK_USE_Wayland=1)
+elseif(VTK_USE_X)
+  vtk_module_definitions(VTK::GUISupportQtWebGPU PRIVATE VTK_USE_X=1)
+endif()
+
 vtk_add_test_mangling(VTK::GUISupportQtWebGPU)
