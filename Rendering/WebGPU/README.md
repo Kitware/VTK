@@ -30,13 +30,13 @@ Here, `VTK_SOURCE_DIR` is the path to the root of the VTK source directory, and 
 
 #### Build Dawn from source
 
-Dawn should be built at tag [v20260421.125655](https://github.com/google/dawn/tree/v20260421.125655).
+Dawn should be built at tag [v20260720.160313](https://github.com/google/dawn/tree/v20260720.160313).
 Here, `DAWN_INSTALL_DIR` should point to the directory where Dawn is installed (should contain `lib` and `include` directories).
 
 ```sh
 # Clone the repo and checkout the required version
 git clone https://github.com/google/dawn dawn && cd dawn
-git checkout v20260421.125655
+git checkout v20260720.160313
 cmake -S . -B out/Debug -GNinja -DDAWN_FETCH_DEPENDENCIES=ON -DDAWN_ENABLE_INSTALL=ON
 cmake --build out/Debug
 cmake --install out/Debug --prefix ${DAWN_INSTALL_DIR}
@@ -383,12 +383,16 @@ The compute shader API allows offloading work from the CPU to the GPU using WebG
 
 ## Future Work
 
-Since WebGPU is already an abstraction over graphics APIs, this module avoids creating another level of abstraction. It leverages WebGPU's C++ flavor for its object-oriented API and RAII. Helper classes in the `vtkWebGPUInternals...` files ensure cleaner bind group initialization code.
+Since WebGPU is already an abstraction over graphics APIs, this module avoids creating another level of abstraction. Helper classes in the `Private/vtkWebGPU<Thing>Internals` files ensure cleaner bind group initialization code.
+
+The module currently uses Dawn's C++ `wgpu::` types internally for their
+object-oriented API and RAII. Replacing them with the WebGPU C API plus VTK's own
+`Private/vtkWebGPUHandle.h` reference-counted wrapper is in progress; the public
+headers have already been converted.
 
 Planned improvements include:
 
 - Volume mappers
-- Textures
 - Dual-depth peeling
 - Advanced lighting
 - Platform-native render windows for Windows, macOS, Android, iOS and wayland.
