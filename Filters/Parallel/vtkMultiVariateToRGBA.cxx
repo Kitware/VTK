@@ -1119,7 +1119,7 @@ void vtkMultiVariateToRGBA::SetLensCenter(double centerX, double centerY)
 void vtkMultiVariateToRGBA::SetLensCenter(const double* lensCenter)
 {
   std::array<double, 2> newLensCenter = vtkMultiVariateToRGBA::GetLensCenter(
-    this->LensRadius, 1, lensCenter, std::array<double, 2>{ 1, 1 }.data());
+    this->LensRadius, 1, lensCenter, std::array<double, 2>{ 0, 0 }.data());
   if (this->LensCenter[0] != newLensCenter[0] || this->LensCenter[1] != newLensCenter[1])
   {
     std::copy(newLensCenter.begin(), newLensCenter.end(), this->LensCenter);

@@ -12,6 +12,11 @@
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
 #include <sstream>
+#include <vtk_fmt.h>
+// clang-format off
+#include VTK_FMT(fmt/format.h)
+#include VTK_FMT(fmt/ranges.h)
+// clang-format on
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkChartRadViz::vtkInternals
