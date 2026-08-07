@@ -289,6 +289,14 @@ void QVTKWebGPUWidget::initializeWebGPU()
 
   // Create the surface descriptor from the native window handle
   this->createSurfaceDescriptor();
+  if (this->SurfaceDescriptor.nextInChain == nullptr)
+  {
+    // No platform surface source could be chained. Creating a surface from this
+    // descriptor would fail validation, so bail out instead of letting every
+    // downstream WebGPU object be created from an invalid surface.
+    qWarning() << "QVTKWebGPUWidget: no native WebGPU surface is available; rendering is disabled.";
+    return;
+  }
 
   // Set the custom surface descriptor on the render window
   this->RenderWindow->SetCustomSurfaceDescriptor(&this->SurfaceDescriptor);
