@@ -3,18 +3,14 @@
 #include "vtkMPIController.h"
 
 #include "vtkIntArray.h"
+#include "vtkMPI.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
 
-#include "vtkMPI.h"
-
-#include "vtkSmartPointer.h"
-
 #include <cassert>
-
 #include <iostream>
-
-#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#include <numeric>
 
 VTK_ABI_NAMESPACE_BEGIN
 int vtkMPIController::Initialized = 0;
@@ -299,7 +295,7 @@ char* vtkMPIController::ErrorString(int err)
 //------------------------------------------------------------------------------
 vtkMPIController* vtkMPIController::CreateSubController(vtkProcessGroup* group)
 {
-  VTK_CREATE(vtkMPICommunicator, subcomm);
+  vtkNew<vtkMPICommunicator> subcomm;
 
   if (!subcomm->Initialize(group))
   {
@@ -325,7 +321,7 @@ vtkMPIController* vtkMPIController::CreateSubController(vtkProcessGroup* group)
 //------------------------------------------------------------------------------
 vtkMPIController* vtkMPIController::PartitionController(int localColor, int localKey)
 {
-  VTK_CREATE(vtkMPICommunicator, subcomm);
+  vtkNew<vtkMPICommunicator> subcomm;
 
   if (!subcomm->SplitInitialize(this->Communicator, localColor, localKey))
   {
@@ -335,6 +331,166 @@ vtkMPIController* vtkMPIController::PartitionController(int localColor, int loca
   vtkMPIController* controller = vtkMPIController::New();
   controller->SetCommunicator(subcomm);
   return controller;
+}
+
+namespace
+{
+//------------------------------------------------------------------------------
+// Discovers which world ranks share a node and numbers the nodes
+// deterministically, for GetNumberOfSharedMemoryNodes() and
+// GetSharedMemoryNodeId(). No color is known ahead of time (that's what
+// we're discovering), so this needs MPI_Comm_split_type rather than plain
+// MPI_Comm_split. Returns false (leaving both outputs untouched) if node
+// membership can't be determined.
+bool DiscoverSharedMemoryNodeTopology(
+  vtkMPICommunicator* worldComm, int worldRank, int& numberOfNodes, int& nodeIndex)
+{
+  vtkNew<vtkMPICommunicator> nodeComm;
+  if (!nodeComm->SplitInitializeByType(worldComm, MPI_COMM_TYPE_SHARED, 0))
+  {
+    return false;
+  }
+  const int nodeRank = nodeComm->GetLocalProcessId();
+
+  // Number the nodes via a plain MPI_Comm_split into {roots} vs. {everyone
+  // else} (color known locally now: nodeRank == 0 or not). MPI_UNDEFINED is
+  // avoided deliberately -- it would return MPI_COMM_NULL on non-roots,
+  // which is unsafe to query. The "everyone else" side is built but never
+  // used. key = world rank, so node numbering is deterministic (order of
+  // first appearance), not dependent on MPI's unspecified tie-breaking.
+  vtkNew<vtkMPICommunicator> rootsComm;
+  const int rootsColor = (nodeRank == 0) ? 0 : 1;
+  if (!rootsComm->SplitInitialize(worldComm, rootsColor, worldRank))
+  {
+    return false;
+  }
+
+  numberOfNodes = 0;
+  nodeIndex = 0;
+  if (nodeRank == 0)
+  {
+    numberOfNodes = rootsComm->GetNumberOfProcesses();
+    nodeIndex = rootsComm->GetLocalProcessId();
+  }
+
+  // Broadcast from each root to the rest of its node, so every rank ends up
+  // with identical info.
+  nodeComm->Broadcast(&numberOfNodes, 1, 0);
+  nodeComm->Broadcast(&nodeIndex, 1, 0);
+  return true;
+}
+} // anonymous namespace
+
+//------------------------------------------------------------------------------
+int vtkMPIController::GetNumberOfSharedMemoryNodes()
+{
+  vtkMPICommunicator* worldComm = vtkMPICommunicator::SafeDownCast(this->Communicator);
+  int numberOfNodes = 1;
+  int nodeIndex = 0;
+  if (!::DiscoverSharedMemoryNodeTopology(
+        worldComm, this->GetLocalProcessId(), numberOfNodes, nodeIndex))
+  {
+    vtkWarningMacro("Could not determine node membership via MPI_Comm_split_type; "
+                    "reporting a single shared-memory node.");
+    return 1;
+  }
+  return numberOfNodes;
+}
+
+//------------------------------------------------------------------------------
+int vtkMPIController::GetSharedMemoryNodeId()
+{
+  vtkMPICommunicator* worldComm = vtkMPICommunicator::SafeDownCast(this->Communicator);
+  int numberOfNodes = 1;
+  int nodeIndex = 0;
+  if (!::DiscoverSharedMemoryNodeTopology(
+        worldComm, this->GetLocalProcessId(), numberOfNodes, nodeIndex))
+  {
+    vtkWarningMacro("Could not determine node membership via MPI_Comm_split_type; "
+                    "reporting a single shared-memory node.");
+    return 0;
+  }
+  return nodeIndex;
+}
+
+//------------------------------------------------------------------------------
+vtkMPIController* vtkMPIController::PartitionControllerByCount(int numberOfGroups)
+{
+  const int numberOfProcesses = this->GetNumberOfProcesses();
+  numberOfGroups = std::max(1, std::min(numberOfGroups, numberOfProcesses));
+
+  // Step 1: discover node membership through the same public API any other
+  // node-aware caller would use. If it can't be determined, both accessors
+  // report a single node containing every process (with a warning); fed
+  // through the "numberOfGroups > numberOfNodes" branch below, that
+  // degenerate topology reproduces the base class' round-robin behavior
+  // exactly, so no separate fallback path is needed here.
+  //
+  // Calling both accessors independently repeats the underlying
+  // MPI_Comm_split(_type) discovery twice; that's deliberate -- it keeps
+  // this method a thin, public-API-only consumer of node topology instead
+  // of hand-rolling and caching it, and the extra collective calls are
+  // negligible next to the data movement PartitionControllerByCount's
+  // caller is about to do.
+  const int numberOfNodes = this->GetNumberOfSharedMemoryNodes();
+  const int nodeIndex = this->GetSharedMemoryNodeId();
+
+  // Step 2: every rank learns the full per-node layout -- every node's rank
+  // count, and this rank's position within its own node -- from a single
+  // AllGather of each rank's node id.
+  const int me = this->GetLocalProcessId();
+  std::vector<int> allNodeIndices(numberOfProcesses);
+  this->AllGather(&nodeIndex, allNodeIndices.data(), 1);
+
+  std::vector<int> nodeSizes(numberOfNodes, 0);
+  int nodeRank = 0;
+  for (int rank = 0; rank < numberOfProcesses; ++rank)
+  {
+    if (allNodeIndices[rank] == nodeIndex && rank < me)
+    {
+      ++nodeRank;
+    }
+    ++nodeSizes[allNodeIndices[rank]];
+  }
+  const int numberOfNodeRanks = nodeSizes[nodeIndex];
+
+  // Step 3: assign this rank's final color, balancing by node size rather
+  // than raw rank position. Branches on how numberOfGroups compares to
+  // numberOfNodes.
+  int localColor;
+  if (numberOfGroups == numberOfNodes)
+  {
+    // Exactly one group per node: the common case, and trivial. No
+    // proportional math needed -- every node gets exactly 1 slot, so this
+    // node's ranks all collapse into a single group, numbered by nodeIndex.
+    localColor = nodeIndex;
+  }
+  else if (numberOfGroups > numberOfNodes)
+  {
+    // More groups than nodes: give each node a share of groups proportional
+    // to its size, then chunk that node's own ranks across its share.
+    // Groups never span more than one node in this branch.
+    const std::vector<int> slotsPerNode = this->ApportionGroupSlots(nodeSizes, numberOfGroups);
+    const int myNodeSlots = slotsPerNode[nodeIndex];
+    // Running total of slots claimed by earlier nodes, so this node's
+    // colors don't collide with another node's.
+    const int slotOffset =
+      std::accumulate(slotsPerNode.begin(), slotsPerNode.begin() + nodeIndex, 0);
+
+    const int withinNodeColor = this->BlockDistribute(nodeRank, numberOfNodeRanks, myNodeSlots);
+
+    localColor = slotOffset + withinNodeColor;
+  }
+  else
+  {
+    // Fewer groups than nodes: not every node can have its own group, so
+    // pack whole nodes into groups, balancing total rank count per group.
+    // No node is ever split across groups in this branch.
+    const std::vector<int> groupOfNode = this->PartitionNodesLPT(nodeSizes, numberOfGroups);
+    localColor = groupOfNode[nodeIndex];
+  }
+
+  return this->PartitionController(localColor, 0);
 }
 
 //------------------------------------------------------------------------------

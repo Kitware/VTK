@@ -104,16 +104,13 @@ int vtkAggregateDataSetFilter::RequestData(
   }
   else
   {
-    // group processes in round robin-fashion
-    const int localProcessId = controller->GetLocalProcessId();
-    const auto divResult = std::div(numberOfProcesses, this->NumberOfTargetProcesses);
-    const int numberOfProcessesPerGroup = divResult.quot;
-    int localColor = localProcessId / numberOfProcessesPerGroup;
-    if (divResult.rem)
-    {
-      localColor = static_cast<int>(localProcessId / (1.0 * numberOfProcessesPerGroup));
-    }
-    subController.TakeReference(controller->PartitionController(localColor, 0));
+    // Group processes intelligently: vtkMPIController balances groups by
+    // physical node (falling back to round-robin by rank id on controllers
+    // that can't determine node placement), so that the receiving process
+    // chosen below for each group is spread across as many distinct nodes
+    // as possible rather than clustering by chance.
+    subController.TakeReference(
+      controller->PartitionControllerByCount(this->NumberOfTargetProcesses));
   }
 
   int subNumProcs = subController->GetNumberOfProcesses();

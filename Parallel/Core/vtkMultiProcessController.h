@@ -189,6 +189,69 @@ public:
    */
   virtual vtkMultiProcessController* PartitionController(int localColor, int localKey);
 
+  ///@{
+  /**
+   * Partitions this controller's processes into `numberOfGroups` groups and
+   * returns a new controller representing the local process' group. Same
+   * ownership convention as PartitionController(): the caller is responsible
+   * for deleting the returned controller.
+   *
+   * numberOfGroups is clamped to the range [1, GetNumberOfProcesses()].
+   *
+   * The base class implementation has no notion of process placement and
+   * simply groups processes by block distribution of contiguous rank id
+   * (see BlockDistribute()). Subclasses that can determine physical
+   * process placement (e.g. vtkMPIController,
+   * which can discover which ranks share a node) should override this to
+   * produce a placement-aware grouping that still honors numberOfGroups.
+   *
+   * This is primarily intended for filters like vtkAggregateDataSetFilter
+   * that need to reduce N processes down to a smaller number of "target"
+   * processes and want the resulting groups to be chosen such that they
+   * reside on the same node rather than by arbitrary rank id.
+   */
+  virtual vtkMultiProcessController* PartitionControllerByCount(int numberOfGroups);
+  ///@}
+
+  /**
+   * Apportions `numberOfGroups` "slots" (each slot corresponds to one
+   * group) across `nodeSizes.size()` groupings of processes (e.g. nodes),
+   * proportional to each grouping's size in `nodeSizes`, using the
+   * largest-remainder method (a standard apportionment rule; also known as
+   * Hamilton's method) so the slot counts sum exactly to `numberOfGroups`.
+   * Every grouping is guaranteed at least 1 slot. Precondition:
+   * numberOfGroups >= nodeSizes.size(). Returns
+   * slotsPerNode[nodeIndex] = number of groups that grouping supplies.
+   */
+  static std::vector<int> ApportionGroupSlots(
+    const std::vector<int>& nodeSizes, int numberOfGroups);
+
+  /**
+   * Assigns `position` (0-indexed) to one of `numberOfGroups` contiguous
+   * blocks of `count` total positions, as evenly as possible -- the block
+   * distribution scheme used throughout parallel computing (e.g. HPF,
+   * ScaLAPACK) to divide a linear index range across processes. This is
+   * the rule PartitionControllerByCount() is built on: the base class
+   * applies it across all processes, and subclasses that group by finer
+   * granularity (e.g. vtkMPIController, within a single node) apply it
+   * within that scope instead. Result is clamped to [0, numberOfGroups - 1].
+   */
+  static int BlockDistribute(int position, int count, int numberOfGroups);
+
+  /**
+   * Assigns each of `nodeSizes.size()` groupings of processes (e.g. nodes)
+   * to one of `numberOfGroups` groups, balancing total size per group,
+   * using the longest-processing-time-first (LPT) heuristic for
+   * multiprocessor scheduling (Graham, 1969): process groupings
+   * largest-first, always adding the next one to whichever group
+   * currently has the smallest total size. Ties (multiple groups at the
+   * same smallest total) are broken deterministically in favor of the
+   * lowest-numbered group. Precondition: numberOfGroups <= nodeSizes.size().
+   * Returns groupOfNode[nodeIndex] = assigned group id in
+   * [0, numberOfGroups).
+   */
+  static std::vector<int> PartitionNodesLPT(const std::vector<int>& nodeSizes, int numberOfGroups);
+
   //------------------ RMIs --------------------
 
   /**

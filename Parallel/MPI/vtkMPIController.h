@@ -129,6 +129,59 @@ public:
 
   ///@{
   /**
+   * Returns the number of disjoint groups of processes that can share
+   * memory (e.g. run on the same physical node), and which one of those
+   * groups (in [0, GetNumberOfSharedMemoryNodes())) the local process
+   * belongs to. Two processes that report the same id from
+   * GetSharedMemoryNodeId() belong to the same group; the numbering
+   * itself is otherwise unspecified but consistent across all processes.
+   * Both methods are collective: every process must call them.
+   *
+   * Node membership is discovered via MPI_Comm_split_type
+   * (MPI_COMM_TYPE_SHARED), i.e. ranks that could share a memory region are
+   * considered to be on the same node; nodes are numbered deterministically
+   * by order of first appearance among world ranks. Falls back to
+   * reporting a single node containing every process (with a warning) if
+   * node membership can't be determined.
+   *
+   * This is primarily intended to let PartitionControllerByCount() (and
+   * similar placement-aware logic) query process locality through public
+   * API rather than duplicating discovery logic.
+   */
+  int GetNumberOfSharedMemoryNodes();
+  int GetSharedMemoryNodeId();
+  ///@}
+
+  /**
+   * Groups processes into \c numberOfGroups groups, balancing group membership
+   * by physical node rather than by raw rank id.
+   *
+   * Node membership comes from GetNumberOfSharedMemoryNodes() and
+   * GetSharedMemoryNodeId(). Node sizes (rank counts) are then used to
+   * balance the numberOfGroups groups as evenly as possible:
+   *
+   * - If numberOfGroups == number of nodes: each node maps to exactly one
+   *   group. Trivial and exact.
+   * - If numberOfGroups < number of nodes: nodes are packed into groups
+   *   using PartitionNodesLPT(), so that total rank count per group is as
+   *   balanced as possible. Each group is composed of whole nodes only, so
+   *   no group ever spans a partial node in this case, and cross-node
+   *   communication is eliminated for group formation.
+   * - If numberOfGroups > number of nodes: each node is allocated a number
+   *   of groups proportional to its rank count via ApportionGroupSlots(),
+   *   and that node's local ranks are then chunked into that many
+   *   contiguous sub-groups via BlockDistribute().
+   *
+   * If node membership can't be determined (e.g. the MPI_Comm_split_type
+   * call fails), GetNumberOfSharedMemoryNodes()/GetSharedMemoryNodeId()
+   * report a single node containing every process (with a warning), which
+   * degenerates the "numberOfGroups > number of nodes" branch above into
+   * the base class' block distribution.
+   */
+  vtkMPIController* PartitionControllerByCount(int numberOfGroups) override;
+
+  ///@{
+  /**
    * This method sends data to another process (non-blocking).
    * Tag eliminates ambiguity when multiple sends or receives
    * exist in the same process. The last argument,
