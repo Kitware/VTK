@@ -11,14 +11,11 @@
 #elif defined(__APPLE__)
 #include <objc/message.h>
 #include <objc/runtime.h>
-#elif defined(VTK_USE_X)
-#include <QGuiApplication>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-#include <qpa/qplatformnativeinterface.h>
-#else
-#include <QX11Info>
-#endif
-#include <X11/Xlib.h>
+#elif defined(VTK_USE_X) && QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+// Qt forward-declares `Display` in this header, and the display and window
+// handles are handed to Dawn as `void*`/`uint64_t`. libX11 is therefore needed
+// neither at compile time nor at link time.
+#include <QtGui/qguiapplication_platform.h>
 #endif
 
 #include "QVTKInteractor.h"
@@ -28,6 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkWebGPURenderWindow.h"
 
+#include <cstdint>
 #include <string>
 
 #include <webgpu/webgpu_cpp.h>
@@ -241,28 +239,40 @@ void QVTKWebGPUWidget::createSurfaceDescriptor()
     }
   }
 
-#elif defined(VTK_USE_X)
-  // X11: Use Xlib window
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-  auto* nativeInterface = QGuiApplication::platformNativeInterface();
-  Display* display =
-    reinterpret_cast<Display*>(nativeInterface->nativeResourceForWindow("display", nullptr));
-#else
-  Display* display = QX11Info::display();
-#endif
-  Window window = static_cast<Window>(this->winId());
-
-  this->Platform->Descriptor.display = display;
-  this->Platform->Descriptor.window = window;
-
-  this->SurfaceDescriptor = {};
-  this->SurfaceDescriptor.label = "VTK Qt WebGPU Widget Surface";
-  this->SurfaceDescriptor.nextInChain = &this->Platform->Descriptor;
-
 #elif defined(VTK_USE_Wayland)
   // Wayland surface
   // Note: Qt5/6 may not directly expose Wayland surface, this is a placeholder
   qWarning() << "Wayland support for QVTKWebGPUWidget is not yet fully implemented";
+
+#elif defined(VTK_USE_X)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  // X11: `winId()` forces creation of the native window, which must happen
+  // before the surface is created.
+  const WId wid = this->winId();
+  void* display = nullptr;
+  if (auto* guiApp = qGuiApp)
+  {
+    if (auto* x11App = guiApp->nativeInterface<QNativeInterface::QX11Application>())
+    {
+      display = x11App->display();
+    }
+  }
+  if (display == nullptr)
+  {
+    qWarning() << "QVTKWebGPUWidget: could not obtain the X11 Display connection; the Qt platform "
+                  "plugin in use is not xcb.";
+    return;
+  }
+
+  this->Platform->Descriptor.display = display;
+  this->Platform->Descriptor.window = static_cast<uint64_t>(wid);
+
+  this->SurfaceDescriptor = {};
+  this->SurfaceDescriptor.label = "VTK Qt WebGPU Widget Surface";
+  this->SurfaceDescriptor.nextInChain = &this->Platform->Descriptor;
+#else
+  qWarning() << "QVTKWebGPUWidget: the X11 surface path requires Qt 6";
+#endif
 
 #else
   qWarning() << "Unsupported platform for QVTKWebGPUWidget";
