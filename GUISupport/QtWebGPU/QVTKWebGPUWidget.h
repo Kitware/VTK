@@ -139,17 +139,10 @@ private:
   double CustomDevicePixelRatio = 0.0;
   QCursor DefaultCursor;
 
-  // Platform-specific surface descriptor storage
-#ifdef _WIN32
-  wgpu::SurfaceSourceWindowsHWND PlatformSurfaceDescriptor;
-#elif defined(__APPLE__)
-  wgpu::SurfaceSourceMetalLayer PlatformSurfaceDescriptor;
-  void* MetalLayer = nullptr;
-#elif defined(VTK_USE_Wayland)
-  wgpu::SurfaceSourceWaylandSurface PlatformSurfaceDescriptor;
-#elif defined(VTK_USE_X)
-  wgpu::SurfaceSourceXlibWindow PlatformSurfaceDescriptor;
-#endif
+  // Platform-specific surface descriptor
+  struct PlatformSurface;
+  std::unique_ptr<PlatformSurface> Platform;
+
   wgpu::SurfaceDescriptor SurfaceDescriptor;
 };
 

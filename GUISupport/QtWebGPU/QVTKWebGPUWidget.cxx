@@ -34,6 +34,21 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+//------------------------------------------------------------------------------
+struct QVTKWebGPUWidget::PlatformSurface
+{
+#ifdef _WIN32
+  wgpu::SurfaceSourceWindowsHWND Descriptor;
+#elif defined(__APPLE__)
+  wgpu::SurfaceSourceMetalLayer Descriptor;
+  void* MetalLayer = nullptr;
+#elif defined(VTK_USE_Wayland)
+  wgpu::SurfaceSourceWaylandSurface Descriptor;
+#elif defined(VTK_USE_X)
+  wgpu::SurfaceSourceXlibWindow Descriptor;
+#endif
+};
+
 namespace
 {
 void EnsureWebGPUObjectFactoryPreference()
@@ -73,6 +88,7 @@ void EnsureWebGPUObjectFactoryPreference()
 QVTKWebGPUWidget::QVTKWebGPUWidget(QWidget* parentWdg, Qt::WindowFlags f)
   : Superclass(parentWdg, f)
   , DefaultCursor(QCursor(Qt::ArrowCursor))
+  , Platform(std::make_unique<PlatformSurface>())
 {
   EnsureWebGPUObjectFactoryPreference();
 
@@ -122,11 +138,11 @@ QVTKWebGPUWidget::~QVTKWebGPUWidget()
   }
 #ifdef __APPLE__
   // Release the Metal layer if we created one
-  if (this->MetalLayer)
+  if (this->Platform->MetalLayer)
   {
-    // Release using Objective-C runtime
-    ((void (*)(id, SEL))objc_msgSend)((id)this->MetalLayer, sel_registerName("release"));
-    this->MetalLayer = nullptr;
+    // Release
+    ((void (*)(id, SEL))objc_msgSend)((id)this->Platform->MetalLayer, sel_registerName("release"));
+    this->Platform->MetalLayer = nullptr;
   }
 #endif
 }
@@ -187,13 +203,12 @@ void QVTKWebGPUWidget::createSurfaceDescriptor()
   HWND hwnd = reinterpret_cast<HWND>(this->winId());
   HINSTANCE hinstance = GetModuleHandle(nullptr);
 
-  this->PlatformSurfaceDescriptor = {};
-  this->PlatformSurfaceDescriptor.hwnd = hwnd;
-  this->PlatformSurfaceDescriptor.hinstance = hinstance;
+  this->Platform->Descriptor.hwnd = hwnd;
+  this->Platform->Descriptor.hinstance = hinstance;
 
   this->SurfaceDescriptor = {};
   this->SurfaceDescriptor.label = "VTK Qt WebGPU Widget Surface";
-  this->SurfaceDescriptor.nextInChain = &this->PlatformSurfaceDescriptor;
+  this->SurfaceDescriptor.nextInChain = &this->Platform->Descriptor;
 
 #elif defined(__APPLE__)
   // macOS: Create a Metal layer and get it from the view
@@ -204,26 +219,25 @@ void QVTKWebGPUWidget::createSurfaceDescriptor()
   Class metalLayerClass = objc_getClass("CAMetalLayer");
   if (metalLayerClass)
   {
-    this->MetalLayer =
+    this->Platform->MetalLayer =
       ((id(*)(Class, SEL))objc_msgSend)(metalLayerClass, sel_registerName("layer"));
-    if (this->MetalLayer)
+    if (this->Platform->MetalLayer)
     {
       // Retain the layer
-      ((void (*)(id, SEL))objc_msgSend)((id)this->MetalLayer, sel_registerName("retain"));
+      ((void (*)(id, SEL))objc_msgSend)((id)this->Platform->MetalLayer, sel_registerName("retain"));
 
       // Set the layer on the view: [view setLayer:metalLayer]
       ((void (*)(id, SEL, id))objc_msgSend)(
-        (id)nsView, sel_registerName("setLayer:"), (id)this->MetalLayer);
+        (id)nsView, sel_registerName("setLayer:"), (id)this->Platform->MetalLayer);
 
       // Set wantsLayer to YES: [view setWantsLayer:YES]
       ((void (*)(id, SEL, BOOL))objc_msgSend)((id)nsView, sel_registerName("setWantsLayer:"), YES);
 
-      this->PlatformSurfaceDescriptor = {};
-      this->PlatformSurfaceDescriptor.layer = this->MetalLayer;
+      this->Platform->Descriptor.layer = this->Platform->MetalLayer;
 
       this->SurfaceDescriptor = {};
       this->SurfaceDescriptor.label = "VTK Qt WebGPU Widget Surface";
-      this->SurfaceDescriptor.nextInChain = &this->PlatformSurfaceDescriptor;
+      this->SurfaceDescriptor.nextInChain = &this->Platform->Descriptor;
     }
   }
 
@@ -238,13 +252,12 @@ void QVTKWebGPUWidget::createSurfaceDescriptor()
 #endif
   Window window = static_cast<Window>(this->winId());
 
-  this->PlatformSurfaceDescriptor = {};
-  this->PlatformSurfaceDescriptor.display = display;
-  this->PlatformSurfaceDescriptor.window = window;
+  this->Platform->Descriptor.display = display;
+  this->Platform->Descriptor.window = window;
 
   this->SurfaceDescriptor = {};
   this->SurfaceDescriptor.label = "VTK Qt WebGPU Widget Surface";
-  this->SurfaceDescriptor.nextInChain = &this->PlatformSurfaceDescriptor;
+  this->SurfaceDescriptor.nextInChain = &this->Platform->Descriptor;
 
 #elif defined(VTK_USE_Wayland)
   // Wayland surface
