@@ -328,10 +328,20 @@ private:
    */
   void RecordRenderCommands();
 
+  /**
+   * Draw the viewport-sized quad for a gradient background. Called by Clear()
+   * when GradientBackground is enabled.
+   */
+  void ClearGradientBackground();
+
   WGPURenderPassEncoder WGPURenderEncoder = nullptr;
   WGPURenderBundleEncoder WGPUBundleEncoder = nullptr;
   WGPUBuffer SceneTransformBuffer = nullptr;
   WGPUBuffer SceneLightsBuffer = nullptr;
+  // Holds the two gradient stop colors, the gradient mode and the dither flag
+  // for the background quad drawn by Clear(). Only allocated when a gradient
+  // background is requested.
+  WGPUBuffer BackgroundGradientBuffer = nullptr;
 
   WGPUBindGroup SceneBindGroup = nullptr;
   WGPUBindGroupLayout SceneBindGroupLayout = nullptr;
