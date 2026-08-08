@@ -2355,7 +2355,14 @@ int vtkLSDynaReader::ScanDatabaseTimeSteps()
     if (p->Fam.BufferChunk(LSDynaFamily::Float, 1) == 0)
     {
       time = p->Fam.GetNextWordAsFloat();
-      if (time != LSDynaFamily::EOFMarker)
+      // A family file always holds an integral number of states, and the
+      // first file of newer databases additionally ends with sections the
+      // reader does not parse (part titles, decomposition data, ...). A
+      // word that is not the EOF marker therefore only starts a state
+      // when the rest of the state fits in the current file.
+      const bool startsState = time != LSDynaFamily::EOFMarker &&
+        p->Fam.GetRemainingWordsInFile() >= p->Fam.GetStateSize() - 1;
+      if (startsState)
       {
         p->Fam.MarkTimeStep();
         p->TimeValues.push_back(time);
@@ -2366,6 +2373,8 @@ int vtkLSDynaReader::ScanDatabaseTimeSteps()
       }
       else
       {
+        // EOF marker or unrecognized trailing data: continue with the
+        // next file of the family
         if (p->Fam.AdvanceFile())
         {
           itmp = 0;

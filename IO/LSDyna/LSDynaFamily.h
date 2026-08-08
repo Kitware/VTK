@@ -170,6 +170,12 @@ public:
   std::string GetFileName(int i);
   vtkIdType GetFileSize(int i);
 
+  // Description:
+  // Number of words available in the current family file from the
+  // current read position to the end of that file. Returns 0 when no
+  // file is open.
+  vtkIdType GetRemainingWordsInFile() const;
+
   int GetCurrentAdaptLevel() const { return this->FAdapt; }
   int TimeAdaptLevel(int i) const { return this->TimeAdaptLevels[i]; }
 
