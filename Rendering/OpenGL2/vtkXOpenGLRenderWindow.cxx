@@ -1402,16 +1402,20 @@ int* vtkXOpenGLRenderWindow::GetPosition()
     vtkXGetWindowProperty(this->DisplayId, this->WindowId, prop, 0, 4, False, AnyPropertyType,
       &type, &fmt, &nitems, &bytesafter, &data) == Success)
   {
-    if (type != None && fmt == 32 && nitems >= 4 && data != nullptr)
+    // type == None is expected for some window managers that don't add decorations
+    if (type != None)
     {
-      const long* extents = reinterpret_cast<const long*>(data); // left, right, top, bottom
-      this->Position[0] -= extents[0];
-      this->Position[1] -= extents[2];
-    }
-    else
-    {
-      vtkWarningMacro(
-        << "Could not retrieve window decoration size (unexpected _NET_FRAME_EXTENTS)");
+      if (fmt == 32 && nitems >= 4 && data != nullptr)
+      {
+        const long* extents = reinterpret_cast<const long*>(data); // left, right, top, bottom
+        this->Position[0] -= extents[0];
+        this->Position[1] -= extents[2];
+      }
+      else
+      {
+        vtkWarningMacro(
+          << "Could not retrieve window decoration size (invalid _NET_FRAME_EXTENTS)");
+      }
     }
     if (data != nullptr)
     {
