@@ -729,8 +729,10 @@ vtkOpenGLRenderWindow* vtkOpenGLRenderWindow::New()
 //------------------------------------------------------------------------------
 vtkOverrideAttribute* vtkOpenGLRenderWindow::CreateOverrideAttributes()
 {
-  auto* renderingBackendAttribute =
-    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  auto* supportRenderPassAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("SupportRenderPass", "true", nullptr);
+  auto* renderingBackendAttribute = vtkOverrideAttribute::CreateAttributeChain(
+    "RenderingBackend", "OpenGL", supportRenderPassAttribute);
   return renderingBackendAttribute;
 }
 #endif

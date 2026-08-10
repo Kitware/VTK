@@ -42,6 +42,11 @@ set(nowrap_classes
 )
 
 vtk_object_factory_declare(
+  BASE vtkRenderWindow
+  OVERRIDE vtkAnariRenderWindow
+)
+
+vtk_object_factory_declare(
   BASE vtkAnariVolumeInterface
   OVERRIDE vtkAnariVolumeMapper
 )
