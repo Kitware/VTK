@@ -53,6 +53,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestIndexBufferObjectTriangulation.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestLightingMapLuminancePass.cxx
   TestLightingMapNormalsPass.cxx
+  TestLowMemMapAttributes.cxx,NO_SERDES
   TestMultiTexturing.cxx,NO_SERDES
   TestMultiTexturingInterpolateScalars.cxx
   TestNormalMapping.cxx

@@ -776,8 +776,11 @@ bool vtkOpenGLLowMemoryPolyDataMapper::BindArraysToTextureBuffers(
   // Handle extra attributes.
   for (auto& itr : this->ExtraAttributes)
   {
-    vtkDataArray* da = mesh->GetPointData()->GetArray(itr.second.DataArrayName.c_str());
-    this->AppendArrayToTexture(vtkStringToken(itr.first), da);
+    for (const std::string& arr : itr.second.DataArrayNames)
+    {
+      vtkDataArray* da = mesh->GetPointData()->GetArray(arr.c_str());
+      this->AppendArrayToTexture(vtkStringToken(itr.first), da);
+    }
   }
   return true;
 }
@@ -1944,6 +1947,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderImplementationCustomUniforms
     "uniform highp int usesEdgeValues;\n"
     "uniform highp int usesCellMap;\n"
     "uniform highp int cellType;\n"
+    "uniform highp int pointCount;\n"
     "uniform highp int renderPointsAsSpheres;\n"
     "uniform highp int renderLinesAsTubes;\n"
     "uniform highp int pointPicking;\n");
@@ -2694,6 +2698,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::UpdateUniformLocations()
   loc.EnableLights = program->FindUniform("enable_lights");
   loc.VertexPass = program->FindUniform("vertex_pass");
   loc.PrimitiveSize = program->FindUniform("primitiveSize");
+  loc.PointCount = program->FindUniform("pointCount");
   loc.PointSize = program->FindUniform("pointSize");
   loc.CellIdOffset = program->FindUniform("cellIdOffset");
   loc.VertexIdOffset = program->FindUniform("vertexIdOffset");
@@ -2731,6 +2736,27 @@ void vtkOpenGLLowMemoryPolyDataMapper::SetShaderParameters(vtkRenderer* renderer
   const float lineWidth = actor->GetProperty()->GetLineWidth();
   const float edgeWidth = actor->GetProperty()->GetEdgeWidth();
 
+  vtkPolyData* mesh = this->CurrentInput;
+  vtkIdType numPoints = 0;
+
+  if (mesh)
+  {
+    numPoints = mesh->GetNumberOfPoints();
+
+#ifdef VTK_USE_64BIT_IDS
+    if (numPoints > std::numeric_limits<int>::max())
+    {
+      vtkWarningMacro(<< "Input mesh has " << numPoints
+                      << " points, which exceeds the maximum supported by OpenGL. "
+                      << "Point count will be truncated.");
+    }
+#endif
+  }
+  else
+  {
+    vtkWarningMacro(<< "No input mesh for mapper, point count will be set to 0.");
+  }
+
   const auto& loc = this->UniformLocs;
   this->ShaderProgram->SetUniform4f(loc.ViewportDimensions, vpDims);
   this->ShaderProgram->SetUniformf(loc.LineWidth, lineWidth);
@@ -2743,6 +2769,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::SetShaderParameters(vtkRenderer* renderer
   this->ShaderProgram->SetUniform3f(loc.EdgeColor, actor->GetProperty()->GetEdgeColor());
   this->ShaderProgram->SetUniformf(loc.EdgeOpacity, actor->GetProperty()->GetEdgeOpacity());
   this->ShaderProgram->SetUniformi(loc.EdgeVisibility, actor->GetProperty()->GetEdgeVisibility());
+  this->ShaderProgram->SetUniformi(loc.PointCount, static_cast<int>(numPoints));
   this->ShaderProgram->SetUniformi(
     loc.Wireframe, actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME);
   // Always drive edge overlay thickness from screen-space lineWidth and clamp it
@@ -3263,9 +3290,9 @@ vtkOpenGLLowMemoryPolyDataMapper::GetTextureCoordinateAndSamplerBufferNames(cons
 {
   for (const auto& it : this->ExtraAttributes)
   {
-    if (it.second.TextureName == tname)
+    if (it.second.TextureName == tname && it.second.DataArrayNames.size() == 1)
     {
-      return { it.first, it.second.DataArrayName };
+      return { it.first, it.second.DataArrayNames[0] };
     }
   }
 
@@ -3368,19 +3395,27 @@ void vtkOpenGLLowMemoryPolyDataMapper::MapDataArray(const char* vertexAttributeN
   }
 
   // store the mapping in the map
-  this->RemoveVertexAttributeMapping(vertexAttributeName);
   if (!dataArrayName)
   {
+    this->RemoveVertexAttributeMapping(vertexAttributeName);
     return;
   }
 
-  vtkOpenGLLowMemoryPolyDataMapper::ExtraAttributeValue aval;
-  aval.DataArrayName = dataArrayName;
+  vtkOpenGLLowMemoryPolyDataMapper::ExtraAttributeValue& aval =
+    this->ExtraAttributes[vertexAttributeName];
+
+  // Check for duplicates and only add the data array name if it is not already present.
+  if (std::find(aval.DataArrayNames.begin(), aval.DataArrayNames.end(), dataArrayName) ==
+    aval.DataArrayNames.end())
+  {
+    aval.DataArrayNames.emplace_back(dataArrayName);
+  }
+
+  // These fields are overwritten if the user calls this method multiple times for the same vertex
+  // attribute name.
   aval.FieldAssociation = fieldAssociation;
   aval.ComponentNumber = componentno;
   aval.TextureName = tname;
-
-  this->ExtraAttributes.insert(std::make_pair(vertexAttributeName, aval));
 
   this->Modified();
 }
