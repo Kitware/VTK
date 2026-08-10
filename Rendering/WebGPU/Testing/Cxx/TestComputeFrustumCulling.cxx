@@ -24,6 +24,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkWebGPUComputeFrustumCuller.h"
+#include "vtkWebGPURenderer.h"
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkActor> CreateTriangle(
@@ -99,6 +100,10 @@ int TestComputeFrustumCulling(int, char*[])
   // Adding the WebGPU compute shader frustum culler
   vtkNew<vtkWebGPUComputeFrustumCuller> webgpuFrustumCuller;
   renderer->GetCullers()->AddItem(webgpuFrustumCuller);
+
+  // Render bundles record every visible prop and replay that fixed list across frames, which
+  // leaves nothing for a culler to shorten. Turn them off so the culler drives what is drawn.
+  vtkWebGPURenderer::SafeDownCast(renderer)->UseRenderBundlesOff();
 
   renderer->AddActor(CreateTriangle(-5, 0, -3, -3, 0, -3, -4, 1, -3));
   if (!renderAndCheckResults(renWin, renderer, renderedPropCounts, renderedPropCountsReference))
