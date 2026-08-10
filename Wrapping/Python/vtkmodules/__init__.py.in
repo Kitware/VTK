@@ -141,6 +141,9 @@ MODULE_MAPPER = {
     "vtkInteractionWidgets": [
         "vtkmodules.util.widgets",
     ],
+    "vtkViewsRendering": [
+        "vtkmodules.util.views_rendering",
+    ],
 }
 LOADED_MODULES = set()
 PENDING_LOADED_MODULES = set()
