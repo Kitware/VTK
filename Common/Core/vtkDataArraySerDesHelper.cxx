@@ -1,70 +1,34 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAffineArray.h"
-#include "vtkAffineTypeFloat32Array.h"
-#include "vtkAffineTypeFloat64Array.h"
-#include "vtkAffineTypeInt16Array.h"
-#include "vtkAffineTypeInt32Array.h"
-#include "vtkAffineTypeInt64Array.h"
-#include "vtkAffineTypeInt8Array.h"
-#include "vtkAffineTypeUInt16Array.h"
-#include "vtkAffineTypeUInt32Array.h"
-#include "vtkAffineTypeUInt64Array.h"
-#include "vtkAffineTypeUInt8Array.h"
 #include "vtkArrayDispatch.h"
 #include "vtkBitArray.h"
-#include "vtkCharArray.h"
 #include "vtkConstantArray.h"
-#include "vtkConstantTypeFloat32Array.h"
-#include "vtkConstantTypeFloat64Array.h"
-#include "vtkConstantTypeInt16Array.h"
-#include "vtkConstantTypeInt32Array.h"
-#include "vtkConstantTypeInt64Array.h"
-#include "vtkConstantTypeInt8Array.h"
-#include "vtkConstantTypeUInt16Array.h"
-#include "vtkConstantTypeUInt32Array.h"
-#include "vtkConstantTypeUInt64Array.h"
-#include "vtkConstantTypeUInt8Array.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDeserializer.h"
-#include "vtkFloatArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkIntArray.h"
 #include "vtkInvoker.h"
-#include "vtkLongArray.h"
-#include "vtkLongLongArray.h"
 #include "vtkLookupTable.h"
 #include "vtkSerializer.h"
 #include "vtkSetGet.h"
-#include "vtkShortArray.h"
-#include "vtkTypeFloat32Array.h"
-#include "vtkTypeFloat64Array.h"
-#include "vtkTypeInt16Array.h"
-#include "vtkTypeInt32Array.h"
-#include "vtkTypeInt64Array.h"
-#include "vtkTypeInt8Array.h"
-#include "vtkTypeUInt16Array.h"
-#include "vtkTypeUInt32Array.h"
-#include "vtkTypeUInt64Array.h"
 #include "vtkTypeUInt8Array.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedLongLongArray.h"
-#include "vtkUnsignedShortArray.h"
 
 // clang-format off
 #include "vtk_nlohmannjson.h"
 #include VTK_NLOHMANN_JSON(json.hpp)
 // clang-format on
 
+#include <algorithm> // for any_of
+#include <string>    // for string
+#include <vector>    // for vector
+
 extern "C"
 {
   /**
-   * Register the (de)serialization handlers of vtkDataArray subclasses
-   * @param ser   a vtkSerializer instance
-   * @param deser a vtkDeserializer instance
+   * Register the (de)serialization and invocation handlers of vtkDataArray subclasses
+   * @param ser     a vtkSerializer instance
+   * @param deser   a vtkDeserializer instance
+   * @param invoker a vtkInvoker instance
    */
   int RegisterHandlers_vtkDataArraySerDesHelper(void* ser, void* deser, void* invoker);
 }
@@ -77,7 +41,6 @@ struct ArrayTypeInfo
   std::function<vtkObjectBase*()> New;
   const std::type_info& TypeInfo;
 };
-#define TYPE_INFO_MACRO(className) { #className, className::New, typeid(className) }
 #define TTYPE_INFO_MACRO(className) { #className, className::New, typeid(className) }
 
 // clang-format off
@@ -95,18 +58,6 @@ struct ArrayTypeInfo
     TTYPE_INFO_MACRO(className<unsigned long>),                                                    \
     TTYPE_INFO_MACRO(className<unsigned long long>),                                               \
     TTYPE_INFO_MACRO(className<unsigned short>)
-
-#define CONCRETE_ARRAY_TYPES_INFO_MACRO(type)                                                       \
-    TYPE_INFO_MACRO(type## TypeInt8Array),                                                          \
-    TYPE_INFO_MACRO(type## TypeInt16Array),                                                         \
-    TYPE_INFO_MACRO(type## TypeInt32Array),                                                         \
-    TYPE_INFO_MACRO(type## TypeInt64Array),                                                         \
-    TYPE_INFO_MACRO(type## TypeUInt8Array),                                                         \
-    TYPE_INFO_MACRO(type## TypeUInt16Array),                                                        \
-    TYPE_INFO_MACRO(type## TypeUInt32Array),                                                        \
-    TYPE_INFO_MACRO(type## TypeUInt64Array),                                                        \
-    TYPE_INFO_MACRO(type## TypeFloat32Array),                                                       \
-    TYPE_INFO_MACRO(type## TypeFloat64Array)
 
 // The templated types should match those in the TEMPLATED_ARRAY_TYPES_INFO_MACRO.
 #define TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, ValueType, valueTypeName)                   \
@@ -143,30 +94,26 @@ struct ArrayTypeInfo
   TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, unsigned long long, unsigned long long);          \
   TEMPLATED_ARRAY_NAME_DEMANGLE_MACRO(className, unsigned short, unsigned short)
 
-std::vector<ArrayTypeInfo> ArrayTypes = {
-  TYPE_INFO_MACRO(vtkBitArray),
-  TYPE_INFO_MACRO(vtkCharArray),
-  TYPE_INFO_MACRO(vtkDoubleArray),
-  TYPE_INFO_MACRO(vtkFloatArray),
-  TYPE_INFO_MACRO(vtkIdTypeArray),
-  TYPE_INFO_MACRO(vtkIntArray),
-  TYPE_INFO_MACRO(vtkLongArray),
-  TYPE_INFO_MACRO(vtkLongLongArray),
-  TYPE_INFO_MACRO(vtkShortArray),
-  TYPE_INFO_MACRO(vtkSignedCharArray),
-  TYPE_INFO_MACRO(vtkUnsignedCharArray),
-  TYPE_INFO_MACRO(vtkUnsignedIntArray),
-  TYPE_INFO_MACRO(vtkUnsignedLongArray),
-  TYPE_INFO_MACRO(vtkUnsignedLongLongArray),
-  TYPE_INFO_MACRO(vtkUnsignedShortArray),
+// The wrapping tools skip templated classes, so the templated array classes have no generated
+// (de)serializer, constructor or invoker. This helper registers the handlers of vtkDataArray
+// for them. The concrete array classes are marshalled by generated code that chains into the
+// handlers which this helper registers for vtkDataArray and for the templated array classes.
+std::vector<ArrayTypeInfo> TemplatedArrayTypes = {
   TEMPLATED_ARRAY_TYPES_INFO_MACRO(vtkAOSDataArrayTemplate),
-  CONCRETE_ARRAY_TYPES_INFO_MACRO(vtk),
   TEMPLATED_ARRAY_TYPES_INFO_MACRO(vtkAffineArray),
-  CONCRETE_ARRAY_TYPES_INFO_MACRO(vtkAffine),
-  TEMPLATED_ARRAY_TYPES_INFO_MACRO(vtkConstantArray),
-  CONCRETE_ARRAY_TYPES_INFO_MACRO(vtkConstant)
-
+  TEMPLATED_ARRAY_TYPES_INFO_MACRO(vtkConstantArray)
 };
+
+/**
+ * Whether `array` is an instance of a templated array class, i.e a class that the wrapping
+ * tools skip and for which this helper is the only handler.
+ */
+bool IsTemplatedArray(vtkDataArray* array)
+{
+  const auto& typeInfo = typeid(*array);
+  return std::any_of(TemplatedArrayTypes.begin(), TemplatedArrayTypes.end(),
+    [&typeInfo](const ArrayTypeInfo& arrayType) { return arrayType.TypeInfo == typeInfo; });
+}
 
 typedef vtkTypeList::Create<
   vtkAffineArray<char>,
@@ -417,6 +364,12 @@ struct vtkDataArrayDeserializer
     const auto& content = blob.get_binary();
     std::copy_n(reinterpret_cast<const ValueT*>(content.data()), array->GetNumberOfValues(),
       array->GetPointer(0));
+    const auto id = state["Id"].get<vtkTypeUInt32>();
+    const auto hash = state["Hash"].get<std::string>();
+    if (deserializer->GetContext()->ShouldDataArrayBeModified(id, hash))
+    {
+      array->Modified();
+    }
     VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(LookupTable, vtkLookupTable, state, array, deserializer);
   }
 
@@ -436,6 +389,12 @@ struct vtkDataArrayDeserializer
         std::copy_n(reinterpret_cast<const VTK_TT*>(content.data()), array->GetNumberOfValues(),
           vtk::DataArrayValueRange<vtk::detail::DynamicTupleSize, VTK_TT>(array).begin()));
     }
+    const auto id = state["Id"].get<vtkTypeUInt32>();
+    const auto hash = state["Hash"].get<std::string>();
+    if (deserializer->GetContext()->ShouldDataArrayBeModified(id, hash))
+    {
+      array->Modified();
+    }
     VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(LookupTable, vtkLookupTable, state, array, deserializer);
   }
 
@@ -451,6 +410,12 @@ struct vtkDataArrayDeserializer
     const auto& content = blob.get_binary();
     std::copy_n(content.data(), (array->GetNumberOfValues() + 7) / 8, array->GetPointer(0));
     array->SetNumberOfValues(state["NumberOfBits"]);
+    const auto id = state["Id"].get<vtkTypeUInt32>();
+    const auto hash = state["Hash"].get<std::string>();
+    if (deserializer->GetContext()->ShouldDataArrayBeModified(id, hash))
+    {
+      array->Modified();
+    }
     VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(LookupTable, vtkLookupTable, state, array, deserializer);
   }
 };
@@ -499,16 +464,13 @@ static nlohmann::json Serialize_vtkDataArray(vtkObjectBase* object, vtkSerialize
     serializeWorker(da, state, serializer);
   }
   auto& superClasses = state["SuperClassNames"];
-
   superClasses.push_back("vtkAbstractArray");
-  superClasses.push_back("vtkDataArray");
-
-  for (const auto& arrayType : ArrayTypes)
+  // the generated serializer of a concrete array class reports vtkDataArray, and every class
+  // in between, as its superclass. A templated array class has no generated serializer, so
+  // report it here for those.
+  if (IsTemplatedArray(da))
   {
-    if (da->IsA(arrayType.Name.c_str()) && da->GetClassName() != arrayType.Name)
-    {
-      superClasses.push_back(arrayType.Name);
-    }
+    superClasses.push_back("vtkDataArray");
   }
   return state;
 }
@@ -551,7 +513,8 @@ int RegisterHandlers_vtkDataArraySerDesHelper(void* ser, void* deser, void* invo
   {
     if (auto* serializer = vtkSerializer::SafeDownCast(asObjectBase))
     {
-      for (auto& arrayType : ArrayTypes)
+      serializer->RegisterHandler(typeid(vtkDataArray), Serialize_vtkDataArray);
+      for (auto& arrayType : TemplatedArrayTypes)
       {
         serializer->RegisterHandler(arrayType.TypeInfo, Serialize_vtkDataArray);
       }
@@ -562,8 +525,10 @@ int RegisterHandlers_vtkDataArraySerDesHelper(void* ser, void* deser, void* invo
   {
     if (auto* deserializer = vtkDeserializer::SafeDownCast(asObjectBase))
     {
-      for (auto& arrayType : ArrayTypes)
+      deserializer->RegisterHandler(typeid(vtkDataArray), Deserialize_vtkDataArray);
+      for (auto& arrayType : TemplatedArrayTypes)
       {
+        // the name of a templated array class is the demangled name recorded by the serializer.
         deserializer->RegisterConstructor(arrayType.Name, arrayType.New);
         deserializer->RegisterHandler(arrayType.TypeInfo, Deserialize_vtkDataArray);
       }
@@ -575,11 +540,12 @@ int RegisterHandlers_vtkDataArraySerDesHelper(void* ser, void* deser, void* invo
   {
     if (auto* invokerObject = vtkInvoker::SafeDownCast(asObjectBase))
     {
-      for (auto& arrayType : ArrayTypes)
+      for (auto& arrayType : TemplatedArrayTypes)
       {
         invokerObject->RegisterHandler(
           arrayType.TypeInfo, invokerObject->GetHandler(typeid(vtkDataArray)));
       }
+      success = 1;
     }
   }
   return success;

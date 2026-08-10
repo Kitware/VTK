@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWrapJsonClass.h"
+#include "vtkParseData.h"
 #include "vtkParseExtras.h"
 #include "vtkParseProperties.h"
 #include "vtkParseType.h"
@@ -27,51 +28,64 @@
    default so a native host build is correct without the flag. */
 static int vtkWrapJson_TargetWordSize = 8;
 
+/* The case of the sized names matches vtkTypeTraits<T>::SizedName()*/
+static const char* FLOAT32 = "Float32";
+static const char* FLOAT64 = "Float64";
+static const char* INT8 = "Int8";
+static const char* INT16 = "Int16";
+static const char* INT32 = "Int32";
+static const char* INT64 = "Int64";
+static const char* UINT8 = "UInt8";
+static const char* UINT16 = "UInt16";
+static const char* UINT32 = "UInt32";
+static const char* UINT64 = "UInt64";
+
 /* -------------------------------------------------------------------- */
 /* Concrete name for a numeric VTK_PARSE base type.
    Fixed-width types map to an exact width; word-width types (long, size_t,
    ssize_t) are baked to a concrete width from vtkWrapJson_TargetWordSize, so
-   the manifest is architecture-specific (int32 on wasm32, int64 on wasm64). */
+   the manifest is architecture-specific (Int32 on wasm32, Int64 on wasm64).
+   */
 static const char* vtkWrapJson_NumericType(unsigned int type)
 {
   const int wide = (vtkWrapJson_TargetWordSize == 8);
   switch (type & VTK_PARSE_BASE_TYPE)
   {
     case VTK_PARSE_FLOAT:
-      return "float32";
+      return FLOAT32;
     case VTK_PARSE_DOUBLE:
     case VTK_PARSE_LONG_DOUBLE:
-      return "float64";
+      return FLOAT64;
     case VTK_PARSE_CHAR:
     case VTK_PARSE_SIGNED_CHAR:
-      return "int8";
+      return INT8;
     case VTK_PARSE_UNSIGNED_CHAR:
-      return "uint8";
+      return UINT8;
     case VTK_PARSE_SHORT:
-      return "int16";
+      return INT16;
     case VTK_PARSE_UNSIGNED_SHORT:
-      return "uint16";
+      return UINT16;
     case VTK_PARSE_INT:
-      return "int32";
+      return INT32;
     case VTK_PARSE_UNSIGNED_INT:
-      return "uint32";
+      return UINT32;
     case VTK_PARSE_LONG_LONG:
-      return "int64";
+      return INT64;
     case VTK_PARSE_UNSIGNED_LONG_LONG:
-      return "uint64";
+      return UINT64;
     /* word-width: 32-bit on wasm32, 64-bit on wasm64 -- baked per target */
     case VTK_PARSE_LONG:
     case VTK_PARSE_SSIZE_T:
-      return wide ? "int64" : "int32";
+      return wide ? INT64 : INT32;
     case VTK_PARSE_UNSIGNED_LONG:
     case VTK_PARSE_SIZE_T:
-      return wide ? "uint64" : "uint32";
+      return wide ? UINT64 : UINT32;
 #ifdef VTK_PARSE_ID_TYPE
     /* should not survive typedef expansion; fall back to the target word width */
     case VTK_PARSE_ID_TYPE:
-      return wide ? "int64" : "int32";
+      return wide ? INT64 : INT32;
     case VTK_PARSE_UNSIGNED_ID_TYPE:
-      return wide ? "uint64" : "uint32";
+      return wide ? UINT64 : UINT32;
 #endif
     default:
       return "number";
@@ -100,7 +114,7 @@ static const char* vtkWrapJson_StripClass(const char* cls, char* buf, size_t buf
 
 /* -------------------------------------------------------------------- */
 /* Emit the inline JSON schema object for a single method parameter or return
-   value, e.g. { "type": "float64" } or { "$ref": "vtkMapper" }. */
+   value, e.g. { "type": "Float64" } or { "$ref": "vtkMapper" }. */
 static void vtkWrapJson_WriteValueSchema(
   FILE* fp, ValueInfo* val, const HierarchyInfo* hinfo, ClassInfo* classInfo)
 {
@@ -126,7 +140,7 @@ static void vtkWrapJson_WriteValueSchema(
   /* enums marshal as integers */
   if (val->IsEnum || vtkWrap_IsEnumMember(classInfo, val))
   {
-    fprintf(fp, "{ \"type\": \"int32\" }");
+    fprintf(fp, "{ \"type\": \"%s\" }", INT32);
     return;
   }
   /* fixed-size numeric tuples (vtkVector/vtkTuple/vtkColor/vtkRect) and
@@ -135,7 +149,7 @@ static void vtkWrapJson_WriteValueSchema(
     !strncmp(val->Class, "vtkColor", 8) || !strncmp(val->Class, "vtkRect", 7) ||
     !strcmp(val->Class, "vtkBoundingBox"))
   {
-    fprintf(fp, "{ \"type\": \"array\", \"items\": { \"type\": \"float64\" } }");
+    fprintf(fp, "{ \"type\": \"array\", \"items\": { \"type\": \"%s\" } }", FLOAT64);
     return;
   }
   /* std::vector<T> -> array of element type */
@@ -157,6 +171,18 @@ static void vtkWrapJson_WriteValueSchema(
     }
     fprintf(fp, "{ \"type\": \"array\", \"items\": { \"type\": \"%s\" } }", elemType);
     free((char*)arg);
+    return;
+  }
+  /* A zero copy pointer travels as the address of its first element, because its length is not
+     part of the signature and neither side copies what is behind it. The address is an unsigned
+     integer of the target word width; "pointer" names the type of those elements, so a client can
+     view that memory in place. As a parameter the address is the client's own memory, which the
+     object borrows; as a return value it is the object's memory, which the client borrows for as
+     long as the object keeps it. */
+  if (vtkWrapSerDes_CanMarshalZeroCopyPointer(val))
+  {
+    fprintf(fp, "{ \"type\": \"%s\", \"pointer\": \"%s\" }",
+      (vtkWrapJson_TargetWordSize == 8) ? UINT64 : UINT32, vtkWrapJson_NumericType(val->Type));
     return;
   }
   /* numeric scalars and numeric C arrays */
@@ -233,45 +259,48 @@ static void vtkWrapJson_WritePropertySchema(
    the same properties are selected. */
 static void vtkWrapJson_WriteProperties(FILE* fp, ClassInfo* classInfo, const HierarchyInfo* hinfo)
 {
-  ClassProperties* properties = vtkParseProperties_Create(classInfo, hinfo);
-  int* isWritten = (int*)calloc(properties->NumberOfProperties, sizeof(int));
-  int first = 1;
-  int i = 0;
-
   fprintf(fp, "  \"properties\": {");
-  for (i = 0; i < classInfo->NumberOfFunctions; ++i)
+  int first = 1;
+  if (classInfo->MarshalType == VTK_MARSHAL_AUTO_MODE)
   {
-    FunctionInfo* theFunc = classInfo->Functions[i];
-    if (!theFunc->IsPublic || vtkWrap_IsInheritedMethod(classInfo, theFunc))
+    ClassProperties* properties = vtkParseProperties_Create(classInfo, hinfo);
+    int* isWritten = (int*)calloc(properties->NumberOfProperties, sizeof(int));
+    int i = 0;
+
+    for (i = 0; i < classInfo->NumberOfFunctions; ++i)
     {
-      continue;
+      FunctionInfo* theFunc = classInfo->Functions[i];
+      if (!theFunc->IsPublic || vtkWrap_IsInheritedMethod(classInfo, theFunc))
+      {
+        continue;
+      }
+      if (!properties->MethodHasProperty[i])
+      {
+        continue;
+      }
+      int j = properties->MethodProperties[i];
+      if (isWritten[j])
+      {
+        continue;
+      }
+      PropertyInfo* theProp = properties->Properties[j];
+      const char* skipReason = NULL;
+      if (!vtkWrapSerDes_IsAllowable(hinfo, classInfo, theFunc, theProp, &skipReason) &&
+        !theFunc->MarshalPropertyName)
+      {
+        continue;
+      }
+      isWritten[j] = 1;
+      const int readOnly = (theProp->PublicMethods & VTK_JSON_WRITE_METHODS) == 0;
+      fprintf(fp, "%s\n    \"%s\": ", first ? "" : ",", theProp->Name);
+      vtkWrapJson_WritePropertySchema(fp, theProp, hinfo, readOnly);
+      first = 0;
     }
-    if (!properties->MethodHasProperty[i])
-    {
-      continue;
-    }
-    int j = properties->MethodProperties[i];
-    if (isWritten[j])
-    {
-      continue;
-    }
-    PropertyInfo* theProp = properties->Properties[j];
-    const char* skipReason = NULL;
-    if (!vtkWrapSerDes_IsAllowable(hinfo, classInfo, theFunc, theProp, &skipReason) &&
-      !theFunc->MarshalPropertyName)
-    {
-      continue;
-    }
-    isWritten[j] = 1;
-    const int readOnly = (theProp->PublicMethods & VTK_JSON_WRITE_METHODS) == 0;
-    fprintf(fp, "%s\n    \"%s\": ", first ? "" : ",", theProp->Name);
-    vtkWrapJson_WritePropertySchema(fp, theProp, hinfo, readOnly);
-    first = 0;
+
+    free(isWritten);
+    vtkParseProperties_Free(properties);
   }
   fprintf(fp, "%s  }", first ? "" : "\n");
-
-  free(isWritten);
-  vtkParseProperties_Free(properties);
 }
 
 /* -------------------------------------------------------------------- */
@@ -313,22 +342,33 @@ static void vtkWrapJson_WriteMethods(FILE* fp, ClassInfo* classInfo, const Hiera
       }
     }
 
+    /* the invoker fills an out parameter in itself and hands it back as the value of the call,
+       so it belongs under "returns" and not under "parameters". */
+    const int outParameterId = vtkWrapSerDes_FindOutParameterPosition(theFunc);
+    int written = 0;
     fprintf(fp, "%s\n    \"%s\": {\n      \"parameters\": {", first ? "" : ",", theFunc->Name);
     for (p = 0; p < theFunc->NumberOfParameters; ++p)
     {
       ValueInfo* paramInfo = theFunc->Parameters[p];
+      if (p == outParameterId)
+      {
+        continue;
+      }
       if (paramInfo->Name)
       {
-        fprintf(fp, "%s \"%s\": ", p ? "," : "", paramInfo->Name);
+        fprintf(fp, "%s \"%s\": ", written ? "," : "", paramInfo->Name);
       }
       else
       {
-        fprintf(fp, "%s \"arg%d\": ", p ? "," : "", p);
+        fprintf(fp, "%s \"arg%d\": ", written ? "," : "", p);
       }
       vtkWrapJson_WriteValueSchema(fp, paramInfo, hinfo, classInfo);
+      ++written;
     }
-    fprintf(fp, "%s},\n      \"returns\": ", theFunc->NumberOfParameters ? " " : "");
-    vtkWrapJson_WriteValueSchema(fp, theFunc->ReturnValue, hinfo, classInfo);
+    fprintf(fp, "%s},\n      \"returns\": ", written ? " " : "");
+    vtkWrapJson_WriteValueSchema(fp,
+      (outParameterId >= 0 ? theFunc->Parameters[outParameterId] : theFunc->ReturnValue), hinfo,
+      classInfo);
     if (maySuspend)
     {
       fprintf(fp, ",\n      \"maySuspend\": true");

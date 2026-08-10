@@ -60,6 +60,7 @@
 #include "vtkGenericDataArrayLookupHelper.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypeTraits.h"
+#include "vtkWrappingHints.h" // for VTK_MARSHALEXCLUDE, VTK_SIZEHINT
 
 #include <cassert> // for assert
 #include <memory>  // for std::unique_ptr
@@ -445,14 +446,18 @@ VTK_ABI_NAMESPACE_END
 // can see them. The wrappers ignore vtkGenericDataArray.
 #define vtkCreateWrappedArrayReadInterface(T)                                                      \
   vtkCreateGenericWrappedArrayReadInterface(T);                                                    \
-  void GetTypedTuple(vtkIdType i, T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());        \
+  void GetTypedTuple(vtkIdType i, T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples())         \
+    VTK_SIZEHINT(tuple, GetNumberOfComponents());                                                  \
   T GetTypedComponent(vtkIdType i, int c) const VTK_EXPECTS(0 <= c && c < GetNumberOfComponents()) \
     VTK_EXPECTS(0 <= i && GetNumberOfComponents() * i + c < GetNumberOfValues());                  \
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)                                      \
   T GetValue(vtkIdType id) const VTK_EXPECTS(0 <= id && id < GetNumberOfValues());
 #define vtkCreateWrappedArrayWriteInterface(T)                                                     \
   vtkCreateGenericWrappedArrayWriteInterface(T);                                                   \
-  void SetTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());  \
+  void SetTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples())   \
+    VTK_SIZEHINT(tuple, GetNumberOfComponents());                                                  \
   void SetTypedComponent(vtkIdType i, int c, T value);                                             \
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)                                      \
   void SetValue(vtkIdType id, T value) VTK_EXPECTS(0 <= id && id < GetNumberOfValues());           \
   bool SetNumberOfValues(vtkIdType number) override;
 
