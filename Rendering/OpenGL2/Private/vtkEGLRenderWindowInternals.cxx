@@ -482,18 +482,14 @@ void vtkEGLRenderWindowInternals::ConfigureWindow(int width, int height)
     return;
   }
 
-  if (this->IsMesaSoftwareRenderer())
+#ifdef VTK_USE_MESA_SOFTWARE_RENDERING
+  if (!gladLoaderLoadGL())
   {
-#if !defined(__ANDROID__) && !defined(ANDROID)
-    if (!gladLoaderLoadGL())
-    {
-      vtkLog(ERROR, "Failed to load GL");
-      return;
-    }
-#endif
-
-    this->InitializeOffscreenFramebuffer();
+    vtkLog(ERROR, "Failed to load GL");
+    return;
   }
+  this->InitializeOffscreenFramebuffer();
+#endif
 }
 
 //------------------------------------------------------------------------------
