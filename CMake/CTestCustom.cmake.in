@@ -139,6 +139,11 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   # compiled as C++17 or C++20 in versions of GCC prior to 10.1. GCC 10.1 fixes
   # this by forcing the C++14 implementation and issuing a warning.
   "when C\\+\\+17 is enabled changed to match C\\+\\+14 in GCC 10.1"
+
+  # Spurious warning from libxml2. The variable is initialized under the same
+  # predicate it is used.
+  "vtklibxml2/dict.c:[0-9]+:[0-9]+: warning: variable 'plen' may be used uninitialized when used here \\[-Wconditional-uninitialized\\]"
+  "exodusII/vtkexodusII/src/ex_put_one_attr.c:[0-9]+:[0-9]+: note: initialize the variable 'obj_id_ndx' to silence this warning"
   )
 
 set(cdash_show_third_party_warnings "@VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS@")
