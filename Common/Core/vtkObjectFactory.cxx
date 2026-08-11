@@ -3,7 +3,6 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkCollectionRange.h"
-#include "vtkDebugLeaks.h"
 #include "vtkDynamicLoader.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
@@ -20,6 +19,124 @@
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+
+/**
+ * Data structure representing one element from the preference list.
+ */
+struct PreferenceToken
+{
+  PreferenceToken(const std::string& key, const std::vector<std::string>& values)
+    : Key(key)
+    , Values(values)
+  {
+  }
+
+  std::string Key;
+  std::vector<std::string> Values;
+};
+
+/**
+ * Convert the raw preference string to  a vector of PreferenceToken.
+ */
+std::vector<PreferenceToken> ParsePreferences(const std::string& rawPreferences)
+{
+  std::vector<PreferenceToken> parsedPreferences;
+
+  // preferences are like "keyA=valueA1,valueA2,...;keyB=valueB1,valueB2,...;..."
+  for (const std::string& preference : vtksys::SystemTools::SplitString(rawPreferences, ';'))
+  {
+    // split into key and values
+    const auto keyValues = vtksys::SystemTools::SplitString(preference, '=');
+    if (keyValues.size() != 2)
+    {
+      vtkLog(WARNING,
+        "Invalid format for vtkObjectFactory preference: '" << preference
+                                                            << "'. Expected format "
+                                                               "'key=value1,value2,...'");
+      continue;
+    }
+
+    const std::string& key = keyValues[0];
+    // get the individual value strings.
+    std::vector<std::string> values = vtksys::SystemTools::SplitString(keyValues[1], ',');
+    parsedPreferences.emplace_back(key, values);
+  }
+
+  return parsedPreferences;
+}
+
+/**
+ * Compute a score value for the given attribute chain based on the preferences.
+ */
+int ComputeOverrideAttributeScore(
+  vtkOverrideAttribute* overrideAttributes, const std::vector<PreferenceToken>& preferences)
+{
+  int score = 0;
+  for (auto* attribute = overrideAttributes; attribute != nullptr; attribute = attribute->GetNext())
+  {
+    const char* attributeKey = attribute->GetName();
+    const char* attributeValue = attribute->GetValue();
+    if (attributeKey == nullptr || !*attributeKey || attributeValue == nullptr || !*attributeValue)
+    {
+      vtkLogF(WARNING, "Override attribute key or value has invalid format, skipping.");
+      continue;
+    }
+
+    const auto keyIt = std::find_if(preferences.cbegin(), preferences.cend(),
+      [attributeKey](const PreferenceToken& token) { return token.Key == attributeKey; });
+
+    if (keyIt == preferences.end())
+    {
+      continue;
+    }
+
+    const auto valueIt = std::find(keyIt->Values.cbegin(), keyIt->Values.cend(), attributeValue);
+    const int scoreDelta = valueIt != keyIt->Values.end() ? +1 : -1;
+    score += scoreDelta;
+  }
+
+  return score;
+}
+
+/**
+ * Iterate through all token values and return the first match against the override information.
+ * Otherwise, return nullptr.
+ */
+vtkSmartPointer<vtkOverrideInformation> FindFirstOverrideInfoMatch(
+  vtkSmartPointer<vtkOverrideInformationCollection> overrideInfos, const PreferenceToken& token)
+{
+  for (const std::string& value : token.Values)
+  {
+    for (vtkOverrideInformation* overrideInfo : vtk::Range(overrideInfos.Get()))
+    {
+      for (auto* attribute = overrideInfo->GetOverrideAttributes(); attribute != nullptr;
+           attribute = attribute->GetNext())
+      {
+        const char* attributeKey = attribute->GetName();
+        const char* attributeValue = attribute->GetValue();
+        if (attributeKey == nullptr || !*attributeKey || attributeValue == nullptr ||
+          !*attributeValue)
+        {
+          vtkLogF(WARNING, "Override attribute key or value has invalid format, skipping.");
+          continue;
+        }
+
+        if (token.Key == attributeKey && value == attributeValue)
+        {
+          return overrideInfo;
+        }
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+}
+
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = nullptr;
 std::string vtkObjectFactory::Preferences;
 static unsigned int vtkObjectFactoryRegistryCleanupCounter = 0;
@@ -40,7 +157,7 @@ vtkObjectFactoryRegistryCleanup::~vtkObjectFactoryRegistryCleanup()
 // Create an instance of a named vtk object using the loaded
 // factories
 
-vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname, bool)
+vtkObject* vtkObjectFactory::CreateInstance(const char* className, bool)
 {
   if (!vtkObjectFactory::RegisteredFactories)
   {
@@ -65,129 +182,70 @@ vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname, bool)
 
   if (!vtkObjectFactory::Preferences.empty())
   {
-    // preferences are like "keyA=valueA1,valueA2,...;keyB=valueB1,valueB2,...;..."
-    const auto preferences = vtksys::SystemTools::SplitString(vtkObjectFactory::Preferences, ';');
     vtkNew<vtkOverrideInformationCollection> overrideInfos;
-    vtkObjectFactory::GetOverrideInformation(vtkclassname, overrideInfos);
-    vtkLog(TRACE,
-      "Found " << overrideInfos->GetNumberOfItems() << " override infos for class '" << vtkclassname
-               << "'");
-    // all best override infos found so far are stored in this collection based on their score.
-    // lower indices in the preferences list have higher priority and are therefore stored first.
+    vtkObjectFactory::GetOverrideInformation(className, overrideInfos);
+
+    std::vector<::PreferenceToken> preferences = ::ParsePreferences(vtkObjectFactory::Preferences);
+
+    int bestScore = 0;
     vtkNew<vtkOverrideInformationCollection> bestOverrideInfos;
-    // process each preference in order
-    for (std::size_t preferenceIndex = 0; preferenceIndex < preferences.size(); ++preferenceIndex)
+    // Append override infos with highest score into bestOverrideInfos.
+    for (vtkOverrideInformation* overrideInfo : vtk::Range(overrideInfos.Get()))
     {
-      const auto& preference = preferences[preferenceIndex];
-      // split into key and values
-      const auto keyValues = vtksys::SystemTools::SplitString(preference, '=');
-      if (keyValues.size() != 2)
+      int score =
+        ::ComputeOverrideAttributeScore(overrideInfo->GetOverrideAttributes(), preferences);
+
+      if (score > bestScore)
       {
-        vtkLog(WARNING,
-          "Invalid format for vtkObjectFactory preference: '" << preference
-                                                              << "'. Expected format "
-                                                                 "'key=value1,value2,...'");
-        continue;
+        bestScore = score;
+        bestOverrideInfos->RemoveAllItems();
+        bestOverrideInfos->AddItem(overrideInfo);
       }
-      vtkLog(TRACE, "Processing preference #" << preferenceIndex << "'" << preference << "'");
-      const auto& key = keyValues[0];
-      // get the individual value strings.
-      const auto values = vtksys::SystemTools::SplitString(keyValues[1], ',');
-      // best override infos found for this preference
-      vtkNew<vtkOverrideInformationCollection> preferenceBestOverrideInfos;
-      const int currentBestScore = bestOverrideInfos->GetNumberOfItems();
-      // overrides that match values at lower indices are appended to the bestOverrideInfos vector
-      // due to the implicit iteration order of the values.
-      for (std::size_t valueIndex = 0; valueIndex < values.size(); ++valueIndex)
+      else if (score == bestScore)
       {
-        const auto& value = values[valueIndex];
-        vtkLog(TRACE, " Processing value #" << valueIndex << ":'" << value << "'");
-        // find an override info that has an attribute matching the preference key.
-        for (auto* overrideInfo : vtk::Range(overrideInfos.Get()))
-        {
-          // check each attribute of the override info
-          for (auto* attr = overrideInfo->GetOverrideAttributes(); attr != nullptr;
-               attr = attr->GetNext())
-          {
-            if (attr->GetName() == nullptr || !*attr->GetName())
-            {
-              vtkLog(ERROR, << "Override '" << overrideInfo->GetClassOverrideWithName()
-                            << "' has an attribute with null/empty name. Skipping attribute.");
-              continue;
-            }
-            if (attr->GetValue() == nullptr || !*attr->GetValue())
-            {
-              vtkLog(ERROR, << "Override '" << overrideInfo->GetClassOverrideWithName()
-                            << "' has an attribute with null/empty value. Skipping attribute.");
-              continue;
-            }
-            if (key != attr->GetName())
-            {
-              // ignore attributes that do not match the preference key
-              continue;
-            }
-            vtkLog(TRACE, << "  Test '" << key << "' for " << overrideInfo->GetDescription());
-            // assign a score for the override info based on the position of the matched value in
-            // the preferences list.
-            if (value == attr->GetValue())
-            {
-              vtkLog(TRACE, << "  " << overrideInfo->GetDescription()
-                            << " matches preference value='" << value << "' with score "
-                            << currentBestScore + valueIndex);
-              preferenceBestOverrideInfos->AddItem(overrideInfo);
-              // stop checking other attributes of this class when a value of the current
-              // attribute matches the value from the preferences.
-              break;
-            }
-            else
-            {
-              vtkLog(TRACE, << "  " << overrideInfo->GetDescription()
-                            << " does not match preference value='" << value << "'");
-            }
-          } // end for each attribute
-        } // end for each override info
-      } // end for each value
-      // append the found best override infos for this preference to the overall bestOverrideInfos
-      // use only the best ones found for this preference in the next round of preference
-      // processing.
-      if (preferenceBestOverrideInfos->GetNumberOfItems() > 0)
+        bestOverrideInfos->AddItem(overrideInfo);
+      }
+    }
+
+    vtkSmartPointer<vtkOverrideInformation> bestOverrideInfo;
+    // If multiple override informations have the same highest score, the priority is determined by
+    // the preference value order.
+    if (bestOverrideInfos->GetNumberOfItems() > 1)
+    {
+      for (const ::PreferenceToken& token : preferences)
       {
-        vtkLog(TRACE,
-          " Found " << preferenceBestOverrideInfos->GetNumberOfItems()
-                    << " best override infos for preference '" << preference << "'");
-        overrideInfos->RemoveAllItems();
-        for (auto* bestOverrideInfo : vtk::Range(preferenceBestOverrideInfos.Get()))
+        bestOverrideInfo = ::FindFirstOverrideInfoMatch(bestOverrideInfos, token);
+        if (bestOverrideInfo)
         {
-          overrideInfos->AddItem(bestOverrideInfo);
-          bestOverrideInfos->AddItem(bestOverrideInfo);
+          break;
         }
       }
-    } // end for each preference
-    // Iterate over the final bestOverrideInfos and create an instance from the first one that
-    // works.
-    for (auto* overrideInfo : vtk::Range(bestOverrideInfos.Get()))
+    }
+    else
     {
-      vtkLog(TRACE,
-        "Try creating instance of '" << vtkclassname << "'"
-                                     << " using factory '" << overrideInfo->GetDescription() << "");
-      vtkObject* newobject = overrideInfo->GetObjectFactory()->CreateObject(vtkclassname);
+      bestOverrideInfo =
+        vtkOverrideInformation::SafeDownCast(bestOverrideInfos->GetItemAsObject(0));
+    }
+
+    if (bestOverrideInfo)
+    {
+      vtkObject* newobject = bestOverrideInfo->GetObjectFactory()->CreateObject(className);
       if (newobject)
       {
         return newobject;
       }
     }
-    vtkLog(TRACE,
-      "Fallback to default factory because no override info was selected for class '"
-        << vtkclassname << "' based on preferences '" << vtkObjectFactory::Preferences << "'.");
   } // end if preferences not empty
+
   for (auto* factory : vtk::Range(vtkObjectFactory::RegisteredFactories))
   {
-    vtkObject* newobject = factory->CreateObject(vtkclassname);
+    vtkObject* newobject = factory->CreateObject(className);
     if (newobject)
     {
       return newobject;
     }
   }
+
   return nullptr;
 }
 
