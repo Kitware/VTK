@@ -6,18 +6,13 @@ add_library(VTK::WebGPUImpl INTERFACE IMPORTED GLOBAL)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(VTK_USE_DAWN_WEBGPU OFF)
-  vtk_module_find_package(PACKAGE webgpuheaders)
-  set(vtk_webgpu_headers_used vendored)
 else()
   vtk_module_find_package(PACKAGE Dawn)
   if(Dawn_FOUND)
     set(VTK_USE_DAWN_WEBGPU ON)
     target_link_libraries(VTK::WebGPUImpl INTERFACE dawn::webgpu_dawn)
-    set(vtk_webgpu_headers_used dawn)
   else()
     set(VTK_USE_DAWN_WEBGPU OFF)
-    vtk_module_find_package(PACKAGE webgpuheaders)
-    set(vtk_webgpu_headers_used vendored)
     message(STATUS "WebGPU: no implementation found; using vendored headers only")
   endif()
 endif()
@@ -249,22 +244,26 @@ vtk_module_add_module(VTK::RenderingWebGPU
   NOWRAP_HEADERS ${public_wgsl_shader_headers}
   PRIVATE_HEADERS  ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${private_wgsl_shader_headers} ${private_headers})
 
-# The public headers include vtk_wgpu.h, which includes webgpu/webgpu.h, so the
-# WebGPU C API headers have to reach consumers of the installed VTK.
+# VTK always compiles, and always exposes to consumers, its own vendored copy of
+# the WebGPU headers rather than whichever copy the implementation happens to
+# ship. VTK::webgpuheaders is listed as a public dependency in vtk.module, so its
+# include directory is searched before the implementation's, and it is a real
+# exported module so downstream find_package(VTK) resolves it.
 #
-# Link the implementation's own target here rather than VTK::WebGPUImpl.
-# VTK::WebGPUImpl is created by add_library(IMPORTED) at the top of this file
-# and is neither exported nor installed, so naming it in a PUBLIC link would
-# write an unresolvable target into the installed VTK config and break
-# downstream find_package(VTK). dawn::webgpu_dawn comes from Dawn's own
-# installed config, and vtk_module_export_find_packages() replays the
-# vtk_module_find_package(PACKAGE Dawn) call above for consumers, so that target
-# does exist downstream. VTK::WebGPUImpl stays for internal and test use, where
-# a PRIVATE link is fine.
+# Owning the headers means an implementation cannot change the API VTK compiles
+# against underneath it, and it lets VTK carry local fixes - see the
+# webgpu_cpp.h `typename` patch in ThirdParty/webgpuheaders, without which the
+# module does not build with the MSVC in VTK's CI.
+#
+# dawn::webgpu_dawn is still linked for the library itself. It must be the
+# implementation's own target and not VTK::WebGPUImpl: the latter is created by
+# add_library(IMPORTED) at the top of this file and is neither exported nor
+# installed, so a PUBLIC link would write an unresolvable target into the
+# installed VTK config. vtk_module_export_find_packages() replays the
+# vtk_module_find_package(PACKAGE Dawn) call above for consumers, so
+# dawn::webgpu_dawn does exist downstream.
 if(VTK_USE_DAWN_WEBGPU)
   vtk_module_link(VTK::RenderingWebGPU PUBLIC dawn::webgpu_dawn)
-else()
-  vtk_module_link(VTK::RenderingWebGPU PUBLIC VTK::webgpuheaders)
 endif()
 
 # Public headers use C API only. C++20 features (webgpu_cpp.h) are private to implementation.
