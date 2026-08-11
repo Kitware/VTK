@@ -3,11 +3,10 @@
 ## Base configurations
 
 .macos:
+    image: "registry.hub.docker.com/kitware/macos-ci-images:macos-26-xcode-16.4-20260710"
     variables:
-        GIT_CLONE_PATH: "$CI_BUILDS_DIR/vtk-ci-ext/$CI_CONCURRENT_ID"
-        # TODO: Factor this out so that each job selects the Xcode version to
-        # use so that different versions can be tested in a single pipeline.
-        DEVELOPER_DIR: "/Applications/Xcode-16.4.app/Contents/Developer"
+        GIT_CLONE_PATH: "$CI_BUILDS_DIR/paraview-ci"
+        TART_EXECUTOR_HOST_DIR: "false"
 
 .wheel_macos_arm64:
     extends: .macos
@@ -170,41 +169,13 @@
     tags:
         - vtk
         - macos-x86_64
-        - shell
-        - xcode-16.4
-        - nonconcurrent
-
-.macos_x86_64_wheel_builder_tags:
-    tags:
-        - vtk
-        - macos-x86_64
-        - shell
-        - xcode-16.4
-        - concurrent
-
-.macos_x86_64_ext_builder_tags:
-    tags:
-        - vtk
-        - macos-x86_64
-        - shell
-        - xcode-16.4
-        - concurrent
+        - tart
 
 .macos_arm64_builder_tags:
     tags:
         - vtk
         - macos-arm64
-        - shell
-        - xcode-16.4
-        - nonconcurrent
-
-.macos_arm64_wheel_builder_tags:
-    tags:
-        - vtk
-        - macos-arm64
-        - shell
-        - xcode-16.4
-        - concurrent
+        - tart
 
 ## macOS-specific scripts
 
