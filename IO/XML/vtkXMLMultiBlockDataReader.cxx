@@ -195,8 +195,15 @@ void vtkXMLMultiBlockDataReader::ReadCompositeInternal(vtkXMLDataElement* elemen
     int index = 0;
     if (!childXML->GetScalarAttribute("index", index))
     {
-      vtkWarningMacro("Missing 'index' on '" << tagName << "' element in XML. Skipping");
-      continue;
+      // if index not in the structure file, then set up to add at the end
+      if (mb)
+      {
+        index = mb->GetNumberOfBlocks();
+      }
+      else if (mp)
+      {
+        index = mp->GetNumberOfPieces();
+      }
     }
     // child is a leaf node, read and insert.
     if (strcmp(tagName, "DataSet") == 0)
@@ -290,8 +297,15 @@ int vtkXMLMultiBlockDataReader::FillMetaData(
     int index = 0;
     if (!childXML->GetScalarAttribute("index", index))
     {
-      vtkWarningMacro("Missing 'index' on '" << tagName << "' element in XML. Skipping");
-      continue;
+      // if index not in the structure file, then set up to add at the end
+      if (mb)
+      {
+        index = mb->GetNumberOfBlocks();
+      }
+      else if (mp)
+      {
+        index = mp->GetNumberOfPieces();
+      }
     }
     // child is a leaf node, read and insert.
     if (strcmp(tagName, "DataSet") == 0)
@@ -442,8 +456,15 @@ void vtkXMLMultiBlockDataReader::SyncCompositeDataArraySelections(
     int index = 0;
     if (!childXML->GetScalarAttribute("index", index))
     {
-      vtkWarningMacro("Missing 'index' on '" << tagName << "' element in XML. Skipping");
-      continue;
+      // if index not in the structure file, then set up to add at the end
+      if (mb)
+      {
+        index = mb->GetNumberOfBlocks();
+      }
+      else if (mp)
+      {
+        index = mp->GetNumberOfPieces();
+      }
     }
     if (strcmp(tagName, "DataSet") == 0)
     {
