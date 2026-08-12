@@ -639,6 +639,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "webgpu")
     "^VTK::RenderingLabelCxx-WebGPU-TestClipLabels$")
 endif ()
 
+# Kept separate from the shared webgpu list above on purpose: this one is a
+# driver bug rather than a gap in VTK's WebGPU backend, and it only reproduces
+# with the mesa vulkan driver used on the fedora runners. Excluding it
+# everywhere would lose coverage on the macOS and Windows configurations.
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora42_x86_64_webgpu")
   list(APPEND test_exclusions
     # Crashes randomly with mesa-vulkan-drivers
