@@ -249,11 +249,20 @@ vtk_module_add_module(VTK::RenderingWebGPU
   NOWRAP_HEADERS ${public_wgsl_shader_headers}
   PRIVATE_HEADERS  ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${private_wgsl_shader_headers} ${private_headers})
 
-# Ensure webgpu headers are available:
-# - If using installed Dawn, get headers from there
-# - Otherwise use vendored headers
+# The public headers include vtk_wgpu.h, which includes webgpu/webgpu.h, so the
+# WebGPU C API headers have to reach consumers of the installed VTK.
+#
+# Link the implementation's own target here rather than VTK::WebGPUImpl.
+# VTK::WebGPUImpl is created by add_library(IMPORTED) at the top of this file
+# and is neither exported nor installed, so naming it in a PUBLIC link would
+# write an unresolvable target into the installed VTK config and break
+# downstream find_package(VTK). dawn::webgpu_dawn comes from Dawn's own
+# installed config, and vtk_module_export_find_packages() replays the
+# vtk_module_find_package(PACKAGE Dawn) call above for consumers, so that target
+# does exist downstream. VTK::WebGPUImpl stays for internal and test use, where
+# a PRIVATE link is fine.
 if(VTK_USE_DAWN_WEBGPU)
-  vtk_module_link(VTK::RenderingWebGPU PUBLIC VTK::WebGPUImpl)
+  vtk_module_link(VTK::RenderingWebGPU PUBLIC dawn::webgpu_dawn)
 else()
   vtk_module_link(VTK::RenderingWebGPU PUBLIC VTK::webgpuheaders)
 endif()
