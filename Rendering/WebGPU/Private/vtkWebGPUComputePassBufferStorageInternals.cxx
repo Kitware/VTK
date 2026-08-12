@@ -86,7 +86,7 @@ int vtkWebGPUComputePassBufferStorageInternals::AddBuffer(
       vtkWebGPUComputePassBufferStorageInternals::ComputeBufferModeToBufferUsage(mode);
     vtkIdType byteSize = buffer->GetByteSize();
 
-    wgpuBuffer = wgpu::Buffer(this->ParentPassWGPUConfiguration->CreateBuffer(
+    wgpuBuffer = wgpu::Buffer::Acquire(this->ParentPassWGPUConfiguration->CreateBuffer(
       byteSize, static_cast<WGPUBufferUsage>(bufferUsage), false, bufferLabelCStr));
 
     // The buffer is read only by the shader if it doesn't have CopySrc (meaning that we would be
@@ -221,8 +221,9 @@ void vtkWebGPUComputePassBufferStorageInternals::RecreateBuffer(
   // Recreating the buffer
   std::string label = buffer->GetLabel();
   const char* bufferLabel = label.c_str();
-  this->WebGPUBuffers[bufferIndex] = wgpu::Buffer(this->ParentPassWGPUConfiguration->CreateBuffer(
-    newByteSize, static_cast<WGPUBufferUsage>(bufferUsage), false, bufferLabel));
+  this->WebGPUBuffers[bufferIndex] =
+    wgpu::Buffer::Acquire(this->ParentPassWGPUConfiguration->CreateBuffer(
+      newByteSize, static_cast<WGPUBufferUsage>(bufferUsage), false, bufferLabel));
 }
 
 //------------------------------------------------------------------------------

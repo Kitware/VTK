@@ -772,7 +772,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
   {
     const auto label = "Mapper2DState-" + input->GetObjectDescription();
     this->Mapper2DStateData.Buffer =
-      wgpu::Buffer(wgpuConfiguration->CreateBuffer(sizeof(Mapper2DState),
+      wgpu::Buffer::Acquire(wgpuConfiguration->CreateBuffer(sizeof(Mapper2DState),
         static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage), false,
         label.c_str()));
     this->Mapper2DStateData.Size = sizeof(Mapper2DState);
@@ -942,7 +942,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     {
       recreateMeshBindGroup = true;
       this->AttributeDescriptorData.Buffer =
-        wgpu::Buffer(wgpuConfiguration->CreateBuffer(sizeof(this->MeshArraysDescriptor),
+        wgpu::Buffer::Acquire(wgpuConfiguration->CreateBuffer(sizeof(this->MeshArraysDescriptor),
           static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage), false,
           meshAttrDescriptorLabel.c_str()));
       this->AttributeDescriptorData.Size = sizeof(this->MeshArraysDescriptor);
@@ -958,9 +958,10 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     {
       recreateMeshBindGroup = true;
       const auto label = "MeshAttributes-" + input->GetObjectDescription();
-      this->MeshData.Buffer = wgpu::Buffer(wgpuConfiguration->CreateBuffer(requiredBufferSize,
-        static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage), false,
-        label.c_str()));
+      this->MeshData.Buffer =
+        wgpu::Buffer::Acquire(wgpuConfiguration->CreateBuffer(requiredBufferSize,
+          static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage), false,
+          label.c_str()));
       this->MeshData.Size = requiredBufferSize;
     }
     using DispatchT = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>;
@@ -1122,7 +1123,6 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
   // wgpu:: members afterwards.
   std::array<WGPUBuffer, kNumTopologyTypes> connectivityBufferStorage;
   std::array<WGPUBuffer, kNumTopologyTypes> cellIdBufferStorage;
-  std::array<WGPUBuffer, kNumTopologyTypes> edgeArrayBufferStorage;
   std::array<WGPUBuffer, kNumTopologyTypes> cellIdOffsetUniformBufferStorage;
   std::array<WGPUBuffer*, kNumTopologyTypes> connectivityBuffers;
   std::array<WGPUBuffer*, kNumTopologyTypes> cellIdBuffers;
@@ -1134,11 +1134,12 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     vertexCounts[i] = &(bgInfo.VertexCount);
     connectivityBufferStorage[i] = bgInfo.ConnectivityBuffer.Get();
     cellIdBufferStorage[i] = bgInfo.CellIdBuffer.Get();
-    edgeArrayBufferStorage[i] = nullptr;
     cellIdOffsetUniformBufferStorage[i] = bgInfo.CellIdOffsetUniformBuffer.Get();
     connectivityBuffers[i] = &connectivityBufferStorage[i];
     cellIdBuffers[i] = &cellIdBufferStorage[i];
-    edgeArrayBuffers[i] = &edgeArrayBufferStorage[i];
+    // A null slot tells the converter not to compute an edge array. The 2D
+    // mapper never renders edges, so it must stay null.
+    edgeArrayBuffers[i] = nullptr;
     cellIdOffsetUniformBuffers[i] = &cellIdOffsetUniformBufferStorage[i];
   }
   bool updateTopologyBindGroup = this->CellConverter->DispatchMeshToPrimitiveComputePipeline(
@@ -1147,9 +1148,22 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
   for (int i = 0; i < kNumTopologyTypes; ++i)
   {
     auto& bgInfo = this->TopologyBindGroupInfos[i];
-    bgInfo.ConnectivityBuffer = wgpu::Buffer(connectivityBufferStorage[i]);
-    bgInfo.CellIdBuffer = wgpu::Buffer(cellIdBufferStorage[i]);
-    bgInfo.CellIdOffsetUniformBuffer = wgpu::Buffer(cellIdOffsetUniformBufferStorage[i]);
+    // The converter hands back handles that stay owned by the compute pipeline
+    // (see vtkWebGPUComputePipeline::GetRegisteredBuffer), so take a reference
+    // rather than adopting one. Only reassign when the converter actually
+    // replaced a handle; re-wrapping an unchanged one is pointless work.
+    if (connectivityBufferStorage[i] != bgInfo.ConnectivityBuffer.Get())
+    {
+      bgInfo.ConnectivityBuffer = wgpu::Buffer(connectivityBufferStorage[i]);
+    }
+    if (cellIdBufferStorage[i] != bgInfo.CellIdBuffer.Get())
+    {
+      bgInfo.CellIdBuffer = wgpu::Buffer(cellIdBufferStorage[i]);
+    }
+    if (cellIdOffsetUniformBufferStorage[i] != bgInfo.CellIdOffsetUniformBuffer.Get())
+    {
+      bgInfo.CellIdOffsetUniformBuffer = wgpu::Buffer(cellIdOffsetUniformBufferStorage[i]);
+    }
   }
 
   // Rebuild topology bind group if required (when VertexCount > 0)

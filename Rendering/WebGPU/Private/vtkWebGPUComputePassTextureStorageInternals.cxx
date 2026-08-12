@@ -203,7 +203,7 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateTexture(std::size_t te
   WGPUExtent3D extents = { texture->GetWidth(), texture->GetHeight(), texture->GetDepth() };
 
   this->WebGPUTextures[textureIndex] =
-    wgpu::Texture(this->ParentPassWGPUConfiguration->CreateTexture(extents,
+    wgpu::Texture::Acquire(this->ParentPassWGPUConfiguration->CreateTexture(extents,
       static_cast<WGPUTextureDimension>(dimension), static_cast<WGPUTextureFormat>(format),
       static_cast<WGPUTextureUsage>(usage), mipLevelCount, textureLabel.c_str()));
 }
@@ -453,9 +453,10 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
         texture->GetDimension());
     int mipLevelCount = texture->GetMipLevelCount();
 
-    wgpuTexture = wgpu::Texture(this->ParentPassWGPUConfiguration->CreateTexture(textureExtents,
-      static_cast<WGPUTextureDimension>(dimension), static_cast<WGPUTextureFormat>(format),
-      static_cast<WGPUTextureUsage>(textureUsage), mipLevelCount, textureLabel.c_str()));
+    wgpuTexture =
+      wgpu::Texture::Acquire(this->ParentPassWGPUConfiguration->CreateTexture(textureExtents,
+        static_cast<WGPUTextureDimension>(dimension), static_cast<WGPUTextureFormat>(format),
+        static_cast<WGPUTextureUsage>(textureUsage), mipLevelCount, textureLabel.c_str()));
 
     texture->SetByteSize(textureExtents.width * textureExtents.height *
       textureExtents.depthOrArrayLayers * texture->GetBytesPerPixel());

@@ -118,8 +118,8 @@ void vtkWebGPUPointCloudMapperInternals::CreateCopyDepthBufferRenderPipeline(
 
   // Creating the buffer that will hold the width of the framebuffer for the fragment shader that
   // copies the point depth buffer into the depth buffer of the render window
-  this->CopyDepthBufferPipeline.FramebufferWidthUniformBuffer =
-    wgpu::Buffer(wgpuRenderWindow->GetWGPUConfiguration()->CreateBuffer(sizeof(unsigned int),
+  this->CopyDepthBufferPipeline.FramebufferWidthUniformBuffer = wgpu::Buffer::Acquire(
+    wgpuRenderWindow->GetWGPUConfiguration()->CreateBuffer(sizeof(unsigned int),
       static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform), false,
       "Point cloud mapper - Copy depth to RenderWindow - Framebuffer width uniform buffer"));
 

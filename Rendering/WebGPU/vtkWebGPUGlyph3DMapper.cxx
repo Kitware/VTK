@@ -79,7 +79,7 @@ public:
     if (this->InstancePropertiesBuffer == nullptr)
     {
       this->InstancePropertiesBuffer =
-        wgpu::Buffer(wgpuConfiguration->CreateBuffer(sizeof(InstanceProperties),
+        wgpu::Buffer::Acquire(wgpuConfiguration->CreateBuffer(sizeof(InstanceProperties),
           static_cast<WGPUBufferUsage>(WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst),
           /*mappedAtCreation=*/false, label.c_str()));
       // Rebuild pipeline and bindgroups when buffer is re-created.

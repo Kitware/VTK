@@ -442,7 +442,7 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
   const auto actorDescription = this->GetObjectDescription();
   const auto bufferLabel = "ActorBlock-" + actorDescription;
   const auto bufferSize = vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 32);
-  internals.ActorBuffer = wgpu::Buffer(wgpuConfiguration->CreateBuffer(bufferSize,
+  internals.ActorBuffer = wgpu::Buffer::Acquire(wgpuConfiguration->CreateBuffer(bufferSize,
     static_cast<WGPUBufferUsage>(WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst), false,
     bufferLabel.c_str()));
 
