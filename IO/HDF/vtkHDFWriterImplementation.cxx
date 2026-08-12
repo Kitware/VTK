@@ -52,10 +52,7 @@ constexpr std::string_view POINT_DATA = "PointData";
 constexpr std::string_view FIELD_DATA = "FieldData";
 
 constexpr std::string_view STEPS = "Steps";
-constexpr std::string_view STEPS_POINT_OFFSETS = "Steps/PointOffsets";
 constexpr std::string_view STEPS_PART_OFFSETS = "Steps/PartOffsets";
-constexpr std::string_view STEPS_CELL_OFFSETS = "Steps/CellOffsets";
-constexpr std::string_view STEPS_CONNECTIVITY_ID_OFFSETS = "Steps/ConnectivityIdOffsets";
 constexpr std::string_view STEPS_NUMBER_OF_PARTS = "Steps/NumberOfParts";
 
 using namespace std::literals::string_view_literals;
