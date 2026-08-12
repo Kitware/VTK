@@ -2,9 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUConfiguration.h"
-#if VTK_USE_DAWN_WEBGPU
-#include "dawn/native/DawnNative.h"
-#endif
 #include "Private/vtkWebGPUBufferInternals.h"
 #include "Private/vtkWebGPUConfigurationInternals.h"
 #include "Private/vtkWebGPUHelpersPrivate.h"
@@ -297,12 +294,7 @@ void PrintAdapterFeatures(ostream& os, vtkIndent indent, WGPUAdapter adapter)
   for (std::size_t i = 0; i < supportedFeatures.featureCount; ++i)
   {
     const auto feature = supportedFeatures.features[i];
-#if VTK_USE_DAWN_WEBGPU
-    auto info = dawn::native::GetFeatureInfo(static_cast<wgpu::FeatureName>(feature));
-    os << indent << "   * " << info->name << '\n';
-    os << indent << info->description << '\n';
-    os << indent << "      " << info->url << '\n';
-#elif defined(__EMSCRIPTEN__)
+#if defined(__EMSCRIPTEN__)
     // Look up the list of feature strings in `WebGPU.FeatureName`
     const auto featureIdx = static_cast<std::underlying_type<WGPUFeatureName>::type>(feature);
     // clang-format off
@@ -320,8 +312,10 @@ void PrintAdapterFeatures(ostream& os, vtkIndent indent, WGPUAdapter adapter)
     os << indent << indent << featureNameCStr << '\n';
     free(featureNameCStr);
 #else
-    // For standard WebGPU implementations without introspection support,
-    // just print the feature enum value
+    // Deliberately implementation agnostic: dawn::native::GetFeatureInfo() would
+    // give names and descriptions here, but it is a Dawn library symbol and this
+    // module must not be bound to one implementation. The enum values are
+    // defined by webgpu.h, so they are meaningful for any runtime.
     os << indent << "   * Feature (0x" << std::hex << static_cast<uint32_t>(feature) << std::dec
        << ")\n";
 #endif
