@@ -45,7 +45,6 @@ int TestSkyboxWithRenderPass(int argc, char* argv[])
   vtkNew<vtkRenderer> renderer;
   renderer->UseImageBasedLightingOn();
   renderer->SetEnvironmentTexture(hdrTexture);
-  renderer->SetSkyboxBlurRadius(40.0f);
 
   // Custom render pass
   vtkNew<vtkOpaquePass> opaquePass;

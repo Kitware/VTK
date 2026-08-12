@@ -9,6 +9,8 @@ Ph.D. thesis of Christian BOUCHENY.
 ------------------------------------------------------------------------*/
 
 #include "vtkDepthImageProcessingPass.h"
+#include "vtkCamera.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLRenderUtilities.h"
@@ -16,11 +18,8 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkTextureObject.h"
-#include <cassert>
 
-#include "vtkCamera.h"
-#include "vtkMath.h"
-#include "vtkPixelBufferObject.h"
+#include <cassert>
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN

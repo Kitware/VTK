@@ -282,11 +282,7 @@ void vtkSSAOPass::RenderDelegate(const vtkRenderState* s, int w, int h)
   // Render the delegate with a render state that is aware of the framebuffer,
   // so that camera-based delegate passes (vtkCameraPass) use the framebuffer
   // origin (0, 0) rather than the renderer's tiled (viewport) origin.
-  vtkRenderState s2(s->GetRenderer());
-  s2.SetPropArrayAndCount(s->GetPropArray(), s->GetPropArrayCount());
-  s2.SetFrameBuffer(this->FrameBufferObject);
-  this->DelegatePass->Render(&s2);
-  this->NumberOfRenderedProps += this->DelegatePass->GetNumberOfRenderedProps();
+  this->Superclass::RenderDelegate(s, w, h, w, h, this->FrameBufferObject, this->ColorTexture);
 
   this->FrameBufferObject->RemoveColorAttachments(3);
   this->FrameBufferObject->RemoveDepthAttachment();

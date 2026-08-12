@@ -158,9 +158,18 @@ protected:
   void ComputeKernel();
   void InitializeGraphicsResources(vtkOpenGLRenderWindow* renWin, int w, int h);
 
+  /**
+   * Prepare `FrameBufferObject` for rendering and call `Superclass::RenderDelegate`.
+   */
   void RenderDelegate(const vtkRenderState* s, int w, int h);
+
+  ///@{
+  /**
+   * Post-processing rendering functions called after RenderDelegate.
+   */
   void RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projection, int w, int h);
   void RenderCombine(vtkOpenGLRenderWindow* renWin);
+  ///@}
 
   vtkTextureObject* ColorTexture = nullptr;
   vtkTextureObject* PositionTexture = nullptr;

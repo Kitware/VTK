@@ -4,7 +4,6 @@
 #include "vtkPanoramicProjectionPass.h"
 
 #include "vtkCamera.h"
-#include "vtkCullerCollection.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
@@ -16,7 +15,6 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
-#include "vtkPerspectiveTransform.h"
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"

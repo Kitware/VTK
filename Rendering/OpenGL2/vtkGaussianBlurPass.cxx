@@ -5,6 +5,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLHelper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
@@ -13,25 +14,11 @@
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
-#include <cassert>
-
-#include "vtkOpenGLHelper.h"
-
-// to be able to dump intermediate passes into png files for debugging.
-// only for vtkGaussianBlurPass developers.
-// #define VTK_GAUSSIAN_BLUR_PASS_DEBUG
-
-#ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
-#include "vtkImageExtractComponents.h"
-#include "vtkImageImport.h"
-#include "vtkPNGWriter.h"
-#include "vtkPixelBufferObject.h"
-#endif
 
 #include "vtkGaussianBlurPassFS.h"
 #include "vtkGaussianBlurPassVS.h"
 
-#include <iostream>
+#include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGaussianBlurPass);
@@ -121,47 +108,6 @@ void vtkGaussianBlurPass::Render(const vtkRenderState* s)
     ostate->PushFramebufferBindings();
     this->RenderDelegate(s, width, height, w, h, this->FrameBufferObject, this->Pass1);
 
-#ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
-    // Save first pass in file for debugging.
-    vtkPixelBufferObject* pbo = this->Pass1->Download();
-
-    unsigned char* openglRawData = new unsigned char[4 * w * h];
-    unsigned int dims[2];
-    dims[0] = w;
-    dims[1] = h;
-    vtkIdType incs[2];
-    incs[0] = 0;
-    incs[1] = 0;
-    bool status = pbo->Download2D(VTK_UNSIGNED_CHAR, openglRawData, dims, 4, incs);
-    assert("check" && status);
-    pbo->Delete();
-
-    // no pbo
-    this->Pass1->Bind();
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, openglRawData);
-    this->Pass1->UnBind();
-
-    vtkImageImport* importer = vtkImageImport::New();
-    importer->CopyImportVoidPointer(openglRawData, 4 * w * h * sizeof(unsigned char));
-    importer->SetDataScalarTypeToUnsignedChar();
-    importer->SetNumberOfScalarComponents(4);
-    importer->SetWholeExtent(0, w - 1, 0, h - 1, 0, 0);
-    importer->SetDataExtentToWholeExtent();
-    delete[] openglRawData;
-
-    vtkImageExtractComponents* rgbaToRgb = vtkImageExtractComponents::New();
-    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
-    rgbaToRgb->SetComponents(0, 1, 2);
-
-    vtkPNGWriter* writer = vtkPNGWriter::New();
-    writer->SetFileName("BlurPass1.png");
-    writer->SetInputConnection(rgbaToRgb->GetOutputPort());
-    importer->Delete();
-    rgbaToRgb->Delete();
-    writer->Write();
-    writer->Delete();
-#endif
-
     // 3. Same FBO, but new color attachment (new TO).
     if (this->Pass2 == nullptr)
     {
@@ -178,11 +124,6 @@ void vtkGaussianBlurPass::Render(const vtkRenderState* s)
 
     this->FrameBufferObject->AddColorAttachment(0, this->Pass2);
     this->FrameBufferObject->Start(w, h);
-
-#ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
-    std::cout << "gauss finish2" << endl;
-    glFinish();
-#endif
 
     // Use a blur shader, do it horizontally. this->Pass1 is the source
     // (this->Pass2 is the fbo render target)
@@ -256,58 +197,13 @@ void vtkGaussianBlurPass::Render(const vtkRenderState* s)
     fvalues[0] = 0.0f;
     this->BlurProgram->Program->SetUniformf("offsety", fvalues[0]);
 
-#ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
-    std::cout << "gauss finish3-" << endl;
-    glFinish();
-#endif
-
     ostate->vtkglDisable(GL_BLEND);
     ostate->vtkglDisable(GL_DEPTH_TEST);
 
     this->FrameBufferObject->RenderQuad(
       0, w - 1, 0, h - 1, this->BlurProgram->Program, this->BlurProgram->VAO);
 
-#ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
-    std::cout << "gauss finish3" << endl;
-    glFinish();
-#endif
-
     this->Pass1->Deactivate();
-
-#ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
-
-    // Save second pass in file for debugging.
-    pbo = this->Pass2->Download();
-    openglRawData = new unsigned char[4 * w * h];
-    status = pbo->Download2D(VTK_UNSIGNED_CHAR, openglRawData, dims, 4, incs);
-    assert("check2" && status);
-    pbo->Delete();
-
-    // no pbo
-    this->Pass2->Bind();
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, openglRawData);
-    this->Pass2->UnBind();
-
-    importer = vtkImageImport::New();
-    importer->CopyImportVoidPointer(openglRawData, 4 * w * h * sizeof(unsigned char));
-    importer->SetDataScalarTypeToUnsignedChar();
-    importer->SetNumberOfScalarComponents(4);
-    importer->SetWholeExtent(0, w - 1, 0, h - 1, 0, 0);
-    importer->SetDataExtentToWholeExtent();
-    delete[] openglRawData;
-
-    rgbaToRgb = vtkImageExtractComponents::New();
-    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
-    rgbaToRgb->SetComponents(0, 1, 2);
-
-    writer = vtkPNGWriter::New();
-    writer->SetFileName("BlurPass2.png");
-    writer->SetInputConnection(rgbaToRgb->GetOutputPort());
-    importer->Delete();
-    rgbaToRgb->Delete();
-    writer->Write();
-    writer->Delete();
-#endif
 
     // 4. Render in original FB (from renderstate in arg)
 
@@ -332,11 +228,6 @@ void vtkGaussianBlurPass::Render(const vtkRenderState* s)
       h - 1 - extraPixels, 0, 0, width, height, this->BlurProgram->Program, this->BlurProgram->VAO);
 
     this->Pass2->Deactivate();
-
-#ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
-    std::cout << "gauss finish4" << endl;
-    glFinish();
-#endif
   }
   else
   {

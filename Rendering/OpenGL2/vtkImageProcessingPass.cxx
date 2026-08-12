@@ -5,26 +5,18 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
 #include "vtkRenderState.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkTextureObject.h"
 #include "vtk_glad.h"
-#include <cassert>
-
-// to be able to dump intermediate passes into png files for debugging.
-// only for vtkImageProcessingPass developers.
-// #define VTK_IMAGE_PROCESSING_PASS_DEBUG
-
-#ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
-#include "vtkImageImport.h"
-#include "vtkPNGWriter.h"
-#include "vtkPixelBufferObject.h"
-#endif
 
 #include "vtkCamera.h"
 #include "vtkMath.h"
 
+#include <cassert>
 #include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -69,41 +61,26 @@ void vtkImageProcessingPass::PrintSelf(ostream& os, vtkIndent indent)
 // \pre fbo_has_context: fbo->GetContext()!=0
 // \pre target_exists: target!=0
 // \pre target_has_context: target->GetContext()!=0
-void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* s, int width, int height,
+void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* states, int width, int height,
   int newWidth, int newHeight, vtkOpenGLFramebufferObject* fbo, vtkTextureObject* target)
 {
-  assert("pre: s_exists" && s != nullptr);
+  assert("pre: s_exists" && states != nullptr);
   assert("pre: fbo_exists" && fbo != nullptr);
   assert("pre: fbo_has_context" && fbo->GetContext() != nullptr);
   assert("pre: target_exists" && target != nullptr);
   assert("pre: target_has_context" && target->GetContext() != nullptr);
 
-#ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
-  std::cout << "width=" << width << endl;
-  std::cout << "height=" << height << endl;
-  std::cout << "newWidth=" << newWidth << endl;
-  std::cout << "newHeight=" << newHeight << endl;
-#endif
-
-  vtkRenderer* r = s->GetRenderer();
-  vtkRenderState s2(r);
-  s2.SetPropArrayAndCount(s->GetPropArray(), s->GetPropArrayCount());
+  vtkRenderer* renderer = states->GetRenderer();
+  vtkRenderState delegateStates(renderer);
+  delegateStates.SetPropArrayAndCount(states->GetPropArray(), states->GetPropArrayCount());
 
   // Adapt camera to new window size
-  vtkCamera* savedCamera = r->GetActiveCamera();
+  vtkCamera* savedCamera = renderer->GetActiveCamera();
   savedCamera->Register(this);
   vtkCamera* newCamera = vtkCamera::New();
   newCamera->DeepCopy(savedCamera);
 
-  vtkOpenGLState* ostate = static_cast<vtkOpenGLRenderWindow*>(r->GetVTKWindow())->GetState();
-
-#ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
-  std::cout << "old camera params=";
-  savedCamera->Print(std::cout);
-  std::cout << "new camera params=";
-  newCamera->Print(std::cout);
-#endif
-  r->SetActiveCamera(newCamera);
+  renderer->SetActiveCamera(newCamera);
 
   if (newCamera->GetParallelProjection())
   {
@@ -126,22 +103,10 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* s, int width, 
     }
     double angle = vtkMath::RadiansFromDegrees(newCamera->GetViewAngle());
 
-#ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
-    std::cout << "old angle =" << angle << " rad=" << vtkMath::DegreesFromRadians(angle) << " deg"
-              << endl;
-#endif
-
     angle = 2.0 * atan(tan(angle / 2.0) * largeDim / smallDim);
-
-#ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
-    std::cout << "new angle =" << angle << " rad=" << vtkMath::DegreesFromRadians(angle) << " deg"
-              << endl;
-#endif
 
     newCamera->SetViewAngle(vtkMath::DegreesFromRadians(angle));
   }
-
-  s2.SetFrameBuffer(fbo);
 
   if (target->GetWidth() != static_cast<unsigned int>(newWidth) ||
     target->GetHeight() != static_cast<unsigned int>(newHeight))
@@ -149,6 +114,7 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* s, int width, 
     target->Create2D(newWidth, newHeight, 4, VTK_UNSIGNED_CHAR, false);
   }
 
+  delegateStates.SetFrameBuffer(fbo);
   fbo->Bind();
   fbo->AddColorAttachment(0, target);
 
@@ -159,62 +125,49 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* s, int width, 
 
   fbo->AddDepthAttachment();
   fbo->StartNonOrtho(newWidth, newHeight);
-  if (r->Transparent())
-  {
-    // Clear is not called on transparent renderers. But since this is a offscreen render target we
-    // want it cleared
-    ostate->vtkglClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    ostate->vtkglClear(GL_COLOR_BUFFER_BIT);
-  }
+
+  this->InitializeRenderTarget(target, states);
+
+  vtkOpenGLState* ostate =
+    vtkOpenGLRenderWindow::SafeDownCast(states->GetRenderer()->GetRenderWindow())->GetState();
   ostate->vtkglViewport(0, 0, newWidth, newHeight);
   ostate->vtkglScissor(0, 0, newWidth, newHeight);
 
   // 2. Delegate render in FBO
   ostate->vtkglEnable(GL_DEPTH_TEST);
-  this->DelegatePass->Render(&s2);
+  this->DelegatePass->Render(&delegateStates);
   this->NumberOfRenderedProps += this->DelegatePass->GetNumberOfRenderedProps();
 
-#ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
-  vtkPixelBufferObject* pbo = target->Download();
-
-  unsigned int dims[2];
-  vtkIdType continuousInc[3];
-
-  dims[0] = static_cast<unsigned int>(newWidth);
-  dims[1] = static_cast<unsigned int>(newHeight);
-  continuousInc[0] = 0;
-  continuousInc[1] = 0;
-  continuousInc[2] = 0;
-
-  int byteSize = newWidth * newHeight * 4 * sizeof(float);
-  float* buffer = new float[newWidth * newHeight * 4];
-  pbo->Download2D(VTK_FLOAT, buffer, dims, 4, continuousInc);
-
-  vtkImageImport* importer = vtkImageImport::New();
-  importer->CopyImportVoidPointer(buffer, static_cast<int>(byteSize));
-  importer->SetDataScalarTypeToFloat();
-  importer->SetNumberOfScalarComponents(4);
-  importer->SetWholeExtent(0, newWidth - 1, 0, newHeight - 1, 0, 0);
-  importer->SetDataExtentToWholeExtent();
-
-  importer->Update();
-
-  vtkPNGWriter* writer = vtkPNGWriter::New();
-  writer->SetFileName("ip.png");
-  writer->SetInputConnection(importer->GetOutputPort());
-  importer->Delete();
-  std::cout << "Writing " << writer->GetFileName() << endl;
-  writer->Write();
-  std::cout << "Wrote " << writer->GetFileName() << endl;
-  writer->Delete();
-
-  pbo->Delete();
-  delete[] buffer;
-#endif
-
   newCamera->Delete();
-  r->SetActiveCamera(savedCamera);
+  renderer->SetActiveCamera(savedCamera);
   savedCamera->UnRegister(this);
+}
+
+//------------------------------------------------------------------------------
+void vtkImageProcessingPass::InitializeRenderTarget(
+  vtkTextureObject* textureTarget, const vtkRenderState* states)
+{
+  vtkRenderer* renderer = states->GetRenderer();
+  vtkOpenGLRenderWindow* renderWindow =
+    vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+  vtkOpenGLState* ostate = renderWindow->GetState();
+
+  // We want to preserve the color buffer, thus copying the existing data from the render window
+  // frame in the target color texture.
+  vtkOpenGLRenderer* glRen = vtkOpenGLRenderer::SafeDownCast(renderer);
+  if (glRen->GetPreserveColorBuffer())
+  {
+    ostate->PushReadFramebufferBinding();
+    renderWindow->GetRenderFramebuffer()->Bind(vtkOpenGLFramebufferObject::GetReadMode());
+
+    int renderWindowWidth = renderWindow->GetSize()[0];
+    int renderWindowHeight = renderWindow->GetSize()[1];
+    int targetWidth = textureTarget->GetWidth();
+    int targetHeight = textureTarget->GetHeight();
+    ostate->vtkglBlitFramebuffer(0, 0, renderWindowWidth, renderWindowHeight, 0, 0, targetWidth,
+      targetHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    ostate->PopReadFramebufferBinding();
+  }
 }
 
 //------------------------------------------------------------------------------

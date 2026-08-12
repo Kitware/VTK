@@ -72,6 +72,14 @@ protected:
   void RenderDelegate(const vtkRenderState* s, int width, int height, int newWidth, int newHeight,
     vtkOpenGLFramebufferObject* fbo, vtkTextureObject* target);
 
+  /**
+   * Function called by RenderDelegate to prepare the color target before rendering.
+   * The default implementation copies the pixel data from the render window's color target before
+   * triggering the render on the delegate pass.
+   */
+  virtual void InitializeRenderTarget(
+    vtkTextureObject* textureTarget, const vtkRenderState* states);
+
   vtkRenderPass* DelegatePass;
 
 private:
