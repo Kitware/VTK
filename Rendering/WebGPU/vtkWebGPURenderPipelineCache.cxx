@@ -173,17 +173,14 @@ std::string vtkWebGPURenderPipelineCache::GetPipelineKey(WGPURenderPipelineDescr
     vtkErrorMacro(<< "Invalid fragment shader source: nullptr");
     return {};
   }
-  auto* wgpuDescriptor = reinterpret_cast<wgpu::RenderPipelineDescriptor*>(descriptor);
   const auto cullModeStr = vtk::to_string(
-    static_cast<std::underlying_type<wgpu::CullMode>::type>(wgpuDescriptor->primitive.cullMode));
-  const auto topologyStr =
-    vtk::to_string(static_cast<std::underlying_type<wgpu::PrimitiveTopology>::type>(
-      wgpuDescriptor->primitive.topology));
+    static_cast<std::underlying_type<WGPUCullMode>::type>(descriptor->primitive.cullMode));
+  const auto topologyStr = vtk::to_string(
+    static_cast<std::underlying_type<WGPUPrimitiveTopology>::type>(descriptor->primitive.topology));
   std::string hash;
-  this->Internals->ComputeMD5(
-    { vertexShaderSource, fragmentShaderSource, cullModeStr, topologyStr,
-      vtkWebGPUStringViewToStdString(wgpuDescriptor->vertex.entryPoint),
-      vtkWebGPUStringViewToStdString(wgpuDescriptor->fragment->entryPoint) },
+  this->Internals->ComputeMD5({ vertexShaderSource, fragmentShaderSource, cullModeStr, topologyStr,
+                                vtkWebGPUStringViewToStdString(descriptor->vertex.entryPoint),
+                                vtkWebGPUStringViewToStdString(descriptor->fragment->entryPoint) },
     hash);
   return hash;
 }
@@ -267,8 +264,8 @@ void vtkWebGPURenderPipelineCache::CreateRenderPipeline(WGPURenderPipelineDescri
 
   if (const char* path = std::getenv("VTK_WEBGPU_SHADER_DUMP_PREFIX"))
   {
-    const std::string sanitizedLabel = SanitizePipelineLabel(vtkWebGPUStringViewToStdString(
-      reinterpret_cast<wgpu::RenderPipelineDescriptor*>(descriptor)->label));
+    const std::string sanitizedLabel =
+      SanitizePipelineLabel(vtkWebGPUStringViewToStdString(descriptor->label));
     std::error_code ec;
     std::filesystem::create_directory(path, ec);
     if (ec)

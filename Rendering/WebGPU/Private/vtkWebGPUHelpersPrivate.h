@@ -4,11 +4,7 @@
 #ifndef vtkWebGPUHelpersPrivate_h
 #define vtkWebGPUHelpersPrivate_h
 
-// Transitional: vtk_wgpu_impl.h still pulls in webgpu_cpp.h so that the
-// wgpu::StringView overload below keeps compiling while call sites are migrated
-// to the C API. Once no caller passes a wgpu::StringView, drop that overload and
-// include "vtk_wgpu.h" here instead.
-#include "vtk_wgpu_impl.h"
+#include "vtk_wgpu.h"
 #include <string>
 
 // Helper function for converting WGPUStringView to std::string.
@@ -24,13 +20,6 @@ inline std::string vtkWebGPUStringViewToStdString(WGPUStringView sv)
     return { sv.data };
   }
   return { sv.data, sv.length };
-}
-
-// Transitional overload for the C++ wrapper's StringView. Remove once all call
-// sites pass a C-API WGPUStringView.
-inline std::string vtkWebGPUStringViewToStdString(wgpu::StringView sv)
-{
-  return vtkWebGPUStringViewToStdString(WGPUStringView{ sv.data, sv.length });
 }
 
 // Helper function for constructing a WGPUStringView that borrows a std::string's
