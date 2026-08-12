@@ -29,13 +29,6 @@ endif ()
 # Default to a reasonable test timeout.
 set(CTEST_TEST_TIMEOUT 100)
 
-# Set environment for WebGPU tests to find the dawn library
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "webgpu")
-  # Use absolute path by combining CMAKE_SOURCE_DIR with .gitlab/dawn/lib64
-  get_filename_component(dawn_lib_dir "${CMAKE_SOURCE_DIR}/.gitlab/dawn/lib64" ABSOLUTE)
-  set(ENV{LD_LIBRARY_PATH} "${dawn_lib_dir}:$ENV{LD_LIBRARY_PATH}")
-endif ()
-
 include("${CMAKE_CURRENT_LIST_DIR}/ctest_exclusions.cmake")
 
 set(maybe_include_label_mangling "")
