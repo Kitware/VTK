@@ -140,6 +140,8 @@ set(basis_files
   Basis/HGrad/TetC2Gradient.h
   Basis/HGrad/TetF2Basis.h
   Basis/HGrad/TetF2Gradient.h
+  Basis/HGrad/TetGnBasis.h
+  Basis/HGrad/TetGnGradient.h
   Basis/HGrad/TriC1Basis.h
   Basis/HGrad/TriC1Gradient.h
   Basis/HGrad/TriC2Basis.h

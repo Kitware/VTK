@@ -60,12 +60,8 @@
 #include "Basis_HGrad_TetC2Gradient.h"
 #include "Basis_HGrad_TetF2Basis.h"
 #include "Basis_HGrad_TetF2Gradient.h"
-// #include "Basis_HGrad_TetG1Basis.h"
-// #include "Basis_HGrad_TetG1Gradient.h"
-// #include "Basis_HGrad_TetG2Basis.h"
-// #include "Basis_HGrad_TetG2Gradient.h"
-// #include "Basis_HGrad_TetGnBasis.h"
-// #include "Basis_HGrad_TetGnGradient.h"
+#include "Basis_HGrad_TetGnBasis.h"
+#include "Basis_HGrad_TetGnGradient.h"
 #include "Basis_HGrad_TriC1Basis.h"
 #include "Basis_HGrad_TriC1Gradient.h"
 #include "Basis_HGrad_TriC2Basis.h"
@@ -120,6 +116,8 @@
   static thread_local std::vector<type> name;                                                      \
   name.resize(size);
 
+#define power(x, y) std::pow(x, y)
+
 namespace vtk
 {
 namespace basis
@@ -139,6 +137,11 @@ inline RealT abs(RealT x)
 inline RealT jacobi(int nn, RealT alpha, RealT beta, RealT xx)
 {
   return vtkMath::JacobiPolynomial(nn, alpha, beta, xx);
+}
+
+inline RealT jacobi_dx(int nn, RealT alpha, RealT beta, RealT xx)
+{
+  return vtkMath::JacobiPolynomialDerivative(nn, alpha, beta, xx);
 }
 
 // clang-format off
@@ -496,27 +499,26 @@ void TetF2Gradient(const std::array<double, 3>& param, std::vector<double>& basi
 #include "Basis/HGrad/TetF2Gradient.h"
 }
 
-#if 0
 void TetG1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  vtkBasisHeader();
-#include "Basis/HGrad/TetG1Basis.h"
+  vtkBasisOrderHeader(1);
+#include "Basis/HGrad/TetGnBasis.h"
 }
 void TetG1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
-  vtkBasisHeader();
-#include "Basis/HGrad/TetG1Gradient.h"
+  vtkBasisOrderHeader(1);
+#include "Basis/HGrad/TetGnGradient.h"
 }
 
 void TetG2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  vtkBasisHeader();
-#include "Basis/HGrad/TetG2Basis.h"
+  vtkBasisOrderHeader(2);
+#include "Basis/HGrad/TetGnBasis.h"
 }
 void TetG2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
-  vtkBasisHeader();
-#include "Basis/HGrad/TetG2Gradient.h"
+  vtkBasisOrderHeader(2);
+#include "Basis/HGrad/TetGnGradient.h"
 }
 
 void TetG3Basis(const std::array<double, 3>& param, std::vector<double>& basis)
@@ -551,7 +553,6 @@ void TetG5Gradient(const std::array<double, 3>& param, std::vector<double>& basi
   vtkBasisOrderHeader(5);
 #include "Basis/HGrad/TetGnGradient.h"
 }
-#endif
 
 void TriC1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
@@ -774,11 +775,11 @@ bool RegisterOperators()
   basisMap["C"_token][1]["vtkDGTet"_token]  = {  4, 1, TetC1Basis,  Basis_HGrad_TetC1Basis };
   basisMap["C"_token][2]["vtkDGTet"_token]  = { 10, 1, TetC2Basis,  Basis_HGrad_TetC2Basis };
   basisMap["F"_token][2]["vtkDGTet"_token]  = { 15, 1, TetF2Basis,  Basis_HGrad_TetF2Basis };
-  // basisMap["G"_token][1]["vtkDGTet"_token]  = {  4, 1, TetG1Basis,  Basis_HGrad_TetG1Basis };
-  // basisMap["G"_token][2]["vtkDGTet"_token]  = { 10, 1, TetG2Basis,  Basis_HGrad_TetG2Basis };
-  // basisMap["G"_token][3]["vtkDGTet"_token]  = { 20, 1, TetG3Basis,  Basis_HGrad_TetGnBasis };
-  // basisMap["G"_token][4]["vtkDGTet"_token]  = { 35, 1, TetG4Basis,  Basis_HGrad_TetGnBasis };
-  // basisMap["G"_token][5]["vtkDGTet"_token]  = { 56, 1, TetG5Basis,  Basis_HGrad_TetGnBasis };
+  basisMap["G"_token][1]["vtkDGTet"_token]  = {  4, 1, TetG1Basis,  Basis_HGrad_TetGnBasis };
+  basisMap["G"_token][2]["vtkDGTet"_token]  = { 10, 1, TetG2Basis,  Basis_HGrad_TetGnBasis };
+  basisMap["G"_token][3]["vtkDGTet"_token]  = { 20, 1, TetG3Basis,  Basis_HGrad_TetGnBasis };
+  basisMap["G"_token][4]["vtkDGTet"_token]  = { 35, 1, TetG4Basis,  Basis_HGrad_TetGnBasis };
+  basisMap["G"_token][5]["vtkDGTet"_token]  = { 56, 1, TetG5Basis,  Basis_HGrad_TetGnBasis };
 
   basisMap["C"_token][1]["vtkDGTri"_token]  = {  3, 1, TriC1Basis,  Basis_HGrad_TriC1Basis };
   basisMap["C"_token][2]["vtkDGTri"_token]  = {  6, 1, TriC2Basis,  Basis_HGrad_TriC2Basis };
@@ -834,11 +835,11 @@ bool RegisterOperators()
   gradMap["C"_token][1]["vtkDGTet"_token]  = {  4, 3, TetC1Gradient,  Basis_HGrad_TetC1Gradient };
   gradMap["C"_token][2]["vtkDGTet"_token]  = { 10, 3, TetC2Gradient,  Basis_HGrad_TetC2Gradient };
   gradMap["F"_token][2]["vtkDGTet"_token]  = { 15, 3, TetF2Gradient,  Basis_HGrad_TetF2Gradient };
-  // gradMap["G"_token][1]["vtkDGTet"_token]  = {  4, 3, TetG1Gradient,  Basis_HGrad_TetG1Gradient };
-  // gradMap["G"_token][2]["vtkDGTet"_token]  = { 10, 3, TetG2Gradient,  Basis_HGrad_TetG2Gradient };
-  // gradMap["G"_token][3]["vtkDGTet"_token]  = { 20, 3, TetG3Gradient,  Basis_HGrad_TetGnGradient };
-  // gradMap["G"_token][4]["vtkDGTet"_token]  = { 35, 3, TetG4Gradient,  Basis_HGrad_TetGnGradient };
-  // gradMap["G"_token][5]["vtkDGTet"_token]  = { 56, 3, TetG5Gradient,  Basis_HGrad_TetGnGradient };
+  gradMap["G"_token][1]["vtkDGTet"_token]  = {  4, 3, TetG1Gradient,  Basis_HGrad_TetGnGradient };
+  gradMap["G"_token][2]["vtkDGTet"_token]  = { 10, 3, TetG2Gradient,  Basis_HGrad_TetGnGradient };
+  gradMap["G"_token][3]["vtkDGTet"_token]  = { 20, 3, TetG3Gradient,  Basis_HGrad_TetGnGradient };
+  gradMap["G"_token][4]["vtkDGTet"_token]  = { 35, 3, TetG4Gradient,  Basis_HGrad_TetGnGradient };
+  gradMap["G"_token][5]["vtkDGTet"_token]  = { 56, 3, TetG5Gradient,  Basis_HGrad_TetGnGradient };
 
   gradMap["C"_token][1]["vtkDGTri"_token]  = {  3, 3, TriC1Gradient,  Basis_HGrad_TriC1Gradient };
   gradMap["C"_token][2]["vtkDGTri"_token]  = {  6, 3, TriC2Gradient,  Basis_HGrad_TriC2Gradient };
