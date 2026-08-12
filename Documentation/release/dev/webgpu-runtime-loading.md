@@ -23,7 +23,7 @@ vendored headers are still taken from Dawn rather than from upstream
 
 - Library discovery follows the usual search paths (`LD_LIBRARY_PATH` on Linux,
   `DYLD_LIBRARY_PATH` on macOS).
-- Windows is not supported yet: the proc table is POSIX-only (`dlopen`/`dlsym`),
-  and a `LoadLibrary`/`GetProcAddress` path is pending.
+- Library loading goes through `vtkDynamicLoader`, so the same code path works
+  on Windows, Linux and macOS.
 - Where a function is unavailable in a given runtime, the wrappers return safe
   defaults so optional features can be disabled gracefully.

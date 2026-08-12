@@ -3,18 +3,19 @@
 
 #include "vtkWebGPUProcTable.h"
 
-#include <dlfcn.h>
+#include "vtkDynamicLoader.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 // Global proc table instance
-static vtkWebGPUProcTable g_vtkWebGPUProcTable = NULL;
+static vtkWebGPUProcTable g_vtkWebGPUProcTable;
 
 // Impl struct holds the loaded library handle and bootstrap function pointer
 struct vtkWebGPUProcTableImpl
 {
-  void* libHandle;                           // Handle from dlopen()
+  vtkLibHandle libHandle;                    // Handle from vtkDynamicLoader
   WGPUProcGetProcAddress getProcAddressFunc; // Bootstrap function
 };
 
@@ -27,41 +28,48 @@ vtkWebGPUProcTable vtkWebGPUProcTableLoad(const char* libPath)
     return g_vtkWebGPUProcTable;
   }
 
-  // Determine which library to load
-  const char* lib = libPath ? libPath : "libwgpu_dawn.so";
+  // RTLDGlobal keeps the implementation's symbols globally visible, so code that
+  // still calls the wgpu* entry points directly resolves against the library we
+  // just loaded. vtkDynamicLoader maps this onto dlopen() or LoadLibrary() as
+  // appropriate for the platform.
+  const int openFlags = vtksys::DynamicLoader::RTLDGlobal;
 
-  // Try to load the WebGPU implementation library
-  void* handle = dlopen(lib, RTLD_LAZY | RTLD_GLOBAL);
+  vtkLibHandle handle = NULL;
+  if (libPath)
+  {
+    handle = vtkDynamicLoader::OpenLibrary(libPath, openFlags);
+  }
+  else
+  {
+    // No explicit path, so try the names each implementation is known by. The
+    // list spans every platform on purpose; names that cannot exist on the
+    // current one simply fail to open. vtkDynamicLoader::LibExtension() is not
+    // used here because it reports the module suffix, which is ".so" even on
+    // macOS where these are ".dylib".
+    const char* candidates[] = { "libwgpu_dawn.so", "libwebgpu_dawn.so", "libwgpu_dawn.so.0",
+      "libwebgpu_dawn.so.0", "libwgpu_dawn.dylib", "libwebgpu_dawn.dylib", "wgpu_dawn.dll",
+      "webgpu_dawn.dll", NULL };
+    for (int i = 0; candidates[i] != NULL && !handle; ++i)
+    {
+      handle = vtkDynamicLoader::OpenLibrary(candidates[i], openFlags);
+    }
+  }
+
   if (!handle)
   {
-    // Try alternative library names (including webgpu_dawn naming variant)
-    const char* alternatives[] = { "libwebgpu_dawn.so", "libwgpu_dawn.so.0", "libwebgpu_dawn.so.0",
-      "libwgpu_dawn.dylib", "libwebgpu_dawn.dylib", "wgpu_dawn.dll", "webgpu_dawn.dll", NULL };
-
-    for (int i = 0; alternatives[i] != NULL; ++i)
-    {
-      if (libPath == NULL) // Only try alternatives if no explicit path given
-      {
-        handle = dlopen(alternatives[i], RTLD_LAZY | RTLD_GLOBAL);
-        if (handle)
-          break;
-      }
-    }
-
-    if (!handle)
-    {
-      fprintf(stderr, "vtkWebGPUProcTable: failed to load WebGPU library: %s\n", dlerror());
-      return NULL;
-    }
+    fprintf(stderr, "vtkWebGPUProcTable: failed to load WebGPU library: %s\n",
+      vtkDynamicLoader::LastError());
+    return NULL;
   }
 
   // Get the wgpuGetProcAddress bootstrap function
   WGPUProcGetProcAddress getProcAddress =
-    (WGPUProcGetProcAddress)dlsym(handle, "wgpuGetProcAddress");
+    (WGPUProcGetProcAddress)vtkDynamicLoader::GetSymbolAddress(handle, "wgpuGetProcAddress");
   if (!getProcAddress)
   {
-    fprintf(stderr, "vtkWebGPUProcTable: wgpuGetProcAddress not found: %s\n", dlerror());
-    dlclose(handle);
+    fprintf(stderr, "vtkWebGPUProcTable: wgpuGetProcAddress not found: %s\n",
+      vtkDynamicLoader::LastError());
+    vtkDynamicLoader::CloseLibrary(handle);
     return NULL;
   }
 
@@ -69,7 +77,7 @@ vtkWebGPUProcTable vtkWebGPUProcTableLoad(const char* libPath)
   vtkWebGPUProcTableImpl* table = (vtkWebGPUProcTableImpl*)malloc(sizeof(vtkWebGPUProcTableImpl));
   if (!table)
   {
-    dlclose(handle);
+    vtkDynamicLoader::CloseLibrary(handle);
     return NULL;
   }
 
@@ -90,7 +98,7 @@ void vtkWebGPUProcTableRelease(vtkWebGPUProcTable table)
 
   if (impl->libHandle)
   {
-    dlclose(impl->libHandle);
+    vtkDynamicLoader::CloseLibrary(impl->libHandle);
   }
 
   free(impl);
