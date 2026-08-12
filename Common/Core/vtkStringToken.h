@@ -233,6 +233,9 @@ bool VTKCOMMONCORE_EXPORT operator>(const vtkStringToken& a, const char* b);
 bool VTKCOMMONCORE_EXPORT operator<(const vtkStringToken& a, const char* b);
 bool VTKCOMMONCORE_EXPORT operator>=(const vtkStringToken& a, const char* b);
 bool VTKCOMMONCORE_EXPORT operator<=(const vtkStringToken& a, const char* b);
+
+VTKCOMMONCORE_EXPORT std::ostream& operator<<(std::ostream& os, const vtkStringToken& t);
+VTKCOMMONCORE_EXPORT std::istream& operator>>(std::istream& is, vtkStringToken& t);
 VTK_ABI_NAMESPACE_END
 
 namespace std
