@@ -1020,6 +1020,20 @@ bool TestAbstractArray(vtkAbstractArray* array1, vtkAbstractArray* array2, Array
 {
   std::atomic_bool success{ true };
 
+  if (array1->GetNumberOfTuples() != array2->GetNumberOfTuples())
+  {
+    vtkLog(ERROR, << "Number of tuples don't match between arrays: " << array1->GetNumberOfTuples()
+                  << " != " << array2->GetNumberOfTuples());
+    return false;
+  }
+
+  if (array1->GetNumberOfComponents() != array2->GetNumberOfComponents())
+  {
+    vtkLog(ERROR, << "Number of components do not match between arrays: "
+                  << array1->GetNumberOfComponents() << " != " << array2->GetNumberOfComponents());
+    return false;
+  }
+
   auto decider = [&success](bool equals, vtkIdType id1, vtkIdType id2)
   {
     if (!equals)
