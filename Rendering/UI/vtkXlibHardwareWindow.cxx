@@ -1,12 +1,14 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// vtk includes
-#include "vtkXlibHardwareWindow.h"
+// Included before vtkXlibHardwareWindow so X11 defines do not clash with vtkDataArray structures.
 #include "vtkImageData.h"
+
+// vtk includes
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkStringScanner.h"
+#include "vtkXlibHardwareWindow.h"
 #include "vtksys/SystemTools.hxx"
 
 // STL includes

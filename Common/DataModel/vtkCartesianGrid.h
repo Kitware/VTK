@@ -15,6 +15,7 @@
 #define vtkCartesianGrid_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkConstantArray.h"         // For vtkConstantArray
 #include "vtkDataSet.h"
 #include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_6_0()
 #include "vtkStructuredData.h" // For inline methods
