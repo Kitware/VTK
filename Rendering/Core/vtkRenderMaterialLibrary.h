@@ -158,7 +158,7 @@ public:
    * @param filename Optional filename path for the texture
    */
   virtual void AddTexture(const std::string& nickname, const std::string& varname, vtkTexture* tex,
-    const std::string& texturename = "unnamedTexture", const std::string& filename = "");
+    const std::string& texturename = "unnamedTexture", const std::string& filename = {});
 
   /**
    * Add a shader variable to a material.
