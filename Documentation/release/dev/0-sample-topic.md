@@ -1,4 +1,4 @@
-## Short descriptive title
+# Short descriptive title
 
 This is a sample release note for the change in a topic.
 Developers should add similar notes for each topic branch
