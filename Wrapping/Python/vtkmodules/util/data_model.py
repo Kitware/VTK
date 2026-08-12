@@ -31,13 +31,61 @@ NUMPY_AVAILABLE = False
 with suppress(ImportError):
     import numpy
     from vtkmodules.util import numpy_support
-    from vtkmodules.numpy_interface.utils import NoneArray
-    from vtkmodules.numpy_interface.vtk_partitioned_array import (
-        VTKPartitionedArray,
-        VTKPartitionedPoints,
-    )
 
     NUMPY_AVAILABLE = True
+
+
+class _NumpyInterface:
+    """Lazily resolved handles into ``vtkmodules.numpy_interface``.
+
+    These cannot be imported at module scope.  This module is imported by
+    vtkmodules' override hook while ``vtkCommonDataModel`` is still
+    initializing, and ``vtkmodules.numpy_interface.utils`` imports
+    ``vtkCommonDataModel`` itself.  So whenever something under
+    ``numpy_interface`` is the first thing to pull in
+    ``vtkCommonDataModel`` -- ``import vtkmodules.util.functions`` is the
+    common way -- that module is only half initialized by the time we get
+    here, and importing from it raises ImportError.
+
+    That ImportError used to be swallowed along with the optional numpy
+    dependency, silently leaving ``NUMPY_AVAILABLE`` False for the rest of
+    the process.  Array assignments then became no-ops and lookups returned
+    None, with no diagnostic.  Resolving on first use instead means the
+    import cycle has unwound by the time these names are needed.
+    """
+
+    __slots__ = ()
+
+    _resolved = False
+    NoneArray = None
+    VTKPartitionedArray = None
+    VTKPartitionedPoints = None
+
+    @classmethod
+    def get(cls):
+        if not cls._resolved:
+            from vtkmodules.numpy_interface.utils import NoneArray
+            from vtkmodules.numpy_interface.vtk_partitioned_array import (
+                VTKPartitionedArray,
+                VTKPartitionedPoints,
+            )
+
+            cls.NoneArray = NoneArray
+            cls.VTKPartitionedArray = VTKPartitionedArray
+            cls.VTKPartitionedPoints = VTKPartitionedPoints
+            cls._resolved = True
+        return cls
+
+
+def __getattr__(name):
+    """Keep ``data_model.NoneArray`` and friends working for outside callers."""
+    if name in ("NoneArray", "VTKPartitionedArray", "VTKPartitionedPoints"):
+        if not NUMPY_AVAILABLE:
+            raise AttributeError(
+                "%s requires numpy, which is not available" % name
+            )
+        return getattr(_NumpyInterface.get(), name)
+    raise AttributeError("module %s has no attribute %r" % (__name__, name))
 
 
 class FieldDataBase(object):
@@ -80,7 +128,7 @@ class FieldDataBase(object):
             vtkarray = self.GetAbstractArray(idx)
             if vtkarray:
                 return vtkarray
-            return NoneArray
+            return _NumpyInterface.get().NoneArray
         # All standard VTK data arrays have mixin overrides applied
         # (VTKAOSArray, VTKSOAArray, VTKConstantArray) so they
         # are already numpy-compatible.  Just set metadata and return.
@@ -133,7 +181,7 @@ class FieldDataBase(object):
                 self.AddArray(narray)
             return
 
-        if narray is NoneArray:
+        if narray is _NumpyInterface.get().NoneArray:
             # if NoneArray, nothing to do.
             return
 
@@ -463,12 +511,13 @@ class CompositeDataSetAttributes(object):
             # don't know how to handle composite dataset attribute when numpy not around
             raise NotImplementedError("Only available with numpy")
 
-        if narray is NoneArray:
+        npi = _NumpyInterface.get()
+        if narray is npi.NoneArray:
             # if NoneArray, nothing to do.
             return
 
         added = False
-        if not isinstance(narray, VTKPartitionedArray):  # Scalar input
+        if not isinstance(narray, npi.VTKPartitionedArray):  # Scalar input
             for ds in self.dataset:
                 ds.GetAttributesAsFieldData(self.association).set_array(name, narray)
                 added = True
@@ -493,10 +542,11 @@ class CompositeDataSetAttributes(object):
             # don't know how to handle composite dataset attribute when numpy not around
             raise NotImplementedError("Only available with numpy")
 
+        npi = _NumpyInterface.get()
         if arrayname not in self.array_names:
-            return NoneArray
+            return npi.NoneArray
         if arrayname not in self.arrays or self.arrays[arrayname]() is None:
-            array = VTKPartitionedArray(
+            array = npi.VTKPartitionedArray(
                 dataset=self.dataset, name=arrayname, association=self.association
             )
             self.arrays[arrayname] = weakref.ref(array)
@@ -913,10 +963,11 @@ class CompositeDataSetBase(object):
                 except AttributeError:
                     _pts = None
                 pts.append(_pts)
+            npi = _NumpyInterface.get()
             if len(pts) == 0 or all(p is None for p in pts):
-                cpts = NoneArray
+                cpts = npi.NoneArray
             else:
-                cpts = VTKPartitionedPoints(pts)
+                cpts = npi.VTKPartitionedPoints(pts)
             self._Points = weakref.ref(cpts)
         return self._Points()
 
