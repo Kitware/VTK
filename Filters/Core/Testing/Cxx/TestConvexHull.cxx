@@ -162,9 +162,11 @@ static int Test3DHexCornerOrder()
 {
   int errors = 0;
 
+  const std::vector<std::array<double, 3>> coords = { { 0, 0, 0 }, { 1, 0, 0 }, { 1, 1, 0 },
+    { 0, 1, 0 }, { 0, 0, 1 }, { 1, 0, 1 }, { 1, 1, 1 }, { 0, 1, 1 } };
+
   vtkNew<vtkConvexHull> hull;
-  hull->SetInputData(MakeInput({ { 0, 0, 0 }, { 1, 0, 0 }, { 1, 1, 0 }, { 0, 1, 0 }, { 0, 0, 1 },
-    { 1, 0, 1 }, { 1, 1, 1 }, { 0, 1, 1 } }));
+  hull->SetInputData(MakeInput(coords));
   hull->SetDimension(3);
   hull->Update();
 
@@ -186,6 +188,16 @@ static int Test3DHexCornerOrder()
   auto* output = vtkPolyData::SafeDownCast(hull->GetOutput());
   errors += Check(output != nullptr && output->GetNumberOfPoints() == 8,
     "3D-hex-order: all 8 cube corners should be hull vertices");
+
+  // A hull contains every point it was built from. Nothing above establishes
+  // that: the interior samples stay inside a hull that is missing part of the
+  // cube, and the vertex count reports how many points came back rather than
+  // where they are. Test3DSphere asserts this for the sphere; the cube did not.
+  for (const auto& c : coords)
+  {
+    errors += Check(hull->IsPointWithinConvexHull(c.data()),
+      "3D-hex-order: every input corner should be inside its own hull");
+  }
 
   return errors;
 }
