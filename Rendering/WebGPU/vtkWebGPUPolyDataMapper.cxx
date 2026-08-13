@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebGPUPolyDataMapper.h"
 #include "Private/vtkWebGPUHandle.h"
+#include "Private/vtkWebGPUHelpersPrivate.h"
 
 #include "vtkArrayDispatch.h"
 #include "vtkArrayDispatchDataSetArrayList.h"
@@ -147,7 +148,7 @@ std::array<const char*, vtkWebGPUPolyDataMapper::CellDataAttributes::CELL_NB_ATT
 template <typename DestValueT>
 struct WriteTypedArray
 {
-  const vtkWebGPU::Buffer& DstBuffer;
+  WGPUBuffer DstBuffer;
   vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
   std::uint64_t LastWatermark = 0;
   std::uint64_t NewWatermark = 0;
@@ -155,7 +156,7 @@ struct WriteTypedArray
   template <typename SourceValueT>
   void operator()(vtkAOSDataArrayTemplate<SourceValueT>* array, const char* description)
   {
-    if (array == nullptr || this->DstBuffer.Get() == nullptr)
+    if (array == nullptr || this->DstBuffer == nullptr)
     {
       return;
     }
@@ -174,14 +175,14 @@ struct WriteTypedArray
       dataPtr = castedValues.data();
     }
     this->WGPUConfiguration->WriteBuffer(
-      this->DstBuffer.Get(), LastWatermark, dataPtr, sizeBytes, description);
+      this->DstBuffer, LastWatermark, dataPtr, sizeBytes, description);
     this->NewWatermark = this->LastWatermark + sizeBytes;
   }
 
   template <typename SourceArrayT>
   void operator()(SourceArrayT* array, const char* description)
   {
-    if (array == nullptr || this->DstBuffer.Get() == nullptr)
+    if (array == nullptr || this->DstBuffer == nullptr)
     {
       return;
     }
@@ -191,7 +192,7 @@ struct WriteTypedArray
     scaledValues.reserve(values.size());
     std::copy(values.begin(), values.end(), std::back_inserter(scaledValues));
     this->WGPUConfiguration->WriteBuffer(
-      this->DstBuffer.Get(), LastWatermark, scaledValues.data(), sizeBytes, description);
+      this->DstBuffer, LastWatermark, scaledValues.data(), sizeBytes, description);
     this->NewWatermark = this->LastWatermark + sizeBytes;
   }
 };
@@ -199,7 +200,7 @@ struct WriteTypedArray
 template <typename DestValueT>
 struct WriteTypedArrayWithScale
 {
-  const vtkWebGPU::Buffer& DstBuffer;
+  WGPUBuffer DstBuffer;
   vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
   float Denominator = 1.0;
   std::uint64_t LastWatermark = 0;
@@ -208,7 +209,7 @@ struct WriteTypedArrayWithScale
   template <typename SourceArrayT>
   void operator()(SourceArrayT* array, const char* description)
   {
-    if (array == nullptr || this->DstBuffer.Get() == nullptr)
+    if (array == nullptr || this->DstBuffer == nullptr)
     {
       return;
     }
@@ -235,7 +236,7 @@ struct WriteTypedArrayWithScale
       }
     }
     this->WGPUConfiguration->WriteBuffer(
-      this->DstBuffer.Get(), LastWatermark, scaledValues.data(), sizeBytes, description);
+      this->DstBuffer, LastWatermark, scaledValues.data(), sizeBytes, description);
     this->NewWatermark = this->LastWatermark + sizeBytes;
   }
 };
@@ -1136,9 +1137,8 @@ std::vector<WGPUBindGroupEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupEntries
   std::uint32_t bindingId = 0;
   auto addBufferEntry = [&entries](std::uint32_t binding, const WGPUBuffer& buffer)
   {
-    auto entry = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ binding,
-      vtkWebGPU::Buffer(buffer), 0 }
-                   .GetAsBinding();
+    auto entry =
+      vtkWebGPUBindGroupInternals::BindingInitializationHelper{ binding, buffer, 0 }.GetAsBinding();
     entries.push_back(*reinterpret_cast<WGPUBindGroupEntry*>(&entry));
   };
   for (int attributeIndex = 0; attributeIndex < POINT_NB_ATTRIBUTES; ++attributeIndex)
@@ -1194,8 +1194,7 @@ std::vector<WGPUBindGroupEntry> vtkWebGPUPolyDataMapper::GetTopologyBindGroupEnt
   auto addBufferEntry = [&entries](std::uint32_t binding, const WGPUBuffer& buffer)
   {
     auto entry =
-      vtkWebGPUBindGroupInternals::BindingInitializationHelper{ binding, vtkWebGPU::Buffer(buffer) }
-        .GetAsBinding();
+      vtkWebGPUBindGroupInternals::BindingInitializationHelper{ binding, buffer }.GetAsBinding();
     entries.push_back(*reinterpret_cast<WGPUBindGroupEntry*>(&entry));
   };
   if (homogeneousCellSize)
@@ -1569,7 +1568,7 @@ bool vtkWebGPUPolyDataMapper::AllocateAttributeBuffers(vtkWebGPUConfiguration* w
       descriptor.size = requiredBufferSize;
       const auto label = PointAttribLabels[attributeIndex] + std::string("@") +
         this->CurrentInput->GetObjectDescription();
-      descriptor.label = label.c_str();
+      descriptor.label = vtkWebGPUMakeStringView(label);
       descriptor.mappedAtCreation = false;
       descriptor.usage = WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst;
       this->PointBuffers[attributeIndex].Buffer = wgpuConfiguration->CreateBuffer(descriptor);
@@ -1602,7 +1601,7 @@ bool vtkWebGPUPolyDataMapper::AllocateAttributeBuffers(vtkWebGPUConfiguration* w
       descriptor.size = requiredBufferSize;
       const auto label = CellAttribLabels[attributeIndex] + std::string("@") +
         this->CurrentInput->GetObjectDescription();
-      descriptor.label = label.c_str();
+      descriptor.label = vtkWebGPUMakeStringView(label);
       descriptor.mappedAtCreation = false;
       descriptor.usage = WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst;
       this->CellBuffers[attributeIndex].Buffer = wgpuConfiguration->CreateBuffer(descriptor);
@@ -1910,7 +1909,7 @@ void vtkWebGPUPolyDataMapper::UpdateClippingPlanesBuffer(
   {
     const auto label = this->GetObjectDescription() + "-ClippingPlanesBuffer";
     WGPUBufferDescriptor desc = {};
-    desc.label = label.c_str();
+    desc.label = vtkWebGPUMakeStringView(label);
     desc.mappedAtCreation = false;
     desc.size = vtkWebGPUConfiguration::Align(sizeof(this->ClippingPlanesData), 16);
     desc.usage = WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst;
@@ -2135,7 +2134,7 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
 
     const auto label =
       this->GetObjectDescription() + this->GetGraphicsPipelineTypeAsString(pipelineType);
-    descriptor.label = label.c_str();
+    descriptor.label = vtkWebGPUMakeStringView(label);
     descriptor.primitive.topology =
       WGPUPrimitiveTopology(this->GetPrimitiveTopologyForPipeline(pipelineType));
     std::string vertexShaderSource = vtkPolyDataVSWGSL;

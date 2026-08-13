@@ -190,18 +190,24 @@ void vtkWebGPURenderTextureDeviceResource::PrintSelf(ostream& os, vtkIndent inde
 //------------------------------------------------------------------------------
 void vtkWebGPURenderTextureDeviceResource::ReleaseGraphicsResources(vtkWindow* vtkNotUsed(window))
 {
-  if (this->Texture)
+  // These are raw C handles. Destroy() frees the GPU allocation but does not
+  // drop our reference, and assigning nullptr on its own drops nothing, so each
+  // one has to be released explicitly.
+  if (this->TextureView)
   {
-    wgpuTextureDestroy(this->Texture);
-    this->Texture = nullptr;
+    wgpuTextureViewRelease(this->TextureView);
+    this->TextureView = nullptr;
   }
   if (this->Sampler)
   {
+    wgpuSamplerRelease(this->Sampler);
     this->Sampler = nullptr;
   }
-  if (this->TextureView)
+  if (this->Texture)
   {
-    this->TextureView = nullptr;
+    wgpuTextureDestroy(this->Texture);
+    wgpuTextureRelease(this->Texture);
+    this->Texture = nullptr;
   }
 }
 
@@ -268,10 +274,7 @@ void vtkWebGPURenderTextureDeviceResource::SendToWebGPUDevice(std::vector<void*>
   this->SamplerDescriptor.lodMaxClamp = this->LODMaxClamp;
   this->SamplerDescriptor.compare = this->GetWebGPUCompareFunction(this->CompareFunc);
   this->SamplerDescriptor.maxAnisotropy = this->MaxAnisotropy;
-  this->Sampler =
-    WGPUDevice(wgpuConfiguration->GetDevice())
-      .CreateSampler(reinterpret_cast<WGPUSamplerDescriptor*>(&this->SamplerDescriptor))
-      .MoveToCHandle();
+  this->Sampler = wgpuDeviceCreateSampler(wgpuConfiguration->GetDevice(), &this->SamplerDescriptor);
   this->TextureViewDescriptor = {};
   // The C WGPUTextureViewDescriptor zero-initializes mipLevelCount/arrayLayerCount to 0, which is
   // invalid. The C++ WGPUTextureViewDescriptor defaults these to the "undefined" sentinel so that
@@ -284,10 +287,7 @@ void vtkWebGPURenderTextureDeviceResource::SendToWebGPUDevice(std::vector<void*>
       static_cast<WGPUTextureViewDimension>(WGPUTextureViewDimension_Cube);
     this->TextureViewDescriptor.arrayLayerCount = 6;
   }
-  this->TextureView =
-    vtkWebGPU::Texture(this->Texture)
-      .CreateView(reinterpret_cast<WGPUTextureViewDescriptor*>(&this->TextureViewDescriptor))
-      .MoveToCHandle();
+  this->TextureView = wgpuTextureCreateView(this->Texture, &this->TextureViewDescriptor);
   this->Modified();
 }
 
@@ -310,8 +310,8 @@ WGPUBindGroupEntry vtkWebGPURenderTextureDeviceResource::MakeSamplerBindGroupEnt
 {
   WGPUBindGroupEntry entry = {};
   entry.binding = binding;
-  entry.sampler = vtkWebGPU::Sampler(this->Sampler);
-  return *reinterpret_cast<WGPUBindGroupEntry*>(&entry);
+  entry.sampler = this->Sampler;
+  return entry;
 }
 
 //------------------------------------------------------------------------------
@@ -338,8 +338,8 @@ WGPUBindGroupEntry vtkWebGPURenderTextureDeviceResource::MakeTextureViewBindGrou
 {
   WGPUBindGroupEntry entry = {};
   entry.binding = binding;
-  entry.textureView = vtkWebGPU::TextureView(this->TextureView);
-  return *reinterpret_cast<WGPUBindGroupEntry*>(&entry);
+  entry.textureView = this->TextureView;
+  return entry;
 }
 
 //------------------------------------------------------------------------------
