@@ -1192,9 +1192,20 @@ bool vtkHDFReader::Implementation::ReadHyperTreeGridDimensions(vtkHyperTreeGrid*
   }
 
   htg->SetDimensions(dimensions.data());
-  htg->SetXCoordinates(XCoordinates);
-  htg->SetYCoordinates(YCoordinates);
-  htg->SetZCoordinates(ZCoordinates);
+
+  // Coordinates arrays need to have at least 1 element
+  if (XCoordinates->GetNumberOfTuples() > 0)
+  {
+    htg->SetXCoordinates(XCoordinates);
+  }
+  if (YCoordinates->GetNumberOfTuples() > 0)
+  {
+    htg->SetYCoordinates(YCoordinates);
+  }
+  if (ZCoordinates->GetNumberOfTuples() > 0)
+  {
+    htg->SetZCoordinates(ZCoordinates);
+  }
 
   return true;
 }
