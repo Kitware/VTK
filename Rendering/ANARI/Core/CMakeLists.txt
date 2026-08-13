@@ -22,9 +22,9 @@ set(classes
   vtkAnariCompositePolyDataMapperNode
   vtkAnariDevice
   vtkAnariGlyph3DMapperNode
+  vtkAnariGPUInfoList
   vtkAnariGPUVolumeRayCastMapper
   vtkAnariLightNode
-  vtkAnariPass
   vtkAnariPolyDataMapperNode
   vtkAnariRenderer
   vtkAnariRenderWindow
@@ -34,23 +34,24 @@ set(classes
   vtkAnariProfiling
   vtkAnariVolumeNode
   vtkAnariVolumeMapperNode
-  vtkAnariVolumeMapper
-  )
+)
 
 set(nowrap_classes
   vtkAnariPolyDataMapperInheritInterface
   vtkAnariProfiling
 )
 
-vtk_object_factory_declare(
-  BASE vtkRenderWindow
-  OVERRIDE vtkAnariRenderWindow
-)
+set(class_overrides
+  RenderWindow
+  GPUInfoList
+  GPUVolumeRayCastMapper)
 
-vtk_object_factory_declare(
-  BASE vtkAnariVolumeInterface
-  OVERRIDE vtkAnariVolumeMapper
-)
+foreach(class_name IN LISTS class_overrides)
+  vtk_object_factory_declare(
+    BASE "vtk${class_name}"
+    OVERRIDE "vtkAnari${class_name}"
+  )
+endforeach()
 
 vtk_object_factory_configure(
   SOURCE_FILE vtk_object_factory_source
@@ -67,17 +68,17 @@ vtk_module_add_module(VTK::RenderingAnariCore
 
 vtk_module_link(VTK::RenderingAnariCore
   PUBLIC
-    anari::anari
-    VTK::FiltersGeometry
-    VTK::FiltersSources
+  anari::anari
+  VTK::FiltersGeometry
+  VTK::FiltersSources
   PRIVATE
-    VTK::RenderingCore
-    $<$<BOOL:${VTK_ANARI_ENABLE_NVTX}>:CUDA::nvToolsExt>
+  VTK::RenderingCore
+  $<$<BOOL:${VTK_ANARI_ENABLE_NVTX}>:CUDA::nvToolsExt>
 )
 
 vtk_module_definitions(VTK::RenderingAnariCore
   PRIVATE
-    $<$<BOOL:${VTK_ANARI_ENABLE_NVTX}>:USE_NVTX>
+  $<$<BOOL:${VTK_ANARI_ENABLE_NVTX}>:USE_NVTX>
 )
 
 vtk_add_test_mangling(VTK::RenderingAnariCore)
