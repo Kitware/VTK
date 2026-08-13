@@ -92,8 +92,7 @@ int vtkPolyDataReader::ReadMeshSimple(const std::string& fname, vtkDataObject* d
       }
 
       cellArray = vtkSmartPointer<vtkCellArray>::New();
-      cellArray->ImportLegacyFormat(idBuffer, size);
-      return true;
+      return cellArray->ImportLegacyFormat(idBuffer, size);
     } // end legacy cell read
   };
 
