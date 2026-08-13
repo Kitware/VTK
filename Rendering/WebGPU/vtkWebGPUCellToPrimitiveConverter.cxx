@@ -5,6 +5,7 @@
 
 #include "vtkWebGPUCellToPrimitiveConverter.h"
 #include "Private/vtkWebGPUComputeBufferInternals.h"
+#include "Private/vtkWebGPUHandle.h"
 #include "VTKCellToGraphicsPrimitive.h"
 #include "vtkABINamespace.h"
 #include "vtkCellArray.h"
@@ -26,15 +27,15 @@ VTK_ABI_NAMESPACE_BEGIN
 namespace vtkWebGPUCellToPrimitiveConverterImpl
 {
 // Convert from C API handle to C++ wrapper
-inline wgpu::Buffer CastToWgpuBuffer(WGPUBuffer buf)
+inline vtkWebGPU::Buffer CastToWgpuBuffer(WGPUBuffer buf)
 {
-  return wgpu::Buffer(buf);
+  return vtkWebGPU::Buffer(buf);
 }
 
 // Convert from C++ wrapper to C API handle
-inline WGPUBuffer CastToWGPUBuffer(const wgpu::Buffer& buf)
+inline WGPUBuffer CastToWGPUBuffer(const vtkWebGPU::Buffer& buf)
 {
-  return buf.Get();
+  return wgpuBufferGet(buf);
 }
 }
 
@@ -511,11 +512,11 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
       *edgeArrayBuffer = nullptr;
     }
     auto label = std::string("Connectivity-") + primitiveTypeAsString;
-    wgpu::BufferDescriptor descriptor{};
+    WGPUBufferDescriptor descriptor{};
     descriptor.label = label.c_str();
     descriptor.mappedAtCreation = false;
     descriptor.nextInChain = nullptr;
-    descriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
+    descriptor.usage = WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst;
     descriptor.size = totalNumberOfIndices * sizeof(vtkTypeUInt32);
     *connectivityBuffer = wgpuConfiguration->CreateBuffer(descriptor);
     vtkIdType pointOffset = 0;

@@ -4,6 +4,7 @@
 #ifndef vtkWebGPUComputePass_h
 #define vtkWebGPUComputePass_h
 
+#include "Private/vtkWebGPUHandle.h"
 #include "vtkObject.h"
 
 #include "vtkRenderingWebGPUModule.h" // For export macro
@@ -350,8 +351,8 @@ private:
   friend class vtkWebGPUComputePassBufferStorageInternals;
   friend class vtkWebGPUComputePipeline;
   friend class vtkWebGPUHelpers;
-  // For the mapper to be able to access the internals to access the wgpu::Buffer objects for use
-  // in a render pipeline
+  // For the mapper to be able to access the internals to access the vtkWebGPU::Buffer objects for
+  // use in a render pipeline
   friend class vtkWebGPUPointCloudMapperInternals;
   friend class vtkWebGPURenderWindow;
   friend class vtkWebGPURenderer;

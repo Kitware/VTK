@@ -3,6 +3,7 @@
 
 #include "vtkWebGPUComputePipeline.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
+#include "Private/vtkWebGPUHandle.h"
 #include "vtkObjectFactory.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -64,9 +65,9 @@ void vtkWebGPUComputePipeline::RegisterBuffer(
 
   if (this->RegisteredBuffers.find(buffer) != this->RegisteredBuffers.end())
   {
-    // If we're registering a new wgpu::Buffer for an existing (already registered)
+    // If we're registering a new vtkWebGPU::Buffer for an existing (already registered)
     // vtkWebGPUComputeBuffer, we're going to have to make sure that all compute passes that are
-    // using this vtkWebGPUComputeBuffer now use the new wgpu::Buffer that we're registering
+    // using this vtkWebGPUComputeBuffer now use the new vtkWebGPU::Buffer that we're registering
 
     for (vtkSmartPointer<vtkWebGPUComputePass> computePass : this->ComputePasses)
     {
@@ -85,9 +86,9 @@ void vtkWebGPUComputePipeline::RegisterTexture(
 
   if (this->RegisteredTextures.find(texture) != this->RegisteredTextures.end())
   {
-    // If we're registering a new wgpu::Texture for an existing (already registered)
+    // If we're registering a new vtkWebGPU::Texture for an existing (already registered)
     // vtkWebGPUComputeTexture, we're going to have to make sure that all compute passes that are
-    // using this vtkWebGPUComputeTexture now use the new wgpu::Texture that we're registering
+    // using this vtkWebGPUComputeTexture now use the new vtkWebGPU::Texture that we're registering
 
     for (vtkSmartPointer<vtkWebGPUComputePass> computePass : this->ComputePasses)
     {

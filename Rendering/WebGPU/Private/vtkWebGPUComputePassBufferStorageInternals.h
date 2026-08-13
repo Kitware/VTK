@@ -4,6 +4,7 @@
 #ifndef vtkWebGPUComputePassBufferStorageInternals_h
 #define vtkWebGPUComputePassBufferStorageInternals_h
 
+#include "Private/vtkWebGPUHandle.h"
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"              // for smart pointers
 #include "vtkWeakPointer.h"               // for weak pointers
@@ -33,8 +34,8 @@ public:
    *
    * SUCCESS: The buffer was successfully updated
    *
-   * UP_TO_DATE: The buffer was already up to date (the given wgpu::Buffer was already being used).
-   * No-op.
+   * UP_TO_DATE: The buffer was already up to date (the given vtkWebGPU::Buffer was already being
+   * used). No-op.
    *
    * BUFFER_NOT_FOUND: The given buffer did not belong to this buffer storage. No-op.
    */
@@ -66,10 +67,10 @@ public:
   int AddBuffer(vtkSmartPointer<vtkWebGPUComputeBuffer> buffer);
 
   /**
-   * Returns the wgpu::Buffer object for a buffer in this compute pass buffer storage given its
+   * Returns the vtkWebGPU::Buffer object for a buffer in this compute pass buffer storage given its
    * index
    */
-  wgpu::Buffer GetWGPUBuffer(std::size_t bufferIndex);
+  vtkWebGPU::Buffer GetWGPUBuffer(std::size_t bufferIndex);
 
   /**
    * Adds a render texture to the pipeline. A render texture can be obtained from
@@ -93,7 +94,7 @@ public:
 
   /**
    * Destroys and recreates a buffer with the given newByteSize
-   * Only the wgpu::Buffer object is recreated so the binding/group of the group doesn't change
+   * Only the vtkWebGPU::Buffer object is recreated so the binding/group of the group doesn't change
    */
   void RecreateBuffer(std::size_t bufferIndex, vtkIdType newByteSize);
 
@@ -109,10 +110,10 @@ public:
     std::size_t bufferIndex, vtkWebGPUComputePass::BufferMapAsyncCallback callback, void* userdata);
 
   /**
-   * Updates the wgpu::Buffer reference that a compute buffer is associated to.
+   * Updates the vtkWebGPU::Buffer reference that a compute buffer is associated to.
    *
-   * Useful when a compute buffer has been recreated and the associated wgpu::Buffer needs to be
-   * updated with the newly created buffer.
+   * Useful when a compute buffer has been recreated and the associated vtkWebGPU::Buffer needs to
+   * be updated with the newly created buffer.
    *
    * Also recreates the bind group of the buffer.
    *
@@ -121,7 +122,7 @@ public:
    * stored in the outBufferIndex parameter.
    */
   UpdateBufferStatusCode UpdateWebGPUBuffer(vtkSmartPointer<vtkWebGPUComputeBuffer> buffer,
-    wgpu::Buffer wgpuBuffer, std::size_t& outBufferIndex);
+    vtkWebGPU::Buffer wgpuBuffer, std::size_t& outBufferIndex);
 
   /**
    * Updates the data of a buffer.
@@ -152,7 +153,7 @@ public:
       return;
     }
 
-    wgpu::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
+    vtkWebGPU::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
     this->ParentPassWGPUConfiguration->WriteBuffer(wgpuBuffer.Get(), 0, bytes, numBytes);
   }
 
@@ -174,7 +175,7 @@ public:
       return;
     }
 
-    wgpu::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
+    vtkWebGPU::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
     this->ParentPassWGPUConfiguration->WriteBuffer(wgpuBuffer.Get(), byteOffset, bytes, numBytes);
   }
 
@@ -230,15 +231,15 @@ public:
 
   /**
    * Internal method used to convert the user friendly BufferMode to the internal enum
-   * wgpu::BufferUsage
+   * WGPUBufferUsage
    */
-  static wgpu::BufferUsage ComputeBufferModeToBufferUsage(vtkWebGPUComputeBuffer::BufferMode mode);
+  static WGPUBufferUsage ComputeBufferModeToBufferUsage(vtkWebGPUComputeBuffer::BufferMode mode);
 
   /**
    * Internal method used to convert the user friendly BufferMode to the internal enum
-   * wgpu::BufferBindingType
+   * WGPUBufferBindingType
    */
-  static wgpu::BufferBindingType ComputeBufferModeToBufferBindingType(
+  static WGPUBufferBindingType ComputeBufferModeToBufferBindingType(
     vtkWebGPUComputeBuffer::BufferMode mode);
 
 protected:
@@ -260,7 +261,7 @@ private:
   // Compute buffers
   std::vector<vtkSmartPointer<vtkWebGPUComputeBuffer>> Buffers;
   // WebGPU buffers associated with the compute buffers, in the same order
-  std::vector<wgpu::Buffer> WebGPUBuffers;
+  std::vector<vtkWebGPU::Buffer> WebGPUBuffers;
 };
 
 #endif

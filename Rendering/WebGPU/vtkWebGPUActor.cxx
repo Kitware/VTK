@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUActor.h"
+#include "Private/vtkWebGPUHandle.h"
 
 #include "Private/vtkWebGPUActorInternals.h"
 #include "Private/vtkWebGPUBindGroupInternals.h"
@@ -135,7 +136,7 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
         {
           if (wgpuRenderer->GetRebuildRenderBundle())
           {
-            wgpu::RenderBundleEncoder(wgpuRenderer->GetRenderBundleEncoder())
+            WGPURenderBundleEncoder(wgpuRenderer->GetRenderBundleEncoder())
               .SetBindGroup(1, internals.ActorBindGroup);
             mapper->Render(renderer, this);
           }
@@ -143,7 +144,7 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
         }
         else
         {
-          wgpu::RenderPassEncoder(wgpuRenderer->GetRenderPassEncoder())
+          WGPURenderPassEncoder(wgpuRenderer->GetRenderPassEncoder())
             .SetBindGroup(1, internals.ActorBindGroup);
           mapper->Render(renderer, this);
         }
@@ -442,16 +443,16 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
   const auto actorDescription = this->GetObjectDescription();
   const auto bufferLabel = "ActorBlock-" + actorDescription;
   const auto bufferSize = vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 32);
-  internals.ActorBuffer = wgpu::Buffer::Acquire(wgpuConfiguration->CreateBuffer(bufferSize,
+  internals.ActorBuffer = vtkWebGPU::Buffer::Acquire(wgpuConfiguration->CreateBuffer(bufferSize,
     static_cast<WGPUBufferUsage>(WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst), false,
     bufferLabel.c_str()));
 
   std::uint32_t bindingIdBGL = 0;
-  std::vector<wgpu::BindGroupLayoutEntry> bglEntries;
+  std::vector<WGPUBindGroupLayoutEntry> bglEntries;
   // ActorBlock
-  bglEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-    bindingIdBGL++, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-    wgpu::BufferBindingType::ReadOnlyStorage });
+  bglEntries.emplace_back(
+    vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ bindingIdBGL++,
+      WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_ReadOnlyStorage });
   // Actor texture
   if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(this->GetTexture()))
   {
@@ -459,13 +460,13 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
     {
       {
         WGPUBindGroupLayoutEntry samplerEntry = devRc->MakeSamplerBindGroupLayoutEntry(
-          bindingIdBGL++, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment));
-        bglEntries.push_back(*reinterpret_cast<wgpu::BindGroupLayoutEntry*>(&samplerEntry));
+          bindingIdBGL++, static_cast<WGPUShaderStage>(WGPUShaderStage_Fragment));
+        bglEntries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&samplerEntry));
       }
       {
         WGPUBindGroupLayoutEntry textureEntry = devRc->MakeTextureViewBindGroupLayoutEntry(
-          bindingIdBGL++, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment));
-        bglEntries.push_back(*reinterpret_cast<wgpu::BindGroupLayoutEntry*>(&textureEntry));
+          bindingIdBGL++, static_cast<WGPUShaderStage>(WGPUShaderStage_Fragment));
+        bglEntries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&textureEntry));
       }
     }
   }
@@ -473,7 +474,7 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
   internals.ActorBindGroupLayout =
     vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, bglEntries, actorDescription);
   std::uint32_t bindingIdBG = 0;
-  std::vector<wgpu::BindGroupEntry> bgEntries;
+  std::vector<WGPUBindGroupEntry> bgEntries;
   // ActorBlock
   auto actorBindingInit = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingIdBG++,
     internals.ActorBuffer, 0, bufferSize };
@@ -485,11 +486,11 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
     {
       {
         WGPUBindGroupEntry samplerEntry = devRc->MakeSamplerBindGroupEntry(bindingIdBG++);
-        bgEntries.push_back(*reinterpret_cast<wgpu::BindGroupEntry*>(&samplerEntry));
+        bgEntries.push_back(*reinterpret_cast<WGPUBindGroupEntry*>(&samplerEntry));
       }
       {
         WGPUBindGroupEntry textureEntry = devRc->MakeTextureViewBindGroupEntry(bindingIdBG++);
-        bgEntries.push_back(*reinterpret_cast<wgpu::BindGroupEntry*>(&textureEntry));
+        bgEntries.push_back(*reinterpret_cast<WGPUBindGroupEntry*>(&textureEntry));
       }
     }
   }

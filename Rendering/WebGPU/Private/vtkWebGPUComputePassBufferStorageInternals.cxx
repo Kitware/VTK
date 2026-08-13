@@ -4,6 +4,7 @@
 #include "Private/vtkWebGPUComputePassBufferStorageInternals.h"
 #include "Private/vtkWebGPUComputeBufferInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
+#include "Private/vtkWebGPUHandle.h"
 #include "Private/vtkWebGPUHelpersPrivate.h"
 #include "vtkWebGPUHelpers.h"
 
@@ -15,12 +16,12 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWebGPUComputePassBufferStorageInternals);
 
 /**
- * Structure used to pass data to the asynchronous callback of wgpu::Buffer.MapAsync()
+ * Structure used to pass data to the asynchronous callback of vtkWebGPU::Buffer.MapAsync()
  */
 struct InternalMapBufferAsyncData
 {
   // Buffer currently being mapped
-  wgpu::Buffer buffer;
+  vtkWebGPU::Buffer buffer;
   // Label of the buffer currently being mapped. Used for printing errors
   std::string bufferLabel;
   // Size of the buffer being mapped in bytes
@@ -75,24 +76,24 @@ int vtkWebGPUComputePassBufferStorageInternals::AddBuffer(
     return -1;
   }
 
-  wgpu::Buffer wgpuBuffer;
+  vtkWebGPU::Buffer wgpuBuffer;
   vtkWebGPUComputeBuffer::BufferMode mode = buffer->GetMode();
   if (!this->ParentComputePass->Internals->GetRegisteredBufferFromPipeline(buffer, wgpuBuffer))
   {
     // If this buffer wasn't already registered in the pipeline by another compute pass, creating
     // the buffer. Otherwise, wgpuBuffer has been set to the already existing buffer
 
-    wgpu::BufferUsage bufferUsage =
+    WGPUBufferUsage bufferUsage =
       vtkWebGPUComputePassBufferStorageInternals::ComputeBufferModeToBufferUsage(mode);
     vtkIdType byteSize = buffer->GetByteSize();
 
-    wgpuBuffer = wgpu::Buffer::Acquire(this->ParentPassWGPUConfiguration->CreateBuffer(
+    wgpuBuffer = vtkWebGPU::Buffer::Acquire(this->ParentPassWGPUConfiguration->CreateBuffer(
       byteSize, static_cast<WGPUBufferUsage>(bufferUsage), false, bufferLabelCStr));
 
     // The buffer is read only by the shader if it doesn't have CopySrc (meaning that we would be
     // mapping the buffer from the GPU to read its results on the CPU meaning that the shader writes
     // to the buffer)
-    bool bufferReadOnly = !(bufferUsage | wgpu::BufferUsage::CopySrc);
+    bool bufferReadOnly = !(bufferUsage | WGPUBufferUsage_CopySrc);
     // Uploading from std::vector or vtkDataArray if one of the two is present
     switch (buffer->GetDataType())
     {
@@ -146,9 +147,9 @@ int vtkWebGPUComputePassBufferStorageInternals::AddBuffer(
   uint32_t group = buffer->GetGroup();
   uint32_t binding = buffer->GetBinding();
 
-  wgpu::BindGroupLayoutEntry bglEntry =
+  WGPUBindGroupLayoutEntry bglEntry =
     this->ParentComputePass->Internals->CreateBindGroupLayoutEntry(binding, mode);
-  wgpu::BindGroupEntry bgEntry =
+  WGPUBindGroupEntry bgEntry =
     this->ParentComputePass->Internals->CreateBindGroupEntry(wgpuBuffer, binding, mode, 0);
 
   this->ParentComputePass->Internals->BindGroupLayoutEntries[group].push_back(bglEntry);
@@ -159,7 +160,7 @@ int vtkWebGPUComputePassBufferStorageInternals::AddBuffer(
 }
 
 //------------------------------------------------------------------------------
-wgpu::Buffer vtkWebGPUComputePassBufferStorageInternals::GetWGPUBuffer(std::size_t bufferIndex)
+vtkWebGPU::Buffer vtkWebGPUComputePassBufferStorageInternals::GetWGPUBuffer(std::size_t bufferIndex)
 {
   if (!this->CheckBufferIndex(bufferIndex, "GetWGPUBuffer"))
   {
@@ -215,14 +216,14 @@ void vtkWebGPUComputePassBufferStorageInternals::RecreateBuffer(
 
   // Updating the byte size
   buffer->SetByteSize(newByteSize);
-  wgpu::BufferUsage bufferUsage =
+  WGPUBufferUsage bufferUsage =
     vtkWebGPUComputePassBufferStorageInternals::ComputeBufferModeToBufferUsage(buffer->GetMode());
 
   // Recreating the buffer
   std::string label = buffer->GetLabel();
   const char* bufferLabel = label.c_str();
   this->WebGPUBuffers[bufferIndex] =
-    wgpu::Buffer::Acquire(this->ParentPassWGPUConfiguration->CreateBuffer(
+    vtkWebGPU::Buffer::Acquire(this->ParentPassWGPUConfiguration->CreateBuffer(
       newByteSize, static_cast<WGPUBufferUsage>(bufferUsage), false, bufferLabel));
 }
 
@@ -237,12 +238,12 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
 
   // We need a buffer that will hold the mapped data.
   // We cannot directly map the output buffer of the compute shader because
-  // wgpu::BufferUsage::Storage is incompatible with wgpu::BufferUsage::MapRead. This is a
+  // WGPUBufferUsage_Storage is incompatible with WGPUBufferUsage_MapRead. This is a
   // restriction of WebGPU. This means that we have to create a new buffer with the MapRead flag
   // that is not a Storage buffer, copy the storage buffer that we actually want to this new buffer
   // (that has the MapRead usage flag) and then map this buffer to the CPU.
   vtkIdType byteSize = this->Buffers[bufferIndex]->GetByteSize();
-  wgpu::Buffer mappedBuffer = this->ParentPassWGPUConfiguration->CreateBuffer(
+  vtkWebGPU::Buffer mappedBuffer = this->ParentPassWGPUConfiguration->CreateBuffer(
     byteSize, WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead, false, nullptr);
 
   // If we were to allocate this callbackData locally on the stack, it would be destroyed when going
@@ -259,9 +260,9 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
   // Mark this readback as in-flight so callers can wait for its completion.
   this->ParentPassWGPUConfiguration->IncrementActiveBufferMapCount();
 
-  wgpu::CommandEncoder commandEncoder = this->ParentComputePass->Internals->CreateCommandEncoder();
-  commandEncoder.CopyBufferToBuffer(
-    this->WebGPUBuffers[bufferIndex], 0, internalCallbackData->buffer, 0, byteSize);
+  WGPUCommandEncoder commandEncoder = this->ParentComputePass->Internals->CreateCommandEncoder();
+  wgpuCommandEncoderCopyBufferToBuffer(
+    commandEncoder, this->WebGPUBuffers[bufferIndex], 0, internalCallbackData->buffer, 0, byteSize);
   this->ParentComputePass->Internals->SubmitCommandEncoderToQueue(commandEncoder);
 
   auto internalCallback =
@@ -314,7 +315,7 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
 //------------------------------------------------------------------------------
 vtkWebGPUComputePassBufferStorageInternals::UpdateBufferStatusCode
 vtkWebGPUComputePassBufferStorageInternals::UpdateWebGPUBuffer(
-  vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, wgpu::Buffer wgpuBuffer,
+  vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, vtkWebGPU::Buffer wgpuBuffer,
   std::size_t& outBufferIndex)
 {
   outBufferIndex = 0;
@@ -363,7 +364,7 @@ void vtkWebGPUComputePassBufferStorageInternals::UpdateBufferData(
     return;
   }
 
-  wgpu::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
+  vtkWebGPU::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
 
   const std::string bufferLabel = buffer->GetLabel();
   const char* bufferLabelCStr = bufferLabel.c_str();
@@ -395,7 +396,7 @@ void vtkWebGPUComputePassBufferStorageInternals::UpdateBufferData(
     return;
   }
 
-  wgpu::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
+  vtkWebGPU::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
 
   const std::string bufferLabel = buffer->GetLabel();
   const char* bufferLabelCStr = bufferLabel.c_str();
@@ -490,8 +491,8 @@ void vtkWebGPUComputePassBufferStorageInternals::SetupRenderBuffer(
   vtkIdType binding = renderBuffer->GetBinding();
   vtkWebGPUComputeBuffer::BufferMode mode = renderBuffer->GetMode();
 
-  wgpu::BindGroupLayoutEntry bglEntry;
-  wgpu::BindGroupEntry bgEntry;
+  WGPUBindGroupLayoutEntry bglEntry;
+  WGPUBindGroupEntry bgEntry;
   bglEntry = this->ParentComputePass->Internals->CreateBindGroupLayoutEntry(binding, mode);
   bgEntry = this->ParentComputePass->Internals->CreateBindGroupEntry(
     renderBuffer->GetWebGPUBuffer(), binding, mode, 0);
@@ -523,48 +524,48 @@ void vtkWebGPUComputePassBufferStorageInternals::ReleaseResources()
 }
 
 //------------------------------------------------------------------------------
-wgpu::BufferUsage vtkWebGPUComputePassBufferStorageInternals::ComputeBufferModeToBufferUsage(
+WGPUBufferUsage vtkWebGPUComputePassBufferStorageInternals::ComputeBufferModeToBufferUsage(
   vtkWebGPUComputeBuffer::BufferMode mode)
 {
   switch (mode)
   {
     case vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE:
     case vtkWebGPUComputeBuffer::READ_WRITE_COMPUTE_STORAGE:
-      return wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage;
+      return WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage;
 
     case vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_MAP_COMPUTE_STORAGE:
-      return wgpu::BufferUsage::CopySrc | wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage;
+      return WGPUBufferUsage_CopySrc | WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage;
 
     case vtkWebGPUComputeBuffer::BufferMode::UNIFORM_BUFFER:
-      return wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Uniform;
+      return WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform;
 
     default:
       vtkLog(ERROR, "Unhandled compute buffer mode in ComputeBufferModeToBufferUsage: " << mode);
-      return wgpu::BufferUsage::None;
+      return WGPUBufferUsage_None;
   }
 }
 
 //------------------------------------------------------------------------------
-wgpu::BufferBindingType
+WGPUBufferBindingType
 vtkWebGPUComputePassBufferStorageInternals::ComputeBufferModeToBufferBindingType(
   vtkWebGPUComputeBuffer::BufferMode mode)
 {
   switch (mode)
   {
     case vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE:
-      return wgpu::BufferBindingType::ReadOnlyStorage;
+      return WGPUBufferBindingType_ReadOnlyStorage;
 
     case vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_COMPUTE_STORAGE:
     case vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_MAP_COMPUTE_STORAGE:
-      return wgpu::BufferBindingType::Storage;
+      return WGPUBufferBindingType_Storage;
 
     case vtkWebGPUComputeBuffer::BufferMode::UNIFORM_BUFFER:
-      return wgpu::BufferBindingType::Uniform;
+      return WGPUBufferBindingType_Uniform;
 
     default:
       vtkLog(
         ERROR, "Unhandled compute buffer mode in ComputeBufferModeToBufferBindingType: " << mode);
-      return wgpu::BufferBindingType::Undefined;
+      return WGPUBufferBindingType_Undefined;
   }
 }
 

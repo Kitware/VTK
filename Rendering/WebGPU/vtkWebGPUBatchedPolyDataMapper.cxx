@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUBatchedPolyDataMapper.h"
+#include "Private/vtkWebGPUHandle.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkCompositePolyDataMapper.h"
 #include "vtkFloatArray.h"
@@ -487,17 +488,17 @@ void vtkWebGPUBatchedPolyDataMapper::UpdateMeshTopologyBuffers(
     {
       if (bgInfo.ConnectivityBuffer)
       {
-        wgpu::Buffer(bgInfo.ConnectivityBuffer).Destroy();
+        wgpuBufferDestroy(bgInfo.ConnectivityBuffer);
         bgInfo.ConnectivityBuffer = nullptr;
       }
       if (bgInfo.CellIdBuffer)
       {
-        wgpu::Buffer(bgInfo.CellIdBuffer).Destroy();
+        wgpuBufferDestroy(bgInfo.CellIdBuffer);
         bgInfo.CellIdBuffer = nullptr;
       }
       if (bgInfo.EdgeArrayBuffer)
       {
-        wgpu::Buffer(bgInfo.EdgeArrayBuffer).Destroy();
+        wgpuBufferDestroy(bgInfo.EdgeArrayBuffer);
         bgInfo.EdgeArrayBuffer = nullptr;
       }
       if (bgInfo.BindGroup != nullptr)
@@ -616,8 +617,8 @@ vtkWebGPUBatchedPolyDataMapper::GetMeshBindGroupLayoutEntries()
   // clang-format off
   auto meshHelper = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
     bindingId++,
-    wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-    wgpu::BufferBindingType::ReadOnlyStorage,
+    WGPUShaderStage_Vertex | WGPUShaderStage_Fragment,
+    WGPUBufferBindingType_ReadOnlyStorage,
     true,
     vtkWebGPUConfiguration::Align(sizeof(CompositeDataProperties), this->MinStorageBufferOffsetAlignment)
   };
@@ -657,8 +658,8 @@ vtkWebGPUBatchedPolyDataMapper::GetTopologyBindGroupLayoutEntries(
     // clang-format off
     auto layoutHelper = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
       bindingId++,
-      wgpu::ShaderStage::Vertex,
-      wgpu::BufferBindingType::ReadOnlyStorage,
+      WGPUShaderStage_Vertex,
+      WGPUBufferBindingType_ReadOnlyStorage,
     };
     entries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&layoutHelper));
     // clang-format on
@@ -999,8 +1000,8 @@ bool vtkWebGPUBatchedPolyDataMapper::AllocateCompositeDataPropertyStorageBuffer(
   if (this->MinStorageBufferOffsetAlignment == 0)
   {
     const auto device = wgpuConfiguration->GetDevice();
-    wgpu::Limits limits{};
-    wgpu::Device(device).GetLimits(&limits);
+    WGPULimits limits{};
+    wgpuDeviceGetLimits(device, &limits);
     this->MinStorageBufferOffsetAlignment = limits.minStorageBufferOffsetAlignment;
   }
   const auto bindingSize = wgpuConfiguration->Align(
@@ -1010,14 +1011,14 @@ bool vtkWebGPUBatchedPolyDataMapper::AllocateCompositeDataPropertyStorageBuffer(
   {
     if (this->CompositeDataPropertyStorage.Buffer)
     {
-      wgpu::Buffer(this->CompositeDataPropertyStorage.Buffer).Destroy();
+      wgpuBufferDestroy(this->CompositeDataPropertyStorage.Buffer);
       this->CompositeDataPropertyStorage.Size = 0;
     }
     const std::string label = "composite_data_property-" + this->GetObjectDescription();
-    wgpu::BufferDescriptor desc = {};
+    WGPUBufferDescriptor desc = {};
     desc.label = label.c_str();
     desc.mappedAtCreation = false;
-    desc.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
+    desc.usage = WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst;
     desc.size = bufferSize;
     this->CompositeDataPropertyStorage.Buffer = wgpuConfiguration->CreateBuffer(desc);
     this->CompositeDataPropertyStorage.Size = bufferSize;

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebGPUGlyph3DMapper.h"
+#include "Private/vtkWebGPUHandle.h"
 #include "vtkActor.h"
 #include "vtkBitArray.h"
 #include "vtkCellArray.h"
@@ -79,7 +80,7 @@ public:
     if (this->InstancePropertiesBuffer == nullptr)
     {
       this->InstancePropertiesBuffer =
-        wgpu::Buffer::Acquire(wgpuConfiguration->CreateBuffer(sizeof(InstanceProperties),
+        vtkWebGPU::Buffer::Acquire(wgpuConfiguration->CreateBuffer(sizeof(InstanceProperties),
           static_cast<WGPUBufferUsage>(WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst),
           /*mappedAtCreation=*/false, label.c_str()));
       // Rebuild pipeline and bindgroups when buffer is re-created.
@@ -162,12 +163,13 @@ public:
    */
   void SetVertexBuffers(const WGPURenderPassEncoder& passEncoder) override
   {
-    wgpu::RenderPassEncoder encoder(passEncoder);
+    WGPURenderPassEncoder encoder(passEncoder);
     for (int attributeIndex = 0; attributeIndex < InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES;
          ++attributeIndex)
     {
-      encoder.SetVertexBuffer(
-        attributeIndex, wgpu::Buffer(this->InstanceAttributesBuffers[attributeIndex].Buffer));
+      wgpuRenderPassEncoderSetVertexBuffer(encoder, attributeIndex,
+        vtkWebGPU::Buffer(this->InstanceAttributesBuffers[attributeIndex].Buffer), 0,
+        WGPU_WHOLE_SIZE);
     }
   }
 
@@ -176,12 +178,13 @@ public:
    */
   void SetVertexBuffers(const WGPURenderBundleEncoder& bundleEncoder) override
   {
-    wgpu::RenderBundleEncoder encoder(bundleEncoder);
+    WGPURenderBundleEncoder encoder(bundleEncoder);
     for (int attributeIndex = 0; attributeIndex < InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES;
          ++attributeIndex)
     {
-      encoder.SetVertexBuffer(
-        attributeIndex, wgpu::Buffer(this->InstanceAttributesBuffers[attributeIndex].Buffer));
+      wgpuRenderBundleEncoderSetVertexBuffer(encoder, attributeIndex,
+        vtkWebGPU::Buffer(this->InstanceAttributesBuffers[attributeIndex].Buffer), 0,
+        WGPU_WHOLE_SIZE);
     }
   }
 
@@ -340,7 +343,7 @@ protected:
     vtkTypeUInt32 Pickable;
     vtkTypeUInt32 ProcessId;
   };
-  wgpu::Buffer InstancePropertiesBuffer;
+  vtkWebGPU::Buffer InstancePropertiesBuffer;
   AttributeBuffer InstanceAttributesBuffers[NUM_INSTANCE_ATTRIBUTES];
   WGPUVertexAttribute InstanceAttributes[1 + 4 + 3 + 1]; // matrices sent as column vectors
 
@@ -373,7 +376,7 @@ protected:
     std::uint32_t bindingId = entries.size();
 
     auto helper = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ bindingId++,
-      wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::Uniform };
+      WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform };
     entries.emplace_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&helper));
     return entries;
   }
@@ -410,16 +413,16 @@ protected:
       {
         if (this->InstanceAttributesBuffers[attributeIndex].Buffer)
         {
-          wgpu::Buffer(this->InstanceAttributesBuffers[attributeIndex].Buffer).Destroy();
+          wgpuBufferDestroy(this->InstanceAttributesBuffers[attributeIndex].Buffer);
           this->InstanceAttributesBuffers[attributeIndex].Size = 0;
         }
-        wgpu::BufferDescriptor descriptor{};
+        WGPUBufferDescriptor descriptor{};
         descriptor.size = requiredBufferSize;
         const auto label = instanceAttribLabels[attributeIndex] + std::string("-") +
           this->CurrentInput->GetObjectDescription();
         descriptor.label = label.c_str();
         descriptor.mappedAtCreation = false;
-        descriptor.usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst;
+        descriptor.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
         this->InstanceAttributesBuffers[attributeIndex].Buffer =
           wgpuConfiguration->CreateBuffer(descriptor);
         this->InstanceAttributesBuffers[attributeIndex].Size = requiredBufferSize;
@@ -826,7 +829,7 @@ const TRIANGLE_VERTS = array(
   // because we use the instance_id for glyphing.
   WGPUPrimitiveTopology GetPrimitiveTopologyForPipeline(GraphicsPipelineType pipelineType) override
   {
-    wgpu::PrimitiveTopology topology = wgpu::PrimitiveTopology::Undefined;
+    WGPUPrimitiveTopology topology = WGPUPrimitiveTopology_Undefined;
     switch (pipelineType)
     {
       case GFX_PIPELINE_POINTS_SHAPED:
@@ -837,10 +840,10 @@ const TRIANGLE_VERTS = array(
       case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
       case GFX_PIPELINE_LINES_MITER_JOIN:
       case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
-        topology = wgpu::PrimitiveTopology::TriangleList;
+        topology = WGPUPrimitiveTopology_TriangleList;
         break;
       default:
-        topology = static_cast<wgpu::PrimitiveTopology>(
+        topology = static_cast<WGPUPrimitiveTopology>(
           this->Superclass::GetPrimitiveTopologyForPipeline(pipelineType));
         break;
     }

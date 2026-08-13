@@ -4,6 +4,7 @@
 #ifndef vtkWebGPUComputePassTextureStorageInternals_h
 #define vtkWebGPUComputePassTextureStorageInternals_h
 
+#include "Private/vtkWebGPUHandle.h"
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"               // for smart pointers
 #include "vtkWeakPointer.h"                // for the weak pointer of the parent compute pass
@@ -113,7 +114,7 @@ public:
   /**
    * Recreates all the texture views of a texture given its index.
    *
-   * Useful when a texture has been recreated, meaning that the associated wgpu::Texture
+   * Useful when a texture has been recreated, meaning that the associated vtkWebGPU::Texture
    * has changed --> the texture view do not point to a correct texture anymore and need to be
    * recreated.
    */
@@ -126,11 +127,11 @@ public:
   void RecreateTextureView(std::size_t textureViewIndex);
 
   /**
-   * Utilitary method to create a wgpu::TextureView from a ComputeTextureView and the texture this
-   * wgpu::TextureView is going to be a view off
+   * Utilitary method to create a vtkWebGPU::TextureView from a ComputeTextureView and the texture
+   * this vtkWebGPU::TextureView is going to be a view off
    */
-  wgpu::TextureView CreateWebGPUTextureView(
-    vtkSmartPointer<vtkWebGPUComputeTextureView> textureView, wgpu::Texture wgpuTexture);
+  vtkWebGPU::TextureView CreateWebGPUTextureView(
+    vtkSmartPointer<vtkWebGPUComputeTextureView> textureView, vtkWebGPU::Texture wgpuTexture);
 
   /**
    * Makes sure that the compute texture given in parameter internally points to the given
@@ -143,7 +144,7 @@ public:
    * uses the recreated texture and not the old one
    */
   void UpdateComputeTextureAndViews(
-    vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture newWgpuTexture);
+    vtkSmartPointer<vtkWebGPUComputeTexture> texture, vtkWebGPU::Texture newWgpuTexture);
 
   /**
    * Adds a render texture to the storage.
@@ -152,7 +153,7 @@ public:
    * vtkWebGPURenderWindow::AcquireDepthBufferRenderTexture() and analogous methods.
    *
    * The main difference in terms of implementation between this method and AddTexture() is that
-   * AddRenderTexture() does not create a wgpu::Texture object since the render texture already
+   * AddRenderTexture() does not create a vtkWebGPU::Texture object since the render texture already
    * contains the texture object (configured when AcquireXXXRenderTexture() was called).
    */
   int AddRenderTexture(vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture);
@@ -256,38 +257,38 @@ public:
   void ReleaseResources();
 
   /**
-   * Internal method used to convert the user friendly Dimension enum to its wgpu::TextureDimension
+   * Internal method used to convert the user friendly Dimension enum to its WGPUTextureDimension
    * equivalent
    */
-  static wgpu::TextureDimension ComputeTextureDimensionToWebGPU(
+  static WGPUTextureDimension ComputeTextureDimensionToWebGPU(
     vtkWebGPUComputeTexture::TextureDimension dimension);
 
   /**
    * This function does a simple mapping between the dimension of the texture
    * (vtkWebGPUComputeTexture::TextureDimension) and that of the texture view
-   * (wgpu::TextureViewDimension).
+   * (WGPUTextureViewDimension).
    *
    * The API currently assumes that the view created on a texture is unique and completely matches
    * the texture in terms of X, Y and Z sizes. This means that the texture view has the same extents
    * and the same dimension.
    */
-  static wgpu::TextureViewDimension ComputeTextureDimensionToViewDimension(
+  static WGPUTextureViewDimension ComputeTextureDimensionToViewDimension(
     vtkWebGPUComputeTexture::TextureDimension dimension);
 
   /**
-   * Internal method used to convert the user friendly TextureFormat enum to its wgpu::TextureFormat
+   * Internal method used to convert the user friendly TextureFormat enum to its WGPUTextureFormat
    * equivalent
    */
-  static wgpu::TextureFormat ComputeTextureFormatToWebGPU(
+  static WGPUTextureFormat ComputeTextureFormatToWebGPU(
     vtkWebGPUComputeTexture::TextureFormat format);
 
   /**
-   * Internal method used to convert the user friendly TextureMode enum to its wgpu::TextureUsage
+   * Internal method used to convert the user friendly TextureMode enum to its WGPUTextureUsage
    * equivalent.
    *
    * The texture label parameter is used for error logging.
    */
-  static wgpu::TextureUsage ComputeTextureModeToUsage(
+  static WGPUTextureUsage ComputeTextureModeToUsage(
     vtkWebGPUComputeTexture::TextureMode mode, const std::string& textureLabel);
 
   /**
@@ -295,7 +296,7 @@ public:
    *
    * The texture label parameter is used for error logging.
    */
-  static wgpu::StorageTextureAccess ComputeTextureModeToShaderStorage(
+  static WGPUStorageTextureAccess ComputeTextureModeToShaderStorage(
     vtkWebGPUComputeTexture::TextureMode mode, const std::string& textureLabel);
 
   /**
@@ -303,21 +304,21 @@ public:
    *
    * The texture view label parameter is used for error logging.
    */
-  static wgpu::StorageTextureAccess ComputeTextureViewModeToShaderStorage(
+  static WGPUStorageTextureAccess ComputeTextureViewModeToShaderStorage(
     vtkWebGPUComputeTextureView::TextureViewMode mode, const std::string& textureViewLabel);
 
   /**
    * Internal method used to convert the user friendly TextureSampleType enum to its
-   * wgpu::TextureSampleType equivalent.
+   * WGPUTextureSampleType equivalent.
    */
-  static wgpu::TextureSampleType ComputeTextureSampleTypeToWebGPU(
+  static WGPUTextureSampleType ComputeTextureSampleTypeToWebGPU(
     vtkWebGPUComputeTexture::TextureSampleType sampleType);
 
   /**
    * Internal method used to convert the user friendly TextureAspect enum to its
-   * wgpu::TextureAspect equivalent.
+   * WGPUTextureAspect equivalent.
    */
-  static wgpu::TextureAspect ComputeTextureViewAspectToWebGPU(
+  static WGPUTextureAspect ComputeTextureViewAspectToWebGPU(
     vtkWebGPUComputeTextureView::TextureViewAspect aspect);
 
 protected:
@@ -340,11 +341,11 @@ private:
   std::vector<vtkSmartPointer<vtkWebGPUComputeTexture>> Textures;
   // Compute render textures of this the storage
   std::vector<vtkSmartPointer<vtkWebGPUComputeRenderTexture>> RenderTextures;
-  // Maps the compute render texture to the internal wgpu::Texture that they use
-  std::unordered_map<vtkSmartPointer<vtkWebGPUComputeRenderTexture>, wgpu::Texture>
+  // Maps the compute render texture to the internal vtkWebGPU::Texture that they use
+  std::unordered_map<vtkSmartPointer<vtkWebGPUComputeRenderTexture>, vtkWebGPU::Texture>
     RenderTexturesToWebGPUTexture;
   // WebGPU textures associated with the compute texture in the same order
-  std::vector<wgpu::Texture> WebGPUTextures;
+  std::vector<vtkWebGPU::Texture> WebGPUTextures;
 
   // A map of the compute textures associated with all the texture views of it
   // that have been created
@@ -355,7 +356,7 @@ private:
   // view from its index (indices which the user manipulates)
   std::vector<vtkSmartPointer<vtkWebGPUComputeTextureView>> TextureViews;
   // Compute textures views mapped to their WebGPU textures views
-  std::unordered_map<vtkSmartPointer<vtkWebGPUComputeTextureView>, wgpu::TextureView>
+  std::unordered_map<vtkSmartPointer<vtkWebGPUComputeTextureView>, vtkWebGPU::TextureView>
     TextureViewsToWebGPUTextureViews;
 };
 

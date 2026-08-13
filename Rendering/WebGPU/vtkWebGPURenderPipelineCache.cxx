@@ -7,6 +7,7 @@
 #include "vtkStringFormatter.h"
 #include "vtkWebGPURenderWindow.h"
 
+#include "Private/vtkWebGPUHandle.h"
 #include "Private/vtkWebGPUHelpersPrivate.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 #include "Private/vtkWebGPUShaderModuleInternals.h"
@@ -26,10 +27,10 @@ class vtkWebGPURenderPipelineCache::vtkInternals
 public:
   vtksysMD5* md5;
   // Key is a unique hash of all the properties that make a unique WebGPU render pipeline.
-  // Value is a wgpu::RenderPipeline object.
-  std::unordered_map<std::string, wgpu::RenderPipeline> PipelineCache;
+  // Value is an owned WGPURenderPipeline.
+  std::unordered_map<std::string, vtkWebGPU::RenderPipeline> PipelineCache;
   // map of a unique hash to webgpu shader module.
-  std::unordered_map<std::string, wgpu::ShaderModule> ShaderCache;
+  std::unordered_map<std::string, vtkWebGPU::ShaderModule> ShaderCache;
 
   vtkInternals() { md5 = vtksysMD5_New(); }
 
@@ -57,7 +58,7 @@ public:
     hash = md5Hash;
   }
 
-  wgpu::ShaderModule HasShaderModule(const std::string& source)
+  vtkWebGPU::ShaderModule HasShaderModule(const std::string& source)
   {
     auto it = this->ShaderCache.find(source);
     if (it != this->ShaderCache.end())
@@ -66,11 +67,11 @@ public:
     }
     else
     {
-      return nullptr;
+      return {};
     }
   }
 
-  void InsertShader(const std::string& source, wgpu::ShaderModule shader)
+  void InsertShader(const std::string& source, vtkWebGPU::ShaderModule shader)
   {
     this->ShaderCache[source] = shader;
   }
@@ -210,10 +211,10 @@ void vtkWebGPURenderPipelineCache::CreateRenderPipeline(WGPURenderPipelineDescri
   // compute md5sum for the final shader source code.
   std::string shaderHash;
   this->Internals->ComputeMD5({ source }, shaderHash);
-  wgpu::ShaderModule shaderModule = this->Internals->HasShaderModule(shaderHash);
+  vtkWebGPU::ShaderModule shaderModule = this->Internals->HasShaderModule(shaderHash);
   if (shaderModule == nullptr)
   {
-    shaderModule = wgpu::ShaderModule::Acquire(
+    shaderModule = vtkWebGPU::ShaderModule::Acquire(
       vtkWebGPUShaderModuleInternals::CreateFromWGSL(wgpuRenderWindow->GetDevice(), source));
     this->Internals->InsertShader(shaderHash, shaderModule);
   }
@@ -225,8 +226,8 @@ void vtkWebGPURenderPipelineCache::CreateRenderPipeline(WGPURenderPipelineDescri
   pipelineDescriptorVtk->cFragment.module = shaderModule;
 
   // create pipeline
-  auto pipeline =
-    wgpu::Device(wgpuRenderWindow->GetDevice()).CreateRenderPipeline(pipelineDescriptorVtk);
+  auto pipeline = vtkWebGPU::RenderPipeline::Acquire(
+    wgpuDeviceCreateRenderPipeline(wgpuRenderWindow->GetDevice(), pipelineDescriptorVtk));
   std::string pipelineHash = this->GetPipelineKey(descriptor, shaderSource);
   this->Internals->PipelineCache[pipelineHash] = pipeline;
   vtkDebugMacro(<< "Create pipeline " << pipeline.Get() << " for key=" << pipelineHash);
@@ -292,20 +293,22 @@ void vtkWebGPURenderPipelineCache::CreateRenderPipeline(WGPURenderPipelineDescri
   // compute md5sum for the final shader source code.
   std::string vertexShaderHash;
   this->Internals->ComputeMD5({ vertexShaderSourceFinal }, vertexShaderHash);
-  wgpu::ShaderModule vertexShaderModule = this->Internals->HasShaderModule(vertexShaderHash);
+  vtkWebGPU::ShaderModule vertexShaderModule = this->Internals->HasShaderModule(vertexShaderHash);
   if (vertexShaderModule == nullptr)
   {
-    vertexShaderModule = wgpu::ShaderModule::Acquire(vtkWebGPUShaderModuleInternals::CreateFromWGSL(
-      wgpuRenderWindow->GetDevice(), vertexShaderSourceFinal));
+    vertexShaderModule =
+      vtkWebGPU::ShaderModule::Acquire(vtkWebGPUShaderModuleInternals::CreateFromWGSL(
+        wgpuRenderWindow->GetDevice(), vertexShaderSourceFinal));
     this->Internals->InsertShader(vertexShaderHash, vertexShaderModule);
   }
   std::string fragmentShaderHash;
   this->Internals->ComputeMD5({ fragmentShaderSourceFinal }, fragmentShaderHash);
-  wgpu::ShaderModule fragmentShaderModule = this->Internals->HasShaderModule(fragmentShaderHash);
+  vtkWebGPU::ShaderModule fragmentShaderModule =
+    this->Internals->HasShaderModule(fragmentShaderHash);
   if (fragmentShaderModule == nullptr)
   {
     fragmentShaderModule =
-      wgpu::ShaderModule::Acquire(vtkWebGPUShaderModuleInternals::CreateFromWGSL(
+      vtkWebGPU::ShaderModule::Acquire(vtkWebGPUShaderModuleInternals::CreateFromWGSL(
         wgpuRenderWindow->GetDevice(), fragmentShaderSourceFinal));
     this->Internals->InsertShader(fragmentShaderHash, fragmentShaderModule);
   }
@@ -317,8 +320,8 @@ void vtkWebGPURenderPipelineCache::CreateRenderPipeline(WGPURenderPipelineDescri
   pipelineDescriptorVtk->cFragment.module = fragmentShaderModule;
 
   // create pipeline
-  auto pipeline =
-    wgpu::Device(wgpuRenderWindow->GetDevice()).CreateRenderPipeline(pipelineDescriptorVtk);
+  auto pipeline = vtkWebGPU::RenderPipeline::Acquire(
+    wgpuDeviceCreateRenderPipeline(wgpuRenderWindow->GetDevice(), pipelineDescriptorVtk));
   const std::string pipelineHash =
     this->GetPipelineKey(descriptor, vertexShaderSource, fragmentShaderSource);
   this->Internals->PipelineCache[pipelineHash] = pipeline;

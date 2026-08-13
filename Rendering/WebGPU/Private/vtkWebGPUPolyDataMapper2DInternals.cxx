@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "Private/vtkWebGPUHandle.h"
 #include "vtkActor2D.h"
 #include "vtkArrayDispatch.h"
 #include "vtkDataArray.h"
@@ -38,7 +39,7 @@ struct WriteTypedArray
 {
   std::size_t ByteOffset = 0;
   std::size_t NumberOfBytesWritten = 0;
-  const wgpu::Buffer& DstBuffer;
+  const vtkWebGPU::Buffer& DstBuffer;
   vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
   float Denominator = 1.0;
 
@@ -71,41 +72,39 @@ vtkWebGPUPolyDataMapper2DInternals::vtkWebGPUPolyDataMapper2DInternals() = defau
 vtkWebGPUPolyDataMapper2DInternals::~vtkWebGPUPolyDataMapper2DInternals() = default;
 
 //------------------------------------------------------------------------------
-wgpu::BindGroupLayout vtkWebGPUPolyDataMapper2DInternals::CreateMeshAttributeBindGroupLayout(
-  const wgpu::Device& device, const std::string& label,
+vtkWebGPU::BindGroupLayout vtkWebGPUPolyDataMapper2DInternals::CreateMeshAttributeBindGroupLayout(
+  const WGPUDevice& device, const std::string& label,
   vtkWebGPURenderTextureDeviceResource* deviceTextureRc)
 {
   using BGLEntryInitializer = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper;
-  std::vector<wgpu::BindGroupLayoutEntry> entries;
+  std::vector<WGPUBindGroupLayoutEntry> entries;
   // Mapper2Dstate
-  entries.emplace_back(
-    BGLEntryInitializer{ 0, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-      wgpu::BufferBindingType::ReadOnlyStorage });
+  entries.emplace_back(BGLEntryInitializer{
+    0, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_ReadOnlyStorage });
   // mesh_attributes
-  entries.emplace_back(
-    BGLEntryInitializer{ 1, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-      wgpu::BufferBindingType::ReadOnlyStorage });
+  entries.emplace_back(BGLEntryInitializer{
+    1, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_ReadOnlyStorage });
   // mesh_data
   entries.emplace_back(
-    BGLEntryInitializer{ 2, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage });
+    BGLEntryInitializer{ 2, WGPUShaderStage_Vertex, WGPUBufferBindingType_ReadOnlyStorage });
   if (deviceTextureRc)
   {
     // texture sampler
     WGPUBindGroupLayoutEntry samplerLayoutEntry = deviceTextureRc->MakeSamplerBindGroupLayoutEntry(
-      3, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment));
-    entries.push_back(*reinterpret_cast<wgpu::BindGroupLayoutEntry*>(&samplerLayoutEntry));
+      3, static_cast<WGPUShaderStage>(WGPUShaderStage_Fragment));
+    entries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&samplerLayoutEntry));
     // texture data
     WGPUBindGroupLayoutEntry textureLayoutEntry =
       deviceTextureRc->MakeTextureViewBindGroupLayoutEntry(
-        4, static_cast<WGPUShaderStage>(wgpu::ShaderStage::Fragment));
-    entries.push_back(*reinterpret_cast<wgpu::BindGroupLayoutEntry*>(&textureLayoutEntry));
+        4, static_cast<WGPUShaderStage>(WGPUShaderStage_Fragment));
+    entries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&textureLayoutEntry));
   }
   return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, entries, label);
 }
 
 //------------------------------------------------------------------------------
-wgpu::BindGroupLayout vtkWebGPUPolyDataMapper2DInternals::CreateTopologyBindGroupLayout(
-  const wgpu::Device& device, const std::string& label, bool homogeneousCellSize)
+vtkWebGPU::BindGroupLayout vtkWebGPUPolyDataMapper2DInternals::CreateTopologyBindGroupLayout(
+  const WGPUDevice& device, const std::string& label, bool homogeneousCellSize)
 {
   if (homogeneousCellSize)
   {
@@ -113,9 +112,9 @@ wgpu::BindGroupLayout vtkWebGPUPolyDataMapper2DInternals::CreateTopologyBindGrou
       {
         // clang-format off
         // connectivity
-        { 0, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
+        { 0, WGPUShaderStage_Vertex, WGPUBufferBindingType_ReadOnlyStorage },
         // cell_id_offset
-        { 2, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::Uniform },
+        { 2, WGPUShaderStage_Vertex, WGPUBufferBindingType_Uniform },
         // clang-format on
       },
       label);
@@ -126,9 +125,9 @@ wgpu::BindGroupLayout vtkWebGPUPolyDataMapper2DInternals::CreateTopologyBindGrou
       {
         // clang-format off
         // connectivity
-        { 0, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
+        { 0, WGPUShaderStage_Vertex, WGPUBufferBindingType_ReadOnlyStorage },
         // cell_ids
-        { 1, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
+        { 1, WGPUShaderStage_Vertex, WGPUBufferBindingType_ReadOnlyStorage },
         // clang-format on
       },
       label);
@@ -772,7 +771,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
   {
     const auto label = "Mapper2DState-" + input->GetObjectDescription();
     this->Mapper2DStateData.Buffer =
-      wgpu::Buffer::Acquire(wgpuConfiguration->CreateBuffer(sizeof(Mapper2DState),
+      vtkWebGPU::Buffer::Acquire(wgpuConfiguration->CreateBuffer(sizeof(Mapper2DState),
         static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage), false,
         label.c_str()));
     this->Mapper2DStateData.Size = sizeof(Mapper2DState);
@@ -941,8 +940,8 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     if (this->AttributeDescriptorData.Buffer == nullptr)
     {
       recreateMeshBindGroup = true;
-      this->AttributeDescriptorData.Buffer =
-        wgpu::Buffer::Acquire(wgpuConfiguration->CreateBuffer(sizeof(this->MeshArraysDescriptor),
+      this->AttributeDescriptorData.Buffer = vtkWebGPU::Buffer::Acquire(
+        wgpuConfiguration->CreateBuffer(sizeof(this->MeshArraysDescriptor),
           static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage), false,
           meshAttrDescriptorLabel.c_str()));
       this->AttributeDescriptorData.Size = sizeof(this->MeshArraysDescriptor);
@@ -959,7 +958,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       recreateMeshBindGroup = true;
       const auto label = "MeshAttributes-" + input->GetObjectDescription();
       this->MeshData.Buffer =
-        wgpu::Buffer::Acquire(wgpuConfiguration->CreateBuffer(requiredBufferSize,
+        vtkWebGPU::Buffer::Acquire(wgpuConfiguration->CreateBuffer(requiredBufferSize,
           static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage), false,
           label.c_str()));
       this->MeshData.Size = requiredBufferSize;
@@ -1091,7 +1090,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       const auto& layout = this->MeshAttributeBindGroupLayout =
         this->CreateMeshAttributeBindGroupLayout(
           device, "MeshAttributeBindGroup_LAYOUT", deviceTextureRc);
-      std::vector<wgpu::BindGroupEntry> entries;
+      std::vector<WGPUBindGroupEntry> entries;
       const vtkWebGPUBindGroupInternals::BindingInitializationHelper mapper2DStateInitializer{ 0,
         this->Mapper2DStateData.Buffer, 0 };
       entries.push_back(mapper2DStateInitializer.GetAsBinding());
@@ -1105,9 +1104,9 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       if (deviceTextureRc)
       {
         WGPUBindGroupEntry samplerEntry = deviceTextureRc->MakeSamplerBindGroupEntry(3);
-        entries.push_back(*reinterpret_cast<wgpu::BindGroupEntry*>(&samplerEntry));
+        entries.push_back(*reinterpret_cast<WGPUBindGroupEntry*>(&samplerEntry));
         WGPUBindGroupEntry textureEntry = deviceTextureRc->MakeTextureViewBindGroupEntry(4);
-        entries.push_back(*reinterpret_cast<wgpu::BindGroupEntry*>(&textureEntry));
+        entries.push_back(*reinterpret_cast<WGPUBindGroupEntry*>(&textureEntry));
       }
       this->MeshAttributeBindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(
         device, layout, entries, "MeshAttributeBindGroup");
@@ -1154,15 +1153,15 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     // replaced a handle; re-wrapping an unchanged one is pointless work.
     if (connectivityBufferStorage[i] != bgInfo.ConnectivityBuffer.Get())
     {
-      bgInfo.ConnectivityBuffer = wgpu::Buffer(connectivityBufferStorage[i]);
+      bgInfo.ConnectivityBuffer = vtkWebGPU::Buffer(connectivityBufferStorage[i]);
     }
     if (cellIdBufferStorage[i] != bgInfo.CellIdBuffer.Get())
     {
-      bgInfo.CellIdBuffer = wgpu::Buffer(cellIdBufferStorage[i]);
+      bgInfo.CellIdBuffer = vtkWebGPU::Buffer(cellIdBufferStorage[i]);
     }
     if (cellIdOffsetUniformBufferStorage[i] != bgInfo.CellIdOffsetUniformBuffer.Get())
     {
-      bgInfo.CellIdOffsetUniformBuffer = wgpu::Buffer(cellIdOffsetUniformBufferStorage[i]);
+      bgInfo.CellIdOffsetUniformBuffer = vtkWebGPU::Buffer(cellIdOffsetUniformBufferStorage[i]);
     }
   }
 
@@ -1215,17 +1214,17 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
         bgInfo.CellIdOffsetUniformBuffer || bgInfo.BindGroup;
       if (bgInfo.ConnectivityBuffer)
       {
-        bgInfo.ConnectivityBuffer.Destroy();
+        wgpuBufferDestroy(bgInfo.ConnectivityBuffer);
         bgInfo.ConnectivityBuffer = nullptr;
       }
       if (bgInfo.CellIdBuffer)
       {
-        bgInfo.CellIdBuffer.Destroy();
+        wgpuBufferDestroy(bgInfo.CellIdBuffer);
         bgInfo.CellIdBuffer = nullptr;
       }
       if (bgInfo.CellIdOffsetUniformBuffer)
       {
-        bgInfo.CellIdOffsetUniformBuffer.Destroy();
+        wgpuBufferDestroy(bgInfo.CellIdOffsetUniformBuffer);
         bgInfo.CellIdOffsetUniformBuffer = nullptr;
       }
       bgInfo.BindGroup = nullptr;
@@ -1243,28 +1242,25 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
 
     vtkWebGPURenderPipelineDescriptorInternals descriptor;
     descriptor.vertex.bufferCount = 0;
-    descriptor.vertex.entryPoint = "main";
-    descriptor.cFragment.entryPoint = "main";
+    descriptor.vertex.entryPoint = WGPUStringView{ "main", WGPU_STRLEN };
+    descriptor.cFragment.entryPoint = WGPUStringView{ "main", WGPU_STRLEN };
     descriptor.EnableBlending(0);
-    descriptor.cTargets[0].format =
-      wgpu::TextureFormat(wgpuRenderWindow->GetPreferredSurfaceTextureFormat());
+    descriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
     ///@{ TODO: Only for valid depth stencil formats
-    auto depthState =
-      descriptor.EnableDepthStencil(wgpu::TextureFormat(wgpuRenderWindow->GetDepthStencilFormat()));
-    depthState->depthWriteEnabled = true;
-    depthState->depthCompare = wgpu::CompareFunction::Less;
+    auto depthState = descriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
+    depthState->depthWriteEnabled = WGPUOptionalBool_True;
+    depthState->depthCompare = WGPUCompareFunction_Less;
     ///@}
     // Prepare selection ids output.
-    descriptor.cTargets[1].format =
-      wgpu::TextureFormat(wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat());
+    descriptor.cTargets[1].format = wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat();
     descriptor.cFragment.targetCount++;
     descriptor.DisableBlending(1);
 
     // Update local parameters that decide whether a pipeline must be rebuilt.
     this->RebuildGraphicsPipelines = false;
-    descriptor.primitive.cullMode = wgpu::CullMode::None;
+    descriptor.primitive.cullMode = WGPUCullMode_None;
 
-    std::vector<wgpu::BindGroupLayout> basicBGLayouts = { this->MeshAttributeBindGroupLayout };
+    std::vector<vtkWebGPU::BindGroupLayout> basicBGLayouts = { this->MeshAttributeBindGroupLayout };
 
     for (int i = 0; i < GraphicsPipeline2DType::NUM_GFX_PIPELINE_2D_NB_TYPES; ++i)
     {
@@ -1280,7 +1276,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
         cBgls.push_back(b.Get());
       }
       descriptor.layout =
-        wgpu::PipelineLayout::Acquire(vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
+        vtkWebGPU::PipelineLayout::Acquire(vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
           device, cBgls, "vtkPolyDataMapper2DPipelineLayout"));
       descriptor.label = this->GetGraphicsPipelineTypeAsString(pipelineType);
       descriptor.primitive.topology = this->GraphicsPipeline2DPrimitiveTypes[i];
@@ -1290,13 +1286,11 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
         pipelineType, vertexShaderSource, fragmentShaderSource, wgpuRenderWindow, actor);
       // generate a unique key for the pipeline descriptor and shader source pointer
       this->GraphicsPipeline2DKeys[i] = wgpuPipelineCache->GetPipelineKey(
-        reinterpret_cast<WGPURenderPipelineDescriptor*>(&descriptor), vertexShaderSource.c_str(),
-        fragmentShaderSource.c_str());
+        (&descriptor), vertexShaderSource.c_str(), fragmentShaderSource.c_str());
       // create a pipeline if it does not already exist
       if (wgpuPipelineCache->GetRenderPipeline(this->GraphicsPipeline2DKeys[i]) == nullptr)
       {
-        wgpuPipelineCache->CreateRenderPipeline(
-          reinterpret_cast<WGPURenderPipelineDescriptor*>(&descriptor), wgpuRenderWindow,
+        wgpuPipelineCache->CreateRenderPipeline((&descriptor), wgpuRenderWindow,
           vertexShaderSource.c_str(), fragmentShaderSource.c_str());
       }
     }
@@ -1307,7 +1301,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper2DInternals::RecordDrawCommands(
-  vtkViewport* viewport, const wgpu::RenderPassEncoder& encoder)
+  vtkViewport* viewport, const WGPURenderPassEncoder& encoder)
 {
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(viewport->GetVTKWindow());
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
@@ -1360,7 +1354,7 @@ void vtkWebGPUPolyDataMapper2DInternals::RecordDrawCommands(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper2DInternals::RecordDrawCommands(
-  vtkViewport* viewport, const wgpu::RenderBundleEncoder& encoder)
+  vtkViewport* viewport, const WGPURenderBundleEncoder& encoder)
 {
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(viewport->GetVTKWindow());
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();

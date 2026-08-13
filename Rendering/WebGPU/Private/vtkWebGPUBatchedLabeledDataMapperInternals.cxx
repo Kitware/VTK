@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "Private/vtkWebGPUBatchedLabeledDataMapperInternals.h"
+#include "Private/vtkWebGPUHandle.h"
 #include "vtkWebGPUBatchedLabeledDataMapper.h"
 
 #include "vtkActor.h"
@@ -91,13 +92,13 @@ void vtkWebGPUBatchedLabeledDataMapperInternals::RenderPiece(vtkRenderer* render
   if (!this->GlyphsSampler)
   {
     // Use the C wrapper types locally to create the sampler
-    wgpu::SamplerDescriptor samplerDesc{};
-    samplerDesc.magFilter = wgpu::FilterMode::Nearest;
-    samplerDesc.minFilter = wgpu::FilterMode::Nearest;
-    samplerDesc.addressModeU = wgpu::AddressMode::ClampToEdge;
-    samplerDesc.addressModeV = wgpu::AddressMode::ClampToEdge;
-    wgpu::Device device(wgpuConfiguration->GetDevice());
-    wgpu::Sampler tempSampler = device.CreateSampler(&samplerDesc);
+    WGPUSamplerDescriptor samplerDesc{};
+    samplerDesc.magFilter = WGPUFilterMode_Nearest;
+    samplerDesc.minFilter = WGPUFilterMode_Nearest;
+    samplerDesc.addressModeU = WGPUAddressMode_ClampToEdge;
+    samplerDesc.addressModeV = WGPUAddressMode_ClampToEdge;
+    WGPUDevice device(wgpuConfiguration->GetDevice());
+    vtkWebGPU::Sampler tempSampler = wgpuDeviceCreateSampler(device, &samplerDesc);
     // Transfer ownership of the sampler handle to the raw WGPUSampler member.
     this->GlyphsSampler = tempSampler.MoveToCHandle();
   }
@@ -263,13 +264,13 @@ vtkWebGPUBatchedLabeledDataMapperInternals::GetMeshBindGroupLayoutEntries()
   uint32_t bindingId = static_cast<uint32_t>(entries.size());
 
   entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-    bindingId++, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-    wgpu::TextureSampleType::Float, wgpu::TextureViewDimension::e2D });
+    bindingId++, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUTextureSampleType_Float,
+    WGPUTextureViewDimension_2D });
   entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-    bindingId++, wgpu::ShaderStage::Fragment, wgpu::SamplerBindingType::NonFiltering });
+    bindingId++, WGPUShaderStage_Fragment, WGPUSamplerBindingType_NonFiltering });
   entries.emplace_back(
     vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ bindingId++,
-      wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::Uniform });
+      WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform });
 
   return entries;
 }
@@ -626,11 +627,11 @@ void vtkWebGPUBatchedLabeledDataMapperInternals::UpdateInstanceBuffers(
   {
     if (this->InstanceBufferSizes[attr] != sizes[attr])
     {
-      wgpu::BufferDescriptor desc{};
+      WGPUBufferDescriptor desc{};
       desc.size = sizes[attr];
       desc.label = bufLabels[attr];
       desc.mappedAtCreation = false;
-      desc.usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst;
+      desc.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
       // Release the previous buffer before overwriting the slot, otherwise every
       // resize leaks the old allocation.
       if (this->InstanceBuffers[attr])

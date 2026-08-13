@@ -4,13 +4,21 @@
 #define vtkWebGPURenderPipelineDescriptorInternals_h
 
 #include "vtkRenderingWebGPUModule.h"
-#include "vtk_wgpu_impl.h"
+#include "vtk_wgpu.h"
 
 #include <array>
 
 VTK_ABI_NAMESPACE_BEGIN
+/**
+ * A WGPURenderPipelineDescriptor that owns the storage its pointer members refer
+ * to, and that starts out with VTK's preferred defaults rather than the plain C
+ * zero-initialization.
+ *
+ * It derives from the C descriptor so that `&descriptor` can be handed straight
+ * to the C API - no cast is needed or wanted.
+ */
 class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPURenderPipelineDescriptorInternals
-  : public wgpu::RenderPipelineDescriptor
+  : public WGPURenderPipelineDescriptor
 {
 public:
   static constexpr int kMaxVertexBuffers = 8u;
@@ -27,20 +35,20 @@ public:
   vtkWebGPURenderPipelineDescriptorInternals& operator=(
     vtkWebGPURenderPipelineDescriptorInternals&&) = delete;
 
-  wgpu::DepthStencilState* EnableDepthStencil(
-    wgpu::TextureFormat format = wgpu::TextureFormat::Depth24PlusStencil8);
+  WGPUDepthStencilState* EnableDepthStencil(
+    WGPUTextureFormat format = WGPUTextureFormat_Depth24PlusStencil8);
   void DisableDepthStencil();
 
-  wgpu::BlendState* EnableBlending(std::size_t colorTargetId);
+  WGPUBlendState* EnableBlending(std::size_t colorTargetId);
   void DisableBlending(std::size_t colorTargetId);
 
-  std::array<wgpu::VertexBufferLayout, kMaxVertexBuffers> cBuffers;
-  std::array<wgpu::VertexAttribute, kMaxVertexAttributes> cAttributes;
-  std::array<wgpu::ColorTargetState, kMaxColorAttachments> cTargets;
-  std::array<wgpu::BlendState, kMaxColorAttachments> cBlends;
+  std::array<WGPUVertexBufferLayout, kMaxVertexBuffers> cBuffers;
+  std::array<WGPUVertexAttribute, kMaxVertexAttributes> cAttributes;
+  std::array<WGPUColorTargetState, kMaxColorAttachments> cTargets;
+  std::array<WGPUBlendState, kMaxColorAttachments> cBlends;
 
-  wgpu::FragmentState cFragment;
-  wgpu::DepthStencilState cDepthStencil;
+  WGPUFragmentState cFragment;
+  WGPUDepthStencilState cDepthStencil;
 };
 VTK_ABI_NAMESPACE_END
 

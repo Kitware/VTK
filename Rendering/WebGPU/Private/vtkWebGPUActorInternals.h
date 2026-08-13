@@ -4,6 +4,7 @@
 #ifndef vtkWebGPUActorInternals_h
 #define vtkWebGPUActorInternals_h
 
+#include "Private/vtkWebGPUHandle.h"
 #include "vtkMapper.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
@@ -128,9 +129,9 @@ public:
   vtkTimeStamp RenderOptionsLastUpdated;
   vtkTimeStamp DeviceResourcesBuildTimestamp;
 
-  wgpu::BindGroupLayout ActorBindGroupLayout;
-  wgpu::BindGroup ActorBindGroup;
-  wgpu::Buffer ActorBuffer;
+  vtkWebGPU::BindGroupLayout ActorBindGroupLayout;
+  vtkWebGPU::BindGroup ActorBindGroup;
+  vtkWebGPU::Buffer ActorBuffer;
 
   vtkTypeUInt32 Id = 0;
 

@@ -3,6 +3,7 @@
 
 #include "vtkWebGPUBatchedLabeledDataMapper.h"
 #include "Private/vtkWebGPUBatchedLabeledDataMapperInternals.h"
+#include "Private/vtkWebGPUHandle.h"
 
 #include "vtkActor.h"
 #include "vtkDataObject.h"
@@ -111,17 +112,17 @@ void vtkWebGPUBatchedLabeledDataMapper::RenderOpaqueGeometry(
     int* dims = atlas->GetDimensions();
     if (this->Helper->GlyphsTexture)
     {
-      wgpu::Texture(this->Helper->GlyphsTexture).Destroy();
+      wgpuTextureDestroy(this->Helper->GlyphsTexture);
     }
     this->Helper->GlyphsTexture = wgpuConfiguration->CreateTexture(
       { static_cast<uint32_t>(dims[0]), static_cast<uint32_t>(dims[1]), 1 },
-      static_cast<WGPUTextureDimension>(wgpu::TextureDimension::e2D),
-      static_cast<WGPUTextureFormat>(wgpu::TextureFormat::RGBA8Unorm),
+      static_cast<WGPUTextureDimension>(WGPUTextureDimension_2D),
+      static_cast<WGPUTextureFormat>(WGPUTextureFormat_RGBA8Unorm),
       static_cast<WGPUTextureUsage>(WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst));
     this->Helper->GlyphsTextureView = wgpuConfiguration->CreateView(this->Helper->GlyphsTexture,
-      static_cast<WGPUTextureViewDimension>(wgpu::TextureViewDimension::e2D),
-      static_cast<WGPUTextureAspect>(wgpu::TextureAspect::All),
-      static_cast<WGPUTextureFormat>(wgpu::TextureFormat::RGBA8Unorm),
+      static_cast<WGPUTextureViewDimension>(WGPUTextureViewDimension_2D),
+      static_cast<WGPUTextureAspect>(WGPUTextureAspect_All),
+      static_cast<WGPUTextureFormat>(WGPUTextureFormat_RGBA8Unorm),
       /*baseMipLevel=*/0, /*mipLevelCount=*/1);
     wgpuConfiguration->WriteTexture(this->Helper->GlyphsTexture, static_cast<uint32_t>(dims[0]) * 4,
       static_cast<uint32_t>(dims[0]) * static_cast<uint32_t>(dims[1]) * 4,

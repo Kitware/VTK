@@ -4,7 +4,10 @@
 #define vtkWebGPUBindGroupLayoutInternals_h
 
 #include "vtkRenderingWebGPUModule.h"
-#include "vtk_wgpu_impl.h"
+#include "vtk_wgpu.h"
+
+#include <string>
+#include <vector>
 
 #include <initializer_list>
 
@@ -15,50 +18,44 @@ public:
   // Helpers to make creating bind group layouts look nicer:
   //
   //   vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, {
-  //       {0, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::Uniform},
-  //       {1, wgpu::ShaderStage::Fragment, wgpu::SamplerBindingType::Filtering},
-  //       {3, wgpu::ShaderStage::Fragment, wgpu::TextureSampleType::Float}
+  //       {0, WGPUShaderStage_Vertex, WGPUBufferBindingType_Uniform},
+  //       {1, WGPUShaderStage_Fragment, WGPUSamplerBindingType_Filtering},
+  //       {3, WGPUShaderStage_Fragment, WGPUTextureSampleType_Float}
   //   });
-  struct LayoutEntryInitializationHelper : wgpu::BindGroupLayoutEntry
+  struct LayoutEntryInitializationHelper : WGPUBindGroupLayoutEntry
   {
     // for buffers
-    LayoutEntryInitializationHelper(uint32_t entryBinding, wgpu::ShaderStage entryVisibility,
-      wgpu::BufferBindingType bufferType, bool bufferHasDynamicOffset = false,
+    LayoutEntryInitializationHelper(uint32_t entryBinding, WGPUShaderStage entryVisibility,
+      WGPUBufferBindingType bufferType, bool bufferHasDynamicOffset = false,
       uint64_t bufferMinBindingSize = 0);
     // for samplers
-    LayoutEntryInitializationHelper(uint32_t entryBinding, wgpu::ShaderStage entryVisibility,
-      wgpu::SamplerBindingType samplerType);
+    LayoutEntryInitializationHelper(
+      uint32_t entryBinding, WGPUShaderStage entryVisibility, WGPUSamplerBindingType samplerType);
     // for texture
-    LayoutEntryInitializationHelper(uint32_t entryBinding, wgpu::ShaderStage entryVisibility,
-      wgpu::TextureSampleType textureSampleType,
-      wgpu::TextureViewDimension viewDimension = wgpu::TextureViewDimension::e2D,
+    LayoutEntryInitializationHelper(uint32_t entryBinding, WGPUShaderStage entryVisibility,
+      WGPUTextureSampleType textureSampleType,
+      WGPUTextureViewDimension viewDimension = WGPUTextureViewDimension_2D,
       bool textureMultisampled = false);
     // for storage buffers
-    LayoutEntryInitializationHelper(uint32_t entryBinding, wgpu::ShaderStage entryVisibility,
-      wgpu::StorageTextureAccess storageTextureAccess, wgpu::TextureFormat format,
-      wgpu::TextureViewDimension viewDimension = wgpu::TextureViewDimension::e2D);
+    LayoutEntryInitializationHelper(uint32_t entryBinding, WGPUShaderStage entryVisibility,
+      WGPUStorageTextureAccess storageTextureAccess, WGPUTextureFormat format,
+      WGPUTextureViewDimension viewDimension = WGPUTextureViewDimension_2D);
 
-    LayoutEntryInitializationHelper(const wgpu::BindGroupLayoutEntry& entry);
+    LayoutEntryInitializationHelper(const WGPUBindGroupLayoutEntry& entry);
   };
 
+  ///@{
   /**
-   * Creates the bind group layout from a list of bind group layout entries
+   * Creates the bind group layout from a list of bind group layout entries.
+   * The returned handle is owned by the caller.
    */
-  static wgpu::BindGroupLayout MakeBindGroupLayout(const wgpu::Device& device,
+  static WGPUBindGroupLayout MakeBindGroupLayout(const WGPUDevice& device,
     std::initializer_list<LayoutEntryInitializationHelper> entriesInitializer,
     std::string label = "");
 
-  /**
-   * Creates the bind group layout from a list of bind group layout entries
-   */
-  static wgpu::BindGroupLayout MakeBindGroupLayout(const wgpu::Device& device,
-    const std::vector<wgpu::BindGroupLayoutEntry>& entries, std::string label = "");
-
-  /**
-   * Creates the bind group layout from a list of bind group layout entries (C API version)
-   */
   static WGPUBindGroupLayout MakeBindGroupLayout(const WGPUDevice& device,
     const std::vector<WGPUBindGroupLayoutEntry>& entries, std::string label = "");
+  ///@}
 };
 VTK_ABI_NAMESPACE_END
 

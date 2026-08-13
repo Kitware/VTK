@@ -2,13 +2,16 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 
+#include "Private/vtkWebGPUHelpersPrivate.h"
+
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
-  uint32_t entryBinding, wgpu::ShaderStage entryVisibility, wgpu::BufferBindingType bufferType,
+  uint32_t entryBinding, WGPUShaderStage entryVisibility, WGPUBufferBindingType bufferType,
   bool bufferHasDynamicOffset, uint64_t bufferMinBindingSize)
+  : WGPUBindGroupLayoutEntry(WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT)
 {
   binding = entryBinding;
   visibility = entryVisibility;
@@ -19,7 +22,8 @@ vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryI
 
 //------------------------------------------------------------------------------
 vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
-  uint32_t entryBinding, wgpu::ShaderStage entryVisibility, wgpu::SamplerBindingType samplerType)
+  uint32_t entryBinding, WGPUShaderStage entryVisibility, WGPUSamplerBindingType samplerType)
+  : WGPUBindGroupLayoutEntry(WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT)
 {
   binding = entryBinding;
   visibility = entryVisibility;
@@ -28,9 +32,9 @@ vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryI
 
 //------------------------------------------------------------------------------
 vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
-  uint32_t entryBinding, wgpu::ShaderStage entryVisibility,
-  wgpu::TextureSampleType textureSampleType, wgpu::TextureViewDimension textureViewDimension,
-  bool textureMultisampled)
+  uint32_t entryBinding, WGPUShaderStage entryVisibility, WGPUTextureSampleType textureSampleType,
+  WGPUTextureViewDimension textureViewDimension, bool textureMultisampled)
+  : WGPUBindGroupLayoutEntry(WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT)
 {
   binding = entryBinding;
   visibility = entryVisibility;
@@ -41,9 +45,10 @@ vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryI
 
 //------------------------------------------------------------------------------
 vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
-  uint32_t entryBinding, wgpu::ShaderStage entryVisibility,
-  wgpu::StorageTextureAccess storageTextureAccess, wgpu::TextureFormat format,
-  wgpu::TextureViewDimension textureViewDimension)
+  uint32_t entryBinding, WGPUShaderStage entryVisibility,
+  WGPUStorageTextureAccess storageTextureAccess, WGPUTextureFormat format,
+  WGPUTextureViewDimension textureViewDimension)
+  : WGPUBindGroupLayoutEntry(WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT)
 {
   binding = entryBinding;
   visibility = entryVisibility;
@@ -54,52 +59,34 @@ vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryI
 
 //------------------------------------------------------------------------------
 vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryInitializationHelper(
-  const wgpu::BindGroupLayoutEntry& entry)
-  : wgpu::BindGroupLayoutEntry(entry)
+  const WGPUBindGroupLayoutEntry& entry)
+  : WGPUBindGroupLayoutEntry(entry)
 {
-}
-
-//------------------------------------------------------------------------------
-wgpu::BindGroupLayout vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
-  const wgpu::Device& device, const std::vector<wgpu::BindGroupLayoutEntry>& entries,
-  std::string label /*=""*/)
-{
-  wgpu::BindGroupLayoutDescriptor descriptor;
-  descriptor.label = label.c_str();
-  descriptor.entryCount = static_cast<uint32_t>(entries.size());
-  descriptor.entries = entries.data();
-  return device.CreateBindGroupLayout(&descriptor);
-}
-
-//------------------------------------------------------------------------------
-wgpu::BindGroupLayout vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
-  const wgpu::Device& device,
-  std::initializer_list<vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper>
-    entriesInitializer,
-  std::string label /*=""*/)
-{
-  std::vector<wgpu::BindGroupLayoutEntry> entries;
-  for (const vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper& entry :
-    entriesInitializer)
-  {
-    entries.push_back(entry);
-  }
-
-  return MakeBindGroupLayout(device, entries, label);
 }
 
 //------------------------------------------------------------------------------
 WGPUBindGroupLayout vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(const WGPUDevice& device,
   const std::vector<WGPUBindGroupLayoutEntry>& entries, std::string label /*=""*/)
 {
-  // Convert WGPU* types to wgpu:: wrappers and call the existing implementation
-  wgpu::Device wrappedDevice(device);
-  std::vector<wgpu::BindGroupLayoutEntry> wrappedEntries;
-  for (const auto& entry : entries)
+  WGPUBindGroupLayoutDescriptor descriptor = WGPU_BIND_GROUP_LAYOUT_DESCRIPTOR_INIT;
+  descriptor.label = vtkWebGPUMakeStringView(label);
+  descriptor.entryCount = static_cast<uint32_t>(entries.size());
+  descriptor.entries = entries.data();
+  return wgpuDeviceCreateBindGroupLayout(device, &descriptor);
+}
+
+//------------------------------------------------------------------------------
+WGPUBindGroupLayout vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(const WGPUDevice& device,
+  std::initializer_list<vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper>
+    entriesInitializer,
+  std::string label /*=""*/)
+{
+  std::vector<WGPUBindGroupLayoutEntry> entries;
+  entries.reserve(entriesInitializer.size());
+  for (const auto& entry : entriesInitializer)
   {
-    wrappedEntries.push_back(*reinterpret_cast<const wgpu::BindGroupLayoutEntry*>(&entry));
+    entries.push_back(entry);
   }
-  auto result = MakeBindGroupLayout(wrappedDevice, wrappedEntries, label);
-  return result.MoveToCHandle();
+  return MakeBindGroupLayout(device, entries, label);
 }
 VTK_ABI_NAMESPACE_END

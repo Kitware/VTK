@@ -6,6 +6,7 @@
 
 #include "Private/vtkWebGPUComputePassBufferStorageInternals.h"
 #include "Private/vtkWebGPUComputePassTextureStorageInternals.h"
+#include "Private/vtkWebGPUHandle.h"
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"
 #include "vtkWebGPUConfiguration.h"
@@ -57,13 +58,13 @@ public:
    * Given a buffer, creates the associated bind group layout entry
    * that will be used when creating the bind group layouts and returns it
    */
-  wgpu::BindGroupLayoutEntry CreateBindGroupLayoutEntry(
+  WGPUBindGroupLayoutEntry CreateBindGroupLayoutEntry(
     uint32_t binding, vtkWebGPUComputeBuffer::BufferMode mode);
 
   /**
    * Given a texture and its view, creates the associated bind group layout entry and returns it
    */
-  wgpu::BindGroupLayoutEntry CreateBindGroupLayoutEntry(uint32_t binding,
+  WGPUBindGroupLayoutEntry CreateBindGroupLayoutEntry(uint32_t binding,
     vtkSmartPointer<vtkWebGPUComputeTexture> computeTexture,
     vtkSmartPointer<vtkWebGPUComputeTextureView> textureView);
 
@@ -73,22 +74,22 @@ public:
    * configuration to the texture so the mode of the texture is used for the texture view for
    * example and returns it
    */
-  wgpu::BindGroupLayoutEntry CreateBindGroupLayoutEntry(uint32_t binding,
+  WGPUBindGroupLayoutEntry CreateBindGroupLayoutEntry(uint32_t binding,
     vtkSmartPointer<vtkWebGPUComputeTexture> computeTexture,
-    wgpu::TextureViewDimension textureViewDimension);
+    WGPUTextureViewDimension textureViewDimension);
 
   /**
    * Given a buffer, creates the associated bind group entry
    * that will be used when creating the bind groups and returns it
    */
-  wgpu::BindGroupEntry CreateBindGroupEntry(wgpu::Buffer buffer, uint32_t binding,
+  WGPUBindGroupEntry CreateBindGroupEntry(vtkWebGPU::Buffer buffer, uint32_t binding,
     vtkWebGPUComputeBuffer::BufferMode mode, uint32_t offset);
 
   /**
    * Given a texture view, creates the associated bind group entry
    * that will be used when creating the bind groups and returns it
    */
-  wgpu::BindGroupEntry CreateBindGroupEntry(uint32_t binding, wgpu::TextureView textureView);
+  WGPUBindGroupEntry CreateBindGroupEntry(uint32_t binding, vtkWebGPU::TextureView textureView);
 
   /**
    * Compiles the shader source given into a WGPU shader module
@@ -105,13 +106,13 @@ public:
    * Creates the bind group layout of a given list of buffers (that must all belong to the same bind
    * group)
    */
-  static wgpu::BindGroupLayout CreateBindGroupLayout(
-    const wgpu::Device& device, const std::vector<wgpu::BindGroupLayoutEntry>& layoutEntries);
+  static vtkWebGPU::BindGroupLayout CreateBindGroupLayout(
+    const WGPUDevice& device, const std::vector<WGPUBindGroupLayoutEntry>& layoutEntries);
 
   /**
    * Creates the bind group entries given a list of buffers
    */
-  std::vector<wgpu::BindGroupEntry> CreateBindGroupEntries(
+  std::vector<WGPUBindGroupEntry> CreateBindGroupEntries(
     const std::vector<vtkWebGPUComputeBuffer*>& buffers);
 
   /**
@@ -148,9 +149,9 @@ public:
   /**
    * Recreates the bind group and bind group entry of a buffer (given by its index)
    *
-   * The function is useful after recreating a wgpu::Buffer, the bind group entry (and the bind
-   * group) will need to be updated because the wgpu::Buffer object has changed. This function thus
-   * assumes that the new buffer can be found in WebGPUBuffers[bufferIndex]
+   * The function is useful after recreating a vtkWebGPU::Buffer, the bind group entry (and the bind
+   * group) will need to be updated because the vtkWebGPU::Buffer object has changed. This function
+   * thus assumes that the new buffer can be found in WebGPUBuffers[bufferIndex]
    */
   void RecreateBufferBindGroup(int bufferIndex);
 
@@ -159,7 +160,7 @@ public:
    * compute passes of the same pipeline can reuse it.
    */
   void RegisterBufferToPipeline(
-    vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, wgpu::Buffer wgpuBuffer);
+    vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, vtkWebGPU::Buffer wgpuBuffer);
 
   /// @{
   /**
@@ -170,28 +171,28 @@ public:
    * Returns false and leaves the parameter unchanged otherwise.
    */
   bool GetRegisteredBufferFromPipeline(
-    vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, wgpu::Buffer& wgpuBuffer);
+    vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, vtkWebGPU::Buffer& wgpuBuffer);
 
   bool GetRegisteredTextureFromPipeline(
-    vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture& wgpuTexture);
+    vtkSmartPointer<vtkWebGPUComputeTexture> texture, vtkWebGPU::Texture& wgpuTexture);
   /// @}
 
   /**
-   * Returns the wgpu::Buffer object for a buffer in this compute pass buffer storage given its
+   * Returns the vtkWebGPU::Buffer object for a buffer in this compute pass buffer storage given its
    * index
    */
-  wgpu::Buffer GetWGPUBuffer(std::size_t bufferIndex);
+  vtkWebGPU::Buffer GetWGPUBuffer(std::size_t bufferIndex);
 
   /**
    * Registers a texture to the associated compute pipeline of this compute pass so that other
    * compute passes of the same pipeline can reuse it.
    */
   void RegisterTextureToPipeline(
-    vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture wgpuTexture);
+    vtkSmartPointer<vtkWebGPUComputeTexture> texture, vtkWebGPU::Texture wgpuTexture);
 
   /**
    * Destroys and recreates a buffer with the given newByteSize
-   * Only the wgpu::Buffer object is recreated so the binding/group of the group doesn't change
+   * Only the vtkWebGPU::Buffer object is recreated so the binding/group of the group doesn't change
    */
   void RecreateBuffer(int bufferIndex, vtkIdType newByteSize);
 
@@ -203,25 +204,26 @@ public:
   /**
    * Recreates all the texture views of a texture given its index.
    *
-   * Useful when a texture has been recreated, meaning that the wgpu::Texture of this compute pass
-   * has changed --> the texture view do not point to a correct texture anymore and need to be
+   * Useful when a texture has been recreated, meaning that the vtkWebGPU::Texture of this compute
+   * pass has changed --> the texture view do not point to a correct texture anymore and need to be
    * recreated
    */
   void RecreateTextureViews(int textureIndex);
 
   /**
-   * Utilitary method to create a wgpu::TextureView from a ComputeTextureView and the texture this
-   * wgpu::TextureView is going to be a view off
+   * Utilitary method to create a vtkWebGPU::TextureView from a ComputeTextureView and the texture
+   * this vtkWebGPU::TextureView is going to be a view off
    */
-  wgpu::TextureView CreateWebGPUTextureView(
-    vtkSmartPointer<vtkWebGPUComputeTextureView> textureView, wgpu::Texture wgpuTexture);
+  vtkWebGPU::TextureView CreateWebGPUTextureView(
+    vtkSmartPointer<vtkWebGPUComputeTextureView> textureView, vtkWebGPU::Texture wgpuTexture);
 
   /**
-   * Updates the wgpu::Buffer reference that a compute buffer is associated to. Useful when a
-   * compute buffer has been recreated and the associated wgpu::Buffer needs to be updated with the
-   * newly created buffer
+   * Updates the vtkWebGPU::Buffer reference that a compute buffer is associated to. Useful when a
+   * compute buffer has been recreated and the associated vtkWebGPU::Buffer needs to be updated with
+   * the newly created buffer
    */
-  void UpdateWebGPUBuffer(vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, wgpu::Buffer wgpuBuffer);
+  void UpdateWebGPUBuffer(
+    vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, vtkWebGPU::Buffer wgpuBuffer);
 
   /**
    * Makes sure that the compute texture given in parameter internally points to the given
@@ -234,10 +236,10 @@ public:
    * not the old one
    */
   void UpdateComputeTextureAndViews(
-    vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture newWgpuTexture);
+    vtkSmartPointer<vtkWebGPUComputeTexture> texture, vtkWebGPU::Texture newWgpuTexture);
 
   /**
-   * After recreating a wgpu::Buffer, the bind group entry (and the bind group) will need to be
+   * After recreating a vtkWebGPU::Buffer, the bind group entry (and the bind group) will need to be
    * updated. This
    */
   void RecreateTextureBindGroup(int textureIndex);
@@ -270,17 +272,17 @@ public:
    * @warning: The bind group layouts must have been created by CreateBindGroups() prior to calling
    * this function
    */
-  wgpu::PipelineLayout CreateWebGPUComputePipelineLayout();
+  vtkWebGPU::PipelineLayout CreateWebGPUComputePipelineLayout();
 
   /**
    * Creates and returns a command encoder
    */
-  wgpu::CommandEncoder CreateCommandEncoder();
+  WGPUCommandEncoder CreateCommandEncoder();
 
   /**
    * Creates a compute pass encoder from a command encoder
    */
-  wgpu::ComputePassEncoder CreateComputePassEncoder(const wgpu::CommandEncoder& commandEncoder);
+  WGPUComputePassEncoder CreateComputePassEncoder(const WGPUCommandEncoder& commandEncoder);
 
   /**
    * Encodes the compute pass and dispatches the workgroups
@@ -294,7 +296,7 @@ public:
    * Finishes the encoding of a command encoder and submits the resulting command buffer
    * to the queue
    */
-  void SubmitCommandEncoderToQueue(const wgpu::CommandEncoder& commandEncoder);
+  void SubmitCommandEncoderToQueue(const WGPUCommandEncoder& commandEncoder);
 
   /**
    * Releases the resources of this compute pass internals.
@@ -313,14 +315,14 @@ private:
   friend class vtkWebGPUComputePassBufferStorageInternals;
   friend class vtkWebGPUComputePassTextureStorageInternals;
   friend class vtkWebGPUComputePipeline;
-  // For the mapper to be able to access the wgpu::Buffer objects for use in a render pipeline
+  // For the mapper to be able to access the vtkWebGPU::Buffer objects for use in a render pipeline
   friend class vtkWebGPUPointCloudMapperInternals;
 
   vtkWebGPUComputePassInternals(const vtkWebGPUComputePassInternals&) = delete;
   void operator=(const vtkWebGPUComputePassInternals&) = delete;
 
   /**
-   * Whether or not the shader module, binds groups, layouts and the wgpu::ComputePipeline have
+   * Whether or not the shader module, binds groups, layouts and the vtkWebGPU::ComputePipeline have
    * been created already
    */
   bool Initialized = false;
@@ -335,18 +337,18 @@ private:
   // The compute pipeline this compute pass belongs to.
   vtkWeakPointer<vtkWebGPUComputePipeline> AssociatedPipeline;
 
-  wgpu::ShaderModule ShaderModule;
+  vtkWebGPU::ShaderModule ShaderModule;
   // List of the bind groups, used to set the bind groups of the compute pass at each dispatch
-  std::vector<wgpu::BindGroup> BindGroups;
+  std::vector<vtkWebGPU::BindGroup> BindGroups;
   // Maps a bind group index to to the list of bind group entries for this group. These
   // entries will be used at the creation of the bind groups
-  std::unordered_map<int, std::vector<wgpu::BindGroupEntry>> BindGroupEntries;
-  std::vector<wgpu::BindGroupLayout> BindGroupLayouts;
+  std::unordered_map<int, std::vector<WGPUBindGroupEntry>> BindGroupEntries;
+  std::vector<vtkWebGPU::BindGroupLayout> BindGroupLayouts;
   // Maps a bind group index to to the list of bind group layout entries for this group.
   // These layout entries will be used at the creation of the bind group layouts
-  std::unordered_map<int, std::vector<wgpu::BindGroupLayoutEntry>> BindGroupLayoutEntries;
+  std::unordered_map<int, std::vector<WGPUBindGroupLayoutEntry>> BindGroupLayoutEntries;
   // WebGPU compute shader pipeline
-  wgpu::ComputePipeline ComputePipeline;
+  vtkWebGPU::ComputePipeline ComputePipeline;
 
   // Object responsible for the management (creation, re-creatioin, deletion, ...) of textures and
   // their texture views
