@@ -3829,7 +3829,8 @@ void vtkDataReader::CheckFor(const char* name, char* line, int& num, char**& arr
       auto& [_, nameOfAttribute] = result->values();
       if (!nameOfAttribute.empty())
       {
-        array[num] = new char[nameOfAttribute.size() + 1];
+        // num was already incremented above, so this entry's slot is num - 1
+        array[num - 1] = new char[nameOfAttribute.size() + 1];
         std::copy_n(nameOfAttribute.data(), nameOfAttribute.size(), array[num - 1]);
         array[num - 1][nameOfAttribute.size()] = '\0';
       }
