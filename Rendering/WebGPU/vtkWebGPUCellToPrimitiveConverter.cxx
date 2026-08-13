@@ -6,6 +6,7 @@
 #include "vtkWebGPUCellToPrimitiveConverter.h"
 #include "Private/vtkWebGPUComputeBufferInternals.h"
 #include "Private/vtkWebGPUHandle.h"
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "VTKCellToGraphicsPrimitive.h"
 #include "vtkABINamespace.h"
 #include "vtkCellArray.h"
@@ -22,22 +23,6 @@
 #include "webgpu/webgpu_cpp.h" // for wgpu:: C++ wrapper types (implementation only)
 
 VTK_ABI_NAMESPACE_BEGIN
-
-// Helper namespace for C API type conversion and internal implementations
-namespace vtkWebGPUCellToPrimitiveConverterImpl
-{
-// Convert from C API handle to C++ wrapper
-inline vtkWebGPU::Buffer CastToWgpuBuffer(WGPUBuffer buf)
-{
-  return vtkWebGPU::Buffer(buf);
-}
-
-// Convert from C++ wrapper to C API handle
-inline WGPUBuffer CastToWGPUBuffer(const vtkWebGPU::Buffer& buf)
-{
-  return wgpuBufferGet(buf);
-}
-}
 
 namespace
 {
@@ -513,7 +498,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
     }
     auto label = std::string("Connectivity-") + primitiveTypeAsString;
     WGPUBufferDescriptor descriptor{};
-    descriptor.label = label.c_str();
+    descriptor.label = vtkWebGPUMakeStringView(label);
     descriptor.mappedAtCreation = false;
     descriptor.nextInChain = nullptr;
     descriptor.usage = WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst;

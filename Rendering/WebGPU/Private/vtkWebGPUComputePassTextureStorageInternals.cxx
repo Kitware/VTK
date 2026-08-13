@@ -393,11 +393,12 @@ vtkWebGPU::TextureView vtkWebGPUComputePassTextureStorageInternals::CreateWebGPU
   int baseMipLevel = textureView->GetBaseMipLevel();
   int mipLevelCount = textureView->GetMipLevelCount();
 
-  return this->ParentPassWGPUConfiguration->CreateView(wgpuTexture.Get(),
+  // CreateView() hands back a newly created view, so adopt it.
+  return vtkWebGPU::TextureView::Acquire(this->ParentPassWGPUConfiguration->CreateView(wgpuTexture,
     static_cast<WGPUTextureViewDimension>(textureViewDimension),
     static_cast<WGPUTextureAspect>(textureViewAspect),
     static_cast<WGPUTextureFormat>(textureViewFormat), baseMipLevel, mipLevelCount,
-    textureViewLabel.c_str());
+    textureViewLabel.c_str()));
 }
 
 //------------------------------------------------------------------------------
@@ -420,7 +421,7 @@ int vtkWebGPUComputePassTextureStorageInternals::AddRenderTexture(
   renderTexture->SetAssociatedComputePass(this->ParentComputePass);
 
   this->Textures.push_back(renderTexture);
-  this->WebGPUTextures.push_back(renderTexture->GetWebGPUTexture());
+  this->WebGPUTextures.push_back(vtkWebGPU::Texture::Reference(renderTexture->GetWebGPUTexture()));
 
   return this->Textures.size() - 1;
 }
@@ -662,8 +663,8 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateRenderTexture(
     }
 
     // Getting some variables
-    vtkWebGPU::TextureView wgpuTextureView =
-      CreateWebGPUTextureView(textureView, renderTexture->GetWebGPUTexture());
+    vtkWebGPU::TextureView wgpuTextureView = CreateWebGPUTextureView(
+      textureView, vtkWebGPU::Texture::Reference(renderTexture->GetWebGPUTexture()));
     WGPUTextureViewDimension textureViewDimension =
       vtkWebGPUComputePassTextureStorageInternals::ComputeTextureDimensionToViewDimension(
         textureView->GetDimension());
@@ -684,7 +685,7 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateRenderTexture(
   }
 
   this->RenderTexturesToWebGPUTexture[renderTexture] =
-    vtkWebGPU::Texture(renderTexture->GetWebGPUTexture());
+    vtkWebGPU::Texture::Reference(renderTexture->GetWebGPUTexture());
 }
 
 //------------------------------------------------------------------------------
@@ -835,7 +836,7 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
 
   // Bytes needs to be a multiple of 256
   vtkIdType bytesPerRow =
-    std::ceil(wgpuTexture.GetWidth() * texture->GetBytesPerPixel() / 256.0f) * 256.0f;
+    std::ceil(wgpuTextureGetWidth(wgpuTexture) * texture->GetBytesPerPixel() / 256.0f) * 256.0f;
 
   // Creating the buffer that will hold the data of the texture
   WGPUBufferDescriptor bufferDescriptor;
@@ -845,7 +846,8 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   bufferDescriptor.size = bytesPerRow * texture->GetHeight();
   bufferDescriptor.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead;
 
-  vtkWebGPU::Buffer buffer = this->ParentPassWGPUConfiguration->CreateBuffer(bufferDescriptor);
+  vtkWebGPU::Buffer buffer =
+    vtkWebGPU::Buffer::Acquire(this->ParentPassWGPUConfiguration->CreateBuffer(bufferDescriptor));
 
   // Parameters for copying the texture
   WGPUTexelCopyTextureInfo imageCopyTexture;
@@ -869,8 +871,13 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
     commandEncoder, &imageCopyTexture, &texelCopyBuffer, &copySize);
 
   // Submitting the command
-  vtkWebGPU::CommandBuffer commandBuffer = wgpuCommandEncoderFinish(commandEncoder);
-  wgpuDeviceGetQueue(this->ParentPassWGPUConfiguration->GetDevice()).Submit(1, &commandBuffer);
+  vtkWebGPU::CommandBuffer commandBuffer =
+    vtkWebGPU::CommandBuffer::Acquire(wgpuCommandEncoderFinish(commandEncoder, nullptr));
+  // wgpuDeviceGetQueue() hands back a new reference, so adopt it rather than leak.
+  vtkWebGPU::Queue queue =
+    vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(this->ParentPassWGPUConfiguration->GetDevice()));
+  WGPUCommandBuffer rawCommandBuffer = commandBuffer;
+  wgpuQueueSubmit(queue, 1, &rawCommandBuffer);
 
   auto bufferMapCallback =
     [](WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* /*userdata2*/)

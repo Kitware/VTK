@@ -50,6 +50,12 @@ public:
   Handle() = default;
 
   /**
+   * A null handle. Unlike construction from a raw handle, nullptr carries no
+   * ownership question, so this one is allowed to be implicit.
+   */
+  Handle(std::nullptr_t) {} // NOLINT(google-explicit-constructor)
+
+  /**
    * Adopt `raw` without adding a reference. Use for handles returned by
    * `wgpu*Create*` entry points, which hand back an owned reference.
    */
@@ -86,6 +92,15 @@ public:
   Handle(Handle&& other) noexcept
     : Raw(std::exchange(other.Raw, nullptr))
   {
+  }
+
+  /**
+   * Release whatever is held and become null.
+   */
+  Handle& operator=(std::nullptr_t)
+  {
+    this->Reset();
+    return *this;
   }
 
   Handle& operator=(Handle other) noexcept

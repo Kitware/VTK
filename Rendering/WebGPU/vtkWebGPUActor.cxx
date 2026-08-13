@@ -136,16 +136,16 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
         {
           if (wgpuRenderer->GetRebuildRenderBundle())
           {
-            WGPURenderBundleEncoder(wgpuRenderer->GetRenderBundleEncoder())
-              .SetBindGroup(1, internals.ActorBindGroup);
+            wgpuRenderBundleEncoderSetBindGroup(
+              wgpuRenderer->GetRenderBundleEncoder(), 1, internals.ActorBindGroup, 0, nullptr);
             mapper->Render(renderer, this);
           }
           // else, no need to record draw commands.
         }
         else
         {
-          WGPURenderPassEncoder(wgpuRenderer->GetRenderPassEncoder())
-            .SetBindGroup(1, internals.ActorBindGroup);
+          wgpuRenderPassEncoderSetBindGroup(
+            wgpuRenderer->GetRenderPassEncoder(), 1, internals.ActorBindGroup, 0, nullptr);
           mapper->Render(renderer, this);
         }
         break;
@@ -471,8 +471,8 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
     }
   }
 
-  internals.ActorBindGroupLayout =
-    vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, bglEntries, actorDescription);
+  internals.ActorBindGroupLayout = vtkWebGPU::BindGroupLayout::Acquire(
+    vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, bglEntries, actorDescription));
   std::uint32_t bindingIdBG = 0;
   std::vector<WGPUBindGroupEntry> bgEntries;
   // ActorBlock
@@ -495,8 +495,9 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
     }
   }
 
-  internals.ActorBindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(
-    device, internals.ActorBindGroupLayout, bgEntries, actorDescription);
+  internals.ActorBindGroup =
+    vtkWebGPU::BindGroup::Acquire(vtkWebGPUBindGroupInternals::MakeBindGroup(
+      device, internals.ActorBindGroupLayout, bgEntries, actorDescription));
   internals.DeviceResourcesBuildTimestamp.Modified();
   // Reset timestamps because the previous buffer is now gone and contents of the buffer will need
   // to be re-uploaded.

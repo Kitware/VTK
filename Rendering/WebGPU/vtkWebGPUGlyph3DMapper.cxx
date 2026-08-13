@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebGPUGlyph3DMapper.h"
 #include "Private/vtkWebGPUHandle.h"
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "vtkActor.h"
 #include "vtkBitArray.h"
 #include "vtkCellArray.h"
@@ -168,8 +169,7 @@ public:
          ++attributeIndex)
     {
       wgpuRenderPassEncoderSetVertexBuffer(encoder, attributeIndex,
-        vtkWebGPU::Buffer(this->InstanceAttributesBuffers[attributeIndex].Buffer), 0,
-        WGPU_WHOLE_SIZE);
+        this->InstanceAttributesBuffers[attributeIndex].Buffer, 0, WGPU_WHOLE_SIZE);
     }
   }
 
@@ -183,8 +183,7 @@ public:
          ++attributeIndex)
     {
       wgpuRenderBundleEncoderSetVertexBuffer(encoder, attributeIndex,
-        vtkWebGPU::Buffer(this->InstanceAttributesBuffers[attributeIndex].Buffer), 0,
-        WGPU_WHOLE_SIZE);
+        this->InstanceAttributesBuffers[attributeIndex].Buffer, 0, WGPU_WHOLE_SIZE);
     }
   }
 
@@ -420,7 +419,7 @@ protected:
         descriptor.size = requiredBufferSize;
         const auto label = instanceAttribLabels[attributeIndex] + std::string("-") +
           this->CurrentInput->GetObjectDescription();
-        descriptor.label = label.c_str();
+        descriptor.label = vtkWebGPUMakeStringView(label);
         descriptor.mappedAtCreation = false;
         descriptor.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
         this->InstanceAttributesBuffers[attributeIndex].Buffer =

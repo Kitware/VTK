@@ -187,7 +187,7 @@ unsigned int vtkWebGPUComputePassBufferStorageInternals::GetBufferByteSize(std::
     return 0;
   }
 
-  return this->WebGPUBuffers[bufferIndex].GetSize();
+  return wgpuBufferGetSize(this->WebGPUBuffers[bufferIndex]);
 }
 
 //------------------------------------------------------------------------------
@@ -243,8 +243,9 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
   // that is not a Storage buffer, copy the storage buffer that we actually want to this new buffer
   // (that has the MapRead usage flag) and then map this buffer to the CPU.
   vtkIdType byteSize = this->Buffers[bufferIndex]->GetByteSize();
-  vtkWebGPU::Buffer mappedBuffer = this->ParentPassWGPUConfiguration->CreateBuffer(
-    byteSize, WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead, false, nullptr);
+  vtkWebGPU::Buffer mappedBuffer =
+    vtkWebGPU::Buffer::Acquire(this->ParentPassWGPUConfiguration->CreateBuffer(
+      byteSize, WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead, false, nullptr));
 
   // If we were to allocate this callbackData locally on the stack, it would be destroyed when going
   // out of scope (at the end of this function). The callback, called asynchronously would then be
@@ -484,7 +485,7 @@ void vtkWebGPUComputePassBufferStorageInternals::SetupRenderBuffer(
     return;
   }
 
-  this->WebGPUBuffers.push_back(renderBuffer->GetWebGPUBuffer());
+  this->WebGPUBuffers.push_back(vtkWebGPU::Buffer::Reference(renderBuffer->GetWebGPUBuffer()));
 
   // Creating the entries for this existing buffer
   vtkIdType group = renderBuffer->GetGroup();

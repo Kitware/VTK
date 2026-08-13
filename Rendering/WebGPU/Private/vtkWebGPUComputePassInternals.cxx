@@ -5,6 +5,7 @@
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUHandle.h"
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "Private/vtkWebGPUShaderModuleInternals.h"
 #include "vtkObjectFactory.h"
 #include "vtkWebGPUCommandEncoderDebugGroup.h"
@@ -213,8 +214,9 @@ void vtkWebGPUComputePassInternals::RecreateBufferBindGroup(int bufferIndex)
   const std::size_t group = buffer->GetGroup();
   if (group < this->BindGroupLayouts.size())
   {
-    this->BindGroups[group] = vtkWebGPUBindGroupInternals::MakeBindGroup(
-      this->WGPUConfiguration->GetDevice(), this->BindGroupLayouts[group], bgEntries);
+    this->BindGroups[group] =
+      vtkWebGPU::BindGroup::Acquire(vtkWebGPUBindGroupInternals::MakeBindGroup(
+        this->WGPUConfiguration->GetDevice(), this->BindGroupLayouts[group], bgEntries));
   }
 
   this->BindGroupOrLayoutsInvalidated = true;
@@ -241,7 +243,7 @@ bool vtkWebGPUComputePassInternals::GetRegisteredBufferFromPipeline(
   WGPUBuffer tempBuffer = nullptr;
   if (this->AssociatedPipeline->GetRegisteredBuffer(buffer, tempBuffer))
   {
-    wgpuBuffer = vtkWebGPU::Buffer(tempBuffer);
+    wgpuBuffer = vtkWebGPU::Buffer::Reference(tempBuffer);
     return true;
   }
   return false;
@@ -254,7 +256,7 @@ bool vtkWebGPUComputePassInternals::GetRegisteredTextureFromPipeline(
   WGPUTexture tempTexture = nullptr;
   if (this->AssociatedPipeline->GetRegisteredTexture(texture, tempTexture))
   {
-    wgpuTexture = vtkWebGPU::Texture(tempTexture);
+    wgpuTexture = vtkWebGPU::Texture::Reference(tempTexture);
     return true;
   }
   return false;
@@ -325,8 +327,9 @@ void vtkWebGPUComputePassInternals::RecreateTextureBindGroup(int textureIndex)
     const std::size_t group = textureView->GetGroup();
     if (group < this->BindGroupLayouts.size())
     {
-      this->BindGroups[group] = vtkWebGPUBindGroupInternals::MakeBindGroup(
-        this->WGPUConfiguration->GetDevice(), this->BindGroupLayouts[group], bgEntries);
+      this->BindGroups[group] =
+        vtkWebGPU::BindGroup::Acquire(vtkWebGPUBindGroupInternals::MakeBindGroup(
+          this->WGPUConfiguration->GetDevice(), this->BindGroupLayouts[group], bgEntries));
     }
   }
 
@@ -422,7 +425,7 @@ WGPUBindGroupLayoutEntry vtkWebGPUComputePassInternals::CreateBindGroupLayoutEnt
 }
 
 //------------------------------------------------------------------------------
-WGPUBindGroupEntry vtkWebGPUComputePassInternals::CreateBindGroupEntry(vtkWebGPU::Buffer wgpuBuffer,
+WGPUBindGroupEntry vtkWebGPUComputePassInternals::CreateBindGroupEntry(WGPUBuffer wgpuBuffer,
   uint32_t binding, vtkWebGPUComputeBuffer::BufferMode vtkNotUsed(mode), uint32_t offset)
 {
   vtkWebGPUBindGroupInternals::BindingInitializationHelper bgEntry{ binding, wgpuBuffer, offset };
@@ -432,7 +435,7 @@ WGPUBindGroupEntry vtkWebGPUComputePassInternals::CreateBindGroupEntry(vtkWebGPU
 
 //------------------------------------------------------------------------------
 WGPUBindGroupEntry vtkWebGPUComputePassInternals::CreateBindGroupEntry(
-  uint32_t binding, vtkWebGPU::TextureView textureView)
+  uint32_t binding, WGPUTextureView textureView)
 {
   vtkWebGPUBindGroupInternals::BindingInitializationHelper bgEntry{ binding, textureView };
 
@@ -511,8 +514,9 @@ void vtkWebGPUComputePassInternals::CreateBindGroupsAndLayouts()
 
     this->BindGroupLayouts[bindGroupIndex] =
       CreateBindGroupLayout(this->WGPUConfiguration->GetDevice(), bglEntries);
-    this->BindGroups[bindGroupIndex] = vtkWebGPUBindGroupInternals::MakeBindGroup(
-      this->WGPUConfiguration->GetDevice(), BindGroupLayouts[bindGroupIndex], bgEntries);
+    this->BindGroups[bindGroupIndex] =
+      vtkWebGPU::BindGroup::Acquire(vtkWebGPUBindGroupInternals::MakeBindGroup(
+        this->WGPUConfiguration->GetDevice(), BindGroupLayouts[bindGroupIndex], bgEntries));
   }
 }
 
@@ -520,8 +524,8 @@ void vtkWebGPUComputePassInternals::CreateBindGroupsAndLayouts()
 vtkWebGPU::BindGroupLayout vtkWebGPUComputePassInternals::CreateBindGroupLayout(
   const WGPUDevice& device, const std::vector<WGPUBindGroupLayoutEntry>& layoutEntries)
 {
-  vtkWebGPU::BindGroupLayout bgl =
-    vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, layoutEntries);
+  vtkWebGPU::BindGroupLayout bgl = vtkWebGPU::BindGroupLayout::Acquire(
+    vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, layoutEntries));
   return bgl;
 }
 
@@ -542,47 +546,57 @@ void vtkWebGPUComputePassInternals::RecreateRenderTexture(
 //------------------------------------------------------------------------------
 void vtkWebGPUComputePassInternals::CreateWebGPUComputePipeline()
 {
-  WGPUComputePipelineDescriptor computePipelineDescriptor;
+  WGPUComputePipelineDescriptor computePipelineDescriptor = WGPU_COMPUTE_PIPELINE_DESCRIPTOR_INIT;
   computePipelineDescriptor.compute.constantCount = 0;
   computePipelineDescriptor.compute.constants = nullptr;
-  computePipelineDescriptor.compute.entryPoint = this->ParentPass->ShaderEntryPoint.c_str();
+  computePipelineDescriptor.compute.entryPoint =
+    vtkWebGPUMakeStringView(this->ParentPass->ShaderEntryPoint);
   computePipelineDescriptor.compute.module = this->ShaderModule;
   computePipelineDescriptor.compute.nextInChain = nullptr;
-  computePipelineDescriptor.label = this->ParentPass->WGPUComputePipelineLabel.c_str();
+  computePipelineDescriptor.label =
+    vtkWebGPUMakeStringView(this->ParentPass->WGPUComputePipelineLabel);
   computePipelineDescriptor.layout = this->CreateWebGPUComputePipelineLayout();
 
-  this->ComputePipeline = WGPUDevice(this->WGPUConfiguration->GetDevice())
-                            .CreateComputePipeline(&computePipelineDescriptor);
+  this->ComputePipeline = vtkWebGPU::ComputePipeline::Acquire(wgpuDeviceCreateComputePipeline(
+    this->WGPUConfiguration->GetDevice(), &computePipelineDescriptor));
 }
 
 //------------------------------------------------------------------------------
 vtkWebGPU::PipelineLayout vtkWebGPUComputePassInternals::CreateWebGPUComputePipelineLayout()
 {
-  WGPUPipelineLayoutDescriptor computePipelineLayoutDescriptor;
-  computePipelineLayoutDescriptor.bindGroupLayoutCount = this->BindGroupLayouts.size();
-  computePipelineLayoutDescriptor.bindGroupLayouts = this->BindGroupLayouts.data();
-  computePipelineLayoutDescriptor.nextInChain = nullptr;
+  // The descriptor wants a contiguous array of raw handles; our vector owns
+  // them, so borrow each one into a temporary that outlives the create call.
+  std::vector<WGPUBindGroupLayout> rawLayouts;
+  rawLayouts.reserve(this->BindGroupLayouts.size());
+  for (const auto& layout : this->BindGroupLayouts)
+  {
+    rawLayouts.push_back(layout);
+  }
 
-  return WGPUDevice(this->WGPUConfiguration->GetDevice())
-    .CreatePipelineLayout(&computePipelineLayoutDescriptor);
+  WGPUPipelineLayoutDescriptor computePipelineLayoutDescriptor =
+    WGPU_PIPELINE_LAYOUT_DESCRIPTOR_INIT;
+  computePipelineLayoutDescriptor.bindGroupLayoutCount = rawLayouts.size();
+  computePipelineLayoutDescriptor.bindGroupLayouts = rawLayouts.data();
+
+  return vtkWebGPU::PipelineLayout::Acquire(wgpuDeviceCreatePipelineLayout(
+    this->WGPUConfiguration->GetDevice(), &computePipelineLayoutDescriptor));
 }
 
 WGPUCommandEncoder vtkWebGPUComputePassInternals::CreateCommandEncoder()
 {
-  WGPUCommandEncoderDescriptor commandEncoderDescriptor;
-  commandEncoderDescriptor.label = this->ParentPass->WGPUCommandEncoderLabel.c_str();
+  WGPUCommandEncoderDescriptor commandEncoderDescriptor = WGPU_COMMAND_ENCODER_DESCRIPTOR_INIT;
+  commandEncoderDescriptor.label =
+    vtkWebGPUMakeStringView(this->ParentPass->WGPUCommandEncoderLabel);
 
-  return WGPUDevice(this->WGPUConfiguration->GetDevice())
-    .CreateCommandEncoder(&commandEncoderDescriptor);
+  return wgpuDeviceCreateCommandEncoder(
+    this->WGPUConfiguration->GetDevice(), &commandEncoderDescriptor);
 }
 
 //------------------------------------------------------------------------------
 WGPUComputePassEncoder vtkWebGPUComputePassInternals::CreateComputePassEncoder(
   const WGPUCommandEncoder& commandEncoder)
 {
-  WGPUComputePassDescriptor computePassDescriptor;
-  computePassDescriptor.nextInChain = nullptr;
-  computePassDescriptor.timestampWrites = 0;
+  WGPUComputePassDescriptor computePassDescriptor = WGPU_COMPUTE_PASS_DESCRIPTOR_INIT;
   return wgpuCommandEncoderBeginComputePass(commandEncoder, &computePassDescriptor);
 }
 
@@ -590,8 +604,13 @@ WGPUComputePassEncoder vtkWebGPUComputePassInternals::CreateComputePassEncoder(
 void vtkWebGPUComputePassInternals::SubmitCommandEncoderToQueue(
   const WGPUCommandEncoder& commandEncoder)
 {
-  vtkWebGPU::CommandBuffer commandBuffer = wgpuCommandEncoderFinish(commandEncoder);
-  wgpuDeviceGetQueue(this->WGPUConfiguration->GetDevice()).Submit(1, &commandBuffer);
+  vtkWebGPU::CommandBuffer commandBuffer =
+    vtkWebGPU::CommandBuffer::Acquire(wgpuCommandEncoderFinish(commandEncoder, nullptr));
+  // wgpuDeviceGetQueue() hands back a new reference, so adopt it rather than leak.
+  vtkWebGPU::Queue queue =
+    vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(this->WGPUConfiguration->GetDevice()));
+  WGPUCommandBuffer rawCommandBuffer = commandBuffer;
+  wgpuQueueSubmit(queue, 1, &rawCommandBuffer);
 }
 
 //------------------------------------------------------------------------------

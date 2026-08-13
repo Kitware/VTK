@@ -65,13 +65,13 @@ void vtkWebGPUComputePipeline::RegisterBuffer(
 
   if (this->RegisteredBuffers.find(buffer) != this->RegisteredBuffers.end())
   {
-    // If we're registering a new vtkWebGPU::Buffer for an existing (already registered)
+    // If we're registering a new WGPUBuffer for an existing (already registered)
     // vtkWebGPUComputeBuffer, we're going to have to make sure that all compute passes that are
-    // using this vtkWebGPUComputeBuffer now use the new vtkWebGPU::Buffer that we're registering
+    // using this vtkWebGPUComputeBuffer now use the new WGPUBuffer that we're registering
 
     for (vtkSmartPointer<vtkWebGPUComputePass> computePass : this->ComputePasses)
     {
-      computePass->Internals->UpdateWebGPUBuffer(buffer, wgpuBuffer);
+      computePass->Internals->UpdateWebGPUBuffer(buffer, vtkWebGPU::Buffer::Reference(wgpuBuffer));
     }
   }
 
@@ -86,13 +86,14 @@ void vtkWebGPUComputePipeline::RegisterTexture(
 
   if (this->RegisteredTextures.find(texture) != this->RegisteredTextures.end())
   {
-    // If we're registering a new vtkWebGPU::Texture for an existing (already registered)
+    // If we're registering a new WGPUTexture for an existing (already registered)
     // vtkWebGPUComputeTexture, we're going to have to make sure that all compute passes that are
-    // using this vtkWebGPUComputeTexture now use the new vtkWebGPU::Texture that we're registering
+    // using this vtkWebGPUComputeTexture now use the new WGPUTexture that we're registering
 
     for (vtkSmartPointer<vtkWebGPUComputePass> computePass : this->ComputePasses)
     {
-      computePass->Internals->UpdateComputeTextureAndViews(texture, wgpuTexture);
+      computePass->Internals->UpdateComputeTextureAndViews(
+        texture, vtkWebGPU::Texture::Reference(wgpuTexture));
     }
   }
 

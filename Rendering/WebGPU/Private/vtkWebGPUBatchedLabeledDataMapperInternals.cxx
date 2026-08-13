@@ -98,9 +98,10 @@ void vtkWebGPUBatchedLabeledDataMapperInternals::RenderPiece(vtkRenderer* render
     samplerDesc.addressModeU = WGPUAddressMode_ClampToEdge;
     samplerDesc.addressModeV = WGPUAddressMode_ClampToEdge;
     WGPUDevice device(wgpuConfiguration->GetDevice());
-    vtkWebGPU::Sampler tempSampler = wgpuDeviceCreateSampler(device, &samplerDesc);
+    vtkWebGPU::Sampler tempSampler =
+      vtkWebGPU::Sampler::Acquire(wgpuDeviceCreateSampler(device, &samplerDesc));
     // Transfer ownership of the sampler handle to the raw WGPUSampler member.
-    this->GlyphsSampler = tempSampler.MoveToCHandle();
+    this->GlyphsSampler = tempSampler.Release();
   }
 
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
@@ -629,7 +630,7 @@ void vtkWebGPUBatchedLabeledDataMapperInternals::UpdateInstanceBuffers(
     {
       WGPUBufferDescriptor desc{};
       desc.size = sizes[attr];
-      desc.label = bufLabels[attr];
+      desc.label = WGPUStringView{ bufLabels[attr], WGPU_STRLEN };
       desc.mappedAtCreation = false;
       desc.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
       // Release the previous buffer before overwriting the slot, otherwise every

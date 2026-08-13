@@ -3,6 +3,7 @@
 
 #include "vtkWebGPUBatchedPolyDataMapper.h"
 #include "Private/vtkWebGPUHandle.h"
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkCompositePolyDataMapper.h"
 #include "vtkFloatArray.h"
@@ -1016,7 +1017,7 @@ bool vtkWebGPUBatchedPolyDataMapper::AllocateCompositeDataPropertyStorageBuffer(
     }
     const std::string label = "composite_data_property-" + this->GetObjectDescription();
     WGPUBufferDescriptor desc = {};
-    desc.label = label.c_str();
+    desc.label = vtkWebGPUMakeStringView(label);
     desc.mappedAtCreation = false;
     desc.usage = WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst;
     desc.size = bufferSize;

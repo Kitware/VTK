@@ -82,14 +82,14 @@ public:
    * Given a buffer, creates the associated bind group entry
    * that will be used when creating the bind groups and returns it
    */
-  WGPUBindGroupEntry CreateBindGroupEntry(vtkWebGPU::Buffer buffer, uint32_t binding,
-    vtkWebGPUComputeBuffer::BufferMode mode, uint32_t offset);
+  WGPUBindGroupEntry CreateBindGroupEntry(
+    WGPUBuffer buffer, uint32_t binding, vtkWebGPUComputeBuffer::BufferMode mode, uint32_t offset);
 
   /**
    * Given a texture view, creates the associated bind group entry
    * that will be used when creating the bind groups and returns it
    */
-  WGPUBindGroupEntry CreateBindGroupEntry(uint32_t binding, vtkWebGPU::TextureView textureView);
+  WGPUBindGroupEntry CreateBindGroupEntry(uint32_t binding, WGPUTextureView textureView);
 
   /**
    * Compiles the shader source given into a WGPU shader module
