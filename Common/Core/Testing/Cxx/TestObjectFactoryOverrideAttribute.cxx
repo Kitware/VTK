@@ -340,12 +340,70 @@ int TestObjectFactoryOverrideAttribute(int, char*[])
       vtkLogScopeF(INFO, "with preferences set to %s", preferences.c_str());
       ScopedTestCasePreferences scopedTestCasePreferences(preferences, i);
       vtkLog(INFO,
-        "Expect factory1 override to be chosen because no attributes match provided preferences "
-        "and factory1 was registered first.");
+        "Expect factory1 override to be chosen because both factories have the same score, the "
+        "first value is thus chosen (X)");
       vtkNew<vtkMockOverridable> object;
       if (!object->IsA("vtkMockOverrideClass1"))
       {
         vtkLog(ERROR, << "Expected vtkMockOverrideClass1, got " << object->GetClassName());
+        success = false;
+      }
+    }
+    {
+      const std::string preferences = "AttributeA=X,Y;AttributeB=N";
+      vtkLogScopeF(INFO, "with preferences set to %s", preferences.c_str());
+      ScopedTestCasePreferences scopedTestCasePreferences(preferences, i);
+      vtkLog(INFO,
+        "Expect factory2 override to be chosen because vtkMockOverrideClass2 will have a score of "
+        "2 and vtkMockOverrideClass1 a score of 0.");
+      vtkNew<vtkMockOverridable> object;
+      if (!object->IsA("vtkMockOverrideClass2"))
+      {
+        vtkLog(ERROR, << "Expected vtkMockOverrideClass2, got " << object->GetClassName());
+        success = false;
+      }
+    }
+    {
+      const std::string preferences = "AttributeA=X;AttributeB=N";
+      vtkLogScopeF(INFO, "with preferences set to %s", preferences.c_str());
+      ScopedTestCasePreferences scopedTestCasePreferences(preferences, i);
+      vtkLog(INFO,
+        "Expect factory1 override to be chosen because because all scores will be 0. The factory "
+        "will therefore choose the first registered factory.");
+      vtkNew<vtkMockOverridable> object;
+      if (!object->IsA("vtkMockOverrideClass1"))
+      {
+        vtkLog(ERROR, << "Expected vtkMockOverrideClass1, got " << object->GetClassName());
+        success = false;
+      }
+    }
+    {
+      const std::string preferences = "AttributeA=X,Y";
+      vtkLogScopeF(INFO, "with preferences set to %s", preferences.c_str());
+      ScopedTestCasePreferences scopedTestCasePreferences(preferences, i);
+      vtkLog(INFO,
+        "Expect factory1 override to be chosen because because both factories have the highest "
+        "score. The first attribute value determines the class choice, in this case X for "
+        "vtkMockOverrideClass1");
+      vtkNew<vtkMockOverridable> object;
+      if (!object->IsA("vtkMockOverrideClass1"))
+      {
+        vtkLog(ERROR, << "Expected vtkMockOverrideClass1, got " << object->GetClassName());
+        success = false;
+      }
+    }
+    {
+      const std::string preferences = "AttributeA=Y,X";
+      vtkLogScopeF(INFO, "with preferences set to %s", preferences.c_str());
+      ScopedTestCasePreferences scopedTestCasePreferences(preferences, i);
+      vtkLog(INFO,
+        "Expect factory1 override to be chosen because because both factories have the highest "
+        "score. The first attribute value determines the class choice, in this case Y for "
+        "vtkMockOverrideClass2");
+      vtkNew<vtkMockOverridable> object;
+      if (!object->IsA("vtkMockOverrideClass2"))
+      {
+        vtkLog(ERROR, << "Expected vtkMockOverrideClass2, got " << object->GetClassName());
         success = false;
       }
     }
