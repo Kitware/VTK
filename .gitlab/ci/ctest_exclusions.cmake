@@ -271,10 +271,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     "^VTK::RenderingAnnotationPython-xyPlot4$"
     "^VTK::RenderingCorePython-pickImageData$"
 
-    # Crowded geometry?
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/18230
-    "^VTK::ViewsInfovisCxx-TestTreeMapView(SerDes)?$"
-
     # Line rendering differences.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18229
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryClipPlanes(SerDes)?$"
