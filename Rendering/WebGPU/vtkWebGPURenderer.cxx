@@ -5,6 +5,7 @@
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
 #include "Private/vtkWebGPUHandle.h"
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 #include "vtkAbstractMapper.h"
@@ -314,7 +315,8 @@ void vtkWebGPURenderer::Clear()
 
   auto depthState =
     bkgPipelineDescriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
-  depthState->depthWriteEnabled = !this->PreserveDepthBuffer;
+  depthState->depthWriteEnabled =
+    this->PreserveDepthBuffer ? WGPUOptionalBool_False : WGPUOptionalBool_True;
   depthState->depthCompare = WGPUCompareFunction_Always;
 
   bkgPipelineDescriptor.primitive.frontFace = WGPUFrontFace_CCW;
@@ -351,7 +353,7 @@ void vtkWebGPURenderer::Clear()
   auto pipeline = wgpuPipelineCache->GetRenderPipeline(pipelineKey);
 
   WGPURenderPassEncoder encoder(this->WGPURenderEncoder);
-  wgpuRenderPassEncoderSetPipeline(encoder, vtkWebGPU::RenderPipeline(pipeline));
+  wgpuRenderPassEncoderSetPipeline(encoder, pipeline);
   WGPUColor bkgColor = { this->Background[0], this->Background[1], this->Background[2],
     this->BackgroundAlpha };
   wgpuRenderPassEncoderSetBlendConstant(encoder, &bkgColor);
@@ -470,7 +472,8 @@ void vtkWebGPURenderer::ClearGradientBackground()
 
   auto depthState =
     bkgPipelineDescriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
-  depthState->depthWriteEnabled = !this->PreserveDepthBuffer;
+  depthState->depthWriteEnabled =
+    this->PreserveDepthBuffer ? WGPUOptionalBool_False : WGPUOptionalBool_True;
   depthState->depthCompare = WGPUCompareFunction_Always;
 
   bkgPipelineDescriptor.primitive.frontFace = WGPUFrontFace_CCW;
@@ -495,14 +498,16 @@ void vtkWebGPURenderer::ClearGradientBackground()
       (&bkgPipelineDescriptor), wgpuRenderWindow, gradientBackgroundShaderSource);
   }
   auto pipeline = wgpuPipelineCache->GetRenderPipeline(pipelineKey);
-  vtkWebGPU::RenderPipeline wgpuPipeline(pipeline);
+  WGPURenderPipeline wgpuPipeline = pipeline;
 
   // The pipeline uses an automatic layout, so take the bind group layout from it
   // rather than declaring one separately.
-  vtkWebGPU::BindGroup bindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(
-    WGPUDevice(wgpuConfiguration->GetDevice()), wgpuPipeline.GetBindGroupLayout(0),
-    { { 0, vtkWebGPU::Buffer(this->BackgroundGradientBuffer), 0, sizeof(GradientOptions) } },
-    "BackgroundGradientBindGroup");
+  vtkWebGPU::BindGroupLayout autoLayout =
+    vtkWebGPU::BindGroupLayout::Acquire(wgpuRenderPipelineGetBindGroupLayout(wgpuPipeline, 0));
+  vtkWebGPU::BindGroup bindGroup = vtkWebGPU::BindGroup::Acquire(
+    vtkWebGPUBindGroupInternals::MakeBindGroup(wgpuConfiguration->GetDevice(), autoLayout,
+      { { 0, this->BackgroundGradientBuffer, 0, sizeof(GradientOptions) } },
+      "BackgroundGradientBindGroup"));
 
   WGPURenderPassEncoder encoder(this->WGPURenderEncoder);
   wgpuRenderPassEncoderSetPipeline(encoder, wgpuPipeline);
@@ -1165,14 +1170,15 @@ WGPUCommandBuffer vtkWebGPURenderer::EncodePropListRenderCommand(vtkProp** propL
   vtkWebGPURenderWindow* renderWindow =
     vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
   WGPUCommandEncoder commandEncoder = renderWindow->GetCommandEncoder();
-  vtkWebGPU::CommandBuffer commandBuffer = wgpuCommandEncoderFinish(commandEncoder);
+  vtkWebGPU::CommandBuffer commandBuffer =
+    vtkWebGPU::CommandBuffer::Acquire(wgpuCommandEncoderFinish(commandEncoder, nullptr));
 
   // The command encoder of the render window has finished so we need to recreate a new one so that
   // it's ready to be used again by someone else
   renderWindow->CreateCommandEncoder();
 
   this->DrawBackgroundInClearPass = false;
-  return commandBuffer.MoveToCHandle();
+  return commandBuffer.Release();
 }
 
 //------------------------------------------------------------------------------
@@ -1184,10 +1190,10 @@ void vtkWebGPURenderer::BeginRecording()
 
   WGPURenderPassEncoder renderEncoder(this->WGPURenderEncoder);
 #if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
-  wgpuRenderPassEncoderPushDebugGroup(renderEncoder, "Renderer start encoding");
+  wgpuRenderPassEncoderPushDebugGroup(
+    renderEncoder, WGPUStringView{ "Renderer start encoding", WGPU_STRLEN });
 #endif
-  wgpuRenderPassEncoderSetBindGroup(
-    renderEncoder, 0, vtkWebGPU::BindGroup(this->SceneBindGroup), 0, nullptr);
+  wgpuRenderPassEncoderSetBindGroup(renderEncoder, 0, this->SceneBindGroup, 0, nullptr);
   if (this->RebuildRenderBundle)
   {
     // destroy previous bundle.
@@ -1207,12 +1213,11 @@ void vtkWebGPURenderer::BeginRecording()
       1; // multi-sampling only works for 1 or 4 samples on some implementations.
     bundleEncDesc.depthReadOnly = false;
     bundleEncDesc.stencilReadOnly = false;
-    bundleEncDesc.label = label.c_str();
+    bundleEncDesc.label = vtkWebGPUMakeStringView(label);
     bundleEncDesc.nextInChain = nullptr;
-    this->WGPUBundleEncoder = wgpuRenderWindow->NewRenderBundleEncoder(
-      *reinterpret_cast<WGPURenderBundleEncoderDescriptor*>(&bundleEncDesc));
-    WGPURenderBundleEncoder(this->WGPUBundleEncoder)
-      .SetBindGroup(0, vtkWebGPU::BindGroup(this->SceneBindGroup));
+    this->WGPUBundleEncoder = wgpuRenderWindow->NewRenderBundleEncoder(bundleEncDesc);
+    wgpuRenderBundleEncoderSetBindGroup(
+      this->WGPUBundleEncoder, 0, this->SceneBindGroup, 0, nullptr);
   }
   else
   {
@@ -1227,7 +1232,7 @@ void vtkWebGPURenderer::SetupBindGroupLayouts()
   WGPUDevice device = wgpuRenderWindow->GetDevice();
   if (this->SceneBindGroupLayout == nullptr)
   {
-    vtkWebGPU::BindGroupLayout layout =
+    vtkWebGPU::BindGroupLayout layout = vtkWebGPU::BindGroupLayout::Acquire(
       vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
         {
           // clang-format off
@@ -1236,9 +1241,9 @@ void vtkWebGPURenderer::SetupBindGroupLayouts()
       // SceneLights
       { 1, WGPUShaderStage_Fragment, WGPUBufferBindingType_ReadOnlyStorage }
           // clang-format on
-        });
-    layout.SetLabel("SceneBindGroupLayout");
-    this->SceneBindGroupLayout = layout.MoveToCHandle();
+        },
+        "SceneBindGroupLayout"));
+    this->SceneBindGroupLayout = layout.Release();
   }
 }
 
@@ -1258,25 +1263,25 @@ void vtkWebGPURenderer::SetupSceneBindGroup()
   std::vector<WGPUBindGroupEntry> entries;
   WGPUBindGroupEntry entry0{};
   entry0.binding = 0;
-  entry0.buffer = vtkWebGPU::Buffer(this->SceneTransformBuffer);
+  entry0.buffer = this->SceneTransformBuffer;
   entry0.offset = 0;
   entry0.size = transformSizePadded;
   entries.push_back(entry0);
 
   WGPUBindGroupEntry entry1{};
   entry1.binding = 1;
-  entry1.buffer = vtkWebGPU::Buffer(this->SceneLightsBuffer);
+  entry1.buffer = this->SceneLightsBuffer;
   entry1.offset = 0;
   entry1.size = lightSizePadded;
   entries.push_back(entry1);
 
-  WGPUBindGroupDescriptor descriptor;
+  WGPUBindGroupDescriptor descriptor = WGPU_BIND_GROUP_DESCRIPTOR_INIT;
   descriptor.label = WGPUStringView{ "SceneBindGroup", WGPU_STRLEN };
-  descriptor.layout = vtkWebGPU::BindGroupLayout(this->SceneBindGroupLayout);
+  descriptor.layout = this->SceneBindGroupLayout;
   descriptor.entryCount = static_cast<uint32_t>(entries.size());
   descriptor.entries = entries.data();
 
-  this->SceneBindGroup = wgpuDeviceCreateBindGroup(device, &descriptor).MoveToCHandle();
+  this->SceneBindGroup = wgpuDeviceCreateBindGroup(device, &descriptor);
 }
 
 //------------------------------------------------------------------------------
@@ -1289,12 +1294,11 @@ void vtkWebGPURenderer::EndRecording()
   {
     if (this->WGPUBundleEncoder)
     {
-      this->Bundle = WGPURenderBundleEncoder(this->WGPUBundleEncoder).Finish().MoveToCHandle();
+      this->Bundle = wgpuRenderBundleEncoderFinish(this->WGPUBundleEncoder, nullptr);
     }
     if (this->Bundle != nullptr)
     {
-      wgpuRenderPassEncoderExecuteBundles(
-        renderEncoder, 1, reinterpret_cast<const vtkWebGPU::RenderBundle*>(&this->Bundle));
+      wgpuRenderPassEncoderExecuteBundles(renderEncoder, 1, &this->Bundle);
     }
   }
 #if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
