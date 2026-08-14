@@ -18,7 +18,14 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWebGPURenderTextureDeviceResource);
 
 //------------------------------------------------------------------------------
-vtkWebGPURenderTextureDeviceResource::vtkWebGPURenderTextureDeviceResource() = default;
+vtkWebGPURenderTextureDeviceResource::vtkWebGPURenderTextureDeviceResource()
+  // The WGPU_*_INIT macros carry the non-zero defaults the C API expects. They live
+  // here rather than in the header because vtkWrapHierarchy cannot expand them.
+  : TextureDescriptor(WGPU_TEXTURE_DESCRIPTOR_INIT)
+  , SamplerDescriptor(WGPU_SAMPLER_DESCRIPTOR_INIT)
+  , TextureViewDescriptor(WGPU_TEXTURE_VIEW_DESCRIPTOR_INIT)
+{
+}
 
 //------------------------------------------------------------------------------
 vtkWebGPURenderTextureDeviceResource::~vtkWebGPURenderTextureDeviceResource()
@@ -295,7 +302,7 @@ void vtkWebGPURenderTextureDeviceResource::SendToWebGPUDevice(std::vector<void*>
 WGPUBindGroupLayoutEntry vtkWebGPURenderTextureDeviceResource::MakeSamplerBindGroupLayoutEntry(
   std::uint32_t binding, WGPUShaderStage visibility)
 {
-  WGPUBindGroupLayoutEntry entry = {};
+  WGPUBindGroupLayoutEntry entry = WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT;
   entry.binding = binding;
   entry.visibility = static_cast<WGPUShaderStage>(visibility);
   entry.sampler.nextInChain = nullptr;
@@ -308,7 +315,7 @@ WGPUBindGroupLayoutEntry vtkWebGPURenderTextureDeviceResource::MakeSamplerBindGr
 WGPUBindGroupEntry vtkWebGPURenderTextureDeviceResource::MakeSamplerBindGroupEntry(
   std::uint32_t binding)
 {
-  WGPUBindGroupEntry entry = {};
+  WGPUBindGroupEntry entry = WGPU_BIND_GROUP_ENTRY_INIT;
   entry.binding = binding;
   entry.sampler = this->Sampler;
   return entry;
@@ -318,7 +325,7 @@ WGPUBindGroupEntry vtkWebGPURenderTextureDeviceResource::MakeSamplerBindGroupEnt
 WGPUBindGroupLayoutEntry vtkWebGPURenderTextureDeviceResource::MakeTextureViewBindGroupLayoutEntry(
   std::uint32_t binding, WGPUShaderStage visibility)
 {
-  WGPUBindGroupLayoutEntry entry = {};
+  WGPUBindGroupLayoutEntry entry = WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT;
   entry.binding = binding;
   entry.visibility = static_cast<WGPUShaderStage>(visibility);
   entry.texture.nextInChain = nullptr;
@@ -336,7 +343,7 @@ WGPUBindGroupLayoutEntry vtkWebGPURenderTextureDeviceResource::MakeTextureViewBi
 WGPUBindGroupEntry vtkWebGPURenderTextureDeviceResource::MakeTextureViewBindGroupEntry(
   std::uint32_t binding)
 {
-  WGPUBindGroupEntry entry = {};
+  WGPUBindGroupEntry entry = WGPU_BIND_GROUP_ENTRY_INIT;
   entry.binding = binding;
   entry.textureView = this->TextureView;
   return entry;

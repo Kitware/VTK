@@ -1205,7 +1205,7 @@ void vtkWebGPURenderer::BeginRecording()
       wgpuRenderWindow->GetPreferredSurfaceTextureFormat(),
       wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat()
     };
-    WGPURenderBundleEncoderDescriptor bundleEncDesc;
+    WGPURenderBundleEncoderDescriptor bundleEncDesc = WGPU_RENDER_BUNDLE_ENCODER_DESCRIPTOR_INIT;
     bundleEncDesc.colorFormatCount = colorFormats.size();
     bundleEncDesc.colorFormats = colorFormats.data();
     bundleEncDesc.depthStencilFormat = wgpuRenderWindow->GetDepthStencilFormat();

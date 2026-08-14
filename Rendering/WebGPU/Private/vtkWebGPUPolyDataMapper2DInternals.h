@@ -11,7 +11,7 @@
 #include "vtkTimeStamp.h"
 #include "vtkWebGPUCellToPrimitiveConverter.h"
 
-#include "vtk_wgpu_impl.h"
+#include "vtk_wgpu.h"
 #include <unordered_set>
 
 VTK_ABI_NAMESPACE_BEGIN

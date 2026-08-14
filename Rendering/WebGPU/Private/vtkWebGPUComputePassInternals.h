@@ -10,7 +10,7 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"
 #include "vtkWebGPUConfiguration.h"
-#include "vtk_wgpu_impl.h" // for webgpu
+#include "vtk_wgpu.h"
 
 #include <unordered_map>
 #include <unordered_set>

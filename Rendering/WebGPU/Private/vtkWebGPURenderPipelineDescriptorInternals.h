@@ -47,8 +47,8 @@ public:
   std::array<WGPUColorTargetState, kMaxColorAttachments> cTargets;
   std::array<WGPUBlendState, kMaxColorAttachments> cBlends;
 
-  WGPUFragmentState cFragment;
-  WGPUDepthStencilState cDepthStencil;
+  WGPUFragmentState cFragment = WGPU_FRAGMENT_STATE_INIT;
+  WGPUDepthStencilState cDepthStencil = WGPU_DEPTH_STENCIL_STATE_INIT;
 };
 VTK_ABI_NAMESPACE_END
 

@@ -122,7 +122,7 @@ public:
     std::size_t instanceAttributesIdx = 0;
     std::vector<WGPUVertexBufferLayout> layouts;
     {
-      WGPUVertexBufferLayout layout = {};
+      WGPUVertexBufferLayout layout = WGPU_VERTEX_BUFFER_LAYOUT_INIT;
       layout.arrayStride = 4 * sizeof(vtkTypeFloat32);
       layout.attributeCount = 1;
       layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
@@ -131,7 +131,7 @@ public:
       instanceAttributesIdx += 1;
     }
     {
-      WGPUVertexBufferLayout layout = {};
+      WGPUVertexBufferLayout layout = WGPU_VERTEX_BUFFER_LAYOUT_INIT;
       layout.arrayStride = 4 * 4 * sizeof(vtkTypeFloat32);
       layout.attributeCount = 4; // 1 attribute per column which is a vec4f
       layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
@@ -140,7 +140,7 @@ public:
       instanceAttributesIdx += 4;
     }
     {
-      WGPUVertexBufferLayout layout = {};
+      WGPUVertexBufferLayout layout = WGPU_VERTEX_BUFFER_LAYOUT_INIT;
       layout.arrayStride = 3 * 3 * sizeof(vtkTypeFloat32);
       layout.attributeCount = 3; // 1 attribute per column which is a vec3f
       layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
@@ -149,7 +149,7 @@ public:
       instanceAttributesIdx += 3;
     }
     {
-      WGPUVertexBufferLayout layout = {};
+      WGPUVertexBufferLayout layout = WGPU_VERTEX_BUFFER_LAYOUT_INIT;
       layout.arrayStride = sizeof(vtkTypeUInt32);
       layout.attributeCount = 1;
       layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];

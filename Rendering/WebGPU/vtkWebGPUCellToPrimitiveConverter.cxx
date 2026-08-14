@@ -20,8 +20,6 @@
 #include "vtkWebGPUComputeBuffer.h"
 #include "vtkWebGPUComputePipeline.h"
 
-#include "webgpu/webgpu_cpp.h" // for wgpu:: C++ wrapper types (implementation only)
-
 VTK_ABI_NAMESPACE_BEGIN
 
 namespace

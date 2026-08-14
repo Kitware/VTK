@@ -1016,7 +1016,7 @@ bool vtkWebGPUBatchedPolyDataMapper::AllocateCompositeDataPropertyStorageBuffer(
       this->CompositeDataPropertyStorage.Size = 0;
     }
     const std::string label = "composite_data_property-" + this->GetObjectDescription();
-    WGPUBufferDescriptor desc = {};
+    WGPUBufferDescriptor desc = WGPU_BUFFER_DESCRIPTOR_INIT;
     desc.label = vtkWebGPUMakeStringView(label);
     desc.mappedAtCreation = false;
     desc.usage = WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst;

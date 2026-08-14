@@ -615,6 +615,9 @@ private:
 
   struct vtkWGPUUserStagingPixelData
   {
+    // Defined out of line: the members need the WGPU_*_INIT defaults, and
+    // vtkWrapHierarchy cannot expand those macros.
+    vtkWGPUUserStagingPixelData();
     WGPUOrigin3D Origin;
     WGPUExtent3D Extent;
     WGPUTexelCopyBufferLayout Layout;
