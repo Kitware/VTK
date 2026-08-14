@@ -36,6 +36,8 @@ struct InternalMapTextureAsyncData
   int bytesPerRow;
   // Callback given by the user
   vtkWebGPUComputePass::TextureMapAsyncCallback userCallback;
+  // Used to hand `buffer`'s reference back once the map callback has returned.
+  vtkWeakPointer<vtkWebGPUConfiguration> configuration;
 };
 }
 
@@ -557,8 +559,8 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTextureView(
   {
     // Only creating the bind group layout and bind group if the group and binding are valid,
     // they will be created by RebindTextureView otherwise
-    WGPUBindGroupLayoutEntry bglEntry;
-    WGPUBindGroupEntry bgEntry;
+    WGPUBindGroupLayoutEntry bglEntry = WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT;
+    WGPUBindGroupEntry bgEntry = WGPU_BIND_GROUP_ENTRY_INIT;
     bglEntry =
       this->ParentComputePass->Internals->CreateBindGroupLayoutEntry(binding, texture, textureView);
     bgEntry = this->ParentComputePass->Internals->CreateBindGroupEntry(binding, wgpuTextureView);
@@ -809,8 +811,8 @@ void vtkWebGPUComputePassTextureStorageInternals::RebindTextureView(
   textureView = this->TextureViews[textureViewIndex];
   texture = this->Textures[textureView->GetAssociatedTextureIndex()];
 
-  WGPUBindGroupLayoutEntry bglEntry;
-  WGPUBindGroupEntry bgEntry;
+  WGPUBindGroupLayoutEntry bglEntry = WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT;
+  WGPUBindGroupEntry bgEntry = WGPU_BIND_GROUP_ENTRY_INIT;
 
   bglEntry =
     this->ParentComputePass->Internals->CreateBindGroupLayoutEntry(binding, texture, textureView);
@@ -839,7 +841,7 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
     std::ceil(wgpuTextureGetWidth(wgpuTexture) * texture->GetBytesPerPixel() / 256.0f) * 256.0f;
 
   // Creating the buffer that will hold the data of the texture
-  WGPUBufferDescriptor bufferDescriptor;
+  WGPUBufferDescriptor bufferDescriptor = WGPU_BUFFER_DESCRIPTOR_INIT;
   bufferDescriptor.label = WGPUStringView{ "Buffer descriptor for mapping texture", WGPU_STRLEN };
   bufferDescriptor.mappedAtCreation = false;
   bufferDescriptor.nextInChain = nullptr;
@@ -850,7 +852,7 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
     vtkWebGPU::Buffer::Acquire(this->ParentPassWGPUConfiguration->CreateBuffer(bufferDescriptor));
 
   // Parameters for copying the texture
-  WGPUTexelCopyTextureInfo imageCopyTexture;
+  WGPUTexelCopyTextureInfo imageCopyTexture = WGPU_TEXEL_COPY_TEXTURE_INFO_INIT;
   imageCopyTexture.mipLevel = mipLevel;
   imageCopyTexture.origin = { 0, 0, 0 };
   imageCopyTexture.texture = wgpuTexture;
@@ -858,7 +860,7 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   // Parameters for copying the buffer
   unsigned int mipLevelWidth = std::floor(texture->GetWidth() / std::pow(2, mipLevel));
   unsigned int mipLevelHeight = std::floor(texture->GetHeight() / std::pow(2, mipLevel));
-  WGPUTexelCopyBufferInfo texelCopyBuffer;
+  WGPUTexelCopyBufferInfo texelCopyBuffer = WGPU_TEXEL_COPY_BUFFER_INFO_INIT;
   texelCopyBuffer.buffer = buffer;
   texelCopyBuffer.layout.offset = 0;
   texelCopyBuffer.layout.rowsPerImage = mipLevelHeight;
@@ -903,6 +905,12 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
 #if defined(__EMSCRIPTEN__)
     wgpuBufferRelease(mapData->buffer.Get());
 #endif
+    // Hand the reference over instead of dropping it here: the implementation is
+    // still holding a lock on this buffer. See DeferBufferRelease.
+    if (mapData->configuration != nullptr)
+    {
+      mapData->configuration->DeferBufferRelease(mapData->buffer.Release());
+    }
     // Freeing the mapData structure as it was dynamically allocated
     delete mapData;
   };
@@ -918,6 +926,7 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   callbackData->bytesPerRow = bytesPerRow;
   callbackData->userCallback = callback;
   callbackData->userdata = userdata;
+  callbackData->configuration = this->ParentPassWGPUConfiguration;
 
 #if defined(__EMSCRIPTEN__)
   // keep buffer alive for map.

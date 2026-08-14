@@ -30,6 +30,10 @@ public:
   WGPULimits RequiredLimits = WGPU_LIMITS_INIT;
   std::vector<WGPUFeatureName> RequiredFeatures;
 
+  // Buffers whose last reference must not be dropped inside a WebGPU callback.
+  // See vtkWebGPUConfiguration::DeferBufferRelease.
+  std::vector<WGPUBuffer> BuffersPendingRelease;
+
   static void AddInstanceRef();
 
   static void ReleaseInstanceRef();

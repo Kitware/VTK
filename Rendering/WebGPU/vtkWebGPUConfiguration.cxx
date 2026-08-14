@@ -601,6 +601,15 @@ void vtkWebGPUConfiguration::Finalize()
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPUConfiguration::DeferBufferRelease(WGPUBuffer buffer)
+{
+  if (buffer != nullptr)
+  {
+    this->Internals->BuffersPendingRelease.push_back(buffer);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUConfiguration::ProcessEvents()
 {
 #if defined(__EMSCRIPTEN__)
@@ -618,6 +627,14 @@ void vtkWebGPUConfiguration::ProcessEvents()
 #else
   wgpuInstanceProcessEvents(vtkWebGPUConfigurationInternals::Instance);
 #endif
+  // Safe to run now: every callback the implementation dispatched above has
+  // returned, so it no longer holds a lock on any of these buffers.
+  auto& pending = this->Internals->BuffersPendingRelease;
+  for (WGPUBuffer buffer : pending)
+  {
+    wgpuBufferRelease(buffer);
+  }
+  pending.clear();
 }
 
 //------------------------------------------------------------------------------

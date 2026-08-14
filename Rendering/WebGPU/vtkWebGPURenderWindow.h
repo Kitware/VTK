@@ -362,9 +362,9 @@ public:
    * platform-specific WebGPU surface descriptors that cannot be serialized or replayed.
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
-  void SetCustomSurfaceDescriptor(const wgpu::SurfaceDescriptor* descriptor);
+  void SetCustomSurfaceDescriptor(const WGPUSurfaceDescriptor* descriptor);
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
-  const wgpu::SurfaceDescriptor* GetCustomSurfaceDescriptor() const;
+  const WGPUSurfaceDescriptor* GetCustomSurfaceDescriptor() const;
   ///@}
 
 protected:
@@ -514,7 +514,7 @@ private:
    * destroyed in DestroyWindow().
    */
   void CreateSurface();
-  wgpu::Surface CreateSurfaceFromHardwareWindow(wgpu::Instance instance);
+  WGPUSurface CreateSurfaceFromHardwareWindow(WGPUInstance instance);
 
   /**
    * Configure the surface with mailbox presentation mode and the preferred texture format.
@@ -637,7 +637,7 @@ private:
   vtkNew<vtkWebGPURenderPipelineCache> WGPUPipelineCache;
   vtkNew<vtkWebGPURenderTextureCache> WGPUTextureCache;
 
-  const wgpu::SurfaceDescriptor* CustomSurfaceDescriptor = nullptr;
+  const WGPUSurfaceDescriptor* CustomSurfaceDescriptor = nullptr;
 
   vtkSmartPointer<vtkWebGPUComputePipeline> DepthCopyPipeline;
   vtkSmartPointer<vtkWebGPUComputePass> DepthCopyPass;

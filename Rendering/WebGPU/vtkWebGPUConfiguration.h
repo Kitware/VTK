@@ -251,6 +251,18 @@ public:
   bool IsSamsungGPUInUse();
   ///@}
 
+  /**
+   * Take over `buffer`'s reference and release it once control has returned from
+   * the WebGPU implementation, at the end of the next ProcessEvents().
+   *
+   * Dawn runs buffer map callbacks while holding a lock on the buffer, but the
+   * scoped lock does not hold a reference to it. Dropping the last reference to
+   * a mapped buffer from inside its own map callback therefore destroys the
+   * buffer - and the lock - before the implementation is finished unlocking it.
+   * Map callbacks must hand their reference here instead of releasing it.
+   */
+  void DeferBufferRelease(WGPUBuffer buffer);
+
   ///@{
   /**
    * Convenient methods used to create webgpu buffers. This method also logs memory information

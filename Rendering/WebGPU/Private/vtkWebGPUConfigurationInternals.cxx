@@ -13,6 +13,11 @@ std::size_t vtkWebGPUConfigurationInternals::InstanceCount = 0;
 //------------------------------------------------------------------------------
 vtkWebGPUConfigurationInternals::~vtkWebGPUConfigurationInternals()
 {
+  for (WGPUBuffer buffer : this->BuffersPendingRelease)
+  {
+    wgpuBufferRelease(buffer);
+  }
+  this->BuffersPendingRelease.clear();
   if (this->Device != nullptr)
   {
     wgpuDeviceRelease(this->Device);

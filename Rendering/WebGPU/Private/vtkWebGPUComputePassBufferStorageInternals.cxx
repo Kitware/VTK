@@ -295,6 +295,9 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
     if (callbackData->configuration != nullptr)
     {
       callbackData->configuration->DecrementActiveBufferMapCount();
+      // Hand the reference over instead of dropping it here: the implementation
+      // is still holding a lock on this buffer. See DeferBufferRelease.
+      callbackData->configuration->DeferBufferRelease(callbackData->buffer.Release());
     }
     // Freeing the callbackData structure as it was dynamically allocated
     delete callbackData;
@@ -492,8 +495,8 @@ void vtkWebGPUComputePassBufferStorageInternals::SetupRenderBuffer(
   vtkIdType binding = renderBuffer->GetBinding();
   vtkWebGPUComputeBuffer::BufferMode mode = renderBuffer->GetMode();
 
-  WGPUBindGroupLayoutEntry bglEntry;
-  WGPUBindGroupEntry bgEntry;
+  WGPUBindGroupLayoutEntry bglEntry = WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT;
+  WGPUBindGroupEntry bgEntry = WGPU_BIND_GROUP_ENTRY_INIT;
   bglEntry = this->ParentComputePass->Internals->CreateBindGroupLayoutEntry(binding, mode);
   bgEntry = this->ParentComputePass->Internals->CreateBindGroupEntry(
     renderBuffer->GetWebGPUBuffer(), binding, mode, 0);
