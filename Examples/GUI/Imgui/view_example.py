@@ -2,7 +2,7 @@
 # requires-python = ">=3.10"
 # dependencies = [
 #     "imgui-bundle",
-#     # VTK::ViewsRendering is not part of a released wheel yet.
+#     # VTK::ViewsScivis is not part of a released wheel yet.
 #     "vtk>=9.7",
 # ]
 # ///
@@ -22,7 +22,7 @@ from vtkmodules.vtkFiltersSources import (
 # vtkDataObject provides the field association constants; importing
 # vtkCommonDataModel also registers the pythonic vtkSelection API used below.
 from vtkmodules.vtkCommonDataModel import vtkDataObject
-from vtkmodules.vtkViewsRendering import vtkStandardRenderView
+from vtkmodules.vtkViewsScivis import vtkStandardRenderView
 
 # --- VTK Setup ---
 view = vtkStandardRenderView(use_light_kit=True)

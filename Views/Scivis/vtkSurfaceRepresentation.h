@@ -30,8 +30,8 @@
 #define vtkSurfaceRepresentation_h
 
 #include "vtkDataRepresentation.h"
-#include "vtkNew.h"                  // For ivars
-#include "vtkViewsRenderingModule.h" // For export macro
+#include "vtkNew.h"               // For ivars
+#include "vtkViewsScivisModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -43,7 +43,7 @@ class vtkScalarBarActor;
 class vtkScalarsToColors;
 class vtkSelection;
 
-class VTKVIEWSRENDERING_EXPORT vtkSurfaceRepresentation : public vtkDataRepresentation
+class VTKVIEWSSCIVIS_EXPORT vtkSurfaceRepresentation : public vtkDataRepresentation
 {
 public:
   static vtkSurfaceRepresentation* New();

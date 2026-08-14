@@ -32,9 +32,9 @@
 
 #include "vtkNew.h" // For ivars
 #include "vtkRenderViewBase.h"
-#include "vtkSmartPointer.h"         // For ivars
-#include "vtkViewsRenderingModule.h" // For export macro
-#include "vtkWrappingHints.h"        // For VTK_MARSHALEXCLUDE
+#include "vtkSmartPointer.h"      // For ivars
+#include "vtkViewsScivisModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALEXCLUDE
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHardwareSelector;
@@ -46,7 +46,7 @@ class vtkLightKit;
 class vtkOrientationMarkerWidget;
 class vtkSelection;
 
-class VTKVIEWSRENDERING_EXPORT vtkStandardRenderView : public vtkRenderViewBase
+class VTKVIEWSSCIVIS_EXPORT vtkStandardRenderView : public vtkRenderViewBase
 {
 public:
   static vtkStandardRenderView* New();

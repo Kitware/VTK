@@ -172,7 +172,7 @@ set(python_files
   vtkmodules/util/variant_array.py
   vtkmodules/util/widgets.py
   vtkmodules/util/numpy_support.py
-  vtkmodules/util/views_rendering.py
+  vtkmodules/util/views_scivis.py
   vtkmodules/util/xarray_support.py
   vtkmodules/util/pickle_support.py
   vtkmodules/util/vtkAlgorithm.py

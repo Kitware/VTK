@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// Verifies that the forwarding setters on the ViewsRendering classes behave
+// Verifies that the forwarding setters on the ViewsScivis classes behave
 // like vtkSetMacro: setting a property to the value it already has must not
 // bump the object's modified time, while setting a different value must.
 

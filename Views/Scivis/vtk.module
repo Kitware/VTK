@@ -1,7 +1,7 @@
 NAME
-  VTK::ViewsRendering
+  VTK::ViewsScivis
 LIBRARY_NAME
-  vtkViewsRendering
+  vtkViewsScivis
 GROUPS
   Rendering
 SPDX_LICENSE_IDENTIFIER

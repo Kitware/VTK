@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 # SPDX-License-Identifier: BSD-3-Clause
-"""Pythonic overrides for the ``vtkViewsRendering`` module.
+"""Pythonic overrides for the ``vtkViewsScivis`` module.
 
 The wrapping layer already exposes snake_case properties (``color``,
 ``opacity``, ``representation`` ...) for every class in this module, and enum
@@ -14,13 +14,13 @@ These overrides add the few things the wrapping does not provide on its own:
 * ``view += representation`` / ``view -= representation``
 * ``view.size = (width, height)``
 
-The layer is registered for ``vtkViewsRendering`` in
+The layer is registered for ``vtkViewsScivis`` in
 ``vtkmodules/__init__.py.in`` and loaded automatically when that module is
 imported.
 """
 
 from vtkmodules.util import colors as _colors
-from vtkmodules.vtkViewsRendering import (
+from vtkmodules.vtkViewsScivis import (
     vtkStandardRenderView,
     vtkSurfaceRepresentation,
     vtkVolumeRepresentation,

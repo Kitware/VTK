@@ -2,7 +2,7 @@
 # requires-python = ">=3.10"
 # dependencies = [
 #     "imgui-bundle",
-#     # VTK::ViewsRendering is not part of a released wheel yet.
+#     # VTK::ViewsScivis is not part of a released wheel yet.
 #     "vtk>=9.7",
 # ]
 # ///
@@ -22,7 +22,7 @@ from vtkmodules.vtkCommonDataModel import (
 from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
 from vtkmodules.vtkFiltersGeneral import vtkDataSetTriangleFilter
 from vtkmodules.vtkFiltersParallelDIY2 import vtkRedistributeDataSetFilter
-from vtkmodules.vtkViewsRendering import vtkStandardRenderView
+from vtkmodules.vtkViewsScivis import vtkStandardRenderView
 
 # --- Build the partitioned dataset collection ---
 source = vtkRTAnalyticSource(whole_extent=(-10, 10, -10, 10, -10, 10))

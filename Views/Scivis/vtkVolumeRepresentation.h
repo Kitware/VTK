@@ -28,8 +28,8 @@
 #define vtkVolumeRepresentation_h
 
 #include "vtkDataRepresentation.h"
-#include "vtkNew.h"                  // For ivars
-#include "vtkViewsRenderingModule.h" // For export macro
+#include "vtkNew.h"               // For ivars
+#include "vtkViewsScivisModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkColorTransferFunction;
@@ -39,7 +39,7 @@ class vtkSmartVolumeMapper;
 class vtkVolume;
 class vtkVolumeProperty;
 
-class VTKVIEWSRENDERING_EXPORT vtkVolumeRepresentation : public vtkDataRepresentation
+class VTKVIEWSSCIVIS_EXPORT vtkVolumeRepresentation : public vtkDataRepresentation
 {
 public:
   static vtkVolumeRepresentation* New();

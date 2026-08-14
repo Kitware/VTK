@@ -1,6 +1,6 @@
-## New ViewsRendering module: views and representations
+## New ViewsScivis module: views and representations
 
-The new `VTK::ViewsRendering` module offers a higher level way to put data on
+The new `VTK::ViewsScivis` module offers a higher level way to put data on
 screen. Instead of assembling a render window, an interactor, an interactor
 style, a geometry filter, a mapper and an actor for every dataset, you create a
 view, hand it your data, and set the properties you care about.
@@ -20,7 +20,7 @@ The same scene in Python, where `show()` creates the representation, connects
 it, applies properties and adds it to the view in one call:
 
 ```python
-from vtkmodules.vtkViewsRendering import vtkStandardRenderView
+from vtkmodules.vtkViewsScivis import vtkStandardRenderView
 
 view = vtkStandardRenderView(window_title="Demo")
 view.show(source, color="tomato", representation="surfacewithedges")

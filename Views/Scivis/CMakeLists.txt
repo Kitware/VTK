@@ -4,5 +4,5 @@ set(classes
   vtkVolumeRepresentation
   )
 
-vtk_module_add_module(VTK::ViewsRendering
+vtk_module_add_module(VTK::ViewsScivis
   CLASSES ${classes})
