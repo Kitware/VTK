@@ -46,7 +46,8 @@ protected:
   void HashSidesOfSide(vtkCellGridSidesQuery* query, vtkDGCell* cellType,
     vtkDGCell::Shape sourceShape, std::vector<vtkIdType>& side,
     const std::vector<vtkIdType>& sidesOfSide, vtkIdType cellId,
-    const std::vector<vtkTypeInt64>& entry, std::set<int>& sidesVisited, vtkDataArray* ngm);
+    const std::vector<vtkTypeInt64>& entry, std::set<int>& sidesVisited, vtkDataArray* ngm,
+    std::size_t pointArrayId);
 
 private:
   vtkDGSidesResponder(const vtkDGSidesResponder&) = delete;
