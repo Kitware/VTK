@@ -27,6 +27,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkScalarsToColors.h"
 #include "vtkScivisDataRepresentation.h"
+#include "vtkScivisExporter.h"
 #include "vtkScivisRepresentation.h"
 #include "vtkScivisScalarBars.h"
 #include "vtkScivisSelector.h"
@@ -148,6 +149,7 @@ vtkScivisView::vtkScivisView()
 
   // Selection lives in its own object; it needs to know which view it selects in.
   this->Selector->SetView(this);
+  this->Exporter->SetView(this);
 
   // Orientation axes marker
   vtkNew<vtkAxesActor> axes;
@@ -191,6 +193,7 @@ vtkMTimeType vtkScivisView::GetMTime()
   mTime = std::max(mTime, this->LightKit->GetMTime());
   mTime = std::max(mTime, this->OrientationWidget->GetMTime());
   mTime = std::max(mTime, this->Selector->GetMTime());
+  mTime = std::max(mTime, this->Exporter->GetMTime());
   mTime = std::max(mTime, this->LookupTableManager->GetMTime());
   mTime = std::max(mTime, this->ScalarBars->GetMTime());
   return mTime;
@@ -462,6 +465,12 @@ void vtkScivisView::ProcessEvents(
 vtkScivisSelector* vtkScivisView::GetSelector()
 {
   return this->Selector;
+}
+
+//------------------------------------------------------------------------------
+vtkScivisExporter* vtkScivisView::GetExporter()
+{
+  return this->Exporter;
 }
 
 //------------------------------------------------------------------------------

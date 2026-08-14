@@ -18,6 +18,8 @@ DEPENDS
   VTK::RenderingCore
 PRIVATE_DEPENDS
   VTK::CommonColor
+  VTK::IOExport
+  VTK::IOImage
   VTK::FiltersExtraction
   VTK::InteractionStyle
   VTK::RenderingUI
