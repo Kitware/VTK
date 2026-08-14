@@ -1,5 +1,9 @@
 set(classes
-  vtkStandardRenderView
+  vtkBlockProperties
+  vtkScivisDataRepresentation
+  vtkScivisRepresentation
+  vtkScivisView
+  vtkScivisSelector
   vtkSurfaceRepresentation
   vtkVolumeRepresentation
   )

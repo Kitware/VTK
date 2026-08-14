@@ -5,17 +5,17 @@
 #     "vtk>=9.7",
 # ]
 # ///
-"""Demo of vtkStandardRenderView and vtkSurfaceRepresentation."""
+"""Demo of vtkScivisView and vtkSurfaceRepresentation."""
 
 from vtkmodules.vtkFiltersSources import vtkConeSource, vtkSphereSource, vtkCylinderSource
-from vtkmodules.vtkViewsScivis import vtkStandardRenderView
+from vtkmodules.vtkViewsScivis import vtkScivisView
 
 # Registers the OpenGL implementations of the rendering classes.  Without it the
 # view builds a base vtkRenderWindow and nothing is drawn.
 import vtkmodules.vtkRenderingOpenGL2  # noqa: F401
 
 # Create a view
-view = vtkStandardRenderView(window_title="StandardRenderView Demo")
+view = vtkScivisView(window_title="ScivisView Demo")
 view.size = (1200, 800)
 
 # show() creates a surface representation for the source, applies the given

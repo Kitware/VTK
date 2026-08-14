@@ -14,9 +14,9 @@
 #include "vtkRTAnalyticSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkScalarBarActor.h"
+#include "vtkScivisSelector.h"
+#include "vtkScivisView.h"
 #include "vtkSphereSource.h"
-#include "vtkStandardRenderView.h"
 #include "vtkSurfaceRepresentation.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
@@ -78,36 +78,16 @@ int TestSurfaceRepresentationSetters()
   // Actor and property forwarding.
   CHECK_NOOP_3(rep, SetColor, GetColor);
   CHECK_NOOP_3(rep, SetEdgeColor, GetEdgeColor);
-  CHECK_NOOP_3(rep, SetPosition, GetPosition);
-  CHECK_NOOP_3(rep, SetOrientation, GetOrientation);
-  CHECK_NOOP_3(rep, SetScale, GetScale);
   CHECK_NOOP(rep, SetOpacity, GetOpacity);
-  CHECK_NOOP(rep, SetSpecular, GetSpecular);
-  CHECK_NOOP(rep, SetSpecularPower, GetSpecularPower);
-  CHECK_NOOP(rep, SetLineWidth, GetLineWidth);
-  CHECK_NOOP(rep, SetPointSize, GetPointSize);
-  CHECK_NOOP(rep, SetLighting, GetLighting);
   CHECK_NOOP(rep, SetVisibility, GetVisibility);
-  CHECK_NOOP(rep, SetPickable, GetPickable);
   CHECK_NOOP(rep, SetRepresentation, GetRepresentation);
 
   // Geometry filter forwarding.
-  CHECK_NOOP(rep, SetFeatureAngle, GetFeatureAngle);
-  CHECK_NOOP(rep, SetTriangulate, GetTriangulate);
-  CHECK_NOOP(rep, SetNonlinearSubdivisionLevel, GetNonlinearSubdivisionLevel);
-  CHECK_NOOP(rep, SetPassThroughCellIds, GetPassThroughCellIds);
 
   // Mapper forwarding.
   CHECK_NOOP(rep, SetScalarVisibility, GetScalarVisibility);
-  CHECK_NOOP(rep, SetInterpolateScalarsBeforeMapping, GetInterpolateScalarsBeforeMapping);
-  CHECK_NOOP(rep, SetLookupTable, GetLookupTable);
 
   // Scalar bar and selection display properties.
-  CHECK_NOOP(rep, SetScalarBarVisibility, GetScalarBarVisibility);
-  CHECK_NOOP_3(rep, SetSelectionColor, GetSelectionColor);
-  CHECK_NOOP(rep, SetSelectionOpacity, GetSelectionOpacity);
-  CHECK_NOOP(rep, SetSelectionLineWidth, GetSelectionLineWidth);
-  CHECK_NOOP(rep, SetSelectionPointSize, GetSelectionPointSize);
 
   // Coloring is a compound operation; repeating it must still be a no-op.
   rep->ColorByPointArray("RTData");
@@ -129,8 +109,6 @@ int TestSurfaceRepresentationSetters()
     rep->ColorByFieldArray("BlockId");
     CHECK(rep->GetMTime() == before, "ColorByFieldArray repeated its own value and modified");
   }
-  CHECK_NOOP(rep, SetFieldDataTupleId, GetFieldDataTupleId);
-  CHECK_MODIFIES(rep, rep->SetFieldDataTupleId(3));
 
   // Real changes must still be seen.
   CHECK_MODIFIES(rep, rep->SetColor(0.1, 0.2, 0.3));
@@ -142,8 +120,6 @@ int TestSurfaceRepresentationSetters()
   CHECK_MODIFIES(rep, rep->SetRepresentationToFeatureEdges());
   CHECK_MODIFIES(rep, rep->SetRepresentationToSurface());
   CHECK_MODIFIES(rep, rep->SetVisibility(false));
-  CHECK_MODIFIES(rep, rep->SetScalarBarVisibility(true));
-  CHECK_MODIFIES(rep, rep->SetFeatureAngle(12.5));
   // The selection actor is created in wireframe, so surface is a real change.
   CHECK_NOOP(rep, SetSelectionRepresentation, GetSelectionRepresentation);
   CHECK_MODIFIES(rep, rep->SetSelectionRepresentation(vtkSurfaceRepresentation::SURFACE));
@@ -178,29 +154,16 @@ int TestVolumeRepresentationSetters()
   CHECK_NOOP(rep, SetScalarOpacity, GetScalarOpacity);
   CHECK_NOOP(rep, SetScalarOpacityUnitDistance, GetScalarOpacityUnitDistance);
   CHECK_NOOP(rep, SetShade, GetShade);
-  CHECK_NOOP(rep, SetAmbient, GetAmbient);
-  CHECK_NOOP(rep, SetDiffuse, GetDiffuse);
-  CHECK_NOOP(rep, SetSpecular, GetSpecular);
-  CHECK_NOOP(rep, SetSpecularPower, GetSpecularPower);
-  CHECK_NOOP(rep, SetInterpolationType, GetInterpolationType);
-  CHECK_NOOP(rep, SetBlendMode, GetBlendMode);
-  CHECK_NOOP(rep, SetRequestedRenderMode, GetRequestedRenderMode);
   CHECK_NOOP(rep, SetVisibility, GetVisibility);
-  CHECK_NOOP(rep, SetScalarBarVisibility, GetScalarBarVisibility);
-  CHECK_NOOP_3(rep, SetPosition, GetPosition);
-  CHECK_NOOP_3(rep, SetOrientation, GetOrientation);
-  CHECK_NOOP_3(rep, SetScale, GetScale);
 
-  CHECK_MODIFIES(rep, rep->SetAmbient(0.42));
   CHECK_MODIFIES(rep, rep->SetShade(!rep->GetShade()));
-  CHECK_MODIFIES(rep, rep->SetPosition(1.0, 2.0, 3.0));
 
   return EXIT_SUCCESS;
 }
 
-int TestStandardRenderViewSetters()
+int TestScivisViewSetters()
 {
-  vtkNew<vtkStandardRenderView> view;
+  vtkNew<vtkScivisView> view;
   view->GetRenderWindow()->SetOffScreenRendering(true);
   view->SetWindowTitle("mtime test");
 
@@ -209,15 +172,12 @@ int TestStandardRenderViewSetters()
   CHECK_NOOP(view, SetGradientBackground, GetGradientBackground);
   CHECK_NOOP(view, SetWindowTitle, GetWindowTitle);
   CHECK_NOOP(view, SetOrientationAxesVisibility, GetOrientationAxesVisibility);
-  CHECK_NOOP(view, SetOrientationAxesInteractive, GetOrientationAxesInteractive);
   CHECK_NOOP(view, SetUseLightKit, GetUseLightKit);
-  CHECK_NOOP(view, SetKeyLightIntensity, GetKeyLightIntensity);
-  CHECK_NOOP(view, SetKeyToFillRatio, GetKeyToFillRatio);
-  CHECK_NOOP(view, SetKeyLightWarmth, GetKeyLightWarmth);
-  CHECK_NOOP(view, SetMaintainLuminance, GetMaintainLuminance);
   CHECK_NOOP(view, SetInteractionMode, GetInteractionMode);
-  CHECK_NOOP(view, SetSelectionMode, GetSelectionMode);
-  CHECK_NOOP(view, SetSelectionFieldAssociation, GetSelectionFieldAssociation);
+  // Selection is its own object now; its setters have to be guarded the same
+  // way, and a change to it has to reach the view's modified time.
+  CHECK_NOOP(view->GetSelector(), SetMode, GetMode);
+  CHECK_NOOP(view->GetSelector(), SetFieldAssociation, GetFieldAssociation);
   {
     const int w = view->GetWindowSize()[0];
     const int h = view->GetWindowSize()[1];
@@ -225,19 +185,12 @@ int TestStandardRenderViewSetters()
     view->SetWindowSize(w, h);
     CHECK(view->GetMTime() == before, "SetWindowSize modified the view when given its own value");
   }
-  {
-    const double elevation = view->GetKeyLightAngle()[0];
-    const double azimuth = view->GetKeyLightAngle()[1];
-    const vtkMTimeType before = view->GetMTime();
-    view->SetKeyLightAngle(elevation, azimuth);
-    CHECK(
-      view->GetMTime() == before, "SetKeyLightAngle modified the view when given its own value");
-  }
 
   CHECK_MODIFIES(view, view->SetBackground(0.1, 0.2, 0.3));
   CHECK_MODIFIES(view, view->SetWindowTitle("a different title"));
-  CHECK_MODIFIES(view, view->SetKeyLightIntensity(0.125));
   CHECK_MODIFIES(view, view->SetGradientBackground(!view->GetGradientBackground()));
+  CHECK_MODIFIES(view, view->GetSelector()->SetModeToFrustum());
+  CHECK_MODIFIES(view->GetSelector(), view->GetSelector()->SelectPoints());
 
   return EXIT_SUCCESS;
 }
@@ -247,7 +200,7 @@ int TestStandardRenderViewSetters()
 // the pipeline would re-execute every frame.
 int TestModifiedTimeAggregation()
 {
-  vtkNew<vtkStandardRenderView> view;
+  vtkNew<vtkScivisView> view;
   view->GetRenderWindow()->SetOffScreenRendering(true);
   view->SetWindowSize(300, 300);
 
@@ -264,10 +217,7 @@ int TestModifiedTimeAggregation()
 
   // A change made directly on an owned object has to be visible.
   CHECK_MODIFIES(surface, surface->GetActor()->GetProperty()->SetColor(0.9, 0.1, 0.1));
-  CHECK_MODIFIES(surface, surface->GetScalarBarActor()->SetNumberOfLabels(7));
-  CHECK_MODIFIES(volume, volume->GetVolume()->GetProperty()->SetAmbient(0.33));
   CHECK_MODIFIES(view, view->GetRenderer()->SetBackground(0.5, 0.5, 0.5));
-  CHECK_MODIFIES(view, view->GetLightKit()->SetKeyLightIntensity(0.9));
 
   // Rendering must leave all three modified times alone.
   view->Render();
@@ -295,7 +245,7 @@ int TestSetterModifiedTime(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   {
     return EXIT_FAILURE;
   }
-  if (TestStandardRenderViewSetters() != EXIT_SUCCESS)
+  if (TestScivisViewSetters() != EXIT_SUCCESS)
   {
     return EXIT_FAILURE;
   }

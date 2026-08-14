@@ -18,7 +18,7 @@ class VtkViewer:
     1. Standalone (no view): creates its own renderer, render window,
        and interactor.  Add actors directly to ``viewer.renderer``.
 
-    2. With a vtkStandardRenderView: pass ``view=`` to the constructor.
+    2. With a vtkScivisView: pass ``view=`` to the constructor.
        The view's renderer (with its background, lights, etc.) is
        migrated to the imgui-compatible render window.  Add
        representations to the view as usual.

@@ -12,17 +12,16 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
+  VTK::FiltersParallel
+  VTK::InteractionWidgets
   VTK::RenderingCore
-  VTK::ViewsCore
+  VTK::RenderingVolumeOpenGL2
 PRIVATE_DEPENDS
   VTK::FiltersExtraction
-  VTK::FiltersParallel
   VTK::InteractionStyle
-  VTK::InteractionWidgets
   VTK::RenderingAnnotation
   VTK::RenderingUI
   VTK::RenderingVolume
-  VTK::RenderingVolumeOpenGL2
 TEST_DEPENDS
   VTK::FiltersSources
   VTK::ImagingCore

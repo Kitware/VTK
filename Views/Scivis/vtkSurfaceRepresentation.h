@@ -3,16 +3,21 @@
 
 /**
  * @class   vtkSurfaceRepresentation
- * @brief   Renders any dataset as a surface with a flat property API.
+ * @brief   Renders any dataset as a surface.
  *
- * vtkSurfaceRepresentation is a data representation that renders any
- * dataset as a surface.  Non-polygonal inputs are automatically
- * converted via vtkGeometryFilterDispatcher, which handles a wide range
- * of data types including vtkDataSet, vtkHyperTreeGrid, vtkCellGrid,
- * vtkGenericDataSet, and composite datasets.  All common display
- * properties (color, opacity, representation mode, scalar coloring,
- * scalar bar) are exposed through a flat API so that callers never need
- * to reach into mapper, actor, or property objects directly.
+ * vtkSurfaceRepresentation is a data representation that renders any dataset as
+ * a surface.  Non-polygonal inputs are converted by vtkGeometryFilterDispatcher,
+ * which handles vtkDataSet, vtkHyperTreeGrid, vtkCellGrid, vtkGenericDataSet and
+ * composite datasets, and selections made in a view are extracted and drawn
+ * highlighted over the surface.
+ *
+ * The API here covers what it takes to make data visible -- whether it is drawn,
+ * how, and how opaque -- and legible -- what color, and colored by which array.
+ * Everything else is a property of the objects underneath, which are reachable
+ * through GetProperty(), GetMapper(), GetGeometryFilter() and GetActor(): line
+ * width, point size, lighting and the physically based properties on the
+ * property; normal generation, feature angle, triangulation, subdivision and the
+ * AMR and composite options on the geometry filter.
  *
  * @par Internal pipeline:
  * @verbatim
@@ -22,40 +27,41 @@
  *       -> vtkActor
  * @endverbatim
  *
- * @sa vtkDataRepresentation vtkStandardRenderView vtkVolumeRepresentation
+ * @sa vtkScivisDataRepresentation vtkScivisView vtkVolumeRepresentation
  * vtkGeometryFilterDispatcher
  */
 
 #ifndef vtkSurfaceRepresentation_h
 #define vtkSurfaceRepresentation_h
 
-#include "vtkDataRepresentation.h"
-#include "vtkNew.h"               // For ivars
+#include "vtkNew.h" // For ivars
+#include "vtkScivisDataRepresentation.h"
 #include "vtkViewsScivisModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
+class vtkBlockProperties;
 class vtkCompositePolyDataMapper;
+class vtkDataArray;
 class vtkExtractSelection;
 class vtkGeometryFilterDispatcher;
 class vtkProperty;
-class vtkScalarBarActor;
 class vtkScalarsToColors;
+class vtkScivisView;
 class vtkSelection;
 
-class VTKVIEWSSCIVIS_EXPORT vtkSurfaceRepresentation : public vtkDataRepresentation
+class VTKVIEWSSCIVIS_EXPORT vtkSurfaceRepresentation : public vtkScivisDataRepresentation
 {
 public:
   static vtkSurfaceRepresentation* New();
-  vtkTypeMacro(vtkSurfaceRepresentation, vtkDataRepresentation);
+  vtkTypeMacro(vtkSurfaceRepresentation, vtkScivisDataRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * The representation stores its properties on the geometry filter, mapper,
-   * actor and scalar bar it owns rather than in its own ivars.  Those objects
-   * are also reachable through GetActor(), GetScalarBarActor() and friends, so
-   * the modified time reported here is the latest of this object's own and
-   * theirs.
+   * The representation stores its properties on the geometry filter, mapper and
+   * actor it owns rather than in its own ivars.  Those objects are also
+   * reachable through GetActor() and friends, so the modified time reported here
+   * is the latest of this object's own and theirs.
    */
   vtkMTimeType GetMTime() override;
 
@@ -101,7 +107,12 @@ public:
 
   ///@{
   /**
-   * Color and material properties (forwarded to vtkProperty).
+   * The color the surface is drawn in when it is not colored by an array, and
+   * how opaque it is.  EdgeColor is the color of the edges drawn by the
+   * SURFACE_WITH_EDGES mode.
+   *
+   * For the rest of the appearance -- line width, point size, lighting,
+   * ambient, diffuse, specular, roughness, metallic -- use GetProperty().
    */
   void SetColor(double r, double g, double b);
   double* GetColor() VTK_SIZEHINT(3);
@@ -109,53 +120,27 @@ public:
   double GetOpacity();
   void SetEdgeColor(double r, double g, double b);
   double* GetEdgeColor() VTK_SIZEHINT(3);
-  void SetEdgeOpacity(double val);
-  double GetEdgeOpacity();
-  void SetAmbient(double val);
-  double GetAmbient();
-  void SetDiffuse(double val);
-  double GetDiffuse();
-  void SetSpecular(double val);
-  double GetSpecular();
-  void SetSpecularPower(double val);
-  double GetSpecularPower();
-  void SetLineWidth(double val);
-  double GetLineWidth();
-  void SetPointSize(double val);
-  double GetPointSize();
-  void SetLighting(bool val);
-  bool GetLighting();
-  void SetInterpolation(int val);
-  int GetInterpolation();
-  void SetRenderPointsAsSpheres(bool val);
-  bool GetRenderPointsAsSpheres();
-  void SetRenderLinesAsTubes(bool val);
-  bool GetRenderLinesAsTubes();
-  void SetRoughness(double val);
-  double GetRoughness();
-  void SetMetallic(double val);
-  double GetMetallic();
   ///@}
 
   ///@{
   /**
-   * Scalar coloring (forwarded to mapper).
+   * Color by an array rather than by a single color.
    *
    * ColorByPointArray and ColorByCellArray color by an array attached to the
    * points or the cells.  ColorByFieldArray colors by an array in the field
-   * data, which carries no per-element association of its own: by default its
-   * tuples are consumed one per cell, and SetFieldDataTupleId() switches to
-   * coloring the whole surface with a single tuple.
+   * data, which carries no per-element association of its own: its tuples are
+   * consumed one per cell.  ResetColorArray goes back to whatever the data's
+   * active scalars are.
    *
    * The overloads taking a component select which component of a
-   * multi-component array to map; the others map the array as the lookup table
+   * multi-component array to map; the others map the array as the color map
    * sees fit, which for vectors is the magnitude.
    *
-   * The range that scalars are mapped through belongs to the lookup table, not
-   * to the representation: set it with GetLookupTable()->SetRange(), or on a
-   * table of your own before handing it over.  A table shared between
-   * representations therefore keeps one range, and the representation never
-   * writes over the range you gave it.
+   * The range that scalars are mapped through belongs to the color map, not to
+   * the representation: set it with GetColorMap()->SetRange(), or on a map of
+   * your own before handing it over.  A map shared between representations
+   * therefore keeps one range, and the representation never writes over the
+   * range you gave it.
    */
   void SetScalarVisibility(bool val);
   bool GetScalarVisibility();
@@ -165,19 +150,35 @@ public:
   void ColorByCellArray(const char* arrayName, int component);
   void ColorByFieldArray(const char* arrayName);
   void ColorByFieldArray(const char* arrayName, int component);
-  void SetLookupTable(vtkScalarsToColors* lut);
-  vtkScalarsToColors* GetLookupTable();
-  void SetInterpolateScalarsBeforeMapping(bool val);
-  bool GetInterpolateScalarsBeforeMapping();
+  void ResetColorArray();
+  ///@}
+
+  ///@{
+  /**
+   * How the values of the color array become colors.
+   *
+   * The default maps them through the color map.  DIRECT_SCALARS instead takes
+   * an unsigned char array of three or four components as the colors
+   * themselves, which is how data that already carries its own colors is drawn.
+   */
+  enum ColorModeType
+  {
+    MAP_SCALARS = 0,
+    DIRECT_SCALARS = 1
+  };
+  void SetColorMode(int mode);
+  int GetColorMode();
+  void SetColorModeToMapScalars() { this->SetColorMode(MAP_SCALARS); }
+  void SetColorModeToDirectScalars() { this->SetColorMode(DIRECT_SCALARS); }
   ///@}
 
   ///@{
   /**
    * Which tuple of the array selected by ColorByFieldArray() to color with.
    * The default, -1, consumes the array one tuple per cell.  An index of 0 or
-   * more colors the entire surface with the tuple at that index, which is how
-   * a per-block or per-dataset value is drawn.  Has no effect when coloring by
-   * a point or cell array.
+   * more colors the entire surface with the tuple at that index, which is how a
+   * per-block or per-dataset value is drawn.  Has no effect while coloring by a
+   * point or cell array.
    */
   void SetFieldDataTupleId(vtkIdType id);
   vtkIdType GetFieldDataTupleId();
@@ -185,145 +186,80 @@ public:
 
   ///@{
   /**
-   * Normal generation (forwarded to vtkGeometryFilterDispatcher).
-   * GeneratePointNormals enables smooth-shading normals (default off).
-   * GenerateCellNormals enables flat-shading normals (default off).
-   * FeatureAngle is the angle (degrees) that defines a sharp edge for
-   * normal splitting, and the angle used to select the edges extracted by
-   * the FEATURE_EDGES representation (default 30).
-   * Splitting controls whether sharp edges cause point duplication so
-   * that normals are discontinuous across them (default on).
+   * Whether scalars are interpolated across a cell before being turned into
+   * colors rather than after.  Interpolating first is more faithful on a coarse
+   * mesh, at the cost of a texture lookup per fragment.  Default is off.
    */
-  void SetGeneratePointNormals(bool val);
-  bool GetGeneratePointNormals();
-  void SetGenerateCellNormals(bool val);
-  bool GetGenerateCellNormals();
-  void SetFeatureAngle(double val);
-  double GetFeatureAngle();
-  void SetSplitting(bool val);
-  bool GetSplitting();
+  void SetInterpolateScalarsBeforeMapping(bool val);
+  bool GetInterpolateScalarsBeforeMapping();
   ///@}
 
-  ///@{
   /**
-   * Mesh processing options (forwarded to vtkGeometryFilterDispatcher).
-   * Triangulate forces triangulation of the output (default off).
-   * NonlinearSubdivisionLevel controls subdivision of nonlinear cells
-   * for better approximation (default 1).
-   * MatchBoundariesIgnoringCellOrder removes internal faces between
-   * volumetric cells of different order (default off).
-   */
-  void SetTriangulate(bool val);
-  bool GetTriangulate();
-  void SetNonlinearSubdivisionLevel(int val);
-  int GetNonlinearSubdivisionLevel();
-  void SetMatchBoundariesIgnoringCellOrder(bool val);
-  bool GetMatchBoundariesIgnoringCellOrder();
-  ///@}
-
-  ///@{
-  /**
-   * Picking support (forwarded to vtkGeometryFilterDispatcher).
-   * When on, the output contains arrays mapping surface cells/points
-   * back to original input cell/point ids (default on).
-   */
-  void SetPassThroughCellIds(bool val);
-  bool GetPassThroughCellIds();
-  void SetPassThroughPointIds(bool val);
-  bool GetPassThroughPointIds();
-  ///@}
-
-  ///@{
-  /**
-   * Composite and AMR options (forwarded to vtkGeometryFilterDispatcher).
-   * BlockColorsDistinctValues sets the number of distinct values used
-   * in the vtkBlockColors array for composite datasets (default 7).
-   * HideInternalAMRFaces hides internal faces within AMR grids (default on).
-   * UseNonOverlappingAMRMetaDataForOutlines uses AMR metadata to generate
-   * outlines even for blocks without heavy data (default on).
-   */
-  void SetBlockColorsDistinctValues(int val);
-  int GetBlockColorsDistinctValues();
-  void SetHideInternalAMRFaces(bool val);
-  bool GetHideInternalAMRFaces();
-  void SetUseNonOverlappingAMRMetaDataForOutlines(bool val);
-  bool GetUseNonOverlappingAMRMetaDataForOutlines();
-  ///@}
-
-  ///@{
-  /**
-   * Parallel option (forwarded to vtkGeometryFilterDispatcher).
-   * When on, point and cell arrays named vtkProcessId are added to
-   * identify which MPI rank produced each element (default auto).
-   */
-  void SetGenerateProcessIds(bool val);
-  bool GetGenerateProcessIds();
-  ///@}
-
-  ///@{
-  /**
-   * Visibility, pickability, and actor transforms.
-   */
-  void SetVisibility(bool val);
-  bool GetVisibility();
-  void SetPickable(bool val);
-  bool GetPickable();
-  void SetPosition(double x, double y, double z);
-  double* GetPosition() VTK_SIZEHINT(3);
-  void SetOrientation(double x, double y, double z);
-  double* GetOrientation() VTK_SIZEHINT(3);
-  void SetScale(double x, double y, double z);
-  double* GetScale() VTK_SIZEHINT(3);
-  ///@}
-
-  ///@{
-  /**
-   * Scalar bar control.
-   */
-  void SetScalarBarVisibility(bool val);
-  bool GetScalarBarVisibility();
-  vtkScalarBarActor* GetScalarBarActor();
-  ///@}
-
-  ///@{
-  /**
-   * Selection display properties.
-   * These control the appearance of highlighted cells or points
-   * when a selection is active.  Defaults: red color, wireframe,
-   * line width 2, opacity 1.
-   */
-  void SetSelectionColor(double r, double g, double b);
-  double* GetSelectionColor() VTK_SIZEHINT(3);
-  void SetSelectionOpacity(double val);
-  double GetSelectionOpacity();
-  void SetSelectionLineWidth(double val);
-  double GetSelectionLineWidth();
-  void SetSelectionPointSize(double val);
-  double GetSelectionPointSize();
-  /**
-   * The selection is drawn from the same geometry as the representation
-   * itself, so only the property-level RepresentationType values (POINTS,
-   * WIREFRAME, SURFACE, SURFACE_WITH_EDGES) apply here.  OUTLINE and
-   * FEATURE_EDGES are rejected with a warning.
+   * Per-block appearance for a composite input: whether a block is drawn, and
+   * in what color and opacity, by flat block index.
    *
-   * Until this is set, the selection style follows the selection itself:
-   * point selections are drawn as points and cell selections as wireframe.
-   * Calling this setter pins the style to the requested value for every
-   * subsequent selection.  The getter always reports the style in effect.
+   * Those live in an object of their own because addressing a block by index
+   * means walking the data to find it, which every one of them would otherwise
+   * have to remember to do:
+   *
+   * @code
+   * rep->GetBlocks()->SetVisibility(2, false);
+   * @endcode
+   */
+  vtkBlockProperties* GetBlocks();
+
+  ///@{
+  /**
+   * The vtkScivisDataRepresentation contract.  The rendered array is resolved from
+   * the data, so it reports the active scalars when no array has been selected,
+   * and answers for the first block of a composite input that has anything to
+   * say.  The range is reported over the input rather than over the extracted
+   * surface, so that it agrees with what a volume of the same data would say.
+   */
+  void SetVisibility(bool val) override;
+  bool GetVisibility() override;
+  bool GetBounds(double bounds[6]) override;
+  const char* GetRenderedArrayName() override;
+  int GetRenderedFieldAssociation() override;
+  bool GetDataRange(
+    const char* arrayName, int fieldAssoc, double range[2], int component = -1) override;
+  void SetColorMap(vtkScalarsToColors* map) override;
+  vtkScalarsToColors* GetColorMap() override;
+  ///@}
+
+  ///@{
+  /**
+   * How a selection made in a view is drawn over the surface.  The selection is
+   * drawn from the same geometry as the representation itself, so only the
+   * property-level values (POINTS, WIREFRAME, SURFACE, SURFACE_WITH_EDGES)
+   * apply here; OUTLINE and FEATURE_EDGES are rejected with a warning.
+   *
+   * Until this is set, the style follows the selection itself: point selections
+   * are drawn as points and cell selections as wireframe.  Calling this setter
+   * pins the style to the requested value for every subsequent selection.  The
+   * getter always reports the style in effect.
+   *
+   * For the color, opacity, line width and point size of the highlight, use
+   * GetSelectionActor()->GetProperty().
    */
   void SetSelectionRepresentation(int type);
   int GetSelectionRepresentation();
   ///@}
 
+  ///@{
   /**
-   * Provide access to the internal selection actor for advanced usage.
-   */
-  vtkActor* GetSelectionActor();
-
-  /**
-   * Provide access to the internal actor for advanced usage.
+   * The objects this representation is built from, for everything the API above
+   * does not cover.
+   *
+   * Note that the representation holds the geometry filter to the pass-through
+   * of original point and cell ids, which is what lets a selection made in a
+   * view be mapped back to the input.  Turning that off breaks selection.
    */
   vtkActor* GetActor();
+  vtkProperty* GetProperty();
+  vtkGeometryFilterDispatcher* GetGeometryFilter();
+  vtkActor* GetSelectionActor();
+  ///@}
 
 protected:
   vtkSurfaceRepresentation();
@@ -331,10 +267,10 @@ protected:
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  bool AddToView(vtkView* view) override;
-  bool RemoveFromView(vtkView* view) override;
+  bool AddToView(vtkScivisView* view) override;
+  bool RemoveFromView(vtkScivisView* view) override;
 
-  vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection) override;
+  vtkSelection* ConvertSelection(vtkScivisView* view, vtkSelection* selection) override;
 
 private:
   vtkSurfaceRepresentation(const vtkSurfaceRepresentation&) = delete;
@@ -352,11 +288,16 @@ private:
    */
   void ColorByComponent(int component);
 
+  /**
+   * The array being mapped to colors, and the attributes it comes from, as the
+   * mapper resolves them from the data.
+   */
+  vtkDataArray* GetRenderedScalars(int& fieldAssoc);
+
   vtkNew<vtkGeometryFilterDispatcher> GeometryFilter;
   vtkNew<vtkCompositePolyDataMapper> Mapper;
   vtkNew<vtkActor> Actor;
-  vtkNew<vtkScalarBarActor> ScalarBar;
-  bool ScalarBarVisible;
+  vtkNew<vtkBlockProperties> Blocks;
   int RepresentationValue;
 
   vtkNew<vtkExtractSelection> SelectionExtractor;

@@ -11,7 +11,9 @@
 #include "vtkPointData.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkRenderWindow.h"
-#include "vtkStandardRenderView.h"
+#include "vtkScivisView.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 #include "vtkVolumeRepresentation.h"
 
 #include "vtkRegressionTestImage.h"
@@ -123,24 +125,16 @@ int TestVolumeRepresentation(int argc, char* argv[])
 
   // Test volume properties
   rep->SetShade(true);
-  rep->SetAmbient(0.1);
-  rep->SetDiffuse(0.9);
-  rep->SetSpecular(0.2);
-  rep->SetSpecularPower(10.0);
+  rep->GetVolumeProperty()->SetAmbient(0.1);
+  rep->GetVolumeProperty()->SetDiffuse(0.9);
+  rep->GetVolumeProperty()->SetSpecular(0.2);
+  rep->GetVolumeProperty()->SetSpecularPower(10.0);
 
   // Test visibility and transforms
   rep->SetVisibility(true);
-  rep->SetPosition(0.0, 0.0, 0.0);
-  rep->SetOrientation(0.0, 0.0, 0.0);
-  rep->SetScale(1.0, 1.0, 1.0);
-
-  // Test scalar bar
-  rep->SetScalarBarVisibility(true);
-  if (!rep->GetScalarBarActor())
-  {
-    std::cerr << "GetScalarBarActor() returned null after enabling." << std::endl;
-    return EXIT_FAILURE;
-  }
+  rep->GetVolume()->SetPosition(0.0, 0.0, 0.0);
+  rep->GetVolume()->SetOrientation(0.0, 0.0, 0.0);
+  rep->GetVolume()->SetScale(1.0, 1.0, 1.0);
 
   // Test GetVolume
   if (!rep->GetVolume())
@@ -150,7 +144,7 @@ int TestVolumeRepresentation(int argc, char* argv[])
   }
 
   // Add to a view and render
-  vtkNew<vtkStandardRenderView> view;
+  vtkNew<vtkScivisView> view;
   view->GetRenderWindow()->SetOffScreenRendering(true);
   view->SetWindowSize(300, 300);
   view->AddRepresentation(rep);
