@@ -14,11 +14,12 @@ DEPENDS
   VTK::CommonExecutionModel
   VTK::FiltersParallel
   VTK::InteractionWidgets
+  VTK::RenderingAnnotation
   VTK::RenderingCore
 PRIVATE_DEPENDS
+  VTK::CommonColor
   VTK::FiltersExtraction
   VTK::InteractionStyle
-  VTK::RenderingAnnotation
   VTK::RenderingUI
   VTK::RenderingVolume
   VTK::RenderingVolumeOpenGL2

@@ -1,5 +1,6 @@
 set(classes
   vtkBlockProperties
+  vtkLookupTableManager
   vtkScivisDataRepresentation
   vtkScivisRepresentation
   vtkScivisView
