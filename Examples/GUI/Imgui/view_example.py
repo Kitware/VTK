@@ -161,6 +161,25 @@ def custom_gui():
     imgui.begin_child("Sidebar", imgui.ImVec2(sidebar_width, avail.y), child_flags=imgui.ChildFlags_.borders)
 
     # Lighting section.
+    # Camera section.  Each button looks from a standard direction and frames
+    # the scene; the camera itself is view.GetCamera() for anything finer.
+    if imgui.collapsing_header("Camera", imgui.TreeNodeFlags_.default_open):
+        for label, look in [("-X", view.ViewPositiveX), ("+X", view.ViewNegativeX),
+                            ("-Y", view.ViewPositiveY), ("+Y", view.ViewNegativeY),
+                            ("-Z", view.ViewPositiveZ), ("+Z", view.ViewNegativeZ)]:
+            if imgui.button(label, imgui.ImVec2(38, 0)):
+                look()
+            imgui.same_line()
+        imgui.new_line()
+
+        if imgui.button("Isometric"):
+            view.ViewIsometric()
+        imgui.same_line()
+        if imgui.button("Reset"):
+            view.ResetCamera()
+
+    imgui.spacing()
+
     if imgui.collapsing_header("Lighting", imgui.TreeNodeFlags_.default_open):
         changed, state.use_light_kit = imgui.checkbox("Use Light Kit", state.use_light_kit)
         if changed:
