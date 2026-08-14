@@ -16,6 +16,7 @@
 #include "vtkLight.h"
 #include "vtkLightKit.h"
 #include "vtkLookupTableManager.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOrientationMarkerWidget.h"
 #include "vtkProp.h"
@@ -33,6 +34,7 @@
 #include "vtkSelectionNode.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -460,6 +462,83 @@ void vtkScivisView::ProcessEvents(
 vtkScivisSelector* vtkScivisView::GetSelector()
 {
   return this->Selector;
+}
+
+//------------------------------------------------------------------------------
+vtkCamera* vtkScivisView::GetCamera()
+{
+  return this->Renderer->GetActiveCamera();
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisView::SetViewDirection(double look[3], double up[3])
+{
+  this->SetViewDirection(look[0], look[1], look[2], up[0], up[1], up[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisView::SetViewDirection(
+  double lookX, double lookY, double lookZ, double upX, double upY, double upZ)
+{
+  vtkCamera* camera = this->GetCamera();
+  // Put the camera at the origin looking along the direction asked for; framing
+  // then slides it back along that direction until the scene fits.
+  camera->SetPosition(0.0, 0.0, 0.0);
+  camera->SetFocalPoint(lookX, lookY, lookZ);
+  camera->SetViewUp(upX, upY, upZ);
+  this->ResetCamera();
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisView::ViewPositiveX()
+{
+  this->SetViewDirection(1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisView::ViewNegativeX()
+{
+  this->SetViewDirection(-1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisView::ViewPositiveY()
+{
+  this->SetViewDirection(0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisView::ViewNegativeY()
+{
+  this->SetViewDirection(0.0, -1.0, 0.0, 0.0, 0.0, 1.0);
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisView::ViewPositiveZ()
+{
+  this->SetViewDirection(0.0, 0.0, 1.0, 0.0, 1.0, 0.0);
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisView::ViewNegativeZ()
+{
+  this->SetViewDirection(0.0, 0.0, -1.0, 0.0, 1.0, 0.0);
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisView::ViewIsometric()
+{
+  vtkCamera* camera = this->GetCamera();
+  camera->SetPosition(0.0, 0.0, 0.0);
+  camera->SetFocalPoint(0.0, 0.0, -1.0);
+  camera->SetViewUp(0.0, 1.0, 0.0);
+  // Turn 45 degrees about the up axis and rise until all three axes are equally
+  // foreshortened, which is asin(tan(30 degrees)), about 35.26 degrees.
+  const double elevation = vtkMath::DegreesFromRadians(std::asin(std::tan(vtkMath::Pi() / 6.0)));
+  camera->Azimuth(45.0);
+  camera->Elevation(elevation);
+  camera->OrthogonalizeViewUp();
+  this->ResetCamera();
 }
 
 //------------------------------------------------------------------------------
