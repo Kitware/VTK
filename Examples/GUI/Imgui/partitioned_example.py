@@ -49,13 +49,19 @@ rep = view.show(pdsc, specular=0.3, specular_power=20)
 # Color by composite index to distinguish partitions.
 rep.ColorByCellArray("vtkCompositeIndex")
 
-# The lookup table carries the range that scalars are mapped through.
+# The lookup table carries the range that scalars are mapped through.  Register
+# it with the view's manager rather than setting it on the representation: the
+# view hands every representation drawing an array the manager's table for it,
+# and a table registered here keeps the range it was given.
 lut = vtkLookupTable(number_of_table_values=4, range=(2, 5))
 lut.SetTableValue(0, 0.23, 0.30, 0.75, 1.0)  # blue  (index 2)
 lut.SetTableValue(1, 0.87, 0.40, 0.20, 1.0)  # orange (index 3)
 lut.SetTableValue(2, 0.17, 0.63, 0.17, 1.0)  # green  (index 4)
 lut.SetTableValue(3, 0.84, 0.15, 0.16, 1.0)  # red    (index 5)
-rep.color_map = lut
+view.lookup_table_manager.SetLookupTable("vtkCompositeIndex", lut)
+
+# The view labels the scene with a scalar bar for each array being drawn, so
+# this one is titled "vtkCompositeIndex" and shows the colors above.
 
 viewer = VtkViewer(view=view)
 
@@ -167,7 +173,6 @@ def custom_gui():
         if changed:
             if state.color_by_composite:
                 rep.ColorByCellArray("vtkCompositeIndex")
-                rep.color_map = lut
             else:
                 rep.scalar_visibility = False
                 rep.color = tuple(state.rep_color)
