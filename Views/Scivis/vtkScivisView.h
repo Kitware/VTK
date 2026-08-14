@@ -73,6 +73,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkInteractorObserver;
 class vtkInteractorStyleRubberBand3D;
 class vtkInteractorStyleTrackballCamera;
+class vtkLight;
 class vtkLightKit;
 class vtkOrientationMarkerWidget;
 class vtkScivisSelector;
@@ -174,7 +175,11 @@ public:
   /**
    * Enable or disable the light kit: a five light rig -- key, fill, headlight
    * and two back lights -- managed by vtkLightKit.  Default is off, which
-   * leaves the renderer with the single headlight VTK creates for itself.
+   * leaves the scene lit by a single headlight the view owns.
+   *
+   * Only that headlight gives way to the kit.  Lights added to the renderer,
+   * which GetRenderer() returns, keep lighting the scene whether the kit is on
+   * or off, and survive it being switched either way.
    */
   void SetUseLightKit(bool val);
   bool GetUseLightKit();
@@ -316,6 +321,9 @@ private:
 
   vtkNew<vtkOrientationMarkerWidget> OrientationWidget;
   vtkNew<vtkLightKit> LightKit;
+  // The headlight that lights the scene while the light kit is off.  Owning one
+  // is what keeps vtkRenderer from inventing its own -- see the constructor.
+  vtkNew<vtkLight> DefaultLight;
   vtkNew<vtkScivisSelector> Selector;
 
   // One instance of each built-in style, so switching modes preserves whatever

@@ -4,6 +4,7 @@ vtk_add_test_cxx(vtkViewsScivisCxxTests tests
   TestScivisView.cxx
   TestScivisViewSelection.cxx,NO_VALID
   TestSurfaceRepresentation.cxx
+  TestViewLighting.cxx,NO_VALID
   TestVolumeRepresentation.cxx
   )
 

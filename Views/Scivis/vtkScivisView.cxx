@@ -12,6 +12,7 @@
 #include "vtkInteractorStyleRubberBand2D.h"
 #include "vtkInteractorStyleRubberBand3D.h"
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkLight.h"
 #include "vtkLightKit.h"
 #include "vtkObjectFactory.h"
 #include "vtkOrientationMarkerWidget.h"
@@ -124,6 +125,14 @@ vtkScivisView::vtkScivisView()
   this->Renderer->SetBackground(0.32, 0.34, 0.43);
   this->Renderer->SetBackground2(0.0, 0.0, 0.17);
   this->Renderer->SetGradientBackground(true);
+
+  // vtkRenderer makes a headlight of its own whenever it is asked to render
+  // with no lights, and offers no way to ask which light that was.  Owning one
+  // here means the renderer is never lightless, so it never makes one, and
+  // enabling the light kit can put back exactly what it displaced instead of
+  // clearing everything the application added.
+  this->DefaultLight->SetLightTypeToHeadlight();
+  this->Renderer->AddLight(this->DefaultLight);
 
   // Selection lives in its own object; it needs to know which view it selects in.
   this->Selector->SetView(this);
@@ -289,15 +298,15 @@ void vtkScivisView::SetUseLightKit(bool val)
   this->UseLightKitFlag = val;
   if (val)
   {
-    // Remove any existing lights (e.g. the default headlight that VTK
-    // auto-creates when the renderer has no lights) before adding the
-    // light kit, so we don't accumulate extra lights on toggle.
-    this->Renderer->RemoveAllLights();
+    // The kit replaces this view's headlight and nothing else; lights the
+    // application added are its own business and stay where they are.
+    this->Renderer->RemoveLight(this->DefaultLight);
     this->LightKit->AddLightsToRenderer(this->Renderer);
   }
   else
   {
     this->LightKit->RemoveLightsFromRenderer(this->Renderer);
+    this->Renderer->AddLight(this->DefaultLight);
   }
   this->Modified();
 }
