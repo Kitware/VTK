@@ -3,6 +3,7 @@ set(classes
   vtkLookupTableManager
   vtkScivisDataRepresentation
   vtkScivisRepresentation
+  vtkScivisScalarBars
   vtkScivisView
   vtkScivisSelector
   vtkSurfaceRepresentation

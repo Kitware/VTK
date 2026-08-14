@@ -6,6 +6,7 @@
 #include "vtkAxesActor.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
+#include "vtkCoordinate.h"
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
 #include "vtkInteractorObserver.h"
@@ -14,6 +15,7 @@
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkLight.h"
 #include "vtkLightKit.h"
+#include "vtkLookupTableManager.h"
 #include "vtkObjectFactory.h"
 #include "vtkOrientationMarkerWidget.h"
 #include "vtkProp.h"
@@ -22,7 +24,10 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkScalarsToColors.h"
+#include "vtkScivisDataRepresentation.h"
 #include "vtkScivisRepresentation.h"
+#include "vtkScivisScalarBars.h"
 #include "vtkScivisSelector.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
@@ -93,6 +98,11 @@ vtkScivisView::vtkScivisView()
 {
   this->Implementation = new Internals();
   this->Observer = vtkScivisView::Command::New();
+
+  // Created here rather than on demand so that GetLookupTableManager() stays a
+  // getter and does not move the view's modified time.
+  this->LookupTableManager = vtkSmartPointer<vtkLookupTableManager>::New();
+  this->ScalarBars->SetView(this);
   this->Observer->SetTarget(this);
 
   this->Renderer = vtkSmartPointer<vtkRenderer>::New();
@@ -179,6 +189,8 @@ vtkMTimeType vtkScivisView::GetMTime()
   mTime = std::max(mTime, this->LightKit->GetMTime());
   mTime = std::max(mTime, this->OrientationWidget->GetMTime());
   mTime = std::max(mTime, this->Selector->GetMTime());
+  mTime = std::max(mTime, this->LookupTableManager->GetMTime());
+  mTime = std::max(mTime, this->ScalarBars->GetMTime());
   return mTime;
 }
 
@@ -482,6 +494,8 @@ void vtkScivisView::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FirstRender: " << this->FirstRender << "\n";
+  os << indent << "ScalarBars:\n";
+  this->ScalarBars->PrintSelf(os, indent.GetNextIndent());
   os << indent << "OrientationAxesVisibility: " << this->OrientationWidget->GetEnabled() << "\n";
   os << indent << "UseLightKit: " << this->UseLightKitFlag << "\n";
   os << indent << "InteractionMode: " << this->InteractionMode << "\n";
@@ -717,9 +731,36 @@ void vtkScivisView::Update()
 }
 
 //------------------------------------------------------------------------------
+void vtkScivisView::SetLookupTableManager(vtkLookupTableManager* manager)
+{
+  if (this->LookupTableManager == manager)
+  {
+    return;
+  }
+  // A view without a manager could not color anything, so null installs a fresh
+  // one rather than leaving the view without.
+  this->LookupTableManager =
+    manager ? manager : vtkSmartPointer<vtkLookupTableManager>::New().Get();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+vtkLookupTableManager* vtkScivisView::GetLookupTableManager()
+{
+  return this->LookupTableManager;
+}
+
+//------------------------------------------------------------------------------
+vtkScivisScalarBars* vtkScivisView::GetScalarBars()
+{
+  return this->ScalarBars;
+}
+
+//------------------------------------------------------------------------------
 void vtkScivisView::PrepareForRendering()
 {
   this->Update();
+  this->ScalarBars->Update();
 }
 
 //------------------------------------------------------------------------------
