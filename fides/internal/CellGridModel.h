@@ -14,6 +14,7 @@
 #include <fides/internal/DataObjectModel.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace fides
@@ -36,6 +37,13 @@ struct CellGridModel : public DataObjectModel
   ~CellGridModel() override;
 
   std::vector<std::unique_ptr<CellGridAttribute>> Attributes;
+
+  /// Optional per-schema-entry filter restricting which cell types are built.
+  /// This list comes from a "cell_types" string array in the cell_grid body.
+  /// When non-empty, any "cell_types" in the source that aren't also in this
+  /// array are omitted. If the "cell_types" string array is missing or empty
+  /// from the schema, all cells of any type in the source are included.
+  std::vector<std::string> CellTypeFilter;
 
   void ProcessJSON(const rapidjson::Value& root, DataSourcesType& sources) override;
 
