@@ -1908,7 +1908,7 @@ void vtkWebGPUPolyDataMapper::UpdateClippingPlanesBuffer(
   if (this->ClippingPlanesBuffer == nullptr)
   {
     const auto label = this->GetObjectDescription() + "-ClippingPlanesBuffer";
-    WGPUBufferDescriptor desc = {};
+    WGPUBufferDescriptor desc = WGPU_BUFFER_DESCRIPTOR_INIT;
     desc.label = vtkWebGPUMakeStringView(label);
     desc.mappedAtCreation = false;
     desc.size = vtkWebGPUConfiguration::Align(sizeof(this->ClippingPlanesData), 16);
@@ -2128,9 +2128,12 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
       this->GetObjectDescription() + "TopologyBindGroupLayout", homogeneousCellSize,
       useEdgeArrray));
 
-    descriptor.layout =
+    // Held in a local: the descriptor stores only the raw handle, so the
+    // reference has to outlive the CreateRenderPipeline call below.
+    vtkWebGPU::PipelineLayout pipelineLayout =
       vtkWebGPU::PipelineLayout::Acquire(vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
         device, bgls, this->GetObjectDescription() + "-PipelineLayout"));
+    descriptor.layout = pipelineLayout;
 
     const auto label =
       this->GetObjectDescription() + this->GetGraphicsPipelineTypeAsString(pipelineType);

@@ -142,7 +142,7 @@ void vtkWebGPUPointCloudMapperInternals::CreateCopyDepthBufferRenderPipeline(
   this->CopyDepthBufferPipeline.BindGroup =
     vtkWebGPU::BindGroup::Acquire(vtkWebGPUBindGroupInternals::MakeBindGroup(device, bgl,
       {
-        { 0, bufferStorage->GetWGPUBuffer(this->PointDepthBufferIndex) },
+        { 0, bufferStorage->GetWGPUBuffer(this->PointDepthBufferIndex).Get() },
         { 1, this->CopyDepthBufferPipeline.FramebufferWidthUniformBuffer },
       }));
 

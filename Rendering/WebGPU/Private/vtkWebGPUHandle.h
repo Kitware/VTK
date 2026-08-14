@@ -12,8 +12,10 @@
  * vtkWebGPU::Handle wraps a raw handle and issues the AddRef/Release calls on
  * copy, move and destruction, giving the same convenience the `wgpu::` C++
  * wrapper provided without requiring `webgpu_cpp.h` (and therefore without
- * requiring C++20). It implicitly converts back to the raw handle, so a
- * vtkWebGPU::Buffer can be passed directly to any C API entry point.
+ * requiring C++20). A named handle implicitly converts back to the raw handle,
+ * so a vtkWebGPU::Buffer can be passed directly to any C API entry point. The
+ * conversion is deleted for temporaries, so a handle cannot be dropped into a
+ * raw pointer field and released out from under it.
  *
  * Ownership is explicit at construction:
  * - `Acquire(raw)` adopts a handle the caller already owns a reference to (the
@@ -134,7 +136,16 @@ public:
    * implicit conversion lets a Handle be passed straight to the C API.
    */
   T Get() const { return this->Raw; }
-  operator T() const { return this->Raw; } // NOLINT(google-explicit-constructor)
+  operator T() const& { return this->Raw; } // NOLINT(google-explicit-constructor)
+
+  /**
+   * Deleted so that a temporary cannot silently decay to a raw handle. Storing
+   * the result of `Handle::Acquire(...)` into a raw field would release the
+   * object at the end of the statement and leave the field dangling; bind the
+   * handle to a named variable that outlives the use, or call `Get()`/`Release()`
+   * to say explicitly which lifetime is intended.
+   */
+  operator T() const&& = delete;
   ///@}
 
   explicit operator bool() const { return this->Raw != nullptr; }
