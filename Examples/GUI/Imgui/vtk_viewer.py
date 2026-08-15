@@ -74,6 +74,13 @@ class VtkViewer:
         phys_w, phys_h = int(size.x * dpi_scale.x), int(size.y * dpi_scale.y)
 
         self.render_window.size = (phys_w, phys_h)
+        # Text is sized in points and turned into pixels using the window's DPI.
+        # A vtkGenericOpenGLRenderWindow never detects that itself -- only the
+        # native windows do, and imgui owns the context here -- so on a display
+        # with a framebuffer larger than its logical size the framebuffer would
+        # double while the text stayed put, and every label would come out half
+        # the size it should be.
+        self.render_window.SetDPI(round(72 * dpi_scale.y))
         if self.view is not None:
             self.view.Render()
         else:
