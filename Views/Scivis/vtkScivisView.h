@@ -65,7 +65,8 @@
 #ifndef vtkScivisView_h
 #define vtkScivisView_h
 
-#include "vtkNew.h" // For ivars
+#include "vtkCommand.h" // For the event id
+#include "vtkNew.h"     // For ivars
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"      // For ivars
 #include "vtkViewsScivisModule.h" // For export macro
@@ -349,6 +350,31 @@ public:
   void SetViewDirection(
     double lookX, double lookY, double lookZ, double upX, double upY, double upZ);
 
+  /**
+   * Events this view fires.
+   *
+   * BoundsChangedEvent is fired when the extent of what the representations are
+   * drawing changes, before anything is drawn, with the new bounds as call
+   * data.  It is how something that has to fit the scene -- axes around it, a
+   * scale bar measuring it -- is told to resize without polling for it.  Bounds
+   * come from the representations rather than from the renderer's props, so
+   * whatever is listening does not feed its own size back in.
+   */
+  enum
+  {
+    BoundsChangedEvent = vtkCommand::UserEvent + 1
+  };
+
+  /**
+   * The extent of what the visible representations are drawing, which is not
+   * the same as what the renderer would report: this is the data, and takes no
+   * account of annotations drawn around it.
+   *
+   * Returns false and leaves @a bounds untouched when nothing with data is
+   * being drawn.
+   */
+  bool GetSceneBounds(double bounds[6]);
+
   void Start();
 
   /**
@@ -414,6 +440,11 @@ private:
   vtkNew<vtkLightKit> LightKit;
   vtkSmartPointer<vtkLookupTableManager> LookupTableManager;
   vtkNew<vtkScivisScalarBars> ScalarBars;
+
+  // The scene bounds last reported, so that the event fires on a change
+  // rather than on every render.
+  double SceneBounds[6];
+  bool HasSceneBounds;
   // The headlight that lights the scene while the light kit is off.  Owning one
   // is what keeps vtkRenderer from inventing its own -- see the constructor.
   vtkNew<vtkLight> DefaultLight;

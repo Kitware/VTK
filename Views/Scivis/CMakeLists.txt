@@ -1,5 +1,6 @@
 set(classes
   vtkBlockProperties
+  vtkGridAxesRepresentation
   vtkLookupTableManager
   vtkScivisDataRepresentation
   vtkScivisExporter

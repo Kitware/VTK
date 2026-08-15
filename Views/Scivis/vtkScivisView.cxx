@@ -4,6 +4,7 @@
 #include "vtkScivisView.h"
 
 #include "vtkAxesActor.h"
+#include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkCoordinate.h"
@@ -106,6 +107,8 @@ vtkScivisView::vtkScivisView()
   // getter and does not move the view's modified time.
   this->LookupTableManager = vtkSmartPointer<vtkLookupTableManager>::New();
   this->ScalarBars->SetView(this);
+  this->HasSceneBounds = false;
+  std::fill(this->SceneBounds, this->SceneBounds + 6, 0.0);
   this->Observer->SetTarget(this);
 
   this->Renderer = vtkSmartPointer<vtkRenderer>::New();
@@ -845,9 +848,50 @@ vtkScivisScalarBars* vtkScivisView::GetScalarBars()
 }
 
 //------------------------------------------------------------------------------
+bool vtkScivisView::GetSceneBounds(double bounds[6])
+{
+  vtkBoundingBox box;
+  for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
+  {
+    auto* rep = vtkScivisDataRepresentation::SafeDownCast(this->GetRepresentation(i));
+    if (!rep || !rep->GetVisibility())
+    {
+      continue;
+    }
+    double representationBounds[6];
+    if (rep->GetBounds(representationBounds) && vtkBoundingBox::IsValid(representationBounds))
+    {
+      box.AddBounds(representationBounds);
+    }
+  }
+  if (!box.IsValid())
+  {
+    return false;
+  }
+  box.GetBounds(bounds);
+  return true;
+}
+
+//------------------------------------------------------------------------------
 void vtkScivisView::PrepareForRendering()
 {
   this->Update();
+
+  // Bounds are worth reporting only once the representations are up to date,
+  // and only while there is still time for a listener to resize itself.
+  double bounds[6];
+  const bool valid = this->GetSceneBounds(bounds);
+  if (valid != this->HasSceneBounds ||
+    (valid && !std::equal(bounds, bounds + 6, this->SceneBounds)))
+  {
+    this->HasSceneBounds = valid;
+    if (valid)
+    {
+      std::copy(bounds, bounds + 6, this->SceneBounds);
+    }
+    this->InvokeEvent(vtkScivisView::BoundsChangedEvent, valid ? this->SceneBounds : nullptr);
+  }
+
   this->ScalarBars->Update();
 }
 
