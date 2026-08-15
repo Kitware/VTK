@@ -28,6 +28,7 @@ imported.
 from vtkmodules.util import colors as _colors
 from vtkmodules.vtkViewsScivis import (
     vtkGridAxesRepresentation,
+    vtkScivisScalarBars,
     vtkScivisView,
     vtkSurfaceRepresentation,
     vtkTextOverlayRepresentation,
@@ -237,6 +238,29 @@ class SurfaceRepresentation(_Delegating, vtkSurfaceRepresentation):
         self.SetEdgeColor(*_resolve_color(value))
 
 
+@vtkScivisScalarBars.override
+class ScalarBars(vtkScivisScalarBars):
+    """``vtkScivisScalarBars`` as a sequence of the bars it is maintaining.
+
+    ``len(view.scalar_bars)`` and iterating over it read the bars the view has
+    made, which is what reporting on them looks like::
+
+        for bar in view.scalar_bars:
+            print(bar.title, bar.lookup_table.range)
+
+    A bar's title is the array it is labelled with.  Use ``GetActor(name,
+    association)`` to reach one for a particular array instead.
+    """
+
+    def __len__(self):
+        return self.GetNumberOfBars()
+
+    def __getitem__(self, index):
+        if not 0 <= index < self.GetNumberOfBars():
+            raise IndexError(f"there is no scalar bar {index}")
+        return self.GetActor(index)
+
+
 @vtkGridAxesRepresentation.override
 class GridAxesRepresentation(_Delegating, vtkGridAxesRepresentation):
     """``vtkGridAxesRepresentation`` with named colors and property delegation."""
@@ -309,6 +333,14 @@ class ScivisView(_Delegating, vtkScivisView):
     @size.setter
     def size(self, value):
         self.SetWindowSize(*value)
+
+    def __len__(self):
+        return self.GetNumberOfRepresentations()
+
+    def __getitem__(self, index):
+        if not 0 <= index < self.GetNumberOfRepresentations():
+            raise IndexError(f"there is no representation {index}")
+        return self.GetRepresentation(index)
 
     def __iadd__(self, representation):
         self.AddRepresentation(representation)

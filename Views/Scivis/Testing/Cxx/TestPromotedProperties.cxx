@@ -185,13 +185,33 @@ int TestNeitherSideIsACopy()
   return EXIT_SUCCESS;
 }
 
+// ColorBySolidColor completes the family: it stops coloring by an array without
+// disturbing the color to go back to.
+int TestColorBySolidColor()
+{
+  vtkNew<vtkSphereSource> sphere;
+  vtkNew<vtkSurfaceRepresentation> surface;
+  surface->SetInputConnection(sphere->GetOutputPort());
+
+  surface->SetColor(0.2, 0.4, 0.6);
+  surface->ColorByPointArray("Normals");
+  CHECK(surface->GetScalarVisibility(), "coloring by an array did not take");
+  CHECK(surface->GetColor()[1] == 0.4, "coloring by an array threw away the solid color");
+
+  surface->ColorBySolidColor();
+  CHECK(!surface->GetScalarVisibility(), "the array is still being drawn");
+  CHECK(surface->GetColor()[1] == 0.4, "the color to go back to was not kept");
+
+  return EXIT_SUCCESS;
+}
+
 }
 
 int TestPromotedProperties(int, char*[])
 {
   if (TestGridAxes() != EXIT_SUCCESS || TestScalarBarsStyleReachesBarsMadeLater() != EXIT_SUCCESS ||
     TestTextOverlay() != EXIT_SUCCESS || TestSurfaceAndVolume() != EXIT_SUCCESS ||
-    TestNeitherSideIsACopy() != EXIT_SUCCESS)
+    TestNeitherSideIsACopy() != EXIT_SUCCESS || TestColorBySolidColor() != EXIT_SUCCESS)
   {
     return EXIT_FAILURE;
   }

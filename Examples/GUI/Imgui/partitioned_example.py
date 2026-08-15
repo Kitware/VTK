@@ -174,8 +174,8 @@ def custom_gui():
             if state.color_by_composite:
                 rep.ColorByCellArray("vtkCompositeIndex")
             else:
-                rep.scalar_visibility = False
                 rep.color = tuple(state.rep_color)
+                rep.ColorBySolidColor()
 
         if not state.color_by_composite:
             changed, state.rep_color = imgui.color_edit3("Color", state.rep_color)

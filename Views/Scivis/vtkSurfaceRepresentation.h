@@ -171,6 +171,7 @@ public:
   void ColorByCellArray(const char* arrayName, int component);
   void ColorByFieldArray(const char* arrayName);
   void ColorByFieldArray(const char* arrayName, int component);
+  void ColorBySolidColor();
   void ResetColorArray();
   ///@}
 

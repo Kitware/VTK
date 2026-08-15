@@ -425,6 +425,15 @@ void vtkSurfaceRepresentation::GetEdgeColor(double rgb[3])
 }
 
 //------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::ColorBySolidColor()
+{
+  // The counterpart of the three above: stop coloring by an array, and go back
+  // to the color the representation was given.  That color is left alone, so
+  // one set while an array was being drawn is what comes back.
+  this->SetScalarVisibility(false);
+}
+
+//------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetScalarVisibility(bool val)
 {
   if (this->GetScalarVisibility() == val)

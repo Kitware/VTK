@@ -52,3 +52,27 @@ view->GetScalarBars()->SetNumberOfLabels(9);
 `BarWidth` and `BarHeight` say how much of the viewport a bar takes up. Bars are
 stacked down the right hand edge at that size, shrinking below `BarHeight` when
 there are more of them than there is room for.
+
+### Collections read like collections
+
+The bars a view is maintaining, and the representations it is showing, are
+sequences in Python:
+
+```python
+print(f"{len(view.scalar_bars)} bar(s)")
+for bar in view.scalar_bars:
+    print(bar.title, bar.lookup_table.range)
+
+for representation in view:
+    ...
+```
+
+which goes with the `view += representation` the view already took.
+
+### Turning array coloring off has a name
+
+`ColorByPointArray()`, `ColorByCellArray()` and `ColorByFieldArray()` had no
+counterpart, so going back to a solid color meant knowing that scalar visibility
+was the switch behind them. `vtkSurfaceRepresentation::ColorBySolidColor()`
+completes the family and leaves the color alone, so the one set while an array
+was being drawn is what comes back.
