@@ -387,7 +387,8 @@ int vtkScivisView::GetInteractionMode()
 }
 
 //------------------------------------------------------------------------------
-void vtkScivisView::ProcessEvents(vtkObject* caller, unsigned long eventId, void* callData)
+void vtkScivisView::ProcessEvents(
+  vtkObject* caller, unsigned long eventId, void* vtkNotUsed(callData))
 {
   if (caller == this->GetInteractor()->GetInteractorStyle() &&
     eventId == vtkCommand::SelectionChangedEvent)
