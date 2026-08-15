@@ -6,9 +6,24 @@
 #include "vtkAlgorithm.h"
 #include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositePolyDataMapper.h"
+#include "vtkDataObject.h"
 #include "vtkObjectFactory.h"
+#include "vtkSurfaceRepresentation.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+// The block a flat index names, or null when it names nothing in the data being
+// drawn.  Resolving it is what lets an unset block be told from a set one:
+// vtkCompositeDataDisplayAttributes keys on the block itself, not on the index.
+vtkDataObject* BlockAt(vtkCompositePolyDataMapper* mapper, unsigned int index)
+{
+  vtkDataObject* input = mapper->GetInputDataObject(0, 0);
+  return input ? vtkCompositeDataDisplayAttributes::DataObjectFromIndex(index, input) : nullptr;
+}
+}
+
 vtkStandardNewMacro(vtkBlockProperties);
 
 //------------------------------------------------------------------------------
@@ -104,7 +119,25 @@ void vtkBlockProperties::GetColor(unsigned int index, double color[3])
   {
     return;
   }
-  this->Mapper->GetBlockColor(index, color);
+
+  vtkCompositeDataDisplayAttributes* attributes = this->Mapper->GetCompositeDataDisplayAttributes();
+  vtkDataObject* block = ::BlockAt(this->Mapper, index);
+  if (attributes && block && attributes->HasBlockColor(block))
+  {
+    attributes->GetBlockColor(block, color);
+    return;
+  }
+
+  // No color of its own, so the block is drawn in the representation's, and
+  // that is what this reports.  Asking the display attributes directly would
+  // say black, which is what they store for a block nobody has colored.
+  if (auto* surface = vtkSurfaceRepresentation::SafeDownCast(this->Representation))
+  {
+    double* representationColor = surface->GetColor();
+    color[0] = representationColor[0];
+    color[1] = representationColor[1];
+    color[2] = representationColor[2];
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -125,7 +158,23 @@ double vtkBlockProperties::GetOpacity(unsigned int index)
   {
     return 1.0;
   }
-  return this->Mapper->GetBlockOpacity(index);
+
+  vtkCompositeDataDisplayAttributes* attributes = this->Mapper->GetCompositeDataDisplayAttributes();
+  vtkDataObject* block = ::BlockAt(this->Mapper, index);
+  if (attributes && block && attributes->HasBlockOpacity(block))
+  {
+    return attributes->GetBlockOpacity(block);
+  }
+
+  // No opacity of its own, so the block is drawn at the representation's, and
+  // that is what this reports.  The display attributes would say zero, which is
+  // what they store for a block nobody has made transparent, and which would
+  // read as invisible.
+  if (auto* surface = vtkSurfaceRepresentation::SafeDownCast(this->Representation))
+  {
+    return surface->GetOpacity();
+  }
+  return 1.0;
 }
 
 //------------------------------------------------------------------------------
