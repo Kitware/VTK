@@ -34,6 +34,6 @@ print(f"wrote {scene} ({os.path.getsize(scene)} bytes)")
 # the window, and puts it back afterwards.
 view.exporter.transparent_background = True
 image = view.exporter.CaptureImage()
-print("captured", image.dimensions[:2], "with", image.GetNumberOfScalarComponents(), "components")
+print("captured", image.dimensions[:2], "with", image.number_of_scalar_components, "components")
 
 view.Start()

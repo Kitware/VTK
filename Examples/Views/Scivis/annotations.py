@@ -28,20 +28,17 @@ view += vtkTextOverlayRepresentation(
 # Axes that follow the scene.  There are no bounds to set: the view says when
 # the extent of what it is drawing changes and these resize themselves, which is
 # why growing the sphere below moves them without anything being told twice.
-axes = vtkGridAxesRepresentation(padding=0.05)
-axes.SetXTitle("x (m)")
-axes.SetYTitle("y (m)")
-axes.SetZTitle("z (m)")
-axes.label_font_size = 14
+axes = vtkGridAxesRepresentation(
+    padding=0.05, x_title="x (m)", y_title="y (m)", z_title="z (m)", label_font_size=14)
 view += axes
 
 view.ResetCamera()
 view.Render()
-print("axes around", [round(b, 2) for b in axes.GetGridAxesActor().GetGridBounds()])
+print("axes around", [round(b, 2) for b in axes.grid_axes_actor.grid_bounds])
 
-sphere.SetRadius(6.0)
+sphere.radius = 6.0
 view.Render()
-print("after the sphere grows:", [round(b, 2) for b in axes.GetGridAxesActor().GetGridBounds()])
+print("after the sphere grows:", [round(b, 2) for b in axes.grid_axes_actor.grid_bounds])
 
 view.ResetCamera()
 view.Start()

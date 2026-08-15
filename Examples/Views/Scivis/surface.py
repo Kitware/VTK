@@ -29,7 +29,7 @@ cylinder = view.show(vtkCylinderSource(center=(2, 0, 0), resolution=24),
 # Anything the view does not carry itself belongs to the object that owns it,
 # which it hands out rather than mirrors.
 view.light_kit.key_light_intensity = 0.8
-view.renderer.SetTwoSidedLighting(True)
+view.renderer.two_sided_lighting = True
 
 # The camera can be put on a standard direction, or reached for anything finer.
 view.ViewIsometric()

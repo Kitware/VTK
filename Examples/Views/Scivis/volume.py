@@ -23,7 +23,7 @@ volume = view.show(wavelet, "volume", scalar_opacity_unit_distance=1.5)
 volume.shade = True
 volume.ambient = 0.3
 volume.diffuse = 0.7
-volume.GetVolumeProperty().SetInterpolationTypeToLinear()
+volume.volume_property.interpolation_type = "linear"
 
 # The same data as an outline, to give the volume a frame of reference.
 view.show(wavelet, representation="outline", color="white")

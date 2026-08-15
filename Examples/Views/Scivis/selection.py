@@ -19,9 +19,9 @@ representation = view.show(sphere, color="steel_blue")
 
 
 def on_selection(caller, event):
-    selection = view.selector.GetCurrentSelection()
-    nodes = selection.GetNumberOfNodes() if selection else 0
-    picked = selection.GetNode(0).GetSelectionList().GetNumberOfTuples() if nodes else 0
+    # vtkSelection is a sequence of its nodes, and a node's list is an array.
+    selection = view.selector.current_selection
+    picked = len(selection[0].selection_list) if selection and len(selection) else 0
     print(f"selection changed: {picked} cell(s)")
 
 

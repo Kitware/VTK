@@ -21,12 +21,11 @@ for center, radius in [((-3, 0, 0), 1.0), ((3, 0, 0), 2.5)]:
     sphere = vtkSphereSource(center=center, radius=radius,
                              theta_resolution=48, phi_resolution=48)
     elevation = vtkElevationFilter(low_point=(0, -2.5, 0), high_point=(0, 2.5, 0))
-    elevation.SetInputConnection(sphere.GetOutputPort())
-    representation = view.show(elevation)
+    representation = view.show(sphere >> elevation)
     representation.ColorByPointArray("Elevation")
-    elevation.Update()
-    array = elevation.GetOutput().GetPointData().GetArray("Elevation")
-    print(f"  sphere r={radius}: Elevation over {tuple(round(v, 2) for v in array.range)}")
+
+    elevations = (sphere >> elevation)().point_data["Elevation"]
+    print(f"  sphere r={radius}: Elevation over {tuple(round(v, 2) for v in elevations.range)}")
 
 # The color map an array is drawn through comes from the view's manager, which
 # is a mapping of array name to map.  Register one to choose it; setting a map
