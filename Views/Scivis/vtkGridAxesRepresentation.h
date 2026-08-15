@@ -28,12 +28,6 @@
  * grow the axes to fit the axes.  Being a representation with no data of its
  * own is what keeps it out of the measurement it depends on.
  *
- * @par Readable by default:
- * The labels and titles start at 16 and 20 points rather than the 12 that
- * vtkTextProperty defaults to and vtkGridAxesActor3D leaves alone, which is
- * small for numbers meant to be read off a scene.  Both are text properties on
- * the actor, so an application that wants otherwise says so through it.
- *
  * @par What is here and what is not:
  * Whether the axes are drawn, and how much room to leave around the data.
  * Everything about how they look -- which faces are drawn, titles, label
@@ -92,7 +86,8 @@ public:
   ///@{
   /**
    * How the numbers along the axes and the titles are drawn.  Font sizes are in
-   * points; the labels start at 16 and the titles at 20.
+   * points and start at the 12 vtkTextProperty defaults to, which suits the
+   * space the axes leave for them; larger titles run into the labels.
    *
    * These are the same text properties GetGridAxesActor() hands out, set on all
    * three axes at once, which is what an application that cares about the size

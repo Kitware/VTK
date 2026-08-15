@@ -12,7 +12,6 @@
 #include "vtkScivisView.h"
 #include "vtkSphereSource.h"
 #include "vtkSurfaceRepresentation.h"
-#include "vtkTextProperty.h"
 
 #include <algorithm>
 #include <cmath>
@@ -215,22 +214,6 @@ int TestPaddingTakesEffectAtOnce()
   return EXIT_SUCCESS;
 }
 
-// The labels are meant to be read, so they do not start at the 12 points
-// vtkTextProperty defaults to.
-int TestTheLabelsAreReadable()
-{
-  vtkNew<vtkGridAxesRepresentation> axes;
-  for (int axis = 0; axis < 3; ++axis)
-  {
-    CHECK(axes->GetGridAxesActor()->GetLabelTextProperty(axis)->GetFontSize() > 12,
-      "the tick labels are still at the default font size");
-    CHECK(axes->GetGridAxesActor()->GetTitleTextProperty(axis)->GetFontSize() >
-        axes->GetGridAxesActor()->GetLabelTextProperty(axis)->GetFontSize(),
-      "the axis titles are no larger than the tick labels");
-  }
-  return EXIT_SUCCESS;
-}
-
 }
 
 int TestGridAxesRepresentation(int, char*[])
@@ -238,7 +221,7 @@ int TestGridAxesRepresentation(int, char*[])
   if (TestTheAxesFollowTheScene() != EXIT_SUCCESS ||
     TestTheAxesDoNotMeasureThemselves() != EXIT_SUCCESS ||
     TestRemovingStopsTheListening() != EXIT_SUCCESS || TestAnEmptyScene() != EXIT_SUCCESS ||
-    TestPaddingTakesEffectAtOnce() != EXIT_SUCCESS || TestTheLabelsAreReadable() != EXIT_SUCCESS)
+    TestPaddingTakesEffectAtOnce() != EXIT_SUCCESS)
   {
     return EXIT_FAILURE;
   }

@@ -25,14 +25,6 @@ vtkGridAxesRepresentation::vtkGridAxesRepresentation()
   this->Padding = 0.0;
   this->ObserverTag = 0;
 
-  // vtkTextProperty defaults to 12 points, which vtkGridAxesActor3D does not
-  // override, and which is small for numbers meant to be read off a scene.
-  // Change them through GetGridAxesActor()->GetLabelTextProperty(axis).
-  for (int axis = 0; axis < 3; ++axis)
-  {
-    this->Actor->GetLabelTextProperty(axis)->SetFontSize(16);
-    this->Actor->GetTitleTextProperty(axis)->SetFontSize(20);
-  }
   this->HasSceneBounds = false;
   std::fill(this->SceneBounds, this->SceneBounds + 6, 0.0);
 }
