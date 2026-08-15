@@ -55,8 +55,8 @@ there are more of them than there is room for.
 
 ### Collections read like collections
 
-The bars a view is maintaining, and the representations it is showing, are
-sequences in Python:
+Anything the module holds a set of is a Python container. The bars a view is
+maintaining, and the representations it is showing, are sequences:
 
 ```python
 print(f"{len(view.scalar_bars)} bar(s)")
@@ -67,7 +67,38 @@ for representation in view:
     ...
 ```
 
-which goes with the `view += representation` the view already took.
+which goes with the `view += representation` the view already took. A bar can be
+reached by the array it is labelled with rather than by position, with the field
+association where an array is drawn from both:
+
+```python
+view.scalar_bars["Temperature"].title = "T (K)"
+view.scalar_bars["Temperature", vtkDataObject.FIELD_ASSOCIATION_CELLS]
+"Temperature" in view.scalar_bars
+```
+
+The lookup table manager is the mapping of array name to color map that it
+already was:
+
+```python
+view.lookup_table_manager["Temperature"] = my_map
+"Temperature" in view.lookup_table_manager
+for name in view.lookup_table_manager:
+    ...
+del view.lookup_table_manager["Temperature"]
+```
+
+Reading a name that has no map makes one, the way `collections.defaultdict`
+does, because that is what the manager is for. `in` asks without making one.
+
+Per-block properties are indexed by block, so the flat index is written once
+rather than repeated in every call:
+
+```python
+rep.blocks[3].visibility = False
+rep.blocks[3].color = "tomato"
+rep.blocks[3].opacity = 0.5
+```
 
 ### Turning array coloring off has a name
 

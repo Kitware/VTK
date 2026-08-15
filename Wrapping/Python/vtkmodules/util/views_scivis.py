@@ -27,7 +27,9 @@ imported.
 
 from vtkmodules.util import colors as _colors
 from vtkmodules.vtkViewsScivis import (
+    vtkBlockProperties,
     vtkGridAxesRepresentation,
+    vtkLookupTableManager,
     vtkScivisScalarBars,
     vtkScivisView,
     vtkSurfaceRepresentation,
@@ -255,10 +257,122 @@ class ScalarBars(vtkScivisScalarBars):
     def __len__(self):
         return self.GetNumberOfBars()
 
+    def __getitem__(self, key):
+        """The bar at a position, or the one labelled with an array.
+
+        A plain name finds the bar for that array whatever attributes it came
+        from; pass ``(name, association)`` to say which.
+        """
+        if isinstance(key, tuple):
+            name, association = key
+            bar = self.GetActor(name, association)
+            if bar is None:
+                raise KeyError(key)
+            return bar
+        if isinstance(key, str):
+            for i in range(self.GetNumberOfBars()):
+                if self.GetArrayName(i) == key:
+                    return self.GetActor(i)
+            raise KeyError(key)
+        if not 0 <= key < self.GetNumberOfBars():
+            raise IndexError(f"there is no scalar bar {key}")
+        return self.GetActor(key)
+
+    def __contains__(self, key):
+        if isinstance(key, tuple):
+            return self.GetActor(*key) is not None
+        return any(self.GetArrayName(i) == key for i in range(self.GetNumberOfBars()))
+
+
+@vtkLookupTableManager.override
+class LookupTableManager(vtkLookupTableManager):
+    """``vtkLookupTableManager`` as the mapping of array name to color map it is.
+
+    ::
+
+        view.lookup_table_manager["Temperature"] = my_map
+        "Temperature" in view.lookup_table_manager
+        for name in view.lookup_table_manager:
+            ...
+
+    Reading a name that has no map makes one, the way
+    :class:`collections.defaultdict` does, because that is what the manager is
+    for -- ``in`` is the way to ask without making one.
+    """
+
+    def __len__(self):
+        return self.GetNumberOfLookupTables()
+
+    def __iter__(self):
+        return (self.GetLookupTableName(i) for i in range(self.GetNumberOfLookupTables()))
+
+    def __contains__(self, name):
+        return self.HasLookupTable(name)
+
+    def __getitem__(self, name):
+        return self.GetLookupTable(name)
+
+    def __setitem__(self, name, lookup_table):
+        self.SetLookupTable(name, lookup_table)
+
+    def __delitem__(self, name):
+        if not self.HasLookupTable(name):
+            raise KeyError(name)
+        self.RemoveLookupTable(name)
+
+
+class _Block:
+    """One block of a composite dataset, as something to set properties on."""
+
+    __slots__ = ("_blocks", "_index")
+
+    def __init__(self, blocks, index):
+        self._blocks = blocks
+        self._index = index
+
+    @property
+    def visibility(self):
+        return self._blocks.GetVisibility(self._index)
+
+    @visibility.setter
+    def visibility(self, value):
+        self._blocks.SetVisibility(self._index, value)
+
+    @property
+    def color(self):
+        color = [0.0, 0.0, 0.0]
+        self._blocks.GetColor(self._index, color)
+        return tuple(color)
+
+    @color.setter
+    def color(self, value):
+        self._blocks.SetColor(self._index, *_resolve_color(value))
+
+    @property
+    def opacity(self):
+        return self._blocks.GetOpacity(self._index)
+
+    @opacity.setter
+    def opacity(self, value):
+        self._blocks.SetOpacity(self._index, value)
+
+    def __repr__(self):
+        return f"<block {self._index}>"
+
+
+@vtkBlockProperties.override
+class BlockProperties(vtkBlockProperties):
+    """``vtkBlockProperties`` indexed by block.
+
+    ``rep.blocks[3].color = "tomato"`` rather than three calls that each repeat
+    the block index.  The index is the flat index of the block in the composite
+    dataset, as vtkCompositeDataDisplayAttributes numbers them.
+    """
+
     def __getitem__(self, index):
-        if not 0 <= index < self.GetNumberOfBars():
-            raise IndexError(f"there is no scalar bar {index}")
-        return self.GetActor(index)
+        if index < 0:
+            raise IndexError("a block index is a flat index, which is never negative")
+        return _Block(self, index)
 
 
 @vtkGridAxesRepresentation.override
