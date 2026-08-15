@@ -32,6 +32,7 @@
 #include "vtkScivisRepresentation.h"
 #include "vtkScivisScalarBars.h"
 #include "vtkScivisSelector.h"
+#include "vtkScivisWidgets.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 
@@ -107,6 +108,7 @@ vtkScivisView::vtkScivisView()
   // getter and does not move the view's modified time.
   this->LookupTableManager = vtkSmartPointer<vtkLookupTableManager>::New();
   this->ScalarBars->SetView(this);
+  this->Widgets->SetView(this);
   this->HasSceneBounds = false;
   std::fill(this->SceneBounds, this->SceneBounds + 6, 0.0);
   this->Observer->SetTarget(this);
@@ -193,6 +195,7 @@ vtkMTimeType vtkScivisView::GetMTime()
   mTime = std::max(mTime, this->Exporter->GetMTime());
   mTime = std::max(mTime, this->LookupTableManager->GetMTime());
   mTime = std::max(mTime, this->ScalarBars->GetMTime());
+  mTime = std::max(mTime, this->Widgets->GetMTime());
   return mTime;
 }
 
@@ -860,6 +863,12 @@ vtkLookupTableManager* vtkScivisView::GetLookupTableManager()
 vtkScivisScalarBars* vtkScivisView::GetScalarBars()
 {
   return this->ScalarBars;
+}
+
+//------------------------------------------------------------------------------
+vtkScivisWidgets* vtkScivisView::GetWidgets()
+{
+  return this->Widgets;
 }
 
 //------------------------------------------------------------------------------

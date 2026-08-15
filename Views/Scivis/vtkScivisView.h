@@ -47,6 +47,7 @@
  * - GetLightKit() for the light rig's intensity, warmth, angle and ratios
  * - GetOrientationMarkerWidget() for the axes marker's viewport and marker
  * - GetScalarBars() for the bars labelling what the colors mean
+ * - GetWidgets() for the things the user takes hold of
  * - GetSelector() for how a screen region becomes a selection
  * - GetExporter() for writing the scene out as a picture or as geometry
  *
@@ -88,6 +89,7 @@ class vtkRenderWindowInteractor;
 class vtkRenderer;
 class vtkScivisRepresentation;
 class vtkScivisScalarBars;
+class vtkScivisWidgets;
 
 class VTKVIEWSSCIVIS_EXPORT VTK_MARSHALAUTO vtkScivisView : public vtkObject
 {
@@ -280,6 +282,18 @@ public:
   vtkScivisScalarBars* GetScalarBars();
 
   /**
+   * The widgets the user takes hold of: a ruler across the data, a plane to
+   * clip it with, a box to crop it to.  Adding one here wires it to this view's
+   * interactor and renderer and places it over the scene.
+   *
+   * @code
+   * view->GetWidgets()->AddDistance();
+   * @endcode
+   */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
+  vtkScivisWidgets* GetWidgets();
+
+  /**
    * Selection: how a screen region becomes a selection, whether points or cells
    * come back, and what was picked last.
    *
@@ -445,6 +459,7 @@ private:
   vtkNew<vtkLightKit> LightKit;
   vtkSmartPointer<vtkLookupTableManager> LookupTableManager;
   vtkNew<vtkScivisScalarBars> ScalarBars;
+  vtkNew<vtkScivisWidgets> Widgets;
 
   // The scene bounds last reported, so that the event fires on a change
   // rather than on every render.
