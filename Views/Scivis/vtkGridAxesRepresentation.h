@@ -77,9 +77,42 @@ public:
   double GetPadding();
   ///@}
 
+  ///@{
   /**
-   * The actor the axes are drawn by: which faces are drawn, the titles, the
-   * label formats, the fonts and the grid lines.
+   * What the axes are called.  Empty by default, which draws no title.
+   */
+  void SetXTitle(const char* title);
+  const char* GetXTitle();
+  void SetYTitle(const char* title);
+  const char* GetYTitle();
+  void SetZTitle(const char* title);
+  const char* GetZTitle();
+  ///@}
+
+  ///@{
+  /**
+   * How the numbers along the axes and the titles are drawn.  Font sizes are in
+   * points; the labels start at 16 and the titles at 20.
+   *
+   * These are the same text properties GetGridAxesActor() hands out, set on all
+   * three axes at once, which is what an application that cares about the size
+   * of its axis text almost always wants.  Reach for the actor's per-axis
+   * properties for anything finer -- a different font on one axis, a label
+   * format, italics.
+   */
+  void SetLabelFontSize(int size);
+  int GetLabelFontSize();
+  void SetTitleFontSize(int size);
+  int GetTitleFontSize();
+  void SetLabelColor(double r, double g, double b);
+  double* GetLabelColor() VTK_SIZEHINT(3);
+  void SetTitleColor(double r, double g, double b);
+  double* GetTitleColor() VTK_SIZEHINT(3);
+  ///@}
+
+  /**
+   * The actor the axes are drawn by: which faces are drawn, the label formats,
+   * the fonts per axis and the grid lines.
    */
   vtkGridAxesActor3D* GetGridAxesActor();
 

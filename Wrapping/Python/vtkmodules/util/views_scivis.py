@@ -27,6 +27,7 @@ imported.
 
 from vtkmodules.util import colors as _colors
 from vtkmodules.vtkViewsScivis import (
+    vtkGridAxesRepresentation,
     vtkScivisView,
     vtkSurfaceRepresentation,
     vtkTextOverlayRepresentation,
@@ -236,6 +237,31 @@ class SurfaceRepresentation(_Delegating, vtkSurfaceRepresentation):
         self.SetEdgeColor(*_resolve_color(value))
 
 
+@vtkGridAxesRepresentation.override
+class GridAxesRepresentation(_Delegating, vtkGridAxesRepresentation):
+    """``vtkGridAxesRepresentation`` with named colors and property delegation."""
+
+    # The axes carry the properties that get set -- font sizes, colors, titles --
+    # so delegation is only for the rest of what the actor offers.
+    _delegates = ("GetGridAxesActor",)
+
+    @property
+    def label_color(self):
+        return self.GetLabelColor()
+
+    @label_color.setter
+    def label_color(self, value):
+        self.SetLabelColor(*_resolve_color(value))
+
+    @property
+    def title_color(self):
+        return self.GetTitleColor()
+
+    @title_color.setter
+    def title_color(self, value):
+        self.SetTitleColor(*_resolve_color(value))
+
+
 @vtkTextOverlayRepresentation.override
 class TextOverlayRepresentation(_Delegating, vtkTextOverlayRepresentation):
     """``vtkTextOverlayRepresentation`` with named colors and property delegation."""
@@ -246,11 +272,11 @@ class TextOverlayRepresentation(_Delegating, vtkTextOverlayRepresentation):
 
     @property
     def color(self):
-        return self.GetTextProperty().GetColor()
+        return self.GetColor()
 
     @color.setter
     def color(self, value):
-        self.GetTextProperty().SetColor(*_resolve_color(value))
+        self.SetColor(*_resolve_color(value))
 
 
 @vtkScivisView.override

@@ -17,6 +17,7 @@
 #include "vtkScivisDataRepresentation.h"
 #include "vtkScivisView.h"
 #include "vtkSmartPointer.h"
+#include "vtkTextProperty.h"
 
 #include <algorithm>
 #include <map>
@@ -79,6 +80,12 @@ vtkScivisScalarBars::vtkScivisScalarBars()
   this->Implementation = new Internals();
   this->AutoVisibility = true;
   this->Draggable = false;
+  this->TitleFontSize = 20;
+  this->LabelFontSize = 16;
+  this->TextColor[0] = this->TextColor[1] = this->TextColor[2] = 1.0;
+  this->NumberOfLabels = 5;
+  this->BarWidth = 0.08;
+  this->BarHeight = 0.5;
 }
 
 //------------------------------------------------------------------------------
@@ -146,6 +153,135 @@ void vtkScivisScalarBars::SetAutoVisibility(bool val)
 bool vtkScivisScalarBars::GetAutoVisibility()
 {
   return this->AutoVisibility;
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisScalarBars::ApplyStyle(vtkScalarBarActor* bar)
+{
+  bar->SetNumberOfLabels(this->NumberOfLabels);
+  bar->GetTitleTextProperty()->SetFontSize(this->TitleFontSize);
+  bar->GetLabelTextProperty()->SetFontSize(this->LabelFontSize);
+  bar->GetTitleTextProperty()->SetColor(this->TextColor);
+  bar->GetLabelTextProperty()->SetColor(this->TextColor);
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisScalarBars::ApplyStyleToAll()
+{
+  for (auto& pair : this->Implementation->Bars)
+  {
+    this->ApplyStyle(pair.second.Bar);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisScalarBars::SetTitleFontSize(int value)
+{
+  if (this->TitleFontSize == value)
+  {
+    return;
+  }
+  this->TitleFontSize = value;
+  this->ApplyStyleToAll();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+int vtkScivisScalarBars::GetTitleFontSize()
+{
+  return this->TitleFontSize;
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisScalarBars::SetLabelFontSize(int value)
+{
+  if (this->LabelFontSize == value)
+  {
+    return;
+  }
+  this->LabelFontSize = value;
+  this->ApplyStyleToAll();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+int vtkScivisScalarBars::GetLabelFontSize()
+{
+  return this->LabelFontSize;
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisScalarBars::SetNumberOfLabels(int value)
+{
+  if (this->NumberOfLabels == value)
+  {
+    return;
+  }
+  this->NumberOfLabels = value;
+  this->ApplyStyleToAll();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+int vtkScivisScalarBars::GetNumberOfLabels()
+{
+  return this->NumberOfLabels;
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisScalarBars::SetTextColor(double r, double g, double b)
+{
+  if (this->TextColor[0] == r && this->TextColor[1] == g && this->TextColor[2] == b)
+  {
+    return;
+  }
+  this->TextColor[0] = r;
+  this->TextColor[1] = g;
+  this->TextColor[2] = b;
+  this->ApplyStyleToAll();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+double* vtkScivisScalarBars::GetTextColor()
+{
+  return this->TextColor;
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisScalarBars::SetBarWidth(double value)
+{
+  if (this->BarWidth == value)
+  {
+    return;
+  }
+  this->BarWidth = value;
+  // Where the bars sit is worked out afresh each render, so nothing to redo here.
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+double vtkScivisScalarBars::GetBarWidth()
+{
+  return this->BarWidth;
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisScalarBars::SetBarHeight(double value)
+{
+  if (this->BarHeight == value)
+  {
+    return;
+  }
+  this->BarHeight = value;
+  // Where the bars sit is worked out afresh each render, so nothing to redo here.
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+double vtkScivisScalarBars::GetBarHeight()
+{
+  return this->BarHeight;
 }
 
 //------------------------------------------------------------------------------
@@ -260,8 +396,8 @@ void vtkScivisScalarBars::Update()
     if (!entry.Bar)
     {
       entry.Bar = vtkSmartPointer<vtkScalarBarActor>::New();
-      entry.Bar->SetNumberOfLabels(5);
       entry.Bar->SetTitle(arrayName.c_str());
+      this->ApplyStyle(entry.Bar);
       renderer->AddViewProp(entry.Bar);
       // A table the application registered with the manager before this array
       // was first drawn brings its own range; one the view is about to build
@@ -433,10 +569,10 @@ void vtkScivisScalarBars::Position()
   constexpr double top = 0.9;
   constexpr double bottom = 0.1;
   constexpr double gap = 0.02;
-  constexpr double width = 0.08;
-  constexpr double left = 0.88;
+  const double width = this->BarWidth;
+  const double left = 0.96 - width;
 
-  const double height = std::min(0.5, ((top - bottom) - gap * (count - 1)) / count);
+  const double height = std::min(this->BarHeight, ((top - bottom) - gap * (count - 1)) / count);
   double y = top - height;
   for (auto& pair : this->Implementation->Bars)
   {

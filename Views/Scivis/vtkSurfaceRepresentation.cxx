@@ -989,6 +989,74 @@ bool vtkSurfaceRepresentation::GetBounds(double bounds[6])
 }
 
 //------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::SetLineWidth(double value)
+{
+  if (this->GetLineWidth() == value)
+  {
+    return;
+  }
+  this->GetProperty()->SetLineWidth(value);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+double vtkSurfaceRepresentation::GetLineWidth()
+{
+  return this->GetProperty()->GetLineWidth();
+}
+
+//------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::SetPointSize(double value)
+{
+  if (this->GetPointSize() == value)
+  {
+    return;
+  }
+  this->GetProperty()->SetPointSize(value);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+double vtkSurfaceRepresentation::GetPointSize()
+{
+  return this->GetProperty()->GetPointSize();
+}
+
+//------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::SetSpecular(double value)
+{
+  if (this->GetSpecular() == value)
+  {
+    return;
+  }
+  this->GetProperty()->SetSpecular(value);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+double vtkSurfaceRepresentation::GetSpecular()
+{
+  return this->GetProperty()->GetSpecular();
+}
+
+//------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::SetSpecularPower(double value)
+{
+  if (this->GetSpecularPower() == value)
+  {
+    return;
+  }
+  this->GetProperty()->SetSpecularPower(value);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+double vtkSurfaceRepresentation::GetSpecularPower()
+{
+  return this->GetProperty()->GetSpecularPower();
+}
+
+//------------------------------------------------------------------------------
 vtkProperty* vtkSurfaceRepresentation::GetProperty()
 {
   return this->Actor->GetProperty();

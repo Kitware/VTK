@@ -10,6 +10,8 @@
 #include "vtkScivisView.h"
 #include "vtkTextProperty.h"
 
+#include <string>
+
 #include <algorithm>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -133,6 +135,142 @@ void vtkGridAxesRepresentation::SetPadding(double padding)
 double vtkGridAxesRepresentation::GetPadding()
 {
   return this->Padding;
+}
+
+//------------------------------------------------------------------------------
+void vtkGridAxesRepresentation::SetXTitle(const char* title)
+{
+  const std::string current = this->Actor->GetTitle(0);
+  if (current == (title ? title : ""))
+  {
+    return;
+  }
+  this->Actor->SetTitle(0, title ? title : "");
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+const char* vtkGridAxesRepresentation::GetXTitle()
+{
+  return this->Actor->GetTitle(0).c_str();
+}
+
+//------------------------------------------------------------------------------
+void vtkGridAxesRepresentation::SetYTitle(const char* title)
+{
+  const std::string current = this->Actor->GetTitle(1);
+  if (current == (title ? title : ""))
+  {
+    return;
+  }
+  this->Actor->SetTitle(1, title ? title : "");
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+const char* vtkGridAxesRepresentation::GetYTitle()
+{
+  return this->Actor->GetTitle(1).c_str();
+}
+
+//------------------------------------------------------------------------------
+void vtkGridAxesRepresentation::SetZTitle(const char* title)
+{
+  const std::string current = this->Actor->GetTitle(2);
+  if (current == (title ? title : ""))
+  {
+    return;
+  }
+  this->Actor->SetTitle(2, title ? title : "");
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+const char* vtkGridAxesRepresentation::GetZTitle()
+{
+  return this->Actor->GetTitle(2).c_str();
+}
+
+//------------------------------------------------------------------------------
+void vtkGridAxesRepresentation::SetLabelFontSize(int size)
+{
+  if (this->GetLabelFontSize() == size)
+  {
+    return;
+  }
+  for (int axis = 0; axis < 3; ++axis)
+  {
+    this->Actor->GetLabelTextProperty(axis)->SetFontSize(size);
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+int vtkGridAxesRepresentation::GetLabelFontSize()
+{
+  return this->Actor->GetLabelTextProperty(0)->GetFontSize();
+}
+
+//------------------------------------------------------------------------------
+void vtkGridAxesRepresentation::SetTitleFontSize(int size)
+{
+  if (this->GetTitleFontSize() == size)
+  {
+    return;
+  }
+  for (int axis = 0; axis < 3; ++axis)
+  {
+    this->Actor->GetTitleTextProperty(axis)->SetFontSize(size);
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+int vtkGridAxesRepresentation::GetTitleFontSize()
+{
+  return this->Actor->GetTitleTextProperty(0)->GetFontSize();
+}
+
+//------------------------------------------------------------------------------
+void vtkGridAxesRepresentation::SetLabelColor(double r, double g, double b)
+{
+  double* current = this->GetLabelColor();
+  if (current[0] == r && current[1] == g && current[2] == b)
+  {
+    return;
+  }
+  for (int axis = 0; axis < 3; ++axis)
+  {
+    this->Actor->GetLabelTextProperty(axis)->SetColor(r, g, b);
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+double* vtkGridAxesRepresentation::GetLabelColor()
+{
+  return this->Actor->GetLabelTextProperty(0)->GetColor();
+}
+
+//------------------------------------------------------------------------------
+void vtkGridAxesRepresentation::SetTitleColor(double r, double g, double b)
+{
+  double* current = this->GetTitleColor();
+  if (current[0] == r && current[1] == g && current[2] == b)
+  {
+    return;
+  }
+  for (int axis = 0; axis < 3; ++axis)
+  {
+    this->Actor->GetTitleTextProperty(axis)->SetColor(r, g, b);
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+double* vtkGridAxesRepresentation::GetTitleColor()
+{
+  return this->Actor->GetTitleTextProperty(0)->GetColor();
 }
 
 //------------------------------------------------------------------------------

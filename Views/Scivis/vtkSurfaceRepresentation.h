@@ -119,6 +119,23 @@ public:
   void SetColor(double r, double g, double b);
   double* GetColor() VTK_SIZEHINT(3);
   void GetColor(double rgb[3]);
+  ///@{
+  /**
+   * How the surface is shaded, and how thick its lines and points are drawn.
+   * These belong to the actor's property and are promoted here because they are
+   * the ones an application reaches for; the rest of it, including the
+   * physically based parameters, is on GetProperty().
+   */
+  void SetLineWidth(double width);
+  double GetLineWidth();
+  void SetPointSize(double size);
+  double GetPointSize();
+  void SetSpecular(double value);
+  double GetSpecular();
+  void SetSpecularPower(double value);
+  double GetSpecularPower();
+  ///@}
+
   void SetOpacity(double val);
   double GetOpacity();
   void SetEdgeColor(double r, double g, double b);
