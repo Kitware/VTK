@@ -555,7 +555,10 @@ void vtkWebGPUComputePassInternals::CreateWebGPUComputePipeline()
   computePipelineDescriptor.compute.nextInChain = nullptr;
   computePipelineDescriptor.label =
     vtkWebGPUMakeStringView(this->ParentPass->WGPUComputePipelineLabel);
-  computePipelineDescriptor.layout = this->CreateWebGPUComputePipelineLayout();
+  // Bind the layout to a local: the descriptor only stores the raw handle, so
+  // something has to keep the reference alive until the pipeline is created.
+  vtkWebGPU::PipelineLayout pipelineLayout = this->CreateWebGPUComputePipelineLayout();
+  computePipelineDescriptor.layout = pipelineLayout;
 
   this->ComputePipeline = vtkWebGPU::ComputePipeline::Acquire(wgpuDeviceCreateComputePipeline(
     this->WGPUConfiguration->GetDevice(), &computePipelineDescriptor));
