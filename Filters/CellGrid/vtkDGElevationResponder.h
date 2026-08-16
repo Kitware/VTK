@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkDGElevationResponder
- * @brief   Respond to a query on one particular type of cell.
- *
- * This is pure virtual base class that all responder types must inherit.
+ * @brief   Respond to a request to create an elevation attribute on DG cells.
  */
 
 #ifndef vtkDGElevationResponder_h
