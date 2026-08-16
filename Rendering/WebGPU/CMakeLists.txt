@@ -266,9 +266,8 @@ if(VTK_USE_DAWN_WEBGPU)
   vtk_module_link(VTK::RenderingWebGPU PUBLIC dawn::webgpu_dawn)
 endif()
 
-# Public headers use C API only. C++20 features (webgpu_cpp.h) are private to implementation.
-vtk_module_compile_features(VTK::RenderingWebGPU
-  PRIVATE cxx_std_20)
+# The module compiles against the WebGPU C API only, so it no longer needs the
+# C++20 that Dawn's webgpu_cpp.h required.
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_compile_options(VTK::RenderingWebGPU
