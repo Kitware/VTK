@@ -1564,7 +1564,7 @@ bool vtkWebGPUPolyDataMapper::AllocateAttributeBuffers(vtkWebGPUConfiguration* w
         wgpuBufferDestroy(this->PointBuffers[attributeIndex].Buffer);
         this->PointBuffers[attributeIndex].Size = 0;
       }
-      WGPUBufferDescriptor descriptor{};
+      WGPUBufferDescriptor descriptor = WGPU_BUFFER_DESCRIPTOR_INIT;
       descriptor.size = requiredBufferSize;
       const auto label = PointAttribLabels[attributeIndex] + std::string("@") +
         this->CurrentInput->GetObjectDescription();
@@ -1597,7 +1597,7 @@ bool vtkWebGPUPolyDataMapper::AllocateAttributeBuffers(vtkWebGPUConfiguration* w
         wgpuBufferDestroy(this->CellBuffers[attributeIndex].Buffer);
         this->CellBuffers[attributeIndex].Size = 0;
       }
-      WGPUBufferDescriptor descriptor{};
+      WGPUBufferDescriptor descriptor = WGPU_BUFFER_DESCRIPTOR_INIT;
       descriptor.size = requiredBufferSize;
       const auto label = CellAttribLabels[attributeIndex] + std::string("@") +
         this->CurrentInput->GetObjectDescription();

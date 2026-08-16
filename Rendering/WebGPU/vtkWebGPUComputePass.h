@@ -4,7 +4,6 @@
 #ifndef vtkWebGPUComputePass_h
 #define vtkWebGPUComputePass_h
 
-#include "Private/vtkWebGPUHandle.h"
 #include "vtkObject.h"
 
 #include "vtkRenderingWebGPUModule.h" // For export macro

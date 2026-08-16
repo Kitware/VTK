@@ -1067,7 +1067,7 @@ TOutput* vtkWebGPURenderWindow::GetTextureDataInternal(WGPUTexture texture,
   uint32_t width = static_cast<uint32_t>(xMax - xMin + 1);
   uint32_t height = static_cast<uint32_t>(yMax - yMin + 1);
 
-  WGPUOrigin3D origin{};
+  WGPUOrigin3D origin = WGPU_ORIGIN_3D_INIT;
   origin.x = static_cast<std::uint32_t>(xMin);
   origin.y = this->FlipY(static_cast<std::uint32_t>(yMax));
 

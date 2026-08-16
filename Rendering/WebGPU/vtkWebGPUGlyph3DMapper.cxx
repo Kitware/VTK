@@ -415,7 +415,7 @@ protected:
           wgpuBufferDestroy(this->InstanceAttributesBuffers[attributeIndex].Buffer);
           this->InstanceAttributesBuffers[attributeIndex].Size = 0;
         }
-        WGPUBufferDescriptor descriptor{};
+        WGPUBufferDescriptor descriptor = WGPU_BUFFER_DESCRIPTOR_INIT;
         descriptor.size = requiredBufferSize;
         const auto label = instanceAttribLabels[attributeIndex] + std::string("-") +
           this->CurrentInput->GetObjectDescription();

@@ -1001,7 +1001,7 @@ bool vtkWebGPUBatchedPolyDataMapper::AllocateCompositeDataPropertyStorageBuffer(
   if (this->MinStorageBufferOffsetAlignment == 0)
   {
     const auto device = wgpuConfiguration->GetDevice();
-    WGPULimits limits{};
+    WGPULimits limits = WGPU_LIMITS_INIT;
     wgpuDeviceGetLimits(device, &limits);
     this->MinStorageBufferOffsetAlignment = limits.minStorageBufferOffsetAlignment;
   }

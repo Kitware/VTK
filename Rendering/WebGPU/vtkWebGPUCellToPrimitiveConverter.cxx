@@ -495,7 +495,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
       *edgeArrayBuffer = nullptr;
     }
     auto label = std::string("Connectivity-") + primitiveTypeAsString;
-    WGPUBufferDescriptor descriptor{};
+    WGPUBufferDescriptor descriptor = WGPU_BUFFER_DESCRIPTOR_INIT;
     descriptor.label = vtkWebGPUMakeStringView(label);
     descriptor.mappedAtCreation = false;
     descriptor.nextInChain = nullptr;

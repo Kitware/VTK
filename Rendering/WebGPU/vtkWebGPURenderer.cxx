@@ -1261,14 +1261,14 @@ void vtkWebGPURenderer::SetupSceneBindGroup()
   const auto lightSizePadded = vtkWebGPUConfiguration::Align(lightSize, 32);
 
   std::vector<WGPUBindGroupEntry> entries;
-  WGPUBindGroupEntry entry0{};
+  WGPUBindGroupEntry entry0 = WGPU_BIND_GROUP_ENTRY_INIT;
   entry0.binding = 0;
   entry0.buffer = this->SceneTransformBuffer;
   entry0.offset = 0;
   entry0.size = transformSizePadded;
   entries.push_back(entry0);
 
-  WGPUBindGroupEntry entry1{};
+  WGPUBindGroupEntry entry1 = WGPU_BIND_GROUP_ENTRY_INIT;
   entry1.binding = 1;
   entry1.buffer = this->SceneLightsBuffer;
   entry1.offset = 0;

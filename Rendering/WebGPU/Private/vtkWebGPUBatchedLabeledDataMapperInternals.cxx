@@ -92,7 +92,7 @@ void vtkWebGPUBatchedLabeledDataMapperInternals::RenderPiece(vtkRenderer* render
   if (!this->GlyphsSampler)
   {
     // Use the C wrapper types locally to create the sampler
-    WGPUSamplerDescriptor samplerDesc{};
+    WGPUSamplerDescriptor samplerDesc = WGPU_SAMPLER_DESCRIPTOR_INIT;
     samplerDesc.magFilter = WGPUFilterMode_Nearest;
     samplerDesc.minFilter = WGPUFilterMode_Nearest;
     samplerDesc.addressModeU = WGPUAddressMode_ClampToEdge;
@@ -199,7 +199,7 @@ vtkWebGPUBatchedLabeledDataMapperInternals::GetVertexBufferLayouts()
   this->InstanceAttributes[GLYPH_EXTENTS] = { /*nextInChain=*/nullptr,
     /*format=*/WGPUVertexFormat_Float32x4, /*offset=*/0, /*shaderLocation=*/0 };
   {
-    WGPUVertexBufferLayout l{};
+    WGPUVertexBufferLayout l = WGPU_VERTEX_BUFFER_LAYOUT_INIT;
     l.arrayStride = 4 * sizeof(float);
     l.attributeCount = 1;
     l.attributes = &this->InstanceAttributes[GLYPH_EXTENTS];
@@ -209,7 +209,7 @@ vtkWebGPUBatchedLabeledDataMapperInternals::GetVertexBufferLayouts()
 
   this->InstanceAttributes[COFF_PROPID] = { nullptr, WGPUVertexFormat_Float32x2, 0, 1 };
   {
-    WGPUVertexBufferLayout l{};
+    WGPUVertexBufferLayout l = WGPU_VERTEX_BUFFER_LAYOUT_INIT;
     l.arrayStride = 2 * sizeof(float);
     l.attributeCount = 1;
     l.attributes = &this->InstanceAttributes[COFF_PROPID];
@@ -219,7 +219,7 @@ vtkWebGPUBatchedLabeledDataMapperInternals::GetVertexBufferLayouts()
 
   this->InstanceAttributes[FRAME_COLORS] = { nullptr, WGPUVertexFormat_Float32x3, 0, 2 };
   {
-    WGPUVertexBufferLayout l{};
+    WGPUVertexBufferLayout l = WGPU_VERTEX_BUFFER_LAYOUT_INIT;
     l.arrayStride = 3 * sizeof(float);
     l.attributeCount = 1;
     l.attributes = &this->InstanceAttributes[FRAME_COLORS];
@@ -628,7 +628,7 @@ void vtkWebGPUBatchedLabeledDataMapperInternals::UpdateInstanceBuffers(
   {
     if (this->InstanceBufferSizes[attr] != sizes[attr])
     {
-      WGPUBufferDescriptor desc{};
+      WGPUBufferDescriptor desc = WGPU_BUFFER_DESCRIPTOR_INIT;
       desc.size = sizes[attr];
       desc.label = WGPUStringView{ bufLabels[attr], WGPU_STRLEN };
       desc.mappedAtCreation = false;
