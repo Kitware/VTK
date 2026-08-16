@@ -1965,6 +1965,7 @@ int vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
     this->DepthCopyPipeline->SetWGPUConfiguration(this->WGPUConfiguration);
   }
   unsigned int textureWidth = 0;
+  unsigned int textureHeight = 0;
 
   // Create a compute pass which copies the depth texture values into a vtkWebGPU::Buffer
   if (this->DepthCopyPass == nullptr)
@@ -1974,6 +1975,7 @@ int vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
     vtkSmartPointer<vtkWebGPUComputeRenderTexture> depthTexture;
     depthTexture = this->AcquireDepthBufferRenderTexture();
     textureWidth = depthTexture->GetWidth();
+    textureHeight = depthTexture->GetHeight();
 
     depthTexture->SetLabel("DepthCopy-" + this->GetObjectDescription());
     this->DepthCopyPass->SetShaderSource(CopyDepthTextureToBuffer);
@@ -2004,6 +2006,7 @@ int vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
     // Resize depth buffer if needed.
     auto depthTexture = this->DepthCopyPass->GetComputeTexture(this->DepthCopyTextureIndex);
     textureWidth = depthTexture->GetWidth();
+    textureHeight = depthTexture->GetHeight();
 
     const auto byteSize =
       depthTexture->GetBytesPerPixel() * textureWidth * depthTexture->GetHeight();
@@ -2027,6 +2030,7 @@ int vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
     int yMin;
     int yMax;
     unsigned int width;
+    unsigned int height;
   };
   auto onBufferMapped = [](const void* mappedData, void* userData)
   {
@@ -2038,7 +2042,13 @@ int vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
     {
       for (int x = callbackDataPtr->xMin; x <= callbackDataPtr->xMax; x++)
       {
-        const int mappedIndex = x + y * callbackDataPtr->width;
+        // Callers pass the viewport size rather than its last index, so the
+        // requested rectangle can run one row or column past the texture (and
+        // FlipY() then wraps to -1). Clamp to keep the reads inside the map.
+        const int xClamped = std::min(std::max(x, 0), static_cast<int>(callbackDataPtr->width) - 1);
+        const int yClamped =
+          std::min(std::max(y, 0), static_cast<int>(callbackDataPtr->height) - 1);
+        const int mappedIndex = xClamped + yClamped * callbackDataPtr->width;
         outputValues[dstIdx++] = mappedDataAsF32[mappedIndex];
       }
     }
@@ -2054,6 +2064,7 @@ int vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
   callbackData.yMax = this->FlipY(yMin);
   callbackData.outputValues = zValues;
   callbackData.width = textureWidth;
+  callbackData.height = textureHeight;
   this->DepthCopyPass->ReadBufferFromGPU(this->DepthCopyBufferIndex, onBufferMapped, &callbackData);
   this->DepthCopyPipeline->Update();
   return VTK_OK;
