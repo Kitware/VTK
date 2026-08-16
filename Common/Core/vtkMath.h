@@ -192,6 +192,12 @@ public:
   static double JacobiPolynomial(int nn, double alpha, double beta, double xx);
 
   /**
+   * Returns the derivative (with respect to \a xx) of the \a nn-th Jacobi
+   * polynomial.
+   */
+  static double JacobiPolynomialDerivative(int nn, double alpha, double beta, double xx);
+
+  /**
    * Returns true if integer is a power of two.
    */
   static bool IsPowerOfTwo(vtkTypeUInt64 x);

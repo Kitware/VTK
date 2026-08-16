@@ -122,6 +122,21 @@ double vtkMath::JacobiPolynomial(int nn, double alpha, double beta, double xx)
 #endif
 }
 
+double vtkMath::JacobiPolynomialDerivative(int nn, double alpha, double beta, double xx)
+{
+  assert(alpha >= -1.);
+  assert(beta >= -1.);
+  assert(nn >= 0);
+  double result;
+  if (nn == 0)
+  {
+    return 0.;
+  }
+  double tmp = JacobiPolynomial(nn - 1, alpha + 1, beta + 1, xx);
+  result = 0.5 * (nn + alpha + beta + 1.) * tmp;
+  return result;
+}
+
 //------------------------------------------------------------------------------
 // Generate pseudo-random numbers distributed according to the uniform
 // distribution between 0.0 and 1.0.
