@@ -16,9 +16,8 @@
 #include "vtkImageDataGeometryFilter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-VTK_DEPRECATED_IN_9_8_0("Use vtkImageDataGeometryFilter instead")
-class VTKFILTERSGEOMETRY_EXPORT vtkStructuredPointsGeometryFilter
-  : public vtkImageDataGeometryFilter
+class VTK_DEPRECATED_IN_9_8_0("Use vtkImageDataGeometryFilter instead")
+  VTKFILTERSGEOMETRY_EXPORT vtkStructuredPointsGeometryFilter : public vtkImageDataGeometryFilter
 {
 public:
   vtkTypeMacro(vtkStructuredPointsGeometryFilter, vtkImageDataGeometryFilter);
