@@ -15,6 +15,7 @@
 #include <fides/internal/OutputBuilder.h>
 #include <fides/internal/ReadPlan.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <map>
 #include <set>
@@ -140,6 +141,26 @@ struct AttributeInfo
   CellGridAttribute* OwningAttribute = nullptr;
 };
 
+// Filter the source's cell_types with the (possibly empty) filter, preserving the
+// source's order. An empty filter returns all types.
+std::vector<std::string> ApplyCellTypeFilter(const std::vector<std::string>& all,
+                                             const std::vector<std::string>& filter)
+{
+  if (filter.empty())
+  {
+    return all;
+  }
+  std::vector<std::string> result;
+  for (const auto& cellType : all)
+  {
+    if (std::find(filter.begin(), filter.end(), cellType) != filter.end())
+    {
+      result.push_back(cellType);
+    }
+  }
+  return result;
+}
+
 }
 
 CellGridModel::CellGridModel() = default;
@@ -159,6 +180,19 @@ void CellGridModel::ProcessJSON(const rapidjson::Value& root, DataSourcesType& s
     auto attr = std::make_unique<CellGridAttribute>();
     attr->ProcessJSON(entry, sources);
     this->Attributes.push_back(std::move(attr));
+  }
+
+  // Check for the "cell_types" array, and load it if present.
+  this->CellTypeFilter.clear();
+  if (root.HasMember("cell_types") && root["cell_types"].IsArray())
+  {
+    for (const auto& cellType : root["cell_types"].GetArray())
+    {
+      if (cellType.IsString())
+      {
+        this->CellTypeFilter.emplace_back(cellType.GetString());
+      }
+    }
   }
 }
 
@@ -183,7 +217,8 @@ size_t CellGridModel::GetNumberOfBlocks(const std::unordered_map<std::string, st
   // file. Its block count is the cellgrid partition count: every
   // per-(attr,ct) variable in a well-formed cellgrid file is written in
   // lockstep, so any defined values variable answers the question.
-  auto cellTypes = source.ReadAttribute<std::string>("cell_types");
+  auto cellTypes =
+    ApplyCellTypeFilter(source.ReadAttribute<std::string>("cell_types"), this->CellTypeFilter);
   for (const auto& attr : this->Attributes)
   {
     for (const auto& cellTypeName : cellTypes)
@@ -267,7 +302,12 @@ void CellGridModel::Read(const std::unordered_map<std::string, std::string>& pat
   auto cellTypes = primarySource.ReadAttribute<std::string>("cell_types");
   if (cellTypes.empty())
   {
-    throw std::runtime_error("cell_grid file is missing required 'cell_types' metadata.");
+    throw std::runtime_error("cell_grid source is missing required 'cell_types' metadata.");
+  }
+  cellTypes = ApplyCellTypeFilter(cellTypes, this->CellTypeFilter);
+  if (cellTypes.empty())
+  {
+    throw std::runtime_error("None of the sources 'cell_types' survived schema-defined filter");
   }
 
   // Read the global (cell-type) shape names once.
