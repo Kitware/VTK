@@ -3,4 +3,5 @@ vtk_add_test_python(
   TestCellGridRenderedAreaPicker.py,NO_RT,NO_VALID
   TestCellGridRenderedAreaPickerWithPolyData.py,NO_RT,NO_VALID
   TestCellGridRendering.py,NO_RT
+  TestCellGridTetGaussBasis.py,NO_RT
 )

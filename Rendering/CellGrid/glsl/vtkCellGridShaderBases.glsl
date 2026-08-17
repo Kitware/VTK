@@ -24,7 +24,8 @@ RealT binomial(in RealT mm, in int nn)
   return vv;
 }}
 
-#define power(x, y) RealT((y <= 0.0) ? 1.0 : sign(x) * pow(abs(x), y))
+#define power(x, y)                                                                                \
+  RealT((y <= 0.0) ? 1.0 : (((x < 0.0) && (mod(RealT(y), 2.) != 0.0)) ? -1.0 : 1.0) * pow(abs(x), y))
 
 /// Evaluate the Jacobi polynomial.
 ///
