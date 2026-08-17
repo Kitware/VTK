@@ -499,12 +499,11 @@ int vtkHDFReader::CanReadFileVersion(int major, int vtkNotUsed(minor))
 //------------------------------------------------------------------------------
 vtkTypeBool vtkHDFReader::CanReadFile(const char* filename)
 {
-  vtkNew<vtkFileResourceStream> stream;
-  if (!stream->Open(filename))
-  {
-    return 0;
-  }
-  return vtkHDFReader::CanReadFile(stream) ? 1 : 0;
+  vtkNew<vtkHDFReader> dummy;
+  vtkHDFReader::Implementation impl(dummy);
+  bool ret = impl.Open(filename, true);
+  impl.Close();
+  return ret;
 }
 
 //------------------------------------------------------------------------------
