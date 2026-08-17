@@ -460,7 +460,7 @@ int vtkDataReader::ReadLine(char result[256])
 }
 
 //------------------------------------------------------------------------------
-// Internal function to read in a string up to 256 characters.
+// Internal function to read in a C string up to 255 characters.
 // Returns zero if there was an error.
 int vtkDataReader::ReadString(char (&result)[256])
 {
@@ -469,6 +469,7 @@ int vtkDataReader::ReadString(char (&result)[256])
   char(&result_ref)[256] = *reinterpret_cast<char(*)[256]>(result);
   this->IS->width(256);
   *this->IS >> result_ref;
+  result_ref[255] = 0; // Always null terminate C strings!
   if (this->IS->fail())
   {
     return 0;
@@ -770,19 +771,23 @@ int vtkDataReader::ReadHeader(const char* fname, bool quiet)
     this->FileMajorVersion = 0;
     this->FileMinorVersion = 0;
   }
-  std::tie(this->FileMajorVersion, this->FileMinorVersion) = result->values();
-  if ((this->FileMajorVersion > vtkLegacyReaderMajorVersion ||
-        (this->FileMajorVersion == vtkLegacyReaderMajorVersion &&
-          this->FileMinorVersion > vtkLegacyReaderMinorVersion)) &&
-    !quiet)
+  if (result)
   {
-    // newer file than the reader version
-    vtkWarningMacro(<< "Reading file version: " << this->FileMajorVersion << "."
-                    << this->FileMinorVersion << " with older reader version "
-                    << vtkLegacyReaderMajorVersion << "." << vtkLegacyReaderMinorVersion);
+    std::tie(this->FileMajorVersion, this->FileMinorVersion) = result->values();
+    if ((this->FileMajorVersion > vtkLegacyReaderMajorVersion ||
+          (this->FileMajorVersion == vtkLegacyReaderMajorVersion &&
+            this->FileMinorVersion > vtkLegacyReaderMinorVersion)) &&
+      !quiet)
+    {
+      // newer file than the reader version
+      vtkWarningMacro(<< "Reading file version: " << this->FileMajorVersion << "."
+                      << this->FileMinorVersion << " with older reader version "
+                      << vtkLegacyReaderMajorVersion << "." << vtkLegacyReaderMinorVersion);
+    }
   }
   // Compose FileVersion
-  this->FileVersion = 10 * this->FileMajorVersion + this->FileMinorVersion;
+  this->FileVersion =
+    10ULL * (unsigned long)this->FileMajorVersion + (unsigned long)this->FileMinorVersion;
 
   //
   // read title
@@ -1710,6 +1715,10 @@ int vtkDataReader::ReadRowData(vtkTable* t, vtkIdType numEdges)
 template <class T>
 int vtkReadBinaryData(istream* IS, T* data, vtkIdType numTuples, vtkIdType numComp)
 {
+  if (!data)
+  {
+    return 0;
+  }
   if (numTuples == 0 || numComp == 0)
   {
     // nothing to read here.
@@ -1732,11 +1741,13 @@ int vtkReadBinaryData(istream* IS, T* data, vtkIdType numTuples, vtkIdType numCo
 template <class T>
 int vtkReadASCIIData(vtkDataReader* self, T* data, vtkIdType numTuples, vtkIdType numComp)
 {
-  vtkIdType i, j;
-
-  for (i = 0; i < numTuples; i++)
+  if (!data)
   {
-    for (j = 0; j < numComp; j++)
+    return 0;
+  }
+  for (vtkIdType i = 0; i < numTuples; i++)
+  {
+    for (vtkIdType j = 0; j < numComp; j++)
     {
       if (!self->Read(data++))
       {
@@ -1771,6 +1782,12 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     if (numTuples != 0 && numComp != 0)
     {
       unsigned char* ptr = ((vtkBitArray*)array)->WritePointer(0, numTuples * numComp);
+      if (!ptr)
+      {
+        vtkErrorMacro(<< "WritePointer failed!");
+        array->Delete();
+        return nullptr;
+      }
       if (this->FileType == VTK_BINARY)
       {
         char line[256];
@@ -1886,6 +1903,12 @@ vtkAbstractArray* vtkDataReader::ReadArray(
       vtkReadASCIIData(this, buffer.data(), numTuples, numComp);
     }
     vtkIdType* ptr2 = ((vtkIdTypeArray*)array)->WritePointer(0, numTuples * numComp);
+    if (!ptr2)
+    {
+      vtkErrorMacro(<< "WritePointer failed!");
+      array->Delete();
+      return nullptr;
+    }
     for (vtkIdType idx = 0; idx < numTuples * numComp; idx++)
     {
       ptr2[idx] = buffer[idx];
@@ -3266,6 +3289,12 @@ int vtkDataReader::ReadLutData(vtkDataSetAttributes* a)
   lut = vtkLookupTable::New();
   lut->Allocate(size);
   ptr = lut->WritePointer(0, size);
+  if (!ptr)
+  {
+    vtkErrorMacro(<< "WritePointer failed!");
+    lut->Delete();
+    return 0;
+  }
 
   if (this->FileType == VTK_BINARY)
   {
@@ -3476,7 +3505,7 @@ int vtkDataReader::ReadCellsLegacy(vtkIdType size, int* data, int skip1, int rea
       --skip1;
     }
     // copy the cells in the piece
-    // (ok, I am getting criptic with the loops and increments ...)
+    // (ok, I am getting cryptic with the loops and increments ...)
     while (read2 > 0)
     {
       // the first value is the number of point ids
@@ -4070,7 +4099,7 @@ int vtkDataReader::DecodeString(char* resname, const char* name)
   size_t len = strlen(name);
   size_t reslen = 0;
   char buffer[10] = "0x";
-  while (name[cc])
+  while (cc < len)
   {
     if (name[cc] == '%')
     {
