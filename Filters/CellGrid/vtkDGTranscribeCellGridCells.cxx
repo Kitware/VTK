@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <limits>
 #include <sstream>
 #include <string>
@@ -1004,6 +1005,66 @@ void vtkDGTranscribeCellGridCells::GeneratePointData(
   vtkIdType nn = contribs.InputCellIds->GetNumberOfTuples();
   auto& pointWeights = request->GetConnectivityWeights();
 
+  // Nothing to interpolate onto the points? Then there is nothing to do.
+  bool anyAttributes = false;
+  for (const auto& inCellAtt : request->GetInput()->GetCellAttributeList())
+  {
+    if (inCellAtt != request->GetInput()->GetShapeAttribute())
+    {
+      anyAttributes = true;
+      break;
+    }
+  }
+  if (nn == 0 || !anyAttributes)
+  {
+    FreePointContributionCache(request, cellType, caches);
+    return;
+  }
+
+  // Link each output point to the contributions that land on it, the way
+  // vtkStaticCellLinksTemplate links a point to the cells using it. Several
+  // cells contribute to a point they share, so summing the contributions in
+  // parallel would be a race unless one thread owns each point.
+  const auto* outputPointIds = contribs.OutputPointIds->GetPointer(0);
+  vtkIdType numOutputPoints = request->GetOutput()->GetNumberOfPoints();
+  std::vector<std::atomic<vtkIdType>> counts(static_cast<std::size_t>(numOutputPoints));
+  vtkSMPTools::For(0, nn,
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      for (vtkIdType ii = begin; ii < end; ++ii)
+      {
+        counts[outputPointIds[ii]].fetch_add(1, std::memory_order_relaxed);
+      }
+    });
+
+  // The scan leaves the contributions for point pp in [offsets[pp], offsets[pp + 1]);
+  // the trailing entry, left empty here, ends up holding the total.
+  std::vector<vtkIdType> offsets(static_cast<std::size_t>(numOutputPoints) + 1, 0);
+  vtkSMPTools::For(0, numOutputPoints,
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      for (vtkIdType pp = begin; pp < end; ++pp)
+      {
+        offsets[pp] = counts[pp].load(std::memory_order_relaxed);
+      }
+    });
+  vtkSMPTools::ExclusiveScan(offsets.begin(), offsets.end(), static_cast<vtkIdType>(0));
+
+  std::vector<vtkIdType> cellLinks(static_cast<std::size_t>(nn));
+  vtkSMPTools::For(0, nn,
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      for (vtkIdType ii = begin; ii < end; ++ii)
+      {
+        const vtkIdType& pointId = outputPointIds[ii];
+        // Counting a run down from its end hands out a slot per contribution
+        // without any further synchronization.
+        const vtkIdType slot =
+          offsets[pointId + 1] - counts[pointId].fetch_sub(1, std::memory_order_relaxed);
+        cellLinks[slot] = ii;
+      }
+    });
+
   vtkNew<vtkDGInterpolateCalculator> interpolateProto;
   for (const auto& inCellAtt : request->GetInput()->GetCellAttributeList())
   {
@@ -1011,8 +1072,6 @@ void vtkDGTranscribeCellGridCells::GeneratePointData(
     {
       continue;
     }
-    // TODO: We could handle the "constant"_token function-space differently
-    //       (by creating cell-data, not point-data, arrays).
     auto* outputArray = request->GetOutputArray(inCellAtt);
     auto rawCalc = interpolateProto->PrepareForGrid(cellType, inCellAtt);
     auto dgCalc = vtkDGInterpolateCalculator::SafeDownCast(rawCalc);
@@ -1020,21 +1079,35 @@ void vtkDGTranscribeCellGridCells::GeneratePointData(
     int nc = inCellAtt->GetNumberOfComponents();
     interpResult->SetNumberOfComponents(nc);
     interpResult->SetNumberOfTuples(nn);
+    if (request->IsAborted())
+    {
+      break;
+    }
     dgCalc->Evaluate(contribs.InputCellIds, contribs.ParametricCoords, interpResult);
-    vtkSMPTools::For(0, nn,
-      [&](vtkIdType begin, vtkIdType end)
+    vtkSMPTools::For(0, numOutputPoints,
+      [&](vtkIdType beginPointId, vtkIdType endPointId)
       {
         std::vector<double> outTuple(nc, 0.);
         std::vector<double> inTuple(nc, 0.);
-        for (vtkIdType ii = begin; ii < end; ++ii)
+        for (vtkIdType outputPointId = beginPointId; outputPointId < endPointId; ++outputPointId)
         {
-          interpResult->GetTuple(ii, inTuple.data());
-          vtkIdType outputPointId = contribs.OutputPointIds->GetValue(ii);
-          outputArray->GetTuple(outputPointId, outTuple.data());
-          double pw = pointWeights[outputPointId];
-          for (int jj = 0; jj < nc; ++jj)
+          const vtkIdType& begin = offsets[outputPointId];
+          const vtkIdType& end = offsets[outputPointId + 1];
+          if (begin == end)
           {
-            outTuple[jj] += pw * inTuple[jj];
+            continue; // No cell of this type contributes to this point.
+          }
+          double pw = pointWeights[outputPointId];
+          // Start from whatever is already there: a point on the boundary
+          // between two cell types is written once per type, one type at a time.
+          outputArray->GetTuple(outputPointId, outTuple.data());
+          for (vtkIdType ii = begin; ii < end; ++ii)
+          {
+            interpResult->GetTypedTuple(cellLinks[ii], inTuple.data());
+            for (int jj = 0; jj < nc; ++jj)
+            {
+              outTuple[jj] += pw * inTuple[jj];
+            }
           }
           outputArray->SetTuple(outputPointId, outTuple.data());
         }
