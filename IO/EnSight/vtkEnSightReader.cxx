@@ -1271,6 +1271,7 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
               vtkErrorMacro("Error with vtkEnSightReader: insufficient filename numbers!!!");
               return 0;
             }
+            current = std::string_view(line);
           }
           current =
             std::string_view(resultFilenameNum->range().data(), resultFilenameNum->range().size());
