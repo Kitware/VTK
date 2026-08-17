@@ -150,9 +150,11 @@ void Cache::Insert(
 
 //============================================================================
 CaptureNonErrorMessages::CaptureNonErrorMessages()
-  : DebugStream(&Ioss::Utils::get_debug_stream())
+  : OutputStream(&Ioss::Utils::get_output_stream())
+  , DebugStream(&Ioss::Utils::get_debug_stream())
   , WarningStream(&Ioss::Utils::get_warning_stream())
 {
+  Ioss::Utils::set_output_stream(this->Stream);
   Ioss::Utils::set_debug_stream(this->Stream);
   Ioss::Utils::set_warning_stream(this->Stream);
 }
@@ -160,6 +162,7 @@ CaptureNonErrorMessages::CaptureNonErrorMessages()
 //----------------------------------------------------------------------------
 CaptureNonErrorMessages::~CaptureNonErrorMessages()
 {
+  Ioss::Utils::set_output_stream(*this->OutputStream);
   Ioss::Utils::set_warning_stream(*this->WarningStream);
   Ioss::Utils::set_debug_stream(*this->DebugStream);
 }
