@@ -109,6 +109,7 @@ public:
 
 private:
   std::ostringstream Stream;
+  std::ostream* OutputStream;
   std::ostream* DebugStream;
   std::ostream* WarningStream;
 };
