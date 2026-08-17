@@ -3,10 +3,10 @@
 
 #include "vtkCellGridToUnstructuredGrid.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCellArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkIncrementalOctreePointLocator.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
@@ -16,6 +16,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <new>
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -37,6 +38,8 @@ void vtkCellGridToUnstructuredGrid::Query::PrintSelf(ostream& os, vtkIndent inde
     os << i2 << entry.first.Data() << " to cell type " << entry.second.CellType << ".\n";
   }
   os << indent << "AttributeMap: " << this->AttributeMap.size() << " entries\n";
+  os << indent << "SubdivisionLevel: " << this->SubdivisionLevel << "\n";
+  os << indent << "PointMergeTolerance: " << this->PointMergeTolerance << "\n";
 }
 
 bool vtkCellGridToUnstructuredGrid::Query::Initialize()
@@ -45,7 +48,7 @@ bool vtkCellGridToUnstructuredGrid::Query::Initialize()
   this->OutputOffsets.clear();
   this->AttributeMap.clear();
   this->ConnectivityCount.clear();
-  this->ConnectivityTransforms.clear();
+  this->ConnectivityWeights.clear();
   if (!this->Input || !this->Output)
   {
     vtkErrorMacro("Input or output grid is null.");
@@ -62,9 +65,18 @@ bool vtkCellGridToUnstructuredGrid::Query::Initialize()
   this->Output->SetPoints(points);
   this->Output->SetCells(ugtypes, ugcells);
   this->Locator->SetDataSet(this->Output);
+  // The locator is here to weld together the samples that neighboring cells
+  // make of the faces they share. Its tolerance therefore has to be small
+  // compared to the distance between two samples of the same cell, or those
+  // sub-cells collapse instead. That distance halves with every level and
+  // scales with the model, so the tolerance has to be relative as well. The
+  // default is an absolute 1e-3, which quietly destroys small models at even
+  // moderate levels.
+  // NB: InitPointInsertion() captures the tolerance, so set it beforehand.
+  vtkBoundingBox bbox(bounds.data());
+  double diagonal = bbox.GetDiagonalLength();
+  this->Locator->SetTolerance(diagonal > 0. ? diagonal * this->PointMergeTolerance : 0.);
   this->Locator->InitPointInsertion(points.GetPointer(), bounds.data());
-  this->ConnectivityCount.clear();
-  this->ConnectivityWeights.clear();
 
   this->AttributeMap[this->Input->GetShapeAttribute()] = points->GetData();
 
@@ -171,9 +183,43 @@ bool vtkCellGridToUnstructuredGrid::Query::Finalize()
   return true;
 }
 
+void vtkCellGridToUnstructuredGrid::SetSubdivisionLevel(int level)
+{
+  level = level < 0 ? 0 : level;
+  if (this->Request->GetSubdivisionLevel() == level)
+  {
+    return;
+  }
+  this->Request->SetSubdivisionLevel(level);
+  this->Modified();
+}
+
+int vtkCellGridToUnstructuredGrid::GetSubdivisionLevel() const
+{
+  return this->Request->GetSubdivisionLevel();
+}
+
+void vtkCellGridToUnstructuredGrid::SetPointMergeTolerance(double tolerance)
+{
+  tolerance = tolerance < 0. ? 0. : tolerance;
+  if (this->Request->GetPointMergeTolerance() == tolerance)
+  {
+    return;
+  }
+  this->Request->SetPointMergeTolerance(tolerance);
+  this->Modified();
+}
+
+double vtkCellGridToUnstructuredGrid::GetPointMergeTolerance() const
+{
+  return this->Request->GetPointMergeTolerance();
+}
+
 void vtkCellGridToUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "SubdivisionLevel: " << this->GetSubdivisionLevel() << "\n";
+  os << indent << "PointMergeTolerance: " << this->GetPointMergeTolerance() << "\n";
   os << indent << "Query:\n";
   vtkIndent i2 = indent.GetNextIndent();
   this->Request->PrintSelf(os, i2);
@@ -208,9 +254,27 @@ int vtkCellGridToUnstructuredGrid::RequestData(
   output->Initialize();
   this->Request->Input = input;
   this->Request->Output = output;
+  this->Request->Algorithm = this;
   // Run the cell-center query on the request.
-  if (!input->Query(this->Request))
+  //
+  // A high subdivision level can ask for more memory than exists. A level of 10
+  // turns a single hexahedron into a billion cells, and the allocation happens
+  // deep inside the responders, so catch the failure here and report it rather
+  // than letting it escape the pipeline.
+  bool ok = false;
+  try
   {
+    ok = input->Query(this->Request);
+  }
+  catch (const std::bad_alloc&)
+  {
+    vtkErrorMacro("Ran out of memory converting at subdivision level "
+      << this->GetSubdivisionLevel() << ". Try a lower level.");
+  }
+  this->Request->Algorithm = nullptr;
+  if (!ok)
+  {
+    output->Initialize();
     vtkErrorMacro("Input failed to respond to query.");
     return 0;
   }
