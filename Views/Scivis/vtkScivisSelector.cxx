@@ -50,28 +50,6 @@ vtkScivisView* vtkScivisSelector::GetView()
 }
 
 //------------------------------------------------------------------------------
-void vtkScivisSelector::SetMode(int mode)
-{
-  if (this->Mode == mode)
-  {
-    return;
-  }
-  if (mode != SURFACE && mode != FRUSTUM)
-  {
-    vtkWarningMacro("Unknown selection mode: " << mode);
-    return;
-  }
-  this->Mode = mode;
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-int vtkScivisSelector::GetMode()
-{
-  return this->Mode;
-}
-
-//------------------------------------------------------------------------------
 void vtkScivisSelector::SetFieldAssociation(int assoc)
 {
   if (this->FieldAssociation == assoc)
@@ -84,12 +62,6 @@ void vtkScivisSelector::SetFieldAssociation(int assoc)
 }
 
 //------------------------------------------------------------------------------
-int vtkScivisSelector::GetFieldAssociation()
-{
-  return this->FieldAssociation;
-}
-
-//------------------------------------------------------------------------------
 void vtkScivisSelector::SelectCells()
 {
   this->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
@@ -99,12 +71,6 @@ void vtkScivisSelector::SelectCells()
 void vtkScivisSelector::SelectPoints()
 {
   this->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_POINTS);
-}
-
-//------------------------------------------------------------------------------
-vtkSelection* vtkScivisSelector::GetCurrentSelection()
-{
-  return this->CurrentSelection;
 }
 
 //------------------------------------------------------------------------------
@@ -154,10 +120,9 @@ void vtkScivisSelector::SelectRegion(int x0, int y0, int x1, int y1, bool extend
 
   this->CurrentSelection = selection;
 
-  // Fired here and on the view: selection moved out of the view, but observers
-  // of the view predate the move and there is no reason to break them.
+  // Fired here and nowhere else.  Selection is this object's concern, and the
+  // same event on two objects only leaves an observer wondering which to trust.
   this->InvokeEvent(vtkCommand::SelectionChangedEvent, selection.GetPointer());
-  this->View->InvokeEvent(vtkCommand::SelectionChangedEvent, selection.GetPointer());
   this->View->Render();
 }
 
@@ -178,9 +143,8 @@ void vtkScivisSelector::Clear()
     }
   }
 
-  this->CurrentSelection = nullptr;
+  this->CurrentSelection = empty;
   this->InvokeEvent(vtkCommand::SelectionChangedEvent, empty.GetPointer());
-  this->View->InvokeEvent(vtkCommand::SelectionChangedEvent, empty.GetPointer());
   this->View->Render();
 }
 
@@ -241,8 +205,11 @@ void vtkScivisSelector::GenerateSelection(const int region[4], vtkSelection* sel
 
     vtkSelection* vsel =
       this->HardwareSelector->GenerateSelection(screenMinX, screenMinY, screenMaxX, screenMaxY);
-    sel->ShallowCopy(vsel);
-    vsel->Delete();
+    if (vsel)
+    {
+      sel->ShallowCopy(vsel);
+      vsel->Delete();
+    }
   }
 }
 

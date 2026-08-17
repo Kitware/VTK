@@ -83,7 +83,6 @@ public:
    * even when one of them only draws a surface of it.
    *
    * Returns false and leaves @a range untouched when the array is not there.
-   * The default implementation returns false.
    */
   virtual bool GetDataRange(
     const char* arrayName, int fieldAssoc, double range[2], int component = -1) = 0;

@@ -465,13 +465,21 @@ bool vtkVolumeRepresentation::GetDataRange(
 //------------------------------------------------------------------------------
 bool vtkVolumeRepresentation::GetBounds(double bounds[6])
 {
-  vtkDataSet* dataset = this->GetInputDataSet();
-  if (!dataset)
+  if (!this->GetInputDataSet())
   {
     return false;
   }
-  dataset->GetBounds(bounds);
-  return bounds[0] <= bounds[1];
+
+  // The volume's bounds rather than the data's, so that a volume that has been
+  // positioned or transformed reports where it is drawn -- which is what the
+  // surface representation reports through its actor.
+  const double* volumeBounds = this->VolumeActor->GetBounds();
+  if (!volumeBounds || volumeBounds[0] > volumeBounds[1])
+  {
+    return false;
+  }
+  std::copy(volumeBounds, volumeBounds + 6, bounds);
+  return true;
 }
 
 //------------------------------------------------------------------------------

@@ -44,6 +44,11 @@ vtkAlgorithmOutput* vtkScivisDataRepresentation::GetInternalOutputPort(int port,
   const std::pair<int, int> key(port, conn);
   vtkAlgorithmOutput* input = this->GetInputConnection(port, conn);
   vtkDataObject* inputData = this->GetInputDataObject(port, conn);
+  if (!inputData)
+  {
+    vtkErrorMacro("Port " << port << ", connection " << conn << " has produced no data yet.");
+    return nullptr;
+  }
 
   auto& cached = this->Implementation->InputInternal[key];
   if (!cached.second)
@@ -107,40 +112,6 @@ void vtkScivisDataRepresentation::UpdateSelection(vtkSelection* selection, bool 
 vtkSelection* vtkScivisDataRepresentation::GetCurrentSelection()
 {
   return this->CurrentSelection;
-}
-
-//------------------------------------------------------------------------------
-bool vtkScivisDataRepresentation::GetBounds(double vtkNotUsed(bounds)[6])
-{
-  return false;
-}
-
-//------------------------------------------------------------------------------
-const char* vtkScivisDataRepresentation::GetRenderedArrayName()
-{
-  return nullptr;
-}
-
-//------------------------------------------------------------------------------
-int vtkScivisDataRepresentation::GetRenderedFieldAssociation()
-{
-  return vtkDataObject::FIELD_ASSOCIATION_POINTS;
-}
-
-//------------------------------------------------------------------------------
-bool vtkScivisDataRepresentation::GetDataRange(const char* vtkNotUsed(arrayName),
-  int vtkNotUsed(fieldAssoc), double vtkNotUsed(range)[2], int vtkNotUsed(component))
-{
-  return false;
-}
-
-//------------------------------------------------------------------------------
-void vtkScivisDataRepresentation::SetColorMap(vtkScalarsToColors* vtkNotUsed(map)) {}
-
-//------------------------------------------------------------------------------
-vtkScalarsToColors* vtkScivisDataRepresentation::GetColorMap()
-{
-  return nullptr;
 }
 
 //------------------------------------------------------------------------------

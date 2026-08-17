@@ -62,7 +62,8 @@ def on_view_selection(caller, event):
     state.selection_info = "\n".join(lines) if lines else "No selection"
 
 
-view.AddObserver(vtkCommand.SelectionChangedEvent, on_view_selection)
+# Selection is the selector's concern, so that is what to listen to.
+view.selector.AddObserver(vtkCommand.SelectionChangedEvent, on_view_selection)
 
 
 def set_interaction_mode(mode):

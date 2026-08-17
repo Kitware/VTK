@@ -15,13 +15,13 @@ DEPENDS
   VTK::FiltersParallel
   VTK::InteractionWidgets
   VTK::RenderingCore
-  VTK::RenderingVolumeOpenGL2
 PRIVATE_DEPENDS
   VTK::FiltersExtraction
   VTK::InteractionStyle
   VTK::RenderingAnnotation
   VTK::RenderingUI
   VTK::RenderingVolume
+  VTK::RenderingVolumeOpenGL2
 TEST_DEPENDS
   VTK::FiltersSources
   VTK::ImagingCore

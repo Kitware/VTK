@@ -158,7 +158,13 @@ vtkScivisView::~vtkScivisView()
   {
     this->LightKit->RemoveLightsFromRenderer(this->Renderer);
   }
-  this->OrientationWidget->SetEnabled(0);
+  // Only if it still has an interactor: vtkOrientationMarkerWidget reports an
+  // error when enabled or disabled without one, and a view whose window was
+  // replaced by one carrying no interactor has left it with none.
+  if (this->OrientationWidget->GetInteractor())
+  {
+    this->OrientationWidget->SetEnabled(0);
+  }
   delete this->Implementation;
 }
 
@@ -272,6 +278,12 @@ void vtkScivisView::SetOrientationAxesVisibility(bool val)
   {
     return;
   }
+  if (!this->OrientationWidget->GetInteractor())
+  {
+    vtkErrorMacro("The orientation axes need an interactor; give the view a render window "
+                  "that has one.");
+    return;
+  }
   this->OrientationWidget->SetEnabled(val);
   this->Modified();
 }
@@ -352,7 +364,10 @@ void vtkScivisView::SetInteractionMode(int mode)
     return;
   }
   this->InteractionMode = mode;
-  this->GetInteractor()->SetInteractorStyle(style);
+  if (vtkRenderWindowInteractor* interactor = this->GetInteractor())
+  {
+    interactor->SetInteractorStyle(style);
+  }
   this->Modified();
 }
 
@@ -370,7 +385,10 @@ void vtkScivisView::SetInteractorStyle(vtkInteractorObserver* style)
   }
   this->CustomStyle = style;
   this->InteractionMode = INTERACTION_MODE_CUSTOM;
-  this->GetInteractor()->SetInteractorStyle(style);
+  if (vtkRenderWindowInteractor* interactor = this->GetInteractor())
+  {
+    interactor->SetInteractorStyle(style);
+  }
   this->Modified();
 }
 
@@ -390,7 +408,8 @@ int vtkScivisView::GetInteractionMode()
 void vtkScivisView::ProcessEvents(
   vtkObject* caller, unsigned long eventId, void* vtkNotUsed(callData))
 {
-  if (caller == this->GetInteractor()->GetInteractorStyle() &&
+  vtkRenderWindowInteractor* interactor = this->GetInteractor();
+  if (interactor && caller == interactor->GetInteractorStyle() &&
     eventId == vtkCommand::SelectionChangedEvent)
   {
     // The region is read from the style rather than from the event's call
@@ -401,7 +420,7 @@ void vtkScivisView::ProcessEvents(
     if (GetStyleSelectionRegion(caller, region))
     {
       this->Selector->SelectRegion(
-        region[0], region[1], region[2], region[3], this->GetInteractor()->GetShiftKey() != 0);
+        region[0], region[1], region[2], region[3], interactor->GetShiftKey() != 0);
     }
     else
     {
@@ -435,7 +454,14 @@ vtkScivisSelector* vtkScivisView::GetSelector()
 void vtkScivisView::Start()
 {
   this->Render();
-  this->GetInteractor()->Start();
+  if (vtkRenderWindowInteractor* interactor = this->GetInteractor())
+  {
+    interactor->Start();
+  }
+  else
+  {
+    vtkErrorMacro("There is no interactor to start; give the view a render window that has one.");
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -516,8 +542,19 @@ void vtkScivisView::SetRenderWindow(vtkRenderWindow* window)
     return;
   }
 
+  // The marker is switched off while the interactor it knows about is still
+  // alive.  Left enabled, it is disabled for us as that interactor goes away
+  // with the window, and complains about being disabled without one.
+  const bool markerWasEnabled = this->OrientationWidget->GetEnabled() != 0;
+  if (markerWasEnabled)
+  {
+    this->OrientationWidget->SetEnabled(0);
+  }
+
   // The renderers belong to the view rather than to the window that happened to
-  // be showing them, so they move across.
+  // be showing them, so they move across.  The lights and the light kit go with
+  // them, being the renderer's own, and the selector holds the view rather than
+  // the window, so neither needs anything doing to it here.
   vtkRendererCollection* renderers = this->RenderWindow->GetRenderers();
   while (renderers->GetNumberOfItems())
   {
@@ -531,9 +568,19 @@ void vtkScivisView::SetRenderWindow(vtkRenderWindow* window)
   vtkSmartPointer<vtkInteractorObserver> style =
     this->GetInteractor() ? this->GetInteractor()->GetInteractorStyle() : nullptr;
   this->RenderWindow = window;
-  if (this->GetInteractor() && style)
+  if (vtkRenderWindowInteractor* interactor = this->GetInteractor())
   {
-    this->GetInteractor()->SetInteractorStyle(style);
+    if (style)
+    {
+      interactor->SetInteractorStyle(style);
+    }
+    // The marker listens to an interactor rather than to a window, and the one
+    // it was given when this view was built belongs to the window just left.
+    this->OrientationWidget->SetInteractor(interactor);
+    if (markerWasEnabled)
+    {
+      this->OrientationWidget->SetEnabled(1);
+    }
   }
   this->Modified();
 }
@@ -552,14 +599,30 @@ void vtkScivisView::SetInteractor(vtkRenderWindowInteractor* interactor)
     return;
   }
 
+  const bool markerEnabled = this->OrientationWidget->GetEnabled() != 0;
+  if (markerEnabled)
+  {
+    this->OrientationWidget->SetEnabled(0);
+  }
+
   // Whatever style was installed belongs to the view rather than to the
   // interactor that happened to be carrying it.
   vtkSmartPointer<vtkInteractorObserver> style =
     this->GetInteractor() ? this->GetInteractor()->GetInteractorStyle() : nullptr;
   this->RenderWindow->SetInteractor(interactor);
-  if (this->GetInteractor() && style)
+  if (vtkRenderWindowInteractor* current = this->GetInteractor())
   {
-    this->GetInteractor()->SetInteractorStyle(style);
+    if (style)
+    {
+      current->SetInteractorStyle(style);
+    }
+    // The marker listens to an interactor, not to the view, so it has to be
+    // told about the one that just replaced the old.
+    this->OrientationWidget->SetInteractor(current);
+    if (markerEnabled)
+    {
+      this->OrientationWidget->SetEnabled(1);
+    }
   }
   this->Modified();
 }

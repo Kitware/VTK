@@ -41,13 +41,13 @@
 
 #include "vtkNew.h" // For ivars
 #include "vtkObject.h"
+#include "vtkSelection.h"         // For the smart pointer getter macro
 #include "vtkSmartPointer.h"      // For ivars
 #include "vtkViewsScivisModule.h" // For export macro
 #include "vtkWeakPointer.h"       // For ivars
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHardwareSelector;
-class vtkSelection;
 class vtkScivisView;
 
 class VTKVIEWSSCIVIS_EXPORT vtkScivisSelector : public vtkObject
@@ -71,8 +71,8 @@ public:
     SURFACE = 0,
     FRUSTUM = 1
   };
-  void SetMode(int mode);
-  int GetMode();
+  vtkSetClampMacro(Mode, int, SURFACE, FRUSTUM);
+  vtkGetMacro(Mode, int);
   void SetModeToSurface() { this->SetMode(SURFACE); }
   void SetModeToFrustum() { this->SetMode(FRUSTUM); }
   ///@}
@@ -85,7 +85,7 @@ public:
    * are the same thing said more plainly.
    */
   void SetFieldAssociation(int assoc);
-  int GetFieldAssociation();
+  vtkGetMacro(FieldAssociation, int);
   void SelectCells();
   void SelectPoints();
   ///@}
@@ -116,11 +116,12 @@ public:
   /**
    * What the last selection picked, or null if nothing has been selected.
    *
-   * SelectionChangedEvent is fired when this changes, with the vtkSelection as
-   * call data.  It is fired both here and on the view, so an observer can watch
-   * whichever of the two it already has.
+   * SelectionChangedEvent is fired on this object when the selection changes,
+   * with the vtkSelection as call data.  Observe the selector rather than the
+   * view: selection is what this object is for, and firing the same event in
+   * two places would leave an observer to work out which one to trust.
    */
-  vtkSelection* GetCurrentSelection();
+  vtkGetSmartPointerMacro(CurrentSelection, vtkSelection);
 
   ///@{
   /**
