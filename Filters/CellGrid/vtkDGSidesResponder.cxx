@@ -52,6 +52,18 @@ bool vtkDGSidesResponder::HashSides(vtkCellGridSidesQuery* query, vtkDGCell* cel
   std::string cellTypeName = cellType->GetClassName();
   vtkStringToken cellTypeToken(cellTypeName);
 
+  // pointArrayId holds the "identity" of the coordinate array backing this cell
+  // type's point IDs
+  std::size_t pointArrayId = 0;
+  if (auto* shapeAtt = grid->GetShapeAttribute())
+  {
+    auto shapeInfo = shapeAtt->GetCellTypeInfo(cellTypeToken);
+    if (auto* values = shapeInfo.GetArrayForRoleAs<vtkAbstractArray>("values"_token))
+    {
+      pointArrayId = std::hash<const void*>{}(values);
+    }
+  }
+
   // We use the number of input side-specs to avoid computing sides
   // of sides we are about to insert (if any).
   std::size_t numInputSideSpecs = cellType->GetSideSpecs().size();
@@ -140,7 +152,7 @@ bool vtkDGSidesResponder::HashSides(vtkCellGridSidesQuery* query, vtkDGCell* cel
             }
           }
           // Hash the sideIdx'th side of element ii and add it to the query's storage.
-          sideCache->AddSide(cellTypeToken, ii, sideIdx, shapeName, side);
+          sideCache->AddSide(cellTypeToken, ii, sideIdx, shapeName, side, pointArrayId);
         }
       }
     }
@@ -186,7 +198,7 @@ bool vtkDGSidesResponder::HashSides(vtkCellGridSidesQuery* query, vtkDGCell* cel
       // as directed by the query.
       const auto& sidesOfSide = cellType->GetSidesOfSide(sideEntry[1]);
       this->HashSidesOfSide(query, cellType, sideSpec.SourceShape, side, sidesOfSide, sideEntry[0],
-        entry, sidesVisited, ngm);
+        entry, sidesVisited, ngm, pointArrayId);
     }
   }
 
@@ -429,7 +441,8 @@ bool vtkDGSidesResponder::ProcessSidesOfInput(
 void vtkDGSidesResponder::HashSidesOfSide(vtkCellGridSidesQuery* query, vtkDGCell* cellType,
   vtkDGCell::Shape sourceShape, std::vector<vtkIdType>& side,
   const std::vector<vtkIdType>& sidesToHash, vtkIdType cellId,
-  const std::vector<vtkTypeInt64>& entry, std::set<int>& sidesVisited, vtkDataArray* ngm)
+  const std::vector<vtkTypeInt64>& entry, std::set<int>& sidesVisited, vtkDataArray* ngm,
+  std::size_t pointArrayId)
 {
   auto* sideCache = query->GetSideCache();
   vtkStringToken cellTypeToken = cellType->GetClassName();
@@ -484,15 +497,15 @@ void vtkDGSidesResponder::HashSidesOfSide(vtkCellGridSidesQuery* query, vtkDGCel
         }
       }
       // Hash the sideId'th side of cellId and add it to the query's storage.
-      sideCache->AddSide(
-        cellTypeToken, cellId, sideId, vtkDGCell::GetShapeName(sideOfSideShape), side);
+      sideCache->AddSide(cellTypeToken, cellId, sideId, vtkDGCell::GetShapeName(sideOfSideShape),
+        side, pointArrayId);
     }
     // Regardless of whether we hashed the side, compute any child sides and recurse
     const auto& childSides = cellType->GetSidesOfSide(sideId);
     if (!childSides.empty())
     {
-      this->HashSidesOfSide(
-        query, cellType, sideOfSideShape, side, childSides, cellId, entry, sidesVisited, ngm);
+      this->HashSidesOfSide(query, cellType, sideOfSideShape, side, childSides, cellId, entry,
+        sidesVisited, ngm, pointArrayId);
     }
   }
 }

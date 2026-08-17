@@ -72,7 +72,7 @@ public:
 
   /// Compute the hash of a side (but do not insert a side into the map).
   template <typename C, typename T = typename C::value_type>
-  std::size_t HashSide(vtkStringToken shape, const C& conn)
+  std::size_t HashSide(vtkStringToken shape, const C& conn, std::size_t pointArrayId = 0)
   {
     std::size_t ss = 0;
     std::size_t NN = conn.size();
@@ -94,6 +94,8 @@ public:
 
     std::size_t hashedValue = std::hash<std::size_t>{}(NN);
     vtkHashCombiner()(hashedValue, shape.GetId());
+    // Include the identity of the coordinate array that the point IDs index into
+    vtkHashCombiner()(hashedValue, pointArrayId);
     // std::cout << "Hash(" << (forward ? "F" : "R") << ")";
     if (forward)
     {
@@ -120,8 +122,8 @@ public:
 
   /// Add a \a side with the given \a shape and connectivity to the request's state.
   ///
-  /// The \a shape, \a conn size, and \a conn entries are hashed together into a key
-  /// which is mapped to a set of all the matching sides.
+  /// The \a shape, \a conn size, \a conn entries and \a pointArrayId are hashed together
+  /// into a key which is mapped to a set of all the matching sides.
   /// The \a cellType and \a cell ID are also stored with each matching side; these
   /// are used during Finalize() to generate the output map-of-maps returned
   /// by GetSides() so that the sides are reported by cell type, cell ID, and then side ID.
@@ -138,12 +140,19 @@ public:
   //
   /// By storing the \a cellType, we avoid requiring a global-to-local cell numbering
   /// in vtkCellGrid instances (as vtkPolyData incurs) which may hold multiple types of cells.
+  ///
+  /// Similarly, point IDs in \a conn are local to the coordinate array the cell type
+  /// indexes into, and \a pointArrayId is used to identify that array, avoiding a
+  /// requirement for global point numbering across vtkCellGrid instances. Two sides
+  /// are the same face only when their point IDs and coordinate array match, preventing
+  /// collision between sides of different cell types with separate coordinate arrays,
+  /// while ensuring genuinely shared faces still collide.
   //@{
   template <typename C, typename T = typename C::value_type>
-  void AddSide(
-    vtkStringToken cellType, vtkIdType cell, int side, vtkStringToken shape, const C& conn)
+  void AddSide(vtkStringToken cellType, vtkIdType cell, int side, vtkStringToken shape,
+    const C& conn, std::size_t pointArrayId = 0)
   {
-    auto hashedValue = this->HashSide(shape, conn);
+    auto hashedValue = this->HashSide(shape, conn, pointArrayId);
     this->Hashes[hashedValue].Sides.insert(Side{ cellType, shape, cell, side });
   }
   //@}
