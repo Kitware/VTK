@@ -22,15 +22,30 @@ class VTKDataArrayMixin:
     VTK base class in the MRO).
     """
 
+    # Class-level defaults so the properties work even if __init__ is skipped
+    # (SWIG pointer reconstruction takes an early return).
+    _dataset = None
+    _association = None
+
     # ---- metadata management ------------------------------------------------
     def _set_dataset(self, dataset):
-        """Store a weak reference to the owning dataset."""
-        if dataset is not None:
-            from ..vtkCommonCore import vtkWeakReference
-            self._dataset = vtkWeakReference()
-            self._dataset.Set(dataset)
-        else:
+        """Store a weak reference to the owning dataset.
+
+        The reference must stay weak: this is a child-to-parent back
+        reference, and a strong one would be pinned in vtkPythonUtil's ghost
+        map once this wrapper is released, leaking the whole dataset.
+        """
+        if dataset is None:
             self._dataset = None
+            return
+        # Reuse the existing holder -- get_array() re-sets the owner on every
+        # point_data/cell_data lookup, which is a hot path.
+        ref = self._dataset
+        if ref is None:
+            from ..vtkCommonCore import vtkWeakReference
+            ref = vtkWeakReference()
+            self._dataset = ref
+        ref.Set(dataset)
 
     @property
     def dataset(self):
