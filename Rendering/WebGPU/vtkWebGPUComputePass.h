@@ -211,6 +211,17 @@ public:
    */
   void ReadBufferFromGPU(int bufferIndex, BufferMapAsyncCallback callback, void* userdata);
 
+  /**
+   * Asynchronously copies a GPU buffer's contents into a VTK data array. Data is populated
+   * when the pipeline is updated.
+   *
+   * This signature was designed as the callback version is not wrappable in python.
+   *
+   * @note To know if the targetArray is filled, user can check the MTime of the data array.
+   * @warning Set the number of components on targetArray beforehand for multi-component data.
+   */
+  void ReadBufferFromGPU(int bufferIndex, vtkDataArray* targetArray);
+
   /*
    * Callback called when the asynchronous mapping of a texture is done
    * and data is ready to be copied.
