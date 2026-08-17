@@ -323,7 +323,7 @@
 
 .fedora44:
     extends: .linux
-    image: "kitware/vtk:ci-fedora44-20260803"
+    image: "kitware/vtk:ci-fedora44-20260814"
 
 .fedora44_x86_64:
     extends: .fedora44

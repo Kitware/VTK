@@ -46,7 +46,7 @@ dnf install -y --setopt=install_weak_deps=False \
     hdf5-devel hdf5-mpich-devel hdf5-openmpi-devel hdf5-devel netcdf-devel \
     netcdf-mpich-devel netcdf-openmpi-devel libogg-devel libtheora-devel \
     jsoncpp-devel gl2ps-devel protobuf-devel boost-devel PDAL-devel \
-    cgnslib-devel libxcrypt-compat libxkbcommon \
+    cgnslib-devel libxcrypt-compat libxkbcommon atk at-spi2-atk \
     postgresql-server-devel postgresql-private-devel \
     mariadb-devel libiodbc-devel liblas-devel openslide-devel \
     libarchive-devel freeglut-devel sqlite-devel PEGTL-devel  \
