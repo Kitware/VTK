@@ -296,9 +296,10 @@ int TestComputeTriangulation(int argc, char* argv[])
         wgpuQueueSubmit(queue, 1, &copyCommand);
         // map the destination buffer and verify it's contents.
         auto onConnectivityBufferMapped =
-          [](WGPUMapAsyncStatus status, WGPUStringView, void* userdata1, void*)
+          [](WGPUMapAsyncStatus status, WGPUStringView, void* userdata1, void* userdata2)
         {
           auto* userMapData = static_cast<MapData*>(userdata1);
+          *static_cast<bool*>(userdata2) = true;
           if (status == WGPUMapAsyncStatus_Success)
           {
             vtkLogScopeF(INFO, "Triangle lists buffer is now mapped");
@@ -321,6 +322,10 @@ int TestComputeTriangulation(int argc, char* argv[])
         mapCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
         mapCallbackInfo.callback = onConnectivityBufferMapped;
         mapCallbackInfo.userdata1 = mapData;
+        // The map callback can land after the queue reports the copy done, and
+        // mapData is reused by the next block, so wait for the map itself.
+        bool mapDone = false;
+        mapCallbackInfo.userdata2 = &mapDone;
         wgpuBufferMapAsync(dstBuffer, WGPUMapMode_Read, 0, byteSize, mapCallbackInfo);
         // wait for mapping to finish.
         bool workDone = false;
@@ -330,7 +335,7 @@ int TestComputeTriangulation(int argc, char* argv[])
         { *static_cast<bool*>(userdata1) = true; };
         workDoneInfo.userdata1 = &workDone;
         wgpuQueueOnSubmittedWorkDone(queue, workDoneInfo);
-        while (!workDone)
+        while (!workDone || !mapDone)
         {
           wgpuConfig->ProcessEvents();
         }
@@ -351,9 +356,10 @@ int TestComputeTriangulation(int argc, char* argv[])
         wgpuQueueSubmit(queue, 1, &copyCommand);
         // map the destination buffer and verify it's contents.
         auto onCellIdBufferMapped =
-          [](WGPUMapAsyncStatus status, WGPUStringView, void* userdata1, void*)
+          [](WGPUMapAsyncStatus status, WGPUStringView, void* userdata1, void* userdata2)
         {
           auto* userMapData = static_cast<MapData*>(userdata1);
+          *static_cast<bool*>(userdata2) = true;
           if (status == WGPUMapAsyncStatus_Success)
           {
             vtkLogScopeF(INFO, "Triangle cell ID buffer is now mapped");
@@ -376,6 +382,10 @@ int TestComputeTriangulation(int argc, char* argv[])
         mapCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
         mapCallbackInfo.callback = onCellIdBufferMapped;
         mapCallbackInfo.userdata1 = mapData;
+        // The map callback can land after the queue reports the copy done, and
+        // mapData is reused by the next block, so wait for the map itself.
+        bool mapDone = false;
+        mapCallbackInfo.userdata2 = &mapDone;
         wgpuBufferMapAsync(dstBuffer, WGPUMapMode_Read, 0, byteSize, mapCallbackInfo);
         // wait for mapping to finish.
         bool workDone = false;
@@ -385,7 +395,7 @@ int TestComputeTriangulation(int argc, char* argv[])
         { *static_cast<bool*>(userdata1) = true; };
         workDoneInfo.userdata1 = &workDone;
         wgpuQueueOnSubmittedWorkDone(queue, workDoneInfo);
-        while (!workDone)
+        while (!workDone || !mapDone)
         {
           wgpuConfig->ProcessEvents();
         }
