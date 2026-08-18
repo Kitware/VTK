@@ -420,6 +420,8 @@ methods:
     option set to "Stages".  Note that the names are determined by what is in
     the `.gitlab-ci.yml` file and may be capitalized in the web page, so
     lowercasing the webpage's display name for stages may be required.
+  * `--tag <tag>` or `-t <tag>`: Only affect jobs with the specified tags.
+    When given multiple times, all tags must be present to match.
   * `--action <action>` or `-a <action>`: The action to perform on the jobs.
     Possible actions:
 
