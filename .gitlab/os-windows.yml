@@ -96,6 +96,7 @@
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows314t_x86_64
+        PYTHON_VERSION_SUFFIX: "3.14t"
 
 .wheel_windows314t_x86_64_osmesa:
     extends:
@@ -357,7 +358,7 @@
         - buildcache --show-stats
         - cd build
         - Set-Item -Force -Path "env:PATH" -Value "$env:PYTHON_PREFIX;$env:PATH"
-        - python -m venv venv
+        - '& "python$env:PYTHON_VERSION_SUFFIX" -m venv venv'
         - . .\venv\Scripts\Activate.ps1
         - pip install setuptools
         - pip install wheel
@@ -387,14 +388,15 @@
         - cmake -P .gitlab/ci/download_wheel_python.cmake
         - Set-Item -Force -Path "env:PYTHON_PREFIX" -Value "$pwdpath\.gitlab\python"
         - Set-Item -Force -Path "env:PATH" -Value "$env:PYTHON_PREFIX;$env:PATH"
-        - python -m venv venv
+        - '& "python$env:PYTHON_VERSION_SUFFIX" -m venv venv'
         - . .\venv\Scripts\Activate.ps1
         - pip install twine
         - twine check (Get-ChildItem build\dist\*.whl | % FullName)
         - pip install (Get-ChildItem build\dist\*.whl | % FullName)
-        - $PYTHON_VERSION_SUFFIX=python -c "import sys;print(f'{sys.version_info[0]}.{sys.version_info[1]}')"
-        - pip install -r $pwdpath\.gitlab\ci\requirements-wheel$PYTHON_VERSION_SUFFIX-test.txt
-        - python -c "import xarray"
+        - $PYTHON_REQUIREMENTS_VERSION=python -c "import sys;print(f'{sys.version_info[0]}.{sys.version_info[1]}')"
+        # Python xarray deps not available yet for free threading.
+        - if ("$env:CMAKE_CONFIGURATION" -notmatch "windows\d+t") { pip install -r $pwdpath\.gitlab\ci\requirements-wheel$PYTHON_REQUIREMENTS_VERSION-test.txt }
+        - if ("$env:CMAKE_CONFIGURATION" -notmatch "windows\d+t") { python -c "import xarray" }
         - python -c "import vtk"
         - if ( "$env:VTK_DISABLE_PYI_TESTING" -ne "1" ) { python -m vtkmodules.generate_pyi --test -p vtkmodules } else { echo "pyi test is disabled." }
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
