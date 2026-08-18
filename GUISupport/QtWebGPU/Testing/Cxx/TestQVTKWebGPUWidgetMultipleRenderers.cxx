@@ -21,7 +21,7 @@
 
 namespace
 {
-void process_events_and_wait(int msec)
+void ProcessEventsAndWait(int msec)
 {
   QEventLoop loop;
   QTimer::singleShot(msec, &loop, SLOT(quit()));
@@ -85,7 +85,7 @@ int TestQVTKWebGPUWidgetMultipleRenderers(int argc, char* argv[])
   // Show the widget
   widget.resize(400, 300);
   widget.show();
-  process_events_and_wait(500);
+  ProcessEventsAndWait(500);
 
   // Verify we have 2 renderers in the render window
   if (renWin->GetRenderers()->GetNumberOfItems() != 2)
@@ -106,7 +106,7 @@ int TestQVTKWebGPUWidgetMultipleRenderers(int argc, char* argv[])
 
   // Render and verify no errors
   renWin->Render();
-  process_events_and_wait(500);
+  ProcessEventsAndWait(500);
 
   // Verify viewports are set correctly
   double leftVP[4];
@@ -159,7 +159,7 @@ int TestQVTKWebGPUWidgetMultipleRenderers(int argc, char* argv[])
   }
 
   renWin->Render();
-  process_events_and_wait(500);
+  ProcessEventsAndWait(500);
 
   // Re-add renderer
   renWin->AddRenderer(rightRenderer);
@@ -171,7 +171,7 @@ int TestQVTKWebGPUWidgetMultipleRenderers(int argc, char* argv[])
   }
 
   renWin->Render();
-  process_events_and_wait(500);
+  ProcessEventsAndWait(500);
 
   std::cout << "All multiple renderers tests passed." << std::endl;
   return EXIT_SUCCESS;

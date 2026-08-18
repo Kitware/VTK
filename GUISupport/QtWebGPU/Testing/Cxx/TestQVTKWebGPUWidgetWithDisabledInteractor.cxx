@@ -24,7 +24,7 @@
 
 namespace
 {
-void process_events_and_wait(int msec)
+void ProcessEventsAndWait(int msec)
 {
   QEventLoop loop;
   QTimer::singleShot(msec, &loop, SLOT(quit()));
@@ -59,7 +59,7 @@ int TestQVTKWebGPUWidgetWithDisabledInteractor(int argc, char* argv[])
 
   widget.resize(100, 100);
   widget.show();
-  process_events_and_wait(500);
+  ProcessEventsAndWait(500);
 
   // Set interactor to not call Render() on the vtkRenderWindow. Clients might
   // set this to enforce a specified framerate by rendering only when a timer
@@ -85,7 +85,7 @@ int TestQVTKWebGPUWidgetWithDisabledInteractor(int argc, char* argv[])
   // earlier.
   widget.resize(300, 300);
   widget.show();
-  process_events_and_wait(500);
+  ProcessEventsAndWait(500);
 
   // Get output image filename
   const std::string tempDir(vtktesting->GetTempDirectory());

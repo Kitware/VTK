@@ -23,7 +23,7 @@
 
 namespace
 {
-void process_events_and_wait(int msec)
+void ProcessEventsAndWait(int msec)
 {
   QEventLoop loop;
   QTimer::singleShot(msec, &loop, SLOT(quit()));
@@ -99,7 +99,7 @@ int TestQVTKWebGPUWidgetSwapWindows(int argc, char* argv[])
   frame.show();
   leftRenWin->Render();
   rightRenWin->Render();
-  process_events_and_wait(500);
+  ProcessEventsAndWait(500);
 
   // Verify initial state
   std::cout << "Initial state - Left widget parent: " << leftVTKWidget->parentWidget()
@@ -118,7 +118,7 @@ int TestQVTKWebGPUWidgetSwapWindows(int argc, char* argv[])
   // Process events again
   leftRenWin->Render();
   rightRenWin->Render();
-  process_events_and_wait(500);
+  ProcessEventsAndWait(500);
 
   // Verify swapped state
   std::cout << "After swap - Left widget parent: " << leftVTKWidget->parentWidget()

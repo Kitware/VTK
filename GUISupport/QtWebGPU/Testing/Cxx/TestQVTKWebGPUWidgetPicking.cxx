@@ -28,7 +28,7 @@
 
 namespace
 {
-void process_events_and_wait(int msec)
+void ProcessEventsAndWait(int msec)
 {
   QEventLoop loop;
   QTimer::singleShot(msec, &loop, SLOT(quit()));
@@ -94,7 +94,7 @@ int TestQVTKWebGPUWidgetPicking(int argc, char* argv[])
 
   widget.resize(300, 300);
   widget.show();
-  process_events_and_wait(500);
+  ProcessEventsAndWait(500);
 
   vtkNew<vtkPropPicker> picker;
 
@@ -144,7 +144,7 @@ int TestQVTKWebGPUWidgetPicking(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  process_events_and_wait(500);
+  ProcessEventsAndWait(500);
 
   return EXIT_SUCCESS;
 }

@@ -24,7 +24,7 @@
 
 namespace
 {
-void process_events_and_wait(int msec)
+void ProcessEventsAndWait(int msec)
 {
   QEventLoop loop;
   QTimer::singleShot(msec, &loop, SLOT(quit()));
@@ -98,7 +98,7 @@ int TestQVTKWebGPUWidget(int argc, char* argv[])
   widget.show();
 
   // Process events and let the widget render
-  process_events_and_wait(1000);
+  ProcessEventsAndWait(1000);
 
   // Verify window size
   const int* windowSize = renderWindow->GetSize();

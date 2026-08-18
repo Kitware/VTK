@@ -17,7 +17,7 @@
 
 namespace
 {
-void process_events_and_wait(int msec)
+void ProcessEventsAndWait(int msec)
 {
   QEventLoop loop;
   QTimer::singleShot(msec, &loop, SLOT(quit()));
@@ -49,7 +49,7 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
 
   widget.resize(widgetWidth, widgetHeight);
   widget.show();
-  process_events_and_wait(500);
+  ProcessEventsAndWait(500);
 
   // Test 1: Verify default HiDPI is enabled
   if (!widget.enableHiDPI())
@@ -87,7 +87,7 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
   // Test 5: Set custom device pixel ratio and verify it is used
   const double customDpr = 2.0;
   widget.setCustomDevicePixelRatio(customDpr);
-  process_events_and_wait(100);
+  ProcessEventsAndWait(100);
 
   if (std::fabs(widget.effectiveDevicePixelRatio() - customDpr) > 1e-6)
   {
@@ -110,7 +110,7 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
 
   // Test 6: Disable HiDPI and verify DPI is unscaled
   widget.setEnableHiDPI(false);
-  process_events_and_wait(100);
+  ProcessEventsAndWait(100);
 
   if (widget.enableHiDPI())
   {
@@ -129,7 +129,7 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
 
   // Test 7: Re-enable HiDPI and verify DPI is scaled
   widget.setEnableHiDPI(true);
-  process_events_and_wait(100);
+  ProcessEventsAndWait(100);
 
   int scaledDpi = static_cast<int>(widget.unscaledDPI() * widget.effectiveDevicePixelRatio());
   actualDpi = renWin->GetDPI();
@@ -142,7 +142,7 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
 
   // Test 8: Reset custom DPR to 0 and verify fallback to Qt's ratio
   widget.setCustomDevicePixelRatio(0.0);
-  process_events_and_wait(100);
+  ProcessEventsAndWait(100);
 
   if (std::fabs(widget.effectiveDevicePixelRatio() - qtDpr) > 1e-6)
   {
@@ -155,7 +155,7 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
   // Test 9: Set custom unscaled DPI
   const int customDpi = 96;
   widget.setUnscaledDPI(customDpi);
-  process_events_and_wait(100);
+  ProcessEventsAndWait(100);
 
   if (widget.unscaledDPI() != customDpi)
   {
