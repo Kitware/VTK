@@ -9898,7 +9898,7 @@ FileInfo* vtkParse_ParseFile(const char* filename, FILE* ifile, FILE* errfile)
   startSig();
 
   parseDebug = 0;
-  if (getenv("DEBUG") != NULL)
+  if (getenv("vtkParse_DEBUG") != NULL)
   {
     parseDebug = 1;
   }
