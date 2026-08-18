@@ -124,6 +124,11 @@ public:
    * (vtkDataObject::FIELD_ASSOCIATION_CELLS).
    * componentno indicates which component from the data array must be passed as
    * the attribute. If -1, then all components are passed.
+   * Calling this method multiple times for the same vertex attribute name will
+   * append the data array to the list of data arrays used for that vertex attribute.
+   * In this case, it is assumed that the data arrays are compatible, the last call
+   * will determinethe field association and component number used for the vertex attribute.
+   * Setting dataArrayName to nullptr will remove the mapping for the vertex attribute entirely.
    */
   void MapDataArrayToVertexAttribute(const char* vertexAttributeName, const char* dataArrayName,
     int fieldAssociation, int componentno = -1) override;
@@ -249,7 +254,7 @@ protected:
   class ExtraAttributeValue
   {
   public:
-    std::string DataArrayName;
+    std::vector<std::string> DataArrayNames;
     int FieldAssociation;
     int ComponentNumber;
     std::string TextureName;
@@ -387,6 +392,7 @@ protected:
     int EnableLights = -1;
     int VertexPass = -1;
     int PrimitiveSize = -1;
+    int PointCount = -1;
     int PointSize = -1;
     int CellIdOffset = -1;
     int VertexIdOffset = -1;
