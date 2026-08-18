@@ -23,6 +23,7 @@ PRIVATE_DEPENDS
   VTK::token
 TEST_DEPENDS
   VTK::CommonSystem
+  VTK::FiltersGeneral
   VTK::IOCellGrid
   VTK::IOXML
   VTK::TestingCore
