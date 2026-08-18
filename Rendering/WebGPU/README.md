@@ -246,14 +246,16 @@ VTK's public headers already use the WebGPU C API only, so the installed
 interface does not expose `wgpu::` types and does not require C++20 of its
 consumers.
 
+The module's implementation files use the C API as well: `webgpu_cpp.h` is no
+longer included anywhere, and ownership of the C handles is expressed with
+`Private/vtkWebGPUHandle.h` instead of the `wgpu::` wrapper types. The module
+therefore builds as C++17.
+
 ```{note}
-The vendored headers are currently taken from Dawn, not from upstream
-[webgpu-headers](https://github.com/webgpu-native/webgpu-headers) —
-`include/webgpu/webgpu_cpp.h` is a shim that includes `include/dawn/webgpu_cpp.h`.
-So VTK is not yet decoupled from a particular implementation at the header level.
-Two changes are needed to get there: vendoring the upstream C headers, and
-removing `webgpu_cpp.h` from the module's implementation files, which still use
-`wgpu::` types internally.
+The vendored headers are still taken from Dawn rather than from upstream
+[webgpu-headers](https://github.com/webgpu-native/webgpu-headers), so VTK is not
+yet decoupled from a particular implementation at the header level. Vendoring
+the upstream C headers is the remaining step.
 ```
 
 ### Library Search Strategy

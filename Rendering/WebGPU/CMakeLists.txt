@@ -252,8 +252,8 @@ vtk_module_add_module(VTK::RenderingWebGPU
 #
 # Owning the headers means an implementation cannot change the API VTK compiles
 # against underneath it, and it lets VTK carry local fixes - see the
-# webgpu_cpp.h `typename` patch in ThirdParty/webgpuheaders, without which the
-# module does not build with the MSVC in VTK's CI.
+# webgpu_cpp.h `typename` patch in ThirdParty/webgpuheaders. VTK itself no
+# longer includes that header, but it stays patched for consumers that do.
 #
 # dawn::webgpu_dawn is still linked for the library itself. It must be the
 # implementation's own target and not VTK::WebGPUImpl: the latter is created by

@@ -1124,7 +1124,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
   constexpr int kNumTopologyTypes = vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES;
   std::array<vtkTypeUInt32*, kNumTopologyTypes> vertexCounts;
   // Local WGPUBuffer storage the converter can write into; results are copied back into the
-  // wgpu:: members afterwards.
+  // owning handle members afterwards.
   std::array<WGPUBuffer, kNumTopologyTypes> connectivityBufferStorage;
   std::array<WGPUBuffer, kNumTopologyTypes> cellIdBufferStorage;
   std::array<WGPUBuffer, kNumTopologyTypes> cellIdOffsetUniformBufferStorage;
