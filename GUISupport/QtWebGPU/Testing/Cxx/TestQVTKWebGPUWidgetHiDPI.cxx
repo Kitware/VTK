@@ -4,6 +4,7 @@
 
 #include "QVTKWebGPUWidget.h"
 
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
@@ -13,7 +14,6 @@
 #include <QTimer>
 
 #include <cmath>
-#include <iostream>
 
 namespace
 {
@@ -36,7 +36,7 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
   vtkWebGPURenderWindow* renWin = widget.renderWindow();
   if (!renWin)
   {
-    std::cerr << "Failed to get render window from QVTKWebGPUWidget" << std::endl;
+    vtkLog(ERROR, "Failed to get render window from QVTKWebGPUWidget");
     return EXIT_FAILURE;
   }
 
@@ -54,22 +54,22 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
   // Test 1: Verify default HiDPI is enabled
   if (!widget.enableHiDPI())
   {
-    std::cerr << "HiDPI should be enabled by default" << std::endl;
+    vtkLog(ERROR, "HiDPI should be enabled by default");
     return EXIT_FAILURE;
   }
 
   // Test 2: Verify default unscaled DPI
   if (widget.unscaledDPI() != 72)
   {
-    std::cerr << "Expected default unscaledDPI to be 72, got " << widget.unscaledDPI() << std::endl;
+    vtkLog(ERROR, "Expected default unscaledDPI to be 72, got " << widget.unscaledDPI());
     return EXIT_FAILURE;
   }
 
   // Test 3: Verify default custom device pixel ratio (0 means use Qt's value)
   if (widget.customDevicePixelRatio() != 0.0)
   {
-    std::cerr << "Expected default customDevicePixelRatio to be 0.0, got "
-              << widget.customDevicePixelRatio() << std::endl;
+    vtkLog(ERROR,
+      "Expected default customDevicePixelRatio to be 0.0, got " << widget.customDevicePixelRatio());
     return EXIT_FAILURE;
   }
 
@@ -78,9 +78,9 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
   double effectiveDpr = widget.effectiveDevicePixelRatio();
   if (std::fabs(effectiveDpr - qtDpr) > 1e-6)
   {
-    std::cerr << "effectiveDevicePixelRatio (" << effectiveDpr
-              << ") should match Qt's devicePixelRatioF (" << qtDpr
-              << ") when customDevicePixelRatio is 0" << std::endl;
+    vtkLog(ERROR,
+      "effectiveDevicePixelRatio (" << effectiveDpr << ") should match Qt's devicePixelRatioF ("
+                                    << qtDpr << ") when customDevicePixelRatio is 0");
     return EXIT_FAILURE;
   }
 
@@ -91,9 +91,9 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
 
   if (std::fabs(widget.effectiveDevicePixelRatio() - customDpr) > 1e-6)
   {
-    std::cerr << "effectiveDevicePixelRatio should be " << customDpr
-              << " after setting custom DPR, got " << widget.effectiveDevicePixelRatio()
-              << std::endl;
+    vtkLog(ERROR,
+      "effectiveDevicePixelRatio should be " << customDpr << " after setting custom DPR, got "
+                                             << widget.effectiveDevicePixelRatio());
     return EXIT_FAILURE;
   }
 
@@ -103,8 +103,10 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
   const int expectedHeight = static_cast<int>(widgetHeight * customDpr);
   if (windowSize[0] != expectedWidth || windowSize[1] != expectedHeight)
   {
-    std::cerr << "Expected render window size " << expectedWidth << "x" << expectedHeight
-              << " with custom DPR, got " << windowSize[0] << "x" << windowSize[1] << std::endl;
+    vtkLog(ERROR,
+      "Expected render window size " << expectedWidth << "x" << expectedHeight
+                                     << " with custom DPR, got " << windowSize[0] << "x"
+                                     << windowSize[1]);
     return EXIT_FAILURE;
   }
 
@@ -114,7 +116,7 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
 
   if (widget.enableHiDPI())
   {
-    std::cerr << "HiDPI should be disabled after setEnableHiDPI(false)" << std::endl;
+    vtkLog(ERROR, "HiDPI should be disabled after setEnableHiDPI(false)");
     return EXIT_FAILURE;
   }
 
@@ -122,8 +124,7 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
   int actualDpi = renWin->GetDPI();
   if (actualDpi != expectedDpi)
   {
-    std::cerr << "When HiDPI is disabled, DPI should be " << expectedDpi << ", got " << actualDpi
-              << std::endl;
+    vtkLog(ERROR, "When HiDPI is disabled, DPI should be " << expectedDpi << ", got " << actualDpi);
     return EXIT_FAILURE;
   }
 
@@ -135,8 +136,9 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
   actualDpi = renWin->GetDPI();
   if (actualDpi != scaledDpi)
   {
-    std::cerr << "When HiDPI is enabled with custom DPR, DPI should be " << scaledDpi << ", got "
-              << actualDpi << std::endl;
+    vtkLog(ERROR,
+      "When HiDPI is enabled with custom DPR, DPI should be " << scaledDpi << ", got "
+                                                              << actualDpi);
     return EXIT_FAILURE;
   }
 
@@ -146,9 +148,8 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
 
   if (std::fabs(widget.effectiveDevicePixelRatio() - qtDpr) > 1e-6)
   {
-    std::cerr
-      << "effectiveDevicePixelRatio should fall back to Qt's ratio after resetting custom DPR"
-      << std::endl;
+    vtkLog(
+      ERROR, "effectiveDevicePixelRatio should fall back to Qt's ratio after resetting custom DPR");
     return EXIT_FAILURE;
   }
 
@@ -159,11 +160,10 @@ int TestQVTKWebGPUWidgetHiDPI(int argc, char* argv[])
 
   if (widget.unscaledDPI() != customDpi)
   {
-    std::cerr << "Expected unscaledDPI to be " << customDpi << ", got " << widget.unscaledDPI()
-              << std::endl;
+    vtkLog(ERROR, "Expected unscaledDPI to be " << customDpi << ", got " << widget.unscaledDPI());
     return EXIT_FAILURE;
   }
 
-  std::cout << "All HiDPI tests passed." << std::endl;
+  vtkLog(INFO, "All HiDPI tests passed.");
   return EXIT_SUCCESS;
 }

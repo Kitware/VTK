@@ -4,6 +4,7 @@
 
 #include "QVTKWebGPUWidget.h"
 
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
@@ -13,8 +14,6 @@
 #include <QEventLoop>
 #include <QTimer>
 #include <QWidget>
-
-#include <iostream>
 
 #include <vtkActor.h>
 #include <vtkConeSource.h>
@@ -49,7 +48,7 @@ int TestQVTKWebGPUWidgetSwapWindows(int argc, char* argv[])
   vtkWebGPURenderWindow* leftRenWin = leftVTKWidget->renderWindow();
   if (!leftRenWin)
   {
-    std::cerr << "Failed to get left render window" << std::endl;
+    vtkLogF(ERROR, "Failed to get left render window");
     return EXIT_FAILURE;
   }
 
@@ -74,7 +73,7 @@ int TestQVTKWebGPUWidgetSwapWindows(int argc, char* argv[])
   vtkWebGPURenderWindow* rightRenWin = rightVTKWidget->renderWindow();
   if (!rightRenWin)
   {
-    std::cerr << "Failed to get right render window" << std::endl;
+    vtkLogF(ERROR, "Failed to get right render window");
     return EXIT_FAILURE;
   }
 
@@ -102,8 +101,10 @@ int TestQVTKWebGPUWidgetSwapWindows(int argc, char* argv[])
   ProcessEventsAndWait(500);
 
   // Verify initial state
-  std::cout << "Initial state - Left widget parent: " << leftVTKWidget->parentWidget()
-            << ", Right widget parent: " << rightVTKWidget->parentWidget() << std::endl;
+  vtkLog(INFO,
+    "Initial state - Left widget parent: " << leftVTKWidget->parentWidget()
+                                           << ", Right widget parent: "
+                                           << rightVTKWidget->parentWidget());
 
   // Swap QVTKWebGPUWidgets between panels
   rightLayout->removeWidget(rightVTKWidget);
@@ -121,19 +122,21 @@ int TestQVTKWebGPUWidgetSwapWindows(int argc, char* argv[])
   ProcessEventsAndWait(500);
 
   // Verify swapped state
-  std::cout << "After swap - Left widget parent: " << leftVTKWidget->parentWidget()
-            << ", Right widget parent: " << rightVTKWidget->parentWidget() << std::endl;
+  vtkLog(INFO,
+    "After swap - Left widget parent: " << leftVTKWidget->parentWidget()
+                                        << ", Right widget parent: "
+                                        << rightVTKWidget->parentWidget());
 
   // Verify the widgets are now in their new parents
   if (leftVTKWidget->parentWidget() != rightPanel)
   {
-    std::cerr << "Left widget was not properly moved to right panel" << std::endl;
+    vtkLogF(ERROR, "Left widget was not properly moved to right panel");
     return EXIT_FAILURE;
   }
 
   if (rightVTKWidget->parentWidget() != leftPanel)
   {
-    std::cerr << "Right widget was not properly moved to left panel" << std::endl;
+    vtkLogF(ERROR, "Right widget was not properly moved to left panel");
     return EXIT_FAILURE;
   }
 

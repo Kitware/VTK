@@ -5,6 +5,7 @@
 #include "QVTKWebGPUWidget.h"
 
 #include "vtkActor.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
@@ -19,8 +20,6 @@
 #include <QApplication>
 #include <QEventLoop>
 #include <QTimer>
-
-#include <iostream>
 
 namespace
 {
@@ -47,7 +46,7 @@ int TestQVTKWebGPUWidget(int argc, char* argv[])
   vtkWebGPURenderWindow* renderWindow = widget.renderWindow();
   if (!renderWindow)
   {
-    std::cerr << "Failed to get render window from QVTKWebGPUWidget" << std::endl;
+    vtkLog(ERROR, "Failed to get render window from QVTKWebGPUWidget");
     return EXIT_FAILURE;
   }
 
@@ -56,7 +55,7 @@ int TestQVTKWebGPUWidget(int argc, char* argv[])
   auto* webgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   if (!webgpuRenderer)
   {
-    std::cerr << "vtkRenderer did not resolve to vtkWebGPURenderer" << std::endl;
+    vtkLog(ERROR, "vtkRenderer did not resolve to vtkWebGPURenderer");
     return EXIT_FAILURE;
   }
   renderer->SetGradientBackground(true);
@@ -73,7 +72,7 @@ int TestQVTKWebGPUWidget(int argc, char* argv[])
   vtkNew<vtkPolyDataMapper> mapper;
   if (!vtkWebGPUPolyDataMapper::SafeDownCast(mapper))
   {
-    std::cerr << "vtkPolyDataMapper did not resolve to vtkWebGPUPolyDataMapper" << std::endl;
+    vtkLog(ERROR, "vtkPolyDataMapper did not resolve to vtkWebGPUPolyDataMapper");
     return EXIT_FAILURE;
   }
   mapper->SetInputConnection(sphere->GetOutputPort());
@@ -81,7 +80,7 @@ int TestQVTKWebGPUWidget(int argc, char* argv[])
   vtkNew<vtkActor> actor;
   if (!vtkWebGPUActor::SafeDownCast(actor))
   {
-    std::cerr << "vtkActor did not resolve to vtkWebGPUActor" << std::endl;
+    vtkLog(ERROR, "vtkActor did not resolve to vtkWebGPUActor");
     return EXIT_FAILURE;
   }
   actor->SetMapper(mapper);
@@ -89,7 +88,7 @@ int TestQVTKWebGPUWidget(int argc, char* argv[])
 
   if (!vtkWebGPUCamera::SafeDownCast(renderer->GetActiveCamera()))
   {
-    std::cerr << "vtkCamera did not resolve to vtkWebGPUCamera" << std::endl;
+    vtkLog(ERROR, "vtkCamera did not resolve to vtkWebGPUCamera");
     return EXIT_FAILURE;
   }
 
@@ -104,8 +103,7 @@ int TestQVTKWebGPUWidget(int argc, char* argv[])
   const int* windowSize = renderWindow->GetSize();
   if (windowSize[0] <= 0 || windowSize[1] <= 0)
   {
-    std::cerr << "Invalid render window size: " << windowSize[0] << "x" << windowSize[1]
-              << std::endl;
+    vtkLog(ERROR, "Invalid render window size: " << windowSize[0] << "x" << windowSize[1]);
     return EXIT_FAILURE;
   }
 

@@ -6,6 +6,7 @@
 #include "QVTKWebGPUWidget.h"
 
 #include "vtkActor.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
@@ -19,8 +20,6 @@
 #include <QEventLoop>
 #include <QImage>
 #include <QTimer>
-
-#include <iostream>
 
 namespace
 {
@@ -46,7 +45,7 @@ int TestQVTKWebGPUWidgetWithDisabledInteractor(int argc, char* argv[])
   vtkWebGPURenderWindow* renWin = widget.renderWindow();
   if (!renWin)
   {
-    std::cerr << "Failed to get render window from QVTKWebGPUWidget" << std::endl;
+    vtkLogF(ERROR, "Failed to get render window from QVTKWebGPUWidget");
     return EXIT_FAILURE;
   }
 
@@ -102,7 +101,7 @@ int TestQVTKWebGPUWidgetWithDisabledInteractor(int argc, char* argv[])
   const QImage image = widget.grab().toImage();
   if (!image.save(QString::fromStdString(fileName)))
   {
-    std::cout << "ERROR: Saving image failed" << std::endl;
+    vtkLog(ERROR, "Saving image failed");
     return EXIT_FAILURE;
   }
 

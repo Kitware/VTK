@@ -6,6 +6,7 @@
 
 #include "vtkActor.h"
 #include "vtkConeSource.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRendererCollection.h"
@@ -16,8 +17,6 @@
 #include <QApplication>
 #include <QEventLoop>
 #include <QTimer>
-
-#include <iostream>
 
 namespace
 {
@@ -40,7 +39,7 @@ int TestQVTKWebGPUWidgetMultipleRenderers(int argc, char* argv[])
   vtkWebGPURenderWindow* renWin = widget.renderWindow();
   if (!renWin)
   {
-    std::cerr << "Failed to get render window from QVTKWebGPUWidget" << std::endl;
+    vtkLogF(ERROR, "Failed to get render window from QVTKWebGPUWidget");
     return EXIT_FAILURE;
   }
 
@@ -90,8 +89,7 @@ int TestQVTKWebGPUWidgetMultipleRenderers(int argc, char* argv[])
   // Verify we have 2 renderers in the render window
   if (renWin->GetRenderers()->GetNumberOfItems() != 2)
   {
-    std::cerr << "Expected 2 renderers, got " << renWin->GetRenderers()->GetNumberOfItems()
-              << std::endl;
+    vtkLogF(ERROR, "Expected 2 renderers, got %d", renWin->GetRenderers()->GetNumberOfItems());
     return EXIT_FAILURE;
   }
 
@@ -99,8 +97,7 @@ int TestQVTKWebGPUWidgetMultipleRenderers(int argc, char* argv[])
   const int* windowSize = renWin->GetSize();
   if (windowSize[0] <= 0 || windowSize[1] <= 0)
   {
-    std::cerr << "Invalid render window size: " << windowSize[0] << "x" << windowSize[1]
-              << std::endl;
+    vtkLogF(ERROR, "Invalid render window size: %dx%d", windowSize[0], windowSize[1]);
     return EXIT_FAILURE;
   }
 
@@ -113,8 +110,8 @@ int TestQVTKWebGPUWidgetMultipleRenderers(int argc, char* argv[])
   leftRenderer->GetViewport(leftVP);
   if (leftVP[0] != 0.0 || leftVP[1] != 0.0 || leftVP[2] != 0.5 || leftVP[3] != 1.0)
   {
-    std::cerr << "Left renderer viewport is incorrect: " << leftVP[0] << ", " << leftVP[1] << ", "
-              << leftVP[2] << ", " << leftVP[3] << std::endl;
+    vtkLogF(ERROR, "Left renderer viewport is incorrect: %f, %f, %f, %f", leftVP[0], leftVP[1],
+      leftVP[2], leftVP[3]);
     return EXIT_FAILURE;
   }
 
@@ -122,30 +119,30 @@ int TestQVTKWebGPUWidgetMultipleRenderers(int argc, char* argv[])
   rightRenderer->GetViewport(rightVP);
   if (rightVP[0] != 0.5 || rightVP[1] != 0.0 || rightVP[2] != 1.0 || rightVP[3] != 1.0)
   {
-    std::cerr << "Right renderer viewport is incorrect: " << rightVP[0] << ", " << rightVP[1]
-              << ", " << rightVP[2] << ", " << rightVP[3] << std::endl;
+    vtkLogF(ERROR, "Right renderer viewport is incorrect: %f, %f, %f, %f", rightVP[0], rightVP[1],
+      rightVP[2], rightVP[3]);
     return EXIT_FAILURE;
   }
 
   // Verify each renderer has exactly one actor
   if (leftRenderer->VisibleActorCount() != 1)
   {
-    std::cerr << "Left renderer should have 1 visible actor, got "
-              << leftRenderer->VisibleActorCount() << std::endl;
+    vtkLogF(ERROR, "Left renderer should have 1 visible actor, got %d",
+      leftRenderer->VisibleActorCount());
     return EXIT_FAILURE;
   }
 
   if (rightRenderer->VisibleActorCount() != 1)
   {
-    std::cerr << "Right renderer should have 1 visible actor, got "
-              << rightRenderer->VisibleActorCount() << std::endl;
+    vtkLogF(ERROR, "Right renderer should have 1 visible actor, got %d",
+      rightRenderer->VisibleActorCount());
     return EXIT_FAILURE;
   }
 
   // Verify interactor is accessible
   if (!widget.interactor())
   {
-    std::cerr << "Widget interactor is null" << std::endl;
+    vtkLogF(ERROR, "Widget interactor is null");
     return EXIT_FAILURE;
   }
 
@@ -153,8 +150,8 @@ int TestQVTKWebGPUWidgetMultipleRenderers(int argc, char* argv[])
   renWin->RemoveRenderer(rightRenderer);
   if (renWin->GetRenderers()->GetNumberOfItems() != 1)
   {
-    std::cerr << "Expected 1 renderer after removal, got "
-              << renWin->GetRenderers()->GetNumberOfItems() << std::endl;
+    vtkLogF(ERROR, "Expected 1 renderer after removal, got %d",
+      renWin->GetRenderers()->GetNumberOfItems());
     return EXIT_FAILURE;
   }
 
@@ -165,14 +162,14 @@ int TestQVTKWebGPUWidgetMultipleRenderers(int argc, char* argv[])
   renWin->AddRenderer(rightRenderer);
   if (renWin->GetRenderers()->GetNumberOfItems() != 2)
   {
-    std::cerr << "Expected 2 renderers after re-adding, got "
-              << renWin->GetRenderers()->GetNumberOfItems() << std::endl;
+    vtkLogF(ERROR, "Expected 2 renderers after re-adding, got %d",
+      renWin->GetRenderers()->GetNumberOfItems());
     return EXIT_FAILURE;
   }
 
   renWin->Render();
   ProcessEventsAndWait(500);
 
-  std::cout << "All multiple renderers tests passed." << std::endl;
+  vtkLog(INFO, "All multiple renderers tests passed.");
   return EXIT_SUCCESS;
 }

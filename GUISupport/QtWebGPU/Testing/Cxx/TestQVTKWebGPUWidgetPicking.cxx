@@ -23,7 +23,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <vector>
 
 namespace
@@ -47,7 +46,7 @@ int TestQVTKWebGPUWidgetPicking(int argc, char* argv[])
   vtkWebGPURenderWindow* renWin = widget.renderWindow();
   if (!renWin)
   {
-    std::cerr << "Failed to get render window from QVTKWebGPUWidget" << std::endl;
+    vtkLogF(ERROR, "Failed to get render window from QVTKWebGPUWidget");
     return EXIT_FAILURE;
   }
 
@@ -123,7 +122,7 @@ int TestQVTKWebGPUWidgetPicking(int argc, char* argv[])
     QApplication::processEvents();
   }
 
-  std::cout << "Hit " << hitCount << " out of " << NumSpheres << " spheres" << std::endl;
+  vtkLogF(INFO, "Hit %d out of %d spheres", hitCount, NumSpheres);
 
   // Pick at the center (should miss all spheres)
   picker->Pick(150, 150, 0.0, ren);
@@ -132,15 +131,14 @@ int TestQVTKWebGPUWidgetPicking(int argc, char* argv[])
   // Verify results
   if (hitCount < NumSpheres)
   {
-    std::cerr << "Expected to hit all " << NumSpheres << " spheres, but only hit " << hitCount
-              << std::endl;
+    vtkLogF(ERROR, "Expected to hit all %d spheres, but only hit %d", NumSpheres, hitCount);
     // Note: This may fail depending on WebGPU picking implementation
     // For now, we just warn but don't fail
   }
 
   if (missedActor != nullptr)
   {
-    std::cerr << "Expected to miss when picking at center, but hit an actor" << std::endl;
+    vtkLogF(ERROR, "Expected to miss when picking at center, but hit an actor");
     return EXIT_FAILURE;
   }
 
