@@ -1075,33 +1075,19 @@ Options:
 function (vtk_add_test_mangling module)
   get_property(vtk_abi_namespace_name GLOBAL PROPERTY _vtk_abi_namespace_name)
   if (vtk_abi_namespace_name STREQUAL "")
-    return()
+    return ()
   endif ()
 
-  get_property(_vtkmoduletesting_nomangle_warnings_isset GLOBAL PROPERTY vtkmoduletesting_nomangle_warnings SET)
-  if (NOT _vtkmoduletesting_nomangle_warnings_isset)
-    set_property(GLOBAL PROPERTY vtkmoduletesting_nomangle_warnings FALSE)
-  endif ()
-  get_property(_vtkmoduletesting_nomangle_warnings GLOBAL PROPERTY vtkmoduletesting_nomangle_warnings)
-
-  if (_vtkmoduletesting_nomangle_warnings)
-    # Only warn on these issues once
-    return()
-  endif ()
-
-  if (VTK_ENABLE_KITS)
-    set(_vtkmoduletesting_nomangle_warnings TRUE)
-    message(WARNING "Mangling tests are not supported with VTK_ENABLE_KITS (https://gitlab.kitware.com/vtk/vtk/-/issues/19207)")
-  endif ()
-
-  if (NOT UNIX)
-    set(_vtkmoduletesting_nomangle_warnings TRUE)
-    message(WARNING "Mangling tests are not supported on non-UNIX platforms")
-  endif ()
-
-  if (_vtkmoduletesting_nomangle_warnings)
-    set_property(GLOBAL PROPERTY vtkmoduletesting_nomangle_warnings "${_vtkmoduletesting_nomangle_warnings}")
-    return()
+  if (DEFINED _vtk_build_BUILD_WITH_KITS AND _vtk_build_BUILD_WITH_KITS)
+    get_property(_vtk_real_target_kit GLOBAL
+      PROPERTY "_vtk_module_${module}_kit")
+    if (_vtk_real_target_kit)
+      set(_vtkmoduletesting_nomangle_warnings TRUE)
+      message(WARNING
+        "Skipping mangling tests for '${module}' because it is part of a kit. "
+        "See <https://gitlab.kitware.com/vtk/vtk/-/issues/19207>.")
+      return ()
+    endif ()
   endif ()
 
   cmake_parse_arguments(_vtk_mangling_test "" "" "EXEMPTIONS" ${ARGN})
@@ -1114,13 +1100,12 @@ function (vtk_add_test_mangling module)
     # `SOURCES`. Avoid the error in this case (there aren't any objects
     # anyways, so no need to make any noise).
     if (target_type STREQUAL "INTERFACE_LIBRARY")
-      return()
+      return ()
     endif ()
   endif ()
   get_property(has_sources TARGET ${_vtk_test_target} PROPERTY SOURCES)
-  get_property(has_test GLOBAL PROPERTY "${module}_HAS_MANGLING_TEST" SET)
 
-  if (NOT has_test AND has_sources)
+  if (has_sources)
     set_property(GLOBAL PROPERTY "${module}_HAS_MANGLING_TEST" 1)
     add_test(
       NAME    "${module}-ManglingTest"
@@ -1134,6 +1119,11 @@ function (vtk_add_test_mangling module)
               "${vtk_abi_namespace_name}"
               "--exemptions"
               "${_vtk_mangling_test_EXEMPTIONS}")
-    set_property(TEST "${module}-ManglingTest" APPEND PROPERTY LABELS MANGLING)
+    set_property(TEST "${module}-ManglingTest" APPEND
+      PROPERTY
+        LABELS MANGLING)
+    set_property(TEST "${module}-ManglingTest"
+      PROPERTY
+        SKIP_RETURN_CODE 125)
   endif ()
 endfunction ()

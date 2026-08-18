@@ -8,6 +8,11 @@ def isWindows():
     return os.name == 'nt'
 
 
+if isWindows():
+    print("This test is not supported on Windows.")
+    sys.exit(125)
+
+
 def LibrarySymbols(lib):
     sym_list = []
     if isWindows():
