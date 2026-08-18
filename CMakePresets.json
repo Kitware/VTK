@@ -53,6 +53,7 @@
         "CMAKE_BUILD_TYPE": { "type": "STRING", "value": "Release" },
         "CMAKE_EXPORT_COMPILE_COMMANDS": { "type": "BOOL", "value": "ON" },
         "BUILD_SHARED_LIBS": { "type": "BOOL", "value": "OFF" },
+        "VTK_EMSCRIPTEN_PRELOAD_CACHE": { "type": "BOOL", "value": "ON" },
         "VTK_BUILD_TYPES_JSON": { "type": "BOOL", "value": "ON" },
         "VTK_ENABLE_WEBGPU": { "type": "BOOL", "value": "ON" },
         "VTK_WRAP_SERIALIZATION": { "type": "BOOL", "value": "ON" }

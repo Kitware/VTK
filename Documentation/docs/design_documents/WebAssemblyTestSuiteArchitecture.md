@@ -1,2 +1,2 @@
-```{include} ../../../CMake/wasm/README.md
+```{include} ../../../CMake/wasm/TestSuiteArchitecture.md
 ```
