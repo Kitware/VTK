@@ -414,11 +414,12 @@ methods:
 
   * `--named <regex>` or `-n <regex>`: Trigger jobs matching `<regex>` anywhere
     in their name. Job names may be seen on the merge request's Pipelines tab.
-  * `--stage <stage>` or `-s <stage>`: Only affect jobs in a given stage. Stage
-    names may be seen on the merge request's Pipelines tab. Note that the stage
-    names are determined by what is in the `.gitlab-ci.yml` file and may be
-    capitalized in the web page, so lowercasing the webpage's display name for
-    stages may be required.
+  * `--stage <stage>` or `-s <stage>`: Only affect jobs in a given stage.
+    When provided multiple times, all named stages are matched.  Stage names
+    may be seen on the merge request's pipeline page with the "Group jobs by"
+    option set to "Stages".  Note that the names are determined by what is in
+    the `.gitlab-ci.yml` file and may be capitalized in the web page, so
+    lowercasing the webpage's display name for stages may be required.
   * `--action <action>` or `-a <action>`: The action to perform on the jobs.
     Possible actions:
 
