@@ -445,7 +445,9 @@ void vtkSSAOPass::RenderCombine(vtkOpenGLRenderWindow* renWin)
 
     if (this->Blur)
     {
-      ssImpl << "  ivec2 size = textureSize(texSSAO, 0);"
+      // float arithmetic throughout: GLSL ES 3.00 does not convert the ivec2 that
+      // textureSize returns when dividing a vec2 by it
+      ssImpl << "  vec2 size = vec2(textureSize(texSSAO, 0));"
                 "  float ao = 0.195346 * texture(texSSAO, texCoord).r + \n"
                 "    0.077847 * texture(texSSAO, texCoord + vec2(-1, -1) / size).r +\n"
                 "    0.077847 * texture(texSSAO, texCoord + vec2(-1, 1) / size).r +\n"

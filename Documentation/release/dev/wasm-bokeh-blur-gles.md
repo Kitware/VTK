@@ -36,3 +36,7 @@ forbidden; depth peeling therefore works with multisampling under WebAssembly.
 The fragment shader that normalizes integer textures for reading pixels back declares a
 precision for its `usampler2D`, which has no default in GLES and made the shader fail to
 compile on strict drivers.
+
+The `vtkSSAOPass` blur shader divides by the SSAO texture size as a `vec2`; GLSL ES 3.00
+has no implicit conversion for the `ivec2` that `textureSize` returns, so the blurred
+variant of the pass never compiled there.
