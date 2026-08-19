@@ -9,6 +9,7 @@ import sys
 
 from pathlib import Path
 
+from vtkmodules import vtkCommonCore as cc
 from vtkmodules import vtkCommonDataModel as dm
 from vtkmodules import vtkIOCellGrid as io
 from vtkmodules import vtkFiltersCellGrid as fc
@@ -40,38 +41,18 @@ VIEWS = [(0, 0, 0), (0, 90, 0), (0, 180, 0), (0, 270, 0), (0, 0, 85), (0, 0, -85
 EPS = sys.float_info.epsilon
 
 
-def jacobiPolynomial(nn, alpha, beta, xx):
-    """P_n^{(alpha,beta)}(xx), via the standard three-term recurrence.
-
-    Deliberately computed by a different algorithm than either
-    vtkMath::JacobiPolynomial (a binomial expansion) or its GLSL counterpart,
-    so that this test does not simply restate the implementation it checks.
-    """
-    if nn == 0:
-        return 1.0
-    pnm1 = 1.0
-    pn = 0.5 * (alpha - beta + (alpha + beta + 2) * xx)
-    for kk in range(1, nn):
-        a1 = 2 * (kk + 1) * (kk + alpha + beta + 1) * (2 * kk + alpha + beta)
-        a2 = (2 * kk + alpha + beta + 1) * (alpha * alpha - beta * beta)
-        a3 = (2 * kk + alpha + beta) * (2 * kk + alpha + beta + 1) * (2 * kk + alpha + beta + 2)
-        a4 = 2 * (kk + alpha) * (kk + beta) * (2 * kk + alpha + beta + 2)
-        pnm1, pn = pn, ((a2 + a3 * xx) * pn - a4 * pnm1) / a1
-    return pn
-
-
-def tetGaussBasis(order, rr_, ss, tt):
+def TetGaussBasis(order, rr_, ss, tt):
     """Reference for Filters/CellGrid/Basis/HGrad/TetGnBasis.h."""
     basis = []
     for ii in range(order + 1):
         for jj in range(order - ii + 1):
             for kk in range(order - ii - jj + 1):
                 basis.append(
-                    jacobiPolynomial(ii, 0, 0, 2 * rr_ / (1 - ss - tt + EPS) - 1)
+                    cc.vtkMath.JacobiPolynomial(ii, 0, 0, 2 * rr_ / (1 - ss - tt + EPS) - 1)
                     * (1 - ss - tt) ** ii
-                    * jacobiPolynomial(jj, 2 * ii + 1, 0, 2 * ss / (1 - tt + EPS) - 1)
+                    * cc.vtkMath.JacobiPolynomial(jj, 2 * ii + 1, 0, 2 * ss / (1 - tt + EPS) - 1)
                     * (1 - tt) ** jj
-                    * jacobiPolynomial(kk, 2 * (ii + jj) + 2, 0, 2 * tt - 1))
+                    * cc.vtkMath.JacobiPolynomial(kk, 2 * (ii + jj) + 2, 0, 2 * tt - 1))
     return basis
 
 
@@ -135,7 +116,6 @@ class TestCellGridTetGaussBasis(Testing.vtkTest):
             window_name="vtkDGTet HGRAD 'G' basis",
         )
 
-        # Keep every object alive for the duration of the render.
         for row, (field, order) in enumerate(FIELDS):
             lo, hi = self._fieldRange(coeffs[field], order)
             for col, angles in enumerate(VIEWS):
@@ -158,6 +138,7 @@ class TestCellGridTetGaussBasis(Testing.vtkTest):
         window.Render()
 
         if '-I' in sys.argv:
+            import vtkmodules.vtkInteractionStyle
             interactor = window.MakeRenderWindowInteractor()
             window.SetInteractor(interactor)
             interactor.Start()
@@ -171,7 +152,7 @@ class TestCellGridTetGaussBasis(Testing.vtkTest):
         Note this is deliberately not vtkCellGrid::GetCellAttributeRange(),
         which reports the range of the degree-of-freedom array. For a modal
         basis the coefficients are not field values, so that range is far too
-        narrow and would clamp most of the colour map.
+        narrow and would clamp most of the color map.
         """
         samples = []
         steps = 12
@@ -182,7 +163,7 @@ class TestCellGridTetGaussBasis(Testing.vtkTest):
         lo, hi = float('inf'), float('-inf')
         for coeffs in cellCoefficients:
             for rst in samples:
-                value = sum(c * b for c, b in zip(coeffs, tetGaussBasis(order, *rst)))
+                value = sum(c * b for c, b in zip(coeffs, TetGaussBasis(order, *rst)))
                 lo, hi = min(lo, value), max(hi, value)
         return lo, hi
 
