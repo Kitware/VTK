@@ -38,12 +38,10 @@
 #include "Basis_HGrad_PyrC2Gradient.h"
 #include "Basis_HGrad_PyrF2Basis.h"
 #include "Basis_HGrad_PyrF2Gradient.h"
+#include "Basis_HGrad_PyrGnBasis.h"
+#include "Basis_HGrad_PyrGnGradient.h"
 #include "Basis_HGrad_PyrI2Basis.h"
 #include "Basis_HGrad_PyrI2Gradient.h"
-// #include "Basis_HGrad_PyrG1Basis.h"
-// #include "Basis_HGrad_PyrG1Gradient.h"
-// #include "Basis_HGrad_PyrG2Basis.h"
-// #include "Basis_HGrad_PyrG2Gradient.h"
 #include "Basis_HGrad_QuadC1Basis.h"
 #include "Basis_HGrad_QuadC1Gradient.h"
 #include "Basis_HGrad_QuadC2Basis.h"
@@ -369,29 +367,60 @@ void PyrF2Gradient(const std::array<double, 3>& param, std::vector<double>& basi
 #include "Basis/HGrad/PyrF2Gradient.h"
 }
 
-#if 0
 void PyrG1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  vtkBasisHeader();
-#include "Basis/HGrad/PyrG1Basis.h"
+  vtkBasisOrderHeader(1);
+#include "Basis/HGrad/PyrGnBasis.h"
 }
 void PyrG1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
-  vtkBasisHeader();
-#include "Basis/HGrad/PyrG1Gradient.h"
+  vtkBasisOrderHeader(1);
+#include "Basis/HGrad/PyrGnGradient.h"
 }
 
 void PyrG2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  vtkBasisHeader();
-#include "Basis/HGrad/PyrG2Basis.h"
+  vtkBasisOrderHeader(2);
+#include "Basis/HGrad/PyrGnBasis.h"
 }
 void PyrG2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
-  vtkBasisHeader();
-#include "Basis/HGrad/PyrG2Gradient.h"
+  vtkBasisOrderHeader(2);
+#include "Basis/HGrad/PyrGnGradient.h"
 }
-#endif
+
+void PyrG3Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+{
+  vtkBasisOrderHeader(3);
+#include "Basis/HGrad/PyrGnBasis.h"
+}
+void PyrG3Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+{
+  vtkBasisOrderHeader(3);
+#include "Basis/HGrad/PyrGnGradient.h"
+}
+
+void PyrG4Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+{
+  vtkBasisOrderHeader(4);
+#include "Basis/HGrad/PyrGnBasis.h"
+}
+void PyrG4Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+{
+  vtkBasisOrderHeader(4);
+#include "Basis/HGrad/PyrGnGradient.h"
+}
+
+void PyrG5Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+{
+  vtkBasisOrderHeader(5);
+#include "Basis/HGrad/PyrGnBasis.h"
+}
+void PyrG5Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+{
+  vtkBasisOrderHeader(5);
+#include "Basis/HGrad/PyrGnGradient.h"
+}
 
 void QuadC1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
@@ -773,11 +802,11 @@ bool RegisterOperators()
   basisMap["I"_token][2]["vtkDGPyr"_token]  = { 13, 1, PyrI2Basis,  Basis_HGrad_PyrI2Basis };
   basisMap["C"_token][2]["vtkDGPyr"_token]  = { 18, 1, PyrC2Basis,  Basis_HGrad_PyrC2Basis };
   basisMap["F"_token][2]["vtkDGPyr"_token]  = { 19, 1, PyrF2Basis,  Basis_HGrad_PyrF2Basis };
-  // basisMap["G"_token][1]["vtkDGPyr"_token]  = {  5, 1, PyrG1Basis,  Basis_HGrad_PyrG1Basis };
-  // basisMap["G"_token][2]["vtkDGPyr"_token]  = { 14, 1, PyrG2Basis,  Basis_HGrad_PyrG2Basis };
-  // basisMap["G"_token][3]["vtkDGPyr"_token]  = { 30, 1, PyrG2Basis,  Basis_HGrad_PyrG3Basis };
-  // basisMap["G"_token][4]["vtkDGPyr"_token]  = { 55, 1, PyrG2Basis,  Basis_HGrad_PyrG4Basis };
-  // basisMap["G"_token][5]["vtkDGPyr"_token]  = { 91, 1, PyrG2Basis,  Basis_HGrad_PyrG5Basis };
+  basisMap["G"_token][1]["vtkDGPyr"_token]  = {  5, 1, PyrG1Basis,  Basis_HGrad_PyrGnBasis };
+  basisMap["G"_token][2]["vtkDGPyr"_token]  = { 14, 1, PyrG2Basis,  Basis_HGrad_PyrGnBasis };
+  basisMap["G"_token][3]["vtkDGPyr"_token]  = { 30, 1, PyrG3Basis,  Basis_HGrad_PyrGnBasis };
+  basisMap["G"_token][4]["vtkDGPyr"_token]  = { 55, 1, PyrG4Basis,  Basis_HGrad_PyrGnBasis };
+  basisMap["G"_token][5]["vtkDGPyr"_token]  = { 91, 1, PyrG5Basis,  Basis_HGrad_PyrGnBasis };
 
   basisMap["C"_token][1]["vtkDGQuad"_token] = {  4, 1, QuadC1Basis, Basis_HGrad_QuadC1Basis };
   basisMap["C"_token][2]["vtkDGQuad"_token] = {  9, 1, QuadC2Basis, Basis_HGrad_QuadC2Basis };
@@ -836,8 +865,11 @@ bool RegisterOperators()
   gradMap["I"_token][2]["vtkDGPyr"_token]  = { 13, 3, PyrI2Gradient,  Basis_HGrad_PyrI2Gradient };
   gradMap["C"_token][2]["vtkDGPyr"_token]  = { 18, 3, PyrC2Gradient,  Basis_HGrad_PyrC2Gradient };
   gradMap["F"_token][2]["vtkDGPyr"_token]  = { 19, 3, PyrF2Gradient,  Basis_HGrad_PyrF2Gradient };
-  // gradMap["G"_token][1]["vtkDGPyr"_token]  = {  5, 3, PyrG1Gradient,  Basis_HGrad_PyrG1Gradient };
-  // gradMap["G"_token][2]["vtkDGPyr"_token]  = { 18, 3, PyrG2Gradient,  Basis_HGrad_PyrG2Gradient };
+  gradMap["G"_token][1]["vtkDGPyr"_token]  = {  5, 3, PyrG1Gradient,  Basis_HGrad_PyrGnGradient };
+  gradMap["G"_token][2]["vtkDGPyr"_token]  = { 14, 3, PyrG2Gradient,  Basis_HGrad_PyrGnGradient };
+  gradMap["G"_token][3]["vtkDGPyr"_token]  = { 30, 3, PyrG3Gradient,  Basis_HGrad_PyrGnGradient };
+  gradMap["G"_token][4]["vtkDGPyr"_token]  = { 55, 3, PyrG4Gradient,  Basis_HGrad_PyrGnGradient };
+  gradMap["G"_token][5]["vtkDGPyr"_token]  = { 91, 3, PyrG5Gradient,  Basis_HGrad_PyrGnGradient };
 
   gradMap["C"_token][1]["vtkDGQuad"_token] = {  4, 3, QuadC1Gradient, Basis_HGrad_QuadC1Gradient };
   gradMap["C"_token][2]["vtkDGQuad"_token] = {  9, 3, QuadC2Gradient, Basis_HGrad_QuadC2Gradient };

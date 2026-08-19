@@ -124,6 +124,8 @@ set(basis_files
   Basis/HGrad/PyrF2Gradient.h
   Basis/HGrad/PyrI2Basis.h
   Basis/HGrad/PyrI2Gradient.h
+  Basis/HGrad/PyrGnBasis.h
+  Basis/HGrad/PyrGnGradient.h
   Basis/HGrad/QuadC1Basis.h
   Basis/HGrad/QuadC1Gradient.h
   Basis/HGrad/QuadC2Basis.h

@@ -3,6 +3,7 @@ vtk_module_test_data(
   Data/dgHexahedra-GBasis.dg
   Data/dgHexahedra.dg
   Data/dgPyramids.dg
+  Data/dgPyramids-GBasis.dg
   Data/dgQuad-GBasis.dg
   Data/dgQuadraticQuadrilaterals.dg
   Data/dgQuadrilateral.dg

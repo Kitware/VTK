@@ -189,9 +189,21 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGAttributeInformation::PrepareFo
               integrationScheme = 'f';
               break;
             case "G"_hash: // "G"auss-point basis
-              if (order == 2)
+              if (order == 5)
               {
-                numberOfBasisFunctions = 18;
+                numberOfBasisFunctions = 91;
+              }
+              else if (order == 4)
+              {
+                numberOfBasisFunctions = 55;
+              }
+              else if (order == 3)
+              {
+                numberOfBasisFunctions = 30;
+              }
+              else if (order == 2)
+              {
+                numberOfBasisFunctions = 14;
               }
               else if (order == 1)
               {
