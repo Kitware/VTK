@@ -87,6 +87,7 @@ void main() {
   // Fragment shader: reads unsigned integer texture, normalizes to float
   const char* fragmentShaderSource = R"(#version 300 es
 precision highp float;
+precision highp usampler2D;
 
 in vec2 texCoord;
 out vec4 fragColor;
