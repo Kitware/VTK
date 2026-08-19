@@ -11,3 +11,8 @@ layered renderer.
 
 `vtkOpenGLRenderWindow::GetResolveFramebuffer()` is now public, next to the existing
 render and display framebuffer accessors.
+
+Textures with three float components, such as an HDR environment map, no longer ask
+for mipmaps in GLES builds. `glGenerateMipmap` cannot generate them for those formats,
+and the failed call left an error behind that later showed up as a spurious "Failed to
+read pixels" message. Such textures now use linear filtering.
