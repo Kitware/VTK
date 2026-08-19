@@ -21,7 +21,7 @@ basisGradient[2] = rr * ss * ttTerm2 - 0.25;
 
 basisGradient[3] = (1.0 - ss - tt) * ttTerm;
 basisGradient[4] = (tt - rr - 1.0) * ttTerm;
-basisGradient[5] = rr * ss * ttTerm2 - 0.25;
+basisGradient[5] = -rr * ss * ttTerm2 - 0.25;
 
 basisGradient[6] = (1.0 + ss - tt) * ttTerm;
 basisGradient[7] = (1.0 + rr - tt) * ttTerm;
@@ -29,7 +29,7 @@ basisGradient[8] = rr * ss * ttTerm2 - 0.25;
 
 basisGradient[9] = (tt - ss - 1.0) * ttTerm;
 basisGradient[10] = (1.0 - rr - tt) * ttTerm;
-basisGradient[11] = rr * ss * ttTerm2 - 0.25;
+basisGradient[11] = -rr * ss * ttTerm2 - 0.25;
 
 basisGradient[12] = 0.0;
 basisGradient[13] = 0.0;
