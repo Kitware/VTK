@@ -1,4 +1,5 @@
 vtk_module_test_data(
+  Data/dgEdge-GBasis.dg
   Data/dgHexahedra.dg
   Data/dgQuadraticQuadrilaterals.dg
   Data/dgQuadrilateral.dg
