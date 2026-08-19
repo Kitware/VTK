@@ -30,6 +30,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestCustomCursorShape.cxx,NO_VALID
   TestDepthOfFieldPass.cxx
   TestDepthPeelingOcclusionQuery.cxx
+  TestDepthPeelingOwnOpaqueZTexture.cxx,NO_DATA,NO_VALID
   TestDepthPeelingPass.cxx
   TestDepthPeelingPassViewport.cxx
   TestDirectSelectionRendering.cxx
