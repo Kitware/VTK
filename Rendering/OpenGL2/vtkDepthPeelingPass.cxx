@@ -587,14 +587,39 @@ void vtkDepthPeelingPass::Render(const vtkRenderState* s)
   // blit if we drew something
   if (this->PeelCount > 1 || this->ColorDrawCount != 0)
   {
-    this->State->PushReadFramebufferBinding();
-    this->Framebuffer->Bind(vtkOpenGLFramebufferObject::GetReadMode());
+    bool drawIsMultisampled = false;
+#ifdef GL_ES_VERSION_3_0
+    vtkOpenGLFramebufferObject* drawFramebuffer =
+      vtkOpenGLFramebufferObject::SafeDownCast(s->GetFrameBuffer());
+    if (!drawFramebuffer)
+    {
+      drawFramebuffer = renWin->GetRenderFramebuffer();
+    }
+    drawIsMultisampled = drawFramebuffer && drawFramebuffer->GetMultiSamples() > 0;
+#endif
+    if (drawIsMultisampled)
+    {
+      // A blit cannot target a multisampled framebuffer in GLES, so draw the last peel
+      // as a textured quad instead. Depth test off keeps the depth buffer untouched,
+      // like the color-only blit below leaves it.
+      vtkOpenGLState::ScopedglEnableDisable dsaver(this->State, GL_DEPTH_TEST);
+      this->State->vtkglDisable(GL_DEPTH_TEST);
+      this->TranslucentRGBATexture[(this->ColorDrawCount - 1) % 3]->CopyToFrameBuffer(0, 0,
+        this->ViewportWidth - 1, this->ViewportHeight - 1, this->ViewportX, this->ViewportY,
+        this->ViewportX + this->ViewportWidth - 1, this->ViewportY + this->ViewportHeight - 1,
+        this->ViewportWidth, this->ViewportHeight, nullptr, nullptr);
+    }
+    else
+    {
+      this->State->PushReadFramebufferBinding();
+      this->Framebuffer->Bind(vtkOpenGLFramebufferObject::GetReadMode());
 
-    this->State->vtkglBlitFramebuffer(0, 0, this->ViewportWidth, this->ViewportHeight,
-      this->ViewportX, this->ViewportY, this->ViewportX + this->ViewportWidth,
-      this->ViewportY + this->ViewportHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+      this->State->vtkglBlitFramebuffer(0, 0, this->ViewportWidth, this->ViewportHeight,
+        this->ViewportX, this->ViewportY, this->ViewportX + this->ViewportWidth,
+        this->ViewportY + this->ViewportHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
-    this->State->PopReadFramebufferBinding();
+      this->State->PopReadFramebufferBinding();
+    }
   }
 
 #ifdef GL_MULTISAMPLE
