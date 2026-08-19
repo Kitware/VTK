@@ -93,6 +93,7 @@ int TestQVTKWebGPUWidget(int argc, char* argv[])
   }
 
   // Show the widget
+  widget.setCustomDevicePixelRatio(1.0);
   widget.resize(300, 300);
   widget.show();
 

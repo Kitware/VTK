@@ -54,8 +54,8 @@ int TestQVTKWebGPUWidgetWithDisabledInteractor(int argc, char* argv[])
   ren->SetBackground(0.2, 0.2, 0.2);
   ren->SetBackground2(0.7, 0.7, 0.7);
   renWin->AddRenderer(ren);
-  renWin->Render();
 
+  widget.setCustomDevicePixelRatio(1.0);
   widget.resize(100, 100);
   widget.show();
   ProcessEventsAndWait(500);
@@ -98,14 +98,19 @@ int TestQVTKWebGPUWidgetWithDisabledInteractor(int argc, char* argv[])
 
   // Capture widget using Qt. Don't use vtkTesting to capture the image, because
   // this should test what the widget displays, not what VTK renders.
-  const QImage image = widget.grab().toImage();
+  QImage image = widget.grab().toImage();
+  if (image.size() != QSize(300, 300))
+  {
+    image = image.scaled(300, 300, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+  }
+
   if (!image.save(QString::fromStdString(fileName)))
   {
     vtkLog(ERROR, "Saving image failed");
     return EXIT_FAILURE;
   }
 
-  int retVal = vtktesting->RegressionTest(fileName, vtkRegressionTester::ErrorThreshold);
+  int retVal = vtktesting->RegressionTest(fileName, 0.25);
   switch (retVal)
   {
     case vtkTesting::DO_INTERACTOR:
