@@ -15,7 +15,7 @@ materials programmatically.
 
 Here's how you define materials for ANARI in a material file:
 
-```mtl
+```
 newmtl glossy_red
 ka 0.1 0.1 0.1
 kd 0.8 0.0 0.0
