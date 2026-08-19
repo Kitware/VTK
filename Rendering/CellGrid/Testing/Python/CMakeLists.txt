@@ -5,5 +5,6 @@ vtk_add_test_python(
   TestCellGridRendering.py,NO_RT
   # Gauss-point basis
   TestCellGridEdgeGaussBasis.py,NO_RT
+  TestCellGridQuadGaussBasis.py,NO_RT
   TestCellGridTetGaussBasis.py,NO_RT
 )
