@@ -8,6 +8,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLQuadHelper.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
@@ -584,42 +585,15 @@ void vtkDepthPeelingPass::Render(const vtkRenderState* s)
     this->State->vtkglDisable(GL_SCISSOR_TEST);
   }
 
-  // blit if we drew something
-  if (this->PeelCount > 1 || this->ColorDrawCount != 0)
+  // composite if we drew something: the last peel is whatever the loop left attached
+  // as color attachment 0, which is also exactly what the blit path reads
+  vtkTextureObject* lastPeel = (this->PeelCount > 1 || this->ColorDrawCount != 0)
+    ? this->Framebuffer->GetColorAttachmentAsTextureObject(0)
+    : nullptr;
+  if (lastPeel)
   {
-    bool drawIsMultisampled = false;
-#ifdef GL_ES_VERSION_3_0
-    vtkOpenGLFramebufferObject* drawFramebuffer =
-      vtkOpenGLFramebufferObject::SafeDownCast(s->GetFrameBuffer());
-    if (!drawFramebuffer)
-    {
-      drawFramebuffer = renWin->GetRenderFramebuffer();
-    }
-    drawIsMultisampled = drawFramebuffer && drawFramebuffer->GetMultiSamples() > 0;
-#endif
-    if (drawIsMultisampled)
-    {
-      // A blit cannot target a multisampled framebuffer in GLES, so draw the last peel
-      // as a textured quad instead. Depth test off keeps the depth buffer untouched,
-      // like the color-only blit below leaves it.
-      vtkOpenGLState::ScopedglEnableDisable dsaver(this->State, GL_DEPTH_TEST);
-      this->State->vtkglDisable(GL_DEPTH_TEST);
-      this->TranslucentRGBATexture[(this->ColorDrawCount - 1) % 3]->CopyToFrameBuffer(0, 0,
-        this->ViewportWidth - 1, this->ViewportHeight - 1, this->ViewportX, this->ViewportY,
-        this->ViewportX + this->ViewportWidth - 1, this->ViewportY + this->ViewportHeight - 1,
-        this->ViewportWidth, this->ViewportHeight, nullptr, nullptr);
-    }
-    else
-    {
-      this->State->PushReadFramebufferBinding();
-      this->Framebuffer->Bind(vtkOpenGLFramebufferObject::GetReadMode());
-
-      this->State->vtkglBlitFramebuffer(0, 0, this->ViewportWidth, this->ViewportHeight,
-        this->ViewportX, this->ViewportY, this->ViewportX + this->ViewportWidth,
-        this->ViewportY + this->ViewportHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-
-      this->State->PopReadFramebufferBinding();
-    }
+    vtkOpenGLRenderUtilities::CompositeColorTexture(this->State, s, renWin, this->Framebuffer,
+      lastPeel, this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
   }
 
 #ifdef GL_MULTISAMPLE

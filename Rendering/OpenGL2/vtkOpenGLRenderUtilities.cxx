@@ -6,10 +6,14 @@
 #include "vtkNew.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkRenderState.h"
 #include "vtkRenderingOpenGLConfigure.h"
 #include "vtkShaderProgram.h"
+#include "vtkTextureObject.h"
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -212,4 +216,47 @@ void vtkOpenGLRenderUtilities::MarkDebugEvent(const std::string& event)
   vtkOpenGLClearErrorMacro();
 #endif // VTK_OPENGL_ENABLE_STREAM_ANNOTATIONS
 }
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLRenderUtilities::CompositeColorTexture(vtkOpenGLState* state,
+  const vtkRenderState* renderState, vtkOpenGLRenderWindow* renderWindow,
+  vtkOpenGLFramebufferObject* readFramebuffer, vtkTextureObject* colorTexture, int dstXmin,
+  int dstYmin, int width, int height)
+{
+  bool drawIsMultisampled = false;
+#ifdef GL_ES_VERSION_3_0
+  vtkOpenGLFramebufferObject* drawFramebuffer =
+    vtkOpenGLFramebufferObject::SafeDownCast(renderState->GetFrameBuffer());
+  if (!drawFramebuffer)
+  {
+    drawFramebuffer = renderWindow->GetRenderFramebuffer();
+  }
+  drawIsMultisampled = drawFramebuffer && drawFramebuffer->GetMultiSamples() > 0;
+#else
+  (void)renderState;
+  (void)renderWindow;
+#endif
+  if (drawIsMultisampled)
+  {
+    // A blit cannot target a multisampled framebuffer in GLES, so draw the texture as a
+    // quad instead. Depth test off keeps the depth buffer untouched, like the
+    // color-only blit leaves it.
+    vtkOpenGLState::ScopedglEnableDisable dsaver(state, GL_DEPTH_TEST);
+    state->vtkglDisable(GL_DEPTH_TEST);
+    vtkOpenGLState::ScopedglEnableDisable bsaver(state, GL_BLEND);
+    state->vtkglDisable(GL_BLEND);
+    colorTexture->CopyToFrameBuffer(0, 0, width - 1, height - 1, dstXmin, dstYmin,
+      dstXmin + width - 1, dstYmin + height - 1, width, height, nullptr, nullptr);
+  }
+  else
+  {
+    state->PushReadFramebufferBinding();
+    readFramebuffer->Bind(vtkOpenGLFramebufferObject::GetReadMode());
+    state->vtkglBlitFramebuffer(0, 0, width, height, dstXmin, dstYmin, dstXmin + width,
+      dstYmin + height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    state->PopReadFramebufferBinding();
+  }
+  return drawIsMultisampled;
+}
+
 VTK_ABI_NAMESPACE_END
