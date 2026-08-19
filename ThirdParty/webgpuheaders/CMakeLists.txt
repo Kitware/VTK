@@ -1,9 +1,9 @@
 vtk_module_third_party_internal(
   LICENSE_FILES "vtkwebgpuheaders/LICENSE"
   SPDX_LICENSE_IDENTIFIER "BSD-3-Clause"
-  SPDX_COPYRIGHT_TEXT "Copyright 2024 The Dawn & Tint Authors"
-  SPDX_DOWNLOAD_LOCATION "git+https://dawn.googlesource.com/dawn"
-  VERSION "20260720.160313"
+  SPDX_COPYRIGHT_TEXT "Copyright (c) 2019, \"WebGPU native\" developers"
+  SPDX_DOWNLOAD_LOCATION "git+https://github.com/webgpu-native/webgpu-headers"
+  VERSION "b3f67b89929c133403fd95638be4ef96b56ddca0"
   HEADER_ONLY)
 
 # The module is header only, so its target is an INTERFACE library, and the SPDX

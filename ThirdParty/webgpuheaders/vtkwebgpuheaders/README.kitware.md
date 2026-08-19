@@ -1,35 +1,36 @@
 # WebGPU Headers
 
-These headers provide the standard WebGPU C/C++ API used by VTK's WebGPU rendering module.
+The standard WebGPU C API header that VTK's WebGPU rendering module compiles
+against.
 
 ## Source
 
-Vendored from Dawn (https://dawn.googlesource.com/dawn), which implements the
-[WebGPU standard](https://www.w3.org/TR/webgpu/) and the
-[webgpu-headers](https://github.com/webgpu-native/webgpu-headers) native API.
+Vendored from upstream
+[webgpu-headers](https://github.com/webgpu-native/webgpu-headers), revision
+`b3f67b89929c133403fd95638be4ef96b56ddca0`.
 
-Taken from Dawn `v20260720.160313`, the same release pinned by
-`.gitlab/ci/download_dawn.cmake`, so the vendored headers and the runtime CI
-downloads describe the same API. Tags of that form are published on the Dawn
-mirror at https://github.com/google/dawn/tags.
+This is the implementation-neutral definition of the native WebGPU API. VTK
+compiles against it on every platform, including builds that link Dawn, so no
+implementation can change the API VTK is built against underneath it.
 
 ## Headers
 
-- `webgpu/webgpu.h` — WebGPU C API
-- `webgpu/webgpu_cpp.h` — WebGPU C++ wrapper (wgpu:: namespace)
-- `webgpu/webgpu_cpp_chained_struct.h` — Chained struct helpers
-- `webgpu/webgpu_cpp_print.h` — Debug print helpers
-- `webgpu/webgpu_enum_class_bitmasks.h` — Bitmask enum helpers
+- `webgpu/webgpu.h` — the WebGPU C API
 
-The `webgpu/` headers are redirect wrappers; the generated content lives in
-`dawn/`.
+No C++ wrapper (`webgpu_cpp.h`) is vendored. VTK uses the C API only and
+expresses handle ownership with `Rendering/WebGPU/Private/vtkWebGPUHandle.h`,
+so the module builds as C++17.
 
 ## VTK Notes
 
-These headers are the public interface for all `wgpu::` types used in VTK's WebGPU
-public API. Dawn (or another conformant WebGPU implementation) is still required at
-link time for runtime WebGPU functionality.
+Dawn (or another conformant WebGPU implementation) is still required at link
+time for runtime WebGPU functionality; only the headers are vendored here.
 
-To update: copy the headers from a Dawn install into
-`vtkwebgpuheaders/include/`, re-apply the patches listed above, and update the
-`VERSION` in the outer `CMakeLists.txt` to match the Dawn release.
+Upstream deliberately declares only the standard API. Implementations extend it
+through `nextInChain`, using `WGPUSType` values from blocks upstream reserves
+for them. The few extensions VTK uses are declared in
+`Rendering/WebGPU/Private/vtkWebGPUImplExtensions.h`.
+
+To update: copy `webgpu.h` from a webgpu-headers checkout into
+`vtkwebgpuheaders/include/webgpu/`, and update the `VERSION` in the outer
+`CMakeLists.txt` to the upstream revision.
