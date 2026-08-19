@@ -164,6 +164,16 @@ set(basis_files
   Basis/HGrad/WdgF2Gradient.h
   Basis/HGrad/WdgI2Basis.h
   Basis/HGrad/WdgI2Gradient.h
+  Basis/HGrad/WdgG1Basis.h
+  # Basis/HGrad/WdgG1Gradient.h
+  Basis/HGrad/WdgG2Basis.h
+  # Basis/HGrad/WdgG2Gradient.h
+  Basis/HGrad/WdgG3Basis.h
+  # Basis/HGrad/WdgG3Gradient.h
+  Basis/HGrad/WdgG4Basis.h
+  # Basis/HGrad/WdgG4Gradient.h
+  Basis/HGrad/WdgG5Basis.h
+  # Basis/HGrad/WdgG5Gradient.h
 )
 foreach(file IN LISTS basis_files)
   get_filename_component(basis_name "${file}" NAME_WE)

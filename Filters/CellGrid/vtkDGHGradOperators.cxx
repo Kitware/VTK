@@ -82,14 +82,18 @@
 #include "Basis_HGrad_WdgC2Gradient.h"
 #include "Basis_HGrad_WdgF2Basis.h"
 #include "Basis_HGrad_WdgF2Gradient.h"
+#include "Basis_HGrad_WdgG1Basis.h"
 #include "Basis_HGrad_WdgI2Basis.h"
 #include "Basis_HGrad_WdgI2Gradient.h"
-// #include "Basis_HGrad_WdgG1Basis.h"
 // #include "Basis_HGrad_WdgG1Gradient.h"
-// #include "Basis_HGrad_WdgG2Basis.h"
+#include "Basis_HGrad_WdgG2Basis.h"
 // #include "Basis_HGrad_WdgG2Gradient.h"
-// #include "Basis_HGrad_WdgGnBasis.h"
-// #include "Basis_HGrad_WdgGnGradient.h"
+#include "Basis_HGrad_WdgG3Basis.h"
+// #include "Basis_HGrad_WdgG3Gradient.h"
+#include "Basis_HGrad_WdgG4Basis.h"
+// #include "Basis_HGrad_WdgG4Gradient.h"
+#include "Basis_HGrad_WdgG5Basis.h"
+// #include "Basis_HGrad_WdgG5Gradient.h"
 
 #include <cmath>
 #include <limits>
@@ -675,60 +679,68 @@ void WdgF2Gradient(const std::array<double, 3>& param, std::vector<double>& basi
 #include "Basis/HGrad/WdgF2Gradient.h"
 }
 
-#if 0
 void WdgG1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  vtkBasisHeader();
+  vtkBasisOrderHeader(1);
 #include "Basis/HGrad/WdgG1Basis.h"
 }
+#if 0
 void WdgG1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/WdgG1Gradient.h"
 }
+#endif
 
 void WdgG2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  vtkBasisHeader();
+  vtkBasisOrderHeader(2);
 #include "Basis/HGrad/WdgG2Basis.h"
 }
+#if 0
 void WdgG2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/WdgG2Gradient.h"
 }
+#endif
 
 void WdgG3Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
   vtkBasisOrderHeader(3);
-#include "Basis/HGrad/WdgGnBasis.h"
+#include "Basis/HGrad/WdgG3Basis.h"
 }
+#if 0
 void WdgG3Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
   vtkBasisOrderHeader(3);
-#include "Basis/HGrad/WdgGnGradient.h"
+#include "Basis/HGrad/WdgG3Gradient.h"
 }
+#endif
 
 void WdgG4Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
   vtkBasisOrderHeader(4);
-#include "Basis/HGrad/WdgGnBasis.h"
+#include "Basis/HGrad/WdgG4Basis.h"
 }
+#if 0
 void WdgG4Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
   vtkBasisOrderHeader(4);
-#include "Basis/HGrad/WdgGnGradient.h"
+#include "Basis/HGrad/WdgG4Gradient.h"
 }
+#endif
 
 void WdgG5Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
   vtkBasisOrderHeader(5);
-#include "Basis/HGrad/WdgGnBasis.h"
+#include "Basis/HGrad/WdgG5Basis.h"
 }
+#if 0
 void WdgG5Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
   vtkBasisOrderHeader(5);
-#include "Basis/HGrad/WdgGnGradient.h"
+#include "Basis/HGrad/WdgG5Gradient.h"
 }
 #endif
 
@@ -762,7 +774,10 @@ bool RegisterOperators()
   basisMap["C"_token][2]["vtkDGPyr"_token]  = { 18, 1, PyrC2Basis,  Basis_HGrad_PyrC2Basis };
   basisMap["F"_token][2]["vtkDGPyr"_token]  = { 19, 1, PyrF2Basis,  Basis_HGrad_PyrF2Basis };
   // basisMap["G"_token][1]["vtkDGPyr"_token]  = {  5, 1, PyrG1Basis,  Basis_HGrad_PyrG1Basis };
-  // basisMap["G"_token][2]["vtkDGPyr"_token]  = { 18, 1, PyrG2Basis,  Basis_HGrad_PyrG2Basis };
+  // basisMap["G"_token][2]["vtkDGPyr"_token]  = { 14, 1, PyrG2Basis,  Basis_HGrad_PyrG2Basis };
+  // basisMap["G"_token][3]["vtkDGPyr"_token]  = { 30, 1, PyrG2Basis,  Basis_HGrad_PyrG3Basis };
+  // basisMap["G"_token][4]["vtkDGPyr"_token]  = { 55, 1, PyrG2Basis,  Basis_HGrad_PyrG4Basis };
+  // basisMap["G"_token][5]["vtkDGPyr"_token]  = { 91, 1, PyrG2Basis,  Basis_HGrad_PyrG5Basis };
 
   basisMap["C"_token][1]["vtkDGQuad"_token] = {  4, 1, QuadC1Basis, Basis_HGrad_QuadC1Basis };
   basisMap["C"_token][2]["vtkDGQuad"_token] = {  9, 1, QuadC2Basis, Basis_HGrad_QuadC2Basis };
@@ -793,11 +808,11 @@ bool RegisterOperators()
   basisMap["I"_token][2]["vtkDGWdg"_token]  = { 15, 1, WdgI2Basis,  Basis_HGrad_WdgI2Basis };
   basisMap["C"_token][2]["vtkDGWdg"_token]  = { 18, 1, WdgC2Basis,  Basis_HGrad_WdgC2Basis };
   basisMap["F"_token][2]["vtkDGWdg"_token]  = { 21, 1, WdgF2Basis,  Basis_HGrad_WdgF2Basis };
-  // basisMap["G"_token][1]["vtkDGWdg"_token]  = {  6, 1, WdgG1Basis,  Basis_HGrad_WdgG1Basis };
-  // basisMap["G"_token][2]["vtkDGWdg"_token]  = { 18, 1, WdgG2Basis,  Basis_HGrad_WdgG2Basis };
-  // basisMap["G"_token][3]["vtkDGWdg"_token]  = { 40, 1, WdgG3Basis,  Basis_HGrad_WdgGnBasis };
-  // basisMap["G"_token][4]["vtkDGWdg"_token]  = { 75, 1, WdgG4Basis,  Basis_HGrad_WdgGnBasis };
-  // basisMap["G"_token][5]["vtkDGWdg"_token]  = {126, 1, WdgG5Basis,  Basis_HGrad_WdgGnBasis };
+  basisMap["G"_token][1]["vtkDGWdg"_token]  = {  6, 1, WdgG1Basis,  Basis_HGrad_WdgG1Basis };
+  basisMap["G"_token][2]["vtkDGWdg"_token]  = { 18, 1, WdgG2Basis,  Basis_HGrad_WdgG2Basis };
+  basisMap["G"_token][3]["vtkDGWdg"_token]  = { 40, 1, WdgG3Basis,  Basis_HGrad_WdgG3Basis };
+  basisMap["G"_token][4]["vtkDGWdg"_token]  = { 75, 1, WdgG4Basis,  Basis_HGrad_WdgG4Basis };
+  basisMap["G"_token][5]["vtkDGWdg"_token]  = {126, 1, WdgG5Basis,  Basis_HGrad_WdgG5Basis };
 
   // # Gradients of basis functions
   gradMap["C"_token][1]["vtkDGEdge"_token] = {  2, 3, EdgeC1Gradient, Basis_HGrad_EdgeC1Gradient };
@@ -855,9 +870,9 @@ bool RegisterOperators()
   gradMap["F"_token][2]["vtkDGWdg"_token]  = { 21, 3, WdgF2Gradient,  Basis_HGrad_WdgF2Gradient };
   // gradMap["G"_token][1]["vtkDGWdg"_token]  = {  6, 3, WdgG1Gradient,  Basis_HGrad_WdgG1Gradient };
   // gradMap["G"_token][2]["vtkDGWdg"_token]  = { 18, 3, WdgG2Gradient,  Basis_HGrad_WdgG2Gradient };
-  // gradMap["G"_token][3]["vtkDGWdg"_token]  = { 40, 3, WdgG3Gradient,  Basis_HGrad_WdgGnGradient };
-  // gradMap["G"_token][4]["vtkDGWdg"_token]  = { 75, 3, WdgG4Gradient,  Basis_HGrad_WdgGnGradient };
-  // gradMap["G"_token][5]["vtkDGWdg"_token]  = {126, 3, WdgG5Gradient,  Basis_HGrad_WdgGnGradient };
+  // gradMap["G"_token][3]["vtkDGWdg"_token]  = { 40, 3, WdgG3Gradient,  Basis_HGrad_WdgG3Gradient };
+  // gradMap["G"_token][4]["vtkDGWdg"_token]  = { 75, 3, WdgG4Gradient,  Basis_HGrad_WdgG4Gradient };
+  // gradMap["G"_token][5]["vtkDGWdg"_token]  = {126, 3, WdgG5Gradient,  Basis_HGrad_WdgG5Gradient };
 
   // clang-format on
   return true;
