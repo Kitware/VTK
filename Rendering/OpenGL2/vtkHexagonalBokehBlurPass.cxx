@@ -268,7 +268,8 @@ void vtkHexagonalBokehBlurPass::RenderRhomboidBlur(
 
   this->RhomboidQuadHelper->Render();
 
-  this->BackgroundTexture->Deactivate();
+  this->VerticalBlurTexture->Deactivate();
+  this->DiagonalBlurTexture->Deactivate();
 }
 
 //------------------------------------------------------------------------------
