@@ -159,11 +159,40 @@ void vtkImageProcessingPass::InitializeRenderTarget(
   {
     ostate->PushReadFramebufferBinding();
     renderWindow->GetRenderFramebuffer()->Bind(vtkOpenGLFramebufferObject::GetReadMode());
+    renderWindow->GetRenderFramebuffer()->ActivateReadBuffer(0);
 
-    int renderWindowWidth = renderWindow->GetSize()[0];
-    int renderWindowHeight = renderWindow->GetSize()[1];
+    // The size of the render framebuffer, not GetSize(): some platforms query the live OS
+    // window there, which can disagree with the framebuffer between a resize and the next
+    // render start.
+    int* renderFramebufferSize = renderWindow->GetRenderFramebuffer()->GetLastSize();
+    int renderWindowWidth = renderFramebufferSize[0];
+    int renderWindowHeight = renderFramebufferSize[1];
     int targetWidth = textureTarget->GetWidth();
     int targetHeight = textureTarget->GetHeight();
+
+    // Blitting out of a multisampled framebuffer is only defined when the source and
+    // destination rectangles match and the formats are identical. The target texture is
+    // often larger than the render window (passes pad it by their kernel radius) or has a
+    // float format, so resolve the render framebuffer first and copy from the resolved one.
+    if (renderWindow->GetBufferNeedsResolving())
+    {
+      vtkOpenGLFramebufferObject* resolveFramebuffer = renderWindow->GetResolveFramebuffer();
+      resolveFramebuffer->Resize(renderWindowWidth, renderWindowHeight);
+      ostate->PushDrawFramebufferBinding();
+      resolveFramebuffer->Bind(vtkOpenGLFramebufferObject::GetDrawMode());
+      {
+        // the resolve must cover the whole framebuffer, and blits are clipped by an
+        // enabled scissor test
+        vtkOpenGLState::ScopedglEnableDisable stsaver(ostate, GL_SCISSOR_TEST);
+        ostate->vtkglDisable(GL_SCISSOR_TEST);
+        ostate->vtkglBlitFramebuffer(0, 0, renderWindowWidth, renderWindowHeight, 0, 0,
+          renderWindowWidth, renderWindowHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+      }
+      ostate->PopDrawFramebufferBinding();
+      resolveFramebuffer->Bind(vtkOpenGLFramebufferObject::GetReadMode());
+      resolveFramebuffer->ActivateReadBuffer(0);
+    }
+
     ostate->vtkglBlitFramebuffer(0, 0, renderWindowWidth, renderWindowHeight, 0, 0, targetWidth,
       targetHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
     ostate->PopReadFramebufferBinding();

@@ -222,6 +222,12 @@ public:
   vtkGetObjectMacro(DisplayFramebuffer, vtkOpenGLFramebufferObject);
 
   /**
+   * Returns the framebuffer object used to resolve the render framebuffer when
+   * it is multisampled.
+   */
+  vtkGetObjectMacro(ResolveFramebuffer, vtkOpenGLFramebufferObject);
+
+  /**
    * Returns its texture unit manager object. A new one will be created if one
    * hasn't already been set up.
    */
