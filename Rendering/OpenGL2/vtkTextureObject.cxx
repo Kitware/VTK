@@ -2425,82 +2425,112 @@ void vtkTextureObject::CopyToFrameBuffer(
 
 //------------------------------------------------------------------------------
 // Description:
+// What the currently bound read framebuffer carries at its depth attachment. A depth
+// blit is only defined between identical formats, so this is queried to match them.
+enum class vtkReadFramebufferDepth
+{
+  Unqueryable, // the default framebuffer is bound; it names its attachments differently
+  Missing,     // a framebuffer object with no depth attachment
+  Fixed,       // fixed point depth; depthFormat holds the matching vtkTextureObject format
+  Float,       // 32 bit float depth; depthFormat likewise
+  PackedFixed, // fixed point depth packed with stencil (GL_DEPTH24_STENCIL8)
+  PackedFloat, // float depth packed with stencil (GL_DEPTH32F_STENCIL8)
+};
+
+static vtkReadFramebufferDepth vtkGetReadFramebufferDepth(int& depthFormat)
+{
+  GLint readFramebuffer = 0;
+  glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFramebuffer);
+  if (readFramebuffer == 0)
+  {
+    return vtkReadFramebufferDepth::Unqueryable;
+  }
+  // Querying anything else on a missing attachment is an error.
+  GLint depthType = GL_NONE;
+  glGetFramebufferAttachmentParameteriv(
+    GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &depthType);
+  if (depthType == GL_NONE)
+  {
+    return vtkReadFramebufferDepth::Missing;
+  }
+  GLint depthBits = 0;
+  GLint componentType = 0;
+  glGetFramebufferAttachmentParameteriv(
+    GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &depthBits);
+  glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+    GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE, &componentType);
+  // The depth lives in a packed depth-stencil image, which is a format of its own,
+  // exactly when the same image is also attached to the stencil point.
+  GLint stencilType = GL_NONE;
+  glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+    GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &stencilType);
+  if (stencilType == depthType)
+  {
+    GLint depthName = 0;
+    GLint stencilName = 0;
+    glGetFramebufferAttachmentParameteriv(
+      GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &depthName);
+    glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+      GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &stencilName);
+    if (stencilName == depthName)
+    {
+      return componentType == GL_FLOAT ? vtkReadFramebufferDepth::PackedFloat
+                                       : vtkReadFramebufferDepth::PackedFixed;
+    }
+  }
+  if (componentType == GL_FLOAT)
+  {
+    depthFormat = vtkTextureObject::Float32;
+    return vtkReadFramebufferDepth::Float;
+  }
+  if (depthBits == 16)
+  {
+    depthFormat = vtkTextureObject::Fixed16;
+  }
+  else if (depthBits == 32)
+  {
+    depthFormat = vtkTextureObject::Fixed32;
+  }
+  else
+  {
+    depthFormat = vtkTextureObject::Fixed24;
+  }
+  return vtkReadFramebufferDepth::Fixed;
+}
+
+//------------------------------------------------------------------------------
+// Description:
 // Copy the depth buffer of the current read framebuffer into this texture using a
 // framebuffer blit, for the cases where glCopyTexImage2D cannot be used.
 void vtkTextureObject::BlitDepthFromReadBuffer(int srcXmin, int srcYmin, int width, int height)
 {
   // A depth blit is only defined between matching formats, so take the format of the
-  // framebuffer that is being copied from. Query it only when reading from a real
-  // framebuffer object: the default framebuffer names its attachments differently.
-  GLint readFramebuffer = 0;
-  glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFramebuffer);
-  if (readFramebuffer != 0)
+  // framebuffer that is being copied from whenever it can be identified.
+  int depthFormat = vtkTextureObject::Native;
+  switch (vtkGetReadFramebufferDepth(depthFormat))
   {
-    // Querying anything else on a missing attachment is an error, and there would be
-    // nothing to copy anyway.
-    GLint depthType = GL_NONE;
-    glGetFramebufferAttachmentParameteriv(
-      GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &depthType);
-    if (depthType == GL_NONE)
-    {
+    case vtkReadFramebufferDepth::Missing:
+      // nothing to copy
       return;
-    }
-    GLint depthBits = 0;
-    GLint componentType = 0;
-    glGetFramebufferAttachmentParameteriv(
-      GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &depthBits);
-    glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-      GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE, &componentType);
-    // The source depth may live in a packed depth-stencil image, which is a format of its
-    // own: it is packed exactly when the same image is also attached to the stencil point.
-    bool packedDepthStencil = false;
-    GLint stencilType = GL_NONE;
-    glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
-      GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &stencilType);
-    if (stencilType == depthType)
-    {
-      GLint depthName = 0;
-      GLint stencilName = 0;
-      glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-        GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &depthName);
-      glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
-        GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &stencilName);
-      packedDepthStencil = stencilName == depthName;
-    }
-    if (packedDepthStencil && componentType != GL_FLOAT)
-    {
+    case vtkReadFramebufferDepth::PackedFixed:
       if (static_cast<GLenum>(this->InternalFormat) != GL_DEPTH24_STENCIL8)
       {
         this->ResetFormatAndType();
         this->AllocateDepthStencil(width, height);
       }
-    }
-    else if (!packedDepthStencil)
-    {
-      int depthFormat = vtkTextureObject::Native;
-      if (componentType == GL_FLOAT)
-      {
-        depthFormat = vtkTextureObject::Float32;
-      }
-      else if (depthBits == 16)
-      {
-        depthFormat = vtkTextureObject::Fixed16;
-      }
-      else if (depthBits == 24)
-      {
-        depthFormat = vtkTextureObject::Fixed24;
-      }
-      else if (depthBits == 32)
-      {
-        depthFormat = vtkTextureObject::Fixed32;
-      }
-      if (depthFormat != vtkTextureObject::Native &&
-        OpenGLDepthInternalFormat[depthFormat] != static_cast<GLenum>(this->InternalFormat))
+      break;
+    case vtkReadFramebufferDepth::Fixed:
+    case vtkReadFramebufferDepth::Float:
+      if (OpenGLDepthInternalFormat[depthFormat] != static_cast<GLenum>(this->InternalFormat))
       {
         this->ResetFormatAndType();
         this->AllocateDepth(width, height, depthFormat);
       }
-    }
+      break;
+    default:
+      // No VTK allocation matches a packed float depth, and the default framebuffer
+      // cannot be queried this way: blit with the format the texture already has.
+      break;
   }
 
   vtkNew<vtkOpenGLFramebufferObject> destFBO;
@@ -2548,6 +2578,21 @@ void vtkTextureObject::CopyFromFrameBuffer(
   // based on MultiSample setting
   if (this->Context->GetMultiSamples())
   {
+    // The resolve blit carries the depth buffer along, and a depth blit is only defined
+    // between identical formats, so the resolved framebuffer takes the depth format of
+    // the framebuffer being resolved instead of assuming 24 fixed stencil-less bits.
+    int resolvedDepthFormat = vtkTextureObject::Fixed24;
+    bool resolvedDepthStencil = false;
+    switch (vtkGetReadFramebufferDepth(resolvedDepthFormat))
+    {
+      case vtkReadFramebufferDepth::PackedFixed:
+      case vtkReadFramebufferDepth::PackedFloat:
+        resolvedDepthStencil = true;
+        break;
+      default:
+        break;
+    }
+
     vtkNew<vtkOpenGLFramebufferObject> resolvedFBO;
     resolvedFBO->SetContext(this->Context);
     this->Context->GetState()->PushFramebufferBindings();
@@ -2555,9 +2600,20 @@ void vtkTextureObject::CopyFromFrameBuffer(
       /* useTextures = */ true,
       /* numberOfColorAttachments = */ 1,
       /* colorDataType = */ VTK_UNSIGNED_CHAR,
-      /* wantDepthAttachment = */ true,
-      /* depthBitplanes = */ 24,
+      /* wantDepthAttachment = */ false,
+      /* depthBitplanes = */ 0,
       /* multisamples = */ 0);
+    vtkNew<vtkTextureObject> resolvedDepth;
+    resolvedDepth->SetContext(this->Context);
+    if (resolvedDepthStencil)
+    {
+      resolvedDepth->AllocateDepthStencil(width, height);
+    }
+    else
+    {
+      resolvedDepth->AllocateDepth(width, height, resolvedDepthFormat);
+    }
+    resolvedFBO->AddDepthAttachment(resolvedDepth);
 
     // PopulateFramebuffer changes active read/write buffer bindings,
     // hence we restore the read buffer bindings to read from the original

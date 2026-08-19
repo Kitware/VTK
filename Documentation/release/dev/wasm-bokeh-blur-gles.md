@@ -21,4 +21,18 @@ Copying the depth buffer into a texture, which `vtkDepthPeelingPass` does whenev
 owns its opaque Z texture, now uses a framebuffer blit in GLES builds. `glCopyTexImage2D`
 cannot target a depth format there, so depth peeling failed inside any render pass that
 renders to its own framebuffer. The texture takes the depth format of the framebuffer it
-is copied from, since a depth blit is only defined between matching formats.
+is copied from, since a depth blit is only defined between matching formats -- including
+the packed depth-stencil format of a stencil-capable render window.
+
+`vtkTextureObject::CopyFromFrameBuffer` resolves a multisampled source before copying
+from it, and the framebuffer it resolves into likewise takes the depth format of the
+source instead of assuming stencil-less 24 fixed bits, which broke the resolve on
+stencil-capable render windows and on the default 32 bit desktop depth buffer.
+
+`vtkDepthPeelingPass` composites its result with a textured quad instead of a blit when
+the destination framebuffer is multisampled in GLES builds, where such a blit is
+forbidden; depth peeling therefore works with multisampling under WebAssembly.
+
+The fragment shader that normalizes integer textures for reading pixels back declares a
+precision for its `usampler2D`, which has no default in GLES and made the shader fail to
+compile on strict drivers.
