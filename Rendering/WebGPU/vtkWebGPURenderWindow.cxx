@@ -224,7 +224,7 @@ WGPUSurface vtkWebGPURenderWindow::CreateSurfaceFromHardwareWindow(WGPUInstance 
 #elif _WIN32
   if (auto* win32hw = vtkWin32HardwareWindow::SafeDownCast(this->HardwareWindow))
   {
-    WGPUSurfaceSourceWindowsHWND winSurfDesc = {};
+    WGPUSurfaceSourceWindowsHWND winSurfDesc = WGPU_SURFACE_SOURCE_WINDOWS_HWND_INIT;
     winSurfDesc.hwnd = win32hw->GetWindowId();
     winSurfDesc.hinstance = win32hw->GetApplicationInstance();
     WGPUSurfaceDescriptor surfDesc = WGPU_SURFACE_DESCRIPTOR_INIT;
