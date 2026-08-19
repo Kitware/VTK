@@ -16,3 +16,9 @@ Textures with three float components, such as an HDR environment map, no longer 
 for mipmaps in GLES builds. `glGenerateMipmap` cannot generate them for those formats,
 and the failed call left an error behind that later showed up as a spurious "Failed to
 read pixels" message. Such textures now use linear filtering.
+
+Copying the depth buffer into a texture, which `vtkDepthPeelingPass` does whenever it
+owns its opaque Z texture, now uses a framebuffer blit in GLES builds. `glCopyTexImage2D`
+cannot target a depth format there, so depth peeling failed inside any render pass that
+renders to its own framebuffer. The texture takes the depth format of the framebuffer it
+is copied from, since a depth blit is only defined between matching formats.

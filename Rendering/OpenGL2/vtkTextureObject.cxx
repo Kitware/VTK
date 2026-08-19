@@ -2425,6 +2425,104 @@ void vtkTextureObject::CopyToFrameBuffer(
 
 //------------------------------------------------------------------------------
 // Description:
+// Copy the depth buffer of the current read framebuffer into this texture using a
+// framebuffer blit, for the cases where glCopyTexImage2D cannot be used.
+void vtkTextureObject::BlitDepthFromReadBuffer(int srcXmin, int srcYmin, int width, int height)
+{
+  // A depth blit is only defined between matching formats, so take the format of the
+  // framebuffer that is being copied from. Query it only when reading from a real
+  // framebuffer object: the default framebuffer names its attachments differently.
+  GLint readFramebuffer = 0;
+  glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFramebuffer);
+  if (readFramebuffer != 0)
+  {
+    // Querying anything else on a missing attachment is an error, and there would be
+    // nothing to copy anyway.
+    GLint depthType = GL_NONE;
+    glGetFramebufferAttachmentParameteriv(
+      GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &depthType);
+    if (depthType == GL_NONE)
+    {
+      return;
+    }
+    GLint depthBits = 0;
+    GLint componentType = 0;
+    glGetFramebufferAttachmentParameteriv(
+      GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &depthBits);
+    glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+      GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE, &componentType);
+    // The source depth may live in a packed depth-stencil image, which is a format of its
+    // own: it is packed exactly when the same image is also attached to the stencil point.
+    bool packedDepthStencil = false;
+    GLint stencilType = GL_NONE;
+    glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+      GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &stencilType);
+    if (stencilType == depthType)
+    {
+      GLint depthName = 0;
+      GLint stencilName = 0;
+      glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+        GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &depthName);
+      glGetFramebufferAttachmentParameteriv(GL_READ_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
+        GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &stencilName);
+      packedDepthStencil = stencilName == depthName;
+    }
+    if (packedDepthStencil && componentType != GL_FLOAT)
+    {
+      if (static_cast<GLenum>(this->InternalFormat) != GL_DEPTH24_STENCIL8)
+      {
+        this->ResetFormatAndType();
+        this->AllocateDepthStencil(width, height);
+      }
+    }
+    else if (!packedDepthStencil)
+    {
+      int depthFormat = vtkTextureObject::Native;
+      if (componentType == GL_FLOAT)
+      {
+        depthFormat = vtkTextureObject::Float32;
+      }
+      else if (depthBits == 16)
+      {
+        depthFormat = vtkTextureObject::Fixed16;
+      }
+      else if (depthBits == 24)
+      {
+        depthFormat = vtkTextureObject::Fixed24;
+      }
+      else if (depthBits == 32)
+      {
+        depthFormat = vtkTextureObject::Fixed32;
+      }
+      if (depthFormat != vtkTextureObject::Native &&
+        OpenGLDepthInternalFormat[depthFormat] != static_cast<GLenum>(this->InternalFormat))
+      {
+        this->ResetFormatAndType();
+        this->AllocateDepth(width, height, depthFormat);
+      }
+    }
+  }
+
+  vtkNew<vtkOpenGLFramebufferObject> destFBO;
+  destFBO->SetContext(this->Context);
+  vtkOpenGLState* ostate = this->Context->GetState();
+  // a blit is clipped by an enabled scissor test, and depth blits additionally fail
+  // outright with it enabled on some platforms
+  vtkOpenGLState::ScopedglEnableDisable stsaver(ostate, GL_SCISSOR_TEST);
+  ostate->vtkglDisable(GL_SCISSOR_TEST);
+  ostate->PushDrawFramebufferBinding();
+  destFBO->Bind(GL_DRAW_FRAMEBUFFER);
+  destFBO->AddDepthAttachment(this);
+  ostate->vtkglBlitFramebuffer(srcXmin, srcYmin, srcXmin + width, srcYmin + height, 0, 0, width,
+    height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+  destFBO->RemoveDepthAttachment();
+  ostate->PopDrawFramebufferBinding();
+
+  vtkOpenGLCheckErrorMacro("failed after BlitDepthFromReadBuffer");
+}
+
+//------------------------------------------------------------------------------
+// Description:
 // Copy a sub-part of a logical buffer of the framebuffer (color or depth)
 // to the texture object. src is the framebuffer, dst is the texture.
 // (srcXmin,srcYmin) is the location of the lower left corner of the
@@ -2438,6 +2536,13 @@ void vtkTextureObject::CopyFromFrameBuffer(
   int srcXmin, int srcYmin, int vtkNotUsed(dstXmin), int vtkNotUsed(dstYmin), int width, int height)
 {
   assert("pre: is2D" && this->GetNumberOfDimensions() == 2);
+
+  // glCopyTexImage2D only accepts color-renderable internal formats in GLES, so a depth
+  // texture has to be filled with a depth blit into a framebuffer that has it attached.
+  bool copyDepthWithBlit = false;
+#ifdef GL_ES_VERSION_3_0
+  copyDepthWithBlit = this->Format == GL_DEPTH_COMPONENT || this->Format == GL_DEPTH_STENCIL;
+#endif
 
   // make assumption on the need to resolve
   // based on MultiSample setting
@@ -2474,12 +2579,23 @@ void vtkTextureObject::CopyFromFrameBuffer(
     resolvedFBO->Bind(GL_READ_FRAMEBUFFER);
     resolvedFBO->ActivateReadBuffer(0);
 
-    this->Activate();
+    if (copyDepthWithBlit)
+    {
+      this->BlitDepthFromReadBuffer(0, 0, width, height);
+    }
+    else
+    {
+      this->Activate();
 
-    glCopyTexImage2D(this->Target, 0, this->InternalFormat, 0, 0, width, height, 0);
+      glCopyTexImage2D(this->Target, 0, this->InternalFormat, 0, 0, width, height, 0);
+    }
 
     // restore bindings and release the resolvedFBO.
     this->Context->GetState()->PopFramebufferBindings();
+  }
+  else if (copyDepthWithBlit)
+  {
+    this->BlitDepthFromReadBuffer(srcXmin, srcYmin, width, height);
   }
   else
   {
