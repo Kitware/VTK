@@ -70,9 +70,12 @@ bool TestRenderPass(int argc, char* argv[], vtkSmartPointer<vtkAlgorithm> source
 
   renderWindow->Render();
 
-  std::string baselineImageRelativePath = "Data/" + baselineImageFileName;
-  std::string baselineImageFilePath =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, baselineImageRelativePath.c_str());
+  // vtkTesting wants the baseline as a path on the host: under emscripten it preloads that
+  // file into the sandbox itself, so the sandbox path returned by ExpandDataFileName cannot
+  // be used here.
+  char* dataRoot = vtkTestUtilities::GetDataRoot(argc, argv);
+  std::string baselineImageFilePath = std::string(dataRoot) + "/Data/" + baselineImageFileName;
+  delete[] dataRoot;
   vtkNew<vtkTesting> tester;
   tester->AddArgument("-V");
   tester->AddArgument(baselineImageFilePath.c_str());
