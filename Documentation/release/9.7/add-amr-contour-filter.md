@@ -39,12 +39,12 @@ If no data is available (interface face centers and voxel center), then a simple
 
 Rough face:
 
-![image](../imgs/add-amr-contour-filter_rough.png)
+![image](../imgs/9.7/add-amr-contour-filter_rough.png)
 
 Refined face
 
-![image](../imgs/add-amr-contour-filter_refined.png)
+![image](../imgs/9.7/add-amr-contour-filter_refined.png)
 
 Interface face:
 
-![image](../imgs/add-amr-contour-filter_interface.png)
+![image](../imgs/9.7/add-amr-contour-filter_interface.png)
