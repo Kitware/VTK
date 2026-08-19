@@ -5,6 +5,7 @@ vtk_module_test_data(
   Data/dgQuadraticQuadrilaterals.dg
   Data/dgQuadrilateral.dg
   Data/dgTetrahedra.dg
+  Data/dgTriangle-GBasis.dg
   Data/dgTriangle.dg
 )
 
