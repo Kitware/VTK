@@ -66,8 +66,7 @@ void vtkOpenGLTextureFramebufferNormalization::Initialize(vtkOpenGLRenderWindow*
 bool vtkOpenGLTextureFramebufferNormalization::InitializeConversionShader()
 {
   // Vertex shader: renders a fullscreen quad using gl_VertexID
-  const char* vertexShaderSource = R"(
-#version 300 es
+  const char* vertexShaderSource = R"(#version 300 es
 precision highp float;
 
 const vec2 vertices[4] = vec2[](
@@ -86,8 +85,7 @@ void main() {
 )";
 
   // Fragment shader: reads unsigned integer texture, normalizes to float
-  const char* fragmentShaderSource = R"(
-#version 300 es
+  const char* fragmentShaderSource = R"(#version 300 es
 precision highp float;
 
 in vec2 texCoord;
