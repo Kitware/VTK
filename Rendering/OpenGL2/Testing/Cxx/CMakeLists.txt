@@ -44,6 +44,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestFramebufferHDR.cxx,NO_SERDES
   TestFramebufferPass.cxx
   TestGaussianBlurPass.cxx
+  TestGaussianBlurPassMultisampling.cxx,NO_DATA,NO_VALID
   TestGlyph3DMapperCellPicking.cxx
   TestGlyph3DMapperCulling.cxx
   TestGlyph3DMapperEdges.cxx
