@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "Private/vtkWebGPUVolumeRayCastCoordinatorInternals.h"
 
+#include "Private/vtkWebGPUHelpersPrivate.h"
+
 #include "vtkWebGPUVolumeRayCastMapper.h"
 
 #include "vtkCamera.h"
@@ -121,14 +123,14 @@ void CopyMatrix(vtkMatrix4x4* source, float destination[16])
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureFormat DepthOnlyFormat(wgpu::TextureFormat format)
+WGPUTextureFormat DepthOnlyFormat(WGPUTextureFormat format)
 {
   switch (format)
   {
-    case wgpu::TextureFormat::Depth24PlusStencil8:
-      return wgpu::TextureFormat::Depth24Plus;
-    case wgpu::TextureFormat::Depth32FloatStencil8:
-      return wgpu::TextureFormat::Depth32Float;
+    case WGPUTextureFormat_Depth24PlusStencil8:
+      return WGPUTextureFormat_Depth24Plus;
+    case WGPUTextureFormat_Depth32FloatStencil8:
+      return WGPUTextureFormat_Depth32Float;
     default:
       return format;
   }
@@ -205,7 +207,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::ReleaseDeviceResources()
   this->BindGroupLayout = nullptr;
   this->BindGroup = nullptr;
   this->Pipeline = nullptr;
-  this->PipelineColorFormat = wgpu::TextureFormat::Undefined;
+  this->PipelineColorFormat = WGPUTextureFormat_Undefined;
   this->DeviceIdentity = nullptr;
 }
 
@@ -219,40 +221,42 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::EnsurePlaceholders(
   }
   auto configuration = window->GetWGPUConfiguration();
 
-  wgpu::TextureDescriptor descriptor;
-  descriptor.label = "PlaceholderVolume";
-  descriptor.dimension = wgpu::TextureDimension::e3D;
+  WGPUTextureDescriptor descriptor = WGPU_TEXTURE_DESCRIPTOR_INIT;
+  descriptor.label = WGPUStringView{ "PlaceholderVolume", WGPU_STRLEN };
+  descriptor.dimension = WGPUTextureDimension_3D;
   descriptor.size = { 1, 1, 1 };
-  descriptor.format = wgpu::TextureFormat::R32Float;
-  descriptor.usage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst;
+  descriptor.format = WGPUTextureFormat_R32Float;
+  descriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
   descriptor.mipLevelCount = 1;
   descriptor.sampleCount = 1;
-  this->PlaceholderVolume = configuration->CreateTexture(descriptor);
+  this->PlaceholderVolume = vtkWebGPU::Texture::Acquire(configuration->CreateTexture(descriptor));
 
   const float zero = 0.0f;
   configuration->WriteTexture(
     this->PlaceholderVolume, 4, 4, &zero, 0, { 0, 0, 0 }, 0, "PlaceholderVolume");
 
-  wgpu::TextureViewDescriptor viewDescriptor;
-  viewDescriptor.label = "PlaceholderVolume";
-  viewDescriptor.format = wgpu::TextureFormat::R32Float;
-  viewDescriptor.dimension = wgpu::TextureViewDimension::e3D;
+  WGPUTextureViewDescriptor viewDescriptor = WGPU_TEXTURE_VIEW_DESCRIPTOR_INIT;
+  viewDescriptor.label = WGPUStringView{ "PlaceholderVolume", WGPU_STRLEN };
+  viewDescriptor.format = WGPUTextureFormat_R32Float;
+  viewDescriptor.dimension = WGPUTextureViewDimension_3D;
   viewDescriptor.baseMipLevel = 0;
   viewDescriptor.mipLevelCount = 1;
   viewDescriptor.baseArrayLayer = 0;
   viewDescriptor.arrayLayerCount = 1;
-  this->PlaceholderVolumeView = this->PlaceholderVolume.CreateView(&viewDescriptor);
+  this->PlaceholderVolumeView = vtkWebGPU::TextureView::Acquire(
+    configuration->CreateView(this->PlaceholderVolume, viewDescriptor));
 
   if (this->TransferFunctionSampler == nullptr)
   {
-    wgpu::SamplerDescriptor samplerDescriptor;
-    samplerDescriptor.label = "TransferFunctionSampler";
-    samplerDescriptor.addressModeU = wgpu::AddressMode::ClampToEdge;
-    samplerDescriptor.addressModeV = wgpu::AddressMode::ClampToEdge;
-    samplerDescriptor.addressModeW = wgpu::AddressMode::ClampToEdge;
-    samplerDescriptor.magFilter = wgpu::FilterMode::Linear;
-    samplerDescriptor.minFilter = wgpu::FilterMode::Linear;
-    this->TransferFunctionSampler = window->GetDevice().CreateSampler(&samplerDescriptor);
+    WGPUSamplerDescriptor samplerDescriptor = WGPU_SAMPLER_DESCRIPTOR_INIT;
+    samplerDescriptor.label = WGPUStringView{ "TransferFunctionSampler", WGPU_STRLEN };
+    samplerDescriptor.addressModeU = WGPUAddressMode_ClampToEdge;
+    samplerDescriptor.addressModeV = WGPUAddressMode_ClampToEdge;
+    samplerDescriptor.addressModeW = WGPUAddressMode_ClampToEdge;
+    samplerDescriptor.magFilter = WGPUFilterMode_Linear;
+    samplerDescriptor.minFilter = WGPUFilterMode_Linear;
+    this->TransferFunctionSampler =
+      vtkWebGPU::Sampler::Acquire(wgpuDeviceCreateSampler(window->GetDevice(), &samplerDescriptor));
   }
 }
 
@@ -266,31 +270,31 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateTransferFunctions(
   {
     const auto makeArray = [&](const char* label)
     {
-      wgpu::TextureDescriptor descriptor;
-      descriptor.label = label;
-      descriptor.dimension = wgpu::TextureDimension::e2D;
+      WGPUTextureDescriptor descriptor = WGPU_TEXTURE_DESCRIPTOR_INIT;
+      descriptor.label = WGPUStringView{ label, WGPU_STRLEN };
+      descriptor.dimension = WGPUTextureDimension_2D;
       descriptor.size = { TableSize, 1, MaxVolumes };
-      descriptor.format = wgpu::TextureFormat::RGBA16Float;
-      descriptor.usage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst;
+      descriptor.format = WGPUTextureFormat_RGBA16Float;
+      descriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
       descriptor.mipLevelCount = 1;
       descriptor.sampleCount = 1;
-      return configuration->CreateTexture(descriptor);
+      return vtkWebGPU::Texture::Acquire(configuration->CreateTexture(descriptor));
     };
     this->ColorTransferFunctions = makeArray("ColorTransferFunctions");
     this->OpacityTransferFunctions = makeArray("OpacityTransferFunctions");
     this->GradientTransferFunctions = makeArray("GradientTransferFunctions");
 
-    const auto makeView = [&](wgpu::Texture& texture, const char* label)
+    const auto makeView = [&](vtkWebGPU::Texture& texture, const char* label)
     {
-      wgpu::TextureViewDescriptor descriptor;
-      descriptor.label = label;
-      descriptor.format = wgpu::TextureFormat::RGBA16Float;
-      descriptor.dimension = wgpu::TextureViewDimension::e2DArray;
+      WGPUTextureViewDescriptor descriptor = WGPU_TEXTURE_VIEW_DESCRIPTOR_INIT;
+      descriptor.label = WGPUStringView{ label, WGPU_STRLEN };
+      descriptor.format = WGPUTextureFormat_RGBA16Float;
+      descriptor.dimension = WGPUTextureViewDimension_2DArray;
       descriptor.baseMipLevel = 0;
       descriptor.mipLevelCount = 1;
       descriptor.baseArrayLayer = 0;
       descriptor.arrayLayerCount = MaxVolumes;
-      return texture.CreateView(&descriptor);
+      return vtkWebGPU::TextureView::Acquire(configuration->CreateView(texture, descriptor));
     };
     this->ColorTransferFunctionsView = makeView(this->ColorTransferFunctions, "ColorTF");
     this->OpacityTransferFunctionsView = makeView(this->OpacityTransferFunctions, "OpacityTF");
@@ -313,7 +317,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateTransferFunctions(
       continue;
     }
 
-    const wgpu::Origin3D destination = { 0, 0, static_cast<std::uint32_t>(index) };
+    const WGPUOrigin3D destination = { 0, 0, static_cast<std::uint32_t>(index) };
     configuration->WriteTexture(this->ColorTransferFunctions, bytesPerRow, bytesPerRow,
       contribution.ColorTable->data(), 0, destination, 0, "Color transfer function");
     configuration->WriteTexture(this->OpacityTransferFunctions, bytesPerRow, bytesPerRow,
@@ -377,8 +381,8 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBricks(vtkWebGPURend
   const std::size_t bytes = classification.size() * sizeof(float);
   if (this->BrickBuffer == nullptr || this->BrickBufferElements != total)
   {
-    this->BrickBuffer = configuration->CreateBuffer(
-      bytes, wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false, "VolumeBlocks");
+    this->BrickBuffer = vtkWebGPU::Buffer::Acquire(configuration->CreateBuffer(
+      bytes, WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst, false, "VolumeBlocks"));
     this->BrickBufferElements = total;
     this->BindGroup = nullptr;
   }
@@ -397,16 +401,17 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateDepthView(vtkWebGPUR
     return;
   }
 
-  wgpu::TextureViewDescriptor descriptor;
-  descriptor.label = "OpaqueDepth";
-  descriptor.aspect = wgpu::TextureAspect::DepthOnly;
+  WGPUTextureViewDescriptor descriptor = WGPU_TEXTURE_VIEW_DESCRIPTOR_INIT;
+  descriptor.label = WGPUStringView{ "OpaqueDepth", WGPU_STRLEN };
+  descriptor.aspect = WGPUTextureAspect_DepthOnly;
   descriptor.format = DepthOnlyFormat(window->GetDepthStencilFormat());
-  descriptor.dimension = wgpu::TextureViewDimension::e2D;
+  descriptor.dimension = WGPUTextureViewDimension_2D;
   descriptor.baseMipLevel = 0;
   descriptor.mipLevelCount = 1;
   descriptor.baseArrayLayer = 0;
   descriptor.arrayLayerCount = 1;
-  this->OpaqueDepthView = depthTexture.CreateView(&descriptor);
+  this->OpaqueDepthView = vtkWebGPU::TextureView::Acquire(
+    window->GetWGPUConfiguration()->CreateView(depthTexture, descriptor));
   this->DepthAvailable = this->OpaqueDepthView != nullptr;
 }
 
@@ -766,14 +771,16 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
 
   if (this->GlobalUniformBuffer == nullptr)
   {
-    this->GlobalUniformBuffer = configuration->CreateBuffer(sizeof(GlobalUniforms),
-      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false, "VolumeGlobals");
+    this->GlobalUniformBuffer =
+      vtkWebGPU::Buffer::Acquire(configuration->CreateBuffer(sizeof(GlobalUniforms),
+        WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst, false, "VolumeGlobals"));
     this->BindGroup = nullptr;
   }
   if (this->VolumeParamsBuffer == nullptr)
   {
-    this->VolumeParamsBuffer = configuration->CreateBuffer(MaxVolumes * sizeof(VolumeParams),
-      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false, "VolumeParams");
+    this->VolumeParamsBuffer =
+      vtkWebGPU::Buffer::Acquire(configuration->CreateBuffer(MaxVolumes * sizeof(VolumeParams),
+        WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst, false, "VolumeParams"));
     this->BindGroup = nullptr;
   }
 
@@ -790,55 +797,53 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
 
   if (this->BindGroupLayout == nullptr)
   {
-    std::vector<wgpu::BindGroupLayoutEntry> entries(8 + MaxVolumes);
-    for (auto& entry : entries)
-    {
-      entry = {};
-    }
+    std::vector<WGPUBindGroupLayoutEntry> entries(
+      8 + MaxVolumes, WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT);
 
     entries[0].binding = 0;
-    entries[0].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
-    entries[0].buffer.type = wgpu::BufferBindingType::Uniform;
+    entries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+    entries[0].buffer.type = WGPUBufferBindingType_Uniform;
 
     entries[1].binding = 1;
-    entries[1].visibility = wgpu::ShaderStage::Fragment;
-    entries[1].buffer.type = wgpu::BufferBindingType::Uniform;
+    entries[1].visibility = WGPUShaderStage_Fragment;
+    entries[1].buffer.type = WGPUBufferBindingType_Uniform;
 
     entries[2].binding = 2;
-    entries[2].visibility = wgpu::ShaderStage::Fragment;
-    entries[2].buffer.type = wgpu::BufferBindingType::ReadOnlyStorage;
+    entries[2].visibility = WGPUShaderStage_Fragment;
+    entries[2].buffer.type = WGPUBufferBindingType_ReadOnlyStorage;
 
     for (int i = 3; i <= 5; ++i)
     {
       entries[i].binding = static_cast<std::uint32_t>(i);
-      entries[i].visibility = wgpu::ShaderStage::Fragment;
-      entries[i].texture.sampleType = wgpu::TextureSampleType::Float;
-      entries[i].texture.viewDimension = wgpu::TextureViewDimension::e2DArray;
+      entries[i].visibility = WGPUShaderStage_Fragment;
+      entries[i].texture.sampleType = WGPUTextureSampleType_Float;
+      entries[i].texture.viewDimension = WGPUTextureViewDimension_2DArray;
     }
 
     entries[6].binding = 6;
-    entries[6].visibility = wgpu::ShaderStage::Fragment;
-    entries[6].sampler.type = wgpu::SamplerBindingType::Filtering;
+    entries[6].visibility = WGPUShaderStage_Fragment;
+    entries[6].sampler.type = WGPUSamplerBindingType_Filtering;
 
     entries[7].binding = 7;
-    entries[7].visibility = wgpu::ShaderStage::Fragment;
-    entries[7].texture.sampleType = wgpu::TextureSampleType::Depth;
-    entries[7].texture.viewDimension = wgpu::TextureViewDimension::e2D;
+    entries[7].visibility = WGPUShaderStage_Fragment;
+    entries[7].texture.sampleType = WGPUTextureSampleType_Depth;
+    entries[7].texture.viewDimension = WGPUTextureViewDimension_2D;
 
     for (int i = 0; i < MaxVolumes; ++i)
     {
       auto& entry = entries[8 + i];
       entry.binding = static_cast<std::uint32_t>(8 + i);
-      entry.visibility = wgpu::ShaderStage::Fragment;
-      entry.texture.sampleType = wgpu::TextureSampleType::UnfilterableFloat;
-      entry.texture.viewDimension = wgpu::TextureViewDimension::e3D;
+      entry.visibility = WGPUShaderStage_Fragment;
+      entry.texture.sampleType = WGPUTextureSampleType_UnfilterableFloat;
+      entry.texture.viewDimension = WGPUTextureViewDimension_3D;
     }
 
-    wgpu::BindGroupLayoutDescriptor descriptor;
-    descriptor.label = "VolumeRayCastBindGroupLayout";
+    WGPUBindGroupLayoutDescriptor descriptor = WGPU_BIND_GROUP_LAYOUT_DESCRIPTOR_INIT;
+    descriptor.label = WGPUStringView{ "VolumeRayCastBindGroupLayout", WGPU_STRLEN };
     descriptor.entryCount = static_cast<std::uint32_t>(entries.size());
     descriptor.entries = entries.data();
-    this->BindGroupLayout = device.CreateBindGroupLayout(&descriptor);
+    this->BindGroupLayout =
+      vtkWebGPU::BindGroupLayout::Acquire(wgpuDeviceCreateBindGroupLayout(device, &descriptor));
   }
 
   if (!this->DepthAvailable)
@@ -848,11 +853,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
     return;
   }
 
-  std::vector<wgpu::BindGroupEntry> entries(8 + MaxVolumes);
-  for (auto& entry : entries)
-  {
-    entry = {};
-  }
+  std::vector<WGPUBindGroupEntry> entries(8 + MaxVolumes, WGPU_BIND_GROUP_ENTRY_INIT);
 
   entries[0].binding = 0;
   entries[0].buffer = this->GlobalUniformBuffer;
@@ -892,18 +893,18 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
     }
   }
 
-  wgpu::BindGroupDescriptor descriptor;
-  descriptor.label = "VolumeRayCastBindGroup";
+  WGPUBindGroupDescriptor descriptor = WGPU_BIND_GROUP_DESCRIPTOR_INIT;
+  descriptor.label = WGPUStringView{ "VolumeRayCastBindGroup", WGPU_STRLEN };
   descriptor.layout = this->BindGroupLayout;
   descriptor.entryCount = static_cast<std::uint32_t>(entries.size());
   descriptor.entries = entries.data();
-  this->BindGroup = device.CreateBindGroup(&descriptor);
+  this->BindGroup = vtkWebGPU::BindGroup::Acquire(wgpuDeviceCreateBindGroup(device, &descriptor));
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::EnsurePipeline(vtkWebGPURenderWindow* window)
 {
-  const wgpu::TextureFormat colorFormat = window->GetPreferredSurfaceTextureFormat();
+  const WGPUTextureFormat colorFormat = window->GetPreferredSurfaceTextureFormat();
   if (this->Pipeline != nullptr && this->PipelineColorFormat == colorFormat)
   {
     return;
@@ -912,55 +913,59 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::EnsurePipeline(vtkWebGPURe
   auto device = window->GetDevice();
   const std::string source = window->PreprocessShaderSource(VolumeRayCast);
 
-  wgpu::ShaderSourceWGSL wgsl;
-  wgsl.code = source.c_str();
-  wgpu::ShaderModuleDescriptor moduleDescriptor;
-  moduleDescriptor.label = "VolumeRayCast";
-  moduleDescriptor.nextInChain = &wgsl;
-  wgpu::ShaderModule shaderModule = device.CreateShaderModule(&moduleDescriptor);
+  WGPUShaderSourceWGSL wgsl = WGPU_SHADER_SOURCE_WGSL_INIT;
+  wgsl.code = vtkWebGPUMakeStringView(source);
+  WGPUShaderModuleDescriptor moduleDescriptor = WGPU_SHADER_MODULE_DESCRIPTOR_INIT;
+  moduleDescriptor.label = WGPUStringView{ "VolumeRayCast", WGPU_STRLEN };
+  moduleDescriptor.nextInChain = &wgsl.chain;
+  auto shaderModule =
+    vtkWebGPU::ShaderModule::Acquire(wgpuDeviceCreateShaderModule(device, &moduleDescriptor));
 
   // The shader writes premultiplied color, so source over is a plain add.
-  wgpu::BlendComponent blend;
-  blend.srcFactor = wgpu::BlendFactor::One;
-  blend.dstFactor = wgpu::BlendFactor::OneMinusSrcAlpha;
-  blend.operation = wgpu::BlendOperation::Add;
-  wgpu::BlendState blendState;
+  WGPUBlendComponent blend = WGPU_BLEND_COMPONENT_INIT;
+  blend.srcFactor = WGPUBlendFactor_One;
+  blend.dstFactor = WGPUBlendFactor_OneMinusSrcAlpha;
+  blend.operation = WGPUBlendOperation_Add;
+  WGPUBlendState blendState = WGPU_BLEND_STATE_INIT;
   blendState.color = blend;
   blendState.alpha = blend;
 
-  wgpu::ColorTargetState colorTarget;
+  WGPUColorTargetState colorTarget = WGPU_COLOR_TARGET_STATE_INIT;
   colorTarget.format = colorFormat;
   colorTarget.blend = &blendState;
-  colorTarget.writeMask = wgpu::ColorWriteMask::All;
+  colorTarget.writeMask = WGPUColorWriteMask_All;
 
-  wgpu::FragmentState fragment;
+  WGPUFragmentState fragment = WGPU_FRAGMENT_STATE_INIT;
   fragment.module = shaderModule;
-  fragment.entryPoint = "fragmentMain";
+  fragment.entryPoint = WGPUStringView{ "fragmentMain", WGPU_STRLEN };
   fragment.targetCount = 1;
   fragment.targets = &colorTarget;
 
-  wgpu::PipelineLayoutDescriptor layoutDescriptor;
-  layoutDescriptor.label = "VolumeRayCastPipelineLayout";
+  WGPUPipelineLayoutDescriptor layoutDescriptor = WGPU_PIPELINE_LAYOUT_DESCRIPTOR_INIT;
+  layoutDescriptor.label = WGPUStringView{ "VolumeRayCastPipelineLayout", WGPU_STRLEN };
   layoutDescriptor.bindGroupLayoutCount = 1;
-  layoutDescriptor.bindGroupLayouts = &this->BindGroupLayout;
-  wgpu::PipelineLayout layout = device.CreatePipelineLayout(&layoutDescriptor);
+  const WGPUBindGroupLayout bindGroupLayout = this->BindGroupLayout;
+  layoutDescriptor.bindGroupLayouts = &bindGroupLayout;
+  auto layout =
+    vtkWebGPU::PipelineLayout::Acquire(wgpuDeviceCreatePipelineLayout(device, &layoutDescriptor));
 
-  wgpu::RenderPipelineDescriptor descriptor;
-  descriptor.label = "VolumeRayCastPipeline";
+  WGPURenderPipelineDescriptor descriptor = WGPU_RENDER_PIPELINE_DESCRIPTOR_INIT;
+  descriptor.label = WGPUStringView{ "VolumeRayCastPipeline", WGPU_STRLEN };
   descriptor.layout = layout;
   descriptor.vertex.module = shaderModule;
-  descriptor.vertex.entryPoint = "vertexMain";
+  descriptor.vertex.entryPoint = WGPUStringView{ "vertexMain", WGPU_STRLEN };
   descriptor.vertex.bufferCount = 0;
   descriptor.fragment = &fragment;
-  descriptor.primitive.topology = wgpu::PrimitiveTopology::TriangleList;
+  descriptor.primitive.topology = WGPUPrimitiveTopology_TriangleList;
   // Keep the faces of the proxy box that point away from the camera so that a ray is cast once
   // per pixel even when the camera sits inside the box.
-  descriptor.primitive.frontFace = wgpu::FrontFace::CCW;
-  descriptor.primitive.cullMode = wgpu::CullMode::Back;
+  descriptor.primitive.frontFace = WGPUFrontFace_CCW;
+  descriptor.primitive.cullMode = WGPUCullMode_Back;
   descriptor.multisample.count = 1;
   descriptor.multisample.mask = 0xFFFFFFFF;
 
-  this->Pipeline = device.CreateRenderPipeline(&descriptor);
+  this->Pipeline =
+    vtkWebGPU::RenderPipeline::Acquire(wgpuDeviceCreateRenderPipeline(device, &descriptor));
   this->PipelineColorFormat = colorFormat;
 }
 
@@ -973,33 +978,33 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::RecordRenderPass(
     return;
   }
 
-  wgpu::RenderPassColorAttachment attachment;
+  WGPURenderPassColorAttachment attachment = WGPU_RENDER_PASS_COLOR_ATTACHMENT_INIT;
   attachment.view = window->GetOffscreenColorAttachmentView();
-  attachment.loadOp = wgpu::LoadOp::Load;
-  attachment.storeOp = wgpu::StoreOp::Store;
+  attachment.loadOp = WGPULoadOp_Load;
+  attachment.storeOp = WGPUStoreOp_Store;
 
-  wgpu::RenderPassDescriptor descriptor;
-  descriptor.label = "vtkWebGPUVolumeRayCastCoordinator";
+  WGPURenderPassDescriptor descriptor = WGPU_RENDER_PASS_DESCRIPTOR_INIT;
+  descriptor.label = WGPUStringView{ "vtkWebGPUVolumeRayCastCoordinator", WGPU_STRLEN };
   descriptor.colorAttachmentCount = 1;
   descriptor.colorAttachments = &attachment;
   descriptor.depthStencilAttachment = nullptr;
 
-  wgpu::RenderPassEncoder pass = window->NewRenderPass(descriptor);
+  auto pass = vtkWebGPU::RenderPassEncoder::Acquire(window->NewRenderPass(descriptor));
   if (pass == nullptr)
   {
     return;
   }
 
-  pass.SetViewport(this->ViewportRectangle[0], this->ViewportRectangle[1],
+  wgpuRenderPassEncoderSetViewport(pass, this->ViewportRectangle[0], this->ViewportRectangle[1],
     this->ViewportRectangle[2], this->ViewportRectangle[3], 0.0f, 1.0f);
-  pass.SetScissorRect(static_cast<std::uint32_t>(this->ViewportRectangle[0]),
+  wgpuRenderPassEncoderSetScissorRect(pass, static_cast<std::uint32_t>(this->ViewportRectangle[0]),
     static_cast<std::uint32_t>(this->ViewportRectangle[1]),
     static_cast<std::uint32_t>(this->ViewportRectangle[2]),
     static_cast<std::uint32_t>(this->ViewportRectangle[3]));
-  pass.SetPipeline(this->Pipeline);
-  pass.SetBindGroup(0, this->BindGroup);
-  pass.Draw(this->DrawFullScreen ? 3 : 36);
-  pass.End();
+  wgpuRenderPassEncoderSetPipeline(pass, this->Pipeline);
+  wgpuRenderPassEncoderSetBindGroup(pass, 0, this->BindGroup, 0, nullptr);
+  wgpuRenderPassEncoderDraw(pass, this->DrawFullScreen ? 3 : 36, 1, 0, 0);
+  wgpuRenderPassEncoderEnd(pass);
 }
 
 //------------------------------------------------------------------------------
@@ -1014,7 +1019,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::Render(
 
   // A renderer can be moved to another render window, and nothing built on the old device may be
   // touched by the new one.
-  WGPUDevice device = window->GetDevice().Get();
+  WGPUDevice device = window->GetDevice();
   if (this->DeviceIdentity != nullptr && this->DeviceIdentity != device)
   {
     this->ReleaseDeviceResources();

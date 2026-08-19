@@ -10,7 +10,7 @@
  * which marches them together with the volumes of every other mapper in the scene.
  *
  * Everything that names a WebGPU type lives here so that the public header of the mapper stays
- * free of webgpu_cpp.h and of the C++ handle wrappers it brings with it.
+ * free of the WebGPU headers.
  */
 
 #ifndef vtkWebGPUVolumeRayCastMapperInternals_h
@@ -68,8 +68,8 @@ private:
     vtkVolumeProperty* Property = nullptr;
     vtkMatrix4x4* WorldMatrix = nullptr;
 
-    wgpu::Texture Texture;
-    wgpu::TextureView TextureView;
+    vtkWebGPU::Texture Texture;
+    vtkWebGPU::TextureView TextureView;
 
     int Dimensions[3] = { 0, 0, 0 };
     float ValueScale = 1.0f;

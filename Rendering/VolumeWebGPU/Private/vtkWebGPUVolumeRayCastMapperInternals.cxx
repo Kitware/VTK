@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "Private/vtkWebGPUVolumeRayCastMapperInternals.h"
 
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "Private/vtkWebGPUVolumeRayCastCoordinatorInternals.h"
 
 #include "vtkColorTransferFunction.h"
@@ -270,23 +271,22 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeTexture(
     input.BrickDimensions[i] = std::max(1, (dimensions[i] - 1) / brickSize + 1);
   }
 
-  const wgpu::TextureFormat format =
-    asBytes ? wgpu::TextureFormat::R8Unorm : wgpu::TextureFormat::R32Float;
+  const WGPUTextureFormat format = asBytes ? WGPUTextureFormat_R8Unorm : WGPUTextureFormat_R32Float;
   const std::uint32_t bytesPerVoxel = asBytes ? 1u : 4u;
 
-  wgpu::TextureDescriptor descriptor;
+  WGPUTextureDescriptor descriptor = WGPU_TEXTURE_DESCRIPTOR_INIT;
   const std::string label = "VolumeTexture-" + std::to_string(input.Port);
-  descriptor.label = label.c_str();
-  descriptor.dimension = wgpu::TextureDimension::e3D;
+  descriptor.label = vtkWebGPUMakeStringView(label);
+  descriptor.dimension = WGPUTextureDimension_3D;
   descriptor.size = { static_cast<std::uint32_t>(dimensions[0]),
     static_cast<std::uint32_t>(dimensions[1]), static_cast<std::uint32_t>(dimensions[2]) };
   descriptor.format = format;
-  descriptor.usage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst;
+  descriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
   descriptor.mipLevelCount = 1;
   descriptor.sampleCount = 1;
 
   auto configuration = window->GetWGPUConfiguration();
-  input.Texture = configuration->CreateTexture(descriptor);
+  input.Texture = vtkWebGPU::Texture::Acquire(configuration->CreateTexture(descriptor));
   if (input.Texture == nullptr)
   {
     return;
@@ -327,15 +327,16 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeTexture(
       input.BrickMaximum);
   }
 
-  wgpu::TextureViewDescriptor viewDescriptor;
-  viewDescriptor.label = label.c_str();
+  WGPUTextureViewDescriptor viewDescriptor = WGPU_TEXTURE_VIEW_DESCRIPTOR_INIT;
+  viewDescriptor.label = vtkWebGPUMakeStringView(label);
   viewDescriptor.format = format;
-  viewDescriptor.dimension = wgpu::TextureViewDimension::e3D;
+  viewDescriptor.dimension = WGPUTextureViewDimension_3D;
   viewDescriptor.baseMipLevel = 0;
   viewDescriptor.mipLevelCount = 1;
   viewDescriptor.baseArrayLayer = 0;
   viewDescriptor.arrayLayerCount = 1;
-  input.TextureView = input.Texture.CreateView(&viewDescriptor);
+  input.TextureView =
+    vtkWebGPU::TextureView::Acquire(configuration->CreateView(input.Texture, viewDescriptor));
 
   input.DataTime = input.Data->GetMTime();
   // The blocks were measured again, so their classification is stale.

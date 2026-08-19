@@ -14,6 +14,7 @@
 
 #include "vtkWebGPUVolumeRayCastCoordinator.h"
 
+#include "Private/vtkWebGPUHandle.h" // for the reference counted handle wrappers
 #include "Private/vtkWebGPUVolumeRayCastContribution.h"
 
 #include "vtk_wgpu.h"
@@ -88,34 +89,34 @@ private:
   /// Where the blocks of each contribution start in the shared buffer.
   std::vector<std::uint32_t> BrickOffsets;
 
-  wgpu::Buffer GlobalUniformBuffer;
-  wgpu::Buffer VolumeParamsBuffer;
-  wgpu::Buffer BrickBuffer;
+  vtkWebGPU::Buffer GlobalUniformBuffer;
+  vtkWebGPU::Buffer VolumeParamsBuffer;
+  vtkWebGPU::Buffer BrickBuffer;
   std::size_t BrickBufferElements = 0;
 
-  wgpu::Texture ColorTransferFunctions;
-  wgpu::TextureView ColorTransferFunctionsView;
-  wgpu::Texture OpacityTransferFunctions;
-  wgpu::TextureView OpacityTransferFunctionsView;
-  wgpu::Texture GradientTransferFunctions;
-  wgpu::TextureView GradientTransferFunctionsView;
-  wgpu::Sampler TransferFunctionSampler;
+  vtkWebGPU::Texture ColorTransferFunctions;
+  vtkWebGPU::TextureView ColorTransferFunctionsView;
+  vtkWebGPU::Texture OpacityTransferFunctions;
+  vtkWebGPU::TextureView OpacityTransferFunctionsView;
+  vtkWebGPU::Texture GradientTransferFunctions;
+  vtkWebGPU::TextureView GradientTransferFunctionsView;
+  vtkWebGPU::Sampler TransferFunctionSampler;
 
-  wgpu::Texture PlaceholderVolume;
-  wgpu::TextureView PlaceholderVolumeView;
+  vtkWebGPU::Texture PlaceholderVolume;
+  vtkWebGPU::TextureView PlaceholderVolumeView;
   /// Depth left behind by the opaque geometry, rebuilt every frame because the attachment is
   /// recreated whenever the window is resized.
-  wgpu::TextureView OpaqueDepthView;
+  vtkWebGPU::TextureView OpaqueDepthView;
 
   /// The device everything below was built on, so a renderer handed to another render window
   /// rebuilds rather than reaching across devices. Not a reference: the render window tears its
   /// device down in a particular order and must hold the last one.
   WGPUDevice DeviceIdentity = nullptr;
 
-  wgpu::BindGroupLayout BindGroupLayout;
-  wgpu::BindGroup BindGroup;
-  wgpu::RenderPipeline Pipeline;
-  wgpu::TextureFormat PipelineColorFormat = wgpu::TextureFormat::Undefined;
+  vtkWebGPU::BindGroupLayout BindGroupLayout;
+  vtkWebGPU::BindGroup BindGroup;
+  vtkWebGPU::RenderPipeline Pipeline;
+  WGPUTextureFormat PipelineColorFormat = WGPUTextureFormat_Undefined;
 
   bool DepthAvailable = false;
   /// Renderer viewport in framebuffer pixels: origin x, origin y, width, height.

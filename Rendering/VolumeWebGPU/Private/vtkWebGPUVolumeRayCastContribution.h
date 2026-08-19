@@ -13,8 +13,10 @@
 #ifndef vtkWebGPUVolumeRayCastContribution_h
 #define vtkWebGPUVolumeRayCastContribution_h
 
+#include "Private/vtkWebGPUHandle.h" // for the reference counted handle wrappers
 #include "vtkABINamespace.h"
 #include "vtkType.h"
+
 #include "vtk_wgpu.h"
 
 #include <cstdint>
@@ -46,7 +48,7 @@ struct vtkWebGPUVolumeRayCastContribution
   /// Clipping planes of the mapper that owns this input, if any.
   vtkPlaneCollection* ClippingPlanes = nullptr;
 
-  wgpu::TextureView VolumeTexture;
+  vtkWebGPU::TextureView VolumeTexture;
 
   int Dimensions[3] = { 0, 0, 0 };
   /// Turns a raw texel back into a scalar: scalar = texel * ValueScale + ValueBias.
