@@ -7,6 +7,9 @@
 #include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 #include "vtkAbstractMapper.h"
+#include "vtkActor2D.h"
+#include "vtkCuller.h"
+#include "vtkCullerCollection.h"
 #include "vtkFrameBufferObjectBase.h"
 #include "vtkHardwareSelector.h"
 #include "vtkLight.h"
@@ -24,6 +27,7 @@
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPULight.h"
 #include "vtkWebGPUPolyDataMapper.h"
+#include "vtkWebGPUPolyDataMapper2D.h"
 #include "vtkWebGPURenderWindow.h"
 #include <cstring>
 
@@ -71,7 +75,14 @@ const char* backgroundShaderSource = R"(
 vtkStandardNewMacro(vtkWebGPURenderer);
 
 //------------------------------------------------------------------------------
-vtkWebGPURenderer::vtkWebGPURenderer() = default;
+vtkWebGPURenderer::vtkWebGPURenderer()
+{
+  // vtkRenderer's constructor installs a vtkFrustumCoverageCuller. Remember it so that
+  // WarnIfCullingWithRenderBundles() can tell it apart from a culler the application chose.
+  vtkCollectionSimpleIterator cit;
+  this->Cullers->InitTraversal(cit);
+  this->DefaultCuller.Reset(this->Cullers->GetNextCuller(cit));
+}
 
 //------------------------------------------------------------------------------
 vtkWebGPURenderer::~vtkWebGPURenderer() = default;
@@ -257,6 +268,34 @@ void vtkWebGPURenderer::Clear()
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPURenderer::WarnIfCullingWithRenderBundles()
+{
+  if (this->WarnedAboutCullingWithRenderBundles || !this->UseRenderBundles)
+  {
+    return;
+  }
+  vtkCollectionSimpleIterator cit;
+  vtkCuller* culler = nullptr;
+  for (this->Cullers->InitTraversal(cit); (culler = this->Cullers->GetNextCuller(cit));)
+  {
+    // The culler installed by vtkRenderer's constructor is not the application's choice, so
+    // silently overriding it is what everyone already expects.
+    if (culler == this->DefaultCuller.Lock())
+    {
+      continue;
+    }
+    this->WarnedAboutCullingWithRenderBundles = true;
+    vtkWarningMacro(<< culler->GetClassName()
+                    << " has no effect while render bundles are enabled. A render bundle is a "
+                       "fixed list of draw commands replayed across frames, so it cannot be driven "
+                       "by a prop list that culling resizes every frame, and DeviceRender() "
+                       "restores the props that the cullers removed. Call UseRenderBundlesOff() on "
+                       "this renderer for culling to take effect.");
+    break;
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderer::DeviceRender()
 {
   vtkDebugMacro(<< __func__);
@@ -264,6 +303,24 @@ void vtkWebGPURenderer::DeviceRender()
   // Rendering preparation (camera update, light update, ...) may already have been done by an
   // occlusion culling compute pass (or something else) when pre-rendering some props to fill the z
   // buffer
+  if (this->UseRenderBundles)
+  {
+    this->WarnIfCullingWithRenderBundles();
+    // Undo culling for the duration of this frame.
+    this->PropArray.clear();
+    vtkCollectionSimpleIterator pit;
+    vtkProp* prop = nullptr;
+    for (this->Props->InitTraversal(pit); (prop = this->Props->GetNextProp(pit));)
+    {
+      // AllocateTime() diverts a blurred skybox to BackgroundProp instead of
+      // PropArray. Leave it there, or it would be drawn twice.
+      if (prop->GetVisibility() && prop != this->BackgroundProp)
+      {
+        this->PropArray.push_back(prop);
+      }
+    }
+  }
+
   if (this->RenderStage == RenderStageEnum::AwaitingPreparation)
   {
     this->UpdateBuffers();
@@ -310,6 +367,56 @@ void vtkWebGPURenderer::RecordRenderCommands()
 }
 
 //------------------------------------------------------------------------------
+bool vtkWebGPURenderer::VisiblePropSetChanged()
+{
+  this->VisibleProps.clear();
+  vtkCollectionSimpleIterator pit;
+  vtkProp* prop = nullptr;
+  for (this->Props->InitTraversal(pit); (prop = this->Props->GetNextProp(pit));)
+  {
+    if (prop->GetVisibility())
+    {
+      this->VisibleProps.push_back(prop);
+    }
+  }
+  if (this->VisibleProps == this->LastVisibleProps)
+  {
+    return false;
+  }
+  this->LastVisibleProps.swap(this->VisibleProps);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPURenderer::PropSupportsReusingRenderBundle(vtkProp* prop) const
+{
+  if (!this->CanReuseRenderBundle())
+  {
+    return false;
+  }
+  if (auto* webgpuActor = vtkWebGPUActor::SafeDownCast(prop))
+  {
+    return webgpuActor->SupportRenderBundles();
+  }
+  else if (auto* actor2D = vtkActor2D::SafeDownCast(prop))
+  {
+    if (auto* webgpuMapper2D = vtkWebGPUPolyDataMapper2D::SafeDownCast(actor2D->GetMapper()))
+    {
+      (void)webgpuMapper2D;
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+  else
+  {
+    return false;
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderer::UpdateBuffers()
 {
   this->RenderStage = RenderStageEnum::SyncDeviceResources;
@@ -331,22 +438,18 @@ void vtkWebGPURenderer::UpdateBuffers()
     }
     // Invalidate the bundle when the set of visible props has changed.
     // This handles actor visibility toggles, additions, and removals.
-    // PropsRendered holds the previous frame's rendered props at this point
-    // because it is cleared later in UpdateGeometry().
-    if (this->PropArray.size() != this->PropsRendered.size())
+    //
+    // This deliberately looks at every prop the renderer owns rather than at
+    // PropArray. PropArray is the *culled* list: vtkRenderer installs a
+    // vtkFrustumCoverageCuller by default, so AllocateTime() resizes it every
+    // frame according to what the camera can currently see. Comparing that
+    // against the previous frame's rendered set means any camera motion at all
+    // reports a changed prop set and re-records the whole bundle, which is
+    // exactly the work render bundles exist to avoid. The visible prop set,
+    // by contrast, only changes when the application actually changes it.
+    if (this->VisiblePropSetChanged())
     {
       this->InvalidateBundle();
-    }
-    else
-    {
-      for (size_t i = 0; i < this->PropArray.size(); ++i)
-      {
-        if (this->PropsRendered.find(this->PropArray[i]) == this->PropsRendered.end())
-        {
-          this->InvalidateBundle();
-          break;
-        }
-      }
     }
     // Invalidate the bundle if the number of lights has changed
     if (this->LightIDs.size() != this->PreviousLightCount)
@@ -452,7 +555,15 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
     {
       for (std::size_t i = 0; i < this->PropArray.size(); i++)
       {
-        const int rendered = this->PropArray[i]->RenderOpaqueGeometry(this);
+        int rendered = 0;
+        if (this->PropSupportsReusingRenderBundle(this->PropArray[i]))
+        {
+          rendered = 1;
+        }
+        else
+        {
+          rendered = this->PropArray[i]->RenderOpaqueGeometry(this);
+        }
         if (rendered > 0)
         {
           result += rendered;
@@ -492,7 +603,15 @@ int vtkWebGPURenderer::UpdateTranslucentPolygonalGeometry()
     {
       for (std::size_t i = 0; i < this->PropArray.size(); i++)
       {
-        const int rendered = this->PropArray[i]->RenderTranslucentPolygonalGeometry(this);
+        int rendered = 0;
+        if (this->PropSupportsReusingRenderBundle(this->PropArray[i]))
+        {
+          rendered = 1;
+        }
+        else
+        {
+          rendered = this->PropArray[i]->RenderTranslucentPolygonalGeometry(this);
+        }
         if (rendered > 0)
         {
           result += rendered;

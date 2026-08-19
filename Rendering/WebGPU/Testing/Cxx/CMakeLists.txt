@@ -20,6 +20,7 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestComputePointCloudMapperResize.cxx,NO_DATA,NO_SERDES
   TestComputeTexture.cxx,NO_DATA,NO_VALID
   TestFastCellToGraphicsPrimitiveConversion.cxx,NO_DATA,NO_VALID
+  TestRenderBundleReuse.cxx,NO_DATA,NO_VALID
   TestLowPowerRenderWindow.cxx,NO_DATA,NO_SERDES
   TestReportWebGPUCapabilities.cxx,NO_DATA,NO_VALID
   TestRenderWindowChangeDeviceLater.cxx,NO_DATA,NO_SERDES)

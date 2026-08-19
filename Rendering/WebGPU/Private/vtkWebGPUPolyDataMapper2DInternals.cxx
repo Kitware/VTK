@@ -1167,9 +1167,17 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
           },
           "TopologyBindGroup");
       }
+      this->RebuildGraphicsPipelines = true;
     }
     else if (bgInfo.VertexCount == 0)
     {
+      // Most meshes never use most topology source types. a rectangle has
+      // polygons and nothing else, so this branch is reached every frame for
+      // the unused ones. Only report a rebuild when there was something left to
+      // tear down, otherwise the pipelines, and with them the renderer's bundle,
+      // are thrown away on every single draw.
+      const bool hadResources = bgInfo.ConnectivityBuffer || bgInfo.CellIdBuffer ||
+        bgInfo.CellIdOffsetUniformBuffer || bgInfo.BindGroup;
       if (bgInfo.ConnectivityBuffer)
       {
         bgInfo.ConnectivityBuffer.Destroy();
@@ -1186,8 +1194,11 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
         bgInfo.CellIdOffsetUniformBuffer = nullptr;
       }
       bgInfo.BindGroup = nullptr;
+      if (hadResources)
+      {
+        this->RebuildGraphicsPipelines = true;
+      }
     }
-    this->RebuildGraphicsPipelines = true;
   }
 
   if (this->RebuildGraphicsPipelines)

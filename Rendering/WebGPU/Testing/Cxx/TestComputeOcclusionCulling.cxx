@@ -31,6 +31,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkWebGPUComputeOcclusionCuller.h"
 #include "vtkWebGPURenderWindow.h"
+#include "vtkWebGPURenderer.h"
 #include "vtkXMLMultiBlockDataReader.h"
 
 //------------------------------------------------------------------------------
@@ -138,6 +139,10 @@ int TestComputeOcclusionCulling(int, char*[])
   vtkNew<vtkWebGPUComputeOcclusionCuller> webgpuOcclusionCuller;
   webgpuOcclusionCuller->SetRenderWindow(vtkWebGPURenderWindow::SafeDownCast(renWin));
   renderer->GetCullers()->AddItem(webgpuOcclusionCuller);
+
+  // Render bundles record every visible prop and replay that fixed list across frames, which
+  // leaves nothing for a culler to shorten. Turn them off so the culler drives what is drawn.
+  vtkWebGPURenderer::SafeDownCast(renderer)->UseRenderBundlesOff();
 
   // Small triangle 1
   RenderNewTriangle(renWin, renderer, renderedPropCounts, -1, 0, -5, -0.5, 0.0, -5, -0.75, 0.5, -5);

@@ -7,13 +7,16 @@
 
 #include "vtkRenderingWebGPUModule.h" // for export macro
 #include "vtkSmartPointer.h"          // for ivar
+#include "vtkWeakPtr.h"               // For vtkWeakPtr
 #include "vtkWebGPUComputePipeline.h" // for the compute pipelines used by this renderer
 #include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 #include "vtk_wgpu.h"                 // for webgpu
 
 #include <unordered_set> // for the set of actors rendered last frame
+#include <vector>        // for the list of visible props
 
 class vtkAbstractMapper;
+class vtkCuller;
 class vtkRenderState;
 class vtkFrameBufferObjectBase;
 class vtkOverrideAttribute;
@@ -145,6 +148,17 @@ public:
    * Set/Get the usage of render bundles. The default value is true.
    * Render bundles are a performance optimization that minimize CPU time when many
    * wgpu::RenderPassEncoder::Draw calls are used.
+   *
+   * @note Render bundles and cullers are mutually exclusive. A bundle is a fixed list of
+   * draw commands replayed across frames, whereas a culler resizes the prop list on every
+   * camera move, so the two cannot both drive what gets drawn. While render bundles are
+   * enabled, DeviceRender() restores the prop list that the cullers shortened, and every
+   * visible prop is recorded into the bundle. Props outside the view frustum then cost a
+   * draw command whose geometry the GPU discards at clip.
+   *
+   * Turn this off in applications where culling must actually cut work, such as those using
+   * vtkWebGPUComputeFrustumCuller or vtkWebGPUComputeOcclusionCuller. Adding a culler while
+   * render bundles are enabled warns once, from DeviceRender().
    */
   vtkSetMacro(UseRenderBundles, bool);
   vtkBooleanMacro(UseRenderBundles, bool);
@@ -172,19 +186,18 @@ public:
    * invalidated and re-recorded.
    * 1. When the mapper deems that the draw commands need to be re-recorded.
    * 2. When the set of visible props has changed since last frame. This is checked in
-   * UpdateBuffers() by comparing the list of props rendered last frame with the current list of
-   * props to render.
+   * UpdateBuffers() with VisiblePropSetChanged().
+   * 3. When the number of lights has changed, also checked in UpdateBuffers().
    *
-   * It is tempting to only check if PropArrayCount has changed, but that is insufficient.
-   * | Scenario | Count-only check | Prop array comparison |
-   * |----------|------------------|----------------------|
+   * It is tempting to only check whether the number of visible props has changed, but that is
+   * insufficient.
+   * | Scenario | Count-only check | Visible prop list check |
+   * |----------|------------------|-------------------------|
    * | Actor hidden (count decreases) | Catches it | Catches it |
    * | Actor shown (count increases) | Catches it | Catches it |
    * | Actor A hidden + Actor B shown (count unchanged) | Misses it | Catches it |
-   * | Props reordered | Misses it | Can miss it (implementation defined) |
+   * | Props reordered | Misses it | Catches it, harmlessly |
    *
-   * Translucent geometry is not implemented properly yet, so for the last case
-   * it's fine to use the bundle as is when dealing with opaque geometry.
    */
   void InvalidateBundle()
   {
@@ -354,6 +367,59 @@ private:
    * rendered. It makes no sense to have the same actor twice in the list anyway so a set is fine.
    */
   std::unordered_set<vtkProp*> PropsRendered;
+
+  /**
+   * Identifies the set of props that the application has made visible, without
+   * regard to which of them the camera can currently see.
+   *
+   * The render bundle records one draw command per visible prop, so it stays
+   * valid for as long as that set does. Frustum culling must not participate:
+   * it changes with every camera move, and re-recording thousands of draws
+   * because a handful of props left the view costs far more than the draws that
+   * culling would have saved.
+   */
+  std::vector<vtkProp*> LastVisibleProps;
+
+  /**
+   * Scratch space for the visible props of the frame being prepared. Kept as a member so that
+   * its capacity survives from frame to frame and the check does not allocate in the steady
+   * state. Only meaningful inside VisiblePropSetChanged().
+   */
+  std::vector<vtkProp*> VisibleProps;
+
+  /**
+   * True when the set of visible props differs from the one the current bundle was recorded
+   * with, and updates LastVisibleProps to the new set. Called once per frame.
+   */
+  bool VisiblePropSetChanged();
+
+  /**
+   * True when the previously recorded bundle is still valid for this frame, so
+   * the per-prop draw recording can be skipped entirely and the bundle replayed
+   * instead.
+   */
+  bool CanReuseRenderBundle() const
+  {
+    return this->UseRenderBundles && !this->RebuildRenderBundle && this->Bundle != nullptr;
+  }
+
+  /**
+   * Checks if vtkProp is a vtkWebGPUActor that supports render bundles.
+   * Also checks if vtkProp is a vtkActor2D attached to a vtkWebGPUPolyDataMapper2D
+   * which also supports render bundles.
+   */
+  bool PropSupportsReusingRenderBundle(vtkProp*) const;
+
+  /**
+   * Warns, at most once in the lifetime of this renderer, that a culler the application
+   * installed cannot do anything while render bundles are enabled. See the note on
+   * SetUseRenderBundles().
+   */
+  void WarnIfCullingWithRenderBundles();
+
+  /// The vtkFrustumCoverageCuller that vtkRenderer's constructor installs. Not owned.
+  vtkWeakPtr<vtkCuller> DefaultCuller;
+  bool WarnedAboutCullingWithRenderBundles = false;
 };
 
 #define vtkWebGPURenderer_OVERRIDE_ATTRIBUTES vtkWebGPURenderer::CreateOverrideAttributes()
