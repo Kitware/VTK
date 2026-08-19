@@ -6,6 +6,7 @@
 #include "Private/vtkWebGPUComputePassInternals.h"
 #include "Private/vtkWebGPUHandle.h"
 #include "Private/vtkWebGPUHelpersPrivate.h"
+#include "Private/vtkWebGPUImplExtensions.h"
 #include "Private/vtkWebGPUPipelineLayoutInternals.h"
 #include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
@@ -213,8 +214,8 @@ WGPUSurface vtkWebGPURenderWindow::CreateSurfaceFromHardwareWindow(WGPUInstance 
 #ifdef __EMSCRIPTEN__
   if (auto* wasmhw = vtkWebAssemblyHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
-    WGPUEmscriptenSurfaceSourceCanvasHTMLSelector htmlSurfDesc =
-      WGPU_EMSCRIPTEN_SURFACE_SOURCE_CANVAS_HTML_SELECTOR_INIT;
+    VTKWGPUEmscriptenSurfaceSourceCanvasHTMLSelector htmlSurfDesc =
+      VTK_WGPU_EMSCRIPTEN_SURFACE_SOURCE_CANVAS_HTML_SELECTOR_INIT;
     htmlSurfDesc.selector = wasmhw->GetCanvasSelector();
     WGPUSurfaceDescriptor surfDesc = WGPU_SURFACE_DESCRIPTOR_INIT;
     surfDesc.label = WGPUStringView{ "VTK HTML5 surface", WGPU_STRLEN };

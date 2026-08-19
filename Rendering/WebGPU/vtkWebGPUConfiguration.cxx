@@ -5,6 +5,7 @@
 #include "Private/vtkWebGPUBufferInternals.h"
 #include "Private/vtkWebGPUConfigurationInternals.h"
 #include "Private/vtkWebGPUHelpersPrivate.h"
+#include "Private/vtkWebGPUImplExtensions.h"
 #include "Private/vtkWebGPUProcLoader.h"
 #include "Private/vtkWebGPUTextureInternals.h"
 
@@ -251,8 +252,8 @@ void PrintAdapterInfo(ostream& os, vtkIndent indent, WGPUAdapter adapter)
 {
   WGPUAdapterInfo info = WGPU_ADAPTER_INFO_INIT;
 #if VTK_USE_DAWN_WEBGPU
-  WGPUDawnAdapterPropertiesPowerPreference power_props =
-    WGPU_DAWN_ADAPTER_PROPERTIES_POWER_PREFERENCE_INIT;
+  VTKWGPUDawnAdapterPropertiesPowerPreference power_props =
+    VTK_WGPU_DAWN_ADAPTER_PROPERTIES_POWER_PREFERENCE_INIT;
   info.nextInChain = &power_props.chain;
 #endif
   wgpuAdapterGetInfo(adapter, &info);
