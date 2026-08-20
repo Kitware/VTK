@@ -250,10 +250,10 @@ vtk_module_add_module(VTK::RenderingWebGPU
 # include directory is searched before the implementation's, and it is a real
 # exported module so downstream find_package(VTK) resolves it.
 #
-# Owning the headers means an implementation cannot change the API VTK compiles
-# against underneath it, and it lets VTK carry local fixes - see the
-# webgpu_cpp.h `typename` patch in ThirdParty/webgpuheaders. VTK itself no
-# longer includes that header, but it stays patched for consumers that do.
+# The vendored copy is the upstream webgpu-headers C API, not an implementation's
+# generated header, so no implementation can change the API VTK compiles against
+# underneath it. Implementation-specific extensions VTK uses are declared in
+# Rendering/WebGPU/Private/vtkWebGPUImplExtensions.h.
 #
 # dawn::webgpu_dawn is still linked for the library itself. It must be the
 # implementation's own target and not VTK::WebGPUImpl: the latter is created by
@@ -267,7 +267,7 @@ if(VTK_USE_DAWN_WEBGPU)
 endif()
 
 # The module compiles against the WebGPU C API only, so it no longer needs the
-# C++20 that Dawn's webgpu_cpp.h required.
+# C++20 that the generated C++ wrapper required.
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_compile_options(VTK::RenderingWebGPU

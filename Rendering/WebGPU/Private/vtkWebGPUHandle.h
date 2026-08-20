@@ -11,11 +11,11 @@
  *
  * vtkWebGPU::Handle wraps a raw handle and issues the AddRef/Release calls on
  * copy, move and destruction, giving the same convenience the `wgpu::` C++
- * wrapper provided without requiring `webgpu_cpp.h` (and therefore without
- * requiring C++20). A named handle implicitly converts back to the raw handle,
- * so a vtkWebGPU::Buffer can be passed directly to any C API entry point. The
- * conversion is deleted for temporaries, so a handle cannot be dropped into a
- * raw pointer field and released out from under it.
+ * wrapper provided without requiring a generated C++ wrapper header (and
+ * therefore without requiring C++20). A named handle implicitly converts back
+ * to the raw handle, so a vtkWebGPU::Buffer can be passed directly to any C
+ * API entry point. The conversion is deleted for temporaries, so a handle
+ * cannot be dropped into a raw pointer field and released out from under it.
  *
  * Ownership is explicit at construction:
  * - `Acquire(raw)` adopts a handle the caller already owns a reference to (the

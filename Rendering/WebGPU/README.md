@@ -236,27 +236,30 @@ table, then creates a WebGPU adapter and device.
 
 ### Standard WebGPU Headers
 
-VTK vendors a copy of the WebGPU headers in `ThirdParty/webgpuheaders`. They
-define the core WebGPU types (`WGPUInstance`, `WGPUDevice`, etc.) and the
-function signatures that the proc table resolves at runtime. They are used when
-no Dawn installation is found at configure time, and for Emscripten builds; when
-Dawn *is* found, its own headers are used instead.
+VTK vendors a copy of the upstream
+[webgpu-headers](https://github.com/webgpu-native/webgpu-headers) C API in
+`ThirdParty/webgpuheaders`. It defines the core WebGPU types (`WGPUInstance`,
+`WGPUDevice`, etc.) and the function signatures that the proc table resolves at
+runtime.
 
-VTK's public headers already use the WebGPU C API only, so the installed
-interface does not expose `wgpu::` types and does not require C++20 of its
-consumers.
+This vendored copy is what VTK compiles against on *every* platform, including
+builds that link Dawn — `VTK::webgpuheaders` is a public dependency, so its
+include directory is searched ahead of any implementation's. VTK is therefore
+decoupled from a particular implementation at the header level: the API cannot
+change underneath VTK, and downstream consumers resolve the same header through
+`find_package(VTK)`.
 
-The module's implementation files use the C API as well: `webgpu_cpp.h` is no
-longer included anywhere, and ownership of the C handles is expressed with
-`Private/vtkWebGPUHandle.h` instead of the `wgpu::` wrapper types. The module
-therefore builds as C++17.
+Both VTK's public headers and its implementation files use the C API only. No
+C++ wrapper (`webgpu_cpp.h`) is vendored or included; ownership of the C handles
+is expressed with `Private/vtkWebGPUHandle.h`. The module builds as C++17 and
+the installed interface does not require C++20 of its consumers.
 
-```{note}
-The vendored headers are still taken from Dawn rather than from upstream
-[webgpu-headers](https://github.com/webgpu-native/webgpu-headers), so VTK is not
-yet decoupled from a particular implementation at the header level. Vendoring
-the upstream C headers is the remaining step.
-```
+Upstream deliberately declares only the standard API. Implementations extend it
+through `nextInChain`, using `WGPUSType` values from blocks upstream reserves for
+them. The two extensions VTK uses — Dawn's adapter power preference and
+emdawnwebgpu's canvas selector — are declared in
+`Private/vtkWebGPUImplExtensions.h`, each behind the compile-time flag for the
+implementation that provides it.
 
 ### Library Search Strategy
 
