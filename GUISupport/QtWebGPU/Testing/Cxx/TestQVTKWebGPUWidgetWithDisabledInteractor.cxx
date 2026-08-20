@@ -9,8 +9,6 @@
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkTesting.h"
 #include "vtkWebGPURenderWindow.h"
@@ -18,7 +16,6 @@
 
 #include <QApplication>
 #include <QEventLoop>
-#include <QImage>
 #include <QTimer>
 
 namespace
@@ -35,7 +32,7 @@ int TestQVTKWebGPUWidgetWithDisabledInteractor(int argc, char* argv[])
 {
   QApplication app(argc, argv);
 
-  auto vtktesting = vtkSmartPointer<vtkTesting>::New();
+  vtkNew<vtkTesting> vtktesting;
   vtktesting->AddArguments(argc, argv);
 
   // Create the QVTKWebGPUWidget
@@ -45,7 +42,7 @@ int TestQVTKWebGPUWidgetWithDisabledInteractor(int argc, char* argv[])
   vtkWebGPURenderWindow* renWin = widget.renderWindow();
   if (!renWin)
   {
-    vtkLogF(ERROR, "Failed to get render window from QVTKWebGPUWidget");
+    vtkLog(ERROR, "Failed to get render window from QVTKWebGPUWidget");
     return EXIT_FAILURE;
   }
 
@@ -86,31 +83,10 @@ int TestQVTKWebGPUWidgetWithDisabledInteractor(int argc, char* argv[])
   widget.show();
   ProcessEventsAndWait(500);
 
-  // Get output image filename
-  const std::string tempDir(vtktesting->GetTempDirectory());
-  std::string fileName(vtktesting->GetValidImageFileName());
-  auto slashPos = fileName.rfind('/');
-  if (slashPos != std::string::npos)
-  {
-    fileName = fileName.substr(slashPos + 1);
-  }
-  fileName = tempDir + '/' + fileName;
+  // Perform regression test using the vtkRenderWindow directly.
+  vtktesting->SetRenderWindow(renWin);
 
-  // Capture widget using Qt. Don't use vtkTesting to capture the image, because
-  // this should test what the widget displays, not what VTK renders.
-  QImage image = widget.grab().toImage();
-  if (image.size() != QSize(300, 300))
-  {
-    image = image.scaled(300, 300, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-  }
-
-  if (!image.save(QString::fromStdString(fileName)))
-  {
-    vtkLog(ERROR, "Saving image failed");
-    return EXIT_FAILURE;
-  }
-
-  int retVal = vtktesting->RegressionTest(fileName, 0.25);
+  int retVal = vtktesting->RegressionTest(0.05);
   switch (retVal)
   {
     case vtkTesting::DO_INTERACTOR:
