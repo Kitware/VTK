@@ -81,17 +81,17 @@
 #include "Basis_HGrad_WdgF2Basis.h"
 #include "Basis_HGrad_WdgF2Gradient.h"
 #include "Basis_HGrad_WdgG1Basis.h"
+#include "Basis_HGrad_WdgG1Gradient.h"
+#include "Basis_HGrad_WdgG2Basis.h"
+#include "Basis_HGrad_WdgG2Gradient.h"
+#include "Basis_HGrad_WdgG3Basis.h"
+#include "Basis_HGrad_WdgG3Gradient.h"
+#include "Basis_HGrad_WdgG4Basis.h"
+#include "Basis_HGrad_WdgG4Gradient.h"
+#include "Basis_HGrad_WdgG5Basis.h"
+#include "Basis_HGrad_WdgG5Gradient.h"
 #include "Basis_HGrad_WdgI2Basis.h"
 #include "Basis_HGrad_WdgI2Gradient.h"
-// #include "Basis_HGrad_WdgG1Gradient.h"
-#include "Basis_HGrad_WdgG2Basis.h"
-// #include "Basis_HGrad_WdgG2Gradient.h"
-#include "Basis_HGrad_WdgG3Basis.h"
-// #include "Basis_HGrad_WdgG3Gradient.h"
-#include "Basis_HGrad_WdgG4Basis.h"
-// #include "Basis_HGrad_WdgG4Gradient.h"
-#include "Basis_HGrad_WdgG5Basis.h"
-// #include "Basis_HGrad_WdgG5Gradient.h"
 
 #include <cmath>
 #include <limits>
@@ -158,6 +158,7 @@ std::vector<std::vector<RealT>> gpts{
 };
 // clang-format on
 
+// NOLINTBEGIN(readability-duplicate-include)
 void EdgeC1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
   vtkBasisHeader();
@@ -713,65 +714,56 @@ void WdgG1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
   vtkBasisOrderHeader(1);
 #include "Basis/HGrad/WdgG1Basis.h"
 }
-#if 0
 void WdgG1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
-  vtkBasisHeader();
+  vtkBasisOrderHeader(1);
 #include "Basis/HGrad/WdgG1Gradient.h"
 }
-#endif
 
 void WdgG2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
   vtkBasisOrderHeader(2);
 #include "Basis/HGrad/WdgG2Basis.h"
 }
-#if 0
 void WdgG2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
-  vtkBasisHeader();
+  vtkBasisOrderHeader(2);
 #include "Basis/HGrad/WdgG2Gradient.h"
 }
-#endif
 
 void WdgG3Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
   vtkBasisOrderHeader(3);
 #include "Basis/HGrad/WdgG3Basis.h"
 }
-#if 0
 void WdgG3Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
   vtkBasisOrderHeader(3);
 #include "Basis/HGrad/WdgG3Gradient.h"
 }
-#endif
 
 void WdgG4Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
   vtkBasisOrderHeader(4);
 #include "Basis/HGrad/WdgG4Basis.h"
 }
-#if 0
 void WdgG4Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
   vtkBasisOrderHeader(4);
 #include "Basis/HGrad/WdgG4Gradient.h"
 }
-#endif
 
 void WdgG5Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
   vtkBasisOrderHeader(5);
 #include "Basis/HGrad/WdgG5Basis.h"
 }
-#if 0
 void WdgG5Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
   vtkBasisOrderHeader(5);
 #include "Basis/HGrad/WdgG5Gradient.h"
 }
-#endif
+// NOLINTEND(readability-duplicate-include)
 
 bool RegisterOperators()
 {
@@ -900,11 +892,11 @@ bool RegisterOperators()
   gradMap["I"_token][2]["vtkDGWdg"_token]  = { 15, 3, WdgI2Gradient,  Basis_HGrad_WdgI2Gradient };
   gradMap["C"_token][2]["vtkDGWdg"_token]  = { 18, 3, WdgC2Gradient,  Basis_HGrad_WdgC2Gradient };
   gradMap["F"_token][2]["vtkDGWdg"_token]  = { 21, 3, WdgF2Gradient,  Basis_HGrad_WdgF2Gradient };
-  // gradMap["G"_token][1]["vtkDGWdg"_token]  = {  6, 3, WdgG1Gradient,  Basis_HGrad_WdgG1Gradient };
-  // gradMap["G"_token][2]["vtkDGWdg"_token]  = { 18, 3, WdgG2Gradient,  Basis_HGrad_WdgG2Gradient };
-  // gradMap["G"_token][3]["vtkDGWdg"_token]  = { 40, 3, WdgG3Gradient,  Basis_HGrad_WdgG3Gradient };
-  // gradMap["G"_token][4]["vtkDGWdg"_token]  = { 75, 3, WdgG4Gradient,  Basis_HGrad_WdgG4Gradient };
-  // gradMap["G"_token][5]["vtkDGWdg"_token]  = {126, 3, WdgG5Gradient,  Basis_HGrad_WdgG5Gradient };
+  gradMap["G"_token][1]["vtkDGWdg"_token]  = {  6, 3, WdgG1Gradient,  Basis_HGrad_WdgG1Gradient };
+  gradMap["G"_token][2]["vtkDGWdg"_token]  = { 18, 3, WdgG2Gradient,  Basis_HGrad_WdgG2Gradient };
+  gradMap["G"_token][3]["vtkDGWdg"_token]  = { 40, 3, WdgG3Gradient,  Basis_HGrad_WdgG3Gradient };
+  gradMap["G"_token][4]["vtkDGWdg"_token]  = { 75, 3, WdgG4Gradient,  Basis_HGrad_WdgG4Gradient };
+  gradMap["G"_token][5]["vtkDGWdg"_token]  = {126, 3, WdgG5Gradient,  Basis_HGrad_WdgG5Gradient };
 
   // clang-format on
   return true;
