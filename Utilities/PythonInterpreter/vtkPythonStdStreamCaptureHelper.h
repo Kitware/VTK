@@ -12,6 +12,21 @@
 #include "vtkPythonCompatibility.h"
 #include "vtkPythonInterpreter.h"
 
+#if defined(_WIN32)
+#include <cstdio> // for _fileno and the stdin/stdout/stderr streams
+#include <io.h>
+// MSVC has no STDIN_FILENO and friends. Query the CRT streams instead.
+#define VTK_PYTHON_STDIN_FILENO _fileno(stdin)
+#define VTK_PYTHON_STDOUT_FILENO _fileno(stdout)
+#define VTK_PYTHON_STDERR_FILENO _fileno(stderr)
+#else
+#include <fcntl.h>
+#include <unistd.h>
+#define VTK_PYTHON_STDIN_FILENO STDIN_FILENO
+#define VTK_PYTHON_STDOUT_FILENO STDOUT_FILENO
+#define VTK_PYTHON_STDERR_FILENO STDERR_FILENO
+#endif
+
 VTK_ABI_NAMESPACE_BEGIN
 struct vtkPythonStdStreamCaptureHelper
 {
@@ -19,6 +34,7 @@ struct vtkPythonStdStreamCaptureHelper
   int softspace;        // Used by print to keep track of its state.
   const char* Encoding; // Encoding, set to "utf-8"
   bool DumpToError;
+  int FileDescriptor; // Descriptor of the standard stream this helper stands in for, or -1.
 
   void Write(const char* string)
   {
@@ -52,7 +68,30 @@ struct vtkPythonStdStreamCaptureHelper
     {
       return false;
     }
-    return isatty(fileno(stdin)); // when not captured, uses cin
+    return isatty(VTK_PYTHON_STDIN_FILENO); // when not captured, uses cin
+  }
+
+  int Fileno()
+  {
+    if (this->FileDescriptor < 0)
+    {
+      return -1;
+    }
+    // when stdin is captured, input comes from observers, not from a descriptor.
+    if (this->FileDescriptor == VTK_PYTHON_STDIN_FILENO && vtkPythonInterpreter::GetCaptureStdin())
+    {
+      return -1;
+    }
+#if defined(_WIN32)
+    if (_get_osfhandle(this->FileDescriptor) == -1)
+#else
+    if (fcntl(this->FileDescriptor, F_GETFD) == -1)
+#endif
+    {
+      // no such descriptor, happens for GUI applications started without standard streams.
+      return -1;
+    }
+    return this->FileDescriptor;
   }
   void Close() { this->Flush(); }
 };
@@ -62,12 +101,15 @@ static PyObject* vtkRead(PyObject* self, PyObject* args);
 static PyObject* vtkFlush(PyObject* self, PyObject* args);
 static PyObject* vtkIsatty(PyObject* self, PyObject* args);
 static PyObject* vtkClose(PyObject* self, PyObject* args);
+static PyObject* vtkFileno(PyObject* self, PyObject* unused);
 
 static PyMethodDef vtkPythonStdStreamCaptureHelperMethods[] = { { "write", vtkWrite, METH_VARARGS,
                                                                   "Dump message" },
   { "readline", vtkRead, METH_VARARGS, "Read input line" },
   { "flush", vtkFlush, METH_VARARGS, "Flush" }, { "isatty", vtkIsatty, METH_VARARGS, "Is a TTY" },
-  { "close", vtkClose, METH_VARARGS, "Close" }, { nullptr, nullptr, 0, nullptr } };
+  { "close", vtkClose, METH_VARARGS, "Close" },
+  { "fileno", vtkFileno, METH_NOARGS, "File descriptor of the underlying standard stream" },
+  { nullptr, nullptr, 0, nullptr } };
 
 static PyObject* vtkPythonStdStreamCaptureHelperNew(
   PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
@@ -242,7 +284,28 @@ static PyObject* vtkClose(PyObject* self, PyObject* args)
   return Py_BuildValue("");
 }
 
-static vtkPythonStdStreamCaptureHelper* NewPythonStdStreamCaptureHelper(bool for_stderr = false)
+static PyObject* vtkFileno(PyObject* self, PyObject* unused)
+{
+  (void)unused;
+  if (!self || !PyObject_TypeCheck(self, &vtkPythonStdStreamCaptureHelperType))
+  {
+    return nullptr;
+  }
+
+  vtkPythonStdStreamCaptureHelper* wrapper =
+    reinterpret_cast<vtkPythonStdStreamCaptureHelper*>(self);
+  const int fd = wrapper ? wrapper->Fileno() : -1;
+  if (fd < 0)
+  {
+    // same error `io.UnsupportedOperation` derives from, raised by streams with no descriptor.
+    PyErr_SetString(PyExc_OSError, "underlying stream has no file descriptor");
+    return nullptr;
+  }
+  return PyLong_FromLong(fd);
+}
+
+static vtkPythonStdStreamCaptureHelper* NewPythonStdStreamCaptureHelper(
+  bool for_stderr, int file_descriptor)
 {
   vtkPythonScopeGilEnsurer gilEnsurer;
   if (PyType_Ready(&vtkPythonStdStreamCaptureHelperType) < 0)
@@ -256,6 +319,7 @@ static vtkPythonStdStreamCaptureHelper* NewPythonStdStreamCaptureHelper(bool for
   {
     wrapper->Encoding = "utf-8";
     wrapper->DumpToError = for_stderr;
+    wrapper->FileDescriptor = file_descriptor;
   }
 
   return wrapper;
