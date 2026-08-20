@@ -175,6 +175,9 @@ public:
   void CreateDefaultLookupTable() override {};
 
 protected:
+  vtkOpenGLSurfaceProbeVolumeMapper();
+  ~vtkOpenGLSurfaceProbeVolumeMapper() override;
+
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   virtual void ReplaceShaderPositionPass(vtkActor* act);
@@ -182,9 +185,6 @@ protected:
   virtual void UpdateShadersProbePass(vtkOpenGLHelper& cellBO, vtkRenderer* ren);
 
 private:
-  vtkOpenGLSurfaceProbeVolumeMapper();
-  ~vtkOpenGLSurfaceProbeVolumeMapper() override;
-
   void CreateTexture(vtkTextureObject*, vtkOpenGLRenderWindow*);
   void ReplaceActiveFBO(vtkRenderer*);
   void RestoreActiveFBO(vtkRenderer*);
