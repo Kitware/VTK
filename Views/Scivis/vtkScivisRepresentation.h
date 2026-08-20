@@ -54,7 +54,6 @@
 #define vtkScivisRepresentation_h
 
 #include "vtkPassInputTypeAlgorithm.h"
-#include "vtkSmartPointer.h"      // For ivars
 #include "vtkViewsScivisModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
