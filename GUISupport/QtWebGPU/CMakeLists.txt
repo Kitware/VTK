@@ -5,12 +5,26 @@ include(vtkQt)
 set(qt_components
   Widgets)
 
+# Determine the minimum Qt version required.
+if (VTK_USE_X)
+  set(_qt_min_version 6.0)
+else()
+  set(_qt_min_version 5.9)
+endif()
+
 vtk_module_find_package(
-  PACKAGE     "Qt${vtk_qt_major_version}"
-  VERSION     5.9
-  COMPONENTS  ${qt_components}
+  PACKAGE "Qt${vtk_qt_major_version}"
+  VERSION ${_qt_min_version}
+  COMPONENTS ${qt_components}
   FORWARD_VERSION_REQ MINOR
-  VERSION_VAR         "Qt${vtk_qt_major_version}_VERSION")
+  VERSION_VAR "Qt${vtk_qt_major_version}_VERSION")
+
+# Verify that Qt meets the requirement when using X11.
+if (VTK_USE_X AND Qt${vtk_qt_major_version}_VERSION VERSION_LESS "6.0")
+  message(FATAL_ERROR
+    "QVTKWebGPUWidget on X11 requires Qt >= 6.0. "
+    "Detected Qt${vtk_qt_major_version}_VERSION=${Qt${vtk_qt_major_version}_VERSION}.")
+endif()
 
 set(CMAKE_AUTOMOC 1)
 
