@@ -28,11 +28,11 @@ rg.vtkRenderingCellGrid.RegisterCellsAndResponders()
 
 # Cell-attribute name -> nominal polynomial order.
 FIELDS = [
-    ('gauss_point_quintic', 5),
-    ('gauss_point_quartic', 4),
-    ('gauss_point_cubic', 3),
-    ('gauss_point_quadratic', 2),
-    ('gauss_point_linear', 1),
+    ('G5', 5),
+    ('G4', 4),
+    ('G3', 3),
+    ('G2', 2),
+    ('G1', 1),
 ]
 
 # (roll, azimuth, elevation) for the montage.
