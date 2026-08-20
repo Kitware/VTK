@@ -149,24 +149,30 @@ double* vtkArrayRenderer::GetBounds()
   return bds.data();
 }
 
+namespace
+{
 // When new default mods are added, make sure to register them in
 // vtkArrayRenderer::ResetModsToDefault below.
-std::vector<std::string> vtkArrayRenderer::DefaultModNames = { "vtkGLSLModCamera",
-  "vtkGLSLModLight", "vtkGLSLModCoincidentTopology", "vtkGLSLModPixelDebugger" };
+constexpr std::array<std::string_view, 4> DefaultModNames = { "vtkGLSLModCamera", "vtkGLSLModLight",
+  "vtkGLSLModCoincidentTopology", "vtkGLSLModPixelDebugger" };
+}
 
 void vtkArrayRenderer::ResetModsToDefault()
 {
   // just to be sure.
   this->RemoveAllMods();
-  this->AddMods(vtkArrayRenderer::DefaultModNames);
+  for (const auto& mod : DefaultModNames)
+  {
+    this->AddMod(std::string(mod));
+  }
   vtkGLSLModifierFactory::RegisterAMod(
-    DefaultModNames[0], [](void*) { return vtkGLSLModCamera::New(); });
+    std::string(DefaultModNames[0]), [](void*) { return vtkGLSLModCamera::New(); });
   vtkGLSLModifierFactory::RegisterAMod(
-    DefaultModNames[1], [](void*) { return vtkGLSLModLight::New(); });
+    std::string(DefaultModNames[1]), [](void*) { return vtkGLSLModLight::New(); });
   vtkGLSLModifierFactory::RegisterAMod(
-    DefaultModNames[2], [](void*) { return vtkGLSLModCoincidentTopology::New(); });
+    std::string(DefaultModNames[2]), [](void*) { return vtkGLSLModCoincidentTopology::New(); });
   vtkGLSLModifierFactory::RegisterAMod(
-    DefaultModNames[3], [](void*) { return vtkGLSLModPixelDebugger::New(); });
+    std::string(DefaultModNames[3]), [](void*) { return vtkGLSLModPixelDebugger::New(); });
 }
 
 void vtkArrayRenderer::AddMod(const std::string& className)

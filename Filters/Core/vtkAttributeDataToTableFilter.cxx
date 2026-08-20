@@ -34,7 +34,7 @@
 
 namespace
 {
-const std::string VALID_MASK_PREFIX = "__vtkValidMask__";
+constexpr std::string_view VALID_MASK_PREFIX = "__vtkValidMask__";
 }
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -199,7 +199,7 @@ void vtkAttributeDataToTableFilter::PassFieldData(vtkFieldData* output, vtkField
       arr->SetNumberOfTuples(max_count);
 
       vtkNew<vtkUnsignedCharArray> maskArray;
-      maskArray->SetName((::VALID_MASK_PREFIX + std::string(arr->GetName())).c_str());
+      maskArray->SetName((std::string(::VALID_MASK_PREFIX) + arr->GetName()).c_str());
       maskArray->SetNumberOfTuples(max_count);
       maskArray->FillValue(static_cast<unsigned char>(1));
       output->AddArray(maskArray);

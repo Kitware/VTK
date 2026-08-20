@@ -991,8 +991,6 @@ int vtkArrayCalculator::GetSelectedScalarComponent(int i)
   return -1;
 }
 
-static std::vector<vtkTuple<int, 3>> vectorComponents;
-
 //------------------------------------------------------------------------------
 std::string vtkArrayCalculator::GetCoordinateScalarVariableName(int i)
 {

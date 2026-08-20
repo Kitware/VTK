@@ -17,6 +17,8 @@
 
 #include "vtkCommonCoreModule.h"
 
+#include <type_traits>
+
 #ifndef VTK_SYSTEM_INCLUDES_INSIDE
 Do_not_include_vtkOStreamWrapper_directly_vtkSystemIncludes_includes_it;
 #endif
@@ -33,6 +35,7 @@ class vtkStdString;
 class VTKCOMMONCORE_EXPORT VTK_WRAPEXCLUDE vtkOStreamWrapper
 {
   class std_string;
+  class std_string_view;
 
 public:
   ///@{
@@ -106,6 +109,16 @@ public:
     return *this << reinterpret_cast<std_string const&>(s);
   }
 
+  // Accept std::string_view without a declaration. The trivially-copyable
+  // constraint keeps this from also matching std::basic_string (whose
+  // allocator parameter is defaulted and would otherwise be deduced too).
+  template <template <typename, typename> class S,
+    typename = std::enable_if_t<std::is_trivially_copyable<S<char, std::char_traits<char>>>::value>>
+  vtkOStreamWrapper& operator<<(const S<char, std::char_traits<char>>& s)
+  {
+    return *this << reinterpret_cast<std_string_view const&>(s);
+  }
+
   // Accept vtkSmartPointer for output.
   template <typename T>
   vtkOStreamWrapper& operator<<(const vtkSmartPointer<T>& ptr)
@@ -155,6 +168,7 @@ protected:
 private:
   vtkOStreamWrapper& operator=(const vtkOStreamWrapper& r) = delete;
   vtkOStreamWrapper& operator<<(std_string const&);
+  vtkOStreamWrapper& operator<<(std_string_view const&);
 };
 
 VTK_ABI_NAMESPACE_END

@@ -31,7 +31,7 @@ int UnitTestScalarValueKey(vtkInformation* info, T* key, const V& val)
     std::cerr << "Copy + Get not reflexive.\n";
   }
 
-  return ok_setget & ok_copyget;
+  return ok_setget && ok_copyget;
 }
 
 template <typename T, typename V>
@@ -93,7 +93,7 @@ int UnitTestScalarValueKey(
     std::cerr << "Copy + Get not reflexive.\n";
   }
 
-  return ok_setget & ok_copyget;
+  return ok_setget && ok_copyget;
 }
 
 int UnitTestVectorValueKey(

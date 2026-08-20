@@ -71,9 +71,9 @@ public:
    * This is the default predicate.
    * DiscardNonAlphaNumeric: discard everything except [a-z], [A-Z] and [0-9].
    */
-  static const PredicateType DiscardNone;
-  static const PredicateType DiscardWhitespace;
-  static const PredicateType DiscardNonAlphaNumeric;
+  static bool DiscardNone(char c);
+  static bool DiscardWhitespace(char c);
+  static bool DiscardNonAlphaNumeric(char c);
   ///@}
 
   /**

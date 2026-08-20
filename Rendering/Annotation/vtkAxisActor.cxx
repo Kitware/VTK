@@ -1465,7 +1465,7 @@ void vtkAxisActor::SetExponent(const std::string& exponent)
   if (this->Exponent != exponent)
   {
     this->Exponent = exponent;
-    static const std::string prefix = "e";
+    static const char* prefix = "e";
     this->ExponentProp->SetInputText(prefix + exponent);
     this->ExponentTextTime.Modified();
     this->Modified();

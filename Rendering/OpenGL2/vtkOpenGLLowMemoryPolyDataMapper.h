@@ -270,7 +270,6 @@ protected:
   /// The mods will be loaded one by one and applied in the order they were added.
   std::vector<std::string> ModNames;
   std::set<std::string> ModNamesUnique;
-  static std::vector<std::string> DefaultModNames;
 
   /// @name Shader declarations in an organized form
   using GLSLAttributeType = vtkOpenGLShaderDeclaration::GLSLAttributeType;

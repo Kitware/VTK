@@ -64,9 +64,9 @@ void RemoveGlobalIds(vtkDataObject* dataObj)
   }
 }
 
-const std::string ROOT_NODE_NAME = "Root";
-const std::string INPUT_NODE_NAME = "Input";
-const std::string REFLECT_NODE_NAME = "Reflection";
+const char* ROOT_NODE_NAME = "Root";
+const char* INPUT_NODE_NAME = "Input";
+const char* REFLECT_NODE_NAME = "Reflection";
 
 } // anonymous namespace
 
@@ -115,18 +115,17 @@ bool vtkAxisAlignedReflectionFilter::ProcessPDC(vtkPartitionedDataSetCollection*
     }
     inputAssembly->DeepCopy(tempPDC->GetDataAssembly());
   }
-  inputAssembly->SetRootNodeName(::INPUT_NODE_NAME.c_str());
-  inputAssembly->SetAttribute(vtkDataAssembly::GetRootNode(), "label", ::INPUT_NODE_NAME.c_str());
+  inputAssembly->SetRootNodeName(::INPUT_NODE_NAME);
+  inputAssembly->SetAttribute(vtkDataAssembly::GetRootNode(), "label", ::INPUT_NODE_NAME);
   // create a reflection assembly
   vtkNew<vtkDataAssembly> reflectionAssembly;
   reflectionAssembly->DeepCopy(inputAssembly);
-  reflectionAssembly->SetRootNodeName(::REFLECT_NODE_NAME.c_str());
-  reflectionAssembly->SetAttribute(
-    vtkDataAssembly::GetRootNode(), "label", ::REFLECT_NODE_NAME.c_str());
+  reflectionAssembly->SetRootNodeName(::REFLECT_NODE_NAME);
+  reflectionAssembly->SetAttribute(vtkDataAssembly::GetRootNode(), "label", ::REFLECT_NODE_NAME);
   // create the output data assembly using the input assembly optionally and reflection assembly.
   auto outputAssembly = outputPDC->GetDataAssembly();
-  outputAssembly->SetRootNodeName(::ROOT_NODE_NAME.c_str());
-  outputAssembly->SetAttribute(vtkDataAssembly::GetRootNode(), "label", ::ROOT_NODE_NAME.c_str());
+  outputAssembly->SetRootNodeName(ROOT_NODE_NAME);
+  outputAssembly->SetAttribute(vtkDataAssembly::GetRootNode(), "label", ::ROOT_NODE_NAME);
   // append input assembly to output assembly if requested.
   if (this->CopyInput)
   {
@@ -175,10 +174,10 @@ bool vtkAxisAlignedReflectionFilter::ProcessPDC(vtkPartitionedDataSetCollection*
     // change vtkCompositeDataSet::NAME() to indicate that this is the input/reflection
     if (this->CopyInput)
     {
-      auto inputName = ::INPUT_NODE_NAME + "_" + name;
+      auto inputName = std::string(::INPUT_NODE_NAME) + "_" + name;
       outputPDC->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), inputName);
     }
-    auto reflectionName = ::REFLECT_NODE_NAME + "_" + name;
+    auto reflectionName = std::string(::REFLECT_NODE_NAME) + "_" + name;
     outputPDC->GetMetaData(index)->Set(vtkCompositeDataSet::NAME(), reflectionName.c_str());
   }
   return true;
@@ -327,7 +326,7 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
 
   vtkNew<vtkDataAssembly> outputHierarchy;
   outputPDSC->SetDataAssembly(outputHierarchy);
-  outputHierarchy->SetRootNodeName(::ROOT_NODE_NAME.c_str());
+  outputHierarchy->SetRootNodeName(::ROOT_NODE_NAME);
 
   if (inputDS || inputHtg)
   {

@@ -9,6 +9,7 @@
 #include <cstdio> // test covers NOT including <iostream>
 #include <sstream>
 #include <string>
+#include <string_view>
 
 int TestOStreamWrapper(int, char*[])
 {
@@ -22,6 +23,19 @@ int TestOStreamWrapper(int, char*[])
   if (actual != expect)
   {
     vtk::println(stderr, "Expected '{:s}' but got '{:s}'", expect, actual);
+    return 1;
+  }
+
+  // Verify that std::string_view can be streamed as well.
+  std::string const expectView = "hello, world";
+  std::string_view sv = "hello, world";
+  vtkOStrStreamWrapper vtkmsgView;
+  vtkmsgView << sv;
+  actual = vtkmsgView.str();
+  vtkmsgView.rdbuf()->freeze(0);
+  if (actual != expectView)
+  {
+    vtk::println(stderr, "Expected '{:s}' but got '{:s}'", expectView, actual);
     return 1;
   }
 

@@ -59,7 +59,7 @@
 #include "vtkPolyDataInternals.h" // Needed for inline methods
 
 VTK_ABI_NAMESPACE_BEGIN
-struct vtkPolyDataDummyContainter;
+struct vtkPolyDataDummyContainer;
 class vtkIncrementalPointLocator;
 
 class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkPolyData : public vtkPointSet
@@ -720,7 +720,7 @@ protected:
   vtkNew<vtkIdList> LegacyBuffer;
 
   // dummy static member below used as a trick to simplify traversal
-  static vtkPolyDataDummyContainter DummyContainer;
+  static vtkPolyDataDummyContainer DummyContainer;
 
   // Take into account only points that belong to at least one cell.
   double CellsBounds[6];

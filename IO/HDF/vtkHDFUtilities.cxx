@@ -37,14 +37,10 @@ VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
-const std::map<int, std::string>& ARRAY_OFFSET_GROUPS()
-{
-  static const std::map<int, std::string> array_offset_groups = {
-    { vtkDataObject::POINT, "PointDataOffsets" }, { vtkDataObject::CELL, "CellDataOffsets" },
-    { vtkDataObject::FIELD, "FieldDataOffsets" }, { vtkDataObject::ROW, "RowDataOffsets" }
-  };
-  return array_offset_groups;
-}
+constexpr std::array<std::pair<int, std::string_view>, 5> ARRAY_OFFSET_GROUPS = {
+  { { vtkDataObject::POINT, "PointDataOffsets" }, { vtkDataObject::CELL, "CellDataOffsets" },
+    { vtkDataObject::FIELD, "FieldDataOffsets" }, { vtkDataObject::ROW, "RowDataOffsets" } }
+};
 
 // Scoped RAII to quiet/unquiet hdf5
 class ScopedH5EQuiet
@@ -1162,7 +1158,14 @@ vtkIdType vtkHDFUtilities::GetArrayOffset(
     return -1;
   }
   std::string path = "Steps/";
-  path += ::ARRAY_OFFSET_GROUPS().at(attributeType);
+  auto const it = std::find_if(ARRAY_OFFSET_GROUPS.begin(), ARRAY_OFFSET_GROUPS.end(),
+    [attributeType](std::pair<int, std::string_view> const& mapping)
+    { return mapping.first == attributeType; });
+  if (it == ARRAY_OFFSET_GROUPS.end())
+  {
+    return -1;
+  }
+  path += it->second;
   if (H5Lexists(group, path.c_str(), H5P_DEFAULT) <= 0)
   {
     return -1;

@@ -10,7 +10,6 @@
 #define vtkFLUENTCFFUtilities_h
 
 #include <string>
-#include <unordered_map>
 
 namespace vtkFLUENTCFFInternal
 {
@@ -29,8 +28,6 @@ bool RemoveTrailingIndex(std::string& fieldName);
  * Remove the suffix passed in argument if it is prensent in the field name
  */
 bool RemoveSuffixIfPresent(std::string& fieldName, const std::string& suffix);
-
-const std::unordered_map<std::string, std::string>& FieldsNamesMap();
 
 }
 

@@ -32,14 +32,10 @@ constexpr unsigned int FACE_EDGES_IDS[6][4] = { { 1, 5, 3, 0 }, { 0, 4, 8, 2 }, 
   { 3, 7, 10, 4 }, { 6, 11, 7, 5 }, { 8, 10, 11, 9 } };
 
 // Point Ids for each edge of a cell
-const std::vector<std::pair<unsigned int, unsigned int>>& EDGE_PTS_IDS()
-{
-  static const std::vector<std::pair<unsigned int, unsigned int>> ptIds = { { 0, 1 } /*  0 */,
-    { 0, 2 } /*  1 */, { 0, 4 } /* 2 */, { 1, 3 } /* 3 */, { 1, 5 } /* 4 */, { 2, 3 } /*  5 */,
-    { 2, 6 } /*  6 */, { 3, 7 } /* 7 */, { 4, 5 } /* 8 */, { 4, 6 } /* 9 */, { 5, 7 } /* 10 */,
-    { 6, 7 } /* 11 */ };
-  return ptIds;
-}
+constexpr std::pair<unsigned int, unsigned int> EDGE_PTS_IDS[] = { { 0, 1 } /*  0 */,
+  { 0, 2 } /*  1 */, { 0, 4 } /* 2 */, { 1, 3 } /* 3 */, { 1, 5 } /* 4 */, { 2, 3 } /*  5 */,
+  { 2, 6 } /*  6 */, { 3, 7 } /* 7 */, { 4, 5 } /* 8 */, { 4, 6 } /* 9 */, { 5, 7 } /* 10 */,
+  { 6, 7 } /* 11 */ };
 
 // Orientation axis for each edge of a cell
 // 0:X, 1:Y, 2:Z
@@ -475,7 +471,7 @@ void vtkHyperTreeGridGeometry3DImpl::GenerateOneCellFace(std::vector<HTG3DPoint>
   for (unsigned int edgeId = 0; edgeId < 4; ++edgeId)
   {
     unsigned int faceEdgeId = ::FACE_EDGES_IDS[faceId][edgeId];
-    std::pair<unsigned int, unsigned int> edgePointId = ::EDGE_PTS_IDS()[faceEdgeId];
+    std::pair<unsigned int, unsigned int> edgePointId = ::EDGE_PTS_IDS[faceEdgeId];
     this->ComputeEdge(cellPoints[edgePointId.first], cellPoints[edgePointId.second], edgePoints,
       ::EDGE_AXIS[faceEdgeId], faceEdgeId, internalFaceA, internalFaceB, currentEdgePointA,
       currentEdgePointB);
@@ -636,12 +632,12 @@ bool vtkHyperTreeGridGeometry3DImpl::ComputeEdgeInterface(const HTG3DPoint& firs
     {
       // Edge case : the interface corresponds to the edge
       // XXX: need to clarify naming for iEdgePoint1 and iEdgePoint2
-      unsigned int iEdgePoint1 = ::EDGE_PTS_IDS()[edgeId].first + NUMBER_OF_EDGES;
+      unsigned int iEdgePoint1 = ::EDGE_PTS_IDS[edgeId].first + NUMBER_OF_EDGES;
       edgePoints[iEdgePoint1].first = firstPoint;
       edgePoints[iEdgePoint1].second.IsValid = false;
       this->SetInterfaceFace(iEdgePoint1, internalFace, &edgePoints[iEdgePoint1].first);
 
-      unsigned int iEdgePoint2 = ::EDGE_PTS_IDS()[edgeId].second + NUMBER_OF_EDGES;
+      unsigned int iEdgePoint2 = ::EDGE_PTS_IDS[edgeId].second + NUMBER_OF_EDGES;
       edgePoints[iEdgePoint2].first = secondPoint;
       edgePoints[iEdgePoint2].second.IsValid = false;
       this->SetInterfaceFace(iEdgePoint2, internalFace, &edgePoints[iEdgePoint2].first);
@@ -652,13 +648,13 @@ bool vtkHyperTreeGridGeometry3DImpl::ComputeEdgeInterface(const HTG3DPoint& firs
 
     // The interface point is a the first point of the cell
     pointInter = firstPoint;
-    edgePointId = ::EDGE_PTS_IDS()[edgeId].first + NUMBER_OF_EDGES;
+    edgePointId = ::EDGE_PTS_IDS[edgeId].first + NUMBER_OF_EDGES;
   }
   else if (secondPointDist == 0.)
   {
     // The interface point is a the second point of the cell
     pointInter = secondPoint;
-    edgePointId = ::EDGE_PTS_IDS()[edgeId].second + NUMBER_OF_EDGES;
+    edgePointId = ::EDGE_PTS_IDS[edgeId].second + NUMBER_OF_EDGES;
   }
   else if (firstPointDist * secondPointDist < 0.)
   {

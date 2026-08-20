@@ -311,24 +311,30 @@ void vtkOpenGLLowMemoryPolyDataMapper::AddMod(const std::string& className)
   }
 }
 
+namespace
+{
 //------------------------------------------------------------------------------
 // When new default mods are added, make sure to register them in
 // vtkDGRenderResponder::ResetModsToDefault below.
-std::vector<std::string> vtkOpenGLLowMemoryPolyDataMapper::DefaultModNames = { "vtkGLSLModCamera",
-  "vtkGLSLModLight", "vtkGLSLModCoincidentTopology" };
+constexpr std::array<std::string_view, 3> DefaultModNames = { "vtkGLSLModCamera", "vtkGLSLModLight",
+  "vtkGLSLModCoincidentTopology" };
+}
 
 //------------------------------------------------------------------------------
 void vtkOpenGLLowMemoryPolyDataMapper::ResetModsToDefault()
 {
   // just to be sure.
   this->RemoveAllMods();
-  this->AddMods(vtkOpenGLLowMemoryPolyDataMapper::DefaultModNames);
+  for (const auto& mod : DefaultModNames)
+  {
+    this->AddMod(std::string(mod));
+  }
   vtkGLSLModifierFactory::RegisterAMod(
-    DefaultModNames[0], [](void*) { return vtkGLSLModCamera::New(); });
+    std::string(DefaultModNames[0]), [](void*) { return vtkGLSLModCamera::New(); });
   vtkGLSLModifierFactory::RegisterAMod(
-    DefaultModNames[1], [](void*) { return vtkGLSLModLight::New(); });
+    std::string(DefaultModNames[1]), [](void*) { return vtkGLSLModLight::New(); });
   vtkGLSLModifierFactory::RegisterAMod(
-    DefaultModNames[2], [](void*) { return vtkGLSLModCoincidentTopology::New(); });
+    std::string(DefaultModNames[2]), [](void*) { return vtkGLSLModCoincidentTopology::New(); });
 }
 
 //------------------------------------------------------------------------------

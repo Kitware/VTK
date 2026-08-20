@@ -374,7 +374,7 @@ int vtkDataObjectTypes::GetCommonBaseTypeId(int typeA, int typeB)
   {
     // list immediate base-classes, no need to list any that are direct subclasses
     // of vtkDataObject since that's assumed by this point.
-    static const std::map<int, int> bases = { { VTK_UNIFORM_HYPER_TREE_GRID, VTK_HYPER_TREE_GRID },
+    constexpr std::pair<int, int> bases[] = { { VTK_UNIFORM_HYPER_TREE_GRID, VTK_HYPER_TREE_GRID },
       { VTK_UNDIRECTED_GRAPH, VTK_GRAPH }, { VTK_DIRECTED_GRAPH, VTK_GRAPH },
       { VTK_MOLECULE, VTK_UNDIRECTED_GRAPH }, { VTK_DIRECTED_ACYCLIC_GRAPH, VTK_DIRECTED_GRAPH },
       { VTK_REEB_GRAPH, VTK_DIRECTED_GRAPH }, { VTK_TREE, VTK_DIRECTED_ACYCLIC_GRAPH },
@@ -399,8 +399,9 @@ int vtkDataObjectTypes::GetCommonBaseTypeId(int typeA, int typeB)
     do
     {
       branch.push_back(type);
-      auto iter = bases.find(type);
-      type = (iter != bases.end()) ? iter->second : VTK_DATA_OBJECT;
+      auto iter = std::find_if(std::begin(bases), std::end(bases),
+        [type](std::pair<int, int> const& mapping) { return mapping.first == type; });
+      type = (iter != std::end(bases)) ? iter->second : VTK_DATA_OBJECT;
     } while (type != VTK_DATA_OBJECT);
     branch.push_back(VTK_DATA_OBJECT);
     std::reverse(branch.begin(), branch.end());
