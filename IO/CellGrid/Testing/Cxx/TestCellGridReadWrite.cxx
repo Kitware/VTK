@@ -139,6 +139,10 @@ bool RoundTrip(const char* filename, const std::string& tempDir, vtkIdType numCe
     ok = false;
     std::cerr << "ERROR: Expected " << expectedAttributes.size() << " attributes, got "
               << cg->GetCellAttributeIds().size() << ".\n";
+    for (const auto& att : cg->GetCellAttributeList())
+    {
+      std::cerr << "  " << att->GetName() << "\n";
+    }
   }
 
   if (og->GetSchemaName() != cg->GetSchemaName() ||
@@ -171,14 +175,15 @@ int TestCellGridReadWrite(int argc, char* argv[])
   if (!RoundTrip(vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dgHexahedra.dg", 0),
         tempDir,
         /* numCells */ 2, {
-        { "shape",     "vtkDGHex", "coordinates", "HGRAD", "C", 1 },
-        { "scalar0",   "vtkDGHex",  invalid,      "HGRAD", "C", 1 },
-        { "scalar1",   "vtkDGHex",  invalid,      "HGRAD", "C", 1 },
-        { "scalar2",   "vtkDGHex",  invalid,      "HGRAD", "C", 1 },
-        { "scalar3",   "vtkDGHex", "point-data",  "HGRAD", "C", 1 },
-        { "curl1",     "vtkDGHex",  invalid,      "HCURL", "I", 1 },
-        { "div1",      "vtkDGHex",  invalid,      "HDIV",  "I", 1 },
-        { "quadratic", "vtkDGHex",  invalid,      "HGRAD", "I", 2 } },
+        { "shape",       "vtkDGHex", "coordinates", "HGRAD", "C", 1 },
+        { "scalar0",     "vtkDGHex",  invalid,      "HGRAD", "C", 1 },
+        { "scalar1",     "vtkDGHex",  invalid,      "HGRAD", "C", 1 },
+        { "scalar2",     "vtkDGHex",  invalid,      "HGRAD", "C", 1 },
+        { "scalar3",     "vtkDGHex", "point-data",  "HGRAD", "C", 1 },
+        { "gauss_cubic", "vtkDGHex", invalid,      "HGRAD", "G", 3 },
+        { "curl1",       "vtkDGHex",  invalid,      "HCURL", "I", 1 },
+        { "div1",        "vtkDGHex",  invalid,      "HDIV",  "I", 1 },
+        { "quadratic",   "vtkDGHex",  invalid,      "HGRAD", "I", 2 } },
         /*msgpack*/true))
   {
     return EXIT_FAILURE;
@@ -192,6 +197,11 @@ int TestCellGridReadWrite(int argc, char* argv[])
         { "scalar1", "vtkDGTet",  invalid,                      "HGRAD", "C", 1 },
         { "scalar2", "vtkDGTet",  invalid,                      "HGRAD", "C", 1 },
         { "scalar3", "vtkDGTet", "point-data",                  "HGRAD", "C", 1 },
+        { "G1",      "vtkDGTet",  invalid,                      "HGRAD", "G", 1 },
+        { "G2",      "vtkDGTet",  invalid,                      "HGRAD", "G", 2 },
+        { "G3",      "vtkDGTet",  invalid,                      "HGRAD", "G", 3 },
+        { "G4",      "vtkDGTet",  invalid,                      "HGRAD", "G", 4 },
+        { "G5",      "vtkDGTet",  invalid,                      "HGRAD", "G", 5 },
         { "curl1",   "vtkDGTet",  invalid,                      "HCURL", "I", 1 },
         { "div1",    "vtkDGTet",  invalid,                      "HDIV",  "I", 1 } },
         /*msgpack*/false))
