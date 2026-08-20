@@ -75,10 +75,12 @@ struct GlobalUniforms
   float MaximumStepFactor;
   float AverageRangeMinimum;
   float AverageRangeMaximum;
+  float PoolSlotGrid[3];
+  float PoolSlotSize;
   float LightDirections[MaxLights][4];
   float LightColors[MaxLights][4];
 };
-static_assert(sizeof(GlobalUniforms) == 416, "GlobalUniforms must match the WGSL layout");
+static_assert(sizeof(GlobalUniforms) == 432, "GlobalUniforms must match the WGSL layout");
 
 // Must match VolumeParams in VolumeRayCast.wgsl.
 struct VolumeParams
@@ -89,11 +91,11 @@ struct VolumeParams
   float BaseStep;
   float Spacing[3];
   float ValueScale;
-  float BrickDimensions[3];
+  float PageDimensions[3];
   float ValueBias;
   float ScalarRangeMinimum;
   float ScalarRangeScale;
-  std::uint32_t BrickOffset;
+  std::uint32_t PageOffset;
   float BrickSize;
   float OpacityUnitDistance;
   float Ambient;
@@ -104,10 +106,55 @@ struct VolumeParams
   float GradientOpacityScale;
   std::uint32_t Flags;
   std::uint32_t NumberOfClipPlanes;
-  float Padding0[3];
+  std::uint32_t PoolKind;
+  std::uint32_t CellOffset;
+  float Padding0;
+  float CellDimensions[3];
+  float CellSize;
   float ClipPlanes[MaxClipPlanes][4];
 };
-static_assert(sizeof(VolumeParams) == 336, "VolumeParams must match the WGSL layout");
+static_assert(sizeof(VolumeParams) == 352, "VolumeParams must match the WGSL layout");
+
+// Must match Page in VolumeRayCast.wgsl.
+struct PageEntry
+{
+  std::uint32_t Slot;
+  std::uint32_t Flags;
+};
+static_assert(sizeof(PageEntry) == 8, "PageEntry must match the WGSL layout");
+
+constexpr std::uint32_t PageResident = 1u;
+
+//------------------------------------------------------------------------------
+// Whether any acceleration cell overlapping a brick maps to something worth drawing. Cells are
+// finer than bricks, so a brick is only skipped when every cell in it is empty.
+bool CellsCarryAnything(const std::vector<float>& classification, const int cellGrid[3],
+  int cellSize, const int brick[3], int brickSize, float threshold)
+{
+  int low[3];
+  int high[3];
+  for (int axis = 0; axis < 3; ++axis)
+  {
+    low[axis] = std::clamp(brick[axis] * brickSize / cellSize, 0, cellGrid[axis] - 1);
+    high[axis] =
+      std::clamp(((brick[axis] + 1) * brickSize) / cellSize, low[axis], cellGrid[axis] - 1);
+  }
+  for (int z = low[2]; z <= high[2]; ++z)
+  {
+    for (int y = low[1]; y <= high[1]; ++y)
+    {
+      for (int x = low[0]; x <= high[0]; ++x)
+      {
+        const std::size_t cell = (static_cast<std::size_t>(z) * cellGrid[1] + y) * cellGrid[0] + x;
+        if (2 * cell < classification.size() && classification[2 * cell] > threshold)
+        {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
 
 //------------------------------------------------------------------------------
 // WGSL reads matrices column by column, VTK stores them row by row.
@@ -167,13 +214,20 @@ bool vtkWebGPUVolumeRayCastCoordinator::vtkInternals::Offer(
 //------------------------------------------------------------------------------
 void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::Forget(vtkWebGPUVolumeRayCastMapper* mapper)
 {
+  for (const auto& contribution : this->Contributions)
+  {
+    if (contribution.Mapper == mapper)
+    {
+      this->Pool.Forget(contribution.BrickSource);
+    }
+  }
   this->Contributions.erase(std::remove_if(this->Contributions.begin(), this->Contributions.end(),
                               [mapper](const vtkWebGPUVolumeRayCastContribution& contribution)
                               { return contribution.Mapper == mapper; }),
     this->Contributions.end());
   // Whatever was uploaded for that mapper is gone with it.
   this->Layers.clear();
-  this->BrickLayers.clear();
+  this->CellLayers.clear();
   this->BindGroup = nullptr;
 }
 
@@ -188,12 +242,19 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::ReleaseGraphicsResources()
 void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::ReleaseDeviceResources()
 {
   this->Layers.clear();
-  this->BrickLayers.clear();
-  this->BrickOffsets.clear();
+  this->CellLayers.clear();
+  this->PageOffsets.clear();
+  this->CellOffsets.clear();
+  this->PageDimensions.clear();
+  this->VolumeMatrices.clear();
+  this->Pool.ReleaseGraphicsResources();
   this->GlobalUniformBuffer = nullptr;
   this->VolumeParamsBuffer = nullptr;
-  this->BrickBuffer = nullptr;
-  this->BrickBufferElements = 0;
+  this->PageBuffer = nullptr;
+  this->PageBufferElements = 0;
+  this->PageTable.clear();
+  this->CellBuffer = nullptr;
+  this->CellBufferElements = 0;
   this->ColorTransferFunctions = nullptr;
   this->ColorTransferFunctionsView = nullptr;
   this->OpacityTransferFunctions = nullptr;
@@ -201,8 +262,6 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::ReleaseDeviceResources()
   this->GradientTransferFunctions = nullptr;
   this->GradientTransferFunctionsView = nullptr;
   this->TransferFunctionSampler = nullptr;
-  this->PlaceholderVolume = nullptr;
-  this->PlaceholderVolumeView = nullptr;
   this->OpaqueDepthView = nullptr;
   this->BindGroupLayout = nullptr;
   this->BindGroup = nullptr;
@@ -215,49 +274,19 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::ReleaseDeviceResources()
 void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::EnsurePlaceholders(
   vtkWebGPURenderWindow* window)
 {
-  if (this->PlaceholderVolume != nullptr)
+  if (this->TransferFunctionSampler != nullptr)
   {
     return;
   }
-  auto configuration = window->GetWGPUConfiguration();
-
-  WGPUTextureDescriptor descriptor = WGPU_TEXTURE_DESCRIPTOR_INIT;
-  descriptor.label = WGPUStringView{ "PlaceholderVolume", WGPU_STRLEN };
-  descriptor.dimension = WGPUTextureDimension_3D;
-  descriptor.size = { 1, 1, 1 };
-  descriptor.format = WGPUTextureFormat_R32Float;
-  descriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
-  descriptor.mipLevelCount = 1;
-  descriptor.sampleCount = 1;
-  this->PlaceholderVolume = vtkWebGPU::Texture::Acquire(configuration->CreateTexture(descriptor));
-
-  const float zero = 0.0f;
-  configuration->WriteTexture(
-    this->PlaceholderVolume, 4, 4, &zero, 0, { 0, 0, 0 }, 0, "PlaceholderVolume");
-
-  WGPUTextureViewDescriptor viewDescriptor = WGPU_TEXTURE_VIEW_DESCRIPTOR_INIT;
-  viewDescriptor.label = WGPUStringView{ "PlaceholderVolume", WGPU_STRLEN };
-  viewDescriptor.format = WGPUTextureFormat_R32Float;
-  viewDescriptor.dimension = WGPUTextureViewDimension_3D;
-  viewDescriptor.baseMipLevel = 0;
-  viewDescriptor.mipLevelCount = 1;
-  viewDescriptor.baseArrayLayer = 0;
-  viewDescriptor.arrayLayerCount = 1;
-  this->PlaceholderVolumeView = vtkWebGPU::TextureView::Acquire(
-    configuration->CreateView(this->PlaceholderVolume, viewDescriptor));
-
-  if (this->TransferFunctionSampler == nullptr)
-  {
-    WGPUSamplerDescriptor samplerDescriptor = WGPU_SAMPLER_DESCRIPTOR_INIT;
-    samplerDescriptor.label = WGPUStringView{ "TransferFunctionSampler", WGPU_STRLEN };
-    samplerDescriptor.addressModeU = WGPUAddressMode_ClampToEdge;
-    samplerDescriptor.addressModeV = WGPUAddressMode_ClampToEdge;
-    samplerDescriptor.addressModeW = WGPUAddressMode_ClampToEdge;
-    samplerDescriptor.magFilter = WGPUFilterMode_Linear;
-    samplerDescriptor.minFilter = WGPUFilterMode_Linear;
-    this->TransferFunctionSampler =
-      vtkWebGPU::Sampler::Acquire(wgpuDeviceCreateSampler(window->GetDevice(), &samplerDescriptor));
-  }
+  WGPUSamplerDescriptor samplerDescriptor = WGPU_SAMPLER_DESCRIPTOR_INIT;
+  samplerDescriptor.label = WGPUStringView{ "TransferFunctionSampler", WGPU_STRLEN };
+  samplerDescriptor.addressModeU = WGPUAddressMode_ClampToEdge;
+  samplerDescriptor.addressModeV = WGPUAddressMode_ClampToEdge;
+  samplerDescriptor.addressModeW = WGPUAddressMode_ClampToEdge;
+  samplerDescriptor.magFilter = WGPUFilterMode_Linear;
+  samplerDescriptor.minFilter = WGPUFilterMode_Linear;
+  this->TransferFunctionSampler =
+    vtkWebGPU::Sampler::Acquire(wgpuDeviceCreateSampler(window->GetDevice(), &samplerDescriptor));
 }
 
 //------------------------------------------------------------------------------
@@ -332,26 +361,24 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateTransferFunctions(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBricks(vtkWebGPURenderWindow* window)
+void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateCells(vtkWebGPURenderWindow* window)
 {
-  this->BrickOffsets.assign(this->Contributions.size(), 0);
-
+  // The offsets were settled with the rest of the per volume parameters.
   std::size_t total = 0;
-  for (std::size_t index = 0; index < this->Contributions.size(); ++index)
+  for (const auto& contribution : this->Contributions)
   {
-    this->BrickOffsets[index] = static_cast<std::uint32_t>(total);
-    const auto* blocks = this->Contributions[index].BrickClassification;
-    total += blocks != nullptr ? blocks->size() / 2 : 0;
+    const int* grid = contribution.CellDimensions;
+    total += static_cast<std::size_t>(grid[0]) * grid[1] * grid[2];
   }
   total = std::max<std::size_t>(total, 1);
 
-  // Nothing changed hands and nothing was rebuilt, so the buffer still holds what it should.
-  bool stale = this->BrickBuffer == nullptr || this->BrickBufferElements != total ||
-    this->BrickLayers.size() != this->Contributions.size();
+  // Nothing changed hands and nothing was reclassified, so the buffer still holds what it should.
+  bool stale = this->CellBuffer == nullptr || this->CellBufferElements != total ||
+    this->CellLayers.size() != this->Contributions.size();
   for (std::size_t index = 0; !stale && index < this->Contributions.size(); ++index)
   {
     const auto& contribution = this->Contributions[index];
-    const LayerState& layer = this->BrickLayers[index];
+    const LayerState& layer = this->CellLayers[index];
     stale = layer.Mapper != contribution.Mapper || layer.Port != contribution.Port ||
       layer.ContentTime != contribution.ContentTime;
   }
@@ -361,32 +388,242 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBricks(vtkWebGPURend
   }
 
   std::vector<float> classification(total * 2, 0.0f);
-  // A single opaque, featureless entry keeps a pass with no blocks from skipping everything.
+  // A single opaque, featureless entry keeps a pass with no cells from skipping everything.
   classification[0] = 1.0f;
   classification[1] = 1.0f;
 
-  this->BrickLayers.resize(this->Contributions.size());
+  this->CellLayers.resize(this->Contributions.size());
   for (std::size_t index = 0; index < this->Contributions.size(); ++index)
   {
     const auto& contribution = this->Contributions[index];
-    if (contribution.BrickClassification != nullptr && !contribution.BrickClassification->empty())
+    if (contribution.CellClassification != nullptr && !contribution.CellClassification->empty())
     {
-      std::copy(contribution.BrickClassification->begin(), contribution.BrickClassification->end(),
-        classification.begin() + 2 * this->BrickOffsets[index]);
+      std::copy(contribution.CellClassification->begin(), contribution.CellClassification->end(),
+        classification.begin() + 2 * this->CellOffsets[index]);
     }
-    this->BrickLayers[index] = { contribution.Mapper, contribution.Port, contribution.ContentTime };
+    this->CellLayers[index] = { contribution.Mapper, contribution.Port, contribution.ContentTime };
   }
 
   auto configuration = window->GetWGPUConfiguration();
   const std::size_t bytes = classification.size() * sizeof(float);
-  if (this->BrickBuffer == nullptr || this->BrickBufferElements != total)
+  if (this->CellBuffer == nullptr || this->CellBufferElements != total)
   {
-    this->BrickBuffer = vtkWebGPU::Buffer::Acquire(configuration->CreateBuffer(
-      bytes, WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst, false, "VolumeBlocks"));
-    this->BrickBufferElements = total;
+    this->CellBuffer = vtkWebGPU::Buffer::Acquire(configuration->CreateBuffer(
+      bytes, WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst, false, "VolumeCells"));
+    this->CellBufferElements = total;
     this->BindGroup = nullptr;
   }
-  configuration->WriteBuffer(this->BrickBuffer, 0, classification.data(), bytes, "VolumeBlocks");
+  configuration->WriteBuffer(this->CellBuffer, 0, classification.data(), bytes, "VolumeCells");
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateResidency(
+  vtkWebGPURenderWindow* window, vtkRenderer* renderer)
+{
+  this->Complete = true;
+
+  std::size_t total = 0;
+  for (const auto& grid : this->PageDimensions)
+  {
+    total += static_cast<std::size_t>(grid[0]) * grid[1] * grid[2];
+  }
+  total = std::max<std::size_t>(total, 1);
+
+  std::vector<PageEntry> table(total, PageEntry{ vtkWebGPUVolumeBrickPool::InvalidSlot, 0 });
+
+  vtkCamera* camera = renderer->GetActiveCamera();
+  double eye[3];
+  camera->GetPosition(eye);
+  double frustum[24];
+  camera->GetFrustumPlanes(renderer->GetTiledAspectRatio(), frustum);
+
+  // What the rays are most likely to want, nearest first. A pool that cannot hold everything
+  // therefore holds what is in front of the camera.
+  struct Candidate
+  {
+    double Distance;
+    std::size_t Volume;
+    std::uint32_t Page;
+    int Brick[3];
+  };
+  std::vector<Candidate> wanted;
+  wanted.reserve(total);
+
+  for (std::size_t index = 0; index < this->Contributions.size(); ++index)
+  {
+    const auto& contribution = this->Contributions[index];
+    const std::array<int, 3>& grid = this->PageDimensions[index];
+    const auto* classification = contribution.CellClassification;
+    const int* cellGrid = contribution.CellDimensions;
+    const double* matrix = this->VolumeMatrices[index].data();
+    const int brickSize = this->Pool.GetBrickSize();
+
+    double extent[3];
+    for (int i = 0; i < 3; ++i)
+    {
+      extent[i] = std::max(contribution.Dimensions[i] - 1, 1);
+    }
+    // Half diagonal of one brick in world space, used as the radius of its bounding sphere.
+    double radius = 0.0;
+    for (int row = 0; row < 3; ++row)
+    {
+      double span = 0.0;
+      for (int column = 0; column < 3; ++column)
+      {
+        span += std::abs(matrix[4 * row + column]) * brickSize / extent[column];
+      }
+      radius += span * span;
+    }
+    radius = 0.5 * std::sqrt(radius);
+
+    for (int bz = 0; bz < grid[2]; ++bz)
+    {
+      for (int by = 0; by < grid[1]; ++by)
+      {
+        for (int bx = 0; bx < grid[0]; ++bx)
+        {
+          const std::uint32_t linear = static_cast<std::uint32_t>(
+            (static_cast<std::size_t>(bz) * grid[1] + by) * grid[0] + bx);
+          const int brick[3] = { bx, by, bz };
+          // A brick the transfer functions map to nothing is never fetched, but only when the
+          // pass may skip empty space: the intensity modes look at scalars, not at what the
+          // transfer functions make of them.
+          if (this->SkipEmptyBricks && classification != nullptr &&
+            !CellsCarryAnything(*classification, cellGrid, contribution.CellSize, brick, brickSize,
+              this->EmptyThreshold))
+          {
+            continue;
+          }
+
+          double centre[3] = { 0.0, 0.0, 0.0 };
+          for (int row = 0; row < 3; ++row)
+          {
+            centre[row] = matrix[4 * row + 3];
+            for (int column = 0; column < 3; ++column)
+            {
+              const double texture = (brick[column] + 0.5) * brickSize / extent[column];
+              centre[row] += matrix[4 * row + column] * texture;
+            }
+          }
+
+          bool visible = true;
+          for (int plane = 0; plane < 6 && visible; ++plane)
+          {
+            const double* p = frustum + 4 * plane;
+            visible = p[0] * centre[0] + p[1] * centre[1] + p[2] * centre[2] + p[3] >= -radius;
+          }
+          if (!visible)
+          {
+            continue;
+          }
+
+          const double dx = centre[0] - eye[0];
+          const double dy = centre[1] - eye[1];
+          const double dz = centre[2] - eye[2];
+          wanted.push_back({ dx * dx + dy * dy + dz * dz, index, this->PageOffsets[index] + linear,
+            { bx, by, bz } });
+        }
+      }
+    }
+  }
+
+  std::sort(wanted.begin(), wanted.end(),
+    [](const Candidate& a, const Candidate& b) { return a.Distance < b.Distance; });
+
+  // Claim what is already there before anything is evicted, so that a pool which is merely full
+  // keeps drawing the same bricks instead of trading them back and forth every frame.
+  for (const Candidate& candidate : wanted)
+  {
+    const auto& contribution = this->Contributions[candidate.Volume];
+    const vtkWebGPUVolumeBrickPool::Key key{ contribution.BrickSource,
+      candidate.Page - this->PageOffsets[candidate.Volume] };
+    const std::uint32_t slot = this->Pool.Lookup(key);
+    if (slot != vtkWebGPUVolumeBrickPool::InvalidSlot)
+    {
+      table[candidate.Page].Slot = slot;
+      table[candidate.Page].Flags |= PageResident;
+    }
+  }
+
+  const int slotSize = this->Pool.GetSlotSize();
+  const std::size_t voxels = static_cast<std::size_t>(slotSize) * slotSize * slotSize;
+  std::vector<float> floatBrick;
+  std::vector<unsigned char> byteBrick;
+  int allowance = this->Self->GetMaximumBricksPerFrame();
+
+  for (const Candidate& candidate : wanted)
+  {
+    if ((table[candidate.Page].Flags & PageResident) != 0u)
+    {
+      continue;
+    }
+    if (allowance <= 0)
+    {
+      this->Complete = false;
+      continue;
+    }
+
+    auto& contribution = this->Contributions[candidate.Volume];
+    if (contribution.BrickSource == nullptr)
+    {
+      continue;
+    }
+    const vtkWebGPUVolumeBrickPool::Key key{ contribution.BrickSource,
+      candidate.Page - this->PageOffsets[candidate.Volume] };
+    const std::uint32_t slot = this->Pool.Allocate(key);
+    if (slot == vtkWebGPUVolumeBrickPool::InvalidSlot)
+    {
+      // The pool is full of bricks this frame is already drawing. What is left arrives next
+      // frame, once the ones behind the camera have aged out.
+      this->Complete = false;
+      continue;
+    }
+
+    void* destination = nullptr;
+    if (contribution.BytePool)
+    {
+      byteBrick.resize(voxels);
+      destination = byteBrick.data();
+    }
+    else
+    {
+      floatBrick.resize(voxels);
+      destination = floatBrick.data();
+    }
+    if (!contribution.BrickSource->FetchBrick(candidate.Brick, slotSize, destination))
+    {
+      this->Pool.Release(key);
+      this->Complete = false;
+      continue;
+    }
+
+    this->Pool.Upload(contribution.BytePool ? vtkWebGPUVolumeBrickPool::Kind::Byte
+                                            : vtkWebGPUVolumeBrickPool::Kind::Float,
+      slot, destination);
+    table[candidate.Page].Slot = slot;
+    table[candidate.Page].Flags |= PageResident;
+    --allowance;
+  }
+
+  auto configuration = window->GetWGPUConfiguration();
+  const std::size_t bytes = table.size() * sizeof(PageEntry);
+  if (this->PageBuffer == nullptr || this->PageBufferElements != table.size())
+  {
+    this->PageBuffer = vtkWebGPU::Buffer::Acquire(configuration->CreateBuffer(
+      bytes, WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst, false, "VolumePages"));
+    this->PageBufferElements = table.size();
+    this->PageTable.clear();
+    this->BindGroup = nullptr;
+  }
+  // The table is one entry per brick of every volume, which for a large volume is worth not
+  // sending again when nothing moved.
+  if (this->PageTable.size() != bytes ||
+    std::memcmp(this->PageTable.data(), table.data(), bytes) != 0)
+  {
+    this->PageTable.assign(reinterpret_cast<const unsigned char*>(table.data()),
+      reinterpret_cast<const unsigned char*>(table.data()) + bytes);
+    configuration->WriteBuffer(this->PageBuffer, 0, table.data(), bytes, "VolumePages");
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -443,6 +680,30 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
   std::vector<VolumeParams> parameters(MaxVolumes);
   std::memset(parameters.data(), 0, parameters.size() * sizeof(VolumeParams));
 
+  // Every volume's pages and cells live in one table each, one volume after another.
+  this->PageOffsets.assign(this->Contributions.size(), 0);
+  this->CellOffsets.assign(this->Contributions.size(), 0);
+  this->PageDimensions.assign(this->Contributions.size(), { 0, 0, 0 });
+  this->VolumeMatrices.assign(this->Contributions.size(), {});
+  const int brickSize = this->Pool.GetBrickSize();
+  std::uint32_t pageCursor = 0;
+  std::uint32_t cellCursor = 0;
+  for (std::size_t index = 0; index < this->Contributions.size(); ++index)
+  {
+    const auto& contribution = this->Contributions[index];
+    std::array<int, 3>& grid = this->PageDimensions[index];
+    for (int axis = 0; axis < 3; ++axis)
+    {
+      grid[axis] = std::max(1, (contribution.Dimensions[axis] - 1) / brickSize + 1);
+    }
+    this->PageOffsets[index] = pageCursor;
+    pageCursor += static_cast<std::uint32_t>(grid[0]) * grid[1] * grid[2];
+
+    const int* cellGrid = contribution.CellDimensions;
+    this->CellOffsets[index] = cellCursor;
+    cellCursor += static_cast<std::uint32_t>(cellGrid[0]) * cellGrid[1] * cellGrid[2];
+  }
+
   bool interactive = false;
   double smallestStep = VTK_DOUBLE_MAX;
 
@@ -479,6 +740,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
 
     CopyMatrix(volumeMatrix, params.VolumeMatrix);
     CopyMatrix(inverseVolumeMatrix, params.InverseVolumeMatrix);
+    std::copy_n(volumeMatrix->GetData(), 16, this->VolumeMatrices[index].begin());
 
     // Grow the proxy box by the eight corners of this input.
     for (int corner = 0; corner < 8; ++corner)
@@ -520,15 +782,19 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
     for (int i = 0; i < 3; ++i)
     {
       params.Dimensions[i] = static_cast<float>(contribution.Dimensions[i]);
-      params.BrickDimensions[i] = static_cast<float>(contribution.BrickDimensions[i]);
+      params.PageDimensions[i] = static_cast<float>(this->PageDimensions[index][i]);
+      params.CellDimensions[i] = static_cast<float>(contribution.CellDimensions[i]);
     }
     params.ValueScale = contribution.ValueScale;
     params.ValueBias = contribution.ValueBias;
     params.ScalarRangeMinimum = static_cast<float>(contribution.ScalarRange[0]);
     params.ScalarRangeScale =
       static_cast<float>(1.0 / (contribution.ScalarRange[1] - contribution.ScalarRange[0]));
-    params.BrickOffset = this->BrickOffsets[index];
-    params.BrickSize = static_cast<float>(std::max(contribution.BrickSize, 1));
+    params.PageOffset = this->PageOffsets[index];
+    params.CellOffset = this->CellOffsets[index];
+    params.PoolKind = contribution.BytePool ? 0u : 1u;
+    params.BrickSize = static_cast<float>(std::max(brickSize, 1));
+    params.CellSize = static_cast<float>(std::max(contribution.CellSize, 1));
     params.OpacityUnitDistance =
       static_cast<float>(std::max(property->GetScalarOpacityUnitDistance(0), 1.0e-6));
     params.Ambient = static_cast<float>(property->GetAmbient(0));
@@ -693,6 +959,13 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
   globals.AverageRangeMinimum = static_cast<float>(averageRange[0]);
   globals.AverageRangeMaximum = static_cast<float>(averageRange[1]);
 
+  const std::uint32_t* slotGrid = this->Pool.GetSlotGrid();
+  for (int i = 0; i < 3; ++i)
+  {
+    globals.PoolSlotGrid[i] = static_cast<float>(slotGrid[i]);
+  }
+  globals.PoolSlotSize = static_cast<float>(this->Pool.GetSlotSize());
+
   globals.Flags = 0;
   if (primary->GetJittering())
   {
@@ -708,6 +981,10 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
       globals.Flags |= FlagSkipEmpty;
     }
   }
+  // Bricks that the transfer functions map to nothing are only left out of the pool when the
+  // march is allowed to step over them anyway.
+  this->SkipEmptyBricks = (globals.Flags & FlagSkipEmpty) != 0u;
+  this->EmptyThreshold = globals.EmptyThreshold;
   if (this->DrawFullScreen)
   {
     globals.Flags |= FlagFullScreen;
@@ -797,8 +1074,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
 
   if (this->BindGroupLayout == nullptr)
   {
-    std::vector<WGPUBindGroupLayoutEntry> entries(
-      8 + MaxVolumes, WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT);
+    std::vector<WGPUBindGroupLayoutEntry> entries(11, WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT);
 
     entries[0].binding = 0;
     entries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
@@ -829,14 +1105,19 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
     entries[7].texture.sampleType = WGPUTextureSampleType_Depth;
     entries[7].texture.viewDimension = WGPUTextureViewDimension_2D;
 
-    for (int i = 0; i < MaxVolumes; ++i)
+    // The bricks of every volume live in one of two pools, one for eight bit scalars and one for
+    // floats, so the number of volumes a pass can hold is not a number of texture bindings.
+    for (int i = 8; i <= 9; ++i)
     {
-      auto& entry = entries[8 + i];
-      entry.binding = static_cast<std::uint32_t>(8 + i);
-      entry.visibility = WGPUShaderStage_Fragment;
-      entry.texture.sampleType = WGPUTextureSampleType_UnfilterableFloat;
-      entry.texture.viewDimension = WGPUTextureViewDimension_3D;
+      entries[i].binding = static_cast<std::uint32_t>(i);
+      entries[i].visibility = WGPUShaderStage_Fragment;
+      entries[i].texture.sampleType = WGPUTextureSampleType_UnfilterableFloat;
+      entries[i].texture.viewDimension = WGPUTextureViewDimension_3D;
     }
+
+    entries[10].binding = 10;
+    entries[10].visibility = WGPUShaderStage_Fragment;
+    entries[10].buffer.type = WGPUBufferBindingType_ReadOnlyStorage;
 
     WGPUBindGroupLayoutDescriptor descriptor = WGPU_BIND_GROUP_LAYOUT_DESCRIPTOR_INIT;
     descriptor.label = WGPUStringView{ "VolumeRayCastBindGroupLayout", WGPU_STRLEN };
@@ -846,14 +1127,14 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
       vtkWebGPU::BindGroupLayout::Acquire(wgpuDeviceCreateBindGroupLayout(device, &descriptor));
   }
 
-  if (!this->DepthAvailable)
+  if (!this->DepthAvailable || this->PageBuffer == nullptr || this->CellBuffer == nullptr)
   {
-    // The depth binding cannot be left empty, so there is nothing to draw into either.
+    // A binding cannot be left empty, so there is nothing to draw into either.
     this->BindGroup = nullptr;
     return;
   }
 
-  std::vector<WGPUBindGroupEntry> entries(8 + MaxVolumes, WGPU_BIND_GROUP_ENTRY_INIT);
+  std::vector<WGPUBindGroupEntry> entries(11, WGPU_BIND_GROUP_ENTRY_INIT);
 
   entries[0].binding = 0;
   entries[0].buffer = this->GlobalUniformBuffer;
@@ -864,8 +1145,8 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
   entries[1].size = MaxVolumes * sizeof(VolumeParams);
 
   entries[2].binding = 2;
-  entries[2].buffer = this->BrickBuffer;
-  entries[2].size = this->BrickBufferElements * 2 * sizeof(float);
+  entries[2].buffer = this->PageBuffer;
+  entries[2].size = this->PageBufferElements * sizeof(PageEntry);
 
   entries[3].binding = 3;
   entries[3].textureView = this->ColorTransferFunctionsView;
@@ -880,18 +1161,14 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
   entries[7].binding = 7;
   entries[7].textureView = this->OpaqueDepthView;
 
-  for (int i = 0; i < MaxVolumes; ++i)
-  {
-    entries[8 + i].binding = static_cast<std::uint32_t>(8 + i);
-    entries[8 + i].textureView = this->PlaceholderVolumeView;
-  }
-  for (std::size_t index = 0; index < this->Contributions.size(); ++index)
-  {
-    if (this->Contributions[index].VolumeTexture != nullptr)
-    {
-      entries[8 + index].textureView = this->Contributions[index].VolumeTexture;
-    }
-  }
+  entries[8].binding = 8;
+  entries[8].textureView = this->Pool.GetView(vtkWebGPUVolumeBrickPool::Kind::Byte);
+  entries[9].binding = 9;
+  entries[9].textureView = this->Pool.GetView(vtkWebGPUVolumeBrickPool::Kind::Float);
+
+  entries[10].binding = 10;
+  entries[10].buffer = this->CellBuffer;
+  entries[10].size = this->CellBufferElements * 2 * sizeof(float);
 
   WGPUBindGroupDescriptor descriptor = WGPU_BIND_GROUP_DESCRIPTOR_INIT;
   descriptor.label = WGPUStringView{ "VolumeRayCastBindGroup", WGPU_STRLEN };
@@ -1027,10 +1304,27 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::Render(
   this->DeviceIdentity = device;
 
   this->EnsurePlaceholders(window);
+  // The pool has to exist before the uniforms, which tell the shader its geometry, and the
+  // uniforms have to be worked out before residency, which needs to know where the bricks are.
+  const int brickSize = this->Self->GetPoolBrickSize();
+  std::size_t bricks = 0;
+  for (const auto& contribution : this->Contributions)
+  {
+    std::size_t count = 1;
+    for (int axis = 0; axis < 3; ++axis)
+    {
+      count *= std::max(1, (contribution.Dimensions[axis] - 1) / brickSize + 1);
+    }
+    bricks += count;
+  }
+  this->Pool.Configure(
+    window, brickSize, static_cast<std::size_t>(this->Self->GetBrickPoolSizeMB()) << 20, bricks);
+  this->Pool.BeginFrame();
   this->UpdateTransferFunctions(window);
-  this->UpdateBricks(window);
   this->UpdateDepthView(window);
   this->UpdateUniforms(window, renderer);
+  this->UpdateCells(window);
+  this->UpdateResidency(window, renderer);
   this->UpdateBindGroup(window);
   this->EnsurePipeline(window);
   this->RecordRenderPass(window);

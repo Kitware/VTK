@@ -15,10 +15,12 @@
 #include "vtkWebGPUVolumeRayCastCoordinator.h"
 
 #include "Private/vtkWebGPUHandle.h" // for the reference counted handle wrappers
+#include "Private/vtkWebGPUVolumeBrickPool.h"
 #include "Private/vtkWebGPUVolumeRayCastContribution.h"
 
 #include "vtk_wgpu.h"
 
+#include <array>
 #include <cstdint>
 #include <vector>
 
@@ -55,6 +57,9 @@ public:
 
   std::size_t GetNumberOfContributions() const { return this->Contributions.size(); }
 
+  /// Whether every brick the last frame wanted was there.
+  bool WasComplete() const { return this->Complete; }
+
   /// Whether the pass for this frame has already been recorded.
   bool Rendered = true;
 
@@ -64,7 +69,8 @@ private:
   void ReleaseDeviceResources();
 
   void UpdateTransferFunctions(vtkWebGPURenderWindow* window);
-  void UpdateBricks(vtkWebGPURenderWindow* window);
+  void UpdateCells(vtkWebGPURenderWindow* window);
+  void UpdateResidency(vtkWebGPURenderWindow* window, vtkRenderer* renderer);
   void UpdateDepthView(vtkWebGPURenderWindow* window);
   void UpdateUniforms(vtkWebGPURenderWindow* window, vtkRenderer* renderer);
   void UpdateBindGroup(vtkWebGPURenderWindow* window);
@@ -85,14 +91,35 @@ private:
     vtkMTimeType ContentTime = 0;
   };
   std::vector<LayerState> Layers;
-  std::vector<LayerState> BrickLayers;
-  /// Where the blocks of each contribution start in the shared buffer.
-  std::vector<std::uint32_t> BrickOffsets;
+  std::vector<LayerState> CellLayers;
+  /// Where the pages and the acceleration cells of each contribution start in the shared tables.
+  std::vector<std::uint32_t> PageOffsets;
+  std::vector<std::uint32_t> CellOffsets;
+  /// How many bricks each contribution is cut into, at the pool's brick size.
+  std::vector<std::array<int, 3>> PageDimensions;
+  /// Texture space to world space for each contribution, kept from the uniform update so that
+  /// residency can be decided on where the bricks actually are.
+  std::vector<std::array<double, 16>> VolumeMatrices;
+
+  /// Bricks of every volume, and the table that says where each one landed.
+  vtkWebGPUVolumeBrickPool Pool;
+  bool Complete = true;
+  /// Whether the pass is allowed to leave bricks the transfer functions map to nothing out of
+  /// the pool entirely, decided with the rest of the march in UpdateUniforms.
+  bool SkipEmptyBricks = false;
+  float EmptyThreshold = 0.0f;
 
   vtkWebGPU::Buffer GlobalUniformBuffer;
   vtkWebGPU::Buffer VolumeParamsBuffer;
-  vtkWebGPU::Buffer BrickBuffer;
-  std::size_t BrickBufferElements = 0;
+  vtkWebGPU::Buffer PageBuffer;
+  std::size_t PageBufferElements = 0;
+  /// What the device already holds, so an unchanged table is not sent again.
+  std::vector<unsigned char> PageTable;
+
+  /// Two floats per acceleration cell of every volume: the largest opacity the transfer
+  /// functions map it to, and how much it varies.
+  vtkWebGPU::Buffer CellBuffer;
+  std::size_t CellBufferElements = 0;
 
   vtkWebGPU::Texture ColorTransferFunctions;
   vtkWebGPU::TextureView ColorTransferFunctionsView;
@@ -102,8 +129,6 @@ private:
   vtkWebGPU::TextureView GradientTransferFunctionsView;
   vtkWebGPU::Sampler TransferFunctionSampler;
 
-  vtkWebGPU::Texture PlaceholderVolume;
-  vtkWebGPU::TextureView PlaceholderVolumeView;
   /// Depth left behind by the opaque geometry, rebuilt every frame because the attachment is
   /// recreated whenever the window is resized.
   vtkWebGPU::TextureView OpaqueDepthView;

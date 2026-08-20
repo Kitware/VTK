@@ -112,12 +112,15 @@ public:
 
   ///@{
   /**
-   * Edge length, in voxels, of the blocks the acceleration structure is built
-   * over. Smaller blocks classify the volume more precisely but cost more
-   * memory and take longer to reclassify when a transfer function changes.
-   * Defaults to 8.
+   * Edge length, in voxels, of the bricks the volume is cut into. Bricks are both what the
+   * acceleration structure classifies and what is uploaded, so smaller ones skip empty space and
+   * stream more precisely while larger ones spend less on each brick's one voxel apron and keep
+   * the page table smaller. Defaults to 32.
+   *
+   * Every volume drawn by one renderer shares a pool and so this value; the first mapper to
+   * prepare its inputs settles it.
    */
-  vtkSetClampMacro(BrickSize, int, 2, 64);
+  vtkSetClampMacro(BrickSize, int, 4, 128);
   vtkGetMacro(BrickSize, int);
   ///@}
 

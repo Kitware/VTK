@@ -60,30 +60,30 @@ void CopyFirstComponent(const T* source, int components, vtkIdType count, float*
 }
 
 //------------------------------------------------------------------------------
-// Scalar extremes of every block, including one voxel of overlap on the far side so that the
-// range also covers what interpolation can produce inside the block.
+// Scalar extremes of every cell, including one voxel of overlap on the far side so the range also
+// covers what interpolation can produce inside the cell.
 template <typename T>
-void MeasureBricks(const T* texels, const int dimensions[3], int brickSize,
-  const int brickDimensions[3], std::vector<float>& minimum, std::vector<float>& maximum)
+void MeasureCells(const T* texels, int components, const int dimensions[3], int cellSize,
+  const int cellDimensions[3], std::vector<float>& minimum, std::vector<float>& maximum)
 {
   const vtkIdType sliceStride = static_cast<vtkIdType>(dimensions[0]) * dimensions[1];
   const std::size_t count =
-    static_cast<std::size_t>(brickDimensions[0]) * brickDimensions[1] * brickDimensions[2];
+    static_cast<std::size_t>(cellDimensions[0]) * cellDimensions[1] * cellDimensions[2];
   minimum.assign(count, std::numeric_limits<float>::max());
   maximum.assign(count, std::numeric_limits<float>::lowest());
 
-  for (int bz = 0; bz < brickDimensions[2]; ++bz)
+  for (int bz = 0; bz < cellDimensions[2]; ++bz)
   {
-    const int z0 = bz * brickSize;
-    const int z1 = std::min(z0 + brickSize, dimensions[2] - 1);
-    for (int by = 0; by < brickDimensions[1]; ++by)
+    const int z0 = bz * cellSize;
+    const int z1 = std::min(z0 + cellSize, dimensions[2] - 1);
+    for (int by = 0; by < cellDimensions[1]; ++by)
     {
-      const int y0 = by * brickSize;
-      const int y1 = std::min(y0 + brickSize, dimensions[1] - 1);
-      for (int bx = 0; bx < brickDimensions[0]; ++bx)
+      const int y0 = by * cellSize;
+      const int y1 = std::min(y0 + cellSize, dimensions[1] - 1);
+      for (int bx = 0; bx < cellDimensions[0]; ++bx)
       {
-        const int x0 = bx * brickSize;
-        const int x1 = std::min(x0 + brickSize, dimensions[0] - 1);
+        const int x0 = bx * cellSize;
+        const int x1 = std::min(x0 + cellSize, dimensions[0] - 1);
 
         float low = std::numeric_limits<float>::max();
         float high = std::numeric_limits<float>::lowest();
@@ -94,17 +94,43 @@ void MeasureBricks(const T* texels, const int dimensions[3], int brickSize,
             const vtkIdType row = z * sliceStride + static_cast<vtkIdType>(y) * dimensions[0];
             for (int x = x0; x <= x1; ++x)
             {
-              const float value = static_cast<float>(texels[row + x]);
+              const float value = static_cast<float>(texels[(row + x) * components]);
               low = std::min(low, value);
               high = std::max(high, value);
             }
           }
         }
         const std::size_t index =
-          static_cast<std::size_t>(bz) * brickDimensions[1] * brickDimensions[0] +
-          static_cast<std::size_t>(by) * brickDimensions[0] + bx;
+          static_cast<std::size_t>(bz) * cellDimensions[1] * cellDimensions[0] +
+          static_cast<std::size_t>(by) * cellDimensions[0] + bx;
         minimum[index] = low;
         maximum[index] = high;
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// Copy one brick and its one voxel apron, repeating the edge where the apron would leave the
+// volume. The apron lets the shader interpolate inside a brick without reaching into a
+// neighbouring slot, so a brick boundary leaves no seam.
+template <typename T, typename D>
+void ExtractBrick(const T* source, int components, const int dimensions[3], int brickSize,
+  const int brick[3], int slotSize, D* destination)
+{
+  const auto pick = [](int value, int last) { return std::clamp(value, 0, last); };
+  for (int z = 0; z < slotSize; ++z)
+  {
+    const int sz = pick(brick[2] * brickSize + z - 1, dimensions[2] - 1);
+    for (int y = 0; y < slotSize; ++y)
+    {
+      const int sy = pick(brick[1] * brickSize + y - 1, dimensions[1] - 1);
+      const vtkIdType row = (static_cast<vtkIdType>(sz) * dimensions[1] + sy) * dimensions[0];
+      D* out = destination + (static_cast<vtkIdType>(z) * slotSize + y) * slotSize;
+      for (int x = 0; x < slotSize; ++x)
+      {
+        const int sx = pick(brick[0] * brickSize + x - 1, dimensions[0] - 1);
+        out[x] = static_cast<D>(source[(row + sx) * components]);
       }
     }
   }
@@ -171,8 +197,7 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::ReleaseGraphicsResources()
 {
   for (auto& entry : this->InputCache)
   {
-    entry.second.Texture = nullptr;
-    entry.second.TextureView = nullptr;
+    entry.second.CellSize = 0;
     entry.second.DataTime = 0;
     entry.second.TransferFunctionTime = 0;
   }
@@ -231,13 +256,10 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::CollectInputs(vtkVolume* volume
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeTexture(
-  vtkWebGPURenderWindow* window, Input& input)
+void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, int cellSize)
 {
   vtkDataArray* scalars = input.Data->GetPointData()->GetScalars();
-  const int brickSize = this->Self->GetBrickSize();
-  if (input.Texture != nullptr && input.DataTime >= input.Data->GetMTime() &&
-    input.BrickSize == brickSize)
+  if (input.CellSize == cellSize && input.DataTime >= input.Data->GetMTime())
   {
     return;
   }
@@ -261,87 +283,63 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeTexture(
 
   // Eight bit data stays eight bit on the device and is scaled back up in the shader. Everything
   // else becomes single precision float, which is exact for the types that fit.
-  const bool asBytes = scalars->GetDataType() == VTK_UNSIGNED_CHAR;
-  input.ValueScale = asBytes ? 255.0f : 1.0f;
+  input.BytePool = scalars->GetDataType() == VTK_UNSIGNED_CHAR;
+  input.ValueScale = input.BytePool ? 255.0f : 1.0f;
   input.ValueBias = 0.0f;
 
-  input.BrickSize = brickSize;
+  input.CellSize = cellSize;
   for (int i = 0; i < 3; ++i)
   {
-    input.BrickDimensions[i] = std::max(1, (dimensions[i] - 1) / brickSize + 1);
+    input.CellDimensions[i] = std::max(1, (dimensions[i] - 1) / cellSize + 1);
   }
 
-  const WGPUTextureFormat format = asBytes ? WGPUTextureFormat_R8Unorm : WGPUTextureFormat_R32Float;
-  const std::uint32_t bytesPerVoxel = asBytes ? 1u : 4u;
-
-  WGPUTextureDescriptor descriptor = WGPU_TEXTURE_DESCRIPTOR_INIT;
-  const std::string label = "VolumeTexture-" + std::to_string(input.Port);
-  descriptor.label = vtkWebGPUMakeStringView(label);
-  descriptor.dimension = WGPUTextureDimension_3D;
-  descriptor.size = { static_cast<std::uint32_t>(dimensions[0]),
-    static_cast<std::uint32_t>(dimensions[1]), static_cast<std::uint32_t>(dimensions[2]) };
-  descriptor.format = format;
-  descriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
-  descriptor.mipLevelCount = 1;
-  descriptor.sampleCount = 1;
-
-  auto configuration = window->GetWGPUConfiguration();
-  input.Texture = vtkWebGPU::Texture::Acquire(configuration->CreateTexture(descriptor));
-  if (input.Texture == nullptr)
+  void* source = scalars->GetVoidPointer(0);
+  switch (scalars->GetDataType())
   {
-    return;
+    vtkTemplateMacro(MeasureCells(static_cast<const VTK_TT*>(source), components, dimensions,
+      cellSize, input.CellDimensions, input.CellMinimum, input.CellMaximum));
+    default:
+      vtkErrorWithObjectMacro(
+        this->Self, << "Unsupported scalar type on input " << input.Port << ".");
+      input.CellSize = 0;
+      return;
   }
-
-  const std::uint32_t bytesPerRow = static_cast<std::uint32_t>(dimensions[0]) * bytesPerVoxel;
-  if (asBytes)
-  {
-    std::vector<unsigned char> texels(static_cast<std::size_t>(count));
-    const auto* source = static_cast<const unsigned char*>(scalars->GetVoidPointer(0));
-    for (vtkIdType i = 0; i < count; ++i)
-    {
-      texels[i] = source[i * components];
-    }
-    configuration->WriteTexture(input.Texture, bytesPerRow,
-      static_cast<std::uint32_t>(texels.size()), texels.data(), 0, { 0, 0, 0 }, 0,
-      "Volume texture upload");
-    MeasureBricks(texels.data(), dimensions, brickSize, input.BrickDimensions, input.BrickMinimum,
-      input.BrickMaximum);
-  }
-  else
-  {
-    std::vector<float> texels(static_cast<std::size_t>(count));
-    void* source = scalars->GetVoidPointer(0);
-    switch (scalars->GetDataType())
-    {
-      vtkTemplateMacro(
-        CopyFirstComponent(static_cast<const VTK_TT*>(source), components, count, texels.data()));
-      default:
-        vtkErrorWithObjectMacro(
-          this->Self, << "Unsupported scalar type on input " << input.Port << ".");
-        return;
-    }
-    configuration->WriteTexture(input.Texture, bytesPerRow,
-      static_cast<std::uint32_t>(texels.size() * sizeof(float)), texels.data(), 0, { 0, 0, 0 }, 0,
-      "Volume texture upload");
-    MeasureBricks(texels.data(), dimensions, brickSize, input.BrickDimensions, input.BrickMinimum,
-      input.BrickMaximum);
-  }
-
-  WGPUTextureViewDescriptor viewDescriptor = WGPU_TEXTURE_VIEW_DESCRIPTOR_INIT;
-  viewDescriptor.label = vtkWebGPUMakeStringView(label);
-  viewDescriptor.format = format;
-  viewDescriptor.dimension = WGPUTextureViewDimension_3D;
-  viewDescriptor.baseMipLevel = 0;
-  viewDescriptor.mipLevelCount = 1;
-  viewDescriptor.baseArrayLayer = 0;
-  viewDescriptor.arrayLayerCount = 1;
-  input.TextureView =
-    vtkWebGPU::TextureView::Acquire(configuration->CreateView(input.Texture, viewDescriptor));
 
   input.DataTime = input.Data->GetMTime();
-  // The blocks were measured again, so their classification is stale.
+  // The cells were measured again, so their classification is stale.
   input.TransferFunctionTime = 0;
   input.ContentTime.Modified();
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchBrick(
+  const int brick[3], int slotSize, void* voxels)
+{
+  vtkDataArray* scalars =
+    this->Data != nullptr ? this->Data->GetPointData()->GetScalars() : nullptr;
+  if (scalars == nullptr || slotSize <= 2)
+  {
+    return false;
+  }
+  // A slot is the brick plus a one voxel apron on each side.
+  const int brickSize = slotSize - 2;
+  const int components = scalars->GetNumberOfComponents();
+  void* source = scalars->GetVoidPointer(0);
+
+  switch (scalars->GetDataType())
+  {
+    vtkTemplateMacro(
+      if (this->BytePool) {
+        ExtractBrick(static_cast<const VTK_TT*>(source), components, this->Dimensions, brickSize,
+          brick, slotSize, static_cast<unsigned char*>(voxels));
+      } else {
+        ExtractBrick(static_cast<const VTK_TT*>(source), components, this->Dimensions, brickSize,
+          brick, slotSize, static_cast<float*>(voxels));
+      });
+    default:
+      return false;
+  }
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -449,43 +447,43 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateTransferFunctions(Input& 
   }
 
   input.TransferFunctionTime = property->GetMTime();
-  input.BrickClassification.clear();
+  input.CellClassification.clear();
   input.ContentTime.Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateBrickClassification(Input& input)
+void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateCellClassification(Input& input)
 {
-  if (!input.BrickClassification.empty() || input.BrickMinimum.empty())
+  if (!input.CellClassification.empty() || input.CellMinimum.empty())
   {
     return;
   }
 
-  input.BrickClassification.assign(input.BrickMinimum.size() * 2, 0.0f);
+  input.CellClassification.assign(input.CellMinimum.size() * 2, 0.0f);
 
   const RangeTable table(input.OpacityCurve);
   const double origin = input.ScalarRange[0];
   const double scale = 1.0 / (input.ScalarRange[1] - input.ScalarRange[0]);
 
-  for (std::size_t brick = 0; brick < input.BrickMinimum.size(); ++brick)
+  for (std::size_t cell = 0; cell < input.CellMinimum.size(); ++cell)
   {
-    const double low = std::clamp((input.BrickMinimum[brick] - origin) * scale, 0.0, 1.0);
-    const double high = std::clamp((input.BrickMaximum[brick] - origin) * scale, 0.0, 1.0);
+    const double low = std::clamp((input.CellMinimum[cell] - origin) * scale, 0.0, 1.0);
+    const double high = std::clamp((input.CellMaximum[cell] - origin) * scale, 0.0, 1.0);
 
     float opacityLow = 0.0f;
     float opacityHigh = 0.0f;
     table.Query(static_cast<int>(std::floor(low * (TableSize - 1))),
       static_cast<int>(std::ceil(high * (TableSize - 1))), opacityLow, opacityHigh);
 
-    // How much the block varies, either in the data or in what the transfer function makes of
-    // it. Amplified so that a block only counts as featureless when it really is almost flat,
+    // How much the cell varies, either in the data or in what the transfer function makes of
+    // it. Amplified so that a cell only counts as featureless when it really is almost flat,
     // because coarse steps through a slowly changing region are what banding is made of.
     constexpr float sensitivity = 4.0f;
     const float detail = std::clamp(
       sensitivity * std::max(static_cast<float>(high - low), opacityHigh - opacityLow), 0.0f, 1.0f);
 
-    input.BrickClassification[brick * 2] = opacityHigh;
-    input.BrickClassification[brick * 2 + 1] = detail;
+    input.CellClassification[cell * 2] = opacityHigh;
+    input.CellClassification[cell * 2 + 1] = detail;
   }
 
   input.ContentTime.Modified();
@@ -493,7 +491,8 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateBrickClassification(Input
 
 //------------------------------------------------------------------------------
 void vtkWebGPUVolumeRayCastMapper::vtkInternals::SyncDeviceResources(
-  vtkWebGPURenderWindow* window, vtkWebGPUVolumeRayCastCoordinator* coordinator, vtkVolume* volume)
+  vtkWebGPURenderWindow* vtkNotUsed(window), vtkWebGPUVolumeRayCastCoordinator* coordinator,
+  vtkVolume* volume)
 {
   if (coordinator == nullptr || !this->CollectInputs(volume))
   {
@@ -503,13 +502,13 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::SyncDeviceResources(
   for (int port : this->ActivePorts)
   {
     Input& input = this->InputCache[port];
-    this->UpdateVolumeTexture(window, input);
-    if (input.TextureView == nullptr)
+    this->UpdateVolumeData(input, this->Self->GetBrickSize());
+    if (input.CellSize <= 0)
     {
       continue;
     }
     this->UpdateTransferFunctions(input);
-    this->UpdateBrickClassification(input);
+    this->UpdateCellClassification(input);
 
     vtkWebGPUVolumeRayCastContribution contribution;
     contribution.Mapper = this->Self;
@@ -519,15 +518,16 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::SyncDeviceResources(
     contribution.Property = input.Property;
     contribution.WorldMatrix = input.WorldMatrix;
     contribution.ClippingPlanes = this->Self->GetClippingPlanes();
-    contribution.VolumeTexture = input.TextureView;
+    contribution.BrickSource = &input;
+    contribution.BytePool = input.BytePool;
     std::copy_n(input.Dimensions, 3, contribution.Dimensions);
     contribution.ValueScale = input.ValueScale;
     contribution.ValueBias = input.ValueBias;
     std::copy_n(input.ScalarRange, 2, contribution.ScalarRange);
     std::copy_n(input.GradientRange, 2, contribution.GradientRange);
-    contribution.BrickSize = input.BrickSize;
-    std::copy_n(input.BrickDimensions, 3, contribution.BrickDimensions);
-    contribution.BrickClassification = &input.BrickClassification;
+    contribution.CellSize = input.CellSize;
+    std::copy_n(input.CellDimensions, 3, contribution.CellDimensions);
+    contribution.CellClassification = &input.CellClassification;
     contribution.ColorTable = &input.ColorTable;
     contribution.OpacityTable = &input.OpacityTable;
     contribution.GradientTable = &input.GradientTable;

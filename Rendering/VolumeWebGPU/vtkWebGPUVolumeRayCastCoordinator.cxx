@@ -54,6 +54,10 @@ void vtkWebGPUVolumeRayCastCoordinator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfVolumes: " << this->NumberOfVolumes << "\n";
+  os << indent << "PoolBrickSize: " << this->PoolBrickSize << "\n";
+  os << indent << "BrickPoolSizeMB: " << this->BrickPoolSizeMB << "\n";
+  os << indent << "MaximumBricksPerFrame: " << this->MaximumBricksPerFrame << "\n";
+  os << indent << "Complete: " << (this->Complete ? "on" : "off") << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -99,6 +103,7 @@ void vtkWebGPUVolumeRayCastCoordinator::Render(vtkRenderer* renderer)
 
   this->NumberOfVolumes = static_cast<int>(this->Internals->GetNumberOfContributions());
   this->Internals->Render(window, renderer);
+  this->Complete = this->Internals->WasComplete();
 }
 
 //------------------------------------------------------------------------------

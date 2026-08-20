@@ -3,14 +3,18 @@
 
 // Ray casts any number of vtkImageData volumes in a single pass.
 //
-// Rays are parameterised by world space distance from the near plane, so the parameter is shared
-// by every volume no matter how each one is placed. That is what lets overlapping inputs be
-// composited correctly: at each step the shader collects the volumes that contain the current
-// point, blends them as co-located participating media, and composites the result once.
+// Rays carry a world space parameter shared by every volume, so overlapping inputs composite
+// correctly. No volume is bound on its own: each is cut into bricks, resident bricks share one
+// pool texture, and a page table says which slot holds which. Bricks that are absent or empty
+// are stepped over, so a volume larger than device memory, or one arriving in partitions, draws
+// as a single volume.
 
 const MAX_VOLUMES: u32 = 12u;
 const MAX_LIGHTS: u32 = 6u;
 const MAX_CLIP_PLANES: u32 = 6u;
+
+// Page.flags
+const PAGE_RESIDENT: u32 = 1u;
 
 // GlobalUniforms.flags
 const FLAG_JITTER: u32 = 1u;
@@ -53,6 +57,9 @@ struct GlobalUniforms {
   // Window the average intensity mode restricts itself to, in data units.
   average_range_minimum: f32,
   average_range_maximum: f32,
+  // Slots per axis in the brick pool, and how many voxels wide one slot is (brick plus apron).
+  pool_slot_grid: vec3<f32>,
+  pool_slot_size: f32,
   light_directions: array<vec4<f32>, MAX_LIGHTS>,
   light_colors: array<vec4<f32>, MAX_LIGHTS>,
 }
@@ -65,11 +72,12 @@ struct VolumeParams {
   base_step: f32,
   spacing: vec3<f32>,
   value_scale: f32,
-  brick_dims: vec3<f32>,
+  page_dims: vec3<f32>,
   value_bias: f32,
   scalar_range_min: f32,
   scalar_range_scale: f32,
-  brick_offset: u32,
+  // Where this volume's pages start in the shared page table.
+  page_offset: u32,
   brick_size: f32,
   opacity_unit_distance: f32,
   ambient: f32,
@@ -81,34 +89,40 @@ struct VolumeParams {
   flags: u32,
   // Clipping planes belong to the mapper that owns this input, so every input carries its own.
   clip_plane_count: u32,
+  // Which pool this volume's bricks live in, matching POOL_BYTE and POOL_FLOAT.
+  pool_kind: u32,
+  // Where this volume's acceleration cells start in the shared table.
+  cell_offset: u32,
   padding0: f32,
-  padding1: f32,
-  padding2: f32,
+  cell_dims: vec3<f32>,
+  cell_size: f32,
   clip_planes: array<vec4<f32>, MAX_CLIP_PLANES>,
+}
+
+// VolumeParams.pool_kind
+const POOL_BYTE: u32 = 0u;
+const POOL_FLOAT: u32 = 1u;
+
+// One entry per brick of every volume. Bricks that are resident name the pool slot they sit in;
+// the rest are stepped over until they arrive.
+struct Page {
+  slot: u32,
+  flags: u32,
 }
 
 @group(0) @binding(0) var<uniform> globals: GlobalUniforms;
 @group(0) @binding(1) var<uniform> volumes: array<VolumeParams, MAX_VOLUMES>;
-// One entry per block of every volume: x is the largest opacity the transfer functions map the
-// block to, y is how much the block varies, in [0,1].
-@group(0) @binding(2) var<storage, read> bricks: array<vec2<f32>>;
+@group(0) @binding(2) var<storage, read> pages: array<Page>;
 @group(0) @binding(3) var color_transfer_functions: texture_2d_array<f32>;
 @group(0) @binding(4) var opacity_transfer_functions: texture_2d_array<f32>;
 @group(0) @binding(5) var gradient_transfer_functions: texture_2d_array<f32>;
 @group(0) @binding(6) var transfer_function_sampler: sampler;
 @group(0) @binding(7) var opaque_depth: texture_depth_2d;
-@group(0) @binding(8) var volume_texture_0: texture_3d<f32>;
-@group(0) @binding(9) var volume_texture_1: texture_3d<f32>;
-@group(0) @binding(10) var volume_texture_2: texture_3d<f32>;
-@group(0) @binding(11) var volume_texture_3: texture_3d<f32>;
-@group(0) @binding(12) var volume_texture_4: texture_3d<f32>;
-@group(0) @binding(13) var volume_texture_5: texture_3d<f32>;
-@group(0) @binding(14) var volume_texture_6: texture_3d<f32>;
-@group(0) @binding(15) var volume_texture_7: texture_3d<f32>;
-@group(0) @binding(16) var volume_texture_8: texture_3d<f32>;
-@group(0) @binding(17) var volume_texture_9: texture_3d<f32>;
-@group(0) @binding(18) var volume_texture_10: texture_3d<f32>;
-@group(0) @binding(19) var volume_texture_11: texture_3d<f32>;
+@group(0) @binding(8) var pool_byte: texture_3d<f32>;
+@group(0) @binding(9) var pool_float: texture_3d<f32>;
+// Per acceleration cell: x is the largest opacity the transfer functions map it to, y how much it
+// varies, in [0,1]. Cells are finer than pool bricks: emptiness is a finer question than residency.
+@group(0) @binding(10) var<storage, read> cells: array<vec2<f32>>;
 
 //------------------------------------------------------------------------------
 // Vertex stage
@@ -149,44 +163,63 @@ fn vertexMain(@builtin(vertex_index) vertex_id: u32) -> @builtin(position) vec4<
 // Volume sampling
 //------------------------------------------------------------------------------
 
-fn loadTexel(volume_index: u32, coord: vec3<i32>) -> f32 {
-  switch volume_index {
-    case 0u: { return textureLoad(volume_texture_0, coord, 0).r; }
-    case 1u: { return textureLoad(volume_texture_1, coord, 0).r; }
-    case 2u: { return textureLoad(volume_texture_2, coord, 0).r; }
-    case 3u: { return textureLoad(volume_texture_3, coord, 0).r; }
-    case 4u: { return textureLoad(volume_texture_4, coord, 0).r; }
-    case 5u: { return textureLoad(volume_texture_5, coord, 0).r; }
-    case 6u: { return textureLoad(volume_texture_6, coord, 0).r; }
-    case 7u: { return textureLoad(volume_texture_7, coord, 0).r; }
-    case 8u: { return textureLoad(volume_texture_8, coord, 0).r; }
-    case 9u: { return textureLoad(volume_texture_9, coord, 0).r; }
-    case 10u: { return textureLoad(volume_texture_10, coord, 0).r; }
-    case 11u: { return textureLoad(volume_texture_11, coord, 0).r; }
-    default: { return 0.0; }
-  }
+fn pageAt(volume_index: u32, brick: vec3<i32>) -> Page {
+  let params = volumes[volume_index];
+  let dims = vec3<i32>(params.page_dims);
+  let clamped = clamp(brick, vec3<i32>(0), dims - vec3<i32>(1));
+  return pages[params.page_offset +
+    u32(clamped.z * dims.y * dims.x + clamped.y * dims.x + clamped.x)];
 }
 
-// Trilinear interpolation by hand. The volume textures are bound as unfilterable so that both
-// 8 bit and 32 bit float volumes can share one bind group layout.
+// Where in the pool the first voxel of a slot's apron sits.
+fn slotOrigin(slot: u32) -> vec3<i32> {
+  let grid = vec3<u32>(globals.pool_slot_grid);
+  let cell = vec3<u32>(slot % grid.x, (slot / grid.x) % grid.y, slot / (grid.x * grid.y));
+  return vec3<i32>(cell) * i32(globals.pool_slot_size);
+}
+
+fn loadPool(kind: u32, coord: vec3<i32>) -> f32 {
+  if (kind == POOL_BYTE) {
+    return textureLoad(pool_byte, coord, 0).r;
+  }
+  return textureLoad(pool_float, coord, 0).r;
+}
+
+// Trilinear interpolation by hand. The pool is bound as unfilterable so that 8 bit and 32 bit
+// volumes can share one bind group layout.
+//
+// The eight taps of one sample always land inside a single slot: a brick's apron carries the
+// voxels of its neighbours, so a sample anywhere in the brick reaches no further than the apron.
+// One page lookup therefore serves the whole interpolation, and a brick boundary is not a seam.
 fn sampleScalar(volume_index: u32, tex_coord: vec3<f32>) -> f32 {
   let params = volumes[volume_index];
-  let last = vec3<i32>(params.dims) - vec3<i32>(1);
-  let voxel = tex_coord * (params.dims - vec3<f32>(1.0));
-  let base = floor(voxel);
-  let frac = voxel - base;
+  let extent = max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0));
+  let voxel = clamp(tex_coord, vec3<f32>(0.0), vec3<f32>(1.0)) * extent;
 
-  let i0 = clamp(vec3<i32>(base), vec3<i32>(0), last);
-  let i1 = min(i0 + vec3<i32>(1), last);
+  let brick = vec3<i32>(floor(voxel / params.brick_size));
+  let page = pageAt(volume_index, brick);
+  if ((page.flags & PAGE_RESIDENT) == 0u) {
+    return 0.0;
+  }
 
-  let c000 = loadTexel(volume_index, vec3<i32>(i0.x, i0.y, i0.z));
-  let c100 = loadTexel(volume_index, vec3<i32>(i1.x, i0.y, i0.z));
-  let c010 = loadTexel(volume_index, vec3<i32>(i0.x, i1.y, i0.z));
-  let c110 = loadTexel(volume_index, vec3<i32>(i1.x, i1.y, i0.z));
-  let c001 = loadTexel(volume_index, vec3<i32>(i0.x, i0.y, i1.z));
-  let c101 = loadTexel(volume_index, vec3<i32>(i1.x, i0.y, i1.z));
-  let c011 = loadTexel(volume_index, vec3<i32>(i0.x, i1.y, i1.z));
-  let c111 = loadTexel(volume_index, vec3<i32>(i1.x, i1.y, i1.z));
+  // The apron takes up the first voxel of the slot, so the brick itself starts one in.
+  let origin = slotOrigin(page.slot) + vec3<i32>(1);
+  let local = voxel - vec3<f32>(brick) * params.brick_size;
+  let base = floor(local);
+  let frac = local - base;
+
+  let i0 = origin + vec3<i32>(base);
+  let i1 = i0 + vec3<i32>(1);
+  let kind = params.pool_kind;
+
+  let c000 = loadPool(kind, vec3<i32>(i0.x, i0.y, i0.z));
+  let c100 = loadPool(kind, vec3<i32>(i1.x, i0.y, i0.z));
+  let c010 = loadPool(kind, vec3<i32>(i0.x, i1.y, i0.z));
+  let c110 = loadPool(kind, vec3<i32>(i1.x, i1.y, i0.z));
+  let c001 = loadPool(kind, vec3<i32>(i0.x, i0.y, i1.z));
+  let c101 = loadPool(kind, vec3<i32>(i1.x, i0.y, i1.z));
+  let c011 = loadPool(kind, vec3<i32>(i0.x, i1.y, i1.z));
+  let c111 = loadPool(kind, vec3<i32>(i1.x, i1.y, i1.z));
 
   let c00 = mix(c000, c100, frac.x);
   let c10 = mix(c010, c110, frac.x);
@@ -211,26 +244,37 @@ fn computeGradient(volume_index: u32, tex_coord: vec3<f32>) -> vec3<f32> {
   return vec3<f32>(xp - xm, yp - ym, zp - zm);
 }
 
-fn brickAt(volume_index: u32, tex_coord: vec3<f32>) -> vec2<f32> {
+// The page the given point falls in.
+fn pageOf(volume_index: u32, tex_coord: vec3<f32>) -> Page {
   let params = volumes[volume_index];
-  let voxel = tex_coord * (params.dims - vec3<f32>(1.0));
-  let block = clamp(floor(voxel / params.brick_size), vec3<f32>(0.0),
-                    params.brick_dims - vec3<f32>(1.0));
-  let index = params.brick_offset +
-    u32(block.z * params.brick_dims.y * params.brick_dims.x +
-        block.y * params.brick_dims.x + block.x);
-  return bricks[index];
+  let extent = max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0));
+  let voxel = clamp(tex_coord, vec3<f32>(0.0), vec3<f32>(1.0)) * extent;
+  return pageAt(volume_index, vec3<i32>(floor(voxel / params.brick_size)));
 }
 
-// Distance, along the ray, from the current point to where it leaves the block it is in.
-fn brickExit(volume_index: u32, origin: vec3<f32>, direction: vec3<f32>, t: f32) -> f32 {
+// What the transfer functions make of the acceleration cell the given point falls in.
+fn cellAt(volume_index: u32, tex_coord: vec3<f32>) -> vec2<f32> {
+  let params = volumes[volume_index];
+  let extent = max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0));
+  let voxel = clamp(tex_coord, vec3<f32>(0.0), vec3<f32>(1.0)) * extent;
+  let cell = clamp(floor(voxel / params.cell_size), vec3<f32>(0.0),
+                   params.cell_dims - vec3<f32>(1.0));
+  return cells[params.cell_offset +
+    u32(cell.z * params.cell_dims.y * params.cell_dims.x +
+        cell.y * params.cell_dims.x + cell.x)];
+}
+
+// Distance, along the ray, from the current point to where it leaves the block of \a size voxels
+// a side that it is in. Used for both the pool's bricks and the finer acceleration cells.
+fn blockExit(volume_index: u32, origin: vec3<f32>, direction: vec3<f32>, t: f32,
+             size: f32) -> f32 {
   let params = volumes[volume_index];
   let extent = max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0));
   let voxel = (origin + t * direction) * extent;
-  let block = floor(voxel / params.brick_size);
+  let block = floor(voxel / size);
 
-  let lower = block * params.brick_size / extent;
-  let upper = (block + vec3<f32>(1.0)) * params.brick_size / extent;
+  let lower = block * size / extent;
+  let upper = (block + vec3<f32>(1.0)) * size / extent;
 
   let inverse = 1.0 / direction;
   let t0 = (lower - origin) * inverse;
@@ -438,15 +482,24 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
       let params = volumes[i];
       let tex_coord = origin_of[i] + t * direction_of[i];
 
+      let page = pageOf(i, tex_coord);
+      if ((page.flags & PAGE_RESIDENT) == 0u) {
+        // The brick has not been brought in. Step over it rather than reading whatever the pool
+        // happens to hold; it will be there once the mapper has had a chance to fetch it.
+        skip_to = min(skip_to,
+          t + blockExit(i, origin_of[i], direction_of[i], t, params.brick_size));
+        continue;
+      }
       if (adaptive) {
-        let brick = brickAt(i, tex_coord);
-        if (skip_empty && brick.x <= globals.empty_threshold) {
-          skip_to = min(skip_to, t + brickExit(i, origin_of[i], direction_of[i], t));
+        let cell = cellAt(i, tex_coord);
+        if (skip_empty && cell.x <= globals.empty_threshold) {
+          skip_to = min(skip_to,
+            t + blockExit(i, origin_of[i], direction_of[i], t, params.cell_size));
           continue;
         }
         occupied = true;
         step = min(step, params.base_step *
-          mix(globals.max_step_factor, globals.min_step_factor, brick.y));
+          mix(globals.max_step_factor, globals.min_step_factor, cell.y));
       } else {
         occupied = true;
         step = min(step, params.base_step);
@@ -475,6 +528,9 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
 
       let params = volumes[i];
       let tex_coord = origin_of[i] + t * direction_of[i];
+      if ((pageOf(i, tex_coord).flags & PAGE_RESIDENT) == 0u) {
+        continue;
+      }
       let scalar = sampleScalar(i, tex_coord);
       let normalized =
         clamp((scalar - params.scalar_range_min) * params.scalar_range_scale, 0.0, 1.0);

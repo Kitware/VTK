@@ -64,10 +64,43 @@ public:
 
   /**
    * The largest number of inputs that can share a pass. Anything beyond this is dropped with a
-   * warning; the limit comes from the number of sampled textures a WebGPU bind group may hold for
-   * one shader stage.
+   * warning; the limit is on how many volumes one uniform buffer describes, not on how much data
+   * they hold - the bricks of every volume share one pool.
    */
   static constexpr int MaximumNumberOfVolumes = 12;
+
+  ///@{
+  /**
+   * Edge length, in voxels, of the bricks every volume of this renderer is cut into. Bricks are
+   * the unit of residency: what the pool holds, what it evicts and what it fetches. Larger ones
+   * spend less on each brick's one voxel apron, smaller ones stream more finely.
+   *
+   * This is not the granularity at which empty space is found, which is the mapper's BrickSize.
+   */
+  vtkSetClampMacro(PoolBrickSize, int, 4, 128);
+  vtkGetMacro(PoolBrickSize, int);
+  ///@}
+
+  ///@{
+  /**
+   * How much device memory the shared brick pool may take, in megabytes, and how many bricks may
+   * be brought in per frame. Volumes larger than the pool still draw: the bricks the rays reach
+   * first are kept and the rest arrive over the frames that follow.
+   *
+   * The default is high enough that a volume which fits is complete in one frame. Lower it to
+   * spread the cost of a volume read from disk rather than stalling on any one frame.
+   */
+  vtkSetClampMacro(BrickPoolSizeMB, int, 16, 65536);
+  vtkGetMacro(BrickPoolSizeMB, int);
+  vtkSetClampMacro(MaximumBricksPerFrame, int, 1, 65536);
+  vtkGetMacro(MaximumBricksPerFrame, int);
+  ///@}
+
+  /**
+   * Whether the bricks the last frame asked for were all resident. False means the pool is too
+   * small, or that bricks are still arriving, and that the next frame will look better.
+   */
+  vtkGetMacro(Complete, bool);
 
   ///@{
   /**
@@ -89,6 +122,10 @@ protected:
   ~vtkWebGPUVolumeRayCastCoordinator() override;
 
   int NumberOfVolumes = 0;
+  int PoolBrickSize = 32;
+  int BrickPoolSizeMB = 512;
+  int MaximumBricksPerFrame = 16384;
+  bool Complete = true;
 
 private:
   vtkWebGPUVolumeRayCastCoordinator(const vtkWebGPUVolumeRayCastCoordinator&) = delete;
