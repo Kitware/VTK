@@ -16,7 +16,8 @@
 
 #include "vtkExtentTranslator.h" // for vtkExtentTranslator
 #include "vtkImageAlgorithm.h"
-#include "vtkNew.h" // for ivars
+#include "vtkNew.h"         // for ivars
+#include "vtkStringArray.h" // For vtkStringArray getters
 
 #include <array>   // for std::array
 #include <cstdint> // for std::uint8_t and std::uint32_t
@@ -36,7 +37,6 @@ VTK_ABI_NAMESPACE_END
 }
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkStringArray;
 
 class VTKIOIMAGE_EXPORT vtkSEPReader : public vtkImageAlgorithm
 {
