@@ -6,6 +6,9 @@ Covers the pieces VTKPartitionedArray shares with the VTKDataArrayMixin
 based array wrappers: to_numpy(), the unary operators, truthiness, repr,
 and the __array_function__ fallback for numpy functions that have no
 partition-aware override.
+
+Also checks that the partition-aware operations really are computed block
+by block, by counting how often the whole array gets materialized.
 """
 
 import gc
@@ -35,14 +38,44 @@ def check(condition, msg):
         errors += 1
 
 
-def make_aos_array(values):
-    """Create an AOS array from a list of values."""
+def make_aos_array(values, ncomps=1):
+    """Create an AOS array from a flat list of values."""
     arr = vtkAOSDataArrayTemplate['float64']()
-    arr.SetNumberOfComponents(1)
-    arr.SetNumberOfTuples(len(values))
+    arr.SetNumberOfComponents(ncomps)
+    arr.SetNumberOfTuples(len(values) // ncomps)
     for i, v in enumerate(values):
         arr.SetValue(i, v)
     return arr
+
+
+# Count whole-array materializations. numpy.asarray() on an individual block
+# is a zero-copy view of VTK memory and is deliberately not counted; only
+# VTKPartitionedArray.__array__, which concatenates every block, is.
+_ARRAY_CALLS = [0]
+_ORIGINAL_ARRAY = VTKPartitionedArray.__array__
+
+
+def _counting_array(self, dtype=None, copy=None):
+    _ARRAY_CALLS[0] += 1
+    return _ORIGINAL_ARRAY(self, dtype=dtype, copy=copy)
+
+
+VTKPartitionedArray.__array__ = _counting_array
+
+
+def call_and_count(func):
+    """Return (result, number of whole-array materializations)."""
+    _ARRAY_CALLS[0] = 0
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        result = func()
+    return result, _ARRAY_CALLS[0]
+
+
+def make_blocks(blocks, ncomps=1):
+    """Build a partitioned array from a list of per-block value lists."""
+    return VTKPartitionedArray(
+        [make_aos_array(b, ncomps) for b in blocks])
 
 
 BLOCK0 = [-1.0, 2.0, -3.0]
@@ -284,6 +317,145 @@ def test_size_and_default_arguments():
           "the default arrays argument should not be shared between instances")
 
 
+# Block layouts that put ties and extremes on block boundaries.
+ARG_LAYOUTS = [
+    [[3.0, 1.0, 4.0], [1.0, 5.0]],              # min tie spanning two blocks
+    [[5.0, 5.0], [1.0, 9.0, 1.0]],              # min tie inside one block
+    [[-2.0, 7.0], [0.0], [3.0, -2.0, 8.0]],     # min tie in blocks 1 and 3
+    [[1.0]],                                    # single block
+    [[2.0, 3.0], [], [4.0]],                    # empty block in the middle
+]
+
+
+def test_argreduce_is_block_wise():
+    """argmin/argmax match numpy exactly without materializing."""
+    for i, layout in enumerate(ARG_LAYOUTS):
+        array = make_blocks(layout)
+        reference = numpy.concatenate([numpy.array(b) for b in layout if b])
+        for name in ("argmin", "argmax"):
+            result, materialized = call_and_count(
+                lambda name=name: getattr(numpy, name)(array))
+            expected = getattr(numpy, name)(reference)
+            check(result == expected,
+                  f"layout {i}: numpy.{name}() gave {result}, expected {expected}")
+            check(materialized == 0,
+                  f"layout {i}: numpy.{name}() should not materialize")
+
+
+def test_argreduce_axis_zero():
+    """argmin/argmax over axis 0 of multi-component blocks."""
+    array = make_blocks([[1.0, 9.0, 3.0, 4.0, 5.0, 6.0],
+                         [0.0, 8.0, 2.0, 7.0, 1.0, 9.0]], ncomps=3)
+    reference = numpy.asarray(array)
+    for name in ("argmin", "argmax"):
+        result, materialized = call_and_count(
+            lambda name=name: getattr(numpy, name)(array, axis=0))
+        assert_array_equal(result, getattr(numpy, name)(reference, axis=0))
+        check(materialized == 0, f"numpy.{name}(axis=0) should not materialize")
+
+
+def test_cumulative_is_block_wise():
+    """cumsum/cumprod carry across blocks without materializing."""
+    array = make_blocks([[1.0, 2.0, 3.0], [4.0, 5.0]])
+    reference = numpy.asarray(array)
+    for name in ("cumsum", "cumprod"):
+        # axis=0 keeps the input shape, so the result stays partitioned.
+        result, materialized = call_and_count(
+            lambda name=name: getattr(numpy, name)(array, axis=0))
+        check(isinstance(result, VTKPartitionedArray),
+              f"numpy.{name}(axis=0) should stay partitioned")
+        assert_array_almost_equal(numpy.asarray(result),
+                                  getattr(numpy, name)(reference, axis=0))
+        check(materialized == 0, f"numpy.{name}(axis=0) should not materialize")
+
+        # axis=None flattens, so numpy semantics give one contiguous array.
+        result, materialized = call_and_count(
+            lambda name=name: getattr(numpy, name)(array))
+        assert_array_almost_equal(result, getattr(numpy, name)(reference))
+        check(materialized == 0, f"numpy.{name}() should not materialize")
+
+
+def test_cumulative_with_none_array():
+    """Cumulative scans skip NoneArray blocks but keep their slot."""
+    array = VTKPartitionedArray([make_aos_array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 3),
+                                 NoneArray,
+                                 make_aos_array([7.0, 8.0, 9.0], 3)])
+    reference = numpy.asarray(array)
+    result, materialized = call_and_count(lambda: numpy.cumsum(array, axis=0))
+    check(result.arrays[1] is NoneArray, "cumsum should keep NoneArray blocks")
+    assert_array_almost_equal(numpy.asarray(result),
+                              numpy.cumsum(reference, axis=0))
+    check(materialized == 0, "cumsum with a NoneArray block should not materialize")
+
+
+def test_dot_is_block_wise():
+    """dot reduces to per-block dot products when the operands line up."""
+    a = make_blocks([[1.0, 2.0, 3.0], [4.0, 5.0]])
+    b = make_blocks([[2.0, 0.0, 1.0], [1.0, 3.0]])
+    expected = numpy.dot(numpy.asarray(a), numpy.asarray(b))
+
+    result, materialized = call_and_count(lambda: numpy.dot(a, b))
+    check(abs(result - expected) < 1e-9, "numpy.dot() of two partitioned arrays")
+    check(materialized == 0, "numpy.dot() should not materialize aligned operands")
+
+    result, materialized = call_and_count(lambda: a.dot(b))
+    check(abs(result - expected) < 1e-9, "the dot() method should agree")
+    check(materialized == 0, "the dot() method should not materialize")
+
+    # Tuples times a matrix decomposes by block, so the result stays partitioned.
+    vectors = make_blocks([[1.0, 0.0, 0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+                          ncomps=3)
+    matrix = numpy.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
+    reference = numpy.dot(numpy.asarray(vectors), matrix)
+    result, materialized = call_and_count(lambda: numpy.dot(vectors, matrix))
+    check(isinstance(result, VTKPartitionedArray),
+          "numpy.dot(partitioned, matrix) should stay partitioned")
+    assert_array_almost_equal(numpy.asarray(result), reference)
+    check(materialized == 0, "numpy.dot(partitioned, matrix) should not materialize")
+
+    # Operands whose blocks do not line up still give the right answer.
+    misaligned = VTKPartitionedArray([make_aos_array([1.0, 2.0]),
+                                      make_aos_array([3.0, 4.0, 5.0])])
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        result = numpy.dot(a, misaligned)
+    check(abs(result - numpy.dot(numpy.asarray(a),
+                                 numpy.asarray(misaligned))) < 1e-9,
+          "misaligned blocks should fall back and stay correct")
+
+
+def test_norm_is_block_wise():
+    """The default 2-norm sums per-block sums of squares."""
+    for i, layout in enumerate(ARG_LAYOUTS[:3]):
+        array = make_blocks(layout)
+        reference = numpy.asarray(array)
+        result, materialized = call_and_count(lambda: numpy.linalg.norm(array))
+        check(abs(result - numpy.linalg.norm(reference)) < 1e-9,
+              f"layout {i}: numpy.linalg.norm() value")
+        check(materialized == 0,
+              f"layout {i}: numpy.linalg.norm() should not materialize")
+
+    # Other norms materialize but must still be right.
+    array = make_blocks([[3.0, -4.0]])
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        check(abs(numpy.linalg.norm(array, ord=1) - 7.0) < 1e-9,
+              "ord=1 should fall back correctly")
+
+
+def test_reductions_are_block_wise():
+    """The plain reductions never materialize the whole array."""
+    array = make_blocks([[1.0, 2.0, 3.0], [4.0, 5.0]])
+    reference = numpy.asarray(array)
+    for name in ("sum", "mean", "min", "max", "std", "var", "prod",
+                 "any", "all", "count_nonzero", "average"):
+        result, materialized = call_and_count(
+            lambda name=name: getattr(numpy, name)(array))
+        check(materialized == 0, f"numpy.{name}() should not materialize")
+        check(numpy.allclose(result, getattr(numpy, name)(reference)),
+              f"numpy.{name}() value should match numpy")
+
+
 test_to_numpy()
 test_unary_operators()
 test_unary_operators_with_none_array()
@@ -299,6 +471,13 @@ test_array_ufunc_protocol()
 test_empty_composite()
 test_copy_matches_numpy_copy()
 test_size_and_default_arguments()
+test_argreduce_is_block_wise()
+test_argreduce_axis_zero()
+test_cumulative_is_block_wise()
+test_cumulative_with_none_array()
+test_dot_is_block_wise()
+test_norm_is_block_wise()
+test_reductions_are_block_wise()
 
 if errors:
     print(f"\n{errors} error(s) found!")

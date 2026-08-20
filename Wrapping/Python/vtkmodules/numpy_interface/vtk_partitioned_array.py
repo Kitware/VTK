@@ -572,7 +572,10 @@ class VTKPartitionedArray(object):
         return numpy.sort(self, axis=axis, **kwargs)
 
     def dot(self, other):
-        return self.__array__().dot(other)
+        # Routed through numpy.dot() so the block-wise override gets a
+        # chance; the old form materialized self and then let numpy
+        # materialize both operands again.
+        return numpy.dot(self, other)
 
     @property
     def shape(self) -> Tuple[int, ...]:
@@ -842,6 +845,85 @@ def _like_VTKPartitionedArray(array, kind, dtype=None, value=None):
 
     return VTKPartitionedArray(arrays, dataset=array.dataset, association=array.association)
 
+def _argreduce_VTKPartitionedArray(array, axis, reducer, argreducer):
+    """Block-wise argmin/argmax without materializing the whole array.
+
+    Each block contributes its own extreme value and local index; the best
+    one wins and its index is shifted by the block's offset. Ties keep the
+    first occurrence, matching numpy, because blocks are visited in order
+    and the comparison is strict. Returns None when there is nothing to
+    reduce so the caller can defer to numpy for the usual error."""
+    best_idx = None
+    best_val = None
+    offset = 0
+    for a in array.arrays:
+        if a is NoneArray:
+            continue
+        block = numpy.asarray(a)
+        if block.size == 0:
+            continue
+        local_idx = argreducer(block, axis=axis)
+        local_val = reducer(block, axis=axis)
+        if best_idx is None:
+            best_idx = local_idx + offset
+            best_val = local_val
+        else:
+            if reducer is numpy.min:
+                better = local_val < best_val
+            else:
+                better = local_val > best_val
+            best_idx = numpy.where(better, local_idx + offset, best_idx)
+            best_val = numpy.where(better, local_val, best_val)
+        offset += block.size if axis is None else block.shape[0]
+    if best_idx is not None and numpy.ndim(best_idx) == 0:
+        # numpy.where() turns scalars into 0-d arrays; hand back a scalar.
+        best_idx = numpy.asarray(best_idx)[()]
+    return best_idx
+
+
+def _cumulative_VTKPartitionedArray(array, axis, scan, combine, identity,
+                                    **kwargs):
+    """Block-wise cumulative scan, carrying the running total across blocks.
+
+    ``scan`` is numpy.cumsum or numpy.cumprod, ``combine`` folds the carry
+    into a block's result, and ``identity`` seeds the carry."""
+    if axis == 0:
+        # Same shape as the input, so the result stays partitioned.
+        res = []
+        carry = identity
+        for a in array.arrays:
+            if a is NoneArray:
+                res.append(NoneArray)
+                continue
+            block = combine(scan(numpy.asarray(a), axis=0, **kwargs), carry)
+            if block.shape[0]:
+                carry = block[-1]
+            res.append(block)
+        return VTKPartitionedArray(
+            res, dataset=array.dataset, association=array.association)
+
+    # axis is None: numpy flattens, so the result is one contiguous array.
+    # Fill it block by block so the input is never copied as a whole.
+    out = None
+    pos = 0
+    carry = identity
+    for a in array.arrays:
+        if a is NoneArray:
+            continue
+        flat = numpy.asarray(a).ravel()
+        if flat.size == 0:
+            continue
+        scanned = combine(scan(flat, **kwargs), carry)
+        if out is None:
+            out = numpy.empty(array.size, dtype=scanned.dtype)
+        out[pos:pos + scanned.size] = scanned
+        carry = scanned[-1]
+        pos += scanned.size
+    if out is None:
+        return scan(numpy.asarray(array), **kwargs)
+    return out[:pos]
+
+
 @_override_numpy(numpy.zeros_like)
 def zeros_like(array, dtype=None):
     """Create a new VTKPartitionedArray filled with 0 of the same shape as array."""
@@ -988,7 +1070,7 @@ def sort(array, axis=0, **kwargs):
 
 @_override_numpy(numpy.argmin)
 def argmin(array, axis=None, **kwargs):
-    """argmin dispatched from numpy.argmin(). Per-block for axis > 0."""
+    """argmin dispatched from numpy.argmin(). Computed block by block."""
     if type(array) == VTKPartitionedArray:
         if axis is not None and axis != 0:
             res = []
@@ -999,12 +1081,17 @@ def argmin(array, axis=None, **kwargs):
                     res.append(NoneArray)
             return VTKPartitionedArray(
                 res, dataset=array.dataset, association=array.association)
+        result = _argreduce_VTKPartitionedArray(
+            array, axis, numpy.min, numpy.argmin)
+        if result is not None:
+            return result
+        # Nothing to reduce; let numpy raise the error it normally would.
         return numpy.argmin(numpy.asarray(array), axis=axis, **kwargs)
     return numpy.argmin(array, axis=axis, **kwargs)
 
 @_override_numpy(numpy.argmax)
 def argmax(array, axis=None, **kwargs):
-    """argmax dispatched from numpy.argmax(). Per-block for axis > 0."""
+    """argmax dispatched from numpy.argmax(). Computed block by block."""
     if type(array) == VTKPartitionedArray:
         if axis is not None and axis != 0:
             res = []
@@ -1015,12 +1102,21 @@ def argmax(array, axis=None, **kwargs):
                     res.append(NoneArray)
             return VTKPartitionedArray(
                 res, dataset=array.dataset, association=array.association)
+        result = _argreduce_VTKPartitionedArray(
+            array, axis, numpy.max, numpy.argmax)
+        if result is not None:
+            return result
+        # Nothing to reduce; let numpy raise the error it normally would.
         return numpy.argmax(numpy.asarray(array), axis=axis, **kwargs)
     return numpy.argmax(array, axis=axis, **kwargs)
 
 @_override_numpy(numpy.cumsum)
 def cumsum(array, axis=None, **kwargs):
-    """cumsum dispatched from numpy.cumsum(). Per-block for axis > 0."""
+    """cumsum dispatched from numpy.cumsum(). Computed block by block.
+
+    With axis=0 the result has the same shape as the input and stays
+    partitioned; with axis=None numpy flattens, so a single array is
+    returned, but it is still filled one block at a time."""
     if type(array) == VTKPartitionedArray:
         if axis is not None and axis != 0:
             res = []
@@ -1031,12 +1127,17 @@ def cumsum(array, axis=None, **kwargs):
                     res.append(NoneArray)
             return VTKPartitionedArray(
                 res, dataset=array.dataset, association=array.association)
-        return numpy.cumsum(numpy.asarray(array), axis=axis, **kwargs)
+        return _cumulative_VTKPartitionedArray(
+            array, axis, numpy.cumsum, operator.add, 0, **kwargs)
     return numpy.cumsum(array, axis=axis, **kwargs)
 
 @_override_numpy(numpy.cumprod)
 def cumprod(array, axis=None, **kwargs):
-    """cumprod dispatched from numpy.cumprod(). Per-block for axis > 0."""
+    """cumprod dispatched from numpy.cumprod(). Computed block by block.
+
+    With axis=0 the result has the same shape as the input and stays
+    partitioned; with axis=None numpy flattens, so a single array is
+    returned, but it is still filled one block at a time."""
     if type(array) == VTKPartitionedArray:
         if axis is not None and axis != 0:
             res = []
@@ -1047,8 +1148,69 @@ def cumprod(array, axis=None, **kwargs):
                     res.append(NoneArray)
             return VTKPartitionedArray(
                 res, dataset=array.dataset, association=array.association)
-        return numpy.cumprod(numpy.asarray(array), axis=axis, **kwargs)
+        return _cumulative_VTKPartitionedArray(
+            array, axis, numpy.cumprod, operator.mul, 1, **kwargs)
     return numpy.cumprod(array, axis=axis, **kwargs)
+
+@_override_numpy(numpy.dot)
+def dot(a, b, **kwargs):
+    """Dot product, computed block by block when the operands line up.
+
+    Two partitioned arrays with matching 1-D blocks reduce to a sum of
+    per-block dot products. A partitioned array of tuples against a plain
+    array reduces to one dot product per block, and the result stays
+    partitioned. Anything else materializes once."""
+    if type(a) == VTKPartitionedArray and type(b) == VTKPartitionedArray:
+        blocks_a = [x for x in a.arrays if x is not NoneArray]
+        blocks_b = [y for y in b.arrays if y is not NoneArray]
+        if (blocks_a and len(blocks_a) == len(blocks_b) and
+                _builtin_all(x.ndim == 1 and x.shape == y.shape
+                             for x, y in zip(blocks_a, blocks_b))):
+            total = None
+            for x, y in zip(blocks_a, blocks_b):
+                part = numpy.dot(numpy.asarray(x), numpy.asarray(y))
+                total = part if total is None else total + part
+            return total
+    elif type(a) == VTKPartitionedArray:
+        second = numpy.asarray(b)
+        blocks = [x for x in a.arrays if x is not NoneArray]
+        if (blocks and second.ndim >= 1 and
+                _builtin_all(x.ndim == 2 and x.shape[1] == second.shape[0]
+                             for x in blocks)):
+            res = [NoneArray if x is NoneArray
+                   else numpy.dot(numpy.asarray(x), second)
+                   for x in a.arrays]
+            return VTKPartitionedArray(
+                res, dataset=a.dataset, association=a.association)
+
+    first = numpy.asarray(a) if type(a) == VTKPartitionedArray else a
+    second = numpy.asarray(b) if type(b) == VTKPartitionedArray else b
+    return numpy.dot(first, second, **kwargs)
+
+@_override_numpy(numpy.linalg.norm)
+def norm(array, ord=None, axis=None, keepdims=False):
+    """Vector norm. The default 2-norm over every element is the sum of
+    the per-block sums of squares, so no block leaves its own memory.
+    Other norms and axis arguments materialize once."""
+    if (type(array) == VTKPartitionedArray and ord is None and axis is None
+            and not keepdims):
+        total = None
+        for a in array.arrays:
+            if a is NoneArray:
+                continue
+            flat = numpy.asarray(a).ravel()
+            if flat.size == 0:
+                continue
+            if numpy.issubdtype(flat.dtype, numpy.complexfloating):
+                total = None
+                break
+            part = numpy.dot(flat, flat)
+            total = part if total is None else total + part
+        if total is not None:
+            return numpy.sqrt(total)
+    if type(array) == VTKPartitionedArray:
+        array = numpy.asarray(array)
+    return numpy.linalg.norm(array, ord=ord, axis=axis, keepdims=keepdims)
 
 @_override_numpy(numpy.unique)
 def unique(array, **kwargs):
