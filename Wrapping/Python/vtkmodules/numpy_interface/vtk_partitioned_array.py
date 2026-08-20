@@ -44,17 +44,20 @@ class VTKPartitionedArray(object):
     VTK modules should be used to process composite arrays.
     """
 
-    def __init__(self, arrays = [], dataset = None, name = None,
+    def __init__(self, arrays = None, dataset = None, name = None,
                  association = None):
         """Construct a composite array given a container of
         arrays, a dataset, name and association. It is sufficient
         to define a container of arrays to define a composite array.
         It is also possible to initialize an array by defining
         the dataset, name and array association. In that case,
-        the underlying arrays will be created lazily when they
-        are needed. It is recommended to use the latter method
-        when initializing from an existing composite dataset."""
-        self._arrays = arrays
+        the underlying arrays are resolved from the composite dataset
+        during construction. It is recommended to use the latter method
+        when initializing from an existing composite dataset.
+
+        Only a weak reference to the dataset is kept, so the composite
+        dataset is not kept alive by the arrays it hands out."""
+        self._arrays = [] if arrays is None else arrays
         self.dataset = dataset
         self.name = name
         validAssociation = True
@@ -70,19 +73,42 @@ class VTKPartitionedArray(object):
             self.association = association
         else:
             self.association = ArrayAssociation.FIELD
-        self._initialized = False
+        # Resolve the per-block arrays up front. The dataset is only held
+        # weakly, so it may not be around the next time this array is used.
+        self._init_from_composite()
 
-    def __init_from_composite(self):
-        if self._initialized:
-            return
+    # ---- metadata management ------------------------------------------------
+    def _set_dataset(self, dataset):
+        """Store a weak reference to the owning composite dataset."""
+        if dataset is not None:
+            from ..vtkCommonCore import vtkWeakReference
+            self._dataset = vtkWeakReference()
+            self._dataset.Set(dataset)
+        else:
+            self._dataset = None
 
-        self._initialized = True
+    @property
+    def dataset(self):
+        """Return the owning composite dataset (dereferenced from weak ref)."""
+        if self._dataset is not None:
+            return self._dataset.Get()
+        return None
 
-        if self.dataset is None or self.name is None:
+    @dataset.setter
+    def dataset(self, value):
+        self._set_dataset(value)
+
+    def _init_from_composite(self):
+        """Populate the per-block arrays from the composite dataset.
+
+        Called once from __init__. The dataset is only held weakly, so the
+        blocks cannot be resolved lazily the first time they are needed."""
+        dataset = self.dataset
+        if dataset is None or self.name is None:
             return
 
         self._arrays = []
-        for ds in self.dataset:
+        for ds in dataset:
             # Use the data_model properties (point_data/cell_data/field_data)
             # which set .dataset and .association on the returned FieldDataBase,
             # ensuring the per-block arrays get metadata propagated via get_array.
@@ -96,21 +122,18 @@ class VTKPartitionedArray(object):
 
     def _get_size(self):
         "Returns the number of elements in the array."
-        self.__init_from_composite()
-        size = numpy.int64(0)
+        size = 0
         for a in self._arrays:
             try:
                 size += a.size
             except AttributeError:
                 pass
-        return size
+        return int(size)
 
     size = property(_get_size)
 
     def _get_arrays(self):
-        """Returns the internal container of VTKArrays. If necessary,
-        this will populate the array list from a composite dataset."""
-        self.__init_from_composite()
+        """Returns the internal container of VTKArrays."""
         return self._arrays
 
     arrays = property(_get_arrays)
@@ -118,8 +141,6 @@ class VTKPartitionedArray(object):
     def __setitem__(self, index, value) -> None:
         """Setter overwritten to defer indexing to underlying VTKArrays.
         For the most part, this will behave like Numpy."""
-        self.__init_from_composite()
-
         partition_sizes = [len(a) if a is not NoneArray else 0 for a in self._arrays]
         offsets = numpy.cumsum([0] + partition_sizes)
         total_size = offsets[-1]
@@ -172,8 +193,6 @@ class VTKPartitionedArray(object):
     def __getitem__(self, index) -> Union[List, "VTKPartitionedArray", numpy.ndarray]:
         """Getter overwritten to refer indexing to underlying VTKArrays.
         For the most part, this will behave like Numpy."""
-        self.__init_from_composite()
-
         empty = True
         for a in self._arrays:
             if a is not NoneArray:
@@ -321,7 +340,6 @@ class VTKPartitionedArray(object):
     def _binop(self, other, op):
         """Used to implement numpy-style numerical operations such as __add__,
         __mul__, etc."""
-        self.__init_from_composite()
         res = []
         if type(other) == VTKPartitionedArray:
             for a1, a2 in zip(self._arrays, other.arrays):
@@ -343,7 +361,6 @@ class VTKPartitionedArray(object):
     def _rbinop(self, other, op):
         """Used to implement numpy-style numerical operations such as __add__,
         __mul__, etc."""
-        self.__init_from_composite()
         res = []
         if type(other) == VTKPartitionedArray:
             for a1, a2 in zip(self._arrays, other.arrays):
@@ -396,6 +413,24 @@ class VTKPartitionedArray(object):
     def __ge__(self, other):        return self._binop(other, operator.ge)
     def __gt__(self, other):        return self._binop(other, operator.gt)
 
+    def _unop(self, ufunc):
+        """Used to implement numpy-style unary operations such as __neg__,
+        __abs__, etc. The ufunc is applied per block so the result stays
+        partitioned."""
+        res = [ufunc(a) if a is not NoneArray else NoneArray
+               for a in self._arrays]
+        return VTKPartitionedArray(
+            res, dataset=self.dataset, association=self.association)
+
+    # Unary
+    def __neg__(self):              return self._unop(numpy.negative)
+    def __pos__(self):              return self._unop(numpy.positive)
+    def __abs__(self):              return self._unop(numpy.absolute)
+
+    def __repr__(self):
+        return (f"VTKPartitionedArray(shape={self.shape}, dtype={self.dtype}, "
+                f"blocks={len(self.arrays)})")
+
     def __str__(self):
         return self.arrays.__str__()
 
@@ -430,7 +465,6 @@ class VTKPartitionedArray(object):
     @property
     def nbytes(self):
         """Return the total number of bytes consumed by all blocks."""
-        self.__init_from_composite()
         total = 0
         for a in self._arrays:
             if a is not NoneArray:
@@ -515,7 +549,9 @@ class VTKPartitionedArray(object):
         return self.__array__().ravel(order=order)
 
     def copy(self, order='C'):
-        return self.__array__().copy(order=order)
+        # Routed through numpy.copy() so that this agrees with the
+        # numpy.copy() override and stays partitioned.
+        return numpy.copy(self, order=order)
 
     def squeeze(self, axis=None):
         return self.__array__().squeeze(axis=axis)
@@ -549,6 +585,12 @@ class VTKPartitionedArray(object):
         """Return the total number of elements in the composite array."""
         return self.shape[0]
 
+    def __bool__(self) -> bool:
+        # VTK objects are always truthy.  Without this, Python falls back to
+        # __len__ and treats empty arrays as falsy, breaking code that uses
+        # ``if array:`` to test for a non-None reference.
+        return True
+
     def __contains__(self, item) -> bool:
         """Check if the item exists in any of the non-null sub-arrays."""
         return any(item in array for array in self.arrays if array is not NoneArray)
@@ -567,31 +609,60 @@ class VTKPartitionedArray(object):
                 for subarray in array:
                     yield subarray
 
+    def to_numpy(self, dtype=None) -> numpy.ndarray:
+        """Materialize all blocks into a single numpy ndarray."""
+        return self.__array__(dtype=dtype)
+
     def __array__(self, dtype=None, copy=None) -> numpy.ndarray:
         """Convert the composite array into a single NumPy array."""
         if copy is False:
             raise RuntimeError("VTKPartitionedArray must create a copy to be converted into a Numpy array.")
-        return numpy.concatenate([numpy.asarray(a) for a in self.arrays if a is not NoneArray], axis=0, dtype=dtype)
+        blocks = [numpy.asarray(a) for a in self.arrays if a is not NoneArray]
+        if not blocks:
+            # No block holds data. Report an empty array rather than letting
+            # numpy.concatenate() raise on an empty sequence.
+            return numpy.empty((0,), dtype=numpy.float64 if dtype is None else dtype)
+        return numpy.concatenate(blocks, axis=0, dtype=dtype)
 
     def __array_function__(self, func, types, args, kwargs):
-        """Implements Numpy dispatch mechanism. Functions registered in PARTITIONED_OVERRIDE
-        are captured here. See:
+        """Implements Numpy dispatch mechanism. Functions registered in
+        PARTITIONED_OVERRIDE are captured here and handled block by block.
+        Everything else falls back to materializing the blocks into a single
+        contiguous array and re-calling the numpy function. See:
         https://numpy.org/doc/stable/user/basics.interoperability.html#the-array-function-protocol"""
 
-        if func not in PARTITIONED_OVERRIDE:
-            warnings.warn(
-                f"numpy.{func.__name__}() is not optimized for "
-                f"VTKPartitionedArray; all blocks will be materialized "
-                f"into a single array.",
-                stacklevel=2,
-            )
-            return NotImplemented
-        return PARTITIONED_OVERRIDE[func](*args, **kwargs)
+        if func in PARTITIONED_OVERRIDE:
+            return PARTITIONED_OVERRIDE[func](*args, **kwargs)
+
+        warnings.warn(
+            f"numpy.{func.__name__}() is not optimized for "
+            f"VTKPartitionedArray; all blocks will be materialized "
+            f"into a single array.",
+            stacklevel=2,
+        )
+
+        def convert(arg):
+            if isinstance(arg, VTKPartitionedArray):
+                return numpy.asarray(arg)
+            elif isinstance(arg, (list, tuple)):
+                return type(arg)(convert(a) for a in arg)
+            return arg
+
+        new_args = tuple(convert(arg) for arg in args)
+        new_kwargs = {key: convert(val) for key, val in kwargs.items()}
+        return func(*new_args, **new_kwargs)
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         """Handles Numpy functions calls that takes a fixed number of specific inputs and outputs."""
+        # Returning NotImplemented (rather than raising) lets numpy report the
+        # unsupported combination itself, as the other VTK array wrappers do.
         if method != '__call__':
-            raise NotImplementedError(f"Method {method} is not supported by __array_ufunc__")
+            return NotImplemented
+
+        if kwargs.get('out', None) is not None:
+            # A caller-supplied output buffer would have to be split across
+            # the blocks; forwarding it as-is would corrupt the result.
+            return NotImplemented
 
         num_chunks = len(self.arrays)
         partition_sizes = [sub.shape[0] for sub in self.arrays]
@@ -724,6 +795,10 @@ def shape(array):
                     for idx in range(1,len(tmp)):
                         if shp[idx] != tmp[idx]:
                             raise ValueError("Expected arrays of same shape")
+        if shp is None:
+            # Every block is a NoneArray; report the same shape as an
+            # empty composite array rather than failing on tuple(None).
+            return (0,)
         return tuple(shp)
     elif array is NoneArray:
         return ()
