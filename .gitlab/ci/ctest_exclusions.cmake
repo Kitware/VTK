@@ -492,9 +492,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingCoreCxx-OpenGL-TestGlyph3DMapperCompositeDisplayAttributeInheritance$"
     "^VTK::RenderingCoreCxx-OpenGL-TestHardwareSelector$"
     "^VTK::RenderingCoreCxx-OpenGL-TestTransformCoordinateUseDouble$"
-    "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlur$"
-    "^VTK::RenderingOpenGL2Cxx-TestSkyboxNoBlur$"
-    "^VTK::RenderingOpenGL2Cxx-TestSkyboxWithRenderPass$"
     # RenderingCoreCxx tests that fail with WebGPU.
     # see https://gitlab.kitware.com/vtk/vtk/-/issues/19921
     "^VTK::RenderingCoreCxx-WebGPU-TestAreaSelections$"
