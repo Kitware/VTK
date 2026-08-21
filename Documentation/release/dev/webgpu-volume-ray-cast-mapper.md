@@ -11,7 +11,7 @@ blending, colour, scalar opacity and gradient opacity transfer functions,
 Blinn-Phong shading from the lights of the renderer, clipping planes, and it
 terminates rays against the opaque geometry already in the frame.
 
-Two things work differently from `vtkOpenGLGPUVolumeRayCastMapper`.
+Three things work differently from `vtkOpenGLGPUVolumeRayCastMapper`.
 
 Volumes that share a renderer are ray cast together and may overlap in space.
 Adding the props is all it takes:
@@ -39,6 +39,21 @@ sample regions that carry detail more densely than regions that do not. Turn
 this off with `SetAdaptiveSampling(false)` to march with the same distance
 everywhere; `SetMinimumSampleDistanceFactor` and
 `SetMaximumSampleDistanceFactor` bound how far the distance is allowed to move.
+
+Volumes are not uploaded whole. Every volume is cut into bricks, and the bricks
+the rays actually reach are kept in a pool shared by the whole renderer, with a
+page table saying which pool slot holds which brick. Each brick carries a one
+voxel apron taken from its neighbours, so the cutting is invisible: a ray
+crossing from one brick to the next reads exactly what it would have read from a
+single large texture.
+
+That makes a volume larger than device memory drawable. When the volumes in a
+scene need more than `vtkWebGPUVolumeRayCastCoordinator::SetBrickPoolSizeMB()`
+allows, the bricks nearest the camera and inside the view frustum are the ones
+kept, and the rest arrive over the frames that follow, capped by
+`SetMaximumBricksPerFrame()`. `GetComplete()` says whether the last frame got
+everything it asked for. A pass that fits in the pool - which is the ordinary
+case - is complete in one frame and none of this is visible.
 
 The `VTK::RenderingVolume` C++ tests now run once per rendering backend, the way
 the `VTK::RenderingCore` ones do, so their names carry a backend prefix:
