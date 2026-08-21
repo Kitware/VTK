@@ -54,7 +54,9 @@ enum GlobalFlag : std::uint32_t
 enum VolumeFlag : std::uint32_t
 {
   VolumeFlagShade = 1u,
-  VolumeFlagGradientOpacity = 2u
+  VolumeFlagGradientOpacity = 2u,
+  VolumeFlagCropping = 4u,
+  VolumeFlagNormalFromOpacity = 8u
 };
 
 // Must match Light in VolumeRayCast.wgsl.
@@ -127,12 +129,16 @@ struct VolumeParams
   std::uint32_t NumberOfClipPlanes;
   std::uint32_t PoolKind;
   std::uint32_t CellOffset;
-  float Padding0;
+  std::uint32_t CroppingFlags;
   float CellDimensions[3];
   float CellSize;
+  float CroppingLower[3];
+  float Padding0;
+  float CroppingUpper[3];
+  float Padding1;
   float ClipPlanes[MaxClipPlanes][4];
 };
-static_assert(sizeof(VolumeParams) == 352, "VolumeParams must match the WGSL layout");
+static_assert(sizeof(VolumeParams) == 384, "VolumeParams must match the WGSL layout");
 
 // Must match Page in VolumeRayCast.wgsl.
 struct PageEntry
@@ -834,6 +840,56 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
     if (property->GetDisableGradientOpacity(0) == 0)
     {
       params.Flags |= VolumeFlagGradientOpacity;
+    }
+    if (mapper->GetComputeNormalFromOpacity())
+    {
+      params.Flags |= VolumeFlagNormalFromOpacity;
+    }
+
+    // Cropping regions are given in the input's own coordinates, so they are brought into the
+    // texture coordinates the march works in the same way the OpenGL mapper does.
+    if (mapper->GetCropping() != 0)
+    {
+      params.Flags |= VolumeFlagCropping;
+      params.CroppingFlags = static_cast<std::uint32_t>(mapper->GetCroppingRegionFlags());
+
+      double planes[6];
+      mapper->GetCroppingRegionPlanes(planes);
+      double dataBounds[6];
+      contribution.Data->GetBounds(dataBounds);
+      for (int axis = 0; axis < 3; ++axis)
+      {
+        for (int side = 0; side < 2; ++side)
+        {
+          double& value = planes[2 * axis + side];
+          value = std::clamp(value, dataBounds[2 * axis], dataBounds[2 * axis + 1]);
+        }
+      }
+
+      vtkNew<vtkMatrix4x4> textureToData;
+      vtkMatrix4x4::Multiply4x4(
+        contribution.Data->GetIndexToPhysicalMatrix(), textureToIndex, textureToData);
+      vtkNew<vtkMatrix4x4> dataToTexture;
+      vtkMatrix4x4::Invert(textureToData, dataToTexture);
+      for (int axis = 0; axis < 3; ++axis)
+      {
+        for (int side = 0; side < 2; ++side)
+        {
+          double point[4] = { 0.0, 0.0, 0.0, 1.0 };
+          point[axis] = planes[2 * axis + side];
+          double texture[4];
+          dataToTexture->MultiplyPoint(point, texture);
+          const float value = static_cast<float>(texture[axis] / texture[3]);
+          if (side == 0)
+          {
+            params.CroppingLower[axis] = value;
+          }
+          else
+          {
+            params.CroppingUpper[axis] = value;
+          }
+        }
+      }
     }
 
     // Clipping planes belong to the mapper, so each input is clipped by its own.

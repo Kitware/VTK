@@ -813,7 +813,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCompositeBinaryMask$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCompositeBinaryMask1$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastComputeNormalFromOpacity$"
-    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCropping1$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastFourComponentsDependentGradient$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastIndependentVectorMode$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastIsosurface$"

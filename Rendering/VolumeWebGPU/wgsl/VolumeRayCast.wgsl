@@ -28,6 +28,8 @@ const FLAG_TWO_SIDED_LIGHTING: u32 = 64u;
 // VolumeParams.flags
 const VOLUME_FLAG_SHADE: u32 = 1u;
 const VOLUME_FLAG_GRADIENT_OPACITY: u32 = 2u;
+const VOLUME_FLAG_CROPPING: u32 = 4u;
+const VOLUME_FLAG_NORMAL_FROM_OPACITY: u32 = 8u;
 
 // GlobalUniforms.blend_mode, matching vtkVolumeMapper::BlendModes
 const BLEND_COMPOSITE: u32 = 0u;
@@ -111,9 +113,15 @@ struct VolumeParams {
   pool_kind: u32,
   // Where this volume's acceleration cells start in the shared table.
   cell_offset: u32,
-  padding0: f32,
+  // One bit per cropping region, in the order vtkVolumeMapper numbers them.
+  cropping_flags: u32,
   cell_dims: vec3<f32>,
   cell_size: f32,
+  // The cropping planes, in texture coordinates.
+  cropping_lower: vec3<f32>,
+  padding0: f32,
+  cropping_upper: vec3<f32>,
+  padding1: f32,
   clip_planes: array<vec4<f32>, MAX_CLIP_PLANES>,
 }
 
@@ -246,6 +254,62 @@ fn sampleScalar(volume_index: u32, tex_coord: vec3<f32>) -> f32 {
   let raw = mix(mix(c00, c10, frac.y), mix(c01, c11, frac.y), frac.z);
 
   return raw * params.value_scale + params.value_bias;
+}
+
+// Which of the twenty seven cropping regions a point falls in, numbered the way
+// vtkVolumeMapper numbers them, or zero when the volume is not cropped.
+fn croppingRegion(volume_index: u32, tex_coord: vec3<f32>) -> u32 {
+  let params = volumes[volume_index];
+  var region = 1;
+  var scale = 1;
+  for (var axis = 0; axis < 3; axis++) {
+    let position = tex_coord[axis];
+    let lower = params.cropping_lower[axis];
+    let upper = params.cropping_upper[axis];
+    var coordinate = 3;
+    if (position < lower) {
+      coordinate = 1;
+    } else if (position < upper) {
+      coordinate = 2;
+    }
+    region += (coordinate - 1) * scale;
+    scale *= 3;
+  }
+  return u32(region);
+}
+
+// Whether a point is in a region the mapper was told to leave out.
+fn cropped(volume_index: u32, tex_coord: vec3<f32>) -> bool {
+  let params = volumes[volume_index];
+  if ((params.flags & VOLUME_FLAG_CROPPING) == 0u) {
+    return false;
+  }
+  let region = croppingRegion(volume_index, tex_coord);
+  return ((params.cropping_flags >> (region - 1u)) & 1u) == 0u;
+}
+
+// What the scalar opacity function makes of the point, before any gradient opacity is applied.
+fn sampleOpacity(volume_index: u32, tex_coord: vec3<f32>) -> f32 {
+  let params = volumes[volume_index];
+  let scalar = sampleScalar(volume_index, tex_coord);
+  let normalized =
+    clamp((scalar - params.scalar_range_min) * params.scalar_range_scale, 0.0, 1.0);
+  return textureSampleLevel(opacity_transfer_functions, transfer_function_sampler,
+    vec2<f32>(normalized, 0.5), volume_index, 0.0).r;
+}
+
+// Central differences of opacity rather than of the scalar, as
+// vtkVolumeMapper::ComputeNormalFromOpacity asks: surfaces follow what the transfer function shows.
+fn computeOpacityGradient(volume_index: u32, tex_coord: vec3<f32>) -> vec3<f32> {
+  let params = volumes[volume_index];
+  let step = 1.0 / max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0));
+  let xp = sampleOpacity(volume_index, tex_coord + vec3<f32>(step.x, 0.0, 0.0));
+  let xm = sampleOpacity(volume_index, tex_coord - vec3<f32>(step.x, 0.0, 0.0));
+  let yp = sampleOpacity(volume_index, tex_coord + vec3<f32>(0.0, step.y, 0.0));
+  let ym = sampleOpacity(volume_index, tex_coord - vec3<f32>(0.0, step.y, 0.0));
+  let zp = sampleOpacity(volume_index, tex_coord + vec3<f32>(0.0, 0.0, step.z));
+  let zm = sampleOpacity(volume_index, tex_coord - vec3<f32>(0.0, 0.0, step.z));
+  return vec3<f32>(xp - xm, yp - ym, zp - zm);
 }
 
 // Central differences, returned in texture space. Divide component wise by twice the spacing to
@@ -611,6 +675,9 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
       if ((pageOf(i, tex_coord).flags & PAGE_RESIDENT) == 0u) {
         continue;
       }
+      if (cropped(i, tex_coord)) {
+        continue;
+      }
       let scalar = sampleScalar(i, tex_coord);
       let normalized =
         clamp((scalar - params.scalar_range_min) * params.scalar_range_scale, 0.0, 1.0);
@@ -644,9 +711,14 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
         opacity_transfer_functions, transfer_function_sampler, lookup, i, 0.0).r;
 
       var gradient = vec3<f32>(0.0);
+      var shading_gradient = vec3<f32>(0.0);
       let wants_gradient = (params.flags & (VOLUME_FLAG_SHADE | VOLUME_FLAG_GRADIENT_OPACITY)) != 0u;
       if (wants_gradient && opacity > 0.0) {
         gradient = computeGradient(i, tex_coord);
+        shading_gradient = gradient;
+        if ((params.flags & VOLUME_FLAG_NORMAL_FROM_OPACITY) != 0u) {
+          shading_gradient = computeOpacityGradient(i, tex_coord);
+        }
       }
 
       if ((params.flags & VOLUME_FLAG_GRADIENT_OPACITY) != 0u && opacity > 0.0) {
@@ -667,7 +739,7 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
 
       var sample_color = color;
       if ((params.flags & VOLUME_FLAG_SHADE) != 0u) {
-        sample_color = shade(i, color, tex_coord, gradient);
+        sample_color = shade(i, color, tex_coord, shading_gradient);
       }
 
       weighted_color += opacity * sample_color;
