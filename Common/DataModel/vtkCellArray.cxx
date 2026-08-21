@@ -392,9 +392,11 @@ struct ReplaceCellAtIdImpl : public vtkCellArray::DispatchUtilities
 
 struct AppendLegacyFormatImpl : public vtkCellArray::DispatchUtilities
 {
+  bool isCorrupt{ false };
+
   template <class OffsetsT, class ConnectivityT>
   void operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType* data,
-    const vtkIdType len, const vtkIdType ptOffset) const
+    const vtkIdType len, const vtkIdType ptOffset)
   {
     using ValueType = GetAPIType<OffsetsT>;
     using OffsetsAccessorType = vtkDataArrayAccessor<OffsetsT>;
@@ -412,6 +414,11 @@ struct AppendLegacyFormatImpl : public vtkCellArray::DispatchUtilities
       offsetsAccessor.InsertNext(offset);
       while (numPts-- > 0)
       {
+        if (data >= dataEnd)
+        {
+          isCorrupt = true;
+          return;
+        }
         connAccessor.InsertNext(static_cast<ValueType>(*data++ + ptOffset));
       }
     }
@@ -1251,26 +1258,26 @@ void vtkCellArray::ExportLegacyFormat(vtkIdTypeArray* data)
 }
 
 //------------------------------------------------------------------------------
-void vtkCellArray::ImportLegacyFormat(vtkIdTypeArray* data)
+bool vtkCellArray::ImportLegacyFormat(vtkIdTypeArray* data)
 {
-  this->ImportLegacyFormat(data->GetPointer(0), data->GetNumberOfValues());
+  return this->ImportLegacyFormat(data->GetPointer(0), data->GetNumberOfValues());
 }
 
 //------------------------------------------------------------------------------
-void vtkCellArray::ImportLegacyFormat(const vtkIdType* data, vtkIdType len)
+bool vtkCellArray::ImportLegacyFormat(const vtkIdType* data, vtkIdType len)
 {
   this->Reset();
-  this->AppendLegacyFormat(data, len, 0);
+  return this->AppendLegacyFormat(data, len, 0);
 }
 
 //------------------------------------------------------------------------------
-void vtkCellArray::AppendLegacyFormat(vtkIdTypeArray* data, vtkIdType ptOffset)
+bool vtkCellArray::AppendLegacyFormat(vtkIdTypeArray* data, vtkIdType ptOffset)
 {
-  this->AppendLegacyFormat(data->GetPointer(0), data->GetNumberOfValues(), ptOffset);
+  return this->AppendLegacyFormat(data->GetPointer(0), data->GetNumberOfValues(), ptOffset);
 }
 
 //------------------------------------------------------------------------------
-void vtkCellArray::AppendLegacyFormat(const vtkIdType* data, vtkIdType len, vtkIdType ptOffset)
+bool vtkCellArray::AppendLegacyFormat(const vtkIdType* data, vtkIdType len, vtkIdType ptOffset)
 {
   const vtkIdType* cell = data;
   const vtkIdType* const dataEnd = data + len;
@@ -1279,7 +1286,11 @@ void vtkCellArray::AppendLegacyFormat(const vtkIdType* data, vtkIdType len, vtkI
     this->EnsureStorageForCellSize(*cell);
     cell += *cell + 1;
   }
-  this->Dispatch(AppendLegacyFormatImpl{}, data, len, ptOffset);
+
+  auto legacyImpl = AppendLegacyFormatImpl{};
+  this->Dispatch(legacyImpl, data, len, ptOffset);
+  bool isCorrupt = legacyImpl.isCorrupt;
+  return !isCorrupt;
 }
 
 //------------------------------------------------------------------------------

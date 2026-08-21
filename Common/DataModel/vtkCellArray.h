@@ -820,9 +820,12 @@ public:
    *
    * where `n0` is the number of points in cell 0, and `pX_Y` is the Y'th point
    * in cell X.
+   *
+   * Returns false if the data is corrupt (for example `n0` being too large for the actual buffer).
+   * Returns true upon successful conversion.
    */
-  void ImportLegacyFormat(vtkIdTypeArray* data);
-  void ImportLegacyFormat(const vtkIdType* data, vtkIdType len) VTK_SIZEHINT(data, len);
+  bool ImportLegacyFormat(vtkIdTypeArray* data);
+  bool ImportLegacyFormat(const vtkIdType* data, vtkIdType len) VTK_SIZEHINT(data, len);
   ///@}
 
   ///@{
@@ -835,9 +838,12 @@ public:
    *
    * where `n0` is the number of points in cell 0, and `pX_Y` is the Y'th point
    * in cell X.
+   *
+   * Returns false if the data is corrupt (for example `n0` being too large for the actual buffer).
+   * Returns true upon successful conversion.
    */
-  void AppendLegacyFormat(vtkIdTypeArray* data, vtkIdType ptOffset = 0);
-  void AppendLegacyFormat(const vtkIdType* data, vtkIdType len, vtkIdType ptOffset = 0)
+  bool AppendLegacyFormat(vtkIdTypeArray* data, vtkIdType ptOffset = 0);
+  bool AppendLegacyFormat(const vtkIdType* data, vtkIdType len, vtkIdType ptOffset = 0)
     VTK_SIZEHINT(data, len);
   ///@}
 
