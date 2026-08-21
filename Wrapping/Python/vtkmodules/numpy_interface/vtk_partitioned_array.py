@@ -44,6 +44,10 @@ class VTKPartitionedArray(object):
     VTK modules should be used to process composite arrays.
     """
 
+    # Class-level default so _set_dataset() can read the holder before
+    # __init__ has assigned one.
+    _dataset = None
+
     def __init__(self, arrays = None, dataset = None, name = None,
                  association = None):
         """Construct a composite array given a container of
@@ -79,13 +83,22 @@ class VTKPartitionedArray(object):
 
     # ---- metadata management ------------------------------------------------
     def _set_dataset(self, dataset):
-        """Store a weak reference to the owning composite dataset."""
-        if dataset is not None:
-            from ..vtkCommonCore import vtkWeakReference
-            self._dataset = vtkWeakReference()
-            self._dataset.Set(dataset)
-        else:
+        """Store a weak reference to the owning composite dataset.
+
+        The reference must stay weak: this is a child-to-parent back
+        reference, and a strong one would be pinned in vtkPythonUtil's ghost
+        map once this wrapper is released, leaking the whole dataset.
+        """
+        if dataset is None:
             self._dataset = None
+            return
+        # Reuse the existing holder rather than allocating a new one.
+        ref = self._dataset
+        if ref is None:
+            from ..vtkCommonCore import vtkWeakReference
+            ref = vtkWeakReference()
+            self._dataset = ref
+        ref.Set(dataset)
 
     @property
     def dataset(self):
