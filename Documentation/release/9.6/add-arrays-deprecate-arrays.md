@@ -1,4 +1,4 @@
-## Arrays have been added and deprecated
+# Arrays have been added and deprecated
 
 The following arrays have been deprecated.
 

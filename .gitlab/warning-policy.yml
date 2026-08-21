@@ -1,4 +1,5 @@
 .warning_policy:
     allow_failure:
       exit_codes:
-        - 47 # Warnings detected
+        # Warnings detected, see check_warnings.sh for more details
+        - 47

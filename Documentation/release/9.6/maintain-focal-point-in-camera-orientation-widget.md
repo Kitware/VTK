@@ -1,4 +1,4 @@
-## Maintaining Focal Point Consistency in `vtkCameraOrientationWidget`
+# Maintaining Focal Point Consistency in `vtkCameraOrientationWidget`
 
 The `vtkCameraOrientationWidget` previously called `ResetCamera()` during animation frames and selection actions, which would recalculate the focal point.
 

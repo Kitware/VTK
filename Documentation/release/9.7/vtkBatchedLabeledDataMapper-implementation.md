@@ -1,6 +1,6 @@
-## vtkBatchedLabeledDataMapper: Implementation
+# vtkBatchedLabeledDataMapper: Implementation
 
-### Background
+## Background
 
 `vtkFastLabeledDataMapper` was introduced in VTK 9.5 as a faster replacement
 for `vtkLabeledDataMapper`. Instead of issuing one draw call per label, it
@@ -10,7 +10,7 @@ Its initial implementation lived entirely in `Rendering/OpenGL2`, which tied the
 atlas-building logic to the OpenGL backend and made it impossible to reuse the
 same approach on other backends or in non-3D contexts.
 
-### New class: vtkBatchedLabeledDataMapper
+## New class: vtkBatchedLabeledDataMapper
 
 `vtkBatchedLabeledDataMapper` is a `vtkLabeledDataMapper` subclass that brings
 the same glyph-atlas batch rendering to both world-space and display-space label
@@ -58,21 +58,21 @@ actor->SetMapper(mapper);
 renderer->AddViewProp(actor);
 ```
 
-### Breaking change: vtkLabeledDataMapper::Implementation
+## Breaking change: vtkLabeledDataMapper::Implementation
 
 The protected data member `Implementation` in `vtkLabeledDataMapper` has been
 changed from a raw pointer (`Internals* Implementation`) to a
 `std::unique_ptr<Internals>`. Subclasses that stored or transferred ownership of
 this pointer must be updated accordingly.
 
-### Deprecation of vtkFastLabeledDataMapper
+## Deprecation of vtkFastLabeledDataMapper
 
 `vtkFastLabeledDataMapper` (the original `vtkOpenGLPolyDataMapper`-based 3D label
 mapper in `Rendering/OpenGL2`) is deprecated as of VTK 9.7. Use
 `vtkBatchedLabeledDataMapper` instead, which supports both world-space and
 display-space rendering and works across all backends via the object factory.
 
-### vtkGridAxesActor2D: batch tick label rendering
+## vtkGridAxesActor2D: batch tick label rendering
 
 `vtkGridAxesActor2D` now uses `vtkBatchedLabeledDataMapper` for tick labels.
 Previously, each tick mark on each axis edge was backed by an individual

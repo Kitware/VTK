@@ -1,4 +1,4 @@
-## vtkAbstractArray: Deprecate GetSize(), Resize() and Allocate(); Add GetCapacity(), ReserveTuples(), and ReserveValues()
+# vtkAbstractArray: Deprecate GetSize(), Resize() and Allocate(); Add GetCapacity(), ReserveTuples(), and ReserveValues()
 
 The new `GetCapacity()` method in `vtkAbstractArray` clarifies the semantics of VTK array storage. The previous
 `GetSize()` method was frequently misunderstood, as many users assumed it behaved like `std::vector<T>::size()`, when in

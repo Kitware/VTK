@@ -1,4 +1,4 @@
-## Polyhedron clipping and contouring now uses López polygon-tracing algorithm
+# Polyhedron clipping and contouring now uses López polygon-tracing algorithm
 
 `vtkPolyhedron::Contour()` and `vtkPolyhedron::Clip()` have been replaced with an
 implementation based on the López polygon-tracing algorithm (López et al., "A new
@@ -10,7 +10,7 @@ complex triangle-merging post-processing step of the previous implementation.
 summation, replacing the previous random ray-casting approach. The new method is
 deterministic and single-pass.
 
-### Breaking change: outward-facing normals required
+## Breaking change: outward-facing normals required
 
 These new algorithms require that polyhedron face vertices are wound
 counter-clockwise when viewed from outside the cell, so that face normals (by the
@@ -21,7 +21,7 @@ algorithms are not.
 Code that constructs `VTK_POLYHEDRON` cells must ensure correct face winding.
 `vtkCellTypeSource` has been fixed accordingly.
 
-### New API
+## New API
 
 - `vtkLine::DistanceToSegment()` — squared distance from a point to a finite
   line segment, with clean degenerate handling
@@ -38,7 +38,7 @@ Code that constructs `VTK_POLYHEDRON` cells must ensure correct face winding.
   deduplication is performed by the calling filter via its shared edge
   locator
 
-### What changed
+## What changed
 
 - `vtkPolyhedronContour` — new class implementing the López algorithm for both
   contour and clip operations

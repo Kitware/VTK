@@ -1,4 +1,4 @@
-## VTK Wedge Cell Types: Fix Point Ordering, Triangulation and Volume Correctness
+# VTK Wedge Cell Types: Fix Point Ordering, Triangulation and Volume Correctness
 
 This series of commits fixes long-standing issues with wedge cell types in VTK,
 where point orderings were inconsistent with parametric coordinates, leading to

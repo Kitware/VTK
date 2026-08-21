@@ -1,4 +1,4 @@
-## Fix the gesture events (Pinch, Pan, Rotate) positions
+# Fix the gesture events (Pinch, Pan, Rotate) positions
 
 The EndRotate event now triggers vtkCommand::EndRotateEvent.
 

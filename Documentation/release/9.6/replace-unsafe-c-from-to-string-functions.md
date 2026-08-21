@@ -1,4 +1,4 @@
-## Replace unsafe c from/to string functions
+# Replace unsafe c from/to string functions
 
 VTK has been using a set of either unsafe or slow C/C++ functions to convert numbers to string or vice versa.
 The exhaustive list of functions is given below. And all of them have been replaced with safer alternatives/faster

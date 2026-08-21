@@ -1,4 +1,4 @@
-## vtkCellArray: Support offsets/connectivity as vtkDataArray including vtkAffineArray for Offsets
+# vtkCellArray: Support offsets/connectivity as vtkDataArray including vtkAffineArray for Offsets
 
 The `vtkCellArray` used to be able to support storing connectivity and offsets that are either `vtkTypedInt32Array` or
 `vtkTypedInt64Array`. This was limiting because it did not allow using other `vtkDataArray` subclasses, therefore,

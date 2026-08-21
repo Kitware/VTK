@@ -509,7 +509,7 @@ endfunction()
 .. cmake:command:: vtk_module_add_serdes_wasm_package
 
   Adds a WebAssembly package that facilitates deserialization of VTK classes
-  in a WASM environment for ``MODULE``. |module-wrapping-serdes|
+  in a WASM environment for ``MODULE``. |module-serialization|
 
   .. code-block:: cmake
 

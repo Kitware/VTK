@@ -1,4 +1,4 @@
-## vtkAbstractArray: Replace most of GetVoidPointer instances
+# vtkAbstractArray: Replace most of GetVoidPointer instances
 
 `vtkAbstractArray::GetVoidPointer()` is a function that returns a raw pointer to the underlying data of a VTK array.
 This function was added in VTK's early days when it only supported `vtkAOSDataArrayTemplate` arrays. Since then,

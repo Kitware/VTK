@@ -1,4 +1,4 @@
-## Add support for ONNX runtime
+# Add support for ONNX runtime
 
 ONNX Inference is now available. This new filter allows to infer AI models
 using the ONNX framework in VTK. This filter is added in a new module dedicated

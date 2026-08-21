@@ -1,4 +1,4 @@
-## Fix handling of image null pointer in Rendering/Matplotlib
+# Fix handling of image null pointer in Rendering/Matplotlib
 
 Some architectures (bigendian s390x) generate an image object with
 null scalar pointer in vtkMatplotlibMathTextUtilities::RenderOneCell

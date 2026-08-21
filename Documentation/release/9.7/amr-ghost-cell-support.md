@@ -1,6 +1,6 @@
-## AMR ghost cell support and blanking fixes
+# AMR ghost cell support and blanking fixes
 
-### Ghost cell support in vtkAMReXGridReader
+## Ghost cell support in vtkAMReXGridReader
 
 `vtkAMReXGridReader` now reads ghost cells from AMReX plotfiles that were
 written with `nGrow > 0`. When ghost cells are present in the plotfile, the
@@ -15,7 +15,7 @@ TODO comment in the code). Reading a plotfile with ghost cells could result in
 data misalignment or crashes because the FAB data on disk was larger than the
 grid allocated by the reader.
 
-### AMR cell blanking fix in vtkAMRUtilities
+## AMR cell blanking fix in vtkAMRUtilities
 
 `vtkAMRUtilities::BlankGridsAtLevel` now correctly handles grids with ghost
 cells when computing cell blanking (the `REFINEDCELL` flag). The blanking code
@@ -25,7 +25,7 @@ whose extent does not start at zero. Previously, the blanking code used
 `vtkAMRBox::GetCellLinearIndex` which assumed the grid dimensions matched the
 AMR box dimensions, producing incorrect cell IDs when ghost cells were present.
 
-### Parent-child relationship fix in vtkOverlappingAMRMetaData
+## Parent-child relationship fix in vtkOverlappingAMRMetaData
 
 `vtkOverlappingAMRMetaData::CalculateParentChildRelationShip` now correctly
 finds parent-child relationships when the number of ghost cells is not a

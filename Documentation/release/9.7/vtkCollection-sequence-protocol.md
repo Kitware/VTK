@@ -1,4 +1,4 @@
-## vtkCollection now supports Python sequence protocol
+# vtkCollection now supports Python sequence protocol
 
 All `vtkCollection` subclasses now support `len()`, indexing with `[]`
 (including negative indices), and membership testing with `in`:

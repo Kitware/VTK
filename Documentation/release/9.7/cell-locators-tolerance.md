@@ -1,4 +1,4 @@
-## CellLocators: Make sure that when a tolerance parameter is available it can be used
+# CellLocators: Make sure that when a tolerance parameter is available it can be used
 
 `vtkCellLocator`, `vtkStaticCellLocator`, `vtkCellTreeLocator`, `vtkModifiedBSPTree`, `vtkOBBTree`,
 `vtkLinearTransformCellLocator` have the following

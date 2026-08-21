@@ -1,4 +1,4 @@
-## Add vtkAMRContourFilter
+# Add vtkAMRContourFilter
 
 A vtkAMRContourFilter has been added.
 It computes a perfectly watertight contour on vtkOverlappingAMR
@@ -10,7 +10,7 @@ Assumption:
  - A single voxel in a non-refined grid is not supposed to have points in common with grid of two other refinements levels.
  - A single edge should not be shared between grids of more than two different refinement level.
 
-### Implementation details
+## Implementation details
 
 - Iterate over each grid.
 - If grid is of the highest refinement, just run a contour filter on it.
@@ -39,12 +39,12 @@ If no data is available (interface face centers and voxel center), then a simple
 
 Rough face:
 
-![image](../imgs/add-amr-contour-filter_rough.png)
+![image](../imgs/9.7/add-amr-contour-filter_rough.png)
 
 Refined face
 
-![image](../imgs/add-amr-contour-filter_refined.png)
+![image](../imgs/9.7/add-amr-contour-filter_refined.png)
 
 Interface face:
 
-![image](../imgs/add-amr-contour-filter_interface.png)
+![image](../imgs/9.7/add-amr-contour-filter_interface.png)

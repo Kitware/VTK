@@ -3,6 +3,7 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+from contextlib import suppress
 import os
 import sys
 
@@ -74,6 +75,10 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build", ".venv", "Thumbs.db", ".DS_Store", "README.md"]
 
 todo_include_todos = True
+
+# Suppress it as it was due to a third-party "moderncmakedomain", for more details
+# see : https://gitlab.kitware.com/vtk/vtk/-/work_items/20140
+suppress_warnings = ["myst.domains"]
 
 # -- Options for HTML output -------------------------------------------------
 

@@ -1,4 +1,4 @@
-## Range-based for loops for `vtkCollection`; deprecation of `vtkCollectionIterator`
+# Range-based for loops for `vtkCollection`; deprecation of `vtkCollectionIterator`
 
 `vtkCollection` now supports C++11 range-based for loops, leveraging modern C++ syntax.
 

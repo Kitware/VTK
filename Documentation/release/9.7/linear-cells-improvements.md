@@ -1,4 +1,4 @@
-## Linear vtkCell: Add Drawing, Add Clip, use contour tables, and Cleanup code
+# Linear vtkCell: Add Drawing, Add Clip, use contour tables, and Cleanup code
 
 The code of all linear cells has been cleaned up, and the following improvements have been made:
 

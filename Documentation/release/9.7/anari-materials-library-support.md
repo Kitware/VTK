@@ -1,4 +1,4 @@
-## ANARI material library support
+# ANARI material library support
 
 VTK now offers material library support for ANARI rendering through a shared
 `vtkRenderMaterialLibrary` base class in RenderingCore. This replaces
@@ -15,7 +15,7 @@ materials programmatically.
 
 Here's how you define materials for ANARI in a material file:
 
-```mtl
+```
 newmtl glossy_red
 ka 0.1 0.1 0.1
 kd 0.8 0.0 0.0

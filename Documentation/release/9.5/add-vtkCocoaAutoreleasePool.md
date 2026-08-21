@@ -1,4 +1,4 @@
-## Added new class to manually create a Cocoa NSAutoreleasePool
+# Added new class to manually create a Cocoa NSAutoreleasePool
 
 The new class vtkCocoaAutoreleasePool allows manually creating and draining a Cocoa autorelease pool.
 

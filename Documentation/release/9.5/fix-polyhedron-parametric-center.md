@@ -1,4 +1,4 @@
-## vtkPolyhedron: Implement GetCentroid and use it in GetParametricCenter
+# vtkPolyhedron: Implement GetCentroid and use it in GetParametricCenter
 
 In VTK 9.4, the `GetParametricCenter` of `vtkPolyhedron` used to return the parametric
 location of its bounding box center which was always 0.5, 0.5, 0.5.

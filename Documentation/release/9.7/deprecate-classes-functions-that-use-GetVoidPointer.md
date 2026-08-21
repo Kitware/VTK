@@ -1,4 +1,4 @@
-## Deprecate classes/functions that use vtkAbstractArray::GetVoidPointer()
+# Deprecate classes/functions that use vtkAbstractArray::GetVoidPointer()
 
 Several classes and methods have been deprecated to further reduce the usage of `vtkAbstractArray::GetVoidPointer()`.
 

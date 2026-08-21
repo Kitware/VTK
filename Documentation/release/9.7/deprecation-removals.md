@@ -1,4 +1,4 @@
-## Deprecations/Removals
+# Deprecations/Removals
 
 - All APIs that were deprecated in 9.5 are now removed.
 - In CommonCore: many vtkType were removed: VTK_MULTIGROUP_DATA_SET, VTK_HIERARCHICAL_DATA_SET, VTK_HIERARCHICAL_BOX_DATA_SET, VTK_HYPER_OCTREE, VTK_TEMPORAL_DATA_SET, VTK_PISTON_DATA_OBJECT

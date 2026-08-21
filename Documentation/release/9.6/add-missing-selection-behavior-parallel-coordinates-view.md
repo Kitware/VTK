@@ -1,4 +1,4 @@
-## Add missing selection mode behavior in parallel coordinates chart
+# Add missing selection mode behavior in parallel coordinates chart
 
 The parallel coordinates chart supports new keyboard shortcuts for different selection modes:
 - Press `Ctrl` while selecting to add to the current selection.

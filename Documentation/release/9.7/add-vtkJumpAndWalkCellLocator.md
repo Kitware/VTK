@@ -1,4 +1,4 @@
-## vtkJumpAndWalkCellLocator: A new cell locator based on the Jump and Walk algorithm
+# vtkJumpAndWalkCellLocator: A new cell locator based on the Jump and Walk algorithm
 
 VTK used to have the concept of `vtkFindCellStrategy`, which could be used to find a cell containing a point.
 `vtkFindCellStrategy` has 3 subclasses, `vtkCellLocatorStrategy`, `vtkClosestPointStrategy`, and

@@ -65,6 +65,7 @@ dummy:build:
 readthedocs:build:
     stage: test
     extends:
+        - .warning_policy
         - .readthedocs
         - .linux_x86_64_builder_tags
         - .make_sphinx_docs
