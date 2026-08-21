@@ -46,7 +46,9 @@ enum GlobalFlag : std::uint32_t
   FlagAdaptive = 2u,
   FlagSkipEmpty = 4u,
   FlagFullScreen = 8u,
-  FlagHasDepth = 16u
+  FlagHasDepth = 16u,
+  FlagDefaultLighting = 32u,
+  FlagTwoSidedLighting = 64u
 };
 
 enum VolumeFlag : std::uint32_t
@@ -54,6 +56,24 @@ enum VolumeFlag : std::uint32_t
   VolumeFlagShade = 1u,
   VolumeFlagGradientOpacity = 2u
 };
+
+// Must match Light in VolumeRayCast.wgsl.
+struct LightData
+{
+  float AmbientColor[3];
+  float ConeAngle;
+  float DiffuseColor[3];
+  float Exponent;
+  float SpecularColor[3];
+  float Positional;
+  float Direction[3];
+  float Padding0;
+  float Position[3];
+  float Padding1;
+  float Attenuation[3];
+  float Padding2;
+};
+static_assert(sizeof(LightData) == 96, "LightData must match the WGSL layout");
 
 // Must match GlobalUniforms in VolumeRayCast.wgsl.
 struct GlobalUniforms
@@ -77,10 +97,9 @@ struct GlobalUniforms
   float AverageRangeMaximum;
   float PoolSlotGrid[3];
   float PoolSlotSize;
-  float LightDirections[MaxLights][4];
-  float LightColors[MaxLights][4];
+  LightData Lights[MaxLights];
 };
-static_assert(sizeof(GlobalUniforms) == 432, "GlobalUniforms must match the WGSL layout");
+static_assert(sizeof(GlobalUniforms) == 816, "GlobalUniforms must match the WGSL layout");
 
 // Must match VolumeParams in VolumeRayCast.wgsl.
 struct VolumeParams
@@ -994,38 +1013,71 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
     globals.Flags |= FlagHasDepth;
   }
 
+  // Lighting follows vtkOpenGLGPUVolumeRayCastMapper: one enabled head light at full intensity is
+  // the "default lighting" case most baselines were made with; anything else accumulates ambient,
+  // diffuse and specular per light.
   globals.NumberOfLights = 0;
-  if (vtkLightCollection* lights = renderer->GetLights())
+  bool defaultLighting = false;
+  if (vtkLightCollection* lightCollection = renderer->GetLights())
   {
     vtkCollectionSimpleIterator iterator;
-    lights->InitTraversal(iterator);
-    while (vtkLight* light = lights->GetNextLight(iterator))
+    lightCollection->InitTraversal(iterator);
+    while (vtkLight* light = lightCollection->GetNextLight(iterator))
     {
-      if (globals.NumberOfLights >= static_cast<std::uint32_t>(MaxLights))
-      {
-        break;
-      }
       if (light->GetSwitch() == 0)
       {
         continue;
       }
+      if (globals.NumberOfLights == 0)
+      {
+        defaultLighting = true;
+      }
+      if (globals.NumberOfLights >= static_cast<std::uint32_t>(MaxLights))
+      {
+        vtkWarningWithObjectMacro(
+          this->Self, << "Only " << MaxLights << " lights are used to shade a volume.");
+        break;
+      }
+      if (globals.NumberOfLights > 0 || light->GetIntensity() != 1.0 ||
+        light->GetLightType() != VTK_LIGHT_TYPE_HEADLIGHT)
+      {
+        defaultLighting = false;
+      }
+
+      LightData& entry = globals.Lights[globals.NumberOfLights];
+      const double intensity = light->GetIntensity();
+      for (int i = 0; i < 3; ++i)
+      {
+        entry.AmbientColor[i] = static_cast<float>(light->GetAmbientColor()[i] * intensity);
+        entry.DiffuseColor[i] = static_cast<float>(light->GetDiffuseColor()[i] * intensity);
+        entry.SpecularColor[i] = static_cast<float>(light->GetSpecularColor()[i] * intensity);
+      }
+
       double position[3];
       double focalPoint[3];
       light->GetTransformedPosition(position);
       light->GetTransformedFocalPoint(focalPoint);
-      double direction[3] = { position[0] - focalPoint[0], position[1] - focalPoint[1],
-        position[2] - focalPoint[2] };
+      double direction[3] = { focalPoint[0] - position[0], focalPoint[1] - position[1],
+        focalPoint[2] - position[2] };
       if (vtkMath::Normalize(direction) <= 0.0)
       {
-        continue;
+        direction[0] = 0.0;
+        direction[1] = 0.0;
+        direction[2] = -1.0;
       }
-      const std::uint32_t slot = globals.NumberOfLights;
-      const double* color = light->GetDiffuseColor();
-      const double intensity = light->GetIntensity();
       for (int i = 0; i < 3; ++i)
       {
-        globals.LightDirections[slot][i] = static_cast<float>(direction[i]);
-        globals.LightColors[slot][i] = static_cast<float>(color[i] * intensity);
+        entry.Direction[i] = static_cast<float>(direction[i]);
+        entry.Position[i] = static_cast<float>(position[i]);
+      }
+
+      entry.Positional = light->GetPositional() != 0 ? 1.0f : 0.0f;
+      entry.ConeAngle = static_cast<float>(light->GetConeAngle());
+      entry.Exponent = static_cast<float>(light->GetExponent());
+      const double* attenuation = light->GetAttenuationValues();
+      for (int i = 0; i < 3; ++i)
+      {
+        entry.Attenuation[i] = static_cast<float>(attenuation[i]);
       }
       ++globals.NumberOfLights;
     }
@@ -1033,17 +1085,31 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
   if (globals.NumberOfLights == 0)
   {
     // Stand in for the head light the renderer would have created.
+    LightData& entry = globals.Lights[0];
     double focalPoint[3];
     camera->GetFocalPoint(focalPoint);
-    double direction[3] = { cameraPosition[0] - focalPoint[0], cameraPosition[1] - focalPoint[1],
-      cameraPosition[2] - focalPoint[2] };
+    double direction[3] = { focalPoint[0] - cameraPosition[0], focalPoint[1] - cameraPosition[1],
+      focalPoint[2] - cameraPosition[2] };
     vtkMath::Normalize(direction);
     for (int i = 0; i < 3; ++i)
     {
-      globals.LightDirections[0][i] = static_cast<float>(direction[i]);
-      globals.LightColors[0][i] = 1.0f;
+      entry.Direction[i] = static_cast<float>(direction[i]);
+      entry.Position[i] = static_cast<float>(cameraPosition[i]);
+      entry.DiffuseColor[i] = 1.0f;
+      entry.SpecularColor[i] = 1.0f;
     }
+    entry.Attenuation[0] = 1.0f;
+    entry.ConeAngle = 180.0f;
     globals.NumberOfLights = 1;
+    defaultLighting = true;
+  }
+  if (defaultLighting)
+  {
+    globals.Flags |= FlagDefaultLighting;
+  }
+  if (renderer->GetTwoSidedLighting())
+  {
+    globals.Flags |= FlagTwoSidedLighting;
   }
 
   if (this->GlobalUniformBuffer == nullptr)

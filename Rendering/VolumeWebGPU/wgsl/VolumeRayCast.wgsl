@@ -22,6 +22,8 @@ const FLAG_ADAPTIVE: u32 = 2u;
 const FLAG_SKIP_EMPTY: u32 = 4u;
 const FLAG_FULL_SCREEN: u32 = 8u;
 const FLAG_HAS_DEPTH: u32 = 16u;
+const FLAG_DEFAULT_LIGHTING: u32 = 32u;
+const FLAG_TWO_SIDED_LIGHTING: u32 = 64u;
 
 // VolumeParams.flags
 const VOLUME_FLAG_SHADE: u32 = 1u;
@@ -35,6 +37,23 @@ const BLEND_AVERAGE_INTENSITY: u32 = 3u;
 const BLEND_ADDITIVE: u32 = 4u;
 
 const FAR_AWAY: f32 = 3.4e38;
+
+// One light of the renderer, in world space. `direction` points from the light towards what it
+// lights; the positional fields are ignored unless `positional` is set.
+struct Light {
+  ambient: vec3<f32>,
+  cone_angle: f32,
+  diffuse: vec3<f32>,
+  exponent: f32,
+  specular: vec3<f32>,
+  positional: f32,
+  direction: vec3<f32>,
+  padding0: f32,
+  position: vec3<f32>,
+  padding1: f32,
+  attenuation: vec3<f32>,
+  padding2: f32,
+}
 
 struct GlobalUniforms {
   view_projection: mat4x4<f32>,
@@ -60,8 +79,7 @@ struct GlobalUniforms {
   // Slots per axis in the brick pool, and how many voxels wide one slot is (brick plus apron).
   pool_slot_grid: vec3<f32>,
   pool_slot_size: f32,
-  light_directions: array<vec4<f32>, MAX_LIGHTS>,
-  light_colors: array<vec4<f32>, MAX_LIGHTS>,
+  lights: array<Light, MAX_LIGHTS>,
 }
 
 struct VolumeParams {
@@ -287,38 +305,100 @@ fn blockExit(volume_index: u32, origin: vec3<f32>, direction: vec3<f32>, t: f32,
 // Shading
 //------------------------------------------------------------------------------
 
+// Follows vtkVolumeShaderComposer, whose two formulations disagree on sign conventions, so both
+// are written out. `normal` is the gradient, pointing into the volume; a light's `direction`
+// points from the light. Two sided lighting, on by default, lets a surface be lit either way.
 fn shade(volume_index: u32, color: vec3<f32>, tex_coord: vec3<f32>,
          gradient: vec3<f32>) -> vec3<f32> {
   let params = volumes[volume_index];
   let magnitude = length(gradient);
   if (magnitude < 1.0e-6) {
-    return color;
+    // No direction to shade along. The ambient term still applies, as it does in OpenGL, where
+    // a degenerate gradient becomes a zero normal rather than an unlit sample.
+    return params.ambient * color;
   }
 
-  // Fade the lighting in as the gradient grows. In nearly uniform regions its direction is noise
-  // and shading it produces speckle.
-  let blend = smoothstep(0.005, 0.05, magnitude);
-
-  var normal = normalize((transpose(params.inv_volume_matrix) * vec4<f32>(gradient, 0.0)).xyz);
+  let two_sided = (globals.flags & FLAG_TWO_SIDED_LIGHTING) != 0u;
+  // computeGradient steps one voxel at a time, so it returns a difference per voxel. Scaling by
+  // the voxel count restores the space the inverse transpose expects, for anisotropic volumes.
+  let extent = max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0));
+  let normal =
+    normalize((transpose(params.inv_volume_matrix) * vec4<f32>(gradient * extent, 0.0)).xyz);
   let world = (params.volume_matrix * vec4<f32>(tex_coord, 1.0)).xyz;
+  // Towards the camera.
   let view = normalize(globals.camera_position - world);
-  if (dot(normal, view) < 0.0) {
-    normal = -normal;
+
+  var lit: vec3<f32>;
+
+  if ((globals.flags & FLAG_DEFAULT_LIGHTING) != 0u) {
+    // One head light at full intensity. The light's own ambient colour is left out and the
+    // ambient term is tinted with the voxel colour instead.
+    let light = globals.lights[0];
+    let to_light = -light.direction;
+    var n_dot_l = dot(normal, to_light);
+    let reflected = normalize(2.0 * n_dot_l * normal - to_light);
+    let v_dot_r = dot(reflected, view);
+    if (n_dot_l < 0.0 && two_sided) {
+      n_dot_l = -n_dot_l;
+    }
+    var diffuse = vec3<f32>(0.0);
+    var specular = vec3<f32>(0.0);
+    if (n_dot_l > 0.0) {
+      diffuse = n_dot_l * params.diffuse * light.diffuse * color;
+      specular = pow(max(v_dot_r, 0.0), params.specular_power) * params.specular * light.specular;
+    }
+    lit = params.ambient * color + diffuse + specular;
+  } else {
+    var ambient_sum = vec3<f32>(0.0);
+    var diffuse_sum = vec3<f32>(0.0);
+    var specular_sum = vec3<f32>(0.0);
+
+    for (var i = 0u; i < globals.num_lights; i++) {
+      let light = globals.lights[i];
+      var attenuation = 1.0;
+      // Away from the light, which is what this formulation takes the dot products against.
+      var away = light.direction;
+
+      if (light.positional > 0.5) {
+        let offset = world - light.position;
+        let distance = length(offset);
+        away = select(light.direction, offset / distance, distance > 1.0e-9);
+        attenuation = 1.0 / max(light.attenuation.x + light.attenuation.y * distance +
+          light.attenuation.z * distance * distance, 1.0e-9);
+        // Per the OpenGL convention a spot light is one whose cone is 90 degrees or less.
+        if (light.cone_angle <= 90.0) {
+          let cone_dot = dot(away, light.direction);
+          if (cone_dot >= cos(radians(light.cone_angle))) {
+            attenuation = attenuation * pow(cone_dot, light.exponent);
+          } else {
+            attenuation = 0.0;
+          }
+        }
+      }
+
+      var n_dot_l = dot(normal, away);
+      if (n_dot_l < 0.0 && two_sided) {
+        n_dot_l = -n_dot_l;
+      }
+      if (n_dot_l > 0.0) {
+        diffuse_sum += max(0.0, attenuation * n_dot_l) * light.diffuse;
+        let reflected = normalize(2.0 * n_dot_l * normal - away);
+        var r_dot_v = dot(-view, reflected);
+        if (r_dot_v < 0.0 && two_sided) {
+          r_dot_v = -r_dot_v;
+        }
+        if (r_dot_v > 0.0) {
+          specular_sum += attenuation * pow(r_dot_v, params.specular_power) * light.specular;
+        }
+      }
+      ambient_sum += light.ambient;
+    }
+
+    lit = params.ambient * ambient_sum + params.diffuse * diffuse_sum * color +
+      params.specular * specular_sum;
   }
 
-  var lit = color * params.ambient;
-  for (var i = 0u; i < globals.num_lights; i++) {
-    let to_light = normalize(globals.light_directions[i].xyz);
-    let halfway = normalize(to_light + view);
-    let diffuse = max(dot(normal, to_light), 0.0);
-    let specular = select(
-      0.0, pow(max(dot(normal, halfway), 0.0), params.specular_power), diffuse > 0.0);
-    let light_color = globals.light_colors[i].xyz;
-    lit += color * params.diffuse * diffuse * light_color;
-    lit += params.specular * specular * light_color;
-  }
-
-  return mix(color, lit, blend);
+  return lit;
 }
 
 //------------------------------------------------------------------------------
