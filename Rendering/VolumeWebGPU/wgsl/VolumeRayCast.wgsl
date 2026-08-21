@@ -12,6 +12,7 @@
 const MAX_VOLUMES: u32 = 12u;
 const MAX_LIGHTS: u32 = 6u;
 const MAX_CLIP_PLANES: u32 = 6u;
+const MAX_ISO_VALUES: u32 = 16u;
 
 // Page.flags
 const PAGE_RESIDENT: u32 = 1u;
@@ -37,6 +38,8 @@ const BLEND_MAXIMUM_INTENSITY: u32 = 1u;
 const BLEND_MINIMUM_INTENSITY: u32 = 2u;
 const BLEND_AVERAGE_INTENSITY: u32 = 3u;
 const BLEND_ADDITIVE: u32 = 4u;
+const BLEND_ISOSURFACE: u32 = 5u;
+const BLEND_SLICE: u32 = 6u;
 
 const FAR_AWAY: f32 = 3.4e38;
 
@@ -81,6 +84,13 @@ struct GlobalUniforms {
   // Slots per axis in the brick pool, and how many voxels wide one slot is (brick plus apron).
   pool_slot_grid: vec3<f32>,
   pool_slot_size: f32,
+  num_iso_values: u32,
+  padding0: f32,
+  padding1: f32,
+  padding2: f32,
+  // Iso values of the primary volume, in data units and in order. Only x of each entry carries
+  // a value; WGSL pads an array of scalars out to this anyway.
+  iso_values: array<vec4<f32>, MAX_ISO_VALUES>,
   lights: array<Light, MAX_LIGHTS>,
 }
 
@@ -122,6 +132,8 @@ struct VolumeParams {
   padding0: f32,
   cropping_upper: vec3<f32>,
   padding1: f32,
+  // Plane the slice blend mode cuts along, in world space.
+  slice_plane: vec4<f32>,
   clip_planes: array<vec4<f32>, MAX_CLIP_PLANES>,
 }
 
@@ -510,6 +522,47 @@ fn applyClippingPlanes(volume_index: u32, origin: vec3<f32>, direction: vec3<f32
   return clipped;
 }
 
+// The iso values, with an open interval either side so the march can walk off both ends.
+fn isoValue(index: i32) -> f32 {
+  if (index <= 0) {
+    return -FAR_AWAY;
+  }
+  if (index > i32(globals.num_iso_values)) {
+    return FAR_AWAY;
+  }
+  return globals.iso_values[index - 1].x;
+}
+
+// The interval a value falls in, counting from one.
+fn findIsoInterval(value: f32) -> i32 {
+  var index = 0;
+  for (var i = 0u; i < globals.num_iso_values; i++) {
+    if (value >= globals.iso_values[i].x) {
+      index = i32(i) + 1;
+    }
+  }
+  return index;
+}
+
+// Colour of one volume at a normalized scalar, shaded if the property asks for it.
+fn classify(volume_index: u32, normalized: f32, tex_coord: vec3<f32>) -> vec4<f32> {
+  let params = volumes[volume_index];
+  let lookup = vec2<f32>(clamp(normalized, 0.0, 1.0), 0.5);
+  let opacity = textureSampleLevel(
+    opacity_transfer_functions, transfer_function_sampler, lookup, volume_index, 0.0).r;
+  var color =
+    textureSampleLevel(color_transfer_functions, transfer_function_sampler, lookup,
+      volume_index, 0.0).rgb;
+  if ((params.flags & VOLUME_FLAG_SHADE) != 0u && opacity > 0.0) {
+    var gradient = computeGradient(volume_index, tex_coord);
+    if ((params.flags & VOLUME_FLAG_NORMAL_FROM_OPACITY) != 0u) {
+      gradient = computeOpacityGradient(volume_index, tex_coord);
+    }
+    color = shade(volume_index, color, tex_coord, gradient);
+  }
+  return vec4<f32>(color, opacity);
+}
+
 fn hash(p: vec2<f32>) -> f32 {
   var p3 = fract(vec3<f32>(p.x, p.y, p.x) * 0.1031);
   p3 += dot(p3, p3.yzx + 33.33);
@@ -586,6 +639,58 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
     discard;
   }
 
+  // A slice is not a march. Each volume contributes the single sample where the ray meets its
+  // slice plane, and the samples are composited from the nearest one back.
+  if (globals.blend_mode == BLEND_SLICE) {
+    var taken = array<u32, MAX_VOLUMES>();
+    var slice_color = vec3<f32>(0.0);
+    var slice_alpha = 0.0;
+
+    for (var pass_index = 0u; pass_index < globals.num_volumes; pass_index++) {
+      var nearest = FAR_AWAY;
+      var chosen = globals.num_volumes;
+      for (var i = 0u; i < globals.num_volumes; i++) {
+        if (taken[i] != 0u) {
+          continue;
+        }
+        let plane = volumes[i].slice_plane;
+        let denominator = dot(plane.xyz, ray_direction);
+        if (abs(denominator) < 1.0e-9) {
+          continue;
+        }
+        let hit = -(dot(plane.xyz, near_point) + plane.w) / denominator;
+        if (hit < t_near_of[i] || hit > t_far_of[i] || hit >= nearest) {
+          continue;
+        }
+        nearest = hit;
+        chosen = i;
+      }
+      if (chosen >= globals.num_volumes) {
+        break;
+      }
+      taken[chosen] = 1u;
+
+      let tex_coord = origin_of[chosen] + nearest * direction_of[chosen];
+      if ((pageOf(chosen, tex_coord).flags & PAGE_RESIDENT) == 0u ||
+          cropped(chosen, tex_coord)) {
+        continue;
+      }
+      let params = volumes[chosen];
+      let scalar = sampleScalar(chosen, tex_coord);
+      let normalized =
+        clamp((scalar - params.scalar_range_min) * params.scalar_range_scale, 0.0, 1.0);
+      let sample = classify(chosen, normalized, tex_coord);
+      let remaining = 1.0 - slice_alpha;
+      slice_color += remaining * sample.a * sample.rgb;
+      slice_alpha += remaining * sample.a;
+    }
+
+    if (slice_alpha <= 0.0) {
+      discard;
+    }
+    return vec4<f32>(min(slice_color, vec3<f32>(1.0)), min(slice_alpha, 1.0));
+  }
+
   var state: RayState;
   state.color = vec3<f32>(0.0);
   state.alpha = 0.0;
@@ -596,6 +701,12 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
   let adaptive = (globals.flags & FLAG_ADAPTIVE) != 0u;
   let skip_empty = adaptive && (globals.flags & FLAG_SKIP_EMPTY) != 0u;
   let compositing = globals.blend_mode == BLEND_COMPOSITE;
+  let isosurface = globals.blend_mode == BLEND_ISOSURFACE;
+
+  // Which interval between iso values each volume was last seen in, so that a crossing can be
+  // recognised when it happens.
+  var iso_interval = array<i32, MAX_VOLUMES>();
+  var iso_seen = array<u32, MAX_VOLUMES>();
 
   var t = t_first;
   if ((globals.flags & FLAG_JITTER) != 0u) {
@@ -684,6 +795,38 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
 
       let lookup = vec2<f32>(normalized, 0.5);
 
+      if (isosurface) {
+        // Compared in data units, unclamped: a surface may sit outside the transfer function
+        // range, and clamping would collapse it onto an end and lose the crossing order.
+        if (iso_seen[i] == 0u) {
+          iso_interval[i] = findIsoInterval(scalar);
+          iso_seen[i] = 1u;
+          continue;
+        }
+        var crossing = 0.0;
+        var crossed = false;
+        var interval = clamp(iso_interval[i], 0, i32(globals.num_iso_values));
+        if (scalar < isoValue(interval)) {
+          crossing = isoValue(interval);
+          interval -= 1;
+          crossed = true;
+        }
+        if (scalar > isoValue(interval + 1)) {
+          crossing = isoValue(interval + 1);
+          interval += 1;
+          crossed = true;
+        }
+        iso_interval[i] = interval;
+        if (crossed) {
+          let sample = classify(
+            i, (crossing - params.scalar_range_min) * params.scalar_range_scale, tex_coord);
+          let remaining = 1.0 - state.alpha;
+          state.color += remaining * sample.a * sample.rgb;
+          state.alpha += remaining * sample.a;
+        }
+        continue;
+      }
+
       if (!compositing) {
         // The intensity modes work on the scalar rather than on a composited color.
         if (globals.blend_mode == BLEND_MAXIMUM_INTENSITY) {
@@ -760,7 +903,7 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
     t += step;
   }
 
-  if (!compositing) {
+  if (!compositing && !isosurface) {
     if (globals.blend_mode == BLEND_MAXIMUM_INTENSITY ||
         globals.blend_mode == BLEND_MINIMUM_INTENSITY) {
       if (state.value <= -FAR_AWAY || state.value >= FAR_AWAY) {

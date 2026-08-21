@@ -7,6 +7,7 @@
 #include "vtkWebGPUVolumeRayCastMapper.h"
 
 #include "vtkCamera.h"
+#include "vtkContourValues.h"
 #include "vtkImageData.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
@@ -37,6 +38,7 @@ using Internals = vtkWebGPUVolumeRayCastCoordinator::vtkInternals;
 constexpr int MaxVolumes = Internals::MaximumVolumes;
 constexpr int MaxLights = Internals::MaximumLights;
 constexpr int MaxClipPlanes = Internals::MaximumClipPlanes;
+constexpr int MaxIsoValues = Internals::MaximumIsoValues;
 constexpr int TableSize = Internals::TableSize;
 
 // Flags shared with VolumeRayCast.wgsl.
@@ -99,9 +101,13 @@ struct GlobalUniforms
   float AverageRangeMaximum;
   float PoolSlotGrid[3];
   float PoolSlotSize;
+  std::uint32_t NumberOfIsoValues;
+  float Padding0[3];
+  /// Iso values of the primary volume, in data units and sorted.
+  float IsoValues[MaxIsoValues][4];
   LightData Lights[MaxLights];
 };
-static_assert(sizeof(GlobalUniforms) == 816, "GlobalUniforms must match the WGSL layout");
+static_assert(sizeof(GlobalUniforms) == 1088, "GlobalUniforms must match the WGSL layout");
 
 // Must match VolumeParams in VolumeRayCast.wgsl.
 struct VolumeParams
@@ -136,9 +142,11 @@ struct VolumeParams
   float Padding0;
   float CroppingUpper[3];
   float Padding1;
+  /// Plane the slice blend mode cuts along, as a normal and an offset in world space.
+  float SlicePlane[4];
   float ClipPlanes[MaxClipPlanes][4];
 };
-static_assert(sizeof(VolumeParams) == 384, "VolumeParams must match the WGSL layout");
+static_assert(sizeof(VolumeParams) == 400, "VolumeParams must match the WGSL layout");
 
 // Must match Page in VolumeRayCast.wgsl.
 struct PageEntry
@@ -846,6 +854,30 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
       params.Flags |= VolumeFlagNormalFromOpacity;
     }
 
+    // The slice blend mode cuts along a plane carried by the property, in world space.
+    if (blendMode == vtkVolumeMapper::SLICE_BLEND)
+    {
+      if (auto* plane = vtkPlane::SafeDownCast(property->GetSliceFunction()))
+      {
+        double normal[3];
+        double origin[3];
+        plane->GetNormal(normal);
+        plane->GetOrigin(origin);
+        if (vtkMath::Normalize(normal) > 0.0)
+        {
+          for (int i = 0; i < 3; ++i)
+          {
+            params.SlicePlane[i] = static_cast<float>(normal[i]);
+          }
+          params.SlicePlane[3] = static_cast<float>(-vtkMath::Dot(normal, origin));
+        }
+      }
+      else if (property->GetSliceFunction() != nullptr)
+      {
+        vtkWarningWithObjectMacro(this->Self, << "Only vtkPlane is supported as a slice function.");
+      }
+    }
+
     // Cropping regions are given in the input's own coordinates, so they are brought into the
     // texture coordinates the march works in the same way the OpenGL mapper does.
     if (mapper->GetCropping() != 0)
@@ -1028,6 +1060,35 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
     std::max(primary->GetMaximumSampleDistanceFactor(), primary->GetMinimumSampleDistanceFactor()));
   globals.MaximumSteps = static_cast<std::uint32_t>(
     std::clamp(2.5 * diagonal / std::max(smallestStep, 1.0e-9) + 32.0, 64.0, 10000.0));
+
+  // Iso values belong to the property, and like the blend mode they describe the march rather
+  // than one volume, so the primary input settles them.
+  globals.NumberOfIsoValues = 0;
+  if (blendMode == vtkVolumeMapper::ISOSURFACE_BLEND)
+  {
+    const auto& contribution = this->Contributions.front();
+    vtkContourValues* contours = contribution.Property->GetIsoSurfaceValues();
+    std::vector<float> values;
+    for (int i = 0; i < contours->GetNumberOfContours(); ++i)
+    {
+      if (static_cast<int>(values.size()) >= MaxIsoValues)
+      {
+        vtkWarningWithObjectMacro(
+          this->Self, << "Only " << MaxIsoValues << " iso values are drawn.");
+        break;
+      }
+      // Kept in data units. Normalizing into the transfer function range would clamp away any
+      // value outside it, and with it the ordering the march relies on.
+      values.push_back(static_cast<float>(contours->GetValue(i)));
+    }
+    // The march walks the values in order, so they have to be in order.
+    std::sort(values.begin(), values.end());
+    for (std::size_t i = 0; i < values.size(); ++i)
+    {
+      globals.IsoValues[i][0] = values[i];
+    }
+    globals.NumberOfIsoValues = static_cast<std::uint32_t>(values.size());
+  }
 
   double averageRange[2];
   primary->GetAverageIPScalarRange(averageRange);
