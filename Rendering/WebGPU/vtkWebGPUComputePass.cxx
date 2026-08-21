@@ -5,7 +5,10 @@
 #include "Private/vtkWebGPUComputePassBufferStorageInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
 #include "Private/vtkWebGPUComputePassTextureStorageInternals.h"
+#include "vtkAOSDataArrayTemplate.h"
+#include "vtkArrayDispatch.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkObjectFactory.h"
 #include "vtkWebGPUComputeBuffer.h"
 #include "vtkWebGPUComputeRenderBuffer.h"
@@ -13,9 +16,37 @@
 #include "vtkWebGPUComputeTextureView.h"
 #include "vtksys/FStream.hxx"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkWebGPUComputePass);
+
+namespace
+{
+/**
+ * Dispatch worker that copies mapped GPU memory into concrete VTK arrays.
+ * Needed as `GetVoidPointer()` in VTK is prohibited.
+ *
+ * Related to ReadBufferFromGPU() method.
+ */
+struct MappedBufferCopyWorker
+{
+  const void* MappedData;
+  std::size_t ByteSize;
+
+  template <typename ArrayType>
+  void operator()(ArrayType* array)
+  {
+    using ValueType = typename ArrayType::ValueType;
+    auto range = vtk::DataArrayValueRange(array);
+    const auto* src = static_cast<const ValueType*>(this->MappedData);
+
+    std::copy(src, src + range.size(), range.begin());
+  }
+};
+
+}
 
 //------------------------------------------------------------------------------
 vtkWebGPUComputePass::vtkWebGPUComputePass()
@@ -245,4 +276,75 @@ void vtkWebGPUComputePass::WriteTextureData(
 {
   this->Internals->TextureStorage->WriteTexture(textureIndex, data, numBytes);
 }
+
+//------------------------------------------------------------------------------
+void vtkWebGPUComputePass::ReadBufferFromGPU(int bufferIndex, vtkDataArray* targetArray)
+{
+  if (!targetArray)
+  {
+    vtkErrorMacro(<< "Target data array cannot be null.");
+    return;
+  }
+
+  std::size_t dataTypeSize = targetArray->GetDataTypeSize();
+  int numComponents = targetArray->GetNumberOfComponents();
+  if (dataTypeSize == 0 || numComponents <= 0)
+  {
+    vtkErrorMacro(<< "Invalid target array configuration: dataTypeSize=" << dataTypeSize
+                  << ", numComponents=" << numComponents);
+    return;
+  }
+
+  unsigned int byteSize = this->GetBufferByteSize(bufferIndex);
+  if (byteSize == 0)
+  {
+    vtkLog(ERROR, "Mapped GPU buffer is empty.");
+    return;
+  }
+
+  std::size_t elementSize = dataTypeSize * numComponents;
+  vtkIdType totalTuples = byteSize / elementSize;
+  if (totalTuples == 0)
+  {
+    vtkLog(ERROR,
+      "Mapped GPU buffer size " << byteSize << " is smaller than tuple size (" << elementSize
+                                << " bytes).");
+    return;
+  }
+
+  if (byteSize % elementSize != 0)
+  {
+    vtkLog(ERROR, "GPU buffer size doesn't fit with the tuple size of the given array.");
+    return;
+  }
+
+  vtkSmartPointer<vtkDataArray> smartTarget = targetArray;
+  smartTarget->SetNumberOfTuples(totalTuples);
+
+  this->ReadBufferFromGPU(
+    bufferIndex,
+    [smartTarget, totalTuples, elementSize](const void* mappedData, void* /*userdata*/)
+    {
+      if (!mappedData)
+      {
+        vtkLog(ERROR, "Mapped GPU buffer pointer is null.");
+        return;
+      }
+
+      MappedBufferCopyWorker worker{ mappedData, totalTuples * elementSize };
+      if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>::Execute(
+            smartTarget, worker))
+      {
+        vtkLog(ERROR,
+          "Only standard contiguous AOS numeric arrays are currently supported which is not the "
+          "case for "
+            << smartTarget->GetClassName());
+        return;
+      }
+
+      smartTarget->Modified();
+    },
+    nullptr);
+}
+
 VTK_ABI_NAMESPACE_END
