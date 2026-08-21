@@ -8,6 +8,7 @@
 // #include "vtkCamera.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
 #include "vtkRenderState.h"
@@ -136,52 +137,18 @@ void vtkFramebufferPass::Render(const vtkRenderState* s)
   ostate->PopFramebufferBindings();
 
   // now copy the result to the outer FO
-  ostate->PushReadFramebufferBinding();
-  this->FrameBufferObject->Bind(vtkOpenGLFramebufferObject::GetReadMode());
-
   ostate->vtkglViewport(
     this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
   ostate->vtkglScissor(this->ViewportX, this->ViewportY, this->ViewportWidth, this->ViewportHeight);
 
-#if GL_ES_VERSION_3_0
-  bool drawIsMultisampled = false;
-  if (auto* drawFbo = vtkOpenGLFramebufferObject::SafeDownCast(s->GetFrameBuffer()))
+  if (!vtkOpenGLRenderUtilities::CompositeColorTexture(ostate, s, renWin, this->FrameBufferObject,
+        this->ColorTexture, this->ViewportX, this->ViewportY, this->ViewportWidth,
+        this->ViewportHeight))
   {
-    drawIsMultisampled = (drawFbo && drawFbo->GetMultiSamples() > 0);
-  }
-  else
-  {
-    drawFbo = renWin->GetRenderFramebuffer();
-    drawIsMultisampled = (drawFbo && drawFbo->GetMultiSamples() > 0);
-  }
-
-  if (drawIsMultisampled)
-  {
-    // WebGL2 forbids blitting to a multisampled draw framebuffer.
-    this->ColorTexture->CopyToFrameBuffer(0, 0, this->ViewportWidth - 1, this->ViewportHeight - 1,
-      this->ViewportX, this->ViewportY, this->ViewportX + this->ViewportWidth - 1,
-      this->ViewportY + this->ViewportHeight - 1, this->ViewportWidth, this->ViewportHeight,
-      nullptr, nullptr);
-  }
-  else
-  {
-    ostate->vtkglBlitFramebuffer(0, 0, this->ViewportWidth, this->ViewportHeight, this->ViewportX,
-      this->ViewportY, this->ViewportX + this->ViewportWidth,
-      this->ViewportY + this->ViewportHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
     renWin->TextureDepthBlit(this->DepthTexture, 0, 0, this->ViewportWidth, this->ViewportHeight,
       this->ViewportX, this->ViewportY, this->ViewportX + this->ViewportWidth,
       this->ViewportY + this->ViewportHeight);
   }
-#else
-  ostate->vtkglBlitFramebuffer(0, 0, this->ViewportWidth, this->ViewportHeight, this->ViewportX,
-    this->ViewportY, this->ViewportX + this->ViewportWidth, this->ViewportY + this->ViewportHeight,
-    GL_COLOR_BUFFER_BIT, GL_LINEAR);
-  renWin->TextureDepthBlit(this->DepthTexture, 0, 0, this->ViewportWidth, this->ViewportHeight,
-    this->ViewportX, this->ViewportY, this->ViewportX + this->ViewportWidth,
-    this->ViewportY + this->ViewportHeight);
-#endif
-
-  ostate->PopReadFramebufferBinding();
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }

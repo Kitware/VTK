@@ -772,6 +772,12 @@ protected:
   bool LoadRequiredExtensions(vtkOpenGLRenderWindow* renWin);
 
   /**
+   * Copy the depth buffer of the current read framebuffer into this texture with a
+   * framebuffer blit, for the cases where glCopyTexImage2D cannot target it.
+   */
+  void BlitDepthFromReadBuffer(int srcXmin, int srcYmin, int width, int height);
+
+  /**
    * Creates a texture handle if not already created.
    */
   void CreateTexture();

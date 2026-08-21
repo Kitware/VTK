@@ -30,6 +30,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestCustomCursorShape.cxx,NO_VALID
   TestDepthOfFieldPass.cxx
   TestDepthPeelingOcclusionQuery.cxx
+  TestDepthPeelingOwnOpaqueZTexture.cxx,NO_DATA,NO_VALID
   TestDepthPeelingPass.cxx
   TestDepthPeelingPassViewport.cxx
   TestDirectSelectionRendering.cxx
@@ -44,6 +45,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestFramebufferHDR.cxx,NO_SERDES
   TestFramebufferPass.cxx
   TestGaussianBlurPass.cxx
+  TestGaussianBlurPassMultisampling.cxx,NO_DATA,NO_VALID
   TestGlyph3DMapperCellPicking.cxx
   TestGlyph3DMapperCulling.cxx
   TestGlyph3DMapperEdges.cxx

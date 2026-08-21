@@ -21,9 +21,13 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLBufferObject;
+class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
+class vtkOpenGLState;
 class vtkOpenGLVertexArrayObject;
+class vtkRenderState;
 class vtkShaderProgram;
+class vtkTextureObject;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderUtilities : public vtkObject
 {
@@ -44,6 +48,18 @@ public:
     unsigned int numIndices, float* tcoords, vtkShaderProgram* program,
     vtkOpenGLVertexArrayObject* vao);
   ///@}
+
+  /**
+   * Composite a render pass result into the current draw framebuffer: blit it out of
+   * readFramebuffer when that is legal, or draw colorTexture, its color attachment 0,
+   * as a textured quad when the draw framebuffer is multisampled, which GLES forbids
+   * blitting into. readFramebuffer is only bound, for reading, on the blit path. The
+   * result lands on the (dstXmin, dstYmin, width, height) rectangle; the depth buffer
+   * stays untouched on both paths. Returns true when the quad path was taken.
+   */
+  static bool CompositeColorTexture(vtkOpenGLState* state, const vtkRenderState* renderState,
+    vtkOpenGLRenderWindow* renderWindow, vtkOpenGLFramebufferObject* readFramebuffer,
+    vtkTextureObject* colorTexture, int dstXmin, int dstYmin, int width, int height);
 
   ///@{
   /**

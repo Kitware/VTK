@@ -340,7 +340,15 @@ void vtkOpenGLTexture::Load(vtkRenderer* ren)
         int minorV;
         static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow())->GetOpenGLVersion(majorV, minorV);
         int levels = floor(log2(vtkMath::Max(size[0], size[1]))) + 1;
-        if (this->Mipmap && levels > 1 &&
+        bool mipmapSupported = true;
+#ifdef GL_ES_VERSION_3_0
+        // glGenerateMipmap needs a color-renderable format, and the three component
+        // float formats never are in GLES. Fall back to plain linear filtering rather
+        // than leaving the texture incomplete.
+        const unsigned int internalFormat = this->TextureObject->GetInternalFormat();
+        mipmapSupported = internalFormat != GL_RGB16F && internalFormat != GL_RGB32F;
+#endif
+        if (this->Mipmap && mipmapSupported && levels > 1 &&
           ((!this->CubeMap && !this->UseSRGBColorSpace) || majorV >= 4))
         {
           this->TextureObject->SetMinificationFilter(vtkTextureObject::LinearMipmapLinear);
