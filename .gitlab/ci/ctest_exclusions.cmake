@@ -468,11 +468,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     # The comment above each entry records what was actually observed when the
     # test was run against chrome + ANGLE/SwiftShader on a Linux host.
     #
-    # Only the middle viewport (the hexahedron scaled by 1e20) comes out empty;
-    # the 1.0 and 1e-9 viewports match. Looks like float32 precision in the
-    # camera/clipping-range math rather than anything about normals. Note the
-    # test already calls SetMultiSamples(0), so this is not an AA difference.
-    "^VTK::RenderingCoreCxx-OpenGL-TestPolyDataMapperNormals$"
     # The float RGBA readback disagrees with the unsigned char readback of the
     # same buffer, which passes a few lines earlier:
     #   TestReadPixels.cxx:72 ERR| Unsatisfied pixel value condition at line 72:

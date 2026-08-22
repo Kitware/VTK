@@ -8,11 +8,55 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkShaderProgram.h"
 
+#include <algorithm>
+#include <cmath>
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
+namespace
+{
+/**
+ * Extreme scene scales push the clip space w into the 1e20 range for a model vertex in the 1e20
+ range,
+ * where ANGLE's SwiftShader rasterizer degenerates.
+ *
+ * Since (1/w) goes into 1-e20 range, perspective-correct interpolation goes wonky and dFdx/dFdy
+ * return almost zero, which turns every derivative-based surface normal into a NaN.
+
+ * We keep the matrix normalized so w stays O(1).
+ * gl_Position is homogeneous: scaling every entry of the model-to-clip matrix by the same
+ * factor leaves normalized device coordinates untouched. Below is proof of this statement.
+ *
+ * => NDC = gl_Position.xyz / gl_Position.w
+ * Now, scale the MCDC matrix (denoted M) by a positive scalar k.
+ * => gl_Position' = (kM) * vertexMC = k * (M * vertexMC) = k * gl_Position
+ * => NDC' = (k * gl_Position.xyz) / (k * gl_Position.w) = NDC
+ */
+void NormalizeClipMatrix(vtkMatrix4x4* matrix)
+{
+  double maxAbs = 0.0;
+  for (int i = 0; i < 4; ++i)
+  {
+    for (int j = 0; j < 4; ++j)
+    {
+      maxAbs = std::max(maxAbs, std::abs(matrix->GetElement(i, j)));
+    }
+  }
+  if (maxAbs > 0.0 && (maxAbs > 1.0e6 || maxAbs < 1.0e-6))
+  {
+    for (int i = 0; i < 4; ++i)
+    {
+      for (int j = 0; j < 4; ++j)
+      {
+        matrix->SetElement(i, j, matrix->GetElement(i, j) / maxAbs);
+      }
+    }
+  }
+}
+}
+
 vtkStandardNewMacro(vtkGLSLModCamera);
 
 //------------------------------------------------------------------------------
@@ -170,6 +214,7 @@ bool vtkGLSLModCamera::SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShade
         program->SetUniformMatrix(this->Loc.MCWCNormalMatrix, anorms);
       }
       vtkMatrix4x4::Multiply4x4(this->TempMatrix4, wcdc, this->TempMatrix4);
+      ::NormalizeClipMatrix(this->TempMatrix4);
       program->SetUniformMatrix(this->Loc.MCDCMatrix, this->TempMatrix4);
       if (this->Loc.MCVCMatrix != -1)
       {
@@ -186,6 +231,7 @@ bool vtkGLSLModCamera::SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShade
     else
     {
       vtkMatrix4x4::Multiply4x4(this->SSMatrix, wcdc, this->TempMatrix4);
+      ::NormalizeClipMatrix(this->TempMatrix4);
       program->SetUniformMatrix(this->Loc.MCDCMatrix, this->TempMatrix4);
       if (this->Loc.MCVCMatrix != -1)
       {
@@ -214,6 +260,7 @@ bool vtkGLSLModCamera::SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShade
         program->SetUniformMatrix(this->Loc.MCWCNormalMatrix, anorms);
       }
       vtkMatrix4x4::Multiply4x4(mcwc, wcdc, this->TempMatrix4);
+      ::NormalizeClipMatrix(this->TempMatrix4);
       program->SetUniformMatrix(this->Loc.MCDCMatrix, this->TempMatrix4);
       if (this->Loc.MCVCMatrix != -1)
       {
@@ -228,7 +275,9 @@ bool vtkGLSLModCamera::SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShade
     }
     else
     {
-      program->SetUniformMatrix(this->Loc.MCDCMatrix, wcdc);
+      this->TempMatrix4->DeepCopy(wcdc);
+      ::NormalizeClipMatrix(this->TempMatrix4);
+      program->SetUniformMatrix(this->Loc.MCDCMatrix, this->TempMatrix4);
       if (this->Loc.MCVCMatrix != -1)
       {
         program->SetUniformMatrix(this->Loc.MCVCMatrix, wcvc);
