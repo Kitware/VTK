@@ -449,6 +449,8 @@ function (vtk_add_test_cxx exename _tests)
         ${MPIEXEC_PREFLAGS})
     endif()
 
+    set(_vtk_test_cxx_serdes_pre_args "${_vtk_test_cxx_pre_args}")
+
     if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
       if (_vtk_test_cxx_wasm_enabled_in_browser)
         # A literal semicolon cannot survive as part of a single `add_test`
@@ -458,17 +460,30 @@ function (vtk_add_test_cxx exename _tests)
         list(JOIN _vtk_test_wasm_environment "$<SEMICOLON>"
           _vtk_test_wasm_environment)
 
-        set(_vtk_test_cxx_pre_args
+        set(_vtk_test_cxx_wasm_args
           "${CMAKE_COMMAND}"
           "-DEXIT_AFTER_TEST=ON"
           "-DTESTING_WASM_ENGINE=${VTK_TESTING_WASM_ENGINE}"
           "-DTESTING_WASM_HTML_TEMPLATE=${_vtkModuleTesting_dir}/wasm/vtkWasmTest.html.in"
-          "-DTEST_NAME=${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
           "-DTEST_OUTPUT_DIR=${_vtk_build_TEST_OUTPUT_DIRECTORY}"
-          "-DTEST_ENVIRONMENT=${_vtk_test_wasm_environment}"
+          "-DTEST_ENVIRONMENT=${_vtk_test_wasm_environment}")
+        set(_vtk_test_cxx_wasm_post_args
           -P
           "${_vtkModuleTesting_dir}/wasm/vtkWasmTestRunner.cmake"
           "--")
+        # `vtkWasmTestRunner.cmake` derives the generated `test.html` location
+        # and the browser profile directory from TEST_NAME. ctest may schedule a
+        # test and its SerDes variant at the same time, so they each need their
+        # own TEST_NAME; sharing one makes the browsers fight over a single
+        # profile and makes whichever finishes first delete the other's html.
+        set(_vtk_test_cxx_pre_args
+          ${_vtk_test_cxx_wasm_args}
+          "-DTEST_NAME=${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
+          ${_vtk_test_cxx_wasm_post_args})
+        set(_vtk_test_cxx_serdes_pre_args
+          ${_vtk_test_cxx_wasm_args}
+          "-DTEST_NAME=${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}SerDes"
+          ${_vtk_test_cxx_wasm_post_args})
       else ()
         ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
           NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
@@ -497,7 +512,7 @@ function (vtk_add_test_cxx exename _tests)
     if (VTK_WRAP_SERIALIZATION AND NOT local_NO_SERDES AND NOT local_NO_VALID)
       ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
       NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}SerDes"
-      COMMAND "${_vtk_test_cxx_pre_args}" "$<TARGET_FILE:${exename}>"
+      COMMAND "${_vtk_test_cxx_serdes_pre_args}" "$<TARGET_FILE:${exename}>"
               "${test_arg}"
               "${args}"
               ${${_vtk_build_test}_ARGS}
