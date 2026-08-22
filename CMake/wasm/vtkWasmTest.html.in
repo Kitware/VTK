@@ -98,7 +98,7 @@
       preRun: (runtime) => {
         // cache the VTK wasm runtime instance.
         vtkWasmRuntime = runtime;
-        vtkWasmRuntime.ENV.VTK_TESTING_WASM_HTTP_SERVER_URL = "@url@";
+        vtkWasmRuntime.ENV.VTK_TESTING_WASM_HTTP_SERVER_URL = "@url@";@ENV_ASSIGNMENTS@
       },
       onRuntimeInitialized: () => {
         if (vtkWasmRuntime !== null) {

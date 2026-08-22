@@ -444,6 +444,13 @@ function (vtk_add_test_cxx exename _tests)
 
     if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
       if (_vtk_test_cxx_wasm_enabled_in_browser)
+        # A literal semicolon cannot survive as part of a single `add_test`
+        # argument, so `$<SEMICOLON>` restores the separator at generate time.
+        set(_vtk_test_wasm_environment "${vtk_testing}")
+        list(FILTER _vtk_test_wasm_environment EXCLUDE REGEX "^$")
+        list(JOIN _vtk_test_wasm_environment "$<SEMICOLON>"
+          _vtk_test_wasm_environment)
+
         set(_vtk_test_cxx_pre_args
           "${CMAKE_COMMAND}"
           "-DEXIT_AFTER_TEST=ON"
@@ -451,6 +458,7 @@ function (vtk_add_test_cxx exename _tests)
           "-DTESTING_WASM_HTML_TEMPLATE=${_vtkModuleTesting_dir}/wasm/vtkWasmTest.html.in"
           "-DTEST_NAME=${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
           "-DTEST_OUTPUT_DIR=${_vtk_build_TEST_OUTPUT_DIRECTORY}"
+          "-DTEST_ENVIRONMENT=${_vtk_test_wasm_environment}"
           -P
           "${_vtkModuleTesting_dir}/wasm/vtkWasmTestRunner.cmake"
           "--")
