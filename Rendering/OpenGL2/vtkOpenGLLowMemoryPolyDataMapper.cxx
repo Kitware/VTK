@@ -2139,7 +2139,8 @@ uniform float edgeWidth;
 
   std::ostringstream fsImpl;
   fsImpl << R"(
-  if (((edgeVisibility == 1) || (wireframe == 1)) && (cellType == 5)) // VTK_TRIANGLE
+  if ((vertex_pass != 1) && ((edgeVisibility == 1) || (wireframe == 1)) &&
+    (cellType == 5)) // VTK_TRIANGLE
   {
     // distance gets larger as you go inside the polygon
     float edist[3];

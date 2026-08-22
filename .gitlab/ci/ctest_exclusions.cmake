@@ -468,10 +468,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     # The comment above each entry records what was actually observed when the
     # test was run against chrome + ANGLE/SwiftShader on a Linux host.
     #
-    # The vertices render in the surface's grey instead of the baseline's red,
-    # i.e. the vertex color is dropped and the point primitives inherit the
-    # surface color.
-    "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperVertices$"
     # Only the middle viewport (the hexahedron scaled by 1e20) comes out empty;
     # the 1.0 and 1e-9 viewports match. Looks like float32 precision in the
     # camera/clipping-range math rather than anything about normals. Note the
