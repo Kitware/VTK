@@ -462,36 +462,40 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
   list(APPEND test_exclusions
-    # All OpenGL tests that fail are tracked in
+    # OpenGL tests that fail on WebGL2, tracked in
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19343
-    "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperMixedGeometryEdges$"
+    #
+    # The comment above each entry records what was actually observed when the
+    # test was run against chrome + ANGLE/SwiftShader on a Linux host.
+    #
+    # Shader generation emits a fragment shader that never declares the
+    # `colors` sampler used by the partial-field-data path, so the GLSL ES 3.00
+    # compile fails outright:
+    #   ERROR: 0:194: 'colors' : undeclared identifier
+    #   ERROR: 0:194: 'texelFetch' : no matching overloaded function found
     "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperPartialFieldData$"
+    # The vertices render in the surface's grey instead of the baseline's red,
+    # i.e. the vertex color is dropped and the point primitives inherit the
+    # surface color.
     "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperVertices$"
-    "^VTK::RenderingCoreCxx-OpenGL-TestEdgeFlags$"
-    "^VTK::RenderingCoreCxx-OpenGL-TestLabeledContourMapperWithActorMatrix$"
-    "^VTK::RenderingCoreCxx-OpenGL-TestMixedGeometry_1$"
-    "^VTK::RenderingCoreCxx-OpenGL-TestMixedGeometry_2$"
-    "^VTK::RenderingCoreCxx-OpenGL-TestNViewportsNActorsNMappersNInputs$"
-    "^VTK::RenderingCoreCxx-OpenGL-TestPolyDataMapperClipPlanes$"
+    # Only the middle viewport (the hexahedron scaled by 1e20) comes out empty;
+    # the 1.0 and 1e-9 viewports match. Looks like float32 precision in the
+    # camera/clipping-range math rather than anything about normals. Note the
+    # test already calls SetMultiSamples(0), so this is not an AA difference.
     "^VTK::RenderingCoreCxx-OpenGL-TestPolyDataMapperNormals$"
+    # The float RGBA readback disagrees with the unsigned char readback of the
+    # same buffer, which passes a few lines earlier:
+    #   TestReadPixels.cxx:72 ERR| Unsatisfied pixel value condition at line 72:
+    #   static_cast<int>(f32RGBA->GetTuple(0)[0] * 255) == 100
     "^VTK::RenderingCoreCxx-OpenGL-TestReadPixels$"
-    "^VTK::RenderingCoreCxx-OpenGL-TestSurfacePlusEdges$"
-    "^VTK::RenderingCoreCxx-OpenGL-TestTextureWrap$"
-    "^VTK::RenderingCoreCxx-OpenGL-TestWireframe$"
-    # Newly observed failing when running the wasm test suite on Linux hosts.
-    # OpenGL/WebGL2 image comparison differences, tracked with the other wasm
-    # OpenGL failures in https://gitlab.kitware.com/vtk/vtk/-/issues/19343
+    # Lines drawn coincident with the surface are almost entirely hidden - only
+    # the point primitives survive - so the polygon-offset based coincident
+    # topology resolution does not take effect. Largest error of the group by a
+    # wide margin.
     "^VTK::RenderingCoreCxx-OpenGL-TestCoincident$"
-    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotation$"
-    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotationVectors$"
-    # OpenGL tests that fail under ANGLE's SwiftShader software rasterizer (used
-    # because the Linux runners have no usable GL driver). TestHardwareSelector
-    # reads back mismatched selection ids; the other two are image-comparison
-    # differences. Tracked with the other wasm OpenGL failures in
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/19343
-    "^VTK::RenderingCoreCxx-OpenGL-TestGlyph3DMapperCompositeDisplayAttributeInheritance$"
+    # Hardware selection reads back the wrong ids for the composite case:
+    #   TestHardwareSelector.cxx:280 Expected selected Ids = 1160 1163 1169 ...
     "^VTK::RenderingCoreCxx-OpenGL-TestHardwareSelector$"
-    "^VTK::RenderingCoreCxx-OpenGL-TestTransformCoordinateUseDouble$"
     # RenderingCoreCxx tests that fail with WebGPU.
     # see https://gitlab.kitware.com/vtk/vtk/-/issues/19921
     "^VTK::RenderingCoreCxx-WebGPU-TestAreaSelections$"
