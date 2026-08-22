@@ -5,6 +5,7 @@
 #include "Private/vtkWebGPUHelpersPrivate.h"
 #include "Private/vtkWebGPUVolumeRayCastCoordinatorInternals.h"
 
+#include "vtkAbstractMapper.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
@@ -214,7 +215,17 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::CollectInputs(vtkVolume* volume
   for (int port : ports)
   {
     auto* image = vtkImageData::SafeDownCast(this->Self->GetTransformedInput(port));
-    if (image == nullptr || image->GetPointData()->GetScalars() == nullptr)
+    if (image == nullptr)
+    {
+      continue;
+    }
+    // Not always the active point scalars: the mapper may have been pointed at a named array, or
+    // at the cell data.
+    int cellFlag = 0;
+    vtkDataArray* scalars = vtkAbstractMapper::GetScalars(image, this->Self->GetScalarMode(),
+      this->Self->GetArrayAccessMode(), this->Self->GetArrayId(), this->Self->GetArrayName(),
+      cellFlag);
+    if (scalars == nullptr || cellFlag == 2)
     {
       continue;
     }
@@ -239,6 +250,14 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::CollectInputs(vtkVolume* volume
     Input& input = this->InputCache[port];
     input.Port = port;
     input.Data = image;
+    if (input.Scalars != scalars || input.CellData != (cellFlag == 1))
+    {
+      // A different array is a different volume as far as the device is concerned.
+      input.CellSize = 0;
+      input.DataTime = 0;
+    }
+    input.Scalars = scalars;
+    input.CellData = cellFlag == 1;
     input.Property = property;
     input.WorldMatrix = portVolume != nullptr ? portVolume->GetMatrix() : volume->GetMatrix();
     this->ActivePorts.push_back(port);
@@ -258,13 +277,27 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::CollectInputs(vtkVolume* volume
 //------------------------------------------------------------------------------
 void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, int cellSize)
 {
-  vtkDataArray* scalars = input.Data->GetPointData()->GetScalars();
+  vtkDataArray* scalars = input.Scalars;
   if (input.CellSize == cellSize && input.DataTime >= input.Data->GetMTime())
   {
     return;
   }
 
   input.Data->GetDimensions(input.Dimensions);
+  input.IndexToPhysical->DeepCopy(input.Data->GetIndexToPhysicalMatrix());
+  if (input.CellData)
+  {
+    // A cell array has one fewer sample along each axis than the points do, and each sample sits
+    // at the middle of its cell.
+    vtkNew<vtkMatrix4x4> shift;
+    shift->Identity();
+    for (int i = 0; i < 3; ++i)
+    {
+      input.Dimensions[i] = std::max(1, input.Dimensions[i] - 1);
+      shift->SetElement(i, 3, 0.5);
+    }
+    vtkMatrix4x4::Multiply4x4(input.IndexToPhysical, shift, input.IndexToPhysical);
+  }
   scalars->GetRange(input.DataRange, 0);
 
   const int* dimensions = input.Dimensions;
@@ -315,8 +348,7 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
 bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchBrick(
   const int brick[3], int slotSize, void* voxels)
 {
-  vtkDataArray* scalars =
-    this->Data != nullptr ? this->Data->GetPointData()->GetScalars() : nullptr;
+  vtkDataArray* scalars = this->Scalars;
   if (scalars == nullptr || slotSize <= 2)
   {
     return false;
@@ -515,6 +547,7 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::SyncDeviceResources(
     contribution.Volume = volume;
     contribution.Port = port;
     contribution.Data = input.Data;
+    contribution.IndexToPhysical = input.IndexToPhysical;
     contribution.Property = input.Property;
     contribution.WorldMatrix = input.WorldMatrix;
     contribution.ClippingPlanes = this->Self->GetClippingPlanes();

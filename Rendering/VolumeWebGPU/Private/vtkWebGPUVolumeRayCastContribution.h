@@ -60,6 +60,9 @@ struct vtkWebGPUVolumeRayCastContribution
 
   vtkImageData* Data = nullptr;
   vtkVolumeProperty* Property = nullptr;
+  /// Index space to the input's own coordinates. Comes from the mapper rather than from the
+  /// image, because cell data is sampled at cell centres and so sits half a voxel across.
+  vtkMatrix4x4* IndexToPhysical = nullptr;
   /// Placement of the prop that carries this input.
   vtkMatrix4x4* WorldMatrix = nullptr;
   /// Clipping planes of the mapper that owns this input, if any.

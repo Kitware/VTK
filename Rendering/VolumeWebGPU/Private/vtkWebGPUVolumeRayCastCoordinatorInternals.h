@@ -22,6 +22,7 @@
 
 #include <array>
 #include <cstdint>
+#include <map>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -93,6 +94,9 @@ private:
   };
   std::vector<LayerState> Layers;
   std::vector<LayerState> CellLayers;
+  /// What each volume held when its bricks were last uploaded, so that a volume whose data has
+  /// been replaced does not go on being drawn from what the pool still holds.
+  std::map<const void*, vtkMTimeType> BrickContent;
   /// Where the pages and the acceleration cells of each contribution start in the shared tables.
   std::vector<std::uint32_t> PageOffsets;
   std::vector<std::uint32_t> CellOffsets;

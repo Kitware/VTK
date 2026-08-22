@@ -23,6 +23,8 @@
 
 #include "Private/vtkWebGPUVolumeRayCastContribution.h"
 
+#include "vtkMatrix4x4.h" // for the per input index to physical transform
+#include "vtkNew.h"
 #include "vtkSmartPointer.h"
 #include "vtkTimeStamp.h"
 #include "vtk_wgpu.h"
@@ -34,8 +36,8 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkDataArray;
 class vtkImageData;
-class vtkMatrix4x4;
 class vtkVolume;
 class vtkVolumeProperty;
 class vtkWebGPURenderWindow;
@@ -72,6 +74,13 @@ private:
     vtkMatrix4x4* WorldMatrix = nullptr;
 
     bool FetchBrick(const int brick[3], int slotSize, void* voxels) override;
+
+    /// The array the mapper was told to render, which is not always the active point scalars.
+    vtkDataArray* Scalars = nullptr;
+    bool CellData = false;
+    /// Index space to the input's own coordinates, shifted by half a voxel for cell data so that
+    /// a cell is sampled at its centre.
+    vtkNew<vtkMatrix4x4> IndexToPhysical;
 
     /// Whether the scalars go to the device as bytes rather than floats.
     bool BytePool = false;

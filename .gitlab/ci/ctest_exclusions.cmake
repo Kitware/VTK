@@ -808,7 +808,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCameraInsideNonUniformScaleTransform$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCameraInsideSmallSpacing$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCameraInsideTransformation$"
-    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastChangedArray$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastClippingUserTransform$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCompositeBinaryMask$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCompositeBinaryMask1$"

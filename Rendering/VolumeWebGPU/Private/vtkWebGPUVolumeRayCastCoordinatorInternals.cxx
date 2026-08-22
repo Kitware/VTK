@@ -252,6 +252,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::Forget(vtkWebGPUVolumeRayC
     if (contribution.Mapper == mapper)
     {
       this->Pool.Forget(contribution.BrickSource);
+      this->BrickContent.erase(contribution.BrickSource);
     }
   }
   this->Contributions.erase(std::remove_if(this->Contributions.begin(), this->Contributions.end(),
@@ -276,6 +277,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::ReleaseDeviceResources()
 {
   this->Layers.clear();
   this->CellLayers.clear();
+  this->BrickContent.clear();
   this->PageOffsets.clear();
   this->CellOffsets.clear();
   this->PageDimensions.clear();
@@ -461,6 +463,22 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateResidency(
     total += static_cast<std::size_t>(grid[0]) * grid[1] * grid[2];
   }
   total = std::max<std::size_t>(total, 1);
+
+  // A volume whose data changed has to give its slots back: they are keyed by which volume asked
+  // for them, not by what was in them, so nothing else would notice that they are now stale.
+  for (const auto& contribution : this->Contributions)
+  {
+    if (contribution.BrickSource == nullptr)
+    {
+      continue;
+    }
+    auto& seen = this->BrickContent[contribution.BrickSource];
+    if (seen != contribution.ContentTime)
+    {
+      this->Pool.Forget(contribution.BrickSource);
+      seen = contribution.ContentTime;
+    }
+  }
 
   std::vector<PageEntry> table(total, PageEntry{ vtkWebGPUVolumeBrickPool::InvalidSlot, 0 });
 
@@ -763,8 +781,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
     }
 
     vtkNew<vtkMatrix4x4> indexToWorld;
-    vtkMatrix4x4::Multiply4x4(
-      contribution.WorldMatrix, contribution.Data->GetIndexToPhysicalMatrix(), indexToWorld);
+    vtkMatrix4x4::Multiply4x4(contribution.WorldMatrix, contribution.IndexToPhysical, indexToWorld);
 
     vtkNew<vtkMatrix4x4> volumeMatrix;
     vtkMatrix4x4::Multiply4x4(indexToWorld, textureToIndex, volumeMatrix);
@@ -899,8 +916,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
       }
 
       vtkNew<vtkMatrix4x4> textureToData;
-      vtkMatrix4x4::Multiply4x4(
-        contribution.Data->GetIndexToPhysicalMatrix(), textureToIndex, textureToData);
+      vtkMatrix4x4::Multiply4x4(contribution.IndexToPhysical, textureToIndex, textureToData);
       vtkNew<vtkMatrix4x4> dataToTexture;
       vtkMatrix4x4::Invert(textureToData, dataToTexture);
       for (int axis = 0; axis < 3; ++axis)
