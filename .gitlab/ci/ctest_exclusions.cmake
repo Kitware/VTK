@@ -462,12 +462,6 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
   list(APPEND test_exclusions
-    # OpenGL tests that fail on WebGL2, tracked in
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/19343
-    #
-    # The comment above each entry records what was actually observed when the
-    # test was run against chrome + ANGLE/SwiftShader on a Linux host.
-    #
     # RenderingCoreCxx tests that fail with WebGPU.
     # see https://gitlab.kitware.com/vtk/vtk/-/issues/19921
     "^VTK::RenderingCoreCxx-WebGPU-TestAreaSelections$"
