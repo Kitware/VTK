@@ -94,6 +94,13 @@ else()
   set(default_image_compare "VTK_TESTING_IMAGE_COMPARE_METHOD=LEGACY_VALID")
 endif()
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  # Baselines are produced by desktop GPU drivers, while the wasm test suite
+  # renders through the browser (WebGL2/WebGPU on top of ANGLE's SwiftShader on
+  # the Linux testers) so default wasm to LOOSE_VALID.
+  set(default_image_compare "VTK_TESTING_IMAGE_COMPARE_METHOD=LOOSE_VALID")
+endif ()
+
 #[==[.rst:
 Creating test executables
 ^^^^^^^^^^^^^^^^^^^^^^^^^
