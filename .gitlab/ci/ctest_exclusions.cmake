@@ -468,12 +468,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     # The comment above each entry records what was actually observed when the
     # test was run against chrome + ANGLE/SwiftShader on a Linux host.
     #
-    # Shader generation emits a fragment shader that never declares the
-    # `colors` sampler used by the partial-field-data path, so the GLSL ES 3.00
-    # compile fails outright:
-    #   ERROR: 0:194: 'colors' : undeclared identifier
-    #   ERROR: 0:194: 'texelFetch' : no matching overloaded function found
-    "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperPartialFieldData$"
     # The vertices render in the surface's grey instead of the baseline's red,
     # i.e. the vertex color is dropped and the point primitives inherit the
     # surface color.

@@ -3167,11 +3167,19 @@ vtkOpenGLLowMemoryPolyDataMapper::ShaderColorSourceAttribute
 vtkOpenGLLowMemoryPolyDataMapper::DetermineShaderColorSource(vtkPolyData* mesh)
 {
   auto colors = this->GetColors(mesh);
+  // The shader only gets a `colors` sampler when BindArraysToTextureBuffers was able to upload
+  // one color per point or per cell; InstallArrayTextureShaderDeclarations declares it under the
+  // very same condition. Field data coloring maps a single tuple for the whole mesh, so picking a
+  // per-point or per-cell color source for it would emit a shader that samples an undeclared
+  // `colors` and fail to compile. Keep the two conditions in lockstep.
+  const bool colorsAreBindable = colors != nullptr &&
+    (colors->GetNumberOfTuples() == mesh->GetNumberOfPoints() ||
+      colors->GetNumberOfTuples() == mesh->GetNumberOfCells());
   // Determine where the colors come from.
   auto result = ShaderColorSourceAttribute::Uniform;
   if (this->ScalarVisibility)
   {
-    if (colors)
+    if (colorsAreBindable)
     {
       result = ShaderColorSourceAttribute::Point;
     }
@@ -3180,7 +3188,7 @@ vtkOpenGLLowMemoryPolyDataMapper::DetermineShaderColorSource(vtkPolyData* mesh)
           this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA ||
           this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA ||
           !mesh->GetPointData()->GetScalars()) &&
-      this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA && colors &&
+      this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA && colorsAreBindable &&
       colors->GetNumberOfTuples() > 0)
     {
       result = ShaderColorSourceAttribute::Cell;
