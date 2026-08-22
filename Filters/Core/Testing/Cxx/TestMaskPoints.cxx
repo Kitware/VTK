@@ -12,6 +12,7 @@
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
+#include <vtkTestErrorObserver.h>
 #include <vtkTriangleFilter.h>
 #include <vtkUnstructuredGrid.h>
 
@@ -256,6 +257,42 @@ int MaskPointsPointData()
 
   return errors;
 }
+
+// Masks the points of a data set that contains no cells of the dimension that the
+// random mode samples, and checks that the warning names that dimension.
+int CheckNoCellsWarning(vtkDataSet* input, int randomModeType, const std::string& expectedWarning)
+{
+  vtkNew<vtkMaskPoints> maskPoints;
+  vtkNew<vtkTest::ErrorObserver> warningObserver;
+  maskPoints->AddObserver(vtkCommand::WarningEvent, warningObserver);
+  maskPoints->SetInputData(input);
+  maskPoints->GenerateVerticesOff();
+  maskPoints->RandomModeOn();
+  maskPoints->SetRandomModeType(randomModeType);
+  maskPoints->SetMaximumNumberOfPoints(100);
+  maskPoints->Update();
+
+  return warningObserver->CheckWarningMessage(expectedWarning);
+}
+
+// Checks that the modes that sample cells of a given dimension report the dimension
+// of the cells that they did not find.
+int MaskPointsNoCellsWarning()
+{
+  int errors = 0;
+
+  // A grid of hexahedra has no 2D cells for the surface sampling mode
+  vtkSmartPointer<vtkUnstructuredGrid> grid = CreateHexahedralGrid(4);
+  errors +=
+    CheckNoCellsWarning(grid, vtkMaskPoints::UNIFORM_SPATIAL_SURFACE, "Region has no 2D cells.");
+
+  // A triangulated sphere has no 3D cells for the volume sampling mode
+  vtkSmartPointer<vtkPolyData> sphere = CreateTriangulatedSphere();
+  errors +=
+    CheckNoCellsWarning(sphere, vtkMaskPoints::UNIFORM_SPATIAL_VOLUME, "Region has no 3D cells.");
+
+  return errors;
+}
 }
 
 int TestMaskPoints(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -303,6 +340,11 @@ int TestMaskPoints(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   if (MaskPointsPointData() != 0)
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (MaskPointsNoCellsWarning() != 0)
   {
     return EXIT_FAILURE;
   }
