@@ -2156,15 +2156,20 @@ uniform float edgeWidth;
       edist[1] += edgeEqn[1].z;
       edist[2] += edgeEqn[2].z;
     }
-    // Legacy-consistent edge band: rely on signed edge distances with a
-    // half-width offset so edges look uniform and thin.
-    float emix = clamp(0.5 + 0.5 * edgeWidth - min(min(edist[0], edist[1]), edist[2]), 0.0, 1.0);
     if (wireframe == 1)
     {
-      opacity = mix(0.0, opacity, emix);
+      // Threshold on the half width instead so each
+      // triangle paints only its own half of the edge.
+      if (min(min(edist[0], edist[1]), edist[2]) > 0.5 * edgeWidth)
+      {
+        opacity = 0.0;
+      }
     }
     else
     {
+      // Legacy-consistent edge band: rely on signed edge distances with a
+      // half-width offset so edges look uniform and thin.
+      float emix = clamp(0.5 + 0.5 * edgeWidth - min(min(edist[0], edist[1]), edist[2]), 0.0, 1.0);
       diffuseColor = mix(diffuseColor, vec3(0.0), emix * edgeOpacity);
       ambientColor = mix(ambientColor, edgeColor, emix * edgeOpacity);
       // When lighting is enabled and tubes are requested, add a subtle

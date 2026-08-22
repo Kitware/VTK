@@ -82,8 +82,7 @@ bool vtkGLSLModCoincidentTopology::SetShaderParameters(vtkOpenGLRenderer* render
   float factor = 0.0;
   float offset = 0.0;
   this->GetCoincidentParameters(renderer, vtkMapper::SafeDownCast(mapper), actor, factor, offset);
-  if ((factor != 0.0 || offset != 0.0) && program->IsUniformUsed("cOffset") &&
-    program->IsUniformUsed("cFactor"))
+  if (program->IsUniformUsed("cOffset") && program->IsUniformUsed("cFactor"))
   {
     program->SetUniformf("cOffset", offset);
     program->SetUniformf("cFactor", factor);
@@ -116,11 +115,12 @@ void vtkGLSLModCoincidentTopology::GetCoincidentParameters(
   {
     double f = 0.0;
     double u = 0.0;
-    if (this->PrimitiveType == GL_POINTS)
+    if (this->PrimitiveType == GL_POINTS || ppty->GetRepresentation() == VTK_POINTS)
     {
       mapper->GetCoincidentTopologyPointOffsetParameter(u);
     }
-    else if (this->PrimitiveType == GL_LINES || this->PrimitiveType == GL_LINE_STRIP)
+    else if (this->PrimitiveType == GL_LINES || this->PrimitiveType == GL_LINE_STRIP ||
+      ppty->GetRepresentation() == VTK_WIREFRAME)
     {
       mapper->GetCoincidentTopologyLineOffsetParameters(f, u);
     }

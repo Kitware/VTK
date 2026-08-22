@@ -468,11 +468,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     # The comment above each entry records what was actually observed when the
     # test was run against chrome + ANGLE/SwiftShader on a Linux host.
     #
-    # Lines drawn coincident with the surface are almost entirely hidden - only
-    # the point primitives survive - so the polygon-offset based coincident
-    # topology resolution does not take effect. Largest error of the group by a
-    # wide margin.
-    "^VTK::RenderingCoreCxx-OpenGL-TestCoincident$"
     # Hardware selection reads back the wrong ids for the composite case:
     #   TestHardwareSelector.cxx:280 Expected selected Ids = 1160 1163 1169 ...
     "^VTK::RenderingCoreCxx-OpenGL-TestHardwareSelector$"
@@ -538,7 +533,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingCoreCxx-WebGPU-TestTStripsNormalsTCoords$"
     "^VTK::RenderingCoreCxx-WebGPU-TestTStripsTCoords$"
     "^VTK::RenderingCoreCxx-WebGPU-TestWindowToImageFilter$"
-    "^VTK::RenderingOpenGL2Cxx-TestCoincident$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataOverlappingCells$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussian$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussianSelection$"
