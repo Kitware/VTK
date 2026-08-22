@@ -468,9 +468,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     # The comment above each entry records what was actually observed when the
     # test was run against chrome + ANGLE/SwiftShader on a Linux host.
     #
-    # Hardware selection reads back the wrong ids for the composite case:
-    #   TestHardwareSelector.cxx:280 Expected selected Ids = 1160 1163 1169 ...
-    "^VTK::RenderingCoreCxx-OpenGL-TestHardwareSelector$"
     # RenderingCoreCxx tests that fail with WebGPU.
     # see https://gitlab.kitware.com/vtk/vtk/-/issues/19921
     "^VTK::RenderingCoreCxx-WebGPU-TestAreaSelections$"
@@ -571,10 +568,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     # WebGPU RenderingCore failures in
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19921
     # TestCoincident hangs (times out); TestGlyph3DMapperPicking is an image
-    # mismatch; TestHardwareSelector returns mismatched selected ids.
+    # mismatch.
     "^VTK::RenderingCoreCxx-WebGPU-TestCoincident$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestGlyph3DMapperPicking$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestHardwareSelector$")
+    "^VTK::RenderingCoreCxx-WebGPU-TestGlyph3DMapperPicking$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora44_x86_64_webgpu")
