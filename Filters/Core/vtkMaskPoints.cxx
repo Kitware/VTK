@@ -734,7 +734,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
               {
                 input->GetPoint(randPtId, x);
                 id = newPts->InsertNextPoint(x);
-                outputPD->CopyData(pd, ptId, id);
+                outputPD->CopyData(pd, randPtId, id);
                 maskedPoints[randPtId] = true;
                 break;
               }
