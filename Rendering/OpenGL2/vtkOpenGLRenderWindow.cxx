@@ -370,7 +370,6 @@ bool RGBToRGBA(const T1* const rgb, T2* rgba, const std::size_t& n)
       (*rgba++) = rgb[idx++] / 255.0f;
       (*rgba++) = rgb[idx++] / 255.0f;
       (*rgba++) = 1.0f;
-      idx++;
     }
   }
   else if (is_T1_float32 && is_T2_uint_or_int)
@@ -381,8 +380,7 @@ bool RGBToRGBA(const T1* const rgb, T2* rgba, const std::size_t& n)
       (*rgba++) = static_cast<T2>(rgb[idx++] * 255.0f);
       (*rgba++) = static_cast<T2>(rgb[idx++] * 255.0f);
       (*rgba++) = static_cast<T2>(rgb[idx++] * 255.0f);
-      (*rgba++) = 1.0f;
-      idx++;
+      (*rgba++) = static_cast<T2>(255);
     }
   }
   else
