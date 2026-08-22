@@ -468,11 +468,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     # The comment above each entry records what was actually observed when the
     # test was run against chrome + ANGLE/SwiftShader on a Linux host.
     #
-    # The float RGBA readback disagrees with the unsigned char readback of the
-    # same buffer, which passes a few lines earlier:
-    #   TestReadPixels.cxx:72 ERR| Unsatisfied pixel value condition at line 72:
-    #   static_cast<int>(f32RGBA->GetTuple(0)[0] * 255) == 100
-    "^VTK::RenderingCoreCxx-OpenGL-TestReadPixels$"
     # Lines drawn coincident with the surface are almost entirely hidden - only
     # the point primitives survive - so the polygon-offset based coincident
     # topology resolution does not take effect. Largest error of the group by a
