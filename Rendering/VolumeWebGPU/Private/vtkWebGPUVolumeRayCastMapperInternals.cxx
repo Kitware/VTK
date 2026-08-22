@@ -8,6 +8,7 @@
 #include "vtkAbstractMapper.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkDataArray.h"
+#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
@@ -64,8 +65,9 @@ void CopyFirstComponent(const T* source, int components, vtkIdType count, float*
 // Scalar extremes of every cell, including one voxel of overlap on the far side so the range also
 // covers what interpolation can produce inside the cell.
 template <typename T>
-void MeasureCells(const T* texels, int components, const int dimensions[3], int cellSize,
-  const int cellDimensions[3], std::vector<float>& minimum, std::vector<float>& maximum)
+void MeasureCells(const T* texels, int components, int component, const int dimensions[3],
+  int cellSize, const int cellDimensions[3], std::vector<float>& minimum,
+  std::vector<float>& maximum)
 {
   const vtkIdType sliceStride = static_cast<vtkIdType>(dimensions[0]) * dimensions[1];
   const std::size_t count =
@@ -95,7 +97,7 @@ void MeasureCells(const T* texels, int components, const int dimensions[3], int 
             const vtkIdType row = z * sliceStride + static_cast<vtkIdType>(y) * dimensions[0];
             for (int x = x0; x <= x1; ++x)
             {
-              const float value = static_cast<float>(texels[(row + x) * components]);
+              const float value = static_cast<float>(texels[(row + x) * components + component]);
               low = std::min(low, value);
               high = std::max(high, value);
             }
@@ -116,10 +118,11 @@ void MeasureCells(const T* texels, int components, const int dimensions[3], int 
 // volume. The apron lets the shader interpolate inside a brick without reaching into a
 // neighbouring slot, so a brick boundary leaves no seam.
 template <typename T, typename D>
-void ExtractBrick(const T* source, int components, const int dimensions[3], int brickSize,
-  const int brick[3], int slotSize, D* destination)
+void ExtractBrick(const T* source, int components, int channels, const int dimensions[3],
+  int brickSize, const int brick[3], int slotSize, D* destination)
 {
   const auto pick = [](int value, int last) { return std::clamp(value, 0, last); };
+  const int copied = std::min(components, channels);
   for (int z = 0; z < slotSize; ++z)
   {
     const int sz = pick(brick[2] * brickSize + z - 1, dimensions[2] - 1);
@@ -127,11 +130,19 @@ void ExtractBrick(const T* source, int components, const int dimensions[3], int 
     {
       const int sy = pick(brick[1] * brickSize + y - 1, dimensions[1] - 1);
       const vtkIdType row = (static_cast<vtkIdType>(sz) * dimensions[1] + sy) * dimensions[0];
-      D* out = destination + (static_cast<vtkIdType>(z) * slotSize + y) * slotSize;
+      D* out = destination + (static_cast<vtkIdType>(z) * slotSize + y) * slotSize * channels;
       for (int x = 0; x < slotSize; ++x)
       {
         const int sx = pick(brick[0] * brickSize + x - 1, dimensions[0] - 1);
-        out[x] = static_cast<D>(source[(row + sx) * components]);
+        const vtkIdType tuple = (row + sx) * components;
+        for (int c = 0; c < copied; ++c)
+        {
+          out[x * channels + c] = static_cast<D>(source[tuple + c]);
+        }
+        for (int c = copied; c < channels; ++c)
+        {
+          out[x * channels + c] = D(0);
+        }
       }
     }
   }
@@ -247,17 +258,44 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::CollectInputs(vtkVolume* volume
       continue;
     }
 
+    const int available = scalars->GetNumberOfComponents();
+    const int components = std::min(available, 4);
+    bool independent = property->GetIndependentComponents() != 0;
+    if (!independent && components != 2 && components != 4)
+    {
+      independent = true;
+    }
+    // The intensity blend modes and the acceleration structure look at one component. Independent
+    // components pick the one the property weighs most, which is what the OpenGL mapper does.
+    int primary = 0;
+    if (independent)
+    {
+      for (int i = 1; i < components; ++i)
+      {
+        if (property->GetComponentWeight(i) > property->GetComponentWeight(primary))
+        {
+          primary = i;
+        }
+      }
+    }
+
     Input& input = this->InputCache[port];
     input.Port = port;
     input.Data = image;
-    if (input.Scalars != scalars || input.CellData != (cellFlag == 1))
+    if (input.Scalars != scalars || input.CellData != (cellFlag == 1) ||
+      input.NumberOfComponents != components || input.PrimaryComponent != primary)
     {
-      // A different array is a different volume as far as the device is concerned.
+      // A different array, or a different way of reading it, is a different volume as far as the
+      // device is concerned.
       input.CellSize = 0;
       input.DataTime = 0;
+      input.ColorTable.clear();
     }
     input.Scalars = scalars;
     input.CellData = cellFlag == 1;
+    input.NumberOfComponents = components;
+    input.IndependentComponents = independent;
+    input.PrimaryComponent = primary;
     input.Property = property;
     input.WorldMatrix = portVolume != nullptr ? portVolume->GetMatrix() : volume->GetMatrix();
     this->ActivePorts.push_back(port);
@@ -285,6 +323,7 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
 
   input.Data->GetDimensions(input.Dimensions);
   input.IndexToPhysical->DeepCopy(input.Data->GetIndexToPhysicalMatrix());
+  // Placed before the range queries below so that the dimensions are the cell ones when needed.
   if (input.CellData)
   {
     // A cell array has one fewer sample along each axis than the points do, and each sample sits
@@ -298,8 +337,6 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
     }
     vtkMatrix4x4::Multiply4x4(input.IndexToPhysical, shift, input.IndexToPhysical);
   }
-  scalars->GetRange(input.DataRange, 0);
-
   const int* dimensions = input.Dimensions;
   const vtkIdType count = static_cast<vtkIdType>(dimensions[0]) * dimensions[1] * dimensions[2];
   if (count <= 0)
@@ -307,11 +344,11 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
     return;
   }
 
-  const int components = scalars->GetNumberOfComponents();
-  if (components > 1)
+  const int available = scalars->GetNumberOfComponents();
+  if (available > 4)
   {
-    vtkWarningWithObjectMacro(this->Self, << "Input " << input.Port << " has " << components
-                                          << " components, only the first one is rendered.");
+    vtkWarningWithObjectMacro(this->Self, << "Input " << input.Port << " has " << available
+                                          << " components, only the first four are rendered.");
   }
 
   // Eight bit data stays eight bit on the device and is scaled back up in the shader. Everything
@@ -319,6 +356,10 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
   input.BytePool = scalars->GetDataType() == VTK_UNSIGNED_CHAR;
   input.ValueScale = input.BytePool ? 255.0f : 1.0f;
   input.ValueBias = 0.0f;
+  for (int component = 0; component < 4; ++component)
+  {
+    scalars->GetRange(input.DataRange[component], std::min(component, available - 1));
+  }
 
   input.CellSize = cellSize;
   for (int i = 0; i < 3; ++i)
@@ -327,15 +368,22 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
   }
 
   void* source = scalars->GetVoidPointer(0);
-  switch (scalars->GetDataType())
+  // Every component is measured, because a region that one component maps to nothing may be
+  // exactly where another one carries what there is to see.
+  for (int component = 0; component < input.NumberOfComponents; ++component)
   {
-    vtkTemplateMacro(MeasureCells(static_cast<const VTK_TT*>(source), components, dimensions,
-      cellSize, input.CellDimensions, input.CellMinimum, input.CellMaximum));
-    default:
-      vtkErrorWithObjectMacro(
-        this->Self, << "Unsupported scalar type on input " << input.Port << ".");
-      input.CellSize = 0;
-      return;
+    const int read = std::min(component, available - 1);
+    switch (scalars->GetDataType())
+    {
+      vtkTemplateMacro(
+        MeasureCells(static_cast<const VTK_TT*>(source), available, read, dimensions, cellSize,
+          input.CellDimensions, input.CellMinimum[component], input.CellMaximum[component]));
+      default:
+        vtkErrorWithObjectMacro(
+          this->Self, << "Unsupported scalar type on input " << input.Port << ".");
+        input.CellSize = 0;
+        return;
+    }
   }
 
   input.DataTime = input.Data->GetMTime();
@@ -356,17 +404,20 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchBrick(
   // A slot is the brick plus a one voxel apron on each side.
   const int brickSize = slotSize - 2;
   const int components = scalars->GetNumberOfComponents();
+  // One channel for a single component volume, four for anything more, padded where the array
+  // has fewer than four.
+  const int channels = this->NumberOfComponents > 1 ? 4 : 1;
   void* source = scalars->GetVoidPointer(0);
 
   switch (scalars->GetDataType())
   {
     vtkTemplateMacro(
       if (this->BytePool) {
-        ExtractBrick(static_cast<const VTK_TT*>(source), components, this->Dimensions, brickSize,
-          brick, slotSize, static_cast<unsigned char*>(voxels));
+        ExtractBrick(static_cast<const VTK_TT*>(source), components, channels, this->Dimensions,
+          brickSize, brick, slotSize, static_cast<unsigned char*>(voxels));
       } else {
-        ExtractBrick(static_cast<const VTK_TT*>(source), components, this->Dimensions, brickSize,
-          brick, slotSize, static_cast<float*>(voxels));
+        ExtractBrick(static_cast<const VTK_TT*>(source), components, channels, this->Dimensions,
+          brickSize, brick, slotSize, static_cast<float*>(voxels));
       });
     default:
       return false;
@@ -383,99 +434,111 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateTransferFunctions(Input& 
     return;
   }
 
-  // Tabulate over whatever the transfer functions actually cover, falling back to the data.
-  vtkColorTransferFunction* rgb =
-    property->GetColorChannels(0) == 1 ? nullptr : property->GetRGBTransferFunction(0);
-  vtkPiecewiseFunction* gray =
-    property->GetColorChannels(0) == 1 ? property->GetGrayTransferFunction(0) : nullptr;
-  vtkPiecewiseFunction* scalarOpacity = property->GetScalarOpacity(0);
+  const int components = input.NumberOfComponents;
+  // Only independent components have transfer functions of their own. Dependent ones describe
+  // one colour between them, and only the first set is consulted.
+  const int tables = input.IndependentComponents ? components : 1;
 
-  double range[2] = { vtkMath::Inf(), -vtkMath::Inf() };
-  const auto widen = [&range](const double other[2])
+  input.ColorTable.assign(static_cast<std::size_t>(TableSize) * 4 * components, 0);
+  input.OpacityTable.assign(static_cast<std::size_t>(TableSize) * 4 * components, 0);
+  input.GradientTable.assign(static_cast<std::size_t>(TableSize) * 4 * components, 0);
+
+  for (int component = 0; component < components; ++component)
   {
-    if (other[1] > other[0])
+    const int table = std::min(component, tables - 1);
+    const std::size_t base = static_cast<std::size_t>(component) * TableSize * 4;
+
+    vtkColorTransferFunction* rgb =
+      property->GetColorChannels(table) == 1 ? nullptr : property->GetRGBTransferFunction(table);
+    vtkPiecewiseFunction* gray =
+      property->GetColorChannels(table) == 1 ? property->GetGrayTransferFunction(table) : nullptr;
+    vtkPiecewiseFunction* scalarOpacity = property->GetScalarOpacity(table);
+    vtkPiecewiseFunction* gradientOpacity = property->GetDisableGradientOpacity(table) != 0
+      ? nullptr
+      : property->GetGradientOpacity(table);
+
+    // Every table is indexed by where the sample sits in the data range, so that is what they are
+    // tabulated over. SCALAR, the default, reads the function at the data value; NATIVE reads it at
+    // the same fraction of the function's own range.
+    double data[2] = { input.DataRange[component][0], input.DataRange[component][1] };
+    if (data[1] <= data[0])
     {
-      range[0] = std::min(range[0], other[0]);
-      range[1] = std::max(range[1], other[1]);
+      data[1] = data[0] + 1.0;
     }
-  };
-  if (rgb != nullptr)
-  {
-    widen(rgb->GetRange());
-  }
-  if (gray != nullptr)
-  {
-    widen(gray->GetRange());
-  }
-  if (scalarOpacity != nullptr)
-  {
-    widen(scalarOpacity->GetRange());
-  }
-  if (range[1] <= range[0])
-  {
-    range[0] = input.DataRange[0];
-    range[1] = input.DataRange[1];
-  }
-  if (range[1] <= range[0])
-  {
-    range[1] = range[0] + 1.0;
-  }
-  input.ScalarRange[0] = range[0];
-  input.ScalarRange[1] = range[1];
+    input.ScalarRange[component][0] = data[0];
+    input.ScalarRange[component][1] = data[1];
 
-  input.ColorTable.assign(TableSize * 4, 0);
-  input.OpacityTable.assign(TableSize * 4, 0);
-  input.GradientTable.assign(TableSize * 4, 0);
-
-  const double step = (range[1] - range[0]) / (TableSize - 1);
-  for (int i = 0; i < TableSize; ++i)
-  {
-    const double value = range[0] + i * step;
-
-    double rgbValue[3] = { 1.0, 1.0, 1.0 };
-    if (rgb != nullptr)
+    const auto domain = [&data](
+                          vtkObject* function, const double* native, int rangeType, double out[2])
     {
-      rgb->GetColor(value, rgbValue);
-    }
-    else if (gray != nullptr)
+      if (function == nullptr || rangeType == vtkGPUVolumeRayCastMapper::SCALAR ||
+        native[1] <= native[0])
+      {
+        out[0] = data[0];
+        out[1] = data[1];
+      }
+      else
+      {
+        out[0] = native[0];
+        out[1] = native[1];
+      }
+    };
+
+    double colorDomain[2];
+    double opacityDomain[2];
+    double gradientDomain[2];
+    const double* colorNative =
+      rgb != nullptr ? rgb->GetRange() : (gray != nullptr ? gray->GetRange() : data);
+    domain(rgb != nullptr ? static_cast<vtkObject*>(rgb) : static_cast<vtkObject*>(gray),
+      colorNative, this->Self->GetColorRangeType(), colorDomain);
+    domain(scalarOpacity, scalarOpacity != nullptr ? scalarOpacity->GetRange() : data,
+      this->Self->GetScalarOpacityRangeType(), opacityDomain);
+    domain(gradientOpacity, gradientOpacity != nullptr ? gradientOpacity->GetRange() : data,
+      this->Self->GetGradientOpacityRangeType(), gradientDomain);
+
+    for (int i = 0; i < TableSize; ++i)
     {
-      const double level = gray->GetValue(value);
-      rgbValue[0] = rgbValue[1] = rgbValue[2] = level;
+      const double fraction = static_cast<double>(i) / (TableSize - 1);
+
+      double rgbValue[3] = { 1.0, 1.0, 1.0 };
+      const double colorAt = colorDomain[0] + fraction * (colorDomain[1] - colorDomain[0]);
+      if (rgb != nullptr)
+      {
+        rgb->GetColor(colorAt, rgbValue);
+      }
+      else if (gray != nullptr)
+      {
+        const double level = gray->GetValue(colorAt);
+        rgbValue[0] = rgbValue[1] = rgbValue[2] = level;
+      }
+      input.ColorTable[base + i * 4 + 0] = PackHalf(static_cast<float>(rgbValue[0]));
+      input.ColorTable[base + i * 4 + 1] = PackHalf(static_cast<float>(rgbValue[1]));
+      input.ColorTable[base + i * 4 + 2] = PackHalf(static_cast<float>(rgbValue[2]));
+      input.ColorTable[base + i * 4 + 3] = PackHalf(1.0f);
+
+      const double opacityAt = opacityDomain[0] + fraction * (opacityDomain[1] - opacityDomain[0]);
+      const float alpha =
+        scalarOpacity != nullptr ? static_cast<float>(scalarOpacity->GetValue(opacityAt)) : 1.0f;
+      input.OpacityCurve[component][i] = std::clamp(alpha, 0.0f, 1.0f);
+      input.OpacityTable[base + i * 4 + 0] = PackHalf(alpha);
+      input.OpacityTable[base + i * 4 + 3] = PackHalf(1.0f);
     }
-    input.ColorTable[i * 4 + 0] = PackHalf(static_cast<float>(rgbValue[0]));
-    input.ColorTable[i * 4 + 1] = PackHalf(static_cast<float>(rgbValue[1]));
-    input.ColorTable[i * 4 + 2] = PackHalf(static_cast<float>(rgbValue[2]));
-    input.ColorTable[i * 4 + 3] = PackHalf(1.0f);
 
-    const float alpha =
-      scalarOpacity != nullptr ? static_cast<float>(scalarOpacity->GetValue(value)) : 1.0f;
-    input.OpacityCurve[i] = std::clamp(alpha, 0.0f, 1.0f);
-    input.OpacityTable[i * 4 + 0] = PackHalf(alpha);
-    input.OpacityTable[i * 4 + 3] = PackHalf(1.0f);
-  }
+    // The gradient magnitude is measured against a quarter of the data range, which is the scale
+    // vtkVolumeShaderComposer settles on for want of knowing what gradients the data can produce.
+    input.GradientRange[component][0] = 0.0;
+    input.GradientRange[component][1] = 0.25 * (data[1] - data[0]);
 
-  vtkPiecewiseFunction* gradientOpacity =
-    property->GetDisableGradientOpacity(0) != 0 ? nullptr : property->GetGradientOpacity(0);
-  double gradientRange[2] = { 0.0, 1.0 };
-  if (gradientOpacity != nullptr)
-  {
-    gradientOpacity->GetRange(gradientRange);
-    if (gradientRange[1] <= gradientRange[0])
+    double gradientRange[2] = { gradientDomain[0], gradientDomain[1] };
+    const double gradientStep = (gradientRange[1] - gradientRange[0]) / (TableSize - 1);
+    for (int i = 0; i < TableSize; ++i)
     {
-      gradientRange[1] = gradientRange[0] + 1.0;
+      const float value = gradientOpacity != nullptr
+        ? static_cast<float>(gradientOpacity->GetValue(gradientRange[0] + i * gradientStep))
+        : 1.0f;
+      input.GradientTable[base + i * 4 + 0] = PackHalf(value);
+      input.GradientTable[base + i * 4 + 3] = PackHalf(1.0f);
     }
-  }
-  input.GradientRange[0] = gradientRange[0];
-  input.GradientRange[1] = gradientRange[1];
-
-  const double gradientStep = (gradientRange[1] - gradientRange[0]) / (TableSize - 1);
-  for (int i = 0; i < TableSize; ++i)
-  {
-    const float value = gradientOpacity != nullptr
-      ? static_cast<float>(gradientOpacity->GetValue(gradientRange[0] + i * gradientStep))
-      : 1.0f;
-    input.GradientTable[i * 4 + 0] = PackHalf(value);
-    input.GradientTable[i * 4 + 3] = PackHalf(1.0f);
   }
 
   input.TransferFunctionTime = property->GetMTime();
@@ -486,36 +549,55 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateTransferFunctions(Input& 
 //------------------------------------------------------------------------------
 void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateCellClassification(Input& input)
 {
-  if (!input.CellClassification.empty() || input.CellMinimum.empty())
+  if (!input.CellClassification.empty() || input.CellMinimum[0].empty())
   {
     return;
   }
 
-  input.CellClassification.assign(input.CellMinimum.size() * 2, 0.0f);
+  const std::size_t cells = input.CellMinimum[0].size();
+  input.CellClassification.assign(cells * 2, 0.0f);
 
-  const RangeTable table(input.OpacityCurve);
-  const double origin = input.ScalarRange[0];
-  const double scale = 1.0 / (input.ScalarRange[1] - input.ScalarRange[0]);
-
-  for (std::size_t cell = 0; cell < input.CellMinimum.size(); ++cell)
+  // A cell is only empty when every component says so, and it is as detailed as the component
+  // that varies most across it, so each one is asked in turn and the answers are combined.
+  const int components = input.NumberOfComponents;
+  for (int component = 0; component < components; ++component)
   {
-    const double low = std::clamp((input.CellMinimum[cell] - origin) * scale, 0.0, 1.0);
-    const double high = std::clamp((input.CellMaximum[cell] - origin) * scale, 0.0, 1.0);
+    // Dependent components describe one colour between them: the last carries the opacity, and
+    // it is looked up in the first set of tables.
+    const int measured = input.IndependentComponents ? component : components - 1;
+    const int table = input.IndependentComponents ? component : 0;
+    if (!input.IndependentComponents && component > 0)
+    {
+      break;
+    }
 
-    float opacityLow = 0.0f;
-    float opacityHigh = 0.0f;
-    table.Query(static_cast<int>(std::floor(low * (TableSize - 1))),
-      static_cast<int>(std::ceil(high * (TableSize - 1))), opacityLow, opacityHigh);
+    const RangeTable range(input.OpacityCurve[table]);
+    const double origin = input.ScalarRange[table][0];
+    const double scale = 1.0 / (input.ScalarRange[table][1] - origin);
 
-    // How much the cell varies, either in the data or in what the transfer function makes of
-    // it. Amplified so that a cell only counts as featureless when it really is almost flat,
-    // because coarse steps through a slowly changing region are what banding is made of.
-    constexpr float sensitivity = 4.0f;
-    const float detail = std::clamp(
-      sensitivity * std::max(static_cast<float>(high - low), opacityHigh - opacityLow), 0.0f, 1.0f);
+    for (std::size_t cell = 0; cell < cells; ++cell)
+    {
+      const double low = std::clamp((input.CellMinimum[measured][cell] - origin) * scale, 0.0, 1.0);
+      const double high =
+        std::clamp((input.CellMaximum[measured][cell] - origin) * scale, 0.0, 1.0);
 
-    input.CellClassification[cell * 2] = opacityHigh;
-    input.CellClassification[cell * 2 + 1] = detail;
+      float opacityLow = 0.0f;
+      float opacityHigh = 0.0f;
+      range.Query(static_cast<int>(std::floor(low * (TableSize - 1))),
+        static_cast<int>(std::ceil(high * (TableSize - 1))), opacityLow, opacityHigh);
+
+      // How much the cell varies. Amplified so a cell only counts as featureless when it is
+      // almost flat, because coarse steps through a slowly changing region are what bands.
+      constexpr float sensitivity = 4.0f;
+      const float detail =
+        std::clamp(sensitivity * std::max(static_cast<float>(high - low), opacityHigh - opacityLow),
+          0.0f, 1.0f);
+
+      input.CellClassification[cell * 2] =
+        std::max(input.CellClassification[cell * 2], opacityHigh);
+      input.CellClassification[cell * 2 + 1] =
+        std::max(input.CellClassification[cell * 2 + 1], detail);
+    }
   }
 
   input.ContentTime.Modified();
@@ -556,8 +638,14 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::SyncDeviceResources(
     std::copy_n(input.Dimensions, 3, contribution.Dimensions);
     contribution.ValueScale = input.ValueScale;
     contribution.ValueBias = input.ValueBias;
-    std::copy_n(input.ScalarRange, 2, contribution.ScalarRange);
-    std::copy_n(input.GradientRange, 2, contribution.GradientRange);
+    contribution.NumberOfComponents = input.NumberOfComponents;
+    contribution.IndependentComponents = input.IndependentComponents;
+    contribution.PrimaryComponent = input.PrimaryComponent;
+    for (int component = 0; component < 4; ++component)
+    {
+      std::copy_n(input.ScalarRange[component], 2, contribution.ScalarRange[component]);
+      std::copy_n(input.GradientRange[component], 2, contribution.GradientRange[component]);
+    }
     contribution.CellSize = input.CellSize;
     std::copy_n(input.CellDimensions, 3, contribution.CellDimensions);
     contribution.CellClassification = &input.CellClassification;

@@ -89,28 +89,36 @@ private:
     float ValueScale = 1.0f;
     float ValueBias = 0.0f;
 
-    double DataRange[2] = { 0.0, 1.0 };
-    /// Range the colour and opacity functions are tabulated over.
-    double ScalarRange[2] = { 0.0, 1.0 };
-    /// Range the gradient opacity function is tabulated over.
-    double GradientRange[2] = { 0.0, 1.0 };
+    /// How many components of the array are rendered, at most four, and whether each carries its
+    /// own transfer functions or they describe one colour between them.
+    int NumberOfComponents = 1;
+    bool IndependentComponents = true;
 
-    /// Scalar extremes of each cell of the acceleration structure, in data units.
+    double DataRange[4][2] = { { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 } };
+    /// Range each component's colour and opacity functions are tabulated over.
+    double ScalarRange[4][2] = { { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 } };
+    /// Range each component's gradient opacity function is tabulated over.
+    double GradientRange[4][2] = { { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 } };
+
+    /// Geometry of the acceleration cells, and the scalar extremes of each, per component.
     int CellDimensions[3] = { 0, 0, 0 };
     int CellSize = 0;
-    std::vector<float> CellMinimum;
-    std::vector<float> CellMaximum;
+    std::vector<float> CellMinimum[4];
+    std::vector<float> CellMaximum[4];
     /// Two floats per cell: largest opacity the transfer functions map it to, and how much it
     /// varies. Rebuilt whenever the transfer functions change.
     std::vector<float> CellClassification;
 
-    /// RGBA16Float texels ready to be dropped into a layer of the shared arrays.
+    /// RGBA16Float texels ready to be dropped into a layer of the shared arrays, one set of
+    /// tables per component laid out one after another.
     std::vector<std::uint16_t> ColorTable;
     std::vector<std::uint16_t> OpacityTable;
     std::vector<std::uint16_t> GradientTable;
-    /// The opacity table again, unpacked, so blocks can be classified without asking the
-    /// transfer functions again.
-    std::array<float, TableSize> OpacityCurve = {};
+    /// Every component's opacity table again, unpacked, so cells can be classified without
+    /// asking the transfer functions again.
+    std::array<std::array<float, TableSize>, 4> OpacityCurve = {};
+    /// Which component that is: the one the intensity modes and the classification look at.
+    int PrimaryComponent = 0;
 
     vtkMTimeType DataTime = 0;
     vtkMTimeType TransferFunctionTime = 0;

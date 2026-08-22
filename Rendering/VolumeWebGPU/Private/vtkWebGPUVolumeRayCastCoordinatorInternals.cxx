@@ -38,6 +38,7 @@ using Internals = vtkWebGPUVolumeRayCastCoordinator::vtkInternals;
 constexpr int MaxVolumes = Internals::MaximumVolumes;
 constexpr int MaxLights = Internals::MaximumLights;
 constexpr int MaxClipPlanes = Internals::MaximumClipPlanes;
+constexpr int MaxComponents = 4;
 constexpr int MaxIsoValues = Internals::MaximumIsoValues;
 constexpr int TableSize = Internals::TableSize;
 
@@ -58,7 +59,8 @@ enum VolumeFlag : std::uint32_t
   VolumeFlagShade = 1u,
   VolumeFlagGradientOpacity = 2u,
   VolumeFlagCropping = 4u,
-  VolumeFlagNormalFromOpacity = 8u
+  VolumeFlagNormalFromOpacity = 8u,
+  VolumeFlagIndependentComponents = 16u
 };
 
 // Must match Light in VolumeRayCast.wgsl.
@@ -110,6 +112,9 @@ struct GlobalUniforms
 static_assert(sizeof(GlobalUniforms) == 1088, "GlobalUniforms must match the WGSL layout");
 
 // Must match VolumeParams in VolumeRayCast.wgsl.
+//
+// Anything a volume can have one of per component is a four vector: vtkVolumeProperty carries up
+// to four sets of transfer functions and the shader picks between them.
 struct VolumeParams
 {
   float VolumeMatrix[16];
@@ -117,36 +122,40 @@ struct VolumeParams
   float Dimensions[3];
   float BaseStep;
   float Spacing[3];
-  float ValueScale;
-  float PageDimensions[3];
-  float ValueBias;
-  float ScalarRangeMinimum;
-  float ScalarRangeScale;
-  std::uint32_t PageOffset;
   float BrickSize;
+  float PageDimensions[3];
+  float CellSize;
+  float CellDimensions[3];
   float OpacityUnitDistance;
+  float CroppingLower[3];
   float Ambient;
+  float CroppingUpper[3];
   float Diffuse;
-  float Specular;
-  float SpecularPower;
-  float GradientOpacityMinimum;
-  float GradientOpacityScale;
+  /// Turns a raw texel back into a scalar: scalar = texel * ValueScale + ValueBias.
+  float ValueScale[4];
+  float ValueBias[4];
+  /// Range each component's colour and opacity functions were tabulated over.
+  float ScalarRangeMinimum[4];
+  float ScalarRangeScale[4];
+  float GradientOpacityMinimum[4];
+  float GradientOpacityScale[4];
+  float ComponentWeights[4];
+  /// Plane the slice blend mode cuts along, as a normal and an offset in world space.
+  float SlicePlane[4];
+  std::uint32_t PageOffset;
+  std::uint32_t CellOffset;
+  std::uint32_t CroppingFlags;
   std::uint32_t Flags;
   std::uint32_t NumberOfClipPlanes;
   std::uint32_t PoolKind;
-  std::uint32_t CellOffset;
-  std::uint32_t CroppingFlags;
-  float CellDimensions[3];
-  float CellSize;
-  float CroppingLower[3];
-  float Padding0;
-  float CroppingUpper[3];
-  float Padding1;
-  /// Plane the slice blend mode cuts along, as a normal and an offset in world space.
-  float SlicePlane[4];
+  std::uint32_t NumberOfComponents;
+  float Specular;
+  float SpecularPower;
+  std::uint32_t PrimaryComponent;
+  float Padding0[2];
   float ClipPlanes[MaxClipPlanes][4];
 };
-static_assert(sizeof(VolumeParams) == 400, "VolumeParams must match the WGSL layout");
+static_assert(sizeof(VolumeParams) == 496, "VolumeParams must match the WGSL layout");
 
 // Must match Page in VolumeRayCast.wgsl.
 struct PageEntry
@@ -337,7 +346,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateTransferFunctions(
       WGPUTextureDescriptor descriptor = WGPU_TEXTURE_DESCRIPTOR_INIT;
       descriptor.label = WGPUStringView{ label, WGPU_STRLEN };
       descriptor.dimension = WGPUTextureDimension_2D;
-      descriptor.size = { TableSize, 1, MaxVolumes };
+      descriptor.size = { TableSize, 1, MaxVolumes * MaxComponents };
       descriptor.format = WGPUTextureFormat_RGBA16Float;
       descriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
       descriptor.mipLevelCount = 1;
@@ -357,7 +366,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateTransferFunctions(
       descriptor.baseMipLevel = 0;
       descriptor.mipLevelCount = 1;
       descriptor.baseArrayLayer = 0;
-      descriptor.arrayLayerCount = MaxVolumes;
+      descriptor.arrayLayerCount = MaxVolumes * MaxComponents;
       return vtkWebGPU::TextureView::Acquire(configuration->CreateView(texture, descriptor));
     };
     this->ColorTransferFunctionsView = makeView(this->ColorTransferFunctions, "ColorTF");
@@ -381,13 +390,22 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateTransferFunctions(
       continue;
     }
 
-    const WGPUOrigin3D destination = { 0, 0, static_cast<std::uint32_t>(index) };
-    configuration->WriteTexture(this->ColorTransferFunctions, bytesPerRow, bytesPerRow,
-      contribution.ColorTable->data(), 0, destination, 0, "Color transfer function");
-    configuration->WriteTexture(this->OpacityTransferFunctions, bytesPerRow, bytesPerRow,
-      contribution.OpacityTable->data(), 0, destination, 0, "Opacity transfer function");
-    configuration->WriteTexture(this->GradientTransferFunctions, bytesPerRow, bytesPerRow,
-      contribution.GradientTable->data(), 0, destination, 0, "Gradient opacity transfer function");
+    // One layer per component of this volume, laid out so that the shader can find component c
+    // of volume i at layer i * MaxComponents + c.
+    const std::size_t stride = static_cast<std::size_t>(TableSize) * 4;
+    for (int component = 0; component < contribution.NumberOfComponents; ++component)
+    {
+      const WGPUOrigin3D destination = { 0, 0,
+        static_cast<std::uint32_t>(index * MaxComponents + component) };
+      const std::size_t offset = static_cast<std::size_t>(component) * stride;
+      configuration->WriteTexture(this->ColorTransferFunctions, bytesPerRow, bytesPerRow,
+        contribution.ColorTable->data() + offset, 0, destination, 0, "Color transfer function");
+      configuration->WriteTexture(this->OpacityTransferFunctions, bytesPerRow, bytesPerRow,
+        contribution.OpacityTable->data() + offset, 0, destination, 0, "Opacity transfer function");
+      configuration->WriteTexture(this->GradientTransferFunctions, bytesPerRow, bytesPerRow,
+        contribution.GradientTable->data() + offset, 0, destination, 0,
+        "Gradient opacity transfer function");
+    }
 
     layer.Mapper = contribution.Mapper;
     layer.Port = contribution.Port;
@@ -630,15 +648,16 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateResidency(
       continue;
     }
 
+    const std::size_t channels = contribution.NumberOfComponents > 1 ? 4 : 1;
     void* destination = nullptr;
     if (contribution.BytePool)
     {
-      byteBrick.resize(voxels);
+      byteBrick.resize(voxels * channels);
       destination = byteBrick.data();
     }
     else
     {
-      floatBrick.resize(voxels);
+      floatBrick.resize(voxels * channels);
       destination = floatBrick.data();
     }
     if (!contribution.BrickSource->FetchBrick(candidate.Brick, slotSize, destination))
@@ -648,9 +667,9 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateResidency(
       continue;
     }
 
-    this->Pool.Upload(contribution.BytePool ? vtkWebGPUVolumeBrickPool::Kind::Byte
-                                            : vtkWebGPUVolumeBrickPool::Kind::Float,
-      slot, destination);
+    const auto kind = static_cast<vtkWebGPUVolumeBrickPool::Kind>(
+      (contribution.BytePool ? 0 : 1) + (channels > 1 ? 2 : 0));
+    this->Pool.Upload(kind, slot, destination);
     table[candidate.Page].Slot = slot;
     table[candidate.Page].Flags |= PageResident;
     --allowance;
@@ -835,34 +854,62 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
       params.PageDimensions[i] = static_cast<float>(this->PageDimensions[index][i]);
       params.CellDimensions[i] = static_cast<float>(contribution.CellDimensions[i]);
     }
-    params.ValueScale = contribution.ValueScale;
-    params.ValueBias = contribution.ValueBias;
-    params.ScalarRangeMinimum = static_cast<float>(contribution.ScalarRange[0]);
-    params.ScalarRangeScale =
-      static_cast<float>(1.0 / (contribution.ScalarRange[1] - contribution.ScalarRange[0]));
+
+    const int components = contribution.NumberOfComponents;
+    // Dependent components share the first set of transfer functions, so only that set is
+    // consulted for the appearance settings that come in per component.
+    const int appearance = contribution.IndependentComponents ? components : 1;
+    params.NumberOfComponents = static_cast<std::uint32_t>(components);
+    for (int component = 0; component < 4; ++component)
+    {
+      params.ValueScale[component] = contribution.ValueScale;
+      params.ValueBias[component] = contribution.ValueBias;
+      params.ScalarRangeMinimum[component] =
+        static_cast<float>(contribution.ScalarRange[component][0]);
+      params.ScalarRangeScale[component] = static_cast<float>(
+        1.0 / (contribution.ScalarRange[component][1] - contribution.ScalarRange[component][0]));
+
+      const double gradientExtent =
+        contribution.GradientRange[component][1] - contribution.GradientRange[component][0];
+      params.GradientOpacityMinimum[component] =
+        static_cast<float>(contribution.GradientRange[component][0]);
+      params.GradientOpacityScale[component] =
+        static_cast<float>(gradientExtent > 0.0 ? 1.0 / gradientExtent : 1.0);
+
+      params.ComponentWeights[component] =
+        component < components ? static_cast<float>(property->GetComponentWeight(component)) : 0.0f;
+    }
+
     params.PageOffset = this->PageOffsets[index];
     params.CellOffset = this->CellOffsets[index];
-    params.PoolKind = contribution.BytePool ? 0u : 1u;
+    params.PoolKind =
+      static_cast<std::uint32_t>((contribution.BytePool ? 0 : 1) + (components > 1 ? 2 : 0));
     params.BrickSize = static_cast<float>(std::max(brickSize, 1));
     params.CellSize = static_cast<float>(std::max(contribution.CellSize, 1));
     params.OpacityUnitDistance =
-      static_cast<float>(std::max(property->GetScalarOpacityUnitDistance(0), 1.0e-6));
-    params.Ambient = static_cast<float>(property->GetAmbient(0));
-    params.Diffuse = static_cast<float>(property->GetDiffuse(0));
-    params.Specular = static_cast<float>(property->GetSpecular(0));
-    params.SpecularPower = static_cast<float>(property->GetSpecularPower(0));
-
-    const double gradientExtent = contribution.GradientRange[1] - contribution.GradientRange[0];
-    params.GradientOpacityMinimum = static_cast<float>(contribution.GradientRange[0]);
-    params.GradientOpacityScale =
-      static_cast<float>(gradientExtent > 0.0 ? 1.0 / gradientExtent : 1.0);
+      static_cast<float>(std::max(property->GetScalarOpacityUnitDistance(appearance - 1), 1.0e-6));
+    params.Ambient = static_cast<float>(property->GetAmbient(appearance - 1));
+    params.Diffuse = static_cast<float>(property->GetDiffuse(appearance - 1));
+    params.Specular = static_cast<float>(property->GetSpecular(appearance - 1));
+    params.SpecularPower = static_cast<float>(property->GetSpecularPower(appearance - 1));
+    params.PrimaryComponent = static_cast<std::uint32_t>(contribution.PrimaryComponent);
 
     params.Flags = 0;
-    if (property->GetShade(0) != 0)
+    if (contribution.IndependentComponents)
+    {
+      params.Flags |= VolumeFlagIndependentComponents;
+    }
+    if (property->GetShade(appearance - 1) != 0)
     {
       params.Flags |= VolumeFlagShade;
     }
-    if (property->GetDisableGradientOpacity(0) == 0)
+    bool anyGradientOpacity = false;
+    for (int component = 0; component < appearance; ++component)
+    {
+      anyGradientOpacity =
+        anyGradientOpacity || property->GetDisableGradientOpacity(component) == 0;
+    }
+    if (anyGradientOpacity)
     {
       params.Flags |= VolumeFlagGradientOpacity;
     }
@@ -1273,7 +1320,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
 
   if (this->BindGroupLayout == nullptr)
   {
-    std::vector<WGPUBindGroupLayoutEntry> entries(11, WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT);
+    std::vector<WGPUBindGroupLayoutEntry> entries(13, WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT);
 
     entries[0].binding = 0;
     entries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
@@ -1306,7 +1353,8 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
 
     // The bricks of every volume live in one of two pools, one for eight bit scalars and one for
     // floats, so the number of volumes a pass can hold is not a number of texture bindings.
-    for (int i = 8; i <= 9; ++i)
+    // One pool per way of storing scalars: one and four channels, eight bit and float.
+    for (int i : { 8, 9, 11, 12 })
     {
       entries[i].binding = static_cast<std::uint32_t>(i);
       entries[i].visibility = WGPUShaderStage_Fragment;
@@ -1333,7 +1381,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
     return;
   }
 
-  std::vector<WGPUBindGroupEntry> entries(11, WGPU_BIND_GROUP_ENTRY_INIT);
+  std::vector<WGPUBindGroupEntry> entries(13, WGPU_BIND_GROUP_ENTRY_INIT);
 
   entries[0].binding = 0;
   entries[0].buffer = this->GlobalUniformBuffer;
@@ -1368,6 +1416,11 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
   entries[10].binding = 10;
   entries[10].buffer = this->CellBuffer;
   entries[10].size = this->CellBufferElements * 2 * sizeof(float);
+
+  entries[11].binding = 11;
+  entries[11].textureView = this->Pool.GetView(vtkWebGPUVolumeBrickPool::Kind::ByteRGBA);
+  entries[12].binding = 12;
+  entries[12].textureView = this->Pool.GetView(vtkWebGPUVolumeBrickPool::Kind::FloatRGBA);
 
   WGPUBindGroupDescriptor descriptor = WGPU_BIND_GROUP_DESCRIPTOR_INIT;
   descriptor.label = WGPUStringView{ "VolumeRayCastBindGroup", WGPU_STRLEN };
@@ -1507,6 +1560,8 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::Render(
   // uniforms have to be worked out before residency, which needs to know where the bricks are.
   const int brickSize = this->Self->GetPoolBrickSize();
   std::size_t bricks = 0;
+  // Size the pool for the widest format the pass will actually put in it.
+  std::uint32_t bytesPerVoxel = 1;
   for (const auto& contribution : this->Contributions)
   {
     std::size_t count = 1;
@@ -1515,9 +1570,11 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::Render(
       count *= std::max(1, (contribution.Dimensions[axis] - 1) / brickSize + 1);
     }
     bricks += count;
+    const std::uint32_t channels = contribution.NumberOfComponents > 1 ? 4u : 1u;
+    bytesPerVoxel = std::max(bytesPerVoxel, channels * (contribution.BytePool ? 1u : 4u));
   }
-  this->Pool.Configure(
-    window, brickSize, static_cast<std::size_t>(this->Self->GetBrickPoolSizeMB()) << 20, bricks);
+  this->Pool.Configure(window, brickSize,
+    static_cast<std::size_t>(this->Self->GetBrickPoolSizeMB()) << 20, bricks, bytesPerVoxel);
   this->Pool.BeginFrame();
   this->UpdateTransferFunctions(window);
   this->UpdateDepthView(window);

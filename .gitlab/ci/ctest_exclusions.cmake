@@ -821,8 +821,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastRenderDepthToImage$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastRenderDepthToImage2$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastRenderToTexture$"
-    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastThreeComponentsAdditive$"
-    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastThreeComponentsIndependent$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastTransfer2DYScalars$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastTwoComponentsDependent$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastTwoComponentsDependentGradient$"

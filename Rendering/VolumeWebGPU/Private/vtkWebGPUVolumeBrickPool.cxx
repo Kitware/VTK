@@ -16,35 +16,64 @@ namespace
 {
 constexpr std::uint32_t MaximumTextureDimension = 2048;
 
-WGPUTextureFormat FormatOf(vtkWebGPUVolumeBrickPool::Kind kind)
+using Kind = vtkWebGPUVolumeBrickPool::Kind;
+
+WGPUTextureFormat FormatOf(Kind kind)
 {
-  return kind == vtkWebGPUVolumeBrickPool::Kind::Byte ? WGPUTextureFormat_R8Unorm
-                                                      : WGPUTextureFormat_R32Float;
+  switch (kind)
+  {
+    case Kind::Byte:
+      return WGPUTextureFormat_R8Unorm;
+    case Kind::ByteRGBA:
+      return WGPUTextureFormat_RGBA8Unorm;
+    case Kind::FloatRGBA:
+      return WGPUTextureFormat_RGBA32Float;
+    default:
+      return WGPUTextureFormat_R32Float;
+  }
 }
 
-std::uint32_t BytesPerVoxel(vtkWebGPUVolumeBrickPool::Kind kind)
+std::uint32_t BytesPerVoxel(Kind kind)
 {
-  return kind == vtkWebGPUVolumeBrickPool::Kind::Byte ? 1u : 4u;
+  switch (kind)
+  {
+    case Kind::Byte:
+      return 1u;
+    case Kind::ByteRGBA:
+      return 4u;
+    case Kind::FloatRGBA:
+      return 16u;
+    default:
+      return 4u;
+  }
 }
 
-const char* LabelOf(vtkWebGPUVolumeBrickPool::Kind kind)
+const char* LabelOf(Kind kind)
 {
-  return kind == vtkWebGPUVolumeBrickPool::Kind::Byte ? "VolumeBrickPoolByte"
-                                                      : "VolumeBrickPoolFloat";
+  switch (kind)
+  {
+    case Kind::Byte:
+      return "VolumeBrickPoolByte";
+    case Kind::ByteRGBA:
+      return "VolumeBrickPoolByteRGBA";
+    case Kind::FloatRGBA:
+      return "VolumeBrickPoolFloatRGBA";
+    default:
+      return "VolumeBrickPoolFloat";
+  }
 }
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUVolumeBrickPool::Configure(
-  vtkWebGPURenderWindow* window, int brickSize, std::size_t budgetBytes, std::size_t wantedSlots)
+void vtkWebGPUVolumeBrickPool::Configure(vtkWebGPURenderWindow* window, int brickSize,
+  std::size_t budgetBytes, std::size_t wantedSlots, std::uint32_t bytesPerVoxel)
 {
   brickSize = std::clamp(brickSize, 4, 128);
   const std::uint32_t slotSize = static_cast<std::uint32_t>(brickSize) + 2;
   const std::uint32_t perAxis = std::max(1u, MaximumTextureDimension / slotSize);
 
-  // Budget for the widest format, so that a pass which turns out to need float bricks still
-  // fits in what the caller allowed.
-  const std::size_t slotBytes = static_cast<std::size_t>(slotSize) * slotSize * slotSize * 4;
+  const std::size_t slotBytes =
+    static_cast<std::size_t>(slotSize) * slotSize * slotSize * std::max(bytesPerVoxel, 1u);
   const std::size_t affordable =
     std::max<std::size_t>(budgetBytes / std::max<std::size_t>(slotBytes, 1), 1);
 
@@ -303,7 +332,7 @@ void vtkWebGPUVolumeBrickPool::ReleaseGraphicsResources()
   this->BrickSize = 0;
   this->NextVictim = 0;
   this->Window = nullptr;
-  for (int i = 0; i < 2; ++i)
+  for (int i = 0; i < KindCount; ++i)
   {
     this->Textures[i] = nullptr;
     this->Views[i] = nullptr;

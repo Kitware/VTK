@@ -13,6 +13,7 @@ const MAX_VOLUMES: u32 = 12u;
 const MAX_LIGHTS: u32 = 6u;
 const MAX_CLIP_PLANES: u32 = 6u;
 const MAX_ISO_VALUES: u32 = 16u;
+const MAX_COMPONENTS: u32 = 4u;
 
 // Page.flags
 const PAGE_RESIDENT: u32 = 1u;
@@ -31,6 +32,7 @@ const VOLUME_FLAG_SHADE: u32 = 1u;
 const VOLUME_FLAG_GRADIENT_OPACITY: u32 = 2u;
 const VOLUME_FLAG_CROPPING: u32 = 4u;
 const VOLUME_FLAG_NORMAL_FROM_OPACITY: u32 = 8u;
+const VOLUME_FLAG_INDEPENDENT_COMPONENTS: u32 = 16u;
 
 // GlobalUniforms.blend_mode, matching vtkVolumeMapper::BlendModes
 const BLEND_COMPOSITE: u32 = 0u;
@@ -101,45 +103,52 @@ struct VolumeParams {
   dims: vec3<f32>,
   base_step: f32,
   spacing: vec3<f32>,
-  value_scale: f32,
-  page_dims: vec3<f32>,
-  value_bias: f32,
-  scalar_range_min: f32,
-  scalar_range_scale: f32,
-  // Where this volume's pages start in the shared page table.
-  page_offset: u32,
   brick_size: f32,
+  page_dims: vec3<f32>,
+  cell_size: f32,
+  cell_dims: vec3<f32>,
   opacity_unit_distance: f32,
+  // The cropping planes, in texture coordinates.
+  cropping_lower: vec3<f32>,
   ambient: f32,
+  cropping_upper: vec3<f32>,
   diffuse: f32,
-  specular: f32,
-  specular_power: f32,
-  gradient_opacity_min: f32,
-  gradient_opacity_scale: f32,
-  flags: u32,
-  // Clipping planes belong to the mapper that owns this input, so every input carries its own.
-  clip_plane_count: u32,
-  // Which pool this volume's bricks live in, matching POOL_BYTE and POOL_FLOAT.
-  pool_kind: u32,
-  // Where this volume's acceleration cells start in the shared table.
+  // Anything a volume can have one of per component is a four vector, because vtkVolumeProperty
+  // carries up to four sets of transfer functions and the shader picks between them.
+  value_scale: vec4<f32>,
+  value_bias: vec4<f32>,
+  scalar_range_min: vec4<f32>,
+  scalar_range_scale: vec4<f32>,
+  gradient_opacity_min: vec4<f32>,
+  gradient_opacity_scale: vec4<f32>,
+  component_weights: vec4<f32>,
+  // Plane the slice blend mode cuts along, in world space.
+  slice_plane: vec4<f32>,
+  // Where this volume's pages and acceleration cells start in the shared tables.
+  page_offset: u32,
   cell_offset: u32,
   // One bit per cropping region, in the order vtkVolumeMapper numbers them.
   cropping_flags: u32,
-  cell_dims: vec3<f32>,
-  cell_size: f32,
-  // The cropping planes, in texture coordinates.
-  cropping_lower: vec3<f32>,
+  flags: u32,
+  // Clipping planes belong to the mapper that owns this input, so every input carries its own.
+  clip_plane_count: u32,
+  // Which pool this volume's bricks live in, matching the POOL_ constants.
+  pool_kind: u32,
+  num_components: u32,
+  specular: f32,
+  specular_power: f32,
+  // The component the intensity modes, the iso surfaces and the acceleration structure read.
+  primary_component: u32,
   padding0: f32,
-  cropping_upper: vec3<f32>,
   padding1: f32,
-  // Plane the slice blend mode cuts along, in world space.
-  slice_plane: vec4<f32>,
   clip_planes: array<vec4<f32>, MAX_CLIP_PLANES>,
 }
 
 // VolumeParams.pool_kind
 const POOL_BYTE: u32 = 0u;
 const POOL_FLOAT: u32 = 1u;
+const POOL_BYTE_RGBA: u32 = 2u;
+const POOL_FLOAT_RGBA: u32 = 3u;
 
 // One entry per brick of every volume. Bricks that are resident name the pool slot they sit in;
 // the rest are stepped over until they arrive.
@@ -158,6 +167,8 @@ struct Page {
 @group(0) @binding(7) var opaque_depth: texture_depth_2d;
 @group(0) @binding(8) var pool_byte: texture_3d<f32>;
 @group(0) @binding(9) var pool_float: texture_3d<f32>;
+@group(0) @binding(11) var pool_byte_rgba: texture_3d<f32>;
+@group(0) @binding(12) var pool_float_rgba: texture_3d<f32>;
 // Per acceleration cell: x is the largest opacity the transfer functions map it to, y how much it
 // varies, in [0,1]. Cells are finer than pool bricks: emptiness is a finer question than residency.
 @group(0) @binding(10) var<storage, read> cells: array<vec2<f32>>;
@@ -216,11 +227,13 @@ fn slotOrigin(slot: u32) -> vec3<i32> {
   return vec3<i32>(cell) * i32(globals.pool_slot_size);
 }
 
-fn loadPool(kind: u32, coord: vec3<i32>) -> f32 {
-  if (kind == POOL_BYTE) {
-    return textureLoad(pool_byte, coord, 0).r;
+fn loadPool(kind: u32, coord: vec3<i32>) -> vec4<f32> {
+  switch kind {
+    case 0u: { return vec4<f32>(textureLoad(pool_byte, coord, 0).r, 0.0, 0.0, 0.0); }
+    case 2u: { return textureLoad(pool_byte_rgba, coord, 0); }
+    case 3u: { return textureLoad(pool_float_rgba, coord, 0); }
+    default: { return vec4<f32>(textureLoad(pool_float, coord, 0).r, 0.0, 0.0, 0.0); }
   }
-  return textureLoad(pool_float, coord, 0).r;
 }
 
 // Trilinear interpolation by hand. The pool is bound as unfilterable so that 8 bit and 32 bit
@@ -229,7 +242,7 @@ fn loadPool(kind: u32, coord: vec3<i32>) -> f32 {
 // The eight taps of one sample always land inside a single slot: a brick's apron carries the
 // voxels of its neighbours, so a sample anywhere in the brick reaches no further than the apron.
 // One page lookup therefore serves the whole interpolation, and a brick boundary is not a seam.
-fn sampleScalar(volume_index: u32, tex_coord: vec3<f32>) -> f32 {
+fn sampleVector(volume_index: u32, tex_coord: vec3<f32>) -> vec4<f32> {
   let params = volumes[volume_index];
   let extent = max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0));
   let voxel = clamp(tex_coord, vec3<f32>(0.0), vec3<f32>(1.0)) * extent;
@@ -237,7 +250,7 @@ fn sampleScalar(volume_index: u32, tex_coord: vec3<f32>) -> f32 {
   let brick = vec3<i32>(floor(voxel / params.brick_size));
   let page = pageAt(volume_index, brick);
   if ((page.flags & PAGE_RESIDENT) == 0u) {
-    return 0.0;
+    return vec4<f32>(0.0);
   }
 
   // The apron takes up the first voxel of the slot, so the brick itself starts one in.
@@ -266,6 +279,11 @@ fn sampleScalar(volume_index: u32, tex_coord: vec3<f32>) -> f32 {
   let raw = mix(mix(c00, c10, frac.y), mix(c01, c11, frac.y), frac.z);
 
   return raw * params.value_scale + params.value_bias;
+}
+
+// The component the intensity modes, the iso surfaces and the acceleration structure look at.
+fn sampleScalar(volume_index: u32, tex_coord: vec3<f32>) -> f32 {
+  return sampleVector(volume_index, tex_coord)[volumes[volume_index].primary_component];
 }
 
 // Which of the twenty seven cropping regions a point falls in, numbered the way
@@ -300,14 +318,58 @@ fn cropped(volume_index: u32, tex_coord: vec3<f32>) -> bool {
   return ((params.cropping_flags >> (region - 1u)) & 1u) == 0u;
 }
 
+// Where component `component` of volume `volume_index` keeps its tabulated transfer functions.
+fn transferLayer(volume_index: u32, component: u32) -> i32 {
+  return i32(volume_index * MAX_COMPONENTS + component);
+}
+
+// A component's value put into the [0,1] its own transfer functions were tabulated over.
+fn normalizeComponent(volume_index: u32, component: u32, value: f32) -> f32 {
+  let params = volumes[volume_index];
+  return clamp(
+    (value - params.scalar_range_min[component]) * params.scalar_range_scale[component], 0.0, 1.0);
+}
+
+fn opacityOf(volume_index: u32, component: u32, normalized: f32) -> f32 {
+  return textureSampleLevel(opacity_transfer_functions, transfer_function_sampler,
+    vec2<f32>(normalized, 0.5), transferLayer(volume_index, component), 0.0).r;
+}
+
+fn colorOf(volume_index: u32, component: u32, normalized: f32) -> vec3<f32> {
+  return textureSampleLevel(color_transfer_functions, transfer_function_sampler,
+    vec2<f32>(normalized, 0.5), transferLayer(volume_index, component), 0.0).rgb;
+}
+
+// Transfer functions give opacity over one unit distance, so correct for the step actually taken.
+// The OpenGL mapper bakes this into its tables, so it lands before components blend, not after.
+fn correctOpacity(opacity: f32, step: f32, unit_distance: f32) -> f32 {
+  return 1.0 - pow(1.0 - min(opacity, 0.9999), step / unit_distance);
+}
+
+// What the gradient opacity function of one component makes of a gradient. One when the volume
+// has no gradient opacity, so it can always be multiplied in.
+fn gradientOpacityOf(volume_index: u32, component: u32, gradient: vec3<f32>,
+                     spacing: vec3<f32>) -> f32 {
+  let params = volumes[volume_index];
+  if ((params.flags & VOLUME_FLAG_GRADIENT_OPACITY) == 0u) {
+    return 1.0;
+  }
+  // vtkVolumeShaderComposer measures the gradient against the aspect of the voxel rather than
+  // its size, then against a quarter of the data range, and that is what the table is indexed by.
+  let average = (spacing.x + spacing.y + spacing.z) / 3.0;
+  let aspect = spacing * 2.0 / average;
+  let physical = length(gradient / aspect);
+  let position = clamp((physical - params.gradient_opacity_min[component]) *
+    params.gradient_opacity_scale[component], 0.0, 1.0);
+  return textureSampleLevel(gradient_transfer_functions, transfer_function_sampler,
+    vec2<f32>(position, 0.5), transferLayer(volume_index, component), 0.0).r;
+}
+
 // What the scalar opacity function makes of the point, before any gradient opacity is applied.
 fn sampleOpacity(volume_index: u32, tex_coord: vec3<f32>) -> f32 {
-  let params = volumes[volume_index];
-  let scalar = sampleScalar(volume_index, tex_coord);
-  let normalized =
-    clamp((scalar - params.scalar_range_min) * params.scalar_range_scale, 0.0, 1.0);
-  return textureSampleLevel(opacity_transfer_functions, transfer_function_sampler,
-    vec2<f32>(normalized, 0.5), volume_index, 0.0).r;
+  let component = volumes[volume_index].primary_component;
+  let scalar = sampleVector(volume_index, tex_coord)[component];
+  return opacityOf(volume_index, component, normalizeComponent(volume_index, component, scalar));
 }
 
 // Central differences of opacity rather than of the scalar, as
@@ -547,12 +609,10 @@ fn findIsoInterval(value: f32) -> i32 {
 // Colour of one volume at a normalized scalar, shaded if the property asks for it.
 fn classify(volume_index: u32, normalized: f32, tex_coord: vec3<f32>) -> vec4<f32> {
   let params = volumes[volume_index];
-  let lookup = vec2<f32>(clamp(normalized, 0.0, 1.0), 0.5);
-  let opacity = textureSampleLevel(
-    opacity_transfer_functions, transfer_function_sampler, lookup, volume_index, 0.0).r;
-  var color =
-    textureSampleLevel(color_transfer_functions, transfer_function_sampler, lookup,
-      volume_index, 0.0).rgb;
+  let component = params.primary_component;
+  let value = clamp(normalized, 0.0, 1.0);
+  let opacity = opacityOf(volume_index, component, value);
+  var color = colorOf(volume_index, component, value);
   if ((params.flags & VOLUME_FLAG_SHADE) != 0u && opacity > 0.0) {
     var gradient = computeGradient(volume_index, tex_coord);
     if ((params.flags & VOLUME_FLAG_NORMAL_FROM_OPACITY) != 0u) {
@@ -677,8 +737,7 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
       }
       let params = volumes[chosen];
       let scalar = sampleScalar(chosen, tex_coord);
-      let normalized =
-        clamp((scalar - params.scalar_range_min) * params.scalar_range_scale, 0.0, 1.0);
+      let normalized = normalizeComponent(chosen, params.primary_component, scalar);
       let sample = classify(chosen, normalized, tex_coord);
       let remaining = 1.0 - slice_alpha;
       slice_color += remaining * sample.a * sample.rgb;
@@ -789,11 +848,10 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
       if (cropped(i, tex_coord)) {
         continue;
       }
-      let scalar = sampleScalar(i, tex_coord);
-      let normalized =
-        clamp((scalar - params.scalar_range_min) * params.scalar_range_scale, 0.0, 1.0);
-
-      let lookup = vec2<f32>(normalized, 0.5);
+      let values = sampleVector(i, tex_coord);
+      let primary = params.primary_component;
+      let scalar = values[primary];
+      let normalized = normalizeComponent(i, primary, scalar);
 
       if (isosurface) {
         // Compared in data units, unclamped: a surface may sit outside the transfer function
@@ -818,8 +876,7 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
         }
         iso_interval[i] = interval;
         if (crossed) {
-          let sample = classify(
-            i, (crossing - params.scalar_range_min) * params.scalar_range_scale, tex_coord);
+          let sample = classify(i, normalizeComponent(i, primary, crossing), tex_coord);
           let remaining = 1.0 - state.alpha;
           state.color += remaining * sample.a * sample.rgb;
           state.alpha += remaining * sample.a;
@@ -840,23 +897,30 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
             continue;
           }
           if (state.count == 0.0) { state.value = 0.0; }
-          let weight = textureSampleLevel(
-            opacity_transfer_functions, transfer_function_sampler, lookup, i, 0.0).r;
-          state.value += weight * normalized;
+          // Independent components each contribute through their own transfer functions,
+          // weighed against one another. Summing per sample needs no state.
+          if ((params.flags & VOLUME_FLAG_INDEPENDENT_COMPONENTS) != 0u &&
+              params.num_components > 1u) {
+            var sum = 0.0;
+            for (var c = 0u; c < params.num_components; c++) {
+              let value = normalizeComponent(i, c, values[c]);
+              sum += opacityOf(i, c, value) * value * params.component_weights[c];
+            }
+            state.value += sum;
+          } else {
+            state.value += opacityOf(i, primary, normalized) * normalized;
+          }
           state.count += 1.0;
         }
         continue;
       }
 
-      let color =
-        textureSampleLevel(color_transfer_functions, transfer_function_sampler, lookup, i, 0.0).rgb;
-      var opacity = textureSampleLevel(
-        opacity_transfer_functions, transfer_function_sampler, lookup, i, 0.0).r;
-
+      // The gradient is measured on the component the acceleration structure follows, which is
+      // also the one that carries the surfaces worth shading.
       var gradient = vec3<f32>(0.0);
       var shading_gradient = vec3<f32>(0.0);
       let wants_gradient = (params.flags & (VOLUME_FLAG_SHADE | VOLUME_FLAG_GRADIENT_OPACITY)) != 0u;
-      if (wants_gradient && opacity > 0.0) {
+      if (wants_gradient) {
         gradient = computeGradient(i, tex_coord);
         shading_gradient = gradient;
         if ((params.flags & VOLUME_FLAG_NORMAL_FROM_OPACITY) != 0u) {
@@ -864,21 +928,69 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
         }
       }
 
-      if ((params.flags & VOLUME_FLAG_GRADIENT_OPACITY) != 0u && opacity > 0.0) {
-        let physical = length(gradient / (2.0 * params.spacing));
-        let position = clamp(
-          (physical - params.gradient_opacity_min) * params.gradient_opacity_scale, 0.0, 1.0);
-        opacity *= textureSampleLevel(gradient_transfer_functions, transfer_function_sampler,
-          vec2<f32>(position, 0.5), i, 0.0).r;
+      var color = vec3<f32>(0.0);
+      var opacity = 0.0;
+
+      if ((params.flags & VOLUME_FLAG_INDEPENDENT_COMPONENTS) == 0u) {
+        // Dependent components describe one colour between them: the last one carries the
+        // opacity, and the rest are read as colour channels. Two of them means the first is a
+        // scalar to be coloured, four means the first three are the colour itself.
+        let last = params.num_components - 1u;
+        opacity = opacityOf(i, 0u, normalizeComponent(i, last, values[last]));
+        if (params.num_components == 2u) {
+          color = colorOf(i, 0u, normalizeComponent(i, 0u, values[0]));
+        } else {
+          color = vec3<f32>(normalizeComponent(i, 0u, values[0]),
+                            normalizeComponent(i, 1u, values[1]),
+                            normalizeComponent(i, 2u, values[2]));
+        }
+        if (opacity > 0.0) {
+          opacity *= gradientOpacityOf(i, 0u, gradient, params.spacing);
+          opacity = correctOpacity(opacity, step, params.opacity_unit_distance);
+        }
+      } else if (params.num_components == 1u) {
+        opacity = opacityOf(i, 0u, normalized);
+        color = colorOf(i, 0u, normalized);
+        if (opacity > 0.0) {
+          opacity *= gradientOpacityOf(i, 0u, gradient, params.spacing);
+          opacity = correctOpacity(opacity, step, params.opacity_unit_distance);
+        }
+      } else {
+        // Independent components each carry their own transfer functions and are weighed
+        // against one another, following vtkVolumeShaderComposer.
+        var weighted = vec3<f32>(0.0);
+        var total = 0.0;
+        var alphas = vec4<f32>(0.0);
+        for (var c = 0u; c < params.num_components; c++) {
+          let value = normalizeComponent(i, c, values[c]);
+          var component_opacity = opacityOf(i, c, value);
+          if (component_opacity > 0.0) {
+            component_opacity *= gradientOpacityOf(i, c, gradient, params.spacing);
+            component_opacity = correctOpacity(component_opacity, step,
+              params.opacity_unit_distance);
+          }
+          alphas[c] = component_opacity;
+          total += component_opacity * params.component_weights[c];
+        }
+        if (total > 0.0) {
+          for (var c = 0u; c < params.num_components; c++) {
+            if (params.component_weights[c] <= 0.0) {
+              continue;
+            }
+            let value = normalizeComponent(i, c, values[c]);
+            weighted += colorOf(i, c, value) * alphas[c] * params.component_weights[c];
+            opacity += alphas[c] * alphas[c] / total;
+          }
+          // The weighted sum above is premultiplied by the component opacities, so undo that to
+          // get a colour the rest of the march can treat like any other.
+          color = weighted / max(opacity, 1.0e-6);
+        }
       }
 
       if (opacity <= 0.0) {
         continue;
       }
-
-      // The transfer function defines opacity over one unit distance, so correct it for how far
-      // this step actually travels.
-      opacity = 1.0 - pow(1.0 - min(opacity, 0.9999), step / params.opacity_unit_distance);
+      opacity = clamp(opacity, 0.0, 1.0);
 
       var sample_color = color;
       if ((params.flags & VOLUME_FLAG_SHADE) != 0u) {
@@ -909,12 +1021,11 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
       if (state.value <= -FAR_AWAY || state.value >= FAR_AWAY) {
         discard;
       }
-      let lookup = vec2<f32>(clamp(state.value, 0.0, 1.0), 0.5);
       let index = state.value_volume;
-      let alpha = textureSampleLevel(
-        opacity_transfer_functions, transfer_function_sampler, lookup, index, 0.0).r;
-      state.color = textureSampleLevel(
-        color_transfer_functions, transfer_function_sampler, lookup, index, 0.0).rgb * alpha;
+      let component = volumes[index].primary_component;
+      let value = clamp(state.value, 0.0, 1.0);
+      let alpha = opacityOf(index, component, value);
+      state.color = colorOf(index, component, value) * alpha;
       state.alpha = alpha;
     } else {
       // The summed and averaged modes report intensity, not color, and cover the proxy opaquely.

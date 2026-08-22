@@ -72,15 +72,22 @@ struct vtkWebGPUVolumeRayCastContribution
   vtkWebGPUVolumeBrickSource* BrickSource = nullptr;
   bool BytePool = false;
 
+  /// How many components are rendered, at most four, and whether each carries its own transfer
+  /// functions or they describe one colour between them.
+  int NumberOfComponents = 1;
+  bool IndependentComponents = true;
+  /// The component the intensity blend modes and the acceleration structure look at.
+  int PrimaryComponent = 0;
+
   int Dimensions[3] = { 0, 0, 0 };
   /// Turns a raw texel back into a scalar: scalar = texel * ValueScale + ValueBias.
   float ValueScale = 1.0f;
   float ValueBias = 0.0f;
 
-  /// Range the colour and opacity functions were tabulated over.
-  double ScalarRange[2] = { 0.0, 1.0 };
-  /// Range the gradient opacity function was tabulated over.
-  double GradientRange[2] = { 0.0, 1.0 };
+  /// Range each component's colour and opacity functions were tabulated over.
+  double ScalarRange[4][2] = { { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 } };
+  /// Range each component's gradient opacity function was tabulated over.
+  double GradientRange[4][2] = { { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 } };
 
   /// Edge length and count of the acceleration cells, which say where the volume is empty. Not the
   /// pool's bricks, which are the coordinator's business and usually much larger.
@@ -89,7 +96,7 @@ struct vtkWebGPUVolumeRayCastContribution
   /// Two floats per cell: the largest opacity it maps to, and how much it varies.
   const std::vector<float>* CellClassification = nullptr;
 
-  /// RGBA16Float texels, vtkWebGPUVolumeTransferFunctionSize of each.
+  /// RGBA16Float texels, vtkWebGPUVolumeTransferFunctionSize of each, one set per component.
   const std::vector<std::uint16_t>* ColorTable = nullptr;
   const std::vector<std::uint16_t>* OpacityTable = nullptr;
   const std::vector<std::uint16_t>* GradientTable = nullptr;

@@ -44,11 +44,15 @@ public:
   /// A page whose slot is this is not resident and must not be sampled.
   static constexpr std::uint32_t InvalidSlot = 0xFFFFFFFFu;
 
-  /// How a volume's scalars are stored. One pool texture is created per kind, on first use.
+  /// How a volume's scalars are stored. One pool texture per kind, created on first use. Volumes
+  /// of more than one component take the four channel kinds, padded where they have fewer.
   enum class Kind
   {
     Byte = 0,
-    Float = 1
+    Float = 1,
+    ByteRGBA = 2,
+    FloatRGBA = 3,
+    Count = 4
   };
 
   /// Identifies one brick of one volume for as long as the volume keeps offering itself.
@@ -64,12 +68,13 @@ public:
   };
 
   /**
-   * Make room for \a wantedSlots bricks of \a brickSize voxels a side, within \a budgetBytes of
-   * device memory per kind. The pool only ever grows, so a scene that settles stops rebuilding,
-   * and a scene that needs less than the budget does not reserve the whole of it.
+   * Make room for \a wantedSlots bricks of \a brickSize voxels a side within \a budgetBytes.
+   * \a bytesPerVoxel is the widest format the pass will store, so a scene of single component
+   * volumes is not sized as four channel ones. The pool only grows, so a settled scene stops
+   * rebuilding.
    */
-  void Configure(
-    vtkWebGPURenderWindow* window, int brickSize, std::size_t budgetBytes, std::size_t wantedSlots);
+  void Configure(vtkWebGPURenderWindow* window, int brickSize, std::size_t budgetBytes,
+    std::size_t wantedSlots, std::uint32_t bytesPerVoxel);
 
   /// Start gathering a frame. Slots touched after this point are safe from eviction until the
   /// next call.
@@ -134,10 +139,11 @@ private:
   /// Round robin starting point, so a full pool does not always evict the same slot first.
   std::uint32_t NextVictim = 0;
 
-  vtkWebGPU::Texture Textures[2];
-  vtkWebGPU::TextureView Views[2];
-  vtkWebGPU::Texture Placeholders[2];
-  vtkWebGPU::TextureView PlaceholderViews[2];
+  static constexpr int KindCount = static_cast<int>(Kind::Count);
+  vtkWebGPU::Texture Textures[KindCount];
+  vtkWebGPU::TextureView Views[KindCount];
+  vtkWebGPU::Texture Placeholders[KindCount];
+  vtkWebGPU::TextureView PlaceholderViews[KindCount];
 };
 
 VTK_ABI_NAMESPACE_END
