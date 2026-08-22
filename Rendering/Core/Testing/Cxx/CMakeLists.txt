@@ -137,6 +137,7 @@ set(cxx_tests
   TestResetCameraVerticalAspectRatio.cxx
   TestResetCameraVerticalAspectRatioParallel.cxx
   TestResizingWindowToImageFilter.cxx,NO_DATA
+  TestResizingWindowToImageFilterScaleFactors.cxx,NO_DATA,NO_VALID
   TestScalarModeToggle.cxx,NO_DATA
   TestSelectVisiblePoints.cxx,NO_VALID
   TestSplitViewportStereoHorizontal.cxx
