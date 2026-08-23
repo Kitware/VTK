@@ -42,6 +42,7 @@ set(classes
   vtkWebGPUComputeTexture
   vtkWebGPUComputeTextureView
   vtkWebGPUConfiguration
+  vtkWebGPUDeepFramebuffer
   vtkWebGPUGlyph3DMapper
   vtkWebGPUHardwareSelector
   vtkWebGPUHelpers

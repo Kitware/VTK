@@ -857,6 +857,7 @@ Rendering/WebGPU/vtkWebGPUComputeRenderBuffer.h
 Rendering/WebGPU/vtkWebGPUComputeRenderTexture.h
 Rendering/WebGPU/vtkWebGPUComputeTexture.h
 Rendering/WebGPU/vtkWebGPUComputeTextureView.h
+Rendering/WebGPU/vtkWebGPUDeepFramebuffer.h
 Rendering/WebGPU/vtkWebGPUHelpers.h
 Rendering/WebGPU/vtkWebGPUProcTable.h
 Rendering/WebXR/vtkWebXR.h
