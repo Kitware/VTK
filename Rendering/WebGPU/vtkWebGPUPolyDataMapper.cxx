@@ -1989,6 +1989,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshTopologyBuffers(
     {
       const std::string& label = this->GetObjectDescription() + "-" +
         vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(topologySourceType);
+      vtkWebGPU::ReleaseAndNull(bgInfo.BindGroup, wgpuBindGroupRelease);
       bgInfo.BindGroup =
         this->CreateTopologyBindGroup(wgpuConfiguration->GetDevice(), label, topologySourceType);
       this->RebuildGraphicsPipelines = true;
@@ -1998,26 +1999,26 @@ void vtkWebGPUPolyDataMapper::UpdateMeshTopologyBuffers(
       if (bgInfo.ConnectivityBuffer)
       {
         wgpuBufferDestroy(bgInfo.ConnectivityBuffer);
-        bgInfo.ConnectivityBuffer = nullptr;
+        vtkWebGPU::ReleaseAndNull(bgInfo.ConnectivityBuffer, wgpuBufferRelease);
       }
       if (bgInfo.CellIdBuffer)
       {
         wgpuBufferDestroy(bgInfo.CellIdBuffer);
-        bgInfo.CellIdBuffer = nullptr;
+        vtkWebGPU::ReleaseAndNull(bgInfo.CellIdBuffer, wgpuBufferRelease);
       }
       if (bgInfo.EdgeArrayBuffer)
       {
         wgpuBufferDestroy(bgInfo.EdgeArrayBuffer);
-        bgInfo.EdgeArrayBuffer = nullptr;
+        vtkWebGPU::ReleaseAndNull(bgInfo.EdgeArrayBuffer, wgpuBufferRelease);
       }
       if (bgInfo.CellIdOffsetUniformBuffer)
       {
         wgpuBufferDestroy(bgInfo.CellIdOffsetUniformBuffer);
-        bgInfo.CellIdOffsetUniformBuffer = nullptr;
+        vtkWebGPU::ReleaseAndNull(bgInfo.CellIdOffsetUniformBuffer, wgpuBufferRelease);
       }
       if (bgInfo.BindGroup != nullptr)
       {
-        bgInfo.BindGroup = nullptr;
+        vtkWebGPU::ReleaseAndNull(bgInfo.BindGroup, wgpuBindGroupRelease);
         this->RebuildGraphicsPipelines = true;
       }
     }

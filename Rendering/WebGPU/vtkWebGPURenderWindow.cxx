@@ -721,8 +721,8 @@ void vtkWebGPURenderWindow::CreateDepthStencilAttachment()
 void vtkWebGPURenderWindow::DestroyDepthStencilAttachment()
 {
   vtkDebugMacro(<< __func__);
-  this->DepthStencilAttachment.View = nullptr;
-  this->DepthStencilAttachment.Texture = nullptr;
+  vtkWebGPU::ReleaseAndNull(this->DepthStencilAttachment.View, wgpuTextureViewRelease);
+  vtkWebGPU::ReleaseAndNull(this->DepthStencilAttachment.Texture, wgpuTextureRelease);
 }
 
 //------------------------------------------------------------------------------
@@ -789,8 +789,8 @@ void vtkWebGPURenderWindow::CreateOffscreenColorAttachment()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::DestroyOffscreenColorAttachment()
 {
-  this->ColorAttachment.View = nullptr;
-  this->ColorAttachment.Texture = nullptr;
+  vtkWebGPU::ReleaseAndNull(this->ColorAttachment.View, wgpuTextureViewRelease);
+  vtkWebGPU::ReleaseAndNull(this->ColorAttachment.Texture, wgpuTextureRelease);
 }
 
 //------------------------------------------------------------------------------
@@ -856,8 +856,8 @@ void vtkWebGPURenderWindow::CreateIdsAttachment()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::DestroyIdsAttachment()
 {
-  this->IdsAttachment.View = nullptr;
-  this->IdsAttachment.Texture = nullptr;
+  vtkWebGPU::ReleaseAndNull(this->IdsAttachment.View, wgpuTextureViewRelease);
+  vtkWebGPU::ReleaseAndNull(this->IdsAttachment.Texture, wgpuTextureRelease);
 }
 
 //------------------------------------------------------------------------------
@@ -1488,7 +1488,7 @@ void vtkWebGPURenderWindow::Frame()
   if (this->StagingPixelData.Buffer != nullptr)
   {
     wgpuBufferDestroy(this->StagingPixelData.Buffer);
-    this->StagingPixelData.Buffer = nullptr;
+    vtkWebGPU::ReleaseAndNull(this->StagingPixelData.Buffer, wgpuBufferRelease);
   }
 
   this->ReleaseRGBAPixelData(nullptr);
@@ -1609,6 +1609,7 @@ int vtkWebGPURenderWindow::SetPixelData(
   desc.size = size;
   desc.usage = WGPUBufferUsage_CopySrc;
 
+  vtkWebGPU::ReleaseAndNull(this->StagingPixelData.Buffer, wgpuBufferRelease);
   this->StagingPixelData.Buffer = this->WGPUConfiguration->CreateBuffer(desc);
   if (this->StagingPixelData.Buffer == nullptr)
   {
@@ -1735,6 +1736,7 @@ int vtkWebGPURenderWindow::SetRGBAPixelData(
   desc.size = size;
   desc.usage = WGPUBufferUsage_CopySrc;
 
+  vtkWebGPU::ReleaseAndNull(this->StagingPixelData.Buffer, wgpuBufferRelease);
   this->StagingPixelData.Buffer = this->WGPUConfiguration->CreateBuffer(desc);
   if (this->StagingPixelData.Buffer == nullptr)
   {
@@ -1871,6 +1873,7 @@ int vtkWebGPURenderWindow::SetRGBACharPixelData(
   desc.size = size;
   desc.usage = WGPUBufferUsage_CopySrc;
 
+  vtkWebGPU::ReleaseAndNull(this->StagingPixelData.Buffer, wgpuBufferRelease);
   this->StagingPixelData.Buffer = this->WGPUConfiguration->CreateBuffer(desc);
   if (this->StagingPixelData.Buffer == nullptr)
   {
