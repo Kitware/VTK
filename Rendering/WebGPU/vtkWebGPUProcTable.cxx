@@ -32,7 +32,15 @@ vtkWebGPUProcTable vtkWebGPUProcTableLoad(const char* libPath)
   // still calls the wgpu* entry points directly resolves against the library we
   // just loaded. vtkDynamicLoader maps this onto dlopen() or LoadLibrary() as
   // appropriate for the platform.
+  //
+  // Windows accepts no flag other than SearchBesideLibrary and rejects the call
+  // outright otherwise, without recording an error. Global symbol visibility is
+  // not a Windows concept in the first place, so ask for nothing there.
+#if defined(_WIN32)
+  const int openFlags = 0;
+#else
   const int openFlags = vtksys::DynamicLoader::RTLDGlobal;
+#endif
 
   vtkLibHandle handle = NULL;
   if (libPath)
