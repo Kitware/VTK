@@ -231,7 +231,7 @@ public:
       case InstanceDataAttributes::INSTANCE_COLORS:
         if (this->InstanceColors)
         {
-          return this->InstanceColors->size() * sizeof(vtkTypeFloat32);
+          return static_cast<unsigned long>(this->InstanceColors->size() * sizeof(vtkTypeFloat32));
         }
 
         break;
@@ -239,7 +239,8 @@ public:
       case InstanceDataAttributes::INSTANCE_TRANSFORMS:
         if (this->InstanceTransforms)
         {
-          return this->InstanceTransforms->size() * sizeof(vtkTypeFloat32);
+          return static_cast<unsigned long>(
+            this->InstanceTransforms->size() * sizeof(vtkTypeFloat32));
         }
 
         break;
@@ -247,14 +248,15 @@ public:
       case InstanceDataAttributes::INSTANCE_NORMAL_TRANSFORMS:
         if (this->InstanceNormalTransforms)
         {
-          return this->InstanceNormalTransforms->size() * sizeof(vtkTypeFloat32);
+          return static_cast<unsigned long>(
+            this->InstanceNormalTransforms->size() * sizeof(vtkTypeFloat32));
         }
 
         break;
       case InstanceDataAttributes::INSTANCE_PICK_IDS:
         if (this->InstancePickIds)
         {
-          return this->InstancePickIds->size() * sizeof(vtkTypeUInt32);
+          return static_cast<unsigned long>(this->InstancePickIds->size() * sizeof(vtkTypeUInt32));
         }
         break;
       default:
@@ -292,7 +294,7 @@ public:
         break;
     }
 
-    result = vtkWebGPUConfiguration::Align(result, 32);
+    result = static_cast<unsigned long>(vtkWebGPUConfiguration::Align(result, 32));
     return result;
   }
 
@@ -372,7 +374,7 @@ protected:
   {
     // extend superclass bindings with additional entry for `Mesh` buffer.
     auto entries = this->Superclass::GetMeshBindGroupLayoutEntries();
-    std::uint32_t bindingId = entries.size();
+    std::uint32_t bindingId = static_cast<std::uint32_t>(entries.size());
 
     auto helper = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ bindingId++,
       WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform };
@@ -384,7 +386,7 @@ protected:
   {
     // extend superclass bindings with additional entry for `Mesh` buffer.
     auto entries = this->Superclass::GetMeshBindGroupEntries();
-    std::uint32_t bindingId = entries.size();
+    std::uint32_t bindingId = static_cast<std::uint32_t>(entries.size());
 
     const auto bindingInit = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
       this->InstancePropertiesBuffer, 0 };
@@ -1125,8 +1127,9 @@ public:
     for (std::size_t i = 0; i < glyphParametersCollection->Entries.size(); ++i)
     {
       // for each source data object
-      auto* sourceDataObject = this->Self->UseSourceTableTree ? sttIterator->GetCurrentDataObject()
-                                                              : this->Self->GetSource(i);
+      auto* sourceDataObject = this->Self->UseSourceTableTree
+        ? sttIterator->GetCurrentDataObject()
+        : this->Self->GetSource(static_cast<int>(i));
       auto& glyphParameters = glyphParametersCollection->Entries[i];
       if (glyphParameters->SourceDataObject &&
         !glyphParameters->SourceDataObject->IsA(sourceDataObject->GetClassName()))
@@ -1468,7 +1471,7 @@ public:
     for (std::size_t i = 0; i < numEntries; i++)
     {
       sourceCache[i] = mapper->UseSourceTableTree ? this->GetChildDataObject(sourceTableTree, i)
-                                                  : mapper->GetSource(i);
+                                                  : mapper->GetSource(static_cast<int>(i));
     }
 
     double transform[16];

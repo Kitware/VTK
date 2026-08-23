@@ -430,12 +430,12 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
   {
     auto& state = it->second;
     bool cacheChanged = false;
-    if (state.LastActorBackfaceCulling != displayProperty->GetBackfaceCulling())
+    if (state.LastActorBackfaceCulling != (displayProperty->GetBackfaceCulling() != 0))
     {
       cacheChanged = true;
     }
     state.LastActorBackfaceCulling = displayProperty->GetBackfaceCulling();
-    if (state.LastActorFrontfaceCulling != displayProperty->GetFrontfaceCulling())
+    if (state.LastActorFrontfaceCulling != (displayProperty->GetFrontfaceCulling() != 0))
     {
       cacheChanged = true;
     }
@@ -445,7 +445,7 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
       cacheChanged = true;
     }
     state.LastRepresentation = displayProperty->GetRepresentation();
-    if (state.LastVertexVisibility != displayProperty->GetVertexVisibility())
+    if (state.LastVertexVisibility != (displayProperty->GetVertexVisibility() != 0))
     {
       cacheChanged = true;
     }
@@ -1243,18 +1243,20 @@ unsigned long vtkWebGPUPolyDataMapper::GetPointAttributeByteSize(
   switch (attribute)
   {
     case PointDataAttributes::POINT_POSITIONS:
-      return this->CurrentInput->GetNumberOfPoints() * 3 * sizeof(vtkTypeFloat32);
+      return static_cast<unsigned long>(
+        this->CurrentInput->GetNumberOfPoints() * 3 * sizeof(vtkTypeFloat32));
 
     case PointDataAttributes::POINT_COLORS:
       return this->HasPointAttributes[POINT_COLORS]
-        ? this->Colors->GetDataSize() * sizeof(vtkTypeFloat32)
+        ? static_cast<unsigned long>(this->Colors->GetDataSize() * sizeof(vtkTypeFloat32))
         : 0;
 
     case PointDataAttributes::POINT_NORMALS:
       if (this->HasPointAttributes[attribute])
       {
-        return this->CurrentInput->GetPointData()->GetNormals()->GetNumberOfValues() *
-          sizeof(vtkTypeFloat32);
+        return static_cast<unsigned long>(
+          this->CurrentInput->GetPointData()->GetNormals()->GetNumberOfValues() *
+          sizeof(vtkTypeFloat32));
       }
 
       break;
@@ -1262,8 +1264,9 @@ unsigned long vtkWebGPUPolyDataMapper::GetPointAttributeByteSize(
     case PointDataAttributes::POINT_TANGENTS:
       if (this->HasPointAttributes[attribute])
       {
-        return this->CurrentInput->GetPointData()->GetTangents()->GetNumberOfValues() *
-          sizeof(vtkTypeFloat32);
+        return static_cast<unsigned long>(
+          this->CurrentInput->GetPointData()->GetTangents()->GetNumberOfValues() *
+          sizeof(vtkTypeFloat32));
       }
 
       break;
@@ -1271,15 +1274,17 @@ unsigned long vtkWebGPUPolyDataMapper::GetPointAttributeByteSize(
     case PointDataAttributes::POINT_UVS:
       if (this->HasPointAttributes[attribute])
       {
-        return this->CurrentInput->GetPointData()->GetTCoords()->GetNumberOfValues() *
-          sizeof(vtkTypeFloat32);
+        return static_cast<unsigned long>(
+          this->CurrentInput->GetPointData()->GetTCoords()->GetNumberOfValues() *
+          sizeof(vtkTypeFloat32));
       }
       break;
 
     case PointDataAttributes::POINT_COLOR_UVS:
       if (this->HasPointAttributes[attribute])
       {
-        return this->ColorCoordinates->GetNumberOfValues() * sizeof(vtkTypeFloat32);
+        return static_cast<unsigned long>(
+          this->ColorCoordinates->GetNumberOfValues() * sizeof(vtkTypeFloat32));
       }
       break;
 
@@ -1302,12 +1307,12 @@ unsigned long vtkWebGPUPolyDataMapper::GetCellAttributeByteSize(
         // are we using a single color value replicated over all cells?
         if (this->FieldDataTupleId > -1 && this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA)
         {
-          return this->CurrentInput->GetNumberOfCells() * this->Colors->GetNumberOfComponents() *
-            sizeof(vtkTypeFloat32);
+          return static_cast<unsigned long>(this->CurrentInput->GetNumberOfCells() *
+            this->Colors->GetNumberOfComponents() * sizeof(vtkTypeFloat32));
         }
         else
         {
-          return this->Colors->GetDataSize() * sizeof(vtkTypeFloat32);
+          return static_cast<unsigned long>(this->Colors->GetDataSize() * sizeof(vtkTypeFloat32));
         }
       }
 
@@ -1316,8 +1321,8 @@ unsigned long vtkWebGPUPolyDataMapper::GetCellAttributeByteSize(
     case CellDataAttributes::CELL_NORMALS:
       if (this->HasCellAttributes[attribute])
       {
-        return this->CurrentInput->GetCellData()->GetNormals()->GetDataSize() *
-          sizeof(vtkTypeFloat32);
+        return static_cast<unsigned long>(
+          this->CurrentInput->GetCellData()->GetNormals()->GetDataSize() * sizeof(vtkTypeFloat32));
       }
 
       break;
@@ -1447,7 +1452,7 @@ unsigned long vtkWebGPUPolyDataMapper::GetExactPointBufferSize(
     case POINT_UNDEFINED:
       break;
   }
-  result = vtkWebGPUConfiguration::Align(result, 32);
+  result = static_cast<unsigned long>(vtkWebGPUConfiguration::Align(result, 32));
   return result;
 }
 
@@ -1470,7 +1475,7 @@ unsigned long vtkWebGPUPolyDataMapper::GetExactCellBufferSize(
       break;
   }
 
-  result = vtkWebGPUConfiguration::Align(result, 32);
+  result = static_cast<unsigned long>(vtkWebGPUConfiguration::Align(result, 32));
   return result;
 }
 
@@ -4054,11 +4059,11 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
     return true;
   }
   auto* displayProperty = actor->GetProperty();
-  if (it->second.LastActorBackfaceCulling != displayProperty->GetBackfaceCulling())
+  if (it->second.LastActorBackfaceCulling != (displayProperty->GetBackfaceCulling() != 0))
   {
     return true;
   }
-  if (it->second.LastActorFrontfaceCulling != displayProperty->GetFrontfaceCulling())
+  if (it->second.LastActorFrontfaceCulling != (displayProperty->GetFrontfaceCulling() != 0))
   {
     return true;
   }

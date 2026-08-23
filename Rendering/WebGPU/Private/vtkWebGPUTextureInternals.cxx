@@ -34,7 +34,8 @@ public:
     }
 
     this->WGPUConfiguration->WriteTexture(this->Texture, bytesPerRow,
-      data.size() * srcArray->GetDataTypeSize(), data.data(), /*srcOffset=*/0,
+      static_cast<uint32_t>(data.size() * srcArray->GetDataTypeSize()), data.data(),
+      /*srcOffset=*/0,
       /*dstOffset=*/{ 0, 0, 0 },
       /*dstMipLevel=*/0, description);
   }

@@ -136,7 +136,7 @@ void vtkWebGPUComputePassInternals::UpdateWebGPUBuffer(
   switch (statusCode)
   {
     case vtkWebGPUComputePassBufferStorageInternals::UpdateBufferStatusCode::SUCCESS:
-      this->RecreateBufferBindGroup(bufferIndex);
+      this->RecreateBufferBindGroup(static_cast<int>(bufferIndex));
 
       break;
 
@@ -477,8 +477,8 @@ void vtkWebGPUComputePassInternals::WebGPUDispatch(
     wgpuComputePassEncoderSetPipeline(computePassEncoder, this->ComputePipeline);
     for (std::size_t bindGroupIndex = 0; bindGroupIndex < this->BindGroups.size(); bindGroupIndex++)
     {
-      wgpuComputePassEncoderSetBindGroup(
-        computePassEncoder, bindGroupIndex, this->BindGroups[bindGroupIndex], 0, nullptr);
+      wgpuComputePassEncoderSetBindGroup(computePassEncoder, static_cast<uint32_t>(bindGroupIndex),
+        this->BindGroups[bindGroupIndex], 0, nullptr);
     }
     wgpuComputePassEncoderDispatchWorkgroups(computePassEncoder, groupsX, groupsY, groupsZ);
     wgpuComputePassEncoderEnd(computePassEncoder);

@@ -205,7 +205,7 @@ std::size_t vtkWebGPURenderer::WriteLightsBuffer(std::size_t offset /*=0*/)
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
   auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
 
-  const vtkTypeUInt32 count = this->LightIDs.size();
+  const vtkTypeUInt32 count = static_cast<vtkTypeUInt32>(this->LightIDs.size());
   const auto size = vtkWebGPULight::GetCacheSizeBytes();
   // WGSL SceneLights layout: count (u32, 4 bytes) + implicit padding (12 bytes) +
   // values array (count * 80 bytes). The 12-byte padding aligns 'values' to 16 bytes
@@ -223,7 +223,7 @@ std::size_t vtkWebGPURenderer::WriteLightsBuffer(std::size_t offset /*=0*/)
   for (const auto& lightID : this->LightIDs)
   {
     vtkWebGPULight* wgpuLight =
-      reinterpret_cast<vtkWebGPULight*>(this->Lights->GetItemAsObject(lightID));
+      reinterpret_cast<vtkWebGPULight*>(this->Lights->GetItemAsObject(static_cast<int>(lightID)));
     assert(wgpuLight != nullptr);
 
     const auto data = wgpuLight->GetCachedLightInformation();
@@ -767,11 +767,11 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
       {
         if (auto* wgpuActor = vtkWebGPUActor::SafeDownCast(this->PropArray[i]))
         {
-          wgpuActor->SetId(i);
+          wgpuActor->SetId(static_cast<vtkTypeUInt32>(i));
         }
         this->PropArray[i]->RenderOpaqueGeometry(this);
       }
-      result += this->PropArray.size();
+      result += static_cast<int>(this->PropArray.size());
     }
     break;
     case RenderStageEnum::RecordingCommands:
@@ -819,7 +819,7 @@ int vtkWebGPURenderer::UpdateTranslucentPolygonalGeometry()
         }
         this->PropArray[i]->RenderTranslucentPolygonalGeometry(this);
       }
-      result += this->PropArray.size();
+      result += static_cast<int>(this->PropArray.size());
     }
     break;
     case RenderStageEnum::RecordingCommands:
@@ -1087,11 +1087,11 @@ int vtkWebGPURenderer::UpdateLights()
 
   if (ltime <= this->LightingUploadTimestamp.GetMTime())
   {
-    return this->NumberOfLightsUsed;
+    return static_cast<int>(this->NumberOfLightsUsed);
   }
 
   this->LightingUpdateTime = ltime;
-  return this->NumberOfLightsUsed;
+  return static_cast<int>(this->NumberOfLightsUsed);
 }
 
 //------------------------------------------------------------------------------

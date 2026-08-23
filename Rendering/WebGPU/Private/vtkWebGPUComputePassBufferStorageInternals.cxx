@@ -156,7 +156,7 @@ int vtkWebGPUComputePassBufferStorageInternals::AddBuffer(
   this->ParentComputePass->Internals->BindGroupEntries[group].push_back(bgEntry);
 
   // Returning the index of the buffer
-  return this->Buffers.size() - 1;
+  return static_cast<int>(this->Buffers.size() - 1);
 }
 
 //------------------------------------------------------------------------------
@@ -202,7 +202,7 @@ void vtkWebGPUComputePassBufferStorageInternals::ResizeBuffer(
   vtkSmartPointer<vtkWebGPUComputeBuffer> buffer = this->Buffers[bufferIndex];
 
   this->RecreateBuffer(bufferIndex, newByteSize);
-  this->ParentComputePass->Internals->RecreateBufferBindGroup(bufferIndex);
+  this->ParentComputePass->Internals->RecreateBufferBindGroup(static_cast<int>(bufferIndex));
 
   this->ParentComputePass->Internals->RegisterBufferToPipeline(
     buffer, this->WebGPUBuffers[bufferIndex]);

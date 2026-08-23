@@ -1173,7 +1173,7 @@ void vtkWebGPURenderWindow::ReadTextureFromGPU(WGPUTexture& cWgpuTexture, WGPUTe
 
   // Parameters for copying the texture
   WGPUTexelCopyTextureInfo texelCopyTexture = WGPU_TEXEL_COPY_TEXTURE_INFO_INIT;
-  texelCopyTexture.mipLevel = mipLevel;
+  texelCopyTexture.mipLevel = static_cast<uint32_t>(mipLevel);
   texelCopyTexture.origin = offsets;
   texelCopyTexture.texture = wgpuTexture;
   texelCopyTexture.aspect = aspect;
@@ -1599,7 +1599,7 @@ int vtkWebGPURenderWindow::SetPixelData(
   int yOffset = this->Size[1] - y2 - 1;
   int width = (x2 - x) + 1;
   int height = (y2 - y) + 1;
-  int bytesPerRow = vtkWebGPUConfiguration::Align(width * nComp, 256);
+  int bytesPerRow = static_cast<int>(vtkWebGPUConfiguration::Align(width * nComp, 256));
   int size = bytesPerRow * height;
 
   const std::string label = "StagingRGBPixelData-" + this->GetObjectDescription();
@@ -1726,7 +1726,7 @@ int vtkWebGPURenderWindow::SetRGBAPixelData(
   int yOffset = this->Size[1] - y2 - 1;
   int width = (x2 - x) + 1;
   int height = (y2 - y) + 1;
-  int bytesPerRow = vtkWebGPUConfiguration::Align(width * nComp, 256);
+  int bytesPerRow = static_cast<int>(vtkWebGPUConfiguration::Align(width * nComp, 256));
   int size = bytesPerRow * height;
 
   const std::string label = "StagingRGBAPixelData-" + this->GetObjectDescription();
@@ -1863,7 +1863,7 @@ int vtkWebGPURenderWindow::SetRGBACharPixelData(
   int yOffset = this->Size[1] - y2 - 1;
   int width = (x2 - x) + 1;
   int height = (y2 - y) + 1;
-  int bytesPerRow = vtkWebGPUConfiguration::Align(width * nComp, 256);
+  int bytesPerRow = static_cast<int>(vtkWebGPUConfiguration::Align(width * nComp, 256));
   int size = bytesPerRow * height;
 
   const std::string label = "StagingRGBACharPixelData-" + this->GetObjectDescription();

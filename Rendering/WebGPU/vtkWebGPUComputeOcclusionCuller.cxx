@@ -542,7 +542,7 @@ void vtkWebGPUComputeOcclusionCuller::FirstPassRender(
   // Creating and submitting the draw command to the render window so that the props of the last
   // frame are rendered and the depth buffer is filled
   WGPUCommandBuffer commandBuffer = wgpuRenderer->EncodePropListRenderCommand(
-    propsToRenderFirstPass.data(), propsToRenderFirstPass.size());
+    propsToRenderFirstPass.data(), static_cast<int>(propsToRenderFirstPass.size()));
   wgpuRenderWindow->SubmitCommandBuffer(1, &commandBuffer);
 }
 

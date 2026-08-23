@@ -977,7 +977,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       if (pointPositions->GetMTime() > this->MeshData.BuildTimeStamp)
       {
         this->MeshArraysDescriptor.Positions.Start =
-          meshDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
+          static_cast<vtkTypeUInt32>(meshDataWriter.ByteOffset / sizeof(vtkTypeFloat32));
         if (!DispatchT::Execute(pointPositions, meshDataWriter, "Positions"))
         {
           meshDataWriter(pointPositions, "Positions");
@@ -997,7 +997,8 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     {
       if (pointUVs->GetMTime() > this->MeshData.BuildTimeStamp)
       {
-        this->MeshArraysDescriptor.UVs.Start = meshDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
+        this->MeshArraysDescriptor.UVs.Start =
+          static_cast<vtkTypeUInt32>(meshDataWriter.ByteOffset / sizeof(vtkTypeFloat32));
         if (!DispatchT::Execute(pointUVs, meshDataWriter, "UVs"))
         {
           meshDataWriter(pointUVs, "UVs");
@@ -1018,7 +1019,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       {
         meshDataWriter.Denominator = 255.0;
         this->MeshArraysDescriptor.Colors.Start =
-          meshDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
+          static_cast<vtkTypeUInt32>(meshDataWriter.ByteOffset / sizeof(vtkTypeFloat32));
         if (!DispatchT::Execute(pointColors, meshDataWriter, "PointColors"))
         {
           meshDataWriter(pointColors, "PointColors");
@@ -1040,7 +1041,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       {
         meshDataWriter.Denominator = 255.0;
         this->MeshArraysDescriptor.Colors.Start =
-          meshDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
+          static_cast<vtkTypeUInt32>(meshDataWriter.ByteOffset / sizeof(vtkTypeFloat32));
         if (!DispatchT::Execute(cellColors, meshDataWriter, "CellColors"))
         {
           meshDataWriter(cellColors, "CellColors");
@@ -1174,13 +1175,10 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
   // Rebuild topology bind group if required (when VertexCount > 0)
   for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
   {
-    const auto topologySourceType = vtkWebGPUCellToPrimitiveConverter::TopologySourceType(i);
     auto& bgInfo = this->TopologyBindGroupInfos[i];
     // setup bind group
     if (updateTopologyBindGroup && bgInfo.VertexCount > 0)
     {
-      const std::string& label =
-        vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(topologySourceType);
       const auto& device = wgpuConfiguration->GetDevice();
       bool homogeneousCellSize = bgInfo.CellIdBuffer == nullptr;
       vtkWebGPU::BindGroupLayout layout = this->CreateTopologyBindGroupLayout(

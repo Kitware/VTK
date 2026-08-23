@@ -333,7 +333,7 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateComputeTexture(std::si
 
   this->RecreateTexture(textureIndex);
   this->RecreateTextureViews(textureIndex);
-  this->ParentComputePass->Internals->RecreateTextureBindGroup(textureIndex);
+  this->ParentComputePass->Internals->RecreateTextureBindGroup(static_cast<int>(textureIndex));
 
   // Registering the texture with the new texture recreated by previous calls
   this->ParentComputePass->Internals->RegisterTextureToPipeline(
@@ -425,7 +425,7 @@ int vtkWebGPUComputePassTextureStorageInternals::AddRenderTexture(
   this->Textures.push_back(renderTexture);
   this->WebGPUTextures.push_back(vtkWebGPU::Texture::Reference(renderTexture->GetWebGPUTexture()));
 
-  return this->Textures.size() - 1;
+  return static_cast<int>(this->Textures.size() - 1);
 }
 
 //------------------------------------------------------------------------------
@@ -525,7 +525,7 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
   this->Textures.push_back(texture);
   this->WebGPUTextures.push_back(wgpuTexture);
 
-  return this->Textures.size() - 1;
+  return static_cast<int>(this->Textures.size() - 1);
 }
 
 //------------------------------------------------------------------------------
@@ -565,15 +565,17 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTextureView(
       this->ParentComputePass->Internals->CreateBindGroupLayoutEntry(binding, texture, textureView);
     bgEntry = this->ParentComputePass->Internals->CreateBindGroupEntry(binding, wgpuTextureView);
 
-    this->ParentComputePass->Internals->BindGroupLayoutEntries[group].push_back(bglEntry);
-    this->ParentComputePass->Internals->BindGroupEntries[group].push_back(bgEntry);
+    this->ParentComputePass->Internals->BindGroupLayoutEntries[static_cast<int>(group)].push_back(
+      bglEntry);
+    this->ParentComputePass->Internals->BindGroupEntries[static_cast<int>(group)].push_back(
+      bgEntry);
   }
 
   this->ComputeTextureToViews[texture].insert(textureView);
   this->TextureViews.push_back(textureView);
   this->TextureViewsToWebGPUTextureViews[textureView] = wgpuTextureView;
 
-  return this->TextureViews.size() - 1;
+  return static_cast<int>(this->TextureViews.size() - 1);
 }
 
 //------------------------------------------------------------------------------
@@ -592,7 +594,7 @@ vtkWebGPUComputePassTextureStorageInternals::CreateTextureView(std::size_t textu
 
   textureView->SetDimension(texture->GetDimension());
   textureView->SetFormat(texture->GetFormat());
-  textureView->SetAssociatedTextureIndex(textureIndex);
+  textureView->SetAssociatedTextureIndex(static_cast<int>(textureIndex));
 
   return textureView;
 }
@@ -767,9 +769,9 @@ void vtkWebGPUComputePassTextureStorageInternals::RebindTextureView(
   wgpuTextureView = this->TextureViewsToWebGPUTextureViews[computeTextureView];
 
   std::vector<WGPUBindGroupEntry>& bgEntries =
-    this->ParentComputePass->Internals->BindGroupEntries[group];
+    this->ParentComputePass->Internals->BindGroupEntries[static_cast<int>(group)];
   std::vector<WGPUBindGroupLayoutEntry>& bglEntries =
-    this->ParentComputePass->Internals->BindGroupLayoutEntries[group];
+    this->ParentComputePass->Internals->BindGroupLayoutEntries[static_cast<int>(group)];
 
   bool found = false;
   // Recreating the bind group layout. We need to find the existing bind group layout entry for
@@ -818,8 +820,9 @@ void vtkWebGPUComputePassTextureStorageInternals::RebindTextureView(
     this->ParentComputePass->Internals->CreateBindGroupLayoutEntry(binding, texture, textureView);
   bgEntry = this->ParentComputePass->Internals->CreateBindGroupEntry(binding, wgpuTextureView);
 
-  this->ParentComputePass->Internals->BindGroupLayoutEntries[group].push_back(bglEntry);
-  this->ParentComputePass->Internals->BindGroupEntries[group].push_back(bgEntry);
+  this->ParentComputePass->Internals->BindGroupLayoutEntries[static_cast<int>(group)].push_back(
+    bglEntry);
+  this->ParentComputePass->Internals->BindGroupEntries[static_cast<int>(group)].push_back(bgEntry);
 
   this->ParentComputePass->Internals->BindGroupOrLayoutsInvalidated = true;
 }
