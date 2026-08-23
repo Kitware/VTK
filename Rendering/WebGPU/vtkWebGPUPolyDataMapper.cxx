@@ -1037,7 +1037,7 @@ std::vector<WGPUBindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupL
   std::uint32_t bindingId = 0;
   auto addBufferEntry = [&entries](
                           vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper helper)
-  { entries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&helper)); };
+  { entries.push_back(helper); };
   for (int attributeIndex = 0; attributeIndex < POINT_NB_ATTRIBUTES; ++attributeIndex)
   {
     if (this->HasPointAttributes[attributeIndex])
@@ -1091,7 +1091,7 @@ std::vector<WGPUBindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetTopologyBindGr
   std::uint32_t bindingId = 0;
   auto addBufferEntry = [&entries](
                           vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper helper)
-  { entries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&helper)); };
+  { entries.push_back(helper); };
   if (homogeneousCellSize)
   {
     // connectivity
@@ -1140,7 +1140,7 @@ std::vector<WGPUBindGroupEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupEntries
   {
     auto entry =
       vtkWebGPUBindGroupInternals::BindingInitializationHelper{ binding, buffer, 0 }.GetAsBinding();
-    entries.push_back(*reinterpret_cast<WGPUBindGroupEntry*>(&entry));
+    entries.push_back(entry);
   };
   for (int attributeIndex = 0; attributeIndex < POINT_NB_ATTRIBUTES; ++attributeIndex)
   {
@@ -1197,7 +1197,7 @@ std::vector<WGPUBindGroupEntry> vtkWebGPUPolyDataMapper::GetTopologyBindGroupEnt
   {
     auto entry =
       vtkWebGPUBindGroupInternals::BindingInitializationHelper{ binding, buffer }.GetAsBinding();
-    entries.push_back(*reinterpret_cast<WGPUBindGroupEntry*>(&entry));
+    entries.push_back(entry);
   };
   if (homogeneousCellSize)
   {

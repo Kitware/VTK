@@ -308,7 +308,7 @@ WGPUBindGroupLayoutEntry vtkWebGPURenderTextureDeviceResource::MakeSamplerBindGr
   entry.sampler.nextInChain = nullptr;
   entry.sampler.type = static_cast<WGPUSamplerBindingType>(
     this->GetWebGPUSamplerBindingType(this->SamplerBindingType));
-  return *reinterpret_cast<WGPUBindGroupLayoutEntry*>(&entry);
+  return entry;
 }
 
 //------------------------------------------------------------------------------
@@ -336,7 +336,7 @@ WGPUBindGroupLayoutEntry vtkWebGPURenderTextureDeviceResource::MakeTextureViewBi
     vtkWebGPUComputePassTextureStorageInternals::ComputeTextureDimensionToViewDimension(
       this->GetDimension());
   entry.texture.multisampled = (this->SampleCount > 1);
-  return *reinterpret_cast<WGPUBindGroupLayoutEntry*>(&entry);
+  return entry;
 }
 
 //------------------------------------------------------------------------------

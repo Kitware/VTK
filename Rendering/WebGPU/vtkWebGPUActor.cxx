@@ -461,12 +461,12 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
       {
         WGPUBindGroupLayoutEntry samplerEntry = devRc->MakeSamplerBindGroupLayoutEntry(
           bindingIdBGL++, static_cast<WGPUShaderStage>(WGPUShaderStage_Fragment));
-        bglEntries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&samplerEntry));
+        bglEntries.push_back(samplerEntry);
       }
       {
         WGPUBindGroupLayoutEntry textureEntry = devRc->MakeTextureViewBindGroupLayoutEntry(
           bindingIdBGL++, static_cast<WGPUShaderStage>(WGPUShaderStage_Fragment));
-        bglEntries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&textureEntry));
+        bglEntries.push_back(textureEntry);
       }
     }
   }
@@ -486,11 +486,11 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
     {
       {
         WGPUBindGroupEntry samplerEntry = devRc->MakeSamplerBindGroupEntry(bindingIdBG++);
-        bgEntries.push_back(*reinterpret_cast<WGPUBindGroupEntry*>(&samplerEntry));
+        bgEntries.push_back(samplerEntry);
       }
       {
         WGPUBindGroupEntry textureEntry = devRc->MakeTextureViewBindGroupEntry(bindingIdBG++);
-        bgEntries.push_back(*reinterpret_cast<WGPUBindGroupEntry*>(&textureEntry));
+        bgEntries.push_back(textureEntry);
       }
     }
   }

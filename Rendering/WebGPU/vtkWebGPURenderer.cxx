@@ -567,8 +567,8 @@ void vtkWebGPURenderer::RecordRenderCommands()
     renderPassDescriptor.label =
       WGPUStringView{ "vtkWebGPURenderer::RecordRenderCommands", WGPU_STRLEN };
     vtkWebGPU::ReleaseAndNull(this->WGPURenderEncoder, wgpuRenderPassEncoderRelease);
-    this->WGPURenderEncoder = wgpuRenderWindow->NewRenderPass(
-      *reinterpret_cast<WGPURenderPassDescriptor*>(&renderPassDescriptor));
+    this->WGPURenderEncoder =
+      wgpuRenderWindow->NewRenderPass(static_cast<WGPURenderPassDescriptor&>(renderPassDescriptor));
     this->BeginRecording();
     // 1. Draw the background color/texture.
     // updates viewport and scissor rectangles on the render pass encoder.

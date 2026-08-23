@@ -93,12 +93,12 @@ vtkWebGPU::BindGroupLayout vtkWebGPUPolyDataMapper2DInternals::CreateMeshAttribu
     // texture sampler
     WGPUBindGroupLayoutEntry samplerLayoutEntry = deviceTextureRc->MakeSamplerBindGroupLayoutEntry(
       3, static_cast<WGPUShaderStage>(WGPUShaderStage_Fragment));
-    entries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&samplerLayoutEntry));
+    entries.push_back(samplerLayoutEntry);
     // texture data
     WGPUBindGroupLayoutEntry textureLayoutEntry =
       deviceTextureRc->MakeTextureViewBindGroupLayoutEntry(
         4, static_cast<WGPUShaderStage>(WGPUShaderStage_Fragment));
-    entries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&textureLayoutEntry));
+    entries.push_back(textureLayoutEntry);
   }
   return vtkWebGPU::BindGroupLayout::Acquire(
     vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, entries, label));

@@ -339,7 +339,7 @@ void vtkWebGPUSkybox::CreateBindGroup(vtkWebGPUConfiguration* wgpuConfiguration)
   auto uniformBinding = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ 0,
     this->UniformBuffer, 0, uniformSize };
   auto uniformEntry = uniformBinding.GetAsBinding();
-  bgEntries.emplace_back(*reinterpret_cast<WGPUBindGroupEntry*>(&uniformEntry));
+  bgEntries.emplace_back(uniformEntry);
 
   if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(this->GetTexture()))
   {
@@ -365,7 +365,7 @@ void vtkWebGPUSkybox::CreateBindGroup(vtkWebGPUConfiguration* wgpuConfiguration)
   auto matBinding = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ 0, this->MatrixBuffer,
     0, matrixBufferSize };
   auto matEntry = matBinding.GetAsBinding();
-  matBGEntries.emplace_back(*reinterpret_cast<WGPUBindGroupEntry*>(&matEntry));
+  matBGEntries.emplace_back(matEntry);
   vtkWebGPU::ReleaseAndNull(this->MatrixBindGroup, wgpuBindGroupRelease);
   this->MatrixBindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(
     device, this->MatrixBindGroupLayout, matBGEntries, "SkyboxMatrixBindGroup");

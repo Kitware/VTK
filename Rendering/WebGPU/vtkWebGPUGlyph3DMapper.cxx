@@ -376,7 +376,7 @@ protected:
 
     auto helper = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ bindingId++,
       WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform };
-    entries.emplace_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&helper));
+    entries.emplace_back(helper);
     return entries;
   }
 
@@ -389,7 +389,7 @@ protected:
     const auto bindingInit = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
       this->InstancePropertiesBuffer, 0 };
     auto entry = bindingInit.GetAsBinding();
-    entries.emplace_back(*reinterpret_cast<WGPUBindGroupEntry*>(&entry));
+    entries.emplace_back(entry);
     return entries;
   }
 

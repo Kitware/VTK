@@ -623,7 +623,7 @@ vtkWebGPUBatchedPolyDataMapper::GetMeshBindGroupLayoutEntries()
     true,
     vtkWebGPUConfiguration::Align(sizeof(CompositeDataProperties), this->MinStorageBufferOffsetAlignment)
   };
-  entries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&meshHelper));
+  entries.push_back(meshHelper);
   // clang-format on
   return entries;
 }
@@ -662,7 +662,7 @@ vtkWebGPUBatchedPolyDataMapper::GetTopologyBindGroupLayoutEntries(
       WGPUShaderStage_Vertex,
       WGPUBufferBindingType_ReadOnlyStorage,
     };
-    entries.push_back(*reinterpret_cast<WGPUBindGroupLayoutEntry*>(&layoutHelper));
+    entries.push_back(layoutHelper);
     // clang-format on
     return entries;
   }
