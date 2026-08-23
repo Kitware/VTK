@@ -932,11 +932,11 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
       var opacity = 0.0;
 
       if ((params.flags & VOLUME_FLAG_INDEPENDENT_COMPONENTS) == 0u) {
-        // Dependent components describe one colour between them: the last one carries the
-        // opacity, and the rest are read as colour channels. Two of them means the first is a
-        // scalar to be coloured, four means the first three are the colour itself.
+        // Dependent components describe one colour: the last carries opacity, the rest are
+        // colour channels. Two means the first is a scalar to colour, four means the first
+        // three are the colour. Each component's tables cover its own data range.
         let last = params.num_components - 1u;
-        opacity = opacityOf(i, 0u, normalizeComponent(i, last, values[last]));
+        opacity = opacityOf(i, last, normalizeComponent(i, last, values[last]));
         if (params.num_components == 2u) {
           color = colorOf(i, 0u, normalizeComponent(i, 0u, values[0]));
         } else {
@@ -945,15 +945,17 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
                             normalizeComponent(i, 2u, values[2]));
         }
         if (opacity > 0.0) {
-          opacity *= gradientOpacityOf(i, 0u, gradient, params.spacing);
-          opacity = correctOpacity(opacity, step, params.opacity_unit_distance);
+          // The step correction belongs to the scalar opacity alone: the OpenGL mapper bakes it
+          // into that table and leaves the gradient opacity table untouched.
+          opacity = correctOpacity(opacity, step, params.opacity_unit_distance) *
+            gradientOpacityOf(i, last, gradient, params.spacing);
         }
       } else if (params.num_components == 1u) {
         opacity = opacityOf(i, 0u, normalized);
         color = colorOf(i, 0u, normalized);
         if (opacity > 0.0) {
-          opacity *= gradientOpacityOf(i, 0u, gradient, params.spacing);
-          opacity = correctOpacity(opacity, step, params.opacity_unit_distance);
+          opacity = correctOpacity(opacity, step, params.opacity_unit_distance) *
+            gradientOpacityOf(i, 0u, gradient, params.spacing);
         }
       } else {
         // Independent components each carry their own transfer functions and are weighed
@@ -965,9 +967,9 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
           let value = normalizeComponent(i, c, values[c]);
           var component_opacity = opacityOf(i, c, value);
           if (component_opacity > 0.0) {
-            component_opacity *= gradientOpacityOf(i, c, gradient, params.spacing);
-            component_opacity = correctOpacity(component_opacity, step,
-              params.opacity_unit_distance);
+            component_opacity =
+              correctOpacity(component_opacity, step, params.opacity_unit_distance) *
+              gradientOpacityOf(i, c, gradient, params.spacing);
           }
           alphas[c] = component_opacity;
           total += component_opacity * params.component_weights[c];

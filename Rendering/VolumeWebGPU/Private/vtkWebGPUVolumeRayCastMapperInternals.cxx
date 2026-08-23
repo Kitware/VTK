@@ -529,7 +529,8 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateTransferFunctions(Input& 
     input.GradientRange[component][0] = 0.0;
     input.GradientRange[component][1] = 0.25 * (data[1] - data[0]);
 
-    double gradientRange[2] = { gradientDomain[0], gradientDomain[1] };
+    // The table follows the same scale: it starts at no gradient at all and runs to that quarter.
+    double gradientRange[2] = { 0.0, 0.25 * (gradientDomain[1] - gradientDomain[0]) };
     const double gradientStep = (gradientRange[1] - gradientRange[0]) / (TableSize - 1);
     for (int i = 0; i < TableSize; ++i)
     {

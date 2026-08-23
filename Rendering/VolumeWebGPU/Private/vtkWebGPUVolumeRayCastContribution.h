@@ -28,8 +28,9 @@ class vtkVolume;
 class vtkVolumeProperty;
 class vtkWebGPUVolumeRayCastMapper;
 
-/// Size of every tabulated transfer function, in texels.
-constexpr int vtkWebGPUVolumeTransferFunctionSize = 256;
+/// Size of every tabulated transfer function, in texels. Matches the width the OpenGL mapper
+/// tabulates at, so that the two resolve a transfer function equally finely.
+constexpr int vtkWebGPUVolumeTransferFunctionSize = 1024;
 
 /**
  * Where the coordinator gets the voxels of a brick from.
