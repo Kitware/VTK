@@ -13,6 +13,11 @@ This is the implementation-neutral definition of the native WebGPU API. VTK
 compiles against it on every platform, including builds that link Dawn, so no
 implementation can change the API VTK is built against underneath it.
 
+The revision is deliberately the one Dawn vendors for the release pinned by
+`.gitlab/ci/download_dawn.cmake`, so the header VTK compiles against and the
+implementation CI links describe the same API. Prefer keeping the two in step
+over tracking the upstream tip.
+
 ## Headers
 
 - `webgpu/webgpu.h` — the WebGPU C API
@@ -31,6 +36,9 @@ through `nextInChain`, using `WGPUSType` values from blocks upstream reserves
 for them. The few extensions VTK uses are declared in
 `Rendering/WebGPU/Private/vtkWebGPUImplExtensions.h`.
 
-To update: copy `webgpu.h` from a webgpu-headers checkout into
-`vtkwebgpuheaders/include/webgpu/`, and update the `VERSION` in the outer
-`CMakeLists.txt` to the upstream revision.
+To update: copy `webgpu.h` and `LICENSE` from a checkout of the upstream
+repository into `vtkwebgpuheaders/`, and update the `VERSION` in the outer
+`CMakeLists.txt` to the upstream revision. Confirm the new header is still a
+superset-compatible match for the implementation being linked - compare struct
+member layouts and enum values against that implementation's own `webgpu.h`
+before assuming an update is safe.
