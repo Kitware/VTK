@@ -1,7 +1,7 @@
 NAME
-  VTK::ViewsRendering
+  VTK::ViewsScivis
 LIBRARY_NAME
-  vtkViewsRendering
+  vtkViewsScivis
 GROUPS
   Rendering
 SPDX_LICENSE_IDENTIFIER
@@ -12,13 +12,12 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
+  VTK::FiltersParallel
+  VTK::InteractionWidgets
   VTK::RenderingCore
-  VTK::ViewsCore
 PRIVATE_DEPENDS
   VTK::FiltersExtraction
-  VTK::FiltersParallel
   VTK::InteractionStyle
-  VTK::InteractionWidgets
   VTK::RenderingAnnotation
   VTK::RenderingUI
   VTK::RenderingVolume

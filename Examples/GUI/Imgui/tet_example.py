@@ -2,7 +2,7 @@
 # requires-python = ">=3.10"
 # dependencies = [
 #     "imgui-bundle",
-#     # VTK::ViewsRendering is not part of a released wheel yet.
+#     # VTK::ViewsScivis is not part of a released wheel yet.
 #     "vtk>=9.7",
 # ]
 # ///
@@ -19,10 +19,10 @@ from vtkmodules.vtkFiltersGeneral import vtkDataSetTriangleFilter
 # vtkDataObject provides the field association constants; importing
 # vtkCommonDataModel also registers the pythonic vtkSelection API used below.
 from vtkmodules.vtkCommonDataModel import vtkDataObject
-from vtkmodules.vtkViewsRendering import vtkStandardRenderView
+from vtkmodules.vtkViewsScivis import vtkScivisSelector, vtkScivisView
 
 # --- VTK Setup ---
-view = vtkStandardRenderView(use_light_kit=True)
+view = vtkScivisView(use_light_kit=True)
 
 source = vtkRTAnalyticSource(whole_extent=(-10, 10, -10, 10, -10, 10))
 rep = view.show(source >> vtkDataSetTriangleFilter(),
@@ -35,7 +35,7 @@ class GUIState:
     """Mutable state driving the imgui controls."""
 
     interaction_mode = 0  # 0=Camera, 1=Selection
-    selection_mode = vtkStandardRenderView.SELECTION_MODE_SURFACE
+    selection_mode = vtkScivisSelector.SURFACE
     field_assoc = vtkDataObject.FIELD_ASSOCIATION_CELLS
     drag_start = None
     selection_info = ""
@@ -48,7 +48,7 @@ state = GUIState()
 
 
 def on_view_selection(caller, event):
-    sel = rep.annotation_link.current_selection
+    sel = rep.current_selection
     if not sel or len(sel) == 0:
         state.selection_info = "No selection"
         return
@@ -63,7 +63,8 @@ def on_view_selection(caller, event):
     state.selection_info = "\n".join(lines) if lines else "No selection"
 
 
-view.AddObserver(vtkCommand.SelectionChangedEvent, on_view_selection)
+# Selection is the selector's concern, so that is what to listen to.
+view.selector.AddObserver(vtkCommand.SelectionChangedEvent, on_view_selection)
 
 
 def set_interaction_mode(mode):
@@ -107,7 +108,7 @@ def custom_gui():
                 "Mode", state.selection_mode, ["Surface", "Frustum"]
             )
             if changed:
-                view.selection_mode = state.selection_mode
+                view.selector.mode = state.selection_mode
 
             # Combo order matches vtkDataObject: FIELD_ASSOCIATION_POINTS=0,
             # FIELD_ASSOCIATION_CELLS=1.
@@ -116,12 +117,12 @@ def custom_gui():
             )
             if changed:
                 if state.field_assoc == vtkDataObject.FIELD_ASSOCIATION_POINTS:
-                    view.SelectPoints()
+                    view.selector.SelectPoints()
                 else:
-                    view.SelectCells()
+                    view.selector.SelectCells()
 
         if imgui.button("Clear Selection"):
-            view.ClearSelection()
+            view.selector.Clear()
 
     if state.selection_info:
         imgui.spacing()

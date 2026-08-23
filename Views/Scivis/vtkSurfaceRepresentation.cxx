@@ -3,29 +3,34 @@
 
 #include "vtkSurfaceRepresentation.h"
 
+#include "vtkAbstractMapper.h"
 #include "vtkActor.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkBlockProperties.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositePolyDataMapper.h"
+#include "vtkDataArray.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
 #include "vtkExtractSelection.h"
+#include "vtkFieldData.h"
 #include "vtkGeometryFilterDispatcher.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMapper.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkRenderViewBase.h"
 #include "vtkRenderer.h"
-#include "vtkScalarBarActor.h"
 #include "vtkScalarsToColors.h"
+#include "vtkScivisView.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 
@@ -35,6 +40,112 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSurfaceRepresentation);
+
+namespace
+{
+
+// The attributes that `fieldAssoc`, one of the vtkDataObject::FIELD_ASSOCIATION_*
+// values, names on `dataset`. Null for an association a dataset does not have.
+vtkFieldData* AttributesFor(vtkDataSet* dataset, int fieldAssoc)
+{
+  switch (fieldAssoc)
+  {
+    case vtkDataObject::FIELD_ASSOCIATION_POINTS:
+      return dataset->GetPointData();
+    case vtkDataObject::FIELD_ASSOCIATION_CELLS:
+      return dataset->GetCellData();
+    case vtkDataObject::FIELD_ASSOCIATION_NONE:
+      return dataset->GetFieldData();
+    default:
+      return nullptr;
+  }
+}
+
+// vtkAbstractMapper::GetScalars() reports where it found the scalars as 0 for
+// points, 1 for cells and 2 for field data.
+int AssociationForCellFlag(int cellFlag)
+{
+  switch (cellFlag)
+  {
+    case 1:
+      return vtkDataObject::FIELD_ASSOCIATION_CELLS;
+    case 2:
+      return vtkDataObject::FIELD_ASSOCIATION_NONE;
+    default:
+      return vtkDataObject::FIELD_ASSOCIATION_POINTS;
+  }
+}
+
+// The scalars `mapper` will render from `dataObject`, resolved the way the
+// mapper resolves them, taking the first block of a composite dataset that has
+// an answer.
+vtkDataArray* FindRenderedScalars(vtkDataObject* dataObject, vtkMapper* mapper, int& cellFlag)
+{
+  if (auto* composite = vtkCompositeDataSet::SafeDownCast(dataObject))
+  {
+    auto iterator = vtkSmartPointer<vtkCompositeDataIterator>::Take(composite->NewIterator());
+    for (iterator->InitTraversal(); !iterator->IsDoneWithTraversal(); iterator->GoToNextItem())
+    {
+      if (vtkDataArray* scalars =
+            FindRenderedScalars(iterator->GetCurrentDataObject(), mapper, cellFlag))
+      {
+        return scalars;
+      }
+    }
+    return nullptr;
+  }
+
+  auto* dataset = vtkDataSet::SafeDownCast(dataObject);
+  if (!dataset)
+  {
+    return nullptr;
+  }
+
+  return vtkAbstractMapper::GetScalars(dataset, mapper->GetScalarMode(),
+    mapper->GetArrayAccessMode(), mapper->GetArrayId(), mapper->GetArrayName(), cellFlag);
+}
+
+// Widen `range` to cover `arrayName` wherever it is found in `dataObject`,
+// descending into the blocks of a composite dataset. Returns whether the array
+// was found at all; `range` is only touched when it was.
+bool AccumulateRange(
+  vtkDataObject* dataObject, const char* arrayName, int fieldAssoc, int component, double range[2])
+{
+  if (auto* composite = vtkCompositeDataSet::SafeDownCast(dataObject))
+  {
+    bool found = false;
+    auto iterator = vtkSmartPointer<vtkCompositeDataIterator>::Take(composite->NewIterator());
+    for (iterator->InitTraversal(); !iterator->IsDoneWithTraversal(); iterator->GoToNextItem())
+    {
+      found |=
+        AccumulateRange(iterator->GetCurrentDataObject(), arrayName, fieldAssoc, component, range);
+    }
+    return found;
+  }
+
+  auto* dataset = vtkDataSet::SafeDownCast(dataObject);
+  if (!dataset)
+  {
+    return false;
+  }
+
+  vtkFieldData* attributes = AttributesFor(dataset, fieldAssoc);
+  vtkDataArray* array = attributes ? attributes->GetArray(arrayName) : nullptr;
+  if (!array || component >= array->GetNumberOfComponents())
+  {
+    // vtkDataArray::GetRange() leaves the range untouched for a component the
+    // array does not have, so asking would tell us nothing.
+    return false;
+  }
+
+  double blockRange[2];
+  array->GetRange(blockRange, component);
+  range[0] = std::min(range[0], blockRange[0]);
+  range[1] = std::max(range[1], blockRange[1]);
+  return true;
+}
+
+}
 
 //------------------------------------------------------------------------------
 vtkSurfaceRepresentation::vtkSurfaceRepresentation()
@@ -47,20 +158,36 @@ vtkSurfaceRepresentation::vtkSurfaceRepresentation()
   this->GeometryFilter->PassThroughCellIdsOn();
   this->GeometryFilter->PassThroughPointIdsOn();
 
-  this->ScalarBarVisible = false;
   this->RepresentationValue = SURFACE;
 
   // The lookup table owns the range that scalars are mapped through.  Without
   // this the mapper writes its own range over the table's on every render,
-  // which silently discards the range of a table handed to SetLookupTable().
+  // which silently discards the range of a map handed to SetColorMap().
   this->Mapper->UseLookupTableScalarRangeOn();
+
+  // vtkMapper builds its default lookup table lazily, which would leave
+  // GetColorMap() modifying the representation the first time it is asked.
+  // Settle the table here so that the getter stays a getter.
+  this->Mapper->GetLookupTable();
+
+  // vtkCompositePolyDataMapper has no display attributes until it is given
+  // some, and an accessor that returns null until the caller guesses to build
+  // one is no use.  Give it a set here so per-block properties can just be set.
+  vtkNew<vtkCompositeDataDisplayAttributes> blockAttributes;
+  this->Mapper->SetCompositeDataDisplayAttributes(blockAttributes);
+
+  // Per-block appearance lives in its own object; it needs the mapper it acts
+  // on and the representation whose data a block index is resolved against.
+  this->Blocks->SetMapper(this->Mapper);
+  this->Blocks->SetRepresentation(this);
 
   this->Actor->SetMapper(this->Mapper);
 
-  // Scalar bar (always created; visibility controls whether it draws).
-  this->ScalarBar->SetLookupTable(this->Mapper->GetLookupTable());
-  this->ScalarBar->SetNumberOfLabels(5);
-  this->ScalarBar->SetVisibility(this->ScalarBarVisible);
+  // The clipping planes belong to the contract, which owns the collection; the
+  // mapper follows it from here on, including the selection's mapper so that a
+  // highlight is clipped along with what it highlights.
+  this->Mapper->SetClippingPlanes(this->GetClippingPlanes());
+  this->SelectionMapper->SetClippingPlanes(this->GetClippingPlanes());
 
   // Selection visualization pipeline
   this->SelectionGeometryFilter->UseOutlineOff();
@@ -99,32 +226,26 @@ int vtkSurfaceRepresentation::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::AddToView(vtkView* view)
+bool vtkSurfaceRepresentation::AddToView(vtkScivisView* view)
 {
-  vtkRenderViewBase* rv = vtkRenderViewBase::SafeDownCast(view);
-  if (!rv)
+  if (!view)
   {
-    vtkErrorMacro("Can only add vtkSurfaceRepresentation to a vtkRenderViewBase subclass.");
     return false;
   }
-  rv->GetRenderer()->AddActor(this->Actor);
-  rv->GetRenderer()->AddActor(this->SelectionActor);
-  // Always add scalar bar to renderer; visibility controls whether it draws.
-  rv->GetRenderer()->AddViewProp(this->ScalarBar);
+  view->GetRenderer()->AddActor(this->Actor);
+  view->GetRenderer()->AddActor(this->SelectionActor);
   return true;
 }
 
 //------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::RemoveFromView(vtkView* view)
+bool vtkSurfaceRepresentation::RemoveFromView(vtkScivisView* view)
 {
-  vtkRenderViewBase* rv = vtkRenderViewBase::SafeDownCast(view);
-  if (!rv)
+  if (!view)
   {
     return false;
   }
-  rv->GetRenderer()->RemoveActor(this->Actor);
-  rv->GetRenderer()->RemoveActor(this->SelectionActor);
-  rv->GetRenderer()->RemoveViewProp(this->ScalarBar);
+  view->GetRenderer()->RemoveActor(this->Actor);
+  view->GetRenderer()->RemoveActor(this->SelectionActor);
   return true;
 }
 
@@ -136,7 +257,6 @@ vtkMTimeType vtkSurfaceRepresentation::GetMTime()
   mTime = std::max(mTime, this->Mapper->GetMTime());
   // vtkActor::GetMTime() already accounts for the property.
   mTime = std::max(mTime, this->Actor->GetMTime());
-  mTime = std::max(mTime, this->ScalarBar->GetMTime());
   mTime = std::max(mTime, this->SelectionExtractor->GetMTime());
   mTime = std::max(mTime, this->SelectionGeometryFilter->GetMTime());
   mTime = std::max(mTime, this->SelectionMapper->GetMTime());
@@ -293,448 +413,6 @@ double* vtkSurfaceRepresentation::GetEdgeColor()
 }
 
 //------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetEdgeOpacity(double val)
-{
-  if (this->GetEdgeOpacity() == val)
-  {
-    return;
-  }
-  this->Actor->GetProperty()->SetEdgeOpacity(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetEdgeOpacity()
-{
-  return this->Actor->GetProperty()->GetEdgeOpacity();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetAmbient(double val)
-{
-  if (this->GetAmbient() == val)
-  {
-    return;
-  }
-  this->Actor->GetProperty()->SetAmbient(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetAmbient()
-{
-  return this->Actor->GetProperty()->GetAmbient();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetDiffuse(double val)
-{
-  if (this->GetDiffuse() == val)
-  {
-    return;
-  }
-  this->Actor->GetProperty()->SetDiffuse(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetDiffuse()
-{
-  return this->Actor->GetProperty()->GetDiffuse();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetSpecular(double val)
-{
-  if (this->GetSpecular() == val)
-  {
-    return;
-  }
-  this->Actor->GetProperty()->SetSpecular(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetSpecular()
-{
-  return this->Actor->GetProperty()->GetSpecular();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetSpecularPower(double val)
-{
-  if (this->GetSpecularPower() == val)
-  {
-    return;
-  }
-  this->Actor->GetProperty()->SetSpecularPower(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetSpecularPower()
-{
-  return this->Actor->GetProperty()->GetSpecularPower();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetLineWidth(double val)
-{
-  if (this->GetLineWidth() == val)
-  {
-    return;
-  }
-  this->Actor->GetProperty()->SetLineWidth(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetLineWidth()
-{
-  return this->Actor->GetProperty()->GetLineWidth();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetPointSize(double val)
-{
-  if (this->GetPointSize() == val)
-  {
-    return;
-  }
-  this->Actor->GetProperty()->SetPointSize(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetPointSize()
-{
-  return this->Actor->GetProperty()->GetPointSize();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetLighting(bool val)
-{
-  if (this->GetLighting() == val)
-  {
-    return;
-  }
-  this->Actor->GetProperty()->SetLighting(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetLighting()
-{
-  return this->Actor->GetProperty()->GetLighting();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetInterpolation(int val)
-{
-  if (this->GetInterpolation() == val)
-  {
-    return;
-  }
-  this->Actor->GetProperty()->SetInterpolation(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-int vtkSurfaceRepresentation::GetInterpolation()
-{
-  return this->Actor->GetProperty()->GetInterpolation();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetRenderPointsAsSpheres(bool val)
-{
-  if (this->GetRenderPointsAsSpheres() == val)
-  {
-    return;
-  }
-  this->Actor->GetProperty()->SetRenderPointsAsSpheres(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetRenderPointsAsSpheres()
-{
-  return this->Actor->GetProperty()->GetRenderPointsAsSpheres();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetRenderLinesAsTubes(bool val)
-{
-  if (this->GetRenderLinesAsTubes() == val)
-  {
-    return;
-  }
-  this->Actor->GetProperty()->SetRenderLinesAsTubes(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetRenderLinesAsTubes()
-{
-  return this->Actor->GetProperty()->GetRenderLinesAsTubes();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetRoughness(double val)
-{
-  if (this->GetRoughness() == val)
-  {
-    return;
-  }
-  this->Actor->GetProperty()->SetRoughness(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetRoughness()
-{
-  return this->Actor->GetProperty()->GetRoughness();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetMetallic(double val)
-{
-  if (this->GetMetallic() == val)
-  {
-    return;
-  }
-  this->Actor->GetProperty()->SetMetallic(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetMetallic()
-{
-  return this->Actor->GetProperty()->GetMetallic();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetGeneratePointNormals(bool val)
-{
-  if (this->GetGeneratePointNormals() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetGeneratePointNormals(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetGeneratePointNormals()
-{
-  return this->GeometryFilter->GetGeneratePointNormals();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetGenerateCellNormals(bool val)
-{
-  if (this->GetGenerateCellNormals() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetGenerateCellNormals(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetGenerateCellNormals()
-{
-  return this->GeometryFilter->GetGenerateCellNormals() != 0;
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetFeatureAngle(double val)
-{
-  if (this->GetFeatureAngle() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetFeatureAngle(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetFeatureAngle()
-{
-  return this->GeometryFilter->GetFeatureAngle();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetSplitting(bool val)
-{
-  if (this->GetSplitting() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetSplitting(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetSplitting()
-{
-  return this->GeometryFilter->GetSplitting() != 0;
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetTriangulate(bool val)
-{
-  if (this->GetTriangulate() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetTriangulate(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetTriangulate()
-{
-  return this->GeometryFilter->GetTriangulate() != 0;
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetNonlinearSubdivisionLevel(int val)
-{
-  if (this->GetNonlinearSubdivisionLevel() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetNonlinearSubdivisionLevel(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-int vtkSurfaceRepresentation::GetNonlinearSubdivisionLevel()
-{
-  return this->GeometryFilter->GetNonlinearSubdivisionLevel();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetMatchBoundariesIgnoringCellOrder(bool val)
-{
-  if (this->GetMatchBoundariesIgnoringCellOrder() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetMatchBoundariesIgnoringCellOrder(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetMatchBoundariesIgnoringCellOrder()
-{
-  return this->GeometryFilter->GetMatchBoundariesIgnoringCellOrder() != 0;
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetPassThroughCellIds(bool val)
-{
-  if (this->GetPassThroughCellIds() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetPassThroughCellIds(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetPassThroughCellIds()
-{
-  return this->GeometryFilter->GetPassThroughCellIds() != 0;
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetPassThroughPointIds(bool val)
-{
-  if (this->GetPassThroughPointIds() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetPassThroughPointIds(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetPassThroughPointIds()
-{
-  return this->GeometryFilter->GetPassThroughPointIds() != 0;
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetBlockColorsDistinctValues(int val)
-{
-  if (this->GetBlockColorsDistinctValues() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetBlockColorsDistinctValues(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-int vtkSurfaceRepresentation::GetBlockColorsDistinctValues()
-{
-  return this->GeometryFilter->GetBlockColorsDistinctValues();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetHideInternalAMRFaces(bool val)
-{
-  if (this->GetHideInternalAMRFaces() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetHideInternalAMRFaces(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetHideInternalAMRFaces()
-{
-  return this->GeometryFilter->GetHideInternalAMRFaces();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetUseNonOverlappingAMRMetaDataForOutlines(bool val)
-{
-  if (this->GetUseNonOverlappingAMRMetaDataForOutlines() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetUseNonOverlappingAMRMetaDataForOutlines(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetUseNonOverlappingAMRMetaDataForOutlines()
-{
-  return this->GeometryFilter->GetUseNonOverlappingAMRMetaDataForOutlines();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetGenerateProcessIds(bool val)
-{
-  if (this->GetGenerateProcessIds() == val)
-  {
-    return;
-  }
-  this->GeometryFilter->SetGenerateProcessIds(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetGenerateProcessIds()
-{
-  return this->GeometryFilter->GetGenerateProcessIds();
-}
-
-//------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetScalarVisibility(bool val)
 {
   if (this->GetScalarVisibility() == val)
@@ -812,23 +490,6 @@ void vtkSurfaceRepresentation::ColorByFieldArray(const char* arrayName, int comp
 }
 
 //------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetFieldDataTupleId(vtkIdType id)
-{
-  if (this->GetFieldDataTupleId() == id)
-  {
-    return;
-  }
-  this->Mapper->SetFieldDataTupleId(id);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-vtkIdType vtkSurfaceRepresentation::GetFieldDataTupleId()
-{
-  return this->Mapper->GetFieldDataTupleId();
-}
-
-//------------------------------------------------------------------------------
 bool vtkSurfaceRepresentation::IsColoringBy(const char* arrayName, int scalarMode)
 {
   if (!this->Mapper->GetScalarVisibility() || this->Mapper->GetScalarMode() != scalarMode ||
@@ -860,38 +521,20 @@ void vtkSurfaceRepresentation::ColorByComponent(int component)
 }
 
 //------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetLookupTable(vtkScalarsToColors* lut)
+void vtkSurfaceRepresentation::SetColorMap(vtkScalarsToColors* map)
 {
-  if (this->GetLookupTable() == lut)
+  if (this->GetColorMap() == map)
   {
     return;
   }
-  this->Mapper->SetLookupTable(lut);
-  this->ScalarBar->SetLookupTable(lut);
+  this->Mapper->SetLookupTable(map);
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-vtkScalarsToColors* vtkSurfaceRepresentation::GetLookupTable()
+vtkScalarsToColors* vtkSurfaceRepresentation::GetColorMap()
 {
   return this->Mapper->GetLookupTable();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetInterpolateScalarsBeforeMapping(bool val)
-{
-  if (this->GetInterpolateScalarsBeforeMapping() == val)
-  {
-    return;
-  }
-  this->Mapper->SetInterpolateScalarsBeforeMapping(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetInterpolateScalarsBeforeMapping()
-{
-  return this->Mapper->GetInterpolateScalarsBeforeMapping() != 0;
 }
 
 //------------------------------------------------------------------------------
@@ -902,7 +545,6 @@ void vtkSurfaceRepresentation::SetVisibility(bool val)
     return;
   }
   this->Actor->SetVisibility(val);
-  this->ScalarBar->SetVisibility(val && this->ScalarBarVisible);
   this->Modified();
 }
 
@@ -913,101 +555,6 @@ bool vtkSurfaceRepresentation::GetVisibility()
 }
 
 //------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetPickable(bool val)
-{
-  if (this->GetPickable() == val)
-  {
-    return;
-  }
-  this->Actor->SetPickable(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetPickable()
-{
-  return this->Actor->GetPickable() != 0;
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetPosition(double x, double y, double z)
-{
-  double* current = this->GetPosition();
-  if (current[0] == x && current[1] == y && current[2] == z)
-  {
-    return;
-  }
-  this->Actor->SetPosition(x, y, z);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double* vtkSurfaceRepresentation::GetPosition()
-{
-  return this->Actor->GetPosition();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetOrientation(double x, double y, double z)
-{
-  double* current = this->GetOrientation();
-  if (current[0] == x && current[1] == y && current[2] == z)
-  {
-    return;
-  }
-  this->Actor->SetOrientation(x, y, z);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double* vtkSurfaceRepresentation::GetOrientation()
-{
-  return this->Actor->GetOrientation();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetScale(double x, double y, double z)
-{
-  double* current = this->GetScale();
-  if (current[0] == x && current[1] == y && current[2] == z)
-  {
-    return;
-  }
-  this->Actor->SetScale(x, y, z);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double* vtkSurfaceRepresentation::GetScale()
-{
-  return this->Actor->GetScale();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetScalarBarVisibility(bool val)
-{
-  if (this->ScalarBarVisible == val)
-  {
-    return;
-  }
-  this->ScalarBarVisible = val;
-  this->ScalarBar->SetVisibility(val && (this->Actor->GetVisibility() != 0));
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-bool vtkSurfaceRepresentation::GetScalarBarVisibility()
-{
-  return this->ScalarBarVisible;
-}
-
-//------------------------------------------------------------------------------
-vtkScalarBarActor* vtkSurfaceRepresentation::GetScalarBarActor()
-{
-  return this->ScalarBar;
-}
-
-//------------------------------------------------------------------------------
 vtkActor* vtkSurfaceRepresentation::GetActor()
 {
   return this->Actor;
@@ -1015,7 +562,7 @@ vtkActor* vtkSurfaceRepresentation::GetActor()
 
 //------------------------------------------------------------------------------
 vtkSelection* vtkSurfaceRepresentation::ConvertSelection(
-  vtkView* vtkNotUsed(view), vtkSelection* selection)
+  vtkScivisView* vtkNotUsed(view), vtkSelection* selection)
 {
   if (!selection || selection->GetNumberOfNodes() == 0)
   {
@@ -1277,75 +824,6 @@ vtkSelection* vtkSurfaceRepresentation::ConvertSelection(
 }
 
 //------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetSelectionColor(double r, double g, double b)
-{
-  double* current = this->GetSelectionColor();
-  if (current[0] == r && current[1] == g && current[2] == b)
-  {
-    return;
-  }
-  this->SelectionActor->GetProperty()->SetColor(r, g, b);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double* vtkSurfaceRepresentation::GetSelectionColor()
-{
-  return this->SelectionActor->GetProperty()->GetColor();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetSelectionOpacity(double val)
-{
-  if (this->GetSelectionOpacity() == val)
-  {
-    return;
-  }
-  this->SelectionActor->GetProperty()->SetOpacity(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetSelectionOpacity()
-{
-  return this->SelectionActor->GetProperty()->GetOpacity();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetSelectionLineWidth(double val)
-{
-  if (this->GetSelectionLineWidth() == val)
-  {
-    return;
-  }
-  this->SelectionActor->GetProperty()->SetLineWidth(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetSelectionLineWidth()
-{
-  return this->SelectionActor->GetProperty()->GetLineWidth();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetSelectionPointSize(double val)
-{
-  if (this->GetSelectionPointSize() == val)
-  {
-    return;
-  }
-  this->SelectionActor->GetProperty()->SetPointSize(val);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetSelectionPointSize()
-{
-  return this->SelectionActor->GetProperty()->GetPointSize();
-}
-
-//------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetSelectionRepresentation(int type)
 {
   int representation;
@@ -1404,12 +882,187 @@ vtkActor* vtkSurfaceRepresentation::GetSelectionActor()
 }
 
 //------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::ResetColorArray()
+{
+  if (this->Mapper->GetScalarMode() == VTK_SCALAR_MODE_DEFAULT &&
+    this->Mapper->GetArrayAccessMode() == VTK_GET_ARRAY_BY_ID)
+  {
+    return;
+  }
+  this->Mapper->SetScalarModeToDefault();
+  this->Mapper->SelectColorArray(-1);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+vtkDataArray* vtkSurfaceRepresentation::GetRenderedScalars(int& fieldAssoc)
+{
+  if (!this->Mapper->GetScalarVisibility())
+  {
+    // Nothing is being mapped to colors at all.
+    return nullptr;
+  }
+
+  if (this->GetNumberOfInputConnections(0) > 0)
+  {
+    this->Update();
+  }
+
+  int cellFlag = 0;
+  vtkDataArray* scalars =
+    ::FindRenderedScalars(this->Mapper->GetInputDataObject(0, 0), this->Mapper, cellFlag);
+  fieldAssoc = ::AssociationForCellFlag(cellFlag);
+  return scalars;
+}
+
+//------------------------------------------------------------------------------
+const char* vtkSurfaceRepresentation::GetRenderedArrayName()
+{
+  int fieldAssoc = vtkDataObject::FIELD_ASSOCIATION_POINTS;
+  vtkDataArray* scalars = this->GetRenderedScalars(fieldAssoc);
+  return scalars ? scalars->GetName() : nullptr;
+}
+
+//------------------------------------------------------------------------------
+int vtkSurfaceRepresentation::GetRenderedFieldAssociation()
+{
+  int fieldAssoc = vtkDataObject::FIELD_ASSOCIATION_POINTS;
+  this->GetRenderedScalars(fieldAssoc);
+  return fieldAssoc;
+}
+
+//------------------------------------------------------------------------------
+bool vtkSurfaceRepresentation::GetDataRange(
+  const char* arrayName, int fieldAssoc, double range[2], int component)
+{
+  if (!arrayName || arrayName[0] == '\0' || this->GetNumberOfInputConnections(0) < 1)
+  {
+    return false;
+  }
+
+  // Report over the input rather than over the extracted surface. A surface and
+  // a volume coloring by the same array have to contribute comparable numbers
+  // to the scalar bar they share, and the interior values the geometry filter
+  // drops are still part of the array's range.
+  this->GetInputAlgorithm(0, 0)->Update();
+
+  double found[2] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN };
+  if (!AccumulateRange(this->GetInputDataObject(0, 0), arrayName, fieldAssoc, component, found))
+  {
+    return false;
+  }
+
+  range[0] = found[0];
+  range[1] = found[1];
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkSurfaceRepresentation::GetBounds(double bounds[6])
+{
+  if (this->GetNumberOfInputConnections(0) < 1)
+  {
+    return false;
+  }
+  this->Update();
+
+  const double* actorBounds = this->Actor->GetBounds();
+  if (!actorBounds || actorBounds[0] > actorBounds[1])
+  {
+    // vtkProp3D reports an inverted box when there is nothing to bound.
+    return false;
+  }
+  std::copy(actorBounds, actorBounds + 6, bounds);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+vtkProperty* vtkSurfaceRepresentation::GetProperty()
+{
+  return this->Actor->GetProperty();
+}
+
+//------------------------------------------------------------------------------
+vtkGeometryFilterDispatcher* vtkSurfaceRepresentation::GetGeometryFilter()
+{
+  return this->GeometryFilter;
+}
+
+//------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::SetColorMode(int mode)
+{
+  if (this->GetColorMode() == mode)
+  {
+    return;
+  }
+  switch (mode)
+  {
+    case MAP_SCALARS:
+      this->Mapper->SetColorModeToMapScalars();
+      break;
+    case DIRECT_SCALARS:
+      this->Mapper->SetColorModeToDirectScalars();
+      break;
+    default:
+      vtkWarningMacro("Unknown color mode: " << mode);
+      return;
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+int vtkSurfaceRepresentation::GetColorMode()
+{
+  return this->Mapper->GetColorMode() == VTK_COLOR_MODE_DIRECT_SCALARS ? DIRECT_SCALARS
+                                                                       : MAP_SCALARS;
+}
+
+//------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::SetFieldDataTupleId(vtkIdType id)
+{
+  if (this->GetFieldDataTupleId() == id)
+  {
+    return;
+  }
+  this->Mapper->SetFieldDataTupleId(id);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkSurfaceRepresentation::GetFieldDataTupleId()
+{
+  return this->Mapper->GetFieldDataTupleId();
+}
+
+//------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::SetInterpolateScalarsBeforeMapping(bool val)
+{
+  if (this->GetInterpolateScalarsBeforeMapping() == val)
+  {
+    return;
+  }
+  this->Mapper->SetInterpolateScalarsBeforeMapping(val);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+bool vtkSurfaceRepresentation::GetInterpolateScalarsBeforeMapping()
+{
+  return this->Mapper->GetInterpolateScalarsBeforeMapping() != 0;
+}
+
+//------------------------------------------------------------------------------
+vtkBlockProperties* vtkSurfaceRepresentation::GetBlocks()
+{
+  return this->Blocks;
+}
+
+//------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "RepresentationValue: " << this->RepresentationValue << " ("
      << this->GetRepresentationAsString() << ")\n";
-  os << indent << "ScalarBarVisible: " << this->ScalarBarVisible << "\n";
   os << indent << "FieldDataTupleId: " << this->Mapper->GetFieldDataTupleId() << "\n";
   os << indent << "SelectionRepresentationValue: " << this->SelectionRepresentationValue << "\n";
   os << indent << "UserSetSelectionRepresentation: " << this->UserSetSelectionRepresentation

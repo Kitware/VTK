@@ -1,11 +1,11 @@
 # /// script
 # requires-python = ">=3.10"
 # dependencies = [
-#     # VTK::ViewsRendering is not part of a released wheel yet.
+#     # VTK::ViewsScivis is not part of a released wheel yet.
 #     "vtk>=9.7",
 # ]
 # ///
-"""Volume rendering with vtkStandardRenderView and vtkVolumeRepresentation.
+"""Volume rendering with vtkScivisView and vtkVolumeRepresentation.
 
 ``show()`` builds a surface representation by default; passing ``"volume"``
 builds a vtkVolumeRepresentation for the same input instead.  Both kinds of
@@ -19,7 +19,7 @@ with ``ResetColorTransferFunction()`` / ``ResetScalarOpacity()``.
 """
 
 from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
-from vtkmodules.vtkViewsRendering import vtkStandardRenderView
+from vtkmodules.vtkViewsScivis import vtkScivisView
 
 # Registers the OpenGL implementations of the rendering classes, including the
 # volume mappers.  Without these the view builds a base vtkRenderWindow and
@@ -27,7 +27,7 @@ from vtkmodules.vtkViewsRendering import vtkStandardRenderView
 import vtkmodules.vtkRenderingOpenGL2  # noqa: F401
 import vtkmodules.vtkRenderingVolumeOpenGL2  # noqa: F401
 
-view = vtkStandardRenderView(window_title="Volume Rendering Demo")
+view = vtkScivisView(window_title="Volume Rendering Demo")
 view.size = (900, 700)
 
 wavelet = vtkRTAnalyticSource(whole_extent=(-25, 25, -25, 25, -25, 25))

@@ -2,12 +2,12 @@
 # requires-python = ">=3.10"
 # dependencies = [
 #     "imgui-bundle",
-#     # VTK::ViewsRendering is not part of a released wheel yet.
+#     # VTK::ViewsScivis is not part of a released wheel yet.
 #     "vtk>=9.7",
 # ]
 # ///
 # view_example.py
-# Demonstrates vtkStandardRenderView + representations in imgui-bundle
+# Demonstrates vtkScivisView + representations in imgui-bundle
 # with interactive GUI controls for lighting, materials, and selection.
 from imgui_bundle import imgui
 from vtk_viewer import VtkViewer
@@ -22,10 +22,10 @@ from vtkmodules.vtkFiltersSources import (
 # vtkDataObject provides the field association constants; importing
 # vtkCommonDataModel also registers the pythonic vtkSelection API used below.
 from vtkmodules.vtkCommonDataModel import vtkDataObject
-from vtkmodules.vtkViewsRendering import vtkStandardRenderView
+from vtkmodules.vtkViewsScivis import vtkScivisSelector, vtkScivisView
 
 # --- VTK Setup ---
-view = vtkStandardRenderView(use_light_kit=True)
+view = vtkScivisView(use_light_kit=True)
 
 # show() creates, connects, configures, and adds a surface representation,
 # returning it so it can be tweaked interactively below.
@@ -54,7 +54,7 @@ class GUIState:
     bg_color2 = [0.0, 0.0, 0.17]
     show_axes = True
     interaction_mode = 0  # 0=Camera, 1=Selection
-    selection_mode = vtkStandardRenderView.SELECTION_MODE_SURFACE
+    selection_mode = vtkScivisSelector.SURFACE
     field_assoc = vtkDataObject.FIELD_ASSOCIATION_CELLS
     drag_start = None  # Screen coords (x, y) when drag starts
     selection_info = ""  # Text summary of last selection
@@ -92,7 +92,7 @@ def on_view_selection(caller, event):
     """
     lines = []
     for name, rs in rep_states.items():
-        sel = rs.rep.annotation_link.current_selection
+        sel = rs.rep.current_selection
         if not sel or len(sel) == 0:
             continue
         for node in sel:
@@ -105,7 +105,8 @@ def on_view_selection(caller, event):
     state.selection_info = "\n".join(lines) if lines else "No selection"
 
 
-view.AddObserver(vtkCommand.SelectionChangedEvent, on_view_selection)
+# Selection is the selector's concern, so that is what to listen to.
+view.selector.AddObserver(vtkCommand.SelectionChangedEvent, on_view_selection)
 
 
 def set_interaction_mode(mode):
@@ -224,7 +225,7 @@ def custom_gui():
                 "Mode", state.selection_mode, ["Surface", "Frustum"]
             )
             if changed:
-                view.selection_mode = state.selection_mode
+                view.selector.mode = state.selection_mode
 
             # Field association. Combo order matches vtkDataObject:
             # FIELD_ASSOCIATION_POINTS=0, FIELD_ASSOCIATION_CELLS=1.
@@ -233,12 +234,12 @@ def custom_gui():
             )
             if changed:
                 if state.field_assoc == vtkDataObject.FIELD_ASSOCIATION_POINTS:
-                    view.SelectPoints()
+                    view.selector.SelectPoints()
                 else:
-                    view.SelectCells()
+                    view.selector.SelectCells()
 
         if imgui.button("Clear Selection"):
-            view.ClearSelection()
+            view.selector.Clear()
 
     # Selection info — always visible when there's a selection.
     if state.selection_info:

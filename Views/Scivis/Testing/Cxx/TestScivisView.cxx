@@ -7,18 +7,20 @@
 #include "vtkLight.h"
 #include "vtkLightKit.h"
 #include "vtkNew.h"
+#include "vtkOrientationMarkerWidget.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
+#include "vtkScivisView.h"
 #include "vtkSphereSource.h"
-#include "vtkStandardRenderView.h"
 #include "vtkSurfaceRepresentation.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
-int TestStandardRenderView(int argc, char* argv[])
+int TestScivisView(int argc, char* argv[])
 {
   // Create a view
-  vtkNew<vtkStandardRenderView> view;
+  vtkNew<vtkScivisView> view;
   view->GetRenderWindow()->SetOffScreenRendering(true);
   view->SetWindowSize(300, 300);
 
@@ -54,19 +56,19 @@ int TestStandardRenderView(int argc, char* argv[])
     std::cerr << "Orientation axes should be visible by default." << std::endl;
     return EXIT_FAILURE;
   }
-  if (view->GetOrientationAxesInteractive())
+  if ((view->GetOrientationMarkerWidget()->GetInteractive() != 0))
   {
     std::cerr << "Orientation axes should be non-interactive by default." << std::endl;
     return EXIT_FAILURE;
   }
 
-  view->SetOrientationAxesInteractive(true);
-  if (!view->GetOrientationAxesInteractive())
+  view->GetOrientationMarkerWidget()->SetInteractive(true);
+  if (!(view->GetOrientationMarkerWidget()->GetInteractive() != 0))
   {
     std::cerr << "SetOrientationAxesInteractive failed." << std::endl;
     return EXIT_FAILURE;
   }
-  view->SetOrientationAxesInteractive(false);
+  view->GetOrientationMarkerWidget()->SetInteractive(false);
 
   view->SetOrientationAxesVisibility(false);
   if (view->GetOrientationAxesVisibility())
@@ -97,55 +99,55 @@ int TestStandardRenderView(int argc, char* argv[])
   }
 
   // Test light kit parameter forwarding
-  view->SetKeyLightIntensity(1.0);
-  if (view->GetKeyLightIntensity() != 1.0)
+  view->GetLightKit()->SetKeyLightIntensity(1.0);
+  if (view->GetLightKit()->GetKeyLightIntensity() != 1.0)
   {
     std::cerr << "SetKeyLightIntensity failed." << std::endl;
     return EXIT_FAILURE;
   }
 
-  view->SetKeyToFillRatio(5.0);
-  if (view->GetKeyToFillRatio() != 5.0)
+  view->GetLightKit()->SetKeyToFillRatio(5.0);
+  if (view->GetLightKit()->GetKeyToFillRatio() != 5.0)
   {
     std::cerr << "SetKeyToFillRatio failed." << std::endl;
     return EXIT_FAILURE;
   }
 
-  view->SetKeyToHeadRatio(4.0);
-  if (view->GetKeyToHeadRatio() != 4.0)
+  view->GetLightKit()->SetKeyToHeadRatio(4.0);
+  if (view->GetLightKit()->GetKeyToHeadRatio() != 4.0)
   {
     std::cerr << "SetKeyToHeadRatio failed." << std::endl;
     return EXIT_FAILURE;
   }
 
-  view->SetKeyToBackRatio(4.5);
-  if (view->GetKeyToBackRatio() != 4.5)
+  view->GetLightKit()->SetKeyToBackRatio(4.5);
+  if (view->GetLightKit()->GetKeyToBackRatio() != 4.5)
   {
     std::cerr << "SetKeyToBackRatio failed." << std::endl;
     return EXIT_FAILURE;
   }
 
-  view->SetKeyLightWarmth(0.7);
-  if (view->GetKeyLightWarmth() != 0.7)
+  view->GetLightKit()->SetKeyLightWarmth(0.7);
+  if (view->GetLightKit()->GetKeyLightWarmth() != 0.7)
   {
     std::cerr << "SetKeyLightWarmth failed." << std::endl;
     return EXIT_FAILURE;
   }
 
-  view->SetFillLightWarmth(0.3);
-  view->SetHeadLightWarmth(0.5);
-  view->SetBackLightWarmth(0.4);
-  view->SetKeyLightAngle(45.0, -20.0);
-  view->SetFillLightAngle(-70.0, -10.0);
-  view->SetBackLightAngle(0.0, 110.0);
+  view->GetLightKit()->SetFillLightWarmth(0.3);
+  view->GetLightKit()->SetHeadLightWarmth(0.5);
+  view->GetLightKit()->SetBackLightWarmth(0.4);
+  view->GetLightKit()->SetKeyLightAngle(45.0, -20.0);
+  view->GetLightKit()->SetFillLightAngle(-70.0, -10.0);
+  view->GetLightKit()->SetBackLightAngle(0.0, 110.0);
 
-  view->SetMaintainLuminance(true);
-  if (!view->GetMaintainLuminance())
+  view->GetLightKit()->SetMaintainLuminance(true);
+  if (!view->GetLightKit()->GetMaintainLuminance())
   {
     std::cerr << "SetMaintainLuminance failed." << std::endl;
     return EXIT_FAILURE;
   }
-  view->SetMaintainLuminance(false);
+  view->GetLightKit()->SetMaintainLuminance(false);
 
   if (!view->GetLightKit())
   {
@@ -161,10 +163,10 @@ int TestStandardRenderView(int argc, char* argv[])
   light->SetFocalPoint(0.0, 0.0, 0.0);
   light->SetColor(1.0, 1.0, 0.8);
   light->SetIntensity(0.5);
-  view->AddLight(light);
+  view->GetRenderer()->AddLight(light);
 
-  view->RemoveLight(light);
-  view->RemoveAllLights();
+  view->GetRenderer()->RemoveLight(light);
+  view->GetRenderer()->RemoveAllLights();
 
   // Re-enable light kit for final render
   view->SetUseLightKit(true);
