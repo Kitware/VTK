@@ -166,6 +166,21 @@ public:
   vtkWebGPUDeepFramebuffer* GetDeepFramebuffer();
 
   /**
+   * Ensure the deep framebuffer and its bind group exist and match the current
+   * viewport. Returns false if transparency is off or the resources could not be
+   * allocated, in which case callers must fall back to ordinary blending.
+   */
+  bool PrepareDeepFramebuffer();
+
+  /**
+   * Layout and bind group holding the deep framebuffer's storage buffers. Bound
+   * as the last group of a translucent pipeline. Null unless
+   * PrepareDeepFramebuffer() has succeeded.
+   */
+  WGPUBindGroupLayout GetDeepFramebufferBindGroupLayout() { return this->ABufferBindGroupLayout; }
+  WGPUBindGroup GetDeepFramebufferBindGroup() { return this->ABufferBindGroup; }
+
+  /**
    * Query the stage in the rendering process.
    * This property tells the actors and mappers what should be done in their `Render` calls.
    * When it is equal to `UpdatingBuffers`, the actors and mappers can upload data into wgpu
@@ -337,6 +352,10 @@ private:
 
   bool UseDeepFramebufferTransparency = true;
   vtkSmartPointer<vtkWebGPUDeepFramebuffer> DeepFramebuffer;
+  WGPUBindGroupLayout ABufferBindGroupLayout = nullptr;
+  WGPUBindGroup ABufferBindGroup = nullptr;
+
+  void SetupDeepFramebufferBindGroup();
 
   bool UseRenderBundles = true;
   bool RebuildRenderBundle = false;

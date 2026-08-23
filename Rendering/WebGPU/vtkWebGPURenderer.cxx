@@ -990,6 +990,106 @@ vtkWebGPUDeepFramebuffer* vtkWebGPURenderer::GetDeepFramebuffer()
   return this->DeepFramebuffer;
 }
 
+bool vtkWebGPURenderer::PrepareDeepFramebuffer()
+{
+  if (!this->UseDeepFramebufferTransparency)
+  {
+    return false;
+  }
+
+  bool hasTranslucentGeometry = false;
+  for (auto* prop : this->PropArray)
+  {
+    if (prop->HasTranslucentPolygonalGeometry())
+    {
+      hasTranslucentGeometry = true;
+      break;
+    }
+  }
+  if (!hasTranslucentGeometry)
+  {
+    return false;
+  }
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  if (wgpuRenderWindow == nullptr)
+  {
+    return false;
+  }
+
+  if (this->DeepFramebuffer == nullptr)
+  {
+    this->DeepFramebuffer = vtk::TakeSmartPointer(vtkWebGPUDeepFramebuffer::New());
+    this->DeepFramebuffer->SetWGPUConfiguration(wgpuRenderWindow->GetWGPUConfiguration());
+  }
+
+  const int* size = wgpuRenderWindow->GetSize();
+  const int width = size[0];
+  const int height = size[1];
+  const bool resized =
+    width != this->DeepFramebuffer->GetWidth() || height != this->DeepFramebuffer->GetHeight();
+  if (!this->DeepFramebuffer->Resize(width, height))
+  {
+    vtkWarningMacro(<< "Could not allocate a deep framebuffer for " << width << "x" << height
+                    << "; falling back to ordinary translucent blending.");
+    this->UseDeepFramebufferTransparency = false;
+    return false;
+  }
+
+  if (resized || this->ABufferBindGroup == nullptr)
+  {
+    this->SetupDeepFramebufferBindGroup();
+  }
+  return this->ABufferBindGroup != nullptr;
+}
+
+void vtkWebGPURenderer::SetupDeepFramebufferBindGroup()
+{
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  WGPUDevice device = wgpuRenderWindow->GetDevice();
+
+  if (this->ABufferBindGroupLayout == nullptr)
+  {
+    std::vector<WGPUBindGroupLayoutEntry> layoutEntries;
+    for (std::uint32_t binding = 0; binding < 3; ++binding)
+    {
+      WGPUBindGroupLayoutEntry entry = WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT;
+      entry.binding = binding;
+      entry.visibility = WGPUShaderStage_Fragment | WGPUShaderStage_Compute;
+      entry.buffer.type = WGPUBufferBindingType_Storage;
+      layoutEntries.push_back(entry);
+    }
+    WGPUBindGroupLayoutDescriptor layoutDesc = WGPU_BIND_GROUP_LAYOUT_DESCRIPTOR_INIT;
+    layoutDesc.label = WGPUStringView{ "DeepFramebufferBindGroupLayout", WGPU_STRLEN };
+    layoutDesc.entryCount = static_cast<uint32_t>(layoutEntries.size());
+    layoutDesc.entries = layoutEntries.data();
+    this->ABufferBindGroupLayout = wgpuDeviceCreateBindGroupLayout(device, &layoutDesc);
+  }
+
+  WGPUBuffer buffers[3] = { this->DeepFramebuffer->GetHeadPointersBuffer(),
+    this->DeepFramebuffer->GetFragmentNodesBuffer(),
+    this->DeepFramebuffer->GetFragmentCounterBuffer() };
+
+  std::vector<WGPUBindGroupEntry> entries;
+  for (std::uint32_t binding = 0; binding < 3; ++binding)
+  {
+    WGPUBindGroupEntry entry = WGPU_BIND_GROUP_ENTRY_INIT;
+    entry.binding = binding;
+    entry.buffer = buffers[binding];
+    entry.offset = 0;
+    entry.size = wgpuBufferGetSize(buffers[binding]);
+    entries.push_back(entry);
+  }
+
+  WGPUBindGroupDescriptor descriptor = WGPU_BIND_GROUP_DESCRIPTOR_INIT;
+  descriptor.label = WGPUStringView{ "DeepFramebufferBindGroup", WGPU_STRLEN };
+  descriptor.layout = this->ABufferBindGroupLayout;
+  descriptor.entryCount = static_cast<uint32_t>(entries.size());
+  descriptor.entries = entries.data();
+
+  vtkWebGPU::ReleaseAndNull(this->ABufferBindGroup, wgpuBindGroupRelease);
+  this->ABufferBindGroup = wgpuDeviceCreateBindGroup(device, &descriptor);
+}
+
 void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Superclass::ReleaseGraphicsResources(w);
@@ -1001,6 +1101,8 @@ void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
   vtkWebGPU::ReleaseAndNull(this->BackgroundGradientBuffer, wgpuBufferRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneBindGroup, wgpuBindGroupRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneBindGroupLayout, wgpuBindGroupLayoutRelease);
+  vtkWebGPU::ReleaseAndNull(this->ABufferBindGroup, wgpuBindGroupRelease);
+  vtkWebGPU::ReleaseAndNull(this->ABufferBindGroupLayout, wgpuBindGroupLayoutRelease);
   if (this->DeepFramebuffer != nullptr)
   {
     this->DeepFramebuffer->ReleaseGraphicsResources();
