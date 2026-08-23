@@ -1014,6 +1014,7 @@ bool vtkWebGPUBatchedPolyDataMapper::AllocateCompositeDataPropertyStorageBuffer(
     if (this->CompositeDataPropertyStorage.Buffer)
     {
       wgpuBufferDestroy(this->CompositeDataPropertyStorage.Buffer);
+      vtkWebGPU::ReleaseAndNull(this->CompositeDataPropertyStorage.Buffer, wgpuBufferRelease);
       this->CompositeDataPropertyStorage.Size = 0;
     }
     const std::string label = "composite_data_property-" + this->GetObjectDescription();
