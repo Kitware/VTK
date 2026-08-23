@@ -28,6 +28,24 @@ vtkWebGPUProcTable vtkWebGPUProcTableLoad(const char* libPath)
     return g_vtkWebGPUProcTable;
   }
 
+#if defined(__EMSCRIPTEN__)
+  // Emscripten links the implementation into the module through
+  // --use-port=emdawnwebgpu, so there is no shared library to open and the wgpu*
+  // entry points are already resolved. Hand back a table that owns no handle;
+  // nothing resolves symbols through the table on this platform.
+  (void)libPath;
+  vtkWebGPUProcTableImpl* wasmTable =
+    (vtkWebGPUProcTableImpl*)malloc(sizeof(vtkWebGPUProcTableImpl));
+  if (!wasmTable)
+  {
+    return NULL;
+  }
+  wasmTable->libHandle = NULL;
+  wasmTable->getProcAddressFunc = NULL;
+  g_vtkWebGPUProcTable = wasmTable;
+  return wasmTable;
+#else
+
   // RTLDGlobal keeps the implementation's symbols globally visible, so code that
   // still calls the wgpu* entry points directly resolves against the library we
   // just loaded. vtkDynamicLoader maps this onto dlopen() or LoadLibrary() as
@@ -94,6 +112,7 @@ vtkWebGPUProcTable vtkWebGPUProcTableLoad(const char* libPath)
 
   g_vtkWebGPUProcTable = table;
   return table;
+#endif
 }
 
 //------------------------------------------------------------------------------
