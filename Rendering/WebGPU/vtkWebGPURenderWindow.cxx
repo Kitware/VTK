@@ -216,7 +216,7 @@ WGPUSurface vtkWebGPURenderWindow::CreateSurfaceFromHardwareWindow(WGPUInstance 
   {
     VTKWGPUEmscriptenSurfaceSourceCanvasHTMLSelector htmlSurfDesc =
       VTK_WGPU_EMSCRIPTEN_SURFACE_SOURCE_CANVAS_HTML_SELECTOR_INIT;
-    htmlSurfDesc.selector = wasmhw->GetCanvasSelector();
+    htmlSurfDesc.selector = WGPUStringView{ wasmhw->GetCanvasSelector(), WGPU_STRLEN };
     WGPUSurfaceDescriptor surfDesc = WGPU_SURFACE_DESCRIPTOR_INIT;
     surfDesc.label = WGPUStringView{ "VTK HTML5 surface", WGPU_STRLEN };
     surfDesc.nextInChain = &htmlSurfDesc.chain;
