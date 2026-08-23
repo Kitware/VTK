@@ -5,6 +5,10 @@
 
 #include "vtkDynamicLoader.h"
 
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,6 +22,39 @@ struct vtkWebGPUProcTableImpl
   vtkLibHandle libHandle;                    // Handle from vtkDynamicLoader
   WGPUProcGetProcAddress getProcAddressFunc; // Bootstrap function
 };
+
+//------------------------------------------------------------------------------
+// Open a library given only its file name, letting the platform search for it.
+//
+// vtkDynamicLoader::OpenLibrary cannot be used here on Windows: it routes the
+// name through Encoding::ToWindowsExtendedPath, which calls GetFullPathNameW and
+// so resolves a bare name against the current working directory instead of
+// searching PATH. LoadLibraryW applies the standard DLL search order, which is
+// what a runtime-loaded implementation needs. If the library is already in the
+// process it returns the same module and takes a reference, so the handle is
+// still ours to close.
+static vtkLibHandle vtkWebGPUProcTableOpenByName(const char* name, int openFlags)
+{
+#if defined(_WIN32)
+  (void)openFlags;
+  const int wideLength = MultiByteToWideChar(CP_UTF8, 0, name, -1, NULL, 0);
+  if (wideLength <= 0)
+  {
+    return NULL;
+  }
+  wchar_t* wideName = (wchar_t*)malloc((size_t)wideLength * sizeof(wchar_t));
+  if (!wideName)
+  {
+    return NULL;
+  }
+  MultiByteToWideChar(CP_UTF8, 0, name, -1, wideName, wideLength);
+  vtkLibHandle handle = LoadLibraryW(wideName);
+  free(wideName);
+  return handle;
+#else
+  return vtkDynamicLoader::OpenLibrary(name, openFlags);
+#endif
+}
 
 //------------------------------------------------------------------------------
 vtkWebGPUProcTable vtkWebGPUProcTableLoad(const char* libPath)
@@ -77,7 +114,7 @@ vtkWebGPUProcTable vtkWebGPUProcTableLoad(const char* libPath)
       "webgpu_dawn.dll", NULL };
     for (int i = 0; candidates[i] != NULL && !handle; ++i)
     {
-      handle = vtkDynamicLoader::OpenLibrary(candidates[i], openFlags);
+      handle = vtkWebGPUProcTableOpenByName(candidates[i], openFlags);
     }
   }
 
