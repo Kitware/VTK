@@ -205,6 +205,10 @@ implementation. Today the proc table is therefore an *additional* runtime
 requirement layered on the link-time dependency, not a replacement for it.
 ```
 
+On Emscripten there is no library to resolve: `--use-port=emdawnwebgpu` links the
+implementation into the module, so the proc table reports itself loaded without
+opening anything.
+
 The implementation uses *lazy initialization* that is thread-safe and loads on
 first access. The library is opened with global symbol visibility, so direct
 calls to the WebGPU C API resolve against it without modification. Missing
