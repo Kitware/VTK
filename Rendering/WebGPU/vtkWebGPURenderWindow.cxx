@@ -1129,8 +1129,8 @@ void vtkWebGPURenderWindow::ReadTextureFromGPU(WGPUTexture& cWgpuTexture, WGPUTe
   WGPUTexture wgpuTexture = cWgpuTexture;
   const auto format = static_cast<WGPUTextureFormat>(cFormat);
   const auto aspect = static_cast<WGPUTextureAspect>(cAspect);
-  const WGPUOrigin3D offsets = *reinterpret_cast<WGPUOrigin3D*>(&cOffsets);
-  const WGPUExtent3D extents = *reinterpret_cast<WGPUExtent3D*>(&cExtents);
+  const WGPUOrigin3D offsets = cOffsets;
+  const WGPUExtent3D extents = cExtents;
   int bytesPerPixel = 0;
   switch (format)
   {
@@ -1348,10 +1348,10 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
   renderPassDescriptor.label = WGPUStringView{ "Render offscreen texture", WGPU_STRLEN };
   renderPassDescriptor.ColorAttachments[0].clearValue = { 0.0, 0.0, 0.0, 1.0 };
 
-  if (auto encoderHandle =
-        this->NewRenderPass(*reinterpret_cast<WGPURenderPassDescriptor*>(&renderPassDescriptor)))
+  if (vtkWebGPU::RenderPassEncoder encoderHandle = vtkWebGPU::RenderPassEncoder::Acquire(
+        this->NewRenderPass(static_cast<WGPURenderPassDescriptor&>(renderPassDescriptor))))
   {
-    WGPURenderPassEncoder encoder(encoderHandle);
+    WGPURenderPassEncoder encoder = encoderHandle;
     wgpuRenderPassEncoderSetViewport(
       encoder, 0, 0, this->SurfaceConfiguredSize[0], this->SurfaceConfiguredSize[1], 0.0f, 1.0f);
     wgpuRenderPassEncoderSetScissorRect(

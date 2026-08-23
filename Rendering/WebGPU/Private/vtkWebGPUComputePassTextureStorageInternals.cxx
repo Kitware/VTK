@@ -867,7 +867,8 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   texelCopyBuffer.layout.bytesPerRow = bytesPerRow;
 
   // Copying the texture to the buffer
-  WGPUCommandEncoder commandEncoder = this->ParentComputePass->Internals->CreateCommandEncoder();
+  vtkWebGPU::CommandEncoder commandEncoder =
+    vtkWebGPU::CommandEncoder::Acquire(this->ParentComputePass->Internals->CreateCommandEncoder());
   WGPUExtent3D copySize = { mipLevelWidth, mipLevelHeight, texture->GetDepth() };
   wgpuCommandEncoderCopyTextureToBuffer(
     commandEncoder, &imageCopyTexture, &texelCopyBuffer, &copySize);

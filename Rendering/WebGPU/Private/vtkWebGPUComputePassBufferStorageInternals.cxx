@@ -261,7 +261,8 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
   // Mark this readback as in-flight so callers can wait for its completion.
   this->ParentPassWGPUConfiguration->IncrementActiveBufferMapCount();
 
-  WGPUCommandEncoder commandEncoder = this->ParentComputePass->Internals->CreateCommandEncoder();
+  vtkWebGPU::CommandEncoder commandEncoder =
+    vtkWebGPU::CommandEncoder::Acquire(this->ParentComputePass->Internals->CreateCommandEncoder());
   wgpuCommandEncoderCopyBufferToBuffer(
     commandEncoder, this->WebGPUBuffers[bufferIndex], 0, internalCallbackData->buffer, 0, byteSize);
   this->ParentComputePass->Internals->SubmitCommandEncoderToQueue(commandEncoder);
