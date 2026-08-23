@@ -3,6 +3,7 @@
 #ifndef vtkWebGPURenderPassCreateInfoInternals_h
 #define vtkWebGPURenderPassCreateInfoInternals_h
 
+#include "Private/vtkWebGPUHandle.h"
 #include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "vtkRenderingWebGPUModule.h"
 #include "vtk_wgpu.h"
@@ -22,8 +23,11 @@ public:
 
   uint32_t width;
   uint32_t height;
-  WGPUTexture color;
+  vtkWebGPU::Texture color;
   WGPUTextureFormat colorFormat;
+  // renderPassInfo only borrows the view, so this keeps it alive. Declared
+  // before renderPassInfo so it is constructed first.
+  vtkWebGPU::TextureView colorView;
   vtkWebGPURenderPassDescriptorInternals renderPassInfo;
 };
 VTK_ABI_NAMESPACE_END

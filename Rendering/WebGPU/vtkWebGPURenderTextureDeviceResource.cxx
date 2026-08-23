@@ -281,19 +281,19 @@ void vtkWebGPURenderTextureDeviceResource::SendToWebGPUDevice(std::vector<void*>
   this->SamplerDescriptor.lodMaxClamp = this->LODMaxClamp;
   this->SamplerDescriptor.compare = this->GetWebGPUCompareFunction(this->CompareFunc);
   this->SamplerDescriptor.maxAnisotropy = this->MaxAnisotropy;
+  vtkWebGPU::ReleaseAndNull(this->Sampler, wgpuSamplerRelease);
   this->Sampler = wgpuDeviceCreateSampler(wgpuConfiguration->GetDevice(), &this->SamplerDescriptor);
-  this->TextureViewDescriptor = {};
-  // The C WGPUTextureViewDescriptor zero-initializes mipLevelCount/arrayLayerCount to 0, which is
-  // invalid. The C++ WGPUTextureViewDescriptor defaults these to the "undefined" sentinel so that
-  // Dawn resolves them to the texture's full mip/layer counts. Replicate that here.
-  this->TextureViewDescriptor.mipLevelCount = WGPU_MIP_LEVEL_COUNT_UNDEFINED;
-  this->TextureViewDescriptor.arrayLayerCount = WGPU_ARRAY_LAYER_COUNT_UNDEFINED;
+  // The INIT macro carries the defaults an empty initializer would drop, notably
+  // the "undefined" mip/layer sentinels that let the implementation resolve them
+  // to the texture's full counts.
+  this->TextureViewDescriptor = WGPU_TEXTURE_VIEW_DESCRIPTOR_INIT;
   if (cubeMap)
   {
     this->TextureViewDescriptor.dimension =
       static_cast<WGPUTextureViewDimension>(WGPUTextureViewDimension_Cube);
     this->TextureViewDescriptor.arrayLayerCount = 6;
   }
+  vtkWebGPU::ReleaseAndNull(this->TextureView, wgpuTextureViewRelease);
   this->TextureView = wgpuTextureCreateView(this->Texture, &this->TextureViewDescriptor);
   this->Modified();
 }

@@ -9,6 +9,7 @@ vtkWebGPURenderPassCreateInfoInternals::vtkWebGPURenderPassCreateInfoInternals()
   , height(0)
   , color(nullptr)
   , colorFormat(WGPUTextureFormat_RGBA8Unorm)
+  , colorView(nullptr)
   , renderPassInfo({})
 {
 }
@@ -18,9 +19,11 @@ vtkWebGPURenderPassCreateInfoInternals::vtkWebGPURenderPassCreateInfoInternals(u
   uint32_t texHeight, WGPUTexture colorAttachment, WGPUTextureFormat textureFormat)
   : width(texWidth)
   , height(texHeight)
-  , color(colorAttachment)
+  // The caller keeps its own reference to the texture it passed in.
+  , color(vtkWebGPU::Texture::Reference(colorAttachment))
   , colorFormat(textureFormat)
-  , renderPassInfo({ wgpuTextureCreateView(colorAttachment, nullptr) })
+  , colorView(vtkWebGPU::TextureView::Acquire(wgpuTextureCreateView(colorAttachment, nullptr)))
+  , renderPassInfo({ colorView })
 {
 }
 
@@ -38,7 +41,8 @@ vtkWebGPURenderPassCreateInfoInternals::CreateBasicRenderPass(
   descriptor.format = format;
   descriptor.mipLevelCount = 1;
   descriptor.usage = WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_CopySrc;
-  WGPUTexture colorAttachment = wgpuDeviceCreateTexture(device, &descriptor);
+  vtkWebGPU::Texture colorAttachment =
+    vtkWebGPU::Texture::Acquire(wgpuDeviceCreateTexture(device, &descriptor));
 
   return vtkWebGPURenderPassCreateInfoInternals(width, height, colorAttachment);
 }

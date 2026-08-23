@@ -568,6 +568,7 @@ void vtkWebGPURenderWindow::CreateCommandEncoder()
   encDesc.label = WGPUStringView{ "vtkWebGPURenderWindow::CommandEncoder", WGPU_STRLEN };
   if (auto device = this->WGPUConfiguration->GetDevice())
   {
+    vtkWebGPU::ReleaseAndNull(this->CommandEncoder, wgpuCommandEncoderRelease);
     this->CommandEncoder = wgpuDeviceCreateCommandEncoder(device, &encDesc);
   }
   else
@@ -885,6 +886,7 @@ void vtkWebGPURenderWindow::CreateColorCopyPipeline()
   wgpuPipelineLayoutSetLabel(
     pipelineLayout, WGPUStringView{ "FSQ Color Copy pipeline layout", WGPU_STRLEN });
 
+  vtkWebGPU::ReleaseAndNull(this->ColorCopyRenderPipeline.BindGroup, wgpuBindGroupRelease);
   this->ColorCopyRenderPipeline.BindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(device, bgl,
     {
       // clang-formt off
@@ -996,7 +998,7 @@ void vtkWebGPURenderWindow::RecreateComputeRenderTextures()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::DestroyColorCopyPipeline()
 {
-  this->ColorCopyRenderPipeline.BindGroup = nullptr;
+  vtkWebGPU::ReleaseAndNull(this->ColorCopyRenderPipeline.BindGroup, wgpuBindGroupRelease);
   this->WGPUPipelineCache->DestroyRenderPipeline(this->ColorCopyRenderPipeline.Key);
   this->ColorCopyRenderPipeline.Key.clear();
 }
@@ -1186,8 +1188,8 @@ void vtkWebGPURenderWindow::ReadTextureFromGPU(WGPUTexture& cWgpuTexture, WGPUTe
   texelCopyBuffer.layout.bytesPerRow = bytesPerRow;
 
   // Copying the texture to the buffer
-  WGPUCommandEncoder commandEncoder =
-    wgpuDeviceCreateCommandEncoder(this->WGPUConfiguration->GetDevice(), nullptr);
+  vtkWebGPU::CommandEncoder commandEncoder = vtkWebGPU::CommandEncoder::Acquire(
+    wgpuDeviceCreateCommandEncoder(this->WGPUConfiguration->GetDevice(), nullptr));
   WGPUExtent3D copySize = { mipLevelWidth, mipLevelHeight, extents.depthOrArrayLayers };
   wgpuCommandEncoderCopyTextureToBuffer(
     commandEncoder, &texelCopyTexture, &texelCopyBuffer, &copySize);
@@ -1281,6 +1283,9 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
   }
   WGPUSurfaceTexture surfaceTexture = WGPU_SURFACE_TEXTURE_INIT;
   wgpuSurfaceGetCurrentTexture(this->Surface, &surfaceTexture);
+  // The surface hands back an owned reference each frame; adopt it so it is not
+  // leaked once this function returns.
+  vtkWebGPU::Texture currentTexture = vtkWebGPU::Texture::Acquire(surfaceTexture.texture);
 
   // Early exit if surface did not give a texture
   if (surfaceTexture.texture == nullptr)
@@ -1455,7 +1460,7 @@ void vtkWebGPURenderWindow::Frame()
       wgpuCommandEncoderFinish(this->CommandEncoder, &cmdBufDesc));
     WGPUCommandBuffer cmdBuffer = cmdBufferWrapper;
 
-    this->CommandEncoder = nullptr;
+    vtkWebGPU::ReleaseAndNull(this->CommandEncoder, wgpuCommandEncoderRelease);
     this->FlushCommandBuffers(1, &cmdBuffer);
   }
 
@@ -1471,7 +1476,7 @@ void vtkWebGPURenderWindow::Frame()
     vtkWebGPU::CommandBuffer::Acquire(wgpuCommandEncoderFinish(this->CommandEncoder, &cmdBufDesc));
   WGPUCommandBuffer cmdBuffer = fsqCmdBufferWrapper;
 
-  this->CommandEncoder = nullptr;
+  vtkWebGPU::ReleaseAndNull(this->CommandEncoder, wgpuCommandEncoderRelease);
   this->FlushCommandBuffers(1, &cmdBuffer);
 
   // On web, html5 `requestAnimateFrame` takes care of presentation.
@@ -2152,7 +2157,7 @@ void vtkWebGPURenderWindow::WaitForCompletion()
     vtkErrorMacro(<< "Cannot wait for completion because WebGPU device is not ready!");
     return;
   }
-  if (auto queue = wgpuDeviceGetQueue(device))
+  if (vtkWebGPU::Queue queue = vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(device)))
   {
     WGPUQueueWorkDoneStatus workStatus = WGPUQueueWorkDoneStatus_Error;
     bool done = false;
@@ -2235,7 +2240,7 @@ void vtkWebGPURenderWindow::ReleaseGraphicsResources(vtkWindow* w)
   this->DestroyDepthStencilAttachment();
   this->DestroyOffscreenColorAttachment();
   this->UnconfigureSurface();
-  this->Surface = nullptr;
+  vtkWebGPU::ReleaseAndNull(this->Surface, wgpuSurfaceRelease);
 }
 
 //------------------------------------------------------------------------------

@@ -371,6 +371,7 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
       {
         vtkLog(TRACE, "rebuild graphics pipelines");
         // Create bind group for the point/cell attribute buffers.
+        vtkWebGPU::ReleaseAndNull(this->MeshAttributeBindGroup, wgpuBindGroupRelease);
         this->MeshAttributeBindGroup = this->CreateMeshAttributeBindGroup(
           wgpuConfiguration->GetDevice(), this->GetObjectDescription() + "-MeshAttributeBindGroup");
         // render bundle must reference new bind groups and/or pipelines
@@ -1177,7 +1178,8 @@ std::vector<WGPUBindGroupEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupEntries
 WGPUBindGroup vtkWebGPUPolyDataMapper::CreateMeshAttributeBindGroup(
   const WGPUDevice& device, const std::string& label)
 {
-  auto layout = this->CreateMeshAttributeBindGroupLayout(device, label + "_LAYOUT");
+  vtkWebGPU::BindGroupLayout layout = vtkWebGPU::BindGroupLayout::Acquire(
+    this->CreateMeshAttributeBindGroupLayout(device, label + "_LAYOUT"));
 
   return vtkWebGPUBindGroupInternals::MakeBindGroup(
     device, layout, this->GetMeshBindGroupEntries(), label);
@@ -1226,8 +1228,9 @@ WGPUBindGroup vtkWebGPUPolyDataMapper::CreateTopologyBindGroup(const WGPUDevice&
   const auto& info = this->TopologyBindGroupInfos[topologySourceType];
   bool homogeneousCellSize = info.CellIdBuffer == nullptr;
   bool useEdgeArray = info.EdgeArrayBuffer != nullptr;
-  auto layout = this->CreateTopologyBindGroupLayout(
-    device, label + "_LAYOUT", homogeneousCellSize, useEdgeArray);
+  vtkWebGPU::BindGroupLayout layout =
+    vtkWebGPU::BindGroupLayout::Acquire(this->CreateTopologyBindGroupLayout(
+      device, label + "_LAYOUT", homogeneousCellSize, useEdgeArray));
   return vtkWebGPUBindGroupInternals::MakeBindGroup(device, layout,
     this->GetTopologyBindGroupEntries(topologySourceType, homogeneousCellSize, useEdgeArray),
     label);
@@ -1880,7 +1883,7 @@ void vtkWebGPUPolyDataMapper::UpdateClippingPlanesBuffer(
     if (this->ClippingPlanesBuffer)
     {
       wgpuBufferDestroy(this->ClippingPlanesBuffer);
-      this->ClippingPlanesBuffer = nullptr;
+      vtkWebGPU::ReleaseAndNull(this->ClippingPlanesBuffer, wgpuBufferRelease);
     }
     return;
   }
@@ -1913,6 +1916,7 @@ void vtkWebGPUPolyDataMapper::UpdateClippingPlanesBuffer(
     desc.mappedAtCreation = false;
     desc.size = vtkWebGPUConfiguration::Align(sizeof(this->ClippingPlanesData), 16);
     desc.usage = WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst;
+    vtkWebGPU::ReleaseAndNull(this->ClippingPlanesBuffer, wgpuBufferRelease);
     this->ClippingPlanesBuffer = wgpuConfiguration->CreateBuffer(desc);
   }
   vtkNew<vtkMatrix4x4> modelToWorldMatrix;
@@ -4079,7 +4083,7 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
   if (this->ClippingPlanesBuffer)
   {
     wgpuBufferDestroy(this->ClippingPlanesBuffer);
-    this->ClippingPlanesBuffer = nullptr;
+    vtkWebGPU::ReleaseAndNull(this->ClippingPlanesBuffer, wgpuBufferRelease);
   }
   if (this->ColorTextureHostResource != nullptr)
   {
@@ -4089,7 +4093,7 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
   this->ClippingPlanesBuildTimestamp = vtkTimeStamp();
   this->LastScalarMode = -1;
   this->LastScalarVisibility = false;
-  this->MeshAttributeBindGroup = nullptr;
+  vtkWebGPU::ReleaseAndNull(this->MeshAttributeBindGroup, wgpuBindGroupRelease);
 
   // Release topology conversion pipelines and reset their build timestamps.
   for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)

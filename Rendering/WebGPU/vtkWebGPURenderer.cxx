@@ -566,6 +566,7 @@ void vtkWebGPURenderer::RecordRenderCommands()
       /*clearColor=*/false, /*clearDepth=*/false, /*clearStencil=*/false);
     renderPassDescriptor.label =
       WGPUStringView{ "vtkWebGPURenderer::RecordRenderCommands", WGPU_STRLEN };
+    vtkWebGPU::ReleaseAndNull(this->WGPURenderEncoder, wgpuRenderPassEncoderRelease);
     this->WGPURenderEncoder = wgpuRenderWindow->NewRenderPass(
       *reinterpret_cast<WGPURenderPassDescriptor*>(&renderPassDescriptor));
     this->BeginRecording();
@@ -1112,14 +1113,16 @@ void vtkWebGPURenderer::SetEnvironmentTexture(vtkTexture*, bool vtkNotUsed(isSRG
 void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Superclass::ReleaseGraphicsResources(w);
-  this->Bundle = nullptr;
-  this->WGPUBundleEncoder = nullptr;
-  this->WGPURenderEncoder = nullptr;
-  this->SceneTransformBuffer = nullptr;
-  this->SceneLightsBuffer = nullptr;
-  this->BackgroundGradientBuffer = nullptr;
-  this->SceneBindGroup = nullptr;
-  this->SceneBindGroupLayout = nullptr;
+  // These are owned references. Dropping the pointer does not release them; the
+  // wgpu:: wrapper members these replaced did that in their destructor.
+  vtkWebGPU::ReleaseAndNull(this->Bundle, wgpuRenderBundleRelease);
+  vtkWebGPU::ReleaseAndNull(this->WGPUBundleEncoder, wgpuRenderBundleEncoderRelease);
+  vtkWebGPU::ReleaseAndNull(this->WGPURenderEncoder, wgpuRenderPassEncoderRelease);
+  vtkWebGPU::ReleaseAndNull(this->SceneTransformBuffer, wgpuBufferRelease);
+  vtkWebGPU::ReleaseAndNull(this->SceneLightsBuffer, wgpuBufferRelease);
+  vtkWebGPU::ReleaseAndNull(this->BackgroundGradientBuffer, wgpuBufferRelease);
+  vtkWebGPU::ReleaseAndNull(this->SceneBindGroup, wgpuBindGroupRelease);
+  vtkWebGPU::ReleaseAndNull(this->SceneBindGroupLayout, wgpuBindGroupLayoutRelease);
 }
 
 //------------------------------------------------------------------------------
@@ -1197,7 +1200,7 @@ void vtkWebGPURenderer::BeginRecording()
   if (this->RebuildRenderBundle)
   {
     // destroy previous bundle.
-    this->Bundle = nullptr;
+    vtkWebGPU::ReleaseAndNull(this->Bundle, wgpuRenderBundleRelease);
     // create a new bundle encoder.
     const std::string label = this->GetObjectDescription();
     auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
@@ -1215,13 +1218,14 @@ void vtkWebGPURenderer::BeginRecording()
     bundleEncDesc.stencilReadOnly = false;
     bundleEncDesc.label = vtkWebGPUMakeStringView(label);
     bundleEncDesc.nextInChain = nullptr;
+    vtkWebGPU::ReleaseAndNull(this->WGPUBundleEncoder, wgpuRenderBundleEncoderRelease);
     this->WGPUBundleEncoder = wgpuRenderWindow->NewRenderBundleEncoder(bundleEncDesc);
     wgpuRenderBundleEncoderSetBindGroup(
       this->WGPUBundleEncoder, 0, this->SceneBindGroup, 0, nullptr);
   }
   else
   {
-    this->WGPUBundleEncoder = nullptr;
+    vtkWebGPU::ReleaseAndNull(this->WGPUBundleEncoder, wgpuRenderBundleEncoderRelease);
   }
 }
 
@@ -1294,6 +1298,7 @@ void vtkWebGPURenderer::EndRecording()
   {
     if (this->WGPUBundleEncoder)
     {
+      vtkWebGPU::ReleaseAndNull(this->Bundle, wgpuRenderBundleRelease);
       this->Bundle = wgpuRenderBundleEncoderFinish(this->WGPUBundleEncoder, nullptr);
     }
     if (this->Bundle != nullptr)
@@ -1305,7 +1310,7 @@ void vtkWebGPURenderer::EndRecording()
   wgpuRenderPassEncoderPopDebugGroup(renderEncoder);
 #endif
   wgpuRenderPassEncoderEnd(renderEncoder);
-  this->WGPURenderEncoder = nullptr;
+  vtkWebGPU::ReleaseAndNull(this->WGPURenderEncoder, wgpuRenderPassEncoderRelease);
 }
 
 //------------------------------------------------------------------------------

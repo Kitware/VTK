@@ -264,6 +264,7 @@ void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
         WGPUShaderStage_Fragment, WGPUTextureSampleType_Float, WGPUTextureViewDimension_2D,
         false });
   }
+  vtkWebGPU::ReleaseAndNull(this->BindGroupLayout, wgpuBindGroupLayoutRelease);
   this->BindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
     device, skyboxBGLEntries, "SkyboxBindGroupLayout");
 
@@ -271,6 +272,7 @@ void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
   std::vector<WGPUBindGroupLayoutEntry> matrixBGLEntries;
   matrixBGLEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
     0, WGPUShaderStage_Vertex, WGPUBufferBindingType_Uniform });
+  vtkWebGPU::ReleaseAndNull(this->MatrixBindGroupLayout, wgpuBindGroupLayoutRelease);
   this->MatrixBindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
     device, matrixBGLEntries, "SkyboxMatrixBindGroupLayout");
 
@@ -280,7 +282,8 @@ void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
   pipelineLayoutDescriptor.bindGroupLayoutCount = 2;
   pipelineLayoutDescriptor.bindGroupLayouts = layouts;
   pipelineLayoutDescriptor.label = WGPUStringView{ "SkyboxPipelineLayout", WGPU_STRLEN };
-  auto pipelineLayout = wgpuDeviceCreatePipelineLayout(device, &pipelineLayoutDescriptor);
+  vtkWebGPU::PipelineLayout pipelineLayout = vtkWebGPU::PipelineLayout::Acquire(
+    wgpuDeviceCreatePipelineLayout(device, &pipelineLayoutDescriptor));
 
   std::string shaderSource = this->BuildShaderSource();
 
@@ -328,6 +331,7 @@ void vtkWebGPUSkybox::CreateBindGroup(vtkWebGPUConfiguration* wgpuConfiguration)
 
   // Create uniform buffer
   const auto uniformSize = vtkWebGPUConfiguration::Align(sizeof(SkyboxUniforms), 16);
+  vtkWebGPU::ReleaseAndNull(this->UniformBuffer, wgpuBufferRelease);
   this->UniformBuffer = wgpuConfiguration->CreateBuffer(
     uniformSize, WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst, false, "SkyboxUniformBuffer");
 
@@ -346,11 +350,13 @@ void vtkWebGPUSkybox::CreateBindGroup(vtkWebGPUConfiguration* wgpuConfiguration)
     }
   }
 
+  vtkWebGPU::ReleaseAndNull(this->BindGroup, wgpuBindGroupRelease);
   this->BindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(
     device, this->BindGroupLayout, bgEntries, "SkyboxBindGroup");
 
   // Create matrix buffer and bind group for group 1
   const auto matrixBufferSize = vtkWebGPUConfiguration::Align(16 * sizeof(float), 16);
+  vtkWebGPU::ReleaseAndNull(this->MatrixBuffer, wgpuBufferRelease);
   this->MatrixBuffer = wgpuConfiguration->CreateBuffer(matrixBufferSize,
     static_cast<WGPUBufferUsage>(WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst), false,
     "SkyboxMatrixBuffer");
@@ -360,6 +366,7 @@ void vtkWebGPUSkybox::CreateBindGroup(vtkWebGPUConfiguration* wgpuConfiguration)
     0, matrixBufferSize };
   auto matEntry = matBinding.GetAsBinding();
   matBGEntries.emplace_back(*reinterpret_cast<WGPUBindGroupEntry*>(&matEntry));
+  vtkWebGPU::ReleaseAndNull(this->MatrixBindGroup, wgpuBindGroupRelease);
   this->MatrixBindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(
     device, this->MatrixBindGroupLayout, matBGEntries, "SkyboxMatrixBindGroup");
 }
@@ -479,7 +486,7 @@ void vtkWebGPUSkybox::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(mapper))
     {
       this->CreatePipeline(renWin);
       // Force bind group recreation since pipeline layout changed
-      this->BindGroup = nullptr;
+      vtkWebGPU::ReleaseAndNull(this->BindGroup, wgpuBindGroupRelease);
     }
 
     // Recreate bind group if texture changed or not yet created
@@ -522,13 +529,15 @@ void vtkWebGPUSkybox::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(mapper))
 //------------------------------------------------------------------------------
 void vtkWebGPUSkybox::ReleaseGraphicsResources(vtkWindow* vtkNotUsed(window))
 {
+  // Pipeline is borrowed from vtkWebGPURenderPipelineCache, which owns it, so it
+  // is only dropped. The rest are owned references and must be released.
   this->Pipeline = nullptr;
-  this->BindGroupLayout = nullptr;
-  this->BindGroup = nullptr;
-  this->UniformBuffer = nullptr;
-  this->MatrixBuffer = nullptr;
-  this->MatrixBindGroupLayout = nullptr;
-  this->MatrixBindGroup = nullptr;
+  vtkWebGPU::ReleaseAndNull(this->BindGroupLayout, wgpuBindGroupLayoutRelease);
+  vtkWebGPU::ReleaseAndNull(this->BindGroup, wgpuBindGroupRelease);
+  vtkWebGPU::ReleaseAndNull(this->UniformBuffer, wgpuBufferRelease);
+  vtkWebGPU::ReleaseAndNull(this->MatrixBuffer, wgpuBufferRelease);
+  vtkWebGPU::ReleaseAndNull(this->MatrixBindGroupLayout, wgpuBindGroupLayoutRelease);
+  vtkWebGPU::ReleaseAndNull(this->MatrixBindGroup, wgpuBindGroupRelease);
   this->PipelineKey.clear();
   this->LastProjection = -1;
   this->LastGammaCorrect = false;

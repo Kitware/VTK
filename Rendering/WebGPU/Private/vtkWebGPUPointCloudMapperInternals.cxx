@@ -197,10 +197,11 @@ void vtkWebGPUPointCloudMapperInternals::CopyDepthBufferToRenderWindow(
 
   WGPUCommandEncoderDescriptor encDesc = WGPU_COMMAND_ENCODER_DESCRIPTOR_INIT;
   encDesc.label = WGPUStringView{ "vtkWebGPURenderWindow::CommandEncoder", WGPU_STRLEN };
-  WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(device, &encDesc);
+  vtkWebGPU::CommandEncoder commandEncoder =
+    vtkWebGPU::CommandEncoder::Acquire(wgpuDeviceCreateCommandEncoder(device, &encDesc));
 
-  WGPURenderPassEncoder encoder =
-    wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
+  vtkWebGPU::RenderPassEncoder encoder = vtkWebGPU::RenderPassEncoder::Acquire(
+    wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor));
   wgpuRenderPassEncoderSetLabel(encoder,
     WGPUStringView{
       "Point cloud mapper - Encode copy point depth buffer to render window", WGPU_STRLEN });

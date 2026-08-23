@@ -175,6 +175,24 @@ bool operator!=(std::nullptr_t, const Handle<T, A, R>& handle)
   return handle.Get() != nullptr;
 }
 
+/**
+ * Release `raw` if it is non-null and set it to null.
+ *
+ * For the raw `WGPU*` members that live in public headers, which cannot include
+ * this header and so cannot use Handle. Assigning nullptr to such a member does
+ * not release it - the `wgpu::` wrapper members they replaced did that in their
+ * destructor, and losing it is a silent leak.
+ */
+template <typename T, typename ReleaseFn>
+void ReleaseAndNull(T& raw, ReleaseFn release)
+{
+  if (raw != nullptr)
+  {
+    release(raw);
+    raw = nullptr;
+  }
+}
+
 #define vtkWebGPUDeclareHandle(Name)                                                               \
   using Name = Handle<WGPU##Name, &wgpu##Name##AddRef, &wgpu##Name##Release>
 

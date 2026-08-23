@@ -1183,7 +1183,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
         vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(topologySourceType);
       const auto& device = wgpuConfiguration->GetDevice();
       bool homogeneousCellSize = bgInfo.CellIdBuffer == nullptr;
-      auto layout = this->CreateTopologyBindGroupLayout(
+      vtkWebGPU::BindGroupLayout layout = this->CreateTopologyBindGroupLayout(
         device, "TopologyBindGroup_LAYOUT", homogeneousCellSize);
       if (homogeneousCellSize)
       {
