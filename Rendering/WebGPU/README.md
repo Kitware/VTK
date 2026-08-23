@@ -206,18 +206,19 @@ requirement layered on the link-time dependency, not a replacement for it.
 ```
 
 The implementation uses *lazy initialization* that is thread-safe and loads on
-first access. It uses `RTLD_GLOBAL` so existing `wgpu::` C++ calls work without
-modification. Missing libraries are reported at initialization (not link time),
-with clear diagnostic messages. If functions are unavailable, wrappers return
-safe values for graceful fallback.
+first access. The library is opened with global symbol visibility, so direct
+calls to the WebGPU C API resolve against it without modification. Missing
+libraries are reported at initialization (not link time), with clear diagnostic
+messages. If functions are unavailable, wrappers return safe values for graceful
+fallback.
 
 ### Architecture
 
 The implementation consists of three layers:
 
-1. **vtkWebGPUProcTable** (C interface): Low-level dlopen/dlsym wrapper that
-   loads the WebGPU implementation library and resolves function pointers using
-   the runtime's proc address function.
+1. **vtkWebGPUProcTable** (C interface): Low-level `vtkDynamicLoader` wrapper
+   that loads the WebGPU implementation library and resolves function pointers
+   using the runtime's proc address function.
 
 2. **vtkWebGPUProcLoader** (C++ RAII singleton, internal): Wraps the proc table
    with lazy initialization. Provides `IsLoaded()` and `Load()` methods and
@@ -225,9 +226,8 @@ The implementation consists of three layers:
    `vtkWebGPUConfiguration::Initialize()`.
 
 3. **vtkWebGPUProcAPI** (C convenience wrappers): Thin wrappers for
-   frequently-used WebGPU functions. Existing `wgpu::` C++ code continues to
-   work unchanged because the library is loaded with global symbol visibility
-   (`RTLD_GLOBAL`).
+   frequently-used WebGPU functions. Direct C API calls continue to work
+   unchanged because the library is loaded with global symbol visibility.
 
 Initialization flow: `vtkWebGPUConfiguration::Initialize()` invokes
 `vtkWebGPUProcLoader::GetInstance()`, which loads the WebGPU implementation
@@ -272,22 +272,17 @@ own. Otherwise the proc table tries the following names, in this order:
 4. `libwebgpu_dawn.so.0` (versioned variant)
 5. `libwgpu_dawn.dylib` (macOS)
 6. `libwebgpu_dawn.dylib` (macOS)
-7. `wgpu_dawn.dll` (Windows — see the note below)
-8. `webgpu_dawn.dll` (Windows — see the note below)
+7. `wgpu_dawn.dll` (Windows)
+8. `webgpu_dawn.dll` (Windows)
 
-```{warning}
-**Windows is not supported yet.** `vtkWebGPUProcTable.cxx` is POSIX-only: it
-includes `<dlfcn.h>` and calls `dlopen`/`dlsym` with no `_WIN32` branch, so it
-does not compile with MSVC and the two `.dll` entries above are unreachable. A
-`LoadLibrary`/`GetProcAddress` path is pending. Until it lands, the Windows
-build instructions earlier in this document will not work, and the
-`windows-vs2022-webgpu` CI jobs are disabled.
-```
+Loading goes through `vtkDynamicLoader`, which maps onto `dlopen`/`dlsym` on
+POSIX and `LoadLibrary`/`GetProcAddress` on Windows, so the same code path
+serves every platform.
 
 **Custom paths**: You can override the search by setting environment variables:
 - Linux: `LD_LIBRARY_PATH=/path/to/lib`
 - macOS: `DYLD_LIBRARY_PATH=/path/to/lib`
-- Windows: `PATH=\path\to\lib` (once the Windows path above is implemented)
+- Windows: `PATH=\path\to\lib`
 
 Or by explicitly passing a path to the library loader.
 
@@ -390,10 +385,10 @@ The compute shader API allows offloading work from the CPU to the GPU using WebG
 
 Since WebGPU is already an abstraction over graphics APIs, this module avoids creating another level of abstraction. Helper classes in the `Private/vtkWebGPU<Thing>Internals` files ensure cleaner bind group initialization code.
 
-The module currently uses Dawn's C++ `wgpu::` types internally for their
-object-oriented API and RAII. Replacing them with the WebGPU C API plus VTK's own
-`Private/vtkWebGPUHandle.h` reference-counted wrapper is in progress; the public
-headers have already been converted.
+The module uses the WebGPU C API throughout. Ownership of the C handles is
+expressed with VTK's own reference-counted wrapper in
+`Private/vtkWebGPUHandle.h`, which provides the RAII the `wgpu::` C++ types used
+to supply.
 
 Planned improvements include:
 
