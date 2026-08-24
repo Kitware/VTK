@@ -18,6 +18,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSMPTools.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
@@ -80,26 +81,24 @@ struct NormalizeWorker
     auto normalized = vtk::DataArrayTupleRange(normalizedArray);
     using ScalarsRangeType = decltype(scalars);
     using ValueType = typename ScalarsRangeType::ComponentType;
-    using TupleReferenceType = typename ScalarsRangeType::TupleReferenceType;
-    using TupleIteratorType = typename ScalarsRangeType::TupleIteratorType;
 
+    // single pass over the tuples for the min/max of all components in the group
     ValueType minValue = std::numeric_limits<ValueType>::max(),
               maxValue = std::numeric_limits<ValueType>::lowest();
-    for (size_t k = 0; k < this->GroupIndices.size(); ++k)
+    vtkIdType nTuples = scalars.size();
+    for (vtkIdType i = 0; i < nTuples; ++i)
     {
-      auto comparator = [this, k](const TupleReferenceType& a, const TupleReferenceType& b)
-      { return a[this->GroupIndices[k]] < b[this->GroupIndices[k]]; };
-      TupleIteratorType minIt = std::min_element(scalars.begin(), scalars.end(), comparator);
-      ValueType minCurrent = (*minIt)[this->GroupIndices[k]];
-      TupleIteratorType maxIt = std::max_element(scalars.begin(), scalars.end(), comparator);
-      ValueType maxCurrent = (*maxIt)[this->GroupIndices[k]];
-      if (minCurrent < minValue)
+      for (size_t k = 0; k < this->GroupIndices.size(); ++k)
       {
-        minValue = minCurrent;
-      }
-      if (maxCurrent > maxValue)
-      {
-        maxValue = maxCurrent;
+        ValueType value = scalars[i][this->GroupIndices[k]];
+        if (value < minValue)
+        {
+          minValue = value;
+        }
+        if (value > maxValue)
+        {
+          maxValue = value;
+        }
       }
     }
     if (this->Controller)
@@ -116,16 +115,19 @@ struct NormalizeWorker
       this->Controller->AllReduce(&localMax, &globalMax, 1, vtkCommunicator::MAX_OP);
       maxValue = globalMax;
     }
-    vtkIdType nTuples = scalars.size();
-    for (vtkIdType i = 0; i < nTuples; ++i)
-    {
-      for (size_t k = 0; k < this->GroupIndices.size(); ++k)
+    vtkSMPTools::For(0, nTuples,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        normalized[i][this->GroupIndices[k]] = (this->NewMax - this->NewMin) *
-            (scalars[i][this->GroupIndices[k]] - minValue) / (maxValue - minValue) +
-          this->NewMin;
-      }
-    }
+        for (vtkIdType i = begin; i < end; ++i)
+        {
+          for (size_t k = 0; k < this->GroupIndices.size(); ++k)
+          {
+            normalized[i][this->GroupIndices[k]] = (this->NewMax - this->NewMin) *
+                (scalars[i][this->GroupIndices[k]] - minValue) / (maxValue - minValue) +
+              this->NewMin;
+          }
+        }
+      });
   }
   std::vector<int> GroupIndices;
   double NewMin = 0;
@@ -177,72 +179,76 @@ struct ComputeGBCWorker
       { { cos(this->VerticesRotationRad), -sin(this->VerticesRotationRad) },
         { sin(this->VerticesRotationRad), cos(this->VerticesRotationRad) } }
     };
-    for (vtkIdType i = 0; i < nTuples; ++i)
-    {
-      // the array is not zero-initialized on allocation
-      gbc[i][0] = 0;
-      gbc[i][1] = 0;
-      // compute points (MF), Table 1, GBC, second column
-      // TupleRange doesn't work with std::accumulate / std::reduce
-      double tempsum = 0;
-      for (int k = 0; k < nComponents; ++k)
+    vtkSMPTools::For(0, nTuples,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        tempsum += normalized[i][k];
-      }
-      if (vtkMathUtilities::FuzzyCompare(tempsum, 0.0))
-      {
-        continue;
-      }
-      for (int k = 0; k < nComponents; ++k)
-      {
-        for (int j = 0; j < 2; ++j)
+        for (vtkIdType i = begin; i < end; ++i)
         {
-          gbc[i][j] += normalized[i][k] * vertices[k][j] / tempsum;
+          // the array is not zero-initialized on allocation
+          gbc[i][0] = 0;
+          gbc[i][1] = 0;
+          // compute points (MF), Table 1, GBC, second column
+          // TupleRange doesn't work with std::accumulate / std::reduce
+          double tempsum = 0;
+          for (int k = 0; k < nComponents; ++k)
+          {
+            tempsum += normalized[i][k];
+          }
+          if (vtkMathUtilities::FuzzyCompare(tempsum, 0.0))
+          {
+            continue;
+          }
+          for (int k = 0; k < nComponents; ++k)
+          {
+            for (int j = 0; j < 2; ++j)
+            {
+              gbc[i][j] += normalized[i][k] * vertices[k][j] / tempsum;
+            }
+          }
+
+          // tempangle is the angle: gbc[i], (0,0), (1, 0).
+          // find temp_b, temp_a, which are the angles for the vertices
+          // between which tempangle fits?
+          double tempangle = std::atan2(gbc[i][1], gbc[i][0]);
+          tempangle = numpy_mod(tempangle, 2 * vtkMath::Pi());
+          bool flag = false;
+          double temp_a = 0;
+          double temp_b = 0;
+          for (int j = 0; j < nComponents - 1; ++j)
+          {
+            if (angle[j] <= tempangle && tempangle < angle[j + 1])
+            {
+              temp_a = angle[j + 1];
+              temp_b = angle[j];
+              flag = true;
+              break;
+            }
+          }
+          if (!flag)
+          {
+            temp_a = angle[0] + vtkMath::Pi() * 2;
+            temp_b = angle[nComponents - 1];
+          }
+          // scale gbc from a point on a side of the regular polygon to a point on the circle
+          // circumscribed to the polygon
+          double lth = std::sqrt(std::pow(gbc[i][0], 2) + std::pow(gbc[i][1], 2)) *
+            std::cos(-(temp_a + temp_b) / 2 + tempangle) / std::cos((temp_a - temp_b) / 2);
+          gbc[i][0] = lth * std::cos(tempangle);
+          gbc[i][1] = lth * std::sin(tempangle);
+
+          if (this->Filter->GetFlipY())
+          {
+            gbc[i][1] = -gbc[i][1];
+          }
+
+          // rotate the gbc points with VerticesRotation
+          double result_gbc[2];
+          result_gbc[0] = m[0][0] * gbc[i][0] + m[0][1] * gbc[i][1];
+          result_gbc[1] = m[1][0] * gbc[i][0] + m[1][1] * gbc[i][1];
+          gbc[i][0] = result_gbc[0];
+          gbc[i][1] = result_gbc[1];
         }
-      }
-
-      // tempangle is the angle: gbc[i], (0,0), (1, 0).
-      // find temp_b, temp_a, which are the angles for the vertices
-      // between which tempangle fits?
-      double tempangle = std::atan2(gbc[i][1], gbc[i][0]);
-      tempangle = numpy_mod(tempangle, 2 * vtkMath::Pi());
-      bool flag = false;
-      double temp_a = 0;
-      double temp_b = 0;
-      for (int j = 0; j < nComponents - 1; ++j)
-      {
-        if (angle[j] <= tempangle && tempangle < angle[j + 1])
-        {
-          temp_a = angle[j + 1];
-          temp_b = angle[j];
-          flag = true;
-          break;
-        }
-      }
-      if (!flag)
-      {
-        temp_a = angle[0] + vtkMath::Pi() * 2;
-        temp_b = angle[nComponents - 1];
-      }
-      // scale gbc from a point on a side of the regular polygon to a point on the circle
-      // circumscribed to the polygon
-      double lth = std::sqrt(std::pow(gbc[i][0], 2) + std::pow(gbc[i][1], 2)) *
-        std::cos(-(temp_a + temp_b) / 2 + tempangle) / std::cos((temp_a - temp_b) / 2);
-      gbc[i][0] = lth * std::cos(tempangle);
-      gbc[i][1] = lth * std::sin(tempangle);
-
-      if (this->Filter->GetFlipY())
-      {
-        gbc[i][1] = -gbc[i][1];
-      }
-
-      // rotate the gbc points with VerticesRotation
-      double result_gbc[2];
-      result_gbc[0] = m[0][0] * gbc[i][0] + m[0][1] * gbc[i][1];
-      result_gbc[1] = m[1][0] * gbc[i][0] + m[1][1] * gbc[i][1];
-      gbc[i][0] = result_gbc[0];
-      gbc[i][1] = result_gbc[1];
-    }
+      });
     for (int i = 0; i < nComponents; ++i)
     {
       if (this->Filter->GetFlipY())
@@ -278,26 +284,30 @@ struct GBCToHSLWorker
     auto hsl = vtk::DataArrayTupleRange(hslScalars);
 
     vtkIdType nTuples = gbc.size();
-    for (vtkIdType i = 0; i < nTuples; ++i)
-    {
-      double gbcValue[2] = { gbc[i][0], gbc[i][1] };
-      if (this->Filter->GetFlipY())
+    vtkSMPTools::For(0, nTuples,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        gbcValue[1] = -gbcValue[1];
-      }
-      double radius = std::sqrt(std::pow(gbcValue[0], 2) + std::pow(gbcValue[1], 2));
-      if (radius > 1)
-      {
-        gbcValue[0] /= radius;
-        gbcValue[1] /= radius;
-      }
-      double hue = std::atan2(gbcValue[1], gbcValue[0]) + vtkMath::Pi() / 2;
-      hue = numpy_mod(hue, 2 * vtkMath::Pi()) / (2 * vtkMath::Pi());
-      double saturation = std::sqrt(std::pow(gbcValue[0], 2) + std::pow(gbcValue[1], 2));
-      hsl[i][0] = hue;
-      hsl[i][1] = saturation;
-      hsl[i][2] = this->Lightness;
-    }
+        for (vtkIdType i = begin; i < end; ++i)
+        {
+          double gbcValue[2] = { gbc[i][0], gbc[i][1] };
+          if (this->Filter->GetFlipY())
+          {
+            gbcValue[1] = -gbcValue[1];
+          }
+          double radius = std::sqrt(std::pow(gbcValue[0], 2) + std::pow(gbcValue[1], 2));
+          if (radius > 1)
+          {
+            gbcValue[0] /= radius;
+            gbcValue[1] /= radius;
+          }
+          double hue = std::atan2(gbcValue[1], gbcValue[0]) + vtkMath::Pi() / 2;
+          hue = numpy_mod(hue, 2 * vtkMath::Pi()) / (2 * vtkMath::Pi());
+          double saturation = std::sqrt(std::pow(gbcValue[0], 2) + std::pow(gbcValue[1], 2));
+          hsl[i][0] = hue;
+          hsl[i][1] = saturation;
+          hsl[i][2] = this->Lightness;
+        }
+      });
   }
   vtkMultiVariateToRGBA* Filter = nullptr;
   double Lightness = 0;
@@ -312,28 +322,32 @@ struct HSLToRGBWorker
     auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
 
     vtkIdType nTuples = hsl.size();
-    for (vtkIdType i = 0; i < nTuples; ++i)
-    {
-      double m2;
-      double l = hsl[i][2];
-      if (l < 0.5)
+    vtkSMPTools::For(0, nTuples,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        double lower_l = hsl[i][2];
-        double lower_s = hsl[i][1];
-        m2 = lower_l * (1 + lower_s);
-      }
-      else
-      {
-        double upper_l = hsl[i][2];
-        double upper_s = hsl[i][1];
-        m2 = upper_l + upper_s - upper_l * upper_s;
-      }
-      double m1 = 2 * l - m2;
-      double h = hsl[i][0];
-      rgba[i][0] = this->v(m1, m2, h + 1.0 / 3);
-      rgba[i][1] = this->v(m1, m2, h);
-      rgba[i][2] = this->v(m1, m2, h - 1.0 / 3);
-    }
+        for (vtkIdType i = begin; i < end; ++i)
+        {
+          double m2;
+          double l = hsl[i][2];
+          if (l < 0.5)
+          {
+            double lower_l = hsl[i][2];
+            double lower_s = hsl[i][1];
+            m2 = lower_l * (1 + lower_s);
+          }
+          else
+          {
+            double upper_l = hsl[i][2];
+            double upper_s = hsl[i][1];
+            m2 = upper_l + upper_s - upper_l * upper_s;
+          }
+          double m1 = 2 * l - m2;
+          double h = hsl[i][0];
+          rgba[i][0] = this->v(m1, m2, h + 1.0 / 3);
+          rgba[i][1] = this->v(m1, m2, h);
+          rgba[i][2] = this->v(m1, m2, h - 1.0 / 3);
+        }
+      });
   }
 
   double v(double m1, double m2, double h)
@@ -373,18 +387,22 @@ struct ComputeAlphaWorker
     vtkIdType nComponents = normalized.GetTupleSize();
 
     vtkIdType nTuples = normalized.size();
-    for (vtkIdType i = 0; i < nTuples; ++i)
-    {
-      double mean = 0;
-      for (int k = 0; k < nComponents; ++k)
+    vtkSMPTools::For(0, nTuples,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        mean += normalized[i][k];
-      }
-      mean /= nComponents;
+        for (vtkIdType i = begin; i < end; ++i)
+        {
+          double mean = 0;
+          for (int k = 0; k < nComponents; ++k)
+          {
+            mean += normalized[i][k];
+          }
+          mean /= nComponents;
 
-      // Make nonzero voxels have an alpha of the mean of the channels.
-      rgba[i][3] = mean;
-    }
+          // Make nonzero voxels have an alpha of the mean of the channels.
+          rgba[i][3] = mean;
+        }
+      });
   }
 };
 
@@ -403,15 +421,19 @@ struct ComputeLensAlphaWorker
     auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
 
     vtkIdType nTuples = gbc.size();
-    for (vtkIdType i = 0; i < nTuples; ++i)
-    {
-      double distance = std::sqrt(std::pow(gbc[i][0] - this->LensCenter[0], 2) +
-        std::pow(gbc[i][1] - this->LensCenter[1], 2));
-      if (distance > this->LensRadius)
+    vtkSMPTools::For(0, nTuples,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        rgba[i][3] = std::min(this->OutsideLensAlpha, static_cast<double>(rgba[i][3]));
-      }
-    }
+        for (vtkIdType i = begin; i < end; ++i)
+        {
+          double distance = std::sqrt(std::pow(gbc[i][0] - this->LensCenter[0], 2) +
+            std::pow(gbc[i][1] - this->LensCenter[1], 2));
+          if (distance > this->LensRadius)
+          {
+            rgba[i][3] = std::min(this->OutsideLensAlpha, static_cast<double>(rgba[i][3]));
+          }
+        }
+      });
   }
   double LensCenter[2];
   double LensRadius;
@@ -852,10 +874,14 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   }
   typedef vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>
     Dispatcher;
+  // the input scalars can be of any numeric type, the intermediate arrays are always double
+  typedef vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::AllTypes,
+    vtkArrayDispatch::Reals>
+    InputDispatcher;
   for (size_t i = 0; i < partition.size(); ++i)
   {
     NormalizeWorker worker(partition[i], this->Controller);
-    if (!Dispatcher::Execute(scalars, normalizedScalars, worker))
+    if (!InputDispatcher::Execute(scalars, normalizedScalars, worker))
     {
       worker(scalars.GetPointer(), normalizedScalars.GetPointer());
     }
