@@ -38,7 +38,8 @@
  *
  * Points' opacity can be further modified using a lens which modifies
  * the opacity of the points outside the lens (see
- * OutsideLensAlphaCap). The lens can be shown or hidden using
+ * OutsideLensAlphaCap). By default the lens does not change the
+ * points' opacity. The lens can be shown or hidden using
  * LensVisibility.
  *
  * The implementation is based on the paper:
@@ -203,8 +204,9 @@ public:
   vtkGetSmartPointerMacro(LensPen, vtkPen);
   /**
    * Alpha (opacity) cap for points outside the lens. Each point's alpha is
-   * clamped to min(its alpha, OutsideLensAlphaCap). Default is 0
-   * (points outside the lens fully transparent).
+   * clamped to min(its alpha, OutsideLensAlphaCap). Default is 1
+   * (points outside the lens keep their computed opacity). Set a lower
+   * value to fade or hide the points outside the lens.
    */
   vtkSetMacro(OutsideLensAlphaCap, double);
   vtkGetMacro(OutsideLensAlphaCap, double);
@@ -355,7 +357,7 @@ protected:
   /**
    * Alpha cap for points outside the lens.
    */
-  double OutsideLensAlphaCap = 0.0;
+  double OutsideLensAlphaCap = 1.0;
   /**
    * Show the lens if true.
    */
