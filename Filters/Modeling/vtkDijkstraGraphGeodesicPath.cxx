@@ -21,42 +21,20 @@ vtkStandardNewMacro(vtkDijkstraGraphGeodesicPath);
 vtkCxxSetObjectMacro(vtkDijkstraGraphGeodesicPath, RepelVertices, vtkPoints);
 
 //------------------------------------------------------------------------------
-vtkDijkstraGraphGeodesicPath::vtkDijkstraGraphGeodesicPath()
+vtkDijkstraGraphGeodesicPath::vtkDijkstraGraphGeodesicPath() = default;
+
+//------------------------------------------------------------------------------
+vtkDijkstraGraphGeodesicPath::~vtkDijkstraGraphGeodesicPath() = default;
+
 {
-  this->IdList = vtkIdList::New();
-  this->Internals = new vtkDijkstraGraphInternals;
-  this->StopWhenEndReached = 0;
-  this->UseScalarWeights = 0;
-  this->NumberOfVertices = 0;
-  this->RepelPathFromVertices = 0;
-  this->RepelVertices = nullptr;
+  this->IdList->Delete();
+}
+delete this->Internals;
+this->SetRepelVertices(nullptr);
 }
 
 //------------------------------------------------------------------------------
-vtkDijkstraGraphGeodesicPath::~vtkDijkstraGraphGeodesicPath()
-{
-  if (this->IdList)
-  {
-    this->IdList->Delete();
-  }
-  delete this->Internals;
-  this->SetRepelVertices(nullptr);
-}
-
-//------------------------------------------------------------------------------
-void vtkDijkstraGraphGeodesicPath::GetCumulativeWeights(vtkDoubleArray* weights)
-{
-  if (!weights)
-  {
-    return;
-  }
-
-  weights->Initialize();
-  double* weightsArray = new double[this->Internals->CumulativeWeights.size()];
-  std::copy(this->Internals->CumulativeWeights.begin(), this->Internals->CumulativeWeights.end(),
-    weightsArray);
-  weights->SetArray(
-    weightsArray, static_cast<vtkIdType>(this->Internals->CumulativeWeights.size()), 0);
+return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -98,213 +76,106 @@ int vtkDijkstraGraphGeodesicPath::RequestData(vtkInformation* vtkNotUsed(request
 }
 
 //------------------------------------------------------------------------------
-void vtkDijkstraGraphGeodesicPath::Initialize(vtkDataSet* inData)
-{
-  this->NumberOfVertices = inData->GetNumberOfPoints();
-
-  this->Internals->CumulativeWeights.resize(this->NumberOfVertices);
-  this->Internals->Predecessors.resize(this->NumberOfVertices);
-  this->Internals->OpenVertices.resize(this->NumberOfVertices);
-  this->Internals->ClosedVertices.resize(this->NumberOfVertices);
-  this->Internals->Adjacency.clear();
-  this->Internals->Adjacency.resize(this->NumberOfVertices);
-  this->Internals->BlockedVertices.resize(this->NumberOfVertices);
-
-  // The heap has elements from 1 to n
-  this->Internals->InitializeHeap(this->NumberOfVertices);
-
-  this->Reset();
-  this->BuildAdjacency(inData);
-}
-
-//------------------------------------------------------------------------------
-void vtkDijkstraGraphGeodesicPath::Reset()
-{
-  std::fill(
-    this->Internals->CumulativeWeights.begin(), this->Internals->CumulativeWeights.end(), -1.0);
-  std::fill(this->Internals->Predecessors.begin(), this->Internals->Predecessors.end(), -1);
-  std::fill(this->Internals->OpenVertices.begin(), this->Internals->OpenVertices.end(), false);
-  std::fill(this->Internals->ClosedVertices.begin(), this->Internals->ClosedVertices.end(), false);
-  if (this->RepelPathFromVertices)
-  {
-    std::fill(
-      this->Internals->BlockedVertices.begin(), this->Internals->BlockedVertices.end(), false);
-  }
-
-  this->IdList->Reset();
-  this->Internals->ResetHeap();
-}
-
-//------------------------------------------------------------------------------
-double vtkDijkstraGraphGeodesicPath::CalculateStaticEdgeCost(
   vtkDataSet* inData, vtkIdType u, vtkIdType v)
-{
-  double p1[3];
-  inData->GetPoint(u, p1);
-  double p2[3];
-  inData->GetPoint(v, p2);
-
-  double w = sqrt(vtkMath::Distance2BetweenPoints(p1, p2));
-
-  if (this->UseScalarWeights)
   {
-    double s2 = 0.0;
-    // Note this edge cost is not symmetric!
-    if (inData->GetPointData())
-    {
-      vtkFloatArray* scalars = vtkFloatArray::SafeDownCast(inData->GetPointData()->GetScalars());
-      if (scalars)
-      {
-        s2 = static_cast<double>(scalars->GetValue(v));
-      }
-    }
-
-    double wt = s2 * s2;
-    if (wt != 0.0)
-    {
-      w /= wt;
-    }
+    return CalculateStaticEdgeCost(inData, nullptr, u, v);
   }
-  return w;
-}
 
-//------------------------------------------------------------------------------
-// This is probably a horribly inefficient way to do it.
-void vtkDijkstraGraphGeodesicPath::BuildAdjacency(vtkDataSet* inData)
-{
-  vtkPolyData* pd = vtkPolyData::SafeDownCast(inData);
-  vtkIdType ncells = pd->GetNumberOfCells();
-
-  for (vtkIdType i = 0; i < ncells; i++)
+  //------------------------------------------------------------------------------
+  double vtkDijkstraGraphGeodesicPath::CalculateStaticEdgeCost(
+    vtkDataSet* inData, vtkIdType u, vtkIdType v)
   {
-    // Possible types
-    //    VTK_VERTEX, VTK_POLY_VERTEX, VTK_LINE,
-    //    VTK_POLY_LINE,VTK_TRIANGLE, VTK_QUAD,
-    //    VTK_POLYGON, or VTK_TRIANGLE_STRIP.
+    double p1[3];
+    inData->GetPoint(u, p1);
+    double p2[3];
+    inData->GetPoint(v, p2);
 
-    vtkIdType ctype = pd->GetCellType(i);
+    double w = sqrt(vtkMath::Distance2BetweenPoints(p1, p2));
 
-    // Until now only handle polys and triangles
-    // TODO: All types
-    if (ctype == VTK_POLYGON || ctype == VTK_TRIANGLE || ctype == VTK_LINE)
+    if (this->UseScalarWeights)
     {
-      const vtkIdType* pts;
-      vtkIdType npts;
-      pd->GetCellPoints(i, npts, pts);
-      double cost;
-
-      for (int j = 0; j < npts; ++j)
+      double s2 = 0.0;
+      // Note this edge cost is not symmetric!
+      if (inData->GetPointData())
       {
-        vtkIdType u = pts[j];
-        vtkIdType v = pts[((j + 1) % npts)];
-
-        std::map<int, double>& mu = this->Internals->Adjacency[u];
-        if (mu.find(v) == mu.end())
+        vtkFloatArray* scalars = vtkFloatArray::SafeDownCast(inData->GetPointData()->GetScalars());
+        if (scalars)
         {
-          cost = this->CalculateStaticEdgeCost(inData, u, v);
-          mu.insert(std::pair<int, double>(v, cost));
-        }
-
-        std::map<int, double>& mv = this->Internals->Adjacency[v];
-        if (mv.find(u) == mv.end())
-        {
-          cost = this->CalculateStaticEdgeCost(inData, v, u);
-          mv.insert(std::pair<int, double>(u, cost));
+          s2 = static_cast<double>(scalars->GetValue(v));
         }
       }
-    }
-  }
 
-  this->AdjacencyBuildTime.Modified();
-}
-
-//------------------------------------------------------------------------------
-void vtkDijkstraGraphGeodesicPath::TraceShortestPath(
-  vtkDataSet* inData, vtkPolyData* outPoly, vtkIdType startv, vtkIdType endv)
-{
-  vtkPoints* points = vtkPoints::New();
-  vtkCellArray* lines = vtkCellArray::New();
-
-  // n is far to many. Adjusted later
-  lines->InsertNextCell(this->NumberOfVertices);
-
-  // trace backward
-  vtkIdType v = endv;
-  double pt[3];
-  vtkIdType id;
-  while (v != startv)
-  {
-    if (this->CheckAbort())
-    {
-      break;
-    }
-    if (v < 0)
-    {
-      // Invalid vertex. Path does not exist.
-      break;
-    }
-
-    this->IdList->InsertNextId(v);
-
-    inData->GetPoint(v, pt);
-    id = points->InsertNextPoint(pt);
-    lines->InsertCellPoint(id);
-
-    v = this->Internals->Predecessors[v];
-  }
-
-  if (v >= 0)
-  {
-    this->IdList->InsertNextId(v);
-    inData->GetPoint(v, pt);
-    id = points->InsertNextPoint(pt);
-    lines->InsertCellPoint(id);
-    lines->UpdateCellCount(points->GetNumberOfPoints());
-  }
-  else
-  {
-    points->Reset();
-    lines->Reset();
-  }
-
-  outPoly->SetPoints(points);
-  points->Delete();
-  outPoly->SetLines(lines);
-  lines->Delete();
-}
-
-//------------------------------------------------------------------------------
-void vtkDijkstraGraphGeodesicPath::Relax(const int& u, const int& v, const double& w)
-{
-  double du = this->Internals->CumulativeWeights[u] + w;
-  if (this->Internals->CumulativeWeights[v] > du)
-  {
-    this->Internals->CumulativeWeights[v] = du;
-    this->Internals->Predecessors[v] = u;
-
-    this->Internals->HeapDecreaseKey(v);
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkDijkstraGraphGeodesicPath::ShortestPath(vtkDataSet* inData, int startv, int endv)
-{
-  int u, v;
-
-  if (this->RepelPathFromVertices && this->RepelVertices)
-  {
-    // loop over the pts and if they are in the image
-    // get the associated index for that point and mark it as blocked
-    for (int i = 0; i < this->RepelVertices->GetNumberOfPoints(); ++i)
-    {
-      double* pt = this->RepelVertices->GetPoint(i);
-      u = inData->FindPoint(pt);
-      if (u < 0 || u == startv || u == endv)
+      double wt = s2 * s2;
+      if (wt != 0.0)
       {
-        continue;
+        w /= wt;
       }
-      this->Internals->BlockedVertices[u] = true;
     }
+    return w;
+  }
+
+  //------------------------------------------------------------------------------
+  // This is probably a horribly inefficient way to do it.
+  void vtkDijkstraGraphGeodesicPath::BuildAdjacency(vtkDataSet* inData)
+  {
+    vtkPolyData* pd = vtkPolyData::SafeDownCast(inData);
+    vtkIdType ncells = pd->GetNumberOfCells();
+
+    for (vtkIdType i = 0; i < ncells; i++)
+    {
+      // Possible types
+      //    VTK_VERTEX, VTK_POLY_VERTEX, VTK_LINE,
+      //    VTK_POLY_LINE,VTK_TRIANGLE, VTK_QUAD,
+      //    VTK_POLYGON, or VTK_TRIANGLE_STRIP.
+
+      vtkIdType ctype = pd->GetCellType(i);
+
+      // Until now only handle polys and triangles
+      // TODO: All types
+      if (ctype == VTK_POLYGON || ctype == VTK_TRIANGLE || ctype == VTK_LINE)
+      {
+        const vtkIdType* pts;
+        vtkIdType npts;
+        pd->GetCellPoints(i, npts, pts);
+        double cost;
+
+        for (int j = 0; j < npts; ++j)
+        {
+          vtkIdType u = pts[j];
+          vtkIdType v = pts[((j + 1) % npts)];
+
+          std::map<int, double>& mu = this->Internals->Adjacency[u];
+          if (mu.find(v) == mu.end())
+          {
+            cost = this->CalculateStaticEdgeCost(inData, u, v);
+            mu.insert(std::pair<int, double>(v, cost));
+          }
+
+          std::map<int, double>& mv = this->Internals->Adjacency[v];
+          if (mv.find(u) == mv.end())
+          {
+            cost = this->CalculateStaticEdgeCost(inData, v, u);
+            mv.insert(std::pair<int, double>(u, cost));
+          }
+        }
+      }
+    }
+
+    this->AdjacencyBuildTime.Modified();
+  }
+
+  //------------------------------------------------------------------------------
+  vtkDataArray* scalars = nullptr;
+  if (this->UseScalarWeights && inData->GetPointData())
+  {
+    double* pt = this->RepelVertices->GetPoint(i);
+    u = inData->FindPoint(pt);
+    if (u < 0 || u == startv || u == endv)
+    {
+      continue;
+    }
+    this->Internals->BlockedVertices[u] = true;
+  }
   }
 
   this->Internals->CumulativeWeights[startv] = 0;
@@ -369,42 +240,42 @@ void vtkDijkstraGraphGeodesicPath::ShortestPath(vtkDataSet* inData, int startv, 
       }
     }
   }
-}
+  }
 
-//------------------------------------------------------------------------------
-void vtkDijkstraGraphGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
+  //------------------------------------------------------------------------------
+  void vtkDijkstraGraphGeodesicPath::PrintSelf(ostream& os, vtkIndent indent)
+  {
+    this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "StopWhenEndReached: ";
-  if (this->StopWhenEndReached)
-  {
-    os << "On\n";
+    os << indent << "StopWhenEndReached: ";
+    if (this->StopWhenEndReached)
+    {
+      os << "On\n";
+    }
+    else
+    {
+      os << "Off\n";
+    }
+    os << indent << "UseScalarWeights: ";
+    if (this->UseScalarWeights)
+    {
+      os << "On\n";
+    }
+    else
+    {
+      os << "Off\n";
+    }
+    os << indent << "RepelPathFromVertices: ";
+    if (this->RepelPathFromVertices)
+    {
+      os << "On\n";
+    }
+    else
+    {
+      os << "Off\n";
+    }
+    os << indent << "RepelVertices: " << this->RepelVertices << endl;
+    os << indent << "IdList: " << this->IdList << endl;
+    os << indent << "Number of vertices in input data: " << this->NumberOfVertices << endl;
   }
-  else
-  {
-    os << "Off\n";
-  }
-  os << indent << "UseScalarWeights: ";
-  if (this->UseScalarWeights)
-  {
-    os << "On\n";
-  }
-  else
-  {
-    os << "Off\n";
-  }
-  os << indent << "RepelPathFromVertices: ";
-  if (this->RepelPathFromVertices)
-  {
-    os << "On\n";
-  }
-  else
-  {
-    os << "Off\n";
-  }
-  os << indent << "RepelVertices: " << this->RepelVertices << endl;
-  os << indent << "IdList: " << this->IdList << endl;
-  os << indent << "Number of vertices in input data: " << this->NumberOfVertices << endl;
-}
-VTK_ABI_NAMESPACE_END
+  VTK_ABI_NAMESPACE_END

@@ -31,8 +31,6 @@
 #include "vtkGraphGeodesicPath.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkDijkstraGraphInternals;
-class vtkIdList;
 
 class VTKFILTERSMODELING_EXPORT vtkDijkstraGraphGeodesicPath : public vtkGraphGeodesicPath
 {
@@ -67,22 +65,19 @@ public:
   vtkBooleanMacro(StopWhenEndReached, vtkTypeBool);
   ///@}
 
-  ///@{
   /**
    * Use scalar values in the edge weight (experimental)
    */
-  vtkSetMacro(UseScalarWeights, vtkTypeBool);
-  vtkGetMacro(UseScalarWeights, vtkTypeBool);
-  vtkBooleanMacro(UseScalarWeights, vtkTypeBool);
+  void SetGraphType(int type);
+  vtkGetMacro(GraphType, int);
   ///@}
 
   ///@{
   /**
    * Use the input point to repel the path by assigning high costs.
    */
-  vtkSetMacro(RepelPathFromVertices, vtkTypeBool);
-  vtkGetMacro(RepelPathFromVertices, vtkTypeBool);
-  vtkBooleanMacro(RepelPathFromVertices, vtkTypeBool);
+  void BuildAdjacency(vtkDataSet* inData) override;
+  void BuildCellAdjacency(vtkDataSet* inData);
   ///@}
 
   ///@{
@@ -96,54 +91,36 @@ public:
   /**
    * Fill the array with the cumulative weights.
    */
-  virtual void GetCumulativeWeights(vtkDoubleArray* weights);
+  double CalculateCellEdgeCost(
+    vtkDataSet* inData, vtkDataArray* scalars, vtkIdType c1, vtkIdType c2);
 
-protected:
-  vtkDijkstraGraphGeodesicPath();
-  ~vtkDijkstraGraphGeodesicPath() override;
+  /**
+   * Helper to get the node (point or cell) position from its index.
+   */
+  void GetNodeFromIndex(vtkDataSet* inData, vtkIdType u, vtkIdType v);
 
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
-  // Build a graph description of the input.
-  virtual void BuildAdjacency(vtkDataSet* inData);
-
-  vtkTimeStamp AdjacencyBuildTime;
-
-  // The fixed cost going from vertex u to v.
-  virtual double CalculateStaticEdgeCost(vtkDataSet* inData, vtkIdType u, vtkIdType v);
-
-  // The cost going from vertex u to v that may depend on one or more vertices
-  // that precede u.
-  virtual double CalculateDynamicEdgeCost(vtkDataSet*, vtkIdType, vtkIdType) { return 0.0; }
-
-  void Initialize(vtkDataSet* inData);
-
-  void Reset();
+  /**
+   * Helper to get the number of nodes in the graph.
+   */
+  vtkIdType GetNumberOfNodes(vtkDataSet* inData) override;
 
   // Calculate shortest path from vertex startv to vertex endv.
   virtual void ShortestPath(vtkDataSet* inData, int startv, int endv);
 
-  // Relax edge u,v with weight w.
-  void Relax(const int& u, const int& v, const double& w);
+  /**
+   * Add the edge u->v and v->u to the adjacency table.
+   */
+  void AddBidirectionalEdge(vtkDataSet* inData, vtkDataArray* scalars,
+    std::vector<std::map<int, double>>& adjacency, vtkIdType u, vtkIdType v);
 
-  // Backtrace the shortest path
-  void TraceShortestPath(
-    vtkDataSet* inData, vtkPolyData* outPoly, vtkIdType startv, vtkIdType endv);
+  vtkTypeBool UseNodeIndices = 1;
 
-  // The number of vertices.
-  int NumberOfVertices;
+  double StartPoint[3] = { 0.0, 0.0, 0.0 };
+  double EndPoint[3] = { 0.0, 0.0, 0.0 };
 
-  // The vertex ids on the shortest path.
-  vtkIdList* IdList;
+  vtkNew<vtkPolyData> CellCenters;
 
-  // Internalized STL containers.
-  vtkDijkstraGraphInternals* Internals;
-
-  vtkTypeBool StopWhenEndReached;
-  vtkTypeBool UseScalarWeights;
-  vtkTypeBool RepelPathFromVertices;
-
-  vtkPoints* RepelVertices;
+  int GraphType = vtkDataObject::AttributeTypes::POINT;
 
 private:
   vtkDijkstraGraphGeodesicPath(const vtkDijkstraGraphGeodesicPath&) = delete;

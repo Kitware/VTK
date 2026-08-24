@@ -2,14 +2,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDijkstraImageGeodesicPath.h"
 
-#include "vtkCellArray.h"
 #include "vtkExecutive.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
@@ -134,6 +132,7 @@ int vtkDijkstraImageGeodesicPath::RequestData(vtkInformation* vtkNotUsed(request
   if (this->AdjacencyBuildTime.GetMTime() < image->GetMTime())
   {
     this->Initialize(image);
+    this->BuildAdjacency(image);
   }
   else
   {

@@ -38,13 +38,13 @@
 #ifndef vtkDijkstraImageGeodesicPath_h
 #define vtkDijkstraImageGeodesicPath_h
 
-#include "vtkDijkstraGraphGeodesicPath.h"
 #include "vtkFiltersModelingModule.h" // For export macro
+#include "vtkGraphGeodesicPath.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
-class VTKFILTERSMODELING_EXPORT vtkDijkstraImageGeodesicPath : public vtkDijkstraGraphGeodesicPath
+class VTKFILTERSMODELING_EXPORT vtkDijkstraImageGeodesicPath : public vtkGraphGeodesicPath
 {
 public:
   /**
@@ -56,7 +56,7 @@ public:
   /**
    * Standard methods for printing and determining type information.
    */
-  vtkTypeMacro(vtkDijkstraImageGeodesicPath, vtkDijkstraGraphGeodesicPath);
+  vtkTypeMacro(vtkDijkstraImageGeodesicPath, vtkGraphGeodesicPath);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
