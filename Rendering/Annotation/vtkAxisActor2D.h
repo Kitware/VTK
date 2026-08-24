@@ -413,6 +413,11 @@ public:
   }
 
   /**
+   * Get the label actors.
+   */
+  virtual std::vector<vtkSmartPointer<vtkActor2D>> GetLabelActors() { return this->LabelActors; }
+
+  /**
    * Rebuild the geometry using the provided viewport,
    * and trigger opaque geometry render only if `render` parameter is true.
    * This is used when we need a geometry update (e.g. to draw the grid using tick positions),
