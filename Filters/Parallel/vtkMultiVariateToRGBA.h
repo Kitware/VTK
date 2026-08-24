@@ -45,7 +45,8 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkNew.h"                   // For vtkNew
-#include <functional>                 // For std::function
+#include "vtkSmartPointer.h"          // For vtkSmartPointer
+#include <array>                      // For std::array
 #include <string>                     // For column names
 #include <vector>                     // For components partition
 

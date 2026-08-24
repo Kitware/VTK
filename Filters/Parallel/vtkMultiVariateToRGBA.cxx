@@ -179,6 +179,9 @@ struct ComputeGBCWorker
     };
     for (vtkIdType i = 0; i < nTuples; ++i)
     {
+      // the array is not zero-initialized on allocation
+      gbc[i][0] = 0;
+      gbc[i][1] = 0;
       // compute points (MF), Table 1, GBC, second column
       // TupleRange doesn't work with std::accumulate / std::reduce
       double tempsum = 0;
@@ -190,8 +193,6 @@ struct ComputeGBCWorker
       {
         continue;
       }
-      gbc[i][0] = 0;
-      gbc[i][1] = 0;
       for (int k = 0; k < nComponents; ++k)
       {
         for (int j = 0; j < 2; ++j)
@@ -525,7 +526,7 @@ vtkMultiVariateToRGBA::~vtkMultiVariateToRGBA() = default;
 void vtkMultiVariateToRGBA::SetVerticesRotation(double rotation)
 {
   vtkDebugMacro(<< " setting VerticesRotation to " << rotation);
-  rotation = std::fmod(rotation, 360);
+  rotation = numpy_mod(rotation, 360);
   if (this->VerticesRotation != rotation)
   {
     this->VerticesRotation = rotation;
@@ -708,8 +709,9 @@ vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::GetVisibleComponentsArray(v
   std::vector<int> componentIndices;
   for (int c = 0; c < array->GetNumberOfComponents(); ++c)
   {
+    // unnamed components get their index as name, same as GetAllColumnNames
     const char* compName = array->GetComponentName(c);
-    if (compName && this->GetColumnVisibility(compName))
+    if (this->GetColumnVisibility(compName ? compName : std::to_string(c)))
     {
       componentIndices.push_back(c);
     }
@@ -810,40 +812,32 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
   int numComponents = scalars->GetNumberOfComponents();
-  if (this->ComponentsPartition.empty())
+  // Use a local copy: the default partition depends on the current number of
+  // components and RequestData should not modify filter state.
+  std::vector<std::vector<int>> partition = this->ComponentsPartition;
+  if (partition.empty())
   {
     // add one group with all variables
-    this->ComponentsPartition.resize(1);
-    this->ComponentsPartition[0].resize(numComponents);
-    std::iota(this->ComponentsPartition[0].begin(), this->ComponentsPartition[0].end(), 0);
+    partition.resize(1);
+    partition[0].resize(numComponents);
+    std::iota(partition[0].begin(), partition[0].end(), 0);
   }
   else
   {
-    // check if valid partition
-    std::size_t totalElements = std::accumulate(this->ComponentsPartition.begin(),
-      this->ComponentsPartition.end(), std::size_t{ 0 },
-      [](std::size_t sum, const std::vector<int>& innerVec) { return sum + innerVec.size(); });
-    if (numComponents != totalElements)
+    // every component index has to appear in the partition exactly once
+    std::vector<int> indices;
+    for (const std::vector<int>& group : partition)
     {
-      vtkErrorMacro(
-        << fmt::format(
-             "Invalid partition: number of elements in the partition: {}, number of components {}",
-             totalElements, numComponents));
-      return 0;
+      indices.insert(indices.end(), group.begin(), group.end());
     }
-    // check if every element in the partition is a valid index
-    bool allValid = std::all_of(this->ComponentsPartition.begin(), this->ComponentsPartition.end(),
-      [numComponents](const std::vector<int>& group)
-      {
-        return std::all_of(
-          group.begin(), group.end(), [numComponents](int val) { return val < numComponents; });
-      });
-    if (!allValid)
+    std::sort(indices.begin(), indices.end());
+    std::vector<int> expected(numComponents);
+    std::iota(expected.begin(), expected.end(), 0);
+    if (indices != expected)
     {
-      vtkErrorMacro(
-        << fmt::format(
-             "Invalid partition: some element of the partition is >= than number of components {}",
-             numComponents));
+      vtkErrorMacro(<< fmt::format("Invalid partition {}: every component index in [0, {}) "
+                                   "must appear exactly once",
+                      partition, numComponents));
       return 0;
     }
   }
@@ -858,9 +852,9 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   }
   typedef vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>
     Dispatcher;
-  for (size_t i = 0; i < this->ComponentsPartition.size(); ++i)
+  for (size_t i = 0; i < partition.size(); ++i)
   {
-    NormalizeWorker worker(this->ComponentsPartition[i], this->Controller);
+    NormalizeWorker worker(partition[i], this->Controller);
     if (!Dispatcher::Execute(scalars, normalizedScalars, worker))
     {
       worker(scalars.GetPointer(), normalizedScalars.GetPointer());
