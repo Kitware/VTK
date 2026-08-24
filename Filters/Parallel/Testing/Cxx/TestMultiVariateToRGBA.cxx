@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * Designed to test paraview/paraview#19012: when the array to volume render
- * with is changed, the volume mapper must update correctly.
+ * Volume render a four component dataset using the RGBA output of
+ * vtkMultiVariateToRGBA.
  */
 
 #include <vtkArrayCalculator.h>
@@ -40,6 +40,8 @@ int TestMultiVariateToRGBA(int argc, char* argv[])
 #else
   vtkNew<vtkDummyController> controller;
 #endif
+  controller->Initialize(&argc, &argv);
+  vtkMultiProcessController::SetGlobalController(controller);
 
   vtkNew<vtkTesting> testUtils;
   testUtils->AddArguments(argc, argv);
@@ -55,7 +57,7 @@ int TestMultiVariateToRGBA(int argc, char* argv[])
   // find opacity range
   vtkImageData* data = vtkImageData::SafeDownCast(colorFilter->GetOutputDataObject(0));
   vtkDataArray* colors = data->GetPointData()->GetArray("rgba");
-  double* opacityRange = colors->GetRange(0);
+  double* opacityRange = colors->GetRange(3);
 
   vtkNew<vtkGPUVolumeRayCastMapper> mapper;
   mapper->SetInputConnection(colorFilter->GetOutputPort());
@@ -101,5 +103,5 @@ int TestMultiVariateToRGBA(int argc, char* argv[])
     iren->Start();
   }
   controller->Finalize();
-  return EXIT_SUCCESS;
+  return retVal ? EXIT_SUCCESS : EXIT_FAILURE;
 }
