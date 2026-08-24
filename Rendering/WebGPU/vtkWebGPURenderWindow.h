@@ -337,6 +337,11 @@ public:
   vtkSmartPointer<vtkImageData> SaveAttachmentToVTI(AttachmentTypeForVTISnapshot type);
 
   /**
+   * Set the interactor for the window
+   */
+  void SetInteractor(vtkRenderWindowInteractor*) override;
+
+  /**
    * Ensure RenderWindow's display is opened
    */
   bool EnsureDisplay() override;
@@ -345,6 +350,22 @@ public:
    * Get the generic display id for the window.
    */
   void* GetGenericDisplayId() override;
+
+  ///@{
+  /**
+   * Set/Get a custom surface descriptor to use when creating the WebGPU surface.
+   * If set, CreateSurface() will use this descriptor instead of the platform-specific
+   * surface descriptor derived from the hardware window.
+   * Pass nullptr to clear and revert to default behavior.
+   *
+   * @note This property is excluded from marshalling/serialization because it contains
+   * platform-specific WebGPU surface descriptors that cannot be serialized or replayed.
+   */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
+  void SetCustomSurfaceDescriptor(const wgpu::SurfaceDescriptor* descriptor);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
+  const wgpu::SurfaceDescriptor* GetCustomSurfaceDescriptor() const;
+  ///@}
 
 protected:
   vtkWebGPURenderWindow();
@@ -493,6 +514,7 @@ private:
    * destroyed in DestroyWindow().
    */
   void CreateSurface();
+  wgpu::Surface CreateSurfaceFromHardwareWindow(wgpu::Instance instance);
 
   /**
    * Configure the surface with mailbox presentation mode and the preferred texture format.
@@ -611,6 +633,8 @@ private:
   vtkNew<vtkWebGPUShaderDatabase> WGPUShaderDatabase;
   vtkNew<vtkWebGPURenderPipelineCache> WGPUPipelineCache;
   vtkNew<vtkWebGPURenderTextureCache> WGPUTextureCache;
+
+  const wgpu::SurfaceDescriptor* CustomSurfaceDescriptor = nullptr;
 
   vtkSmartPointer<vtkWebGPUComputePipeline> DepthCopyPipeline;
   vtkSmartPointer<vtkWebGPUComputePass> DepthCopyPass;
