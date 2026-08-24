@@ -287,3 +287,15 @@ all_res = numpy.array(res)
 mpitype = algs._lookup_mpi_type(bool)
 MPI.COMM_WORLD.Allreduce([res, mpitype], [all_res, mpitype], MPI.LAND)
 assert all_res
+
+# Check that a set/get roundtrip to a field data array from a parallel reduction operation
+# that returns a 0-dimensional array works as expected.
+parallel_min = algs.min(cdata.PointData['RTData'])
+assert len(parallel_min.shape) == 0
+cdata.FieldData.append(parallel_min, 'min')
+assert cdata.FieldData['min'][0] == parallel_min
+
+# Check that a set/get roundtrip to a field data array with a raw numpy type works
+single_element = numpy.float32(42.0)
+cdata.FieldData.append(single_element, 'single_element')
+assert cdata.FieldData['single_element'][0] == single_element

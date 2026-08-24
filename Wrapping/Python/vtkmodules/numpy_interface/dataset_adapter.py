@@ -1028,7 +1028,7 @@ class DataSetAttributes(VTKObjectWrapper):
           and self.DataSet.GetNumberOfColumns() > 0:
             arrLength = self.DataSet.GetNumberOfRows()
         else:
-            if not isinstance(narray, numpy.ndarray):
+            if not isinstance(narray, numpy.ndarray) or numpy.ndim(narray) == 0:
                 arrLength = 1
             else:
                 arrLength = narray.shape[0]
