@@ -134,7 +134,7 @@ int TestGL2PSLabeledDataMapper(int, char*[])
   exp->SetTextAsPath(true);
 
   std::string fileprefix =
-    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSLabeledDataMapper");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestGL2PSLabeledDataMapper");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

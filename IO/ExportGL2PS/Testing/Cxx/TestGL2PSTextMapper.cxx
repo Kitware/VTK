@@ -139,7 +139,7 @@ int TestGL2PSTextMapper(int, char*[])
   exp->DrawBackgroundOn();
 
   std::string fileprefix =
-    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSTextMapper");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestGL2PSTextMapper");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

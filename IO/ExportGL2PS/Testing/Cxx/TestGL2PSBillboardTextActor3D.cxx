@@ -214,7 +214,7 @@ int TestGL2PSBillboardTextActor3D(int, char*[])
   exp->TextAsPathOn();
 
   std::string fileprefix =
-    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSBillboardTextActor3D");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestGL2PSBillboardTextActor3D");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

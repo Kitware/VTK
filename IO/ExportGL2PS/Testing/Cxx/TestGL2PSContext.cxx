@@ -64,7 +64,8 @@ int TestGL2PSContext(int, char*[])
   exp->SetPointSizeFactor(1.0);
   exp->SetTextAsPath(true);
 
-  std::string fileprefix = vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSContext");
+  std::string fileprefix =
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestGL2PSContext");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

@@ -18,11 +18,114 @@ vtkStandardNewMacro(vtkTestingInteractor);
 
 vtkCxxSetSmartPointerMacro(vtkTestingInteractor, Controller, vtkMultiProcessController);
 
+namespace
+{
+struct vtkTestingInteractorData
+{
+  int TestReturnStatus = -1;
+  double ErrorThreshold = vtkRegressionTester::ErrorThreshold;
+  std::string ValidBaseline;
+  std::string TempDirectory;
+  std::string DataDirectory;
+};
+
+vtkTestingInteractorData& GetStaticData()
+{
+  static vtkTestingInteractorData data;
+  return data;
+}
+}
+
 int vtkTestingInteractor::TestReturnStatus = -1;
 double vtkTestingInteractor::ErrorThreshold = vtkRegressionTester::ErrorThreshold;
 std::string vtkTestingInteractor::ValidBaseline;
 std::string vtkTestingInteractor::TempDirectory;
 std::string vtkTestingInteractor::DataDirectory;
+
+void vtkTestingInteractor::SetTestReturnStatus(int status)
+{
+  auto& Data = GetStaticData();
+  vtkTestingInteractor::TestReturnStatus = status;
+  Data.TestReturnStatus = status;
+}
+
+int vtkTestingInteractor::GetTestReturnStatus()
+{
+  auto& Data = GetStaticData();
+  if (vtkTestingInteractor::TestReturnStatus != Data.TestReturnStatus)
+  {
+    Data.TestReturnStatus = vtkTestingInteractor::TestReturnStatus;
+  }
+  return Data.TestReturnStatus;
+}
+
+void vtkTestingInteractor::SetErrorThreshold(double threshold)
+{
+  auto& Data = GetStaticData();
+  vtkTestingInteractor::ErrorThreshold = threshold;
+  Data.ErrorThreshold = threshold;
+}
+
+double vtkTestingInteractor::GetErrorThreshold()
+{
+  auto& Data = GetStaticData();
+  if (vtkTestingInteractor::ErrorThreshold != Data.ErrorThreshold)
+  {
+    Data.ErrorThreshold = vtkTestingInteractor::ErrorThreshold;
+  }
+  return Data.ErrorThreshold;
+}
+
+void vtkTestingInteractor::SetValidBaseline(std::string baseline)
+{
+  auto& Data = GetStaticData();
+  vtkTestingInteractor::ValidBaseline = baseline;
+  Data.ValidBaseline = std::move(baseline);
+}
+
+std::string const& vtkTestingInteractor::GetValidBaseline()
+{
+  auto& Data = GetStaticData();
+  if (vtkTestingInteractor::ValidBaseline != Data.ValidBaseline)
+  {
+    Data.ValidBaseline = vtkTestingInteractor::ValidBaseline;
+  }
+  return Data.ValidBaseline;
+}
+
+void vtkTestingInteractor::SetTempDirectory(std::string dir)
+{
+  auto& Data = GetStaticData();
+  vtkTestingInteractor::TempDirectory = dir;
+  Data.TempDirectory = std::move(dir);
+}
+
+std::string const& vtkTestingInteractor::GetTempDirectory()
+{
+  auto& Data = GetStaticData();
+  if (vtkTestingInteractor::TempDirectory != Data.TempDirectory)
+  {
+    Data.TempDirectory = vtkTestingInteractor::TempDirectory;
+  }
+  return Data.TempDirectory;
+}
+
+void vtkTestingInteractor::SetDataDirectory(std::string dir)
+{
+  auto& Data = GetStaticData();
+  vtkTestingInteractor::DataDirectory = dir;
+  Data.DataDirectory = std::move(dir);
+}
+
+std::string const& vtkTestingInteractor::GetDataDirectory()
+{
+  auto& Data = GetStaticData();
+  if (vtkTestingInteractor::DataDirectory != Data.DataDirectory)
+  {
+    Data.DataDirectory = vtkTestingInteractor::DataDirectory;
+  }
+  return Data.DataDirectory;
+}
 
 //------------------------------------------------------------------------------
 vtkTestingInteractor::vtkTestingInteractor()

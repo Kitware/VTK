@@ -51,7 +51,7 @@ int TestGL2PSMathTextScaling(int, char*[])
   exp->Write3DPropsAsRasterImageOff();
 
   std::string fileprefix =
-    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSMathTextScaling");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestGL2PSMathTextScaling");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

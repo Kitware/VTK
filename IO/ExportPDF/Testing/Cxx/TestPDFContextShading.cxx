@@ -56,7 +56,7 @@ int TestPDFContextShading(int, char*[])
   view->GetRenderWindow()->Render();
 
   std::string filename =
-    vtkTestingInteractor::TempDirectory + std::string("/TestPDFContextShading.pdf");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestPDFContextShading.pdf");
 
   vtkNew<vtkPDFExporter> exp;
   exp->SetRenderWindow(view->GetRenderWindow());

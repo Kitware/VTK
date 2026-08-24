@@ -145,7 +145,7 @@ int TestGL2PSExporterRaster(int argc, char* argv[])
   exp->Write3DPropsAsRasterImageOn();
 
   std::string fileprefix =
-    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSExporterRaster");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestGL2PSExporterRaster");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

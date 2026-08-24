@@ -131,7 +131,7 @@ int TestGL2PSTextActor3D(int, char*[])
   exp->DrawBackgroundOn();
 
   std::string fileprefix =
-    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSTextActor3D");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestGL2PSTextActor3D");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

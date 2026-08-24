@@ -51,7 +51,7 @@ int TestGL2PSMathTextOutput(int, char*[])
   exp->Write3DPropsAsRasterImageOff();
 
   std::string fileprefix =
-    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSMathTextOutput");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestGL2PSMathTextOutput");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

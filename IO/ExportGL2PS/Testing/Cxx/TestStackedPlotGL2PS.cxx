@@ -118,7 +118,7 @@ int TestStackedPlotGL2PS(int, char*[])
   exp->DrawBackgroundOn();
 
   std::string fileprefix =
-    vtkTestingInteractor::TempDirectory + std::string("/TestStackedPlotGL2PS");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestStackedPlotGL2PS");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

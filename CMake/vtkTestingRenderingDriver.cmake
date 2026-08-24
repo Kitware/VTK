@@ -11,10 +11,9 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
 #endif
 
     // Set defaults
-    vtkTestingInteractor::ValidBaseline = \"Use_-V_for_Baseline\";
-    vtkTestingInteractor::TempDirectory =
-      std::string(\"${_vtk_build_TEST_OUTPUT_DIRECTORY}\");
-    vtkTestingInteractor::DataDirectory = std::string(\"Use_-D_for_Data\");
+    vtkTestingInteractor::SetValidBaseline(\"Use_-V_for_Baseline\");
+    vtkTestingInteractor::SetTempDirectory(\"${_vtk_build_TEST_OUTPUT_DIRECTORY}\");
+    vtkTestingInteractor::SetDataDirectory(\"Use_-D_for_Data\");
 
     int interactive = 0;
     for (int ii = 0; ii < ac; ++ii)
@@ -26,22 +25,24 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
       }
       if (ii < ac-1 && strcmp(av[ii], \"-V\") == 0)
       {
-        vtkTestingInteractor::ValidBaseline = std::string(av[++ii]);
+        vtkTestingInteractor::SetValidBaseline(av[++ii]);
         continue;
       }
       if (ii < ac-1 && strcmp(av[ii], \"-T\") == 0)
       {
-        vtkTestingInteractor::TempDirectory = std::string(av[++ii]);
+        vtkTestingInteractor::SetTempDirectory(av[++ii]);
         continue;
       }
       if (ii < ac-1 && strcmp(av[ii], \"-D\") == 0)
       {
-        vtkTestingInteractor::DataDirectory = std::string(av[++ii]);
+        vtkTestingInteractor::SetDataDirectory(av[++ii]);
         continue;
       }
       if (ii < ac-1 && strcmp(av[ii], \"-E\") == 0)
       {
-        VTK_FROM_CHARS_IF_ERROR_RETURN(av[++ii], vtkTestingInteractor::ErrorThreshold, EXIT_FAILURE);
+        double threshold;
+        VTK_FROM_CHARS_IF_ERROR_RETURN(av[++ii], threshold, EXIT_FAILURE);
+        vtkTestingInteractor::SetErrorThreshold(threshold);
         continue;
       }
       if (ii < ac-1 && strcmp(av[ii], \"-v\") == 0)

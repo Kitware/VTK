@@ -62,7 +62,7 @@ int TestPDFContextExport(int, char*[])
   view->GetRenderWindow()->Render();
 
   std::string filename =
-    vtkTestingInteractor::TempDirectory + std::string("/TestPDFContextExport.pdf");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestPDFContextExport.pdf");
 
   vtkNew<vtkPDFExporter> exp;
   exp->SetRenderWindow(view->GetRenderWindow());

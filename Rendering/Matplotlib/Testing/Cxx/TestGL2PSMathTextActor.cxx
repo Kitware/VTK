@@ -127,7 +127,7 @@ int TestGL2PSMathTextActor(int, char*[])
   exp->DrawBackgroundOn();
 
   std::string fileprefix =
-    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSMathTextActor");
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestGL2PSMathTextActor");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

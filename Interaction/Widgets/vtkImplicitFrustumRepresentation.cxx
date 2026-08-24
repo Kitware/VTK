@@ -34,9 +34,21 @@ vtkStandardNewMacro(vtkImplicitFrustumRepresentation);
 
 namespace
 {
-const vtkVector3d FRUSTUM_UP_AXIS(0, 0, -1);
-const vtkVector3d FRUSTUM_RIGHT_AXIS(1, 0, 0);
-const vtkVector3d FRUSTUM_FORWARD_AXIS(0, 1, 0);
+const vtkVector3d& FRUSTUM_UP_AXIS()
+{
+  static vtkVector3d axis(0, 0, -1);
+  return axis;
+}
+const vtkVector3d& FRUSTUM_RIGHT_AXIS()
+{
+  static vtkVector3d axis(1, 0, 0);
+  return axis;
+}
+const vtkVector3d& FRUSTUM_FORWARD_AXIS()
+{
+  static vtkVector3d axis(0, 1, 0);
+  return axis;
+}
 }
 
 //------------------------------------------------------------------------------
@@ -184,7 +196,7 @@ vtkVector3d vtkImplicitFrustumRepresentation::GetForwardAxis()
 {
   vtkVector3d forwardAxis;
   this->OrientationTransform->TransformVector(
-    ::FRUSTUM_FORWARD_AXIS.GetData(), forwardAxis.GetData());
+    ::FRUSTUM_FORWARD_AXIS().GetData(), forwardAxis.GetData());
   return forwardAxis;
 }
 
@@ -192,7 +204,7 @@ vtkVector3d vtkImplicitFrustumRepresentation::GetForwardAxis()
 vtkVector3d vtkImplicitFrustumRepresentation::GetUpAxis()
 {
   vtkVector3d upAxis;
-  this->OrientationTransform->TransformVector(::FRUSTUM_UP_AXIS.GetData(), upAxis.GetData());
+  this->OrientationTransform->TransformVector(::FRUSTUM_UP_AXIS().GetData(), upAxis.GetData());
   return upAxis;
 }
 
@@ -200,7 +212,8 @@ vtkVector3d vtkImplicitFrustumRepresentation::GetUpAxis()
 vtkVector3d vtkImplicitFrustumRepresentation::GetRightAxis()
 {
   vtkVector3d rightAxis;
-  this->OrientationTransform->TransformVector(::FRUSTUM_RIGHT_AXIS.GetData(), rightAxis.GetData());
+  this->OrientationTransform->TransformVector(
+    ::FRUSTUM_RIGHT_AXIS().GetData(), rightAxis.GetData());
   return rightAxis;
 }
 

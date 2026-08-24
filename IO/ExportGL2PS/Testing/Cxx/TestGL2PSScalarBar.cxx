@@ -163,7 +163,8 @@ int TestGL2PSScalarBar(int argc, char* argv[])
   exp->TextAsPathOn();
   exp->Write3DPropsAsRasterImageOn();
 
-  std::string fileprefix = vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSScalarBar");
+  std::string fileprefix =
+    vtkTestingInteractor::GetTempDirectory() + std::string("/TestGL2PSScalarBar");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();
