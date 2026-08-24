@@ -47,8 +47,13 @@ int TestMultiVariateToRGBA(int argc, char* argv[])
   testUtils->AddArguments(argc, argv);
   std::string dataRoot = testUtils->GetDataRoot();
 
+  // Downsampled MIEC (mixed ionic-electronic conductor) dataset from:
+  // Ge, M., Huang, X., Yan, H. et al. Three-dimensional imaging of grain
+  // boundaries via quantitative fluorescence X-ray tomography analysis.
+  // Commun Mater 3, 37 (2022). https://doi.org/10.1038/s43246-022-00259-x
   vtkNew<vtkXMLImageDataReader> reader;
-  reader->SetFileName((dataRoot + "/Data/Ce_Co_Fe_Gd_small.vti").c_str());
+  reader->SetFileName(
+    (dataRoot + "/Data/Ce_Co_Fe_Gd_small_10.1038_s43246-022-00259-x.vti").c_str());
 
   vtkNew<vtkMultiVariateToRGBA> colorFilter;
   colorFilter->SetInputConnection(reader->GetOutputPort());
