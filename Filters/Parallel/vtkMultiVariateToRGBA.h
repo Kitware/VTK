@@ -131,6 +131,17 @@ public:
 
   ///@{
   /**
+   * Convert hue, saturation and lightness (all in [0, 1]) to red, green
+   * and blue (in [0, 1]) using the same conversion as the computed
+   * colors. ColorLightness is the lightness used for the computed colors.
+   * @sa vtkPlotRadViz
+   */
+  static void HSLToRGB(double h, double s, double l, double rgb[3]);
+  static constexpr double ColorLightness = 0.55;
+  ///@}
+
+  ///@{
+  /**
    * If true, negates the Y coordinate for points and vertices, and
    * when computing colors. This is necessary to get the same RadViz graph
    * in VTK (origin bottom-left, Y grows up) and JavaScript (origin

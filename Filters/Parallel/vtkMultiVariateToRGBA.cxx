@@ -313,6 +313,47 @@ struct GBCToHSLWorker
   double Lightness = 0;
 };
 
+double hslValue(double m1, double m2, double h)
+{
+  h = numpy_mod(h, 1.0);
+  double m_diff = m2 - m1;
+  double result;
+  if (h < 1.0 / 6)
+  {
+    result = m1 + m_diff * h * 6;
+  }
+  else if (h < 0.5)
+  {
+    result = m2;
+  }
+  else if (h < 2.0 / 3)
+  {
+    result = m1 + m_diff * (2.0 / 3 - h) * 6;
+  }
+  else
+  {
+    result = m1;
+  }
+  return result;
+}
+
+void hslToRgb(double h, double s, double l, double* rgb)
+{
+  double m2;
+  if (l < 0.5)
+  {
+    m2 = l * (1 + s);
+  }
+  else
+  {
+    m2 = l + s - l * s;
+  }
+  double m1 = 2 * l - m2;
+  rgb[0] = hslValue(m1, m2, h + 1.0 / 3);
+  rgb[1] = hslValue(m1, m2, h);
+  rgb[2] = hslValue(m1, m2, h - 1.0 / 3);
+}
+
 struct HSLToRGBWorker
 {
   template <typename Input, typename Output>
@@ -327,51 +368,13 @@ struct HSLToRGBWorker
       {
         for (vtkIdType i = begin; i < end; ++i)
         {
-          double m2;
-          double l = hsl[i][2];
-          if (l < 0.5)
-          {
-            double lower_l = hsl[i][2];
-            double lower_s = hsl[i][1];
-            m2 = lower_l * (1 + lower_s);
-          }
-          else
-          {
-            double upper_l = hsl[i][2];
-            double upper_s = hsl[i][1];
-            m2 = upper_l + upper_s - upper_l * upper_s;
-          }
-          double m1 = 2 * l - m2;
-          double h = hsl[i][0];
-          rgba[i][0] = this->v(m1, m2, h + 1.0 / 3);
-          rgba[i][1] = this->v(m1, m2, h);
-          rgba[i][2] = this->v(m1, m2, h - 1.0 / 3);
+          double rgb[3];
+          hslToRgb(hsl[i][0], hsl[i][1], hsl[i][2], rgb);
+          rgba[i][0] = rgb[0];
+          rgba[i][1] = rgb[1];
+          rgba[i][2] = rgb[2];
         }
       });
-  }
-
-  double v(double m1, double m2, double h)
-  {
-    h = numpy_mod(h, 1.0);
-    double m_diff = m2 - m1;
-    double result;
-    if (h < 1.0 / 6)
-    {
-      result = m1 + m_diff * h * 6;
-    }
-    else if (h < 0.5)
-    {
-      result = m2;
-    }
-    else if (h < 2.0 / 3)
-    {
-      result = m1 + m_diff * (2.0 / 3 - h) * 6;
-    }
-    else
-    {
-      result = m1;
-    }
-    return result;
   }
 };
 
@@ -912,7 +915,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     hslScalars->SetNumberOfComponents(3);
     hslScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
     {
-      GBCToHSLWorker worker(this, 0.55);
+      GBCToHSLWorker worker(this, vtkMultiVariateToRGBA::ColorLightness);
       if (!Dispatcher::Execute(gbcScalars, hslScalars, worker))
       {
         worker(gbcScalars.GetPointer(), hslScalars.GetPointer());
@@ -1145,6 +1148,12 @@ void vtkMultiVariateToRGBA::SetLensCenter(const double* lensCenter)
     std::copy(newLensCenter.begin(), newLensCenter.end(), this->LensCenter);
     this->Modified();
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::HSLToRGB(double h, double s, double l, double rgb[3])
+{
+  hslToRgb(h, s, l, rgb);
 }
 
 //------------------------------------------------------------------------------

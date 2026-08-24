@@ -522,15 +522,13 @@ void vtkPlotRadViz::DrawLens(vtkContext2D* painter)
 void vtkPlotRadViz::DrawColorWheel(vtkContext2D* painter)
 {
   painter->GetBrush()->SetColor(0, 0, 0, 255); // opaque
+  // The hue varies with the angle and the saturation with the radius, using
+  // the same HSL conversion as vtkMultiVariateToRGBA, so the wheel matches
+  // the computed point colors.
+  const int ringCount = 16;
   for (int i = 0; i < this->ColorWheelSegmentCount; ++i)
   {
-    std::array<float, 3> hsv = { static_cast<float>(i) / this->ColorWheelSegmentCount, 1.0, 1.0 };
-    std::array<float, 3> rgbFloat;
-    vtkMath::HSVToRGB(hsv.data(), rgbFloat.data());
-    std::array<unsigned char, 3> rgb;
-    std::transform(rgbFloat.begin(), rgbFloat.end(), rgb.begin(), [](float v) { return v * 255; });
-    painter->GetBrush()->SetColor(rgb.data());
-
+    double hue = static_cast<double>(i) / this->ColorWheelSegmentCount;
     double shiftToCenterColor = 180.0 / this->ColorWheelSegmentCount;
     double start = 360.0 * i / this->ColorWheelSegmentCount - shiftToCenterColor;
     double end = 360.0 * (i + 1) / this->ColorWheelSegmentCount - shiftToCenterColor;
@@ -544,8 +542,21 @@ void vtkPlotRadViz::DrawColorWheel(vtkContext2D* painter)
     }
     start += this->ColorWheelStartAngle;
     end += this->ColorWheelStartAngle;
-    painter->DrawEllipseWedge(this->Internals->Center[0], this->Internals->Center[1],
-      this->Internals->Radius, this->Internals->Radius, 0.0, 0.0, start, end);
+    for (int j = 0; j < ringCount; ++j)
+    {
+      double saturation = (j + 0.5) / ringCount;
+      std::array<double, 3> rgb;
+      vtkMultiVariateToRGBA::HSLToRGB(
+        hue, saturation, vtkMultiVariateToRGBA::ColorLightness, rgb.data());
+      std::array<unsigned char, 3> rgbChar;
+      std::transform(rgb.begin(), rgb.end(), rgbChar.begin(),
+        [](double v) { return static_cast<unsigned char>(v * 255); });
+      painter->GetBrush()->SetColor(rgbChar.data());
+      double outerRadius = this->Internals->Radius * (j + 1) / ringCount;
+      double innerRadius = this->Internals->Radius * j / ringCount;
+      painter->DrawEllipseWedge(this->Internals->Center[0], this->Internals->Center[1], outerRadius,
+        outerRadius, innerRadius, innerRadius, start, end);
+    }
   }
 }
 
