@@ -17,7 +17,6 @@ DEPENDS
   VTK::CommonExecutionModel
   VTK::CommonSystem
   VTK::FiltersExtraction
-  VTK::FiltersGeneral
   VTK::ImagingCore
 PRIVATE_DEPENDS
   VTK::CommonDataModel

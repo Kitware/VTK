@@ -60,7 +60,6 @@ TEST_DEPENDS
   VTK::RenderingAnnotation
   VTK::RenderingLabel
   VTK::RenderingOpenGL2
-  VTK::RenderingVolumeOpenGL2
   VTK::TestingRendering
 TEST_OPTIONAL_DEPENDS
   VTK::AcceleratorsVTKmFilters
