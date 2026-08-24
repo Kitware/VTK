@@ -162,7 +162,9 @@ bool vtkRemoteInteractionAdapter::ProcessEvent(vtkRenderWindowInteractor* iren,
         const int shiftKeyPressed = event.at("shiftKey").get<int>();
         const char asciiCode = event.at("keyCode").get<int>();
         const std::string& key = event.at("key");
-        iren->SetKeyEventInformation(ctrlKeyPressed, shiftKeyPressed, asciiCode, 0, key.c_str());
+        const int repeatCount = event.at("repeatCount").get<int>();
+        iren->SetKeyEventInformation(
+          ctrlKeyPressed, shiftKeyPressed, asciiCode, repeatCount, key.c_str());
         iren->SetAltKey(altKeyPressed);
         iren->InvokeEvent(eventType);
         if (eventType == vtkCommand::KeyPressEvent && asciiCode != '\0') // TODO check comparson

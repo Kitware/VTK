@@ -73,7 +73,7 @@ public:
 
   ///@{
   /**
-   * Set the repease count for the event.
+   * Set the repeat count for the event.
    */
   vtkSetMacro(RepeatCount, int);
   vtkGetMacro(RepeatCount, int);

@@ -301,8 +301,9 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
     keySym = "None";
   }
 
-  _keyRepeatCount =
-    isPress && type != NSEventTypeFlagsChanged && [theEvent isARepeat] ? _keyRepeatCount + 1 : 1;
+  _keyRepeatCount = (isPress && type != NSEventTypeFlagsChanged && [theEvent isARepeat])
+    ? (_keyRepeatCount + 1)
+    : 0;
 
   interactor->SetEventInformation(static_cast<int>(backingLoc.x), static_cast<int>(backingLoc.y),
     controlDown, shiftDown, charCode, _keyRepeatCount, keySym);

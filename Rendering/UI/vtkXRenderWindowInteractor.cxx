@@ -813,9 +813,8 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       vtkKeySym keySym;
       vtkXLookupString(keyEvent, &keyCode, 1, &keySym, nullptr);
 
-      // start at 1 for backward compatibility but should start at 0
       this->KeyRepeatCount =
-        keyEvent->serial == this->PrevKeyReleaseSerial ? this->KeyRepeatCount + 1 : 1;
+        (keyEvent->serial == this->PrevKeyReleaseSerial) ? (this->KeyRepeatCount + 1) : 0;
 
       xp = keyEvent->x;
       yp = keyEvent->y;
