@@ -72,6 +72,15 @@ Less common, but variables which may be of interest to some:
     Mixing both proposals causes the browser to reject the module at
     instantiate with "module uses a mix of legacy and new exception handling
     instructions".
+  * `VTK_EMSCRIPTEN_PRELOAD_CACHE` (default `OFF`):
+    This option is applicable only when building with Emscripten toolchain.
+    When `ON`, preloads the results of the platform `try_compile`/`try_run`
+    checks for the pinned Emscripten SDK from
+    `CMake/wasm/vtkEmscriptenCache-<version>-<arch>.cmake`, which cuts
+    configure time substantially. The wasm CMake presets and CI enable it.
+    A `(version, arch)` pair with no matching cache file is simply not
+    preloaded. See [](/advanced/wasm_preload_cache.md) for how these cache
+    files are regenerated.
   * `VTK_TESTING_WASM_ENGINE` (default ``):
     Path to a wasm runtime executable. This is used to run C++ tests in wasm environments.
   * `VTK_WRAP_JAVASCRIPT` (default `OFF`; requires `VTK_ENABLE_WRAPPING`):

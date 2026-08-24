@@ -177,7 +177,7 @@ set(vtk_cmake_patch_files
   patches/99/FindOpenGL.cmake
   patches/99/FindX11.cmake)
 set(vtk_cmake_wasm_files
-  wasm/README.md
+  wasm/TestSuiteArchitecture.md
   wasm/server.js
   wasm/vtkWasmTest.html.in
   wasm/vtkWasmTestRunner.cmake

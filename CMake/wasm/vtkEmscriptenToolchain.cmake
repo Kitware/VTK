@@ -25,6 +25,9 @@
 #                        version CI uses.
 #   VTK_BOOTSTRAP_EMSDK  Set to OFF to fail instead of downloading an emsdk or
 #                        a node.
+#   VTK_EMSCRIPTEN_PRELOAD_CACHE
+#                        Preload known platform-check results for supported
+#                        Emscripten versions. The wasm presets enable this.
 #
 # Node comes from FindNodeJS, so `NodeJS_INTERPRETER` and the `NODE_DIR`
 # environment variable select one, as they do elsewhere in VTK.
@@ -41,6 +44,8 @@ set(_vtk_emsdk_version "${vtk_emsdk_version}")
 if (VTK_EMSDK_VERSION)
   set(_vtk_emsdk_version "${VTK_EMSDK_VERSION}")
 endif ()
+
+include("${CMAKE_CURRENT_LIST_DIR}/vtkEmscriptenPreloadCache.cmake")
 
 set(_vtk_emsdk_bootstrap 1)
 if (DEFINED VTK_BOOTSTRAP_EMSDK AND NOT VTK_BOOTSTRAP_EMSDK)

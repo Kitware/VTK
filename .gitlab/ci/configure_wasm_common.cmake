@@ -65,4 +65,8 @@ endif ()
 # prerequisite for this cmake_dependent_option.
 set(VTK_BUILD_TYPES_JSON ON CACHE BOOL "")
 
+set(VTK_EMSCRIPTEN_PRELOAD_CACHE ON CACHE BOOL "")
+include("${CMAKE_CURRENT_LIST_DIR}/../../CMake/wasm/vtkToolVersions.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/../../CMake/wasm/vtkEmscriptenPreloadCache.cmake")
+
 include("${CMAKE_CURRENT_LIST_DIR}/configure_common.cmake")

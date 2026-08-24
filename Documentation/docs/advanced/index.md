@@ -7,6 +7,7 @@ available_python_wheels
 spdx_and_sbom
 build_python_wheels
 build_wasm_emscripten
+wasm_preload_cache
 build_for_mobile
 build_documentation
 object_manager
