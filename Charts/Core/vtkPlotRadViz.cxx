@@ -78,8 +78,8 @@ public:
   void operator()(TArray* inputArray, vtkPoints2D* points)
   {
     auto input = vtk::DataArrayTupleRange(inputArray);
-    auto output = vtkAOSDataArrayTemplate<float>::FastDownCast(points->GetData())->GetPointer(0);
     points->SetNumberOfPoints(input.size());
+    auto output = vtkAOSDataArrayTemplate<float>::FastDownCast(points->GetData())->GetPointer(0);
     for (int i = 0; i < input.size(); ++i)
     {
       output[2 * i] = this->Center[0] + input[i][0] * this->Radius;
@@ -188,6 +188,10 @@ void vtkPlotRadViz::SetVerticesRotation(double rotation)
 {
   vtkDebugMacro(<< " setting VerticesRotation to " << rotation);
   rotation = std::fmod(rotation, 360);
+  if (rotation < 0)
+  {
+    rotation += 360;
+  }
   if (this->VerticesRotation != rotation)
   {
     this->VerticesRotation = rotation;
@@ -400,7 +404,7 @@ vtkSmartPointer<vtkPoints2D> vtkPlotRadViz::TransformPoints(vtkDataArray* points
   transformedPoints->SetNumberOfPoints(points->GetNumberOfTuples());
   if (!Dispatcher::Execute(points, *this->Internals, transformedPoints))
   {
-    vtkErrorMacro("Invalid type for the colors array: " << points->GetClassName());
+    vtkErrorMacro("Invalid type for the points array: " << points->GetClassName());
   }
   return transformedPoints;
 }
@@ -606,9 +610,24 @@ void vtkPlotRadViz::SetDimensions(int arg1, int arg2, int arg3, int arg4)
     this->Dimensions[1] = arg2;
     this->Dimensions[2] = arg3;
     this->Dimensions[3] = arg4;
+    double oldCenter[2] = { this->Internals->Center[0], this->Internals->Center[1] };
+    double oldRadius = this->Internals->Radius;
     this->Internals->SetCenterAndRadius(this->Dimensions);
-    std::copy(this->Internals->Center, this->Internals->Center + 2, this->LensCenter);
-    this->LensRadius = this->Internals->Radius;
+    if (oldRadius > 0)
+    {
+      // keep the lens position and size relative to the plot circle
+      double scale = this->Internals->Radius / oldRadius;
+      this->LensCenter[0] =
+        this->Internals->Center[0] + (this->LensCenter[0] - oldCenter[0]) * scale;
+      this->LensCenter[1] =
+        this->Internals->Center[1] + (this->LensCenter[1] - oldCenter[1]) * scale;
+      this->LensRadius *= scale;
+    }
+    else
+    {
+      std::copy(this->Internals->Center, this->Internals->Center + 2, this->LensCenter);
+      this->LensRadius = this->Internals->Radius;
+    }
 
     this->Modified();
   }

@@ -6,6 +6,7 @@
 #include "vtkContext2D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlotRadViz.h"
 #include "vtkPoints2D.h"
@@ -44,6 +45,11 @@ public:
    * Set to the mouse position on left mouse press.
    */
   float DragLensStart[2] = { 0.0f, 0.0f };
+  /**
+   * Rotation and mouse angle on left mouse press on a vertex.
+   */
+  double DragStartRotation = 0.0;
+  double DragStartMouseAngle = 0.0;
 };
 
 //------------------------------------------------------------------------------
@@ -230,21 +236,17 @@ bool vtkChartRadViz::MouseEnterEvent(const vtkContextMouseEvent&)
 //------------------------------------------------------------------------------
 bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
-  if (!this->Scene->GetDirty() && this->Internals->Plot)
+  if (this->Internals->Plot)
   {
     vtkVector2f pos{ mouse.GetScenePos() };
     if (this->Internals->DragVertexIndex >= 0)
     {
-      // rotate vertices
-      auto vertices = this->Internals->Plot->GetVertices();
-      double vertex[2];
-      vertices->GetPoint(this->Internals->DragVertexIndex, vertex);
-      double mousePos[2] = { pos[0], pos[1] };
-      double angle = this->Internals->Plot->GetAngle(vertex, mousePos);
-      vtkDebugMacro("vtkChartRadViz::MouseMoveEvent, angle:"
-        << angle << " VerticesRotation: " << this->Internals->Plot->GetVerticesRotation());
+      // rotate vertices by the angle swept by the mouse since the press
+      const double* center = this->Internals->Plot->GetCenter();
+      double mouseAngle =
+        vtkMath::DegreesFromRadians(std::atan2(pos[1] - center[1], pos[0] - center[0]));
       this->Internals->Plot->SetVerticesRotation(
-        angle + this->Internals->Plot->GetVerticesRotation());
+        this->Internals->DragStartRotation + mouseAngle - this->Internals->DragStartMouseAngle);
       this->Scene->SetDirty(true);
     }
     else if (this->Internals->ResizeLens)
@@ -277,9 +279,9 @@ bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
       bool activeLensOutline;
       bool activeLensInterior;
       this->GetActiveElement(pos, activeVertexIndex, activeLensOutline, activeLensInterior);
-      if ((activeVertexIndex > 0) ^ this->Internals->Plot->GetActiveVertexIndex() ||
-        activeLensOutline ^ this->Internals->Plot->GetActiveLensOutline() ||
-        activeLensInterior ^ this->Internals->Plot->GetActiveLensInterior())
+      if (activeVertexIndex != this->Internals->Plot->GetActiveVertexIndex() ||
+        activeLensOutline != this->Internals->Plot->GetActiveLensOutline() ||
+        activeLensInterior != this->Internals->Plot->GetActiveLensInterior())
       {
         this->Scene->SetDirty(true);
       }
@@ -306,6 +308,13 @@ bool vtkChartRadViz::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
     vtkVector2f pos{ mouse.GetScenePos() };
     this->GetActiveElement(pos, this->Internals->DragVertexIndex, this->Internals->ResizeLens,
       this->Internals->DragLens);
+    if (this->Internals->DragVertexIndex >= 0)
+    {
+      const double* center = this->Internals->Plot->GetCenter();
+      this->Internals->DragStartMouseAngle =
+        vtkMath::DegreesFromRadians(std::atan2(pos[1] - center[1], pos[0] - center[0]));
+      this->Internals->DragStartRotation = this->Internals->Plot->GetVerticesRotation();
+    }
     if (this->Internals->DragLens)
     {
       std::copy(pos.GetData(), pos.GetData() + 2, this->Internals->DragLensStart);
