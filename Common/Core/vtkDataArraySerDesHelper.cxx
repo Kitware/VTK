@@ -18,9 +18,12 @@
 #include VTK_NLOHMANN_JSON(json.hpp)
 // clang-format on
 
-#include <algorithm> // for any_of
-#include <string>    // for string
-#include <vector>    // for vector
+#include <algorithm>   // for any_of, transform
+#include <cstddef>     // for size_t
+#include <cstdint>     // for fixed width integer types
+#include <string>      // for string
+#include <type_traits> // for conditional, is_integral, is_signed
+#include <vector>      // for vector
 
 extern "C"
 {
@@ -198,6 +201,68 @@ bool Deserialize_Blob(
   return true;
 }
 
+/**
+ * Copy `numValues` values out of `content` into `out`, widening or narrowing them
+ * when the writer's value width `srcDataTypeSize` differs from `sizeof(DstT)`.
+ *
+ * The class name recorded in the state already states signedness and
+ * integral-vs-floating, so the byte width alone is sufficient to reconstruct the
+ * writer's value type. Returns false and reports an error when the blob is too
+ * small for the array, or when the two widths cannot be reconciled.
+ */
+template <typename DstT, typename OutIteratorT>
+bool DeserializeValues(const nlohmann::json::binary_t& content, int srcDataTypeSize,
+  vtkIdType numValues, OutIteratorT out, vtkDeserializer* deserializer)
+{
+  constexpr int dstDataTypeSize = static_cast<int>(sizeof(DstT));
+  auto* context = deserializer->GetContext();
+  if (srcDataTypeSize <= 0)
+  {
+    vtkErrorWithObjectMacro(context,
+      << deserializer->GetObjectDescription() << " got invalid DataTypeSize=" << srcDataTypeSize);
+    return false;
+  }
+  const std::size_t requiredSize =
+    static_cast<std::size_t>(numValues) * static_cast<std::size_t>(srcDataTypeSize);
+  if (requiredSize > content.size())
+  {
+    vtkErrorWithObjectMacro(context, << deserializer->GetObjectDescription() << " needs "
+                                     << requiredSize << " bytes for " << numValues << " values of "
+                                     << srcDataTypeSize << " bytes, but the blob holds only "
+                                     << content.size() << " bytes");
+    return false;
+  }
+  if (srcDataTypeSize == dstDataTypeSize)
+  {
+    std::copy_n(reinterpret_cast<const DstT*>(content.data()), numValues, out);
+    return true;
+  }
+  if constexpr (std::is_integral<DstT>::value)
+  {
+    constexpr bool isSigned = std::is_signed<DstT>::value;
+    using WideT = std::conditional_t<isSigned, std::int64_t, std::uint64_t>;
+    using NarrowT = std::conditional_t<isSigned, std::int32_t, std::uint32_t>;
+    if (srcDataTypeSize == 8 && dstDataTypeSize == 4)
+    {
+      const auto* src = reinterpret_cast<const WideT*>(content.data());
+      std::transform(
+        src, src + numValues, out, [](WideT value) { return static_cast<DstT>(value); });
+      return true;
+    }
+    if (srcDataTypeSize == 4 && dstDataTypeSize == 8)
+    {
+      const auto* src = reinterpret_cast<const NarrowT*>(content.data());
+      std::transform(
+        src, src + numValues, out, [](NarrowT value) { return static_cast<DstT>(value); });
+      return true;
+    }
+  }
+  vtkErrorWithObjectMacro(context, << deserializer->GetObjectDescription() << " cannot convert "
+                                   << srcDataTypeSize << "-byte values into " << dstDataTypeSize
+                                   << "-byte values");
+  return false;
+}
+
 struct vtkDataArraySerializer
 {
   template <typename ValueT>
@@ -270,6 +335,8 @@ struct vtkDataArraySerializer
 
     auto blob = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());
     vtkIdType arrSize = array->GetNumberOfValues() * array->GetDataTypeSize();
+    // Record our value width so a peer with a different vtkIdType/long width can convert.
+    state["DataTypeSize"] = array->GetDataTypeSize();
     blob->SetArray(reinterpret_cast<vtkTypeUInt8*>(array->GetPointer(0)), arrSize, 1);
     Serialize_Blob(blob, state, serializer);
 
@@ -292,6 +359,8 @@ struct vtkDataArraySerializer
 
     auto blob = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());
     vtkIdType arrSize = array->GetNumberOfValues() * array->GetDataTypeSize();
+    // Record our value width so a peer with a different vtkIdType/long width can convert.
+    state["DataTypeSize"] = array->GetDataTypeSize();
     // copy data into blob
     blob->SetNumberOfValues(arrSize);
     switch (array->GetDataType())
@@ -362,8 +431,17 @@ struct vtkDataArrayDeserializer
       return;
     }
     const auto& content = blob.get_binary();
-    std::copy_n(reinterpret_cast<const ValueT*>(content.data()), array->GetNumberOfValues(),
-      array->GetPointer(0));
+    int srcDataTypeSize = array->GetDataTypeSize();
+    if (const auto it = state.find("DataTypeSize"); it != state.end())
+    {
+      srcDataTypeSize = it->get<int>();
+    }
+    if (!DeserializeValues<ValueT>(
+          content, srcDataTypeSize, array->GetNumberOfValues(), array->GetPointer(0), deserializer))
+    {
+      success = false;
+      return;
+    }
     const auto id = state["Id"].get<vtkTypeUInt32>();
     const auto hash = state["Hash"].get<std::string>();
     if (deserializer->GetContext()->ShouldDataArrayBeModified(id, hash))
@@ -383,11 +461,23 @@ struct vtkDataArrayDeserializer
       return;
     }
     const auto& content = blob.get_binary();
+    int srcDataTypeSize = array->GetDataTypeSize();
+    if (const auto it = state.find("DataTypeSize"); it != state.end())
+    {
+      srcDataTypeSize = it->get<int>();
+    }
+    bool copied = false;
     switch (array->GetDataType())
     {
       vtkTemplateMacro(
-        std::copy_n(reinterpret_cast<const VTK_TT*>(content.data()), array->GetNumberOfValues(),
-          vtk::DataArrayValueRange<vtk::detail::DynamicTupleSize, VTK_TT>(array).begin()));
+        copied = DeserializeValues<VTK_TT>(content, srcDataTypeSize, array->GetNumberOfValues(),
+          vtk::DataArrayValueRange<vtk::detail::DynamicTupleSize, VTK_TT>(array).begin(),
+          deserializer));
+    }
+    if (!copied)
+    {
+      success = false;
+      return;
     }
     const auto id = state["Id"].get<vtkTypeUInt32>();
     const auto hash = state["Hash"].get<std::string>();
