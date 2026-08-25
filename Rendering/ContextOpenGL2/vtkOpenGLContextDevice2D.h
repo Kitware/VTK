@@ -116,6 +116,17 @@ public:
   vtkGetMacro(MaximumMarkerCacheSize, int);
   ///@}
 
+  ///@{
+  /**
+   * Generate antialiased marker sprites using supersampling and linear texture
+   * filtering. This improves the edges of non-rectangular markers at the cost
+   * of additional memory and marker-generation time. Disabled by default.
+   */
+  vtkSetMacro(SmoothMarkers, bool);
+  vtkGetMacro(SmoothMarkers, bool);
+  vtkBooleanMacro(SmoothMarkers, bool);
+  ///@}
+
   /**
    * Draws a rectangle
    */
@@ -488,6 +499,7 @@ private:
 
   std::list<vtkMarkerCacheObject> MarkerCache;
   int MaximumMarkerCacheSize;
+  bool SmoothMarkers;
 
   /**
    * Generate the marker with the specified shape and size. This function should

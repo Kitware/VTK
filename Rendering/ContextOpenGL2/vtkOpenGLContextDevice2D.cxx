@@ -220,6 +220,7 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
   this->PolyDataImpl = new vtkOpenGLContextDevice2D::CellArrayHelper(this);
   this->RenderWindow = nullptr;
   this->MaximumMarkerCacheSize = 20;
+  this->SmoothMarkers = false;
   this->ProjectionMatrix = vtkTransform::New();
   this->ModelMatrix = vtkTransform::New();
   this->VBO = new vtkOpenGLHelper;
@@ -1234,7 +1235,13 @@ void vtkOpenGLContextDevice2D::DrawMarkers(int shape, bool highlight, vtkDataArr
 
   // Get a point sprite for the shape
   vtkImageData* sprite = this->GetMarker(shape, this->Pen->GetWidth(), highlight);
+  const int textureProperties = this->Brush->GetTextureProperties();
+  if (this->SmoothMarkers && shape != VTK_MARKER_SQUARE)
+  {
+    this->Brush->SetTextureProperties(textureProperties | vtkContextDevice2D::Linear);
+  }
   this->DrawPointSprites(sprite, positions, colors, cacheIdentifier);
+  this->Brush->SetTextureProperties(textureProperties);
 }
 
 //------------------------------------------------------------------------------
@@ -2182,6 +2189,7 @@ vtkImageData* vtkOpenGLContextDevice2D::GetMarker(int shape, int size, bool high
 {
   // Generate the cache key for this marker
   vtkTypeUInt64 key = highlight ? (1U << 31) : 0U;
+  key |= this->SmoothMarkers ? (1U << 30) : 0U;
   key |= static_cast<vtkTypeUInt16>(shape);
   key <<= 32;
   key |= static_cast<vtkTypeUInt32>(size);
@@ -2282,6 +2290,62 @@ void vtkOpenGLContextDevice2D::ComputeStringBoundsInternal(
 //------------------------------------------------------------------------------
 vtkImageData* vtkOpenGLContextDevice2D::GenerateMarker(int shape, int width, bool highlight)
 {
+  if (this->SmoothMarkers && shape != VTK_MARKER_SQUARE)
+  {
+    if (shape <= VTK_MARKER_NONE || shape >= VTK_MARKER_UNKNOWN)
+    {
+      vtkWarningMacro(<< "Invalid marker shape: " << shape);
+      shape = VTK_MARKER_PLUS;
+    }
+    const int scale = std::clamp(static_cast<int>(std::round(64.0 / width)), 1, 16);
+    const int imageWidth = width * scale;
+    vtkImageData* result = vtkImageData::New();
+    result->SetExtent(0, imageWidth - 1, 0, imageWidth - 1, 0, 0);
+    result->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
+
+    unsigned char* image = static_cast<unsigned char*>(result->GetScalarPointer());
+    for (int i = 0; i < imageWidth * imageWidth; ++i)
+    {
+      image[4 * i] = 255;
+      image[4 * i + 1] = 255;
+      image[4 * i + 2] = 255;
+      image[4 * i + 3] = 0;
+    }
+
+    const double center = 0.5 * width;
+    const double radius = 0.5 * (width - 1);
+    const double stroke = highlight ? 3.0 : 1.0;
+    for (int i = 0; i < imageWidth; ++i)
+    {
+      for (int j = 0; j < imageWidth; ++j)
+      {
+        const double x = (i + 0.5) / scale;
+        const double y = (j + 0.5) / scale;
+        double signedDistance;
+        switch (shape)
+        {
+          case VTK_MARKER_CIRCLE:
+            signedDistance = std::hypot(x - center, y - center) - radius;
+            break;
+          case VTK_MARKER_DIAMOND:
+            signedDistance = std::abs(x - center) + std::abs(y - center) - radius;
+            break;
+          case VTK_MARKER_CROSS:
+            signedDistance =
+              std::min(std::abs(x - y), std::abs(x + y - width)) / std::sqrt(2.0) - stroke / 2.0;
+            break;
+          default: // Invalid shapes are replaced with plus above.
+          case VTK_MARKER_PLUS:
+            signedDistance = std::min(std::abs(x - center), std::abs(y - center)) - stroke / 2.0;
+            break;
+        }
+        const double coverage = std::clamp(0.5 - signedDistance, 0.0, 1.0);
+        image[4 * (imageWidth * i + j) + 3] = static_cast<unsigned char>(coverage * 255.0 + 0.5);
+      }
+    }
+    return result;
+  }
+
   // Set up the image data, if highlight then the mark shape is different
   vtkImageData* result = vtkImageData::New();
 
@@ -2405,6 +2469,7 @@ void vtkOpenGLContextDevice2D::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" << std::endl;
   }
   os << indent << "MaximumMarkerCacheSize: " << this->MaximumMarkerCacheSize << std::endl;
+  os << indent << "SmoothMarkers: " << (this->SmoothMarkers ? "On" : "Off") << std::endl;
   os << indent << "MarkerCache: " << this->MarkerCache.size() << " entries." << std::endl;
 }
 
