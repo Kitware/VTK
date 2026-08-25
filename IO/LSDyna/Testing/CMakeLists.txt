@@ -5,6 +5,6 @@ if (VTK_USE_LARGE_DATA)
     Data/LSDyna/hemi.draw/,REGEX:.*
     Data/LSDyna/bug_14713/,REGEX:.*
     Data/LSDyna/impact/,REGEX:.*)
-
-  add_subdirectory(Cxx)
 endif ()
+
+add_subdirectory(Cxx)
