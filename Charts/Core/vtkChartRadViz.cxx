@@ -46,9 +46,13 @@ public:
    */
   float DragLensStart[2] = { 0.0f, 0.0f };
   /**
-   * Rotation and mouse angle on left mouse press on a vertex.
+   * Vertices rotation on left mouse press on a vertex.
    */
   double DragStartRotation = 0.0;
+  /**
+   * Mouse position angle in degrees on left mouse press on a vertex (0 for (1,
+   * 0), 90 for (0, 1) and so on).
+   */
   double DragStartMouseAngle = 0.0;
 };
 
@@ -275,6 +279,7 @@ bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
     }
     else
     {
+      // we don't drag anything
       int activeVertexIndex;
       bool activeLensOutline;
       bool activeLensInterior;
@@ -285,6 +290,7 @@ bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
       {
         this->Scene->SetDirty(true);
       }
+      // highlight the active element
       this->Internals->Plot->SetActiveVertexIndex(activeVertexIndex);
       this->Internals->Plot->SetActiveLensOutline(activeLensOutline);
       this->Internals->Plot->SetActiveLensInterior(activeLensInterior);

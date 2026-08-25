@@ -25,10 +25,9 @@
  * be used when value ranges of different components are very
  * different.
  *
- * You can show a ColorWheel (ColorWheelVisibility) that shows the
- * color computed for a point at that position: the hue varies with the
- * angle and the saturation with the radius, using the same mapping as
- * vtkMultiVariateToRGBA.
+ * You can show an HSL (hue, saturation and lightness=0.55) ColorWheel
+ * (ColorWheelVisibility) that shows the color computed for a point at
+ * that position using the same computation as for vtkMultiVariateToRGBA.
  *
  * Alternatively, you can use ScalarVisibility to show the color and
  * opacity on the points.
