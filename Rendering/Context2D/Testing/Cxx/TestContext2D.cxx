@@ -115,9 +115,10 @@ bool ContextItem::Paint(vtkContext2D* painter)
   this->Succeeded = this->Succeeded && IsVector4Same(expectedJustifiedBounds, justifiedBounds);
 
   painter->GetPen()->SetWidth(16.0);
-  float markerPoints[] = { 100.0, 100.0, 200.0, 200.0 };
+  float markerPoints[] = { 100.0, 100.0, 200.0, 200.0, 100.0, 200.0 };
   painter->DrawMarkers(VTK_MARKER_CIRCLE, false, markerPoints, 1);
   painter->DrawMarkers(VTK_MARKER_DIAMOND, true, markerPoints + 2, 1);
+  painter->DrawMarkers(VTK_MARKER_SQUARE, false, markerPoints + 4, 1);
 
   return true;
 }
