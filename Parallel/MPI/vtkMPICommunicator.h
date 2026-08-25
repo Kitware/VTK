@@ -46,9 +46,28 @@ public:
     Request(const Request&);
     ~Request();
     Request& operator=(const Request&);
+
+    /**
+     * Forward to MPI_Test and return 1 if the request completed successfully
+     * This should not be called before the request is used properly (eg:
+     * NoBlockSend/NoBlockReceive) and should not be called after a Test/Wait/Cancel call.
+     */
     int Test();
+
+    /**
+     * Forward to MPI_Cancel and then call MPI_Request_free
+     * This should not be called before the request is used properly (eg:
+     * NoBlockSend/NoBlockReceive) and should not be called after a Test/Wait/Cancel call.
+     */
     void Cancel();
+
+    /**
+     * Forward to MPI_Wait
+     * This should not be called before the request is used properly (eg:
+     * NoBlockSend/NoBlockReceive) and should not be called after a Test/Wait/Cancel call.
+     */
     void Wait();
+
     vtkMPICommunicatorOpaqueRequest* Req;
   };
 
