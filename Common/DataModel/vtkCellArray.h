@@ -1460,6 +1460,9 @@ inline bool vtkCellArray::EnsureStorageForCellSize(vtkIdType cellSize)
         return this->ConvertTo64BitStorage();
       }
       return true;
+    case Int64:
+    case Int32:
+    case Generic:
     default:
       return true;
   }
