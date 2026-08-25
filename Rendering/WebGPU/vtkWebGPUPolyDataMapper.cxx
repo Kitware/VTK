@@ -3302,18 +3302,45 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderMainEnd(
     /*all=*/true);
 }
 
-void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderOutputDef(
-  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
-  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& fss)
+bool vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(
+  vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor)
 {
-  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::FragmentOutput::Def",
-    R"(struct FragmentOutput
+  return wgpuRenderer != nullptr && wgpuActor != nullptr &&
+    wgpuRenderer->GetUseDeepFramebufferTransparency() &&
+    wgpuActor->HasTranslucentPolygonalGeometry();
+}
+
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderOutputDef(
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* wgpuRenderer,
+  vtkWebGPUActor* wgpuActor, std::string& fss)
+{
+  std::string outputDef = R"(struct FragmentOutput
 {
   @builtin(frag_depth) frag_depth: f32,
   @location(0) color: vec4<f32>,
   @location(1) ids: vec4<u32>, // {cell, prop, composite, process}Id
-};)",
-    /*all=*/true);
+};)";
+  if (vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(wgpuRenderer, wgpuActor))
+  {
+    outputDef += R"(
+
+struct FragmentNode
+{
+  color: u32,
+  depth: f32,
+  cellId: u32,
+  propId: u32,
+  next: u32,
+};
+
+@group(4) @binding(0) var<storage, read_write> abufferHeads: array<atomic<u32>>;
+@group(4) @binding(1) var<storage, read_write> abufferNodes: array<FragmentNode>;
+@group(4) @binding(2) var<storage, read_write> abufferCounter: atomic<u32>;
+
+const ABUFFER_END: u32 = 0xFFFFFFFFu;)";
+  }
+  vtkWebGPURenderPipelineCache::Substitute(
+    fss, "//VTK::FragmentOutput::Def", outputDef, /*all=*/true);
 }
 
 void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderMainStart(GraphicsPipelineType pipelineType,
@@ -3807,10 +3834,34 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderCoincidentOffset(
 }
 
 void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderMainEnd(
-  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
-  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& fss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* wgpuRenderer,
+  vtkWebGPUActor* wgpuActor, std::string& fss)
 {
-  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::FragmentMain::End", R"(return output;
+  if (!vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(wgpuRenderer, wgpuActor))
+  {
+    vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::FragmentMain::End", R"(return output;
+})",
+      /*all=*/true);
+    return;
+  }
+
+  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::FragmentMain::End",
+    R"(  let abufferCoord = vec2<u32>(vertex.position.xy);
+  let abufferWidth = u32(scene_transform.viewport.z);
+  let abufferPixel = abufferCoord.x + abufferCoord.y * abufferWidth;
+  if (abufferPixel < arrayLength(&abufferHeads)) {
+    let abufferNode = atomicAdd(&abufferCounter, 1u);
+    if (abufferNode < arrayLength(&abufferNodes)) {
+      let abufferPrev = atomicExchange(&abufferHeads[abufferPixel], abufferNode);
+      abufferNodes[abufferNode].color = pack4x8unorm(output.color);
+      abufferNodes[abufferNode].depth = output.frag_depth;
+      abufferNodes[abufferNode].cellId = output.ids.x;
+      abufferNodes[abufferNode].propId = output.ids.y;
+      abufferNodes[abufferNode].next = abufferPrev;
+    }
+  }
+  discard;
+  return output;
 })",
     /*all=*/true);
 }

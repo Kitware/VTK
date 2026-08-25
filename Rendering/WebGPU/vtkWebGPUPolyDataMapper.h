@@ -346,6 +346,12 @@ protected:
   virtual void ReplaceVertexShaderMainEnd(GraphicsPipelineType pipelineType,
     vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
 
+  /**
+   * Whether this draw appends its fragments to the renderer's deep framebuffer
+   * rather than writing to the color attachment.
+   */
+  static bool UsesDeepFramebuffer(vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor);
+
   virtual void ReplaceFragmentShaderOutputDef(GraphicsPipelineType pipelineType,
     vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& fss);
 
