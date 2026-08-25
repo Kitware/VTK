@@ -370,7 +370,8 @@
     _vtk_add_event(Select3DEvent)                                                                  \
     _vtk_add_event(Elevation3DEvent)                                                               \
     _vtk_add_event(BufferChangedEvent)                                                             \
-    _vtk_add_event(DPIChangedEvent)
+    _vtk_add_event(DPIChangedEvent)                                                                \
+    _vtk_add_event(CleanupAbortCheckEvent)
 // clang-format on
 
 #define vtkEventDeclarationMacro(_enum_name)                                                       \
