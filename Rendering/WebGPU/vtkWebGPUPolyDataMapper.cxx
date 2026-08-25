@@ -531,6 +531,15 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   WGPURenderPassEncoder encoder(passEncoder);
   wgpuRenderPassEncoderSetBindGroup(encoder, 2, this->MeshAttributeBindGroup,
     this->MeshAttributeDynamicOffsets.size(), this->MeshAttributeDynamicOffsets.data());
+  if (auto* wgpuRendererForABuffer = vtkWebGPURenderer::SafeDownCast(renderer))
+  {
+    if (vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(
+          wgpuRendererForABuffer, vtkWebGPUActor::SafeDownCast(actor)))
+    {
+      wgpuRenderPassEncoderSetBindGroup(
+        encoder, 4, wgpuRendererForABuffer->GetDeepFramebufferBindGroup(), 0, nullptr);
+    }
+  }
   this->SetVertexBuffers(passEncoder);
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
@@ -749,6 +758,15 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   WGPURenderBundleEncoder encoder(bundleEncoder);
   wgpuRenderBundleEncoderSetBindGroup(encoder, 2, this->MeshAttributeBindGroup,
     this->MeshAttributeDynamicOffsets.size(), this->MeshAttributeDynamicOffsets.data());
+  if (auto* wgpuRendererForABuffer = vtkWebGPURenderer::SafeDownCast(renderer))
+  {
+    if (vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(
+          wgpuRendererForABuffer, vtkWebGPUActor::SafeDownCast(actor)))
+    {
+      wgpuRenderBundleEncoderSetBindGroup(
+        encoder, 4, wgpuRendererForABuffer->GetDeepFramebufferBindGroup(), 0, nullptr);
+    }
+  }
   this->SetVertexBuffers(bundleEncoder);
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
@@ -2118,6 +2136,11 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
     bgls.emplace_back(this->CreateTopologyBindGroupLayout(device,
       this->GetObjectDescription() + "TopologyBindGroupLayout", homogeneousCellSize,
       useEdgeArrray));
+
+    if (vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(wgpuRenderer, wgpuActor))
+    {
+      bgls.emplace_back(wgpuRenderer->GetDeepFramebufferBindGroupLayout());
+    }
 
     vtkWebGPU::PipelineLayout pipelineLayout =
       vtkWebGPU::PipelineLayout::Acquire(vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(

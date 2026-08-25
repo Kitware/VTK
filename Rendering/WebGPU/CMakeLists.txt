@@ -141,6 +141,7 @@ unset(wgsl_shader_sources)
 unset(private_wgsl_shader_headers)
 unset(public_wgsl_shader_headers)
 set(private_shader_files
+  wgsl/ABufferResolve.wgsl
   wgsl/ActorColorOptions.wgsl
   wgsl/ActorRenderOptions.wgsl
   wgsl/ActorTransform.wgsl

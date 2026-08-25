@@ -584,6 +584,10 @@ void vtkWebGPURenderer::UpdateBuffers()
 {
   this->RenderStage = RenderStageEnum::SyncDeviceResources;
   this->SetupBindGroupLayouts();
+  if (this->PrepareDeepFramebuffer())
+  {
+    this->DeepFramebuffer->Clear();
+  }
   this->UpdateCamera(); // brings the camera's transform matrices up-to-date.
   this->UpdateLightGeometry();
   this->UpdateLights();
