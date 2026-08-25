@@ -188,8 +188,6 @@ ctest -R RenderingCoreCxx-WebGPU -V
 
 ---
 
----
-
 ## WebGPU Runtime Loading
 
 VTK's WebGPU module resolves a WebGPU implementation library at runtime through a
