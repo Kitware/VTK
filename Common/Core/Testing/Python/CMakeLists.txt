@@ -19,6 +19,7 @@ vtk_add_test_python(
   TestExpects.py
   TestFilePath.py
   TestFunctions.py
+  TestGarbageCollection.py
   TestGhost.py
   TestGhostCleanup.py
   TestImplicitArrayInstantiation.py

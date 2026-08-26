@@ -443,6 +443,14 @@ int PyVTKObject_Traverse(PyObject* o, visitproc visit, void* arg)
   PyVTKObject* self = (PyVTKObject*)o;
   int err = 0;
 
+  // Visit the instance dictionary.  Without this, the collector cannot see
+  // cycles that pass through an attribute of a wrapped object, and neither
+  // the object nor anything it holds is ever freed.
+  if (self->vtk_dict)
+  {
+    err = visit(self->vtk_dict, arg);
+  }
+
   if (self->vtk_observers != nullptr)
   {
     unsigned long* olist = self->vtk_observers;
