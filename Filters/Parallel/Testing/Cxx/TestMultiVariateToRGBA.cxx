@@ -108,5 +108,6 @@ int TestMultiVariateToRGBA(int argc, char* argv[])
     iren->Start();
   }
   controller->Finalize();
+  vtkMultiProcessController::SetGlobalController(nullptr);
   return retVal ? EXIT_SUCCESS : EXIT_FAILURE;
 }

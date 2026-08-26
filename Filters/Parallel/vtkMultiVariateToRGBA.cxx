@@ -545,7 +545,10 @@ vtkMultiVariateToRGBA::vtkMultiVariateToRGBA()
 }
 
 //------------------------------------------------------------------------------
-vtkMultiVariateToRGBA::~vtkMultiVariateToRGBA() = default;
+vtkMultiVariateToRGBA::~vtkMultiVariateToRGBA()
+{
+  this->SetController(nullptr);
+}
 
 //------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetVerticesRotation(double rotation)
