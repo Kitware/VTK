@@ -10,6 +10,10 @@
 // the
 //   dataset contains polyhedra.
 //
+// * TestHDFWriterPolyhedraStaticTemporal: tests that a static-mesh temporal dataset containing
+//   polyhedra (points/cells reused across timesteps via negative offsets) is written and reread
+//   correctly.
+//
 // * TestHDFWriterMixedCells: tests that polyhedra are written and reread
 //   correctly when mixed with other cell types.
 
@@ -153,6 +157,106 @@ bool TestHDFWriterPolyhedraTemporal(int argc, char* argv[])
 }
 
 //------------------------------------------------------------------------------
+// Tests that a static-mesh temporal polyhedra dataset (points/cells shared across
+// timesteps, referenced via negative offsets) survives a write/read roundtrip.
+bool TestHDFWriterPolyhedraStaticTemporal(int argc, char* argv[])
+{
+  vtkLog(INFO, "Starting TestHDFWriterPolyhedraStaticTemporal...");
+
+  vtkNew<vtkTesting> testUtils;
+  testUtils->AddArguments(argc, argv);
+  std::string dataRoot = testUtils->GetDataRoot();
+
+  // Read the original polyhedra_static_temporal.vtkhdf file
+  std::string inputFilePath = dataRoot + "/Data/vtkHDF/polyhedra_static_temporal.vtkhdf";
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(inputFilePath.c_str());
+  reader->Update();
+
+  vtkIdType numberOfTimesteps = reader->GetNumberOfSteps();
+  vtkLog(INFO, "Number of timesteps available: " << numberOfTimesteps);
+
+  // Capture the original data at each timestep before writing, since driving the
+  // writer's pipeline through this reader afterwards would leave it on the last step.
+  std::vector<vtkSmartPointer<vtkUnstructuredGrid>> originalDataSets;
+  for (vtkIdType timeIndex = 0; timeIndex < numberOfTimesteps; ++timeIndex)
+  {
+    reader->SetStep(timeIndex);
+    reader->Update();
+    vtkUnstructuredGrid* originalData = vtkUnstructuredGrid::SafeDownCast(reader->GetOutput());
+    if (!originalData)
+    {
+      vtkLog(ERROR, "Failed to read timestep " << timeIndex << " as vtkUnstructuredGrid");
+      return false;
+    }
+    originalDataSets.push_back(vtkSmartPointer<vtkUnstructuredGrid>::New());
+    originalDataSets.back()->ShallowCopy(originalData);
+  }
+
+  // Write the dataset to a temporary file
+  std::string tempDir = testUtils->GetTempDirectory();
+  std::string tempFilePath = tempDir + "/TestHDFWriterPolyhedraStaticTemporal.vtkhdf";
+
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetInputConnection(reader->GetOutputPort());
+  writer->SetFileName(tempFilePath.c_str());
+  writer->SetWriteAllTimeSteps(true);
+  writer->SetCompressionLevel(1);
+  writer->Write();
+
+  vtkLog(INFO, "  Wrote temporary file to: " << tempFilePath);
+
+  // Read the temporary file back with a second reader
+  vtkNew<vtkHDFReader> rereadReader;
+  if (!rereadReader->CanReadFile(tempFilePath.c_str()))
+  {
+    vtkLog(ERROR, "  vtkHDFReader cannot read temporary file: " << tempFilePath);
+    return false;
+  }
+  rereadReader->SetFileName(tempFilePath.c_str());
+  rereadReader->Update();
+
+  vtkIdType numberOfRereadTimesteps = rereadReader->GetNumberOfSteps();
+  if (numberOfRereadTimesteps != numberOfTimesteps)
+  {
+    vtkLog(ERROR,
+      "Timestep count mismatch: original=" << numberOfTimesteps
+                                           << ", reread=" << numberOfRereadTimesteps);
+    return false;
+  }
+
+  bool overallSuccess = true;
+  for (vtkIdType timeIndex = 0; timeIndex < numberOfTimesteps; ++timeIndex)
+  {
+    vtkUnstructuredGrid* originalData = originalDataSets[timeIndex];
+
+    rereadReader->SetStep(timeIndex);
+    rereadReader->Update();
+    vtkUnstructuredGrid* rereadData = vtkUnstructuredGrid::SafeDownCast(rereadReader->GetOutput());
+    if (!rereadData)
+    {
+      vtkLog(ERROR, "Failed to read reread timestep " << timeIndex << " as vtkUnstructuredGrid");
+      overallSuccess = false;
+      continue;
+    }
+
+    vtkLog(INFO,
+      "  Timestep " << timeIndex << " - Original Points=" << originalData->GetNumberOfPoints()
+                    << ", Cells=" << originalData->GetNumberOfCells()
+                    << " | Reread Points=" << rereadData->GetNumberOfPoints()
+                    << ", Cells=" << rereadData->GetNumberOfCells());
+
+    if (!vtkTestUtilities::CompareDataObjects(originalData, rereadData))
+    {
+      vtkLog(ERROR, "  Timestep " << timeIndex << " - Data objects do not match");
+      overallSuccess = false;
+    }
+  }
+
+  return overallSuccess;
+}
+
+//------------------------------------------------------------------------------
 bool TestHDFWriterMixedCells(int argc, char* argv[])
 {
   vtkLog(INFO, "Starting TestHDFWriterMixedCells...");
@@ -264,6 +368,7 @@ int TestHDFWriterPolyhedra(int argc, char* argv[])
 {
   bool success = true;
   success &= TestHDFWriterPolyhedraTemporal(argc, argv);
+  success &= TestHDFWriterPolyhedraStaticTemporal(argc, argv);
   success &= TestHDFWriterMixedCells(argc, argv);
 
   return success ? EXIT_SUCCESS : EXIT_FAILURE;

@@ -104,7 +104,9 @@ vtk_module_test_data(
   Data/vtkHDF/polyhedron_temporal.vtkhdf
   Data/vtkHDF/polyhedron_temporal_0.vtu
   Data/vtkHDF/polyhedron_temporal_1.vtu
-  
+
+  Data/vtkHDF/polyhedra_static_temporal.vtkhdf
+
   Data/vtkHDF/distributed.vtm
   Data/vtkHDF/distributed/cone1.vtu
   Data/vtkHDF/distributed/sphere1.vtu
