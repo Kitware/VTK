@@ -2,24 +2,29 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 
+// #include "VTK/wgsl/SceneTransform.wgsl"
+
 struct FragmentNode
 {
   color: u32,
   depth: f32,
-  objectId: u32,
+  cellId: u32,
+  propId: u32,
   next: u32,
 };
 
 const ABUFFER_END: u32 = 0xFFFFFFFFu;
 const MAX_LAYERS: u32 = 16u;
 
-@group(0) @binding(0) var<storage, read_write> abufferHeads: array<atomic<u32>>;
-@group(0) @binding(1) var<storage, read_write> abufferNodes: array<FragmentNode>;
-@group(0) @binding(2) var<storage, read_write> abufferCounter: atomic<u32>;
+@group(0) @binding(0) var<uniform> scene_transform: SceneTransform;
+@group(0) @binding(2) var<storage, read_write> abufferHeads: array<atomic<u32>>;
+@group(0) @binding(3) var<storage, read_write> abufferNodes: array<FragmentNode>;
+@group(0) @binding(4) var<storage, read_write> abufferCounter: atomic<u32>;
 
 struct ResolveOutput
 {
   @location(0) color: vec4<f32>,
+  @location(1) ids: vec4<u32>,
 };
 
 @vertex
@@ -35,6 +40,7 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
 {
   var output: ResolveOutput;
   output.color = vec4<f32>(0.0, 0.0, 0.0, 0.0);
+  output.ids = vec4<u32>(0u, 0u, 0u, 0u);
 
   let coord = vec2<u32>(position.xy);
   let pixel = coord.x + coord.y * u32(scene_transform.viewport.z);
@@ -45,42 +51,59 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
 
   var depths: array<f32, MAX_LAYERS>;
   var colors: array<u32, MAX_LAYERS>;
+  var cellIds: array<u32, MAX_LAYERS>;
+  var propIds: array<u32, MAX_LAYERS>;
   var count: u32 = 0u;
   var node: u32 = atomicLoad(&abufferHeads[pixel]);
   loop {
-    if (node == ABUFFER_END || count >= MAX_LAYERS) {
+    if (node == ABUFFER_END) {
       break;
     }
-    depths[count] = abufferNodes[node].depth;
-    colors[count] = abufferNodes[node].color;
-    count = count + 1u;
+    let nodeDepth = abufferNodes[node].depth;
+    let nodeColor = abufferNodes[node].color;
+    let nodeCell = abufferNodes[node].cellId;
+    let nodeProp = abufferNodes[node].propId;
     node = abufferNodes[node].next;
+
+    if (count < MAX_LAYERS) {
+      var j: i32 = i32(count) - 1;
+      loop {
+        if (j < 0 || depths[u32(j)] >= nodeDepth) {
+          break;
+        }
+        depths[u32(j) + 1u] = depths[u32(j)];
+        colors[u32(j) + 1u] = colors[u32(j)];
+        cellIds[u32(j) + 1u] = cellIds[u32(j)];
+        propIds[u32(j) + 1u] = propIds[u32(j)];
+        j = j - 1;
+      }
+      depths[u32(j + 1)] = nodeDepth;
+      colors[u32(j + 1)] = nodeColor;
+      cellIds[u32(j + 1)] = nodeCell;
+      propIds[u32(j + 1)] = nodeProp;
+      count = count + 1u;
+    } else if (nodeDepth < depths[0]) {
+      var j: u32 = 0u;
+      loop {
+        if (j + 1u >= MAX_LAYERS || depths[j + 1u] <= nodeDepth) {
+          break;
+        }
+        depths[j] = depths[j + 1u];
+        colors[j] = colors[j + 1u];
+        cellIds[j] = cellIds[j + 1u];
+        propIds[j] = propIds[j + 1u];
+        j = j + 1u;
+      }
+      depths[j] = nodeDepth;
+      colors[j] = nodeColor;
+      cellIds[j] = nodeCell;
+      propIds[j] = nodeProp;
+    }
   }
 
   if (count == 0u) {
     discard;
     return output;
-  }
-
-  var i: u32 = 1u;
-  loop {
-    if (i >= count) {
-      break;
-    }
-    let keyDepth = depths[i];
-    let keyColor = colors[i];
-    var j: i32 = i32(i) - 1;
-    loop {
-      if (j < 0 || depths[u32(j)] >= keyDepth) {
-        break;
-      }
-      depths[u32(j) + 1u] = depths[u32(j)];
-      colors[u32(j) + 1u] = colors[u32(j)];
-      j = j - 1;
-    }
-    depths[u32(j + 1)] = keyDepth;
-    colors[u32(j + 1)] = keyColor;
-    i = i + 1u;
   }
 
   var accum = vec4<f32>(0.0, 0.0, 0.0, 0.0);
@@ -95,5 +118,6 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
   }
 
   output.color = accum;
+  output.ids = vec4<u32>(cellIds[count - 1u], propIds[count - 1u], 0u, 0u);
   return output;
 }

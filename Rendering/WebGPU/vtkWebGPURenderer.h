@@ -177,8 +177,6 @@ public:
    * as the last group of a translucent pipeline. Null unless
    * PrepareDeepFramebuffer() has succeeded.
    */
-  WGPUBindGroupLayout GetDeepFramebufferBindGroupLayout() { return this->ABufferBindGroupLayout; }
-  WGPUBindGroup GetDeepFramebufferBindGroup() { return this->ABufferBindGroup; }
 
   /**
    * Query the stage in the rendering process.
@@ -352,10 +350,15 @@ private:
 
   bool UseDeepFramebufferTransparency = true;
   vtkSmartPointer<vtkWebGPUDeepFramebuffer> DeepFramebuffer;
-  WGPUBindGroupLayout ABufferBindGroupLayout = nullptr;
-  WGPUBindGroup ABufferBindGroup = nullptr;
+  WGPUBuffer DeepFramebufferPlaceholders[3] = { nullptr, nullptr, nullptr };
 
-  void SetupDeepFramebufferBindGroup();
+  /**
+   * Composite the collected translucent fragments over the opaque image. Draws a
+   * full-screen triangle strip into `encoder`; a no-op when transparency is off.
+   */
+  void ResolveDeepFramebuffer(WGPURenderPassEncoder encoder);
+
+  std::string DeepFramebufferResolveKey;
 
   bool UseRenderBundles = true;
   bool RebuildRenderBundle = false;

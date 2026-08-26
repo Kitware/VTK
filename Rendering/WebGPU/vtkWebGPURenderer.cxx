@@ -1,11 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebGPURenderer.h"
+#include "ABufferResolve.h" // for the resolve shader source
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
 #include "Private/vtkWebGPUHandle.h"
 #include "Private/vtkWebGPUHelpersPrivate.h"
+#include "Private/vtkWebGPUPipelineLayoutInternals.h"
 #include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 #include "vtkAbstractMapper.h"
@@ -1039,59 +1041,11 @@ bool vtkWebGPURenderer::PrepareDeepFramebuffer()
     return false;
   }
 
-  if (resized || this->ABufferBindGroup == nullptr)
+  if (resized && this->SceneTransformBuffer != nullptr && this->SceneLightsBuffer != nullptr)
   {
-    this->SetupDeepFramebufferBindGroup();
+    this->SetupSceneBindGroup();
   }
-  return this->ABufferBindGroup != nullptr;
-}
-
-void vtkWebGPURenderer::SetupDeepFramebufferBindGroup()
-{
-  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  WGPUDevice device = wgpuRenderWindow->GetDevice();
-
-  if (this->ABufferBindGroupLayout == nullptr)
-  {
-    std::vector<WGPUBindGroupLayoutEntry> layoutEntries;
-    for (std::uint32_t binding = 0; binding < 3; ++binding)
-    {
-      WGPUBindGroupLayoutEntry entry = WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT;
-      entry.binding = binding;
-      entry.visibility = WGPUShaderStage_Fragment | WGPUShaderStage_Compute;
-      entry.buffer.type = WGPUBufferBindingType_Storage;
-      layoutEntries.push_back(entry);
-    }
-    WGPUBindGroupLayoutDescriptor layoutDesc = WGPU_BIND_GROUP_LAYOUT_DESCRIPTOR_INIT;
-    layoutDesc.label = WGPUStringView{ "DeepFramebufferBindGroupLayout", WGPU_STRLEN };
-    layoutDesc.entryCount = static_cast<uint32_t>(layoutEntries.size());
-    layoutDesc.entries = layoutEntries.data();
-    this->ABufferBindGroupLayout = wgpuDeviceCreateBindGroupLayout(device, &layoutDesc);
-  }
-
-  WGPUBuffer buffers[3] = { this->DeepFramebuffer->GetHeadPointersBuffer(),
-    this->DeepFramebuffer->GetFragmentNodesBuffer(),
-    this->DeepFramebuffer->GetFragmentCounterBuffer() };
-
-  std::vector<WGPUBindGroupEntry> entries;
-  for (std::uint32_t binding = 0; binding < 3; ++binding)
-  {
-    WGPUBindGroupEntry entry = WGPU_BIND_GROUP_ENTRY_INIT;
-    entry.binding = binding;
-    entry.buffer = buffers[binding];
-    entry.offset = 0;
-    entry.size = wgpuBufferGetSize(buffers[binding]);
-    entries.push_back(entry);
-  }
-
-  WGPUBindGroupDescriptor descriptor = WGPU_BIND_GROUP_DESCRIPTOR_INIT;
-  descriptor.label = WGPUStringView{ "DeepFramebufferBindGroup", WGPU_STRLEN };
-  descriptor.layout = this->ABufferBindGroupLayout;
-  descriptor.entryCount = static_cast<uint32_t>(entries.size());
-  descriptor.entries = entries.data();
-
-  vtkWebGPU::ReleaseAndNull(this->ABufferBindGroup, wgpuBindGroupRelease);
-  this->ABufferBindGroup = wgpuDeviceCreateBindGroup(device, &descriptor);
+  return true;
 }
 
 void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
@@ -1105,8 +1059,10 @@ void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
   vtkWebGPU::ReleaseAndNull(this->BackgroundGradientBuffer, wgpuBufferRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneBindGroup, wgpuBindGroupRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneBindGroupLayout, wgpuBindGroupLayoutRelease);
-  vtkWebGPU::ReleaseAndNull(this->ABufferBindGroup, wgpuBindGroupRelease);
-  vtkWebGPU::ReleaseAndNull(this->ABufferBindGroupLayout, wgpuBindGroupLayoutRelease);
+  for (auto& placeholder : this->DeepFramebufferPlaceholders)
+  {
+    vtkWebGPU::ReleaseAndNull(placeholder, wgpuBufferRelease);
+  }
   if (this->DeepFramebuffer != nullptr)
   {
     this->DeepFramebuffer->ReleaseGraphicsResources();
@@ -1210,7 +1166,10 @@ void vtkWebGPURenderer::SetupBindGroupLayouts()
     vtkWebGPU::BindGroupLayout layout = vtkWebGPU::BindGroupLayout::Acquire(
       vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
         { { 0, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform },
-          { 1, WGPUShaderStage_Fragment, WGPUBufferBindingType_ReadOnlyStorage } },
+          { 1, WGPUShaderStage_Fragment, WGPUBufferBindingType_ReadOnlyStorage },
+          { 2, WGPUShaderStage_Fragment, WGPUBufferBindingType_Storage },
+          { 3, WGPUShaderStage_Fragment, WGPUBufferBindingType_Storage },
+          { 4, WGPUShaderStage_Fragment, WGPUBufferBindingType_Storage } },
         "SceneBindGroupLayout"));
     this->SceneBindGroupLayout = layout.Release();
   }
@@ -1242,6 +1201,43 @@ void vtkWebGPURenderer::SetupSceneBindGroup()
   entry1.size = lightSizePadded;
   entries.push_back(entry1);
 
+  for (int placeholder = 0; placeholder < 3; ++placeholder)
+  {
+    if (this->DeepFramebufferPlaceholders[placeholder] != nullptr)
+    {
+      continue;
+    }
+    if (auto* config = wgpuRenderWindow->GetWGPUConfiguration())
+    {
+      const std::string label = "DeepFramebufferPlaceholder" + std::to_string(placeholder);
+      this->DeepFramebufferPlaceholders[placeholder] = config->CreateBuffer(4,
+        static_cast<WGPUBufferUsage>(WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst), false,
+        label.c_str());
+    }
+    if (this->DeepFramebufferPlaceholders[placeholder] == nullptr)
+    {
+      vtkErrorMacro(<< "Could not allocate a deep framebuffer placeholder buffer.");
+      return;
+    }
+  }
+  WGPUBuffer abuffers[3] = { this->DeepFramebufferPlaceholders[0],
+    this->DeepFramebufferPlaceholders[1], this->DeepFramebufferPlaceholders[2] };
+  if (this->DeepFramebuffer != nullptr && this->DeepFramebuffer->GetHeadPointersBuffer() != nullptr)
+  {
+    abuffers[0] = this->DeepFramebuffer->GetHeadPointersBuffer();
+    abuffers[1] = this->DeepFramebuffer->GetFragmentNodesBuffer();
+    abuffers[2] = this->DeepFramebuffer->GetFragmentCounterBuffer();
+  }
+  for (std::uint32_t abufferBinding = 0; abufferBinding < 3; ++abufferBinding)
+  {
+    WGPUBindGroupEntry abufferEntry = WGPU_BIND_GROUP_ENTRY_INIT;
+    abufferEntry.binding = 2 + abufferBinding;
+    abufferEntry.buffer = abuffers[abufferBinding];
+    abufferEntry.offset = 0;
+    abufferEntry.size = wgpuBufferGetSize(abuffers[abufferBinding]);
+    entries.push_back(abufferEntry);
+  }
+
   WGPUBindGroupDescriptor descriptor = WGPU_BIND_GROUP_DESCRIPTOR_INIT;
   descriptor.label = WGPUStringView{ "SceneBindGroup", WGPU_STRLEN };
   descriptor.layout = this->SceneBindGroupLayout;
@@ -1249,6 +1245,68 @@ void vtkWebGPURenderer::SetupSceneBindGroup()
   descriptor.entries = entries.data();
 
   this->SceneBindGroup = wgpuDeviceCreateBindGroup(device, &descriptor);
+}
+
+void vtkWebGPURenderer::ResolveDeepFramebuffer(WGPURenderPassEncoder encoder)
+{
+  if (!this->UseDeepFramebufferTransparency || this->DeepFramebuffer == nullptr)
+  {
+    return;
+  }
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  if (wgpuRenderWindow == nullptr)
+  {
+    return;
+  }
+  WGPUDevice device = wgpuRenderWindow->GetDevice();
+  auto* pipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
+
+  const std::string pipelineLabel = "DeepFramebufferResolve-" + this->GetObjectDescription();
+  vtkWebGPURenderPipelineDescriptorInternals pipelineDesc;
+  pipelineDesc.label = vtkWebGPUMakeStringView(pipelineLabel);
+  pipelineDesc.vertex.entryPoint = WGPUStringView{ "resolveVertexMain", WGPU_STRLEN };
+  pipelineDesc.vertex.bufferCount = 0;
+  pipelineDesc.cFragment.entryPoint = WGPUStringView{ "resolveFragmentMain", WGPU_STRLEN };
+  pipelineDesc.primitive.topology = WGPUPrimitiveTopology_TriangleStrip;
+  auto* depthState = pipelineDesc.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
+  depthState->depthWriteEnabled = WGPUOptionalBool_False;
+  depthState->depthCompare = WGPUCompareFunction_Always;
+
+  pipelineDesc.cFragment.targetCount = 2;
+  pipelineDesc.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+  pipelineDesc.cTargets[1].format = wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat();
+  pipelineDesc.cTargets[1].writeMask = WGPUColorWriteMask_All;
+  auto* blend = pipelineDesc.EnableBlending(0);
+  blend->color.srcFactor = WGPUBlendFactor_One;
+  blend->color.dstFactor = WGPUBlendFactor_OneMinusSrcAlpha;
+  blend->color.operation = WGPUBlendOperation_Add;
+  blend->alpha.srcFactor = WGPUBlendFactor_One;
+  blend->alpha.dstFactor = WGPUBlendFactor_OneMinusSrcAlpha;
+  blend->alpha.operation = WGPUBlendOperation_Add;
+
+  std::vector<WGPUBindGroupLayout> layouts = { this->SceneBindGroupLayout };
+  vtkWebGPU::PipelineLayout pipelineLayout =
+    vtkWebGPU::PipelineLayout::Acquire(vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
+      device, layouts, pipelineLabel + "-Layout"));
+  pipelineDesc.layout = pipelineLayout;
+
+  const char* shaderSource = ABufferResolve;
+  const auto key = pipelineCache->GetPipelineKey(&pipelineDesc, shaderSource);
+  if (this->DeepFramebufferResolveKey != key)
+  {
+    pipelineCache->CreateRenderPipeline(&pipelineDesc, wgpuRenderWindow, shaderSource);
+    this->DeepFramebufferResolveKey = key;
+  }
+  WGPURenderPipeline pipeline = pipelineCache->GetRenderPipeline(key);
+  if (pipeline == nullptr)
+  {
+    vtkErrorMacro(<< "Could not create the deep framebuffer resolve pipeline.");
+    return;
+  }
+
+  wgpuRenderPassEncoderSetPipeline(encoder, pipeline);
+  wgpuRenderPassEncoderSetBindGroup(encoder, 0, this->SceneBindGroup, 0, nullptr);
+  wgpuRenderPassEncoderDraw(encoder, 4, 1, 0, 0);
 }
 
 void vtkWebGPURenderer::EndRecording()
@@ -1268,6 +1326,7 @@ void vtkWebGPURenderer::EndRecording()
       wgpuRenderPassEncoderExecuteBundles(renderEncoder, 1, &this->Bundle);
     }
   }
+  this->ResolveDeepFramebuffer(renderEncoder);
 #if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
   wgpuRenderPassEncoderPopDebugGroup(renderEncoder);
 #endif

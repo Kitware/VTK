@@ -531,15 +531,6 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   WGPURenderPassEncoder encoder(passEncoder);
   wgpuRenderPassEncoderSetBindGroup(encoder, 2, this->MeshAttributeBindGroup,
     this->MeshAttributeDynamicOffsets.size(), this->MeshAttributeDynamicOffsets.data());
-  if (auto* wgpuRendererForABuffer = vtkWebGPURenderer::SafeDownCast(renderer))
-  {
-    if (vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(
-          wgpuRendererForABuffer, vtkWebGPUActor::SafeDownCast(actor)))
-    {
-      wgpuRenderPassEncoderSetBindGroup(
-        encoder, 4, wgpuRendererForABuffer->GetDeepFramebufferBindGroup(), 0, nullptr);
-    }
-  }
   this->SetVertexBuffers(passEncoder);
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
@@ -758,15 +749,6 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   WGPURenderBundleEncoder encoder(bundleEncoder);
   wgpuRenderBundleEncoderSetBindGroup(encoder, 2, this->MeshAttributeBindGroup,
     this->MeshAttributeDynamicOffsets.size(), this->MeshAttributeDynamicOffsets.data());
-  if (auto* wgpuRendererForABuffer = vtkWebGPURenderer::SafeDownCast(renderer))
-  {
-    if (vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(
-          wgpuRendererForABuffer, vtkWebGPUActor::SafeDownCast(actor)))
-    {
-      wgpuRenderBundleEncoderSetBindGroup(
-        encoder, 4, wgpuRendererForABuffer->GetDeepFramebufferBindGroup(), 0, nullptr);
-    }
-  }
   this->SetVertexBuffers(bundleEncoder);
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
@@ -2137,11 +2119,6 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
       this->GetObjectDescription() + "TopologyBindGroupLayout", homogeneousCellSize,
       useEdgeArrray));
 
-    if (vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(wgpuRenderer, wgpuActor))
-    {
-      bgls.emplace_back(wgpuRenderer->GetDeepFramebufferBindGroupLayout());
-    }
-
     vtkWebGPU::PipelineLayout pipelineLayout =
       vtkWebGPU::PipelineLayout::Acquire(vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
         device, bgls, this->GetObjectDescription() + "-PipelineLayout"));
@@ -3356,9 +3333,9 @@ struct FragmentNode
   next: u32,
 };
 
-@group(4) @binding(0) var<storage, read_write> abufferHeads: array<atomic<u32>>;
-@group(4) @binding(1) var<storage, read_write> abufferNodes: array<FragmentNode>;
-@group(4) @binding(2) var<storage, read_write> abufferCounter: atomic<u32>;
+@group(0) @binding(2) var<storage, read_write> abufferHeads: array<atomic<u32>>;
+@group(0) @binding(3) var<storage, read_write> abufferNodes: array<FragmentNode>;
+@group(0) @binding(4) var<storage, read_write> abufferCounter: atomic<u32>;
 
 const ABUFFER_END: u32 = 0xFFFFFFFFu;)";
   }
