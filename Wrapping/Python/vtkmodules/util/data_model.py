@@ -4,7 +4,12 @@ to VTK datasets. See examples at bottom.
 
 import sys
 from contextlib import suppress
-from vtkmodules.vtkCommonCore import vtkPoints, vtkAbstractArray, vtkDataArray
+from vtkmodules.vtkCommonCore import (
+    vtkPoints,
+    vtkAbstractArray,
+    vtkDataArray,
+    vtkWeakReference,
+)
 from vtkmodules.vtkCommonDataModel import (
     vtkCellArray,
     vtkDataObject,
@@ -99,6 +104,10 @@ class FieldDataBase(object):
     This class is the base for ``FieldData``, ``DataSetAttributes``,
     ``PointData``, and ``CellData`` overrides.
     """
+
+    # Class-level default so the property works even if __init__ is skipped.
+    _dataset = None
+
     def __init__(self, *args):
         # SWIG pointer reconstruction: tp_new already returned the
         # existing object; skip init to avoid clobbering state.
@@ -106,6 +115,41 @@ class FieldDataBase(object):
             return
         self.association = None
         self.dataset = None
+
+    def _set_dataset(self, dataset):
+        """Store a *weak* reference to the owning dataset.
+
+        This is a child-to-parent back reference, so it must not keep the
+        dataset alive.  A strong reference here leaks the whole dataset: when
+        the Python wrapper for this field data is released while the C++
+        object is still alive (the common case -- ``ds.cell_data`` returns a
+        temporary), ``vtkPythonUtil::RemoveObjectFromMap`` stashes ``__dict__``
+        in the ghost map, which then pins everything it references until the
+        C++ object dies.  Since the dataset owns this field data, that never
+        happens, and the cycle is invisible to Python's garbage collector.
+        ``VTKDataArrayMixin._set_dataset`` uses the same weak reference.
+        """
+        if dataset is None:
+            self._dataset = None
+            return
+        # Reuse the existing holder: point_data/cell_data are hot paths and
+        # each access re-sets the owner.
+        ref = self._dataset
+        if ref is None:
+            ref = vtkWeakReference()
+            self._dataset = ref
+        ref.Set(dataset)
+
+    @property
+    def dataset(self):
+        """The dataset owning this field data, or None."""
+        if self._dataset is not None:
+            return self._dataset.Get()
+        return None
+
+    @dataset.setter
+    def dataset(self, value):
+        self._set_dataset(value)
 
     def __getitem__(self, idx):
         """Implements the [] operator. Accepts an array name or index."""
@@ -203,15 +247,30 @@ class FieldDataBase(object):
             self.AddArray(arr)
             return
 
+        dataset = self.dataset
+        if dataset is None and self.association in (
+            vtkDataObject.POINT,
+            vtkDataObject.CELL,
+            vtkDataObject.ROW,
+        ):
+            raise RuntimeError(
+                "Cannot size the array %r: the owning dataset is no longer "
+                "alive.  Field data keeps only a weak reference to its "
+                "dataset, so chaining off an unowned temporary -- e.g. "
+                "make_mesh().point_data['x'] = 1.0 -- destroys the dataset "
+                "before the assignment runs.  Bind the dataset to a name "
+                "first." % name
+            )
+
         if self.association == vtkDataObject.POINT:
-            arrLength = self.dataset.GetNumberOfPoints()
+            arrLength = dataset.GetNumberOfPoints()
         elif self.association == vtkDataObject.CELL:
-            arrLength = self.dataset.GetNumberOfCells()
+            arrLength = dataset.GetNumberOfCells()
         elif (
             self.association == vtkDataObject.ROW
-            and self.dataset.GetNumberOfColumns() > 0
+            and dataset.GetNumberOfColumns() > 0
         ):
-            arrLength = self.dataset.GetNumberOfRows()
+            arrLength = dataset.GetNumberOfRows()
         else:
             if not isinstance(narray, numpy.ndarray):
                 arrLength = 1
