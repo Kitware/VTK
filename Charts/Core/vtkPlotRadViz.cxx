@@ -525,7 +525,6 @@ void vtkPlotRadViz::DrawColorWheel(vtkContext2D* painter)
   // The hue varies with the angle and the saturation with the radius, using
   // the same HSL conversion as vtkMultiVariateToRGBA, so the wheel matches
   // the computed point colors.
-  const int ringCount = 16;
   for (int i = 0; i < this->ColorWheelSegmentCount; ++i)
   {
     double hue = static_cast<double>(i) / this->ColorWheelSegmentCount;
@@ -542,9 +541,9 @@ void vtkPlotRadViz::DrawColorWheel(vtkContext2D* painter)
     }
     start += this->ColorWheelStartAngle;
     end += this->ColorWheelStartAngle;
-    for (int j = 0; j < ringCount; ++j)
+    for (int j = 0; j < this->ColorWheelRingCount; ++j)
     {
-      double saturation = (j + 0.5) / ringCount;
+      double saturation = (j + 0.5) / this->ColorWheelRingCount;
       std::array<double, 3> rgb;
       vtkMultiVariateToRGBA::HSLToRGB(
         hue, saturation, vtkMultiVariateToRGBA::ColorLightness, rgb.data());
@@ -552,8 +551,8 @@ void vtkPlotRadViz::DrawColorWheel(vtkContext2D* painter)
       std::transform(rgb.begin(), rgb.end(), rgbChar.begin(),
         [](double v) { return static_cast<unsigned char>(v * 255); });
       painter->GetBrush()->SetColor(rgbChar.data());
-      double outerRadius = this->Internals->Radius * (j + 1) / ringCount;
-      double innerRadius = this->Internals->Radius * j / ringCount;
+      double outerRadius = this->Internals->Radius * (j + 1) / this->ColorWheelRingCount;
+      double innerRadius = this->Internals->Radius * j / this->ColorWheelRingCount;
       painter->DrawEllipseWedge(this->Internals->Center[0], this->Internals->Center[1], outerRadius,
         outerRadius, innerRadius, innerRadius, start, end);
     }

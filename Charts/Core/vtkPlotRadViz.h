@@ -132,6 +132,16 @@ public:
 
   ///@{
   /**
+   * Number of concentric rings used when drawing the color wheel. More
+   * rings produce a smoother gradient from the center outward. The
+   * default is 16.
+   */
+  vtkSetMacro(ColorWheelRingCount, int);
+  vtkGetMacro(ColorWheelRingCount, int);
+  ///@}
+
+  ///@{
+  /**
    * Angle in degrees at which the starting color (red) is placed on the
    * color wheel. It is set to 90 to match colors computed by
    * vtkMultiVariateToRGBA.
@@ -376,6 +386,7 @@ protected:
    */
   vtkSmartPointer<vtkTextProperty> LabelsProperties = vtkSmartPointer<vtkTextProperty>::New();
   int ColorWheelSegmentCount = 120;
+  int ColorWheelRingCount = 16;
   int ColorWheelStartAngle = 90;
   bool ColorWheelClockwiseOrdering = true;
   bool ColorWheelVisibility = true;
