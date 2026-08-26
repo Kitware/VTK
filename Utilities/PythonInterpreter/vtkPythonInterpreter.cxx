@@ -536,14 +536,19 @@ bool vtkPythonInterpreter::InitializeWithArgs(
     if (vtkPythonInterpreter::RedirectOutput)
     {
       // Setup handlers for stdout/stdin/stderr.
-      vtkPythonStdStreamCaptureHelper* wrapperOut = NewPythonStdStreamCaptureHelper(false);
-      vtkPythonStdStreamCaptureHelper* wrapperErr = NewPythonStdStreamCaptureHelper(true);
+      vtkPythonStdStreamCaptureHelper* wrapperOut =
+        NewPythonStdStreamCaptureHelper(false, VTK_PYTHON_STDOUT_FILENO);
+      vtkPythonStdStreamCaptureHelper* wrapperErr =
+        NewPythonStdStreamCaptureHelper(true, VTK_PYTHON_STDERR_FILENO);
+      vtkPythonStdStreamCaptureHelper* wrapperIn =
+        NewPythonStdStreamCaptureHelper(false, VTK_PYTHON_STDIN_FILENO);
       vtkPythonScopeGilEnsurer gilEnsurer;
       PySys_SetObject("stdout", reinterpret_cast<PyObject*>(wrapperOut));
       PySys_SetObject("stderr", reinterpret_cast<PyObject*>(wrapperErr));
-      PySys_SetObject("stdin", reinterpret_cast<PyObject*>(wrapperOut));
+      PySys_SetObject("stdin", reinterpret_cast<PyObject*>(wrapperIn));
       Py_DECREF(wrapperOut);
       Py_DECREF(wrapperErr);
+      Py_DECREF(wrapperIn);
     }
 
     // We call this before processing any of Python paths added by the
