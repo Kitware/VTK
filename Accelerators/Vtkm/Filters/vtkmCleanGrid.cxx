@@ -23,7 +23,6 @@ vtkStandardNewMacro(vtkmCleanGrid);
 
 //------------------------------------------------------------------------------
 vtkmCleanGrid::vtkmCleanGrid()
-  : CompactPoints(false)
 {
   this->ForceVTKm = true; // Because it's NOT VTKm a implementation of  VTK filter.
 }
@@ -56,15 +55,29 @@ int vtkmCleanGrid::RequestData(vtkInformation* vtkNotUsed(request),
   vtkUnstructuredGrid* output =
     vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  tovtkm::FieldsFlag fieldsFlag = tovtkm::FieldsFlag::None;
+  if (this->CompactPoints || this->MergePoints)
+  {
+    fieldsFlag = fieldsFlag | tovtkm::FieldsFlag::Points;
+  }
+  if (this->RemoveDegenerateCells)
+  {
+    fieldsFlag = fieldsFlag | tovtkm::FieldsFlag::Cells;
+  }
+
   try
   {
     // convert the input dataset to a viskores::cont::DataSet
-    auto fieldsFlag = this->CompactPoints ? tovtkm::FieldsFlag::Points : tovtkm::FieldsFlag::None;
     viskores::cont::DataSet in = tovtkm::Convert(input, fieldsFlag, this->ForceVTKm);
 
     // apply the filter
     viskores::filter::clean_grid::CleanGrid filter;
     filter.SetCompactPointFields(this->CompactPoints);
+    filter.SetMergePoints(this->MergePoints);
+    filter.SetTolerance(this->Tolerance);
+    filter.SetToleranceIsAbsolute(this->ToleranceIsAbsolute);
+    filter.SetRemoveDegenerateCells(this->RemoveDegenerateCells);
+    filter.SetFastMerge(this->FastMerge);
     auto result = filter.Execute(in);
 
     // convert back to vtkDataSet (vtkUnstructuredGrid)
@@ -80,12 +93,15 @@ int vtkmCleanGrid::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  // pass cell data
-  if (!this->CompactPoints)
+  // pass data that was not sent to filter
+  if ((fieldsFlag & tovtkm::FieldsFlag::Points) != tovtkm::FieldsFlag::Points)
   {
     output->GetPointData()->PassData(input->GetPointData());
   }
-  output->GetCellData()->PassData(input->GetCellData());
+  if ((fieldsFlag & tovtkm::FieldsFlag::Cells) != tovtkm::FieldsFlag::Cells)
+  {
+    output->GetCellData()->PassData(input->GetCellData());
+  }
 
   return 1;
 }
