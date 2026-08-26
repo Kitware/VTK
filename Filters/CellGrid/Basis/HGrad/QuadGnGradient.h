@@ -16,8 +16,8 @@ for (int ii = 0; ii <= order; ++ii)
     {
       continue;
     }
-    rterm[ii] *= (rr - gpts[order][jj]) / (gpts[order][ii] - gpts[order][jj]);
-    sterm[ii] *= (ss - gpts[order][jj]) / (gpts[order][ii] - gpts[order][jj]);
+    rterm[ii] *= (rr - gaussPoint(order, jj)) / (gaussPoint(order, ii) - gaussPoint(order, jj));
+    sterm[ii] *= (ss - gaussPoint(order, jj)) / (gaussPoint(order, ii) - gaussPoint(order, jj));
     double drt = 1.;
     double dst = 1.;
     for (int kk = 0; kk <= order; ++kk)
@@ -26,8 +26,10 @@ for (int ii = 0; ii <= order; ++ii)
       {
         continue;
       }
-      drt *= (kk == jj ? 1. : (rr - gpts[order][jj])) / (gpts[order][kk] - gpts[order][jj]);
-      dst *= (kk == jj ? 1. : (ss - gpts[order][jj])) / (gpts[order][kk] - gpts[order][jj]);
+      // clang-format off
+      drt *= (kk == jj ? 1. : (rr - gaussPoint(order, jj))) / (gaussPoint(order, kk) - gaussPoint(order, jj));
+      dst *= (kk == jj ? 1. : (ss - gaussPoint(order, jj))) / (gaussPoint(order, kk) - gaussPoint(order, jj));
+      // clang-format on
     }
     drterm[ii] += drt;
     dsterm[ii] += dst;

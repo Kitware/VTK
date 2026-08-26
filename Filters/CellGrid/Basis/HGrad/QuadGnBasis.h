@@ -12,8 +12,8 @@ for (int ii = 0; ii <= order; ++ii)
     {
       continue;
     }
-    rterm[ii] *= (rr - gpts[order][jj]) / (gpts[order][ii] - gpts[order][jj]);
-    sterm[ii] *= (ss - gpts[order][jj]) / (gpts[order][ii] - gpts[order][jj]);
+    rterm[ii] *= (rr - gaussPoint(order, jj)) / (gaussPoint(order, ii) - gaussPoint(order, jj));
+    sterm[ii] *= (ss - gaussPoint(order, jj)) / (gaussPoint(order, ii) - gaussPoint(order, jj));
   }
 }
 
