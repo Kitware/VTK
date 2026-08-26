@@ -214,13 +214,8 @@ vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 //------------------------------------------------------------------------------
 vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
 {
-  this->Renderer = nullptr;
-  this->InRender = false;
   this->Storage = new vtkOpenGLContextDevice2D::Private;
   this->PolyDataImpl = new vtkOpenGLContextDevice2D::CellArrayHelper(this);
-  this->RenderWindow = nullptr;
-  this->MaximumMarkerCacheSize = 20;
-  this->SmoothMarkers = false;
   this->ProjectionMatrix = vtkTransform::New();
   this->ModelMatrix = vtkTransform::New();
   this->VBO = new vtkOpenGLHelper;
@@ -230,7 +225,6 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
   this->VTBO = new vtkOpenGLHelper;
   this->SBO = new vtkOpenGLHelper;
   this->SCBO = new vtkOpenGLHelper;
-  this->LinePattern = 0xFFFF;
 }
 
 //------------------------------------------------------------------------------

@@ -365,12 +365,12 @@ protected:
   /**
    * We need to store a pointer to the renderer for the text rendering
    */
-  vtkRenderer* Renderer;
+  vtkRenderer* Renderer = nullptr;
 
   /**
    * Is the device currently rendering? Prevent multiple End() calls.
    */
-  bool InRender;
+  bool InRender = false;
 
   ///@{
   /**
@@ -386,7 +386,7 @@ protected:
   /**
    * The OpenGL render window being used by the device
    */
-  vtkOpenGLRenderWindow* RenderWindow;
+  vtkOpenGLRenderWindow* RenderWindow = nullptr;
 
   vtkOpenGLHelper* LinesCBO; // vertex + color
   void ReadyLinesCBOProgram();
@@ -409,7 +409,7 @@ protected:
   void CoreDrawTriangles(
     std::vector<float>& tverts, unsigned char* colors = nullptr, int numComp = 0);
   // used for stipples
-  unsigned short LinePattern;
+  unsigned short LinePattern = 0xFFFF;
 
   ///@{
   /**
@@ -498,8 +498,8 @@ private:
   vtkTransform* ModelMatrix;
 
   std::list<vtkMarkerCacheObject> MarkerCache;
-  int MaximumMarkerCacheSize;
-  bool SmoothMarkers;
+  int MaximumMarkerCacheSize = 20;
+  bool SmoothMarkers = false;
 
   /**
    * Generate the marker with the specified shape and size. This function should
