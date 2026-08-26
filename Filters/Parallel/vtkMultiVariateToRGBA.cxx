@@ -74,8 +74,8 @@ struct NormalizeWorker
   {
   }
 
-  template <typename Input, typename Output>
-  void operator()(Input* scalarsArray, Output* normalizedArray)
+  template <typename Input>
+  void operator()(Input* scalarsArray, vtkDoubleArray* normalizedArray)
   {
     auto scalars = vtk::DataArrayTupleRange(scalarsArray);
     auto normalized = vtk::DataArrayTupleRange(normalizedArray);
@@ -146,8 +146,7 @@ struct ComputeGBCWorker
     , VerticesRotationRad(vtkMath::RadiansFromDegrees(verticesRotation))
   {
   }
-  template <typename Input, typename Output>
-  void operator()(Input* normalizedArray, Output* gbcArray)
+  void operator()(vtkDoubleArray* normalizedArray, vtkDoubleArray* gbcArray)
   {
     auto normalized = vtk::DataArrayTupleRange(normalizedArray);
     auto gbc = vtk::DataArrayTupleRange(gbcArray);
@@ -277,8 +276,7 @@ struct GBCToHSLWorker
   {
   }
 
-  template <typename Input, typename Output>
-  void operator()(Input* gbcScalars, Output* hslScalars)
+  void operator()(vtkDoubleArray* gbcScalars, vtkDoubleArray* hslScalars)
   {
     auto gbc = vtk::DataArrayTupleRange(gbcScalars);
     auto hsl = vtk::DataArrayTupleRange(hslScalars);
@@ -356,8 +354,7 @@ void hslToRgb(double h, double s, double l, double* rgb)
 
 struct HSLToRGBWorker
 {
-  template <typename Input, typename Output>
-  void operator()(Input* hslScalars, Output* rgbaScalars)
+  void operator()(vtkDoubleArray* hslScalars, vtkDoubleArray* rgbaScalars)
   {
     auto hsl = vtk::DataArrayTupleRange(hslScalars);
     auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
@@ -381,8 +378,7 @@ struct HSLToRGBWorker
 struct ComputeAlphaWorker
 {
   ComputeAlphaWorker() = default;
-  template <typename Input, typename Output>
-  void operator()(Input* normalizedScalars, Output* rgbaScalars)
+  void operator()(vtkDoubleArray* normalizedScalars, vtkDoubleArray* rgbaScalars)
   {
     auto normalized = vtk::DataArrayTupleRange(normalizedScalars);
     auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
@@ -417,8 +413,7 @@ struct ComputeLensAlphaWorker
   {
     std::copy(lensCenter, lensCenter + 2, this->LensCenter);
   }
-  template <typename Input, typename Output>
-  void operator()(Input* gbcScalars, Output* rgbaScalars)
+  void operator()(vtkDoubleArray* gbcScalars, vtkDoubleArray* rgbaScalars)
   {
     auto gbc = vtk::DataArrayTupleRange(gbcScalars);
     auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
@@ -878,16 +873,13 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   {
     normalizedScalars->SetComponentName(i, scalars->GetComponentName(i));
   }
-  typedef vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>
-    Dispatcher;
-  // the input scalars can be of any numeric type, the intermediate arrays are always double
-  typedef vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::AllTypes,
-    vtkArrayDispatch::Reals>
-    InputDispatcher;
+  // the input scalars can be of any numeric type; the intermediate arrays created by this
+  // filter are always vtkDoubleArray, so only the input array needs to be dispatched.
+  typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes> InputDispatcher;
   for (size_t i = 0; i < partition.size(); ++i)
   {
     NormalizeWorker worker(partition[i], this->Controller);
-    if (!InputDispatcher::Execute(scalars, normalizedScalars, worker))
+    if (!InputDispatcher::Execute(scalars, worker, normalizedScalars.GetPointer()))
     {
       worker(scalars.GetPointer(), normalizedScalars.GetPointer());
     }
@@ -898,10 +890,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   gbcScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
   {
     ComputeGBCWorker worker(this, this->VerticesRotation);
-    if (!Dispatcher::Execute(normalizedScalars, gbcScalars, worker))
-    {
-      worker(normalizedScalars.GetPointer(), gbcScalars.GetPointer());
-    }
+    worker(normalizedScalars.GetPointer(), gbcScalars.GetPointer());
     if (this->StoreVertices)
     {
       outData->GetFieldData()->AddArray(worker.Vertices);
@@ -919,10 +908,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     hslScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
     {
       GBCToHSLWorker worker(this, vtkMultiVariateToRGBA::ColorLightness);
-      if (!Dispatcher::Execute(gbcScalars, hslScalars, worker))
-      {
-        worker(gbcScalars.GetPointer(), hslScalars.GetPointer());
-      }
+      worker(gbcScalars.GetPointer(), hslScalars.GetPointer());
     }
     vtkNew<vtkDoubleArray> rgbaScalars;
     rgbaScalars->SetName("rgba");
@@ -930,24 +916,15 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     rgbaScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
     {
       HSLToRGBWorker worker;
-      if (!Dispatcher::Execute(hslScalars, rgbaScalars, worker))
-      {
-        worker(hslScalars.GetPointer(), rgbaScalars.GetPointer());
-      }
+      worker(hslScalars.GetPointer(), rgbaScalars.GetPointer());
     }
     {
       ComputeAlphaWorker worker;
-      if (!Dispatcher::Execute(normalizedScalars, rgbaScalars, worker))
-      {
-        worker(normalizedScalars.GetPointer(), rgbaScalars.GetPointer());
-      }
+      worker(normalizedScalars.GetPointer(), rgbaScalars.GetPointer());
     }
     {
       ComputeLensAlphaWorker worker(this->LensCenter, this->LensRadius, this->OutsideLensAlphaCap);
-      if (!Dispatcher::Execute(gbcScalars, rgbaScalars, worker))
-      {
-        worker(gbcScalars.GetPointer(), rgbaScalars.GetPointer());
-      }
+      worker(gbcScalars.GetPointer(), rgbaScalars.GetPointer());
     }
     attributes->AddArray(rgbaScalars);
   }
