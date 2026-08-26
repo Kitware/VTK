@@ -74,6 +74,12 @@ private:
     vtkMatrix4x4* WorldMatrix = nullptr;
 
     bool FetchBrick(const int brick[3], int slotSize, void* voxels) override;
+    bool FetchMask(const int brick[3], int slotSize, unsigned char* voxels) override;
+
+    /// One byte per voxel, non zero where the voxel is not to be drawn. Empty when nothing is.
+    std::vector<unsigned char> Hidden;
+    /// Whether hiding a voxel should also hide what interpolates through it.
+    bool MaskHidesNeighbours = false;
 
     /// The array the mapper was told to render, which is not always the active point scalars.
     vtkDataArray* Scalars = nullptr;
@@ -128,6 +134,7 @@ private:
 
   bool CollectInputs(vtkVolume* volume);
   void UpdateVolumeData(Input& input, int cellSize);
+  void UpdateHiddenVoxels(Input& input);
   void UpdateTransferFunctions(Input& input);
   void UpdateCellClassification(Input& input);
 

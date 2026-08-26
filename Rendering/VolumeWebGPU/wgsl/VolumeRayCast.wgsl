@@ -33,6 +33,9 @@ const VOLUME_FLAG_GRADIENT_OPACITY: u32 = 2u;
 const VOLUME_FLAG_CROPPING: u32 = 4u;
 const VOLUME_FLAG_NORMAL_FROM_OPACITY: u32 = 8u;
 const VOLUME_FLAG_INDEPENDENT_COMPONENTS: u32 = 16u;
+const VOLUME_FLAG_MASKED: u32 = 32u;
+const VOLUME_FLAG_MASK_HIDES_NEIGHBOURS: u32 = 64u;
+const VOLUME_FLAG_CELL_DATA: u32 = 128u;
 
 // GlobalUniforms.blend_mode, matching vtkVolumeMapper::BlendModes
 const BLEND_COMPOSITE: u32 = 0u;
@@ -169,6 +172,8 @@ struct Page {
 @group(0) @binding(9) var pool_float: texture_3d<f32>;
 @group(0) @binding(11) var pool_byte_rgba: texture_3d<f32>;
 @group(0) @binding(12) var pool_float_rgba: texture_3d<f32>;
+// One byte per voxel, non zero where the voxel is not to be drawn.
+@group(0) @binding(13) var pool_mask: texture_3d<f32>;
 // Per acceleration cell: x is the largest opacity the transfer functions map it to, y how much it
 // varies, in [0,1]. Cells are finer than pool bricks: emptiness is a finer question than residency.
 @group(0) @binding(10) var<storage, read> cells: array<vec2<f32>>;
@@ -212,6 +217,18 @@ fn vertexMain(@builtin(vertex_index) vertex_id: u32) -> @builtin(position) vec4<
 // Volume sampling
 //------------------------------------------------------------------------------
 
+// Where a texture coordinate lands, in samples. Point samples sit on the volume edges so the
+// texture runs centre to centre; cell samples sit half a cell in and the outer half cell repeats.
+fn voxelOf(volume_index: u32, tex_coord: vec3<f32>) -> vec3<f32> {
+  let params = volumes[volume_index];
+  let clamped = clamp(tex_coord, vec3<f32>(0.0), vec3<f32>(1.0));
+  if ((params.flags & VOLUME_FLAG_CELL_DATA) != 0u) {
+    return clamp(clamped * params.dims - vec3<f32>(0.5), vec3<f32>(0.0),
+                 max(params.dims - vec3<f32>(1.0), vec3<f32>(0.0)));
+  }
+  return clamped * max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0));
+}
+
 fn pageAt(volume_index: u32, brick: vec3<i32>) -> Page {
   let params = volumes[volume_index];
   let dims = vec3<i32>(params.page_dims);
@@ -244,8 +261,7 @@ fn loadPool(kind: u32, coord: vec3<i32>) -> vec4<f32> {
 // One page lookup therefore serves the whole interpolation, and a brick boundary is not a seam.
 fn sampleVector(volume_index: u32, tex_coord: vec3<f32>) -> vec4<f32> {
   let params = volumes[volume_index];
-  let extent = max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0));
-  let voxel = clamp(tex_coord, vec3<f32>(0.0), vec3<f32>(1.0)) * extent;
+  let voxel = voxelOf(volume_index, tex_coord);
 
   let brick = vec3<i32>(floor(voxel / params.brick_size));
   let page = pageAt(volume_index, brick);
@@ -279,6 +295,41 @@ fn sampleVector(volume_index: u32, tex_coord: vec3<f32>) -> vec4<f32> {
   let raw = mix(mix(c00, c10, frac.y), mix(c01, c11, frac.y), frac.z);
 
   return raw * params.value_scale + params.value_bias;
+}
+
+// Whether a sample reads voxels it is not allowed to. A binary mask cuts exactly where it says,
+// so only the nearest voxel counts; ghosted and blanked voxels are not data at all, so anything
+// the interpolation would draw them into goes with them.
+fn masked(volume_index: u32, tex_coord: vec3<f32>) -> bool {
+  let params = volumes[volume_index];
+  if ((params.flags & VOLUME_FLAG_MASKED) == 0u) {
+    return false;
+  }
+  let voxel = voxelOf(volume_index, tex_coord);
+
+  let brick = vec3<i32>(floor(voxel / params.brick_size));
+  let page = pageAt(volume_index, brick);
+  if ((page.flags & PAGE_RESIDENT) == 0u) {
+    return true;
+  }
+  let origin = slotOrigin(page.slot) + vec3<i32>(1);
+  let local = voxel - vec3<f32>(brick) * params.brick_size;
+
+  if ((params.flags & VOLUME_FLAG_MASK_HIDES_NEIGHBOURS) == 0u) {
+    let nearest = origin + vec3<i32>(round(local));
+    return textureLoad(pool_mask, nearest, 0).r > 0.0;
+  }
+
+  let i0 = origin + vec3<i32>(floor(local));
+  let i1 = i0 + vec3<i32>(1);
+  var hidden = 0.0;
+  for (var corner = 0; corner < 8; corner++) {
+    let coord = vec3<i32>(select(i0.x, i1.x, (corner & 1) != 0),
+                          select(i0.y, i1.y, (corner & 2) != 0),
+                          select(i0.z, i1.z, (corner & 4) != 0));
+    hidden = max(hidden, textureLoad(pool_mask, coord, 0).r);
+  }
+  return hidden > 0.0;
 }
 
 // The component the intensity modes, the iso surfaces and the acceleration structure look at.
@@ -376,7 +427,8 @@ fn sampleOpacity(volume_index: u32, tex_coord: vec3<f32>) -> f32 {
 // vtkVolumeMapper::ComputeNormalFromOpacity asks: surfaces follow what the transfer function shows.
 fn computeOpacityGradient(volume_index: u32, tex_coord: vec3<f32>) -> vec3<f32> {
   let params = volumes[volume_index];
-  let step = 1.0 / max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0));
+  let step = 1.0 / select(max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0)), params.dims,
+    (params.flags & VOLUME_FLAG_CELL_DATA) != 0u);
   let xp = sampleOpacity(volume_index, tex_coord + vec3<f32>(step.x, 0.0, 0.0));
   let xm = sampleOpacity(volume_index, tex_coord - vec3<f32>(step.x, 0.0, 0.0));
   let yp = sampleOpacity(volume_index, tex_coord + vec3<f32>(0.0, step.y, 0.0));
@@ -390,7 +442,8 @@ fn computeOpacityGradient(volume_index: u32, tex_coord: vec3<f32>) -> vec3<f32> 
 // get the gradient with respect to world distance.
 fn computeGradient(volume_index: u32, tex_coord: vec3<f32>) -> vec3<f32> {
   let params = volumes[volume_index];
-  let step = 1.0 / max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0));
+  let step = 1.0 / select(max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0)), params.dims,
+    (params.flags & VOLUME_FLAG_CELL_DATA) != 0u);
   let xp = sampleScalar(volume_index, tex_coord + vec3<f32>(step.x, 0.0, 0.0));
   let xm = sampleScalar(volume_index, tex_coord - vec3<f32>(step.x, 0.0, 0.0));
   let yp = sampleScalar(volume_index, tex_coord + vec3<f32>(0.0, step.y, 0.0));
@@ -403,16 +456,14 @@ fn computeGradient(volume_index: u32, tex_coord: vec3<f32>) -> vec3<f32> {
 // The page the given point falls in.
 fn pageOf(volume_index: u32, tex_coord: vec3<f32>) -> Page {
   let params = volumes[volume_index];
-  let extent = max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0));
-  let voxel = clamp(tex_coord, vec3<f32>(0.0), vec3<f32>(1.0)) * extent;
+  let voxel = voxelOf(volume_index, tex_coord);
   return pageAt(volume_index, vec3<i32>(floor(voxel / params.brick_size)));
 }
 
 // What the transfer functions make of the acceleration cell the given point falls in.
 fn cellAt(volume_index: u32, tex_coord: vec3<f32>) -> vec2<f32> {
   let params = volumes[volume_index];
-  let extent = max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0));
-  let voxel = clamp(tex_coord, vec3<f32>(0.0), vec3<f32>(1.0)) * extent;
+  let voxel = voxelOf(volume_index, tex_coord);
   let cell = clamp(floor(voxel / params.cell_size), vec3<f32>(0.0),
                    params.cell_dims - vec3<f32>(1.0));
   return cells[params.cell_offset +
@@ -425,7 +476,8 @@ fn cellAt(volume_index: u32, tex_coord: vec3<f32>) -> vec2<f32> {
 fn blockExit(volume_index: u32, origin: vec3<f32>, direction: vec3<f32>, t: f32,
              size: f32) -> f32 {
   let params = volumes[volume_index];
-  let extent = max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0));
+  let extent = select(max(params.dims - vec3<f32>(1.0), vec3<f32>(1.0)), params.dims,
+    (params.flags & VOLUME_FLAG_CELL_DATA) != 0u);
   let voxel = (origin + t * direction) * extent;
   let block = floor(voxel / size);
 
@@ -732,7 +784,7 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
 
       let tex_coord = origin_of[chosen] + nearest * direction_of[chosen];
       if ((pageOf(chosen, tex_coord).flags & PAGE_RESIDENT) == 0u ||
-          cropped(chosen, tex_coord)) {
+          cropped(chosen, tex_coord) || masked(chosen, tex_coord)) {
         continue;
       }
       let params = volumes[chosen];
@@ -845,7 +897,7 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
       if ((pageOf(i, tex_coord).flags & PAGE_RESIDENT) == 0u) {
         continue;
       }
-      if (cropped(i, tex_coord)) {
+      if (cropped(i, tex_coord) || masked(i, tex_coord)) {
         continue;
       }
       let values = sampleVector(i, tex_coord);

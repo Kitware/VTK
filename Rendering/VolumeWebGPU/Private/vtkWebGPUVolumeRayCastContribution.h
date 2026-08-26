@@ -14,6 +14,7 @@
 #define vtkWebGPUVolumeRayCastContribution_h
 
 #include "vtkABINamespace.h"
+#include "vtkSetGet.h" // for vtkNotUsed
 #include "vtkType.h"
 
 #include <cstdint>
@@ -50,6 +51,16 @@ struct vtkWebGPUVolumeBrickSource
    * out of this frame.
    */
   virtual bool FetchBrick(const int brick[3], int slotSize, void* voxels) = 0;
+
+  /**
+   * Fill \a voxels with one byte per voxel of the same brick, non zero where the voxel is not to
+   * be drawn. Returns false when the volume has nothing hidden, which is the usual case.
+   */
+  virtual bool FetchMask(
+    const int vtkNotUsed(brick)[3], int vtkNotUsed(slotSize), unsigned char* vtkNotUsed(voxels))
+  {
+    return false;
+  }
 };
 
 struct vtkWebGPUVolumeRayCastContribution
@@ -79,6 +90,15 @@ struct vtkWebGPUVolumeRayCastContribution
   bool IndependentComponents = true;
   /// The component the intensity blend modes and the acceleration structure look at.
   int PrimaryComponent = 0;
+  /// Whether the samples are the cells rather than the points, which puts them half a cell in
+  /// from the edges of the volume and one fewer of them along each axis.
+  bool CellData = false;
+
+  /// Whether some voxels are hidden, and whether hiding one hides what interpolates through it.
+  /// Ghosts and blanking do, since such a sample is wrong; a binary mask cuts exactly where it
+  /// says.
+  bool HasMask = false;
+  bool MaskHidesNeighbours = false;
 
   int Dimensions[3] = { 0, 0, 0 };
   /// Turns a raw texel back into a scalar: scalar = texel * ValueScale + ValueBias.

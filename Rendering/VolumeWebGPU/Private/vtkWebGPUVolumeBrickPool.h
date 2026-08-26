@@ -52,7 +52,10 @@ public:
     Float = 1,
     ByteRGBA = 2,
     FloatRGBA = 3,
-    Count = 4
+    /// One byte per voxel saying which voxels are not to be drawn: ghosted, blanked, or left out
+    /// by a binary mask. Shares slot numbering with whichever pool holds the scalars.
+    Mask = 4,
+    Count = 5
   };
 
   /// Identifies one brick of one volume for as long as the volume keeps offering itself.

@@ -60,7 +60,10 @@ enum VolumeFlag : std::uint32_t
   VolumeFlagGradientOpacity = 2u,
   VolumeFlagCropping = 4u,
   VolumeFlagNormalFromOpacity = 8u,
-  VolumeFlagIndependentComponents = 16u
+  VolumeFlagIndependentComponents = 16u,
+  VolumeFlagMasked = 32u,
+  VolumeFlagMaskHidesNeighbours = 64u,
+  VolumeFlagCellData = 128u
 };
 
 // Must match Light in VolumeRayCast.wgsl.
@@ -618,6 +621,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateResidency(
   const std::size_t voxels = static_cast<std::size_t>(slotSize) * slotSize * slotSize;
   std::vector<float> floatBrick;
   std::vector<unsigned char> byteBrick;
+  std::vector<unsigned char> maskBrick;
   int allowance = this->Self->GetMaximumBricksPerFrame();
 
   for (const Candidate& candidate : wanted)
@@ -670,6 +674,16 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateResidency(
     const auto kind = static_cast<vtkWebGPUVolumeBrickPool::Kind>(
       (contribution.BytePool ? 0 : 1) + (channels > 1 ? 2 : 0));
     this->Pool.Upload(kind, slot, destination);
+
+    // What is hidden travels with the voxels, into the same slot of the mask pool.
+    if (contribution.HasMask)
+    {
+      maskBrick.resize(voxels);
+      if (contribution.BrickSource->FetchMask(candidate.Brick, slotSize, maskBrick.data()))
+      {
+        this->Pool.Upload(vtkWebGPUVolumeBrickPool::Kind::Mask, slot, maskBrick.data());
+      }
+    }
     table[candidate.Page].Slot = slot;
     table[candidate.Page].Flags |= PageResident;
     --allowance;
@@ -786,10 +800,13 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
 
     interactive = interactive || contribution.Volume->GetAllocatedRenderTime() < 1.0;
 
+    // Point samples sit on the edges of the volume, so the texture spans centre to centre; cell
+    // samples sit half a cell in, so it spans the whole of the grid instead.
     double extent[3];
     for (int i = 0; i < 3; ++i)
     {
-      extent[i] = std::max(contribution.Dimensions[i] - 1, 1);
+      extent[i] = contribution.CellData ? contribution.Dimensions[i]
+                                        : std::max(contribution.Dimensions[i] - 1, 1);
     }
 
     vtkNew<vtkMatrix4x4> textureToIndex;
@@ -898,6 +915,18 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
     if (contribution.IndependentComponents)
     {
       params.Flags |= VolumeFlagIndependentComponents;
+    }
+    if (contribution.CellData)
+    {
+      params.Flags |= VolumeFlagCellData;
+    }
+    if (contribution.HasMask)
+    {
+      params.Flags |= VolumeFlagMasked;
+      if (contribution.MaskHidesNeighbours)
+      {
+        params.Flags |= VolumeFlagMaskHidesNeighbours;
+      }
     }
     if (property->GetShade(appearance - 1) != 0)
     {
@@ -1320,7 +1349,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
 
   if (this->BindGroupLayout == nullptr)
   {
-    std::vector<WGPUBindGroupLayoutEntry> entries(13, WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT);
+    std::vector<WGPUBindGroupLayoutEntry> entries(14, WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT);
 
     entries[0].binding = 0;
     entries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
@@ -1354,7 +1383,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
     // The bricks of every volume live in one of two pools, one for eight bit scalars and one for
     // floats, so the number of volumes a pass can hold is not a number of texture bindings.
     // One pool per way of storing scalars: one and four channels, eight bit and float.
-    for (int i : { 8, 9, 11, 12 })
+    for (int i : { 8, 9, 11, 12, 13 })
     {
       entries[i].binding = static_cast<std::uint32_t>(i);
       entries[i].visibility = WGPUShaderStage_Fragment;
@@ -1381,7 +1410,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
     return;
   }
 
-  std::vector<WGPUBindGroupEntry> entries(13, WGPU_BIND_GROUP_ENTRY_INIT);
+  std::vector<WGPUBindGroupEntry> entries(14, WGPU_BIND_GROUP_ENTRY_INIT);
 
   entries[0].binding = 0;
   entries[0].buffer = this->GlobalUniformBuffer;
@@ -1421,6 +1450,8 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
   entries[11].textureView = this->Pool.GetView(vtkWebGPUVolumeBrickPool::Kind::ByteRGBA);
   entries[12].binding = 12;
   entries[12].textureView = this->Pool.GetView(vtkWebGPUVolumeBrickPool::Kind::FloatRGBA);
+  entries[13].binding = 13;
+  entries[13].textureView = this->Pool.GetView(vtkWebGPUVolumeBrickPool::Kind::Mask);
 
   WGPUBindGroupDescriptor descriptor = WGPU_BIND_GROUP_DESCRIPTOR_INIT;
   descriptor.label = WGPUStringView{ "VolumeRayCastBindGroup", WGPU_STRLEN };

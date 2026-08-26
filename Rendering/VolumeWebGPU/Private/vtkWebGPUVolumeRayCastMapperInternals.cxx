@@ -15,6 +15,7 @@
 #include "vtkMultiVolume.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 #include "vtkWebGPUConfiguration.h"
@@ -143,6 +144,28 @@ void ExtractBrick(const T* source, int components, int channels, const int dimen
         {
           out[x * channels + c] = D(0);
         }
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// One byte per voxel of the same brick, taken from a host side array laid out like the volume.
+void ExtractMask(const unsigned char* source, const int dimensions[3], int brickSize,
+  const int brick[3], int slotSize, unsigned char* destination)
+{
+  const auto pick = [](int value, int last) { return std::clamp(value, 0, last); };
+  for (int z = 0; z < slotSize; ++z)
+  {
+    const int sz = pick(brick[2] * brickSize + z - 1, dimensions[2] - 1);
+    for (int y = 0; y < slotSize; ++y)
+    {
+      const int sy = pick(brick[1] * brickSize + y - 1, dimensions[1] - 1);
+      const vtkIdType row = (static_cast<vtkIdType>(sz) * dimensions[1] + sy) * dimensions[0];
+      unsigned char* out = destination + (static_cast<vtkIdType>(z) * slotSize + y) * slotSize;
+      for (int x = 0; x < slotSize; ++x)
+      {
+        out[x] = source[row + pick(brick[0] * brickSize + x - 1, dimensions[0] - 1)];
       }
     }
   }
@@ -326,16 +349,13 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
   // Placed before the range queries below so that the dimensions are the cell ones when needed.
   if (input.CellData)
   {
-    // A cell array has one fewer sample along each axis than the points do, and each sample sits
-    // at the middle of its cell.
-    vtkNew<vtkMatrix4x4> shift;
-    shift->Identity();
+    // A cell array has one fewer sample per axis than the points, but still covers the whole
+    // grid, so the index to physical transform stays the points' and the sampling shifts half a
+    // cell.
     for (int i = 0; i < 3; ++i)
     {
       input.Dimensions[i] = std::max(1, input.Dimensions[i] - 1);
-      shift->SetElement(i, 3, 0.5);
     }
-    vtkMatrix4x4::Multiply4x4(input.IndexToPhysical, shift, input.IndexToPhysical);
   }
   const int* dimensions = input.Dimensions;
   const vtkIdType count = static_cast<vtkIdType>(dimensions[0]) * dimensions[1] * dimensions[2];
@@ -386,10 +406,139 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
     }
   }
 
+  this->UpdateHiddenVoxels(input);
+
   input.DataTime = input.Data->GetMTime();
   // The cells were measured again, so their classification is stale.
   input.TransferFunctionTime = 0;
   input.ContentTime.Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateHiddenVoxels(Input& input)
+{
+  input.Hidden.clear();
+  input.MaskHidesNeighbours = false;
+
+  const vtkIdType count =
+    static_cast<vtkIdType>(input.Dimensions[0]) * input.Dimensions[1] * input.Dimensions[2];
+  if (count <= 0)
+  {
+    return;
+  }
+
+  // A binary mask says exactly which voxels to draw, so it cuts where it says and does not take
+  // its neighbours with it.
+  vtkImageData* mask = this->Self->GetMaskInput();
+  if (mask != nullptr && this->Self->GetMaskType() == vtkGPUVolumeRayCastMapper::BinaryMaskType)
+  {
+    vtkDataArray* values = mask->GetPointData()->GetScalars();
+    int maskDimensions[3];
+    mask->GetDimensions(maskDimensions);
+    if (values != nullptr && maskDimensions[0] == input.Dimensions[0] &&
+      maskDimensions[1] == input.Dimensions[1] && maskDimensions[2] == input.Dimensions[2])
+    {
+      input.Hidden.assign(static_cast<std::size_t>(count), 0);
+      for (vtkIdType i = 0; i < count; ++i)
+      {
+        input.Hidden[i] = values->GetComponent(i, 0) == 0.0 ? 255 : 0;
+      }
+    }
+    else if (values != nullptr)
+    {
+      vtkWarningWithObjectMacro(this->Self,
+        << "The mask has to have the same dimensions as the volume it masks. Ignoring it.");
+    }
+  }
+
+  // Ghosted and blanked voxels are not data at all, so anything that interpolates through one is
+  // wrong and has to go with it.
+  vtkUnsignedCharArray* pointGhosts = input.Data->GetPointGhostArray();
+  vtkUnsignedCharArray* cellGhosts = input.Data->GetCellGhostArray();
+  if (pointGhosts == nullptr && cellGhosts == nullptr)
+  {
+    return;
+  }
+  // A ghosted cell is the sample itself when the array lives on the cells, so it takes nothing
+  // else with it; a ghosted point is one corner of the cells around it, and those go too.
+  input.MaskHidesNeighbours = !input.CellData;
+  if (input.Hidden.empty())
+  {
+    input.Hidden.assign(static_cast<std::size_t>(count), 0);
+  }
+
+  if (input.CellData)
+  {
+    // The samples are the cells, so only the cell ghosts have anything to say about them.
+    if (cellGhosts != nullptr && cellGhosts->GetNumberOfTuples() >= count)
+    {
+      for (vtkIdType i = 0; i < count; ++i)
+      {
+        input.Hidden[i] |= cellGhosts->GetValue(i) != 0 ? 255 : 0;
+      }
+    }
+    return;
+  }
+
+  if (pointGhosts != nullptr && pointGhosts->GetNumberOfTuples() >= count)
+  {
+    for (vtkIdType i = 0; i < count; ++i)
+    {
+      input.Hidden[i] |= pointGhosts->GetValue(i) != 0 ? 255 : 0;
+    }
+  }
+  if (cellGhosts != nullptr)
+  {
+    // A point belongs to up to eight cells, and a ghosted cell takes every point of it with it.
+    const int* dims = input.Dimensions;
+    const int cells[3] = { std::max(dims[0] - 1, 1), std::max(dims[1] - 1, 1),
+      std::max(dims[2] - 1, 1) };
+    for (int z = 0; z < dims[2]; ++z)
+    {
+      for (int y = 0; y < dims[1]; ++y)
+      {
+        for (int x = 0; x < dims[0]; ++x)
+        {
+          bool hidden = false;
+          for (int dz = -1; dz <= 0 && !hidden; ++dz)
+          {
+            for (int dy = -1; dy <= 0 && !hidden; ++dy)
+            {
+              for (int dx = -1; dx <= 0 && !hidden; ++dx)
+              {
+                const int cx = x + dx;
+                const int cy = y + dy;
+                const int cz = z + dz;
+                if (cx < 0 || cy < 0 || cz < 0 || cx >= cells[0] || cy >= cells[1] ||
+                  cz >= cells[2])
+                {
+                  continue;
+                }
+                const vtkIdType cell = (static_cast<vtkIdType>(cz) * cells[1] + cy) * cells[0] + cx;
+                hidden = cell < cellGhosts->GetNumberOfTuples() && cellGhosts->GetValue(cell) != 0;
+              }
+            }
+          }
+          if (hidden)
+          {
+            input.Hidden[(static_cast<vtkIdType>(z) * dims[1] + y) * dims[0] + x] = 255;
+          }
+        }
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchMask(
+  const int brick[3], int slotSize, unsigned char* voxels)
+{
+  if (this->Hidden.empty() || slotSize <= 2)
+  {
+    return false;
+  }
+  ExtractMask(this->Hidden.data(), this->Dimensions, slotSize - 2, brick, slotSize, voxels);
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -636,6 +785,9 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::SyncDeviceResources(
     contribution.ClippingPlanes = this->Self->GetClippingPlanes();
     contribution.BrickSource = &input;
     contribution.BytePool = input.BytePool;
+    contribution.CellData = input.CellData;
+    contribution.HasMask = !input.Hidden.empty();
+    contribution.MaskHidesNeighbours = input.MaskHidesNeighbours;
     std::copy_n(input.Dimensions, 3, contribution.Dimensions);
     contribution.ValueScale = input.ValueScale;
     contribution.ValueBias = input.ValueBias;
