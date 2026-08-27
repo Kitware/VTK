@@ -115,6 +115,9 @@ struct NormalizeWorker
       this->Controller->AllReduce(&localMax, &globalMax, 1, vtkCommunicator::MAX_OP);
       maxValue = globalMax;
     }
+    // a group with a constant value would divide by zero, it is mapped to NewMin
+    const double range = static_cast<double>(maxValue) - static_cast<double>(minValue);
+    const double scale = range == 0 ? 0 : (this->NewMax - this->NewMin) / range;
     vtkSMPTools::For(0, nTuples,
       [&](vtkIdType begin, vtkIdType end)
       {
@@ -122,9 +125,8 @@ struct NormalizeWorker
         {
           for (size_t k = 0; k < this->GroupIndices.size(); ++k)
           {
-            normalized[i][this->GroupIndices[k]] = (this->NewMax - this->NewMin) *
-                (scalars[i][this->GroupIndices[k]] - minValue) / (maxValue - minValue) +
-              this->NewMin;
+            normalized[i][this->GroupIndices[k]] =
+              scale * (scalars[i][this->GroupIndices[k]] - minValue) + this->NewMin;
           }
         }
       });
