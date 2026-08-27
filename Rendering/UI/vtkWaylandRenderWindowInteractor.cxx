@@ -362,9 +362,9 @@ static void handle_keyboard_key(void* data, struct wl_keyboard* keyboard, uint32
   char keySymStr[64];
   xkb_keysym_get_name(sym, keySymStr, sizeof(keySymStr));
 
-  this->KeyRepeatCount = (serial == this->PrevKeyReleaseSerial) ? (this->KeyRepeatCount + 1) : 0;
+  rwi->KeyRepeatCount = (serial == rwi->PrevKeyReleaseSerial) ? (rwi->KeyRepeatCount + 1) : 0;
   rwi->SetEventInformationFlipY(rwi->GetEventPosition()[0], rwi->GetEventPosition()[1],
-    rwi->GetControlKey(), rwi->GetShiftKey(), keyChar, this->KeyRepeatCount, keySymStr);
+    rwi->GetControlKey(), rwi->GetShiftKey(), keyChar, rwi->KeyRepeatCount, keySymStr);
   rwi->SetAltKey(rwi->GetAltKey());
 
   if (state == WL_KEYBOARD_KEY_STATE_PRESSED)
@@ -374,7 +374,7 @@ static void handle_keyboard_key(void* data, struct wl_keyboard* keyboard, uint32
   }
   else // WL_KEYBOARD_KEY_STATE_RELEASED
   {
-    this->PrevKeyReleaseSerial = serial;
+    rwi->PrevKeyReleaseSerial = serial;
     rwi->InvokeEvent(vtkCommand::KeyReleaseEvent, nullptr);
   }
 }
