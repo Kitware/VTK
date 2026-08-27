@@ -1131,7 +1131,9 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
       nearBounds[2 * i + 1] = std::max(nearBounds[2 * i + 1], value);
     }
   }
-  const double margin = 1.0e-4 * std::max(diagonal, 1.0);
+  // Relative to the volume, not to any absolute size: a volume a fraction of a unit across is
+  // still a volume, and a fixed margin would swallow it whole.
+  const double margin = 1.0e-4 * diagonal;
   this->DrawFullScreen = true;
   for (int i = 0; i < 3; ++i)
   {
@@ -1195,13 +1197,18 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
   globals.PoolSlotSize = static_cast<float>(this->Pool.GetSlotSize());
 
   globals.Flags = 0;
-  if (primary->GetJittering())
+  // A varying step bands where a fixed one would not, so adaptive sampling dithers its own start
+  // whatever UseJittering says. An explicit sample distance is a request for that distance, so it
+  // stands aside when the mapper has been told not to adjust it.
+  const bool adaptiveSampling = primary->GetAdaptiveSampling() &&
+    blendMode == vtkVolumeMapper::COMPOSITE_BLEND && primary->GetAutoAdjustSampleDistances() != 0;
+  if (primary->GetUseJittering() != 0 || adaptiveSampling)
   {
     globals.Flags |= FlagJitter;
   }
   // The intensity blend modes weigh every sample equally, so they only mean what they say when
   // the samples are evenly spaced.
-  if (primary->GetAdaptiveSampling() && blendMode == vtkVolumeMapper::COMPOSITE_BLEND)
+  if (adaptiveSampling)
   {
     globals.Flags |= FlagAdaptive;
     if (primary->GetEmptySpaceSkipping())
@@ -1563,7 +1570,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::RecordRenderPass(
     static_cast<std::uint32_t>(this->ViewportRectangle[3]));
   wgpuRenderPassEncoderSetPipeline(pass, this->Pipeline);
   wgpuRenderPassEncoderSetBindGroup(pass, 0, this->BindGroup, 0, nullptr);
-  wgpuRenderPassEncoderDraw(pass, this->DrawFullScreen ? 3 : 36, 1, 0, 0);
+  wgpuRenderPassEncoderDraw(pass, this->DrawFullScreen ? 6 : 36, 1, 0, 0);
   wgpuRenderPassEncoderEnd(pass);
 }
 

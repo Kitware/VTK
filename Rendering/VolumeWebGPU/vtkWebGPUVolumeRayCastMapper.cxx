@@ -39,7 +39,6 @@ void vtkWebGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "AdaptiveSampling: " << this->AdaptiveSampling << "\n";
   os << indent << "EmptySpaceSkipping: " << this->EmptySpaceSkipping << "\n";
-  os << indent << "Jittering: " << this->Jittering << "\n";
   os << indent << "BrickSize: " << this->BrickSize << "\n";
   os << indent << "MinimumSampleDistanceFactor: " << this->MinimumSampleDistanceFactor << "\n";
   os << indent << "MaximumSampleDistanceFactor: " << this->MaximumSampleDistanceFactor << "\n";

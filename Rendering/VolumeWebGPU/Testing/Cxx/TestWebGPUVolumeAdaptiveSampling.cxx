@@ -32,7 +32,7 @@ int TestWebGPUVolumeAdaptiveSampling(int argc, char* argv[])
   }
   mapper->SetInputConnection(source->GetOutputPort());
   // Jitter would make the two renders differ for reasons that have nothing to do with the step.
-  mapper->JitteringOff();
+  mapper->UseJitteringOff();
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(mapper);

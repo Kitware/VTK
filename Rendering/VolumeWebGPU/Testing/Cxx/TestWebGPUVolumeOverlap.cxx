@@ -33,7 +33,7 @@ const Blob Blobs[3] = {
 vtkWebGPUVolumeTest::Frame RenderOrder(const int order[3], vtkRenderWindow* window)
 {
   vtkNew<vtkWebGPUVolumeRayCastMapper> mapper;
-  mapper->JitteringOff();
+  mapper->UseJitteringOff();
 
   std::vector<vtkSmartPointer<vtkImageGaussianSource>> sources;
   for (int port = 0; port < 3; ++port)

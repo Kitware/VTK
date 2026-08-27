@@ -185,11 +185,12 @@ struct Page {
 @vertex
 fn vertexMain(@builtin(vertex_index) vertex_id: u32) -> @builtin(position) vec4<f32> {
   if ((globals.flags & FLAG_FULL_SCREEN) != 0u) {
-    // A triangle that covers the whole clip volume, used when the near plane cuts into the
-    // proxy box and its back faces can no longer be relied on to cover every pixel. Wound the
-    // same way round as the faces of the box that survive culling.
-    var corners = array<vec2<f32>, 3>(
-      vec2<f32>(-1.0, -3.0), vec2<f32>(3.0, 1.0), vec2<f32>(-1.0, 1.0));
+    // Two triangles covering the clip volume, for when the near plane cuts the proxy box and its
+    // back faces no longer cover every pixel. A quad rather than an oversized triangle, whose
+    // hypotenuse would run through a viewport corner and leave a wedge unrayed. Wound like the box.
+    var corners = array<vec2<f32>, 6>(
+      vec2<f32>(-1.0, -1.0), vec2<f32>(1.0, -1.0), vec2<f32>(1.0, 1.0),
+      vec2<f32>(-1.0, -1.0), vec2<f32>(1.0, 1.0), vec2<f32>(-1.0, 1.0));
     return vec4<f32>(corners[vertex_id], 0.0, 1.0);
   }
 
@@ -819,6 +820,10 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
   var iso_interval = array<i32, MAX_VOLUMES>();
   var iso_seen = array<u32, MAX_VOLUMES>();
 
+  // However finely the volumes ask to be sampled, the ray has a fixed step budget. Spread it
+  // over the whole span; stopping part way shows as speckle between neighbouring rays.
+  let coarsest = (t_last - t_first) / f32(max(globals.max_steps, 2u) - 1u);
+
   var t = t_first;
   if ((globals.flags & FLAG_JITTER) != 0u) {
     t += hash(frag_coord.xy) * globals.jitter_scale;
@@ -871,6 +876,8 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
         step = min(step, params.base_step);
       }
     }
+
+    step = max(step, coarsest);
 
     if (!occupied) {
       if (!any_active && skip_to >= FAR_AWAY) {

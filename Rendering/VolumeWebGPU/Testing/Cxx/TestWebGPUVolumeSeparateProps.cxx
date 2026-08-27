@@ -77,7 +77,7 @@ vtkWebGPUVolumeTest::Frame RenderAsProps(const int order[3], vtkRenderWindow* wi
     mapper->SetInputConnection(source->GetOutputPort());
     if (auto* webgpu = vtkWebGPUVolumeRayCastMapper::SafeDownCast(mapper))
     {
-      webgpu->JitteringOff();
+      webgpu->UseJitteringOff();
     }
 
     vtkNew<vtkVolume> volume;
@@ -100,7 +100,7 @@ vtkWebGPUVolumeTest::Frame RenderAsProps(const int order[3], vtkRenderWindow* wi
 vtkWebGPUVolumeTest::Frame RenderAsPorts(vtkRenderWindow* window)
 {
   vtkNew<vtkWebGPUVolumeRayCastMapper> mapper;
-  mapper->JitteringOff();
+  mapper->UseJitteringOff();
 
   std::vector<vtkSmartPointer<vtkImageGaussianSource>> sources;
   for (int port = 0; port < 3; ++port)

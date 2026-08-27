@@ -155,17 +155,6 @@ public:
   vtkGetMacro(InteractiveMaximumNumberOfSamples, int);
   ///@}
 
-  ///@{
-  /**
-   * Offset the start of each ray by a pseudo-random fraction of a step, which
-   * trades the banding that regular sampling produces for noise. On by
-   * default.
-   */
-  vtkSetMacro(Jittering, bool);
-  vtkGetMacro(Jittering, bool);
-  vtkBooleanMacro(Jittering, bool);
-  ///@}
-
   /// Device side state, defined in a private header so that no WebGPU type reaches this one.
   class vtkInternals;
 
@@ -181,7 +170,6 @@ protected:
 
   bool AdaptiveSampling = true;
   bool EmptySpaceSkipping = true;
-  bool Jittering = true;
   int BrickSize = 8;
   double MinimumSampleDistanceFactor = 1.0;
   double MaximumSampleDistanceFactor = 6.0;
