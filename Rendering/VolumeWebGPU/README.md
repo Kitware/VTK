@@ -50,9 +50,12 @@ does not, so residency is the coordinator's to decide and fetching is the
 mapper's to answer.
 
 Settings that describe the march rather than a single volume, the blend mode
-above all, are taken from the mapper of the first input, with a warning if the
-others disagree; a pass can only be marched one way. Everything that is genuinely
-per volume, including clipping planes, lives in the per volume parameters.
+above all, are handled specially. When volumes do not overlap (based on their
+bounding boxes), each can use its own blend mode. When volumes overlap, they
+must all use the same blend mode - an error is reported if they don't, since
+overlapping volumes with different blend modes cannot be composited correctly.
+Everything that is genuinely per volume, including clipping planes, transfer
+functions, and shading parameters, lives in the per volume parameters.
 
 Nothing is drawn in the main render pass. That pass owns the depth attachment,
 and the ray march has to read the depth the opaque geometry left behind in order
