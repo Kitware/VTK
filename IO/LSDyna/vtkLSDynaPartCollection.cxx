@@ -19,8 +19,10 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <iostream>
 #include <list>
+#include <type_traits>
 #include <vector>
 
 //------------------------------------------------------------------------------
@@ -607,6 +609,21 @@ void vtkLSDynaPartCollection::AddProperty(const LSDynaMetaData::LSDYNA_TYPES& ty
 }
 
 //------------------------------------------------------------------------------
+bool vtkLSDynaPartCollection::HasCellProperties(const LSDynaMetaData::LSDYNA_TYPES& type)
+{
+  vtkLSDynaPart* part = nullptr;
+  this->Storage->InitPartIteration(type);
+  while (this->Storage->GetNextPart(part))
+  {
+    if (part && part->HasCellProperties())
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 void vtkLSDynaPartCollection::FillCellProperties(float* buffer,
   const LSDynaMetaData::LSDYNA_TYPES& type, const vtkIdType& startId, const vtkIdType& numCells,
   const int& numPropertiesInCell)
@@ -843,6 +860,18 @@ void vtkLSDynaPartCollection::SetupPointPropertyForReading(const vtkIdType& numT
   {
     // don't do anything as we have no valid parts
   }
+  else if (isIdType)
+  {
+    // integer word data (user ids) that is converted to vtkIdType per element
+    if (this->MetaData->Fam.GetWordSize() == 8)
+    {
+      this->FillPointProperty<std::int64_t>(numTuples, numComps, validParts, idx);
+    }
+    else
+    {
+      this->FillPointProperty<std::int32_t>(numTuples, numComps, validParts, idx);
+    }
+  }
   else if (this->MetaData->Fam.GetWordSize() == 8)
   {
     this->FillPointProperty<double>(numTuples, numComps, validParts, idx);
@@ -899,11 +928,14 @@ void vtkLSDynaPartCollection::FillPointProperty(
   const vtkIdType leftOver(realNumberOfTuples % numPointsToRead);
   const vtkIdType bufferChunkSize(numPointsToRead * numComps);
 
+  const LSDynaFamily::WordType wordType =
+    std::is_integral<T>::value ? LSDynaFamily::Int : LSDynaFamily::Float;
+
   T* buf = nullptr;
   p->Fam.SkipWords(numPointsToSkipStart * numComps);
   for (vtkIdType j = 0; j < loopTimes; ++j, offset += numPointsToRead)
   {
-    p->Fam.BufferChunk(LSDynaFamily::Float, bufferChunkSize);
+    p->Fam.BufferChunk(wordType, bufferChunkSize);
     buf = p->Fam.GetBufferAs<T>();
 
     partIt = sortedParts.begin();
@@ -925,7 +957,7 @@ void vtkLSDynaPartCollection::FillPointProperty(
   }
   if (leftOver > 0 && !sortedParts.empty())
   {
-    p->Fam.BufferChunk(LSDynaFamily::Float, leftOver * numComps);
+    p->Fam.BufferChunk(wordType, leftOver * numComps);
     buf = p->Fam.GetBufferAs<T>();
     for (partIt = sortedParts.begin(); partIt != sortedParts.end(); ++partIt)
     {

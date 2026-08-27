@@ -9,6 +9,8 @@
 #include "vtkObject.h"
 #include "vtkStdString.h" //needed for string
 
+#include <cstdint> // for std::int32_t and std::int64_t
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
 class vtkPoints;
@@ -95,6 +97,15 @@ public:
     const vtkIdType& currentGlobalPointIndex);
 
   // Description:
+  // Given a chunk of integer point property memory (user ids) copy it
+  // to the id type property on the part, converting each value
+  void ReadPointBasedProperty(std::int32_t* data, const vtkIdType& numTuples,
+    const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex);
+
+  void ReadPointBasedProperty(std::int64_t* data, const vtkIdType& numTuples,
+    const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex);
+
+  // Description:
   // Adds a property to the part
   void AddCellProperty(const char* name, const int& offset, const int& numComps);
 
@@ -105,6 +116,10 @@ public:
     float* cellProperties, const vtkIdType& numCells, const vtkIdType& numPropertiesInCell);
   void ReadCellProperties(
     double* cellsProperties, const vtkIdType& numCells, const vtkIdType& numPropertiesInCell);
+
+  // Description:
+  // Returns if any cell property has been registered on this part
+  bool HasCellProperties() const;
 
   // Description:
   // Get the id of the lowest global point this part needs
@@ -127,10 +142,6 @@ protected:
 
   void GetPropertyData(const char* name, const vtkIdType& numComps, const bool& isIdTypeArray,
     const bool& isProperty, const bool& isGeometry);
-
-  template <typename T>
-  void AddPointInformation(T* buffer, T* pointData, const vtkIdType& numTuples,
-    const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex);
 
   // basic info about the part
   LSDynaMetaData::LSDYNA_TYPES Type;
@@ -160,8 +171,6 @@ protected:
   InternalCellProperties* CellProperties;
 
   class InternalPointsUsed;
-  class DensePointsUsed;
-  class SparsePointsUsed;
   InternalPointsUsed* GlobalPointsUsed;
 
   // used when reading properties
@@ -169,6 +178,10 @@ protected:
   InternalCurrentPointInfo* CurrentPointPropInfo;
 
 private:
+  template <typename T, typename U>
+  void AddPointInformation(T* buffer, U* pointData, const vtkIdType& numTuples,
+    const vtkIdType& numComps, const vtkIdType& currentGlobalPointIndex);
+
   vtkLSDynaPart(const vtkLSDynaPart&) = delete;
   void operator=(const vtkLSDynaPart&) = delete;
 };

@@ -90,6 +90,11 @@ public:
   // Adds a property for all parts of a certain type
   void AddProperty(const LSDynaMetaData::LSDYNA_TYPES& type, const char* name, const int& offset,
     const int& numComps);
+
+  // Description:
+  // Returns if any part of a certain type has cell properties registered
+  bool HasCellProperties(const LSDynaMetaData::LSDYNA_TYPES& type);
+
   void FillCellProperties(float* buffer, const LSDynaMetaData::LSDYNA_TYPES& type,
     const vtkIdType& startId, const vtkIdType& numCells, const int& numPropertiesInCell);
   void FillCellProperties(double* buffer, const LSDynaMetaData::LSDYNA_TYPES& type,
