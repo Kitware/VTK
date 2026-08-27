@@ -26,6 +26,7 @@ const FLAG_FULL_SCREEN: u32 = 8u;
 const FLAG_HAS_DEPTH: u32 = 16u;
 const FLAG_DEFAULT_LIGHTING: u32 = 32u;
 const FLAG_TWO_SIDED_LIGHTING: u32 = 64u;
+const FLAG_PER_VOLUME_BLEND: u32 = 128u;
 
 // VolumeParams.flags
 const VOLUME_FLAG_SHADE: u32 = 1u;
@@ -144,8 +145,8 @@ struct VolumeParams {
   specular_power: f32,
   // The component the intensity modes, the iso surfaces and the acceleration structure read.
   primary_component: u32,
+  blend_mode: u32,
   padding0: f32,
-  padding1: f32,
   clip_planes: array<vec4<f32>, MAX_CLIP_PLANES>,
 }
 
@@ -939,13 +940,17 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
       }
 
       if (!compositing) {
+        // Determine which blend mode to use for this volume
+        let per_volume_blend = (globals.flags & FLAG_PER_VOLUME_BLEND) != 0u;
+        let volume_blend_mode = select(globals.blend_mode, params.blend_mode, per_volume_blend);
+
         // The intensity modes work on the scalar rather than on a composited color.
-        if (globals.blend_mode == BLEND_MAXIMUM_INTENSITY) {
+        if (volume_blend_mode == BLEND_MAXIMUM_INTENSITY) {
           if (normalized > state.value) { state.value = normalized; state.value_volume = i; }
-        } else if (globals.blend_mode == BLEND_MINIMUM_INTENSITY) {
+        } else if (volume_blend_mode == BLEND_MINIMUM_INTENSITY) {
           if (normalized < state.value) { state.value = normalized; state.value_volume = i; }
         } else {
-          if (globals.blend_mode == BLEND_AVERAGE_INTENSITY &&
+          if (volume_blend_mode == BLEND_AVERAGE_INTENSITY &&
               (scalar < globals.average_range_minimum ||
                scalar > globals.average_range_maximum)) {
             continue;

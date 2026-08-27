@@ -80,6 +80,11 @@ private:
   void EnsurePlaceholders(vtkWebGPURenderWindow* window);
   void RecordRenderPass(vtkWebGPURenderWindow* window);
 
+  /// Check if volumes can potentially overlap based on their bounding boxes.
+  bool VolumesCanOverlap() const;
+  /// Check if all volumes have the same blend mode.
+  bool AllBlendModesMatch(int& outMode) const;
+
   vtkWebGPUVolumeRayCastCoordinator* Self = nullptr;
 
   std::vector<vtkWebGPUVolumeRayCastContribution> Contributions;

@@ -52,7 +52,8 @@ enum GlobalFlag : std::uint32_t
   FlagFullScreen = 8u,
   FlagHasDepth = 16u,
   FlagDefaultLighting = 32u,
-  FlagTwoSidedLighting = 64u
+  FlagTwoSidedLighting = 64u,
+  FlagPerVolumeBlend = 128u
 };
 
 enum VolumeFlag : std::uint32_t
@@ -158,7 +159,8 @@ struct VolumeParams
   float Specular;
   float SpecularPower;
   std::uint32_t PrimaryComponent;
-  float Padding0[2];
+  std::uint32_t BlendMode;
+  float Padding0[1];
   float ClipPlanes[MaxClipPlanes][4];
 };
 static_assert(sizeof(VolumeParams) == 496, "VolumeParams must match the WGSL layout");
@@ -230,6 +232,14 @@ WGPUTextureFormat DepthOnlyFormat(WGPUTextureFormat format)
       return format;
   }
 }
+
+//------------------------------------------------------------------------------
+bool BoundsIntersect(const double b1[6], const double b2[6])
+{
+  return !(b1[1] < b2[0] || b1[0] > b2[1] || // X axis
+    b1[3] < b2[2] || b1[2] > b2[3] ||        // Y axis
+    b1[5] < b2[4] || b1[4] > b2[5]);         // Z axis
+}
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -285,6 +295,48 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::ReleaseGraphicsResources()
 {
   this->Contributions.clear();
   this->ReleaseDeviceResources();
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUVolumeRayCastCoordinator::vtkInternals::VolumesCanOverlap() const
+{
+  for (std::size_t i = 0; i < this->Contributions.size(); ++i)
+  {
+    double bounds1[6];
+    this->Contributions[i].Data->GetBounds(bounds1);
+
+    for (std::size_t j = i + 1; j < this->Contributions.size(); ++j)
+    {
+      double bounds2[6];
+      this->Contributions[j].Data->GetBounds(bounds2);
+
+      if (BoundsIntersect(bounds1, bounds2))
+      {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUVolumeRayCastCoordinator::vtkInternals::AllBlendModesMatch(int& outMode) const
+{
+  if (this->Contributions.empty())
+  {
+    return true;
+  }
+
+  int firstMode = this->Contributions[0].Mapper->GetBlendMode();
+  for (const auto& c : this->Contributions)
+  {
+    if (c.Mapper->GetBlendMode() != firstMode)
+    {
+      return false;
+    }
+  }
+  outMode = firstMode;
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -811,21 +863,36 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
 {
   auto configuration = window->GetWGPUConfiguration();
 
-  // Settings that describe the march rather than one volume are taken from the mapper of the
-  // first input; a pass can only be marched one way.
-  vtkWebGPUVolumeRayCastMapper* primary = this->Contributions.front().Mapper;
-  const int blendMode = primary->GetBlendMode();
-  for (const auto& contribution : this->Contributions)
+  // Check if volumes can overlap and if they all have the same blend mode
+  int primaryBlendMode = 0;
+  bool allSameBlendMode = this->AllBlendModesMatch(primaryBlendMode);
+  bool hasOverlaps = this->VolumesCanOverlap();
+  bool usePerVolumeBlend = false;
+
+  if (!allSameBlendMode)
   {
-    if (contribution.Mapper->GetBlendMode() != blendMode)
+    if (hasOverlaps)
     {
-      vtkWarningWithObjectMacro(this->Self,
-        << "Volumes that share a renderer are ray cast together and can only be blended one way. "
-           "Using the blend mode of "
-        << primary->GetObjectDescription() << " for all of them.");
-      break;
+      // Error: overlapping volumes with different blend modes
+      vtkErrorWithObjectMacro(
+        this->Self, << "Overlapping volumes must use the same blend mode. "
+                    << "The volumes in this renderer have intersecting bounding boxes "
+                    << "but different blend modes. This is not supported.");
+      return;
+    }
+    else
+    {
+      // Non-overlapping volumes can use different blend modes
+      usePerVolumeBlend = true;
+      vtkDebugWithObjectMacro(
+        this->Self, << "Using per-volume blend modes (volumes do not overlap).");
+      // Use first volume's blend mode for global setting (used as fallback)
+      primaryBlendMode = this->Contributions.front().Mapper->GetBlendMode();
     }
   }
+
+  // Get reference to primary mapper for settings that describe the march
+  vtkWebGPUVolumeRayCastMapper* primary = this->Contributions.front().Mapper;
 
   double bounds[6] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN,
     VTK_DOUBLE_MAX, VTK_DOUBLE_MIN };
@@ -979,6 +1046,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
     params.Specular = static_cast<float>(property->GetSpecular(appearance - 1));
     params.SpecularPower = static_cast<float>(property->GetSpecularPower(appearance - 1));
     params.PrimaryComponent = static_cast<std::uint32_t>(contribution.PrimaryComponent);
+    params.BlendMode = static_cast<std::uint32_t>(mapper->GetBlendMode());
 
     params.Flags = 0;
     if (contribution.IndependentComponents)
@@ -1225,7 +1293,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
   globals.NumberOfVolumes = static_cast<std::uint32_t>(this->Contributions.size());
   globals.JitterScale = static_cast<float>(smallestStep);
   globals.EmptyThreshold = static_cast<float>(primary->GetEmptySpaceOpacityThreshold());
-  globals.BlendMode = static_cast<std::uint32_t>(blendMode);
+  globals.BlendMode = static_cast<std::uint32_t>(primaryBlendMode);
   globals.MinimumStepFactor = static_cast<float>(primary->GetMinimumSampleDistanceFactor());
   globals.MaximumStepFactor = static_cast<float>(
     std::max(primary->GetMaximumSampleDistanceFactor(), primary->GetMinimumSampleDistanceFactor()));
@@ -1235,7 +1303,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
   // Iso values belong to the property, and like the blend mode they describe the march rather
   // than one volume, so the primary input settles them.
   globals.NumberOfIsoValues = 0;
-  if (blendMode == vtkVolumeMapper::ISOSURFACE_BLEND)
+  if (primaryBlendMode == vtkVolumeMapper::ISOSURFACE_BLEND)
   {
     const auto& contribution = this->Contributions.front();
     vtkContourValues* contours = contribution.Property->GetIsoSurfaceValues();
@@ -1278,7 +1346,8 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
   // whatever UseJittering says. An explicit sample distance is a request for that distance, so it
   // stands aside when the mapper has been told not to adjust it.
   const bool adaptiveSampling = primary->GetAdaptiveSampling() &&
-    blendMode == vtkVolumeMapper::COMPOSITE_BLEND && primary->GetAutoAdjustSampleDistances() != 0;
+    primaryBlendMode == vtkVolumeMapper::COMPOSITE_BLEND &&
+    primary->GetAutoAdjustSampleDistances() != 0;
   if (primary->GetUseJittering() != 0 || adaptiveSampling)
   {
     globals.Flags |= FlagJitter;
@@ -1304,6 +1373,10 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
   if (this->DepthAvailable)
   {
     globals.Flags |= FlagHasDepth;
+  }
+  if (usePerVolumeBlend)
+  {
+    globals.Flags |= FlagPerVolumeBlend;
   }
 
   // Lighting follows vtkOpenGLGPUVolumeRayCastMapper: one enabled head light at full intensity is
