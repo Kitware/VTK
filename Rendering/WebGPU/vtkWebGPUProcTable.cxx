@@ -23,6 +23,7 @@ struct vtkWebGPUProcTableImpl
   WGPUProcGetProcAddress getProcAddressFunc; // Bootstrap function
 };
 
+#if !defined(__EMSCRIPTEN__)
 //------------------------------------------------------------------------------
 // Open a library given only its file name, letting the platform search for it.
 //
@@ -55,6 +56,7 @@ static vtkLibHandle vtkWebGPUProcTableOpenByName(const char* name, int openFlags
   return vtkDynamicLoader::OpenLibrary(name, openFlags);
 #endif
 }
+#endif // !__EMSCRIPTEN__
 
 //------------------------------------------------------------------------------
 vtkWebGPUProcTable vtkWebGPUProcTableLoad(const char* libPath)
