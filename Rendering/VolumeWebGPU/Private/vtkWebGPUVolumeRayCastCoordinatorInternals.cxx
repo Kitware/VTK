@@ -1093,7 +1093,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
     }
 
     // The slice blend mode cuts along a plane carried by the property, in world space.
-    if (blendMode == vtkVolumeMapper::SLICE_BLEND)
+    if (primaryBlendMode == vtkVolumeMapper::SLICE_BLEND)
     {
       if (auto* plane = vtkPlane::SafeDownCast(property->GetSliceFunction()))
       {
