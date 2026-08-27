@@ -136,6 +136,9 @@ vtkPlotRadViz::vtkPlotRadViz()
   // otherwise we process all columns of a table
   this->GetData()->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
+  // the plot renders the data it is given, so normalization is local. Painting
+  // is not collective, so the global controller cannot be used here.
+  this->ComputeGBC->SetController(nullptr);
 }
 
 vtkPlotRadViz::~vtkPlotRadViz()
