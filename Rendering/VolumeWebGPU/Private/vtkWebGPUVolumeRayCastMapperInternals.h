@@ -83,6 +83,10 @@ private:
 
     /// The array the mapper was told to render, which is not always the active point scalars.
     vtkDataArray* Scalars = nullptr;
+    /// The array that gives the second axis of a two dimensional transfer function, if one was
+    /// named. It rides along in the second channel of the same bricks.
+    vtkDataArray* YAxisScalars = nullptr;
+    bool Transfer2D = false;
     bool CellData = false;
     /// Index space to the input's own coordinates, shifted by half a voxel for cell data so that
     /// a cell is sampled at its centre.
@@ -90,6 +94,7 @@ private:
 
     /// Whether the scalars go to the device as bytes rather than floats.
     bool BytePool = false;
+    int PoolChannels = 1;
 
     int Dimensions[3] = { 0, 0, 0 };
     float ValueScale = 1.0f;
@@ -120,6 +125,9 @@ private:
     std::vector<std::uint16_t> ColorTable;
     std::vector<std::uint16_t> OpacityTable;
     std::vector<std::uint16_t> GradientTable;
+    /// The two dimensional transfer function, resampled to a fixed size, one per component.
+    std::vector<std::uint16_t> Transfer2DTable;
+
     /// Every component's opacity table again, unpacked, so cells can be classified without
     /// asking the transfer functions again.
     std::array<std::array<float, TableSize>, 4> OpacityCurve = {};

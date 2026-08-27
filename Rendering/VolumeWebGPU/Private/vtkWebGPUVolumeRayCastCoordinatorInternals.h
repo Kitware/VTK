@@ -132,6 +132,10 @@ private:
   vtkWebGPU::TextureView OpacityTransferFunctionsView;
   vtkWebGPU::Texture GradientTransferFunctions;
   vtkWebGPU::TextureView GradientTransferFunctionsView;
+  /// Two dimensional transfer functions, created only if some volume of the pass asks for one.
+  vtkWebGPU::Texture Transfer2DFunctions;
+  vtkWebGPU::TextureView Transfer2DFunctionsView;
+  std::vector<LayerState> Transfer2DLayers;
   vtkWebGPU::Sampler TransferFunctionSampler;
 
   /// Depth left behind by the opaque geometry, rebuilt every frame because the attachment is

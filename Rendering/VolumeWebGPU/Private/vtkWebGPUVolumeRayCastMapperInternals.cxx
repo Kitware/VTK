@@ -281,6 +281,21 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::CollectInputs(vtkVolume* volume
       continue;
     }
 
+    // The second axis of a two dimensional transfer function, when the mapper names an array for
+    // it. It travels in the second channel of the same bricks rather than in a volume of its own.
+    const bool transfer2D = property->GetTransferFunctionMode() == vtkVolumeProperty::TF_2D;
+    vtkDataArray* yAxis = nullptr;
+    if (transfer2D && this->Self->GetTransfer2DYAxisArray() != nullptr)
+    {
+      yAxis = image->GetPointData()->GetArray(this->Self->GetTransfer2DYAxisArray());
+      if (yAxis == nullptr)
+      {
+        vtkWarningWithObjectMacro(
+          this->Self, << "No array named " << this->Self->GetTransfer2DYAxisArray()
+                      << " to give the second axis of the transfer function.");
+      }
+    }
+
     const int available = scalars->GetNumberOfComponents();
     const int components = std::min(available, 4);
     bool independent = property->GetIndependentComponents() != 0;
@@ -306,7 +321,8 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::CollectInputs(vtkVolume* volume
     input.Port = port;
     input.Data = image;
     if (input.Scalars != scalars || input.CellData != (cellFlag == 1) ||
-      input.NumberOfComponents != components || input.PrimaryComponent != primary)
+      input.NumberOfComponents != components || input.PrimaryComponent != primary ||
+      input.YAxisScalars != yAxis || input.Transfer2D != transfer2D)
     {
       // A different array, or a different way of reading it, is a different volume as far as the
       // device is concerned.
@@ -315,6 +331,8 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::CollectInputs(vtkVolume* volume
       input.ColorTable.clear();
     }
     input.Scalars = scalars;
+    input.YAxisScalars = yAxis;
+    input.Transfer2D = transfer2D;
     input.CellData = cellFlag == 1;
     input.NumberOfComponents = components;
     input.IndependentComponents = independent;
@@ -373,12 +391,19 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
 
   // Eight bit data stays eight bit on the device and is scaled back up in the shader. Everything
   // else becomes single precision float, which is exact for the types that fit.
-  input.BytePool = scalars->GetDataType() == VTK_UNSIGNED_CHAR;
+  input.BytePool = scalars->GetDataType() == VTK_UNSIGNED_CHAR &&
+    (input.YAxisScalars == nullptr || input.YAxisScalars->GetDataType() == VTK_UNSIGNED_CHAR);
   input.ValueScale = input.BytePool ? 255.0f : 1.0f;
   input.ValueBias = 0.0f;
+  // A second axis array takes the channel a second component would have taken.
+  input.PoolChannels = (input.NumberOfComponents > 1 || input.YAxisScalars != nullptr) ? 4 : 1;
   for (int component = 0; component < 4; ++component)
   {
     scalars->GetRange(input.DataRange[component], std::min(component, available - 1));
+  }
+  if (input.YAxisScalars != nullptr)
+  {
+    input.YAxisScalars->GetRange(input.DataRange[1], 0);
   }
 
   input.CellSize = cellSize;
@@ -553,9 +578,9 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchBrick(
   // A slot is the brick plus a one voxel apron on each side.
   const int brickSize = slotSize - 2;
   const int components = scalars->GetNumberOfComponents();
-  // One channel for a single component volume, four for anything more, padded where the array
-  // has fewer than four.
-  const int channels = this->NumberOfComponents > 1 ? 4 : 1;
+  // One channel for a single component volume with nothing riding along, four for anything more,
+  // padded where there is less to put in them.
+  const int channels = this->PoolChannels;
   void* source = scalars->GetVoidPointer(0);
 
   switch (scalars->GetDataType())
@@ -570,6 +595,38 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchBrick(
       });
     default:
       return false;
+  }
+
+  if (this->YAxisScalars != nullptr && channels > 1)
+  {
+    // Lay the second axis into the channel next to the scalars, one brick at a time like them.
+    std::vector<float> axis(static_cast<std::size_t>(slotSize) * slotSize * slotSize);
+    void* yaxis = this->YAxisScalars->GetVoidPointer(0);
+    const int yComponents = this->YAxisScalars->GetNumberOfComponents();
+    switch (this->YAxisScalars->GetDataType())
+    {
+      vtkTemplateMacro(ExtractBrick(static_cast<const VTK_TT*>(yaxis), yComponents, 1,
+        this->Dimensions, brickSize, brick, slotSize, axis.data()));
+      default:
+        return false;
+    }
+    const std::size_t count = axis.size();
+    if (this->BytePool)
+    {
+      auto* out = static_cast<unsigned char*>(voxels);
+      for (std::size_t i = 0; i < count; ++i)
+      {
+        out[i * channels + 1] = static_cast<unsigned char>(axis[i]);
+      }
+    }
+    else
+    {
+      auto* out = static_cast<float*>(voxels);
+      for (std::size_t i = 0; i < count; ++i)
+      {
+        out[i * channels + 1] = axis[i];
+      }
+    }
   }
   return true;
 }
@@ -691,6 +748,91 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateTransferFunctions(Input& 
     }
   }
 
+  // The second axis array is not a component and so has no tables of its own, but it is still
+  // normalized by its own range before it indexes the function.
+  if (input.YAxisScalars != nullptr)
+  {
+    input.ScalarRange[1][0] = input.DataRange[1][0];
+    input.ScalarRange[1][1] = input.DataRange[1][1];
+    if (input.ScalarRange[1][1] <= input.ScalarRange[1][0])
+    {
+      input.ScalarRange[1][1] = input.ScalarRange[1][0] + 1.0;
+    }
+  }
+
+  // A two dimensional transfer function replaces the colour and opacity tables above, indexed by
+  // the data range along one axis and by gradient magnitude, or a second array, along the other.
+  input.Transfer2DTable.clear();
+  if (input.Transfer2D)
+  {
+    constexpr int size = vtkWebGPUVolumeTransferFunction2DSize;
+    input.Transfer2DTable.assign(static_cast<std::size_t>(size) * size * 4 * components, 0);
+    for (int component = 0; component < components; ++component)
+    {
+      vtkImageData* function =
+        property->GetTransferFunction2D(input.IndependentComponents ? component : 0);
+      if (function == nullptr)
+      {
+        continue;
+      }
+      // The function is drawn into an image that does not always name its colours as the active
+      // scalars, so fall back to whatever array it does have.
+      vtkDataArray* texels = function->GetPointData()->GetScalars();
+      if (texels == nullptr && function->GetPointData()->GetNumberOfArrays() > 0)
+      {
+        texels = function->GetPointData()->GetArray(0);
+      }
+      if (texels == nullptr)
+      {
+        vtkWarningWithObjectMacro(this->Self, << "The two dimensional transfer function of input "
+                                              << input.Port << " has no values in it.");
+        continue;
+      }
+      int dimensions[3];
+      function->GetDimensions(dimensions);
+      if (dimensions[0] < 1 || dimensions[1] < 1)
+      {
+        continue;
+      }
+      const std::size_t base = static_cast<std::size_t>(component) * size * size * 4;
+      const int channels = texels->GetNumberOfComponents();
+      // A two dimensional function leaves the one dimensional opacity function unused, so the
+      // envelope of the largest opacity over the second axis stands in for it.
+      std::vector<float> envelope(static_cast<std::size_t>(size), 0.0f);
+      for (int y = 0; y < size; ++y)
+      {
+        // Nearest resampling onto a fixed grid, which is what the function is drawn on anyway.
+        const int sy =
+          std::clamp(static_cast<int>(std::lround(y * (dimensions[1] - 1.0) / (size - 1.0))), 0,
+            dimensions[1] - 1);
+        for (int x = 0; x < size; ++x)
+        {
+          const int sx =
+            std::clamp(static_cast<int>(std::lround(x * (dimensions[0] - 1.0) / (size - 1.0))), 0,
+              dimensions[0] - 1);
+          const vtkIdType tuple = static_cast<vtkIdType>(sy) * dimensions[0] + sx;
+          const std::size_t out = base + (static_cast<std::size_t>(y) * size + x) * 4;
+          for (int c = 0; c < 4; ++c)
+          {
+            const double value = c < channels ? texels->GetComponent(tuple, c) : 1.0;
+            input.Transfer2DTable[out + c] = PackHalf(static_cast<float>(value));
+          }
+          const float alpha =
+            channels > 3 ? static_cast<float>(texels->GetComponent(tuple, 3)) : 1.0f;
+          envelope[x] = std::max(envelope[x], std::clamp(alpha, 0.0f, 1.0f));
+        }
+      }
+      // The envelope is measured on the function's own grid, so every entry of the table it
+      // stands in for has to be given the value nearest it rather than only every fourth one.
+      for (int i = 0; i < TableSize; ++i)
+      {
+        const int x = std::clamp(
+          static_cast<int>(std::lround(i * (size - 1.0) / (TableSize - 1.0))), 0, size - 1);
+        input.OpacityCurve[component][i] = envelope[x];
+      }
+    }
+  }
+
   input.TransferFunctionTime = property->GetMTime();
   input.CellClassification.clear();
   input.ContentTime.Modified();
@@ -785,6 +927,7 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::SyncDeviceResources(
     contribution.ClippingPlanes = this->Self->GetClippingPlanes();
     contribution.BrickSource = &input;
     contribution.BytePool = input.BytePool;
+    contribution.PoolChannels = input.PoolChannels;
     contribution.CellData = input.CellData;
     contribution.HasMask = !input.Hidden.empty();
     contribution.MaskHidesNeighbours = input.MaskHidesNeighbours;
@@ -802,6 +945,9 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::SyncDeviceResources(
     contribution.CellSize = input.CellSize;
     std::copy_n(input.CellDimensions, 3, contribution.CellDimensions);
     contribution.CellClassification = &input.CellClassification;
+    contribution.Transfer2D = input.Transfer2D && !input.Transfer2DTable.empty();
+    contribution.Transfer2DHasYAxisArray = input.YAxisScalars != nullptr;
+    contribution.Transfer2DTable = &input.Transfer2DTable;
     contribution.ColorTable = &input.ColorTable;
     contribution.OpacityTable = &input.OpacityTable;
     contribution.GradientTable = &input.GradientTable;

@@ -36,6 +36,8 @@ const VOLUME_FLAG_INDEPENDENT_COMPONENTS: u32 = 16u;
 const VOLUME_FLAG_MASKED: u32 = 32u;
 const VOLUME_FLAG_MASK_HIDES_NEIGHBOURS: u32 = 64u;
 const VOLUME_FLAG_CELL_DATA: u32 = 128u;
+const VOLUME_FLAG_TRANSFER_2D: u32 = 256u;
+const VOLUME_FLAG_TRANSFER_2D_Y_AXIS_ARRAY: u32 = 512u;
 
 // GlobalUniforms.blend_mode, matching vtkVolumeMapper::BlendModes
 const BLEND_COMPOSITE: u32 = 0u;
@@ -174,6 +176,9 @@ struct Page {
 @group(0) @binding(12) var pool_float_rgba: texture_3d<f32>;
 // One byte per voxel, non zero where the voxel is not to be drawn.
 @group(0) @binding(13) var pool_mask: texture_3d<f32>;
+// Colour and opacity together, indexed by where the sample sits in the data range along x and by
+// the gradient magnitude, or a second array, along y.
+@group(0) @binding(14) var transfer_2d: texture_2d_array<f32>;
 // Per acceleration cell: x is the largest opacity the transfer functions map it to, y how much it
 // varies, in [0,1]. Cells are finer than pool bricks: emptiness is a finer question than residency.
 @group(0) @binding(10) var<storage, read> cells: array<vec2<f32>>;
@@ -385,6 +390,12 @@ fn normalizeComponent(volume_index: u32, component: u32, value: f32) -> f32 {
 fn opacityOf(volume_index: u32, component: u32, normalized: f32) -> f32 {
   return textureSampleLevel(opacity_transfer_functions, transfer_function_sampler,
     vec2<f32>(normalized, 0.5), transferLayer(volume_index, component), 0.0).r;
+}
+
+fn transfer2DAt(volume_index: u32, component: u32, x: f32, y: f32) -> vec4<f32> {
+  return textureSampleLevel(transfer_2d, transfer_function_sampler,
+    vec2<f32>(clamp(x, 0.0, 1.0), clamp(y, 0.0, 1.0)), transferLayer(volume_index, component),
+    0.0);
 }
 
 fn colorOf(volume_index: u32, component: u32, normalized: f32) -> vec3<f32> {
@@ -990,7 +1001,25 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
       var color = vec3<f32>(0.0);
       var opacity = 0.0;
 
-      if ((params.flags & VOLUME_FLAG_INDEPENDENT_COMPONENTS) == 0u) {
+      if ((params.flags & VOLUME_FLAG_TRANSFER_2D) != 0u) {
+        // One function gives colour and opacity together. Its second axis is the gradient
+        // magnitude unless the mapper named an array to use instead.
+        var y = 0.0;
+        if ((params.flags & VOLUME_FLAG_TRANSFER_2D_Y_AXIS_ARRAY) != 0u) {
+          y = normalizeComponent(i, 1u, values[1]);
+        } else {
+          let average = (params.spacing.x + params.spacing.y + params.spacing.z) / 3.0;
+          let magnitude = length(gradient / (params.spacing * 2.0 / average));
+          y = (magnitude - params.gradient_opacity_min[primary]) *
+            params.gradient_opacity_scale[primary];
+        }
+        let sample = transfer2DAt(i, primary, normalized, y);
+        color = sample.rgb;
+        opacity = sample.a;
+        if (opacity > 0.0) {
+          opacity = correctOpacity(opacity, step, params.opacity_unit_distance);
+        }
+      } else if ((params.flags & VOLUME_FLAG_INDEPENDENT_COMPONENTS) == 0u) {
         // Dependent components describe one colour: the last carries opacity, the rest are
         // colour channels. Two means the first is a scalar to colour, four means the first
         // three are the colour. Each component's tables cover its own data range.

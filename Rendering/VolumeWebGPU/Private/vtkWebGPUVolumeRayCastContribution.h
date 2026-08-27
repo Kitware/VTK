@@ -29,6 +29,9 @@ class vtkVolume;
 class vtkVolumeProperty;
 class vtkWebGPUVolumeRayCastMapper;
 
+/// Edge length of a resampled two dimensional transfer function, in texels.
+constexpr int vtkWebGPUVolumeTransferFunction2DSize = 256;
+
 /// Size of every tabulated transfer function, in texels. Matches the width the OpenGL mapper
 /// tabulates at, so that the two resolve a transfer function equally finely.
 constexpr int vtkWebGPUVolumeTransferFunctionSize = 1024;
@@ -83,6 +86,9 @@ struct vtkWebGPUVolumeRayCastContribution
   /// Where the coordinator asks for voxels, and whether they come back as bytes or floats.
   vtkWebGPUVolumeBrickSource* BrickSource = nullptr;
   bool BytePool = false;
+  /// How many channels of a pool slot one voxel takes. More than the components alone when a
+  /// second axis array rides along with them.
+  int PoolChannels = 1;
 
   /// How many components are rendered, at most four, and whether each carries its own transfer
   /// functions or they describe one colour between them.
@@ -116,6 +122,13 @@ struct vtkWebGPUVolumeRayCastContribution
   int CellDimensions[3] = { 0, 0, 0 };
   /// Two floats per cell: the largest opacity it maps to, and how much it varies.
   const std::vector<float>* CellClassification = nullptr;
+
+  /// Whether colour and opacity come from a two dimensional transfer function, and whether its
+  /// second axis is an array of its own rather than the gradient magnitude.
+  bool Transfer2D = false;
+  bool Transfer2DHasYAxisArray = false;
+  /// RGBA16Float texels, vtkWebGPUVolumeTransferFunction2DSize squared per component.
+  const std::vector<std::uint16_t>* Transfer2DTable = nullptr;
 
   /// RGBA16Float texels, vtkWebGPUVolumeTransferFunctionSize of each, one set per component.
   const std::vector<std::uint16_t>* ColorTable = nullptr;

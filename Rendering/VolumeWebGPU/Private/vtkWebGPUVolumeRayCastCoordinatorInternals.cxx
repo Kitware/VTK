@@ -41,6 +41,7 @@ constexpr int MaxClipPlanes = Internals::MaximumClipPlanes;
 constexpr int MaxComponents = 4;
 constexpr int MaxIsoValues = Internals::MaximumIsoValues;
 constexpr int TableSize = Internals::TableSize;
+constexpr int Table2DSize = vtkWebGPUVolumeTransferFunction2DSize;
 
 // Flags shared with VolumeRayCast.wgsl.
 enum GlobalFlag : std::uint32_t
@@ -63,7 +64,9 @@ enum VolumeFlag : std::uint32_t
   VolumeFlagIndependentComponents = 16u,
   VolumeFlagMasked = 32u,
   VolumeFlagMaskHidesNeighbours = 64u,
-  VolumeFlagCellData = 128u
+  VolumeFlagCellData = 128u,
+  VolumeFlagTransfer2D = 256u,
+  VolumeFlagTransfer2DYAxisArray = 512u
 };
 
 // Must match Light in VolumeRayCast.wgsl.
@@ -289,6 +292,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::ReleaseDeviceResources()
 {
   this->Layers.clear();
   this->CellLayers.clear();
+  this->Transfer2DLayers.clear();
   this->BrickContent.clear();
   this->PageOffsets.clear();
   this->CellOffsets.clear();
@@ -308,6 +312,9 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::ReleaseDeviceResources()
   this->OpacityTransferFunctionsView = nullptr;
   this->GradientTransferFunctions = nullptr;
   this->GradientTransferFunctionsView = nullptr;
+  this->Transfer2DFunctions = nullptr;
+  this->Transfer2DFunctionsView = nullptr;
+  this->Transfer2DLayers.clear();
   this->TransferFunctionSampler = nullptr;
   this->OpaqueDepthView = nullptr;
   this->BindGroupLayout = nullptr;
@@ -380,6 +387,38 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateTransferFunctions(
     this->BindGroup = nullptr;
   }
 
+  // Two dimensional functions are rare enough that the room for them is only taken when a volume
+  // of the pass actually asks for one.
+  const bool wants2D = std::any_of(this->Contributions.begin(), this->Contributions.end(),
+    [](const vtkWebGPUVolumeRayCastContribution& contribution) { return contribution.Transfer2D; });
+  if (wants2D && this->Transfer2DFunctions == nullptr)
+  {
+    WGPUTextureDescriptor descriptor = WGPU_TEXTURE_DESCRIPTOR_INIT;
+    descriptor.label = WGPUStringView{ "Transfer2DFunctions", WGPU_STRLEN };
+    descriptor.dimension = WGPUTextureDimension_2D;
+    descriptor.size = { Table2DSize, Table2DSize, MaxVolumes * MaxComponents };
+    descriptor.format = WGPUTextureFormat_RGBA16Float;
+    descriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
+    descriptor.mipLevelCount = 1;
+    descriptor.sampleCount = 1;
+    this->Transfer2DFunctions =
+      vtkWebGPU::Texture::Acquire(configuration->CreateTexture(descriptor));
+
+    WGPUTextureViewDescriptor viewDescriptor = WGPU_TEXTURE_VIEW_DESCRIPTOR_INIT;
+    viewDescriptor.label = descriptor.label;
+    viewDescriptor.format = descriptor.format;
+    viewDescriptor.dimension = WGPUTextureViewDimension_2DArray;
+    viewDescriptor.baseMipLevel = 0;
+    viewDescriptor.mipLevelCount = 1;
+    viewDescriptor.baseArrayLayer = 0;
+    viewDescriptor.arrayLayerCount = MaxVolumes * MaxComponents;
+    this->Transfer2DFunctionsView = vtkWebGPU::TextureView::Acquire(
+      configuration->CreateView(this->Transfer2DFunctions, viewDescriptor));
+    this->Transfer2DLayers.clear();
+    this->BindGroup = nullptr;
+  }
+  this->Transfer2DLayers.resize(MaxVolumes);
+
   this->Layers.resize(MaxVolumes);
 
   const std::uint32_t bytesPerRow = TableSize * 4 * sizeof(std::uint16_t);
@@ -410,6 +449,36 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateTransferFunctions(
         "Gradient opacity transfer function");
     }
 
+    layer.Mapper = contribution.Mapper;
+    layer.Port = contribution.Port;
+    layer.ContentTime = contribution.ContentTime;
+  }
+
+  if (this->Transfer2DFunctions == nullptr)
+  {
+    return;
+  }
+  const std::uint32_t rowBytes2D = Table2DSize * 4 * sizeof(std::uint16_t);
+  const std::size_t layerTexels = static_cast<std::size_t>(Table2DSize) * Table2DSize * 4;
+  for (std::size_t index = 0; index < this->Contributions.size(); ++index)
+  {
+    const auto& contribution = this->Contributions[index];
+    LayerState& layer = this->Transfer2DLayers[index];
+    if (!contribution.Transfer2D || contribution.Transfer2DTable == nullptr ||
+      (layer.Mapper == contribution.Mapper && layer.Port == contribution.Port &&
+        layer.ContentTime == contribution.ContentTime))
+    {
+      continue;
+    }
+    for (int component = 0; component < contribution.NumberOfComponents; ++component)
+    {
+      const WGPUOrigin3D destination = { 0, 0,
+        static_cast<std::uint32_t>(index * MaxComponents + component) };
+      configuration->WriteTexture(this->Transfer2DFunctions, rowBytes2D,
+        static_cast<std::uint32_t>(layerTexels * sizeof(std::uint16_t)),
+        contribution.Transfer2DTable->data() + component * layerTexels, 0, destination, 0,
+        "Two dimensional transfer function");
+    }
     layer.Mapper = contribution.Mapper;
     layer.Port = contribution.Port;
     layer.ContentTime = contribution.ContentTime;
@@ -652,7 +721,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateResidency(
       continue;
     }
 
-    const std::size_t channels = contribution.NumberOfComponents > 1 ? 4 : 1;
+    const std::size_t channels = static_cast<std::size_t>(contribution.PoolChannels);
     void* destination = nullptr;
     if (contribution.BytePool)
     {
@@ -919,6 +988,14 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
     if (contribution.CellData)
     {
       params.Flags |= VolumeFlagCellData;
+    }
+    if (contribution.Transfer2D)
+    {
+      params.Flags |= VolumeFlagTransfer2D;
+      if (contribution.Transfer2DHasYAxisArray)
+      {
+        params.Flags |= VolumeFlagTransfer2DYAxisArray;
+      }
     }
     if (contribution.HasMask)
     {
@@ -1356,7 +1433,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
 
   if (this->BindGroupLayout == nullptr)
   {
-    std::vector<WGPUBindGroupLayoutEntry> entries(14, WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT);
+    std::vector<WGPUBindGroupLayoutEntry> entries(15, WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT);
 
     entries[0].binding = 0;
     entries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
@@ -1402,6 +1479,11 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
     entries[10].visibility = WGPUShaderStage_Fragment;
     entries[10].buffer.type = WGPUBufferBindingType_ReadOnlyStorage;
 
+    entries[14].binding = 14;
+    entries[14].visibility = WGPUShaderStage_Fragment;
+    entries[14].texture.sampleType = WGPUTextureSampleType_Float;
+    entries[14].texture.viewDimension = WGPUTextureViewDimension_2DArray;
+
     WGPUBindGroupLayoutDescriptor descriptor = WGPU_BIND_GROUP_LAYOUT_DESCRIPTOR_INIT;
     descriptor.label = WGPUStringView{ "VolumeRayCastBindGroupLayout", WGPU_STRLEN };
     descriptor.entryCount = static_cast<std::uint32_t>(entries.size());
@@ -1417,7 +1499,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
     return;
   }
 
-  std::vector<WGPUBindGroupEntry> entries(14, WGPU_BIND_GROUP_ENTRY_INIT);
+  std::vector<WGPUBindGroupEntry> entries(15, WGPU_BIND_GROUP_ENTRY_INIT);
 
   entries[0].binding = 0;
   entries[0].buffer = this->GlobalUniformBuffer;
@@ -1459,6 +1541,13 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
   entries[12].textureView = this->Pool.GetView(vtkWebGPUVolumeBrickPool::Kind::FloatRGBA);
   entries[13].binding = 13;
   entries[13].textureView = this->Pool.GetView(vtkWebGPUVolumeBrickPool::Kind::Mask);
+
+  // A binding cannot be left empty, so a pass with no two dimensional function still binds the
+  // one dimensional colours in its place; nothing reads them there.
+  entries[14].binding = 14;
+  entries[14].textureView = this->Transfer2DFunctionsView != nullptr
+    ? this->Transfer2DFunctionsView.Get()
+    : this->ColorTransferFunctionsView.Get();
 
   WGPUBindGroupDescriptor descriptor = WGPU_BIND_GROUP_DESCRIPTOR_INIT;
   descriptor.label = WGPUStringView{ "VolumeRayCastBindGroup", WGPU_STRLEN };
@@ -1608,7 +1697,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::Render(
       count *= std::max(1, (contribution.Dimensions[axis] - 1) / brickSize + 1);
     }
     bricks += count;
-    const std::uint32_t channels = contribution.NumberOfComponents > 1 ? 4u : 1u;
+    const std::uint32_t channels = static_cast<std::uint32_t>(contribution.PoolChannels);
     bytesPerVoxel = std::max(bytesPerVoxel, channels * (contribution.BytePool ? 1u : 4u));
   }
   this->Pool.Configure(window, brickSize,
