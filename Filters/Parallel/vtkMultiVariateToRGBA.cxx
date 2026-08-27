@@ -863,13 +863,17 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     std::sort(indices.begin(), indices.end());
     std::vector<int> expected(numComponents);
     std::iota(expected.begin(), expected.end(), 0);
-    bool validOffsets = !partitionOffsets.empty() && partitionOffsets.back() == numComponents &&
-      std::is_sorted(partitionOffsets.begin(), partitionOffsets.end());
+    // strictly increasing and positive: a group cannot be empty and cannot
+    // index outside the partition
+    bool validOffsets = !partitionOffsets.empty() && partitionOffsets[0] > 0 &&
+      partitionOffsets.back() == numComponents &&
+      std::adjacent_find(partitionOffsets.begin(), partitionOffsets.end(),
+        [](int previous, int current) { return previous >= current; }) == partitionOffsets.end();
     if (indices != expected || !validOffsets)
     {
       vtkErrorMacro(<< fmt::format("Invalid partition {} with offsets {}: every component index "
                                    "in [0, {}) must appear exactly once and PartitionOffsets must "
-                                   "be sorted and end at {}",
+                                   "be strictly increasing, positive and end at {}",
                       partition, partitionOffsets, numComponents, numComponents));
       return 0;
     }
