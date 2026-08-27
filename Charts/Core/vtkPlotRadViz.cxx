@@ -362,7 +362,8 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     this->ComputeGBC->SetStoreRGBA(this->ScalarVisibility);
     this->ComputeGBC->SetLensRadius(this->LensRadius / this->Internals->Radius);
     this->ComputeGBC->SetOutsideLensAlphaCap(this->OutsideLensAlphaCap);
-    this->ComputeGBC->SetComponentsPartition(this->Partition, this->PartitionOffsets);
+    this->ComputeGBC->SetPartitionIndices(this->PartitionIndices);
+    this->ComputeGBC->SetPartitionOffsets(this->PartitionOffsets);
     std::array<double, 2> lensCenter = { (this->LensCenter[0] - this->Internals->Center[0]) /
         this->Internals->Radius,
       (this->LensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius };
@@ -652,25 +653,37 @@ void vtkPlotRadViz::SetDimensions(const int arg[4])
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotRadViz::SetComponentsPartition(
-  const std::vector<int>& partition, const std::vector<int>& partitionOffsets)
+void vtkPlotRadViz::SetPartitionIndices(const std::vector<int>& partitionIndices)
 {
-  vtkDebugMacro(<< " setting Partition to " << fmt::format("{}", partition)
-                << " and PartitionOffsets to " << fmt::format("{}", partitionOffsets));
-  if (this->Partition != partition || this->PartitionOffsets != partitionOffsets)
+  vtkDebugMacro(<< " setting PartitionIndices to " << fmt::format("{}", partitionIndices));
+  if (this->PartitionIndices != partitionIndices)
   {
-    this->Partition = partition;
+    this->PartitionIndices = partitionIndices;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+std::vector<int> vtkPlotRadViz::GetPartitionIndices() VTK_FUTURE_CONST
+{
+  return this->PartitionIndices;
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::SetPartitionOffsets(const std::vector<int>& partitionOffsets)
+{
+  vtkDebugMacro(<< " setting PartitionOffsets to " << fmt::format("{}", partitionOffsets));
+  if (this->PartitionOffsets != partitionOffsets)
+  {
     this->PartitionOffsets = partitionOffsets;
     this->Modified();
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotRadViz::GetComponentsPartition(
-  std::vector<int>& partition, std::vector<int>& partitionOffsets) VTK_FUTURE_CONST
+std::vector<int> vtkPlotRadViz::GetPartitionOffsets() VTK_FUTURE_CONST
 {
-  partition = this->Partition;
-  partitionOffsets = this->PartitionOffsets;
+  return this->PartitionOffsets;
 }
 
 //------------------------------------------------------------------------------

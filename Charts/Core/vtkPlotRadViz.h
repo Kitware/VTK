@@ -20,7 +20,7 @@
  * color but the second point will be 4 times more opaque.
  *
  * You can specify a partition of the set of components in groups (subsets)
- * (see SetComponentsPartition) so that components in each group (subset) are
+ * (see SetPartitionIndices) so that components in each group (subset) are
  * normalized together. By default, all components are in one
  * group. This can be used when value ranges of different
  * components are very different.
@@ -277,19 +277,19 @@ public:
    * all multivariate scalars in a group are normalized together.
    * By default, all variables (components) are in one group.
    *
-   * Partition holds component indices for each group, with groups
+   * PartitionIndices holds component indices for each group, with groups
    * stored contiguously. PartitionOffsets holds, for each group, the
-   * offset of the (last_element + 1) of that group in Partition, in
-   * the order the groups appear in Partition.
+   * offset of the (last_element + 1) of that group in PartitionIndices,
+   * in the order the groups appear in PartitionIndices.
    *
    * For example, to normalize indices `[0, 1, 2]` together and `[3, 4]`
-   * together, set Partition to `[0, 1, 2, 3, 4]` and PartitionOffsets to
+   * together, set PartitionIndices to `[0, 1, 2, 3, 4]` and PartitionOffsets to
    * `[3, 5]`.
    */
-  void SetComponentsPartition(
-    const std::vector<int>& partition, const std::vector<int>& partitionOffsets);
-  void GetComponentsPartition(
-    std::vector<int>& partition, std::vector<int>& partitionOffsets) VTK_FUTURE_CONST;
+  void SetPartitionIndices(const std::vector<int>& partitionIndices);
+  std::vector<int> GetPartitionIndices() VTK_FUTURE_CONST;
+  void SetPartitionOffsets(const std::vector<int>& partitionOffsets);
+  std::vector<int> GetPartitionOffsets() VTK_FUTURE_CONST;
   ///@}
 
   /**
@@ -340,7 +340,7 @@ protected:
   static vtkDataArray* GetArray(vtkDataSet* dataset, const char* name);
   ///@}
 
-  std::vector<int> Partition;
+  std::vector<int> PartitionIndices;
   std::vector<int> PartitionOffsets;
   int Dimensions[4] = { 0, 0, 0, 0 };
   /**

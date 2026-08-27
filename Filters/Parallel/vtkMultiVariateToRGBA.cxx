@@ -565,25 +565,37 @@ void vtkMultiVariateToRGBA::SetVerticesRotation(double rotation)
 }
 
 //------------------------------------------------------------------------------
-void vtkMultiVariateToRGBA::SetComponentsPartition(
-  const std::vector<int>& partition, const std::vector<int>& partitionOffsets)
+void vtkMultiVariateToRGBA::SetPartitionIndices(const std::vector<int>& partitionIndices)
 {
-  vtkDebugMacro(<< " setting Partition to " << fmt::format("{}", partition)
-                << " and PartitionOffsets to " << fmt::format("{}", partitionOffsets));
-  if (this->Partition != partition || this->PartitionOffsets != partitionOffsets)
+  vtkDebugMacro(<< " setting PartitionIndices to " << fmt::format("{}", partitionIndices));
+  if (this->PartitionIndices != partitionIndices)
   {
-    this->Partition = partition;
+    this->PartitionIndices = partitionIndices;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+std::vector<int> vtkMultiVariateToRGBA::GetPartitionIndices() VTK_FUTURE_CONST
+{
+  return this->PartitionIndices;
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::SetPartitionOffsets(const std::vector<int>& partitionOffsets)
+{
+  vtkDebugMacro(<< " setting PartitionOffsets to " << fmt::format("{}", partitionOffsets));
+  if (this->PartitionOffsets != partitionOffsets)
+  {
     this->PartitionOffsets = partitionOffsets;
     this->Modified();
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkMultiVariateToRGBA::GetComponentsPartition(
-  std::vector<int>& partition, std::vector<int>& partitionOffsets) VTK_FUTURE_CONST
+std::vector<int> vtkMultiVariateToRGBA::GetPartitionOffsets() VTK_FUTURE_CONST
 {
-  partition = this->Partition;
-  partitionOffsets = this->PartitionOffsets;
+  return this->PartitionOffsets;
 }
 
 //------------------------------------------------------------------------------
@@ -847,7 +859,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   int numComponents = scalars->GetNumberOfComponents();
   // Use local copies: the default partition depends on the current number of
   // components and RequestData should not modify filter state.
-  std::vector<int> partition = this->Partition;
+  std::vector<int> partition = this->PartitionIndices;
   std::vector<int> partitionOffsets = this->PartitionOffsets;
   if (partition.empty())
   {
