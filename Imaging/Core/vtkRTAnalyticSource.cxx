@@ -217,7 +217,9 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(
   const double xscale = (whlExt[1] > whlExt[0]) ? (1.0 / (whlExt[1] - whlExt[0])) : 1.0;
   const double yscale = (whlExt[3] > whlExt[2]) ? (1.0 / (whlExt[3] - whlExt[2])) : 1.0;
   const double zscale = (whlExt[5] > whlExt[4]) ? (1.0 / (whlExt[5] - whlExt[4])) : 1.0;
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+
+  bool abort = false;
+  for (idxZ = 0; !abort && idxZ <= maxZ; idxZ++)
   {
     if ((this->SubsampleRate > 1) && (idxZ % this->SubsampleRate))
     {
@@ -227,7 +229,7 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(
     z *= zscale;
     zContrib = z * z;
     const float zfactor = static_cast<float>(this->ZMag * cos(this->ZFreq * z));
-    for (idxY = 0; !this->CheckAbort() && idxY <= maxY; idxY++)
+    for (idxY = 0; idxY <= maxY; idxY++)
     {
       if ((this->SubsampleRate > 1) && (idxY % this->SubsampleRate))
       {
@@ -236,6 +238,11 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(
       if (!(count % target))
       {
         this->UpdateProgress(count / (50.0 * target));
+        if (this->CheckAbortAndInvoke())
+        {
+          abort = true;
+          break;
+        }
       }
       count++;
       y = this->Center[1] - (idxY + newOutExt[2]);
@@ -263,6 +270,8 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(
     }
     outPtr += outIncZ;
   }
+
+  this->InvokeCleanupAbortCheck();
 }
 
 void vtkRTAnalyticSource::PrintSelf(ostream& os, vtkIndent indent)

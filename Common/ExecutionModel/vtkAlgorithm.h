@@ -215,9 +215,25 @@ public:
   void UpdateProgress(double amount);
 
   /**
-   * Checks to see if this filter should abort.
+   * Check to see if an input's ABORTED flag is set or if an upstream
+   * algorithm's AbortExecute is set. If either is set, return true.
    */
   bool CheckAbort();
+
+  /**
+   * Invoke AbortCheck event then return CheckAbort result.
+   * This event can be observed and used for reduction of the abort flag by application using VTK,
+   * so make sure to call CleanupAbortCheckEvent at the end of the filter so applications can clean
+   * up potential multi process communications. This should not be called too often for this reason,
+   * usually right after UpdateProgress.
+   */
+  bool CheckAbortAndInvoke();
+
+  /**
+   * Invoke CleanupAbortCheck event, usually used by application to cleanup multi process
+   * communications triggered by CheckAbortAndInvoke.
+   */
+  void InvokeCleanupAbortCheck();
 
   ///@{
   /**

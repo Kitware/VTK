@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkClipDataSet.h"
+#include "vtkCommand.h"
 #include "vtkContourGrid.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
@@ -10,14 +11,32 @@
 #include "vtkShrinkFilter.h"
 #include "vtkUnstructuredGrid.h"
 
+class vtkHandler : public vtkObject
+{
+public:
+  int AbortEventCounts = 0;
+  int CleanupEventCounts = 0;
+
+  static vtkHandler* New();
+  vtkTypeMacro(vtkHandler, vtkObject);
+
+  void AbortCallback() { this->AbortEventCounts++; }
+  void CleanupCallback() { this->CleanupEventCounts++; }
+};
+vtkStandardNewMacro(vtkHandler);
+
 int TestAbortExecute(int, char*[])
 {
   vtkNew<vtkRTAnalyticSource> wavelet;
   vtkNew<vtkShrinkFilter> shrink;
   vtkNew<vtkContourGrid> contour;
   vtkNew<vtkClipDataSet> clip;
+  vtkNew<vtkHandler> handler;
 
   wavelet->SetWholeExtent(0, 10, 0, 10, 0, 10);
+  wavelet->AddObserver(vtkCommand::AbortCheckEvent, handler.Get(), &vtkHandler::AbortCallback);
+  wavelet->AddObserver(
+    vtkCommand::CleanupAbortCheckEvent, handler.Get(), &vtkHandler::CleanupCallback);
 
   shrink->SetInputConnection(wavelet->GetOutputPort());
 
@@ -34,6 +53,14 @@ int TestAbortExecute(int, char*[])
   wavelet->SetAbortExecuteAndUpdateTime();
   clip->Update();
 
+  if (handler->AbortEventCounts != 1)
+  {
+    vtkLog(ERROR, "Wavelet did not invoke expected abort check event");
+  }
+  if (handler->CleanupEventCounts != 1)
+  {
+    vtkLog(ERROR, "Wavelet did not invoke expected cleanup abort check event");
+  }
   if (!wavelet->GetAbortExecute())
   {
     vtkLog(ERROR, "Wavelet AbortExecute flag is not set.");
