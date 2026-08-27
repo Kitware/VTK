@@ -168,6 +168,7 @@ struct Page {
 @group(0) @binding(3) var color_transfer_functions: texture_2d_array<f32>;
 @group(0) @binding(4) var opacity_transfer_functions: texture_2d_array<f32>;
 @group(0) @binding(5) var gradient_transfer_functions: texture_2d_array<f32>;
+// Linear and clamped, shared by the transfer functions and by the brick pools.
 @group(0) @binding(6) var transfer_function_sampler: sampler;
 @group(0) @binding(7) var opaque_depth: texture_depth_2d;
 @group(0) @binding(8) var pool_byte: texture_3d<f32>;
@@ -250,21 +251,23 @@ fn slotOrigin(slot: u32) -> vec3<i32> {
   return vec3<i32>(cell) * i32(globals.pool_slot_size);
 }
 
-fn loadPool(kind: u32, coord: vec3<i32>) -> vec4<f32> {
+// One filtered fetch from whichever pool the volume's bricks live in. VTK requires
+// Float32Filterable, so every pool format filters in hardware.
+fn samplePool(kind: u32, uv: vec3<f32>) -> vec4<f32> {
   switch kind {
-    case 0u: { return vec4<f32>(textureLoad(pool_byte, coord, 0).r, 0.0, 0.0, 0.0); }
-    case 2u: { return textureLoad(pool_byte_rgba, coord, 0); }
-    case 3u: { return textureLoad(pool_float_rgba, coord, 0); }
-    default: { return vec4<f32>(textureLoad(pool_float, coord, 0).r, 0.0, 0.0, 0.0); }
+    case 0u: {
+      return vec4<f32>(textureSampleLevel(pool_byte, transfer_function_sampler, uv, 0.0).r, 0.0, 0.0, 0.0);
+    }
+    case 2u: { return textureSampleLevel(pool_byte_rgba, transfer_function_sampler, uv, 0.0); }
+    case 3u: { return textureSampleLevel(pool_float_rgba, transfer_function_sampler, uv, 0.0); }
+    default: {
+      return vec4<f32>(textureSampleLevel(pool_float, transfer_function_sampler, uv, 0.0).r, 0.0, 0.0, 0.0);
+    }
   }
 }
 
-// Trilinear interpolation by hand. The pool is bound as unfilterable so that 8 bit and 32 bit
-// volumes can share one bind group layout.
-//
-// The eight taps of one sample always land inside a single slot: a brick's apron carries the
-// voxels of its neighbours, so a sample anywhere in the brick reaches no further than the apron.
-// One page lookup therefore serves the whole interpolation, and a brick boundary is not a seam.
+// The eight texels the filter reaches always land in one slot: a brick's apron carries its
+// neighbours' voxels. One page lookup serves the interpolation, so a brick boundary is not a seam.
 fn sampleVector(volume_index: u32, tex_coord: vec3<f32>) -> vec4<f32> {
   let params = volumes[volume_index];
   let voxel = voxelOf(volume_index, tex_coord);
@@ -275,37 +278,18 @@ fn sampleVector(volume_index: u32, tex_coord: vec3<f32>) -> vec4<f32> {
     return vec4<f32>(0.0);
   }
 
-  // The apron takes up the first voxel of the slot, so the brick itself starts one in.
-  let origin = slotOrigin(page.slot) + vec3<i32>(1);
+  // The apron takes up the first voxel of the slot, so the brick itself starts one in, and a
+  // texel is sampled at its middle.
+  let origin = vec3<f32>(slotOrigin(page.slot) + vec3<i32>(1));
   let local = voxel - vec3<f32>(brick) * params.brick_size;
-  let base = floor(local);
-  let frac = local - base;
+  let pool_size = globals.pool_slot_grid * globals.pool_slot_size;
+  let uv = (origin + local + vec3<f32>(0.5)) / pool_size;
 
-  let i0 = origin + vec3<i32>(base);
-  let i1 = i0 + vec3<i32>(1);
-  let kind = params.pool_kind;
-
-  let c000 = loadPool(kind, vec3<i32>(i0.x, i0.y, i0.z));
-  let c100 = loadPool(kind, vec3<i32>(i1.x, i0.y, i0.z));
-  let c010 = loadPool(kind, vec3<i32>(i0.x, i1.y, i0.z));
-  let c110 = loadPool(kind, vec3<i32>(i1.x, i1.y, i0.z));
-  let c001 = loadPool(kind, vec3<i32>(i0.x, i0.y, i1.z));
-  let c101 = loadPool(kind, vec3<i32>(i1.x, i0.y, i1.z));
-  let c011 = loadPool(kind, vec3<i32>(i0.x, i1.y, i1.z));
-  let c111 = loadPool(kind, vec3<i32>(i1.x, i1.y, i1.z));
-
-  let c00 = mix(c000, c100, frac.x);
-  let c10 = mix(c010, c110, frac.x);
-  let c01 = mix(c001, c101, frac.x);
-  let c11 = mix(c011, c111, frac.x);
-  let raw = mix(mix(c00, c10, frac.y), mix(c01, c11, frac.y), frac.z);
-
-  return raw * params.value_scale + params.value_bias;
+  return samplePool(params.pool_kind, uv) * params.value_scale + params.value_bias;
 }
 
-// Whether a sample reads voxels it is not allowed to. A binary mask cuts exactly where it says,
-// so only the nearest voxel counts; ghosted and blanked voxels are not data at all, so anything
-// the interpolation would draw them into goes with them.
+// Whether a sample reads voxels it may not. A binary mask cuts exactly where it says, so only the
+// nearest voxel counts; ghosted and blanked voxels take anything interpolating through them too.
 fn masked(volume_index: u32, tex_coord: vec3<f32>) -> bool {
   let params = volumes[volume_index];
   if ((params.flags & VOLUME_FLAG_MASKED) == 0u) {

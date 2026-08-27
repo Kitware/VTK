@@ -1464,16 +1464,21 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
     entries[7].texture.sampleType = WGPUTextureSampleType_Depth;
     entries[7].texture.viewDimension = WGPUTextureViewDimension_2D;
 
-    // The bricks of every volume live in one of two pools, one for eight bit scalars and one for
-    // floats, so the number of volumes a pass can hold is not a number of texture bindings.
-    // One pool per way of storing scalars: one and four channels, eight bit and float.
-    for (int i : { 8, 9, 11, 12, 13 })
+    // One pool per way of storing scalars: one and four channels, eight bit and float. The
+    // number of volumes a pass can hold is therefore not a number of texture bindings.
+    for (int i : { 8, 9, 11, 12 })
     {
       entries[i].binding = static_cast<std::uint32_t>(i);
       entries[i].visibility = WGPUShaderStage_Fragment;
-      entries[i].texture.sampleType = WGPUTextureSampleType_UnfilterableFloat;
+      entries[i].texture.sampleType = WGPUTextureSampleType_Float;
       entries[i].texture.viewDimension = WGPUTextureViewDimension_3D;
     }
+
+    // What is hidden is read a voxel at a time, never filtered.
+    entries[13].binding = 13;
+    entries[13].visibility = WGPUShaderStage_Fragment;
+    entries[13].texture.sampleType = WGPUTextureSampleType_UnfilterableFloat;
+    entries[13].texture.viewDimension = WGPUTextureViewDimension_3D;
 
     entries[10].binding = 10;
     entries[10].visibility = WGPUShaderStage_Fragment;
