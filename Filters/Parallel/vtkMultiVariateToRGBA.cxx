@@ -448,6 +448,11 @@ vtkSmartPointer<vtkDataArray> createSOAArray(const std::vector<vtkAbstractArray*
 {
   vtkAOSDataArrayTemplate<DataType>* a0 =
     vtkAOSDataArrayTemplate<DataType>::FastDownCast(columns[0]);
+  if (!a0)
+  {
+    // the first column is not an AOS array of the expected type
+    return nullptr;
+  }
   vtkIdType size = a0->GetNumberOfTuples();
   auto soaArray = vtkSmartPointer<vtkSOADataArrayTemplate<DataType>>::New();
   soaArray->SetNumberOfComponents(static_cast<int>(columns.size()));
@@ -989,9 +994,11 @@ vtkMultiVariateToRGBA::getAttributesAndScalars(
       }
       typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals> Dispatcher;
       CreateSOAWorker worker(columns);
-      if (!Dispatcher::Execute(array0, worker))
+      if (!Dispatcher::Execute(array0, worker) || !worker.SOAArray)
       {
-        vtkErrorWithObjectMacro(input, "Array type not supported: " << array0->GetDataType());
+        vtkErrorWithObjectMacro(input,
+          "Columns have to be AOS arrays of the same float or double type: "
+            << array0->GetDataType());
         return { attributes, nullptr };
       }
       else
