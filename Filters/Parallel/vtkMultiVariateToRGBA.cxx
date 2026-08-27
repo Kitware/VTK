@@ -559,21 +559,24 @@ void vtkMultiVariateToRGBA::SetVerticesRotation(double rotation)
 
 //------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetComponentsPartition(
-  const std::vector<std::vector<int>>& modalityGroups)
+  const std::vector<int>& partition, const std::vector<int>& partitionOffsets)
 {
-  vtkDebugMacro(<< " setting ModalityGroups to " << fmt::format("{}", this->ComponentsPartition));
-  if (this->ComponentsPartition != modalityGroups)
+  vtkDebugMacro(<< " setting Partition to " << fmt::format("{}", partition)
+                << " and PartitionOffsets to " << fmt::format("{}", partitionOffsets));
+  if (this->Partition != partition || this->PartitionOffsets != partitionOffsets)
   {
-    this->ComponentsPartition = modalityGroups;
+    this->Partition = partition;
+    this->PartitionOffsets = partitionOffsets;
     this->Modified();
   }
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::vector<int>> vtkMultiVariateToRGBA::GetComponentsPartition() VTK_FUTURE_CONST
+void vtkMultiVariateToRGBA::GetComponentsPartition(
+  std::vector<int>& partition, std::vector<int>& partitionOffsets) VTK_FUTURE_CONST
 {
-  vtkDebugMacro(<< " returning ModalityGroups of " << fmt::format("{}", this->ComponentsPartition));
-  return this->ComponentsPartition;
+  partition = this->Partition;
+  partitionOffsets = this->PartitionOffsets;
 }
 
 //------------------------------------------------------------------------------
@@ -835,32 +838,32 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
   int numComponents = scalars->GetNumberOfComponents();
-  // Use a local copy: the default partition depends on the current number of
+  // Use local copies: the default partition depends on the current number of
   // components and RequestData should not modify filter state.
-  std::vector<std::vector<int>> partition = this->ComponentsPartition;
+  std::vector<int> partition = this->Partition;
+  std::vector<int> partitionOffsets = this->PartitionOffsets;
   if (partition.empty())
   {
     // add one group with all variables
-    partition.resize(1);
-    partition[0].resize(numComponents);
-    std::iota(partition[0].begin(), partition[0].end(), 0);
+    partition.resize(numComponents);
+    std::iota(partition.begin(), partition.end(), 0);
+    partitionOffsets.assign(1, numComponents);
   }
   else
   {
-    // every component index has to appear in the partition exactly once
-    std::vector<int> indices;
-    for (const std::vector<int>& group : partition)
-    {
-      indices.insert(indices.end(), group.begin(), group.end());
-    }
+    // make sure the partition is well formed
+    std::vector<int> indices = partition;
     std::sort(indices.begin(), indices.end());
     std::vector<int> expected(numComponents);
     std::iota(expected.begin(), expected.end(), 0);
-    if (indices != expected)
+    bool validOffsets = !partitionOffsets.empty() && partitionOffsets.back() == numComponents &&
+      std::is_sorted(partitionOffsets.begin(), partitionOffsets.end());
+    if (indices != expected || !validOffsets)
     {
-      vtkErrorMacro(<< fmt::format("Invalid partition {}: every component index in [0, {}) "
-                                   "must appear exactly once",
-                      partition, numComponents));
+      vtkErrorMacro(<< fmt::format("Invalid partition {} with offsets {}: every component index "
+                                   "in [0, {}) must appear exactly once and PartitionOffsets must "
+                                   "be sorted and end at {}",
+                      partition, partitionOffsets, numComponents, numComponents));
       return 0;
     }
   }
@@ -876,9 +879,11 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   // the input scalars can be of any numeric type; the intermediate arrays created by this
   // filter are always vtkDoubleArray, so only the input array needs to be dispatched.
   typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes> InputDispatcher;
-  for (size_t i = 0; i < partition.size(); ++i)
+  for (size_t i = 0, offset = 0; i < partitionOffsets.size(); offset = partitionOffsets[i], ++i)
   {
-    NormalizeWorker worker(partition[i], this->Controller);
+    std::vector<int> groupIndices(
+      partition.begin() + offset, partition.begin() + partitionOffsets[i]);
+    NormalizeWorker worker(groupIndices, this->Controller);
     if (!InputDispatcher::Execute(scalars, worker, normalizedScalars.GetPointer()))
     {
       worker(scalars.GetPointer(), normalizedScalars.GetPointer());

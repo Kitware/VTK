@@ -55,12 +55,12 @@ int TestRadVizChartTable(int argc, char* argv[])
   chart->SetShowLegend(false);
   if (testType == ALL_COLUMNS)
   {
-    plot->SetComponentsPartition({ { 0 }, { 1, 2 }, { 3 } });
+    plot->SetComponentsPartition({ 0, 1, 2, 3 }, { 1, 3, 4 });
   }
   else if (testType == HIDE_COLUMN)
   {
     chart->SetColumnVisibility("tangent", false);
-    plot->SetComponentsPartition({ { 0 }, { 1, 2 } });
+    plot->SetComponentsPartition({ 0, 1, 2 }, { 1, 3 });
   }
   else if (testType == HIDE_TWO_COLUMNS)
   {

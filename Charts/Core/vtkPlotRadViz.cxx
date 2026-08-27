@@ -359,7 +359,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     this->ComputeGBC->SetStoreRGBA(this->ScalarVisibility);
     this->ComputeGBC->SetLensRadius(this->LensRadius / this->Internals->Radius);
     this->ComputeGBC->SetOutsideLensAlphaCap(this->OutsideLensAlphaCap);
-    this->ComputeGBC->SetComponentsPartition(this->ComponentsPartition);
+    this->ComputeGBC->SetComponentsPartition(this->Partition, this->PartitionOffsets);
     std::array<double, 2> lensCenter = { (this->LensCenter[0] - this->Internals->Center[0]) /
         this->Internals->Radius,
       (this->LensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius };
@@ -649,21 +649,25 @@ void vtkPlotRadViz::SetDimensions(const int arg[4])
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotRadViz::SetComponentsPartition(const std::vector<std::vector<int>>& modalityGroups)
+void vtkPlotRadViz::SetComponentsPartition(
+  const std::vector<int>& partition, const std::vector<int>& partitionOffsets)
 {
-  vtkDebugMacro(<< " setting ModalityGroups to " << fmt::format("{}", this->ComponentsPartition));
-  if (this->ComponentsPartition != modalityGroups)
+  vtkDebugMacro(<< " setting Partition to " << fmt::format("{}", partition)
+                << " and PartitionOffsets to " << fmt::format("{}", partitionOffsets));
+  if (this->Partition != partition || this->PartitionOffsets != partitionOffsets)
   {
-    this->ComponentsPartition = modalityGroups;
+    this->Partition = partition;
+    this->PartitionOffsets = partitionOffsets;
     this->Modified();
   }
 }
 
 //------------------------------------------------------------------------------
-std::vector<std::vector<int>> vtkPlotRadViz::GetComponentsPartition() VTK_FUTURE_CONST
+void vtkPlotRadViz::GetComponentsPartition(
+  std::vector<int>& partition, std::vector<int>& partitionOffsets) VTK_FUTURE_CONST
 {
-  vtkDebugMacro(<< " returning ModalityGroups of " << fmt::format("{}", this->ComponentsPartition));
-  return this->ComponentsPartition;
+  partition = this->Partition;
+  partitionOffsets = this->PartitionOffsets;
 }
 
 //------------------------------------------------------------------------------

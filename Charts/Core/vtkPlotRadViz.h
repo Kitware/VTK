@@ -19,11 +19,11 @@
  * 0.2) and (0.4, 0.4, 0.8) will have the same point position and
  * color but the second point will be 4 times more opaque.
  *
- * You can specify a partition of the components (see
- * ComponentsPartition) so that components in a partition are normalized
- * together. By default, all components are in one partition. This can
- * be used when value ranges of different components are very
- * different.
+ * You can specify a partition of the set of components in groups (subsets)
+ * (see SetComponentsPartition) so that components in each group (subset) are
+ * normalized together. By default, all components are in one
+ * group. This can be used when value ranges of different
+ * components are very different.
  *
  * You can show an HSL (hue, saturation and lightness=0.55) ColorWheel
  * (ColorWheelVisibility) that shows the color computed for a point at
@@ -271,19 +271,26 @@ public:
   vtkGetSmartPointerMacro(LabelsProperties, vtkTextProperty);
   ///@}
 
+  ///@{
   /**
    * Variables can be partitioned into several groups. After that,
    * all multivariate scalars in a group are normalized together.
    * By default, all variables (components) are in one group.
    *
-   * For example, if indices `[0, 1, 2]` are the same partition, we
-   * will normalize them all together, meaning we compute the min/max
-   * over all three scalars.
+   * Partition holds component indices for each group, with groups
+   * stored contiguously. PartitionOffsets holds, for each group, the
+   * offset of the (last_element + 1) of that group in Partition, in
+   * the order the groups appear in Partition.
+   *
+   * For example, to normalize indices `[0, 1, 2]` together and `[3, 4]`
+   * together, set Partition to `[0, 1, 2, 3, 4]` and PartitionOffsets to
+   * `[3, 5]`.
    */
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
-  void SetComponentsPartition(const std::vector<std::vector<int>>& partition);
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
-  std::vector<std::vector<int>> GetComponentsPartition() VTK_FUTURE_CONST;
+  void SetComponentsPartition(
+    const std::vector<int>& partition, const std::vector<int>& partitionOffsets);
+  void GetComponentsPartition(
+    std::vector<int>& partition, std::vector<int>& partitionOffsets) VTK_FUTURE_CONST;
+  ///@}
 
   /**
    * Returns the angle in degrees between vertex and mousePos, measured
@@ -333,7 +340,8 @@ protected:
   static vtkDataArray* GetArray(vtkDataSet* dataset, const char* name);
   ///@}
 
-  std::vector<std::vector<int>> ComponentsPartition;
+  std::vector<int> Partition;
+  std::vector<int> PartitionOffsets;
   int Dimensions[4] = { 0, 0, 0, 0 };
   /**
    * Controls how the vertices are drawn.
