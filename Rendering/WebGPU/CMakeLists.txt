@@ -40,6 +40,7 @@ set(classes
   vtkWebGPUHardwareSelector
   vtkWebGPUHelpers
   vtkWebGPUImageMapper
+  vtkWebGPUImageSliceMapper
   vtkWebGPULight
   vtkWebGPUPolyDataMapper
   vtkWebGPUPolyDataMapper2D
@@ -109,7 +110,7 @@ set(webgpu_overrides
   # NI: LabeledContourMapper
   HardwareSelector
   ImageMapper
-  # NI: ImageSliceMapper
+  ImageSliceMapper
   Glyph3DMapper
   # NI: HyperTreeGridMapper
   Light

@@ -687,6 +687,7 @@ Rendering/WebGPU/vtkWebGPUConfiguration.h
 Rendering/WebGPU/vtkWebGPUGlyph3DMapper.h
 Rendering/WebGPU/vtkWebGPUHardwareSelector.h
 Rendering/WebGPU/vtkWebGPUImageMapper.h
+Rendering/WebGPU/vtkWebGPUImageSliceMapper.h
 Rendering/WebGPU/vtkWebGPULight.h
 Rendering/WebGPU/vtkWebGPUPolyDataMapper.h
 Rendering/WebGPU/vtkWebGPUPolyDataMapper2D.h
