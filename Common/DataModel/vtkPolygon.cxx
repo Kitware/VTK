@@ -8,6 +8,7 @@
 #include "vtkBoundingBox.h"
 #include "vtkBox.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkLine.h"
 #include "vtkLogger.h"
@@ -17,6 +18,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPriorityQueue.h"
 #include "vtkQuad.h"
@@ -2031,6 +2033,51 @@ void vtkPolygon::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPoi
   vtkCellArray* tris, vtkPointData* inPD, vtkPointData* outPD, vtkCellData* inCD, vtkIdType cellId,
   vtkCellData* outCD, int insideOut)
 {
+  const vtkIdType numPts = this->Points->GetNumberOfPoints();
+  if (numPts < 3)
+  {
+    return;
+  }
+
+  // Classify each vertex as kept or discarded by the clip value. A vertex whose
+  // scalar equals value is treated as kept regardless of insideOut, matching the
+  // convention used by vtkTriangle::Clip.
+  std::vector<bool> kept(numPts);
+  bool anyIn = false;
+  bool anyOut = false;
+  for (vtkIdType i = 0; i < numPts; ++i)
+  {
+    const double s = cellScalars->GetComponent(i, 0);
+    kept[i] = insideOut ? (s <= value) : (s >= value);
+    anyIn |= kept[i];
+    anyOut |= !kept[i];
+  }
+
+  if (!anyOut) // polygon lies entirely on the kept side: pass it through unchanged
+  {
+    std::vector<vtkIdType> outIds(numPts);
+    double x[3];
+    for (vtkIdType i = 0; i < numPts; ++i)
+    {
+      this->Points->GetPoint(i, x);
+      if (locator->InsertUniquePoint(x, outIds[i]) && outPD)
+      {
+        outPD->CopyData(inPD, this->PointIds->GetId(i), outIds[i]);
+      }
+    }
+    const vtkIdType newCellId = tris->InsertNextCell(static_cast<int>(numPts), outIds.data());
+    outCD->CopyData(inCD, cellId, newCellId);
+    return;
+  }
+
+  if (!anyIn) // polygon lies entirely on the discarded side: nothing to output
+  {
+    return;
+  }
+
+  // The polygon straddles the clip value: fall back to the historical
+  // approach of triangulating the polygon and clipping each triangle
+  // independently.
   this->TriScalars->SetNumberOfTuples(3);
 
   this->SuccessfulTriangulation = 1;
