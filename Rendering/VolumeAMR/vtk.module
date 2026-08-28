@@ -12,6 +12,14 @@ DEPENDS
   VTK::ImagingCore
   VTK::RenderingVolume
   VTK::RenderingVolumeOpenGL2
+TEST_DEPENDS
+  VTK::FiltersAMR
+  VTK::InteractionStyle
+  VTK::TestingCore
+  VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::RenderingVolumeOpenGL2
+  VTK::RenderingVolumeWebGPU
 PRIVATE_DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
