@@ -1254,8 +1254,15 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     descriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
     ///@{ TODO: Only for valid depth stencil formats
     auto depthState = descriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
-    depthState->depthWriteEnabled = WGPUOptionalBool_True;
-    depthState->depthCompare = WGPUCompareFunction_Less;
+    // Overlay geometry is painter-ordered: it is drawn in the order the props
+    // were added, and must not occlude anything drawn after it. Writing depth
+    // would - a label drawn before a background-location image punches a hole in
+    // it the shape of the label's own quad, transparent pixels included.
+    depthState->depthWriteEnabled = WGPUOptionalBool_False;
+    // LessEqual, matching OpenGL's GL_LEQUAL. Props with a background display
+    // location sit at the far plane, which is what the depth attachment is
+    // cleared to, so a strict Less test discards them entirely.
+    depthState->depthCompare = WGPUCompareFunction_LessEqual;
     ///@}
     // Prepare selection ids output.
     descriptor.cTargets[1].format = wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat();
