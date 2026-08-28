@@ -5,6 +5,7 @@ endif ()
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestComputeDoublePipelineRenderBuffer.cxx,NO_DATA
   TestComputeFrustumCulling.cxx,NO_DATA,NO_VALID
+  TestSelectorPropIds.cxx,NO_DATA,NO_VALID
   TestComputeOcclusionCulling.cxx,NO_DATA,NO_VALID
   TestComputeOcclusionCullingResize.cxx,NO_DATA,NO_VALID
   TestComputeModifyPointColors.cxx,NO_DATA,NO_SERDES

@@ -296,6 +296,16 @@ void vtkWebGPURenderer::WarnIfCullingWithRenderBundles()
 }
 
 //------------------------------------------------------------------------------
+vtkProp* vtkWebGPURenderer::GetPropWithId(vtkTypeUInt32 id)
+{
+  if (id >= this->PropArray.size())
+  {
+    return nullptr;
+  }
+  return this->PropArray[id];
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderer::DeviceRender()
 {
   vtkDebugMacro(<< __func__);

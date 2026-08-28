@@ -101,8 +101,6 @@ private:
   bool MapReady = false;
   vtkNew<vtkTypeUInt32Array> IdBuffer;
 
-  vtkProp** PropArray = nullptr;
-
   vtkWebGPUHardwareSelector(const vtkWebGPUHardwareSelector&) = delete;
   void operator=(const vtkWebGPUHardwareSelector&) = delete;
 };
