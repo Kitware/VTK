@@ -93,10 +93,12 @@ buffer rather than about texture bindings, and how much data they hold is a
 question about the pool budget rather than about any single texture.
 
 Each slot carries a one voxel apron around its brick, taken from the brick's
-neighbours. That is what makes the cutting invisible: the eight taps of one
-sample always land inside a single slot, so one page lookup serves the whole
-interpolation and a brick boundary reads exactly what a single large texture
-would have read.
+neighbours. That is what makes the cutting invisible: the eight texels the
+filter reaches for always land inside a single slot, so one page lookup serves
+the whole interpolation and a brick boundary reads exactly what a single large
+texture would have read. It is also what lets the pools be filtered in hardware
+rather than interpolated by hand - VTK asks its WebGPU device for
+Float32Filterable, so every format a pool uses can be sampled directly.
 
 The pool holds `BrickPoolSizeMB` megabytes at most, and grows only as far as the
 volumes in the scene actually need. When they need more than that, the bricks
