@@ -666,9 +666,17 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateRenderTexture(
       return;
     }
 
-    // Getting some variables
-    vtkWebGPU::TextureView wgpuTextureView = CreateWebGPUTextureView(
+    // The bind group entry keeps only a raw pointer to the view, so the view has
+    // to be owned by the storage map. A local handle would be released at the end
+    // of this iteration and leave the entry pointing at a freed view; the
+    // wgpu::TextureView this replaced kept it alive by refcounting the copy that
+    // went into the entry. Dawn tolerates the dangling handle, but Emscripten
+    // drops the released view from its object table and the next
+    // wgpuDeviceCreateBindGroup then fails with an undefined resource.
+    this->TextureViewsToWebGPUTextureViews[textureView] = CreateWebGPUTextureView(
       textureView, vtkWebGPU::Texture::Reference(renderTexture->GetWebGPUTexture()));
+    const vtkWebGPU::TextureView& wgpuTextureView =
+      this->TextureViewsToWebGPUTextureViews[textureView];
     WGPUTextureViewDimension textureViewDimension =
       vtkWebGPUComputePassTextureStorageInternals::ComputeTextureDimensionToViewDimension(
         textureView->GetDimension());
