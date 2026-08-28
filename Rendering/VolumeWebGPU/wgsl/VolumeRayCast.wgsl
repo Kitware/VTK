@@ -40,6 +40,7 @@ const VOLUME_FLAG_CELL_DATA: u32 = 128u;
 const VOLUME_FLAG_TRANSFER_2D: u32 = 256u;
 const VOLUME_FLAG_TRANSFER_2D_Y_AXIS_ARRAY: u32 = 512u;
 const VOLUME_FLAG_NEAREST: u32 = 1024u;
+const VOLUME_FLAG_LABEL_MAP: u32 = 2048u;
 
 // GlobalUniforms.blend_mode, matching vtkVolumeMapper::BlendModes
 const BLEND_COMPOSITE: u32 = 0u;
@@ -94,7 +95,8 @@ struct GlobalUniforms {
   pool_slot_grid: vec3<f32>,
   pool_slot_size: f32,
   num_iso_values: u32,
-  padding0: f32,
+  // Rows the label map transfer function table has, one per label.
+  label_rows: f32,
   // Window and level over the finished colour, as the scale and bias that apply them.
   final_color_scale: f32,
   final_color_bias: f32,
@@ -148,7 +150,8 @@ struct VolumeParams {
   // The component the intensity modes, the iso surfaces and the acceleration structure read.
   primary_component: u32,
   blend_mode: u32,
-  padding0: f32,
+  // How far a labelled voxel goes from the volume's own transfer functions to its label's.
+  mask_blend_factor: f32,
   clip_planes: array<vec4<f32>, MAX_CLIP_PLANES>,
 }
 
@@ -183,6 +186,8 @@ struct Page {
 // Colour and opacity together, indexed by where the sample sits in the data range along x and by
 // the gradient magnitude, or a second array, along y.
 @group(0) @binding(14) var transfer_2d: texture_2d_array<f32>;
+// One row per label of a label map, one layer per volume.
+@group(0) @binding(15) var label_transfer: texture_2d_array<f32>;
 // Per acceleration cell: x is the largest opacity the transfer functions map it to, y how much it
 // varies, in [0,1]. Cells are finer than pool bricks: emptiness is a finer question than residency.
 @group(0) @binding(10) var<storage, read> cells: array<vec2<f32>>;
@@ -330,7 +335,30 @@ fn masked(volume_index: u32, tex_coord: vec3<f32>) -> bool {
   return hidden > 0.0;
 }
 
-// The component the intensity modes, the iso surfaces and the acceleration structure look at.
+// The label a voxel carries, in the second channel of the mask pool. A label is a name rather
+// than a quantity, so only the nearest voxel is asked.
+fn labelAt(volume_index: u32, tex_coord: vec3<f32>) -> u32 {
+  let params = volumes[volume_index];
+  let voxel = voxelOf(volume_index, tex_coord);
+  let brick = vec3<i32>(floor(voxel / params.brick_size));
+  let page = pageAt(volume_index, brick);
+  if ((page.flags & PAGE_RESIDENT) == 0u) {
+    return 0u;
+  }
+  let origin = slotOrigin(page.slot) + vec3<i32>(1);
+  let local = voxel - vec3<f32>(brick) * params.brick_size;
+  let nearest = origin + vec3<i32>(round(local));
+  return u32(round(textureLoad(pool_mask, nearest, 0).g * 255.0));
+}
+
+// Colour and opacity a label asks a sample to be drawn with. Rows are indexed by the label
+// itself, so labels may be as sparse as they like.
+fn labelTransferAt(volume_index: u32, label: u32, normalized: f32) -> vec4<f32> {
+  let y = (f32(label) + 0.5) / globals.label_rows;
+  return textureSampleLevel(label_transfer, transfer_function_sampler,
+    vec2<f32>(clamp(normalized, 0.0, 1.0), y), i32(volume_index), 0.0);
+}
+
 fn sampleScalar(volume_index: u32, tex_coord: vec3<f32>) -> f32 {
   return sampleVector(volume_index, tex_coord)[volumes[volume_index].primary_component];
 }
@@ -1077,6 +1105,22 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
           // The weighted sum above is premultiplied by the component opacities, so undo that to
           // get a colour the rest of the march can treat like any other.
           color = weighted / max(opacity, 1.0e-6);
+        }
+      }
+
+      // A label map names transfer functions per label; mask_blend_factor says how far to go
+      // towards them. Label zero is the unlabelled one and keeps the volume's own.
+      if ((params.flags & VOLUME_FLAG_LABEL_MAP) != 0u) {
+        let label = labelAt(i, tex_coord);
+        if (label > 0u) {
+          let labelled = labelTransferAt(i, label, normalized);
+          var label_opacity = labelled.a;
+          if (label_opacity > 0.0) {
+            label_opacity = correctOpacity(label_opacity, step, params.opacity_unit_distance) *
+              gradientOpacityOf(i, primary, gradient, params.spacing);
+          }
+          color = mix(color, labelled.rgb, params.mask_blend_factor);
+          opacity = mix(opacity, label_opacity, params.mask_blend_factor);
         }
       }
 

@@ -106,6 +106,13 @@ struct vtkWebGPUVolumeRayCastContribution
   bool HasMask = false;
   bool MaskHidesNeighbours = false;
 
+  /// A label map mask names a transfer function per label, and MaskBlendFactor says how far to
+  /// go from the volume's own transfer functions towards the label's.
+  int MaximumLabel = 0;
+  float MaskBlendFactor = 1.0f;
+  /// RGBA16Float texels, vtkWebGPUVolumeTransferFunctionSize per label, row zero unused.
+  const std::vector<std::uint16_t>* LabelTable = nullptr;
+
   int Dimensions[3] = { 0, 0, 0 };
   /// Turns a raw texel back into a scalar: scalar = texel * ValueScale + ValueBias.
   float ValueScale = 1.0f;

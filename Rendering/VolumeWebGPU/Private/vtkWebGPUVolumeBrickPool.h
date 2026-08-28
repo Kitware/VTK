@@ -52,8 +52,8 @@ public:
     Float = 1,
     ByteRGBA = 2,
     FloatRGBA = 3,
-    /// One byte per voxel saying which voxels are not to be drawn: ghosted, blanked, or left out
-    /// by a binary mask. Shares slot numbering with whichever pool holds the scalars.
+    /// Two bytes per voxel: whether it is hidden, by a ghost, blanking or a binary mask, and its
+    /// label for a volume drawn through a label map. Shares slot numbering with the scalar pool.
     Mask = 4,
     Count = 5
   };

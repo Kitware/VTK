@@ -141,6 +141,13 @@ private:
   vtkWebGPU::Texture Transfer2DFunctions;
   vtkWebGPU::TextureView Transfer2DFunctionsView;
   std::vector<LayerState> Transfer2DLayers;
+
+  /// One row per label of the label map, one layer per volume. Only made when a volume of the
+  /// pass is actually drawn through a label map, and remade when a longer one comes along.
+  vtkWebGPU::Texture LabelTransferFunctions;
+  vtkWebGPU::TextureView LabelTransferFunctionsView;
+  std::vector<LayerState> LabelLayers;
+  int LabelRows = 0;
   vtkWebGPU::Sampler TransferFunctionSampler;
 
   /// Depth left behind by the opaque geometry, rebuilt every frame because the attachment is

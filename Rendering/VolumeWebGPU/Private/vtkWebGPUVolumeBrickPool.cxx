@@ -23,8 +23,9 @@ WGPUTextureFormat FormatOf(Kind kind)
   switch (kind)
   {
     case Kind::Byte:
-    case Kind::Mask:
       return WGPUTextureFormat_R8Unorm;
+    case Kind::Mask:
+      return WGPUTextureFormat_RG8Unorm;
     case Kind::ByteRGBA:
       return WGPUTextureFormat_RGBA8Unorm;
     case Kind::FloatRGBA:
@@ -39,8 +40,9 @@ std::uint32_t BytesPerVoxel(Kind kind)
   switch (kind)
   {
     case Kind::Byte:
-    case Kind::Mask:
       return 1u;
+    case Kind::Mask:
+      return 2u;
     case Kind::ByteRGBA:
       return 4u;
     case Kind::FloatRGBA:

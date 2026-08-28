@@ -150,7 +150,8 @@ void ExtractBrick(const T* source, int components, int channels, const int dimen
 }
 
 //------------------------------------------------------------------------------
-// One byte per voxel of the same brick, taken from a host side array laid out like the volume.
+// Hidden flag and label of every voxel of the same brick, taken from a host side array laid out
+// like the volume.
 void ExtractMask(const unsigned char* source, const int dimensions[3], int brickSize,
   const int brick[3], int slotSize, unsigned char* destination)
 {
@@ -162,10 +163,12 @@ void ExtractMask(const unsigned char* source, const int dimensions[3], int brick
     {
       const int sy = pick(brick[1] * brickSize + y - 1, dimensions[1] - 1);
       const vtkIdType row = (static_cast<vtkIdType>(sz) * dimensions[1] + sy) * dimensions[0];
-      unsigned char* out = destination + (static_cast<vtkIdType>(z) * slotSize + y) * slotSize;
+      unsigned char* out = destination + (static_cast<vtkIdType>(z) * slotSize + y) * slotSize * 2;
       for (int x = 0; x < slotSize; ++x)
       {
-        out[x] = source[row + pick(brick[0] * brickSize + x - 1, dimensions[0] - 1)];
+        const vtkIdType at = (row + pick(brick[0] * brickSize + x - 1, dimensions[0] - 1)) * 2;
+        out[x * 2] = source[at];
+        out[x * 2 + 1] = source[at + 1];
       }
     }
   }
@@ -320,6 +323,13 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::CollectInputs(vtkVolume* volume
     Input& input = this->InputCache[port];
     input.Port = port;
     input.Data = image;
+    vtkImageData* mask = this->Self->GetMaskInput();
+    if (input.Mask != mask || input.MaskType != this->Self->GetMaskType() ||
+      (mask != nullptr && input.MaskTime < mask->GetMTime()))
+    {
+      input.CellSize = 0;
+      input.DataTime = 0;
+    }
     if (input.Scalars != scalars || input.CellData != (cellFlag == 1) ||
       input.NumberOfComponents != components || input.PrimaryComponent != primary ||
       input.YAxisScalars != yAxis || input.Transfer2D != transfer2D)
@@ -433,6 +443,9 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
 
   this->UpdateHiddenVoxels(input);
 
+  input.Mask = this->Self->GetMaskInput();
+  input.MaskType = this->Self->GetMaskType();
+  input.MaskTime = input.Mask != nullptr ? input.Mask->GetMTime() : 0;
   input.DataTime = input.Data->GetMTime();
   // The cells were measured again, so their classification is stale.
   input.TransferFunctionTime = 0;
@@ -444,6 +457,7 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateHiddenVoxels(Input& input
 {
   input.Hidden.clear();
   input.MaskHidesNeighbours = false;
+  input.MaximumLabel = 0;
 
   const vtkIdType count =
     static_cast<vtkIdType>(input.Dimensions[0]) * input.Dimensions[1] * input.Dimensions[2];
@@ -452,21 +466,37 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateHiddenVoxels(Input& input
     return;
   }
 
-  // A binary mask says exactly which voxels to draw, so it cuts where it says and does not take
-  // its neighbours with it.
+  // A binary mask cuts exactly where it says and does not take its neighbours with it. A label map
+  // instead names, per voxel, which transfer functions to draw it with, so it hides nothing.
   vtkImageData* mask = this->Self->GetMaskInput();
-  if (mask != nullptr && this->Self->GetMaskType() == vtkGPUVolumeRayCastMapper::BinaryMaskType)
+  if (mask != nullptr)
   {
+    const bool binary = this->Self->GetMaskType() == vtkGPUVolumeRayCastMapper::BinaryMaskType;
     vtkDataArray* values = mask->GetPointData()->GetScalars();
     int maskDimensions[3];
     mask->GetDimensions(maskDimensions);
     if (values != nullptr && maskDimensions[0] == input.Dimensions[0] &&
       maskDimensions[1] == input.Dimensions[1] && maskDimensions[2] == input.Dimensions[2])
     {
-      input.Hidden.assign(static_cast<std::size_t>(count), 0);
+      input.Hidden.assign(static_cast<std::size_t>(count) * 2, 0);
       for (vtkIdType i = 0; i < count; ++i)
       {
-        input.Hidden[i] = values->GetComponent(i, 0) == 0.0 ? 255 : 0;
+        const double value = values->GetComponent(i, 0);
+        if (binary)
+        {
+          input.Hidden[i * 2] = value == 0.0 ? 255 : 0;
+        }
+        else
+        {
+          // Labels ride in a byte, and one that does not fit is one no transfer function was
+          // ever going to be found for.
+          const int label = static_cast<int>(value);
+          if (label > 0 && label < 256)
+          {
+            input.Hidden[i * 2 + 1] = static_cast<unsigned char>(label);
+            input.MaximumLabel = std::max(input.MaximumLabel, label);
+          }
+        }
       }
     }
     else if (values != nullptr)
@@ -489,7 +519,7 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateHiddenVoxels(Input& input
   input.MaskHidesNeighbours = !input.CellData;
   if (input.Hidden.empty())
   {
-    input.Hidden.assign(static_cast<std::size_t>(count), 0);
+    input.Hidden.assign(static_cast<std::size_t>(count) * 2, 0);
   }
 
   if (input.CellData)
@@ -499,7 +529,7 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateHiddenVoxels(Input& input
     {
       for (vtkIdType i = 0; i < count; ++i)
       {
-        input.Hidden[i] |= cellGhosts->GetValue(i) != 0 ? 255 : 0;
+        input.Hidden[i * 2] |= cellGhosts->GetValue(i) != 0 ? 255 : 0;
       }
     }
     return;
@@ -509,7 +539,7 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateHiddenVoxels(Input& input
   {
     for (vtkIdType i = 0; i < count; ++i)
     {
-      input.Hidden[i] |= pointGhosts->GetValue(i) != 0 ? 255 : 0;
+      input.Hidden[i * 2] |= pointGhosts->GetValue(i) != 0 ? 255 : 0;
     }
   }
   if (cellGhosts != nullptr)
@@ -546,7 +576,7 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateHiddenVoxels(Input& input
           }
           if (hidden)
           {
-            input.Hidden[(static_cast<vtkIdType>(z) * dims[1] + y) * dims[0] + x] = 255;
+            input.Hidden[((static_cast<vtkIdType>(z) * dims[1] + y) * dims[0] + x) * 2] = 255;
           }
         }
       }
@@ -833,6 +863,57 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateTransferFunctions(Input& 
     }
   }
 
+  // A label map names transfer functions per label, and a label naming none is drawn with the
+  // volume's. One row per label, indexed by the label itself, so labels may be sparse.
+  input.LabelTable.clear();
+  if (input.MaximumLabel > 0)
+  {
+    const int rows = input.MaximumLabel + 1;
+    input.LabelTable.assign(static_cast<std::size_t>(TableSize) * rows * 4, 0);
+    vtkColorTransferFunction* baseRgb =
+      property->GetColorChannels(0) == 1 ? nullptr : property->GetRGBTransferFunction(0);
+    vtkPiecewiseFunction* baseGray =
+      property->GetColorChannels(0) == 1 ? property->GetGrayTransferFunction(0) : nullptr;
+    vtkPiecewiseFunction* baseOpacity = property->GetScalarOpacity(0);
+    const double* range = input.ScalarRange[0];
+
+    for (int label = 1; label < rows; ++label)
+    {
+      vtkColorTransferFunction* rgb = property->GetLabelColor(label);
+      vtkPiecewiseFunction* opacity = property->GetLabelScalarOpacity(label);
+      std::vector<float> colors(static_cast<std::size_t>(TableSize) * 3, 0.0f);
+      std::vector<float> alphas(static_cast<std::size_t>(TableSize), 0.0f);
+      if (rgb != nullptr)
+      {
+        rgb->GetTable(range[0], range[1], TableSize, colors.data());
+      }
+      else if (baseRgb != nullptr)
+      {
+        baseRgb->GetTable(range[0], range[1], TableSize, colors.data());
+      }
+      else if (baseGray != nullptr)
+      {
+        std::vector<float> gray(static_cast<std::size_t>(TableSize), 0.0f);
+        baseGray->GetTable(range[0], range[1], TableSize, gray.data());
+        for (int i = 0; i < TableSize; ++i)
+        {
+          colors[i * 3] = colors[i * 3 + 1] = colors[i * 3 + 2] = gray[i];
+        }
+      }
+      (opacity != nullptr ? opacity : baseOpacity)
+        ->GetTable(range[0], range[1], TableSize, alphas.data());
+
+      const std::size_t base = static_cast<std::size_t>(label) * TableSize * 4;
+      for (int i = 0; i < TableSize; ++i)
+      {
+        input.LabelTable[base + i * 4 + 0] = PackHalf(colors[i * 3]);
+        input.LabelTable[base + i * 4 + 1] = PackHalf(colors[i * 3 + 1]);
+        input.LabelTable[base + i * 4 + 2] = PackHalf(colors[i * 3 + 2]);
+        input.LabelTable[base + i * 4 + 3] = PackHalf(alphas[i]);
+      }
+    }
+  }
+
   input.TransferFunctionTime = property->GetMTime();
   input.CellClassification.clear();
   input.ContentTime.Modified();
@@ -931,6 +1012,9 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::SyncDeviceResources(
     contribution.CellData = input.CellData;
     contribution.HasMask = !input.Hidden.empty();
     contribution.MaskHidesNeighbours = input.MaskHidesNeighbours;
+    contribution.MaximumLabel = input.LabelTable.empty() ? 0 : input.MaximumLabel;
+    contribution.MaskBlendFactor = this->Self->GetMaskBlendFactor();
+    contribution.LabelTable = &input.LabelTable;
     std::copy_n(input.Dimensions, 3, contribution.Dimensions);
     contribution.ValueScale = input.ValueScale;
     contribution.ValueBias = input.ValueBias;

@@ -76,8 +76,18 @@ private:
     bool FetchBrick(const int brick[3], int slotSize, void* voxels) override;
     bool FetchMask(const int brick[3], int slotSize, unsigned char* voxels) override;
 
-    /// One byte per voxel, non zero where the voxel is not to be drawn. Empty when nothing is.
+    /// Two bytes per voxel: the first non zero where the voxel is not to be drawn, the second
+    /// its label. Empty when the volume has neither anything hidden nor a label map.
     std::vector<unsigned char> Hidden;
+    /// Labels of a label map mask, and the transfer functions each of them asks for. One row of
+    /// RGBA16Float texels per label, row zero unused because label zero is the unlabelled one.
+    int MaximumLabel = 0;
+    /// What the mask looked like when the hidden voxels were last worked out, so that a mask
+    /// arriving or changing counts as the volume changing.
+    vtkImageData* Mask = nullptr;
+    vtkMTimeType MaskTime = 0;
+    int MaskType = -1;
+    std::vector<std::uint16_t> LabelTable;
     /// Whether hiding a voxel should also hide what interpolates through it.
     bool MaskHidesNeighbours = false;
 
