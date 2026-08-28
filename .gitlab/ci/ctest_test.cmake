@@ -43,6 +43,11 @@ else ()
   list(APPEND include_or_exclude_serdes EXCLUDE_LABEL SERDES)
 endif ()
 
+set(maybe_include_java_tests "")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "java")
+  list(APPEND maybe_include_java_tests INCLUDE_LABEL vtkJava)
+endif()
+
 ctest_test(APPEND
   PARALLEL_LEVEL "${nproc}"
   TEST_LOAD "${nproc}"
@@ -50,6 +55,7 @@ ctest_test(APPEND
   EXCLUDE "${test_exclusions}"
   ${maybe_include_label_mangling}
   ${include_or_exclude_serdes}
+  ${maybe_include_java_tests}
   OUTPUT_JUNIT "${CTEST_BINARY_DIRECTORY}/junit.xml"
   REPEAT UNTIL_PASS:3)
 ctest_submit(PARTS Test)

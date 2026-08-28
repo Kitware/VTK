@@ -77,6 +77,10 @@ function (vtkjava_test_env_properties testname)
         ENVIRONMENT_MODIFICATION
           "DYLD_LIBRARY_PATH=path_list_append:${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
   endif ()
+
+  set_property(TEST "${testname}" APPEND
+    PROPERTY
+      LABELS "vtkJava")
 endfunction ()
 
 if (TARGET VTK::RenderingOpenGL2)
