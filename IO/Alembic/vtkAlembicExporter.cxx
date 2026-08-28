@@ -54,7 +54,7 @@ VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
-vtkPolyData* findPolyData(vtkDataObject* input)
+vtkPolyData* FindPolyData(vtkDataObject* input)
 {
   // do we have polydata?
   vtkPolyData* pd = vtkPolyData::SafeDownCast(input);
@@ -639,7 +639,7 @@ void vtkAlembicExporter::WriteData()
             aPart->GetMapper()->GetInputAlgorithm())
           {
             aPart->GetMapper()->GetInputAlgorithm()->Update();
-            vtkPolyData* pd = findPolyData(aPart->GetMapper()->GetInputDataObject(0, 0));
+            vtkPolyData* pd = FindPolyData(aPart->GetMapper()->GetInputDataObject(0, 0));
             if (pd && pd->GetNumberOfCells() > 0)
             {
               // save and restore prop changed when generating texture coords
