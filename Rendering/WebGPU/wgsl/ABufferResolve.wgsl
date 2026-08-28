@@ -10,6 +10,8 @@ struct FragmentNode
   depth: f32,
   cellId: u32,
   propId: u32,
+  compositeId: u32,
+  processId: u32,
   next: u32,
 };
 
@@ -51,8 +53,11 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
 
   var depths: array<f32, MAX_LAYERS>;
   var colors: array<u32, MAX_LAYERS>;
-  var cellIds: array<u32, MAX_LAYERS>;
-  var propIds: array<u32, MAX_LAYERS>;
+  var nearestDepth: f32 = 3.402823e+38;
+  var nearestCell: u32 = 0u;
+  var nearestProp: u32 = 0u;
+  var nearestComposite: u32 = 0u;
+  var nearestProcess: u32 = 0u;
   var count: u32 = 0u;
   var node: u32 = atomicLoad(&abufferHeads[pixel]);
   loop {
@@ -63,7 +68,17 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
     let nodeColor = abufferNodes[node].color;
     let nodeCell = abufferNodes[node].cellId;
     let nodeProp = abufferNodes[node].propId;
+    let nodeComposite = abufferNodes[node].compositeId;
+    let nodeProcess = abufferNodes[node].processId;
     node = abufferNodes[node].next;
+
+    if (nodeDepth < nearestDepth) {
+      nearestDepth = nodeDepth;
+      nearestCell = nodeCell;
+      nearestProp = nodeProp;
+      nearestComposite = nodeComposite;
+      nearestProcess = nodeProcess;
+    }
 
     if (count < MAX_LAYERS) {
       var j: i32 = i32(count) - 1;
@@ -73,14 +88,10 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
         }
         depths[u32(j) + 1u] = depths[u32(j)];
         colors[u32(j) + 1u] = colors[u32(j)];
-        cellIds[u32(j) + 1u] = cellIds[u32(j)];
-        propIds[u32(j) + 1u] = propIds[u32(j)];
         j = j - 1;
       }
       depths[u32(j + 1)] = nodeDepth;
       colors[u32(j + 1)] = nodeColor;
-      cellIds[u32(j + 1)] = nodeCell;
-      propIds[u32(j + 1)] = nodeProp;
       count = count + 1u;
     } else if (nodeDepth < depths[0]) {
       var j: u32 = 0u;
@@ -90,14 +101,10 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
         }
         depths[j] = depths[j + 1u];
         colors[j] = colors[j + 1u];
-        cellIds[j] = cellIds[j + 1u];
-        propIds[j] = propIds[j + 1u];
         j = j + 1u;
       }
       depths[j] = nodeDepth;
       colors[j] = nodeColor;
-      cellIds[j] = nodeCell;
-      propIds[j] = nodeProp;
     }
   }
 
@@ -118,6 +125,6 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
   }
 
   output.color = accum;
-  output.ids = vec4<u32>(cellIds[count - 1u], propIds[count - 1u], 0u, 0u);
+  output.ids = vec4<u32>(nearestCell, nearestProp, nearestComposite, nearestProcess);
   return output;
 }

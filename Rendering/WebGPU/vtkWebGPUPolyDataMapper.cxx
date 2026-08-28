@@ -3383,6 +3383,8 @@ struct FragmentNode
   depth: f32,
   cellId: u32,
   propId: u32,
+  compositeId: u32,
+  processId: u32,
   next: u32,
 };
 
@@ -3912,6 +3914,8 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderMainEnd(
       abufferNodes[abufferNode].depth = output.frag_depth;
       abufferNodes[abufferNode].cellId = output.ids.x;
       abufferNodes[abufferNode].propId = output.ids.y;
+      abufferNodes[abufferNode].compositeId = output.ids.z;
+      abufferNodes[abufferNode].processId = output.ids.w;
       abufferNodes[abufferNode].next = abufferPrev;
     }
   }

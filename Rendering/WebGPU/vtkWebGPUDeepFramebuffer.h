@@ -6,26 +6,21 @@
  *
  * Holds the three storage buffers an A-buffer needs:
  *
- * - HeadPointers: one `atomic<u32>` per pixel, holding the index of the first
- *   fragment recorded for that pixel, or `InvalidIndex` when the pixel has none.
- * - FragmentNodes: a pool of fragment records. Each is
- *   `{ color: u32, depth: f32, cellId: u32, propId: u32, next: u32 }`, 20 bytes,
- *   where `next` chains to the previously recorded fragment for the same pixel.
- *   The ids are carried so picking still works through translucent layers: a
- *   translucent fragment is discarded after being recorded, so it never reaches
- *   the id attachment on its own.
- * - FragmentCounter: a single `atomic<u32>` used to hand out node indices.
+ * - HeadPointers: one `atomic<u32>` per pixel, holding the index of that pixel's
+ *   first fragment, or `InvalidIndex` when it has none.
+ * - FragmentNodes: a pool of 28 byte records,
+ *   `{ color, depth, cellId, propId, compositeId, processId, next }`. All four
+ *   id channels are carried because a translucent fragment is discarded after
+ *   being recorded and so never reaches the id attachment on its own;
+ *   vtkHardwareSelector treats a zero composite id as "nothing was drawn here".
+ * - FragmentCounter: a single `atomic<u32>` handing out node indices.
  *
- * A fragment shader appends with `atomicAdd` on the counter followed by
- * `atomicExchange` on the pixel's head pointer, so the list for a pixel ends up
- * in reverse insertion order and must be sorted by depth when it is resolved.
+ * A shader appends with `atomicAdd` on the counter then `atomicExchange` on the
+ * head pointer, so a list is in reverse insertion order and must be sorted by
+ * depth when resolved. The pool is sized for an average number of layers per
+ * pixel, so overflow is expected: past the end, fragments are dropped.
  *
- * The node pool is sized for an average number of layers per pixel rather than a
- * worst case. Overflow is expected and must be handled by the shader: when the
- * counter runs past the pool, the fragment is dropped instead of written.
- *
- * Only `atomic<u32>` in storage is used, which is core WebGPU. No optional
- * device feature is required.
+ * Only `atomic<u32>` in storage is used, which is core WebGPU.
  */
 
 #ifndef vtkWebGPUDeepFramebuffer_h
@@ -104,7 +99,7 @@ private:
    * Size of one fragment record, in bytes. Must match the `FragmentNode` struct
    * declared by the WGSL that reads and writes these buffers.
    */
-  static constexpr std::uint32_t FragmentNodeSize = 20;
+  static constexpr std::uint32_t FragmentNodeSize = 28;
 
   /**
    * Head pointer value meaning "no fragments recorded for this pixel".
