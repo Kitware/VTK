@@ -47,6 +47,9 @@ configuration_flag(VTK_WRAP_JAVA "java")
 configuration_flag(VTK_BUILD_MAVEN_PKG "java")
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "java")
+  # Disable building C++ tests in Java builds. They're not run anyways.
+  set(vtk_testing_cxx_disabled 1 CACHE STRING "")
+
   set(JOGL_VERSION "2.6.0" CACHE STRING "")
 
   # Naming is <arch-platform-build_type> since some maven versions fail to
