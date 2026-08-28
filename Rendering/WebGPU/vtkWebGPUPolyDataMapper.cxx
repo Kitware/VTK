@@ -3340,6 +3340,11 @@ bool vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(
 bool vtkWebGPUPolyDataMapper::ShouldRecordDrawCommands(
   vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor)
 {
+  if (wgpuRenderer != nullptr && wgpuRenderer->GetSelector() != nullptr && wgpuActor != nullptr &&
+    !wgpuActor->GetPickable())
+  {
+    return false;
+  }
   if (!vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(wgpuRenderer, wgpuActor))
   {
     return true;
