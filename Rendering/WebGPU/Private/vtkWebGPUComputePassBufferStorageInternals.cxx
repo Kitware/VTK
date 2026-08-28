@@ -225,6 +225,14 @@ void vtkWebGPUComputePassBufferStorageInternals::RecreateBuffer(
   this->WebGPUBuffers[bufferIndex] =
     vtkWebGPU::Buffer::Acquire(this->ParentPassWGPUConfiguration->CreateBuffer(
       newByteSize, static_cast<WGPUBufferUsage>(bufferUsage), false, bufferLabel));
+
+  // The pipeline caches the raw handle for every buffer it has seen, and other
+  // passes read it from there. Leaving the old handle in that cache leaves them
+  // pointing at a buffer that has just been released. This mirrors what
+  // RecreateComputeTexture does for textures; passes that already hold the new
+  // buffer are reported as up to date and skipped.
+  this->ParentComputePass->Internals->RegisterBufferToPipeline(
+    buffer, this->WebGPUBuffers[bufferIndex]);
 }
 
 //------------------------------------------------------------------------------
