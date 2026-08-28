@@ -10,6 +10,8 @@
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkPointData.h"
 #include "vtkRTAnalyticSource.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
@@ -18,9 +20,6 @@
 
 int TestWebGPUVolumeInterpolationAndLevel(int argc, char* argv[])
 {
-  (void)argc;
-  (void)argv;
-
   // Few enough voxels that nearest and linear cannot help but differ.
   vtkNew<vtkRTAnalyticSource> source;
   source->SetWholeExtent(-9, 9, -9, 9, -9, 9);
@@ -52,6 +51,9 @@ int TestWebGPUVolumeInterpolationAndLevel(int argc, char* argv[])
   window->SetSize(300, 300);
   window->SetMultiSamples(0);
   window->AddRenderer(renderer);
+
+  vtkNew<vtkRenderWindowInteractor> interactor;
+  interactor->SetRenderWindow(window);
 
   renderer->ResetCamera();
   renderer->GetActiveCamera()->Azimuth(25);
@@ -126,6 +128,15 @@ int TestWebGPUVolumeInterpolationAndLevel(int argc, char* argv[])
   std::cout << "lit pixels: linear " << linearLit << ", window 0.5 "
             << windowed.CountLit(background) << ", level 0.9 " << levelled.CountLit(background)
             << "\n";
+
+  // Leave the last of the settings on screen for anyone who asked to look at it.
+  mapper->SetFinalColorWindow(1.0);
+  mapper->SetFinalColorLevel(0.5);
+  window->Render();
+  if (vtkRegressionTestImage(window) == vtkRegressionTester::DO_INTERACTOR)
+  {
+    interactor->Start();
+  }
 
   return EXIT_SUCCESS;
 }
