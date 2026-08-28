@@ -443,6 +443,9 @@ private:
     uint32_t Width, Height;
     ComponentMapping Mapping;
     std::function<TOutput(TInput)> Converter;
+    // Set once the mapped pixels have been copied into OutputValues. The caller
+    // owns the flag and waits on it; see GetTextureDataInternal.
+    bool* Mapped;
   };
 
   /**

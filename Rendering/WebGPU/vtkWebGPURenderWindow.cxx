@@ -1078,7 +1078,9 @@ TOutput* vtkWebGPURenderWindow::GetTextureDataInternal(WGPUTexture texture,
 
   auto* result = new TOutput[width * height * componentMapping.OutComponents];
 
+  bool mapped = false;
   auto* callbackData = new PixelReadbackCallbackData<TOutput, TInput>();
+  callbackData->Mapped = &mapped;
   callbackData->Width = width;
   callbackData->Height = height;
   callbackData->Mapping = componentMapping;
@@ -1105,13 +1107,25 @@ TOutput* vtkWebGPURenderWindow::GetTextureDataInternal(WGPUTexture texture,
         }
       }
     }
+    *callbackDataPtr->Mapped = true;
     delete callbackDataPtr;
   };
 
   this->ReadTextureFromGPU(texture, format, 0,
     static_cast<WGPUTextureAspect>(WGPUTextureAspect_All), origin, extent, onTextureMapped,
     reinterpret_cast<void*>(callbackData));
+
+  // Waiting for the queue is not enough. The map callback is delivered from
+  // ProcessEvents, and the queue's work-done callback can be delivered in an
+  // earlier ProcessEvents than the map, so WaitForCompletion alone can return
+  // with the pixels still uncopied. That hands the caller a freshly allocated -
+  // and therefore uninitialized - buffer, and the callback then writes into it
+  // later, once the caller may well have freed it. Wait for the copy itself.
   this->WaitForCompletion();
+  while (!mapped)
+  {
+    this->WGPUConfiguration->ProcessEvents();
+  }
   return result;
 }
 
