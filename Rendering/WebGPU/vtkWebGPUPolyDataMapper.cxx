@@ -1,8 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebGPUPolyDataMapper.h"
+
 #include "Private/vtkWebGPUHandle.h"
 #include "Private/vtkWebGPUHelpersPrivate.h"
+#include "vtkHardwareSelector.h"
 
 #include "vtkArrayDispatch.h"
 #include "vtkArrayDispatchDataSetArrayList.h"
@@ -318,6 +320,7 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
   auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   auto* displayProperty = actor->GetProperty();
+  this->SelectingPoints = vtkWebGPUPolyDataMapper::IsSelectingPoints(wgpuRenderer);
   vtkLog(TRACE,
     "RenderPiece for actor: " << actor << " in renderer: " << renderer
                               << " in stage: " << static_cast<int>(wgpuRenderer->GetRenderStage()));
@@ -408,6 +411,7 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
     state.LastWidePoints = displayProperty->GetPointSize() > 1;
     state.LastWideLines = displayProperty->GetLineWidth() > 1;
     state.LastLineJoin = displayProperty->GetLineJoin();
+    state.LastSelectingPoints = this->SelectingPoints;
     this->CachedActorRendererProperties[key] = state;
     return true;
   }
@@ -440,6 +444,11 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
       cacheChanged = true;
     }
     state.LastHasRenderingTranslucentGeometry = hasTranslucentPolygonalGeometry;
+    if (state.LastSelectingPoints != this->SelectingPoints)
+    {
+      cacheChanged = true;
+    }
+    state.LastSelectingPoints = this->SelectingPoints;
     const bool widePoints = displayProperty->GetPointSize() > 1;
     if (state.LastWidePoints != widePoints)
     {
@@ -545,7 +554,8 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   const float pointSize = displayProperty->GetPointSize();
   const float lineWidth = displayProperty->GetLineWidth();
   const auto lineJoinType = displayProperty->GetLineJoin();
-  const int representation = displayProperty->GetRepresentation();
+  const int representation =
+    this->SelectingPoints ? VTK_POINTS : displayProperty->GetRepresentation();
   const bool showVertices = displayProperty->GetVertexVisibility();
 
   for (const auto& pipelineMapping : PipelineBindGroupCombos[representation])
@@ -763,7 +773,8 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   const float pointSize = displayProperty->GetPointSize();
   const float lineWidth = displayProperty->GetLineWidth();
   const auto lineJoinType = displayProperty->GetLineJoin();
-  const int representation = displayProperty->GetRepresentation();
+  const int representation =
+    this->SelectingPoints ? VTK_POINTS : displayProperty->GetRepresentation();
   const bool showVertices = displayProperty->GetVertexVisibility();
 
   for (const auto& pipelineMapping : PipelineBindGroupCombos[representation])
@@ -1859,7 +1870,8 @@ void vtkWebGPUPolyDataMapper::UpdateMeshTopologyBuffers(
   updateTopologyBindGroup |= this->CellConverter->DispatchMeshToPrimitiveComputePipeline(
     wgpuConfiguration, mesh, displayProperty->GetRepresentation(), vertexCounts,
     connectivityBuffers, cellIdBuffers, edgeArrayBuffers, cellIdOffsetUniformBuffers);
-  if (displayProperty->GetVertexVisibility() && displayProperty->GetRepresentation() != VTK_POINTS)
+  if ((displayProperty->GetVertexVisibility() || this->SelectingPoints) &&
+    displayProperty->GetRepresentation() != VTK_POINTS)
   {
     updateTopologyBindGroup |= this->CellConverter->DispatchMeshToPrimitiveComputePipeline(
       wgpuConfiguration, mesh, VTK_POINTS, vertexCounts, connectivityBuffers, cellIdBuffers,
@@ -2075,7 +2087,10 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
     }
   }
 
-  if (showVertices && (representation != VTK_POINTS))
+  // A point selection records the point pipelines whatever the representation
+  // is, and the VTK_POINTS topology is already dispatched for it above, so the
+  // pipelines have to be built here too or the draw sets a null pipeline.
+  if ((showVertices || this->SelectingPoints) && (representation != VTK_POINTS))
   {
     bool hasHomogeneousData = false;
     bool hasNonHomogeneousData = false;
@@ -2611,6 +2626,7 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderVertexOutputDef(GraphicsPipelineType 
     codeStream << "  @location(" << id++ << ") clip_dists_1: vec3<f32>,\n";
   }
   codeStream << "  @location(" << id++ << ") @interpolate(flat) cell_id: u32,\n";
+  codeStream << "  @location(" << id++ << ") @interpolate(flat) point_id: u32,\n";
   codeStream << "  @location(" << id++ << ") @interpolate(flat) prop_id: u32,\n";
   codeStream << "  @location(" << id++ << ") @interpolate(flat) composite_id: u32,\n";
   codeStream << "  @location(" << id++ << ") @interpolate(flat) process_id: u32,\n};";
@@ -2798,7 +2814,8 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(GraphicsPipelineType p
   }
   output.p_coord = TRIANGLE_VERTS[p_coord_id];
   let adjusted_vertex_screen = vertex_screen + 0.5 * point_size * output.p_coord;
-  output.position = vec4(vertex_DC.w * ((2.0 * adjusted_vertex_screen) / resolution - 1.0), vertex_DC.z, vertex_DC.w);)",
+  output.position = vec4(vertex_DC.w * ((2.0 * adjusted_vertex_screen) / resolution - 1.0), vertex_DC.z, vertex_DC.w);
+  output.point_id = point_id;)",
         /*all=*/true);
       break;
     case GFX_PIPELINE_LINES_THICK:
@@ -2844,7 +2861,8 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(GraphicsPipelineType p
     let p_DC = mix(p0_DC, p1_DC, p_coord.x);
 
     output.position = vec4(p_DC.w * ((2.0 * p) / resolution - 1.0), p_DC.z, p_DC.w);
-    output.dist_to_centerline = p_coord.y;)",
+    output.dist_to_centerline = p_coord.y;
+  output.point_id = point_id;)",
         /*all=*/true);
       break;
     case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
@@ -2889,7 +2907,8 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(GraphicsPipelineType p
   let point_id = connectivity[pull_vertex_id];
   let vertex_MC = vec4<f32>(point_coordinates[3u * point_id],
     point_coordinates[3u * point_id + 1u],
-    point_coordinates[3u * point_id + 2u], 1);)",
+    point_coordinates[3u * point_id + 2u], 1);
+  output.point_id = point_id;)",
         /*all=*/true);
       break;
     case GFX_PIPELINE_LINES_MITER_JOIN:
@@ -2996,7 +3015,8 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(GraphicsPipelineType p
 
     output.position = vec4(p_DC.w * ((2.0 * p) / resolution - 1.0), p_DC.z, p_DC.w);
   }
-  output.dist_to_centerline = p_coord.y;)",
+  output.dist_to_centerline = p_coord.y;
+  output.point_id = point_id;)",
         /*all=*/true);
       break;
 
@@ -3041,7 +3061,8 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(GraphicsPipelineType p
   let p_DC = mix(p0_DC, p1_DC, p_coord.x);
 
   output.position = vec4(p_DC.w * ((2.0 * p) / resolution - 1.0), p_DC.z, p_DC.w);
-  output.dist_to_centerline = p_coord.y;)",
+  output.dist_to_centerline = p_coord.y;
+  output.point_id = point_id;)",
         /*all=*/true);
       break;
     case GFX_PIPELINE_POINTS:
@@ -3055,7 +3076,8 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(GraphicsPipelineType p
   let point_id = connectivity[pull_vertex_id];
   let vertex_MC = vec4<f32>(point_coordinates[3u * point_id], point_coordinates[3u * point_id + 1u], point_coordinates[3u * point_id + 2u], 1);
 
-  output.position = model_view_projection * vertex_MC;)",
+  output.position = model_view_projection * vertex_MC;
+  output.point_id = point_id;)",
         /*all=*/true);
       break;
     case GFX_PIPELINE_NB_TYPES:
@@ -3323,6 +3345,17 @@ bool vtkWebGPUPolyDataMapper::ShouldRecordDrawCommands(
     return true;
   }
   return wgpuRenderer->GetRecordingTranslucentPass();
+}
+
+bool vtkWebGPUPolyDataMapper::IsSelectingPoints(vtkWebGPURenderer* wgpuRenderer)
+{
+  if (wgpuRenderer == nullptr)
+  {
+    return false;
+  }
+  auto* selector = wgpuRenderer->GetSelector();
+  return selector != nullptr &&
+    selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS;
 }
 
 void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderOutputDef(
@@ -3785,12 +3818,14 @@ else
 }
 
 void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderPicking(
-  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* wgpuRenderer,
   vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& fss)
 {
+  const std::string attributeId =
+    vtkWebGPUPolyDataMapper::IsSelectingPoints(wgpuRenderer) ? "point_id" : "cell_id";
   vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Picking::Impl",
-    R"(
-    output.ids.x = vertex.cell_id + 1;
+    "\n    output.ids.x = vertex." + attributeId +
+      R"( + 1;
     output.ids.y = vertex.prop_id + 1;
     output.ids.z = vertex.composite_id + 1;
     output.ids.w = vertex.process_id + 1;)",
@@ -3986,6 +4021,10 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
     return true;
   }
   if (it->second.LastWideLines != (displayProperty->GetLineWidth() > 1))
+  {
+    return true;
+  }
+  if (it->second.LastSelectingPoints != this->SelectingPoints)
   {
     return true;
   }

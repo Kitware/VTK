@@ -361,6 +361,14 @@ protected:
    */
   static bool ShouldRecordDrawCommands(vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor);
 
+  /**
+   * Whether a hardware selection of points is in progress. A point id is only
+   * meaningful for a drawn point, so the mapper then draws the points of its
+   * cells rather than the cells, and writes point ids into the attribute id
+   * channel, as the OpenGL mapper does.
+   */
+  static bool IsSelectingPoints(vtkWebGPURenderer* wgpuRenderer);
+
   virtual void ReplaceFragmentShaderOutputDef(GraphicsPipelineType pipelineType,
     vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& fss);
 
@@ -448,6 +456,7 @@ protected:
   bool HasPointAttributes[POINT_NB_ATTRIBUTES];
   bool HasCellAttributes[CELL_NB_ATTRIBUTES];
   bool RebuildGraphicsPipelines = true;
+  bool SelectingPoints = false;
   vtkPolyData* CurrentInput = nullptr;
   vtkPolyData* CachedInput = nullptr;
   vtkSmartPointer<vtkWebGPUTexture> ColorTextureHostResource;
@@ -641,6 +650,7 @@ private:
     bool LastWidePoints = false;
     bool LastWideLines = false;
     vtkProperty::LineJoinType LastLineJoin = vtkProperty::LineJoinType::NoJoin;
+    bool LastSelectingPoints = false;
   };
   std::map<std::pair<vtkActor*, vtkRenderer*>, ActorState> CachedActorRendererProperties;
 };
