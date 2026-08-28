@@ -294,6 +294,73 @@ bool TestGaussianFieldArray(int argc, char* argv[])
 
   return test;
 }
+
+bool TestAutoPermutation(int argc, char* argv[])
+{
+  bool test = true;
+  char* dataPath = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ONNX/linear_adder.onnx");
+
+  vtkNew<vtkCellTypeSource> source;
+  source->SetCellType(VTK_QUAD);
+  source->SetBlocksDimensions(2, 1, 1);
+  source->Update();
+
+  vtkNew<vtkFloatArray> inputArray;
+  inputArray->SetName("Input");
+  inputArray->SetNumberOfComponents(100);
+  inputArray->SetNumberOfTuples(2);
+
+  for (int64_t i = 0; i < 100; ++i)
+  {
+    inputArray->SetComponent(0, i, 0);
+    inputArray->SetComponent(1, i, -50);
+  }
+
+  source->GetOutput()->GetCellData()->AddArray(inputArray);
+
+  vtkNew<vtkONNXInference> filter;
+  filter->SetInputConnection(source->GetOutputPort());
+  filter->SetProcessedFieldArrayName("Input");
+  filter->SetModelFile(dataPath);
+  filter->SetOutputDimension(100);
+  filter->FieldArrayInputOn();
+  filter->AutoDetectInputShapeOn();
+  filter->AutoDetectPermutationOn();
+  filter->Update();
+
+  std::vector<int> inputPermutation = filter->GetInputPermutation();
+  std::vector<int> outputPermutation = filter->GetOutputPermutation();
+  std::vector<int64_t> inputShape = filter->GetInputShape();
+  test &= ::Assert(inputPermutation[0] == 1, "Wrong auto detected input permutation.");
+  test &= ::Assert(inputPermutation[1] == 2, "Wrong auto detected input permutation.");
+  test &= ::Assert(inputPermutation[2] == 0, "Wrong auto detected input permutation.");
+
+  test &= ::Assert(outputPermutation[0] == 2, "Wrong auto detected output permutation.");
+  test &= ::Assert(outputPermutation[1] == 0, "Wrong auto detected output permutation.");
+  test &= ::Assert(outputPermutation[2] == 1, "Wrong auto detected output permutation.");
+
+  test &= ::Assert(inputShape[0] == 10, "Wrong auto detected input shape.");
+  test &= ::Assert(inputShape[1] == 10, "Wrong auto detected input shape.");
+  test &= ::Assert(inputShape[2] == 2, "Wrong auto detected input shape.");
+
+  vtkSmartPointer<vtkUnstructuredGrid> output =
+    vtkUnstructuredGrid::SafeDownCast(filter->GetOutput());
+  vtkFloatArray* prediction =
+    vtkFloatArray::SafeDownCast(output->GetCellData()->GetArray("PredictedField"));
+
+  test &= ::Assert(prediction->GetNumberOfTuples() == 2, "CELL DATA, Wrong output shape.");
+  for (int i = 0; i < 100; ++i)
+  {
+    test &=
+      ::Assert(vtkMathUtilities::FuzzyCompare(prediction->GetComponent(0, i), i + 1.0, 0.0001),
+        "CELL DATA, Wrong prediction value.");
+    test &=
+      ::Assert(vtkMathUtilities::FuzzyCompare(prediction->GetComponent(1, i), -(i + 51.0), 0.0001),
+        "CELL DATA, Wrong prediction value.");
+  }
+
+  return test;
+}
 }
 
 int TestONNXInference(int argc, char* argv[])
@@ -303,6 +370,7 @@ int TestONNXInference(int argc, char* argv[])
   testVal &= ::TestGaussianKernelOnPoints(argc, argv);
   testVal &= ::TestGaussianKernelWithTime(argc, argv);
   testVal &= ::TestGaussianFieldArray(argc, argv);
+  testVal &= ::TestAutoPermutation(argc, argv);
 
   return testVal ? EXIT_SUCCESS : EXIT_FAILURE;
 }
