@@ -39,6 +39,7 @@ const VOLUME_FLAG_MASK_HIDES_NEIGHBOURS: u32 = 64u;
 const VOLUME_FLAG_CELL_DATA: u32 = 128u;
 const VOLUME_FLAG_TRANSFER_2D: u32 = 256u;
 const VOLUME_FLAG_TRANSFER_2D_Y_AXIS_ARRAY: u32 = 512u;
+const VOLUME_FLAG_NEAREST: u32 = 1024u;
 
 // GlobalUniforms.blend_mode, matching vtkVolumeMapper::BlendModes
 const BLEND_COMPOSITE: u32 = 0u;
@@ -94,8 +95,9 @@ struct GlobalUniforms {
   pool_slot_size: f32,
   num_iso_values: u32,
   padding0: f32,
-  padding1: f32,
-  padding2: f32,
+  // Window and level over the finished colour, as the scale and bias that apply them.
+  final_color_scale: f32,
+  final_color_bias: f32,
   // Iso values of the primary volume, in data units and in order. Only x of each entry carries
   // a value; WGSL pads an array of scalars out to this anyway.
   iso_values: array<vec4<f32>, MAX_ISO_VALUES>,
@@ -282,7 +284,12 @@ fn sampleVector(volume_index: u32, tex_coord: vec3<f32>) -> vec4<f32> {
   // The apron takes up the first voxel of the slot, so the brick itself starts one in, and a
   // texel is sampled at its middle.
   let origin = vec3<f32>(slotOrigin(page.slot) + vec3<i32>(1));
-  let local = voxel - vec3<f32>(brick) * params.brick_size;
+  var local = voxel - vec3<f32>(brick) * params.brick_size;
+  if ((params.flags & VOLUME_FLAG_NEAREST) != 0u) {
+    // Land on a texel centre: the filter still runs, with all weight on one texel. A local
+    // coordinate of the brick size lands on the apron, which holds the true nearest neighbour.
+    local = round(local);
+  }
   let pool_size = globals.pool_slot_grid * globals.pool_slot_size;
   let uv = (origin + local + vec3<f32>(0.5)) / pool_size;
 
@@ -672,6 +679,13 @@ fn classify(volume_index: u32, normalized: f32, tex_coord: vec3<f32>) -> vec4<f3
   return vec4<f32>(color, opacity);
 }
 
+// Window and level over the finished picture. The colour is premultiplied, so the bias has to be
+// weighed by the alpha it was multiplied through by.
+fn finalColor(color: vec3<f32>, alpha: f32) -> vec4<f32> {
+  return vec4<f32>(
+    color * globals.final_color_scale + vec3<f32>(globals.final_color_bias * alpha), alpha);
+}
+
 fn hash(p: vec2<f32>) -> f32 {
   var p3 = fract(vec3<f32>(p.x, p.y, p.x) * 0.1031);
   p3 += dot(p3, p3.yzx + 33.33);
@@ -796,7 +810,7 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
     if (slice_alpha <= 0.0) {
       discard;
     }
-    return vec4<f32>(min(slice_color, vec3<f32>(1.0)), min(slice_alpha, 1.0));
+    return finalColor(min(slice_color, vec3<f32>(1.0)), min(slice_alpha, 1.0));
   }
 
   var state: RayState;
@@ -1126,5 +1140,5 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
     discard;
   }
 
-  return vec4<f32>(state.color, state.alpha);
+  return finalColor(state.color, state.alpha);
 }

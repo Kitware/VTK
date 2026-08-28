@@ -58,6 +58,7 @@ enum GlobalFlag : std::uint32_t
 
 enum VolumeFlag : std::uint32_t
 {
+  VolumeFlagNearest = 1024u,
   VolumeFlagShade = 1u,
   VolumeFlagGradientOpacity = 2u,
   VolumeFlagCropping = 4u,
@@ -111,7 +112,10 @@ struct GlobalUniforms
   float PoolSlotGrid[3];
   float PoolSlotSize;
   std::uint32_t NumberOfIsoValues;
-  float Padding0[3];
+  float Padding0;
+  /// Window and level over the finished colour, as the scale and bias that apply them.
+  float FinalColorScale;
+  float FinalColorBias;
   /// Iso values of the primary volume, in data units and sorted.
   float IsoValues[MaxIsoValues][4];
   LightData Lights[MaxLights];
@@ -1057,6 +1061,10 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
     {
       params.Flags |= VolumeFlagCellData;
     }
+    if (property->GetInterpolationType() == VTK_NEAREST_INTERPOLATION)
+    {
+      params.Flags |= VolumeFlagNearest;
+    }
     if (contribution.Transfer2D)
     {
       params.Flags |= VolumeFlagTransfer2D;
@@ -1328,6 +1336,13 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
     }
     globals.NumberOfIsoValues = static_cast<std::uint32_t>(values.size());
   }
+
+  // Window and level over the finished picture, as vtkGPUVolumeRayCastMapper defines them. Like
+  // the blend mode this describes the pass, not one volume, so the primary input settles it.
+  const double colorWindow =
+    primary->GetFinalColorWindow() != 0.0 ? primary->GetFinalColorWindow() : 1.0;
+  globals.FinalColorScale = static_cast<float>(1.0 / colorWindow);
+  globals.FinalColorBias = static_cast<float>(0.5 - primary->GetFinalColorLevel() / colorWindow);
 
   double averageRange[2];
   primary->GetAverageIPScalarRange(averageRange);

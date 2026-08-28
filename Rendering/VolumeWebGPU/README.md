@@ -111,6 +111,21 @@ frame, so a volume larger than the pool draws immediately and fills in over the
 frames that follow. `GetComplete()` says whether the last frame got everything
 it asked for.
 
+## Interpolation, and the finished colour
+
+`vtkVolumeProperty::InterpolationType` picks between reading the nearest voxel
+and interpolating between the eight around it. Nearest does not need a sampler
+of its own: landing the sample exactly on a texel centre puts all of the
+filter's weight on one texel, which is the same thing for less. Note that
+vtkVolumeProperty starts at nearest, not at linear.
+
+`vtkGPUVolumeRayCastMapper::FinalColorWindow` and `FinalColorLevel` put a window
+and level over the finished colour, as a scale of one over the window and a bias
+of a half less the level over the window. The colour is premultiplied by then,
+so the bias is weighed by the alpha it was multiplied through by. Like the blend
+mode these describe the pass rather than one volume, so the primary input
+settles them.
+
 ## Finding empty space
 
 Where a volume is empty is a finer question than what is worth keeping on the
