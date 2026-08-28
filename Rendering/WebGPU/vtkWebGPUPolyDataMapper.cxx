@@ -538,6 +538,106 @@ vtkWebGPUPolyDataMapper::DrawCallArgs vtkWebGPUPolyDataMapper::GetDrawCallArgsFo
     /*InstanceCount=*/bgInfo.VertexCount };
 }
 
+void vtkWebGPUPolyDataMapper::RecordPointSelectionDepthPass(
+  vtkRenderer* renderer, vtkActor* actor, const WGPURenderPassEncoder& passEncoder)
+{
+  WGPURenderPassEncoder encoder(passEncoder);
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
+  auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
+  const int representation = actor->GetProperty()->GetRepresentation();
+  for (const auto& pipelineMapping : PipelineBindGroupCombos[representation])
+  {
+    const auto& pipelineType = pipelineMapping.first;
+    if (!this->IsPipelineSupported(pipelineType))
+    {
+      continue;
+    }
+    const auto& pipelineKey = this->PointSelectionDepthKeys[pipelineType];
+    if (pipelineKey.empty())
+    {
+      continue;
+    }
+    WGPURenderPipeline pipeline = wgpuPipelineCache->GetRenderPipeline(pipelineKey);
+    if (pipeline == nullptr)
+    {
+      continue;
+    }
+    bool pipelineBound = false;
+    for (const auto& bindGroupType : pipelineMapping.second)
+    {
+      const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
+      if (bgInfo.VertexCount == 0)
+      {
+        continue;
+      }
+      const bool homogeneous = bgInfo.CellIdBuffer == nullptr;
+      if (homogeneous != IsPipelineForHomogeneousCellSize(pipelineType))
+      {
+        continue;
+      }
+      if (!pipelineBound)
+      {
+        wgpuRenderPassEncoderSetPipeline(encoder, pipeline);
+        pipelineBound = true;
+      }
+      wgpuRenderPassEncoderSetBindGroup(encoder, 3, bgInfo.BindGroup, 0, nullptr);
+      const auto args = this->GetDrawCallArgs(pipelineType, bindGroupType);
+      wgpuRenderPassEncoderDraw(
+        encoder, args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
+    }
+  }
+}
+
+void vtkWebGPUPolyDataMapper::RecordPointSelectionDepthPass(
+  vtkRenderer* renderer, vtkActor* actor, const WGPURenderBundleEncoder& bundleEncoder)
+{
+  WGPURenderBundleEncoder encoder(bundleEncoder);
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
+  auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
+  const int representation = actor->GetProperty()->GetRepresentation();
+  for (const auto& pipelineMapping : PipelineBindGroupCombos[representation])
+  {
+    const auto& pipelineType = pipelineMapping.first;
+    if (!this->IsPipelineSupported(pipelineType))
+    {
+      continue;
+    }
+    const auto& pipelineKey = this->PointSelectionDepthKeys[pipelineType];
+    if (pipelineKey.empty())
+    {
+      continue;
+    }
+    WGPURenderPipeline pipeline = wgpuPipelineCache->GetRenderPipeline(pipelineKey);
+    if (pipeline == nullptr)
+    {
+      continue;
+    }
+    bool pipelineBound = false;
+    for (const auto& bindGroupType : pipelineMapping.second)
+    {
+      const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
+      if (bgInfo.VertexCount == 0)
+      {
+        continue;
+      }
+      const bool homogeneous = bgInfo.CellIdBuffer == nullptr;
+      if (homogeneous != IsPipelineForHomogeneousCellSize(pipelineType))
+      {
+        continue;
+      }
+      if (!pipelineBound)
+      {
+        wgpuRenderBundleEncoderSetPipeline(encoder, pipeline);
+        pipelineBound = true;
+      }
+      wgpuRenderBundleEncoderSetBindGroup(encoder, 3, bgInfo.BindGroup, 0, nullptr);
+      const auto args = this->GetDrawCallArgs(pipelineType, bindGroupType);
+      wgpuRenderBundleEncoderDraw(
+        encoder, args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
+    }
+  }
+}
+
 void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   vtkRenderer* renderer, vtkActor* actor, const WGPURenderPassEncoder& passEncoder)
 {
@@ -546,6 +646,11 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   wgpuRenderPassEncoderSetBindGroup(encoder, 2, this->MeshAttributeBindGroup,
     this->MeshAttributeDynamicOffsets.size(), this->MeshAttributeDynamicOffsets.data());
   this->SetVertexBuffers(passEncoder);
+
+  if (this->SelectingPoints)
+  {
+    this->RecordPointSelectionDepthPass(renderer, actor, passEncoder);
+  }
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
@@ -765,6 +870,11 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   wgpuRenderBundleEncoderSetBindGroup(encoder, 2, this->MeshAttributeBindGroup,
     this->MeshAttributeDynamicOffsets.size(), this->MeshAttributeDynamicOffsets.data());
   this->SetVertexBuffers(bundleEncoder);
+
+  if (this->SelectingPoints)
+  {
+    this->RecordPointSelectionDepthPass(renderer, actor, bundleEncoder);
+  }
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
@@ -2161,6 +2271,24 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
     {
       wgpuPipelineCache->CreateRenderPipeline(
         (&descriptor), wgpuRenderWindow, vertexShaderSource.c_str(), fragmentShaderSource.c_str());
+    }
+
+    this->PointSelectionDepthKeys[i].clear();
+    if (this->SelectingPoints)
+    {
+      std::string depthVertexShaderSource = vtkPolyDataVSWGSL;
+      std::string depthFragmentShaderSource = vtkPolyDataFSWGSL;
+      this->BuildingPointSelectionDepthPass = true;
+      this->ApplyShaderReplacements(
+        pipelineType, wgpuRenderer, wgpuActor, depthVertexShaderSource, depthFragmentShaderSource);
+      this->BuildingPointSelectionDepthPass = false;
+      this->PointSelectionDepthKeys[i] = wgpuPipelineCache->GetPipelineKey(
+        (&descriptor), depthVertexShaderSource.c_str(), depthFragmentShaderSource.c_str());
+      if (wgpuPipelineCache->GetRenderPipeline(this->PointSelectionDepthKeys[i]) == nullptr)
+      {
+        wgpuPipelineCache->CreateRenderPipeline((&descriptor), wgpuRenderWindow,
+          depthVertexShaderSource.c_str(), depthFragmentShaderSource.c_str());
+      }
     }
   }
 }
@@ -3835,6 +3963,15 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderPicking(
   GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* wgpuRenderer,
   vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& fss)
 {
+  if (this->BuildingPointSelectionDepthPass)
+  {
+    vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Picking::Impl",
+      R"(
+    output.ids = vec4<u32>(0u, 0u, 0u, 0u);
+    output.frag_depth = min(output.frag_depth + 0.0005, 1.0);)",
+      /*all=*/true);
+    return;
+  }
   const std::string attributeId =
     vtkWebGPUPolyDataMapper::IsSelectingPoints(wgpuRenderer) ? "point_id" : "cell_id";
   vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Picking::Impl",

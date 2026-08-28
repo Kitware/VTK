@@ -194,6 +194,16 @@ protected:
     vtkRenderer* renderer, vtkActor* actor, const WGPURenderBundleEncoder& bundleEncoder);
 
   /**
+   * Draw the surface into the depth attachment only, so the points drawn
+   * afterwards for a point selection are hidden where the surface covers them.
+   * Without it a selection also returns the points on the far side of the object.
+   */
+  void RecordPointSelectionDepthPass(
+    vtkRenderer* renderer, vtkActor* actor, const WGPURenderPassEncoder& passEncoder);
+  void RecordPointSelectionDepthPass(
+    vtkRenderer* renderer, vtkActor* actor, const WGPURenderBundleEncoder& bundleEncoder);
+
+  /**
    * Looks at the point/cell data of `vtkPolyData` object and determines
    * which attributes are available. Scalars should have been mapped if required.
    */
@@ -457,6 +467,7 @@ protected:
   bool HasCellAttributes[CELL_NB_ATTRIBUTES];
   bool RebuildGraphicsPipelines = true;
   bool SelectingPoints = false;
+  bool BuildingPointSelectionDepthPass = false;
   vtkPolyData* CurrentInput = nullptr;
   vtkPolyData* CachedInput = nullptr;
   vtkSmartPointer<vtkWebGPUTexture> ColorTextureHostResource;
@@ -493,6 +504,7 @@ protected:
   TopologyBindGroupInfo
     TopologyBindGroupInfos[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES] = {};
   std::string GraphicsPipelineKeys[GFX_PIPELINE_NB_TYPES] = {};
+  std::string PointSelectionDepthKeys[GFX_PIPELINE_NB_TYPES] = {};
 
 private:
   vtkWebGPUPolyDataMapper(const vtkWebGPUPolyDataMapper&) = delete;
