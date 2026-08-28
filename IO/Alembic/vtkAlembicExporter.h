@@ -22,7 +22,6 @@
 #include <string> // for std::string
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkAlembicExporterInternals;
 
 class VTKIOALEMBIC_EXPORT vtkAlembicExporter : public vtkExporter
 {
@@ -73,11 +72,13 @@ protected:
 
   double TimeValue = 0.0;
   bool Started = false;
-  vtkAlembicExporterInternals* Internal;
 
 private:
   vtkAlembicExporter(const vtkAlembicExporter&) = delete;
   void operator=(const vtkAlembicExporter&) = delete;
+
+  class vtkAlembicExporterInternals;
+  vtkAlembicExporterInternals* Internal;
 };
 
 VTK_ABI_NAMESPACE_END
