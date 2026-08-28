@@ -10,6 +10,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLContextDevice2D.h"
+#include "vtkPen.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -113,6 +114,12 @@ bool ContextItem::Paint(vtkContext2D* painter)
   std::cout << "Right-justified result from ComputeJustifiedStringBounds\n";
   this->Succeeded = this->Succeeded && IsVector4Same(expectedJustifiedBounds, justifiedBounds);
 
+  painter->GetPen()->SetWidth(16.0);
+  float markerPoints[] = { 100.0, 100.0, 200.0, 200.0, 100.0, 200.0 };
+  painter->DrawMarkers(VTK_MARKER_CIRCLE, false, markerPoints, 1);
+  painter->DrawMarkers(VTK_MARKER_DIAMOND, true, markerPoints + 2, 1);
+  painter->DrawMarkers(VTK_MARKER_SQUARE, false, markerPoints + 4, 1);
+
   return true;
 }
 
@@ -128,8 +135,15 @@ int TestContext2D(int, char*[])
   view->GetScene()->AddItem(test);
 
   // Force the use of the freetype based rendering strategy
-  vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice())
-    ->SetStringRendererToFreeType();
+  vtkOpenGLContextDevice2D* device =
+    vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice());
+  device->SetStringRendererToFreeType();
+  device->SmoothMarkersOn();
+  if (!device->GetSmoothMarkers())
+  {
+    std::cerr << "Failed to enable smooth marker rendering.\n";
+    return EXIT_FAILURE;
+  }
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
