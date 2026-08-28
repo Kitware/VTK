@@ -8,6 +8,7 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestDeepFramebufferMappers.cxx,NO_DATA,NO_VALID
   TestDeepFramebufferOpaqueOcclusion.cxx,NO_DATA,NO_VALID
   TestDeepFramebufferPicking.cxx,NO_DATA,NO_VALID
+  TestDeepFramebufferSelection.cxx,NO_DATA,NO_VALID
   TestDeepFramebufferTransparency.cxx,NO_DATA,NO_VALID
   TestComputeFrustumCulling.cxx,NO_DATA,NO_VALID
   TestSelectorPropIds.cxx,NO_DATA,NO_VALID
