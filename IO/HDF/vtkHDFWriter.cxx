@@ -1086,12 +1086,12 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, uns
       this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PartOffsets", { -1 }, true, true);
     if (::HasPolyhedra(input))
     {
-      result &= this->Impl->AddOrCreateSingleRowDataset(
-        stepsGroup, "FaceConnectivityOffsets", { -1 }, true);
-      result &=
-        this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "FaceOffsetsOffsets", { -1 }, true);
-      result &= this->Impl->AddOrCreateSingleRowDataset(
-        stepsGroup, "PolyhedronToFaceIdOffsets", { -1 }, true);
+      result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "FaceConnectivityOffsets",
+        { -input->GetPolyhedronFaces()->GetNumberOfConnectivityIds() }, true, true);
+      result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "FaceOffsetsOffsets",
+        { -input->GetPolyhedronFaces()->GetNumberOfCells() }, true, true);
+      result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PolyhedronToFaceIdOffsets",
+        { -input->GetPolyhedronFaceLocations()->GetNumberOfConnectivityIds() }, true, true);
     }
   }
 
