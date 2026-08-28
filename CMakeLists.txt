@@ -145,6 +145,13 @@ set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 #-----------------------------------------------------------------------------
 # Add the Remote Subdirectory
+set(remote_default ON)
+if (VTK_WHEEL_BUILD)
+  set(remote_default OFF)
+endif ()
+option(VTK_ENABLE_REMOTE_MODULES "Enable remote modules" ${remote_default})
+mark_as_advanced(VTK_ENABLE_REMOTE_MODULES)
+unset(remote_default)
 if (VTK_ENABLE_REMOTE_MODULES)
   add_subdirectory(Remote)
 endif ()
@@ -495,12 +502,6 @@ set(vtk_source_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/Web"
   "${CMAKE_CURRENT_SOURCE_DIR}/Wrapping")
 
-set(remote_default ON)
-if (VTK_WHEEL_BUILD)
-  set(remote_default OFF)
-endif ()
-option(VTK_ENABLE_REMOTE_MODULES "Enable remote modules" ON)
-mark_as_advanced(VTK_ENABLE_REMOTE_MODULES)
 if (VTK_ENABLE_REMOTE_MODULES)
   list(APPEND vtk_source_directories
     "${CMAKE_CURRENT_SOURCE_DIR}/Remote")
