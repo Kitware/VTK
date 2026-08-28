@@ -188,7 +188,19 @@ void vtkWin32HardwareWindow::Create()
 // ----------------------------------------------------------------------------
 void vtkWin32HardwareWindow::Destroy()
 {
-  ::DestroyWindow(this->WindowId); // windows api
+  if (this->WindowId)
+  {
+    // The interactor stores this window in the HWND's extra data and replaces
+    // the window procedure with vtkHandleMessage, which reads that pointer back
+    // on every message. DestroyWindow dispatches WM_DESTROY and WM_NCDESTROY
+    // synchronously, so the pointer has to be cleared first - otherwise the
+    // handler runs against a window that is being torn down, and an access
+    // violation inside a window procedure takes the process down with
+    // STATUS_FATAL_USER_CALLBACK_EXCEPTION rather than a normal crash.
+    // vtkWin32OpenGLRenderWindow clears it for the same reason.
+    vtkSetWindowLong(this->WindowId, sizeof(vtkLONG), (vtkLONG)0);
+    ::DestroyWindow(this->WindowId); // windows api
+  }
   this->WindowId = nullptr;
 }
 
