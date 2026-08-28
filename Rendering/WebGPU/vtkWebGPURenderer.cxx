@@ -661,6 +661,13 @@ int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* /*fbo=nullptr*/)
 
   for (std::size_t i = 0; i < this->PropArray.size(); i++)
   {
+    if (auto* actor2D = vtkActor2D::SafeDownCast(this->PropArray[i]))
+    {
+      if (auto* mapper2D = vtkWebGPUPolyDataMapper2D::SafeDownCast(actor2D->GetMapper()))
+      {
+        mapper2D->SetPropId(static_cast<vtkTypeUInt32>(i));
+      }
+    }
     this->NumberOfPropsRendered += this->PropArray[i]->RenderOverlay(this);
   }
 

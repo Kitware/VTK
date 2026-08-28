@@ -56,7 +56,7 @@ class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPolyDataMapper2DInternals
     vtkTypeFloat32 PointSize;
     vtkTypeFloat32 LineWidth;
     vtkTypeUInt32 Flags;
-    vtkTypeUInt32 Padding;
+    vtkTypeUInt32 PropId;
   };
   static constexpr int BIT_POSITION_USE_CELL_COLOR = 0;
   static constexpr int BIT_POSITION_USE_POINT_COLOR = 1;
@@ -191,6 +191,9 @@ class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPolyDataMapper2DInternals
   void ReplaceFragmentShaderFragmentMainEnd(std::string& fss);
 
 public:
+  vtkTypeUInt32 PropId = 0;
+  vtkTypeUInt32 WrittenPropId = 0;
+
   vtkWebGPUPolyDataMapper2DInternals();
   ~vtkWebGPUPolyDataMapper2DInternals();
 

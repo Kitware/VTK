@@ -69,6 +69,11 @@ void vtkWebGPUPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D*
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2D::SetPropId(vtkTypeUInt32 id)
+{
+  this->Internals->PropId = id;
+}
+
 void vtkWebGPUPolyDataMapper2D::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Internals->ReleaseGraphicsResources(w);

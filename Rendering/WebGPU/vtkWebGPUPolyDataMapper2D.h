@@ -49,6 +49,13 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
+  /**
+   * Index of the prop this mapper draws in the renderer's prop list. The
+   * renderer sets it before the overlay pass; the mapper writes it to the ids
+   * attachment so that vtkHardwareSelector can pick overlay props.
+   */
+  void SetPropId(vtkTypeUInt32 id);
+
 protected:
   vtkWebGPUPolyDataMapper2D();
   ~vtkWebGPUPolyDataMapper2D() override;
