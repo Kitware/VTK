@@ -3332,8 +3332,15 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderMainEnd(
 bool vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(
   vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor)
 {
-  return wgpuRenderer != nullptr && wgpuActor != nullptr &&
-    wgpuRenderer->GetUseDeepFramebufferTransparency() &&
+  if (wgpuRenderer == nullptr || wgpuActor == nullptr)
+  {
+    return false;
+  }
+  if (wgpuRenderer->GetSelector() != nullptr)
+  {
+    return false;
+  }
+  return wgpuRenderer->GetUseDeepFramebufferTransparency() &&
     wgpuActor->HasTranslucentPolygonalGeometry();
 }
 
