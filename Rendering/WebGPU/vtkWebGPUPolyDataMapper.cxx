@@ -367,6 +367,11 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
     }
     case vtkWebGPURenderer::RenderStageEnum::RecordingCommands:
     {
+      if (!vtkWebGPUPolyDataMapper::ShouldRecordDrawCommands(
+            wgpuRenderer, vtkWebGPUActor::SafeDownCast(actor)))
+      {
+        break;
+      }
       if (wgpuRenderer->GetUseRenderBundles())
       {
         this->RecordDrawCommands(renderer, actor, wgpuRenderer->GetRenderBundleEncoder());
@@ -3308,6 +3313,16 @@ bool vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(
   return wgpuRenderer != nullptr && wgpuActor != nullptr &&
     wgpuRenderer->GetUseDeepFramebufferTransparency() &&
     wgpuActor->HasTranslucentPolygonalGeometry();
+}
+
+bool vtkWebGPUPolyDataMapper::ShouldRecordDrawCommands(
+  vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor)
+{
+  if (!vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(wgpuRenderer, wgpuActor))
+  {
+    return true;
+  }
+  return wgpuRenderer->GetRecordingTranslucentPass();
 }
 
 void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderOutputDef(

@@ -674,6 +674,7 @@ int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* /*fbo=nullptr*/)
 int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
 {
   vtkDebugMacro(<< __func__ << " " << this->RenderStage);
+  this->RecordingTranslucentPass = false;
   int result = 0;
   switch (this->RenderStage)
   {
@@ -721,6 +722,7 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
 int vtkWebGPURenderer::UpdateTranslucentPolygonalGeometry()
 {
   vtkDebugMacro(<< __func__ << " " << this->RenderStage);
+  this->RecordingTranslucentPass = true;
   int result = 0;
   switch (this->RenderStage)
   {

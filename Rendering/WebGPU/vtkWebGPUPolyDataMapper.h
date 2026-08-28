@@ -352,6 +352,15 @@ protected:
    */
   static bool UsesDeepFramebuffer(vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor);
 
+  /**
+   * Whether draw commands should be recorded in the pass being recorded now.
+   * Deep framebuffer geometry is recorded only in the translucent pass, because
+   * a mapper asked to render in both would otherwise append every fragment
+   * twice. Ordinary blending does not notice - the second draw loses the depth
+   * test - but A-buffer fragments discard and so never write depth.
+   */
+  static bool ShouldRecordDrawCommands(vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor);
+
   virtual void ReplaceFragmentShaderOutputDef(GraphicsPipelineType pipelineType,
     vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& fss);
 

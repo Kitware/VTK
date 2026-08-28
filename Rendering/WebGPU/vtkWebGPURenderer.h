@@ -203,6 +203,14 @@ public:
   vtkProp* GetPropWithId(vtkTypeUInt32 id);
 
   /**
+   * Whether the pass currently being recorded is the translucent one. A prop
+   * with both opaque and translucent geometry is asked to render in both passes,
+   * so a mapper that draws all of its geometry each time needs this to avoid
+   * appending every translucent fragment twice.
+   */
+  vtkGetMacro(RecordingTranslucentPass, bool);
+
+  /**
    * Forces the renderer to re-record draw commands into a render bundle.
    *
    * @note This does not use vtkSetMacro because the actor MTime should not be affected when a
@@ -384,6 +392,7 @@ private:
    * need to call it again).
    */
   RenderStageEnum RenderStage = RenderStageEnum::AwaitingPreparation;
+  bool RecordingTranslucentPass = false;
 
   /**
    * Whether to clear the depth/stencil/color buffer before rendering

@@ -172,6 +172,11 @@ void vtkWebGPUBatchedPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor
     case vtkWebGPURenderer::RenderStageEnum::RecordingCommands:
     {
       vtkLogScopeF(TRACE, "RecordingCommands");
+      if (!vtkWebGPUPolyDataMapper::ShouldRecordDrawCommands(
+            wgpuRenderer, vtkWebGPUActor::SafeDownCast(actor)))
+      {
+        break;
+      }
       this->MeshAttributeDynamicOffsets.resize(1);
       if (wgpuRenderer->GetUseRenderBundles())
       {
