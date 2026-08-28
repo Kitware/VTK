@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <type_traits>
 
 VTK_ABI_NAMESPACE_BEGIN
 const vtkIdType vtkLookupTable::REPEATED_LAST_COLOR_INDEX = 0;
@@ -579,12 +580,21 @@ inline vtkIdType vtkLinearIndexLookupMain(double v, const TableParameters& p)
 }
 
 //------------------------------------------------------------------------------
-// integer variant
+// generic variant, selected for integers and for any type that is not exactly
+// double or float -- including the checked value references that
+// vtk::DataArrayValueRange dereferences to in a VTK_DEBUG_RANGE_ITERATORS build
 template <class T>
 inline vtkIdType vtkLinearLookup(T v, const TableParameters& p)
 {
-  // First convert from integer to double.
+  // First convert to double.
   double dv = static_cast<double>(v);
+  // Only genuine integer types can never carry a NaN, which must not reach
+  // vtkLinearIndexLookupMain: casting a NaN to an integer is undefined behavior.
+  // The type check is a compile time constant, so integers keep the direct path.
+  if (!std::is_integral<T>::value && vtkMath::IsNan(dv))
+  {
+    return p.NumColors + vtkLookupTable::NAN_COLOR_INDEX;
+  }
   return vtkLinearIndexLookupMain(dv, p);
 }
 

@@ -3,10 +3,13 @@
 // Test some generic features of vtkLookupTable
 
 #include "vtkCommand.h"
+#include "vtkDoubleArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
+#include "vtkSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <iostream>
 
@@ -228,6 +231,37 @@ int TestLookupTable(int, char*[])
   TestAssert(observer.GetEvent() != 0);
 
   table->RemoveObserver(observerId);
+
+  // NaN values in a mapped array take the NaN color. This exercises the array
+  // fast paths in MapScalarsThroughTable, which are distinct from GetIndex and
+  // MapValue and used to push the NaN into an undefined integer cast when the
+  // array iterators dereference to value references (VTK_DEBUG_RANGE_ITERATORS).
+  table->SetScaleToLinear();
+  table->SetTableRange(0.0, 1.0);
+  table->SetNanColor(1.0, 0.0, 1.0, 1.0);
+  table->Build();
+  vtkSmartPointer<vtkDoubleArray> withNan = vtkSmartPointer<vtkDoubleArray>::New();
+  withNan->SetNumberOfComponents(1);
+  withNan->InsertNextValue(0.5);
+  withNan->InsertNextValue(vtkMath::Nan());
+  vtkUnsignedCharArray* mapped = table->MapScalars(withNan, VTK_COLOR_MODE_MAP_SCALARS, 0);
+  const unsigned char nanColor[4] = { 255, 0, 255, 255 };
+  TestAssert(TestColor4uc(table->MapValue(0.5), mapped->GetPointer(0)));
+  TestAssert(TestColor4uc(nanColor, mapped->GetPointer(4)));
+  mapped->Delete();
+
+  // The same NaN mapping through an array that is not in the dispatch list, so the
+  // mapping runs on the vtkDataArray fallback, whose value range dereferences to value
+  // references in every build type -- the configuration that used to skip the NaN check.
+  vtkSmartPointer<vtkSOADataArrayTemplate<double>> soaWithNan =
+    vtkSmartPointer<vtkSOADataArrayTemplate<double>>::New();
+  soaWithNan->SetNumberOfComponents(1);
+  soaWithNan->InsertNextValue(0.5);
+  soaWithNan->InsertNextValue(vtkMath::Nan());
+  mapped = table->MapScalars(soaWithNan, VTK_COLOR_MODE_MAP_SCALARS, 0);
+  TestAssert(TestColor4uc(table->MapValue(0.5), mapped->GetPointer(0)));
+  TestAssert(TestColor4uc(nanColor, mapped->GetPointer(4)));
+  mapped->Delete();
 
   return rval;
 }
