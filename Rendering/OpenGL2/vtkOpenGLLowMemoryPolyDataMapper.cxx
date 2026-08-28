@@ -2139,7 +2139,8 @@ uniform float edgeWidth;
 
   std::ostringstream fsImpl;
   fsImpl << R"(
-  if (((edgeVisibility == 1) || (wireframe == 1)) && (cellType == 5)) // VTK_TRIANGLE
+  if ((vertex_pass != 1) && ((edgeVisibility == 1) || (wireframe == 1)) &&
+    (cellType == 5)) // VTK_TRIANGLE
   {
     // distance gets larger as you go inside the polygon
     float edist[3];
@@ -2155,15 +2156,20 @@ uniform float edgeWidth;
       edist[1] += edgeEqn[1].z;
       edist[2] += edgeEqn[2].z;
     }
-    // Legacy-consistent edge band: rely on signed edge distances with a
-    // half-width offset so edges look uniform and thin.
-    float emix = clamp(0.5 + 0.5 * edgeWidth - min(min(edist[0], edist[1]), edist[2]), 0.0, 1.0);
     if (wireframe == 1)
     {
-      opacity = mix(0.0, opacity, emix);
+      // Threshold on the half width instead so each
+      // triangle paints only its own half of the edge.
+      if (min(min(edist[0], edist[1]), edist[2]) > 0.5 * edgeWidth)
+      {
+        opacity = 0.0;
+      }
     }
     else
     {
+      // Legacy-consistent edge band: rely on signed edge distances with a
+      // half-width offset so edges look uniform and thin.
+      float emix = clamp(0.5 + 0.5 * edgeWidth - min(min(edist[0], edist[1]), edist[2]), 0.0, 1.0);
       diffuseColor = mix(diffuseColor, vec3(0.0), emix * edgeOpacity);
       ambientColor = mix(ambientColor, edgeColor, emix * edgeOpacity);
       // When lighting is enabled and tubes are requested, add a subtle
@@ -3167,11 +3173,19 @@ vtkOpenGLLowMemoryPolyDataMapper::ShaderColorSourceAttribute
 vtkOpenGLLowMemoryPolyDataMapper::DetermineShaderColorSource(vtkPolyData* mesh)
 {
   auto colors = this->GetColors(mesh);
+  // The shader only gets a `colors` sampler when BindArraysToTextureBuffers was able to upload
+  // one color per point or per cell; InstallArrayTextureShaderDeclarations declares it under the
+  // very same condition. Field data coloring maps a single tuple for the whole mesh, so picking a
+  // per-point or per-cell color source for it would emit a shader that samples an undeclared
+  // `colors` and fail to compile. Keep the two conditions in lockstep.
+  const bool colorsAreBindable = colors != nullptr &&
+    (colors->GetNumberOfTuples() == mesh->GetNumberOfPoints() ||
+      colors->GetNumberOfTuples() == mesh->GetNumberOfCells());
   // Determine where the colors come from.
   auto result = ShaderColorSourceAttribute::Uniform;
   if (this->ScalarVisibility)
   {
-    if (colors)
+    if (colorsAreBindable)
     {
       result = ShaderColorSourceAttribute::Point;
     }
@@ -3180,7 +3194,7 @@ vtkOpenGLLowMemoryPolyDataMapper::DetermineShaderColorSource(vtkPolyData* mesh)
           this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA ||
           this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA ||
           !mesh->GetPointData()->GetScalars()) &&
-      this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA && colors &&
+      this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA && colorsAreBindable &&
       colors->GetNumberOfTuples() > 0)
     {
       result = ShaderColorSourceAttribute::Cell;

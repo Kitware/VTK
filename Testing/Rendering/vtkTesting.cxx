@@ -588,7 +588,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     // Write out the image upload tag for the test image.
     os << "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">";
     os << vImage;
-    os << "</DartMeasurementFile>";
+    os << "</DartMeasurementFile>" << std::endl;
 #else
     rtFin = vtksys::SystemTools::Fopen(vImage, "wb");
     if (rtFin)
@@ -603,7 +603,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
       // Write out the image upload tag for the test image.
       os << "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">";
       os << vImage;
-      os << "</DartMeasurementFile>";
+      os << "</DartMeasurementFile>" << std::endl;
     }
     else
     {
@@ -933,6 +933,10 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     os << errIndex;
     os << "</DartMeasurement>";
   }
+  // Terminate the line so that line buffered streams actually emit it. Tests
+  // are linked with -sEXIT_RUNTIME=0, so under Emscripten an unterminated tail
+  // is dropped instead of being flushed at exit.
+  os << std::endl;
 
   if (passed)
   {
@@ -1091,7 +1095,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
         diffFilename, result->GetPointer(0), result->GetDataTypeSize() * result->GetDataSize());
       os << "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">";
       os << diffFilename;
-      os << "</DartMeasurementFile>";
+      os << "</DartMeasurementFile>" << std::endl;
     }
 #else
     FILE* rtDout = vtksys::SystemTools::Fopen(diffFilename, "wb");
@@ -1106,7 +1110,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
 
       os << "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">";
       os << diffFilename;
-      os << "</DartMeasurementFile>";
+      os << "</DartMeasurementFile>" << std::endl;
     }
     else
     {
@@ -1117,7 +1121,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
 
   os << "<DartMeasurementFile name=\"ValidImage\" type=\"image/png\">";
   os << bestImageFileName;
-  os << "</DartMeasurementFile>";
+  os << "</DartMeasurementFile>" << std::endl;
 
   return FAILED;
 }

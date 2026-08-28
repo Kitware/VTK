@@ -33,6 +33,7 @@
 #include "vtkTexture.h"
 #include "vtkTextureObject.h"
 #include "vtkTransform.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 
 #include <sstream>
@@ -745,6 +746,29 @@ void vtkOpenGLLowMemoryBatchedPolyDataMapper::SetShaderValues(GLBatchElement* gl
     }
   }
 
+  // Field data coloring maps a single tuple for the whole block, so it can never be uploaded as
+  // the per-point/per-cell `colors` sampler and DetermineShaderColorSource leaves the color
+  // source at Uniform. Route that one color through the per-block override uniforms instead.
+  // Blocks whose field data does not carry the array map no colors at all and keep the property
+  // color, which is the documented behavior for partially defined arrays.
+  bool useFieldDataColor = false;
+  float fieldDataColor[3] = { 0.f, 0.f, 0.f };
+  if (!useNanColor && this->GetScalarVisibility() &&
+    this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA && this->FieldDataTupleId > -1)
+  {
+    int cellFlag = 0;
+    this->MapScalars(batchElement.PolyData, 1.0, cellFlag);
+    if (this->Colors && this->FieldDataTupleId < this->Colors->GetNumberOfTuples())
+    {
+      double* mappedColor = this->Colors->GetTuple(this->FieldDataTupleId);
+      for (int i = 0; i < 3; ++i)
+      {
+        fieldDataColor[i] = static_cast<float>(mappedColor[i] / 255.0);
+      }
+      useFieldDataColor = true;
+    }
+  }
+
   // override the opacity and color
   this->ShaderProgram->SetUniformf("intensity_opacity_override", batchElement.Opacity);
 
@@ -779,9 +803,15 @@ void vtkOpenGLLowMemoryBatchedPolyDataMapper::SetShaderValues(GLBatchElement* gl
       this->ShaderProgram->SetUniform3f("color_ambient_override", ambientColor);
       this->ShaderProgram->SetUniform3f("color_diffuse_override", diffuseColor);
     }
+    if (useFieldDataColor)
+    {
+      this->ShaderProgram->SetUniform3f("color_ambient_override", fieldDataColor);
+      this->ShaderProgram->SetUniform3f("color_diffuse_override", fieldDataColor);
+    }
     if (this->OverideColorUsed)
     {
-      this->ShaderProgram->SetUniformi("overridesColor", batchElement.OverridesColor);
+      this->ShaderProgram->SetUniformi(
+        "overridesColor", useFieldDataColor ? 1 : batchElement.OverridesColor);
     }
   }
 

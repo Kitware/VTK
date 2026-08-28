@@ -370,7 +370,6 @@ bool RGBToRGBA(const T1* const rgb, T2* rgba, const std::size_t& n)
       (*rgba++) = rgb[idx++] / 255.0f;
       (*rgba++) = rgb[idx++] / 255.0f;
       (*rgba++) = 1.0f;
-      idx++;
     }
   }
   else if (is_T1_float32 && is_T2_uint_or_int)
@@ -381,8 +380,7 @@ bool RGBToRGBA(const T1* const rgb, T2* rgba, const std::size_t& n)
       (*rgba++) = static_cast<T2>(rgb[idx++] * 255.0f);
       (*rgba++) = static_cast<T2>(rgb[idx++] * 255.0f);
       (*rgba++) = static_cast<T2>(rgb[idx++] * 255.0f);
-      (*rgba++) = 1.0f;
-      idx++;
+      (*rgba++) = static_cast<T2>(255);
     }
   }
   else
@@ -439,6 +437,39 @@ bool RGBAToRGB(const T1* const rgba, T2* rgb, const std::size_t& n)
   return true;
 }
 
+template <typename T1, typename T2>
+bool CopySameFormat(const T1* const src, T2* dst, const std::size_t& n)
+{
+  constexpr bool is_T1_uint_or_int = std::is_integral<T1>::value || std::is_unsigned<T1>::value;
+  constexpr bool is_T2_uint_or_int = std::is_integral<T2>::value || std::is_unsigned<T2>::value;
+  constexpr bool is_T1_float32 = std::is_floating_point<T1>::value;
+  constexpr bool is_T2_float32 = std::is_floating_point<T2>::value;
+  if ((is_T1_uint_or_int && is_T2_uint_or_int) || (is_T1_float32 && is_T2_float32))
+  {
+    std::copy(src, src + n, dst);
+  }
+  else if (is_T1_uint_or_int && is_T2_float32)
+  {
+    // normalize integral color components into [0, 1]
+    for (std::size_t idx = 0; idx < n; ++idx)
+    {
+      dst[idx] = src[idx] / 255.0f;
+    }
+  }
+  else if (is_T1_float32 && is_T2_uint_or_int)
+  {
+    for (std::size_t idx = 0; idx < n; ++idx)
+    {
+      dst[idx] = static_cast<T2>(src[idx] * 255.0f);
+    }
+  }
+  else
+  {
+    return false;
+  }
+  return true;
+}
+
 /**
  * Read pixels with parameters <sourceFormat, SourceGLType> and cast into <destFormat,
  * DestinationGLType> Acceptable glformats: GL_RGB, GL_RGBA, GL_RGBA_INTEGER Acceptable gltypes:
@@ -462,8 +493,7 @@ bool ConvertGLColor(GLint sourceFormat, const vtkRecti& rect, void* data, GLint 
   auto dstPixels = static_cast<DestinationTypeNative*>(data);
   if (sourceFormat == destFormat)
   {
-    std::copy(srcPixels.begin(), srcPixels.end(), dstPixels);
-    return true;
+    return CopySameFormat(srcPixels.data(), dstPixels, srcPixels.size());
   }
   else if (numSrcComponents == 3 && numDestComponents == 4)
   {

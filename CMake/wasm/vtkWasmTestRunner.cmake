@@ -107,6 +107,22 @@ endif()
 
 # Create user profile directory
 file(MAKE_DIRECTORY "${USER_PROFILE_DIR}")
+# Forward environment variables
+set(ENV_ASSIGNMENTS "")
+if (DEFINED TEST_ENVIRONMENT AND NOT TEST_ENVIRONMENT STREQUAL "")
+  foreach (_env_entry IN LISTS TEST_ENVIRONMENT)
+    if (_env_entry MATCHES "^([^=]+)=(.*)$")
+      set(_env_name "${CMAKE_MATCH_1}")
+      set(_env_value "${CMAKE_MATCH_2}")
+      string(REPLACE "\\" "\\\\" _env_value "${_env_value}")
+      string(REPLACE "\"" "\\\"" _env_value "${_env_value}")
+      string(APPEND ENV_ASSIGNMENTS
+        "\n        vtkWasmRuntime.ENV.${_env_name} = \"${_env_value}\";")
+    else ()
+      message(WARNING "Ignoring malformed TEST_ENVIRONMENT entry '${_env_entry}'.")
+    endif ()
+  endforeach ()
+endif ()
 
 # Generate HTML for unit test
 set(TEST_HTML "${USER_PROFILE_DIR}/test.html")
