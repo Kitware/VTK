@@ -110,35 +110,12 @@ bool TextureContentsEqual(vtkUnsignedCharArray* a, vtkUnsignedCharArray* b)
 class vtkAlembicExporter::vtkAlembicExporterInternals
 {
 public:
-  std::unique_ptr<OArchive> Archive;
-
-  std::vector<OXform> ActorXforms;
-  std::vector<OPolyMesh> ActorMeshes;
-  std::vector<bool> ActorHasColor;
-  std::vector<OC4fGeomParam> ActorColorParams;
-
-  // Deep copy of the last texture data actually written for each mesh
-  // index, used to avoid writing a duplicate PNG when a texture hasn't
-  // changed since the previous frame.
-  std::vector<vtkSmartPointer<vtkUnsignedCharArray>> PreviousTextureData;
-
-  bool HasCamera = false;
-  OXform CameraXform;
-  OCamera Camera;
-
-  // Every TimeValue seen since Start(), used to build the archive's final
-  // TimeSampling at Finish().
-  std::vector<double> SampleTimes;
-
-  size_t FirstFrameMeshCount = 0;
-
-  // Counts WriteData() calls since Start(), used to give each frame's
-  // texture images distinct filenames (see WriteTexture).
-  size_t FrameIndex = 0;
-
   void Reset()
   {
     this->Archive.reset();
+    this->SampleTimes.clear();
+    this->FirstFrameMeshCount = 0;
+    this->FrameIndex = 0;
     this->ActorXforms.clear();
     this->ActorMeshes.clear();
     this->ActorHasColor.clear();
@@ -147,9 +124,6 @@ public:
     this->HasCamera = false;
     this->CameraXform = OXform();
     this->Camera = OCamera();
-    this->SampleTimes.clear();
-    this->FirstFrameMeshCount = 0;
-    this->FrameIndex = 0;
   }
 
   void WriteMesh(bool isFirstFrame, vtkPolyData* pd, vtkActor* aPart, size_t index)
@@ -495,6 +469,56 @@ public:
     this->Archive.reset();
   }
 
+  // True if an archive has already been created (i.e. this is not the first
+  // WriteData() call of the export).
+  bool HasArchive() const { return this->Archive != nullptr; }
+
+  // Creates a new, empty archive at fileName, replacing any existing one.
+  void CreateArchive(const char* fileName)
+  {
+    this->Archive = std::make_unique<OArchive>(Alembic::AbcCoreOgawa::WriteArchive(), fileName);
+  }
+
+  // Records a time sample for the current frame; every value recorded since
+  // Start() is used to build the archive's final TimeSampling at Finish().
+  void AddSampleTime(double timeValue) { this->SampleTimes.push_back(timeValue); }
+
+  // Returns the current frame index and increments it, used to give each
+  // frame's texture images distinct filenames (see WriteTexture).
+  size_t NextFrameIndex() { return this->FrameIndex++; }
+
+  // Tracks how many meshes were present in the first exported frame so later
+  // frames can detect whether a given mesh was created in the initial write.
+  size_t GetFirstFrameMeshCount() const { return this->FirstFrameMeshCount; }
+
+  void SetFirstFrameMeshCount(size_t count) { this->FirstFrameMeshCount = count; }
+
+private:
+  std::unique_ptr<OArchive> Archive;
+
+  // Every TimeValue seen since Start(), used to build the archive's final
+  // TimeSampling at Finish().
+  std::vector<double> SampleTimes;
+
+  size_t FirstFrameMeshCount = 0;
+
+  // Counts WriteData() calls since Start(), used to give each frame's
+  // texture images distinct filenames (see WriteTexture).
+  size_t FrameIndex = 0;
+
+  std::vector<OXform> ActorXforms;
+  std::vector<OPolyMesh> ActorMeshes;
+  std::vector<bool> ActorHasColor;
+  std::vector<OC4fGeomParam> ActorColorParams;
+
+  // Deep copy of the last texture data actually written for each mesh
+  // index, used to avoid writing a duplicate PNG when a texture hasn't
+  // changed since the previous frame.
+  std::vector<vtkSmartPointer<vtkUnsignedCharArray>> PreviousTextureData;
+
+  bool HasCamera = false;
+  OXform CameraXform;
+  OCamera Camera;
 }; // end vtkAlembicExporter::vtkAlembicExporterInternals
 
 vtkStandardNewMacro(vtkAlembicExporter);
@@ -546,14 +570,13 @@ void vtkAlembicExporter::WriteData()
   bool isFirstFrame = true;
   if (this->Started)
   {
-    if (this->Internal->Archive)
+    if (this->Internal->HasArchive())
     {
       isFirstFrame = false;
     }
     else
     {
-      this->Internal->Archive =
-        std::make_unique<OArchive>(Alembic::AbcCoreOgawa::WriteArchive(), this->FileName);
+      this->Internal->CreateArchive(this->FileName);
       isFirstFrame = true;
     }
   }
@@ -561,19 +584,18 @@ void vtkAlembicExporter::WriteData()
   {
     // Legacy, single-shot behavior: always a fresh, self-contained archive.
     this->Internal->Reset();
-    this->Internal->Archive =
-      std::make_unique<OArchive>(Alembic::AbcCoreOgawa::WriteArchive(), this->FileName);
+    this->Internal->CreateArchive(this->FileName);
     isFirstFrame = true;
   }
 
-  if (!this->Internal->Archive)
+  if (!this->Internal->HasArchive())
   {
     vtkErrorMacro(<< "Failed to create Alembic archive for file: " << this->FileName);
     return;
   }
 
-  size_t frameIndex = this->Internal->FrameIndex++;
-  this->Internal->SampleTimes.push_back(this->TimeValue);
+  size_t frameIndex = this->Internal->NextFrameIndex();
+  this->Internal->AddSampleTime(this->TimeValue);
 
   // support sharing texture maps between actors within a single frame
   std::map<vtkUnsignedCharArray*, size_t> textureMap;
@@ -646,12 +668,12 @@ void vtkAlembicExporter::WriteData()
   {
     if (isFirstFrame)
     {
-      this->Internal->FirstFrameMeshCount = meshCount;
+      this->Internal->SetFirstFrameMeshCount(meshCount);
     }
-    else if (meshCount != this->Internal->FirstFrameMeshCount)
+    else if (meshCount != this->Internal->GetFirstFrameMeshCount())
     {
       vtkWarningMacro(<< "The number of visible meshes changed from "
-                      << this->Internal->FirstFrameMeshCount << " to " << meshCount
+                      << this->Internal->GetFirstFrameMeshCount() << " to " << meshCount
                       << " between frames of a single-file animated Alembic export. Alembic "
                          "objects cannot be added or removed once the archive has been "
                          "created; only the geometry of already-created meshes can vary "
