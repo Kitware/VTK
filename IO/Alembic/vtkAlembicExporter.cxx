@@ -6,7 +6,6 @@
 #include <cstring>
 #include <map>
 #include <memory>
-#include <sstream>
 #include <vector>
 
 #include "vtkAssemblyPath.h"
@@ -28,6 +27,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
+#include "vtkStringFormatter.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkTriangleFilter.h"
@@ -159,13 +159,11 @@ public:
         this->ActorColorParams.resize(index + 1);
       }
 
-      std::ostringstream strm;
-      strm << "xform_" << index;
-      this->ActorXforms[index] = OXform(OObject(*this->Archive, kTop), strm.str());
+      std::string xform_name = "xform_" + vtk::to_string(index);
+      this->ActorXforms[index] = OXform(OObject(*this->Archive, kTop), xform_name);
 
-      std::ostringstream().swap(strm);
-      strm << "mesh_" << index;
-      this->ActorMeshes[index] = OPolyMesh(this->ActorXforms[index], strm.str());
+      std::string mesh_name = "mesh_" + vtk::to_string(index);
+      this->ActorMeshes[index] = OPolyMesh(this->ActorXforms[index], mesh_name);
     }
 
     OXform& xform = this->ActorXforms[index];
@@ -385,14 +383,12 @@ public:
         // figure out a filename - strip extension, add "_tex0.png"
         std::string filePath = vtksys::SystemTools::GetFilenamePath(fileName);
         std::string baseName = vtksys::SystemTools::GetFilenameWithoutLastExtension(fileName);
-        std::ostringstream strm;
-        strm << filePath << '/' << baseName << "_tex" << index;
+        std::string fname = filePath + "/" + baseName + "_tex" + vtk::to_string(index);
         if (started)
         {
-          strm << "_frame" << frameIndex;
+          fname += "_frame" + vtk::to_string(frameIndex);
         }
-        strm << ".png";
-        std::string fname = strm.str();
+        fname += ".png";
 
         // we don't want the NaN color in the texture file
         vtkNew<vtkTrivialProducer> triv;
