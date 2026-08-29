@@ -344,7 +344,7 @@ UsdGeomMesh WriteMesh(UsdStageRefPtr& stage, UsdGeomXform& xform, vtkPolyData* i
   // topology.
   // if we have vertex colors then retrieve them
   vtkMapper* mapper = actor->GetMapper();
-  if (NeedsTextureExport(actor))
+  if (::NeedsTextureExport(actor))
   {
     // Generate tcoord by changing mapper settings:
     mapper->SetInterpolateScalarsBeforeMapping(true);
@@ -437,7 +437,7 @@ void WriteMaterial(UsdStageRefPtr& stage, UsdGeomMesh& mesh, int meshIndex, vtkA
       .Set(static_cast<float>(property->GetCoatIOR()), timeCode);
   }
 
-  if (NeedsTextureExport(actor))
+  if (::NeedsTextureExport(actor))
   {
     material.CreateInput(TfToken("stPrimvarName"), SdfValueTypeNames->Token).Set(TfToken("st"));
 
@@ -516,7 +516,7 @@ std::string vtkUSDExporter::vtkUSDExporterInternals::WriteTexture(
   // (e.g. an unchanging texture across animation frames), reuse that file
   // instead of writing a duplicate.
   auto lastIt = this->LastTextures.find(index);
-  if (lastIt != this->LastTextures.end() && TextureDataEqual(da, lastIt->second.Data))
+  if (lastIt != this->LastTextures.end() && ::TextureDataEqual(da, lastIt->second.Data))
   {
     return lastIt->second.FileName;
   }
@@ -834,7 +834,7 @@ void vtkUSDExporter::WriteData()
                     // save and restore prop changed when generating texture coords
                     bool saveInterpScalars = partMapper->GetInterpolateScalarsBeforeMapping();
 
-                    UsdGeomMesh mesh = WriteMesh(stage, xform, pd, part, meshCount, timeCode);
+                    UsdGeomMesh mesh = ::WriteMesh(stage, xform, pd, part, meshCount, timeCode);
 
                     std::string textureFileName;
                     if (mapper->GetScalarVisibility() &&
@@ -850,7 +850,7 @@ void vtkUSDExporter::WriteData()
                         part, this->FileName, meshCount, this->Started, frameIndex);
                     }
 
-                    WriteMaterial(stage, mesh, meshCount, part, textureFileName, timeCode);
+                    ::WriteMaterial(stage, mesh, meshCount, part, textureFileName, timeCode);
                     partMapper->SetInterpolateScalarsBeforeMapping(saveInterpScalars);
                     ++meshCount;
                   }
@@ -864,10 +864,10 @@ void vtkUSDExporter::WriteData()
             {
               // save and restore prop changed when generating texture coords
               bool saveInterpScalars = part->GetMapper()->GetInterpolateScalarsBeforeMapping();
-              UsdGeomMesh mesh = WriteMesh(stage, xform, pd, part, meshCount, timeCode);
+              UsdGeomMesh mesh = ::WriteMesh(stage, xform, pd, part, meshCount, timeCode);
               std::string textureFileName = this->Internal->WriteTexture(
                 part, this->FileName, meshCount, this->Started, frameIndex);
-              WriteMaterial(stage, mesh, meshCount, part, textureFileName, timeCode);
+              ::WriteMaterial(stage, mesh, meshCount, part, textureFileName, timeCode);
               part->GetMapper()->SetInterpolateScalarsBeforeMapping(saveInterpScalars);
               ++meshCount;
             }
