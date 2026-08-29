@@ -6,28 +6,16 @@ VTK_ABI_NAMESPACE_BEGIN
 
 double vtkWebGPUConfigurationInternals::DefaultTimeout = 60000;
 
-WGPUInstance vtkWebGPUConfigurationInternals::Instance = nullptr;
+vtkWebGPU::Instance vtkWebGPUConfigurationInternals::Instance;
 
 std::size_t vtkWebGPUConfigurationInternals::InstanceCount = 0;
 
 //------------------------------------------------------------------------------
 vtkWebGPUConfigurationInternals::~vtkWebGPUConfigurationInternals()
 {
-  for (WGPUBuffer buffer : this->BuffersPendingRelease)
-  {
-    wgpuBufferRelease(buffer);
-  }
   this->BuffersPendingRelease.clear();
-  if (this->Device != nullptr)
-  {
-    wgpuDeviceRelease(this->Device);
-    this->Device = nullptr;
-  }
-  if (this->Adapter != nullptr)
-  {
-    wgpuAdapterRelease(this->Adapter);
-    this->Adapter = nullptr;
-  }
+  this->Device = nullptr;
+  this->Adapter = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -42,7 +30,7 @@ void vtkWebGPUConfigurationInternals::AddInstanceRef()
     };
     instanceDescriptor.requiredFeatures = features.data();
     instanceDescriptor.requiredFeatureCount = features.size();
-    Instance = wgpuCreateInstance(&instanceDescriptor);
+    Instance = vtkWebGPU::Instance::Acquire(wgpuCreateInstance(&instanceDescriptor));
   }
   ++InstanceCount;
 }
@@ -54,9 +42,8 @@ void vtkWebGPUConfigurationInternals::ReleaseInstanceRef()
   {
     --InstanceCount;
   }
-  if (InstanceCount == 0 && Instance != nullptr)
+  if (InstanceCount == 0)
   {
-    wgpuInstanceRelease(Instance);
     Instance = nullptr;
   }
 }

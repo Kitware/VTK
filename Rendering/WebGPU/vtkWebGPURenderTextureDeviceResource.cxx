@@ -197,25 +197,17 @@ void vtkWebGPURenderTextureDeviceResource::PrintSelf(ostream& os, vtkIndent inde
 //------------------------------------------------------------------------------
 void vtkWebGPURenderTextureDeviceResource::ReleaseGraphicsResources(vtkWindow* vtkNotUsed(window))
 {
-  // These are raw C handles. Destroy() frees the GPU allocation but does not
-  // drop our reference, and assigning nullptr on its own drops nothing, so each
-  // one has to be released explicitly.
-  if (this->TextureView)
-  {
-    wgpuTextureViewRelease(this->TextureView);
-    this->TextureView = nullptr;
-  }
-  if (this->Sampler)
-  {
-    wgpuSamplerRelease(this->Sampler);
-    this->Sampler = nullptr;
-  }
+  // Members of a public header are raw handles - see vtkWebGPUHandle.h for why -
+  // so they are released through the shared helper. Destroying the texture first
+  // frees its allocation now rather than when the last reference goes; the
+  // release afterwards is what drops ours.
+  vtkWebGPU::ReleaseAndNull(this->TextureView, wgpuTextureViewRelease);
+  vtkWebGPU::ReleaseAndNull(this->Sampler, wgpuSamplerRelease);
   if (this->Texture)
   {
     wgpuTextureDestroy(this->Texture);
-    wgpuTextureRelease(this->Texture);
-    this->Texture = nullptr;
   }
+  vtkWebGPU::ReleaseAndNull(this->Texture, wgpuTextureRelease);
 }
 
 //------------------------------------------------------------------------------

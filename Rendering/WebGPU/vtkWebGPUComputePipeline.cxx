@@ -153,7 +153,9 @@ void vtkWebGPUComputePipeline::Update()
     WGPUQueueWorkDoneStatus* status;
     bool* done;
   } workDoneData{ &workStatus, &done };
-  WGPUQueue queue = wgpuDeviceGetQueue(this->WGPUConfiguration->GetDevice());
+  // wgpuDeviceGetQueue() hands back a new reference, so adopt it rather than leak.
+  vtkWebGPU::Queue queue =
+    vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(this->WGPUConfiguration->GetDevice()));
   WGPUQueueWorkDoneCallbackInfo workDoneCallbackInfo = {};
   workDoneCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
   workDoneCallbackInfo.callback =
@@ -165,7 +167,6 @@ void vtkWebGPUComputePipeline::Update()
   };
   workDoneCallbackInfo.userdata1 = &workDoneData;
   wgpuQueueOnSubmittedWorkDone(queue, workDoneCallbackInfo);
-  wgpuQueueRelease(queue);
   // Wait not only for the submitted GPU work to finish, but also for any in-flight asynchronous
   // buffer map (readback) callbacks to run. Those callbacks fire during ProcessEvents() and
   // complete slightly after the queue work they depend on, so exiting as soon as the queue work is

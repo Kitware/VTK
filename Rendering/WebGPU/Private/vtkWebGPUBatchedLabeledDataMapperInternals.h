@@ -7,6 +7,7 @@
 #include "vtkRenderingWebGPUModule.h" // For export macro
 #include "vtkWebGPUPolyDataMapper.h"
 
+#include "Private/vtkWebGPUHandle.h" // for the handle types
 #include "vtk_wgpu.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -23,10 +24,10 @@ public:
 
   uint32_t NumberOfLabels = 0;
 
-  WGPUTexture GlyphsTexture = nullptr;
-  WGPUTextureView GlyphsTextureView = nullptr;
-  WGPUSampler GlyphsSampler = nullptr;
-  WGPUBuffer LabelUniformBuffer = nullptr;
+  vtkWebGPU::Texture GlyphsTexture;
+  vtkWebGPU::TextureView GlyphsTextureView;
+  vtkWebGPU::Sampler GlyphsSampler;
+  vtkWebGPU::Buffer LabelUniformBuffer;
 
   enum InstanceAttrib : int
   {
@@ -35,7 +36,7 @@ public:
     FRAME_COLORS = 2,
     NUM_INSTANCE_ATTRIBS = 3
   };
-  WGPUBuffer InstanceBuffers[NUM_INSTANCE_ATTRIBS] = { nullptr, nullptr, nullptr };
+  vtkWebGPU::Buffer InstanceBuffers[NUM_INSTANCE_ATTRIBS];
   uint64_t InstanceBufferSizes[NUM_INSTANCE_ATTRIBS] = { 0, 0, 0 };
   WGPUVertexAttribute InstanceAttributes[3];
   bool LabelCountChanged = false;

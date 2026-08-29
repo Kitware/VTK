@@ -83,25 +83,22 @@ void vtkWebGPUBatchedLabeledDataMapperInternals::RenderPiece(vtkRenderer* render
 
   if (!this->LabelUniformBuffer)
   {
-    this->LabelUniformBuffer = wgpuConfiguration->CreateBuffer(sizeof(LabelUniforms2D),
-      WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst,
-      /*mappedAtCreation=*/false, "LabelUniforms2D");
+    this->LabelUniformBuffer = vtkWebGPU::Buffer::Acquire(wgpuConfiguration->CreateBuffer(
+      sizeof(LabelUniforms2D), WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst,
+      /*mappedAtCreation=*/false, "LabelUniforms2D"));
     this->RebuildGraphicsPipelines = true;
   }
 
   if (!this->GlyphsSampler)
   {
-    // Use the C wrapper types locally to create the sampler
     WGPUSamplerDescriptor samplerDesc = WGPU_SAMPLER_DESCRIPTOR_INIT;
     samplerDesc.magFilter = WGPUFilterMode_Nearest;
     samplerDesc.minFilter = WGPUFilterMode_Nearest;
     samplerDesc.addressModeU = WGPUAddressMode_ClampToEdge;
     samplerDesc.addressModeV = WGPUAddressMode_ClampToEdge;
     WGPUDevice device(wgpuConfiguration->GetDevice());
-    vtkWebGPU::Sampler tempSampler =
+    this->GlyphsSampler =
       vtkWebGPU::Sampler::Acquire(wgpuDeviceCreateSampler(device, &samplerDesc));
-    // Transfer ownership of the sampler handle to the raw WGPUSampler member.
-    this->GlyphsSampler = tempSampler.Release();
   }
 
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
@@ -125,35 +122,13 @@ void vtkWebGPUBatchedLabeledDataMapperInternals::RenderPiece(vtkRenderer* render
 //----------------------------------------------------------------------------
 void vtkWebGPUBatchedLabeledDataMapperInternals::ReleaseGraphicsResources(vtkWindow* window)
 {
-  // These are raw C handles, so the references they own have to be dropped
-  // explicitly; assigning nullptr on its own would leak them.
-  if (this->GlyphsTextureView)
-  {
-    wgpuTextureViewRelease(this->GlyphsTextureView);
-    this->GlyphsTextureView = nullptr;
-  }
-  if (this->GlyphsTexture)
-  {
-    wgpuTextureRelease(this->GlyphsTexture);
-    this->GlyphsTexture = nullptr;
-  }
-  if (this->GlyphsSampler)
-  {
-    wgpuSamplerRelease(this->GlyphsSampler);
-    this->GlyphsSampler = nullptr;
-  }
-  if (this->LabelUniformBuffer)
-  {
-    wgpuBufferRelease(this->LabelUniformBuffer);
-    this->LabelUniformBuffer = nullptr;
-  }
+  this->GlyphsTextureView = nullptr;
+  this->GlyphsTexture = nullptr;
+  this->GlyphsSampler = nullptr;
+  this->LabelUniformBuffer = nullptr;
   for (int i = 0; i < NUM_INSTANCE_ATTRIBS; ++i)
   {
-    if (this->InstanceBuffers[i])
-    {
-      wgpuBufferRelease(this->InstanceBuffers[i]);
-      this->InstanceBuffers[i] = nullptr;
-    }
+    this->InstanceBuffers[i] = nullptr;
     this->InstanceBufferSizes[i] = 0;
   }
   this->RebuildGraphicsPipelines = true;
@@ -635,11 +610,8 @@ void vtkWebGPUBatchedLabeledDataMapperInternals::UpdateInstanceBuffers(
       desc.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
       // Release the previous buffer before overwriting the slot, otherwise every
       // resize leaks the old allocation.
-      if (this->InstanceBuffers[attr])
-      {
-        wgpuBufferRelease(this->InstanceBuffers[attr]);
-      }
-      this->InstanceBuffers[attr] = wgpuConfiguration->CreateBuffer(desc);
+      this->InstanceBuffers[attr] =
+        vtkWebGPU::Buffer::Acquire(wgpuConfiguration->CreateBuffer(desc));
       this->InstanceBufferSizes[attr] = sizes[attr];
       this->RebuildGraphicsPipelines = true;
     }

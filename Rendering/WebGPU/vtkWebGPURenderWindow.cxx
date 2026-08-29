@@ -2183,7 +2183,6 @@ void vtkWebGPURenderWindow::WaitForCompletion()
       WGPUQueueWorkDoneStatus* status;
       bool* done;
     } workDoneData{ &workStatus, &done };
-    WGPUQueue workQueue = wgpuDeviceGetQueue(this->WGPUConfiguration->GetDevice());
     WGPUQueueWorkDoneCallbackInfo workDoneCallbackInfo = {};
     workDoneCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
     workDoneCallbackInfo.callback =
@@ -2194,8 +2193,7 @@ void vtkWebGPURenderWindow::WaitForCompletion()
       *data->done = true;
     };
     workDoneCallbackInfo.userdata1 = &workDoneData;
-    wgpuQueueOnSubmittedWorkDone(workQueue, workDoneCallbackInfo);
-    wgpuQueueRelease(workQueue);
+    wgpuQueueOnSubmittedWorkDone(queue, workDoneCallbackInfo);
     while (!done)
     {
       this->WGPUConfiguration->ProcessEvents();

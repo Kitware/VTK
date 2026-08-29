@@ -4,6 +4,7 @@
 #ifndef vtkWebGPUConfigurationInternals_h
 #define vtkWebGPUConfigurationInternals_h
 
+#include "Private/vtkWebGPUHandle.h" // for the handle types
 #include "vtkWebGPUConfiguration.h"
 #include "vtk_wgpu.h"
 
@@ -15,15 +16,15 @@ class vtkWebGPUConfigurationInternals
 public:
   ~vtkWebGPUConfigurationInternals();
 
-  WGPUAdapter Adapter = nullptr;
-  WGPUDevice Device = nullptr;
+  vtkWebGPU::Adapter Adapter;
+  vtkWebGPU::Device Device;
   bool DeviceReady = false;
   bool Timedout = false;
 
   // in milliseconds
   static double DefaultTimeout;
   // We only keep one webgpu Instance around.
-  static WGPUInstance Instance;
+  static vtkWebGPU::Instance Instance;
   // Helps clean up the instance after it is no longer needed.
   static std::size_t InstanceCount;
 
@@ -32,7 +33,9 @@ public:
 
   // Buffers whose last reference must not be dropped inside a WebGPU callback.
   // See vtkWebGPUConfiguration::DeferBufferRelease.
-  std::vector<WGPUBuffer> BuffersPendingRelease;
+  // Buffers whose last reference must not be dropped inside a WebGPU callback;
+  // see vtkWebGPUConfiguration::DeferBufferRelease.
+  std::vector<vtkWebGPU::Buffer> BuffersPendingRelease;
 
   static void AddInstanceRef();
 

@@ -22,6 +22,22 @@
  *   usual case for the result of a `wgpuDeviceCreate*` call).
  * - `Reference(raw)` takes a new reference to a handle owned by someone else.
  *
+ * Ownership in this module follows one rule, with one exception forced by VTK's
+ * header layout:
+ *
+ * - Anything that owns a WebGPU object holds it in a `vtkWebGPU::Handle`. That
+ *   covers every implementation file and every private header.
+ * - A public header cannot include this one - it is not installed - so classes
+ *   whose members are declared in a public header keep raw `WGPU*` members and
+ *   release them through `vtkWebGPU::ReleaseAndNull`, never by calling
+ *   `wgpu<Type>Release` directly. That keeps the "assigning nullptr leaks"
+ *   footgun in one helper instead of at every call site.
+ * - Raw handles obtained from an accessor are borrowed. Do not release them,
+ *   and do not store them past the lifetime of the owner.
+ *
+ * `wgpu<Type>Destroy` is not a release: it frees the object's memory but leaves
+ * the reference count alone, so a `Destroy` still needs its matching release.
+ *
  * This is a private implementation header; it is not installed.
  */
 

@@ -419,8 +419,8 @@ bool vtkWebGPUConfiguration::Initialize()
 {
   vtkDebugMacro(<< __func__);
 
-  // Ensure the WebGPU implementation is loaded at runtime (Option B proc table).
-  // This must happen before any WebGPU function calls.
+  // Load the implementation before anything calls into it. The library's symbols
+  // have to be resolvable by the time the first wgpu* call is made.
   vtkWebGPUProcLoader* procLoader = vtkWebGPUProcLoader::GetInstance();
   if (!procLoader || !procLoader->IsLoaded())
   {
@@ -456,8 +456,8 @@ bool vtkWebGPUConfiguration::Initialize()
         "Failed to get an adapter:" << vtkWebGPUStringViewToStdString(message));
       return;
     }
-    // The callback owns the adapter handle; store it and release it later.
-    internalsData->Adapter = adapter;
+    // The callback is handed ownership of the adapter, so adopt it.
+    internalsData->Adapter = vtkWebGPU::Adapter::Acquire(adapter);
   };
   adapterCallbackInfo.userdata1 = this->Internals.get();
   WGPUFutureWaitInfo adapterWaitInfo = {};
@@ -546,8 +546,8 @@ bool vtkWebGPUConfiguration::Initialize()
       vtkGenericWarningMacro("Failed to get a device:" << vtkWebGPUStringViewToStdString(message));
       return;
     }
-    // The callback owns the device handle; store it and release it later.
-    internalsData->Device = device;
+    // The callback is handed ownership of the device, so adopt it.
+    internalsData->Device = vtkWebGPU::Device::Acquire(device);
   };
   deviceCallbackInfo.userdata1 = this->Internals.get();
   WGPUFutureWaitInfo deviceWaitInfo = {};
@@ -575,16 +575,8 @@ void vtkWebGPUConfiguration::FinalizeDevice()
   {
     return;
   }
-  if (internals.Device != nullptr)
-  {
-    wgpuDeviceRelease(internals.Device);
-    internals.Device = nullptr;
-  }
-  if (internals.Adapter != nullptr)
-  {
-    wgpuAdapterRelease(internals.Adapter);
-    internals.Adapter = nullptr;
-  }
+  internals.Device = nullptr;
+  internals.Adapter = nullptr;
   internals.DeviceReady = false;
   // Deliberately does NOT call ReleaseInstanceRef() so the Vulkan instance
   // stays alive (keeping GLX libraries loaded) until Finalize() is called.
@@ -606,7 +598,8 @@ void vtkWebGPUConfiguration::DeferBufferRelease(WGPUBuffer buffer)
 {
   if (buffer != nullptr)
   {
-    this->Internals->BuffersPendingRelease.push_back(buffer);
+    // Takes over the caller's reference; the vector drops it in ProcessEvents.
+    this->Internals->BuffersPendingRelease.push_back(vtkWebGPU::Buffer::Acquire(buffer));
   }
 }
 
@@ -630,12 +623,7 @@ void vtkWebGPUConfiguration::ProcessEvents()
 #endif
   // Safe to run now: every callback the implementation dispatched above has
   // returned, so it no longer holds a lock on any of these buffers.
-  auto& pending = this->Internals->BuffersPendingRelease;
-  for (WGPUBuffer buffer : pending)
-  {
-    wgpuBufferRelease(buffer);
-  }
-  pending.clear();
+  this->Internals->BuffersPendingRelease.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -873,9 +861,9 @@ void vtkWebGPUConfiguration::WriteBuffer(WGPUBuffer buffer, std::uint64_t offset
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
     "Write buffer {description: \"" << (description ? description : "null")
                                     << "\", offset: " << offset << ", size: " << sizeBytes << "}");
-  WGPUQueue queue = wgpuDeviceGetQueue(internals.Device);
+  // wgpuDeviceGetQueue() hands back a new reference, so adopt it rather than leak.
+  vtkWebGPU::Queue queue = vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(internals.Device));
   wgpuQueueWriteBuffer(queue, buffer, offset, data, sizeBytes);
-  wgpuQueueRelease(queue);
 }
 
 //------------------------------------------------------------------------------
@@ -976,9 +964,9 @@ void vtkWebGPUConfiguration::WriteTexture(WGPUTexture texture, uint32_t bytesPer
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
     "Write texture {description: \"" << (description ? description : "null")
                                      << "\", size: " << sizeBytes << "}");
-  WGPUQueue queue = wgpuDeviceGetQueue(internals.Device);
+  // wgpuDeviceGetQueue() hands back a new reference, so adopt it rather than leak.
+  vtkWebGPU::Queue queue = vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(internals.Device));
   wgpuQueueWriteTexture(queue, &copyTexture, data, sizeBytes, &textureDataLayout, &textureExtents);
-  wgpuQueueRelease(queue);
 }
 
 //------------------------------------------------------------------------------
