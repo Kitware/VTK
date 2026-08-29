@@ -112,7 +112,7 @@ class vtkAlembicExporter::vtkAlembicExporterInternals
 public:
   void Reset()
   {
-    this->Archive.reset();
+    this->Archive = nullptr;
     this->SampleTimes.clear();
     this->FirstFrameMeshCount = 0;
     this->FrameIndex = 0;
@@ -462,7 +462,7 @@ public:
       this->Camera.getSchema().setTimeSampling(tsIndex);
     }
 
-    this->Archive.reset();
+    this->Archive = nullptr;
   }
 
   // True if an archive has already been created (i.e. this is not the first
