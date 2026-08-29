@@ -27,7 +27,6 @@
 #include <string> // for std::string
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkUSDExporterInternals;
 
 class VTKIOUSD_EXPORT vtkUSDExporter : public vtkExporter
 {
@@ -85,6 +84,8 @@ private:
 
   double TimeValue = 0.0;
   bool Started = false;
+
+  class vtkUSDExporterInternals;
   vtkUSDExporterInternals* Internal;
 };
 

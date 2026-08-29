@@ -83,7 +83,7 @@ VTK_ABI_NAMESPACE_BEGIN
 // once per prim and then reused: calling AddTranslateOp/AddOrientOp/
 // AddScaleOp/AddTransformOp again on a later frame would append a
 // duplicate op rather than update the existing one's time samples.
-class vtkUSDExporterInternals
+class vtkUSDExporter::vtkUSDExporterInternals
 {
 public:
   UsdStageRefPtr Stage;
@@ -150,14 +150,16 @@ public:
       this->MaxTime = std::max(this->MaxTime, time);
     }
   }
+
+  void ApplyVtkActorTransformToUsdXform(vtkActor* actor, UsdGeomXform& xform, size_t xformIndex,
+    bool isFirstFrame, const UsdTimeCode& timeCode);
+
+  std::string WriteTexture(
+    vtkActor* actor, const char* fileName, size_t index, bool timeVarying, size_t frameIndex);
 };
 
-namespace
-{
-
-void ApplyVtkActorTransformToUsdXform(vtkActor* actor, UsdGeomXform& xform,
-  vtkUSDExporterInternals* internal, size_t xformIndex, bool isFirstFrame,
-  const UsdTimeCode& timeCode)
+void vtkUSDExporter::vtkUSDExporterInternals::ApplyVtkActorTransformToUsdXform(vtkActor* actor,
+  UsdGeomXform& xform, size_t xformIndex, bool isFirstFrame, const UsdTimeCode& timeCode)
 {
   if (!actor)
   {
@@ -186,25 +188,28 @@ void ApplyVtkActorTransformToUsdXform(vtkActor* actor, UsdGeomXform& xform,
   GfQuatd usdRotation = rotation.GetQuat();
 
   // Add operations to the USD xform.
-  bool needNewOps = isFirstFrame || internal->ActorTranslateOps.size() <= xformIndex ||
-    !internal->ActorTranslateOps[xformIndex].GetAttr().IsValid();
+  bool needNewOps = isFirstFrame || this->ActorTranslateOps.size() <= xformIndex ||
+    !this->ActorTranslateOps[xformIndex].GetAttr().IsValid();
   if (needNewOps)
   {
-    if (internal->ActorTranslateOps.size() <= xformIndex)
+    if (this->ActorTranslateOps.size() <= xformIndex)
     {
-      internal->ActorTranslateOps.resize(xformIndex + 1);
-      internal->ActorOrientOps.resize(xformIndex + 1);
-      internal->ActorScaleOps.resize(xformIndex + 1);
+      this->ActorTranslateOps.resize(xformIndex + 1);
+      this->ActorOrientOps.resize(xformIndex + 1);
+      this->ActorScaleOps.resize(xformIndex + 1);
     }
-    internal->ActorTranslateOps[xformIndex] = xform.AddTranslateOp(UsdGeomXformOp::PrecisionDouble);
-    internal->ActorOrientOps[xformIndex] = xform.AddOrientOp(UsdGeomXformOp::PrecisionDouble);
-    internal->ActorScaleOps[xformIndex] = xform.AddScaleOp(UsdGeomXformOp::PrecisionDouble);
+    this->ActorTranslateOps[xformIndex] = xform.AddTranslateOp(UsdGeomXformOp::PrecisionDouble);
+    this->ActorOrientOps[xformIndex] = xform.AddOrientOp(UsdGeomXformOp::PrecisionDouble);
+    this->ActorScaleOps[xformIndex] = xform.AddScaleOp(UsdGeomXformOp::PrecisionDouble);
   }
 
-  internal->ActorTranslateOps[xformIndex].Set(usdTranslation, timeCode);
-  internal->ActorOrientOps[xformIndex].Set(usdRotation, timeCode);
-  internal->ActorScaleOps[xformIndex].Set(usdScale, timeCode);
+  this->ActorTranslateOps[xformIndex].Set(usdTranslation, timeCode);
+  this->ActorOrientOps[xformIndex].Set(usdRotation, timeCode);
+  this->ActorScaleOps[xformIndex].Set(usdScale, timeCode);
 }
+
+namespace
+{
 
 // Determine if the actor needs texture export. This is true if either
 // scalar visibility with ColorMode set to VTK_COLOR_MODE_MAP_SCALARS,
@@ -483,8 +488,10 @@ bool TextureDataEqual(vtkUnsignedCharArray* a, vtkUnsignedCharArray* b)
   return numValues == 0 || std::memcmp(a->GetPointer(0), b->GetPointer(0), numValues) == 0;
 }
 
-std::string WriteTexture(vtkActor* actor, const char* fileName, size_t index, bool timeVarying,
-  size_t frameIndex, vtkUSDExporterInternals* internal)
+} // end anonymous namespace
+
+std::string vtkUSDExporter::vtkUSDExporterInternals::WriteTexture(
+  vtkActor* actor, const char* fileName, size_t index, bool timeVarying, size_t frameIndex)
 {
   // do we have a texture?
   vtkImageData* id = actor->GetMapper()->GetColorTextureMap();
@@ -508,8 +515,8 @@ std::string WriteTexture(vtkActor* actor, const char* fileName, size_t index, bo
   // If the texture at this mesh index is identical to the last one we wrote
   // (e.g. an unchanging texture across animation frames), reuse that file
   // instead of writing a duplicate.
-  auto lastIt = internal->LastTextures.find(index);
-  if (lastIt != internal->LastTextures.end() && TextureDataEqual(da, lastIt->second.Data))
+  auto lastIt = this->LastTextures.find(index);
+  if (lastIt != this->LastTextures.end() && TextureDataEqual(da, lastIt->second.Data))
   {
     return lastIt->second.FileName;
   }
@@ -551,12 +558,10 @@ std::string WriteTexture(vtkActor* actor, const char* fileName, size_t index, bo
 
   vtkNew<vtkUnsignedCharArray> dataCopy;
   dataCopy->ShallowCopy(da);
-  internal->LastTextures[index] = { dataCopy, textureFile };
+  this->LastTextures[index] = { dataCopy, textureFile };
 
   return textureFile;
 }
-
-} // end anonymous namespace
 
 vtkStandardNewMacro(vtkUSDExporter);
 
@@ -801,8 +806,8 @@ void vtkUSDExporter::WriteData()
             size_t currentXformIndex = xformCount++;
             pathStream << "/XForm" << currentXformIndex;
             UsdGeomXform xform = UsdGeomXform::Define(stage, SdfPath(pathStream.str()));
-            ApplyVtkActorTransformToUsdXform(
-              actor, xform, this->Internal, currentXformIndex, isFirstFrame, timeCode);
+            this->Internal->ApplyVtkActorTransformToUsdXform(
+              actor, xform, currentXformIndex, isFirstFrame, timeCode);
 
             size_t previousMeshCount = meshCount;
             vtkCompositeDataSet* cpd = vtkCompositeDataSet::SafeDownCast(input);
@@ -841,8 +846,8 @@ void vtkUSDExporter::WriteData()
                     }
                     else
                     {
-                      textureFileName = WriteTexture(
-                        part, this->FileName, meshCount, this->Started, frameIndex, this->Internal);
+                      textureFileName = this->Internal->WriteTexture(
+                        part, this->FileName, meshCount, this->Started, frameIndex);
                     }
 
                     WriteMaterial(stage, mesh, meshCount, part, textureFileName, timeCode);
@@ -860,8 +865,8 @@ void vtkUSDExporter::WriteData()
               // save and restore prop changed when generating texture coords
               bool saveInterpScalars = part->GetMapper()->GetInterpolateScalarsBeforeMapping();
               UsdGeomMesh mesh = WriteMesh(stage, xform, pd, part, meshCount, timeCode);
-              std::string textureFileName = WriteTexture(
-                part, this->FileName, meshCount, this->Started, frameIndex, this->Internal);
+              std::string textureFileName = this->Internal->WriteTexture(
+                part, this->FileName, meshCount, this->Started, frameIndex);
               WriteMaterial(stage, mesh, meshCount, part, textureFileName, timeCode);
               part->GetMapper()->SetInterpolateScalarsBeforeMapping(saveInterpScalars);
               ++meshCount;
