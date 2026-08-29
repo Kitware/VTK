@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCameraPass.h"
+#include "vtkCamera.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
@@ -93,6 +94,16 @@ void vtkCameraPass::Render(const vtkRenderState* s)
   vtkOpenGLRenderWindow* win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   win->MakeCurrent();
   vtkOpenGLState* ostate = win->GetState();
+
+  // Unlike vtkOpenGLRenderer's no-pass code path, which calls
+  // vtkRenderer::UpdateCamera() -> vtkCamera::Render(ren) (and so, for an
+  // OpenGL camera, vtkOpenGLCamera::Render(), which updates the camera's
+  // Stereo flag), this pass never calls vtkCamera::Render(). Update the
+  // Stereo flag here so the cached view/projection matrices computed later
+  // by vtkCamera::GetKeyMatrices() reflect the current stereo state instead
+  // of whatever some other renderer sharing this camera happened to leave
+  // it as.
+  ren->GetActiveCamera()->UpdateStereo(ren);
 
   if (fbo == nullptr)
   {

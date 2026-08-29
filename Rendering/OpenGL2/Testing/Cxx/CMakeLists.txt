@@ -107,6 +107,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestSSAAPassMultiViewportGetZ.cxx,NO_DATA,NO_VALID
   TestSSAOPass.cxx
   TestSSAOPassMultiViewports.cxx
+  TestStereoLeftEyeAfterMono.cxx,NO_DATA,NO_VALID
   TestSSAOPassWithRenderer.cxx
   TestStencilMaskPass.cxx
   TestSurfaceInterpolationSwitch.cxx

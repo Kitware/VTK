@@ -685,6 +685,20 @@ public:
   vtkGetMacro(Stereo, int);
   ///@}
 
+  /**
+   * Update the Stereo setting from the render window that `ren` belongs to,
+   * calling Modified() if the value actually changes. Stereo has no public
+   * `vtkSetMacro` because it is not meant to be driven by user code: it is
+   * derived, at render time, from `vtkRenderWindow::GetStereoRender()`. It
+   * must be called by every code path that renders `ren` and does not
+   * otherwise go through `vtkCamera::Render()` (e.g. `vtkCameraPass`,
+   * used whenever a renderer has a render pass installed), since toggling
+   * Stereo changes the eye-separation shear applied in
+   * ComputeProjectionTransform() and, without a Modified() call, nothing
+   * else bumps the camera's MTime when only this flag changes.
+   */
+  void UpdateStereo(vtkRenderer* ren);
+
   ///@{
   /**
    * Set the Left Eye setting
