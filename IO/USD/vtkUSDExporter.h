@@ -27,6 +27,8 @@
 #include <string> // for std::string
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkUSDExporterInternals;
+
 class VTKIOUSD_EXPORT vtkUSDExporter : public vtkExporter
 {
 public:
@@ -42,6 +44,30 @@ public:
   vtkGetFilePathMacro(FileName);
   ///@}
 
+  /**
+   * Begin a multi-frame export. Once called, consecutive calls to Write()
+   * accumulate into a single UsdStage as USD time samples (keyed off
+   * TimeValue) instead of each call producing an independent file. Call
+   * Finish() once the last frame has been written to save and close the
+   * stage.
+   */
+  void Start();
+
+  ///@{
+  /**
+   * Time value, in seconds, used for the time sample authored by the next
+   * Write() call. Only meaningful between calls to Start() and Finish().
+   */
+  vtkSetMacro(TimeValue, double);
+  vtkGetMacro(TimeValue, double);
+  ///@}
+
+  /**
+   * Save and close the stage accumulated since Start(). Has no effect if
+   * Start() was not called.
+   */
+  void Finish();
+
 protected:
   vtkUSDExporter();
   ~vtkUSDExporter() override;
@@ -56,6 +82,10 @@ private:
    * Name of the USD file to write.
    */
   char* FileName;
+
+  double TimeValue = 0.0;
+  bool Started = false;
+  vtkUSDExporterInternals* Internal;
 };
 
 VTK_ABI_NAMESPACE_END
