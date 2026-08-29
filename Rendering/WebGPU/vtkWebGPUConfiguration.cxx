@@ -861,7 +861,6 @@ void vtkWebGPUConfiguration::WriteBuffer(WGPUBuffer buffer, std::uint64_t offset
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
     "Write buffer {description: \"" << (description ? description : "null")
                                     << "\", offset: " << offset << ", size: " << sizeBytes << "}");
-  // wgpuDeviceGetQueue() hands back a new reference, so adopt it rather than leak.
   vtkWebGPU::Queue queue = vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(internals.Device));
   wgpuQueueWriteBuffer(queue, buffer, offset, data, sizeBytes);
 }
@@ -964,7 +963,6 @@ void vtkWebGPUConfiguration::WriteTexture(WGPUTexture texture, uint32_t bytesPer
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
     "Write texture {description: \"" << (description ? description : "null")
                                      << "\", size: " << sizeBytes << "}");
-  // wgpuDeviceGetQueue() hands back a new reference, so adopt it rather than leak.
   vtkWebGPU::Queue queue = vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(internals.Device));
   wgpuQueueWriteTexture(queue, &copyTexture, data, sizeBytes, &textureDataLayout, &textureExtents);
 }

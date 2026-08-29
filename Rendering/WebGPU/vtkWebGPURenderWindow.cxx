@@ -1211,7 +1211,6 @@ void vtkWebGPURenderWindow::ReadTextureFromGPU(WGPUTexture& cWgpuTexture, WGPUTe
   // Submitting the comand
   vtkWebGPU::CommandBuffer commandBuffer =
     vtkWebGPU::CommandBuffer::Acquire(wgpuCommandEncoderFinish(commandEncoder, nullptr));
-  // wgpuDeviceGetQueue() hands back a new reference, so adopt it rather than leak.
   vtkWebGPU::Queue queue =
     vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(this->WGPUConfiguration->GetDevice()));
   WGPUCommandBuffer rawCommandBuffer = commandBuffer;
@@ -1403,7 +1402,6 @@ void vtkWebGPURenderWindow::FlushCommandBuffers(vtkTypeUInt32 count, WGPUCommand
                   << count << ") > 0");
     return;
   }
-  // wgpuDeviceGetQueue() hands back a new reference, so adopt it rather than leak.
   if (vtkWebGPU::Queue queue = vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(device)))
   {
     wgpuQueueSubmit(queue, count, buffers);

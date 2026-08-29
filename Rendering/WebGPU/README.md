@@ -18,7 +18,8 @@ When both the `RenderingOpenGL2` and `RenderingWebGPU` libraries are linked, the
 - tools for building VTK
 
 ### Desktop
-On desktop (Linux, macOS, and Windows), this module uses Dawn's C++ WebGPU implementation. You can get Dawn with any of these two methods:
+On desktop (Linux, macOS, and Windows), this module runs on Dawn's WebGPU
+implementation, through the C API. You can get Dawn with any of these two methods:
 
 1. Build Dawn from source.
 2. Fetch pre-built Dawn binaries built in release mode.
@@ -216,20 +217,18 @@ fallback.
 
 ### Architecture
 
-The implementation consists of three layers:
+The implementation consists of two layers:
 
-1. **vtkWebGPUProcTable** (C interface): Low-level `vtkDynamicLoader` wrapper
-   that loads the WebGPU implementation library and resolves function pointers
-   using the runtime's proc address function.
+1. **vtkWebGPUProcTable** (C interface): loads the WebGPU implementation library
+   and resolves function pointers using the runtime's proc address function.
 
-2. **vtkWebGPUProcLoader** (C++ RAII singleton, internal): Wraps the proc table
-   with lazy initialization. Provides `IsLoaded()` and `Load()` methods and
-   handles cleanup on shutdown. Accessed indirectly via
-   `vtkWebGPUConfiguration::Initialize()`.
+2. **vtkWebGPUProcLoader** (C++ singleton, internal): wraps the proc table with
+   lazy initialization. Provides `IsLoaded()` and `Load()`, and is reached
+   through `vtkWebGPUConfiguration::Initialize()`.
 
-3. **vtkWebGPUProcAPI** (C convenience wrappers): Thin wrappers for
-   frequently-used WebGPU functions. Direct C API calls continue to work
-   unchanged because the library is loaded with global symbol visibility.
+VTK itself calls the WebGPU C API directly rather than through the table: the
+library is opened with global symbol visibility, so the `wgpu*` entry points
+resolve against it.
 
 Initialization flow: `vtkWebGPUConfiguration::Initialize()` invokes
 `vtkWebGPUProcLoader::GetInstance()`, which loads the WebGPU implementation
@@ -277,56 +276,20 @@ own. Otherwise the proc table tries the following names, in this order:
 7. `wgpu_dawn.dll` (Windows)
 8. `webgpu_dawn.dll` (Windows)
 
-Loading goes through `vtkDynamicLoader`, which maps onto `dlopen`/`dlsym` on
-POSIX and `LoadLibrary`/`GetProcAddress` on Windows, so the same code path
-serves every platform.
+An explicit path is opened through `vtkDynamicLoader` on every platform. A bare
+name is opened with `LoadLibraryW` on Windows, so that the standard DLL search
+order applies: `vtkDynamicLoader` routes a name through
+`Encoding::ToWindowsExtendedPath`, which resolves it against the current working
+directory instead of searching `PATH`. Elsewhere `vtkDynamicLoader` maps onto
+`dlopen`/`dlsym`.
 
 **Custom paths**: You can override the search by setting environment variables:
 - Linux: `LD_LIBRARY_PATH=/path/to/lib`
 - macOS: `DYLD_LIBRARY_PATH=/path/to/lib`
 - Windows: `PATH=\path\to\lib`
 
-Or by explicitly passing a path to the library loader.
-
-### Extending the API
-
-If you need to expose an additional WebGPU function through the C wrappers:
-
-1. Add a declaration in `vtkWebGPUProcAPI.h` with the appropriate export macro.
-2. Implement a thin wrapper in `vtkWebGPUProcAPI.cxx` that:
-   - Retrieves the proc table
-   - Looks up the function pointer by name (with matching length)
-   - Checks for NULL and returns a safe value if not found
-   - Forwards the call with its arguments
-3. Add a small test to verify the function resolves at runtime.
-
-```{warning}
-The length in the `WGPUStringView` must equal the length of the name in bytes.
-Getting it wrong truncates the symbol and the lookup silently fails at runtime,
-returning the wrapper's fallback value rather than reporting an error. Prefer
-`WGPU_STRLEN` (or `strlen`) over a hand-counted literal.
-```
-
-Example:
-
-```cpp
-// In vtkWebGPUProcAPI.cxx
-WGPUReturnType vtkWebGPUMyFunction(WGPUArgumentType arg)
-{
-  vtkWebGPUProcTable table = vtkWebGPUProcTableGet();
-  if (!table)
-    return NULL;
-
-  typedef WGPUReturnType (*FuncType)(WGPUArgumentType);
-  FuncType func = (FuncType)vtkWebGPUProcTableGetProc(
-      table, WGPUStringView{ "wgpuMyFunction", WGPU_STRLEN });
-
-  if (!func)
-    return NULL;
-
-  return func(arg);
-}
-```
+Or by naming the library outright: set `VTK_WEBGPU_LIBRARY` to the path of the
+implementation to load, and the search above is skipped.
 
 ### Debugging and Diagnostics
 

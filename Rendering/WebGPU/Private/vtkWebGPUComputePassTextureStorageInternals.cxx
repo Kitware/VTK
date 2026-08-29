@@ -887,7 +887,6 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   // Submitting the command
   vtkWebGPU::CommandBuffer commandBuffer =
     vtkWebGPU::CommandBuffer::Acquire(wgpuCommandEncoderFinish(commandEncoder, nullptr));
-  // wgpuDeviceGetQueue() hands back a new reference, so adopt it rather than leak.
   vtkWebGPU::Queue queue =
     vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(this->ParentPassWGPUConfiguration->GetDevice()));
   WGPUCommandBuffer rawCommandBuffer = commandBuffer;

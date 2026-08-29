@@ -153,7 +153,6 @@ void vtkWebGPUComputePipeline::Update()
     WGPUQueueWorkDoneStatus* status;
     bool* done;
   } workDoneData{ &workStatus, &done };
-  // wgpuDeviceGetQueue() hands back a new reference, so adopt it rather than leak.
   vtkWebGPU::Queue queue =
     vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(this->WGPUConfiguration->GetDevice()));
   WGPUQueueWorkDoneCallbackInfo workDoneCallbackInfo = {};
