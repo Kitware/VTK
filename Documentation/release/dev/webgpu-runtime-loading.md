@@ -5,6 +5,9 @@ proc table that is loaded when the WebGPU configuration is initialized. If no
 implementation is found, initialization fails with a diagnostic so applications
 can fall back to another backend such as OpenGL.
 
+Set `VTK_WEBGPU_LIBRARY` to load a specific implementation; without it, the
+names implementations are commonly installed under are tried in turn.
+
 The goal is to let the same VTK binary run against different native
 implementations (Dawn, wgpu-native) or the browser's WebGPU via Emscripten. That
 goal is not reached yet: when Dawn is found at configure time the module still
@@ -25,9 +28,11 @@ each behind the compile-time flag for the implementation that provides it.
 
 ## Notes
 
-- Library discovery follows the usual search paths (`LD_LIBRARY_PATH` on Linux,
-  `DYLD_LIBRARY_PATH` on macOS).
-- Library loading goes through `vtkDynamicLoader`, so the same code path works
-  on Windows, Linux and macOS.
-- Where a function is unavailable in a given runtime, the wrappers return safe
-  defaults so optional features can be disabled gracefully.
+- An explicit library path is opened through `vtkDynamicLoader` on every
+  platform. A bare library name is opened with `LoadLibraryW` on Windows so that
+  the standard DLL search order applies, `PATH` included; `vtkDynamicLoader`
+  would resolve such a name against the current working directory instead.
+- Discovery otherwise follows the usual search paths: `LD_LIBRARY_PATH` on
+  Linux, `DYLD_LIBRARY_PATH` on macOS, `PATH` on Windows.
+- Emscripten loads nothing. The implementation is linked into the module through
+  `--use-port=emdawnwebgpu`, so the entry points are already resolved.
