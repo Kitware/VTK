@@ -43,6 +43,10 @@ public:
   /**
    * Get the singleton instance (loads on first access).
    * Returns nullptr if load fails.
+   *
+   * The library to load is taken from the `VTK_WEBGPU_LIBRARY` environment
+   * variable when it is set; otherwise the names implementations are commonly
+   * installed under are tried in turn.
    */
   static vtkWebGPUProcLoader* GetInstance();
 

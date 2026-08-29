@@ -4,6 +4,7 @@
 #include "vtkWebGPUProcLoader.h"
 #include "vtkWebGPUProcTable.h"
 
+#include <cstdlib> // for std::getenv
 #include <sstream>
 
 static vtkWebGPUProcLoader* g_Instance = nullptr;
@@ -68,7 +69,11 @@ vtkWebGPUProcLoader* vtkWebGPUProcLoader::GetInstance()
   if (!g_Instance)
   {
     g_Instance = new vtkWebGPUProcLoader();
-    if (!g_Instance->Load())
+    // VTK_WEBGPU_LIBRARY names the implementation to load. Without it the
+    // loader falls back to the names implementations are known by, which is
+    // what an installed Dawn or wgpu-native answers to.
+    const char* configured = std::getenv("VTK_WEBGPU_LIBRARY");
+    if (!g_Instance->Load(configured ? configured : ""))
     {
       delete g_Instance;
       g_Instance = nullptr;
