@@ -14,16 +14,23 @@
 // (VTK_STEREO_RIGHT) did not have this problem because it always changes
 // LeftEye from 1 to 0, which does bump the camera's MTime.
 
+// Saves the render currently in renWin's buffers to a PNG, so the two
+// renders can be inspected visually if this test ever needs debugging.
+// #define SAVE_IMAGE
+
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCubeSource.h"
 #include "vtkNew.h"
-#include "vtkPNGWriter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
+
+#ifdef SAVE_IMAGE
+#include "vtkPNGWriter.h"
 #include "vtkWindowToImageFilter.h"
+#endif
 
 #include <cmath>
 #include <iostream>
@@ -53,9 +60,7 @@ bool ImagesDiffer(vtkUnsignedCharArray* a, vtkUnsignedCharArray* b)
   }
   return false;
 }
-
-// Saves the render currently in renWin's buffers to a PNG, so the two
-// renders can be inspected visually if this test ever needs debugging.
+#ifdef SAVE_IMAGE
 void SaveImage(vtkRenderWindow* renWin, const char* filename)
 {
   vtkNew<vtkWindowToImageFilter> w2i;
@@ -69,6 +74,7 @@ void SaveImage(vtkRenderWindow* renWin, const char* filename)
   writer->SetInputConnection(w2i->GetOutputPort());
   writer->Write();
 }
+#endif
 }
 
 int TestStereoLeftEyeAfterMono(int, char*[])
@@ -98,7 +104,9 @@ int TestStereoLeftEyeAfterMono(int, char*[])
   renWin->Render();
 
   vtkSmartPointer<vtkUnsignedCharArray> mono = Capture(renWin);
-  // SaveImage(renWin, "mono.png");
+#ifdef SAVE_IMAGE
+  SaveImage(renWin, "mono.png");
+#endif
 
   // Switch straight to one-pass left-eye stereo and render once, exactly as
   // vtkSMSaveScreenshotProxy does when capturing the left eye of a "Both
@@ -108,13 +116,17 @@ int TestStereoLeftEyeAfterMono(int, char*[])
   renWin->Render();
 
   vtkSmartPointer<vtkUnsignedCharArray> left = Capture(renWin);
-  // SaveImage(renWin, "left.png");
+#ifdef SAVE_IMAGE
+  SaveImage(renWin, "left.png");
+#endif
 
-  // renWin->SetStereoType(VTK_STEREO_RIGHT);
-  // renWin->Render();
+#ifdef SAVE_IMAGE
+  renWin->SetStereoType(VTK_STEREO_RIGHT);
+  renWin->Render();
 
-  // vtkSmartPointer<vtkUnsignedCharArray> right = Capture(renWin);
-  // SaveImage(renWin, "right.png");
+  vtkSmartPointer<vtkUnsignedCharArray> right = Capture(renWin);
+  SaveImage(renWin, "right.png");
+#endif
 
   if (!ImagesDiffer(mono, left))
   {
