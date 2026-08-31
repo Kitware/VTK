@@ -9,6 +9,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkWebGPURenderWindow.h"
+#include "vtkWebGPURenderer.h"
 
 #if 0
 #include "vtkImageData.h"
@@ -92,27 +93,6 @@ bool vtkWebGPUHardwareSelector::CaptureBuffers()
 void vtkWebGPUHardwareSelector::BeginSelection()
 {
   this->Superclass::BeginSelection();
-  vtkProp* aProp;
-  int propArrayCount = 0;
-  if (this->Renderer->GetViewProps()->GetNumberOfItems() > 0)
-  {
-    this->PropArray = new vtkProp*[this->Renderer->GetViewProps()->GetNumberOfItems()];
-  }
-  else
-  {
-    this->PropArray = nullptr;
-  }
-
-  propArrayCount = 0;
-  vtkCollectionSimpleIterator pit;
-  for (this->Renderer->GetViewProps()->InitTraversal(pit);
-       (aProp = this->Renderer->GetViewProps()->GetNextProp(pit));)
-  {
-    if (aProp->GetVisibility())
-    {
-      this->PropArray[propArrayCount++] = aProp;
-    }
-  }
   for (int i = MIN_KNOWN_PASS; i < MAX_KNOWN_PASS + 1; ++i)
   {
     unsigned char* iPtr = new unsigned char();
@@ -130,7 +110,13 @@ void vtkWebGPUHardwareSelector::EndSelection()
 //------------------------------------------------------------------------------
 vtkProp* vtkWebGPUHardwareSelector::GetPropFromID(int id)
 {
-  return this->PropArray[id];
+  // The renderer numbered the props when it drew them, so it is the only thing
+  // that can undo that numbering.
+  if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(this->Renderer))
+  {
+    return wgpuRenderer->GetPropWithId(static_cast<vtkTypeUInt32>(id));
+  }
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -143,8 +129,6 @@ void vtkWebGPUHardwareSelector::ReleasePixBuffers()
     delete this->PixBuffer[i];
     this->PixBuffer[i] = nullptr;
   }
-  delete[] this->PropArray;
-  this->PropArray = nullptr;
 }
 
 //------------------------------------------------------------------------------

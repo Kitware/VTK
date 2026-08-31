@@ -177,6 +177,19 @@ public:
   vtkGetEnumMacro(RenderStage, RenderStageEnum);
 
   /**
+   * The prop that was drawn with `id` in the ids attachment, or nullptr when the
+   * id names no prop.
+   *
+   * The ids are indices into the list of props this renderer actually draws, so
+   * only this renderer can turn one back into a prop. That list is not the same
+   * as its visible props: a blurred skybox is held aside as the background prop
+   * and never enters it, and when render bundles are off it is the culled list.
+   * Numbering the visible props independently therefore goes wrong as soon as
+   * either of those applies.
+   */
+  vtkProp* GetPropWithId(vtkTypeUInt32 id);
+
+  /**
    * Forces the renderer to re-record draw commands into a render bundle.
    *
    * @note This does not use vtkSetMacro because the actor MTime should not be affected when a
