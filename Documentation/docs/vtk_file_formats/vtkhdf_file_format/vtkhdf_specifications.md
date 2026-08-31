@@ -92,9 +92,11 @@ processing. We rely on the writer to chunk the data to optimize
 reading for a certain number of MPI ranks. Attribute data is stored in
 a PointData or CellData array using hyper slabs. `WholeExtent`,
 `Origin`, `Spacing` and `Direction` attributes have the same meaning
-as the corresponding attributes for the vtkImageData dataset. `Scalars`,
-`Vectors`, ... string attributes for the `PointData` and `CellData`
-groups specify the active attributes in the dataset.
+as the corresponding attributes for the vtkImageData dataset.
+
+Array datasets in `PointData` and `CellData` have the same shape as the ImageData;
+for an image of dimensions `X * Y * Z` (with extents `[0, X-1, 0, Y-1, 0, Z-1]` for instance), a point array will have a size of `[Z, Y, X, (number of components)]`,
+and a cell data array will have a size of `[Z-1, Y-1, X-1, (number of components)]`.
 
 ```{graphviz}
 digraph G {
@@ -105,8 +107,8 @@ digraph G {
     VTKHDF [label="VTKHDF\n Version, Type, WholeExtent, Origin, Spacing, Direction", shape=Mrecord, fillcolor=lightblue];
 
     FieldData [label="FieldData", shape=Mrecord, fillcolor=lightblue];
-    PointData [label="PointData\nScalars, Vectors, ...", shape=Mrecord, fillcolor=lightblue];
-    CellData [label="CellData\nScalars, Vectors, ...", shape=Mrecord, fillcolor=lightblue];
+    PointData [label="PointData", shape=Mrecord, fillcolor=lightblue];
+    CellData [label="CellData", shape=Mrecord, fillcolor=lightblue];
 
     FieldArrayName [label="FieldArrayName", shape=Mrecord, fillcolor=lightgrey];
     PointArrayName [label="PointArrayName", shape=Mrecord, fillcolor=lightgrey];
@@ -135,15 +137,23 @@ Figure 1. - Image Data VTKHDF File Format
 
 ## Rectilinear Grid
 
-[Rectilinear grids](https://vtk.org/doc/nightly/html/classvtkRectilinearGrid.html) are defined just like ImageData,
-with the addition of 3 new datasets `XCoordinates`, `YCoordinates` and `ZCoordinates` that define position of points in the three coordinate directions.
-For a grid of size `K * L * M`, `XCoordinates` has a size of `K`, `YCoordinates` has a size of `L` and `ZCoordinates` has a size of `L`.
+[Rectilinear grids](https://vtk.org/doc/nightly/html/classvtkRectilinearGrid.html) represent a topologically regular dataset with variable spacing in the three coordinate directions.
+
+In VTKHDF files, their size in each dimension is defined using a `Dimension` vector attribute of size 3 `[K, L, M]`.
+3 datasets `XCoordinates`, `YCoordinates` and `ZCoordinates` define the position of points in the three coordinate directions.
+For a grid of size `K * L * M`, `XCoordinates` has a size of `K`, `YCoordinates` has a size of `L` and `ZCoordinates` has a size of `M`.
+
+Point, cell and field arrays are defined the same way as `ImageData`.
 
 The `Type` attribute of the `VTKHDF` group is `RectilinearGrid`.
 
 ## Structured Grid
 
-[Structured grids](https://vtk.org/doc/nightly/html/classvtkStructuredGrid.html) are a structured data type where point positions are defined explicitly. Using VTKHDF, for a grid of size `K * L * M`, points are defined using a HDF5 `Points` dataset of dimension (`K, L, M`, 3).
+[Structured grids](https://vtk.org/doc/nightly/html/classvtkStructuredGrid.html) are a structured data type where point positions are defined explicitly.
+
+Like for Rectilinear Grid, VTKHDF uses a `Dimension` vector attribute of size 3 to specify the size in each direction. For a dataset of dimension `K * L * M`, points are defined using a HDF5 `Points` dataset of dimension (`K, L, M`, 3).
+
+Point, cell and field arrays are defined the same way as `ImageData`.
 
 The `Type` attribute of the `VTKHDF` group is `StructuredGrid`.
 
@@ -776,7 +786,7 @@ These fields dictate, for each time step, what the read offset should be respect
 A particularity of temporal `Image Data` in the format is that the reader expects an additional
 prepended dimension considering the time to be the first dimension in the multidimensional arrays.
 As such, arrays described in temporal `Image Data` should have dimensions ordered as
-`(time, z, y, x)`.
+`[time, z, y, x, (number of components)]`.
 
 ### Temporal RectilinearGrid
 
