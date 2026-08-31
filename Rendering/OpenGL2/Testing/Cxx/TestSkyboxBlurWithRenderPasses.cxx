@@ -99,6 +99,14 @@ int TestSkyboxBlurWithRenderPasses(int argc, char* argv[])
 
   bool result = true;
 
+  // Basic pass
+  {
+    vtkNew<vtkRenderStepsPass> basicPasses;
+
+    result &= ::TestRenderPass(argc, argv, sphereSource, basicPasses,
+      "TestSkyboxBlurWithRenderPasses_Result_GaussianBlur.png");
+  }
+
   // Gaussian blur pass
   {
     vtkNew<vtkRenderStepsPass> basicPasses;
