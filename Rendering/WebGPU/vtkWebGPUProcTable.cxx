@@ -122,8 +122,7 @@ vtkWebGPUProcTable vtkWebGPUProcTableLoad(const char* libPath)
 
   if (!handle)
   {
-    fprintf(stderr, "vtkWebGPUProcTable: failed to load WebGPU library: %s\n",
-      vtkDynamicLoader::LastError());
+    // The caller probes several candidates; it reports once when all have failed.
     return NULL;
   }
 

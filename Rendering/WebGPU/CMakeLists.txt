@@ -1,19 +1,25 @@
-# Detect WebGPU implementation early so VTK_USE_DAWN_WEBGPU is correct when
-# vtk_wgpu.h is configured below. Populate VTK::WebGPUImpl with whichever
-# runtime library is found so that both the module and its tests can link it
-# through a single implementation-agnostic target.
-add_library(VTK::WebGPUImpl INTERFACE IMPORTED GLOBAL)
-
+# Dawn is found only to decide whether its extensions may be declared. No
+# implementation is linked; the wgpu* entry points resolve at runtime.
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(VTK_USE_DAWN_WEBGPU OFF)
 else()
-  vtk_module_find_package(PACKAGE Dawn)
+  vtk_module_find_package(PACKAGE Dawn PRIVATE)
   if(Dawn_FOUND)
     set(VTK_USE_DAWN_WEBGPU ON)
-    target_link_libraries(VTK::WebGPUImpl INTERFACE dawn::webgpu_dawn)
+    # The loader's last-resort candidate, after VTK_WEBGPU_LIBRARY and the usual
+    # library search.
+    get_target_property(_vtk_webgpu_impl_location dawn::webgpu_dawn IMPORTED_LOCATION)
+    if(NOT _vtk_webgpu_impl_location)
+      get_target_property(_vtk_webgpu_impl_configs dawn::webgpu_dawn IMPORTED_CONFIGURATIONS)
+      if(_vtk_webgpu_impl_configs)
+        list(GET _vtk_webgpu_impl_configs 0 _vtk_webgpu_impl_config)
+        get_target_property(_vtk_webgpu_impl_location dawn::webgpu_dawn
+          "IMPORTED_LOCATION_${_vtk_webgpu_impl_config}")
+      endif()
+    endif()
   else()
     set(VTK_USE_DAWN_WEBGPU OFF)
-    message(STATUS "WebGPU: no implementation found; using vendored headers only")
+    message(STATUS "WebGPU: Dawn not found; its extensions will not be declared")
   endif()
 endif()
 
@@ -60,6 +66,7 @@ set(classes
 
 set(private_headers
   "Private/vtkWebGPUActorInternals.h"
+  "Private/vtkWebGPUProcDispatch.h"
   "Private/vtkWebGPUBindGroupInternals.h"
   "Private/vtkWebGPUBindGroupLayoutInternals.h"
   "Private/vtkWebGPUBufferInternals.h"
@@ -81,6 +88,7 @@ set(private_headers
   "Private/vtkWebGPUBatchedLabeledDataMapperInternals.h")
 
 set(private_sources
+  "Private/vtkWebGPUProcDispatch.cxx"
   "Private/vtkWebGPUBindGroupInternals.cxx"
   "Private/vtkWebGPUBindGroupLayoutInternals.cxx"
   "Private/vtkWebGPUBufferInternals.cxx"
@@ -256,15 +264,19 @@ vtk_module_add_module(VTK::RenderingWebGPU
 # underneath it. Implementation-specific extensions VTK uses are declared in
 # Rendering/WebGPU/Private/vtkWebGPUImplExtensions.h.
 #
-# dawn::webgpu_dawn is still linked for the library itself. It must be the
-# implementation's own target and not VTK::WebGPUImpl: the latter is created by
-# add_library(IMPORTED) at the top of this file and is neither exported nor
-# installed, so a PUBLIC link would write an unresolvable target into the
-# installed VTK config. vtk_module_export_find_packages() replays the
-# vtk_module_find_package(PACKAGE Dawn) call above for consumers, so
-# dawn::webgpu_dawn does exist downstream.
-if(VTK_USE_DAWN_WEBGPU)
-  vtk_module_link(VTK::RenderingWebGPU PUBLIC dawn::webgpu_dawn)
+# The wgpu* names are redirected to Private/vtkWebGPUProcDispatch.h with a
+# forced include rather than edits to every source: it covers the module and its
+# tests, and never reaches an installed header or a consumer's build.
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(_vtk_webgpu_dispatch_header
+    "${CMAKE_CURRENT_SOURCE_DIR}/Private/vtkWebGPUProcDispatch.h")
+  if(MSVC)
+    set(_vtk_webgpu_force_include "/FI${_vtk_webgpu_dispatch_header}")
+  else()
+    set(_vtk_webgpu_force_include "-include${_vtk_webgpu_dispatch_header}")
+  endif()
+  vtk_module_compile_options(VTK::RenderingWebGPU
+    PRIVATE "${_vtk_webgpu_force_include}")
 endif()
 
 # The module compiles against the WebGPU C API only, so it no longer needs the
@@ -300,7 +312,9 @@ else()
     # TODO
   endif()
   find_package(Threads REQUIRED)
+endif()
 
-  vtk_module_link(VTK::RenderingWebGPU
-    PRIVATE VTK::WebGPUImpl)
+if(_vtk_webgpu_impl_location)
+  set_property(SOURCE "Private/vtkWebGPUProcLoader.cxx" APPEND PROPERTY COMPILE_DEFINITIONS
+    "VTK_WEBGPU_CONFIGURED_LIBRARY=\"${_vtk_webgpu_impl_location}\"")
 endif()
