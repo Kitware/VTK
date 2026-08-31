@@ -5,14 +5,17 @@ proc table that is loaded when the WebGPU configuration is initialized. If no
 implementation is found, initialization fails with a diagnostic so applications
 can fall back to another backend such as OpenGL.
 
-Set `VTK_WEBGPU_LIBRARY` to load a specific implementation; without it, the
-names implementations are commonly installed under are tried in turn.
+The same VTK binary can run against different native implementations (Dawn,
+wgpu-native) or the browser's WebGPU via Emscripten. **VTK links no
+implementation**: every `wgpu*` entry point it calls is resolved through the proc
+table when the configuration initializes, so the built library carries no
+reference to Dawn or to anything else. An implementation found at configure time
+is used for its headers' extensions only, and as the last fallback the loader
+tries if nothing else resolves.
 
-The goal is to let the same VTK binary run against different native
-implementations (Dawn, wgpu-native) or the browser's WebGPU via Emscripten. That
-goal is not reached yet: when Dawn is found at configure time the module still
-links it, so the proc table is currently an additional runtime requirement
-rather than a replacement for the link-time dependency.
+The implementation is looked for in this order: `VTK_WEBGPU_LIBRARY` if set, then
+the names implementations are installed under, then the implementation this build
+was configured against.
 
 The module now uses the WebGPU C API throughout - in its public headers and in
 its implementation - so the installed interface no longer exposes
