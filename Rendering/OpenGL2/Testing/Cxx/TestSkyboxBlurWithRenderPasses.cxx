@@ -42,7 +42,6 @@ bool TestRenderPass(int argc, char* argv[], vtkSmartPointer<vtkAlgorithm> source
 
   vtkNew<vtkTexture> hdrTexture;
   hdrTexture->SetColorModeToDirectScalars();
-  hdrTexture->MipmapOn();
   hdrTexture->InterpolateOn();
   hdrTexture->SetInputConnection(hdrReader->GetOutputPort());
 

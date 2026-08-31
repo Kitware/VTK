@@ -33,7 +33,6 @@ int TestSkyboxBlur(int argc, char* argv[])
 
   vtkNew<vtkTexture> hdrTexture;
   hdrTexture->SetColorModeToDirectScalars();
-  hdrTexture->MipmapOn();
   hdrTexture->InterpolateOn();
   hdrTexture->SetInputConnection(hdrReader->GetOutputPort());
 
