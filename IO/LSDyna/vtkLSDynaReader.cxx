@@ -135,6 +135,12 @@ namespace
 const char* vtkLSDynaCellTypes[] = { "Point", "Beam", "Shell", "Thick Shell", "Solid", "Rigid Body",
   "Road Surface" };
 
+// Sentinel value of NCFDV1 that flags multi solver extra data instead of
+// the legacy CFD value bit flags. NCFDV2 is then the number of extra
+// solver-mesh datasets. See "EXTRA DATA TYPES (Output for Multi-Solver
+// Analysis)" in the LS-DYNA database manual.
+constexpr vtkIdType LS_NCFDV1_MULTI_SOLVER = 67108864;
+
 // Read in lines until one that's
 // - not empty, and
 // - not a comment
@@ -1566,7 +1572,19 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
   p->Dict["cfdTurbKE"] = 0;
   p->Dict["cfdDiss"] = 0;
   p->Dict["cfdEddyVisc"] = 0;
-  itmp = p->Dict["NCFDV1"];
+  // When NCFDV1 flags multi solver extra data, NCFDV2 is the number of
+  // extra solver-mesh datasets rather than the legacy CFD value bit flags,
+  // and none of the legacy CFD nodal values are part of the state.
+  const bool multiSolverData = p->Dict["NCFDV1"] == LS_NCFDV1_MULTI_SOLVER;
+  if (multiSolverData)
+  {
+    vtkWarningMacro("This database contains multi-solver extra data ("
+      << p->Dict["NCFDV2"]
+      << " extra solver-mesh datasets), which this reader does not support. "
+         "Only the structural mesh can be read, and state data may not be "
+         "found or may be misaligned.");
+  }
+  itmp = multiSolverData ? 0 : p->Dict["NCFDV1"];
   if (itmp & 2)
   {
     p->AddPointArray(LS_ARRAYNAME_PRESSURE, 1, 1);
@@ -1659,7 +1677,7 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
   }
 
   char sname[] = LS_ARRAYNAME_SPECIES_BLNK;
-  iddtmp = p->Dict["NCFDV2"];
+  iddtmp = multiSolverData ? 0 : p->Dict["NCFDV2"];
   for (itmp = 1; itmp < 11; ++itmp)
   {
     if (iddtmp & (static_cast<vtkIdType>(1) << itmp))
@@ -2355,7 +2373,14 @@ int vtkLSDynaReader::ScanDatabaseTimeSteps()
     if (p->Fam.BufferChunk(LSDynaFamily::Float, 1) == 0)
     {
       time = p->Fam.GetNextWordAsFloat();
-      if (time != LSDynaFamily::EOFMarker)
+      // A family file always holds an integral number of states, and the
+      // first file of newer databases additionally ends with sections the
+      // reader does not parse (part titles, decomposition data, ...). A
+      // word that is not the EOF marker therefore only starts a state
+      // when the rest of the state fits in the current file.
+      const bool startsState = time != LSDynaFamily::EOFMarker &&
+        p->Fam.GetRemainingWordsInFile() >= p->Fam.GetStateSize() - 1;
+      if (startsState)
       {
         p->Fam.MarkTimeStep();
         p->TimeValues.push_back(time);
@@ -2366,6 +2391,8 @@ int vtkLSDynaReader::ScanDatabaseTimeSteps()
       }
       else
       {
+        // EOF marker or unrecognized trailing data: continue with the
+        // next file of the family
         if (p->Fam.AdvanceFile())
         {
           itmp = 0;

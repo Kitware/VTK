@@ -237,14 +237,16 @@ int LSDynaFamily::SkipToWord(SectionType sType, vtkIdType sId, vtkIdType wordNum
     mark.FileNumber++;
   }
 
-  if (mark.FileNumber > (vtkIdType)this->Files.size())
+  if (mark.FileNumber >= (vtkIdType)this->Files.size())
   {
     // when stepping past the end of the entire database (as opposed
     // to a single file), return a different value
     return 2;
   }
 
-  if (this->FNum < 0 || (this->FNum != mark.FileNumber))
+  // the file handle is also reopened when it was invalidated, for example
+  // by a read that reached the end of the family
+  if (this->FNum < 0 || (this->FNum != mark.FileNumber) || VTK_LSDYNA_ISBADFILE(this->FD))
   {
     if (this->FNum >= 0)
     {
@@ -310,6 +312,7 @@ int LSDynaFamily::SkipWords(vtkIdType numWords)
   {
     // try advancing to next file
     VTK_LSDYNA_CLOSEFILE(this->FD);
+    this->FD = VTK_LSDYNA_BADFILE;
 
     // if the skip is too big for one file, advance to the correct file
     ++this->FNum;
@@ -317,6 +320,13 @@ int LSDynaFamily::SkipWords(vtkIdType numWords)
     {
       offset -= this->FileSizes[this->FNum];
       ++this->FNum;
+    }
+
+    if (this->FNum >= (vtkIdType)this->Files.size())
+    { // request past the end of the entire database
+      this->FNum = -1;
+      this->FAdapt = -1;
+      return -1;
     }
 
     this->FD = VTK_LSDYNA_OPENFILE(this->Files[this->FNum].c_str());
@@ -351,9 +361,9 @@ int LSDynaFamily::BufferChunk(WordType wType, vtkIdType chunkSizeInWords)
     this->Chunk = new unsigned char[this->ChunkAlloc * this->WordSize];
   }
 
-  if (VTK_LSDYNA_ISBADFILE(this->FD))
+  if (this->FNum < 0 || VTK_LSDYNA_ISBADFILE(this->FD))
   {
-    return 0;
+    return 1;
   }
   this->FWord = VTK_LSDYNA_TELL(this->FD);
 
@@ -374,6 +384,7 @@ int LSDynaFamily::BufferChunk(WordType wType, vtkIdType chunkSizeInWords)
       if (bytesRead <= 0)
       { // try advancing to next file
         VTK_LSDYNA_CLOSEFILE(this->FD);
+        this->FD = VTK_LSDYNA_BADFILE;
         if (++this->FNum == (vtkIdType)this->Files.size())
         { // no more files to read. Oops.
           this->FNum = -1;
@@ -655,6 +666,16 @@ std::string LSDynaFamily::GetFileName(int i)
 vtkIdType LSDynaFamily::GetFileSize(int i)
 {
   return this->FileSizes[i];
+}
+
+//------------------------------------------------------------------------------
+vtkIdType LSDynaFamily::GetRemainingWordsInFile() const
+{
+  if (this->FNum < 0 || VTK_LSDYNA_ISBADFILE(this->FD))
+  {
+    return 0;
+  }
+  return (this->FileSizes[this->FNum] - VTK_LSDYNA_TELL(this->FD)) / this->WordSize;
 }
 
 //------------------------------------------------------------------------------
