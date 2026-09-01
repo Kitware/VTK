@@ -4,6 +4,7 @@
 #include "vtkAnariRenderWindow.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRendererCollection.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
@@ -16,6 +17,16 @@
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAnariRenderWindow);
+
+//------------------------------------------------------------------------------
+vtkOverrideAttribute* vtkAnariRenderWindow::CreateOverrideAttributes()
+{
+  auto* supportRenderPassAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("SupportRenderPass", "false", nullptr);
+  auto* renderingBackendAttribute = vtkOverrideAttribute::CreateAttributeChain(
+    "RenderingBackend", "ANARI", supportRenderPassAttribute);
+  return renderingBackendAttribute;
+}
 
 //------------------------------------------------------------------------------
 void vtkAnariRenderWindow::PrintSelf(ostream& os, vtkIndent indent)

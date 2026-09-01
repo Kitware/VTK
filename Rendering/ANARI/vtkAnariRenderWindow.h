@@ -25,11 +25,13 @@ class vtkAnariSceneGraph;
 class vtkAnariDevice;
 class vtkAnariRenderer;
 class vtkAnariViewNodeFactory;
+class vtkOverrideAttribute;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariRenderWindow : public vtkRenderWindow
 {
 public:
   static vtkAnariRenderWindow* New();
+  static vtkOverrideAttribute* CreateOverrideAttributes();
   vtkTypeMacro(vtkAnariRenderWindow, vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -129,6 +131,7 @@ private:
   vtkNew<vtkAnariViewNodeFactory> AnariFactory;
 };
 
+#define vtkAnariRenderWindow_OVERRIDE_ATTRIBUTES vtkAnariRenderWindow::CreateOverrideAttributes()
 VTK_ABI_NAMESPACE_END
 
 #endif // vtkAnariRenderWindow_h
