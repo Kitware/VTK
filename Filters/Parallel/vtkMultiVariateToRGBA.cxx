@@ -134,6 +134,8 @@ struct NormalizeWorker
         maxValue = globalMax;
       }
     }
+    this->MinValue = minValue;
+    this->MaxValue = maxValue;
     vtkIdType nTuples = scalars.size();
     // a group with a constant value would divide by zero, it is mapped to NewMin
     const double range = maxValue - minValue;
@@ -156,6 +158,13 @@ struct NormalizeWorker
   double NewMax = 1;
   vtkMultiProcessController* Controller = nullptr;
   const double* CustomRange = nullptr;
+  /**
+   * The global [min, max] range actually used to normalize this group,
+   * i.e. CustomRange when it was set, otherwise the range computed from
+   * the data (and reduced across processes if Controller is not null).
+   */
+  double MinValue = 0;
+  double MaxValue = 0;
 };
 
 /**
@@ -603,6 +612,12 @@ std::vector<double> vtkMultiVariateToRGBA::GetCustomRange() VTK_FUTURE_CONST
 }
 
 //------------------------------------------------------------------------------
+std::vector<double> vtkMultiVariateToRGBA::GetRange() VTK_FUTURE_CONST
+{
+  return this->Range;
+}
+
+//------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetPartitionIndices(const std::vector<int>& partitionIndices)
 {
   vtkDebugMacro(<< " setting PartitionIndices to " << fmt::format("{}", partitionIndices));
@@ -949,6 +964,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   // the input scalars can be of any numeric type; the intermediate arrays created by this
   // filter are always vtkDoubleArray, so only the input array needs to be dispatched.
   typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes> InputDispatcher;
+  std::vector<double> range(2 * partitionOffsets.size());
   for (size_t i = 0, offset = 0; i < partitionOffsets.size(); offset = partitionOffsets[i], ++i)
   {
     std::vector<int> groupIndices(
@@ -959,7 +975,10 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     {
       worker(scalars.GetPointer(), normalizedScalars.GetPointer());
     }
+    range[2 * i] = worker.MinValue;
+    range[2 * i + 1] = worker.MaxValue;
   }
+  this->Range = range;
   vtkNew<vtkDoubleArray> gbcScalars;
   gbcScalars->SetName("gbc");
   gbcScalars->SetNumberOfComponents(2);

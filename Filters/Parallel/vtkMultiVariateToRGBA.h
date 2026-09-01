@@ -179,6 +179,16 @@ public:
   std::vector<double> GetCustomRange() VTK_FUTURE_CONST;
   ///@}
 
+  /**
+   * The global [min, max] range actually used to normalize each partition
+   * group during the last RequestData, in the same flat, interleaved
+   * layout as CustomRange: CustomRange[i] when it was set for that group,
+   * otherwise the range computed from the data (and reduced across
+   * processes if the Controller is not null). Empty until RequestData has
+   * run at least once.
+   */
+  std::vector<double> GetRange() VTK_FUTURE_CONST;
+
   ///@{
   /**
    * Variables can be partitioned into several groups. After that,
@@ -269,6 +279,12 @@ protected:
    * group. Empty means no custom range is set.
    */
   std::vector<double> CustomRange;
+  /**
+   * The global [min, max] range actually used to normalize each partition
+   * group during the last RequestData, in the same flat, interleaved
+   * layout as CustomRange. Set at the end of RequestData.
+   */
+  std::vector<double> Range;
   /**
    * Strongly owned internal data for the column/component visibility,
    * storing the names of the columns/components that are hidden. An empty
