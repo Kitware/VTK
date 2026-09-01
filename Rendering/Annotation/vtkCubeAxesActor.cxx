@@ -312,11 +312,29 @@ int vtkCubeAxesActor::RenderOverlay(vtkViewport* viewport)
 //------------------------------------------------------------------------------
 vtkTypeBool vtkCubeAxesActor::HasTranslucentPolygonalGeometry()
 {
-  if ((this->NumberOfAxesX > 0 && this->XAxes[0]->HasTranslucentPolygonalGeometry()) ||
-    (this->NumberOfAxesY > 0 && this->YAxes[0]->HasTranslucentPolygonalGeometry()) ||
-    (this->NumberOfAxesZ > 0 && this->ZAxes[0]->HasTranslucentPolygonalGeometry()))
+  // Query the axes selected by DetermineRenderAxes, i.e. the ones actually rendered.
+  for (int i = 0; i < this->NumberOfAxesX; i++)
   {
-    return 1;
+    if (this->XAxes[this->RenderAxesX[i]]->HasTranslucentPolygonalGeometry())
+    {
+      return 1;
+    }
+  }
+
+  for (int i = 0; i < this->NumberOfAxesY; i++)
+  {
+    if (this->YAxes[this->RenderAxesY[i]]->HasTranslucentPolygonalGeometry())
+    {
+      return 1;
+    }
+  }
+
+  for (int i = 0; i < this->NumberOfAxesZ; i++)
+  {
+    if (this->ZAxes[this->RenderAxesZ[i]]->HasTranslucentPolygonalGeometry())
+    {
+      return 1;
+    }
   }
 
   return 0;
