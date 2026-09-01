@@ -42,7 +42,6 @@ bool TestRenderPass(int argc, char* argv[], vtkSmartPointer<vtkAlgorithm> source
 
   vtkNew<vtkTexture> hdrTexture;
   hdrTexture->SetColorModeToDirectScalars();
-  hdrTexture->MipmapOn();
   hdrTexture->InterpolateOn();
   hdrTexture->SetInputConnection(hdrReader->GetOutputPort());
 
@@ -98,6 +97,14 @@ int TestSkyboxBlurWithRenderPasses(int argc, char* argv[])
   sphereSource->SetPhiResolution(16);
 
   bool result = true;
+
+  // Basic pass
+  {
+    vtkNew<vtkRenderStepsPass> basicPasses;
+
+    result &= ::TestRenderPass(argc, argv, sphereSource, basicPasses,
+      "TestSkyboxBlurWithRenderPasses_Result_GaussianBlur.png");
+  }
 
   // Gaussian blur pass
   {
