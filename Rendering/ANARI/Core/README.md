@@ -1,4 +1,4 @@
-# VTK::RenderingANARI
+# VTK::RenderingANARICore
 
 ## ANARI - Rendering API compatible with multiple backends
 
@@ -10,7 +10,9 @@
 
 ### Using ANARI with VTK
 
-ANARI can be enabled via the CMake variable `VTK_MODULE_ENABLE_VTK_RenderingAnari=YES`. VTK requires an installation of the ANARI-SDK library. The path to the ANARI-SDK installation directory has to be given with the following CMake variable `anari_DIR=<path-to-anari-install-directory>`. VTK requires a version of ANARI-SDK with a minimum version of `v0.9.1`. The repository can be found on [GitHub](https://github.com/KhronosGroup/ANARI-SDK/tree/main).
+ANARI can be enabled via the CMake variable `VTK_MODULE_ENABLE_VTK_RenderingAnariCore=YES`. `VTK::RenderingAnariCore` is the module used to integrate the ANARI API within VTK. This module by itself can only perform offscreen rendering. Onscreen with ANARI is possible by using a rendering API to display the rendered image coming from ANARI. Onscreen rendering usage is explained in the `VTK::RenderingAnariOpenGL` documentation.
+
+VTK requires an installation of the ANARI-SDK library. The path to the ANARI-SDK installation directory has to be given with the following CMake variable `anari_DIR=<path-to-anari-install-directory>`. VTK requires a version of ANARI-SDK with a minimum version of `v0.9.1`. The repository can be found on [GitHub](https://github.com/KhronosGroup/ANARI-SDK/tree/main).
 
 Specific build instructions for your chosen platform are provided in [Building ANARI-SDK from Source](https://github.com/KhronosGroup/ANARI-SDK/blob/v0.14.1/README.md#building-the-sdk-from-source).
 
