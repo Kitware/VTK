@@ -218,7 +218,10 @@ public:
       return -1;
     }
 
-    // Bin and search for matching edge
+    // Bin and search for matching edge. All edges sharing the vertex v0
+    // live in the same bin, so both scans below are bounded by the end of
+    // the bin: without the bound, a query absent from the locator could
+    // scan past the end of the edge array.
     const IDType curBin = this->HashBin(v0);
     const IDType num = this->GetNumberOfEdgesInBin(curBin);
     // check if there are no edges
@@ -227,33 +230,25 @@ public:
       return -1;
     }
     IDType curId = this->EdgeOffsets[curBin];
-    IDType curV0 = this->EdgeArray[curId].V0;
-    while (curV0 < v0)
+    const IDType binEnd = this->EdgeOffsets[curBin + 1];
+    while (curId < binEnd && this->EdgeArray[curId].V0 < v0)
     {
       curId++;
-      curV0 = this->EdgeArray[curId].V0;
     }
-    if (curV0 > v0)
+    if (curId >= binEnd || this->EdgeArray[curId].V0 > v0)
     {
       return -1;
     }
-    else // matched v0, now find v1
+    // matched v0, now find v1 among the edges sharing v0
+    while (curId < binEnd && this->EdgeArray[curId].V0 == v0 && this->EdgeArray[curId].V1 < v1)
     {
-      IDType curV1 = this->EdgeArray[curId].V1;
-      while (curV1 < v1)
-      {
-        curId++;
-        curV1 = this->EdgeArray[curId].V1;
-      }
-      if (curV1 > v1)
-      {
-        return -1;
-      }
-      else
-      {
-        return curId;
-      }
+      curId++;
     }
+    if (curId >= binEnd || this->EdgeArray[curId].V0 != v0 || this->EdgeArray[curId].V1 > v1)
+    {
+      return -1;
+    }
+    return curId;
   }
 
   /**
