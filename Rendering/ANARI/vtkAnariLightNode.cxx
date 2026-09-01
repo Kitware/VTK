@@ -328,18 +328,9 @@ void vtkAnariLightNode::Synchronize(bool prepass)
         anari::setParameter(anariDevice, anariLight, "position", lightPosition);
         // The overall amount of light emitted by the light in a direction in W/sr
         anari::setParameter(anariDevice, anariLight, "intensity", lightIntensity);
-
         // The size of the point light
-        if (anariExtensions.ANARI_KHR_AREA_LIGHTS)
-        {
-          float radius = static_cast<float>(vtkAnariLightNode::GetRadius(light));
-          anari::setParameter(anariDevice, anariLight, "radius", radius);
-        }
-        else
-        {
-          this->Internals->RendererNode->WarningMacroOnce(
-            this, " doesn't support KHR_AREA_LIGHTS::radius");
-        }
+        float radius = static_cast<float>(vtkAnariLightNode::GetRadius(light));
+        anari::setParameter(anariDevice, anariLight, "radius", radius);
       }
       else
       {
@@ -390,17 +381,9 @@ void vtkAnariLightNode::Synchronize(bool prepass)
         static_cast<float>(vtkAnariLightNode::GetLightScale(light) * light->GetIntensity());
       anari::setParameter(anariDevice, anariLight, "irradiance", irradiance);
 
-      if (anariExtensions.ANARI_KHR_AREA_LIGHTS)
-      {
-        float radius = static_cast<float>(vtkAnariLightNode::GetRadius(light));
-        // apparent size (angle in radians) of the light
-        anari::setParameter(anariDevice, anariLight, "angularDiameter", radius);
-      }
-      else
-      {
-        this->Internals->RendererNode->WarningMacroOnce(
-          this, " doesn't support KHR_AREA_LIGHTS::angularDiameter");
-      }
+      float radius = static_cast<float>(vtkAnariLightNode::GetRadius(light));
+      // apparent size (angle in radians) of the light
+      anari::setParameter(anariDevice, anariLight, "angularDiameter", radius);
     }
     else
     {
@@ -414,7 +397,11 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     // All light sources accept the following parameters
     anari::setParameter(anariDevice, anariLight, "color", lightColor);
 
+#if ((ANARI_SDK_VERSION_MAJOR * 100) + ANARI_SDK_VERSION_MINOR) >= 16
+    if (anariExtensions.ANARI_KHR_LIGHT_PRIMARY_VISIBILITY)
+#else
     if (anariExtensions.ANARI_KHR_AREA_LIGHTS)
+#endif
     {
       bool isVisible = light->GetSwitch() ? true : false;
       anari::setParameter(anariDevice, anariLight, "visible", isVisible);
@@ -422,7 +409,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     else
     {
       this->Internals->RendererNode->WarningMacroOnce(
-        this, " doesn't support KHR_AREA_LIGHTS::visible");
+        this, " doesn't support KHR_LIGHT_PRIMARY_VISIBILITY::visible");
     }
 
     anari::commitParameters(anariDevice, anariLight);
