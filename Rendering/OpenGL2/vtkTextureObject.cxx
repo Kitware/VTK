@@ -1269,19 +1269,18 @@ bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps, int dat
 
   // Try GPU-assisted conversion first
   auto helper = this->Context->GetState()->GetTextureNormalizationHelper();
-  if (helper && (dataType == VTK_UNSIGNED_SHORT || dataType == VTK_SHORT))
+  if (helper && helper->IsGPUConversionAvailable() &&
+    (dataType == VTK_UNSIGNED_SHORT || dataType == VTK_SHORT))
   {
-    if (dataType == VTK_UNSIGNED_SHORT)
+    const size_t numValues = (size_t)width * numComps;
+    const bool converted = (dataType == VTK_UNSIGNED_SHORT)
+      ? helper->ConvertUShortToFloat(data, numValues, numComps, this->Handle, width, 1)
+      : helper->ConvertShortToFloat(data, numValues, numComps, this->Handle, width, 1);
+    if (converted)
     {
-      helper->ConvertUShortToFloat(
-        data, (size_t)width * numComps, numComps, this->Handle, width, 1);
+      this->Deactivate();
+      return true;
     }
-    else
-    {
-      helper->ConvertShortToFloat(data, (size_t)width * numComps, numComps, this->Handle, width, 1);
-    }
-    this->Deactivate();
-    return true;
   }
 
   // Fall back to CPU conversion if GPU not available
@@ -1777,21 +1776,8 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height, 
   this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 #ifdef GL_ES_VERSION_3_0
-  // Try GPU-assisted conversion first
-  auto helper3D = this->Context->GetState()->GetTextureNormalizationHelper();
-  if (helper3D && (dataType == VTK_UNSIGNED_SHORT || dataType == VTK_SHORT))
-  {
-    if (dataType == VTK_UNSIGNED_SHORT)
-      helper3D->ConvertUShortToFloat(data, (size_t)width * height * depth * numComps, numComps,
-        this->Handle, width, height * depth);
-    else
-      helper3D->ConvertShortToFloat(data, (size_t)width * height * depth * numComps, numComps,
-        this->Handle, width, height * depth);
-    this->Deactivate();
-    return vtkOpenGLCheckErrors("Failed to allocate 3D texture.");
-  }
-
-  // Fall back to CPU conversion if GPU not available
+  // The normalization helpers only ever define GL_TEXTURE_2D images, so they cannot fill a
+  // GL_TEXTURE_3D target.
   std::vector<float> convertedData3D = ConvertIntegerToNormalizedFloat(
     dataType, this->Type, data, (size_t)width * height * depth * numComps);
   const void* uploadData = convertedData3D.empty() ? data : convertedData3D.data();
@@ -1885,16 +1871,19 @@ bool vtkTextureObject::Create2DFromRaw(
 #ifdef GL_ES_VERSION_3_0
   // Try GPU-assisted conversion first
   auto helper2D = this->Context->GetState()->GetTextureNormalizationHelper();
-  if (helper2D && (dataType == VTK_UNSIGNED_SHORT || dataType == VTK_SHORT))
+  if (helper2D && helper2D->IsGPUConversionAvailable() &&
+    (dataType == VTK_UNSIGNED_SHORT || dataType == VTK_SHORT))
   {
-    if (dataType == VTK_UNSIGNED_SHORT)
-      helper2D->ConvertUShortToFloat(
-        data, (size_t)width * height * numComps, numComps, this->Handle, width, height);
-    else
-      helper2D->ConvertShortToFloat(
-        data, (size_t)width * height * numComps, numComps, this->Handle, width, height);
-    this->Deactivate();
-    return true;
+    const bool converted = (dataType == VTK_UNSIGNED_SHORT)
+      ? helper2D->ConvertUShortToFloat(
+          data, (size_t)width * height * numComps, numComps, this->Handle, width, height)
+      : helper2D->ConvertShortToFloat(
+          data, (size_t)width * height * numComps, numComps, this->Handle, width, height);
+    if (converted)
+    {
+      this->Deactivate();
+      return true;
+    }
   }
 
   // Fall back to CPU conversion if GPU not available
@@ -1947,21 +1936,7 @@ bool vtkTextureObject::Create2DArrayFromRaw(
   this->Context->GetState()->vtkglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 #ifdef GL_ES_VERSION_3_0
-  // Try GPU-assisted conversion first
-  auto helper2DA = this->Context->GetState()->GetTextureNormalizationHelper();
-  if (helper2DA && (dataType == VTK_UNSIGNED_SHORT || dataType == VTK_SHORT))
-  {
-    if (dataType == VTK_UNSIGNED_SHORT)
-      helper2DA->ConvertUShortToFloat(data, (size_t)width * height * nbLayers * numComps, numComps,
-        this->Handle, width, height * nbLayers);
-    else
-      helper2DA->ConvertShortToFloat(data, (size_t)width * height * nbLayers * numComps, numComps,
-        this->Handle, width, height * nbLayers);
-    this->Deactivate();
-    return true;
-  }
-
-  // Fall back to CPU conversion if GPU not available
+  // As in Create3DFromRaw, the normalization helpers cannot fill a GL_TEXTURE_2D_ARRAY target.
   std::vector<float> convertedData = ConvertIntegerToNormalizedFloat(
     dataType, this->Type, data, (size_t)width * height * nbLayers * numComps);
   const void* uploadData = convertedData.empty() ? data : convertedData.data();
