@@ -182,6 +182,7 @@ public:
   typedef std::map<std::string, DimMetaData> DimMetaDataMap;
   Internal(vtkMPASReader* r)
     : ncFile(-1)
+    , gridFile(-1)
     , reader(r)
   {
   }
@@ -205,7 +206,14 @@ public:
       nc_err(nc_close(ncFile));
       ncFile = -1;
     }
+    if (gridFile != -1)
+    {
+      nc_err(nc_close(gridFile));
+      gridFile = -1;
+    }
   }
+
+  void swapGridAndFieldFiles() { std::swap(ncFile, gridFile); }
 
   bool nc_err(int nc_ret, bool msg_on_err = true) const;
 
@@ -238,6 +246,7 @@ public:
   int nc_att_id(const char* name, bool msg_on_err = true) const;
 
   int ncFile;
+  int gridFile;
   vtkMPASReader* reader;
   std::vector<int> pointVars;
   std::vector<int> cellVars;
@@ -1012,6 +1021,7 @@ vtkMPASReader::~vtkMPASReader()
   vtkDebugMacro(<< "Destructing vtkMPASReader..." << endl);
 
   this->SetFileName(nullptr);
+  this->SetHistoryFileName(nullptr);
 
   this->Internals->close();
 
@@ -1099,6 +1109,22 @@ int vtkMPASReader::RequestInformation(
     return 0;
   }
 
+  if (this->HistoryFileName && this->HistoryFileName[0] != '\0')
+  {
+    this->Internals->swapGridAndFieldFiles();
+    if (!this->Internals->open(this->HistoryFileName))
+    {
+      vtkErrorMacro(<< "Couldn't open history file: " << this->HistoryFileName << endl);
+      this->ReleaseNcData();
+      return 0;
+    }
+    if (!this->GetHistoryNcDims())
+    {
+      this->ReleaseNcData();
+      return 0;
+    }
+  }
+
   if (!this->CheckParams())
   {
     this->ReleaseNcData();
@@ -1159,7 +1185,16 @@ int vtkMPASReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
 
   this->DestroyData();
   LoadState state;
-  if (!this->ReadAndOutputGrid(state))
+  if (this->Internals->gridFile != -1)
+  {
+    this->Internals->swapGridAndFieldFiles();
+  }
+  const int gridRead = this->ReadAndOutputGrid(state);
+  if (this->Internals->gridFile != -1)
+  {
+    this->Internals->swapGridAndFieldFiles();
+  }
+  if (!gridRead)
   {
     this->DestroyData();
     return 0;
@@ -1264,6 +1299,7 @@ void vtkMPASReader::SetDefaults()
   this->UseDimensionedArrayNames = false;
 
   this->FileName = nullptr;
+  this->HistoryFileName = nullptr;
   this->DTime = 0;
 
   this->MaximumPoints = 0;
@@ -1348,6 +1384,67 @@ int vtkMPASReader::GetNcDims()
 }
 
 //------------------------------------------------------------------------------
+// Get dimensions that control fields and time from the optional history file.
+// Spatial dimensions must agree with those read from the grid file.
+//------------------------------------------------------------------------------
+int vtkMPASReader::GetHistoryNcDims()
+{
+  int dimid;
+  size_t dimlen;
+
+  CHECK_DIM("nCells", dimid);
+  if (this->Internals->nc_err(nc_inq_dimlen(this->Internals->ncFile, dimid, &dimlen)))
+  {
+    return 0;
+  }
+  const size_t gridNCells = this->UsePrimaryGrid ? this->NumberOfCells : this->NumberOfPoints;
+  if (dimlen != gridNCells)
+  {
+    vtkErrorMacro("History file nCells dimension (" << dimlen << ") does not match the grid file ("
+                                                    << gridNCells << ").");
+    return 0;
+  }
+
+  dimid = this->Internals->nc_dim_id("nVertices", false);
+  if (dimid != -1)
+  {
+    if (this->Internals->nc_err(nc_inq_dimlen(this->Internals->ncFile, dimid, &dimlen)))
+    {
+      return 0;
+    }
+    const size_t gridNVertices = this->UsePrimaryGrid ? this->NumberOfPoints : this->NumberOfCells;
+    if (dimlen != gridNVertices)
+    {
+      vtkErrorMacro("History file nVertices dimension ("
+        << dimlen << ") does not match the grid file (" << gridNVertices << ").");
+      return 0;
+    }
+  }
+
+  CHECK_DIM("Time", dimid);
+  if (this->Internals->nc_err(
+        nc_inq_dimlen(this->Internals->ncFile, dimid, &this->NumberOfTimeSteps)))
+  {
+    return 0;
+  }
+
+  if ((dimid = this->Internals->nc_dim_id(this->VerticalDimension.c_str(), false)) != -1)
+  {
+    if (this->Internals->nc_err(
+          nc_inq_dimlen(this->Internals->ncFile, dimid, &this->MaximumNVertLevels)))
+    {
+      return 0;
+    }
+  }
+  else
+  {
+    this->MaximumNVertLevels = 0;
+  }
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 int vtkMPASReader::GetNcAtts()
 {
   int attid = -1;
@@ -1374,7 +1471,7 @@ int vtkMPASReader::GetNcAtts()
       delete[] val;
       return 0;
     }
-    this->OnASphere = (strcmp(val, "YES") == 0);
+    this->OnASphere = (strncmp(val, "YES", 3) == 0);
     delete[] val;
   }
 
@@ -3419,6 +3516,8 @@ void vtkMPASReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << (this->FileName ? this->FileName : "nullptr") << "\n";
+  os << indent << "HistoryFileName: " << (this->HistoryFileName ? this->HistoryFileName : "nullptr")
+     << "\n";
   os << indent << "VerticalLevelRange: " << this->VerticalLevelRange[0] << ","
      << this->VerticalLevelRange[1] << "\n";
   os << indent << "this->MaximumPoints: " << this->MaximumPoints << "\n";
