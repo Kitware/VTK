@@ -292,6 +292,22 @@ public:
   std::vector<int> GetPartitionOffsets() VTK_FUTURE_CONST;
   ///@}
 
+  ///@{
+  /**
+   * Custom ranges used as the global min/max when normalizing scalars,
+   * instead of the range computed from the data, one [min, max] range per
+   * partition group. This is a passthrough to the underlying
+   * vtkMultiVariateToRGBA; see vtkMultiVariateToRGBA::SetCustomRange for
+   * details, including the flat [min0, max0, min1, max1, ...] layout.
+   *
+   * This has to be set when running in ParaView Catalyst to enable
+   * using a global range for all ranks. vtkMultiVariateToRGBA::GetRange
+   * can be used to compute the global range from data.
+   */
+  void SetCustomRange(const std::vector<double>& customRange);
+  std::vector<double> GetCustomRange() VTK_FUTURE_CONST;
+  ///@}
+
   /**
    * Returns the angle in degrees between vertex and mousePos, measured
    * at the plot's center. All these positions are in window space.
@@ -342,6 +358,12 @@ protected:
 
   std::vector<int> PartitionIndices;
   std::vector<int> PartitionOffsets;
+  /**
+   * Custom ranges used as the global min/max when normalizing scalars,
+   * interleaved as [min0, max0, min1, max1, ...], one pair per partition
+   * group. Empty means no custom range is set.
+   */
+  std::vector<double> CustomRange;
   int Dimensions[4] = { 0, 0, 0, 0 };
   /**
    * Controls how the vertices are drawn.

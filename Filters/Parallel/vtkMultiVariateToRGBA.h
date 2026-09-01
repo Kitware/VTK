@@ -162,6 +162,25 @@ public:
 
   ///@{
   /**
+   * Custom ranges used as the global min/max when normalizing scalars,
+   * instead of the range computed from the data (see NormalizeWorker), one
+   * [min, max] range per partition group (see SetPartitionIndices). Since
+   * these ranges are meant to be the global ranges, when they are set no
+   * AllReduce is performed, even if the Controller is not null.
+   *
+   * CustomRange is a flat array, interleaved as [min0, max0, min1, max1,
+   * ...]. An empty CustomRange (the default) means no custom range is set,
+   * in which case the global min/max is computed from the data (and
+   * reduced across processes if the Controller is not null). Otherwise,
+   * CustomRange must hold exactly two values (one [min, max] pair) per
+   * partition group.
+   */
+  void SetCustomRange(const std::vector<double>& customRange);
+  std::vector<double> GetCustomRange() VTK_FUTURE_CONST;
+  ///@}
+
+  ///@{
+  /**
    * Variables can be partitioned into several groups. After that,
    * all multivariate scalars in a group are normalized together.
    * By default, all variables (components) are in one group.
@@ -244,6 +263,12 @@ protected:
    * Alpha cap for points outside the lens.
    */
   double OutsideLensAlphaCap = 0.0;
+  /**
+   * Custom ranges used as the global min/max when normalizing scalars,
+   * interleaved as [min0, max0, min1, max1, ...], one pair per partition
+   * group. Empty means no custom range is set.
+   */
+  std::vector<double> CustomRange;
   /**
    * Strongly owned internal data for the column/component visibility,
    * storing the names of the columns/components that are hidden. An empty

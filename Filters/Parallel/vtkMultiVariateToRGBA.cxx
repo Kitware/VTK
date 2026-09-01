@@ -65,12 +65,19 @@ double numpy_mod(double a, double b)
  */
 struct NormalizeWorker
 {
+  // customRange is nullptr when no custom range is set for this group, in
+  // which case the global min/max is computed from the data (and reduced
+  // across processes if controller is not null). Otherwise, customRange
+  // points to a [min, max] pair holding the global range to use, and it is
+  // used as is: no AllReduce is performed even if controller is not null,
+  // since the custom range is meant to already be the global range.
   NormalizeWorker(const std::vector<int>& indices, vtkMultiProcessController* controller,
-    double newMin = 0, double newMax = 1)
+    const double* customRange, double newMin = 0, double newMax = 1)
     : GroupIndices(indices)
     , NewMin(newMin)
     , NewMax(newMax)
     , Controller(controller)
+    , CustomRange(customRange)
   {
   }
 
@@ -82,41 +89,54 @@ struct NormalizeWorker
     using ScalarsRangeType = decltype(scalars);
     using ValueType = typename ScalarsRangeType::ComponentType;
 
-    // single pass over the tuples for the min/max of all components in the group
-    ValueType minValue = std::numeric_limits<ValueType>::max(),
-              maxValue = std::numeric_limits<ValueType>::lowest();
-    vtkIdType nTuples = scalars.size();
-    for (vtkIdType i = 0; i < nTuples; ++i)
+    double minValue, maxValue;
+    if (this->CustomRange)
     {
-      for (size_t k = 0; k < this->GroupIndices.size(); ++k)
+      // a custom range was set, use it instead of the range computed from the data
+      minValue = this->CustomRange[0];
+      maxValue = this->CustomRange[1];
+    }
+    else
+    {
+      // single pass over the tuples for the min/max of all components in the group
+      ValueType localMinValue = std::numeric_limits<ValueType>::max(),
+                localMaxValue = std::numeric_limits<ValueType>::lowest();
+      vtkIdType nTuples = scalars.size();
+      for (vtkIdType i = 0; i < nTuples; ++i)
       {
-        ValueType value = scalars[i][this->GroupIndices[k]];
-        if (value < minValue)
+        for (size_t k = 0; k < this->GroupIndices.size(); ++k)
         {
-          minValue = value;
-        }
-        if (value > maxValue)
-        {
-          maxValue = value;
+          ValueType value = scalars[i][this->GroupIndices[k]];
+          if (value < localMinValue)
+          {
+            localMinValue = value;
+          }
+          if (value > localMaxValue)
+          {
+            localMaxValue = value;
+          }
         }
       }
+      minValue = localMinValue;
+      maxValue = localMaxValue;
+      if (this->Controller)
+      {
+        double globalMin;
+        double localMin = minValue;
+        this->Controller->AllReduce(&localMin, &globalMin, 1, vtkCommunicator::MIN_OP);
+        minValue = globalMin;
+      }
+      if (this->Controller)
+      {
+        double globalMax;
+        double localMax = maxValue;
+        this->Controller->AllReduce(&localMax, &globalMax, 1, vtkCommunicator::MAX_OP);
+        maxValue = globalMax;
+      }
     }
-    if (this->Controller)
-    {
-      double globalMin;
-      double localMin = minValue;
-      this->Controller->AllReduce(&localMin, &globalMin, 1, vtkCommunicator::MIN_OP);
-      minValue = globalMin;
-    }
-    if (this->Controller)
-    {
-      double globalMax;
-      double localMax = maxValue;
-      this->Controller->AllReduce(&localMax, &globalMax, 1, vtkCommunicator::MAX_OP);
-      maxValue = globalMax;
-    }
+    vtkIdType nTuples = scalars.size();
     // a group with a constant value would divide by zero, it is mapped to NewMin
-    const double range = static_cast<double>(maxValue) - static_cast<double>(minValue);
+    const double range = maxValue - minValue;
     const double scale = range == 0 ? 0 : (this->NewMax - this->NewMin) / range;
     vtkSMPTools::For(0, nTuples,
       [&](vtkIdType begin, vtkIdType end)
@@ -135,6 +155,7 @@ struct NormalizeWorker
   double NewMin = 0;
   double NewMax = 1;
   vtkMultiProcessController* Controller = nullptr;
+  const double* CustomRange = nullptr;
 };
 
 /**
@@ -565,6 +586,23 @@ void vtkMultiVariateToRGBA::SetVerticesRotation(double rotation)
 }
 
 //------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::SetCustomRange(const std::vector<double>& customRange)
+{
+  vtkDebugMacro(<< " setting CustomRange to " << fmt::format("{}", customRange));
+  if (this->CustomRange != customRange)
+  {
+    this->CustomRange = customRange;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+std::vector<double> vtkMultiVariateToRGBA::GetCustomRange() VTK_FUTURE_CONST
+{
+  return this->CustomRange;
+}
+
+//------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetPartitionIndices(const std::vector<int>& partitionIndices)
 {
   vtkDebugMacro(<< " setting PartitionIndices to " << fmt::format("{}", partitionIndices));
@@ -890,6 +928,15 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
       return 0;
     }
   }
+  if (!this->CustomRange.empty() && this->CustomRange.size() != 2 * partitionOffsets.size())
+  {
+    vtkErrorMacro(
+      << fmt::format(
+           "Invalid CustomRange with {} elements: it must be empty or hold exactly one "
+           "[min, max] pair (2 elements) per partition group ({} groups, {} elements expected)",
+           this->CustomRange.size(), partitionOffsets.size(), 2 * partitionOffsets.size()));
+    return 0;
+  }
 
   vtkNew<vtkDoubleArray> normalizedScalars;
   normalizedScalars->SetName("normalized");
@@ -906,7 +953,8 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   {
     std::vector<int> groupIndices(
       partition.begin() + offset, partition.begin() + partitionOffsets[i]);
-    NormalizeWorker worker(groupIndices, this->Controller);
+    const double* customRange = this->CustomRange.empty() ? nullptr : &this->CustomRange[2 * i];
+    NormalizeWorker worker(groupIndices, this->Controller, customRange);
     if (!InputDispatcher::Execute(scalars, worker, normalizedScalars.GetPointer()))
     {
       worker(scalars.GetPointer(), normalizedScalars.GetPointer());

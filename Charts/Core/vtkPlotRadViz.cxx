@@ -364,6 +364,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     this->ComputeGBC->SetOutsideLensAlphaCap(this->OutsideLensAlphaCap);
     this->ComputeGBC->SetPartitionIndices(this->PartitionIndices);
     this->ComputeGBC->SetPartitionOffsets(this->PartitionOffsets);
+    this->ComputeGBC->SetCustomRange(this->CustomRange);
     std::array<double, 2> lensCenter = { (this->LensCenter[0] - this->Internals->Center[0]) /
         this->Internals->Radius,
       (this->LensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius };
@@ -650,6 +651,23 @@ void vtkPlotRadViz::SetDimensions(int arg1, int arg2, int arg3, int arg4)
 void vtkPlotRadViz::SetDimensions(const int arg[4])
 {
   this->SetDimensions(arg[0], arg[1], arg[2], arg[3]);
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::SetCustomRange(const std::vector<double>& customRange)
+{
+  vtkDebugMacro(<< " setting CustomRange to " << fmt::format("{}", customRange));
+  if (this->CustomRange != customRange)
+  {
+    this->CustomRange = customRange;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+std::vector<double> vtkPlotRadViz::GetCustomRange() VTK_FUTURE_CONST
+{
+  return this->CustomRange;
 }
 
 //------------------------------------------------------------------------------
