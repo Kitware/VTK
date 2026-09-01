@@ -12,6 +12,9 @@
 #include VTK_NLOHMANN_JSON(json.hpp)
 // clang-format on
 
+#include <type_traits> // for std::decay_t
+#include <utility>     // for std::move
+
 extern "C"
 {
   /**
@@ -114,17 +117,22 @@ public:
     if ((propertyIter != state.end()) && propertyIter->is_array())                                 \
     {                                                                                              \
       const auto items = propertyIter->get<nlohmann::json::array_t>();                             \
+      std::decay_t<decltype(object->Block##name)> newMap;                                          \
       for (auto& item : items)                                                                     \
       {                                                                                            \
         const auto* context = deserializer->GetContext();                                          \
         const auto keyIdentifier = item["Key"].at("Id").get<vtkTypeUInt32>();                      \
-        auto subObject = context->GetObjectAtId(keyIdentifier);                                    \
-        success &= deserializer->DeserializeJSON(keyIdentifier, subObject);                        \
-        if (auto* dataObject = vtkDataObject::SafeDownCast(subObject))                             \
+        auto keyObject = context->GetObjectAtId(keyIdentifier);                                    \
+        success &= deserializer->DeserializeJSON(keyIdentifier, keyObject);                        \
+        if (auto* dataObject = vtkDataObject::SafeDownCast(keyObject))                             \
         {                                                                                          \
-          auto value = item["Value"].get<type>();                                                  \
-          object->Block##name[dataObject] = value;                                                 \
+          newMap[dataObject] = item["Value"].get<type>();                                          \
         }                                                                                          \
+      }                                                                                            \
+      if (object->Block##name != newMap)                                                           \
+      {                                                                                            \
+        object->Block##name = std::move(newMap);                                                   \
+        changed = true;                                                                            \
       }                                                                                            \
     }                                                                                              \
   } while (0)
@@ -136,6 +144,7 @@ public:
     if ((propertyIter != state.end()) && propertyIter->is_array())                                 \
     {                                                                                              \
       const auto items = propertyIter->get<nlohmann::json::array_t>();                             \
+      std::decay_t<decltype(object->Block##name)> newMap;                                          \
       for (auto& item : items)                                                                     \
       {                                                                                            \
         const auto* context = deserializer->GetContext();                                          \
@@ -145,8 +154,13 @@ public:
         if (auto* dataObject = vtkDataObject::SafeDownCast(keyObject))                             \
         {                                                                                          \
           auto values = item["Values"].get<json::array_t>();                                       \
-          object->Block##name[dataObject] = vtkColor3d(values[0], values[1], values[2]);           \
+          newMap[dataObject] = vtkColor3d(values[0], values[1], values[2]);                        \
         }                                                                                          \
+      }                                                                                            \
+      if (object->Block##name != newMap)                                                           \
+      {                                                                                            \
+        object->Block##name = std::move(newMap);                                                   \
+        changed = true;                                                                            \
       }                                                                                            \
     }                                                                                              \
   } while (0)
@@ -158,6 +172,7 @@ public:
     if ((propertyIter != state.end()) && propertyIter->is_array())                                 \
     {                                                                                              \
       const auto items = propertyIter->get<nlohmann::json::array_t>();                             \
+      std::decay_t<decltype(object->Block##name)> newMap;                                          \
       for (auto& item : items)                                                                     \
       {                                                                                            \
         const auto* context = deserializer->GetContext();                                          \
@@ -167,8 +182,13 @@ public:
         if (auto* dataObject = vtkDataObject::SafeDownCast(keyObject))                             \
         {                                                                                          \
           auto values = item["Values"].get<json::array_t>();                                       \
-          object->Block##name[dataObject] = vtkVector2d(values[0], values[1]);                     \
+          newMap[dataObject] = vtkVector2d(values[0], values[1]);                                  \
         }                                                                                          \
+      }                                                                                            \
+      if (object->Block##name != newMap)                                                           \
+      {                                                                                            \
+        object->Block##name = std::move(newMap);                                                   \
+        changed = true;                                                                            \
       }                                                                                            \
     }                                                                                              \
   } while (0)
@@ -180,6 +200,7 @@ public:
     if ((propertyIter != state.end()) && propertyIter->is_array())                                 \
     {                                                                                              \
       const auto items = propertyIter->get<nlohmann::json::array_t>();                             \
+      std::decay_t<decltype(object->Block##name)> newMap;                                          \
       for (auto& item : items)                                                                     \
       {                                                                                            \
         const auto* context = deserializer->GetContext();                                          \
@@ -191,8 +212,13 @@ public:
           const auto valueIdentifier = item["Value"].at("Id").get<vtkTypeUInt32>();                \
           auto valueObject = context->GetObjectAtId(valueIdentifier);                              \
           success &= deserializer->DeserializeJSON(valueIdentifier, valueObject);                  \
-          object->Block##name[dataObject] = type::SafeDownCast(valueObject);                       \
+          newMap[dataObject] = type::SafeDownCast(valueObject);                                    \
         }                                                                                          \
+      }                                                                                            \
+      if (object->Block##name != newMap)                                                           \
+      {                                                                                            \
+        object->Block##name = std::move(newMap);                                                   \
+        changed = true;                                                                            \
       }                                                                                            \
     }                                                                                              \
   } while (0)
@@ -202,6 +228,7 @@ public:
     const nlohmann::json& state, vtkObjectBase* objectBase, vtkDeserializer* deserializer)
   {
     bool success = true;
+    bool changed = false;
     auto object = vtkCompositeDataDisplayAttributes::SafeDownCast(objectBase);
     if (!object)
     {
@@ -228,6 +255,10 @@ public:
     DESERIALIZE_MAP_OF_VTK_OBJECTS(LookupTables, vtkScalarsToColors);
     DESERIALIZE_MAP_SIMPLE(FieldDataTupleIds, vtkIdType);
     DESERIALIZE_MAP_OF_VTK_OBJECTS(Textures, vtkTexture);
+    if (changed)
+    {
+      object->Modified();
+    }
     return success;
   }
 };
