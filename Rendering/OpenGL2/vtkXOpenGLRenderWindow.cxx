@@ -4,12 +4,14 @@
 // Must be included first to avoid conflicts with X11's `Status` define.
 #include "vtksys/SystemTools.hxx"
 
+// Included before vtkXOpenGLRenderWindow so X11 defines do not clash with vtkDataArray structures.
+#include "vtkImageData.h"
+
 #include "vtkOpenGLRenderer.h"
 #include "vtkXOpenGLRenderWindow.h"
 
 #include "vtkCommand.h"
 #include "vtkIdList.h"
-#include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLShaderCache.h"
