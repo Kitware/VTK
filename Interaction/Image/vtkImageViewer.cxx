@@ -243,7 +243,7 @@ void vtkImageViewer::SetOffScreenRendering(vtkTypeBool i)
 //------------------------------------------------------------------------------
 vtkTypeBool vtkImageViewer::GetOffScreenRendering()
 {
-  return this->RenderWindow->GetOffScreenRendering();
+  return this->RenderWindow->GetShowWindow();
 }
 
 //------------------------------------------------------------------------------

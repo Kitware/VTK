@@ -105,6 +105,8 @@ void vtkQtAnnotationLayersModelAdapter::setAnnotationLayers(vtkAnnotationLayers*
   this->Annotations = t;
   if (this->Annotations != nullptr)
   {
+    this->beginResetModel();
+
     this->Annotations->Register(nullptr);
 
     // When setting a table, update the QHash tables for column mapping.
@@ -114,7 +116,7 @@ void vtkQtAnnotationLayersModelAdapter::setAnnotationLayers(vtkAnnotationLayers*
 
     // We will assume the table is totally
     // new and any views should update completely
-    Q_EMIT this->reset();
+    this->endResetModel();
   }
 }
 

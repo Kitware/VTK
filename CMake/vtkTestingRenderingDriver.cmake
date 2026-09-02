@@ -91,9 +91,9 @@ SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN
 
   if (!interactive)
   {
-    if (vtkTestingInteractor::TestReturnStatus != -1)
+    if (vtkTestingInteractor::GetTestReturnStatus() != -1)
     {
-      if (vtkTestingInteractor::TestReturnStatus != vtkTesting::PASSED)
+      if (vtkTestingInteractor::GetTestReturnStatus() != vtkTesting::PASSED)
       {
         result = EXIT_FAILURE;
       }

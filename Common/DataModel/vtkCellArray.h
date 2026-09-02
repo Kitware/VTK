@@ -1034,7 +1034,7 @@ public:
 
   // Holds connectivity and offset arrays of the given ArrayType.
   template <typename ArrayT>
-  struct VTK_DEPRECATED_IN_9_8_0("Use DispatchUtilities") VisitState
+  struct VisitState
   {
     using ArrayType = ArrayT;
     using ValueType = typename ArrayType::ValueType;

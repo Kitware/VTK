@@ -82,7 +82,7 @@ public:
    * Returns internal vector of blocks.
    */
   VTK_DEPRECATED_IN_9_8_0("Use vtkAMRMetaData methods instead")
-  [[nodiscard]] const std::vector<int>& GetNumBlocks() const { return this->NumBlocks; }
+  const std::vector<int>& GetNumBlocks() const { return this->NumBlocks; }
 
   /**
    * Copy internal fields from other into this

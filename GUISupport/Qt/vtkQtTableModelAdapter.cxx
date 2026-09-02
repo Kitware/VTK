@@ -123,7 +123,8 @@ void vtkQtTableModelAdapter::SetColorColumnName(const char* name)
   }
   if (this->ColorColumn != color_column)
   {
-    Q_EMIT this->reset();
+    this->beginResetModel();
+    this->endResetModel();
   }
 }
 
@@ -163,7 +164,8 @@ void vtkQtTableModelAdapter::SetIconIndexColumnName(const char* name)
   }
   if (this->IconIndexColumn != color_column)
   {
-    Q_EMIT this->reset();
+    this->beginResetModel();
+    this->endResetModel();
   }
 }
 
@@ -203,7 +205,8 @@ void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
   }
   if (this->KeyColumn != key_column)
   {
-    Q_EMIT this->reset();
+    this->beginResetModel();
+    this->endResetModel();
   }
 }
 
@@ -322,6 +325,8 @@ void vtkQtTableModelAdapter::setTable(vtkTable* t)
   this->Table = t;
   if (this->Table != nullptr)
   {
+    this->beginResetModel();
+
     this->Table->Register(nullptr);
 
     // When setting a table, update the QHash tables for column mapping.
@@ -331,7 +336,7 @@ void vtkQtTableModelAdapter::setTable(vtkTable* t)
 
     // We will assume the table is totally
     // new and any views should update completely
-    Q_EMIT this->reset();
+    this->endResetModel();
   }
 }
 
