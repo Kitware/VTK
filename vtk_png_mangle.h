@@ -67,6 +67,7 @@
 #define png_error vtkpng_png_error
 #define png_fixed vtkpng_png_fixed
 #define png_fixed_error vtkpng_png_fixed_error
+#define png_fixed_ITU vtkpng_png_fixed_ITU
 #define png_flush vtkpng_png_flush
 #define png_format_number vtkpng_png_format_number
 #define png_formatted_warning vtkpng_png_formatted_warning
@@ -88,6 +89,9 @@
 #define png_get_cHRM_XYZ_fixed vtkpng_png_get_cHRM_XYZ_fixed
 #define png_get_chunk_cache_max vtkpng_png_get_chunk_cache_max
 #define png_get_chunk_malloc_max vtkpng_png_get_chunk_malloc_max
+#define png_get_cICP vtkpng_png_get_cICP
+#define png_get_cLLI vtkpng_png_get_cLLI
+#define png_get_cLLI_fixed vtkpng_png_get_cLLI_fixed
 #define png_get_color_type vtkpng_png_get_color_type
 #define png_get_compression_buffer_size vtkpng_png_get_compression_buffer_size
 #define png_get_compression_type vtkpng_png_get_compression_type
@@ -113,6 +117,8 @@
 #define png_get_io_ptr vtkpng_png_get_io_ptr
 #define png_get_io_state vtkpng_png_get_io_state
 #define png_get_libpng_ver vtkpng_png_get_libpng_ver
+#define png_get_mDCV vtkpng_png_get_mDCV
+#define png_get_mDCV_fixed vtkpng_png_get_mDCV_fixed
 #define png_get_mem_ptr vtkpng_png_get_mem_ptr
 #define png_get_oFFs vtkpng_png_get_oFFs
 #define png_get_palette_max vtkpng_png_get_palette_max
@@ -162,6 +168,7 @@
 #define png_handle_as_unknown vtkpng_png_handle_as_unknown
 #define png_handle_bKGD vtkpng_png_handle_bKGD
 #define png_handle_cHRM vtkpng_png_handle_cHRM
+#define png_handle_chunk vtkpng_png_handle_chunk
 #define png_handle_eXIf vtkpng_png_handle_eXIf
 #define png_handle_gAMA vtkpng_png_handle_gAMA
 #define png_handle_hIST vtkpng_png_handle_hIST
@@ -245,10 +252,11 @@
 #define png_reciprocal2 vtkpng_png_reciprocal2
 #define png_reset_crc vtkpng_png_reset_crc
 #define png_reset_zstream vtkpng_png_reset_zstream
-#define png_safecat vtkpng_png_safecat
+#define png_resolve_file_gamma vtkpng_png_resolve_file_gamma
 #define png_safe_error vtkpng_png_safe_error
 #define png_safe_execute vtkpng_png_safe_execute
 #define png_safe_warning vtkpng_png_safe_warning
+#define png_safecat vtkpng_png_safecat
 #define png_save_int_32 vtkpng_png_save_int_32
 #define png_save_uint_16 vtkpng_png_save_uint_16
 #define png_save_uint_32 vtkpng_png_save_uint_32
@@ -267,6 +275,9 @@
 #define png_set_cHRM_XYZ_fixed vtkpng_png_set_cHRM_XYZ_fixed
 #define png_set_chunk_cache_max vtkpng_png_set_chunk_cache_max
 #define png_set_chunk_malloc_max vtkpng_png_set_chunk_malloc_max
+#define png_set_cICP vtkpng_png_set_cICP
+#define png_set_cLLI vtkpng_png_set_cLLI
+#define png_set_cLLI_fixed vtkpng_png_set_cLLI_fixed
 #define png_set_compression_buffer_size vtkpng_png_set_compression_buffer_size
 #define png_set_compression_level vtkpng_png_set_compression_level
 #define png_set_compression_mem_level vtkpng_png_set_compression_mem_level
@@ -299,6 +310,8 @@
 #define png_set_invert_mono vtkpng_png_set_invert_mono
 #define png_set_keep_unknown_chunks vtkpng_png_set_keep_unknown_chunks
 #define png_set_longjmp_fn vtkpng_png_set_longjmp_fn
+#define png_set_mDCV vtkpng_png_set_mDCV
+#define png_set_mDCV_fixed vtkpng_png_set_mDCV_fixed
 #define png_set_mem_fn vtkpng_png_set_mem_fn
 #define png_set_oFFs vtkpng_png_set_oFFs
 #define png_set_option vtkpng_png_set_option
@@ -314,14 +327,15 @@
 #define png_set_read_status_fn vtkpng_png_set_read_status_fn
 #define png_set_read_user_chunk_fn vtkpng_png_set_read_user_chunk_fn
 #define png_set_read_user_transform_fn vtkpng_png_set_read_user_transform_fn
+#define png_set_rgb_coefficients vtkpng_png_set_rgb_coefficients
 #define png_set_rgb_to_gray vtkpng_png_set_rgb_to_gray
 #define png_set_rgb_to_gray_fixed vtkpng_png_set_rgb_to_gray_fixed
 #define png_set_rows vtkpng_png_set_rows
 #define png_set_sBIT vtkpng_png_set_sBIT
 #define png_set_sCAL vtkpng_png_set_sCAL
-#define png_set_scale_16 vtkpng_png_set_scale_16
 #define png_set_sCAL_fixed vtkpng_png_set_sCAL_fixed
 #define png_set_sCAL_s vtkpng_png_set_sCAL_s
+#define png_set_scale_16 vtkpng_png_set_scale_16
 #define png_set_shift vtkpng_png_set_shift
 #define png_set_sig_bytes vtkpng_png_set_sig_bytes
 #define png_set_sPLT vtkpng_png_set_sPLT
@@ -364,6 +378,8 @@
 #define png_write_chunk_data vtkpng_png_write_chunk_data
 #define png_write_chunk_end vtkpng_png_write_chunk_end
 #define png_write_chunk_start vtkpng_png_write_chunk_start
+#define png_write_cICP vtkpng_png_write_cICP
+#define png_write_cLLI_fixed vtkpng_png_write_cLLI_fixed
 #define png_write_data vtkpng_png_write_data
 #define png_write_end vtkpng_png_write_end
 #define png_write_eXIf vtkpng_png_write_eXIf
@@ -379,6 +395,7 @@
 #define png_write_info vtkpng_png_write_info
 #define png_write_info_before_PLTE vtkpng_png_write_info_before_PLTE
 #define png_write_iTXt vtkpng_png_write_iTXt
+#define png_write_mDCV_fixed vtkpng_png_write_mDCV_fixed
 #define png_write_oFFs vtkpng_png_write_oFFs
 #define png_write_pCAL vtkpng_png_write_pCAL
 #define png_write_pHYs vtkpng_png_write_pHYs
@@ -396,6 +413,8 @@
 #define png_write_tIME vtkpng_png_write_tIME
 #define png_write_tRNS vtkpng_png_write_tRNS
 #define png_write_zTXt vtkpng_png_write_zTXt
+#define png_xy_from_XYZ vtkpng_png_xy_from_XYZ
+#define png_XYZ_from_xy vtkpng_png_XYZ_from_xy
 #define png_zalloc vtkpng_png_zalloc
 #define png_zfree vtkpng_png_zfree
 #define png_zlib_inflate vtkpng_png_zlib_inflate
