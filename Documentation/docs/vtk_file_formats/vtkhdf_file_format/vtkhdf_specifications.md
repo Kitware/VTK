@@ -139,7 +139,7 @@ Figure 1. - Image Data VTKHDF File Format
 
 [Rectilinear grids](https://vtk.org/doc/nightly/html/classvtkRectilinearGrid.html) represent a topologically regular dataset with variable spacing in the three coordinate directions.
 
-In VTKHDF files, their size in each dimension is defined using a `Dimension` vector attribute of size 3 `[K, L, M]`.
+In VTKHDF files, their size in each dimension is defined using a `Dimensions` vector attribute of size 3 `[K, L, M]`.
 3 datasets `XCoordinates`, `YCoordinates` and `ZCoordinates` define the position of points in the three coordinate directions.
 For a grid of size `K * L * M`, `XCoordinates` has a size of `K`, `YCoordinates` has a size of `L` and `ZCoordinates` has a size of `M`.
 
@@ -151,7 +151,7 @@ The `Type` attribute of the `VTKHDF` group is `RectilinearGrid`.
 
 [Structured grids](https://vtk.org/doc/nightly/html/classvtkStructuredGrid.html) are a structured data type where point positions are defined explicitly.
 
-Like for Rectilinear Grid, VTKHDF uses a `Dimension` vector attribute of size 3 to specify the size in each direction. For a dataset of dimension `K * L * M`, points are defined using a HDF5 `Points` dataset of dimension (`K, L, M`, 3).
+Like for Rectilinear Grid, VTKHDF uses a `Dimensions` vector attribute of size 3 to specify the size in each direction. For a dataset of dimension `K * L * M`, points are defined using a 4-dimensional HDF5 `Points` dataset of size (`M, L, K`, 3).
 
 Point, cell and field arrays are defined the same way as `ImageData`.
 
