@@ -132,6 +132,33 @@ int nc_get_vara(int ncid, int varid, size_t start[], size_t count[], signed char
   return nc_get_vara_schar(ncid, varid, start, count, data);
 }
 
+// -----------------------------------------------------------------------------
+//   MPAS data can be divided into different files such as mesh and history.
+//   These identifiers reference the a file with the particular component.
+// -----------------------------------------------------------------------------
+enum struct MPASFile
+{
+  Grid,
+  Fields
+};
+
+// -----------------------------------------------------------------------------
+//   A simple struct to store a netCDF id along with a reference to the
+//   file it came from. This is defensive programming to help ensure that we
+//   treat variables consistently.
+// -----------------------------------------------------------------------------
+struct VarId
+{
+  MPASFile Source;
+  int Id;
+};
+
+struct DimId
+{
+  MPASFile Source;
+  int Id;
+};
+
 } // end anon namespace
 
 //------------------------------------------------------------------------------
@@ -181,75 +208,92 @@ public:
   typedef std::map<int, vtkSmartPointer<vtkDataArray>> ArrayMap;
   typedef std::map<std::string, DimMetaData> DimMetaDataMap;
   Internal(vtkMPASReader* r)
-    : ncFile(-1)
-    , gridFile(-1)
+    : ncGridFile(-1)
+    , ncFieldFile(-1)
     , reader(r)
   {
   }
   ~Internal() { close(); }
 
-  bool open(const char* file)
+private:
+  bool open_internal(const char* file, int& ncid)
   {
+    assert(ncid == -1);
     int mode = NC_NOWRITE | NC_NETCDF4 | NC_CLASSIC_MODEL;
-    int ncid;
-    if (nc_err(nc_open(file, mode, &ncid)))
+    int ncid_internal;
+    if (nc_err(nc_open(file, mode, &ncid_internal)))
     {
       return false;
     }
-    ncFile = ncid;
+    ncid = ncid_internal;
     return true;
+  }
+
+public:
+  bool open_grid(const char* file) { return open_internal(file, ncGridFile); }
+  bool open_history(const char* file) { return open_internal(file, ncFieldFile); }
+  void grid_has_fields()
+  {
+    // The grid file also has the field information. Use the same descriptor for both.
+    assert(ncFieldFile == -1);
+    ncFieldFile = ncGridFile;
   }
   void close()
   {
-    if (ncFile != -1)
+    if (ncFieldFile != -1)
     {
-      nc_err(nc_close(ncFile));
-      ncFile = -1;
+      if (ncFieldFile != ncGridFile)
+      {
+        nc_err(nc_close(ncFieldFile));
+      }
+      ncFieldFile = -1;
     }
-    if (gridFile != -1)
+    if (ncGridFile != -1)
     {
-      nc_err(nc_close(gridFile));
-      gridFile = -1;
+      nc_err(nc_close(ncGridFile));
+      ncGridFile = -1;
     }
   }
 
-  void swapGridAndFieldFiles() { std::swap(ncFile, gridFile); }
+  constexpr int ncFileId(MPASFile file) const
+  {
+    return (file == MPASFile::Grid) ? ncGridFile : ncFieldFile;
+  }
 
   bool nc_err(int nc_ret, bool msg_on_err = true) const;
 
-  std::string dimensionedArrayName(int nc_var) const;
-  bool ValidateDimensions(int nc_var, bool silent, int ndims, ...) const;
-  size_t GetCursorForDimension(int nc_dim);
-  size_t GetCountForDimension(int nc_dim) const;
-  long InitializeDimension(int nc_dim);
-  vtkIdType ComputeNumberOfTuples(int nc_var) const;
+  std::string dimensionedArrayName(VarId ncVar) const;
+  bool ValidateDimensions(VarId ncVar, bool silent, int ndims, ...) const;
+  size_t GetCursorForDimension(DimId ncDim);
+  size_t GetCountForDimension(DimId ncDim) const;
+  long InitializeDimension(DimId ncDim);
+  vtkIdType ComputeNumberOfTuples(VarId ncVar) const;
 
   template <typename TArray>
-  bool LoadDataArray(int nc_var, TArray* array, bool resize = true);
+  bool LoadDataArray(VarId ncVar, TArray* array, bool resize = true);
 
   struct Point
   {
   };
   int PointResult;
   template <typename TArray>
-  void operator()(TArray* array, vtkMPASReader::LoadState& state, int nc_var, Point);
+  void operator()(TArray* array, vtkMPASReader::LoadState& state, VarId ncVar, Point);
 
   struct Cell
   {
   };
   int CellResult;
   template <typename TArray>
-  void operator()(TArray* array, vtkMPASReader::LoadState& state, int nc_var, Cell);
+  void operator()(TArray* array, vtkMPASReader::LoadState& state, VarId ncVar, Cell);
 
-  int nc_var_id(const char* name, bool msg_on_err = true) const;
-  int nc_dim_id(const char* name, bool msg_on_err = true) const;
-  int nc_att_id(const char* name, bool msg_on_err = true) const;
+  VarId nc_var_id(MPASFile source, const char* name, bool msg_on_err = true) const;
+  DimId nc_dim_id(MPASFile source, const char* name, bool msg_on_err = true) const;
 
-  int ncFile;
-  int gridFile;
+  int ncGridFile;
+  int ncFieldFile;
   vtkMPASReader* reader;
-  std::vector<int> pointVars;
-  std::vector<int> cellVars;
+  std::vector<VarId> pointVars;
+  std::vector<VarId> cellVars;
   ArrayMap pointArrays;
   ArrayMap cellArrays;
 
@@ -283,8 +327,11 @@ bool vtkMPASReader::Internal::nc_err(int nc_ret, bool msg_on_err) const
   return true;
 }
 
-std::string vtkMPASReader::Internal::dimensionedArrayName(int nc_var) const
+std::string vtkMPASReader::Internal::dimensionedArrayName(VarId ncVar) const
 {
+  int ncFile = ncFileId(ncVar.Source);
+  int nc_var = ncVar.Id;
+
   char name[NC_MAX_NAME + 1];
   if (nc_err(nc_inq_varname(ncFile, nc_var, name)))
   {
@@ -329,8 +376,11 @@ std::string vtkMPASReader::Internal::dimensionedArrayName(int nc_var) const
 // C-strings identifying the expected dimensions.
 // If silent is true, no warnings are printed.
 //------------------------------------------------------------------------------
-bool vtkMPASReader::Internal::ValidateDimensions(int nc_var, bool silent, int ndims, ...) const
+bool vtkMPASReader::Internal::ValidateDimensions(VarId ncVar, bool silent, int ndims, ...) const
 {
+  int ncFile = ncFileId(ncVar.Source);
+  int nc_var = ncVar.Id;
+
   int nc_ndims;
   if (nc_err(nc_inq_varndims(ncFile, nc_var, &nc_ndims)))
   {
@@ -397,8 +447,11 @@ bool vtkMPASReader::Internal::ValidateDimensions(int nc_var, bool silent, int nd
 //------------------------------------------------------------------------------
 // Return the cursor position for the specified dimension.
 //------------------------------------------------------------------------------
-size_t vtkMPASReader::Internal::GetCursorForDimension(int nc_dim)
+size_t vtkMPASReader::Internal::GetCursorForDimension(DimId ncDim)
 {
+  int ncFile = ncFileId(ncDim.Source);
+  int nc_dim = ncDim.Id;
+
   char name[NC_MAX_NAME + 1];
   if (nc_err(nc_inq_dimname(ncFile, nc_dim, name)))
   {
@@ -420,15 +473,18 @@ size_t vtkMPASReader::Internal::GetCursorForDimension(int nc_dim)
   }
   else
   {
-    return InitializeDimension(nc_dim);
+    return InitializeDimension(ncDim);
   }
 }
 
 //------------------------------------------------------------------------------
 // Return the number of values to read for the specified dimension.
 //------------------------------------------------------------------------------
-size_t vtkMPASReader::Internal::GetCountForDimension(int nc_dim) const
+size_t vtkMPASReader::Internal::GetCountForDimension(DimId ncDim) const
 {
+  int ncFile = ncFileId(ncDim.Source);
+  int nc_dim = ncDim.Id;
+
   char name[NC_MAX_NAME + 1];
   if (nc_err(nc_inq_dimname(ncFile, nc_dim, name)))
   {
@@ -461,8 +517,11 @@ size_t vtkMPASReader::Internal::GetCountForDimension(int nc_dim) const
 // index into the dimension values, or 0 if the dimension is new.
 // For an arbitrary (i.e. not nCells, nVertices, or Time) dimension, extract
 //------------------------------------------------------------------------------
-long vtkMPASReader::Internal::InitializeDimension(int nc_dim)
+long vtkMPASReader::Internal::InitializeDimension(DimId ncDim)
 {
+  int ncFile = ncFileId(ncDim.Source);
+  int nc_dim = ncDim.Id;
+
   char name[NC_MAX_NAME + 1];
   if (nc_err(nc_inq_dimname(ncFile, nc_dim, name)))
   {
@@ -492,8 +551,12 @@ long vtkMPASReader::Internal::InitializeDimension(int nc_dim)
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkMPASReader::Internal::ComputeNumberOfTuples(int nc_var) const
+vtkIdType vtkMPASReader::Internal::ComputeNumberOfTuples(VarId ncVar) const
 {
+  MPASFile source = ncVar.Source;
+  int ncFile = ncFileId(source);
+  int nc_var = ncVar.Id;
+
   int numDims;
   if (nc_err(nc_inq_varndims(ncFile, nc_var, &numDims)))
   {
@@ -507,7 +570,7 @@ vtkIdType vtkMPASReader::Internal::ComputeNumberOfTuples(int nc_var) const
   vtkIdType size = 0;
   for (int dim = 0; dim < numDims; ++dim)
   {
-    vtkIdType count = static_cast<vtkIdType>(GetCountForDimension(dims[dim]));
+    vtkIdType count = static_cast<vtkIdType>(GetCountForDimension({ source, dims[dim] }));
     if (size == 0)
     {
       size = count;
@@ -522,8 +585,12 @@ vtkIdType vtkMPASReader::Internal::ComputeNumberOfTuples(int nc_var) const
 
 //------------------------------------------------------------------------------
 template <typename TArray>
-bool vtkMPASReader::Internal::LoadDataArray(int nc_var, TArray* array, bool resize)
+bool vtkMPASReader::Internal::LoadDataArray(VarId ncVar, TArray* array, bool resize)
 {
+  MPASFile source = ncVar.Source;
+  int ncFile = ncFileId(source);
+  int nc_var = ncVar.Id;
+
   nc_type var_type;
   if (nc_err(nc_inq_vartype(ncFile, nc_var, &var_type)))
   {
@@ -551,8 +618,8 @@ bool vtkMPASReader::Internal::LoadDataArray(int nc_var, TArray* array, bool resi
 
   for (int dim = 0; dim < numDims; ++dim)
   {
-    cursor.push_back(GetCursorForDimension(dims[dim]));
-    counts.push_back(GetCountForDimension(dims[dim]));
+    cursor.push_back(GetCursorForDimension({ source, dims[dim] }));
+    counts.push_back(GetCountForDimension({ source, dims[dim] }));
     if (size == 0)
     {
       size = counts.back();
@@ -605,13 +672,16 @@ bool vtkMPASReader::Internal::LoadDataArray(int nc_var, TArray* array, bool resi
 //------------------------------------------------------------------------------
 template <typename TArray>
 void vtkMPASReader::Internal::operator()(
-  TArray* array, vtkMPASReader::LoadState& state, int nc_var, Point)
+  TArray* array, vtkMPASReader::LoadState& state, VarId ncVar, Point)
 {
+  int ncFile = ncFileId(ncVar.Source);
+  int nc_var = ncVar.Id;
+
   array->SetNumberOfComponents(1);
   array->SetNumberOfTuples(this->reader->MaximumPoints);
 
   // Don't resize, we've pre-allocated extra room for multilayer (if needed):
-  if (!LoadDataArray(nc_var, array, /*resize=*/false))
+  if (!LoadDataArray(ncVar, array, /*resize=*/false))
   {
     this->PointResult = 0;
     return;
@@ -649,7 +719,7 @@ void vtkMPASReader::Internal::operator()(
     }
   }
 
-  vtkIdType varSize = ComputeNumberOfTuples(nc_var);
+  vtkIdType varSize = ComputeNumberOfTuples(ncVar);
   using ValueType = typename TArray::ValueType;
   ValueType* dataBlock = array->GetPointer(0);
   if (!dataBlock)
@@ -799,13 +869,13 @@ void vtkMPASReader::Internal::operator()(
 //------------------------------------------------------------------------------
 template <typename TArray>
 void vtkMPASReader::Internal::operator()(
-  TArray* array, vtkMPASReader::LoadState& state, int nc_var, Cell)
+  TArray* array, vtkMPASReader::LoadState& state, VarId ncVar, Cell)
 {
   array->SetNumberOfComponents(1);
   array->SetNumberOfTuples(this->reader->MaximumCells);
 
   // Don't resize, we've preallocated extra room for multilayer (if needed):
-  if (!LoadDataArray(nc_var, array, /*resize=*/false))
+  if (!LoadDataArray(ncVar, array, /*resize=*/false))
   {
     this->CellResult = 0;
     return;
@@ -853,12 +923,12 @@ void vtkMPASReader::Internal::operator()(
 // Function to check if there is a NetCDF variable by that name
 //------------------------------------------------------------------------------
 
-int vtkMPASReader::Internal::nc_var_id(const char* name, bool msg_on_err) const
+VarId vtkMPASReader::Internal::nc_var_id(MPASFile source, const char* name, bool msg_on_err) const
 {
-  int varid;
-  if (nc_err(nc_inq_varid(ncFile, name, &varid), msg_on_err))
+  VarId varid{ source, -1 };
+  if (nc_err(nc_inq_varid(ncFileId(source), name, &varid.Id), msg_on_err))
   {
-    return -1;
+    return { source, -1 };
   }
   return varid;
 }
@@ -867,38 +937,25 @@ int vtkMPASReader::Internal::nc_var_id(const char* name, bool msg_on_err) const
 // Check if there is a NetCDF dimension by that name
 //------------------------------------------------------------------------------
 
-int vtkMPASReader::Internal::nc_dim_id(const char* name, bool msg_on_err) const
+DimId vtkMPASReader::Internal::nc_dim_id(MPASFile source, const char* name, bool msg_on_err) const
 {
-  int dimid;
-  if (nc_err(nc_inq_dimid(ncFile, name, &dimid), msg_on_err))
+  DimId dimid{ source, -1 };
+  if (nc_err(nc_inq_dimid(ncFileId(source), name, &dimid.Id), msg_on_err))
   {
-    return -1;
+    return { source, -1 };
   }
   return dimid;
-}
-
-//------------------------------------------------------------------------------
-// Check if there is a NetCDF attribute by that name
-//------------------------------------------------------------------------------
-
-int vtkMPASReader::Internal::nc_att_id(const char* name, bool msg_on_err) const
-{
-  int attid;
-  if (nc_err(nc_inq_attid(ncFile, NC_GLOBAL, name, &attid), msg_on_err))
-  {
-    return -1;
-  }
-  return attid;
 }
 
 //------------------------------------------------------------------------------
 //  Macro to check if the named NetCDF dimension exists
 //------------------------------------------------------------------------------
 
-#define CHECK_DIM(name, out)                                                                       \
+#define CHECK_DIM(source, name, out)                                                               \
   do                                                                                               \
   {                                                                                                \
-    if ((out = this->Internals->nc_dim_id(name)) == -1)                                            \
+    out = this->Internals->nc_dim_id(source, name);                                                \
+    if (out.Id == -1)                                                                              \
     {                                                                                              \
       vtkErrorMacro(<< "Cannot find dimension: " << name << endl);                                 \
       return 0;                                                                                    \
@@ -909,10 +966,11 @@ int vtkMPASReader::Internal::nc_att_id(const char* name, bool msg_on_err) const
 // Macro to check if the named NetCDF variable exists
 //------------------------------------------------------------------------------
 
-#define CHECK_VAR(name, out)                                                                       \
+#define CHECK_VAR(source, name, out)                                                               \
   do                                                                                               \
   {                                                                                                \
-    if ((out = this->Internals->nc_var_id(name)) == -1)                                            \
+    out = this->Internals->nc_var_id(source, name);                                                \
+    if (out.Id == -1)                                                                              \
     {                                                                                              \
       vtkErrorMacro(<< "Cannot find variable: " << name << endl);                                  \
       return 0;                                                                                    \
@@ -1090,7 +1148,7 @@ int vtkMPASReader::RequestInformation(
   // Get ParaView information pointer
   vtkInformation* outInfo = outVector->GetInformationObject(0);
 
-  if (!this->Internals->open(this->FileName))
+  if (!this->Internals->open_grid(this->FileName))
   {
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName << endl);
     this->ReleaseNcData();
@@ -1111,8 +1169,7 @@ int vtkMPASReader::RequestInformation(
 
   if (this->HistoryFileName && this->HistoryFileName[0] != '\0')
   {
-    this->Internals->swapGridAndFieldFiles();
-    if (!this->Internals->open(this->HistoryFileName))
+    if (!this->Internals->open_history(this->HistoryFileName))
     {
       vtkErrorMacro(<< "Couldn't open history file: " << this->HistoryFileName << endl);
       this->ReleaseNcData();
@@ -1123,6 +1180,10 @@ int vtkMPASReader::RequestInformation(
       this->ReleaseNcData();
       return 0;
     }
+  }
+  else
+  {
+    this->Internals->grid_has_fields();
   }
 
   if (!this->CheckParams())
@@ -1185,16 +1246,7 @@ int vtkMPASReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
 
   this->DestroyData();
   LoadState state;
-  if (this->Internals->gridFile != -1)
-  {
-    this->Internals->swapGridAndFieldFiles();
-  }
-  const int gridRead = this->ReadAndOutputGrid(state);
-  if (this->Internals->gridFile != -1)
-  {
-    this->Internals->swapGridAndFieldFiles();
-  }
-  if (!gridRead)
+  if (!this->ReadAndOutputGrid(state))
   {
     this->DestroyData();
     return 0;
@@ -1223,7 +1275,8 @@ int vtkMPASReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
       if (!array)
       {
         char name[NC_MAX_NAME + 1];
-        if (!this->Internals->nc_err(nc_inq_varname(this->Internals->ncFile, pointVars[var], name)))
+        if (!this->Internals->nc_err(nc_inq_varname(
+              this->Internals->ncFileId(pointVars[var].Source), pointVars[var].Id, name)))
         {
           vtkWarningMacro(<< "Error loading point variable '" << name << "'.");
         }
@@ -1246,7 +1299,8 @@ int vtkMPASReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
       if (!array)
       {
         char name[NC_MAX_NAME + 1];
-        if (!this->Internals->nc_err(nc_inq_varname(this->Internals->ncFile, cellVars[var], name)))
+        if (!this->Internals->nc_err(nc_inq_varname(
+              this->Internals->ncFileId(cellVars[var].Source), cellVars[var].Id, name)))
         {
           vtkWarningMacro(<< "Error loading cell variable '" << name << "'.");
         }
@@ -1312,65 +1366,69 @@ void vtkMPASReader::SetDefaults()
 
 int vtkMPASReader::GetNcDims()
 {
-  int dimid;
+  DimId dimid;
   size_t dimlen;
 
-  CHECK_DIM("nCells", dimid);
-  if (this->Internals->nc_err(nc_inq_dimlen(this->Internals->ncFile, dimid, &dimlen)))
-  {
-    return 0;
-  }
-  if (this->UsePrimaryGrid)
-  {
-    this->NumberOfCells = dimlen;
-    this->CellOffset = 0;
-  }
-  else
-  {
-    this->NumberOfPoints = dimlen;
-    this->PointOffset = 1;
-  }
-
-  CHECK_DIM("nVertices", dimid);
-  if (this->Internals->nc_err(nc_inq_dimlen(this->Internals->ncFile, dimid, &dimlen)))
-  {
-    return 0;
-  }
-  if (this->UsePrimaryGrid)
-  {
-    this->NumberOfPoints = dimlen;
-    this->PointOffset = 1;
-  }
-  else
-  {
-    this->NumberOfCells = dimlen;
-    this->CellOffset = 0;
-  }
-
-  if (this->UsePrimaryGrid)
-  {
-    CHECK_DIM("maxEdges", dimid);
-  }
-  else
-  {
-    CHECK_DIM("vertexDegree", dimid);
-  }
-  if (this->Internals->nc_err(nc_inq_dimlen(this->Internals->ncFile, dimid, &this->PointsPerCell)))
-  {
-    return 0;
-  }
-
-  CHECK_DIM("Time", dimid);
+  CHECK_DIM(MPASFile::Grid, "nCells", dimid);
   if (this->Internals->nc_err(
-        nc_inq_dimlen(this->Internals->ncFile, dimid, &this->NumberOfTimeSteps)))
+        nc_inq_dimlen(this->Internals->ncFileId(dimid.Source), dimid.Id, &dimlen)))
+  {
+    return 0;
+  }
+  if (this->UsePrimaryGrid)
+  {
+    this->NumberOfCells = dimlen;
+    this->CellOffset = 0;
+  }
+  else
+  {
+    this->NumberOfPoints = dimlen;
+    this->PointOffset = 1;
+  }
+
+  CHECK_DIM(MPASFile::Grid, "nVertices", dimid);
+  if (this->Internals->nc_err(
+        nc_inq_dimlen(this->Internals->ncFileId(dimid.Source), dimid.Id, &dimlen)))
+  {
+    return 0;
+  }
+  if (this->UsePrimaryGrid)
+  {
+    this->NumberOfPoints = dimlen;
+    this->PointOffset = 1;
+  }
+  else
+  {
+    this->NumberOfCells = dimlen;
+    this->CellOffset = 0;
+  }
+
+  if (this->UsePrimaryGrid)
+  {
+    CHECK_DIM(MPASFile::Grid, "maxEdges", dimid);
+  }
+  else
+  {
+    CHECK_DIM(MPASFile::Grid, "vertexDegree", dimid);
+  }
+  if (this->Internals->nc_err(
+        nc_inq_dimlen(this->Internals->ncFileId(dimid.Source), dimid.Id, &this->PointsPerCell)))
   {
     return 0;
   }
 
-  if ((dimid = this->Internals->nc_dim_id(this->VerticalDimension.c_str())) != -1)
+  CHECK_DIM(MPASFile::Grid, "Time", dimid);
+  if (this->Internals->nc_err(
+        nc_inq_dimlen(this->Internals->ncFileId(dimid.Source), dimid.Id, &this->NumberOfTimeSteps)))
   {
-    if (this->Internals->nc_err(
-          nc_inq_dimlen(this->Internals->ncFile, dimid, &this->MaximumNVertLevels)))
+    return 0;
+  }
+
+  dimid = this->Internals->nc_dim_id(MPASFile::Grid, this->VerticalDimension.c_str());
+  if (dimid.Id != -1)
+  {
+    if (this->Internals->nc_err(nc_inq_dimlen(
+          this->Internals->ncFileId(dimid.Source), dimid.Id, &this->MaximumNVertLevels)))
     {
       return 0;
     }
@@ -1389,11 +1447,12 @@ int vtkMPASReader::GetNcDims()
 //------------------------------------------------------------------------------
 int vtkMPASReader::GetHistoryNcDims()
 {
-  int dimid;
+  DimId dimid;
   size_t dimlen;
 
-  CHECK_DIM("nCells", dimid);
-  if (this->Internals->nc_err(nc_inq_dimlen(this->Internals->ncFile, dimid, &dimlen)))
+  CHECK_DIM(MPASFile::Fields, "nCells", dimid);
+  if (this->Internals->nc_err(
+        nc_inq_dimlen(this->Internals->ncFileId(dimid.Source), dimid.Id, &dimlen)))
   {
     return 0;
   }
@@ -1405,10 +1464,11 @@ int vtkMPASReader::GetHistoryNcDims()
     return 0;
   }
 
-  dimid = this->Internals->nc_dim_id("nVertices", false);
-  if (dimid != -1)
+  dimid = this->Internals->nc_dim_id(MPASFile::Fields, "nVertices", false);
+  if (dimid.Id != -1)
   {
-    if (this->Internals->nc_err(nc_inq_dimlen(this->Internals->ncFile, dimid, &dimlen)))
+    if (this->Internals->nc_err(
+          nc_inq_dimlen(this->Internals->ncFileId(dimid.Source), dimid.Id, &dimlen)))
     {
       return 0;
     }
@@ -1421,17 +1481,18 @@ int vtkMPASReader::GetHistoryNcDims()
     }
   }
 
-  CHECK_DIM("Time", dimid);
+  CHECK_DIM(MPASFile::Fields, "Time", dimid);
   if (this->Internals->nc_err(
-        nc_inq_dimlen(this->Internals->ncFile, dimid, &this->NumberOfTimeSteps)))
+        nc_inq_dimlen(this->Internals->ncFileId(dimid.Source), dimid.Id, &this->NumberOfTimeSteps)))
   {
     return 0;
   }
 
-  if ((dimid = this->Internals->nc_dim_id(this->VerticalDimension.c_str(), false)) != -1)
+  dimid = this->Internals->nc_dim_id(MPASFile::Fields, this->VerticalDimension.c_str(), false);
+  if (dimid.Id != -1)
   {
-    if (this->Internals->nc_err(
-          nc_inq_dimlen(this->Internals->ncFile, dimid, &this->MaximumNVertLevels)))
+    if (this->Internals->nc_err(nc_inq_dimlen(
+          this->Internals->ncFileId(dimid.Source), dimid.Id, &this->MaximumNVertLevels)))
     {
       return 0;
     }
@@ -1447,8 +1508,9 @@ int vtkMPASReader::GetHistoryNcDims()
 //------------------------------------------------------------------------------
 int vtkMPASReader::GetNcAtts()
 {
+  int ncFile = this->Internals->ncFileId(MPASFile::Grid);
   int attid = -1;
-  nc_inq_attid(this->Internals->ncFile, NC_GLOBAL, "on_a_sphere", &attid);
+  nc_inq_attid(ncFile, NC_GLOBAL, "on_a_sphere", &attid);
   if (attid == -1)
   {
     vtkWarningMacro(
@@ -1458,15 +1520,13 @@ int vtkMPASReader::GetNcAtts()
   else
   {
     size_t attlen;
-    if (this->Internals->nc_err(
-          nc_inq_attlen(this->Internals->ncFile, NC_GLOBAL, "on_a_sphere", &attlen)))
+    if (this->Internals->nc_err(nc_inq_attlen(ncFile, NC_GLOBAL, "on_a_sphere", &attlen)))
     {
       return 0;
     }
     char* val = new char[attlen + 1];
     val[attlen] = '\0';
-    if (this->Internals->nc_err(
-          nc_get_att_text(this->Internals->ncFile, NC_GLOBAL, "on_a_sphere", val)))
+    if (this->Internals->nc_err(nc_get_att_text(ncFile, NC_GLOBAL, "on_a_sphere", val)))
     {
       delete[] val;
       return 0;
@@ -1536,6 +1596,8 @@ int vtkMPASReader::CheckParams()
 
 int vtkMPASReader::GetNcVars(const char* cellDimName, const char* pointDimName)
 {
+  constexpr MPASFile source = MPASFile::Fields;
+
   this->Internals->pointArrays.clear();
   this->Internals->pointVars.clear();
   this->Internals->cellArrays.clear();
@@ -1543,7 +1605,7 @@ int vtkMPASReader::GetNcVars(const char* cellDimName, const char* pointDimName)
 
   int numVars;
   int vars[NC_MAX_VARS];
-  if (this->Internals->nc_err(nc_inq_varids(this->Internals->ncFile, &numVars, vars)))
+  if (this->Internals->nc_err(nc_inq_varids(this->Internals->ncFileId(source), &numVars, vars)))
   {
     return 0;
   }
@@ -1555,7 +1617,8 @@ int vtkMPASReader::GetNcVars(const char* cellDimName, const char* pointDimName)
     bool isPointData = false;
     bool isCellData = false;
     int numDims;
-    if (this->Internals->nc_err(nc_inq_varndims(this->Internals->ncFile, vars[i], &numDims)))
+    if (this->Internals->nc_err(
+          nc_inq_varndims(this->Internals->ncFileId(source), vars[i], &numDims)))
     {
       continue;
     }
@@ -1563,7 +1626,7 @@ int vtkMPASReader::GetNcVars(const char* cellDimName, const char* pointDimName)
     if (numDims < 1)
     {
       char name[NC_MAX_NAME + 1];
-      if (this->Internals->nc_err(nc_inq_varname(this->Internals->ncFile, vars[i], name)))
+      if (this->Internals->nc_err(nc_inq_varname(this->Internals->ncFileId(source), vars[i], name)))
       {
         continue;
       }
@@ -1571,7 +1634,7 @@ int vtkMPASReader::GetNcVars(const char* cellDimName, const char* pointDimName)
       continue;
     }
     int dims[NC_MAX_VAR_DIMS];
-    if (this->Internals->nc_err(nc_inq_vardimid(this->Internals->ncFile, vars[i], dims)))
+    if (this->Internals->nc_err(nc_inq_vardimid(this->Internals->ncFileId(source), vars[i], dims)))
     {
       continue;
     }
@@ -1581,7 +1644,8 @@ int vtkMPASReader::GetNcVars(const char* cellDimName, const char* pointDimName)
     for (int dim = 0; dim < std::min(numDims, 2); ++dim)
     {
       char name[NC_MAX_NAME + 1];
-      if (this->Internals->nc_err(nc_inq_dimname(this->Internals->ncFile, dims[dim], name)))
+      if (this->Internals->nc_err(
+            nc_inq_dimname(this->Internals->ncFileId(source), dims[dim], name)))
       {
         ok = false;
         break;
@@ -1616,11 +1680,11 @@ int vtkMPASReader::GetNcVars(const char* cellDimName, const char* pointDimName)
     // Add to cell or point var array
     if (isCellData)
     {
-      this->Internals->cellVars.push_back(vars[i]);
+      this->Internals->cellVars.push_back({ source, vars[i] });
     }
     else if (isPointData)
     {
-      this->Internals->pointVars.push_back(vars[i]);
+      this->Internals->pointVars.push_back({ source, vars[i] });
     }
   }
 
@@ -1641,7 +1705,7 @@ int vtkMPASReader::BuildVarArrays()
 
   for (size_t v = 0; v < this->Internals->pointVars.size(); v++)
   {
-    int varid = this->Internals->pointVars[v];
+    VarId varid = this->Internals->pointVars[v];
     std::string name;
     if (this->UseDimensionedArrayNames)
     {
@@ -1650,7 +1714,8 @@ int vtkMPASReader::BuildVarArrays()
     else
     {
       char varname[NC_MAX_NAME + 1];
-      if (this->Internals->nc_err(nc_inq_varname(this->Internals->ncFile, varid, varname)))
+      if (this->Internals->nc_err(
+            nc_inq_varname(this->Internals->ncFileId(varid.Source), varid.Id, varname)))
       {
         continue;
       }
@@ -1659,25 +1724,27 @@ int vtkMPASReader::BuildVarArrays()
     this->PointDataArraySelection->EnableArray(name.c_str());
     // Register the dimensions:
     int ndims;
-    if (this->Internals->nc_err(nc_inq_varndims(this->Internals->ncFile, varid, &ndims)))
+    if (this->Internals->nc_err(
+          nc_inq_varndims(this->Internals->ncFileId(varid.Source), varid.Id, &ndims)))
     {
       continue;
     }
     int dims[NC_MAX_VAR_DIMS];
-    if (this->Internals->nc_err(nc_inq_vardimid(this->Internals->ncFile, varid, dims)))
+    if (this->Internals->nc_err(
+          nc_inq_vardimid(this->Internals->ncFileId(varid.Source), varid.Id, dims)))
     {
       continue;
     }
     for (int d = 0; d < ndims; ++d)
     {
-      this->Internals->InitializeDimension(dims[d]);
+      this->Internals->InitializeDimension({ varid.Source, dims[d] });
     }
     vtkDebugMacro(<< "Adding point var: " << name);
   }
 
   for (size_t v = 0; v < this->Internals->cellVars.size(); v++)
   {
-    int varid = this->Internals->cellVars[v];
+    VarId varid = this->Internals->cellVars[v];
     std::string name;
     if (this->UseDimensionedArrayNames)
     {
@@ -1686,7 +1753,8 @@ int vtkMPASReader::BuildVarArrays()
     else
     {
       char varname[NC_MAX_NAME + 1];
-      if (this->Internals->nc_err(nc_inq_varname(this->Internals->ncFile, varid, varname)))
+      if (this->Internals->nc_err(
+            nc_inq_varname(this->Internals->ncFileId(varid.Source), varid.Id, varname)))
       {
         continue;
       }
@@ -1695,18 +1763,20 @@ int vtkMPASReader::BuildVarArrays()
     this->CellDataArraySelection->EnableArray(name.c_str());
     // Register the dimensions:
     int ndims;
-    if (this->Internals->nc_err(nc_inq_varndims(this->Internals->ncFile, varid, &ndims)))
+    if (this->Internals->nc_err(
+          nc_inq_varndims(this->Internals->ncFileId(varid.Source), varid.Id, &ndims)))
     {
       continue;
     }
     int dims[NC_MAX_VAR_DIMS];
-    if (this->Internals->nc_err(nc_inq_vardimid(this->Internals->ncFile, varid, dims)))
+    if (this->Internals->nc_err(
+          nc_inq_vardimid(this->Internals->ncFileId(varid.Source), varid.Id, dims)))
     {
       continue;
     }
     for (int d = 0; d < ndims; ++d)
     {
-      this->Internals->InitializeDimension(dims[d]);
+      this->Internals->InitializeDimension({ varid.Source, dims[d] });
     }
     vtkDebugMacro(<< "Adding cell var: " << name);
   }
@@ -1790,8 +1860,8 @@ int vtkMPASReader::ReadAndOutputGrid(LoadState& state)
 
 int vtkMPASReader::AllocSphericalDualGeometry(LoadState& state)
 {
-  int varid;
-  CHECK_VAR("xCell", varid);
+  VarId varid;
+  CHECK_VAR(MPASFile::Grid, "xCell", varid);
   assert(state.PointX == nullptr);
   state.PointX = new double[this->NumberOfPoints + this->PointOffset];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
@@ -1800,45 +1870,45 @@ int vtkMPASReader::AllocSphericalDualGeometry(LoadState& state)
   }
   size_t start_pt[] = { 0 };
   size_t count_pt[] = { this->NumberOfPoints };
-  if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, state.PointX + this->PointOffset)))
+  if (this->Internals->nc_err(nc_get_vara_double(this->Internals->ncFileId(varid.Source), varid.Id,
+        start_pt, count_pt, state.PointX + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
   state.PointX[0] = 0.0;
 
-  CHECK_VAR("yCell", varid);
+  CHECK_VAR(MPASFile::Grid, "yCell", varid);
   assert(state.PointY == nullptr);
   state.PointY = new double[this->NumberOfPoints + this->PointOffset];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
   {
     return 0;
   }
-  if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, state.PointY + this->PointOffset)))
+  if (this->Internals->nc_err(nc_get_vara_double(this->Internals->ncFileId(varid.Source), varid.Id,
+        start_pt, count_pt, state.PointY + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
   state.PointY[0] = 0.0;
 
-  CHECK_VAR("zCell", varid);
+  CHECK_VAR(MPASFile::Grid, "zCell", varid);
   assert(state.PointZ == nullptr);
   state.PointZ = new double[this->NumberOfPoints + this->PointOffset];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
   {
     return 0;
   }
-  if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, state.PointZ + this->PointOffset)))
+  if (this->Internals->nc_err(nc_get_vara_double(this->Internals->ncFileId(varid.Source), varid.Id,
+        start_pt, count_pt, state.PointZ + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
   state.PointZ[0] = 0.0;
 
-  CHECK_VAR("cellsOnVertex", varid);
+  CHECK_VAR(MPASFile::Grid, "cellsOnVertex", varid);
   assert(state.OrigConnections == nullptr);
   state.OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
   // TODO Spec says dims should be '3', 'nVertices', but my example files
@@ -1849,13 +1919,14 @@ int vtkMPASReader::AllocSphericalDualGeometry(LoadState& state)
   }
   size_t start_conn[] = { 0, 0 };
   size_t count_conn[] = { this->NumberOfCells, this->PointsPerCell };
-  if (this->Internals->nc_err(nc_get_vara_int(
-        this->Internals->ncFile, varid, start_conn, count_conn, state.OrigConnections)))
+  if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFileId(varid.Source), varid.Id,
+        start_conn, count_conn, state.OrigConnections)))
   {
     return 0;
   }
 
-  if ((varid = this->Internals->nc_var_id("maxLevelCell", false)) != -1)
+  varid = this->Internals->nc_var_id(MPASFile::Grid, "maxLevelCell", false);
+  if (varid.Id != -1)
   {
     this->IncludeTopography = true;
     assert(state.MaximumLevelPoint == nullptr);
@@ -1864,8 +1935,8 @@ int vtkMPASReader::AllocSphericalDualGeometry(LoadState& state)
     {
       return 0;
     }
-    if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFile, varid, start_pt, count_pt,
-          state.MaximumLevelPoint + this->PointOffset)))
+    if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFileId(varid.Source), varid.Id,
+          start_pt, count_pt, state.MaximumLevelPoint + this->PointOffset)))
     {
       return 0;
     }
@@ -1900,8 +1971,8 @@ int vtkMPASReader::AllocSphericalPrimaryGeometry(LoadState& state)
 {
   auto loadCoordArray = [&](const char* varName, double*& array)
   {
-    int varid;
-    CHECK_VAR(varName, varid);
+    VarId varid;
+    CHECK_VAR(MPASFile::Grid, varName, varid);
     assert(array == nullptr);
     array = new double[this->NumberOfPoints + this->PointOffset];
     if (!this->Internals->ValidateDimensions(varid, false, 1, "nVertices"))
@@ -1910,8 +1981,8 @@ int vtkMPASReader::AllocSphericalPrimaryGeometry(LoadState& state)
     }
     const size_t start_pt[] = { 0 };
     const size_t count_pt[] = { this->NumberOfPoints };
-    if (this->Internals->nc_err(nc_get_vara_double(
-          this->Internals->ncFile, varid, start_pt, count_pt, array + this->PointOffset)))
+    if (this->Internals->nc_err(nc_get_vara_double(this->Internals->ncFileId(varid.Source),
+          varid.Id, start_pt, count_pt, array + this->PointOffset)))
     {
       return 0;
     }
@@ -1925,8 +1996,8 @@ int vtkMPASReader::AllocSphericalPrimaryGeometry(LoadState& state)
     return 0;
   }
 
-  int vertOnCellId;
-  CHECK_VAR("verticesOnCell", vertOnCellId);
+  VarId vertOnCellId;
+  CHECK_VAR(MPASFile::Grid, "verticesOnCell", vertOnCellId);
   assert(state.OrigConnections == nullptr);
   state.OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
   if (!this->Internals->ValidateDimensions(vertOnCellId, false, 2, "nCells", "maxEdges"))
@@ -1935,14 +2006,14 @@ int vtkMPASReader::AllocSphericalPrimaryGeometry(LoadState& state)
   }
   const size_t start_conn[] = { 0, 0 };
   const size_t count_conn[] = { this->NumberOfCells, this->PointsPerCell };
-  if (this->Internals->nc_err(nc_get_vara_int(
-        this->Internals->ncFile, vertOnCellId, start_conn, count_conn, state.OrigConnections)))
+  if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFileId(vertOnCellId.Source),
+        vertOnCellId.Id, start_conn, count_conn, state.OrigConnections)))
   {
     return 0;
   }
 
-  int numVertOnCellId;
-  CHECK_VAR("nEdgesOnCell", numVertOnCellId);
+  VarId numVertOnCellId;
+  CHECK_VAR(MPASFile::Grid, "nEdgesOnCell", numVertOnCellId);
   assert(state.OrigNumPointsOnCell == nullptr);
   state.OrigNumPointsOnCell = new int[this->NumberOfCells];
   if (!this->Internals->ValidateDimensions(numVertOnCellId, false, 1, "nCells"))
@@ -1951,14 +2022,14 @@ int vtkMPASReader::AllocSphericalPrimaryGeometry(LoadState& state)
   }
   const size_t start_cell[] = { 0 };
   const size_t count_cell[] = { this->NumberOfCells };
-  if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFile, numVertOnCellId, start_cell,
-        count_cell, state.OrigNumPointsOnCell)))
+  if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFileId(numVertOnCellId.Source),
+        numVertOnCellId.Id, start_cell, count_cell, state.OrigNumPointsOnCell)))
   {
     return 0;
   }
 
-  int maxLevelPerCellId;
-  if ((maxLevelPerCellId = this->Internals->nc_var_id("maxLevelCell", false)) != -1)
+  VarId maxLevelPerCellId = this->Internals->nc_var_id(MPASFile::Grid, "maxLevelCell", false);
+  if (maxLevelPerCellId.Id != -1)
   {
     this->IncludeTopography = true;
     assert(state.MaximumLevelPoint == nullptr);
@@ -1967,8 +2038,9 @@ int vtkMPASReader::AllocSphericalPrimaryGeometry(LoadState& state)
     {
       return 0;
     }
-    if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFile, maxLevelPerCellId,
-          start_cell, count_cell, state.MaximumLevelPoint + this->CellOffset)))
+    if (this->Internals->nc_err(
+          nc_get_vara_int(this->Internals->ncFileId(maxLevelPerCellId.Source), maxLevelPerCellId.Id,
+            start_cell, count_cell, state.MaximumLevelPoint + this->CellOffset)))
     {
       return 0;
     }
@@ -2005,8 +2077,8 @@ int vtkMPASReader::AllocProjectedDualGeometry(LoadState& state)
   state.ModNumPoints = (int)floor(this->NumberOfPoints * (1.0 + BLOATFACTOR));
   state.ModNumCells = (int)floor(this->NumberOfCells * (1.0 + BLOATFACTOR)) + 1;
 
-  int varid;
-  CHECK_VAR("lonCell", varid);
+  VarId varid;
+  CHECK_VAR(MPASFile::Grid, "lonCell", varid);
   assert(state.PointX == nullptr);
   state.PointX = new double[state.ModNumPoints];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
@@ -2015,30 +2087,30 @@ int vtkMPASReader::AllocProjectedDualGeometry(LoadState& state)
   }
   size_t start_pt[] = { 0 };
   size_t count_pt[] = { this->NumberOfPoints };
-  if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, state.PointX + this->PointOffset)))
+  if (this->Internals->nc_err(nc_get_vara_double(this->Internals->ncFileId(varid.Source), varid.Id,
+        start_pt, count_pt, state.PointX + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
   state.PointX[0] = 0.0;
 
-  CHECK_VAR("latCell", varid);
+  CHECK_VAR(MPASFile::Grid, "latCell", varid);
   assert(state.PointY == nullptr);
   state.PointY = new double[state.ModNumPoints];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
   {
     return 0;
   }
-  if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, state.PointY + this->PointOffset)))
+  if (this->Internals->nc_err(nc_get_vara_double(this->Internals->ncFileId(varid.Source), varid.Id,
+        start_pt, count_pt, state.PointY + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
   state.PointY[0] = 0.0;
 
-  CHECK_VAR("cellsOnVertex", varid);
+  CHECK_VAR(MPASFile::Grid, "cellsOnVertex", varid);
   assert(state.OrigConnections == nullptr);
   state.OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
   // TODO Spec says dims should be '3', 'nVertices', but my example files
@@ -2049,8 +2121,8 @@ int vtkMPASReader::AllocProjectedDualGeometry(LoadState& state)
   }
   size_t start_conn[] = { 0, 0 };
   size_t count_conn[] = { this->NumberOfCells, this->PointsPerCell };
-  if (this->Internals->nc_err(nc_get_vara_int(
-        this->Internals->ncFile, varid, start_conn, count_conn, state.OrigConnections)))
+  if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFileId(varid.Source), varid.Id,
+        start_conn, count_conn, state.OrigConnections)))
   {
     return 0;
   }
@@ -2069,7 +2141,8 @@ int vtkMPASReader::AllocProjectedDualGeometry(LoadState& state)
   assert(state.CellMap == nullptr);
   state.CellMap = new size_t[(size_t)floor(this->NumberOfCells * BLOATFACTOR)];
 
-  if ((varid = this->Internals->nc_var_id("maxLevelCell", false)) != -1)
+  varid = this->Internals->nc_var_id(MPASFile::Grid, "maxLevelCell", false);
+  if (varid.Id != -1)
   {
     this->IncludeTopography = true;
     assert(state.MaximumLevelPoint == nullptr);
@@ -2078,8 +2151,8 @@ int vtkMPASReader::AllocProjectedDualGeometry(LoadState& state)
     {
       return 0;
     }
-    if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFile, varid, start_pt, count_pt,
-          state.MaximumLevelPoint + this->PointOffset)))
+    if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFileId(varid.Source), varid.Id,
+          start_pt, count_pt, state.MaximumLevelPoint + this->PointOffset)))
     {
       return 0;
     }
@@ -2117,8 +2190,8 @@ int vtkMPASReader::AllocProjectedPrimaryGeometry(LoadState& state)
   state.ModNumPoints = (int)floor(this->NumberOfPoints * (1.0 + BLOATFACTOR));
   state.ModNumCells = (int)floor(this->NumberOfCells * (1.0 + BLOATFACTOR)) + 1;
 
-  int lonId;
-  CHECK_VAR("lonVertex", lonId);
+  VarId lonId;
+  CHECK_VAR(MPASFile::Grid, "lonVertex", lonId);
   assert(state.PointX == nullptr);
   state.PointX = new double[state.ModNumPoints];
   if (!this->Internals->ValidateDimensions(lonId, false, 1, "nVertices"))
@@ -2127,32 +2200,32 @@ int vtkMPASReader::AllocProjectedPrimaryGeometry(LoadState& state)
   }
   size_t start_pt[] = { 0 };
   size_t count_pt[] = { this->NumberOfPoints };
-  if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, lonId, start_pt, count_pt, state.PointX + this->PointOffset)))
+  if (this->Internals->nc_err(nc_get_vara_double(this->Internals->ncFileId(lonId.Source), lonId.Id,
+        start_pt, count_pt, state.PointX + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
   state.PointX[0] = 0.0;
 
-  int latId;
-  CHECK_VAR("latVertex", latId);
+  VarId latId;
+  CHECK_VAR(MPASFile::Grid, "latVertex", latId);
   assert(state.PointY == nullptr);
   state.PointY = new double[state.ModNumPoints];
   if (!this->Internals->ValidateDimensions(latId, false, 1, "nVertices"))
   {
     return 0;
   }
-  if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, latId, start_pt, count_pt, state.PointY + this->PointOffset)))
+  if (this->Internals->nc_err(nc_get_vara_double(this->Internals->ncFileId(latId.Source), latId.Id,
+        start_pt, count_pt, state.PointY + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
   state.PointY[0] = 0.0;
 
-  int vertOnCellId;
-  CHECK_VAR("verticesOnCell", vertOnCellId);
+  VarId vertOnCellId;
+  CHECK_VAR(MPASFile::Grid, "verticesOnCell", vertOnCellId);
   assert(state.OrigConnections == nullptr);
   state.OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
   if (!this->Internals->ValidateDimensions(vertOnCellId, false, 2, "nCells", "maxEdges"))
@@ -2161,14 +2234,14 @@ int vtkMPASReader::AllocProjectedPrimaryGeometry(LoadState& state)
   }
   size_t start_conn[] = { 0, 0 };
   size_t count_conn[] = { this->NumberOfCells, this->PointsPerCell };
-  if (this->Internals->nc_err(nc_get_vara_int(
-        this->Internals->ncFile, vertOnCellId, start_conn, count_conn, state.OrigConnections)))
+  if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFileId(vertOnCellId.Source),
+        vertOnCellId.Id, start_conn, count_conn, state.OrigConnections)))
   {
     return 0;
   }
 
-  int numVertOnCellId;
-  CHECK_VAR("nEdgesOnCell", numVertOnCellId);
+  VarId numVertOnCellId;
+  CHECK_VAR(MPASFile::Grid, "nEdgesOnCell", numVertOnCellId);
   assert(state.OrigNumPointsOnCell == nullptr);
   state.OrigNumPointsOnCell = new int[this->NumberOfCells];
   if (!this->Internals->ValidateDimensions(numVertOnCellId, false, 1, "nCells"))
@@ -2177,8 +2250,8 @@ int vtkMPASReader::AllocProjectedPrimaryGeometry(LoadState& state)
   }
   const size_t start_cell[] = { 0 };
   const size_t count_cell[] = { this->NumberOfCells };
-  if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFile, numVertOnCellId, start_cell,
-        count_cell, state.OrigNumPointsOnCell)))
+  if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFileId(numVertOnCellId.Source),
+        numVertOnCellId.Id, start_cell, count_cell, state.OrigNumPointsOnCell)))
   {
     return 0;
   }
@@ -2199,8 +2272,8 @@ int vtkMPASReader::AllocProjectedPrimaryGeometry(LoadState& state)
   assert(state.CellMap == nullptr);
   state.CellMap = new size_t[(size_t)floor(this->NumberOfCells * BLOATFACTOR)];
 
-  int maxLevelPerCellId;
-  if ((maxLevelPerCellId = this->Internals->nc_var_id("maxLevelCell", false)) != -1)
+  VarId maxLevelPerCellId = this->Internals->nc_var_id(MPASFile::Grid, "maxLevelCell", false);
+  if (maxLevelPerCellId.Id != -1)
   {
     this->IncludeTopography = true;
     assert(state.MaximumLevelPoint == nullptr);
@@ -2209,8 +2282,9 @@ int vtkMPASReader::AllocProjectedPrimaryGeometry(LoadState& state)
     {
       return 0;
     }
-    if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFile, maxLevelPerCellId,
-          start_cell, count_cell, state.MaximumLevelPoint + this->CellOffset)))
+    if (this->Internals->nc_err(
+          nc_get_vara_int(this->Internals->ncFileId(maxLevelPerCellId.Source), maxLevelPerCellId.Id,
+            start_cell, count_cell, state.MaximumLevelPoint + this->CellOffset)))
     {
       return 0;
     }
@@ -2240,8 +2314,8 @@ int vtkMPASReader::AllocProjectedPrimaryGeometry(LoadState& state)
 
 int vtkMPASReader::AllocPlanarGeometry(LoadState& state)
 {
-  int varid;
-  CHECK_VAR("xCell", varid);
+  VarId varid;
+  CHECK_VAR(MPASFile::Grid, "xCell", varid);
   assert(state.PointX == nullptr);
   state.PointX = new double[this->NumberOfPoints];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
@@ -2250,45 +2324,45 @@ int vtkMPASReader::AllocPlanarGeometry(LoadState& state)
   }
   size_t start_pt[] = { 0 };
   size_t count_pt[] = { this->NumberOfPoints };
-  if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, state.PointX + this->PointOffset)))
+  if (this->Internals->nc_err(nc_get_vara_double(this->Internals->ncFileId(varid.Source), varid.Id,
+        start_pt, count_pt, state.PointX + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
   state.PointX[0] = 0.0;
 
-  CHECK_VAR("yCell", varid);
+  CHECK_VAR(MPASFile::Grid, "yCell", varid);
   assert(state.PointY == nullptr);
   state.PointY = new double[this->NumberOfPoints];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
   {
     return 0;
   }
-  if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, state.PointY + this->PointOffset)))
+  if (this->Internals->nc_err(nc_get_vara_double(this->Internals->ncFileId(varid.Source), varid.Id,
+        start_pt, count_pt, state.PointY + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
   state.PointY[0] = 0.0;
 
-  CHECK_VAR("zCell", varid);
+  CHECK_VAR(MPASFile::Grid, "zCell", varid);
   assert(state.PointZ == nullptr);
   state.PointZ = new double[this->NumberOfPoints];
   if (!this->Internals->ValidateDimensions(varid, false, 1, "nCells"))
   {
     return 0;
   }
-  if (this->Internals->nc_err(nc_get_vara_double(
-        this->Internals->ncFile, varid, start_pt, count_pt, state.PointZ + this->PointOffset)))
+  if (this->Internals->nc_err(nc_get_vara_double(this->Internals->ncFileId(varid.Source), varid.Id,
+        start_pt, count_pt, state.PointZ + this->PointOffset)))
   {
     return 0;
   }
   // point 0 is 0.0
   state.PointZ[0] = 0.0;
 
-  CHECK_VAR("cellsOnVertex", varid);
+  CHECK_VAR(MPASFile::Grid, "cellsOnVertex", varid);
   assert(state.OrigConnections == nullptr);
   state.OrigConnections = new int[this->NumberOfCells * this->PointsPerCell];
   // TODO Spec says dims should be '3', 'nVertices', but my example files
@@ -2299,13 +2373,14 @@ int vtkMPASReader::AllocPlanarGeometry(LoadState& state)
   }
   size_t start_conn[] = { 0, 0 };
   size_t count_conn[] = { this->NumberOfCells, this->PointsPerCell };
-  if (this->Internals->nc_err(nc_get_vara_int(
-        this->Internals->ncFile, varid, start_conn, count_conn, state.OrigConnections)))
+  if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFileId(varid.Source), varid.Id,
+        start_conn, count_conn, state.OrigConnections)))
   {
     return 0;
   }
 
-  if ((varid = this->Internals->nc_var_id("maxLevelCell", false)) != -1)
+  varid = this->Internals->nc_var_id(MPASFile::Grid, "maxLevelCell", false);
+  if (varid.Id != -1)
   {
     this->IncludeTopography = true;
     assert(state.MaximumLevelPoint == nullptr);
@@ -2316,8 +2391,8 @@ int vtkMPASReader::AllocPlanarGeometry(LoadState& state)
     }
     size_t start[] = { 0 };
     size_t count[] = { this->NumberOfPoints };
-    if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFile, varid, start, count,
-          state.MaximumLevelPoint + this->PointOffset)))
+    if (this->Internals->nc_err(nc_get_vara_int(this->Internals->ncFileId(varid.Source), varid.Id,
+          start, count, state.MaximumLevelPoint + this->PointOffset)))
     {
       return 0;
     }
@@ -2994,10 +3069,11 @@ void vtkMPASReader::OutputCells(LoadState& state)
 //------------------------------------------------------------------------------
 vtkDataArray* vtkMPASReader::LoadPointVarData(LoadState& state, int variableIndex)
 {
-  int varid = this->UsePrimaryGrid ? this->Internals->cellVars[variableIndex]
-                                   : this->Internals->pointVars[variableIndex];
+  VarId varid = this->UsePrimaryGrid ? this->Internals->cellVars[variableIndex]
+                                     : this->Internals->pointVars[variableIndex];
   char varname[NC_MAX_NAME + 1];
-  if (this->Internals->nc_err(nc_inq_varname(this->Internals->ncFile, varid, varname)))
+  if (this->Internals->nc_err(
+        nc_inq_varname(this->Internals->ncFileId(varid.Source), varid.Id, varname)))
   {
     vtkErrorMacro(<< "No NetCDF data for pointVar @ index " << variableIndex);
     return nullptr;
@@ -3007,7 +3083,8 @@ vtkDataArray* vtkMPASReader::LoadPointVarData(LoadState& state, int variableInde
 
   // Get data type:
   nc_type typeNc;
-  if (this->Internals->nc_err(nc_inq_vartype(this->Internals->ncFile, varid, &typeNc)))
+  if (this->Internals->nc_err(
+        nc_inq_vartype(this->Internals->ncFileId(varid.Source), varid.Id, &typeNc)))
   {
     return nullptr;
   }
@@ -3045,10 +3122,11 @@ vtkDataArray* vtkMPASReader::LoadPointVarData(LoadState& state, int variableInde
 
 vtkDataArray* vtkMPASReader::LoadCellVarData(LoadState& state, int variableIndex)
 {
-  int varid = this->UsePrimaryGrid ? this->Internals->pointVars[variableIndex]
-                                   : this->Internals->cellVars[variableIndex];
+  VarId varid = this->UsePrimaryGrid ? this->Internals->pointVars[variableIndex]
+                                     : this->Internals->cellVars[variableIndex];
   char varname[NC_MAX_NAME + 1];
-  if (this->Internals->nc_err(nc_inq_varname(this->Internals->ncFile, varid, varname)))
+  if (this->Internals->nc_err(
+        nc_inq_varname(this->Internals->ncFileId(varid.Source), varid.Id, varname)))
   {
     vtkErrorMacro(<< "No NetCDF data for cellVar @ index " << variableIndex);
     return nullptr;
@@ -3058,7 +3136,8 @@ vtkDataArray* vtkMPASReader::LoadCellVarData(LoadState& state, int variableIndex
 
   // Get data type:
   nc_type typeNc;
-  if (this->Internals->nc_err(nc_inq_vartype(this->Internals->ncFile, varid, &typeNc)))
+  if (this->Internals->nc_err(
+        nc_inq_vartype(this->Internals->ncFileId(varid.Source), varid.Id, &typeNc)))
   {
     return nullptr;
   }
@@ -3137,22 +3216,23 @@ void vtkMPASReader::LoadTimeFieldData(vtkUnstructuredGrid* dataset)
 
   // If the xtime variable exists, use its value at the current timestep:
   std::string time;
-  int varid;
-  if ((varid = this->Internals->nc_var_id("xtime", false)) != -1)
+  VarId varid = this->Internals->nc_var_id(MPASFile::Fields, "xtime", false);
+  if (varid.Id != -1)
   {
     if (this->Internals->ValidateDimensions(varid, false, 2, "Time", "StrLen"))
     {
-      int dimid = this->Internals->nc_dim_id("StrLen");
-      assert(dimid != -1);
+      DimId dimid = this->Internals->nc_dim_id(varid.Source, "StrLen");
+      assert(dimid.Id != -1);
       size_t strLen = 0;
-      this->Internals->nc_err(nc_inq_dimlen(this->Internals->ncFile, dimid, &strLen));
+      this->Internals->nc_err(
+        nc_inq_dimlen(this->Internals->ncFileId(dimid.Source), dimid.Id, &strLen));
       if (strLen > 0)
       {
         time.resize(strLen);
         size_t start[] = { this->Internals->GetCursorForDimension(dimid), 0 };
         size_t count[] = { 1, strLen };
-        if (this->Internals->nc_err(
-              nc_get_vara_text(this->Internals->ncFile, varid, start, count, time.data())))
+        if (this->Internals->nc_err(nc_get_vara_text(
+              this->Internals->ncFileId(dimid.Source), varid.Id, start, count, time.data())))
         {
           // Trim off trailing whitespace:
           size_t realLength = time.find_last_not_of(' ');
@@ -3204,7 +3284,7 @@ void vtkMPASReader::UpdateDimensions(bool force)
 
   this->Internals->extraDims->Reset();
 
-  if (!this->Internals->ncFile)
+  if (!this->Internals->ncFileId(MPASFile::Grid))
   {
     this->Internals->extraDimTime.Modified();
     return;
@@ -3482,16 +3562,16 @@ void vtkMPASReader::SetCenterLon(int val)
 int vtkMPASReader::CanReadFile(const char* filename)
 {
   Internal* internals = new Internal(nullptr);
-  if (!internals->open(filename))
+  if (!internals->open_grid(filename))
   {
     delete internals;
     return 0;
   }
   bool ret = true;
-  ret &= (internals->nc_dim_id("nCells") != -1);
-  ret &= (internals->nc_dim_id("nVertices") != -1);
-  ret &= (internals->nc_dim_id("vertexDegree") != -1);
-  ret &= (internals->nc_dim_id("Time") != -1);
+  ret &= (internals->nc_dim_id(MPASFile::Grid, "nCells").Id != -1);
+  ret &= (internals->nc_dim_id(MPASFile::Grid, "nVertices").Id != -1);
+  ret &= (internals->nc_dim_id(MPASFile::Grid, "vertexDegree").Id != -1);
+  ret &= (internals->nc_dim_id(MPASFile::Grid, "Time").Id != -1);
   delete internals;
   return ret;
 }
