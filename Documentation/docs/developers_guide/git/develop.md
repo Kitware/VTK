@@ -529,6 +529,16 @@ By convention, do not request a merge if any `-1` or `Rejected-by:`
 review comments have not been resolved and superseded by at least
 `+1` or `Acked-by:` review comments from the same user.
 
+Before merging, all of the [Continuous Integration](#continuous-integration)
+build jobs are expected to pass, this is enforced by the robot. Occasionally
+there may be internal issues with builds that cause failures unrelated to your
+changes. These can sometimes be resolved by restarting the build job or rebasing
+your changes to a commit where the problem is fixed. If you feel the failure is
+unrelated to your changes and beyond your control, you can request a bypass
+token by adding a comment to your MR with the
+`@utils/maintainers/bypass-vtk-vtk`. Once the bypass token is provided, `Do:
+merge` will behave as if the build jobs have passed.
+
 The `Do: merge` command accepts the following arguments:
 
 * `-t <topic>`: substitute `<topic>` for the name of the MR topic
