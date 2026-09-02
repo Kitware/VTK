@@ -13,6 +13,7 @@ vtk_add_test_cxx(vtkRenderingAnnotationCxxTests tests
   TestCornerAnnotation.cxx
   TestCubeAxes2DMode.cxx
   TestCubeAxes3.cxx
+  TestCubeAxes_Text3D.cxx,NO_VALID
   TestCubeAxesInnerGridAll.cxx
   TestCubeAxesInnerGridClosest.cxx
   TestCubeAxesInnerGridFurthest.cxx
