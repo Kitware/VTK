@@ -1184,6 +1184,10 @@ bool EnSightDataSet::ReadGeometry(vtkPartitionedDataSetCollection* output,
       auto assembly = output->GetDataAssembly();
       auto validName = vtkDataAssembly::MakeValidNodeName(partName.c_str());
       int node = assembly->AddNode(validName.c_str());
+      if (!partName.empty())
+      {
+        assembly->SetAttribute(node, "label", partName.c_str());
+      }
       assembly->AddDataSetIndex(node, partInfo.PDCIndex);
     }
 
@@ -1216,6 +1220,10 @@ bool EnSightDataSet::ReadGeometry(vtkPartitionedDataSetCollection* output,
         output->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), name.c_str());
         auto validName = vtkDataAssembly::MakeValidNodeName(name.c_str());
         int node = assembly->AddNode(validName.c_str());
+        if (!name.empty())
+        {
+          assembly->SetAttribute(node, "label", name.c_str());
+        }
         assembly->AddDataSetIndex(node, i);
       }
     }
@@ -1253,6 +1261,10 @@ bool EnSightDataSet::ReadMeasuredGeometry(vtkPartitionedDataSetCollection* outpu
     auto assembly = output->GetDataAssembly();
     auto validName = vtkDataAssembly::MakeValidNodeName(this->MeasuredPartName.c_str());
     int node = assembly->AddNode(validName.c_str());
+    if (!this->MeasuredPartName.empty())
+    {
+      assembly->SetAttribute(node, "label", this->MeasuredPartName.c_str());
+    }
     assembly->AddDataSetIndex(node, this->MeasuredPartitionId);
     return true;
   }
@@ -1363,6 +1375,10 @@ bool EnSightDataSet::ReadMeasuredGeometry(vtkPartitionedDataSetCollection* outpu
   auto assembly = output->GetDataAssembly();
   auto validName = vtkDataAssembly::MakeValidNodeName(this->MeasuredPartName.c_str());
   int node = assembly->AddNode(validName.c_str());
+  if (!this->MeasuredPartName.empty())
+  {
+    assembly->SetAttribute(node, "label", this->MeasuredPartName.c_str());
+  }
   assembly->AddDataSetIndex(node, this->MeasuredPartitionId);
   return true;
 }

@@ -2144,6 +2144,10 @@ int vtkFDSReader::GetNodeId(int parentNode, const std::string& givenNodeName)
 {
   const auto nodeName = vtkDataAssembly::MakeValidNodeName(givenNodeName.c_str());
   int nodeId = this->Assembly->AddNode(nodeName.c_str(), parentNode);
+  if (!givenNodeName.empty())
+  {
+    this->Assembly->SetAttribute(nodeId, "label", givenNodeName.c_str());
+  }
   return nodeId;
 }
 

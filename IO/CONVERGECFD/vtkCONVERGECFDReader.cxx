@@ -841,6 +841,10 @@ int vtkCONVERGECFDReader::RequestData(
       boundarySurface->SetPolys(polys);
       std::string validName = vtkDataAssembly::MakeValidNodeName(boundaryNames[i].c_str());
       int boundaryNodeId = hierarchy->AddNode(validName.c_str(), surfaceNodeId);
+      if (!boundaryNames[i].empty())
+      {
+        hierarchy->SetAttribute(boundaryNodeId, "label", boundaryNames[i].c_str());
+      }
       hierarchy->AddDataSetIndex(boundaryNodeId, streamSurfaceStartId + i);
     }
 
@@ -1192,6 +1196,10 @@ int vtkCONVERGECFDReader::RequestData(
 
           std::string dataTypeNodeName = vtkDataAssembly::MakeValidNodeName(dataType.c_str());
           int parcelDataTypeNodeId = hierarchy->AddNode(dataTypeNodeName.c_str(), parcelsNodeId);
+          if (!dataType.empty())
+          {
+            hierarchy->SetAttribute(parcelDataTypeNodeId, "label", dataType.c_str());
+          }
 
           // Iterate over the datasets in the dataset type group
           for (hsize_t i = 0; i < numDataSets; ++i)
@@ -1214,6 +1222,10 @@ int vtkCONVERGECFDReader::RequestData(
               vtkDataAssembly::MakeValidNodeName(dataSetGroupName);
             int parcelNodeId =
               hierarchy->AddNode(validDataSetGroupName.c_str(), parcelDataTypeNodeId);
+            if (dataSetGroupName[0] != '\0')
+            {
+              hierarchy->SetAttribute(parcelNodeId, "label", dataSetGroupName);
+            }
             hierarchy->AddDataSetIndex(parcelNodeId, parcelsId);
           }
         }
