@@ -117,8 +117,9 @@ void vtkQtAnnotationView::Update()
   vtkDataRepresentation* rep = this->GetRepresentation();
   if (!rep)
   {
-    this->Adapter->reset();
+    this->Adapter->beginResetModel();
     this->View->update();
+    this->Adapter->endResetModel();
     return;
   }
 

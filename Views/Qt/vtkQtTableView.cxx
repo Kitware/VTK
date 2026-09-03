@@ -415,7 +415,8 @@ void vtkQtTableView::Update()
   vtkDataRepresentation* rep = this->GetRepresentation();
   if (!rep)
   {
-    this->TableAdapter->reset();
+    this->TableAdapter->beginResetModel();
+    this->TableAdapter->endResetModel();
     return;
   }
 

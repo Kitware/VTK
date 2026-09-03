@@ -116,6 +116,8 @@ void vtkQtTreeModelAdapter::setTree(vtkTree* t)
 {
   if (!t || (t != this->Tree))
   {
+    this->beginResetModel();
+
     vtkTree* tempSGMacroVar = this->Tree;
     this->Tree = t;
     if (this->Tree != nullptr)
@@ -134,7 +136,8 @@ void vtkQtTreeModelAdapter::setTree(vtkTree* t)
     {
       tempSGMacroVar->UnRegister(nullptr);
     }
-    Q_EMIT reset();
+
+    this->endResetModel();
   }
 
   // Okay it's the same pointer but the contents
@@ -148,6 +151,7 @@ void vtkQtTreeModelAdapter::setTree(vtkTree* t)
 
 void vtkQtTreeModelAdapter::treeModified()
 {
+  this->beginResetModel();
   this->VTKIndexToQtModelIndex.clear();
   if (this->Tree->GetNumberOfVertices() > 0)
   {
@@ -156,7 +160,7 @@ void vtkQtTreeModelAdapter::treeModified()
     this->GenerateVTKIndexToQtModelIndex(root, this->createIndex(0, 0, static_cast<int>(root)));
   }
   this->TreeMTime = this->Tree->GetMTime();
-  Q_EMIT reset();
+  this->endResetModel();
 }
 
 // Description:
