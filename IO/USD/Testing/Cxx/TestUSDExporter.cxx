@@ -59,6 +59,28 @@ bool FileContainsString(const std::string& filePath, const std::string& searchSt
 
   return false;
 }
+
+// Utility function to count how many lines of a file contain a specific string
+int CountStringInFile(const std::string& filePath, const std::string& searchString)
+{
+  std::ifstream file(filePath);
+  if (!file.is_open())
+  {
+    return 0;
+  }
+
+  int count = 0;
+  std::string line;
+  while (std::getline(file, line))
+  {
+    if (line.find(searchString) != std::string::npos)
+    {
+      ++count;
+    }
+  }
+
+  return count;
+}
 } // namespace
 
 int TestUSDExporter(int argc, char* argv[])
@@ -503,6 +525,13 @@ int TestUSDExporter(int argc, char* argv[])
     checksPassed = false;
   }
 
+  if (!checksPassed)
+  {
+    vtkLog(
+      ERROR, "Test 6: one or more checks failed for the single-file multi-timestep export test.");
+    return EXIT_FAILURE;
+  }
+
   /////////////////////////////////////////////////////////////////////////////
   // Test 7: check that saving a scene with a composite dataset with field data
   // arrays does not crash.
@@ -589,6 +618,274 @@ int TestUSDExporter(int argc, char* argv[])
   {
     vtkLog(ERROR, "Test 8: one or more checks failed when exporting verts and polylines.");
     return EXIT_FAILURE;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Test 9: Check that Start()/Write()/Finish() combine multiple timesteps into
+  // a single USD file using time samples, rather than each Write() call
+  // producing an independent file. Also exercises topology (not just point
+  // positions), texture coordinates, and materials changing from frame to
+  // frame, since a color-mapped scalar field can vary over an animation just
+  // like geometry can.
+  {
+    vtkNew<vtkSphereSource> movingSphere;
+    movingSphere->SetThetaResolution(4);
+    movingSphere->SetPhiResolution(4);
+    vtkNew<vtkElevationFilter> movingElev;
+    movingElev->SetInputConnection(movingSphere->GetOutputPort());
+    vtkNew<vtkPolyDataMapper> movingMapper;
+    movingMapper->SetInputConnection(movingElev->GetOutputPort());
+    movingMapper->SetColorModeToMapScalars();
+    movingMapper->ScalarVisibilityOn();
+    vtkNew<vtkActor> movingActor;
+    movingActor->SetMapper(movingMapper);
+
+    vtkNew<vtkRenderer> movingRenderer;
+    movingRenderer->AddActor(movingActor);
+    movingRenderer->ResetCamera();
+    vtkNew<vtkRenderWindow> movingWindow;
+    movingWindow->AddRenderer(movingRenderer);
+    movingWindow->Render();
+
+    vtkNew<vtkUSDExporter> timeExporter;
+    timeExporter->SetRenderWindow(movingWindow);
+    filename = rootname + "_timesteps.usda";
+    timeExporter->SetFileName(filename.c_str());
+
+    timeExporter->Start();
+    for (int i = 0; i < 3; ++i)
+    {
+      movingActor->SetPosition(static_cast<double>(i), 0.0, 0.0);
+      // Change topology (not just point positions) between frames.
+      movingSphere->SetThetaResolution(4 + i * 4);
+      movingSphere->SetPhiResolution(4 + i * 4);
+      movingWindow->Render();
+      timeExporter->SetTimeValue(static_cast<double>(i));
+      timeExporter->Write();
+    }
+    timeExporter->Finish();
+
+    auto combinedSize = vtksys::SystemTools::FileLength(filename);
+    if (combinedSize == 0)
+    {
+      vtkLog(ERROR, "Test 9: combined timestep USD file should not be empty.");
+      checksPassed = false;
+    }
+
+    if (!FileContainsString(filename, "timeSamples"))
+    {
+      vtkLog(ERROR, "Test 9: combined timestep USD file should contain time samples.");
+      checksPassed = false;
+    }
+
+    // Topology may vary per timestep, so it should be time-sampled, not
+    // written once as a static attribute.
+    if (!FileContainsString(filename, "faceVertexCounts.timeSamples"))
+    {
+      vtkLog(ERROR, "Test 9: expected faceVertexCounts to be time-sampled.");
+      checksPassed = false;
+    }
+
+    // Texture coordinates and material inputs are tied to the (potentially
+    // time-varying) color-mapped scalar field, so they should be
+    // time-sampled too, not written once on the first frame.
+    if (!FileContainsString(filename, "primvars:st.timeSamples"))
+    {
+      vtkLog(ERROR, "Test 9: expected texture coordinate primvar 'st' to be time-sampled.");
+      checksPassed = false;
+    }
+    if (!FileContainsString(filename, "diffuseColor.timeSamples") &&
+      !FileContainsString(filename, "inputs:diffuseColor.timeSamples"))
+    {
+      vtkLog(ERROR, "Test 9: expected material diffuseColor input to be time-sampled.");
+      checksPassed = false;
+    }
+    if (!FileContainsString(filename, "inputs:file.timeSamples"))
+    {
+      vtkLog(ERROR, "Test 9: expected material texture 'file' input to be time-sampled.");
+      checksPassed = false;
+    }
+
+    // The color-mapped texture here is the lookup table's color ramp image,
+    // which does not depend on the mesh's scalar range, only its fixed set
+    // of table entries. Since the actor's lookup table does not change
+    // between frames (only topology and texture coordinates do), the same
+    // texture image should be reused across all 3 frames rather than
+    // written out again for each one.
+    std::string frame0TextureFilename = rootname + "_timesteps_tex0_frame0.png";
+    if (!vtksys::SystemTools::FileExists(frame0TextureFilename.c_str(), true /* file */))
+    {
+      vtkLog(ERROR, "Test 9: expected texture file " << frame0TextureFilename << " to be created.");
+      checksPassed = false;
+    }
+    else if (enableCleanupAfterTest)
+    {
+      vtksys::SystemTools::RemoveFile(frame0TextureFilename);
+    }
+
+    for (int i = 1; i < 3; ++i)
+    {
+      std::string frameTextureFilename =
+        rootname + "_timesteps_tex0_frame" + std::to_string(i) + ".png";
+      if (vtksys::SystemTools::FileExists(frameTextureFilename.c_str(), true /* file */))
+      {
+        vtkLog(ERROR,
+          "Test 9: did not expect " << frameTextureFilename
+                                    << " to be created since the texture did not change.");
+        checksPassed = false;
+        if (enableCleanupAfterTest)
+        {
+          vtksys::SystemTools::RemoveFile(frameTextureFilename);
+        }
+      }
+    }
+
+    // The reused texture file should still be referenced at every time
+    // sample of the material's 'file' input.
+    int frame0ReferenceCount = CountStringInFile(filename, "_timesteps_tex0_frame0.png");
+    if (frame0ReferenceCount < 3)
+    {
+      vtkLog(ERROR,
+        "Test 9: expected the reused texture file to be referenced at least 3 times (once per "
+        "frame), found "
+          << frame0ReferenceCount << ".");
+      checksPassed = false;
+    }
+
+    // Prims themselves (as opposed to their topology) are still only
+    // created once, so only one Mesh0 prim definition should appear.
+    int meshDefCount = CountStringInFile(filename, "def Mesh \"Mesh0\"");
+    if (meshDefCount != 1)
+    {
+      vtkLog(ERROR,
+        "Test 9: expected exactly one Mesh0 definition in the combined timestep file, found "
+          << meshDefCount << ".");
+      checksPassed = false;
+    }
+
+    if (!checksPassed)
+    {
+      vtkLog(
+        ERROR, "Test 9: one or more checks failed for the single-file multi-timestep export test.");
+      return EXIT_FAILURE;
+    }
+
+    if (enableCleanupAfterTest)
+    {
+      vtksys::SystemTools::RemoveFile(filename);
+    }
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  // Test 10: Check that when a texture does not change from one frame to the
+  // next, the exporter reuses the previously written texture file instead of
+  // writing a duplicate copy for every frame.
+  {
+    vtkNew<vtkSphereSource> staticTexSphere;
+    staticTexSphere->SetThetaResolution(6);
+    staticTexSphere->SetPhiResolution(6);
+
+    vtkNew<vtkImageData> staticTexImage;
+    staticTexImage->SetDimensions(8, 8, 1);
+    staticTexImage->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
+    vtkUnsignedCharArray* staticTexScalars =
+      vtkArrayDownCast<vtkUnsignedCharArray>(staticTexImage->GetPointData()->GetScalars());
+    staticTexScalars->FillComponent(0, 0);
+    staticTexScalars->FillComponent(1, 255);
+    staticTexScalars->FillComponent(2, 0);
+
+    vtkNew<vtkTexture> staticTexture;
+    staticTexture->SetInputData(staticTexImage);
+
+    vtkNew<vtkPolyDataMapper> staticTexMapper;
+    staticTexMapper->SetInputConnection(staticTexSphere->GetOutputPort());
+    vtkNew<vtkActor> staticTexActor;
+    staticTexActor->SetMapper(staticTexMapper);
+    staticTexActor->SetTexture(staticTexture);
+
+    vtkNew<vtkRenderer> staticTexRenderer;
+    staticTexRenderer->AddActor(staticTexActor);
+    staticTexRenderer->ResetCamera();
+    vtkNew<vtkRenderWindow> staticTexWindow;
+    staticTexWindow->AddRenderer(staticTexRenderer);
+    staticTexWindow->Render();
+
+    vtkNew<vtkUSDExporter> staticTexExporter;
+    staticTexExporter->SetRenderWindow(staticTexWindow);
+    filename = rootname + "_statictex.usda";
+    staticTexExporter->SetFileName(filename.c_str());
+
+    staticTexExporter->Start();
+    for (int i = 0; i < 3; ++i)
+    {
+      // Move the actor each frame (so the transform is time-varying) but
+      // leave the texture untouched.
+      staticTexActor->SetPosition(static_cast<double>(i), 0.0, 0.0);
+      staticTexWindow->Render();
+      staticTexExporter->SetTimeValue(static_cast<double>(i));
+      staticTexExporter->Write();
+    }
+    staticTexExporter->Finish();
+
+    // Only the first frame's texture file should have been written; later
+    // frames should reuse it instead of writing duplicate copies.
+    std::string frame0TextureFilename = rootname + "_statictex_tex0_frame0.png";
+    if (!vtksys::SystemTools::FileExists(frame0TextureFilename.c_str(), true /* file */))
+    {
+      vtkLog(
+        ERROR, "Test 10: expected texture file " << frame0TextureFilename << " to be created.");
+      checksPassed = false;
+    }
+    else if (enableCleanupAfterTest)
+    {
+      vtksys::SystemTools::RemoveFile(frame0TextureFilename);
+    }
+
+    for (int i = 1; i < 3; ++i)
+    {
+      std::string frameNTextureFilename =
+        rootname + "_statictex_tex0_frame" + std::to_string(i) + ".png";
+      if (vtksys::SystemTools::FileExists(frameNTextureFilename.c_str(), true /* file */))
+      {
+        vtkLog(ERROR,
+          "Test 10: did not expect " << frameNTextureFilename
+                                     << " to be created since the texture did not change.");
+        checksPassed = false;
+        if (enableCleanupAfterTest)
+        {
+          vtksys::SystemTools::RemoveFile(frameNTextureFilename);
+        }
+      }
+    }
+
+    // The material's texture file input should still be time-sampled, with
+    // the unchanged first-frame texture referenced at every time code.
+    if (!FileContainsString(filename, "inputs:file.timeSamples"))
+    {
+      vtkLog(ERROR, "Test 10: expected material texture 'file' input to be time-sampled.");
+      checksPassed = false;
+    }
+
+    int frame0ReferenceCount = CountStringInFile(filename, "_statictex_tex0_frame0.png");
+    if (frame0ReferenceCount < 3)
+    {
+      vtkLog(ERROR,
+        "Test 10: expected the reused texture file to be referenced at least 3 times (once per "
+        "frame), found "
+          << frame0ReferenceCount << ".");
+      checksPassed = false;
+    }
+
+    if (!checksPassed)
+    {
+      vtkLog(ERROR, "Test 10: one or more checks failed for the texture reuse test.");
+      return EXIT_FAILURE;
+    }
+
+    if (enableCleanupAfterTest)
+    {
+      vtksys::SystemTools::RemoveFile(filename);
+    }
   }
 
   return EXIT_SUCCESS;

@@ -32,10 +32,12 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkSmartPointer.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkTriangleFilter.h"
 #include "vtkTrivialProducer.h"
+#include "vtkUnsignedCharArray.h"
 #include <vtkStringFormatter.h>
 
 // Avoid warning about deprecated hash_map header inclusion from
@@ -51,14 +53,21 @@
 #include "pxr/base/tf/token.h"
 #include "pxr/base/vt/array.h"
 #include "pxr/usd/usd/stage.h"
+#include "pxr/usd/usd/timeCode.h"
 #include "pxr/usd/usdGeom/camera.h"
 #include "pxr/usd/usdGeom/mesh.h"
 #include "pxr/usd/usdGeom/primvarsAPI.h"
 #include "pxr/usd/usdGeom/xform.h"
+#include "pxr/usd/usdGeom/xformOp.h"
 #include "pxr/usd/usdLux/distantLight.h"
 #include "pxr/usd/usdShade/material.h"
 #include "pxr/usd/usdShade/materialBindingAPI.h"
 #include "pxr/usd/usdShade/shader.h"
+
+#include <algorithm>
+#include <cstring>
+#include <map>
+#include <vector>
 
 #if defined(undef_GLIBCXX_PERMIT_BACKWARD_HASH)
 #undef _GLIBCXX_PERMIT_BACKWARD_HASH
@@ -68,10 +77,89 @@ PXR_NAMESPACE_USING_DIRECTIVE
 
 VTK_ABI_NAMESPACE_BEGIN
 
-namespace
+// Holds state that must persist across multiple WriteData() calls when
+// accumulating timesteps into a single stage (i.e. between Start() and
+// Finish()). UsdGeomXformOp handles in particular must be created exactly
+// once per prim and then reused: calling AddTranslateOp/AddOrientOp/
+// AddScaleOp/AddTransformOp again on a later frame would append a
+// duplicate op rather than update the existing one's time samples.
+class vtkUSDExporter::vtkUSDExporterInternals
 {
+public:
+  UsdStageRefPtr Stage;
 
-void ApplyVtkActorTransformToUsdXform(vtkActor* actor, UsdGeomXform& xform)
+  std::vector<UsdGeomXformOp> ActorTranslateOps;
+  std::vector<UsdGeomXformOp> ActorOrientOps;
+  std::vector<UsdGeomXformOp> ActorScaleOps;
+
+  bool HasCameraTransformOp = false;
+  UsdGeomXformOp CameraTransformOp;
+
+  std::vector<UsdGeomXformOp> LightTransformOps;
+
+  bool HasTime = false;
+  double MinTime = 0.0;
+  double MaxTime = 0.0;
+
+  size_t FirstFrameXformCount = 0;
+  size_t FirstFrameMeshCount = 0;
+
+  // Counts WriteData() calls since Start(), used to give each frame's
+  // texture images distinct filenames (see WriteTexture).
+  size_t FrameIndex = 0;
+
+  // Remembers, per mesh index, the pixel data and filename of the last
+  // texture actually written to disk. This lets WriteTexture() detect that
+  // a texture is unchanged (e.g. from one animation frame to the next) and
+  // reuse the previous file instead of writing a duplicate.
+  struct TextureRecord
+  {
+    vtkSmartPointer<vtkUnsignedCharArray> Data;
+    std::string FileName;
+  };
+  std::map<size_t, TextureRecord> LastTextures;
+
+  void Reset()
+  {
+    this->Stage = UsdStageRefPtr();
+    this->ActorTranslateOps.clear();
+    this->ActorOrientOps.clear();
+    this->ActorScaleOps.clear();
+    this->HasCameraTransformOp = false;
+    this->CameraTransformOp = UsdGeomXformOp();
+    this->LightTransformOps.clear();
+    this->HasTime = false;
+    this->MinTime = 0.0;
+    this->MaxTime = 0.0;
+    this->FirstFrameXformCount = 0;
+    this->FirstFrameMeshCount = 0;
+    this->FrameIndex = 0;
+    this->LastTextures.clear();
+  }
+
+  void RecordTime(double time)
+  {
+    if (!this->HasTime)
+    {
+      this->MinTime = this->MaxTime = time;
+      this->HasTime = true;
+    }
+    else
+    {
+      this->MinTime = std::min(this->MinTime, time);
+      this->MaxTime = std::max(this->MaxTime, time);
+    }
+  }
+
+  void ApplyVtkActorTransformToUsdXform(vtkActor* actor, UsdGeomXform& xform, size_t xformIndex,
+    bool isFirstFrame, const UsdTimeCode& timeCode);
+
+  std::string WriteTexture(
+    vtkActor* actor, const char* fileName, size_t index, bool timeVarying, size_t frameIndex);
+};
+
+void vtkUSDExporter::vtkUSDExporterInternals::ApplyVtkActorTransformToUsdXform(vtkActor* actor,
+  UsdGeomXform& xform, size_t xformIndex, bool isFirstFrame, const UsdTimeCode& timeCode)
 {
   if (!actor)
   {
@@ -99,16 +187,29 @@ void ApplyVtkActorTransformToUsdXform(vtkActor* actor, UsdGeomXform& xform)
     GfRotation(GfVec3d(0, 1, 0), orientation[1]) * GfRotation(GfVec3d(0, 0, 1), orientation[2]);
   GfQuatd usdRotation = rotation.GetQuat();
 
-  // Apply the transforms to the USD xform
-  auto tOp = xform.AddTranslateOp(UsdGeomXformOp::PrecisionDouble);
-  tOp.Set(usdTranslation);
+  // Add operations to the USD xform.
+  bool needNewOps = isFirstFrame || this->ActorTranslateOps.size() <= xformIndex ||
+    !this->ActorTranslateOps[xformIndex].GetAttr().IsValid();
+  if (needNewOps)
+  {
+    if (this->ActorTranslateOps.size() <= xformIndex)
+    {
+      this->ActorTranslateOps.resize(xformIndex + 1);
+      this->ActorOrientOps.resize(xformIndex + 1);
+      this->ActorScaleOps.resize(xformIndex + 1);
+    }
+    this->ActorTranslateOps[xformIndex] = xform.AddTranslateOp(UsdGeomXformOp::PrecisionDouble);
+    this->ActorOrientOps[xformIndex] = xform.AddOrientOp(UsdGeomXformOp::PrecisionDouble);
+    this->ActorScaleOps[xformIndex] = xform.AddScaleOp(UsdGeomXformOp::PrecisionDouble);
+  }
 
-  auto rOp = xform.AddOrientOp(UsdGeomXformOp::PrecisionDouble);
-  rOp.Set(usdRotation);
-
-  auto sOp = xform.AddScaleOp(UsdGeomXformOp::PrecisionDouble);
-  sOp.Set(usdScale);
+  this->ActorTranslateOps[xformIndex].Set(usdTranslation, timeCode);
+  this->ActorOrientOps[xformIndex].Set(usdRotation, timeCode);
+  this->ActorScaleOps[xformIndex].Set(usdScale, timeCode);
 }
+
+namespace
+{
 
 // Determine if the actor needs texture export. This is true if either
 // scalar visibility with ColorMode set to VTK_COLOR_MODE_MAP_SCALARS,
@@ -125,8 +226,8 @@ bool NeedsTextureExport(vtkActor* actor)
     actor->GetTexture() != nullptr;
 }
 
-UsdGeomMesh WriteMesh(
-  UsdStageRefPtr& stage, UsdGeomXform& xform, vtkPolyData* inputPd, vtkActor* actor, size_t index)
+UsdGeomMesh WriteMesh(UsdStageRefPtr& stage, UsdGeomXform& xform, vtkPolyData* inputPd,
+  vtkActor* actor, size_t index, const UsdTimeCode& timeCode)
 {
   // Define a Mesh prim under the xform
   SdfPath xformPath = xform.GetPath();
@@ -140,7 +241,8 @@ UsdGeomMesh WriteMesh(
   vtkNew<vtkPolyData> pd;
   pd->ShallowCopy(triangle->GetOutput());
 
-  // Vertex positions
+  // Vertex positions. These may change over time, so always author a time
+  // sample for the current frame.
   VtArray<GfVec3f> points(pd->GetNumberOfPoints());
   for (vtkIdType i = 0; i < pd->GetNumberOfPoints(); ++i)
   {
@@ -149,7 +251,7 @@ UsdGeomMesh WriteMesh(
     points[i] =
       GfVec3f(static_cast<float>(p[0]), static_cast<float>(p[1]), static_cast<float>(p[2]));
   }
-  mesh.GetPointsAttr().Set(points);
+  mesh.GetPointsAttr().Set(points, timeCode);
 
   // Face vertex counts from polys only because any triangle strips will be converted
   // to polys by the triangle filter above.
@@ -159,21 +261,21 @@ UsdGeomMesh WriteMesh(
   VtArray<int> faceVertexIndices;
   faceVertexIndices.reserve(polys->GetNumberOfCells() * 4); // rough estimate
 
-  vtkIdType npts;
-  const vtkIdType* pts;
-  vtkIdType cellId = 0;
   for (vtkIdType cellIdx = 0; cellIdx < polys->GetNumberOfCells(); ++cellIdx)
   {
+    vtkIdType npts;
+    const vtkIdType* pts;
+
     polys->GetCellAtId(cellIdx, npts, pts);
 
-    faceVertexCounts[cellId++] = static_cast<int>(npts);
+    faceVertexCounts[cellIdx] = static_cast<int>(npts);
     for (vtkIdType j = 0; j < npts; ++j)
     {
       faceVertexIndices.push_back(static_cast<int>(pts[j]));
     }
   }
-  mesh.GetFaceVertexCountsAttr().Set(faceVertexCounts);
-  mesh.GetFaceVertexIndicesAttr().Set(faceVertexIndices);
+  mesh.GetFaceVertexCountsAttr().Set(faceVertexCounts, timeCode);
+  mesh.GetFaceVertexIndicesAttr().Set(faceVertexIndices, timeCode);
 
   // Normals (per-vertex if available, otherwise per-face)
   vtkDataArray* normalsArray = pd->GetPointData()->GetNormals();
@@ -187,7 +289,7 @@ UsdGeomMesh WriteMesh(
       normals[i] =
         GfVec3f(static_cast<float>(n[0]), static_cast<float>(n[1]), static_cast<float>(n[2]));
     }
-    mesh.GetNormalsAttr().Set(normals);
+    mesh.GetNormalsAttr().Set(normals, timeCode);
     mesh.SetNormalsInterpolation(UsdGeomTokens->vertex);
   }
   else if ((normalsArray = pd->GetCellData()->GetNormals()))
@@ -202,7 +304,7 @@ UsdGeomMesh WriteMesh(
         normals[i] =
           GfVec3f(static_cast<float>(n[0]), static_cast<float>(n[1]), static_cast<float>(n[2]));
       }
-      mesh.GetNormalsAttr().Set(normals);
+      mesh.GetNormalsAttr().Set(normals, timeCode);
       mesh.SetNormalsInterpolation(UsdGeomTokens->vertex);
     }
   }
@@ -232,13 +334,17 @@ UsdGeomMesh WriteMesh(
           GfVec3f(static_cast<float>(n[0]), static_cast<float>(n[1]), static_cast<float>(n[2]));
       }
     }
-    mesh.GetNormalsAttr().Set(normals);
+    mesh.GetNormalsAttr().Set(normals, timeCode);
     mesh.SetNormalsInterpolation(UsdGeomTokens->vertex);
   }
 
+  // Texture coordinates may change from frame to frame (e.g. along with
+  // deforming topology or a scalar field driving color-mapped tcoords), so
+  // they are authored as a time sample on every frame, just like points and
+  // topology.
   // if we have vertex colors then retrieve them
   vtkMapper* mapper = actor->GetMapper();
-  if (NeedsTextureExport(actor))
+  if (::NeedsTextureExport(actor))
   {
     // Generate tcoord by changing mapper settings:
     mapper->SetInterpolateScalarsBeforeMapping(true);
@@ -272,7 +378,7 @@ UsdGeomMesh WriteMesh(
       UsdGeomPrimvarsAPI primvarsAPI(mesh);
       UsdGeomPrimvar stPrimvar = primvarsAPI.CreatePrimvar(
         TfToken("st"), SdfValueTypeNames->TexCoord2fArray, UsdGeomTokens->vertex);
-      stPrimvar.Set(uvs);
+      stPrimvar.Set(uvs, timeCode);
     }
   }
 
@@ -280,14 +386,18 @@ UsdGeomMesh WriteMesh(
 }
 
 void WriteMaterial(UsdStageRefPtr& stage, UsdGeomMesh& mesh, int meshIndex, vtkActor* actor,
-  const std::string& textureFileName)
+  const std::string& textureFileName, const UsdTimeCode& timeCode)
 {
   // Material
   std::ostringstream strm;
   strm << "/Material" << meshIndex;
   SdfPath materialPath(strm.str());
 
-  // Create a Material
+  // Define()/CreateInput()/CreateIdAttr() etc. are idempotent, so it is safe
+  // to call this once per frame: prims and attributes are created on the
+  // first call and simply reused on later ones. The color/opacity/texture
+  // values themselves may vary with the actor's appearance or active scalar
+  // field over time, so they are authored as time samples on every frame.
   UsdShadeMaterial material = UsdShadeMaterial::Define(stage, materialPath);
   UsdShadeShader shader =
     UsdShadeShader::Define(stage, materialPath.AppendChild(TfToken("PreviewSurface")));
@@ -304,29 +414,30 @@ void WriteMaterial(UsdStageRefPtr& stage, UsdGeomMesh& mesh, int meshIndex, vtkA
   double diffuseColor[3];
   property->GetDiffuseColor(diffuseColor);
   shader.CreateInput(TfToken("diffuseColor"), SdfValueTypeNames->Color3f)
-    .Set(GfVec3f(diffuseColor[0], diffuseColor[1], diffuseColor[2]));
+    .Set(GfVec3f(diffuseColor[0], diffuseColor[1], diffuseColor[2]), timeCode);
 
   double specularColor[3];
   property->GetSpecularColor(specularColor);
   shader.CreateInput(TfToken("specularColor"), SdfValueTypeNames->Color3f)
-    .Set(GfVec3f(specularColor[0], specularColor[1], specularColor[2]));
+    .Set(GfVec3f(specularColor[0], specularColor[1], specularColor[2]), timeCode);
 
   double opacity = property->GetOpacity();
-  shader.CreateInput(TfToken("opacity"), SdfValueTypeNames->Float).Set(static_cast<float>(opacity));
+  shader.CreateInput(TfToken("opacity"), SdfValueTypeNames->Float)
+    .Set(static_cast<float>(opacity), timeCode);
 
   if (interpolation == VTK_PBR)
   {
     shader.CreateInput(TfToken("clearcoatRoughness"), SdfValueTypeNames->Float)
-      .Set(static_cast<float>(property->GetCoatRoughness()));
+      .Set(static_cast<float>(property->GetCoatRoughness()), timeCode);
 
     shader.CreateInput(TfToken("metallic"), SdfValueTypeNames->Float)
-      .Set(static_cast<float>(property->GetMetallic()));
+      .Set(static_cast<float>(property->GetMetallic()), timeCode);
 
     shader.CreateInput(TfToken("ior"), SdfValueTypeNames->Float)
-      .Set(static_cast<float>(property->GetCoatIOR()));
+      .Set(static_cast<float>(property->GetCoatIOR()), timeCode);
   }
 
-  if (NeedsTextureExport(actor))
+  if (::NeedsTextureExport(actor))
   {
     material.CreateInput(TfToken("stPrimvarName"), SdfValueTypeNames->Token).Set(TfToken("st"));
 
@@ -345,7 +456,7 @@ void WriteMaterial(UsdStageRefPtr& stage, UsdGeomMesh& mesh, int meshIndex, vtkA
       UsdShadeShader::Define(stage, materialPath.AppendChild(TfToken("diffuseTexture")));
     diffuseTexture.CreateIdAttr().Set(TfToken("UsdUVTexture"));
     diffuseTexture.CreateInput(TfToken("file"), SdfValueTypeNames->Asset)
-      .Set(SdfAssetPath(textureFileName));
+      .Set(SdfAssetPath(textureFileName), timeCode);
     diffuseTexture.CreateInput(TfToken("sourceColorSpace"), SdfValueTypeNames->Token)
       .Set(TfToken("auto"));
     diffuseTexture.CreateInput(TfToken("st"), SdfValueTypeNames->Token);
@@ -359,7 +470,28 @@ void WriteMaterial(UsdStageRefPtr& stage, UsdGeomMesh& mesh, int meshIndex, vtkA
   }
 }
 
-std::string WriteTexture(vtkActor* actor, const char* fileName, size_t index)
+// Returns true if two texture pixel arrays have identical dimensions and
+// content.
+bool TextureDataEqual(vtkUnsignedCharArray* a, vtkUnsignedCharArray* b)
+{
+  if (!a || !b)
+  {
+    return false;
+  }
+  if (a->GetNumberOfTuples() != b->GetNumberOfTuples() ||
+    a->GetNumberOfComponents() != b->GetNumberOfComponents())
+  {
+    return false;
+  }
+  size_t numValues =
+    static_cast<size_t>(a->GetNumberOfTuples()) * static_cast<size_t>(a->GetNumberOfComponents());
+  return numValues == 0 || std::memcmp(a->GetPointer(0), b->GetPointer(0), numValues) == 0;
+}
+
+} // end anonymous namespace
+
+std::string vtkUSDExporter::vtkUSDExporterInternals::WriteTexture(
+  vtkActor* actor, const char* fileName, size_t index, bool timeVarying, size_t frameIndex)
 {
   // do we have a texture?
   vtkImageData* id = actor->GetMapper()->GetColorTextureMap();
@@ -380,11 +512,30 @@ std::string WriteTexture(vtkActor* actor, const char* fileName, size_t index)
     return {};
   }
 
-  // figure out a filename - strip extension, add "_tex0.png"
+  // If the texture at this mesh index is identical to the last one we wrote
+  // (e.g. an unchanging texture across animation frames), reuse that file
+  // instead of writing a duplicate.
+  auto lastIt = this->LastTextures.find(index);
+  if (lastIt != this->LastTextures.end() && ::TextureDataEqual(da, lastIt->second.Data))
+  {
+    return lastIt->second.FileName;
+  }
+
+  // figure out a filename - strip extension, add "_tex0.png". When
+  // accumulating multiple timesteps into a single stage, the texture image
+  // itself may differ each frame (e.g. it is derived from a time-varying
+  // scalar field), so each frame's texture is written to its own file,
+  // named "_tex0_frame0.png", "_tex0_frame1.png", etc., and referenced via
+  // a time-sampled asset path in the material (see WriteMaterial).
   std::string filePath = vtksys::SystemTools::GetFilenamePath(fileName);
   std::string baseName = vtksys::SystemTools::GetFilenameWithoutLastExtension(fileName);
   std::ostringstream strm;
-  strm << filePath << '/' << baseName << "_tex" << index << ".png";
+  strm << filePath << '/' << baseName << "_tex" << index;
+  if (timeVarying)
+  {
+    strm << "_frame" << frameIndex;
+  }
+  strm << ".png";
   std::string textureFile = strm.str();
 
   // we don't want the NaN color in the texture file
@@ -405,21 +556,52 @@ std::string WriteTexture(vtkActor* actor, const char* fileName, size_t index)
   png->SetInputConnection(extractVOI->GetOutputPort());
   png->Write();
 
+  vtkNew<vtkUnsignedCharArray> dataCopy;
+  dataCopy->ShallowCopy(da);
+  this->LastTextures[index] = { dataCopy, textureFile };
+
   return textureFile;
 }
-
-} // end anonymous namespace
 
 vtkStandardNewMacro(vtkUSDExporter);
 
 vtkUSDExporter::vtkUSDExporter()
 {
   this->FileName = nullptr;
+  this->Internal = new vtkUSDExporterInternals;
 }
 
 vtkUSDExporter::~vtkUSDExporter()
 {
   delete[] this->FileName;
+  delete this->Internal;
+}
+
+void vtkUSDExporter::Start()
+{
+  this->Internal->Reset();
+  this->Started = true;
+}
+
+void vtkUSDExporter::Finish()
+{
+  if (!this->Started)
+  {
+    return;
+  }
+
+  if (this->Internal->Stage)
+  {
+    if (this->Internal->HasTime)
+    {
+      this->Internal->Stage->SetStartTimeCode(this->Internal->MinTime);
+      this->Internal->Stage->SetEndTimeCode(this->Internal->MaxTime);
+    }
+    this->Internal->Stage->GetRootLayer()->Save();
+  }
+
+  this->Internal->Reset();
+  this->Started = false;
 }
 
 void vtkUSDExporter::WriteData()
@@ -430,11 +612,51 @@ void vtkUSDExporter::WriteData()
     return;
   }
 
-  UsdStageRefPtr stage = UsdStage::CreateNew(this->FileName);
+  // Determine whether this call is part of a multi-frame, single-file
+  // export (this->Started), and if so, whether it is the first frame of
+  // that sequence, i.e. whether the shared stage still needs to be created.
+  bool isFirstFrame = true;
+  UsdStageRefPtr stage;
+  if (this->Started)
+  {
+    if (this->Internal->Stage)
+    {
+      stage = this->Internal->Stage;
+      isFirstFrame = false;
+    }
+    else
+    {
+      stage = UsdStage::CreateNew(this->FileName);
+      if (stage)
+      {
+        stage->SetTimeCodesPerSecond(1.0);
+      }
+      this->Internal->Stage = stage;
+      isFirstFrame = true;
+    }
+  }
+  else
+  {
+    // Legacy, single-shot behavior: always a fresh, self-contained stage.
+    stage = UsdStage::CreateNew(this->FileName);
+    isFirstFrame = true;
+    // Each independent single-shot export starts a new stage, so texture
+    // reuse tracking must not carry over from a previous, unrelated export.
+    this->Internal->LastTextures.clear();
+  }
+
   if (!stage)
   {
     vtkErrorMacro("Failed to create USD stage for file: " << this->FileName);
     return;
+  }
+
+  UsdTimeCode timeCode = this->Started ? UsdTimeCode(this->TimeValue) : UsdTimeCode::Default();
+  size_t frameIndex = 0;
+  if (this->Started)
+  {
+    this->Internal->RecordTime(this->TimeValue);
+    frameIndex = this->Internal->FrameIndex++;
   }
 
   size_t xformCount = 0, meshCount = 0;
@@ -462,15 +684,17 @@ void vtkUSDExporter::WriteData()
       cam->GetViewUp(up);
 
       usdCam.CreateProjectionAttr().Set(
-        cam->GetParallelProjection() ? UsdGeomTokens->orthographic : UsdGeomTokens->perspective);
+        cam->GetParallelProjection() ? UsdGeomTokens->orthographic : UsdGeomTokens->perspective,
+        timeCode);
 
-      usdCam.CreateFocalLengthAttr().Set(static_cast<float>(cam->GetDistance()));
+      usdCam.CreateFocalLengthAttr().Set(static_cast<float>(cam->GetDistance()), timeCode);
       usdCam.CreateClippingRangeAttr().Set(GfVec2f(static_cast<float>(cam->GetClippingRange()[0]),
-        static_cast<float>(cam->GetClippingRange()[1])));
+                                             static_cast<float>(cam->GetClippingRange()[1])),
+        timeCode);
 
       // TODO - base the aperture on view angle and image aspect ratio
-      usdCam.CreateHorizontalApertureAttr().Set(2.0f); // mm, placeholder
-      usdCam.CreateVerticalApertureAttr().Set(2.0f);   // mm, placeholder
+      usdCam.CreateHorizontalApertureAttr().Set(2.0f, timeCode); // mm, placeholder
+      usdCam.CreateVerticalApertureAttr().Set(2.0f, timeCode);   // mm, placeholder
 
       // usdCam.CreateFocusDistanceAttr().Set(static_cast<float>(cam->GetDistance()));
 
@@ -483,7 +707,15 @@ void vtkUSDExporter::WriteData()
       // We need to convert row-major to column-major, with transpose.
       vtkNew<vtkMatrix4x4> transpose;
       vtkMatrix4x4::Transpose(inv, transpose);
-      xformable.AddTransformOp().Set(GfMatrix4d(transpose->Element));
+      if (isFirstFrame)
+      {
+        this->Internal->CameraTransformOp = xformable.AddTransformOp();
+        this->Internal->HasCameraTransformOp = true;
+      }
+      if (this->Internal->HasCameraTransformOp)
+      {
+        this->Internal->CameraTransformOp.Set(GfMatrix4d(transpose->Element), timeCode);
+      }
     }
 
     // Export lights from the renderer to USD
@@ -514,10 +746,11 @@ void vtkUSDExporter::WriteData()
       light->GetDiffuseColor(color);
 
       // Set color and intensity
-      usdLight.CreateColorAttr().Set(GfVec3f(
-        static_cast<float>(color[0]), static_cast<float>(color[1]), static_cast<float>(color[2])));
+      usdLight.CreateColorAttr().Set(GfVec3f(static_cast<float>(color[0]),
+                                       static_cast<float>(color[1]), static_cast<float>(color[2])),
+        timeCode);
       usdLight.CreateIntensityAttr().Set(
-        static_cast<float>(light->GetIntensity() * 100.0)); // scale to USD
+        static_cast<float>(light->GetIntensity() * 100.0), timeCode); // scale to USD
 
       // Set transform (rotation only, position is not used for distant lights)
       GfMatrix4d xform = GfMatrix4d(1.0);
@@ -526,7 +759,16 @@ void vtkUSDExporter::WriteData()
       GfRotation rot = GfRotation(zAxis, direction);
       xform.SetRotateOnly(rot.GetQuat());
       UsdGeomXformable xformable(usdLight.GetPrim());
-      xformable.AddTransformOp().Set(xform);
+      size_t thisLightIndex = lightIndex - 1;
+      if (isFirstFrame)
+      {
+        if (this->Internal->LightTransformOps.size() <= thisLightIndex)
+        {
+          this->Internal->LightTransformOps.resize(thisLightIndex + 1);
+        }
+        this->Internal->LightTransformOps[thisLightIndex] = xformable.AddTransformOp();
+      }
+      this->Internal->LightTransformOps[thisLightIndex].Set(xform, timeCode);
     }
 
     // Iterate over all the visible props in the renderer and export their geometry.
@@ -561,9 +803,11 @@ void vtkUSDExporter::WriteData()
 
             // Create a transform for the actor
             std::ostringstream pathStream;
-            pathStream << "/XForm" << xformCount++;
+            size_t currentXformIndex = xformCount++;
+            pathStream << "/XForm" << currentXformIndex;
             UsdGeomXform xform = UsdGeomXform::Define(stage, SdfPath(pathStream.str()));
-            ApplyVtkActorTransformToUsdXform(actor, xform);
+            this->Internal->ApplyVtkActorTransformToUsdXform(
+              actor, xform, currentXformIndex, isFirstFrame, timeCode);
 
             size_t previousMeshCount = meshCount;
             vtkCompositeDataSet* cpd = vtkCompositeDataSet::SafeDownCast(input);
@@ -590,7 +834,7 @@ void vtkUSDExporter::WriteData()
                     // save and restore prop changed when generating texture coords
                     bool saveInterpScalars = partMapper->GetInterpolateScalarsBeforeMapping();
 
-                    UsdGeomMesh mesh = WriteMesh(stage, xform, pd, part, meshCount);
+                    UsdGeomMesh mesh = ::WriteMesh(stage, xform, pd, part, meshCount, timeCode);
 
                     std::string textureFileName;
                     if (mapper->GetScalarVisibility() &&
@@ -602,10 +846,11 @@ void vtkUSDExporter::WriteData()
                     }
                     else
                     {
-                      textureFileName = WriteTexture(part, this->FileName, meshCount);
+                      textureFileName = this->Internal->WriteTexture(
+                        part, this->FileName, meshCount, this->Started, frameIndex);
                     }
 
-                    WriteMaterial(stage, mesh, meshCount, part, textureFileName);
+                    ::WriteMaterial(stage, mesh, meshCount, part, textureFileName, timeCode);
                     partMapper->SetInterpolateScalarsBeforeMapping(saveInterpScalars);
                     ++meshCount;
                   }
@@ -619,9 +864,10 @@ void vtkUSDExporter::WriteData()
             {
               // save and restore prop changed when generating texture coords
               bool saveInterpScalars = part->GetMapper()->GetInterpolateScalarsBeforeMapping();
-              UsdGeomMesh mesh = WriteMesh(stage, xform, pd, part, meshCount);
-              std::string textureFileName = WriteTexture(part, this->FileName, meshCount);
-              WriteMaterial(stage, mesh, meshCount, part, textureFileName);
+              UsdGeomMesh mesh = ::WriteMesh(stage, xform, pd, part, meshCount, timeCode);
+              std::string textureFileName = this->Internal->WriteTexture(
+                part, this->FileName, meshCount, this->Started, frameIndex);
+              ::WriteMaterial(stage, mesh, meshCount, part, textureFileName, timeCode);
               part->GetMapper()->SetInterpolateScalarsBeforeMapping(saveInterpScalars);
               ++meshCount;
             }
@@ -638,7 +884,27 @@ void vtkUSDExporter::WriteData()
     }
   }
 
-  stage->GetRootLayer()->Save();
+  if (this->Started)
+  {
+    if (isFirstFrame)
+    {
+      this->Internal->FirstFrameXformCount = xformCount;
+      this->Internal->FirstFrameMeshCount = meshCount;
+    }
+    else if (xformCount != this->Internal->FirstFrameXformCount ||
+      meshCount != this->Internal->FirstFrameMeshCount)
+    {
+      vtkWarningMacro("The number of actors/meshes changed between frames of a single-file USD "
+                      "export. Each mesh's own topology may vary over time, but prims cannot "
+                      "be added or removed once the stage is created; results may be "
+                      "incorrect.");
+    }
+    // Saving is deferred to Finish() so all timesteps land in one file.
+  }
+  else
+  {
+    stage->GetRootLayer()->Save();
+  }
 }
 
 void vtkUSDExporter::PrintSelf(ostream& os, vtkIndent indent)
