@@ -1231,10 +1231,10 @@ VTK_ABI_NAMESPACE_BEGIN
 
 struct InsertNextCellImpl : public vtkCellArray::DispatchUtilities
 {
-  // Insert full cell
+  // Insert full cell, returns the id of the inserted cell
   template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType npts,
-    const vtkIdType pts[], vtkIdType& cellId)
+  vtkIdType operator()(
+    OffsetsT* offsets, ConnectivityT* conn, const vtkIdType npts, const vtkIdType pts[])
   {
     using ValueType = GetAPIType<OffsetsT>;
     using OffsetsAccessorType = vtkDataArrayAccessor<OffsetsT>;
@@ -1242,7 +1242,7 @@ struct InsertNextCellImpl : public vtkCellArray::DispatchUtilities
     OffsetsAccessorType offsetsAccesor(offsets);
     ConnectivityAccessorType connAccesor(conn);
 
-    cellId = offsets->GetNumberOfValues() - 1;
+    const vtkIdType cellId = offsets->GetNumberOfValues() - 1;
 
     offsetsAccesor.InsertNext(static_cast<ValueType>(conn->GetNumberOfValues() + npts));
 
@@ -1250,19 +1250,23 @@ struct InsertNextCellImpl : public vtkCellArray::DispatchUtilities
     {
       connAccesor.InsertNext(static_cast<ValueType>(pts[i]));
     }
+
+    return cellId;
   }
 
-  // Just update offset table (for incremental API)
+  // Just update offset table (for incremental API), returns the id of the inserted cell
   template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType npts, vtkIdType& cellId)
+  vtkIdType operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType npts)
   {
     using ValueType = GetAPIType<OffsetsT>;
     using AccessorType = vtkDataArrayAccessor<OffsetsT>;
     AccessorType offsetsAccesor(offsets);
 
-    cellId = offsets->GetNumberOfValues() - 1;
+    const vtkIdType cellId = offsets->GetNumberOfValues() - 1;
 
     offsetsAccesor.InsertNext(static_cast<ValueType>(conn->GetNumberOfValues() + npts));
+
+    return cellId;
   }
 };
 
@@ -1283,10 +1287,9 @@ struct UpdateCellCountImpl : public vtkCellArray::DispatchUtilities
 struct GetCellSizeImpl : public vtkCellArray::DispatchUtilities
 {
   template <class OffsetsT, class ConnectivityT>
-  void operator()(
-    OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), vtkIdType cellId, vtkIdType& cellSize)
+  vtkIdType operator()(OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), vtkIdType cellId)
   {
-    cellSize = GetCellSize(offsets, cellId);
+    return GetCellSize(offsets, cellId);
   }
 };
 
@@ -1310,14 +1313,15 @@ struct GetCellAtIdImpl : public vtkCellArray::DispatchUtilities
     }
   }
 
+  // Fills the caller's buffer and returns the cell size.
   template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType cellId,
-    vtkIdType& cellSize, vtkIdType* cellPoints)
+  vtkIdType operator()(
+    OffsetsT* offsets, ConnectivityT* conn, const vtkIdType cellId, vtkIdType* cellPoints)
   {
     auto offsetsRange = GetRange(offsets);
     const auto& beginOffset = offsetsRange[cellId];
     const auto& endOffset = offsetsRange[cellId + 1];
-    cellSize = static_cast<vtkIdType>(endOffset - beginOffset);
+    const vtkIdType cellSize = static_cast<vtkIdType>(endOffset - beginOffset);
     const auto cellConnectivity = GetRange(conn).begin() + beginOffset;
 
     // ValueType differs from vtkIdType, so we have to copy into a temporary buffer:
@@ -1325,6 +1329,8 @@ struct GetCellAtIdImpl : public vtkCellArray::DispatchUtilities
     {
       cellPoints[i] = static_cast<vtkIdType>(cellConnectivity[i]);
     }
+
+    return cellSize;
   }
 
   // SFINAE helper to check if a Functors's connectivity array's memory can be used as a vtkIdType*.
@@ -1335,28 +1341,28 @@ struct GetCellAtIdImpl : public vtkCellArray::DispatchUtilities
       std::is_base_of_v<vtkAOSDataArrayTemplate<vtkIdType>, ConnectivityT>;
   };
 
+  // Points cellPoints at the cell's connectivity and returns the cell size.
   template <class OffsetsT, class ConnectivityT>
-  typename std::enable_if_t<CanShareConnPtr<ConnectivityT>::value, void> operator()(
-    OffsetsT* offsets, ConnectivityT* conn, const vtkIdType cellId, vtkIdType& cellSize,
-    vtkIdType const*& cellPoints, vtkIdList* vtkNotUsed(temp))
+  std::enable_if_t<CanShareConnPtr<ConnectivityT>::value, vtkIdType> operator()(OffsetsT* offsets,
+    ConnectivityT* conn, const vtkIdType cellId, vtkIdType const*& cellPoints,
+    vtkIdList* vtkNotUsed(temp))
   {
     auto offsetsRange = GetRange(offsets);
     const auto& beginOffset = offsetsRange[cellId];
     const auto& endOffset = offsetsRange[cellId + 1];
-    cellSize = static_cast<vtkIdType>(endOffset - beginOffset);
     // This is safe, see CanShareConnPtr helper above.
     cellPoints = conn->GetPointer(beginOffset);
+    return static_cast<vtkIdType>(endOffset - beginOffset);
   }
 
   template <class OffsetsT, class ConnectivityT>
-  typename std::enable_if_t<!CanShareConnPtr<ConnectivityT>::value, void> operator()(
-    OffsetsT* offsets, ConnectivityT* conn, const vtkIdType cellId, vtkIdType& cellSize,
-    vtkIdType const*& cellPoints, vtkIdList* temp)
+  std::enable_if_t<!CanShareConnPtr<ConnectivityT>::value, vtkIdType> operator()(OffsetsT* offsets,
+    ConnectivityT* conn, const vtkIdType cellId, vtkIdType const*& cellPoints, vtkIdList* temp)
   {
     auto offsetsRange = GetRange(offsets);
     const auto& beginOffset = offsetsRange[cellId];
     const auto& endOffset = offsetsRange[cellId + 1];
-    cellSize = static_cast<vtkIdType>(endOffset - beginOffset);
+    const vtkIdType cellSize = static_cast<vtkIdType>(endOffset - beginOffset);
     const auto cellConnectivity = GetRange(conn).begin() + beginOffset;
 
     temp->SetNumberOfIds(cellSize);
@@ -1367,17 +1373,17 @@ struct GetCellAtIdImpl : public vtkCellArray::DispatchUtilities
     }
 
     cellPoints = tempPtr;
+    return cellSize;
   }
 };
 
 struct CellPointAtIdImpl : public vtkCellArray::DispatchUtilities
 {
   template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType cellId,
-    vtkIdType cellPointIndex, vtkIdType& pointId)
+  vtkIdType operator()(
+    OffsetsT* offsets, ConnectivityT* conn, vtkIdType cellId, vtkIdType cellPointIndex)
   {
-    pointId =
-      static_cast<vtkIdType>(GetRange(conn)[GetBeginOffset(offsets, cellId) + cellPointIndex]);
+    return static_cast<vtkIdType>(GetRange(conn)[GetBeginOffset(offsets, cellId) + cellPointIndex]);
   }
 };
 
@@ -1449,16 +1455,14 @@ inline int vtkCellArray::GetNextCell(vtkIdList* pts)
 //----------------------------------------------------------------------------
 inline vtkIdType vtkCellArray::GetCellSize(const vtkIdType cellId) const
 {
-  vtkIdType cellSize;
-  this->Dispatch(vtkCellArray_detail::GetCellSizeImpl{}, cellId, cellSize);
-  return cellSize;
+  return this->Dispatch(vtkCellArray_detail::GetCellSizeImpl{}, cellId);
 }
 
 //----------------------------------------------------------------------------
 void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType const*& cellPoints,
   vtkIdList* ptIds) VTK_SIZEHINT(cellPoints, cellSize)
 {
-  this->Dispatch(vtkCellArray_detail::GetCellAtIdImpl{}, cellId, cellSize, cellPoints, ptIds);
+  cellSize = this->Dispatch(vtkCellArray_detail::GetCellAtIdImpl{}, cellId, cellPoints, ptIds);
 }
 
 //----------------------------------------------------------------------------
@@ -1470,15 +1474,13 @@ void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdList* pts)
 //----------------------------------------------------------------------------
 void vtkCellArray::GetCellAtId(vtkIdType cellId, vtkIdType& cellSize, vtkIdType* cellPoints)
 {
-  this->Dispatch(vtkCellArray_detail::GetCellAtIdImpl{}, cellId, cellSize, cellPoints);
+  cellSize = this->Dispatch(vtkCellArray_detail::GetCellAtIdImpl{}, cellId, cellPoints);
 }
 
 //----------------------------------------------------------------------------
 inline vtkIdType vtkCellArray::GetCellPointAtId(vtkIdType cellId, vtkIdType cellPointIndex) const
 {
-  vtkIdType pointId;
-  this->Dispatch(vtkCellArray_detail::CellPointAtIdImpl{}, cellId, cellPointIndex, pointId);
-  return pointId;
+  return this->Dispatch(vtkCellArray_detail::CellPointAtIdImpl{}, cellId, cellPointIndex);
 }
 
 //----------------------------------------------------------------------------
@@ -1511,18 +1513,14 @@ inline vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts, const vtkIdType* p
   VTK_SIZEHINT(pts, npts)
 {
   this->EnsureStorageForCellSize(npts);
-  vtkIdType cellId;
-  this->Dispatch(vtkCellArray_detail::InsertNextCellImpl{}, npts, pts, cellId);
-  return cellId;
+  return this->Dispatch(vtkCellArray_detail::InsertNextCellImpl{}, npts, pts);
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkCellArray::InsertNextCell(int npts)
 {
   this->EnsureStorageForCellSize(npts);
-  vtkIdType cellId;
-  this->Dispatch(vtkCellArray_detail::InsertNextCellImpl{}, npts, cellId);
-  return cellId;
+  return this->Dispatch(vtkCellArray_detail::InsertNextCellImpl{}, static_cast<vtkIdType>(npts));
 }
 
 //----------------------------------------------------------------------------
