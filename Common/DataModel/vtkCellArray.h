@@ -912,6 +912,19 @@ public:
     }
   };
 
+private: // Helpers that allow Dispatch to return a value:
+  // All storage types must agree on the returned type; the 32-bit AOS
+  // instantiation is used to deduce it.
+  template <typename Functor, typename... Args>
+  using GetDispatchReturnType = decltype(std::declval<Functor>()(
+    std::declval<AOSArray32*>(), std::declval<AOSArray32*>(), std::declval<Args>()...));
+
+  template <typename Functor, typename... Args>
+  struct DispatchReturnsVoid : std::is_same<GetDispatchReturnType<Functor, Args...>, void>
+  {
+  };
+
+public:
   ///@{
   /**
    * @warning Advanced use only.
@@ -940,7 +953,8 @@ public:
    * arrays, such as GetRange(), GetCellSize(), GetCellRange(), etc.
    *
    * The functor may also:
-   * - "Return" a value from `operator()` using a reference argument.
+   * - Return a value from `operator()`, or "return" it using a reference
+   *   argument.
    * - Pass additional arguments to `operator()`
    *
    * A more advanced functor that does these things is shown below, along
@@ -952,9 +966,9 @@ public:
    * {
    *   template <class OffsetsT, class ConnectivityT>
    *   vtkIdType operator()(OffsetsT* offsets, ConnectivityT* conn,
-   *                        vtkIdType rangeBegin, vtkIdType rangeEnd, vtkIdType& largest)
+   *                        vtkIdType rangeBegin, vtkIdType rangeEnd)
    *   {
-   *     largest = rangeBegin;
+   *     vtkIdType largest = rangeBegin;
    *     vtkIdType largestSize = GetCellSize(offsets, rangeBegin);
    *     ++rangeBegin;
    *     for (; rangeBegin < rangeEnd; ++rangeBegin)
@@ -966,17 +980,22 @@ public:
    *         largestSize = curSize;
    *       }
    *     }
+   *
+   *     return largest;
    *   }
    * };
    *
    * // Usage:
    * // Scan cells in range [128, 1024) and return the id of the largest.
    * vtkCellArray cellArray = ...;
-   * vtkIdType largest;
-   * cellArray->Dispatch(FindLargestCellInRange{}, 128, 1024, largest);
+   * vtkIdType largest = cellArray->Dispatch(FindLargestCellInRange{}, 128, 1024);
    * ```
+   *
+   * When the functor returns a non-void type, every storage type instantiation
+   * must return the same type; it is deduced from the 32-bit AOS instantiation.
    */
-  template <typename Functor, typename... Args>
+  template <typename Functor, typename... Args,
+    typename = typename std::enable_if<DispatchReturnsVoid<Functor, Args...>::value>::type>
   void Dispatch(Functor&& functor, Args&&... args)
   {
     switch (this->StorageType)
@@ -1003,7 +1022,8 @@ public:
         break;
     }
   }
-  template <typename Functor, typename... Args>
+  template <typename Functor, typename... Args,
+    typename = typename std::enable_if<DispatchReturnsVoid<Functor, Args...>::value>::type>
   void Dispatch(Functor&& functor, Args&&... args) const
   {
     switch (this->StorageType)
@@ -1028,6 +1048,52 @@ public:
       default:
         functor(this->Offsets.Get(), this->Connectivity.Get(), std::forward<Args>(args)...);
         break;
+    }
+  }
+  template <typename Functor, typename... Args,
+    typename = typename std::enable_if<!DispatchReturnsVoid<Functor, Args...>::value>::type>
+  GetDispatchReturnType<Functor, Args...> Dispatch(Functor&& functor, Args&&... args)
+  {
+    switch (this->StorageType)
+    {
+      case StorageTypes::Int32:
+        return functor(static_cast<AOSArray32*>(this->Offsets.Get()),
+          static_cast<AOSArray32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+      case StorageTypes::Int64:
+        return functor(static_cast<AOSArray64*>(this->Offsets.Get()),
+          static_cast<AOSArray64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+      case StorageTypes::FixedSizeInt32:
+        return functor(static_cast<AffineArray32*>(this->Offsets.Get()),
+          static_cast<AOSArray32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+      case StorageTypes::FixedSizeInt64:
+        return functor(static_cast<AffineArray64*>(this->Offsets.Get()),
+          static_cast<AOSArray64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+      case StorageTypes::Generic:
+      default:
+        return functor(this->Offsets.Get(), this->Connectivity.Get(), std::forward<Args>(args)...);
+    }
+  }
+  template <typename Functor, typename... Args,
+    typename = typename std::enable_if<!DispatchReturnsVoid<Functor, Args...>::value>::type>
+  GetDispatchReturnType<Functor, Args...> Dispatch(Functor&& functor, Args&&... args) const
+  {
+    switch (this->StorageType)
+    {
+      case StorageTypes::Int32:
+        return functor(static_cast<AOSArray32*>(this->Offsets.Get()),
+          static_cast<AOSArray32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+      case StorageTypes::Int64:
+        return functor(static_cast<AOSArray64*>(this->Offsets.Get()),
+          static_cast<AOSArray64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+      case StorageTypes::FixedSizeInt32:
+        return functor(static_cast<AffineArray32*>(this->Offsets.Get()),
+          static_cast<AOSArray32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+      case StorageTypes::FixedSizeInt64:
+        return functor(static_cast<AffineArray64*>(this->Offsets.Get()),
+          static_cast<AOSArray64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+      case StorageTypes::Generic:
+      default:
+        return functor(this->Offsets.Get(), this->Connectivity.Get(), std::forward<Args>(args)...);
     }
   }
   ///@}
