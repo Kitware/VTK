@@ -1034,7 +1034,8 @@ public:
 
   // Holds connectivity and offset arrays of the given ArrayType.
   template <typename ArrayT>
-  struct VisitState
+  struct VTK_DEPRECATED_IN_9_8_0(
+    "Use Dispatch with a struct that inherits from DispatchUtilities ") VisitState
   {
     using ArrayType = ArrayT;
     using ValueType = typename ArrayType::ValueType;
@@ -1054,15 +1055,28 @@ public:
     ArrayType* GetConnectivity() { return this->Connectivity; }
     const ArrayType* GetConnectivity() const { return this->Connectivity; }
 
-    vtkIdType GetNumberOfCells() const;
+    vtkIdType GetNumberOfCells() const { return this->Offsets->GetNumberOfValues() - 1; }
 
-    vtkIdType GetBeginOffset(vtkIdType cellId) const;
+    vtkIdType GetBeginOffset(vtkIdType cellId) const
+    {
+      return static_cast<vtkIdType>(this->Offsets->GetValue(cellId));
+    }
 
-    vtkIdType GetEndOffset(vtkIdType cellId) const;
+    vtkIdType GetEndOffset(vtkIdType cellId) const
+    {
+      return static_cast<vtkIdType>(this->Offsets->GetValue(cellId + 1));
+    }
 
-    vtkIdType GetCellSize(vtkIdType cellId) const;
+    vtkIdType GetCellSize(vtkIdType cellId) const
+    {
+      return this->GetEndOffset(cellId) - this->GetBeginOffset(cellId);
+    }
 
-    CellRangeType GetCellRange(vtkIdType cellId);
+    CellRangeType GetCellRange(vtkIdType cellId)
+    {
+      return vtk::DataArrayValueRange<1>(
+        this->GetConnectivity(), this->GetBeginOffset(cellId), this->GetEndOffset(cellId));
+    }
 
     friend class vtkCellArray;
 
@@ -1113,19 +1127,8 @@ public:
     VisitState& operator=(const VisitState&) = delete;
     bool IsInMemkind = false;
   };
-
-private: // Helpers that allow Visit to return a value:
-  template <typename Functor, typename... Args>
-  using GetReturnType = decltype(std::declval<Functor>()(
-    std::declval<VisitState<AOSArray32>&>(), std::declval<Args>()...));
-
-  template <typename Functor, typename... Args>
-  struct ReturnsVoid : std::is_same<GetReturnType<Functor, Args...>, void>
-  {
-  };
 #endif // __VTK_WRAP__
 
-public:
   ///@{
   /**
    * Control the default internal storage size. Useful for saving memory when
@@ -1154,37 +1157,6 @@ private:
   void operator=(const vtkCellArray&) = delete;
 };
 
-template <typename ArrayT>
-vtkIdType vtkCellArray::VisitState<ArrayT>::GetNumberOfCells() const
-{
-  return this->Offsets->GetNumberOfValues() - 1;
-}
-
-template <typename ArrayT>
-vtkIdType vtkCellArray::VisitState<ArrayT>::GetBeginOffset(vtkIdType cellId) const
-{
-  return static_cast<vtkIdType>(this->Offsets->GetValue(cellId));
-}
-
-template <typename ArrayT>
-vtkIdType vtkCellArray::VisitState<ArrayT>::GetEndOffset(vtkIdType cellId) const
-{
-  return static_cast<vtkIdType>(this->Offsets->GetValue(cellId + 1));
-}
-
-template <typename ArrayT>
-vtkIdType vtkCellArray::VisitState<ArrayT>::GetCellSize(vtkIdType cellId) const
-{
-  return this->GetEndOffset(cellId) - this->GetBeginOffset(cellId);
-}
-
-template <typename ArrayT>
-typename vtkCellArray::VisitState<ArrayT>::CellRangeType
-vtkCellArray::VisitState<ArrayT>::GetCellRange(vtkIdType cellId)
-{
-  return vtk::DataArrayValueRange<1>(
-    this->GetConnectivity(), this->GetBeginOffset(cellId), this->GetEndOffset(cellId));
-}
 VTK_ABI_NAMESPACE_END
 
 namespace vtkCellArray_detail
