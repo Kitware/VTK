@@ -840,11 +840,7 @@ int vtkCONVERGECFDReader::RequestData(
       polys->AllocateEstimate(boundaryNumElements[i], 4);
       boundarySurface->SetPolys(polys);
       std::string validName = vtkDataAssembly::MakeValidNodeName(boundaryNames[i].c_str());
-      int boundaryNodeId = hierarchy->GetChild(surfaceNodeId, validName.c_str());
-      if (boundaryNodeId == -1)
-      {
-        boundaryNodeId = hierarchy->AddNode(validName.c_str(), surfaceNodeId);
-      }
+      int boundaryNodeId = hierarchy->AddNode(validName.c_str(), surfaceNodeId);
       hierarchy->AddDataSetIndex(boundaryNodeId, streamSurfaceStartId + i);
     }
 

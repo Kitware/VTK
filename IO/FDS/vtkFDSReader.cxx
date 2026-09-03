@@ -2143,14 +2143,7 @@ vtkSmartPointer<vtkResourceStream> vtkFDSReader::Open()
 int vtkFDSReader::GetNodeId(int parentNode, const std::string& givenNodeName)
 {
   const auto nodeName = vtkDataAssembly::MakeValidNodeName(givenNodeName.c_str());
-  int nodeId = this->Assembly->GetChild(parentNode, nodeName.c_str());
-  if (nodeId != -1)
-  {
-    vtkErrorMacro(<< "Node with name " << nodeName << " already exists under parent node "
-                  << this->Assembly->GetNodeName(parentNode) << ". It won't be added.");
-    return -1;
-  }
-  nodeId = this->Assembly->AddNode(nodeName.c_str(), parentNode);
+  int nodeId = this->Assembly->AddNode(nodeName.c_str(), parentNode);
   return nodeId;
 }
 
