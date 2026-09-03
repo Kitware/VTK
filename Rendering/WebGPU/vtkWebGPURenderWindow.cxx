@@ -235,7 +235,7 @@ wgpu::Surface vtkWebGPURenderWindow::CreateSurfaceFromHardwareWindow(wgpu::Insta
   if (auto* cocoahw = vtkCocoaHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
     wgpu::SurfaceSourceMetalLayer metalSurfDesc;
-    metalSurfDesc.layer = cocoahw->GetMetalLayer();
+    metalSurfDesc.layer = reinterpret_cast<void*>(cocoahw->GetMetalLayer());
     wgpu::SurfaceDescriptor surfDesc = {};
     surfDesc.label = "VTK Cocoa surface";
     surfDesc.nextInChain = &metalSurfDesc;

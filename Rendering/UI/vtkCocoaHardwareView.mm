@@ -3,7 +3,7 @@
 
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 #import <Cocoa/Cocoa.h>
-#import <QuartzCore/CAMetalLayer.h>
+#import <QuartzCore/QuartzCore.h>
 
 #import "vtkCocoaHardwareView.h"
 #import "vtkCocoaHardwareWindow.h"
@@ -35,19 +35,7 @@
 {
   // Set the metal layer
   [self setWantsLayer:YES];
-#if defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && __MAC_OS_X_VERSION_MIN_REQUIRED < 101100
-  if (@available(macOS 10.11, *))
-  {
-    [self setLayer:[CAMetalLayer layer]];
-  }
-  else
-  {
-    // Fallback for macOS < 10.11: use a plain CALayer
-    [self setLayer:[CALayer layer]];
-  }
-#else
   [self setLayer:[CAMetalLayer layer]];
-#endif
 
   // Force Cocoa into "multi threaded mode" because VTK spawns pthreads.
   // Apple's docs say: "If you intend to use Cocoa calls, you must force
@@ -461,11 +449,11 @@ static const char* vtkMacKeyCodeToKeySymTable[128] = { nullptr, nullptr, nullptr
 
   unsigned long eventId = 0;
 
-  if (dy > 0)
+  if (dy > 0.0)
   {
     eventId = vtkCommand::MouseWheelForwardEvent;
   }
-  else if (dy < 0)
+  else if (dy < 0.0)
   {
     eventId = vtkCommand::MouseWheelBackwardEvent;
   }

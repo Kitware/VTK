@@ -5,9 +5,8 @@
 #import "vtkCocoaHardwareView.h"
 #import "vtkCommand.h"
 #import "vtkObjectFactory.h"
-#include <AppKit/AppKit.h>
 
-#import <Cocoa/Cocoa.h>
+#import <AppKit/AppKit.h>
 
 //------------------------------------------------------------------------------
 // A custom delegate to handle NSWindow notifications.
@@ -16,7 +15,11 @@
 @end
 
 @implementation vtkCocoaWindowDelegate
+
+//------------------------------------------------------------------------------
 @synthesize vtkWindow;
+
+//------------------------------------------------------------------------------
 // Called when the window is about to close.
 - (BOOL)windowShouldClose:(NSWindow*)window
 {
@@ -34,6 +37,7 @@
   return YES;
 }
 
+//------------------------------------------------------------------------------
 // Called after the window has been resized.
 - (void)windowDidResize:(NSNotification*)notification
 {
@@ -145,7 +149,7 @@ void vtkCocoaHardwareWindow::Create()
     this->Delegate.vtkWindow = this;
     [this->WindowId setDelegate:this->Delegate];
 
-    // Create our custom Metal-ready view
+    // Create our custom Metal-ready NSView
     vtkCocoaHardwareView* view = [[vtkCocoaHardwareView alloc] initWithFrame:frame];
     this->ViewId = view;
     [this->ViewId setWantsLayer:YES]; // Explicitly enable layer-backing
@@ -406,9 +410,11 @@ NSView* vtkCocoaHardwareWindow::GetViewId()
 }
 
 //------------------------------------------------------------------------------
-void* vtkCocoaHardwareWindow::GetMetalLayer()
+CAMetalLayer* vtkCocoaHardwareWindow::GetMetalLayer()
 {
-  return (void*)[this->ViewId layer];
+  assert([[this->ViewId layer] isKindOfClass:[CAMetalLayer class]]);
+
+  return (CAMetalLayer*)[this->ViewId layer];
 }
 
 //------------------------------------------------------------------------------
