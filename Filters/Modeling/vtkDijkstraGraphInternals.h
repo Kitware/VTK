@@ -159,6 +159,17 @@ public:
     this->HeapIndices.resize(size);
   }
 
+  void Initialize(int size)
+  {
+    this->CumulativeWeights.resize(size);
+    this->Predecessors.resize(size);
+    this->OpenVertices.resize(size);
+    this->ClosedVertices.resize(size);
+    this->Adjacency.clear();
+    this->Adjacency.resize(size);
+    this->BlockedVertices.resize(size);
+  }
+
 private:
   unsigned int HeapSize;
 

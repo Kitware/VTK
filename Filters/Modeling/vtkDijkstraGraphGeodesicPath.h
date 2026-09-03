@@ -4,7 +4,7 @@
  * @class   vtkDijkstraGraphGeodesicPath
  * @brief   Dijkstra algorithm to compute the graph geodesic.
  *
- * Takes as input a polygonal mesh and performs a single source shortest
+ * Takes as input a mesh and performs a single source shortest
  * path calculation. Dijkstra's algorithm is used. The implementation is
  * similar to the one described in Introduction to Algorithms (Second Edition)
  * by Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, and
@@ -15,8 +15,6 @@
  * the shortest path from StartVertex to EndVertex. If a path cannot be found
  * the output will have no lines or points.
  *
- * @warning
- * The input polydata must have only triangle cells.
  *
  * @par Thanks:
  * The class was contributed by Rasmus Paulsen.
@@ -31,14 +29,12 @@
 #include "vtkGraphGeodesicPath.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkDijkstraGraphInternals;
-class vtkIdList;
 
 class VTKFILTERSMODELING_EXPORT vtkDijkstraGraphGeodesicPath : public vtkGraphGeodesicPath
 {
 public:
   /**
-   * Instantiate the class
+   * Instantiate the class.
    */
   static vtkDijkstraGraphGeodesicPath* New();
 
@@ -52,98 +48,94 @@ public:
 
   ///@{
   /**
-   * The vertex ids (of the input polydata) on the shortest path
+   * Set/Get the start/end node as the closest point/cell in the input dataset from the given point.
    */
-  vtkGetObjectMacro(IdList, vtkIdList);
+  vtkSetVector3Macro(StartPoint, double);
+  vtkGetVector3Macro(StartPoint, double);
+  vtkSetVector3Macro(EndPoint, double);
+  vtkGetVector3Macro(EndPoint, double);
   ///@}
 
   ///@{
   /**
-   * Stop when the end vertex is reached
-   * or calculate shortest path to all vertices
+   * Define start and end node by their index if true or by closest points otherwise.
+   * (default: true)
    */
-  vtkSetMacro(StopWhenEndReached, vtkTypeBool);
-  vtkGetMacro(StopWhenEndReached, vtkTypeBool);
-  vtkBooleanMacro(StopWhenEndReached, vtkTypeBool);
+  vtkSetMacro(UseNodeIndices, vtkTypeBool);
+  vtkGetMacro(UseNodeIndices, vtkTypeBool);
+  vtkBooleanMacro(UseNodeIndices, vtkTypeBool);
   ///@}
 
   ///@{
   /**
-   * Use scalar values in the edge weight (experimental)
+   * Set/Get wether the path is compute on the vertices or the cells.
+   * If changed, the adjacency matrix is recomputed.
+   * Note this uses the vtkDataObject::AttributeTypes enum.
+   * (valid range: [POINT, CELL], [0, 1], default: POINT)
    */
-  vtkSetMacro(UseScalarWeights, vtkTypeBool);
-  vtkGetMacro(UseScalarWeights, vtkTypeBool);
-  vtkBooleanMacro(UseScalarWeights, vtkTypeBool);
+  void SetGraphType(int type);
+  vtkGetMacro(GraphType, int);
   ///@}
-
-  ///@{
-  /**
-   * Use the input point to repel the path by assigning high costs.
-   */
-  vtkSetMacro(RepelPathFromVertices, vtkTypeBool);
-  vtkGetMacro(RepelPathFromVertices, vtkTypeBool);
-  vtkBooleanMacro(RepelPathFromVertices, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Specify vtkPoints to use to repel the path from.
-   */
-  virtual void SetRepelVertices(vtkPoints*);
-  vtkGetObjectMacro(RepelVertices, vtkPoints);
-  ///@}
-
-  /**
-   * Fill the array with the cumulative weights.
-   */
-  virtual void GetCumulativeWeights(vtkDoubleArray* weights);
 
 protected:
   vtkDijkstraGraphGeodesicPath();
   ~vtkDijkstraGraphGeodesicPath() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  // Build a graph description of the input.
-  virtual void BuildAdjacency(vtkDataSet* inData);
+  ///@{
+  /**
+   * Builds a graph description of the input.
+   */
+  void BuildAdjacency(vtkDataSet* inData) override;
+  void BuildCellAdjacency(vtkDataSet* inData);
+  ///@}
 
-  vtkTimeStamp AdjacencyBuildTime;
+  ///@{
+  /**
+   * Computes the fixed cost going from vertex u to v.
+   */
+  double CalculateStaticEdgeCost(vtkDataSet* inData, vtkIdType u, vtkIdType v) override;
+  double CalculateStaticEdgeCost(
+    vtkDataSet* inData, vtkDataArray* scalars, vtkIdType u, vtkIdType v);
+  ///@}
 
-  // The fixed cost going from vertex u to v.
-  virtual double CalculateStaticEdgeCost(vtkDataSet* inData, vtkIdType u, vtkIdType v);
+  /**
+   * Computes the fixed cost going from cell c1 to c2.
+   */
+  double CalculateCellEdgeCost(
+    vtkDataSet* inData, vtkDataArray* scalars, vtkIdType c1, vtkIdType c2);
 
-  // The cost going from vertex u to v that may depend on one or more vertices
-  // that precede u.
-  virtual double CalculateDynamicEdgeCost(vtkDataSet*, vtkIdType, vtkIdType) { return 0.0; }
+  /**
+   * Helper to get the node (point or cell) position from its index.
+   */
+  void GetNodeFromIndex(vtkDataSet* inData, vtkIdType u, double pt[3]) override;
 
-  void Initialize(vtkDataSet* inData);
+  /**
+   * Helper to get the number of nodes in the graph.
+   */
+  vtkIdType GetNumberOfNodes(vtkDataSet* inData) override;
 
-  void Reset();
+  /**
+   * Helper to discard repelled vertices from the shortest path computation.
+   */
+  void DiscardRepelVertices(vtkDataSet* inData, int startv, int endv) override;
 
-  // Calculate shortest path from vertex startv to vertex endv.
-  virtual void ShortestPath(vtkDataSet* inData, int startv, int endv);
+  /**
+   * Add the edge u->v and v->u to the adjacency table.
+   */
+  void AddBidirectionalEdge(vtkDataSet* inData, vtkDataArray* scalars,
+    std::vector<std::map<int, double>>& adjacency, vtkIdType u, vtkIdType v);
 
-  // Relax edge u,v with weight w.
-  void Relax(const int& u, const int& v, const double& w);
+  vtkTypeBool UseNodeIndices = 1;
 
-  // Backtrace the shortest path
-  void TraceShortestPath(
-    vtkDataSet* inData, vtkPolyData* outPoly, vtkIdType startv, vtkIdType endv);
+  double StartPoint[3] = { 0.0, 0.0, 0.0 };
+  double EndPoint[3] = { 0.0, 0.0, 0.0 };
 
-  // The number of vertices.
-  int NumberOfVertices;
+  vtkNew<vtkPolyData> CellCenters;
 
-  // The vertex ids on the shortest path.
-  vtkIdList* IdList;
-
-  // Internalized STL containers.
-  vtkDijkstraGraphInternals* Internals;
-
-  vtkTypeBool StopWhenEndReached;
-  vtkTypeBool UseScalarWeights;
-  vtkTypeBool RepelPathFromVertices;
-
-  vtkPoints* RepelVertices;
+  int GraphType = vtkDataObject::AttributeTypes::POINT;
 
 private:
   vtkDijkstraGraphGeodesicPath(const vtkDijkstraGraphGeodesicPath&) = delete;
