@@ -229,8 +229,6 @@ private:
   vtkCleanPolyData(const vtkCleanPolyData&) = delete;
   void operator=(const vtkCleanPolyData&) = delete;
 
-  // Check whether a point is a primary point (as opposed to duplicated ghost point).
-  bool IsPrimaryPoint(vtkPolyData* input, vtkIdType ptIndex);
   // Check whether a point's data has already been copied to the output.
   bool IsPointDataAlreadyCopied(vtkIdType ptIndex);
   // Insert point into newPts. If already present, only get its id.
