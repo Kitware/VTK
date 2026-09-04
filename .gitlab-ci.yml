@@ -63,7 +63,7 @@ dummy:build:
 
 ## readthedocs documentation build
 readthedocs:build:
-    stage: test
+    stage: quick
     extends:
         - .warning_policy
         - .readthedocs
