@@ -14,6 +14,7 @@
 #include "vtkScivisDataRepresentation.h"
 #include "vtkScivisRepresentation.h"
 #include "vtkScivisView.h"
+#include "vtkTesting.h"
 #include "vtkTextActor.h"
 
 #include <iostream>
@@ -64,7 +65,7 @@ private:
 
 }
 
-int TestAnnotationRepresentation(int, char*[])
+int TestAnnotationRepresentation(int argc, char* argv[])
 {
   vtkNew<vtkScivisView> view;
   view->GetRenderWindow()->SetOffScreenRendering(true);
@@ -90,6 +91,13 @@ int TestAnnotationRepresentation(int, char*[])
   view->ResetCamera();
   view->Render();
 
+  vtkNew<vtkTesting> testing;
+  testing->AddArguments(argc, argv);
+  if (testing->IsInteractiveModeSpecified())
+  {
+    view->GetRenderWindow()->SetOffScreenRendering(false);
+    view->Start();
+  }
   view->RemoveRepresentation(title);
   CHECK(view->GetNumberOfRepresentations() == 0, "the annotation was not removed");
 
