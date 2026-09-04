@@ -111,6 +111,8 @@ struct OMFProject::ProjectImpl
         vtkSmartPointer<vtkPartitionedDataSet>::New();
       elementResult.first->second->ProcessJSON(
         this->ProjectFile, element, partitionedDS, writeOutTextures, columnMajorOrdering);
+      // keep the original around: the sanitizing below is destructive.
+      const std::string label = name;
       // names in vtkDataAssembly CANNOT contain spaces or parenthesis
       vtksys::SystemTools::ReplaceString(name, " ", "_");
       vtksys::SystemTools::ReplaceString(name, "(", "_");
@@ -126,6 +128,10 @@ struct OMFProject::ProjectImpl
       }
       auto assembly = output->GetDataAssembly();
       auto node = assembly->AddNode(name.c_str());
+      if (!label.empty())
+      {
+        assembly->SetAttribute(node, "label", label.c_str());
+      }
       vtkIdType pdsIdx = output->GetNumberOfPartitionedDataSets();
       assembly->AddDataSetIndex(node, pdsIdx);
       output->SetPartitionedDataSet(pdsIdx, partitionedDS);

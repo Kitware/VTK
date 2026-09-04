@@ -84,6 +84,8 @@ int TestDataAssembly(int, char*[])
   try
   {
     vtkLogF(INFO, "path= %s", assembly->GetNodePath(sets[0]).c_str());
+    // sibling names are unique here, so paths are plain names.
+    VERIFY(assembly->GetNodePath(sets[0]) == "/exodus/sets/element");
     VERIFY(strcmp(assembly->GetRootNodeName(), "exodus") == 0);
     VERIFY(strcmp(assembly->GetNodeName(elem_sets[4]), "s_five") == 0);
     VERIFY(assembly->FindFirstNodeWithName("s_five") == elem_sets[4]);
@@ -122,6 +124,41 @@ int TestDataAssembly(int, char*[])
     VERIFY((subset->GetDataSetIndices(15) == std::vector<unsigned int>{ 1 }));
 
     VERIFY(vtkDataAssembly::IsNodeNameValid("Ying-Yang"));
+
+    // sibling names need not be unique; the paths of such nodes are qualified
+    // with the node id so that they remain usable as selectors.
+    vtkNew<vtkDataAssembly> duplicates;
+    duplicates->SetRootNodeName("root");
+    const int first = duplicates->AddNode("twin");
+    const int child = duplicates->AddNode("only", first);
+    VERIFY(duplicates->GetNodePath(first) == "/root/twin");
+    VERIFY(duplicates->GetNodePath(child) == "/root/twin/only");
+
+    // adding a same-named sibling makes both paths ambiguous. this also covers
+    // the duplicate-name bookkeeping being refreshed after the assembly changes.
+    const int second = duplicates->AddNode("twin");
+    VERIFY(second != first);
+    for (const int node : { first, second })
+    {
+      const auto path = duplicates->GetNodePath(node);
+      VERIFY(path == "/root/twin[@id='" + vtk::to_string(node) + "']");
+      VERIFY((duplicates->SelectNodes({ path }) == std::vector<int>{ node }));
+    }
+
+    // `child` is still the only node matching its own path, so it keeps a plain
+    // one even though an ancestor along that path is now ambiguous.
+    VERIFY(duplicates->GetNodePath(child) == "/root/twin/only");
+    VERIFY((duplicates->SelectNodes({ "/root/twin/only" }) == std::vector<int>{ child }));
+
+    // once the other twin has a same-named child too, an id predicate on the
+    // last segment alone still identifies each of them.
+    const int otherChild = duplicates->AddNode("only", second);
+    for (const int node : { child, otherChild })
+    {
+      const auto path = duplicates->GetNodePath(node);
+      VERIFY(path == "/root/twin/only[@id='" + vtk::to_string(node) + "']");
+      VERIFY((duplicates->SelectNodes({ path }) == std::vector<int>{ node }));
+    }
   }
   catch (const TestFailed&)
   {

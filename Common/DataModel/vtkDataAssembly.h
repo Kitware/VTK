@@ -212,7 +212,25 @@ public:
   ///@}
 
   /**
-   * Returns the path for a node.
+   * Returns the path for a node, suitable for use as a selector.
+   *
+   * Since sibling names need not be unique, the plain name-based path (e.g.
+   * `/Root/Blocks/element`) may match several nodes. When that is the case, the
+   * returned path is qualified with the node's id so that it identifies this
+   * node alone (e.g.
+   * @verbatim /Root/Blocks/element[@id='7'] @endverbatim
+   * ). For a node whose path is already unambiguous - which is every node in
+   * an assembly with unique sibling names - the plain path is returned
+   * unchanged.
+   *
+   * Node ids are assigned in `AddNode` order, so an id-qualified path is only
+   * valid for this assembly and for assemblies rebuilt the same way. Callers
+   * that need a path stable across structural changes should build a selector
+   * from a `label` attribute instead.
+   *
+   * @note The result is a selector, not a node name: it may contain characters
+   * rejected by `IsNodeNameValid`. Callers that need a plain name-based path
+   * (e.g. to derive a group name in a file format) must not use this.
    */
   std::string GetNodePath(int id) const;
 

@@ -94,6 +94,37 @@ bool IsDataSetNode(const pugi::xml_node& node)
 }
 
 //------------------------------------------------------------------------------
+// Returns true if any node in the subtree rooted at `root` has a sibling with
+// the same name. Since a name-based path can only match several nodes if some
+// node along it has a same-named sibling, this answers, in a single traversal,
+// whether any path in the assembly can be ambiguous.
+bool HasDuplicateSiblingNames(const pugi::xml_node& root)
+{
+  std::vector<pugi::xml_node> stack{ root };
+  std::unordered_set<std::string> names;
+  while (!stack.empty())
+  {
+    const auto node = stack.back();
+    stack.pop_back();
+    names.clear();
+    for (auto child : node.children())
+    {
+      // internal <dataset> tags legitimately repeat; only structural nodes count.
+      if (!IsAssemblyNode(child))
+      {
+        continue;
+      }
+      if (!names.insert(child.name()).second)
+      {
+        return true;
+      }
+      stack.push_back(child);
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 struct ValidationAndInitializationWalker : public pugi::xml_tree_walker
 {
   std::unordered_map<int, pugi::xml_node>& NodeMap;
@@ -333,6 +364,26 @@ public:
   int MaxUniqueDataSetId = -1; // It's possible that it has no datasets that's why default is -1
   bool Parse(const char* xmlcontents, vtkDataAssembly* self);
 
+  /**
+   * Returns true if any node in the assembly has a sibling with the same name,
+   * i.e. if any name-based path can match more than one node.
+   *
+   * The answer is cached and recomputed only when the assembly has been
+   * modified since the last query; `mtime` is the assembly's modification time.
+   * It is deliberately not maintained incrementally by `AddNode`, since
+   * checking each new name against its siblings would make building an
+   * assembly quadratic in the number of siblings.
+   */
+  bool GetHasDuplicateSiblingNames(vtkMTimeType mtime) const
+  {
+    if (this->DuplicateSiblingNamesTime != mtime)
+    {
+      this->DuplicateSiblingNamesTime = mtime;
+      this->DuplicateSiblingNames = ::HasDuplicateSiblingNames(this->Document.first_child());
+    }
+    return this->DuplicateSiblingNames;
+  }
+
   bool ParseDocument(vtkDataAssembly* self)
   {
     auto& doc = this->Document;
@@ -362,6 +413,11 @@ public:
     auto iter = this->NodeMap.find(id);
     return iter != this->NodeMap.end() ? iter->second : pugi::xml_node();
   }
+
+private:
+  // cache for `GetHasDuplicateSiblingNames`, keyed on the assembly's mtime.
+  mutable bool DuplicateSiblingNames = false;
+  mutable vtkMTimeType DuplicateSiblingNamesTime = 0;
 };
 
 //------------------------------------------------------------------------------
@@ -579,19 +635,6 @@ int vtkDataAssembly::AddNode(const char* name, int parent)
     vtkErrorMacro("Parent node with id=" << parent << " not found.");
     return -1;
   }
-  // check if name is unique within the children of the parent node
-  // to ensure uniqueness among selectors
-  for (auto child : pnode.children())
-  {
-    // Only compare against other structural nodes,
-    // ignoring internal <dataset> tags.
-    if (::IsAssemblyNode(child) && strcmp(child.name(), name) == 0)
-    {
-      vtkErrorMacro(
-        "A child node with name '" << name << "' already exists under parent with id=" << parent);
-      return -1;
-    }
-  }
 
   auto child = ++internals.MaxUniqueId;
   auto cnode = pnode.append_child(name);
@@ -612,8 +655,7 @@ std::vector<int> vtkDataAssembly::AddNodes(const std::vector<std::string>& names
     return std::vector<int>{};
   }
 
-  // 1. Validate names and check for duplicates within the input vector itself
-  std::unordered_set<std::string> uniqueNames;
+  // validate names first to avoid partial additions.
   for (const auto& name : names)
   {
     if (!vtkDataAssembly::IsNodeNameValid(name.c_str()))
@@ -621,30 +663,8 @@ std::vector<int> vtkDataAssembly::AddNodes(const std::vector<std::string>& names
       vtkErrorMacro("Invalid name specified '" << name << "'.");
       return std::vector<int>{};
     }
-
-    if (!uniqueNames.insert(name).second)
-    {
-      vtkErrorMacro("Duplicate name '" << name << "' found in the input list.");
-      return std::vector<int>{};
-    }
   }
 
-  // 2. Check if any of these names already exist under the parent
-  for (auto child : pnode.children())
-  {
-    if (::IsAssemblyNode(child))
-    {
-      const char* existingName = child.name();
-      if (uniqueNames.find(existingName) != uniqueNames.end())
-      {
-        vtkErrorMacro("A child node with name '"
-          << existingName << "' already exists under parent with id=" << parent);
-        return std::vector<int>{};
-      }
-    }
-  }
-
-  // 3. All checks passed. Perform the additions.
   std::vector<int> ids;
   for (const auto& name : names)
   {
@@ -733,7 +753,35 @@ std::string vtkDataAssembly::GetNodePath(int id) const
     return std::string{};
   }
 
-  return node.path();
+  auto path = node.path();
+
+  // Sibling names need not be unique, hence the name-based path may match more
+  // than one node. In that case, qualify it with the node's id, which is unique
+  // across the assembly, so that the returned path is an unambiguous selector.
+  // A predicate on the last segment is sufficient even when intermediate nodes
+  // along the path are themselves ambiguous, since the id is not scoped to the
+  // parent the way a positional predicate would be.
+  //
+  // Evaluating the path is by far the most expensive part of this method, so it
+  // is skipped entirely unless the assembly has duplicate sibling names to begin
+  // with, which is the case for none of the assemblies built with unique names.
+  if (internals.GetHasDuplicateSiblingNames(this->MTime.GetMTime()))
+  {
+    try
+    {
+      auto set = internals.Document.select_nodes(path.c_str());
+      if (set.size() > 1)
+      {
+        path += "[@id='" + vtk::to_string(id) + "']";
+      }
+    }
+    catch (pugi::xpath_exception& exp)
+    {
+      vtkLogF(TRACE, "xpath exception: %s", exp.what());
+    }
+  }
+
+  return path;
 }
 
 //------------------------------------------------------------------------------

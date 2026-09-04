@@ -479,7 +479,13 @@ int vtkCONVERGECFDCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
             continue;
           }
 
-          int parcelTypeAssemblyId = hierarchy->AddNode(nodeName, parcelDataAssemblyId);
+          const auto parcelTypeName = vtkDataAssembly::MakeValidNodeName(nodeName);
+          int parcelTypeAssemblyId =
+            hierarchy->AddNode(parcelTypeName.c_str(), parcelDataAssemblyId);
+          if (nodeName[0] != '\0')
+          {
+            hierarchy->SetAttribute(parcelTypeAssemblyId, "label", nodeName);
+          }
 
           // Second level is the parcel name
           std::vector<double> parcelNamesIds;
@@ -494,7 +500,12 @@ int vtkCONVERGECFDCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
               continue;
             }
 
-            int parcelAssemblyId = hierarchy->AddNode(nodeName, parcelTypeAssemblyId);
+            const auto parcelName = vtkDataAssembly::MakeValidNodeName(nodeName);
+            int parcelAssemblyId = hierarchy->AddNode(parcelName.c_str(), parcelTypeAssemblyId);
+            if (nodeName[0] != '\0')
+            {
+              hierarchy->SetAttribute(parcelAssemblyId, "label", nodeName);
+            }
 
             // Add poly data
             vtkNew<vtkPolyData> parcel;

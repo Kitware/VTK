@@ -309,7 +309,12 @@ void vtkERFReader::AppendMeshs(vtkPartitionedDataSetCollection* pdc, vtkDataAsse
     }
 
     std::string fullPath = it->first;
-    meshNodeId = hierarchy->AddNode(fullPath.c_str(), streamNodeId);
+    const auto validName = vtkDataAssembly::MakeValidNodeName(fullPath.c_str());
+    meshNodeId = hierarchy->AddNode(validName.c_str(), streamNodeId);
+    if (!fullPath.empty())
+    {
+      hierarchy->SetAttribute(meshNodeId, "label", fullPath.c_str());
+    }
     meshStartId = pdc->GetNumberOfPartitionedDataSets();
     pdc->SetNumberOfPartitionedDataSets(meshStartId + 1);
 
