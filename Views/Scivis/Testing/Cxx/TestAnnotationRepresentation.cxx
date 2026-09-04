@@ -8,6 +8,7 @@
 // vtkScivisDataRepresentation.
 
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkScivisDataRepresentation.h"
@@ -34,7 +35,7 @@ namespace
 class TextAnnotation : public vtkScivisRepresentation
 {
 public:
-  static TextAnnotation* New() { return new TextAnnotation; }
+  static TextAnnotation* New() { VTK_STANDARD_NEW_BODY(TextAnnotation); }
   vtkTypeMacro(TextAnnotation, vtkScivisRepresentation);
 
   void SetVisibility(bool val) override { this->Text->SetVisibility(val); }
