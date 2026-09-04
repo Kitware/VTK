@@ -598,7 +598,9 @@ int vtkEnSightSOSGoldReader::RequestData(vtkInformation* vtkNotUsed(request),
         output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), partName);
         auto validPartName = vtkDataAssembly::MakeValidNodeName(partName.c_str());
         auto readerNodes = readerAssembly->FindNodesWithName(validPartName.c_str());
-        auto sosNode = fullAssembly->AddNode(readerAssembly->GetNodeName(readerNodes[0]));
+        auto nodeName = readerAssembly->GetNodeName(readerNodes[0]);
+        auto sosNode = fullAssembly->AddNode(nodeName);
+        fullAssembly->SetAttribute(sosNode, "label", partName.c_str());
         fullAssembly->AddDataSetIndex(sosNode, pdsIdx);
       }
     }

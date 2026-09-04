@@ -579,19 +579,6 @@ int vtkDataAssembly::AddNode(const char* name, int parent)
     vtkErrorMacro("Parent node with id=" << parent << " not found.");
     return -1;
   }
-  // check if name is unique within the children of the parent node
-  // to ensure uniqueness among selectors
-  for (auto child : pnode.children())
-  {
-    // Only compare against other structural nodes,
-    // ignoring internal <dataset> tags.
-    if (::IsAssemblyNode(child) && strcmp(child.name(), name) == 0)
-    {
-      vtkErrorMacro(
-        "A child node with name '" << name << "' already exists under parent with id=" << parent);
-      return -1;
-    }
-  }
 
   auto child = ++internals.MaxUniqueId;
   auto cnode = pnode.append_child(name);
@@ -612,8 +599,7 @@ std::vector<int> vtkDataAssembly::AddNodes(const std::vector<std::string>& names
     return std::vector<int>{};
   }
 
-  // 1. Validate names and check for duplicates within the input vector itself
-  std::unordered_set<std::string> uniqueNames;
+  // validate names first to avoid partial additions.
   for (const auto& name : names)
   {
     if (!vtkDataAssembly::IsNodeNameValid(name.c_str()))
@@ -621,30 +607,8 @@ std::vector<int> vtkDataAssembly::AddNodes(const std::vector<std::string>& names
       vtkErrorMacro("Invalid name specified '" << name << "'.");
       return std::vector<int>{};
     }
-
-    if (!uniqueNames.insert(name).second)
-    {
-      vtkErrorMacro("Duplicate name '" << name << "' found in the input list.");
-      return std::vector<int>{};
-    }
   }
 
-  // 2. Check if any of these names already exist under the parent
-  for (auto child : pnode.children())
-  {
-    if (::IsAssemblyNode(child))
-    {
-      const char* existingName = child.name();
-      if (uniqueNames.find(existingName) != uniqueNames.end())
-      {
-        vtkErrorMacro("A child node with name '"
-          << existingName << "' already exists under parent with id=" << parent);
-        return std::vector<int>{};
-      }
-    }
-  }
-
-  // 3. All checks passed. Perform the additions.
   std::vector<int> ids;
   for (const auto& name : names)
   {

@@ -497,7 +497,12 @@ bool vtkHDFReader::Implementation::FillAssembly(
     }
     else
     {
-      int groupIndex = assembly->AddNode(childPath.c_str(), assemblyID);
+      const auto validName = vtkDataAssembly::MakeValidNodeName(childPath.c_str());
+      int groupIndex = assembly->AddNode(validName.c_str(), assemblyID);
+      if (!childPath.empty())
+      {
+        assembly->SetAttribute(groupIndex, "label", childPath.c_str());
+      }
       this->FillAssembly(assembly, currentHandle, groupIndex, childFullPath);
     }
   }
