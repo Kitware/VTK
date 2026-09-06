@@ -25,7 +25,7 @@ DATA_FILE = "marshal_modules.json"
 MARSHAL_HINT_REGEX = r"VTK_MARSHAL(AUTO|MANUAL)"
 MARSHAL_HINT_REGEXES = [r"VTK_MARSHALAUTO", r"VTK_MARSHALMANUAL"]
 MODULE_HEADER_REGEX = r'^#include "vtk.*Module\.h"'
-MODULE_EXPORT_REGEX = r"^class VTK.*_EXPORT"
+MODULE_EXPORT_REGEX = r"^(class\s+|)VTK.*_EXPORT"
 WRAPHINT_HEADER_REGEX = r'^#include "vtkWrappingHints\.h"'
 
 SCRIPT_DIR = pathlib.Path(os.path.dirname(__file__))
