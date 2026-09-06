@@ -186,6 +186,12 @@
         CMAKE_CONFIGURATION: windows_vs2022_java
         VTK_INSTALL: 1
 
+.windows_vs2022_webgpu:
+    extends: .windows_vs2022
+
+    variables:
+        CMAKE_CONFIGURATION: windows_vs2022_webgpu
+
 ## Tags
 
 .windows_builder_tags:
@@ -260,6 +266,12 @@
     - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\tbb;$env:CMAKE_PREFIX_PATH"
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\tbb\redist\$env:TBB_REDIST_DIR;$env:PATH"
 
+.before_script_windows_dawn_deps: &before_script_windows_dawn_deps
+    # Download Dawn (WebGPU) only for webgpu configurations.
+    - 'if ("$env:CMAKE_CONFIGURATION" -match "webgpu") { cmake -P .gitlab/ci/download_dawn.cmake }'
+    - 'if ("$env:CMAKE_CONFIGURATION" -match "webgpu") { Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\dawn;$env:CMAKE_PREFIX_PATH" }'
+    - 'if ("$env:CMAKE_CONFIGURATION" -match "webgpu") { Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\dawn\bin;$env:PATH" }'
+
 .before_script_java_windows: &before_script_java_windows
     - cmake -P .gitlab/ci/download_java.cmake
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\jdk\bin\;$env:PATH"
@@ -298,6 +310,7 @@
         - *before_script_windows_deps
         - *before_script_windows_jpeg_simd_deps
         - *before_script_windows_openxr_deps
+        - *before_script_windows_dawn_deps
         - *script_windows
     interruptible: true
 
@@ -308,6 +321,7 @@
         - *before_script_windows
         - *before_script_windows_deps
         - *before_script_windows_openxr_deps
+        - *before_script_windows_dawn_deps
         # Reuse the venv from the build step (avoids version changes between
         # build and testing). This is set up manually because Activate.ps1
         # doesn't seem to work for our extracted Python tarball.

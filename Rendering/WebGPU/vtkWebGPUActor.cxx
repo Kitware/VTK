@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUActor.h"
+#include "Private/vtkWebGPUHandle.h"
 
 #include "Private/vtkWebGPUActorInternals.h"
 #include "Private/vtkWebGPUBindGroupInternals.h"
@@ -125,7 +126,7 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
         updateBuffers |= this->CacheActorId();
         if (updateBuffers)
         {
-          wgpuConfiguration->WriteBuffer(internals.ActorBuffer, 0,
+          wgpuConfiguration->WriteBuffer(internals.ActorBuffer.Get(), 0,
             this->GetCachedActorInformation(), this->GetCacheSizeBytes(), "ActorBufferUpdate");
         }
         break;
@@ -135,14 +136,16 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
         {
           if (wgpuRenderer->GetRebuildRenderBundle())
           {
-            wgpuRenderer->GetRenderBundleEncoder().SetBindGroup(1, internals.ActorBindGroup);
+            wgpuRenderBundleEncoderSetBindGroup(
+              wgpuRenderer->GetRenderBundleEncoder(), 1, internals.ActorBindGroup, 0, nullptr);
             mapper->Render(renderer, this);
           }
           // else, no need to record draw commands.
         }
         else
         {
-          wgpuRenderer->GetRenderPassEncoder().SetBindGroup(1, internals.ActorBindGroup);
+          wgpuRenderPassEncoderSetBindGroup(
+            wgpuRenderer->GetRenderPassEncoder(), 1, internals.ActorBindGroup, 0, nullptr);
           mapper->Render(renderer, this);
         }
         break;
@@ -440,31 +443,38 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
   const auto actorDescription = this->GetObjectDescription();
   const auto bufferLabel = "ActorBlock-" + actorDescription;
   const auto bufferSize = vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 32);
-  internals.ActorBuffer = wgpuConfiguration->CreateBuffer(bufferSize,
-    wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false, bufferLabel.c_str());
+  internals.ActorBuffer = vtkWebGPU::Buffer::Acquire(wgpuConfiguration->CreateBuffer(bufferSize,
+    static_cast<WGPUBufferUsage>(WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst), false,
+    bufferLabel.c_str()));
 
   std::uint32_t bindingIdBGL = 0;
-  std::vector<wgpu::BindGroupLayoutEntry> bglEntries;
+  std::vector<WGPUBindGroupLayoutEntry> bglEntries;
   // ActorBlock
-  bglEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-    bindingIdBGL++, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-    wgpu::BufferBindingType::ReadOnlyStorage });
+  bglEntries.emplace_back(
+    vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ bindingIdBGL++,
+      WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_ReadOnlyStorage });
   // Actor texture
   if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(this->GetTexture()))
   {
     if (auto devRc = wgpuTexture->GetDeviceResource())
     {
-      bglEntries.emplace_back(
-        devRc->MakeSamplerBindGroupLayoutEntry(bindingIdBGL++, wgpu::ShaderStage::Fragment));
-      bglEntries.emplace_back(
-        devRc->MakeTextureViewBindGroupLayoutEntry(bindingIdBGL++, wgpu::ShaderStage::Fragment));
+      {
+        WGPUBindGroupLayoutEntry samplerEntry = devRc->MakeSamplerBindGroupLayoutEntry(
+          bindingIdBGL++, static_cast<WGPUShaderStage>(WGPUShaderStage_Fragment));
+        bglEntries.push_back(samplerEntry);
+      }
+      {
+        WGPUBindGroupLayoutEntry textureEntry = devRc->MakeTextureViewBindGroupLayoutEntry(
+          bindingIdBGL++, static_cast<WGPUShaderStage>(WGPUShaderStage_Fragment));
+        bglEntries.push_back(textureEntry);
+      }
     }
   }
 
-  internals.ActorBindGroupLayout =
-    vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, bglEntries, actorDescription);
+  internals.ActorBindGroupLayout = vtkWebGPU::BindGroupLayout::Acquire(
+    vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, bglEntries, actorDescription));
   std::uint32_t bindingIdBG = 0;
-  std::vector<wgpu::BindGroupEntry> bgEntries;
+  std::vector<WGPUBindGroupEntry> bgEntries;
   // ActorBlock
   auto actorBindingInit = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingIdBG++,
     internals.ActorBuffer, 0, bufferSize };
@@ -474,13 +484,20 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
   {
     if (auto devRc = wgpuTexture->GetDeviceResource())
     {
-      bgEntries.emplace_back(devRc->MakeSamplerBindGroupEntry(bindingIdBG++));
-      bgEntries.emplace_back(devRc->MakeTextureViewBindGroupEntry(bindingIdBG++));
+      {
+        WGPUBindGroupEntry samplerEntry = devRc->MakeSamplerBindGroupEntry(bindingIdBG++);
+        bgEntries.push_back(samplerEntry);
+      }
+      {
+        WGPUBindGroupEntry textureEntry = devRc->MakeTextureViewBindGroupEntry(bindingIdBG++);
+        bgEntries.push_back(textureEntry);
+      }
     }
   }
 
-  internals.ActorBindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(
-    device, internals.ActorBindGroupLayout, bgEntries, actorDescription);
+  internals.ActorBindGroup =
+    vtkWebGPU::BindGroup::Acquire(vtkWebGPUBindGroupInternals::MakeBindGroup(
+      device, internals.ActorBindGroupLayout, bgEntries, actorDescription));
   internals.DeviceResourcesBuildTimestamp.Modified();
   // Reset timestamps because the previous buffer is now gone and contents of the buffer will need
   // to be re-uploaded.

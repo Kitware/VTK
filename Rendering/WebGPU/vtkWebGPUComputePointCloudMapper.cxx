@@ -57,7 +57,6 @@ void vtkWebGPUComputePointCloudMapper::RenderPiece(vtkRenderer* renderer, vtkAct
     this->Internals->CachedInput = this->GetInput();
   }
 
-  const auto device = wgpuRenderWindow->GetDevice();
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   if (wgpuRenderer == nullptr)
   {

@@ -5,6 +5,8 @@
 
 #include "vtkWebGPUCellToPrimitiveConverter.h"
 #include "Private/vtkWebGPUComputeBufferInternals.h"
+#include "Private/vtkWebGPUHandle.h"
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "VTKCellToGraphicsPrimitive.h"
 #include "vtkABINamespace.h"
 #include "vtkCellArray.h"
@@ -288,9 +290,9 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchMeshesToPrimitiveComputePipeline
   vtkWebGPUConfiguration* wgpuConfiguration, std::vector<vtkPolyData*> meshes, int representation,
   std::vector<std::pair<vtkTypeUInt32, vtkTypeUInt32>>*
     vertexOffsetAndCounts[NUM_TOPOLOGY_SOURCE_TYPES],
-  std::array<wgpu::Buffer*, NUM_TOPOLOGY_SOURCE_TYPES>& connectivityBuffers,
-  std::array<wgpu::Buffer*, NUM_TOPOLOGY_SOURCE_TYPES>& cellIdBuffers,
-  std::array<wgpu::Buffer*, NUM_TOPOLOGY_SOURCE_TYPES>& edgeArrayBuffers)
+  std::array<WGPUBuffer*, NUM_TOPOLOGY_SOURCE_TYPES>& connectivityBuffers,
+  std::array<WGPUBuffer*, NUM_TOPOLOGY_SOURCE_TYPES>& cellIdBuffers,
+  std::array<WGPUBuffer*, NUM_TOPOLOGY_SOURCE_TYPES>& edgeArrayBuffers)
 {
   bool buffersUpdated = false;
   std::array<int, 3> cellTypes{ VTK_POLY_VERTEX, VTK_POLY_LINE, VTK_POLYGON };
@@ -327,10 +329,10 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchMeshesToPrimitiveComputePipeline
 bool vtkWebGPUCellToPrimitiveConverter::DispatchMeshToPrimitiveComputePipeline(
   vtkWebGPUConfiguration* wgpuConfiguration, vtkPolyData* mesh, int representation,
   const std::array<vtkTypeUInt32*, NUM_TOPOLOGY_SOURCE_TYPES>& vertexCounts,
-  const std::array<wgpu::Buffer*, NUM_TOPOLOGY_SOURCE_TYPES>& connectivityBuffers,
-  const std::array<wgpu::Buffer*, NUM_TOPOLOGY_SOURCE_TYPES>& cellIdBuffers,
-  const std::array<wgpu::Buffer*, NUM_TOPOLOGY_SOURCE_TYPES>& edgeArrayBuffers,
-  const std::array<wgpu::Buffer*, NUM_TOPOLOGY_SOURCE_TYPES>& cellIdOffsetUniformBuffers)
+  const std::array<WGPUBuffer*, NUM_TOPOLOGY_SOURCE_TYPES>& connectivityBuffers,
+  const std::array<WGPUBuffer*, NUM_TOPOLOGY_SOURCE_TYPES>& cellIdBuffers,
+  const std::array<WGPUBuffer*, NUM_TOPOLOGY_SOURCE_TYPES>& edgeArrayBuffers,
+  const std::array<WGPUBuffer*, NUM_TOPOLOGY_SOURCE_TYPES>& cellIdOffsetUniformBuffers)
 {
   bool buffersUpdated = false;
   vtkTypeUInt32 cellIdOffset = 0;
@@ -371,20 +373,23 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchMeshToPrimitiveComputePipeline(
 bool vtkWebGPUCellToPrimitiveConverter::DispatchMeshToPrimitiveComputePipeline(
   vtkWebGPUConfiguration* wgpuConfiguration, vtkPolyData* mesh, int representation,
   vtkTypeUInt32* vertexCounts[NUM_TOPOLOGY_SOURCE_TYPES],
-  wgpu::Buffer* connectivityBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
-  wgpu::Buffer* cellIdBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
-  wgpu::Buffer* edgeArrayBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
-  wgpu::Buffer* cellIdOffsetUniformBuffers[NUM_TOPOLOGY_SOURCE_TYPES])
+  WGPUBuffer* connectivityBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
+  WGPUBuffer* cellIdBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
+  WGPUBuffer* edgeArrayBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
+  WGPUBuffer* cellIdOffsetUniformBuffers[NUM_TOPOLOGY_SOURCE_TYPES])
 {
   std::array<vtkTypeUInt32*, NUM_TOPOLOGY_SOURCE_TYPES> vertexCountsArr;
   std::copy_n(vertexCounts, NUM_TOPOLOGY_SOURCE_TYPES, vertexCountsArr.begin());
-  std::array<wgpu::Buffer*, NUM_TOPOLOGY_SOURCE_TYPES> connectivityBuffersArr;
+
+  // Convert WGPUBuffer* arrays to std::array<WGPUBuffer*> for the other overload
+  std::array<WGPUBuffer*, NUM_TOPOLOGY_SOURCE_TYPES> connectivityBuffersArr;
+  std::array<WGPUBuffer*, NUM_TOPOLOGY_SOURCE_TYPES> cellIdBuffersArr;
+  std::array<WGPUBuffer*, NUM_TOPOLOGY_SOURCE_TYPES> edgeArrayBuffersArr;
+  std::array<WGPUBuffer*, NUM_TOPOLOGY_SOURCE_TYPES> cellIdOffsetUniformBuffersArr;
+
   std::copy_n(connectivityBuffers, NUM_TOPOLOGY_SOURCE_TYPES, connectivityBuffersArr.begin());
-  std::array<wgpu::Buffer*, NUM_TOPOLOGY_SOURCE_TYPES> cellIdBuffersArr;
   std::copy_n(cellIdBuffers, NUM_TOPOLOGY_SOURCE_TYPES, cellIdBuffersArr.begin());
-  std::array<wgpu::Buffer*, NUM_TOPOLOGY_SOURCE_TYPES> edgeArrayBuffersArr;
   std::copy_n(edgeArrayBuffers, NUM_TOPOLOGY_SOURCE_TYPES, edgeArrayBuffersArr.begin());
-  std::array<wgpu::Buffer*, NUM_TOPOLOGY_SOURCE_TYPES> cellIdOffsetUniformBuffersArr;
   std::copy_n(
     cellIdOffsetUniformBuffers, NUM_TOPOLOGY_SOURCE_TYPES, cellIdOffsetUniformBuffersArr.begin());
 
@@ -396,9 +401,8 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchMeshToPrimitiveComputePipeline(
 //------------------------------------------------------------------------------
 bool vtkWebGPUCellToPrimitiveConverter::DispatchCellToPrimitiveComputePipeline(
   vtkWebGPUConfiguration* wgpuConfiguration, vtkCellArray* cells, int representation, int cellType,
-  vtkTypeUInt32 cellIdOffset, vtkTypeUInt32* vertexCount, wgpu::Buffer* connectivityBuffer,
-  wgpu::Buffer* cellIdBuffer, wgpu::Buffer* edgeArrayBuffer,
-  wgpu::Buffer* cellIdOffsetUniformBuffer)
+  vtkTypeUInt32 cellIdOffset, vtkTypeUInt32* vertexCount, WGPUBuffer* connectivityBuffer,
+  WGPUBuffer* cellIdBuffer, WGPUBuffer* edgeArrayBuffer, WGPUBuffer* cellIdOffsetUniformBuffer)
 {
   return this->DispatchCellArrayToPrimitiveComputePipeline(wgpuConfiguration, cells, representation,
     cellType, cellIdOffset, vertexCount, connectivityBuffer, cellIdBuffer, edgeArrayBuffer,
@@ -410,7 +414,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
   vtkWebGPUConfiguration* wgpuConfiguration, const std::vector<vtkCellArray*>& cellArrays,
   int representation, int cellType, const std::vector<vtkIdType>& numberOfPoints,
   std::vector<std::pair<vtkTypeUInt32, vtkTypeUInt32>>* vertexOffsetAndCounts,
-  wgpu::Buffer* connectivityBuffer, wgpu::Buffer* cellIdBuffer, wgpu::Buffer* edgeArrayBuffer,
+  WGPUBuffer* connectivityBuffer, WGPUBuffer* cellIdBuffer, WGPUBuffer* edgeArrayBuffer,
   const std::vector<vtkDataArray*>& pointCoordinates)
 {
   vtkLogScopeFunction(TRACE);
@@ -491,11 +495,11 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
       *edgeArrayBuffer = nullptr;
     }
     auto label = std::string("Connectivity-") + primitiveTypeAsString;
-    wgpu::BufferDescriptor descriptor{};
-    descriptor.label = label.c_str();
+    WGPUBufferDescriptor descriptor = WGPU_BUFFER_DESCRIPTOR_INIT;
+    descriptor.label = vtkWebGPUMakeStringView(label);
     descriptor.mappedAtCreation = false;
     descriptor.nextInChain = nullptr;
-    descriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
+    descriptor.usage = WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst;
     descriptor.size = totalNumberOfIndices * sizeof(vtkTypeUInt32);
     *connectivityBuffer = wgpuConfiguration->CreateBuffer(descriptor);
     vtkIdType pointOffset = 0;
@@ -720,7 +724,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
         }
       }
       pointCoordinatesBuffer->SetData(concatenatedCoordinates.GetPointer());
-      pointCoordinatesBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
+      pointCoordinatesBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::DATA_ARRAY);
     }
     else
     {
@@ -792,8 +796,8 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
 bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipeline(
   vtkWebGPUConfiguration* wgpuConfiguration, vtkCellArray* cellArray, int representation,
   int cellType, vtkTypeUInt32 cellIdOffset, vtkTypeUInt32* vertexCount,
-  wgpu::Buffer* connectivityBuffer, wgpu::Buffer* cellIdBuffer, wgpu::Buffer* edgeArrayBuffer,
-  wgpu::Buffer* cellIdOffsetUniformBuffer, vtkDataArray* pointCoordinates)
+  WGPUBuffer* connectivityBuffer, WGPUBuffer* cellIdBuffer, WGPUBuffer* edgeArrayBuffer,
+  WGPUBuffer* cellIdOffsetUniformBuffer, vtkDataArray* pointCoordinates)
 {
   if (wgpuConfiguration == nullptr)
   {
@@ -868,12 +872,12 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
       cellArray->GetObjectDescription();
     *connectivityBuffer =
       wgpuConfiguration->CreateBuffer(ids->GetDataSize() * ids->GetDataTypeSize(),
-        wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false, label.c_str());
+        WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst, false, label.c_str());
 
     label = std::string("CellIdOffsetUniform-") + primitiveTypeAsString + "@" +
       cellArray->GetObjectDescription();
     *cellIdOffsetUniformBuffer = wgpuConfiguration->CreateBuffer(sizeof(vtkTypeUInt32),
-      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false, label.c_str());
+      WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst, false, label.c_str());
 
     vtkWebGPUComputeBufferInternals::UploadFromDataArray(
       wgpuConfiguration, *connectivityBuffer, ids, "Write connectivity");
@@ -931,7 +935,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
       cellArray->GetObjectDescription());
     inputConnectivityBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
     inputConnectivityBuffer->SetData(cellArray->GetConnectivityArray());
-    inputConnectivityBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
+    inputConnectivityBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::DATA_ARRAY);
 
     // create input buffer for offsets
     vtkNew<vtkWebGPUComputeBuffer> offsetsBuffer;
@@ -941,7 +945,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
       std::string("Offsets-") + cellTypeAsString + "-" + cellArray->GetObjectDescription());
     offsetsBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
     offsetsBuffer->SetData(cellArray->GetOffsetsArray());
-    offsetsBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
+    offsetsBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::DATA_ARRAY);
 
     // create input buffer for primitive offsets
     vtkNew<vtkWebGPUComputeBuffer> primitiveCountsBuffer;
@@ -1042,7 +1046,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
         }
         pointCoordinatesBuffer->SetData(floatCoords.GetPointer());
       }
-      pointCoordinatesBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
+      pointCoordinatesBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::DATA_ARRAY);
     }
     else
     {

@@ -4,6 +4,7 @@
 #ifndef vtkWebGPUPointCloudMapperInternals_h
 #define vtkWebGPUPointCloudMapperInternals_h
 
+#include "Private/vtkWebGPUHandle.h"
 #include "vtkObject.h"
 #include "vtkRenderingWebGPUModule.h"
 #include "vtkSmartPointer.h"
@@ -41,9 +42,9 @@ public:
    */
   struct CopyDepthBufferRenderPipeline
   {
-    wgpu::BindGroup BindGroup = nullptr;
-    wgpu::RenderPipeline Pipeline = nullptr;
-    wgpu::Buffer FramebufferWidthUniformBuffer = nullptr;
+    vtkWebGPU::BindGroup BindGroup = nullptr;
+    vtkWebGPU::RenderPipeline Pipeline = nullptr;
+    vtkWebGPU::Buffer FramebufferWidthUniformBuffer = nullptr;
   };
 
 protected:

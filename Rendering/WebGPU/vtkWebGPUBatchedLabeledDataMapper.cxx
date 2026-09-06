@@ -3,6 +3,7 @@
 
 #include "vtkWebGPUBatchedLabeledDataMapper.h"
 #include "Private/vtkWebGPUBatchedLabeledDataMapperInternals.h"
+#include "Private/vtkWebGPUHandle.h"
 
 #include "vtkActor.h"
 #include "vtkDataObject.h"
@@ -109,17 +110,21 @@ void vtkWebGPUBatchedLabeledDataMapper::RenderOpaqueGeometry(
   {
     auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
     int* dims = atlas->GetDimensions();
-    if (this->Helper->GlyphsTexture)
-    {
-      this->Helper->GlyphsTexture.Destroy();
-    }
-    this->Helper->GlyphsTexture = wgpuConfiguration->CreateTexture(
+    // Assigning releases the previous atlas texture and its view. Destroying the
+    // old texture here instead would free its memory while the bind group that
+    // still names it lives on, and would leak the reference either way -
+    // wgpuTextureDestroy frees the allocation without dropping a reference.
+    this->Helper->GlyphsTexture = vtkWebGPU::Texture::Acquire(wgpuConfiguration->CreateTexture(
       { static_cast<uint32_t>(dims[0]), static_cast<uint32_t>(dims[1]), 1 },
-      wgpu::TextureDimension::e2D, wgpu::TextureFormat::RGBA8Unorm,
-      wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst);
-    this->Helper->GlyphsTextureView = wgpuConfiguration->CreateView(this->Helper->GlyphsTexture,
-      wgpu::TextureViewDimension::e2D, wgpu::TextureAspect::All, wgpu::TextureFormat::RGBA8Unorm,
-      /*baseMipLevel=*/0, /*mipLevelCount=*/1);
+      static_cast<WGPUTextureDimension>(WGPUTextureDimension_2D),
+      static_cast<WGPUTextureFormat>(WGPUTextureFormat_RGBA8Unorm),
+      static_cast<WGPUTextureUsage>(WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst)));
+    this->Helper->GlyphsTextureView =
+      vtkWebGPU::TextureView::Acquire(wgpuConfiguration->CreateView(this->Helper->GlyphsTexture,
+        static_cast<WGPUTextureViewDimension>(WGPUTextureViewDimension_2D),
+        static_cast<WGPUTextureAspect>(WGPUTextureAspect_All),
+        static_cast<WGPUTextureFormat>(WGPUTextureFormat_RGBA8Unorm),
+        /*baseMipLevel=*/0, /*mipLevelCount=*/1));
     wgpuConfiguration->WriteTexture(this->Helper->GlyphsTexture, static_cast<uint32_t>(dims[0]) * 4,
       static_cast<uint32_t>(dims[0]) * static_cast<uint32_t>(dims[1]) * 4,
       atlas->GetScalarPointer());

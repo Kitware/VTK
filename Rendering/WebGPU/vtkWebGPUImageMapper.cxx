@@ -92,7 +92,7 @@ struct ColorTextureFallbackProcessor
     int j = height;
     vtkIdType srcIndex = offset;
     vtkIdType nextSrcIndex = srcIndex;
-    const auto colorsRange = vtk::DataArrayValueRange<1>(colors);
+    const auto colorsRange = vtk::DataArrayValueRange<0>(colors);
     unsigned char valueAsUChar = 0;
     while (--j >= 0)
     {
@@ -224,7 +224,7 @@ struct ColorTextureShiftScaleProcessor
     int j = height;
     vtkIdType srcIndex = offset;
     vtkIdType nextSrcIndex = srcIndex;
-    const auto colorsRange = vtk::DataArrayValueRange<1>(colors);
+    const auto colorsRange = vtk::DataArrayValueRange<0>(colors);
     long val;
     unsigned char valueAsUChar = 0;
     while (--j >= 0)
@@ -341,7 +341,7 @@ struct ColorTextureSimpleProcessor
     int j = height;
     vtkIdType srcIndex = offset;
     vtkIdType nextSrcIndex = srcIndex;
-    const auto colorsRange = vtk::DataArrayValueRange<1>(colors);
+    const auto colorsRange = vtk::DataArrayValueRange<0>(colors);
     while (--j >= 0)
     {
       i = width;

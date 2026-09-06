@@ -20,7 +20,7 @@
 
 #include "vtkABINamespace.h"          // for VTK_ABI_NAMESPACE macros
 #include "vtkRenderingWebGPUModule.h" // for export macro
-#include "vtk_wgpu.h"                 // for wgpu::RenderPassEncoder
+#include "vtk_wgpu.h"                 // for webgpu C API
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -28,11 +28,11 @@ class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUCommandEncoderDebugGroup
 {
 public:
   vtkWebGPUCommandEncoderDebugGroup(
-    const wgpu::RenderPassEncoder& passEncoder, const char* groupLabel);
+    const WGPURenderPassEncoder& passEncoder, const char* groupLabel);
   vtkWebGPUCommandEncoderDebugGroup(
-    const wgpu::RenderBundleEncoder& passEncoder, const char* groupLabel);
+    const WGPURenderBundleEncoder& passEncoder, const char* groupLabel);
   vtkWebGPUCommandEncoderDebugGroup(
-    const wgpu::CommandEncoder& commandEncoder, const char* groupLabel);
+    const WGPUCommandEncoder& commandEncoder, const char* groupLabel);
   ~vtkWebGPUCommandEncoderDebugGroup();
 
   vtkWebGPUCommandEncoderDebugGroup() = delete;
@@ -44,9 +44,9 @@ public:
   void operator=(vtkWebGPUCommandEncoderDebugGroup&&) = delete;
 
 private:
-  const wgpu::RenderPassEncoder* PassEncoder = nullptr;
-  const wgpu::RenderBundleEncoder* BundleEncoder = nullptr;
-  const wgpu::CommandEncoder* CommandEncoder = nullptr;
+  const WGPURenderPassEncoder* PassEncoder = nullptr;
+  const WGPURenderBundleEncoder* BundleEncoder = nullptr;
+  const WGPUCommandEncoder* CommandEncoder = nullptr;
 };
 
 #define vtkScopedEncoderDebugGroupConcatImpl(s1, s2) s1##s2

@@ -4,6 +4,8 @@
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
+#include "Private/vtkWebGPUHandle.h"
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 #include "vtkAbstractMapper.h"
@@ -29,6 +31,7 @@
 #include "vtkWebGPUPolyDataMapper.h"
 #include "vtkWebGPUPolyDataMapper2D.h"
 #include "vtkWebGPURenderWindow.h"
+#include <algorithm>
 #include <cstring>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -65,6 +68,86 @@ const char* backgroundShaderSource = R"(
     fn fragmentMain() -> FragmentOutput {
       var output: FragmentOutput;
       output.color = vec4<f32>(1, 1, 1, 1);
+      output.ids = vec4<u32>(0u);
+      return output;
+    }
+  )";
+
+// Gradient background
+// Unlike the flat background above, this shader writes the color directly
+// instead of relying on the pipeline blend constant.
+const char* gradientBackgroundShaderSource = R"(
+    struct GradientOptions {
+      stopColor0: vec4<f32>,
+      stopColor1: vec4<f32>,
+      // Maps the quad's local 0..1 coordinates onto the renderer's full extent.
+      // These differ from (1,1,0,0) only when the window is rendered in tiles,
+      // where the encoder viewport covers just the visible slice of the renderer.
+      tcoordScaleOffset: vec4<f32>,
+      // 0 = vertical, 1 = horizontal,
+      // 2 = radial farthest side, 3 = radial farthest corner.
+      mode: u32,
+      dither: u32,
+    }
+    @group(0) @binding(0) var<uniform> gradient: GradientOptions;
+
+    struct VertexOutput {
+      @builtin(position) position: vec4<f32>,
+      @location(0) tcoord: vec2<f32>,
+    }
+
+    @vertex
+    fn vertexMain(@builtin(vertex_index) vertex_id: u32) -> VertexOutput {
+      var output: VertexOutput;
+      var coords: array<vec2<f32>, 4> = array<vec2<f32>, 4>(
+        vec2<f32>(-1, -1), // bottom-left
+        vec2<f32>(-1,  1), // top-left
+        vec2<f32>( 1, -1), // bottom-right
+        vec2<f32>( 1,  1)  // top-right
+      );
+      output.position = vec4<f32>(coords[vertex_id].xy, 1.0, 1.0);
+      // Background is the first stop at t=0, so t must increase upwards.
+      output.tcoord = coords[vertex_id].xy * 0.5 + 0.5;
+      return output;
+    }
+
+    struct FragmentOutput {
+      @location(0) color: vec4<f32>,
+      @location(1) ids: vec4<u32>,
+    };
+
+    // Keep the dither granularity identical to the OpenGL backend.
+    const DITHERING_GRANULARITY: f32 = 0.001960784313725;
+
+    fn generateRandom(st: vec2<f32>) -> f32 {
+      return fract(sin(dot(st, vec2<f32>(12.9898, 78.233))) * 43758.5453123);
+    }
+
+    @fragment
+    fn fragmentMain(input: VertexOutput) -> FragmentOutput {
+      let tcoord = input.tcoord * gradient.tcoordScaleOffset.xy
+                   + gradient.tcoordScaleOffset.zw;
+
+      var value: f32 = 0.0;
+      if (gradient.mode == 0u) {
+        value = tcoord.y;
+      } else if (gradient.mode == 1u) {
+        value = tcoord.x;
+      } else if (gradient.mode == 2u) {
+        value = clamp(length(tcoord - vec2<f32>(0.5, 0.5)) * 2.0, 0.0, 1.0);
+      } else {
+        value = length(tcoord - vec2<f32>(0.5, 0.5)) * sqrt(2.0);
+      }
+
+      var rgb: vec3<f32> = mix(gradient.stopColor0.rgb, gradient.stopColor1.rgb, value);
+      if (gradient.dither != 0u) {
+        let noise = mix(-DITHERING_GRANULARITY, DITHERING_GRANULARITY,
+                        generateRandom(tcoord));
+        rgb = rgb + vec3<f32>(noise);
+      }
+
+      var output: FragmentOutput;
+      output.color = vec4<f32>(rgb, gradient.stopColor0.a);
       output.ids = vec4<u32>(0u);
       return output;
     }
@@ -122,7 +205,7 @@ std::size_t vtkWebGPURenderer::WriteLightsBuffer(std::size_t offset /*=0*/)
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
   auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
 
-  const vtkTypeUInt32 count = this->LightIDs.size();
+  const vtkTypeUInt32 count = static_cast<vtkTypeUInt32>(this->LightIDs.size());
   const auto size = vtkWebGPULight::GetCacheSizeBytes();
   // WGSL SceneLights layout: count (u32, 4 bytes) + implicit padding (12 bytes) +
   // values array (count * 80 bytes). The 12-byte padding aligns 'values' to 16 bytes
@@ -140,7 +223,7 @@ std::size_t vtkWebGPURenderer::WriteLightsBuffer(std::size_t offset /*=0*/)
   for (const auto& lightID : this->LightIDs)
   {
     vtkWebGPULight* wgpuLight =
-      reinterpret_cast<vtkWebGPULight*>(this->Lights->GetItemAsObject(lightID));
+      reinterpret_cast<vtkWebGPULight*>(this->Lights->GetItemAsObject(static_cast<int>(lightID)));
     assert(wgpuLight != nullptr);
 
     const auto data = wgpuLight->GetCachedLightInformation();
@@ -172,7 +255,8 @@ void vtkWebGPURenderer::CreateBuffers()
   {
     const std::string label = "SceneTransforms-" + this->GetObjectDescription();
     this->SceneTransformBuffer = wgpuConfiguration->CreateBuffer(transformSizePadded,
-      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false, label.c_str());
+      static_cast<WGPUBufferUsage>(WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst), false,
+      label.c_str());
     createSceneBindGroup = true;
   }
 
@@ -195,7 +279,8 @@ void vtkWebGPURenderer::CreateBuffers()
   {
     const std::string label = "LightInformation-" + this->GetObjectDescription();
     this->SceneLightsBuffer = wgpuConfiguration->CreateBuffer(lightSizePadded,
-      wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false, label.c_str());
+      static_cast<WGPUBufferUsage>(WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst), false,
+      label.c_str());
     this->AllocatedLightsBufferSize = lightSizePadded;
   }
 
@@ -216,37 +301,44 @@ void vtkWebGPURenderer::Clear()
   // Draw a quad as big as viewport and colored by the background color.
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow);
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
+
+  if (this->GradientBackground)
+  {
+    this->ClearGradientBackground();
+    return;
+  }
   vtkWebGPURenderPipelineDescriptorInternals bkgPipelineDescriptor;
-  bkgPipelineDescriptor.vertex.entryPoint = "vertexMain";
+  bkgPipelineDescriptor.vertex.entryPoint = WGPUStringView{ "vertexMain", WGPU_STRLEN };
   bkgPipelineDescriptor.vertex.bufferCount = 0;
-  bkgPipelineDescriptor.cFragment.entryPoint = "fragmentMain";
+  bkgPipelineDescriptor.cFragment.entryPoint = WGPUStringView{ "fragmentMain", WGPU_STRLEN };
   bkgPipelineDescriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
 
   auto depthState =
     bkgPipelineDescriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
-  depthState->depthWriteEnabled = !this->PreserveDepthBuffer;
-  depthState->depthCompare = wgpu::CompareFunction::Always;
+  depthState->depthWriteEnabled =
+    this->PreserveDepthBuffer ? WGPUOptionalBool_False : WGPUOptionalBool_True;
+  depthState->depthCompare = WGPUCompareFunction_Always;
 
-  bkgPipelineDescriptor.primitive.frontFace = wgpu::FrontFace::CCW;
-  bkgPipelineDescriptor.primitive.cullMode = wgpu::CullMode::Front;
-  bkgPipelineDescriptor.primitive.topology = wgpu::PrimitiveTopology::TriangleStrip;
+  bkgPipelineDescriptor.primitive.frontFace = WGPUFrontFace_CCW;
+  bkgPipelineDescriptor.primitive.cullMode = WGPUCullMode_Front;
+  bkgPipelineDescriptor.primitive.topology = WGPUPrimitiveTopology_TriangleStrip;
 
   for (int i = 0; i < vtkWebGPURenderPipelineDescriptorInternals::kMaxColorAttachments; ++i)
   {
     auto* blendState = bkgPipelineDescriptor.EnableBlending(i);
     if (this->Transparent())
     {
-      blendState->color.srcFactor = wgpu::BlendFactor::Zero;
-      blendState->color.dstFactor = wgpu::BlendFactor::One;
-      blendState->alpha.srcFactor = wgpu::BlendFactor::Zero;
-      blendState->alpha.dstFactor = wgpu::BlendFactor::One;
+      blendState->color.srcFactor = WGPUBlendFactor_Zero;
+      blendState->color.dstFactor = WGPUBlendFactor_One;
+      blendState->alpha.srcFactor = WGPUBlendFactor_Zero;
+      blendState->alpha.dstFactor = WGPUBlendFactor_One;
     }
     else
     {
-      blendState->color.srcFactor = wgpu::BlendFactor::Constant;
-      blendState->color.dstFactor = wgpu::BlendFactor::Zero;
-      blendState->alpha.srcFactor = wgpu::BlendFactor::Constant;
-      blendState->alpha.dstFactor = wgpu::BlendFactor::Zero;
+      blendState->color.srcFactor = WGPUBlendFactor_Constant;
+      blendState->color.dstFactor = WGPUBlendFactor_Zero;
+      blendState->alpha.srcFactor = WGPUBlendFactor_Constant;
+      blendState->alpha.dstFactor = WGPUBlendFactor_Zero;
     }
   }
   // Prepare selection ids output.
@@ -255,16 +347,17 @@ void vtkWebGPURenderer::Clear()
   bkgPipelineDescriptor.cFragment.targetCount++;
   bkgPipelineDescriptor.DisableBlending(1);
   const auto pipelineKey =
-    wgpuPipelineCache->GetPipelineKey(&bkgPipelineDescriptor, backgroundShaderSource);
+    wgpuPipelineCache->GetPipelineKey((&bkgPipelineDescriptor), backgroundShaderSource);
   wgpuPipelineCache->CreateRenderPipeline(
-    &bkgPipelineDescriptor, wgpuRenderWindow, backgroundShaderSource);
+    (&bkgPipelineDescriptor), wgpuRenderWindow, backgroundShaderSource);
   auto pipeline = wgpuPipelineCache->GetRenderPipeline(pipelineKey);
 
-  this->WGPURenderEncoder.SetPipeline(pipeline);
-  wgpu::Color bkgColor = { this->Background[0], this->Background[1], this->Background[2],
+  WGPURenderPassEncoder encoder(this->WGPURenderEncoder);
+  wgpuRenderPassEncoderSetPipeline(encoder, pipeline);
+  WGPUColor bkgColor = { this->Background[0], this->Background[1], this->Background[2],
     this->BackgroundAlpha };
-  this->WGPURenderEncoder.SetBlendConstant(&bkgColor);
-  this->WGPURenderEncoder.Draw(4);
+  wgpuRenderPassEncoderSetBlendConstant(encoder, &bkgColor);
+  wgpuRenderPassEncoderDraw(encoder, 4, 1, 0, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -303,6 +396,123 @@ vtkProp* vtkWebGPURenderer::GetPropWithId(vtkTypeUInt32 id)
     return nullptr;
   }
   return this->PropArray[id];
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::ClearGradientBackground()
+{
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow);
+  auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
+  auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
+
+  // std140 layout: two vec4 stop colors followed by two u32 scalars.
+  struct GradientOptions
+  {
+    float StopColor0[4];
+    float StopColor1[4];
+    float TCoordScaleOffset[4];
+    std::uint32_t Mode;
+    std::uint32_t Dither;
+    std::uint32_t Padding[2];
+  };
+  GradientOptions options = {};
+  for (int i = 0; i < 3; ++i)
+  {
+    options.StopColor0[i] = static_cast<float>(this->Background[i]);
+    options.StopColor1[i] = static_cast<float>(this->Background2[i]);
+  }
+  options.StopColor0[3] = static_cast<float>(this->BackgroundAlpha);
+  options.StopColor1[3] = static_cast<float>(this->BackgroundAlpha);
+  options.Mode = static_cast<std::uint32_t>(this->GradientMode);
+  options.Dither = this->DitherGradient ? 1u : 0u;
+
+  // vtkWebGPUCamera::UpdateViewport() sets the encoder viewport to the part of
+  // this renderer visible in the current tile, so the quad only covers that
+  // slice. Rescale the texture coordinates so the gradient is still evaluated
+  // over the renderer's whole extent and stays continuous across tiles.
+  options.TCoordScaleOffset[0] = 1.0f;
+  options.TCoordScaleOffset[1] = 1.0f;
+  options.TCoordScaleOffset[2] = 0.0f;
+  options.TCoordScaleOffset[3] = 0.0f;
+  if (auto* window = this->GetVTKWindow())
+  {
+    const double* viewport = this->GetViewport();
+    const double* tile = window->GetTileViewport();
+    for (int axis = 0; axis < 2; ++axis)
+    {
+      const double vMin = viewport[axis];
+      const double vMax = viewport[axis + 2];
+      const double extent = vMax - vMin;
+      if (extent <= 0.0)
+      {
+        continue;
+      }
+      const double visibleMin = std::max(vMin, tile[axis]);
+      const double visibleMax = std::min(vMax, tile[axis + 2]);
+      options.TCoordScaleOffset[axis] = static_cast<float>((visibleMax - visibleMin) / extent);
+      options.TCoordScaleOffset[axis + 2] = static_cast<float>((visibleMin - vMin) / extent);
+    }
+  }
+
+  if (this->BackgroundGradientBuffer == nullptr)
+  {
+    const std::string label = "BackgroundGradient-" + this->GetObjectDescription();
+    this->BackgroundGradientBuffer = wgpuConfiguration->CreateBuffer(sizeof(GradientOptions),
+      static_cast<WGPUBufferUsage>(WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst), false,
+      label.c_str());
+  }
+  wgpuConfiguration->WriteBuffer(
+    this->BackgroundGradientBuffer, 0, &options, sizeof(options), "BackgroundGradient");
+
+  vtkWebGPURenderPipelineDescriptorInternals bkgPipelineDescriptor;
+  bkgPipelineDescriptor.vertex.entryPoint = WGPUStringView{ "vertexMain", WGPU_STRLEN };
+  bkgPipelineDescriptor.vertex.bufferCount = 0;
+  bkgPipelineDescriptor.cFragment.entryPoint = WGPUStringView{ "fragmentMain", WGPU_STRLEN };
+  bkgPipelineDescriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+
+  auto depthState =
+    bkgPipelineDescriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
+  depthState->depthWriteEnabled =
+    this->PreserveDepthBuffer ? WGPUOptionalBool_False : WGPUOptionalBool_True;
+  depthState->depthCompare = WGPUCompareFunction_Always;
+
+  bkgPipelineDescriptor.primitive.frontFace = WGPUFrontFace_CCW;
+  bkgPipelineDescriptor.primitive.cullMode = WGPUCullMode_Front;
+  bkgPipelineDescriptor.primitive.topology = WGPUPrimitiveTopology_TriangleStrip;
+
+  // The shader writes the final color, so pass it through untouched rather than
+  // going through the blend constant used by the flat background path.
+  bkgPipelineDescriptor.DisableBlending(0);
+
+  // Prepare selection ids output.
+  bkgPipelineDescriptor.cTargets[1].format =
+    wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat();
+  bkgPipelineDescriptor.cFragment.targetCount++;
+  bkgPipelineDescriptor.DisableBlending(1);
+
+  const auto pipelineKey =
+    wgpuPipelineCache->GetPipelineKey((&bkgPipelineDescriptor), gradientBackgroundShaderSource);
+  if (wgpuPipelineCache->GetRenderPipeline(pipelineKey) == nullptr)
+  {
+    wgpuPipelineCache->CreateRenderPipeline(
+      (&bkgPipelineDescriptor), wgpuRenderWindow, gradientBackgroundShaderSource);
+  }
+  auto pipeline = wgpuPipelineCache->GetRenderPipeline(pipelineKey);
+  WGPURenderPipeline wgpuPipeline = pipeline;
+
+  // The pipeline uses an automatic layout, so take the bind group layout from it
+  // rather than declaring one separately.
+  vtkWebGPU::BindGroupLayout autoLayout =
+    vtkWebGPU::BindGroupLayout::Acquire(wgpuRenderPipelineGetBindGroupLayout(wgpuPipeline, 0));
+  vtkWebGPU::BindGroup bindGroup = vtkWebGPU::BindGroup::Acquire(
+    vtkWebGPUBindGroupInternals::MakeBindGroup(wgpuConfiguration->GetDevice(), autoLayout,
+      { { 0, this->BackgroundGradientBuffer, 0, sizeof(GradientOptions) } },
+      "BackgroundGradientBindGroup"));
+
+  WGPURenderPassEncoder encoder(this->WGPURenderEncoder);
+  wgpuRenderPassEncoderSetPipeline(encoder, wgpuPipeline);
+  wgpuRenderPassEncoderSetBindGroup(encoder, 0, bindGroup, 0, nullptr);
+  wgpuRenderPassEncoderDraw(encoder, 4, 1, 0, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -354,8 +564,11 @@ void vtkWebGPURenderer::RecordRenderCommands()
         wgpuRenderWindow->GetHardwareSelectorAttachmentView() },
       wgpuRenderWindow->GetDepthStencilView(),
       /*clearColor=*/false, /*clearDepth=*/false, /*clearStencil=*/false);
-    renderPassDescriptor.label = "vtkWebGPURenderer::RecordRenderCommands";
-    this->WGPURenderEncoder = wgpuRenderWindow->NewRenderPass(renderPassDescriptor);
+    renderPassDescriptor.label =
+      WGPUStringView{ "vtkWebGPURenderer::RecordRenderCommands", WGPU_STRLEN };
+    vtkWebGPU::ReleaseAndNull(this->WGPURenderEncoder, wgpuRenderPassEncoderRelease);
+    this->WGPURenderEncoder =
+      wgpuRenderWindow->NewRenderPass(static_cast<WGPURenderPassDescriptor&>(renderPassDescriptor));
     this->BeginRecording();
     // 1. Draw the background color/texture.
     // updates viewport and scissor rectangles on the render pass encoder.
@@ -554,11 +767,11 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
       {
         if (auto* wgpuActor = vtkWebGPUActor::SafeDownCast(this->PropArray[i]))
         {
-          wgpuActor->SetId(i);
+          wgpuActor->SetId(static_cast<vtkTypeUInt32>(i));
         }
         this->PropArray[i]->RenderOpaqueGeometry(this);
       }
-      result += this->PropArray.size();
+      result += static_cast<int>(this->PropArray.size());
     }
     break;
     case RenderStageEnum::RecordingCommands:
@@ -606,7 +819,7 @@ int vtkWebGPURenderer::UpdateTranslucentPolygonalGeometry()
         }
         this->PropArray[i]->RenderTranslucentPolygonalGeometry(this);
       }
-      result += this->PropArray.size();
+      result += static_cast<int>(this->PropArray.size());
     }
     break;
     case RenderStageEnum::RecordingCommands:
@@ -874,11 +1087,11 @@ int vtkWebGPURenderer::UpdateLights()
 
   if (ltime <= this->LightingUploadTimestamp.GetMTime())
   {
-    return this->NumberOfLightsUsed;
+    return static_cast<int>(this->NumberOfLightsUsed);
   }
 
   this->LightingUpdateTime = ltime;
-  return this->NumberOfLightsUsed;
+  return static_cast<int>(this->NumberOfLightsUsed);
 }
 
 //------------------------------------------------------------------------------
@@ -900,13 +1113,16 @@ void vtkWebGPURenderer::SetEnvironmentTexture(vtkTexture*, bool vtkNotUsed(isSRG
 void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Superclass::ReleaseGraphicsResources(w);
-  this->Bundle = nullptr;
-  this->WGPUBundleEncoder = nullptr;
-  this->WGPURenderEncoder = nullptr;
-  this->SceneTransformBuffer = nullptr;
-  this->SceneLightsBuffer = nullptr;
-  this->SceneBindGroup = nullptr;
-  this->SceneBindGroupLayout = nullptr;
+  // These are owned references. Dropping the pointer does not release them; the
+  // wgpu:: wrapper members these replaced did that in their destructor.
+  vtkWebGPU::ReleaseAndNull(this->Bundle, wgpuRenderBundleRelease);
+  vtkWebGPU::ReleaseAndNull(this->WGPUBundleEncoder, wgpuRenderBundleEncoderRelease);
+  vtkWebGPU::ReleaseAndNull(this->WGPURenderEncoder, wgpuRenderPassEncoderRelease);
+  vtkWebGPU::ReleaseAndNull(this->SceneTransformBuffer, wgpuBufferRelease);
+  vtkWebGPU::ReleaseAndNull(this->SceneLightsBuffer, wgpuBufferRelease);
+  vtkWebGPU::ReleaseAndNull(this->BackgroundGradientBuffer, wgpuBufferRelease);
+  vtkWebGPU::ReleaseAndNull(this->SceneBindGroup, wgpuBindGroupRelease);
+  vtkWebGPU::ReleaseAndNull(this->SceneBindGroupLayout, wgpuBindGroupLayoutRelease);
 }
 
 //------------------------------------------------------------------------------
@@ -934,8 +1150,7 @@ void vtkWebGPURenderer::PostRenderComputePipelines()
 }
 
 //------------------------------------------------------------------------------
-wgpu::CommandBuffer vtkWebGPURenderer::EncodePropListRenderCommand(
-  vtkProp** propList, int listLength)
+WGPUCommandBuffer vtkWebGPURenderer::EncodePropListRenderCommand(vtkProp** propList, int listLength)
 {
   this->UpdateBuffers();
 
@@ -957,15 +1172,16 @@ wgpu::CommandBuffer vtkWebGPURenderer::EncodePropListRenderCommand(
 
   vtkWebGPURenderWindow* renderWindow =
     vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  wgpu::CommandEncoder commandEncoder = renderWindow->GetCommandEncoder();
-  wgpu::CommandBuffer commandBuffer = commandEncoder.Finish();
+  WGPUCommandEncoder commandEncoder = renderWindow->GetCommandEncoder();
+  vtkWebGPU::CommandBuffer commandBuffer =
+    vtkWebGPU::CommandBuffer::Acquire(wgpuCommandEncoderFinish(commandEncoder, nullptr));
 
   // The command encoder of the render window has finished so we need to recreate a new one so that
   // it's ready to be used again by someone else
   renderWindow->CreateCommandEncoder();
 
   this->DrawBackgroundInClearPass = false;
-  return commandBuffer;
+  return commandBuffer.Release();
 }
 
 //------------------------------------------------------------------------------
@@ -975,22 +1191,24 @@ void vtkWebGPURenderer::BeginRecording()
   this->RenderStage = RenderStageEnum::RecordingCommands;
   assert(this->WGPURenderEncoder != nullptr);
 
+  WGPURenderPassEncoder renderEncoder(this->WGPURenderEncoder);
 #if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
-  this->WGPURenderEncoder.PushDebugGroup("Renderer start encoding");
+  wgpuRenderPassEncoderPushDebugGroup(
+    renderEncoder, WGPUStringView{ "Renderer start encoding", WGPU_STRLEN });
 #endif
-  this->WGPURenderEncoder.SetBindGroup(0, this->SceneBindGroup);
+  wgpuRenderPassEncoderSetBindGroup(renderEncoder, 0, this->SceneBindGroup, 0, nullptr);
   if (this->RebuildRenderBundle)
   {
     // destroy previous bundle.
-    this->Bundle = nullptr;
+    vtkWebGPU::ReleaseAndNull(this->Bundle, wgpuRenderBundleRelease);
     // create a new bundle encoder.
     const std::string label = this->GetObjectDescription();
     auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-    const std::vector<wgpu::TextureFormat> colorFormats = {
+    const std::vector<WGPUTextureFormat> colorFormats = {
       wgpuRenderWindow->GetPreferredSurfaceTextureFormat(),
       wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat()
     };
-    wgpu::RenderBundleEncoderDescriptor bundleEncDesc;
+    WGPURenderBundleEncoderDescriptor bundleEncDesc = WGPU_RENDER_BUNDLE_ENCODER_DESCRIPTOR_INIT;
     bundleEncDesc.colorFormatCount = colorFormats.size();
     bundleEncDesc.colorFormats = colorFormats.data();
     bundleEncDesc.depthStencilFormat = wgpuRenderWindow->GetDepthStencilFormat();
@@ -998,14 +1216,16 @@ void vtkWebGPURenderer::BeginRecording()
       1; // multi-sampling only works for 1 or 4 samples on some implementations.
     bundleEncDesc.depthReadOnly = false;
     bundleEncDesc.stencilReadOnly = false;
-    bundleEncDesc.label = label.c_str();
+    bundleEncDesc.label = vtkWebGPUMakeStringView(label);
     bundleEncDesc.nextInChain = nullptr;
+    vtkWebGPU::ReleaseAndNull(this->WGPUBundleEncoder, wgpuRenderBundleEncoderRelease);
     this->WGPUBundleEncoder = wgpuRenderWindow->NewRenderBundleEncoder(bundleEncDesc);
-    this->WGPUBundleEncoder.SetBindGroup(0, this->SceneBindGroup);
+    wgpuRenderBundleEncoderSetBindGroup(
+      this->WGPUBundleEncoder, 0, this->SceneBindGroup, 0, nullptr);
   }
   else
   {
-    this->WGPUBundleEncoder = nullptr;
+    vtkWebGPU::ReleaseAndNull(this->WGPUBundleEncoder, wgpuRenderBundleEncoderRelease);
   }
 }
 
@@ -1013,20 +1233,21 @@ void vtkWebGPURenderer::BeginRecording()
 void vtkWebGPURenderer::SetupBindGroupLayouts()
 {
   auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  wgpu::Device device = wgpuRenderWindow->GetDevice();
-  if (this->SceneBindGroupLayout.Get() == nullptr)
+  WGPUDevice device = wgpuRenderWindow->GetDevice();
+  if (this->SceneBindGroupLayout == nullptr)
   {
-    this->SceneBindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
-      {
-        // clang-format off
+    vtkWebGPU::BindGroupLayout layout = vtkWebGPU::BindGroupLayout::Acquire(
+      vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
+        {
+          // clang-format off
       // SceneTransforms
-      { 0, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::Uniform },
+      { 0, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform },
       // SceneLights
-      { 1, wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::ReadOnlyStorage }
-        // clang-format on
-      });
-
-    this->SceneBindGroupLayout.SetLabel("SceneBindGroupLayout");
+      { 1, WGPUShaderStage_Fragment, WGPUBufferBindingType_ReadOnlyStorage }
+          // clang-format on
+        },
+        "SceneBindGroupLayout"));
+    this->SceneBindGroupLayout = layout.Release();
   }
 }
 
@@ -1034,7 +1255,7 @@ void vtkWebGPURenderer::SetupBindGroupLayouts()
 void vtkWebGPURenderer::SetupSceneBindGroup()
 {
   auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  wgpu::Device device = wgpuRenderWindow->GetDevice();
+  WGPUDevice device = wgpuRenderWindow->GetDevice();
 
   // Calculate current buffer sizes to bind
   const auto transformSize = vtkWebGPUCamera::GetCacheSizeBytes();
@@ -1043,28 +1264,28 @@ void vtkWebGPURenderer::SetupSceneBindGroup()
   const auto lightSize = 16 + lightCount * vtkWebGPULight::GetCacheSizeBytes();
   const auto lightSizePadded = vtkWebGPUConfiguration::Align(lightSize, 32);
 
-  std::vector<wgpu::BindGroupEntry> entries;
-  wgpu::BindGroupEntry entry0{};
+  std::vector<WGPUBindGroupEntry> entries;
+  WGPUBindGroupEntry entry0 = WGPU_BIND_GROUP_ENTRY_INIT;
   entry0.binding = 0;
   entry0.buffer = this->SceneTransformBuffer;
   entry0.offset = 0;
   entry0.size = transformSizePadded;
   entries.push_back(entry0);
 
-  wgpu::BindGroupEntry entry1{};
+  WGPUBindGroupEntry entry1 = WGPU_BIND_GROUP_ENTRY_INIT;
   entry1.binding = 1;
   entry1.buffer = this->SceneLightsBuffer;
   entry1.offset = 0;
   entry1.size = lightSizePadded;
   entries.push_back(entry1);
 
-  wgpu::BindGroupDescriptor descriptor;
-  descriptor.label = "SceneBindGroup";
+  WGPUBindGroupDescriptor descriptor = WGPU_BIND_GROUP_DESCRIPTOR_INIT;
+  descriptor.label = WGPUStringView{ "SceneBindGroup", WGPU_STRLEN };
   descriptor.layout = this->SceneBindGroupLayout;
   descriptor.entryCount = static_cast<uint32_t>(entries.size());
   descriptor.entries = entries.data();
 
-  this->SceneBindGroup = device.CreateBindGroup(&descriptor);
+  this->SceneBindGroup = wgpuDeviceCreateBindGroup(device, &descriptor);
 }
 
 //------------------------------------------------------------------------------
@@ -1072,22 +1293,24 @@ void vtkWebGPURenderer::EndRecording()
 {
   vtkDebugMacro(<< __func__);
   this->RenderStage = RenderStageEnum::Finished;
+  WGPURenderPassEncoder renderEncoder(this->WGPURenderEncoder);
   if (this->UseRenderBundles)
   {
     if (this->WGPUBundleEncoder)
     {
-      this->Bundle = this->WGPUBundleEncoder.Finish();
+      vtkWebGPU::ReleaseAndNull(this->Bundle, wgpuRenderBundleRelease);
+      this->Bundle = wgpuRenderBundleEncoderFinish(this->WGPUBundleEncoder, nullptr);
     }
     if (this->Bundle != nullptr)
     {
-      this->WGPURenderEncoder.ExecuteBundles(1, &this->Bundle);
+      wgpuRenderPassEncoderExecuteBundles(renderEncoder, 1, &this->Bundle);
     }
   }
 #if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
-  this->WGPURenderEncoder.PopDebugGroup();
+  wgpuRenderPassEncoderPopDebugGroup(renderEncoder);
 #endif
-  this->WGPURenderEncoder.End();
-  this->WGPURenderEncoder = nullptr;
+  wgpuRenderPassEncoderEnd(renderEncoder);
+  vtkWebGPU::ReleaseAndNull(this->WGPURenderEncoder, wgpuRenderPassEncoderRelease);
 }
 
 //------------------------------------------------------------------------------

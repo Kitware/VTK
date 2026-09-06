@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "Private/vtkWebGPUBatchedLabeledDataMapperInternals.h"
+#include "Private/vtkWebGPUHandle.h"
 #include "vtkWebGPUBatchedLabeledDataMapper.h"
 
 #include "vtkActor.h"
@@ -82,20 +83,22 @@ void vtkWebGPUBatchedLabeledDataMapperInternals::RenderPiece(vtkRenderer* render
 
   if (!this->LabelUniformBuffer)
   {
-    this->LabelUniformBuffer = wgpuConfiguration->CreateBuffer(sizeof(LabelUniforms2D),
-      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst,
-      /*mappedAtCreation=*/false, "LabelUniforms2D");
+    this->LabelUniformBuffer = vtkWebGPU::Buffer::Acquire(wgpuConfiguration->CreateBuffer(
+      sizeof(LabelUniforms2D), WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst,
+      /*mappedAtCreation=*/false, "LabelUniforms2D"));
     this->RebuildGraphicsPipelines = true;
   }
 
   if (!this->GlyphsSampler)
   {
-    wgpu::SamplerDescriptor samplerDesc{};
-    samplerDesc.magFilter = wgpu::FilterMode::Nearest;
-    samplerDesc.minFilter = wgpu::FilterMode::Nearest;
-    samplerDesc.addressModeU = wgpu::AddressMode::ClampToEdge;
-    samplerDesc.addressModeV = wgpu::AddressMode::ClampToEdge;
-    this->GlyphsSampler = wgpuConfiguration->GetDevice().CreateSampler(&samplerDesc);
+    WGPUSamplerDescriptor samplerDesc = WGPU_SAMPLER_DESCRIPTOR_INIT;
+    samplerDesc.magFilter = WGPUFilterMode_Nearest;
+    samplerDesc.minFilter = WGPUFilterMode_Nearest;
+    samplerDesc.addressModeU = WGPUAddressMode_ClampToEdge;
+    samplerDesc.addressModeV = WGPUAddressMode_ClampToEdge;
+    WGPUDevice device(wgpuConfiguration->GetDevice());
+    this->GlyphsSampler =
+      vtkWebGPU::Sampler::Acquire(wgpuDeviceCreateSampler(device, &samplerDesc));
   }
 
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
@@ -119,13 +122,13 @@ void vtkWebGPUBatchedLabeledDataMapperInternals::RenderPiece(vtkRenderer* render
 //----------------------------------------------------------------------------
 void vtkWebGPUBatchedLabeledDataMapperInternals::ReleaseGraphicsResources(vtkWindow* window)
 {
-  this->GlyphsTexture = wgpu::Texture{};
-  this->GlyphsTextureView = wgpu::TextureView{};
-  this->GlyphsSampler = wgpu::Sampler{};
-  this->LabelUniformBuffer = wgpu::Buffer{};
+  this->GlyphsTextureView = nullptr;
+  this->GlyphsTexture = nullptr;
+  this->GlyphsSampler = nullptr;
+  this->LabelUniformBuffer = nullptr;
   for (int i = 0; i < NUM_INSTANCE_ATTRIBS; ++i)
   {
-    this->InstanceBuffers[i] = wgpu::Buffer{};
+    this->InstanceBuffers[i] = nullptr;
     this->InstanceBufferSizes[i] = 0;
   }
   this->RebuildGraphicsPipelines = true;
@@ -163,39 +166,39 @@ vtkWebGPUBatchedLabeledDataMapperInternals::GetDrawCallArgsForDrawingVertices(
 }
 
 //----------------------------------------------------------------------------
-std::vector<wgpu::VertexBufferLayout>
+std::vector<WGPUVertexBufferLayout>
 vtkWebGPUBatchedLabeledDataMapperInternals::GetVertexBufferLayouts()
 {
-  std::vector<wgpu::VertexBufferLayout> layouts;
+  std::vector<WGPUVertexBufferLayout> layouts;
 
   this->InstanceAttributes[GLYPH_EXTENTS] = { /*nextInChain=*/nullptr,
-    /*format=*/wgpu::VertexFormat::Float32x4, /*offset=*/0, /*shaderLocation=*/0 };
+    /*format=*/WGPUVertexFormat_Float32x4, /*offset=*/0, /*shaderLocation=*/0 };
   {
-    wgpu::VertexBufferLayout l{};
+    WGPUVertexBufferLayout l = WGPU_VERTEX_BUFFER_LAYOUT_INIT;
     l.arrayStride = 4 * sizeof(float);
     l.attributeCount = 1;
     l.attributes = &this->InstanceAttributes[GLYPH_EXTENTS];
-    l.stepMode = wgpu::VertexStepMode::Instance;
+    l.stepMode = WGPUVertexStepMode_Instance;
     layouts.emplace_back(l);
   }
 
-  this->InstanceAttributes[COFF_PROPID] = { nullptr, wgpu::VertexFormat::Float32x2, 0, 1 };
+  this->InstanceAttributes[COFF_PROPID] = { nullptr, WGPUVertexFormat_Float32x2, 0, 1 };
   {
-    wgpu::VertexBufferLayout l{};
+    WGPUVertexBufferLayout l = WGPU_VERTEX_BUFFER_LAYOUT_INIT;
     l.arrayStride = 2 * sizeof(float);
     l.attributeCount = 1;
     l.attributes = &this->InstanceAttributes[COFF_PROPID];
-    l.stepMode = wgpu::VertexStepMode::Instance;
+    l.stepMode = WGPUVertexStepMode_Instance;
     layouts.emplace_back(l);
   }
 
-  this->InstanceAttributes[FRAME_COLORS] = { nullptr, wgpu::VertexFormat::Float32x3, 0, 2 };
+  this->InstanceAttributes[FRAME_COLORS] = { nullptr, WGPUVertexFormat_Float32x3, 0, 2 };
   {
-    wgpu::VertexBufferLayout l{};
+    WGPUVertexBufferLayout l = WGPU_VERTEX_BUFFER_LAYOUT_INIT;
     l.arrayStride = 3 * sizeof(float);
     l.attributeCount = 1;
     l.attributes = &this->InstanceAttributes[FRAME_COLORS];
-    l.stepMode = wgpu::VertexStepMode::Instance;
+    l.stepMode = WGPUVertexStepMode_Instance;
     layouts.emplace_back(l);
   }
 
@@ -204,49 +207,51 @@ vtkWebGPUBatchedLabeledDataMapperInternals::GetVertexBufferLayouts()
 
 //----------------------------------------------------------------------------
 void vtkWebGPUBatchedLabeledDataMapperInternals::SetVertexBuffers(
-  const wgpu::RenderPassEncoder& encoder)
+  const WGPURenderPassEncoder& encoder)
 {
   for (int i = 0; i < NUM_INSTANCE_ATTRIBS; ++i)
   {
     if (this->InstanceBuffers[i])
     {
-      encoder.SetVertexBuffer(i, this->InstanceBuffers[i]);
+      wgpuRenderPassEncoderSetVertexBuffer(
+        encoder, i, this->InstanceBuffers[i], 0, WGPU_WHOLE_SIZE);
     }
   }
 }
 
 void vtkWebGPUBatchedLabeledDataMapperInternals::SetVertexBuffers(
-  const wgpu::RenderBundleEncoder& encoder)
+  const WGPURenderBundleEncoder& encoder)
 {
   for (int i = 0; i < NUM_INSTANCE_ATTRIBS; ++i)
   {
     if (this->InstanceBuffers[i])
     {
-      encoder.SetVertexBuffer(i, this->InstanceBuffers[i]);
+      wgpuRenderBundleEncoderSetVertexBuffer(
+        encoder, i, this->InstanceBuffers[i], 0, WGPU_WHOLE_SIZE);
     }
   }
 }
 
 //----------------------------------------------------------------------------
-std::vector<wgpu::BindGroupLayoutEntry>
+std::vector<WGPUBindGroupLayoutEntry>
 vtkWebGPUBatchedLabeledDataMapperInternals::GetMeshBindGroupLayoutEntries()
 {
   auto entries = this->Superclass::GetMeshBindGroupLayoutEntries();
   uint32_t bindingId = static_cast<uint32_t>(entries.size());
 
   entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-    bindingId++, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-    wgpu::TextureSampleType::Float, wgpu::TextureViewDimension::e2D });
+    bindingId++, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUTextureSampleType_Float,
+    WGPUTextureViewDimension_2D });
   entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-    bindingId++, wgpu::ShaderStage::Fragment, wgpu::SamplerBindingType::NonFiltering });
+    bindingId++, WGPUShaderStage_Fragment, WGPUSamplerBindingType_NonFiltering });
   entries.emplace_back(
     vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ bindingId++,
-      wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::Uniform });
+      WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform });
 
   return entries;
 }
 
-std::vector<wgpu::BindGroupEntry>
+std::vector<WGPUBindGroupEntry>
 vtkWebGPUBatchedLabeledDataMapperInternals::GetMeshBindGroupEntries()
 {
   auto entries = this->Superclass::GetMeshBindGroupEntries();
@@ -598,16 +603,15 @@ void vtkWebGPUBatchedLabeledDataMapperInternals::UpdateInstanceBuffers(
   {
     if (this->InstanceBufferSizes[attr] != sizes[attr])
     {
-      if (this->InstanceBuffers[attr])
-      {
-        this->InstanceBuffers[attr].Destroy();
-      }
-      wgpu::BufferDescriptor desc{};
+      WGPUBufferDescriptor desc = WGPU_BUFFER_DESCRIPTOR_INIT;
       desc.size = sizes[attr];
-      desc.label = bufLabels[attr];
+      desc.label = WGPUStringView{ bufLabels[attr], WGPU_STRLEN };
       desc.mappedAtCreation = false;
-      desc.usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst;
-      this->InstanceBuffers[attr] = wgpuConfiguration->CreateBuffer(desc);
+      desc.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
+      // Release the previous buffer before overwriting the slot, otherwise every
+      // resize leaks the old allocation.
+      this->InstanceBuffers[attr] =
+        vtkWebGPU::Buffer::Acquire(wgpuConfiguration->CreateBuffer(desc));
       this->InstanceBufferSizes[attr] = sizes[attr];
       this->RebuildGraphicsPipelines = true;
     }

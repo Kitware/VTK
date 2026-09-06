@@ -6,9 +6,17 @@ VTK_ABI_NAMESPACE_BEGIN
 
 double vtkWebGPUConfigurationInternals::DefaultTimeout = 60000;
 
-wgpu::Instance vtkWebGPUConfigurationInternals::Instance = nullptr;
+vtkWebGPU::Instance vtkWebGPUConfigurationInternals::Instance;
 
 std::size_t vtkWebGPUConfigurationInternals::InstanceCount = 0;
+
+//------------------------------------------------------------------------------
+vtkWebGPUConfigurationInternals::~vtkWebGPUConfigurationInternals()
+{
+  this->BuffersPendingRelease.clear();
+  this->Device = nullptr;
+  this->Adapter = nullptr;
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUConfigurationInternals::AddInstanceRef()
@@ -16,13 +24,13 @@ void vtkWebGPUConfigurationInternals::AddInstanceRef()
   if (InstanceCount == 0)
   {
     // Create the instance to allow WaitAny.
-    wgpu::InstanceDescriptor instanceDescriptor = {};
-    std::vector<wgpu::InstanceFeatureName> features = {
-      wgpu::InstanceFeatureName::TimedWaitAny,
+    WGPUInstanceDescriptor instanceDescriptor = WGPU_INSTANCE_DESCRIPTOR_INIT;
+    std::vector<WGPUInstanceFeatureName> features = {
+      WGPUInstanceFeatureName_TimedWaitAny,
     };
     instanceDescriptor.requiredFeatures = features.data();
     instanceDescriptor.requiredFeatureCount = features.size();
-    Instance = wgpu::CreateInstance(&instanceDescriptor);
+    Instance = vtkWebGPU::Instance::Acquire(wgpuCreateInstance(&instanceDescriptor));
   }
   ++InstanceCount;
 }
@@ -41,84 +49,84 @@ void vtkWebGPUConfigurationInternals::ReleaseInstanceRef()
 }
 
 //------------------------------------------------------------------------------
-wgpu::BackendType vtkWebGPUConfigurationInternals::ToWGPUBackendType(
+WGPUBackendType vtkWebGPUConfigurationInternals::ToWGPUBackendType(
   vtkWebGPUConfiguration::BackendType backend)
 {
   switch (backend)
   {
     case vtkWebGPUConfiguration::BackendType::Null:
-      return wgpu::BackendType::Null;
+      return WGPUBackendType_Null;
     case vtkWebGPUConfiguration::BackendType::WebGPU:
-      return wgpu::BackendType::WebGPU;
+      return WGPUBackendType_WebGPU;
     case vtkWebGPUConfiguration::BackendType::D3D11:
-      return wgpu::BackendType::D3D11;
+      return WGPUBackendType_D3D11;
     case vtkWebGPUConfiguration::BackendType::D3D12:
-      return wgpu::BackendType::D3D12;
+      return WGPUBackendType_D3D12;
     case vtkWebGPUConfiguration::BackendType::Metal:
-      return wgpu::BackendType::Metal;
+      return WGPUBackendType_Metal;
     case vtkWebGPUConfiguration::BackendType::Vulkan:
-      return wgpu::BackendType::Vulkan;
+      return WGPUBackendType_Vulkan;
     case vtkWebGPUConfiguration::BackendType::OpenGL:
-      return wgpu::BackendType::OpenGL;
+      return WGPUBackendType_OpenGL;
     case vtkWebGPUConfiguration::BackendType::OpenGLES:
-      return wgpu::BackendType::OpenGLES;
+      return WGPUBackendType_OpenGLES;
     case vtkWebGPUConfiguration::BackendType::Undefined:
     default:
-      return wgpu::BackendType::Undefined;
+      return WGPUBackendType_Undefined;
   }
 }
 
 //------------------------------------------------------------------------------
 vtkWebGPUConfiguration::BackendType vtkWebGPUConfigurationInternals::FromWGPUBackendType(
-  wgpu::BackendType backend)
+  WGPUBackendType backend)
 {
   switch (backend)
   {
-    case wgpu::BackendType::Null:
+    case WGPUBackendType_Null:
       return vtkWebGPUConfiguration::BackendType::Null;
-    case wgpu::BackendType::WebGPU:
+    case WGPUBackendType_WebGPU:
       return vtkWebGPUConfiguration::BackendType::WebGPU;
-    case wgpu::BackendType::D3D11:
+    case WGPUBackendType_D3D11:
       return vtkWebGPUConfiguration::BackendType::D3D11;
-    case wgpu::BackendType::D3D12:
+    case WGPUBackendType_D3D12:
       return vtkWebGPUConfiguration::BackendType::D3D12;
-    case wgpu::BackendType::Metal:
+    case WGPUBackendType_Metal:
       return vtkWebGPUConfiguration::BackendType::Metal;
-    case wgpu::BackendType::Vulkan:
+    case WGPUBackendType_Vulkan:
       return vtkWebGPUConfiguration::BackendType::Vulkan;
-    case wgpu::BackendType::OpenGL:
+    case WGPUBackendType_OpenGL:
       return vtkWebGPUConfiguration::BackendType::OpenGL;
-    case wgpu::BackendType::OpenGLES:
+    case WGPUBackendType_OpenGLES:
       return vtkWebGPUConfiguration::BackendType::OpenGLES;
-    case wgpu::BackendType::Undefined:
+    case WGPUBackendType_Undefined:
     default:
       return vtkWebGPUConfiguration::BackendType::Undefined;
   }
 }
 
 //------------------------------------------------------------------------------
-wgpu::PowerPreference vtkWebGPUConfigurationInternals::ToWGPUPowerPreferenceType(
+WGPUPowerPreference vtkWebGPUConfigurationInternals::ToWGPUPowerPreferenceType(
   vtkWebGPUConfiguration::PowerPreferenceType powerPreference)
 {
   switch (powerPreference)
   {
     case vtkWebGPUConfiguration::PowerPreferenceType::LowPower:
-      return wgpu::PowerPreference::LowPower;
+      return WGPUPowerPreference_LowPower;
     case vtkWebGPUConfiguration::PowerPreferenceType::HighPerformance:
-      return wgpu::PowerPreference::HighPerformance;
+      return WGPUPowerPreference_HighPerformance;
     case vtkWebGPUConfiguration::PowerPreferenceType::Undefined:
     default:
-      return wgpu::PowerPreference::Undefined;
+      return WGPUPowerPreference_Undefined;
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUConfigurationInternals::PopulateRequiredLimits(wgpu::Adapter adapter)
+void vtkWebGPUConfigurationInternals::PopulateRequiredLimits(WGPUAdapter adapter)
 {
   RequiredLimits.nextInChain = nullptr;
 
-  wgpu::Limits supportedLimits;
-  adapter.GetLimits(&supportedLimits);
+  WGPULimits supportedLimits = WGPU_LIMITS_INIT;
+  wgpuAdapterGetLimits(adapter, &supportedLimits);
 
   RequiredLimits.maxStorageBufferBindingSize = supportedLimits.maxStorageBufferBindingSize;
   RequiredLimits.maxBufferSize = supportedLimits.maxBufferSize;
@@ -135,9 +143,9 @@ void vtkWebGPUConfigurationInternals::PopulateRequiredFeatures()
   // Only ~50% of devices support this extension according to:
   // http://vulkan.gpuinfo.org/listoptimaltilingformats.php
   // CTRL+F "B8G8R8A8_UNORM"
-  RequiredFeatures.push_back(wgpu::FeatureName::BGRA8UnormStorage);
+  RequiredFeatures.push_back(WGPUFeatureName_BGRA8UnormStorage);
   // Required for bilinear filtering of float32 textures (e.g. HDR environment maps used by
   // skybox rendering).
-  RequiredFeatures.push_back(wgpu::FeatureName::Float32Filterable);
+  RequiredFeatures.push_back(WGPUFeatureName_Float32Filterable);
 }
 VTK_ABI_NAMESPACE_END

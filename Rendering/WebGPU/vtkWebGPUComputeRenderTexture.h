@@ -61,8 +61,8 @@ public:
    * Get/set the WebGPU texture (used when this ComputeTexture points to an already existing device
    * buffer)
    */
-  void SetWebGPUTexture(wgpu::Texture texture) { this->WebGPUTexture = texture; };
-  wgpu::Texture GetWebGPUTexture() { return this->WebGPUTexture; };
+  void SetWebGPUTexture(WGPUTexture texture) { this->WebGPUTexture = texture; };
+  WGPUTexture GetWebGPUTexture() { return this->WebGPUTexture; };
   ///@}
 
   ///@{
@@ -93,7 +93,7 @@ private:
   // vtkWebGPUComputeBuffer but rather use an existing one that has been created elsewhere (by a
   // webGPUPolyDataMapper for example). This is the attribute that points to this 'already existing'
   // buffer.
-  wgpu::Texture WebGPUTexture = nullptr;
+  WGPUTexture WebGPUTexture = nullptr;
 
   /**
    * The ComputePipeline this render texture is associated with.

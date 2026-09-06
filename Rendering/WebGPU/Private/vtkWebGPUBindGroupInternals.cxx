@@ -1,12 +1,15 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "Private/vtkWebGPUBindGroupInternals.h"
+
+#include "Private/vtkWebGPUHelpersPrivate.h"
+
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkWebGPUBindGroupInternals::BindingInitializationHelper::BindingInitializationHelper(
-  uint32_t _binding, const wgpu::Sampler& _sampler)
+  uint32_t _binding, WGPUSampler _sampler)
   : binding(_binding)
   , sampler(_sampler)
 {
@@ -14,7 +17,7 @@ vtkWebGPUBindGroupInternals::BindingInitializationHelper::BindingInitializationH
 
 //------------------------------------------------------------------------------
 vtkWebGPUBindGroupInternals::BindingInitializationHelper::BindingInitializationHelper(
-  uint32_t _binding, const wgpu::TextureView& _textureView)
+  uint32_t _binding, WGPUTextureView _textureView)
   : binding(_binding)
   , textureView(_textureView)
 {
@@ -22,7 +25,7 @@ vtkWebGPUBindGroupInternals::BindingInitializationHelper::BindingInitializationH
 
 //------------------------------------------------------------------------------
 vtkWebGPUBindGroupInternals::BindingInitializationHelper::BindingInitializationHelper(
-  uint32_t _binding, const wgpu::Buffer& _buffer, uint64_t _offset, uint64_t _size)
+  uint32_t _binding, WGPUBuffer _buffer, uint64_t _offset, uint64_t _size)
   : binding(_binding)
   , buffer(_buffer)
   , offset(_offset)
@@ -38,9 +41,9 @@ vtkWebGPUBindGroupInternals::BindingInitializationHelper::BindingInitializationH
 vtkWebGPUBindGroupInternals::BindingInitializationHelper::~BindingInitializationHelper() = default;
 
 //------------------------------------------------------------------------------
-wgpu::BindGroupEntry vtkWebGPUBindGroupInternals::BindingInitializationHelper::GetAsBinding() const
+WGPUBindGroupEntry vtkWebGPUBindGroupInternals::BindingInitializationHelper::GetAsBinding() const
 {
-  wgpu::BindGroupEntry result;
+  WGPUBindGroupEntry result = WGPU_BIND_GROUP_ENTRY_INIT;
 
   result.binding = binding;
   result.sampler = sampler;
@@ -53,25 +56,26 @@ wgpu::BindGroupEntry vtkWebGPUBindGroupInternals::BindingInitializationHelper::G
 }
 
 //------------------------------------------------------------------------------
-wgpu::BindGroup vtkWebGPUBindGroupInternals::MakeBindGroup(const wgpu::Device& device,
-  const wgpu::BindGroupLayout& layout, const std::vector<wgpu::BindGroupEntry>& entries,
+WGPUBindGroup vtkWebGPUBindGroupInternals::MakeBindGroup(const WGPUDevice& device,
+  const WGPUBindGroupLayout& layout, const std::vector<WGPUBindGroupEntry>& entries,
   std::string label /*=""*/)
 {
-  wgpu::BindGroupDescriptor descriptor;
-  descriptor.label = label.c_str();
+  WGPUBindGroupDescriptor descriptor = WGPU_BIND_GROUP_DESCRIPTOR_INIT;
+  descriptor.label = vtkWebGPUMakeStringView(label);
   descriptor.layout = layout;
   descriptor.entryCount = static_cast<uint32_t>(entries.size());
   descriptor.entries = entries.data();
 
-  return device.CreateBindGroup(&descriptor);
+  return wgpuDeviceCreateBindGroup(device, &descriptor);
 }
 
 //------------------------------------------------------------------------------
-wgpu::BindGroup vtkWebGPUBindGroupInternals::MakeBindGroup(const wgpu::Device& device,
-  const wgpu::BindGroupLayout& layout,
+WGPUBindGroup vtkWebGPUBindGroupInternals::MakeBindGroup(const WGPUDevice& device,
+  const WGPUBindGroupLayout& layout,
   std::initializer_list<BindingInitializationHelper> entriesInitializer, std::string label /*=""*/)
 {
-  std::vector<wgpu::BindGroupEntry> entries;
+  std::vector<WGPUBindGroupEntry> entries;
+  entries.reserve(entriesInitializer.size());
   for (const BindingInitializationHelper& helper : entriesInitializer)
   {
     entries.push_back(helper.GetAsBinding());

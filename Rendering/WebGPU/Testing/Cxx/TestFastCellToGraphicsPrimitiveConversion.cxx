@@ -4,6 +4,8 @@
 #include "vtkWebGPUCellToPrimitiveConverter.h"
 #include "vtkWebGPUConfiguration.h"
 
+#include "vtk_wgpu.h" // for WebGPU C API
+
 #include <cstdlib>
 
 #include <iostream>
@@ -78,7 +80,7 @@ int TestFastCellToGraphicsPrimitiveConversion(int argc, char* argv[])
 
     struct MapData
     {
-      wgpu::Buffer buffer;
+      WGPUBuffer buffer;
       std::size_t byteSize;
       vtkIdType numVertices;
     };
@@ -97,10 +99,10 @@ int TestFastCellToGraphicsPrimitiveConversion(int argc, char* argv[])
     struct ConverterData
     {
       vtkTypeUInt32 VertexCount;
-      wgpu::Buffer ConnectivityBuffer;
-      wgpu::Buffer CellIdBuffer;
-      wgpu::Buffer EdgeArrayBuffer;
-      wgpu::Buffer CellIdOffsetUniformBuffer;
+      WGPUBuffer ConnectivityBuffer;
+      WGPUBuffer CellIdBuffer;
+      WGPUBuffer EdgeArrayBuffer;
+      WGPUBuffer CellIdOffsetUniformBuffer;
     } converterData;
     vtkLogStartScope(INFO, "Compute triangle lists in GPU");
     converter->DispatchCellArrayToPrimitiveComputePipeline(wgpuConfig, triangles, VTK_SURFACE,
@@ -113,24 +115,29 @@ int TestFastCellToGraphicsPrimitiveConversion(int argc, char* argv[])
     {
       {
         // create new buffer to hold mapped data.
-        const auto byteSize = converterData.ConnectivityBuffer.GetSize();
-        auto dstBuffer = wgpuConfig->CreateBuffer(byteSize,
-          wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapRead, false, "ConnectivityDest");
+        WGPUBuffer connectivityBuffer = converterData.ConnectivityBuffer;
+        const auto byteSize = wgpuBufferGetSize(connectivityBuffer);
+        WGPUBuffer dstBuffer = wgpuConfig->CreateBuffer(byteSize,
+          static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead), false,
+          "ConnectivityDest");
+        WGPUDevice device = wgpuConfig->GetDevice();
         // copy connectivity data into the dstBuffer
-        wgpu::CommandEncoder commandEncoder = wgpuConfig->GetDevice().CreateCommandEncoder();
-        commandEncoder.CopyBufferToBuffer(
-          converterData.ConnectivityBuffer, 0, dstBuffer, 0, byteSize);
-        auto copyCommand = commandEncoder.Finish();
-        wgpuConfig->GetDevice().GetQueue().Submit(1, &copyCommand);
+        WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(device, nullptr);
+        wgpuCommandEncoderCopyBufferToBuffer(
+          commandEncoder, connectivityBuffer, 0, dstBuffer, 0, byteSize);
+        WGPUCommandBuffer copyCommand = wgpuCommandEncoderFinish(commandEncoder, nullptr);
+        WGPUQueue queue = wgpuDeviceGetQueue(device);
+        wgpuQueueSubmit(queue, 1, &copyCommand);
         // map the destination buffer and verify it's contents.
         auto onConnectivityBufferMapped =
-          [](wgpu::MapAsyncStatus status, wgpu::StringView, MapData* userMapData)
+          [](WGPUMapAsyncStatus status, WGPUStringView, void* userdata1, void*)
         {
-          if (status == wgpu::MapAsyncStatus::Success)
+          auto* userMapData = static_cast<MapData*>(userdata1);
+          if (status == WGPUMapAsyncStatus_Success)
           {
             vtkLogScopeF(INFO, "Triangle lists buffer is now mapped");
             const void* mappedRange =
-              userMapData->buffer.GetConstMappedRange(0, userMapData->byteSize);
+              wgpuBufferGetConstMappedRange(userMapData->buffer, 0, userMapData->byteSize);
             const vtkTypeUInt32* mappedDataAsU32 = static_cast<const vtkTypeUInt32*>(mappedRange);
             for (vtkIdType j = 0; j < userMapData->numVertices; j++)
             {
@@ -146,7 +153,7 @@ int TestFastCellToGraphicsPrimitiveConversion(int argc, char* argv[])
                               << "expected: " << j);
               }
             }
-            userMapData->buffer.Unmap();
+            wgpuBufferUnmap(userMapData->buffer);
           }
           else
           {
@@ -156,14 +163,19 @@ int TestFastCellToGraphicsPrimitiveConversion(int argc, char* argv[])
         };
         mapData->buffer = dstBuffer;
         mapData->byteSize = byteSize;
-        dstBuffer.MapAsync(wgpu::MapMode::Read, 0, byteSize, wgpu::CallbackMode::AllowProcessEvents,
-          onConnectivityBufferMapped, mapData);
+        WGPUBufferMapCallbackInfo mapCallbackInfo = {};
+        mapCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+        mapCallbackInfo.callback = onConnectivityBufferMapped;
+        mapCallbackInfo.userdata1 = mapData;
+        wgpuBufferMapAsync(dstBuffer, WGPUMapMode_Read, 0, byteSize, mapCallbackInfo);
         // wait for mapping to finish.
         bool workDone = false;
-        wgpuConfig->GetDevice().GetQueue().OnSubmittedWorkDone(
-          wgpu::CallbackMode::AllowProcessEvents,
-          [](wgpu::QueueWorkDoneStatus, wgpu::StringView, bool* userdata) { *userdata = true; },
-          &workDone);
+        WGPUQueueWorkDoneCallbackInfo workDoneInfo = {};
+        workDoneInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+        workDoneInfo.callback = [](WGPUQueueWorkDoneStatus, WGPUStringView, void* userdata1, void*)
+        { *static_cast<bool*>(userdata1) = true; };
+        workDoneInfo.userdata1 = &workDone;
+        wgpuQueueOnSubmittedWorkDone(queue, workDoneInfo);
         while (!workDone)
         {
           wgpuConfig->ProcessEvents();

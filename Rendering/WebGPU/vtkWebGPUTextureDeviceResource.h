@@ -113,11 +113,11 @@ public:
    * enum.
    *
    * STD_VECTOR = Use the data given to the texture in the form of an std::vector. Default.
-   * VTK_DATA_ARRAY = Use the data given to the texture in the form of a vtkDataArray.
+   * DATA_ARRAY = Use the data given to the texture in the form of a vtkDataArray.
    */
   enum TextureDataType
   {
-    VTK_DATA_ARRAY = 0,
+    DATA_ARRAY = 0,
     STD_VECTOR
   };
 

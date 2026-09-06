@@ -3,6 +3,8 @@
 
 #include "Private/vtkWebGPUComputePassTextureStorageInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
+#include "Private/vtkWebGPUHandle.h"
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "Private/vtkWebGPUTextureInternals.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
@@ -20,7 +22,7 @@ namespace
 struct InternalMapTextureAsyncData
 {
   // Buffer currently being mapped
-  wgpu::Buffer buffer;
+  vtkWebGPU::Buffer buffer;
   // Label of the buffer currently being mapped. Used for printing errors
   std::string bufferLabel;
   // Size of the buffer being mapped in bytes
@@ -34,6 +36,8 @@ struct InternalMapTextureAsyncData
   int bytesPerRow;
   // Callback given by the user
   vtkWebGPUComputePass::TextureMapAsyncCallback userCallback;
+  // Used to hand `buffer`'s reference back once the map callback has returned.
+  vtkWeakPointer<vtkWebGPUConfiguration> configuration;
 };
 }
 
@@ -190,19 +194,21 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateTexture(std::size_t te
   vtkSmartPointer<vtkWebGPUComputeTexture> texture = this->Textures[textureIndex];
 
   std::string textureLabel = texture->GetLabel();
-  wgpu::TextureDimension dimension =
+  WGPUTextureDimension dimension =
     vtkWebGPUComputePassTextureStorageInternals::ComputeTextureDimensionToWebGPU(
       texture->GetDimension());
-  wgpu::TextureFormat format =
+  WGPUTextureFormat format =
     vtkWebGPUComputePassTextureStorageInternals::ComputeTextureFormatToWebGPU(texture->GetFormat());
-  wgpu::TextureUsage usage = vtkWebGPUComputePassTextureStorageInternals::ComputeTextureModeToUsage(
+  WGPUTextureUsage usage = vtkWebGPUComputePassTextureStorageInternals::ComputeTextureModeToUsage(
     texture->GetMode(), textureLabel);
   int mipLevelCount = texture->GetMipLevelCount();
 
-  wgpu::Extent3D extents = { texture->GetWidth(), texture->GetHeight(), texture->GetDepth() };
+  WGPUExtent3D extents = { texture->GetWidth(), texture->GetHeight(), texture->GetDepth() };
 
-  this->WebGPUTextures[textureIndex] = this->ParentPassWGPUConfiguration->CreateTexture(
-    extents, dimension, format, usage, mipLevelCount, textureLabel.c_str());
+  this->WebGPUTextures[textureIndex] =
+    vtkWebGPU::Texture::Acquire(this->ParentPassWGPUConfiguration->CreateTexture(extents,
+      static_cast<WGPUTextureDimension>(dimension), static_cast<WGPUTextureFormat>(format),
+      static_cast<WGPUTextureUsage>(usage), mipLevelCount, textureLabel.c_str()));
 }
 
 //------------------------------------------------------------------------------
@@ -231,7 +237,7 @@ vtkWebGPUComputePassTextureStorageInternals::GetTextureView(std::size_t textureV
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputePassTextureStorageInternals::UpdateComputeTextureAndViews(
-  vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture newWgpuTexture)
+  vtkSmartPointer<vtkWebGPUComputeTexture> texture, vtkWebGPU::Texture newWgpuTexture)
 {
   std::size_t textureIndex = 0;
 
@@ -261,7 +267,7 @@ void vtkWebGPUComputePassTextureStorageInternals::UpdateComputeTextureAndViews(
     this->ComputeTextureToViews[texture])
   {
     // Update the view
-    wgpu::TextureView newTextureView = CreateWebGPUTextureView(textureView, newWgpuTexture);
+    vtkWebGPU::TextureView newTextureView = CreateWebGPUTextureView(textureView, newWgpuTexture);
     this->TextureViewsToWebGPUTextureViews[textureView] = newTextureView;
 
     // Finding the bind group / bind group layout entries that need to be recreated
@@ -278,8 +284,8 @@ void vtkWebGPUComputePassTextureStorageInternals::UpdateComputeTextureAndViews(
       continue;
     }
 
-    std::vector<wgpu::BindGroupLayoutEntry>& bgEntries = find->second;
-    for (wgpu::BindGroupLayoutEntry& bglEntry : bgEntries)
+    std::vector<WGPUBindGroupLayoutEntry>& bgEntries = find->second;
+    for (WGPUBindGroupLayoutEntry& bglEntry : bgEntries)
     {
       if (bglEntry.binding == binding)
       {
@@ -303,9 +309,9 @@ void vtkWebGPUComputePassTextureStorageInternals::UpdateComputeTextureAndViews(
 
     // Now that we have the index of the entries that need to be recreated, we can recreate them
     // with the newTextureView
-    wgpu::BindGroupLayoutEntry newBglEntry =
+    WGPUBindGroupLayoutEntry newBglEntry =
       this->ParentComputePass->Internals->CreateBindGroupLayoutEntry(binding, texture, textureView);
-    wgpu::BindGroupEntry newBgEntry =
+    WGPUBindGroupEntry newBgEntry =
       this->ParentComputePass->Internals->CreateBindGroupEntry(binding, newTextureView);
 
     this->ParentComputePass->Internals->BindGroupLayoutEntries[group][entryIndex] = newBglEntry;
@@ -327,7 +333,7 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateComputeTexture(std::si
 
   this->RecreateTexture(textureIndex);
   this->RecreateTextureViews(textureIndex);
-  this->ParentComputePass->Internals->RecreateTextureBindGroup(textureIndex);
+  this->ParentComputePass->Internals->RecreateTextureBindGroup(static_cast<int>(textureIndex));
 
   // Registering the texture with the new texture recreated by previous calls
   this->ParentComputePass->Internals->RegisterTextureToPipeline(
@@ -342,12 +348,12 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateTextureViews(std::size
     return;
   }
 
-  wgpu::Texture wgpuTexture = this->WebGPUTextures[textureIndex];
+  vtkWebGPU::Texture wgpuTexture = this->WebGPUTextures[textureIndex];
   vtkSmartPointer<vtkWebGPUComputeTexture> texture = this->Textures[textureIndex];
   for (vtkSmartPointer<vtkWebGPUComputeTextureView> textureView :
     this->ComputeTextureToViews[texture])
   {
-    wgpu::TextureView newWgpuTextureView = CreateWebGPUTextureView(textureView, wgpuTexture);
+    vtkWebGPU::TextureView newWgpuTextureView = CreateWebGPUTextureView(textureView, wgpuTexture);
 
     this->TextureViewsToWebGPUTextureViews[textureView] = newWgpuTextureView;
   }
@@ -364,40 +370,44 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateTextureView(std::size_
   vtkSmartPointer<vtkWebGPUComputeTextureView> textureView = this->TextureViews[textureViewIndex];
   int associatedTextureIndex = textureView->GetAssociatedTextureIndex();
 
-  wgpu::Texture wgpuTexture = this->WebGPUTextures[associatedTextureIndex];
-  wgpu::TextureView newWgpuTextureView = CreateWebGPUTextureView(textureView, wgpuTexture);
+  vtkWebGPU::Texture wgpuTexture = this->WebGPUTextures[associatedTextureIndex];
+  vtkWebGPU::TextureView newWgpuTextureView = CreateWebGPUTextureView(textureView, wgpuTexture);
 
   this->TextureViewsToWebGPUTextureViews[textureView] = newWgpuTextureView;
   this->ParentComputePass->Internals->RecreateTextureBindGroup(associatedTextureIndex);
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureView vtkWebGPUComputePassTextureStorageInternals::CreateWebGPUTextureView(
-  vtkSmartPointer<vtkWebGPUComputeTextureView> textureView, wgpu::Texture wgpuTexture)
+vtkWebGPU::TextureView vtkWebGPUComputePassTextureStorageInternals::CreateWebGPUTextureView(
+  vtkSmartPointer<vtkWebGPUComputeTextureView> textureView, vtkWebGPU::Texture wgpuTexture)
 {
   std::string textureViewLabel = textureView->GetLabel();
-  wgpu::TextureViewDimension textureViewDimension =
+  WGPUTextureViewDimension textureViewDimension =
     vtkWebGPUComputePassTextureStorageInternals::ComputeTextureDimensionToViewDimension(
       textureView->GetDimension());
   // Creating a "full" view of the texture
-  wgpu::TextureAspect textureViewAspect =
+  WGPUTextureAspect textureViewAspect =
     vtkWebGPUComputePassTextureStorageInternals::ComputeTextureViewAspectToWebGPU(
       textureView->GetAspect());
-  wgpu::TextureFormat textureViewFormat =
+  WGPUTextureFormat textureViewFormat =
     vtkWebGPUComputePassTextureStorageInternals::ComputeTextureFormatToWebGPU(
       textureView->GetFormat());
   int baseMipLevel = textureView->GetBaseMipLevel();
   int mipLevelCount = textureView->GetMipLevelCount();
 
-  return this->ParentPassWGPUConfiguration->CreateView(wgpuTexture, textureViewDimension,
-    textureViewAspect, textureViewFormat, baseMipLevel, mipLevelCount, textureViewLabel.c_str());
+  // CreateView() hands back a newly created view, so adopt it.
+  return vtkWebGPU::TextureView::Acquire(this->ParentPassWGPUConfiguration->CreateView(wgpuTexture,
+    static_cast<WGPUTextureViewDimension>(textureViewDimension),
+    static_cast<WGPUTextureAspect>(textureViewAspect),
+    static_cast<WGPUTextureFormat>(textureViewFormat), baseMipLevel, mipLevelCount,
+    textureViewLabel.c_str()));
 }
 
 //------------------------------------------------------------------------------
 int vtkWebGPUComputePassTextureStorageInternals::AddRenderTexture(
   vtkSmartPointer<vtkWebGPUComputeRenderTexture> renderTexture)
 {
-  if (renderTexture == nullptr || renderTexture->GetWebGPUTexture().Get() == nullptr)
+  if (renderTexture == nullptr || renderTexture->GetWebGPUTexture() == nullptr)
   {
     vtkLog(ERROR,
       "Render texture with label \""
@@ -413,17 +423,16 @@ int vtkWebGPUComputePassTextureStorageInternals::AddRenderTexture(
   renderTexture->SetAssociatedComputePass(this->ParentComputePass);
 
   this->Textures.push_back(renderTexture);
-  this->WebGPUTextures.push_back(renderTexture->GetWebGPUTexture());
+  this->WebGPUTextures.push_back(vtkWebGPU::Texture::Reference(renderTexture->GetWebGPUTexture()));
 
-  return this->Textures.size() - 1;
+  return static_cast<int>(this->Textures.size() - 1);
 }
 
 //------------------------------------------------------------------------------
 int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
   vtkSmartPointer<vtkWebGPUComputeTexture> texture)
 {
-  wgpu::Extent3D textureExtents = { texture->GetWidth(), texture->GetHeight(),
-    texture->GetDepth() };
+  WGPUExtent3D textureExtents = { texture->GetWidth(), texture->GetHeight(), texture->GetDepth() };
 
   if (!this->CheckTextureCorrectness(texture))
   {
@@ -431,25 +440,27 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
   }
 
   std::string textureLabel = texture->GetLabel();
-  wgpu::Texture wgpuTexture;
+  vtkWebGPU::Texture wgpuTexture;
 
   // Check if this texture has already been created for another compute pass and has been registered
   // in the compute pipeline. If not, we need to create it
   if (!this->ParentComputePass->Internals->GetRegisteredTextureFromPipeline(texture, wgpuTexture))
   {
-    wgpu::TextureUsage textureUsage =
+    WGPUTextureUsage textureUsage =
       vtkWebGPUComputePassTextureStorageInternals::ComputeTextureModeToUsage(
         texture->GetMode(), texture->GetLabel());
-    wgpu::TextureFormat format =
+    WGPUTextureFormat format =
       vtkWebGPUComputePassTextureStorageInternals::ComputeTextureFormatToWebGPU(
         texture->GetFormat());
-    wgpu::TextureDimension dimension =
+    WGPUTextureDimension dimension =
       vtkWebGPUComputePassTextureStorageInternals::ComputeTextureDimensionToWebGPU(
         texture->GetDimension());
     int mipLevelCount = texture->GetMipLevelCount();
 
-    wgpuTexture = this->ParentPassWGPUConfiguration->CreateTexture(
-      textureExtents, dimension, format, textureUsage, mipLevelCount, textureLabel.c_str());
+    wgpuTexture =
+      vtkWebGPU::Texture::Acquire(this->ParentPassWGPUConfiguration->CreateTexture(textureExtents,
+        static_cast<WGPUTextureDimension>(dimension), static_cast<WGPUTextureFormat>(format),
+        static_cast<WGPUTextureUsage>(textureUsage), mipLevelCount, textureLabel.c_str()));
 
     texture->SetByteSize(textureExtents.width * textureExtents.height *
       textureExtents.depthOrArrayLayers * texture->GetBytesPerPixel());
@@ -457,7 +468,7 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
     // The texture is read only by the shader if it doesn't have CopySrc (meaning that we would be
     // mapping the texture from the GPU to read its results on the CPU meaning that the shader
     // writes to the texture)
-    bool textureReadOnly = !(textureUsage | wgpu::TextureUsage::CopySrc);
+    bool textureReadOnly = !(textureUsage | WGPUTextureUsage_CopySrc);
     // Uploading from std::vector or vtkDataArray if one of the two is present
     switch (texture->GetDataType())
     {
@@ -465,7 +476,7 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
       {
         if (texture->GetDataPointer() != nullptr)
         {
-          vtkWebGPUTextureInternals::Upload(this->ParentPassWGPUConfiguration, wgpuTexture,
+          vtkWebGPUTextureInternals::Upload(this->ParentPassWGPUConfiguration, wgpuTexture.Get(),
             texture->GetBytesPerPixel() * textureExtents.width, texture->GetByteSize(),
             texture->GetDataPointer());
         }
@@ -482,12 +493,12 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
         break;
       }
 
-      case vtkWebGPUComputeTexture::TextureDataType::VTK_DATA_ARRAY:
+      case vtkWebGPUComputeTexture::TextureDataType::DATA_ARRAY:
       {
         if (texture->GetDataArray() != nullptr)
         {
           vtkWebGPUTextureInternals::UploadFromDataArray(this->ParentPassWGPUConfiguration,
-            wgpuTexture, texture->GetBytesPerPixel() * textureExtents.width,
+            wgpuTexture.Get(), texture->GetBytesPerPixel() * textureExtents.width,
             texture->GetDataArray());
         }
         else if (textureReadOnly)
@@ -495,10 +506,9 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
           // Only warning if we're using a read only texture without uploading data to initialize it
 
           vtkLog(WARNING,
-            "The texture with label \""
-              << textureLabel
-              << "\" has data type VTK_DATA_ARRAY but no vtkDataArray data "
-                 "was given. No data uploaded.");
+            "The texture with label \"" << textureLabel
+                                        << "\" has data type DATA_ARRAY but no vtkDataArray data "
+                                           "was given. No data uploaded.");
         }
         break;
       }
@@ -515,7 +525,7 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTexture(
   this->Textures.push_back(texture);
   this->WebGPUTextures.push_back(wgpuTexture);
 
-  return this->Textures.size() - 1;
+  return static_cast<int>(this->Textures.size() - 1);
 }
 
 //------------------------------------------------------------------------------
@@ -535,8 +545,8 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTextureView(
   }
 
   vtkSmartPointer<vtkWebGPUComputeTexture> texture = this->Textures[associatedTextureIndex];
-  wgpu::Texture wgpuTexture = this->WebGPUTextures[associatedTextureIndex];
-  wgpu::TextureView wgpuTextureView = this->CreateWebGPUTextureView(textureView, wgpuTexture);
+  vtkWebGPU::Texture wgpuTexture = this->WebGPUTextures[associatedTextureIndex];
+  vtkWebGPU::TextureView wgpuTextureView = this->CreateWebGPUTextureView(textureView, wgpuTexture);
 
   // Note that here, group and binding may be -1 if the texture view wasn't given a group/binding
   // combination. This is valid if the user intends to rebind the texture view to a group / binding
@@ -549,21 +559,23 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTextureView(
   {
     // Only creating the bind group layout and bind group if the group and binding are valid,
     // they will be created by RebindTextureView otherwise
-    wgpu::BindGroupLayoutEntry bglEntry;
-    wgpu::BindGroupEntry bgEntry;
+    WGPUBindGroupLayoutEntry bglEntry = WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT;
+    WGPUBindGroupEntry bgEntry = WGPU_BIND_GROUP_ENTRY_INIT;
     bglEntry =
       this->ParentComputePass->Internals->CreateBindGroupLayoutEntry(binding, texture, textureView);
     bgEntry = this->ParentComputePass->Internals->CreateBindGroupEntry(binding, wgpuTextureView);
 
-    this->ParentComputePass->Internals->BindGroupLayoutEntries[group].push_back(bglEntry);
-    this->ParentComputePass->Internals->BindGroupEntries[group].push_back(bgEntry);
+    this->ParentComputePass->Internals->BindGroupLayoutEntries[static_cast<int>(group)].push_back(
+      bglEntry);
+    this->ParentComputePass->Internals->BindGroupEntries[static_cast<int>(group)].push_back(
+      bgEntry);
   }
 
   this->ComputeTextureToViews[texture].insert(textureView);
   this->TextureViews.push_back(textureView);
   this->TextureViewsToWebGPUTextureViews[textureView] = wgpuTextureView;
 
-  return this->TextureViews.size() - 1;
+  return static_cast<int>(this->TextureViews.size() - 1);
 }
 
 //------------------------------------------------------------------------------
@@ -582,7 +594,7 @@ vtkWebGPUComputePassTextureStorageInternals::CreateTextureView(std::size_t textu
 
   textureView->SetDimension(texture->GetDimension());
   textureView->SetFormat(texture->GetFormat());
-  textureView->SetAssociatedTextureIndex(textureIndex);
+  textureView->SetAssociatedTextureIndex(static_cast<int>(textureIndex));
 
   return textureView;
 }
@@ -617,8 +629,9 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateRenderTexture(
     this->ComputeTextureToViews[renderTexture];
 
   // Recreating all the texture views of this new render texture so that they all have the right
-  // size (if the render texture was resized) and so that they all use the proper wgpu::Texture
-  // (because the renderTexture probably has been re-created and now points to a new wgpu::Texture)
+  // size (if the render texture was resized) and so that they all use the proper vtkWebGPU::Texture
+  // (because the renderTexture probably has been re-created and now points to a new
+  // vtkWebGPU::Texture)
   for (const auto& textureView : textureViews)
   {
     // Creating the entries for this existing render texture
@@ -653,18 +666,26 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateRenderTexture(
       return;
     }
 
-    // Getting some variables
-    wgpu::TextureView wgpuTextureView =
-      CreateWebGPUTextureView(textureView, renderTexture->GetWebGPUTexture());
-    wgpu::TextureViewDimension textureViewDimension =
+    // The bind group entry keeps only a raw pointer to the view, so the view has
+    // to be owned by the storage map. A local handle would be released at the end
+    // of this iteration and leave the entry pointing at a freed view; the
+    // wgpu::TextureView this replaced kept it alive by refcounting the copy that
+    // went into the entry. Dawn tolerates the dangling handle, but Emscripten
+    // drops the released view from its object table and the next
+    // wgpuDeviceCreateBindGroup then fails with an undefined resource.
+    this->TextureViewsToWebGPUTextureViews[textureView] = CreateWebGPUTextureView(
+      textureView, vtkWebGPU::Texture::Reference(renderTexture->GetWebGPUTexture()));
+    const vtkWebGPU::TextureView& wgpuTextureView =
+      this->TextureViewsToWebGPUTextureViews[textureView];
+    WGPUTextureViewDimension textureViewDimension =
       vtkWebGPUComputePassTextureStorageInternals::ComputeTextureDimensionToViewDimension(
         textureView->GetDimension());
 
     // Recreating the bind group layout entry + bind group entry
-    wgpu::BindGroupLayoutEntry bglEntry =
+    WGPUBindGroupLayoutEntry bglEntry =
       this->ParentComputePass->Internals->CreateBindGroupLayoutEntry(
         binding, renderTexture, textureViewDimension);
-    wgpu::BindGroupEntry bgEntry =
+    WGPUBindGroupEntry bgEntry =
       this->ParentComputePass->Internals->CreateBindGroupEntry(binding, wgpuTextureView);
 
     // Updating the "registry" of bind group/bind group layouts entries
@@ -675,7 +696,8 @@ void vtkWebGPUComputePassTextureStorageInternals::RecreateRenderTexture(
     this->ParentComputePass->Internals->BindGroupOrLayoutsInvalidated = true;
   }
 
-  this->RenderTexturesToWebGPUTexture[renderTexture] = renderTexture->GetWebGPUTexture();
+  this->RenderTexturesToWebGPUTexture[renderTexture] =
+    vtkWebGPU::Texture::Reference(renderTexture->GetWebGPUTexture());
 }
 
 //------------------------------------------------------------------------------
@@ -716,11 +738,11 @@ void vtkWebGPUComputePassTextureStorageInternals::DeleteTextureViews(std::size_t
     auto find = this->ParentComputePass->Internals->BindGroupLayoutEntries.find(group);
     if (find != this->ParentComputePass->Internals->BindGroupLayoutEntries.end())
     {
-      std::vector<wgpu::BindGroupLayoutEntry>& bglLayoutEntries = find->second;
+      std::vector<WGPUBindGroupLayoutEntry>& bglLayoutEntries = find->second;
 
       // Now removing the bind group layout entry that corresponded to the texture view
       bglLayoutEntries.erase(std::remove_if(bglLayoutEntries.begin(), bglLayoutEntries.end(),
-                               [binding](const wgpu::BindGroupLayoutEntry& entry) -> bool
+                               [binding](const WGPUBindGroupLayoutEntry& entry) -> bool
                                { return entry.binding == binding; }),
         bglLayoutEntries.end());
     }
@@ -749,20 +771,20 @@ void vtkWebGPUComputePassTextureStorageInternals::RebindTextureView(
 
   vtkSmartPointer<vtkWebGPUComputeTextureView> computeTextureView;
   vtkSmartPointer<vtkWebGPUComputeTexture> computeTexture;
-  wgpu::TextureView wgpuTextureView;
+  vtkWebGPU::TextureView wgpuTextureView;
   computeTextureView = this->TextureViews[textureViewIndex];
   computeTexture = this->Textures[computeTextureView->GetAssociatedTextureIndex()];
   wgpuTextureView = this->TextureViewsToWebGPUTextureViews[computeTextureView];
 
-  std::vector<wgpu::BindGroupEntry>& bgEntries =
-    this->ParentComputePass->Internals->BindGroupEntries[group];
-  std::vector<wgpu::BindGroupLayoutEntry>& bglEntries =
-    this->ParentComputePass->Internals->BindGroupLayoutEntries[group];
+  std::vector<WGPUBindGroupEntry>& bgEntries =
+    this->ParentComputePass->Internals->BindGroupEntries[static_cast<int>(group)];
+  std::vector<WGPUBindGroupLayoutEntry>& bglEntries =
+    this->ParentComputePass->Internals->BindGroupLayoutEntries[static_cast<int>(group)];
 
   bool found = false;
   // Recreating the bind group layout. We need to find the existing bind group layout entry for
   // this group / binding to replace it with the new bgl entry
-  for (wgpu::BindGroupLayoutEntry& bglEntry : bglEntries)
+  for (WGPUBindGroupLayoutEntry& bglEntry : bglEntries)
   {
     if (bglEntry.binding == binding)
     {
@@ -773,7 +795,7 @@ void vtkWebGPUComputePassTextureStorageInternals::RebindTextureView(
   }
 
   // Recreating the bind group by finding it first as above for the bgl entry
-  for (wgpu::BindGroupEntry& bgEntry : bgEntries)
+  for (WGPUBindGroupEntry& bgEntry : bgEntries)
   {
     if (bgEntry.binding == binding)
     {
@@ -799,15 +821,16 @@ void vtkWebGPUComputePassTextureStorageInternals::RebindTextureView(
   textureView = this->TextureViews[textureViewIndex];
   texture = this->Textures[textureView->GetAssociatedTextureIndex()];
 
-  wgpu::BindGroupLayoutEntry bglEntry;
-  wgpu::BindGroupEntry bgEntry;
+  WGPUBindGroupLayoutEntry bglEntry = WGPU_BIND_GROUP_LAYOUT_ENTRY_INIT;
+  WGPUBindGroupEntry bgEntry = WGPU_BIND_GROUP_ENTRY_INIT;
 
   bglEntry =
     this->ParentComputePass->Internals->CreateBindGroupLayoutEntry(binding, texture, textureView);
   bgEntry = this->ParentComputePass->Internals->CreateBindGroupEntry(binding, wgpuTextureView);
 
-  this->ParentComputePass->Internals->BindGroupLayoutEntries[group].push_back(bglEntry);
-  this->ParentComputePass->Internals->BindGroupEntries[group].push_back(bgEntry);
+  this->ParentComputePass->Internals->BindGroupLayoutEntries[static_cast<int>(group)].push_back(
+    bglEntry);
+  this->ParentComputePass->Internals->BindGroupEntries[static_cast<int>(group)].push_back(bgEntry);
 
   this->ParentComputePass->Internals->BindGroupOrLayoutsInvalidated = true;
 }
@@ -822,24 +845,25 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   }
 
   vtkSmartPointer<vtkWebGPUComputeTexture> texture = this->Textures[textureIndex];
-  wgpu::Texture wgpuTexture = this->WebGPUTextures[textureIndex];
+  vtkWebGPU::Texture wgpuTexture = this->WebGPUTextures[textureIndex];
 
   // Bytes needs to be a multiple of 256
   vtkIdType bytesPerRow =
-    std::ceil(wgpuTexture.GetWidth() * texture->GetBytesPerPixel() / 256.0f) * 256.0f;
+    std::ceil(wgpuTextureGetWidth(wgpuTexture) * texture->GetBytesPerPixel() / 256.0f) * 256.0f;
 
   // Creating the buffer that will hold the data of the texture
-  wgpu::BufferDescriptor bufferDescriptor;
-  bufferDescriptor.label = "Buffer descriptor for mapping texture";
+  WGPUBufferDescriptor bufferDescriptor = WGPU_BUFFER_DESCRIPTOR_INIT;
+  bufferDescriptor.label = WGPUStringView{ "Buffer descriptor for mapping texture", WGPU_STRLEN };
   bufferDescriptor.mappedAtCreation = false;
   bufferDescriptor.nextInChain = nullptr;
   bufferDescriptor.size = bytesPerRow * texture->GetHeight();
-  bufferDescriptor.usage = wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapRead;
+  bufferDescriptor.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead;
 
-  wgpu::Buffer buffer = this->ParentPassWGPUConfiguration->CreateBuffer(bufferDescriptor);
+  vtkWebGPU::Buffer buffer =
+    vtkWebGPU::Buffer::Acquire(this->ParentPassWGPUConfiguration->CreateBuffer(bufferDescriptor));
 
   // Parameters for copying the texture
-  wgpu::TexelCopyTextureInfo imageCopyTexture;
+  WGPUTexelCopyTextureInfo imageCopyTexture = WGPU_TEXEL_COPY_TEXTURE_INFO_INIT;
   imageCopyTexture.mipLevel = mipLevel;
   imageCopyTexture.origin = { 0, 0, 0 };
   imageCopyTexture.texture = wgpuTexture;
@@ -847,44 +871,57 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   // Parameters for copying the buffer
   unsigned int mipLevelWidth = std::floor(texture->GetWidth() / std::pow(2, mipLevel));
   unsigned int mipLevelHeight = std::floor(texture->GetHeight() / std::pow(2, mipLevel));
-  wgpu::TexelCopyBufferInfo texelCopyBuffer;
+  WGPUTexelCopyBufferInfo texelCopyBuffer = WGPU_TEXEL_COPY_BUFFER_INFO_INIT;
   texelCopyBuffer.buffer = buffer;
   texelCopyBuffer.layout.offset = 0;
   texelCopyBuffer.layout.rowsPerImage = mipLevelHeight;
   texelCopyBuffer.layout.bytesPerRow = bytesPerRow;
 
   // Copying the texture to the buffer
-  wgpu::CommandEncoder commandEncoder = this->ParentComputePass->Internals->CreateCommandEncoder();
-  wgpu::Extent3D copySize = { mipLevelWidth, mipLevelHeight, texture->GetDepth() };
-  commandEncoder.CopyTextureToBuffer(&imageCopyTexture, &texelCopyBuffer, &copySize);
+  vtkWebGPU::CommandEncoder commandEncoder =
+    vtkWebGPU::CommandEncoder::Acquire(this->ParentComputePass->Internals->CreateCommandEncoder());
+  WGPUExtent3D copySize = { mipLevelWidth, mipLevelHeight, texture->GetDepth() };
+  wgpuCommandEncoderCopyTextureToBuffer(
+    commandEncoder, &imageCopyTexture, &texelCopyBuffer, &copySize);
 
   // Submitting the command
-  wgpu::CommandBuffer commandBuffer = commandEncoder.Finish();
-  this->ParentPassWGPUConfiguration->GetDevice().GetQueue().Submit(1, &commandBuffer);
+  vtkWebGPU::CommandBuffer commandBuffer =
+    vtkWebGPU::CommandBuffer::Acquire(wgpuCommandEncoderFinish(commandEncoder, nullptr));
+  vtkWebGPU::Queue queue =
+    vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(this->ParentPassWGPUConfiguration->GetDevice()));
+  WGPUCommandBuffer rawCommandBuffer = commandBuffer;
+  wgpuQueueSubmit(queue, 1, &rawCommandBuffer);
 
-  auto bufferMapCallback = [](
-                             wgpu::MapAsyncStatus status, wgpu::StringView message, void* userdata2)
+  auto bufferMapCallback =
+    [](WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* /*userdata2*/)
   {
     InternalMapTextureAsyncData* mapData =
-      reinterpret_cast<InternalMapTextureAsyncData*>(userdata2);
+      reinterpret_cast<InternalMapTextureAsyncData*>(userdata1);
 
-    if (status == wgpu::MapAsyncStatus::Success)
+    if (status == WGPUMapAsyncStatus_Success)
     {
-      const void* mappedRange = mapData->buffer.GetConstMappedRange(0, mapData->byteSize);
+      const void* mappedRange =
+        wgpuBufferGetConstMappedRange(mapData->buffer.Get(), 0, mapData->byteSize);
       mapData->userCallback(mappedRange, mapData->bytesPerRow, mapData->userdata);
 
-      mapData->buffer.Unmap();
+      wgpuBufferUnmap(mapData->buffer.Get());
     }
     else
     {
       vtkLog(WARNING, << "Failed to map [Texture \'"
                       << (mapData->bufferLabel.empty() ? "(nolabel)" : mapData->bufferLabel)
                       << "\'] with error status: " << static_cast<std::uint32_t>(status) << " "
-                      << vtkWebGPUHelpers::StringViewToStdString(message));
+                      << vtkWebGPUStringViewToStdString(message));
     }
 #if defined(__EMSCRIPTEN__)
     wgpuBufferRelease(mapData->buffer.Get());
 #endif
+    // Hand the reference over instead of dropping it here: the implementation is
+    // still holding a lock on this buffer. See DeferBufferRelease.
+    if (mapData->configuration != nullptr)
+    {
+      mapData->configuration->DeferBufferRelease(mapData->buffer.Release());
+    }
     // Freeing the mapData structure as it was dynamically allocated
     delete mapData;
   };
@@ -900,14 +937,18 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   callbackData->bytesPerRow = bytesPerRow;
   callbackData->userCallback = callback;
   callbackData->userdata = userdata;
+  callbackData->configuration = this->ParentPassWGPUConfiguration;
 
 #if defined(__EMSCRIPTEN__)
   // keep buffer alive for map.
   // See https://issues.chromium.org/issues/399131918
   wgpuBufferAddRef(callbackData->buffer.Get());
 #endif
-  buffer.MapAsync(wgpu::MapMode::Read, 0, bufferDescriptor.size,
-    wgpu::CallbackMode::AllowProcessEvents, +bufferMapCallback, static_cast<void*>(callbackData));
+  WGPUBufferMapCallbackInfo mapCallbackInfo = {};
+  mapCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+  mapCallbackInfo.callback = bufferMapCallback;
+  mapCallbackInfo.userdata1 = static_cast<void*>(callbackData);
+  wgpuBufferMapAsync(buffer.Get(), WGPUMapMode_Read, 0, bufferDescriptor.size, mapCallbackInfo);
 }
 
 //-----------------------------------------------------------------------------
@@ -927,90 +968,90 @@ void vtkWebGPUComputePassTextureStorageInternals::ReleaseResources()
 }
 
 //-----------------------------------------------------------------------------
-wgpu::TextureFormat vtkWebGPUComputePassTextureStorageInternals::ComputeTextureFormatToWebGPU(
+WGPUTextureFormat vtkWebGPUComputePassTextureStorageInternals::ComputeTextureFormatToWebGPU(
   vtkWebGPUComputeTexture::TextureFormat format)
 {
   switch (format)
   {
     case vtkWebGPUComputeTexture::TextureFormat::R8_UNORM:
-      return wgpu::TextureFormat::R8Unorm;
+      return WGPUTextureFormat_R8Unorm;
     case vtkWebGPUComputeTexture::TextureFormat::RG8_UNORM:
-      return wgpu::TextureFormat::RG8Unorm;
+      return WGPUTextureFormat_RG8Unorm;
     case vtkWebGPUComputeTexture::TextureFormat::RGBA8_UNORM:
-      return wgpu::TextureFormat::RGBA8Unorm;
+      return WGPUTextureFormat_RGBA8Unorm;
     case vtkWebGPUComputeTexture::TextureFormat::BGRA8_UNORM:
-      return wgpu::TextureFormat::BGRA8Unorm;
+      return WGPUTextureFormat_BGRA8Unorm;
     case vtkWebGPUComputeTexture::TextureFormat::R16_UINT:
-      return wgpu::TextureFormat::R16Uint;
+      return WGPUTextureFormat_R16Uint;
     case vtkWebGPUComputeTexture::TextureFormat::RG16_UINT:
-      return wgpu::TextureFormat::RG16Uint;
+      return WGPUTextureFormat_RG16Uint;
     case vtkWebGPUComputeTexture::TextureFormat::RGBA16_UINT:
-      return wgpu::TextureFormat::RGBA16Uint;
+      return WGPUTextureFormat_RGBA16Uint;
     case vtkWebGPUComputeTexture::TextureFormat::R32_FLOAT:
-      return wgpu::TextureFormat::R32Float;
+      return WGPUTextureFormat_R32Float;
     case vtkWebGPUComputeTexture::TextureFormat::RG32_FLOAT:
-      return wgpu::TextureFormat::RG32Float;
+      return WGPUTextureFormat_RG32Float;
     case vtkWebGPUComputeTexture::TextureFormat::RGBA32_FLOAT:
-      return wgpu::TextureFormat::RGBA32Float;
+      return WGPUTextureFormat_RGBA32Float;
     case vtkWebGPUComputeTexture::TextureFormat::DEPTH_24_PLUS:
-      return wgpu::TextureFormat::Depth24Plus;
+      return WGPUTextureFormat_Depth24Plus;
     case vtkWebGPUComputeTexture::TextureFormat::DEPTH_24_PLUS_8_STENCIL:
-      return wgpu::TextureFormat::Depth24PlusStencil8;
+      return WGPUTextureFormat_Depth24PlusStencil8;
     default:
       vtkLog(ERROR, "Unhandled texture format in ComputeTextureFormatToWebGPU: " << format);
-      return wgpu::TextureFormat::Undefined;
+      return WGPUTextureFormat_Undefined;
   }
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureDimension vtkWebGPUComputePassTextureStorageInternals::ComputeTextureDimensionToWebGPU(
+WGPUTextureDimension vtkWebGPUComputePassTextureStorageInternals::ComputeTextureDimensionToWebGPU(
   vtkWebGPUComputeTexture::TextureDimension dimension)
 {
   switch (dimension)
   {
     case vtkWebGPUComputeTexture::TextureDimension::DIMENSION_1D:
-      return wgpu::TextureDimension::e1D;
+      return WGPUTextureDimension_1D;
 
     case vtkWebGPUComputeTexture::TextureDimension::DIMENSION_2D:
-      return wgpu::TextureDimension::e2D;
+      return WGPUTextureDimension_2D;
 
     case vtkWebGPUComputeTexture::TextureDimension::DIMENSION_3D:
-      return wgpu::TextureDimension::e3D;
+      return WGPUTextureDimension_3D;
 
     default:
       vtkLog(ERROR,
         "Unhandled texture dimension in ComputeTextureDimensionToWebGPU: "
           << dimension << ". Assuming DIMENSION_2D.");
-      return wgpu::TextureDimension::e2D;
+      return WGPUTextureDimension_2D;
   }
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureViewDimension
+WGPUTextureViewDimension
 vtkWebGPUComputePassTextureStorageInternals::ComputeTextureDimensionToViewDimension(
   vtkWebGPUComputeTexture::TextureDimension dimension)
 {
   switch (dimension)
   {
     case vtkWebGPUComputeTexture::TextureDimension::DIMENSION_1D:
-      return wgpu::TextureViewDimension::e1D;
+      return WGPUTextureViewDimension_1D;
 
     case vtkWebGPUComputeTexture::TextureDimension::DIMENSION_2D:
-      return wgpu::TextureViewDimension::e2D;
+      return WGPUTextureViewDimension_2D;
 
     case vtkWebGPUComputeTexture::TextureDimension::DIMENSION_3D:
-      return wgpu::TextureViewDimension::e3D;
+      return WGPUTextureViewDimension_3D;
 
     default:
       vtkLog(ERROR,
         "Unhandled texture view dimension in ComputeTextureDimensionToViewDimension: "
           << dimension << ". Assuming DIMENSION_2D.");
-      return wgpu::TextureViewDimension::e2D;
+      return WGPUTextureViewDimension_2D;
   }
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureUsage vtkWebGPUComputePassTextureStorageInternals::ComputeTextureModeToUsage(
+WGPUTextureUsage vtkWebGPUComputePassTextureStorageInternals::ComputeTextureModeToUsage(
   vtkWebGPUComputeTexture::TextureMode mode, const std::string& textureLabel)
 {
   switch (mode)
@@ -1024,28 +1065,27 @@ wgpu::TextureUsage vtkWebGPUComputePassTextureStorageInternals::ComputeTextureMo
       // Use CopyDst because we might want to first upload data to the texture
       // from the CPU, or from another GPU resource (like a buffer), before binding it to the
       // shader. then read from it in the shader.
-      return wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst;
+      return WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
 
     case vtkWebGPUComputeTexture::TextureMode::WRITE_ONLY_STORAGE:
       // CopySrc because we might want to read back the results of the computation on the CPU
       // after the shader wrote to the texture.
-      return wgpu::TextureUsage::StorageBinding | wgpu::TextureUsage::CopySrc;
+      return WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopySrc;
 
     case vtkWebGPUComputeTexture::TextureMode::WRITE_ONLY_RENDER_ATTACHMENT:
-      return wgpu::TextureUsage::RenderAttachment | wgpu::TextureUsage::CopySrc;
+      return WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_CopySrc;
 
     case vtkWebGPUComputeTexture::TextureMode::READ_WRITE_STORAGE:
-      return wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::StorageBinding |
-        wgpu::TextureUsage::CopySrc | wgpu::TextureUsage::CopyDst;
+      return WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding |
+        WGPUTextureUsage_CopySrc | WGPUTextureUsage_CopyDst;
 
     case vtkWebGPUComputeTexture::TextureMode::READ_WRITE_RENDER_ATTACHMENT:
-      return wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::RenderAttachment |
-        wgpu::TextureUsage::CopySrc | wgpu::TextureUsage::CopyDst;
+      return WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment |
+        WGPUTextureUsage_CopySrc | WGPUTextureUsage_CopyDst;
 
     case vtkWebGPUComputeTexture::TextureMode::READ_WRITE_RENDER_ATTACHMENT_STORAGE:
-      return wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::RenderAttachment |
-        wgpu::TextureUsage::StorageBinding | wgpu::TextureUsage::CopySrc |
-        wgpu::TextureUsage::CopyDst;
+      return WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment |
+        WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopySrc | WGPUTextureUsage_CopyDst;
 
     default:
       vtkLog(ERROR,
@@ -1053,25 +1093,25 @@ wgpu::TextureUsage vtkWebGPUComputePassTextureStorageInternals::ComputeTextureMo
                              << "\" has undefined mode. Did you forget to call "
                                 "vtkWebGPUComputeTexture::SetMode()?");
 
-      return wgpu::TextureUsage::None;
+      return WGPUTextureUsage_None;
   }
 }
 
 //------------------------------------------------------------------------------
-wgpu::StorageTextureAccess
+WGPUStorageTextureAccess
 vtkWebGPUComputePassTextureStorageInternals::ComputeTextureModeToShaderStorage(
   vtkWebGPUComputeTexture::TextureMode mode, const std::string& textureLabel)
 {
   switch (mode)
   {
     case vtkWebGPUComputeTexture::TextureMode::READ_ONLY:
-      return wgpu::StorageTextureAccess::ReadOnly;
+      return WGPUStorageTextureAccess_ReadOnly;
 
     case vtkWebGPUComputeTexture::TextureMode::WRITE_ONLY_STORAGE:
-      return wgpu::StorageTextureAccess::WriteOnly;
+      return WGPUStorageTextureAccess_WriteOnly;
 
     case vtkWebGPUComputeTexture::READ_WRITE_STORAGE:
-      return wgpu::StorageTextureAccess::ReadWrite;
+      return WGPUStorageTextureAccess_ReadWrite;
 
     default:
       vtkLog(ERROR,
@@ -1079,25 +1119,25 @@ vtkWebGPUComputePassTextureStorageInternals::ComputeTextureModeToShaderStorage(
                              << "\" has undefined mode. Did you forget to call "
                                 "vtkWebGPUComputeTexture::SetMode()?");
 
-      return wgpu::StorageTextureAccess::Undefined;
+      return WGPUStorageTextureAccess_Undefined;
   }
 }
 
 //------------------------------------------------------------------------------
-wgpu::StorageTextureAccess
+WGPUStorageTextureAccess
 vtkWebGPUComputePassTextureStorageInternals::ComputeTextureViewModeToShaderStorage(
   vtkWebGPUComputeTextureView::TextureViewMode mode, const std::string& textureViewLabel)
 {
   switch (mode)
   {
     case vtkWebGPUComputeTextureView::TextureViewMode::READ_ONLY:
-      return wgpu::StorageTextureAccess::ReadOnly;
+      return WGPUStorageTextureAccess_ReadOnly;
 
     case vtkWebGPUComputeTextureView::TextureViewMode::WRITE_ONLY_STORAGE:
-      return wgpu::StorageTextureAccess::WriteOnly;
+      return WGPUStorageTextureAccess_WriteOnly;
 
     case vtkWebGPUComputeTextureView::TextureViewMode::READ_WRITE_STORAGE:
-      return wgpu::StorageTextureAccess::ReadWrite;
+      return WGPUStorageTextureAccess_ReadWrite;
 
     default:
       vtkLog(ERROR,
@@ -1105,59 +1145,58 @@ vtkWebGPUComputePassTextureStorageInternals::ComputeTextureViewModeToShaderStora
                                   << "\" has undefined mode. Did you forget to call "
                                      "vtkWebGPUComputeTextureView::SetMode()?");
 
-      return wgpu::StorageTextureAccess::Undefined;
+      return WGPUStorageTextureAccess_Undefined;
   }
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureSampleType
-vtkWebGPUComputePassTextureStorageInternals::ComputeTextureSampleTypeToWebGPU(
+WGPUTextureSampleType vtkWebGPUComputePassTextureStorageInternals::ComputeTextureSampleTypeToWebGPU(
   vtkWebGPUComputeTexture::TextureSampleType sampleType)
 {
   switch (sampleType)
   {
     case vtkWebGPUComputeTexture::TextureSampleType::FLOAT:
-      return wgpu::TextureSampleType::Float;
+      return WGPUTextureSampleType_Float;
 
     case vtkWebGPUComputeTexture::TextureSampleType::UNFILTERABLE_FLOAT:
-      return wgpu::TextureSampleType::UnfilterableFloat;
+      return WGPUTextureSampleType_UnfilterableFloat;
 
     case vtkWebGPUComputeTexture::TextureSampleType::DEPTH:
-      return wgpu::TextureSampleType::Depth;
+      return WGPUTextureSampleType_Depth;
 
     case vtkWebGPUComputeTexture::TextureSampleType::SIGNED_INT:
-      return wgpu::TextureSampleType::Sint;
+      return WGPUTextureSampleType_Sint;
 
     case vtkWebGPUComputeTexture::TextureSampleType::UNSIGNED_INT:
-      return wgpu::TextureSampleType::Uint;
+      return WGPUTextureSampleType_Uint;
 
     default:
       vtkLog(
         ERROR, "Unhandled texture sampleType in ComputeTextureSampleTypeToWebGPU: " << sampleType);
-      return wgpu::TextureSampleType::Undefined;
+      return WGPUTextureSampleType_Undefined;
   }
 }
 
 //------------------------------------------------------------------------------
-wgpu::TextureAspect vtkWebGPUComputePassTextureStorageInternals::ComputeTextureViewAspectToWebGPU(
+WGPUTextureAspect vtkWebGPUComputePassTextureStorageInternals::ComputeTextureViewAspectToWebGPU(
   vtkWebGPUComputeTextureView::TextureViewAspect aspect)
 {
   switch (aspect)
   {
     case vtkWebGPUComputeTextureView::TextureViewAspect::ASPECT_ALL:
-      return wgpu::TextureAspect::All;
+      return WGPUTextureAspect_All;
 
     case vtkWebGPUComputeTextureView::TextureViewAspect::ASPECT_DEPTH:
-      return wgpu::TextureAspect::DepthOnly;
+      return WGPUTextureAspect_DepthOnly;
 
     case vtkWebGPUComputeTextureView::TextureViewAspect::ASPECT_STENCIL:
-      return wgpu::TextureAspect::StencilOnly;
+      return WGPUTextureAspect_StencilOnly;
 
     default:
       vtkLog(ERROR,
         "Unhandled texture view aspect in ComputeTextureViewAspectToWebGPU: "
           << aspect << ". Assuming ASPECT_ALL.");
-      return wgpu::TextureAspect::All;
+      return WGPUTextureAspect_All;
   }
 }
 

@@ -8,7 +8,7 @@
 
 #include "vtkRenderingWebGPUModule.h" // For export macro
 #include "vtkSmartPointer.h"          // for arg
-#include "vtk_wgpu.h"                 // for webgpu
+#include "vtk_wgpu.h"                 // for webgpu C API
 
 #include <type_traits> // for enable_if_t
 
@@ -350,8 +350,8 @@ private:
   friend class vtkWebGPUComputePassBufferStorageInternals;
   friend class vtkWebGPUComputePipeline;
   friend class vtkWebGPUHelpers;
-  // For the mapper to be able to access the internals to access the wgpu::Buffer objects for use
-  // in a render pipeline
+  // For the mapper to be able to access the internals to access the vtkWebGPU::Buffer objects for
+  // use in a render pipeline
   friend class vtkWebGPUPointCloudMapperInternals;
   friend class vtkWebGPURenderWindow;
   friend class vtkWebGPURenderer;

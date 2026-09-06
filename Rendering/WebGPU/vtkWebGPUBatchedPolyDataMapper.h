@@ -108,17 +108,17 @@ protected:
   /**
    * Override to add another binding for CompositeDataPropertyStorage
    */
-  std::vector<wgpu::BindGroupLayoutEntry> GetMeshBindGroupLayoutEntries() override;
-  std::vector<wgpu::BindGroupEntry> GetMeshBindGroupEntries() override;
+  std::vector<WGPUBindGroupLayoutEntry> GetMeshBindGroupLayoutEntries() override;
+  std::vector<WGPUBindGroupEntry> GetMeshBindGroupEntries() override;
   ///@}
 
   ///@{
   /**
    * Override to customize bindings when homogeneousCellSize=true
    */
-  std::vector<wgpu::BindGroupLayoutEntry> GetTopologyBindGroupLayoutEntries(
+  std::vector<WGPUBindGroupLayoutEntry> GetTopologyBindGroupLayoutEntries(
     bool homogeneousCellSize, bool useEdgeArray) override;
-  std::vector<wgpu::BindGroupEntry> GetTopologyBindGroupEntries(
+  std::vector<WGPUBindGroupEntry> GetTopologyBindGroupEntries(
     vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType,
     bool homogeneousCellSize, bool useEdgeArray) override;
   ///@}
@@ -177,7 +177,7 @@ private:
   };
   struct StorageBuffer
   {
-    wgpu::Buffer Buffer;
+    WGPUBuffer Buffer = nullptr;
     std::uint64_t Size = 0;
     std::uint32_t BindingSize = 0;
   };

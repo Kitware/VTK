@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebGPUGlyph3DMapper.h"
+#include "Private/vtkWebGPUHandle.h"
+#include "Private/vtkWebGPUHelpersPrivate.h"
 #include "vtkActor.h"
 #include "vtkBitArray.h"
 #include "vtkCellArray.h"
@@ -78,9 +80,10 @@ public:
     const std::string label = "InstanceProperties-" + this->CurrentInput->GetObjectDescription();
     if (this->InstancePropertiesBuffer == nullptr)
     {
-      this->InstancePropertiesBuffer = wgpuConfiguration->CreateBuffer(sizeof(InstanceProperties),
-        wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst,
-        /*mappedAtCreation=*/false, label.c_str());
+      this->InstancePropertiesBuffer =
+        vtkWebGPU::Buffer::Acquire(wgpuConfiguration->CreateBuffer(sizeof(InstanceProperties),
+          static_cast<WGPUBufferUsage>(WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst),
+          /*mappedAtCreation=*/false, label.c_str()));
       // Rebuild pipeline and bindgroups when buffer is re-created.
       this->RebuildGraphicsPipelines = true;
     }
@@ -110,47 +113,47 @@ public:
     }
   }
 
-  std::vector<wgpu::VertexBufferLayout> GetVertexBufferLayouts() override
+  std::vector<WGPUVertexBufferLayout> GetVertexBufferLayouts() override
   {
     // matCxR types are not allowed as vertex attributes.
     // For this reason the columns of the matrices are
     // sent as vertex attributes and the shader assembles
     // matrices from the individual columns.
     std::size_t instanceAttributesIdx = 0;
-    std::vector<wgpu::VertexBufferLayout> layouts;
+    std::vector<WGPUVertexBufferLayout> layouts;
     {
-      wgpu::VertexBufferLayout layout = {};
+      WGPUVertexBufferLayout layout = WGPU_VERTEX_BUFFER_LAYOUT_INIT;
       layout.arrayStride = 4 * sizeof(vtkTypeFloat32);
       layout.attributeCount = 1;
       layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
-      layout.stepMode = wgpu::VertexStepMode::Instance;
+      layout.stepMode = WGPUVertexStepMode_Instance;
       layouts.emplace_back(layout);
       instanceAttributesIdx += 1;
     }
     {
-      wgpu::VertexBufferLayout layout = {};
+      WGPUVertexBufferLayout layout = WGPU_VERTEX_BUFFER_LAYOUT_INIT;
       layout.arrayStride = 4 * 4 * sizeof(vtkTypeFloat32);
       layout.attributeCount = 4; // 1 attribute per column which is a vec4f
       layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
-      layout.stepMode = wgpu::VertexStepMode::Instance;
+      layout.stepMode = WGPUVertexStepMode_Instance;
       layouts.emplace_back(layout);
       instanceAttributesIdx += 4;
     }
     {
-      wgpu::VertexBufferLayout layout = {};
+      WGPUVertexBufferLayout layout = WGPU_VERTEX_BUFFER_LAYOUT_INIT;
       layout.arrayStride = 3 * 3 * sizeof(vtkTypeFloat32);
       layout.attributeCount = 3; // 1 attribute per column which is a vec3f
       layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
-      layout.stepMode = wgpu::VertexStepMode::Instance;
+      layout.stepMode = WGPUVertexStepMode_Instance;
       layouts.emplace_back(layout);
       instanceAttributesIdx += 3;
     }
     {
-      wgpu::VertexBufferLayout layout = {};
+      WGPUVertexBufferLayout layout = WGPU_VERTEX_BUFFER_LAYOUT_INIT;
       layout.arrayStride = sizeof(vtkTypeUInt32);
       layout.attributeCount = 1;
       layout.attributes = &this->InstanceAttributes[instanceAttributesIdx];
-      layout.stepMode = wgpu::VertexStepMode::Instance;
+      layout.stepMode = WGPUVertexStepMode_Instance;
       layouts.emplace_back(layout);
     }
     return layouts;
@@ -159,26 +162,28 @@ public:
   /**
    * Overridden to pass instance attribtue buffers into the vertex buffer slots.
    */
-  void SetVertexBuffers(const wgpu::RenderPassEncoder& encoder) override
+  void SetVertexBuffers(const WGPURenderPassEncoder& passEncoder) override
   {
+    WGPURenderPassEncoder encoder(passEncoder);
     for (int attributeIndex = 0; attributeIndex < InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES;
          ++attributeIndex)
     {
-      encoder.SetVertexBuffer(
-        attributeIndex, this->InstanceAttributesBuffers[attributeIndex].Buffer);
+      wgpuRenderPassEncoderSetVertexBuffer(encoder, attributeIndex,
+        this->InstanceAttributesBuffers[attributeIndex].Buffer, 0, WGPU_WHOLE_SIZE);
     }
   }
 
   /**
    * Overridden to pass instance attribtue buffers into the vertex buffer slots.
    */
-  void SetVertexBuffers(const wgpu::RenderBundleEncoder& encoder) override
+  void SetVertexBuffers(const WGPURenderBundleEncoder& bundleEncoder) override
   {
+    WGPURenderBundleEncoder encoder(bundleEncoder);
     for (int attributeIndex = 0; attributeIndex < InstanceDataAttributes::NUM_INSTANCE_ATTRIBUTES;
          ++attributeIndex)
     {
-      encoder.SetVertexBuffer(
-        attributeIndex, this->InstanceAttributesBuffers[attributeIndex].Buffer);
+      wgpuRenderBundleEncoderSetVertexBuffer(encoder, attributeIndex,
+        this->InstanceAttributesBuffers[attributeIndex].Buffer, 0, WGPU_WHOLE_SIZE);
     }
   }
 
@@ -226,7 +231,7 @@ public:
       case InstanceDataAttributes::INSTANCE_COLORS:
         if (this->InstanceColors)
         {
-          return this->InstanceColors->size() * sizeof(vtkTypeFloat32);
+          return static_cast<unsigned long>(this->InstanceColors->size() * sizeof(vtkTypeFloat32));
         }
 
         break;
@@ -234,7 +239,8 @@ public:
       case InstanceDataAttributes::INSTANCE_TRANSFORMS:
         if (this->InstanceTransforms)
         {
-          return this->InstanceTransforms->size() * sizeof(vtkTypeFloat32);
+          return static_cast<unsigned long>(
+            this->InstanceTransforms->size() * sizeof(vtkTypeFloat32));
         }
 
         break;
@@ -242,14 +248,15 @@ public:
       case InstanceDataAttributes::INSTANCE_NORMAL_TRANSFORMS:
         if (this->InstanceNormalTransforms)
         {
-          return this->InstanceNormalTransforms->size() * sizeof(vtkTypeFloat32);
+          return static_cast<unsigned long>(
+            this->InstanceNormalTransforms->size() * sizeof(vtkTypeFloat32));
         }
 
         break;
       case InstanceDataAttributes::INSTANCE_PICK_IDS:
         if (this->InstancePickIds)
         {
-          return this->InstancePickIds->size() * sizeof(vtkTypeUInt32);
+          return static_cast<unsigned long>(this->InstancePickIds->size() * sizeof(vtkTypeUInt32));
         }
         break;
       default:
@@ -287,7 +294,7 @@ public:
         break;
     }
 
-    result = vtkWebGPUConfiguration::Align(result, 32);
+    result = static_cast<unsigned long>(vtkWebGPUConfiguration::Align(result, 32));
     return result;
   }
 
@@ -296,7 +303,7 @@ protected:
   {
     std::uint32_t shaderLocation = 0;
     this->InstanceAttributes[shaderLocation].nextInChain = nullptr;
-    this->InstanceAttributes[shaderLocation].format = wgpu::VertexFormat::Float32x4;
+    this->InstanceAttributes[shaderLocation].format = WGPUVertexFormat_Float32x4;
     this->InstanceAttributes[shaderLocation].offset = 0;
     this->InstanceAttributes[shaderLocation].shaderLocation = shaderLocation;
     shaderLocation++;
@@ -308,7 +315,7 @@ protected:
     for (int i = 0; i < 4; ++i)
     {
       this->InstanceAttributes[shaderLocation].nextInChain = nullptr;
-      this->InstanceAttributes[shaderLocation].format = wgpu::VertexFormat::Float32x4;
+      this->InstanceAttributes[shaderLocation].format = WGPUVertexFormat_Float32x4;
       this->InstanceAttributes[shaderLocation].offset = i * 4 * sizeof(float);
       this->InstanceAttributes[shaderLocation].shaderLocation = shaderLocation;
       shaderLocation++;
@@ -317,14 +324,14 @@ protected:
     for (int i = 0; i < 3; ++i)
     {
       this->InstanceAttributes[shaderLocation].nextInChain = nullptr;
-      this->InstanceAttributes[shaderLocation].format = wgpu::VertexFormat::Float32x3;
+      this->InstanceAttributes[shaderLocation].format = WGPUVertexFormat_Float32x3;
       this->InstanceAttributes[shaderLocation].offset = i * 3 * sizeof(float);
       this->InstanceAttributes[shaderLocation].shaderLocation = shaderLocation;
       shaderLocation++;
     }
 
     this->InstanceAttributes[shaderLocation].nextInChain = nullptr;
-    this->InstanceAttributes[shaderLocation].format = wgpu::VertexFormat::Uint32;
+    this->InstanceAttributes[shaderLocation].format = WGPUVertexFormat_Uint32;
     this->InstanceAttributes[shaderLocation].offset = 0;
     this->InstanceAttributes[shaderLocation].shaderLocation = shaderLocation;
     shaderLocation++;
@@ -337,9 +344,9 @@ protected:
     vtkTypeUInt32 Pickable;
     vtkTypeUInt32 ProcessId;
   };
-  wgpu::Buffer InstancePropertiesBuffer;
+  vtkWebGPU::Buffer InstancePropertiesBuffer;
   AttributeBuffer InstanceAttributesBuffers[NUM_INSTANCE_ATTRIBUTES];
-  wgpu::VertexAttribute InstanceAttributes[1 + 4 + 3 + 1]; // matrices sent as column vectors
+  WGPUVertexAttribute InstanceAttributes[1 + 4 + 3 + 1]; // matrices sent as column vectors
 
   vtkTimeStamp InstanceAttributesBuildTimestamp[NUM_INSTANCE_ATTRIBUTES];
 
@@ -363,27 +370,28 @@ protected:
       InstanceDataAttributes::INSTANCE_NORMAL_TRANSFORMS, InstanceDataAttributes::INSTANCE_PICK_IDS
     };
 
-  std::vector<wgpu::BindGroupLayoutEntry> GetMeshBindGroupLayoutEntries() override
+  std::vector<WGPUBindGroupLayoutEntry> GetMeshBindGroupLayoutEntries() override
   {
     // extend superclass bindings with additional entry for `Mesh` buffer.
     auto entries = this->Superclass::GetMeshBindGroupLayoutEntries();
-    std::uint32_t bindingId = entries.size();
+    std::uint32_t bindingId = static_cast<std::uint32_t>(entries.size());
 
-    entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-      bindingId++, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
-      wgpu::BufferBindingType::Uniform });
+    auto helper = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ bindingId++,
+      WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform };
+    entries.emplace_back(helper);
     return entries;
   }
 
-  std::vector<wgpu::BindGroupEntry> GetMeshBindGroupEntries() override
+  std::vector<WGPUBindGroupEntry> GetMeshBindGroupEntries() override
   {
     // extend superclass bindings with additional entry for `Mesh` buffer.
     auto entries = this->Superclass::GetMeshBindGroupEntries();
-    std::uint32_t bindingId = entries.size();
+    std::uint32_t bindingId = static_cast<std::uint32_t>(entries.size());
 
     const auto bindingInit = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
       this->InstancePropertiesBuffer, 0 };
-    entries.emplace_back(bindingInit.GetAsBinding());
+    auto entry = bindingInit.GetAsBinding();
+    entries.emplace_back(entry);
     return entries;
   }
 
@@ -406,16 +414,16 @@ protected:
       {
         if (this->InstanceAttributesBuffers[attributeIndex].Buffer)
         {
-          this->InstanceAttributesBuffers[attributeIndex].Buffer.Destroy();
+          wgpuBufferDestroy(this->InstanceAttributesBuffers[attributeIndex].Buffer);
           this->InstanceAttributesBuffers[attributeIndex].Size = 0;
         }
-        wgpu::BufferDescriptor descriptor{};
+        WGPUBufferDescriptor descriptor = WGPU_BUFFER_DESCRIPTOR_INIT;
         descriptor.size = requiredBufferSize;
         const auto label = instanceAttribLabels[attributeIndex] + std::string("-") +
           this->CurrentInput->GetObjectDescription();
-        descriptor.label = label.c_str();
+        descriptor.label = vtkWebGPUMakeStringView(label);
         descriptor.mappedAtCreation = false;
-        descriptor.usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst;
+        descriptor.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
         this->InstanceAttributesBuffers[attributeIndex].Buffer =
           wgpuConfiguration->CreateBuffer(descriptor);
         this->InstanceAttributesBuffers[attributeIndex].Size = requiredBufferSize;
@@ -486,7 +494,7 @@ protected:
     instanceProperties.CompositeId = this->FlatIndex;
     instanceProperties.Pickable = this->Pickable ? 1u : 0u;
     instanceProperties.ProcessId = 1;
-    wgpuConfiguration->WriteBuffer(this->InstancePropertiesBuffer, 0, &instanceProperties,
+    wgpuConfiguration->WriteBuffer(this->InstancePropertiesBuffer.Get(), 0, &instanceProperties,
       sizeof(InstanceProperties), "InstanceProperties");
   }
 
@@ -820,10 +828,9 @@ const TRIANGLE_VERTS = array(
 
   // Uses TriangleList for pipeline types that originally used TriangleStrip
   // because we use the instance_id for glyphing.
-  wgpu::PrimitiveTopology GetPrimitiveTopologyForPipeline(
-    GraphicsPipelineType pipelineType) override
+  WGPUPrimitiveTopology GetPrimitiveTopologyForPipeline(GraphicsPipelineType pipelineType) override
   {
-    wgpu::PrimitiveTopology topology = wgpu::PrimitiveTopology::Undefined;
+    WGPUPrimitiveTopology topology = WGPUPrimitiveTopology_Undefined;
     switch (pipelineType)
     {
       case GFX_PIPELINE_POINTS_SHAPED:
@@ -834,13 +841,14 @@ const TRIANGLE_VERTS = array(
       case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
       case GFX_PIPELINE_LINES_MITER_JOIN:
       case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
-        topology = wgpu::PrimitiveTopology::TriangleList;
+        topology = WGPUPrimitiveTopology_TriangleList;
         break;
       default:
-        topology = this->Superclass::GetPrimitiveTopologyForPipeline(pipelineType);
+        topology = static_cast<WGPUPrimitiveTopology>(
+          this->Superclass::GetPrimitiveTopologyForPipeline(pipelineType));
         break;
     }
-    return topology;
+    return static_cast<WGPUPrimitiveTopology>(topology);
   }
 
   vtkWebGPUPolyDataMapper::DrawCallArgs GetDrawCallArgs(GraphicsPipelineType pipelineType,
@@ -1119,8 +1127,9 @@ public:
     for (std::size_t i = 0; i < glyphParametersCollection->Entries.size(); ++i)
     {
       // for each source data object
-      auto* sourceDataObject = this->Self->UseSourceTableTree ? sttIterator->GetCurrentDataObject()
-                                                              : this->Self->GetSource(i);
+      auto* sourceDataObject = this->Self->UseSourceTableTree
+        ? sttIterator->GetCurrentDataObject()
+        : this->Self->GetSource(static_cast<int>(i));
       auto& glyphParameters = glyphParametersCollection->Entries[i];
       if (glyphParameters->SourceDataObject &&
         !glyphParameters->SourceDataObject->IsA(sourceDataObject->GetClassName()))
@@ -1462,7 +1471,7 @@ public:
     for (std::size_t i = 0; i < numEntries; i++)
     {
       sourceCache[i] = mapper->UseSourceTableTree ? this->GetChildDataObject(sourceTableTree, i)
-                                                  : mapper->GetSource(i);
+                                                  : mapper->GetSource(static_cast<int>(i));
     }
 
     double transform[16];

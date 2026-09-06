@@ -742,6 +742,8 @@
 
 .before_script_linux_deps: &before_script_linux_deps
     - '[[ "$CMAKE_CONFIGURATION" =~ "webgpu" ]] && cmake -P "$PWD/.gitlab/ci/download_dawn.cmake"'
+    - '[[ "$CMAKE_CONFIGURATION" =~ "webgpu" ]] && export PATH=$PWD/.gitlab/dawn/bin:$PATH'
+    - '[[ "$CMAKE_CONFIGURATION" =~ "webgpu" ]] && export LD_LIBRARY_PATH=$(pwd)/.gitlab/dawn/lib64:$LD_LIBRARY_PATH'
     - cmake -P .gitlab/ci/download_onnxruntime.cmake
 
 .script_linux: &script_linux

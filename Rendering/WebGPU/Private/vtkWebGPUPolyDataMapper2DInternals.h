@@ -4,6 +4,7 @@
 #ifndef vtkWebGPUPolyDataMapper2DInternals_h
 #define vtkWebGPUPolyDataMapper2DInternals_h
 
+#include "Private/vtkWebGPUHandle.h"
 #include "vtkNew.h"
 #include "vtkRenderingWebGPUModule.h"
 #include "vtkSmartPointer.h"
@@ -30,7 +31,7 @@ class vtkWebGPURenderWindow;
 class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPolyDataMapper2DInternals
 {
   /**
-   * This mapper uses different `wgpu::RenderPipeline` to render
+   * This mapper uses different `vtkWebGPU::RenderPipeline` to render
    * a list of primitives. Each pipeline uses an appropriate
    * shader module, bindgroup and primitive type.
    */
@@ -76,7 +77,7 @@ class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPolyDataMapper2DInternals
 
   struct ShaderSSBO
   {
-    wgpu::Buffer Buffer;
+    vtkWebGPU::Buffer Buffer;
     std::size_t Size;
     vtkTimeStamp BuildTimeStamp;
   };
@@ -84,13 +85,13 @@ class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPolyDataMapper2DInternals
   struct TopologyBindGroupInfo
   {
     // buffer for the connectivity
-    wgpu::Buffer ConnectivityBuffer;
+    vtkWebGPU::Buffer ConnectivityBuffer;
     // buffer for the cell id
-    wgpu::Buffer CellIdBuffer;
+    vtkWebGPU::Buffer CellIdBuffer;
     // uniform buffer for the cell id offset
-    wgpu::Buffer CellIdOffsetUniformBuffer;
+    vtkWebGPU::Buffer CellIdOffsetUniformBuffer;
     // bind group for the primitive size uniform.
-    wgpu::BindGroup BindGroup;
+    vtkWebGPU::BindGroup BindGroup;
     // vertexCount for draw call.
     vtkTypeUInt32 VertexCount = 0;
   };
@@ -112,11 +113,11 @@ class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPolyDataMapper2DInternals
         vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGONS },
     };
 
-  const std::array<wgpu::PrimitiveTopology, NUM_GFX_PIPELINE_2D_NB_TYPES>
-    GraphicsPipeline2DPrimitiveTypes = { wgpu::PrimitiveTopology::TriangleStrip,
-      wgpu::PrimitiveTopology::TriangleStrip, wgpu::PrimitiveTopology::TriangleStrip,
-      wgpu::PrimitiveTopology::TriangleStrip, wgpu::PrimitiveTopology::TriangleList,
-      wgpu::PrimitiveTopology::TriangleList };
+  const std::array<WGPUPrimitiveTopology, NUM_GFX_PIPELINE_2D_NB_TYPES>
+    GraphicsPipeline2DPrimitiveTypes = { WGPUPrimitiveTopology_TriangleStrip,
+      WGPUPrimitiveTopology_TriangleStrip, WGPUPrimitiveTopology_TriangleStrip,
+      WGPUPrimitiveTopology_TriangleStrip, WGPUPrimitiveTopology_TriangleList,
+      WGPUPrimitiveTopology_TriangleList };
 
   std::string GraphicsPipeline2DKeys[NUM_GFX_PIPELINE_2D_NB_TYPES];
 
@@ -133,10 +134,10 @@ class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPolyDataMapper2DInternals
   TopologyBindGroupInfo
     TopologyBindGroupInfos[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES] = {};
 
-  wgpu::BindGroup MeshAttributeBindGroup;
+  vtkWebGPU::BindGroup MeshAttributeBindGroup;
   vtkTimeStamp TextureBindTime;
   int ActorTextureUnit = -1;
-  wgpu::BindGroupLayout MeshAttributeBindGroupLayout;
+  vtkWebGPU::BindGroupLayout MeshAttributeBindGroupLayout;
 
   vtkNew<vtkWebGPUCellToPrimitiveConverter> CellConverter;
   std::unordered_set<vtkWebGPURenderer*> Renderers;
@@ -144,14 +145,14 @@ class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPolyDataMapper2DInternals
   /**
    * Create a bind group layout for the mesh attribute bind group.
    */
-  static wgpu::BindGroupLayout CreateMeshAttributeBindGroupLayout(const wgpu::Device& device,
+  static vtkWebGPU::BindGroupLayout CreateMeshAttributeBindGroupLayout(const WGPUDevice& device,
     const std::string& label, vtkWebGPURenderTextureDeviceResource* textureDevRc = nullptr);
 
   /**
    * Create a bind group layout for the `TopologyRenderInfo::BindGroup`
    */
-  static wgpu::BindGroupLayout CreateTopologyBindGroupLayout(
-    const wgpu::Device& device, const std::string& label, bool homogeneousCellSize);
+  static vtkWebGPU::BindGroupLayout CreateTopologyBindGroupLayout(
+    const WGPUDevice& device, const std::string& label, bool homogeneousCellSize);
 
   /**
    * Get the name of the graphics pipeline type as a string.
@@ -210,8 +211,8 @@ public:
    * Record draw calls in the render pass encoder. It also sets the bind group, graphics pipeline to
    * use before making the draw calls.
    */
-  void RecordDrawCommands(vtkViewport* viewport, const wgpu::RenderPassEncoder& encoder);
-  void RecordDrawCommands(vtkViewport* viewport, const wgpu::RenderBundleEncoder& encoder);
+  void RecordDrawCommands(vtkViewport* viewport, const WGPURenderPassEncoder& encoder);
+  void RecordDrawCommands(vtkViewport* viewport, const WGPURenderBundleEncoder& encoder);
 };
 
 VTK_ABI_NAMESPACE_END

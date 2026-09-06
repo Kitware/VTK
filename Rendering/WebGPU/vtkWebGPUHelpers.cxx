@@ -162,18 +162,4 @@ int vtkWebGPUHelpers::ComputeTextureFormatToVTKDataType(
       return -1;
   }
 }
-
-//------------------------------------------------------------------------------
-std::string vtkWebGPUHelpers::StringViewToStdString(wgpu::StringView sv)
-{
-  if (sv.length == wgpu::kStrlen)
-  {
-    if (sv.IsUndefined())
-    {
-      return {};
-    }
-    return { sv.data };
-  }
-  return { sv.data, sv.length };
-}
 VTK_ABI_NAMESPACE_END

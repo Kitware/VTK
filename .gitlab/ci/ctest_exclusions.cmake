@@ -567,7 +567,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingCoreCxx-WebGPU-TestGlyph3DMapperPicking$")
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora44_x86_64_webgpu")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "webgpu")
   list(APPEND test_exclusions
     # RenderingCoreCxx tests that fail with WebGPU.
     # see https://gitlab.kitware.com/vtk/vtk/-/issues/19921
@@ -592,9 +592,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora44_x86_64_webgpu")
     "^VTK::RenderingCoreCxx-WebGPU-TestGlyph3DMapperBackfaceColor$"
     "^VTK::RenderingCoreCxx-WebGPU-TestGlyph3DMapperPointSize$"
     "^VTK::RenderingCoreCxx-WebGPU-TestGlyph3DMapperTreeIndexing$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestGradientBackground$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestGradientBackgroundWithTiledViewport$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestGradientBackgroundWithTiledViewports$"
     "^VTK::RenderingCoreCxx-WebGPU-TestImageAndAnnotations$"
     "^VTK::RenderingCoreCxx-WebGPU-TestInteractorStyleImageProperty$"
     "^VTK::RenderingCoreCxx-WebGPU-TestLabeledContourMapper$"
@@ -639,7 +636,15 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora44_x86_64_webgpu")
     "^VTK::RenderingLabelCxx-WebGPU-TestLabelPlacementMapperCoincidentPoints$"
     "^VTK::RenderingLabelCxx-WebGPU-TestLabelPlacer$"
     "^VTK::RenderingLabelCxx-WebGPU-TestLabelPlacementMapper$"
-    "^VTK::RenderingLabelCxx-WebGPU-TestClipLabels$"
+    "^VTK::RenderingLabelCxx-WebGPU-TestClipLabels$")
+endif ()
+
+# Kept separate from the shared webgpu list above on purpose: this one is a
+# driver bug rather than a gap in VTK's WebGPU backend, and it only reproduces
+# with the mesa vulkan driver used on the fedora runners. Excluding it
+# everywhere would lose coverage on the macOS and Windows configurations.
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora42_x86_64_webgpu")
+  list(APPEND test_exclusions
     # Crashes randomly with mesa-vulkan-drivers
     "^VTK::RenderingWebGPUCxx-TestComputeFrustumCulling$")
 endif ()

@@ -164,6 +164,18 @@
         CMAKE_CONFIGURATION: macos_arm64_java
         VTK_INSTALL: 1
 
+.macos_arm64_webgpu:
+    extends: .macos_build
+
+    variables:
+        CMAKE_CONFIGURATION: macos_arm64_webgpu
+
+.macos_x86_64_webgpu:
+    extends: .macos_build
+
+    variables:
+        CMAKE_CONFIGURATION: macos_x86_64_webgpu
+
 ## Tags
 
 .macos_x86_64_builder_tags:
@@ -251,6 +263,10 @@
     - cmake -P .gitlab/ci/download_adios2.cmake
     - export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$PWD/.gitlab/adios2
     - cmake -P.gitlab/ci/download_onnxruntime.cmake
+    # Download Dawn (WebGPU) only for webgpu configurations.
+    - '[[ "$CMAKE_CONFIGURATION" =~ "webgpu" ]] && cmake -P "$PWD/.gitlab/ci/download_dawn.cmake"'
+    - '[[ "$CMAKE_CONFIGURATION" =~ "webgpu" ]] && export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$PWD/.gitlab/dawn'
+    - '[[ "$CMAKE_CONFIGURATION" =~ "webgpu" ]] && export DYLD_LIBRARY_PATH=$PWD/.gitlab/dawn/lib:$DYLD_LIBRARY_PATH'
 
 .cmake_build_macos:
     stage: build
@@ -283,6 +299,26 @@
         - export PATH=$PWD/build/ci-venv/bin:$PATH
         - export PYTHONPATH=$PWD/build/ci-venv/lib/python$PYTHON_VERSION_SUFFIX/site-packages
         - build/bin/vtkpython -c "import xarray"
+        - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
+    interruptible: true
+
+# Build/test steps for configurations that do not enable Python wrapping (e.g.
+# the WebGPU jobs). These skip the wheel-Python download, the venv creation and
+# the `vtkpython` sanity checks that the Python-oriented variants above rely on.
+.cmake_build_macos_nopython:
+    stage: build
+    extends: .warning_policy
+    script:
+        - *before_script_macos
+        - *before_script_macos_deps
+        - *script_macos
+    interruptible: true
+
+.cmake_test_macos_nopython:
+    stage: test
+    script:
+        - *before_script_macos
+        - *before_script_macos_deps
         - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
     interruptible: true
 

@@ -4,6 +4,7 @@
 #ifndef vtkWebGPUActorInternals_h
 #define vtkWebGPUActorInternals_h
 
+#include "Private/vtkWebGPUHandle.h"
 #include "vtkMapper.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
@@ -12,7 +13,7 @@
 #include "vtkTransform.h"
 #include "vtkWebGPUPolyDataMapper.h"
 
-#include <vtk_wgpu.h>
+#include "vtk_wgpu.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -128,15 +129,15 @@ public:
   vtkTimeStamp RenderOptionsLastUpdated;
   vtkTimeStamp DeviceResourcesBuildTimestamp;
 
-  wgpu::BindGroupLayout ActorBindGroupLayout;
-  wgpu::BindGroup ActorBindGroup;
-  wgpu::Buffer ActorBuffer;
+  vtkWebGPU::BindGroupLayout ActorBindGroupLayout;
+  vtkWebGPU::BindGroup ActorBindGroup;
+  vtkWebGPU::Buffer ActorBuffer;
 
   vtkTypeUInt32 Id = 0;
 
-  void PopulateBindgroupLayouts(std::vector<wgpu::BindGroupLayout>& layouts)
+  void PopulateBindgroupLayouts(std::vector<WGPUBindGroupLayout>& layouts)
   {
-    layouts.emplace_back(this->ActorBindGroupLayout);
+    layouts.emplace_back(this->ActorBindGroupLayout.Get());
   }
 };
 

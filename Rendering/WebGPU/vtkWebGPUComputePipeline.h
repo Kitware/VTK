@@ -7,7 +7,7 @@
 #include "vtkObject.h"
 #include "vtkWebGPUComputePass.h"   // for the list of compute passes held by this pipeline
 #include "vtkWebGPUConfiguration.h" // for requesting device / adapter
-#include "vtk_wgpu.h"               // for webgpu
+#include "vtk_wgpu.h"               // for webgpu C API
 
 #include <unordered_map> // for the registered buffers / textures
 
@@ -99,13 +99,13 @@ private:
    * Registers a new buffer created for a compute pass in this pipeline so that it can be reused by
    * other compute passes
    */
-  void RegisterBuffer(vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, wgpu::Buffer wgpuBuffer);
+  void RegisterBuffer(vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, WGPUBuffer wgpuBuffer);
 
   /**
    * Registers a new texture created for a compute pass in this pipeline so that it can be reused by
    * other compute passes
    */
-  void RegisterTexture(vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture wgpuTexture);
+  void RegisterTexture(vtkSmartPointer<vtkWebGPUComputeTexture> texture, WGPUTexture wgpuTexture);
 
   ///@{
   /**
@@ -115,11 +115,10 @@ private:
    *
    * Returns false and leaves the parameter unchanged otherwise.
    */
-  bool GetRegisteredBuffer(
-    vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, wgpu::Buffer& wgpuBuffer);
+  bool GetRegisteredBuffer(vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, WGPUBuffer& wgpuBuffer);
 
   bool GetRegisteredTexture(
-    vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture& wgpuTexture);
+    vtkSmartPointer<vtkWebGPUComputeTexture> texture, WGPUTexture& wgpuTexture);
   ///@}
 
   /**
@@ -150,8 +149,8 @@ private:
    * because the buffer that we're trying to add is found as registered, it will not be created on
    * the device again and will be reused for the second pass.
    */
-  std::unordered_map<vtkSmartPointer<vtkWebGPUComputeBuffer>, wgpu::Buffer> RegisteredBuffers;
-  std::unordered_map<vtkSmartPointer<vtkWebGPUComputeTexture>, wgpu::Texture> RegisteredTextures;
+  std::unordered_map<vtkSmartPointer<vtkWebGPUComputeBuffer>, WGPUBuffer> RegisteredBuffers;
+  std::unordered_map<vtkSmartPointer<vtkWebGPUComputeTexture>, WGPUTexture> RegisteredTextures;
 
   // Label used for debugging
   std::string Label = "WebGPU Compute Pipeline";

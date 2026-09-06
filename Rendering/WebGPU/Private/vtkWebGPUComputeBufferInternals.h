@@ -20,13 +20,13 @@ public:
    * Uploads a vtkDataArray to the given wgpuBuffer
    */
   static void UploadFromDataArray(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration,
-    wgpu::Buffer wgpuBuffer, vtkDataArray* dataArray, const char* description = nullptr);
+    WGPUBuffer wgpuBuffer, vtkDataArray* dataArray, const char* description = nullptr);
 
   /**
    * Uploads a vtkDataArray with offset to the given wgpuBuffer
    */
   static void UploadFromDataArray(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration,
-    wgpu::Buffer wgpuBuffer, vtkIdType byteOffset, vtkDataArray* dataArray,
+    WGPUBuffer wgpuBuffer, vtkIdType byteOffset, vtkDataArray* dataArray,
     const char* description = nullptr);
 };
 

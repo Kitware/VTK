@@ -32,6 +32,11 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
 
 vtk_test_cxx_executable(vtkRenderingWebGPUCxxTests tests)
 
+# Tests that call wgpu* C API functions directly need the WebGPU implementation library.
+if (TARGET VTK::WebGPUImpl)
+  target_link_libraries(vtkRenderingWebGPUCxxTests PRIVATE VTK::WebGPUImpl)
+endif ()
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   # Enable JSPI for webgpu async API
   target_link_options(vtkRenderingWebGPUCxxTests

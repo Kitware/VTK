@@ -12,8 +12,7 @@ namespace
 class DispatchDataWriter
 {
 public:
-  DispatchDataWriter(
-    vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, wgpu::Texture texture)
+  DispatchDataWriter(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, WGPUTexture texture)
     : WGPUConfiguration(wgpuConfiguration)
     , Texture(texture)
   {
@@ -35,20 +34,21 @@ public:
     }
 
     this->WGPUConfiguration->WriteTexture(this->Texture, bytesPerRow,
-      data.size() * srcArray->GetDataTypeSize(), data.data(), /*srcOffset=*/0,
+      static_cast<uint32_t>(data.size() * srcArray->GetDataTypeSize()), data.data(),
+      /*srcOffset=*/0,
       /*dstOffset=*/{ 0, 0, 0 },
       /*dstMipLevel=*/0, description);
   }
 
 private:
   vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
-  wgpu::Texture Texture;
+  WGPUTexture Texture;
 };
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPUTextureInternals::Upload(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration,
-  wgpu::Texture texture, std::uint32_t bytesPerRow, std::uint32_t byteSize, const void* data,
+  WGPUTexture texture, std::uint32_t bytesPerRow, std::uint32_t byteSize, const void* data,
   const char* description /*=nullptr*/)
 {
   wgpuConfiguration->WriteTexture(texture, bytesPerRow, byteSize, data, /*srcOffset=*/0,
@@ -57,7 +57,7 @@ void vtkWebGPUTextureInternals::Upload(vtkSmartPointer<vtkWebGPUConfiguration> w
 
 //------------------------------------------------------------------------------
 void vtkWebGPUTextureInternals::UploadFromDataArray(
-  vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, wgpu::Texture texture,
+  vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, WGPUTexture texture,
   std::uint32_t bytesPerRow, vtkDataArray* dataArray, const char* description /*=nullptr*/)
 {
   using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>;
@@ -71,11 +71,11 @@ void vtkWebGPUTextureInternals::UploadFromDataArray(
 }
 
 //------------------------------------------------------------------------------
-wgpu::TexelCopyTextureInfo vtkWebGPUTextureInternals::GetTexelCopyTextureInfo(
-  wgpu::Texture texture, wgpu::Origin3D origin /*= { 0, 0, 0 }*/, std::uint32_t mipLevel /*= 0*/)
+WGPUTexelCopyTextureInfo vtkWebGPUTextureInternals::GetTexelCopyTextureInfo(
+  WGPUTexture texture, WGPUOrigin3D origin /*= { 0, 0, 0 }*/, std::uint32_t mipLevel /*= 0*/)
 {
-  wgpu::TexelCopyTextureInfo copyTexture;
-  copyTexture.aspect = wgpu::TextureAspect::All;
+  WGPUTexelCopyTextureInfo copyTexture = WGPU_TEXEL_COPY_TEXTURE_INFO_INIT;
+  copyTexture.aspect = WGPUTextureAspect_All;
   copyTexture.mipLevel = mipLevel;
   copyTexture.origin = origin;
   copyTexture.texture = texture;
@@ -83,13 +83,13 @@ wgpu::TexelCopyTextureInfo vtkWebGPUTextureInternals::GetTexelCopyTextureInfo(
   return copyTexture;
 }
 //------------------------------------------------------------------------------
-wgpu::TexelCopyBufferLayout vtkWebGPUTextureInternals::GetDataLayout(
-  wgpu::Texture texture, std::uint32_t bytesPerRow, std::uint32_t srcOffset /*= 0*/)
+WGPUTexelCopyBufferLayout vtkWebGPUTextureInternals::GetDataLayout(
+  WGPUTexture texture, std::uint32_t bytesPerRow, std::uint32_t srcOffset /*= 0*/)
 {
-  wgpu::TexelCopyBufferLayout textureDataLayout;
+  WGPUTexelCopyBufferLayout textureDataLayout = WGPU_TEXEL_COPY_BUFFER_LAYOUT_INIT;
   textureDataLayout.bytesPerRow = bytesPerRow;
   textureDataLayout.offset = srcOffset;
-  textureDataLayout.rowsPerImage = texture.GetHeight();
+  textureDataLayout.rowsPerImage = wgpuTextureGetHeight(texture);
 
   return textureDataLayout;
 }

@@ -18,7 +18,8 @@ When both the `RenderingOpenGL2` and `RenderingWebGPU` libraries are linked, the
 - tools for building VTK
 
 ### Desktop
-On desktop (Linux, macOS, and Windows), this module uses Dawn's C++ WebGPU implementation. You can get Dawn with any of these two methods:
+On desktop (Linux, macOS, and Windows), this module runs on Dawn's WebGPU
+implementation, through the C API. You can get Dawn with any of these two methods:
 
 1. Build Dawn from source.
 2. Fetch pre-built Dawn binaries built in release mode.
@@ -30,13 +31,13 @@ Here, `VTK_SOURCE_DIR` is the path to the root of the VTK source directory, and 
 
 #### Build Dawn from source
 
-Dawn should be built at tag [v20260421.125655](https://github.com/google/dawn/tree/v20260421.125655).
+Dawn should be built at tag [v20260720.160313](https://github.com/google/dawn/tree/v20260720.160313).
 Here, `DAWN_INSTALL_DIR` should point to the directory where Dawn is installed (should contain `lib` and `include` directories).
 
 ```sh
 # Clone the repo and checkout the required version
 git clone https://github.com/google/dawn dawn && cd dawn
-git checkout v20260421.125655
+git checkout v20260720.160313
 cmake -S . -B out/Debug -GNinja -DDAWN_FETCH_DEPENDENCIES=ON -DDAWN_ENABLE_INSTALL=ON
 cmake --build out/Debug
 cmake --install out/Debug --prefix ${DAWN_INSTALL_DIR}
@@ -188,6 +189,129 @@ ctest -R RenderingCoreCxx-WebGPU -V
 
 ---
 
+## WebGPU Runtime Loading
+
+VTK's WebGPU module resolves a WebGPU implementation library at runtime through a
+proc table. The eventual goal is to decouple the compile-time and runtime
+dependencies so that the same VTK build works with different native WebGPU
+runtimes (Dawn, wgpu-native) or browser WebGPU via Emscripten.
+
+```{note}
+This decoupling is not complete. When Dawn is found at configure time the module
+still links `dawn::webgpu_dawn` (see `VTK::WebGPUImpl` in `CMakeLists.txt`), and
+`vtkWebGPUConfiguration::Initialize()` fails if the proc table cannot load an
+implementation. Today the proc table is therefore an *additional* runtime
+requirement layered on the link-time dependency, not a replacement for it.
+```
+
+On Emscripten there is no library to resolve: `--use-port=emdawnwebgpu` links the
+implementation into the module, so the proc table reports itself loaded without
+opening anything.
+
+The implementation uses *lazy initialization* that is thread-safe and loads on
+first access. The library is opened with global symbol visibility, so direct
+calls to the WebGPU C API resolve against it without modification. Missing
+libraries are reported at initialization (not link time), with clear diagnostic
+messages. If functions are unavailable, wrappers return safe values for graceful
+fallback.
+
+### Architecture
+
+The implementation consists of two layers:
+
+1. **vtkWebGPUProcTable** (C interface): loads the WebGPU implementation library
+   and resolves function pointers using the runtime's proc address function.
+
+2. **vtkWebGPUProcLoader** (C++ singleton, internal): wraps the proc table with
+   lazy initialization. Provides `IsLoaded()` and `Load()`, and is reached
+   through `vtkWebGPUConfiguration::Initialize()`.
+
+VTK itself calls the WebGPU C API directly rather than through the table: the
+library is opened with global symbol visibility, so the `wgpu*` entry points
+resolve against it.
+
+Initialization flow: `vtkWebGPUConfiguration::Initialize()` invokes
+`vtkWebGPUProcLoader::GetInstance()`, which loads the WebGPU implementation
+library (e.g., `libwgpu_dawn.so`), resolves function pointers via the proc
+table, then creates a WebGPU adapter and device.
+
+### Standard WebGPU Headers
+
+VTK vendors a copy of the upstream
+[webgpu-headers](https://github.com/webgpu-native/webgpu-headers) C API in
+`ThirdParty/webgpuheaders`. It defines the core WebGPU types (`WGPUInstance`,
+`WGPUDevice`, etc.) and the function signatures that the proc table resolves at
+runtime.
+
+This vendored copy is what VTK compiles against on *every* platform, including
+builds that link Dawn — `VTK::webgpuheaders` is a public dependency, so its
+include directory is searched ahead of any implementation's. VTK is therefore
+decoupled from a particular implementation at the header level: the API cannot
+change underneath VTK, and downstream consumers resolve the same header through
+`find_package(VTK)`.
+
+Both VTK's public headers and its implementation files use the C API only. No
+C++ wrapper (`webgpu_cpp.h`) is vendored or included; ownership of the C handles
+is expressed with `Private/vtkWebGPUHandle.h`. The module builds as C++17 and
+the installed interface does not require C++20 of its consumers.
+
+Upstream deliberately declares only the standard API. Implementations extend it
+through `nextInChain`, using `WGPUSType` values from blocks upstream reserves for
+them. The two extensions VTK uses — Dawn's adapter power preference and
+emdawnwebgpu's canvas selector — are declared in
+`Private/vtkWebGPUImplExtensions.h`, each behind the compile-time flag for the
+implementation that provides it.
+
+### Library Search Strategy
+
+If an explicit library path is given to the loader, it is tried first and on its
+own. Otherwise the proc table tries the following names, in this order:
+
+1. `libwgpu_dawn.so` (the default when no path is supplied)
+2. `libwebgpu_dawn.so`
+3. `libwgpu_dawn.so.0` (versioned variant)
+4. `libwebgpu_dawn.so.0` (versioned variant)
+5. `libwgpu_dawn.dylib` (macOS)
+6. `libwebgpu_dawn.dylib` (macOS)
+7. `wgpu_dawn.dll` (Windows)
+8. `webgpu_dawn.dll` (Windows)
+
+An explicit path is opened through `vtkDynamicLoader` on every platform. A bare
+name is opened with `LoadLibraryW` on Windows, so that the standard DLL search
+order applies: `vtkDynamicLoader` routes a name through
+`Encoding::ToWindowsExtendedPath`, which resolves it against the current working
+directory instead of searching `PATH`. Elsewhere `vtkDynamicLoader` maps onto
+`dlopen`/`dlsym`.
+
+**Custom paths**: You can override the search by setting environment variables:
+- Linux: `LD_LIBRARY_PATH=/path/to/lib`
+- macOS: `DYLD_LIBRARY_PATH=/path/to/lib`
+- Windows: `PATH=\path\to\lib`
+
+Or by naming the library outright: set `VTK_WEBGPU_LIBRARY` to the path of the
+implementation to load, and the search above is skipped.
+
+### Debugging and Diagnostics
+
+**Library loading failed:**
+- Check if the WebGPU library is installed: `ldconfig -p | grep -E
+  '(wgpu_dawn|webgpu_dawn)'` (Linux), or verify in `/usr/lib` or
+  `/opt/local/lib` (macOS), or `PATH` (Windows)
+- Ensure the library is in a standard search path or set
+  `LD_LIBRARY_PATH=/path/to/lib` (Linux), `DYLD_LIBRARY_PATH` (macOS), or
+  `PATH` (Windows)
+- Test library loading directly: `python3 -c "import ctypes;
+  ctypes.CDLL('/path/to/libwgpu_dawn.so')"` (adjust path/name as needed)
+
+**Function not found:**
+- Verify the function name is spelled correctly and the length is correct (must
+  match string length in bytes)
+- Check if the loaded library version exports the function: `nm
+  /usr/lib/libwgpu_dawn.so | grep wgpuFunctionName`
+- Enable debug output in vtkWebGPUProcTable.cxx during development
+
+---
+
 ## Features
 
 The following features are currently implemented:
@@ -224,12 +348,16 @@ The compute shader API allows offloading work from the CPU to the GPU using WebG
 
 ## Future Work
 
-Since WebGPU is already an abstraction over graphics APIs, this module avoids creating another level of abstraction. It leverages WebGPU's C++ flavor for its object-oriented API and RAII. Helper classes in the `vtkWebGPUInternals...` files ensure cleaner bind group initialization code.
+Since WebGPU is already an abstraction over graphics APIs, this module avoids creating another level of abstraction. Helper classes in the `Private/vtkWebGPU<Thing>Internals` files ensure cleaner bind group initialization code.
+
+The module uses the WebGPU C API throughout. Ownership of the C handles is
+expressed with VTK's own reference-counted wrapper in
+`Private/vtkWebGPUHandle.h`, which provides the RAII the `wgpu::` C++ types used
+to supply.
 
 Planned improvements include:
 
 - Volume mappers
-- Textures
 - Dual-depth peeling
 - Advanced lighting
 - Platform-native render windows for Windows, macOS, Android, iOS and wayland.
