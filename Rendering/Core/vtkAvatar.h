@@ -13,9 +13,10 @@
 
 #include "vtkActor.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGCORE_EXPORT vtkAvatar : public vtkActor
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkAvatar : public vtkActor
 {
 public:
   static vtkAvatar* New();

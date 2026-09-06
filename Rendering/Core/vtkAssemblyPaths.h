@@ -17,13 +17,14 @@
 
 #include "vtkCollection.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 #include "vtkAssemblyPath.h" // Needed for inline methods
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 
-class VTKRENDERINGCORE_EXPORT vtkAssemblyPaths : public vtkCollection
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkAssemblyPaths : public vtkCollection
 {
 public:
   static vtkAssemblyPaths* New();

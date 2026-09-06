@@ -35,12 +35,13 @@
 
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkMatrix4x4;
 
-class VTKRENDERINGCORE_EXPORT vtkSelectVisiblePoints : public vtkPolyDataAlgorithm
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkSelectVisiblePoints : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkSelectVisiblePoints, vtkPolyDataAlgorithm);

@@ -40,6 +40,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPicker;
@@ -48,7 +49,7 @@ class vtkAssemblyPath;
 class vtkRenderer;
 class vtkRenderWindowInteractor;
 
-class VTKRENDERINGCORE_EXPORT vtkPickingManager : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkPickingManager : public vtkObject
 {
 public:
   static vtkPickingManager* New();

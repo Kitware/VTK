@@ -12,6 +12,7 @@
 #include "vtkProp3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For.... vtkSmartPointer!
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -23,7 +24,7 @@ class vtkTextProperty;
 class vtkTextRenderer;
 class vtkTexture;
 
-class VTKRENDERINGCORE_EXPORT vtkBillboardTextActor3D : public vtkProp3D
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkBillboardTextActor3D : public vtkProp3D
 {
 public:
   static vtkBillboardTextActor3D* New();

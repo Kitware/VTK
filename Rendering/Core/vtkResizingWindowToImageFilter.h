@@ -42,6 +42,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkImageData.h"           // makes things a bit easier
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 // VTK_RGB and VTK_RGBA are defined in system includes
 #define VTK_ZBUFFER 5
@@ -50,7 +51,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkWindow;
 
 class vtkWTI2DHelperClass;
-class VTKRENDERINGCORE_EXPORT vtkResizingWindowToImageFilter : public vtkAlgorithm
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkResizingWindowToImageFilter : public vtkAlgorithm
 {
 public:
   static vtkResizingWindowToImageFilter* New();

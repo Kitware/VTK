@@ -19,9 +19,11 @@
 #include "vtkCoordinate.h" //to get the defines in vtkCoordinate
 #include "vtkPointSetAlgorithm.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGCORE_EXPORT vtkTransformCoordinateSystems : public vtkPointSetAlgorithm
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkTransformCoordinateSystems
+  : public vtkPointSetAlgorithm
 {
 public:
   ///@{

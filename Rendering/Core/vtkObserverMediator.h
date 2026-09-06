@@ -21,13 +21,14 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindowInteractor;
 class vtkInteractorObserver;
 class vtkObserverMap;
 
-class VTKRENDERINGCORE_EXPORT vtkObserverMediator : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkObserverMediator : public vtkObject
 {
 public:
   /**

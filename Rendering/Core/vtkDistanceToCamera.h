@@ -18,11 +18,12 @@
 
 #include "vtkPointSetAlgorithm.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 
-class VTKRENDERINGCORE_EXPORT vtkDistanceToCamera : public vtkPointSetAlgorithm
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkDistanceToCamera : public vtkPointSetAlgorithm
 {
 public:
   static vtkDistanceToCamera* New();
