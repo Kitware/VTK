@@ -577,6 +577,7 @@ Rendering/Core/vtkScenePicker.h
 Rendering/Core/vtkSelectVisiblePoints.h
 Rendering/Core/vtkSequencePass.h
 Rendering/Core/vtkSkybox.h
+Rendering/Core/vtkStereoCompositor.h
 Rendering/Core/vtkTextActor.h
 Rendering/Core/vtkTextActor3D.h
 Rendering/Core/vtkTextMapper.h

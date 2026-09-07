@@ -742,7 +742,6 @@ Rendering/Core/vtkRendererDelegate.h
 Rendering/Core/vtkRenderingCoreEnums.h
 Rendering/Core/vtkRenderingCorePCH.h
 Rendering/Core/vtkStateStorage.h
-Rendering/Core/vtkStereoCompositor.h
 Rendering/Core/vtkStringToImage.h
 Rendering/Core/vtkTDxInteractorStyle.h
 Rendering/Core/vtkTDxInteractorStyleCamera.h
