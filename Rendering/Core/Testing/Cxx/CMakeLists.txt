@@ -276,6 +276,7 @@ endif ()
 # per rendering backend.
 if (VTK_WRAP_SERIALIZATION)
   vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
+    TestLODProp3DSerDes.cxx,NO_DATA,NO_VALID
     TestMapArrayValuesSerDes.cxx,NO_DATA,NO_VALID)
 endif ()
 

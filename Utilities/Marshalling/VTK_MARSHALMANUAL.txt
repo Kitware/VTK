@@ -27,3 +27,4 @@ Rendering/Core/vtkDiscretizableColorTransferFunction.h
 Rendering/Core/vtkShaderProperty.h
 Rendering/Core/vtkTexture.h
 Rendering/Volume/vtkMultiVolume.h
+Rendering/Core/vtkLODProp3D.h

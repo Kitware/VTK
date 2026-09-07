@@ -20,6 +20,7 @@
 
 #include "vtkProp3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
@@ -35,16 +36,16 @@ class vtkLODProp3DCallback;
 
 struct vtkLODProp3DEntry_t
 {
-  vtkProp3D* Prop3D;
-  int Prop3DType;
-  int ID;
-  double EstimatedTime;
-  int State;
-  double Level;
+  vtkProp3D* Prop3D = nullptr;
+  int Prop3DType = 0;
+  int ID = -1; // VTK_INDEX_NOT_IN_USE
+  double EstimatedTime = 0.0;
+  int State = 0;
+  double Level = 0.0;
 };
 using vtkLODProp3DEntry = struct vtkLODProp3DEntry_t;
 
-class VTKRENDERINGCORE_EXPORT vtkLODProp3D : public vtkProp3D
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALMANUAL vtkLODProp3D : public vtkProp3D
 {
 public:
   /**
@@ -329,6 +330,22 @@ protected:
 private:
   vtkLODProp3D(const vtkLODProp3D&) = delete;
   void operator=(const vtkLODProp3D&) = delete;
+
+  /**
+   * Release every LOD and free the entry array, leaving the object as if freshly constructed
+   * apart from CurrentIndex. Performs the same unwinding as RemoveLOD for each entry in use.
+   */
+  void ClearLODs();
+
+  /**
+   * Recompute the bookkeeping that AddLOD normally maintains, after the entry array has been
+   * replaced. This normalizes the ID of empty slots, recounts NumberOfLODs, pushes
+   * CurrentIndex past every restored ID, and re-attaches the consumer and pick observer of each
+   * prop. NumberOfEntries must already describe the new array.
+   */
+  void RebuildLODBookkeeping();
+
+  friend class vtkLODProp3DSerDesHelper;
 };
 
 VTK_ABI_NAMESPACE_END
