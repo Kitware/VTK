@@ -39,9 +39,20 @@ static nlohmann::json Serialize_vtkMapArrayValues(vtkObjectBase* object, vtkSeri
     {
       state["InputArrayName"] = ptr;
     }
+    else
+    {
+      // tempting to fold if-else into direct assignment, but don't!
+      // nlohmann routes a pointer of type const char* through string_t constructor
+      // which is UB.
+      state["InputArrayName"] = nullptr;
+    }
     if (const char* ptr = mapArrayValues->GetOutputArrayName())
     {
       state["OutputArrayName"] = ptr;
+    }
+    else
+    {
+      state["OutputArrayName"] = nullptr;
     }
     state["OutputArrayType"] = mapArrayValues->GetOutputArrayType();
     const auto& mapContents = mapArrayValues->GetMap();
@@ -87,10 +98,18 @@ static bool Deserialize_vtkMapArrayValues(
     const auto value = iter->get<std::string>();
     mapArrayValues->SetInputArrayName(value.c_str());
   }
+  else
+  {
+    mapArrayValues->SetInputArrayName(nullptr);
+  }
   if (const auto iter = state.find("OutputArrayName"); iter != state.end() && !iter->is_null())
   {
     const auto value = iter->get<std::string>();
     mapArrayValues->SetOutputArrayName(value.c_str());
+  }
+  else
+  {
+    mapArrayValues->SetOutputArrayName(nullptr);
   }
   VTK_DESERIALIZE_VALUE_FROM_STATE(OutputArrayType, int, state, mapArrayValues);
   if (auto iter = state.find("Map"); iter != state.end())
