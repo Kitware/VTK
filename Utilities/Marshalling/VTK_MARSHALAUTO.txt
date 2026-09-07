@@ -568,6 +568,7 @@ Rendering/Core/vtkRenderMaterialLibrary.h
 Rendering/Core/vtkRenderPass.h
 Rendering/Core/vtkRenderPassCollection.h
 Rendering/Core/vtkRenderWindow.h
+Rendering/Core/vtkRenderWindowCollection.h
 Rendering/Core/vtkRenderWindowInteractor.h
 Rendering/Core/vtkRenderWindowInteractor3D.h
 Rendering/Core/vtkResizingWindowToImageFilter.h

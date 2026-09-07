@@ -739,7 +739,6 @@ Rendering/Core/vtkRayCastStructures.h
 Rendering/Core/vtkRenderState.h
 Rendering/Core/vtkRenderTimerLog.h
 Rendering/Core/vtkRenderWidget.h
-Rendering/Core/vtkRenderWindowCollection.h
 Rendering/Core/vtkRendererDelegate.h
 Rendering/Core/vtkRenderingCoreEnums.h
 Rendering/Core/vtkRenderingCorePCH.h
