@@ -7,15 +7,18 @@
 #include "vtkCellArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
-#include "vtkIncrementalOctreePointLocator.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkSMPTools.h"
+#include "vtkStaticPointLocator.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
 #include <new>
 #include <sstream>
 
@@ -49,34 +52,23 @@ bool vtkCellGridToUnstructuredGrid::Query::Initialize()
   this->AttributeMap.clear();
   this->ConnectivityCount.clear();
   this->ConnectivityWeights.clear();
+  this->SampleToPoint->Initialize();
+  this->TotalCells = 0;
+  this->TotalConnectivityIds = 0;
+  this->SampleCoordinates->SetNumberOfComponents(3);
+  this->SampleCoordinates->SetNumberOfTuples(0);
   if (!this->Input || !this->Output)
   {
     vtkErrorMacro("Input or output grid is null.");
     return false;
   }
 
-  // Create a new vtkPoints and initialize the point locator.
   vtkNew<vtkPoints> points;
   vtkNew<vtkCellArray> ugcells;
   vtkNew<vtkUnsignedCharArray> ugtypes;
-  std::array<double, 6> bounds;
   points->SetDataTypeToDouble();
-  this->Input->GetBounds(bounds.data());
   this->Output->SetPoints(points);
   this->Output->SetCells(ugtypes, ugcells);
-  this->Locator->SetDataSet(this->Output);
-  // The locator is here to weld together the samples that neighboring cells
-  // make of the faces they share. Its tolerance therefore has to be small
-  // compared to the distance between two samples of the same cell, or those
-  // sub-cells collapse instead. That distance halves with every level and
-  // scales with the model, so the tolerance has to be relative as well. The
-  // default is an absolute 1e-3, which quietly destroys small models at even
-  // moderate levels.
-  // NB: InitPointInsertion() captures the tolerance, so set it beforehand.
-  vtkBoundingBox bbox(bounds.data());
-  double diagonal = bbox.GetDiagonalLength();
-  this->Locator->SetTolerance(diagonal > 0. ? diagonal * this->PointMergeTolerance : 0.);
-  this->Locator->InitPointInsertion(points.GetPointer(), bounds.data());
 
   this->AttributeMap[this->Input->GetShapeAttribute()] = points->GetData();
 
@@ -97,6 +89,113 @@ bool vtkCellGridToUnstructuredGrid::Query::Initialize()
   return true;
 }
 
+void vtkCellGridToUnstructuredGrid::Query::MergeSamplesIntoPoints()
+{
+  vtkIdType numSamples = this->SampleCoordinates->GetNumberOfTuples();
+  auto* points = this->Output->GetPoints();
+  this->SampleToPoint->SetNumberOfValues(numSamples);
+  if (numSamples == 0)
+  {
+    points->SetNumberOfPoints(0);
+    return;
+  }
+  vtkIdType* sampleToPoint = this->SampleToPoint->GetPointer(0);
+
+  // Neighboring cells sample the face they share at exactly the same places,
+  // since they interpolate the same shape attribute over the same parametric
+  // points. Welding those samples together is what makes the output watertight
+  // instead of a pile of disconnected cells.
+  //
+  // The tolerance has to be small compared to the distance between two samples
+  // of the same cell, or those sub-cells collapse instead. That distance halves
+  // with every level and scales with the model, so the tolerance is relative to
+  // the input's diagonal.
+  std::array<double, 6> bounds;
+  this->Input->GetBounds(bounds.data());
+  vtkBoundingBox bbox(bounds.data());
+  double diagonal = bbox.GetDiagonalLength();
+  double tolerance = diagonal > 0. ? diagonal * this->PointMergeTolerance : 0.;
+
+  vtkNew<vtkPoints> samplePoints;
+  samplePoints->SetData(this->SampleCoordinates);
+  vtkNew<vtkPolyData> sampleSet;
+  sampleSet->SetPoints(samplePoints);
+
+  std::vector<vtkIdType> mergeMap(static_cast<std::size_t>(numSamples));
+  vtkNew<vtkStaticPointLocator> locator;
+  locator->SetDataSet(sampleSet);
+  // Both traversal orders give a deterministic answer, but only BIN_ORDER is
+  // threaded: POINT_ORDER walks the points one at a time, on purpose, to keep
+  // the lowest-numbered sample of every group as its representative. Which
+  // sample represents a group is of no consequence here -- coincident samples
+  // hold the same coordinates by construction, and the numbering below does not
+  // depend on it -- so take the threaded one.
+  locator->SetTraversalOrderToBinOrder();
+  locator->BuildLocator();
+  locator->MergePoints(tolerance, mergeMap.data());
+
+  // Number the surviving samples in the order they appear, then send every
+  // merged sample to whichever point its representative became. Numbering in
+  // sample order is what makes the output point IDs reproducible: the merge map
+  // itself only says which samples are the same, not what to call them.
+  vtkIdType numPoints = 0;
+  for (vtkIdType ii = 0; ii < numSamples; ++ii)
+  {
+    if (mergeMap[ii] == ii)
+    {
+      sampleToPoint[ii] = numPoints++;
+    }
+  }
+  vtkSMPTools::For(0, numSamples,
+    [&mergeMap, sampleToPoint](vtkIdType begin, vtkIdType end)
+    {
+      for (vtkIdType ii = begin; ii < end; ++ii)
+      {
+        if (mergeMap[ii] != ii)
+        {
+          sampleToPoint[ii] = sampleToPoint[mergeMap[ii]];
+        }
+      }
+    });
+
+  points->SetNumberOfPoints(numPoints);
+  auto* outputCoords = vtkDoubleArray::SafeDownCast(points->GetData());
+  const double* sampleCoords = this->SampleCoordinates->GetPointer(0);
+  double* pointCoords = outputCoords->GetPointer(0);
+  vtkSMPTools::For(0, numSamples,
+    [&mergeMap, sampleToPoint, sampleCoords, pointCoords](vtkIdType begin, vtkIdType end)
+    {
+      for (vtkIdType ii = begin; ii < end; ++ii)
+      {
+        if (mergeMap[ii] == ii)
+        {
+          std::copy_n(sampleCoords + 3 * ii, 3, pointCoords + 3 * sampleToPoint[ii]);
+        }
+      }
+    });
+
+  // Each sample contributes its cell's value to the point it merged into, so a
+  // point interior to one cell keeps that cell's value while a point on a shared
+  // face ends up with the average of the cells meeting there. That is how a
+  // discontinuous attribute becomes a continuous approximation. Count the
+  // contributions here, where the map that decides them is at hand; the
+  // point-data pass inverts them into the weights the averaging divides by.
+  this->ConnectivityCount = ConnectivityCountType(static_cast<std::size_t>(numPoints));
+  vtkSMPTools::For(0, numSamples,
+    [this, sampleToPoint](vtkIdType begin, vtkIdType end)
+    {
+      for (vtkIdType ii = begin; ii < end; ++ii)
+      {
+        this->ConnectivityCount[sampleToPoint[ii]].fetch_add(1, std::memory_order_relaxed);
+      }
+    });
+
+  // The samples have served their purpose; only the map out of them is still
+  // needed, so give the coordinates back before the output arrays are sized.
+  this->SampleCoordinates->Initialize();
+  this->SampleCoordinates->SetNumberOfComponents(3);
+}
+
 void vtkCellGridToUnstructuredGrid::Query::StartPass()
 {
   this->Superclass::StartPass();
@@ -105,22 +204,41 @@ void vtkCellGridToUnstructuredGrid::Query::StartPass()
     case PassType::CountOutputs:
       // Do nothing.
       break;
+    case PassType::GenerateSamples:
+    {
+      vtkIdType totalSamples = 0;
+      this->TotalCells = 0;
+      this->TotalConnectivityIds = 0;
+      for (auto& entry : this->OutputOffsets)
+      {
+        auto& alloc = entry.second;
+        alloc.SampleOffset = totalSamples;
+        alloc.CellOffset = this->TotalCells;
+        alloc.ConnOffset = this->TotalConnectivityIds;
+        totalSamples += alloc.NumberOfSamples;
+        this->TotalCells += alloc.NumberOfCells;
+        this->TotalConnectivityIds += alloc.NumberOfConnectivityIds;
+      }
+
+      // Every sample is a candidate output point. They are held all at once because
+      // merging them is a question about the whole set, so this is the high-water
+      // mark of the conversion: three doubles per sample of every cell and side.
+      this->SampleCoordinates->SetNumberOfComponents(3);
+      this->SampleCoordinates->SetNumberOfTuples(totalSamples);
+    }
+    break;
     case PassType::GenerateConnectivity:
     {
+      this->MergeSamplesIntoPoints();
+
       // Allocate storage for cells.
       auto* cellTypes = vtkUnsignedCharArray::FastDownCast(this->Output->GetCellTypes());
       auto* cellArray = this->Output->GetCells();
-      vtkIdType totalCellCount = 0;
-      vtkIdType totalConnCount = 0;
-      for (auto& entry : this->OutputOffsets)
-      {
-        entry.second.CellOffset = totalCellCount;
-        entry.second.ConnOffset = totalConnCount;
-        totalCellCount += entry.second.NumberOfCells;
-        totalConnCount += entry.second.NumberOfConnectivityEntries;
-      }
-      cellTypes->ReserveValues(totalCellCount);
-      cellArray->AllocateExact(totalCellCount, totalConnCount);
+      cellTypes->SetNumberOfValues(this->TotalCells);
+      this->CellArrayOffsets->SetNumberOfValues(this->TotalCells + 1);
+      this->CellArrayConnectivity->SetNumberOfValues(this->TotalConnectivityIds);
+      this->CellArrayOffsets->SetValue(this->TotalCells, this->TotalConnectivityIds);
+      cellArray->SetData(this->CellArrayOffsets, this->CellArrayConnectivity);
     }
     break;
     case PassType::GeneratePointData:
@@ -141,16 +259,15 @@ void vtkCellGridToUnstructuredGrid::Query::StartPass()
       if (!this->ConnectivityCount.empty())
       {
         // Invert the connectivity counts into weights:
-        vtkIdType np = this->ConnectivityCount.rbegin()->first + 1;
-        this->ConnectivityWeights.resize(np, 0.);
+        vtkIdType np = static_cast<vtkIdType>(this->ConnectivityCount.size());
+        this->ConnectivityWeights.resize(static_cast<std::size_t>(np));
         vtkSMPTools::For(0, np,
           [this](vtkIdType begin, vtkIdType end)
           {
             for (vtkIdType ii = begin; ii < end; ++ii)
             {
-              auto it = this->ConnectivityCount.find(ii);
-              this->ConnectivityWeights[ii] =
-                (it == this->ConnectivityCount.end() ? 1.0 : 1.0 / it->second);
+              const int count = this->ConnectivityCount[ii].load(std::memory_order_relaxed);
+              this->ConnectivityWeights[ii] = count > 0 ? 1.f / static_cast<float>(count) : 1.f;
             }
           });
         this->ConnectivityCount.clear();
@@ -180,6 +297,16 @@ vtkDataArray* vtkCellGridToUnstructuredGrid::Query::GetOutputArray(vtkCellAttrib
 
 bool vtkCellGridToUnstructuredGrid::Query::Finalize()
 {
+  // Responders write their output by index, so giving up part way through leaves
+  // holes in the connectivity rather than a shorter grid. Hand back nothing
+  // instead of something that looks like a grid but is not.
+  if (this->IsAborted())
+  {
+    this->Output->Initialize();
+  }
+  this->SampleToPoint->Initialize();
+  this->ConnectivityCount.clear();
+  this->ConnectivityWeights.clear();
   return true;
 }
 

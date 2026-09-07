@@ -13,8 +13,8 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkIncrementalOctreePointLocator.h"
 #include "vtkObjectFactory.h"
+#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkStringToken.h"
 #include "vtkUnsignedCharArray.h"
@@ -82,10 +82,13 @@ struct SubdivisionTemplate
 
   vtkIdType GetNumberOfCells() const { return static_cast<vtkIdType>(this->CellTypes.size()); }
   vtkIdType GetNumberOfPoints() const { return static_cast<vtkIdType>(this->Parameters.size()); }
-  /// The space this template occupies in a vtkCellArray (connectivity plus one size per cell).
-  vtkIdType GetNumberOfConnectivityEntries() const
+  /// The number of point-ids this template occupies in a vtkCellArray.
+  ///
+  /// A vtkCellArray keeps the size of each cell in a separate offsets array, so
+  /// this counts the connectivity alone.
+  vtkIdType GetNumberOfConnectivityIds() const
   {
-    return static_cast<vtkIdType>(this->Connectivity.size() + this->CellTypes.size());
+    return static_cast<vtkIdType>(this->Connectivity.size());
   }
 
   void AddPoint(double r, double s, double t) { this->Parameters.emplace_back(r, s, t); }
@@ -700,9 +703,10 @@ void vtkCellInfoFromDGType(vtkCellGridToUnstructuredGrid::Query::OutputAllocatio
   vtkDGCell* dgCell, vtkIdType subdivisions)
 {
   alloc.CellType = vtkCellTypeForDGShape(dgCell->GetShape());
+  alloc.NumberOfSamples = 0;
   alloc.NumberOfCells = 0;
-  alloc.NumberOfConnectivityEntries = 0;
-  for (int ii = -1; ii < static_cast<int>(dgCell->GetNumberOfCellSources()); ++ii)
+  alloc.NumberOfConnectivityIds = 0;
+  for (int ii = -1; ii < static_cast<int>(dgCell->GetSideSpecs().size()); ++ii)
   {
     const auto& source(dgCell->GetCellSource(ii));
     if (source.Blanked)
@@ -711,11 +715,17 @@ void vtkCellInfoFromDGType(vtkCellGridToUnstructuredGrid::Query::OutputAllocatio
     }
 
     auto shape = vtkShapeForCellSource(dgCell, source);
-    vtkIdType numCells = source.Connectivity->GetNumberOfTuples();
     const SubdivisionTemplate subdivision =
       GenerateSubdivisionTemplate(shape, static_cast<int>(subdivisions));
-    alloc.NumberOfCells += numCells * subdivision.GetNumberOfCells();
-    alloc.NumberOfConnectivityEntries += numCells * subdivision.GetNumberOfConnectivityEntries();
+    vtkIdType numSamples = subdivision.GetNumberOfPoints();
+    vtkIdType numSourceTuples = source.Connectivity->GetNumberOfTuples();
+    if (numSamples == 0 || numSourceTuples == 0)
+    {
+      continue;
+    }
+    alloc.NumberOfSamples += numSourceTuples * numSamples;
+    alloc.NumberOfCells += numSourceTuples * subdivision.GetNumberOfCells();
+    alloc.NumberOfConnectivityIds += numSourceTuples * subdivision.GetNumberOfConnectivityIds();
   }
 }
 
@@ -728,16 +738,17 @@ struct Contributions
 {
   Contributions() { this->ParametricCoords->SetNumberOfComponents(3); }
 
-  vtkIdType AddContribution(
-    vtkIdType outputPointId, vtkIdType inputCellId, const vtkVector3d& pcoord)
+  /// Make room for one entry per sample.
+  ///
+  /// Which sample occupies which entry follows from walking the sources in
+  /// order, so the passes fill these in by index and never append.
+  void Allocate(vtkIdType numSamples)
   {
-    vtkIdType nn = this->OutputPointIds->InsertNextValue(outputPointId);
-    this->InputCellIds->InsertNextValue(inputCellId);
-    this->ParametricCoords->InsertNextTuple(pcoord.GetData());
-    return nn;
+    this->InputCellIds->SetNumberOfValues(numSamples);
+    this->ParametricCoords->SetNumberOfComponents(3);
+    this->ParametricCoords->SetNumberOfTuples(numSamples);
   }
 
-  vtkNew<vtkIdTypeArray> OutputPointIds;
   vtkNew<vtkIdTypeArray> InputCellIds;
   vtkNew<vtkDoubleArray> ParametricCoords;
 };
@@ -833,6 +844,9 @@ bool vtkDGTranscribeCellGridCells::Query(
       vtkCellInfoFromDGType(alloc[dgCell->GetClassName()], dgCell, request->GetSubdivisionCount());
     }
     break;
+    case TranscribeQuery::PassType::GenerateSamples:
+      this->GenerateSamples(request, dgCell, caches);
+      break;
     case TranscribeQuery::PassType::GenerateConnectivity:
       this->GenerateConnectivity(request, dgCell, caches);
       break;
@@ -846,31 +860,31 @@ bool vtkDGTranscribeCellGridCells::Query(
   return true;
 }
 
-/// Transcribe every cell and side of one DG cell type into the output grid.
+/// Sample every cell and side of one DG cell type.
 ///
-/// Each one is handled in three steps:
+/// Each one is handled in two steps:
 ///   1. Decide where to sample it. A SubdivisionTemplate says where, in the
 ///      reference coordinates of the shape; SideSampleParameters() moves those
 ///      into the coordinates of the cell when the source provides sides.
 ///   2. Ask the shape attribute where those samples lie in space.
-///   3. Insert the resulting points and write the sub-cells that connect them.
-void vtkDGTranscribeCellGridCells::GenerateConnectivity(
+///
+/// Both steps write by index into space the counting pass already allocated, so
+/// the cells of a source are handled in parallel. Samples that neighboring cells
+/// make of a shared face land on top of each other; the query welds them
+/// together afterwards, and GenerateConnectivity() turns them into output cells.
+void vtkDGTranscribeCellGridCells::GenerateSamples(
   TranscribeQuery* request, vtkDGCell* cellType, vtkCellGridResponders* caches)
 {
   vtkStringToken cellTypeToken = cellType->GetClassName();
   auto& alloc = request->GetOutputAllocations();
   auto ait = alloc.find(cellTypeToken);
-  if (ait == alloc.end())
+  if (ait == alloc.end() || ait->second.NumberOfSamples == 0)
   {
     return;
   }
   int subdivisions = static_cast<int>(request->GetSubdivisionCount());
   auto& contribs = FetchPointContributionCache(request, cellType, caches);
 
-  auto* cellArray = request->GetOutput()->GetCells();
-  auto* cellTypes = vtkUnsignedCharArray::FastDownCast(request->GetOutput()->GetCellTypes());
-  auto* locator = request->GetLocator();
-  auto& pointCounts = request->GetConnectivityCount();
   auto shapeAtt = request->GetInput()->GetShapeAttribute();
 
   // The sample points do not generally coincide with the shape attribute's
@@ -887,22 +901,33 @@ void vtkDGTranscribeCellGridCells::GenerateConnectivity(
       << cellTypeToken.Data() << ".");
     return;
   }
+  // Evaluate() sizes its result to match the attribute, and the samples below
+  // are copied out three doubles at a time, so anything else would over-read.
+  if (shapeAtt->GetNumberOfComponents() != 3)
+  {
+    vtkErrorMacro("The shape attribute has " << shapeAtt->GetNumberOfComponents()
+                                             << " components; only 3 can be transcribed.");
+    return;
+  }
 
-  vtkNew<vtkIdTypeArray> cellIds;
-  vtkNew<vtkDoubleArray> parameters;
-  vtkNew<vtkDoubleArray> coordinates;
-  parameters->SetNumberOfComponents(3);
-  coordinates->SetNumberOfComponents(3);
+  vtkSMPThreadLocalObject<vtkIdTypeArray> tlCellIds;
+  vtkSMPThreadLocalObject<vtkDoubleArray> tlParameters;
+  vtkSMPThreadLocalObject<vtkDoubleArray> tlCoordinates;
 
-  std::array<vtkTypeUInt64, 2> sideTuple; // (cellId, sideIndex)
-  vtkVector3d xx;                         // A sample point's world coordinates.
-  std::vector<vtkIdType> outputPointIds;
-  std::vector<vtkIdType> outConn;
+  // Record the source cell and parametric coordinates of every sample. These are
+  // exactly what the point-data pass has to interpolate the other attributes at,
+  // so it reuses them instead of sampling the cells a second time.
+  contribs.Allocate(ait->second.NumberOfSamples);
+  vtkIdType* contribCellIds = contribs.InputCellIds->GetPointer(0);
+  double* contribParameters = contribs.ParametricCoords->GetPointer(0);
+  double* sampleCoordinates =
+    request->GetSampleCoordinates()->GetPointer(0) + 3 * ait->second.SampleOffset;
 
   // A cell type may offer its cells (source -1) and any number of side sources.
   // After vtkCellGridComputeSides has run, for example, the cells are usually
   // blanked and only their faces are meant to be drawn. Each source is
   // subdivided on its own, since they need not have the same shape.
+  vtkIdType sampleOffset = 0;
   for (int ii = -1; ii < static_cast<int>(cellType->GetSideSpecs().size()); ++ii)
   {
     const auto& source(cellType->GetCellSource(ii));
@@ -921,74 +946,148 @@ void vtkDGTranscribeCellGridCells::GenerateConnectivity(
 
     const auto sideParameters = SideSampleParameters(cellType, source, shape, subdivision);
 
-    // One cell at a time: the scratch arrays below hold a single cell's samples,
-    // so they stay small however large the mesh or the level is.
-    cellIds->SetNumberOfValues(numSamples);
-    parameters->SetNumberOfTuples(numSamples);
-    coordinates->SetNumberOfTuples(numSamples);
-    for (vtkIdType cc = 0; cc < numSourceTuples; ++cc)
-    {
-      if (request->IsAborted())
+    vtkSMPTools::For(0, numSourceTuples,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        return;
-      }
-
-      // Step 1: where in its cell does each sample sit? Attributes are
-      // evaluated by an ID that numbers cells and sides globally, so it must
-      // include the source's offset. Given a side's ID the evaluator resolves
-      // the cell that side bounds on its own, and it evaluates that cell's
-      // basis: the parametric coordinates we supply are always the cell's,
-      // never the side's.
-      vtkIdType sourceId = cc + source.Offset;
-      const std::vector<vtkVector3d>* sampleParameters = &subdivision.Parameters;
-      if (source.SideType >= 0)
-      {
-        // source is a SideSpec; each tuple is a (cellId, sideIndex) pair.
-        source.Connectivity->GetUnsignedTuple(cc, sideTuple.data());
-        sampleParameters = &sideParameters[static_cast<int>(sideTuple[1])];
-      }
-      for (vtkIdType pp = 0; pp < numSamples; ++pp)
-      {
-        cellIds->SetValue(pp, sourceId);
-        parameters->SetTuple(pp, (*sampleParameters)[pp].GetData());
-      }
-
-      // Step 2: where do those samples lie in space?
-      shapeCalc->Evaluate(cellIds, parameters, coordinates);
-
-      // Step 3: insert the sample points. Neighboring cells sample their shared
-      // faces at exactly the same places, since they interpolate the same shape
-      // attribute over the same parametric points. The locator merges those
-      // samples, so the output is watertight instead of a pile of disconnected
-      // cells.
-      //
-      // Contribute to each sample once per cell. A point inside a single cell
-      // then keeps that cell's value, while a point on a shared face ends up
-      // with the average of the cells meeting there. That is how a
-      // discontinuous attribute becomes a continuous approximation.
-      outputPointIds.resize(numSamples);
-      for (vtkIdType pp = 0; pp < numSamples; ++pp)
-      {
-        vtkIdType outPointId;
-        coordinates->GetTuple(pp, xx.GetData());
-        locator->InsertUniquePoint(xx.GetData(), outPointId);
-        outputPointIds[pp] = outPointId;
-        ++pointCounts[outPointId];
-        contribs.AddContribution(outPointId, sourceId, (*sampleParameters)[pp]);
-      }
-
-      // ... and write out the sub-cells connecting them.
-      for (vtkIdType sc = 0; sc < subdivision.GetNumberOfCells(); ++sc)
-      {
-        outConn.clear();
-        for (vtkIdType kk = subdivision.Offsets[sc]; kk < subdivision.Offsets[sc + 1]; ++kk)
+        if (request->IsAborted())
         {
-          outConn.push_back(outputPointIds[subdivision.Connectivity[kk]]);
+          return;
         }
-        cellArray->InsertNextCell(static_cast<vtkIdType>(outConn.size()), outConn.data());
-        cellTypes->InsertNextValue(subdivision.CellTypes[sc]);
-      }
+        std::array<vtkTypeUInt64, 2> sideTuple; // (cellId, sideIndex)
+        auto& cellIds = tlCellIds.Local();
+        auto& parameters = tlParameters.Local();
+        auto& coordinates = tlCoordinates.Local();
+        parameters->SetNumberOfComponents(3);
+        coordinates->SetNumberOfComponents(3);
+        cellIds->SetNumberOfValues(numSamples);
+        parameters->SetNumberOfTuples(numSamples);
+        coordinates->SetNumberOfTuples(numSamples);
+        // One cell at a time: the scratch arrays below hold a single cell's samples,
+        // so they stay small however large the mesh or the level is.
+        for (vtkIdType cc = begin; cc < end; ++cc)
+        {
+          // Step 1: where in its cell does each sample sit? Attributes are
+          // evaluated by an ID that numbers cells and sides globally, so it must
+          // include the source's offset. Given a side's ID the evaluator resolves
+          // the cell that side bounds on its own, and it evaluates that cell's
+          // basis: the parametric coordinates we supply are always the cell's,
+          // never the side's.
+          vtkIdType sourceId = cc + source.Offset;
+          const std::vector<vtkVector3d>* sampleParameters = &subdivision.Parameters;
+          if (source.SideType >= 0)
+          {
+            // source is a SideSpec; each tuple is a (cellId, sideIndex) pair.
+            source.Connectivity->GetUnsignedTuple(cc, sideTuple.data());
+            sampleParameters = &sideParameters[static_cast<int>(sideTuple[1])];
+          }
+          for (vtkIdType pp = 0; pp < numSamples; ++pp)
+          {
+            cellIds->SetValue(pp, sourceId);
+            parameters->SetTypedTuple(pp, (*sampleParameters)[pp].GetData());
+          }
+
+          // Step 2: where do those samples lie in space?
+          shapeCalc->Evaluate(cellIds, parameters, coordinates);
+
+          // Hand the samples to the passes that follow: the coordinates are
+          // merged into output points, and the cell and parameters of each one
+          // say where to interpolate the other attributes.
+          const vtkIdType base = sampleOffset + cc * numSamples;
+          std::copy_n(cellIds->GetPointer(0), numSamples, contribCellIds + base);
+          std::copy_n(parameters->GetPointer(0), 3 * numSamples, contribParameters + 3 * base);
+          std::copy_n(coordinates->GetPointer(0), 3 * numSamples, sampleCoordinates + 3 * base);
+        }
+      });
+
+    // increment offsets
+    sampleOffset += numSourceTuples * numSamples;
+  }
+}
+
+/// Connect the merged samples of one DG cell type into output cells.
+///
+/// By now every sample has been welded to the output point it coincides with, so
+/// this only has to look up point IDs and write them where the counting pass said
+/// they go. Every write is at an index that follows from the cell being handled,
+/// so the cells of a source are handled in parallel.
+void vtkDGTranscribeCellGridCells::GenerateConnectivity(
+  TranscribeQuery* request, vtkDGCell* cellType, vtkCellGridResponders* caches)
+{
+  (void)caches;
+  vtkStringToken cellTypeToken = cellType->GetClassName();
+  auto& alloc = request->GetOutputAllocations();
+  auto ait = alloc.find(cellTypeToken);
+  if (ait == alloc.end() || ait->second.NumberOfSamples == 0)
+  {
+    return;
+  }
+  int subdivisions = static_cast<int>(request->GetSubdivisionCount());
+
+  auto* cellArray = request->GetOutput()->GetCells();
+  auto* cellTypesArray = vtkUnsignedCharArray::FastDownCast(request->GetOutput()->GetCellTypes());
+  auto* offsetsArray = vtkIdTypeArray::FastDownCast(cellArray->GetOffsetsArray());
+  auto* connArray = vtkIdTypeArray::FastDownCast(cellArray->GetConnectivityArray());
+  if (!cellTypesArray || !offsetsArray || !connArray)
+  {
+    vtkErrorMacro("The output cell arrays are not of the expected type.");
+    return;
+  }
+  unsigned char* outCellTypes = cellTypesArray->GetPointer(0);
+  vtkIdType* outOffsets = offsetsArray->GetPointer(0);
+  vtkIdType* outConn = connArray->GetPointer(0);
+  // Which output point each of this type's samples became.
+  const vtkIdType* pointIds = request->GetSampleToPoint()->GetPointer(0) + ait->second.SampleOffset;
+
+  vtkIdType sampleOffset = 0;
+  vtkIdType cellOffset = ait->second.CellOffset;
+  vtkIdType connOffset = ait->second.ConnOffset;
+  for (int ii = -1; ii < static_cast<int>(cellType->GetSideSpecs().size()); ++ii)
+  {
+    const auto& source(cellType->GetCellSource(ii));
+    if (source.Blanked)
+    {
+      continue;
     }
+    auto shape = vtkShapeForCellSource(cellType, source);
+    const SubdivisionTemplate subdivision = GenerateSubdivisionTemplate(shape, subdivisions);
+    vtkIdType numSamples = subdivision.GetNumberOfPoints();
+    vtkIdType numSourceTuples = source.Connectivity->GetNumberOfTuples();
+    if (numSamples == 0 || numSourceTuples == 0)
+    {
+      continue;
+    }
+    vtkIdType numSubCells = subdivision.GetNumberOfCells();
+    vtkIdType numConnIds = subdivision.GetNumberOfConnectivityIds();
+    vtkSMPTools::For(0, numSourceTuples,
+      [&](vtkIdType begin, vtkIdType end)
+      {
+        if (request->IsAborted())
+        {
+          return;
+        }
+        for (vtkIdType cc = begin; cc < end; ++cc)
+        {
+          // The template indexes this cell's samples; the samples name the
+          // output points they merged into.
+          const vtkIdType* cellPointIds = pointIds + sampleOffset + cc * numSamples;
+          vtkIdType cellId = cellOffset + cc * numSubCells;
+          vtkIdType connId = connOffset + cc * numConnIds;
+          for (vtkIdType sc = 0; sc < numSubCells; ++sc)
+          {
+            outCellTypes[cellId + sc] = subdivision.CellTypes[sc];
+            outOffsets[cellId + sc] = connId + subdivision.Offsets[sc];
+            for (vtkIdType kk = subdivision.Offsets[sc]; kk < subdivision.Offsets[sc + 1]; ++kk)
+            {
+              outConn[connId + kk] = cellPointIds[subdivision.Connectivity[kk]];
+            }
+          }
+        }
+      });
+
+    // increment offsets
+    sampleOffset += numSourceTuples * numSamples;
+    cellOffset += numSourceTuples * numSubCells;
+    connOffset += numSourceTuples * numConnIds;
   }
 }
 
@@ -1025,7 +1124,8 @@ void vtkDGTranscribeCellGridCells::GeneratePointData(
   // vtkStaticCellLinksTemplate links a point to the cells using it. Several
   // cells contribute to a point they share, so summing the contributions in
   // parallel would be a race unless one thread owns each point.
-  const auto* outputPointIds = contribs.OutputPointIds->GetPointer(0);
+  const vtkIdType* outputPointIds =
+    request->GetSampleToPoint()->GetPointer(0) + ait->second.SampleOffset;
   vtkIdType numOutputPoints = request->GetOutput()->GetNumberOfPoints();
   std::vector<std::atomic<vtkIdType>> counts(static_cast<std::size_t>(numOutputPoints));
   vtkSMPTools::For(0, nn,
