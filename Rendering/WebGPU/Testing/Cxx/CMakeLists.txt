@@ -26,6 +26,13 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestReportWebGPUCapabilities.cxx,NO_DATA,NO_VALID
   TestRenderWindowChangeDeviceLater.cxx,NO_DATA,NO_SERDES)
 
+if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  # A browser always renders into its canvas, so there is no window to do without there.
+  vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+    TestWebGPUHiddenWindow.cxx,NO_DATA,NO_VALID
+    TestWebGPUOffScreenRendering.cxx,NO_DATA,NO_VALID)
+endif ()
+
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   --verify
   TestComputeTriangulationVerifyPointIds,TestComputeTriangulation.cxx,NO_DATA,NO_VALID)
