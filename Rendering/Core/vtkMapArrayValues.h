@@ -29,12 +29,15 @@
 
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkVariant.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
+
+#include <map> // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkMapType;
 class vtkVariant;
 
-class VTKRENDERINGCORE_EXPORT vtkMapArrayValues : public vtkPassInputTypeAlgorithm
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALMANUAL vtkMapArrayValues : public vtkPassInputTypeAlgorithm
 {
 public:
   vtkTypeMacro(vtkMapArrayValues, vtkPassInputTypeAlgorithm);
@@ -115,6 +118,8 @@ public:
    */
   void ClearMap();
 
+  const std::map<vtkVariant, vtkVariant>& GetMap() const { return this->Map; };
+
   /**
    * Get the size of the internal map.
    */
@@ -146,8 +151,7 @@ protected:
   vtkTypeBool PassArray;
   double FillValue;
 
-  // PIMPL idiom to hide map implementation.
-  vtkMapType* Map;
+  std::map<vtkVariant, vtkVariant> Map;
 
 private:
   vtkMapArrayValues(const vtkMapArrayValues&) = delete;

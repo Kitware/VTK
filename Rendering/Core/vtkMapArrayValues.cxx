@@ -19,16 +19,10 @@
 #include "vtkVariant.h"
 #include <cctype>
 
-#include <map>
 #include <utility>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMapArrayValues);
-
-typedef std::map<vtkVariant, vtkVariant, vtkVariantLessThan> MapBase;
-class vtkMapType : public MapBase
-{
-};
 
 vtkMapArrayValues::vtkMapArrayValues()
 {
@@ -39,22 +33,19 @@ vtkMapArrayValues::vtkMapArrayValues()
   this->OutputArrayType = VTK_INT;
   this->PassArray = 0;
   this->FillValue = -1;
-
-  this->Map = new vtkMapType;
 }
 
 vtkMapArrayValues::~vtkMapArrayValues()
 {
   this->SetInputArrayName(nullptr);
   this->SetOutputArrayName(nullptr);
-  delete this->Map;
 }
 
 void vtkMapArrayValues::AddToMap(const char* from, int to)
 {
   vtkVariant fromVar(from);
   vtkVariant toVar(to);
-  this->Map->insert(std::make_pair(fromVar, toVar));
+  this->Map.insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
@@ -63,7 +54,7 @@ void vtkMapArrayValues::AddToMap(int from, int to)
 {
   vtkVariant fromVar(from);
   vtkVariant toVar(to);
-  this->Map->insert(std::make_pair(fromVar, toVar));
+  this->Map.insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
@@ -72,7 +63,7 @@ void vtkMapArrayValues::AddToMap(int from, const char* to)
 {
   vtkVariant fromVar(from);
   vtkVariant toVar(to);
-  this->Map->insert(std::make_pair(fromVar, toVar));
+  this->Map.insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
@@ -81,7 +72,7 @@ void vtkMapArrayValues::AddToMap(const char* from, const char* to)
 {
   vtkVariant fromVar(from);
   vtkVariant toVar(to);
-  this->Map->insert(std::make_pair(fromVar, toVar));
+  this->Map.insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
@@ -90,21 +81,21 @@ void vtkMapArrayValues::AddToMap(vtkVariant from, vtkVariant to)
 {
   vtkVariant fromVar(from);
   vtkVariant toVar(to);
-  this->Map->insert(std::make_pair(fromVar, toVar));
+  this->Map.insert(std::make_pair(fromVar, toVar));
 
   this->Modified();
 }
 
 void vtkMapArrayValues::ClearMap()
 {
-  this->Map->clear();
+  this->Map.clear();
 
   this->Modified();
 }
 
 int vtkMapArrayValues::GetMapSize()
 {
-  return static_cast<int>(this->Map->size());
+  return static_cast<int>(this->Map.size());
 }
 
 int vtkMapArrayValues::RequestData(vtkInformation* vtkNotUsed(request),
@@ -241,7 +232,7 @@ int vtkMapArrayValues::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Use the internal map to set the mapped values in the output array
   vtkIdList* results = vtkIdList::New();
-  for (MapBase::iterator i = this->Map->begin(); i != this->Map->end(); ++i)
+  for (auto i = this->Map.begin(); i != this->Map.end(); ++i)
   {
     inputArray->LookupValue(i->first, results);
     for (vtkIdType j = 0; j < results->GetNumberOfIds(); ++j)

@@ -731,7 +731,6 @@ Rendering/Core/vtkHardwareSelector.h
 Rendering/Core/vtkHierarchicalPolyDataMapper.h
 Rendering/Core/vtkLODProp3D.h
 Rendering/Core/vtkLabeledDatatypeDefinitions.h
-Rendering/Core/vtkMapArrayValues.h
 Rendering/Core/vtkNoise200x200.h
 Rendering/Core/vtkPythagoreanQuadruples.h
 Rendering/Core/vtkRayCastStructures.h

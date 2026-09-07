@@ -272,6 +272,13 @@ if (TARGET VTK::RenderingWebGPU)
     PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestManyRenderWindows})
 endif ()
 
+# Serialization tests do not need a render window, so they are registered once rather than
+# per rendering backend.
+if (VTK_WRAP_SERIALIZATION)
+  vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
+    TestMapArrayValuesSerDes.cxx,NO_DATA,NO_VALID)
+endif ()
+
 vtk_test_cxx_executable(vtkRenderingCoreCxxTests tests)
 
 if (TARGET VTK::RenderingWebGPU)
