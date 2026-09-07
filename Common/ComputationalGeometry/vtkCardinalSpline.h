@@ -18,9 +18,10 @@
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkSpline.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkCardinalSpline : public vtkSpline
+class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT VTK_MARSHALAUTO vtkCardinalSpline : public vtkSpline
 {
 public:
   static vtkCardinalSpline* New();

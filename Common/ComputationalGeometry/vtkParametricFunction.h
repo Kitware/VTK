@@ -46,9 +46,10 @@
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricFunction : public vtkObject
+class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT VTK_MARSHALAUTO vtkParametricFunction : public vtkObject
 {
 public:
   vtkTypeMacro(vtkParametricFunction, vtkObject);

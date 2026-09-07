@@ -28,12 +28,14 @@
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSpline;
 class vtkPoints;
 
-class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricSpline : public vtkParametricFunction
+class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT VTK_MARSHALAUTO vtkParametricSpline
+  : public vtkParametricFunction
 {
 public:
   vtkTypeMacro(vtkParametricSpline, vtkParametricFunction);

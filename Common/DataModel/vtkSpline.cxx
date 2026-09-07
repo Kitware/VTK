@@ -10,6 +10,9 @@
 // Construct a spline with the following defaults:
 // ClampValueOff
 VTK_ABI_NAMESPACE_BEGIN
+
+vtkCxxSetObjectMacro(vtkSpline, PiecewiseFunction, vtkPiecewiseFunction);
+
 vtkSpline::vtkSpline()
 {
   this->ComputeTime = 0;
