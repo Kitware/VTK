@@ -531,6 +531,20 @@ private:
    */
   void UnconfigureSurface();
 
+  /**
+   * Whether this window renders without a surface to present to.
+   *
+   * True when ShowWindow is off and UseOffScreenBuffers is on, and no custom surface descriptor
+   * was supplied. Such a window creates neither a hardware window nor a surface, which lets it
+   * render on a machine with no display. The rendered image is read back with GetPixelData() as
+   * usual - every frame is drawn into an offscreen color attachment either way, and only its
+   * presentation needs a surface.
+   *
+   * ShowWindow off on its own keeps the window and the surface, and merely leaves the window
+   * unmapped, which is what the OpenGL backend does.
+   */
+  bool RendersOffScreenOnly();
+
   ///@{
   /**
    * Create/Destroy the color attachment and its view for the offscreen render target. The color
