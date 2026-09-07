@@ -675,9 +675,6 @@ Interaction/Widgets/vtkWidgetEventTranslator.h
 Interaction/Widgets/vtkWidgetSet.h
 Interaction/Widgets/vtkXYPlotRepresentation.h
 Interaction/Widgets/vtkXYPlotWidget.h
-Rendering/Annotation/vtkPolarAxesActor2D.h
-Rendering/Annotation/vtkRadialGridActor2D.h
-Rendering/Annotation/vtkScalarBarActorInternal.h
 Rendering/ANARI/vtkAnariActorNode.h
 Rendering/ANARI/vtkAnariCameraNode.h
 Rendering/ANARI/vtkAnariCompositePolyDataMapperNode.h
@@ -689,13 +686,16 @@ Rendering/ANARI/vtkAnariPass.h
 Rendering/ANARI/vtkAnariPolyDataMapperInheritInterface.h
 Rendering/ANARI/vtkAnariPolyDataMapperNode.h
 Rendering/ANARI/vtkAnariProfiling.h
-Rendering/ANARI/vtkAnariRenderer.h
 Rendering/ANARI/vtkAnariRenderWindow.h
+Rendering/ANARI/vtkAnariRenderer.h
 Rendering/ANARI/vtkAnariSceneGraph.h
 Rendering/ANARI/vtkAnariViewNodeFactory.h
 Rendering/ANARI/vtkAnariVolumeMapper.h
 Rendering/ANARI/vtkAnariVolumeMapperNode.h
 Rendering/ANARI/vtkAnariVolumeNode.h
+Rendering/Annotation/vtkPolarAxesActor2D.h
+Rendering/Annotation/vtkRadialGridActor2D.h
+Rendering/Annotation/vtkScalarBarActorInternal.h
 Rendering/Context2D/vtkAbstractContextBufferId.h
 Rendering/Context2D/vtkContext2D.h
 Rendering/Context2D/vtkContext3D.h
