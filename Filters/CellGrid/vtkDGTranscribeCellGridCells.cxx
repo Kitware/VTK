@@ -1083,7 +1083,8 @@ void vtkDGTranscribeCellGridCells::GeneratePointData(
     {
       break;
     }
-    dgCalc->Evaluate(contribs.InputCellIds, contribs.ParametricCoords, interpResult);
+    dgCalc->Evaluate(
+      contribs.InputCellIds, contribs.ParametricCoords, interpResult, /*useMultithreading*/ true);
     vtkSMPTools::For(0, numOutputPoints,
       [&](vtkIdType beginPointId, vtkIdType endPointId)
       {
