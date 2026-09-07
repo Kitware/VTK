@@ -511,6 +511,7 @@ Rendering/Core/vtkCuller.h
 Rendering/Core/vtkCullerCollection.h
 Rendering/Core/vtkDefaultPass.h
 Rendering/Core/vtkDistanceToCamera.h
+Rendering/Core/vtkFlagpoleLabel.h
 Rendering/Core/vtkFollower.h
 Rendering/Core/vtkFrustumCoverageCuller.h
 Rendering/Core/vtkFXAAOptions.h
@@ -589,6 +590,7 @@ Rendering/Core/vtkVolumeCollection.h
 Rendering/Core/vtkVolumeProperty.h
 Rendering/Core/vtkVolumetricPass.h
 Rendering/Core/vtkWindowLevelLookupTable.h
+Rendering/Core/vtkWindowToImageFilter.h
 Rendering/Core/vtkWorldPointPicker.h
 Rendering/GridAxes/vtkGridAxesActor2D.h
 Rendering/GridAxes/vtkGridAxesActor3D.h

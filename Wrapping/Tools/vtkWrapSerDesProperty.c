@@ -158,6 +158,8 @@ int vtkWrapSerDes_IsAllowable(const HierarchyInfo* hinfo, const ClassInfo* class
     vtkWrapSerDes_MethodTypeMatches(methBitFlags, VTK_METHOD_GET_MULTI | VTK_METHOD_SET_MULTI) ||
     vtkWrapSerDes_MethodTypeMatches(methBitFlags, VTK_METHOD_GET_RHS | VTK_METHOD_SET_MULTI) ||
     vtkWrapSerDes_MethodTypeMatches(methBitFlags, VTK_METHOD_GET_RHS | VTK_METHOD_SET) ||
+    vtkWrapSerDes_MethodTypeMatches(methBitFlags,
+      VTK_METHOD_GET | VTK_METHOD_SET_MULTI) || // vtkSetVectorNMacro + raw pointer getter
     vtkWrapSerDes_IsCollectionLike(methBitFlags) ||
     vtkWrapSerDes_IsCollectionLikeNoDiscard(methBitFlags) ||
     vtkWrapSerDes_IsIndexedWithSize(methBitFlags))
