@@ -220,7 +220,7 @@ def update():
                 new_lines[export_line_num - 1] = export_line_text.replace(
                     target, '')
             # Removes vtkWrappingHints.h below the include of the vtk*Module.h
-            if has_exported_class and wrap_hint_header_line_match is not None:
+            if has_exported_class and existing_macro_line_match is not None and wrap_hint_header_line_match is not None:
                 if not len(new_lines):
                     new_lines.extend(f.readlines())
                 wrappings_hints_line = new_lines[wrap_hint_header_line_match[0] - 1]
