@@ -500,6 +500,7 @@ Rendering/Core/vtkAssemblyNode.h
 Rendering/Core/vtkAssemblyPath.h
 Rendering/Core/vtkAssemblyPaths.h
 Rendering/Core/vtkAvatar.h
+Rendering/Core/vtkBackgroundColorMonitor.h
 Rendering/Core/vtkBillboardTextActor3D.h
 Rendering/Core/vtkCamera.h
 Rendering/Core/vtkCameraActor.h

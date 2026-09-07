@@ -713,7 +713,6 @@ Rendering/ContextOpenGL2/vtkOpenGLContextDeviceBufferObjectBuilder.h
 Rendering/Core/vtkAbstractHyperTreeGridMapper.h
 Rendering/Core/vtkAbstractInteractionDevice.h
 Rendering/Core/vtkAbstractRenderDevice.h
-Rendering/Core/vtkBackgroundColorMonitor.h
 Rendering/Core/vtkCIEDE2000.h
 Rendering/Core/vtkCameraInterpolator.h
 Rendering/Core/vtkCellGraphicsPrimitiveMap.h
