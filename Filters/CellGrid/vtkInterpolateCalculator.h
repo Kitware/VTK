@@ -35,7 +35,11 @@ public:
   virtual void Evaluate(vtkIdType cellId, const vtkVector3d& rst, std::vector<double>& value) = 0;
 
   /// Subclasses may override this method to perform multiple evaluations at a time.
-  virtual void Evaluate(vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result) = 0;
+  ///
+  /// When \a useMultithreading is true, the evaluations are spread across threads.
+  /// Only pass true when you are not already inside a vtkSMPTools parallel scope.
+  virtual void Evaluate(vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result,
+    bool useMultithreading = false) = 0;
 
   /// Return true if the function has an analytic derivative.
   virtual bool AnalyticDerivative() const { return false; }
@@ -54,8 +58,11 @@ public:
     std::vector<double>& jacobian, double neighborhood = 1e-3);
 
   /// Subclasses may override this method to perform multiple derivative-evaluations at a time.
-  virtual void EvaluateDerivative(
-    vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result) = 0;
+  ///
+  /// When \a useMultithreading is true, the evaluations are spread across threads.
+  /// Only pass true when you are not already inside a vtkSMPTools parallel scope.
+  virtual void EvaluateDerivative(vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result,
+    bool useMultithreading = false) = 0;
 
 #if 0
   /// Return true if the given parametric coordinates lie inside the cell (or
