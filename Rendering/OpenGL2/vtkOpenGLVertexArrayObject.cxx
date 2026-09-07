@@ -168,11 +168,11 @@ void vtkOpenGLVertexArrayObject::Bind()
           if (attrIt->Divisor > 0)
           {
 #ifdef GL_ES_VERSION_3_0
-            glVertexAttribDivisor(attrIt->Index + i, 1);
+            glVertexAttribDivisor(attrIt->Index + i, attrIt->Divisor);
 #else
             if (GLAD_GL_ARB_instanced_arrays)
             {
-              glVertexAttribDivisorARB(attrIt->Index + i, 1);
+              glVertexAttribDivisorARB(attrIt->Index + i, attrIt->Divisor);
             }
 #endif
           }
@@ -314,11 +314,11 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram* 
   if (divisor > 0)
   {
 #ifdef GL_ES_VERSION_3_0
-    glVertexAttribDivisor(attribs.Index, 1);
+    glVertexAttribDivisor(attribs.Index, divisor);
 #else
     if (GLAD_GL_ARB_instanced_arrays)
     {
-      glVertexAttribDivisorARB(attribs.Index, 1);
+      glVertexAttribDivisorARB(attribs.Index, divisor);
     }
 #endif
   }
@@ -380,11 +380,11 @@ bool vtkOpenGLVertexArrayObject::AddAttributeMatrixWithDivisor(vtkShaderProgram*
     if (divisor > 0)
     {
 #ifdef GL_ES_VERSION_3_0
-      glVertexAttribDivisor(attribs.Index + i, 1);
+      glVertexAttribDivisor(attribs.Index + i, divisor);
 #else
       if (GLAD_GL_ARB_instanced_arrays)
       {
-        glVertexAttribDivisorARB(attribs.Index + i, 1);
+        glVertexAttribDivisorARB(attribs.Index + i, divisor);
       }
 #endif
     }
