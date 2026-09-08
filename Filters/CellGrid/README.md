@@ -149,3 +149,64 @@ Assuming you have the basis functions, you'll need to edit the following files:
 Where possible, adhere to the existing naming schemes for `FunctionSpace` and `Basis`.
 This will make your life easier. But you do need to ensure that no other
 bases will conflict with your new cell shape and basis.
+
+### Basis functions of arbitrary order
+
+A basis function may instead be written for an arbitrary polynomial order, in which
+case it is registered under the order -1 rather than a specific order. When a
+cell-attribute asks for an order that no operator implements exactly, `vtkDGCell`
+falls back to the operator registered under -1. Operators for specific orders
+therefore take precedence: registering an arbitrary-order basis does not disturb
+the hand-written low-order ones.
+
+Such an operator does not know how many basis functions it provides until it is
+told the order, so it is registered with a function that computes the count from
+an order rather than with a literal count:
+
+```c++
+  basisMap["A"_token][-1]["vtkDGQuad"_token] =
+    { TensorProductFunctionCount, 1, QuadCnBasis, Basis_HGrad_QuadCnBasis };
+```
+
+`vtkDGCell::GetOperatorEntry()` binds the entry it returns to the order the
+cell-attribute requests, so callers see a concrete `NumberOfFunctions` and may
+call `vtkDGOperatorEntry::Evaluate()` without handling the two cases differently.
+
+The order is a vector holding one polynomial order per parametric axis of the
+cell, which the basis function's implementation reads as `order[0]`, `order[1]`,
+and `order[2]`. By default every axis takes the nominal
+`vtkCellAttribute::CellTypeInfo::Order`; supplying an array in the `order` role
+with a single tuple and one component per axis instead gives an anisotropic
+basis. The order is fixed for all cells sharing a `CellTypeInfo` – it may not
+vary from cell to cell.
+
+Arbitrary-order implementations usually need scratch space whose size is not
+known at compile time. Declare it with the `WORKSPACE(type, name, size)` macro
+rather than a bare array, since the two compilation targets provide it
+differently: on the CPU it expands to a reusable `thread_local` vector, and in
+GLSL – where array sizes must be constant expressions and the order is baked
+into the generated shader – it expands to a fixed-size array.
+
+Note that the arbitrary-order bases number their degrees of freedom
+lexicographically, with the r-axis varying fastest, rather than in the
+corner-first order used by the fixed-order bases. For the simplicial shapes,
+"lexicographic" means the multi-index of barycentric exponents is enumerated
+with the component paired to the r-axis varying fastest.
+
+Which orders a shape admits depends on how its parameter space is built:
+
++ Prismatic shapes (edge, quadrilateral, hexahedron) take an independent order
+  along each axis, so the `order` role may hold a different value per axis.
++ Simplicial shapes (triangle, tetrahedron) have a single total degree shared
+  by every axis, so an anisotropic order is rejected: the entry returned by
+  `vtkDGCell::GetOperatorEntry()` converts to false.
++ The wedge is a triangle crossed with an edge. `order[0]` is the order of the
+  triangular cross-section and `order[2]` the order along t; `order[1]` must
+  equal `order[0]`.
++ A vertex has an empty parameter space and one degree of freedom at every
+  order.
+
+The pyramid has no arbitrary-order Lagrange basis. Its tensor-product structure
+degenerates at the apex, so higher-order pyramid elements use *rational* shape
+functions rather than polynomials; only the hand-written orders 0 through 2 are
+registered.

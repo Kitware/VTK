@@ -10,6 +10,8 @@
 #include "Basis_HGrad_EdgeC1Gradient.h"
 #include "Basis_HGrad_EdgeC2Basis.h"
 #include "Basis_HGrad_EdgeC2Gradient.h"
+#include "Basis_HGrad_EdgeCnBasis.h"
+#include "Basis_HGrad_EdgeCnGradient.h"
 #include "Basis_HGrad_EdgeG1Basis.h"
 #include "Basis_HGrad_EdgeG1Gradient.h"
 #include "Basis_HGrad_EdgeG2Basis.h"
@@ -24,6 +26,8 @@
 #include "Basis_HGrad_HexC1Gradient.h"
 #include "Basis_HGrad_HexC2Basis.h"
 #include "Basis_HGrad_HexC2Gradient.h"
+#include "Basis_HGrad_HexCnBasis.h"
+#include "Basis_HGrad_HexCnGradient.h"
 #include "Basis_HGrad_HexG1Basis.h"
 #include "Basis_HGrad_HexG1Gradient.h"
 #include "Basis_HGrad_HexG2Basis.h"
@@ -46,6 +50,8 @@
 #include "Basis_HGrad_QuadC1Gradient.h"
 #include "Basis_HGrad_QuadC2Basis.h"
 #include "Basis_HGrad_QuadC2Gradient.h"
+#include "Basis_HGrad_QuadCnBasis.h"
+#include "Basis_HGrad_QuadCnGradient.h"
 #include "Basis_HGrad_QuadG1Basis.h"
 #include "Basis_HGrad_QuadG1Gradient.h"
 #include "Basis_HGrad_QuadG2Basis.h"
@@ -56,6 +62,8 @@
 #include "Basis_HGrad_TetC1Gradient.h"
 #include "Basis_HGrad_TetC2Basis.h"
 #include "Basis_HGrad_TetC2Gradient.h"
+#include "Basis_HGrad_TetCnBasis.h"
+#include "Basis_HGrad_TetCnGradient.h"
 #include "Basis_HGrad_TetF2Basis.h"
 #include "Basis_HGrad_TetF2Gradient.h"
 #include "Basis_HGrad_TetGnBasis.h"
@@ -64,6 +72,8 @@
 #include "Basis_HGrad_TriC1Gradient.h"
 #include "Basis_HGrad_TriC2Basis.h"
 #include "Basis_HGrad_TriC2Gradient.h"
+#include "Basis_HGrad_TriCnBasis.h"
+#include "Basis_HGrad_TriCnGradient.h"
 #include "Basis_HGrad_TriG1Basis.h"
 #include "Basis_HGrad_TriG1Gradient.h"
 #include "Basis_HGrad_TriG2Basis.h"
@@ -78,6 +88,8 @@
 #include "Basis_HGrad_WdgC1Gradient.h"
 #include "Basis_HGrad_WdgC2Basis.h"
 #include "Basis_HGrad_WdgC2Gradient.h"
+#include "Basis_HGrad_WdgCnBasis.h"
+#include "Basis_HGrad_WdgCnGradient.h"
 #include "Basis_HGrad_WdgF2Basis.h"
 #include "Basis_HGrad_WdgF2Gradient.h"
 #include "Basis_HGrad_WdgG1Basis.h"
@@ -117,7 +129,12 @@
   vtkBasisHeader();                                                                                \
   constexpr int order = oo;
 
-// Some kernels (esp. those of arbitrary order) need scratch space.
+// Scratch space for the arbitrary-order kernels, which cannot size their
+// temporaries at compile time. The buffers persist between invocations so
+// that a tight evaluation loop does not allocate; `resize` on an unchanged
+// size is free. When these kernels are compiled as GLSL this macro is
+// redefined to declare a fixed-size array; see
+// vtkDGOperatorEntry::GetShaderString().
 #define WORKSPACE(type, name, size)                                                                \
   static thread_local std::vector<type> name;                                                      \
   name.resize(size);
@@ -192,6 +209,19 @@ void EdgeC2Gradient(
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeC2Gradient.h"
+}
+
+void EdgeCnBasis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/HGrad/EdgeCnBasis.h"
+}
+void EdgeCnGradient(const std::array<double, 3>& param, std::vector<double>& basisGradient,
+  const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/HGrad/EdgeCnGradient.h"
 }
 
 void EdgeG1Basis(
@@ -296,6 +326,19 @@ void HexC2Gradient(
 {
   vtkBasisHeader();
 #include "Basis/HGrad/HexC2Gradient.h"
+}
+
+void HexCnBasis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/HGrad/HexCnBasis.h"
+}
+void HexCnGradient(const std::array<double, 3>& param, std::vector<double>& basisGradient,
+  const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/HGrad/HexCnGradient.h"
 }
 
 void HexG1Basis(
@@ -506,6 +549,19 @@ void QuadC2Gradient(
 #include "Basis/HGrad/QuadC2Gradient.h"
 }
 
+void QuadCnBasis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/HGrad/QuadCnBasis.h"
+}
+void QuadCnGradient(const std::array<double, 3>& param, std::vector<double>& basisGradient,
+  const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/HGrad/QuadCnGradient.h"
+}
+
 void QuadG1Basis(
   const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
@@ -595,6 +651,19 @@ void TetC2Gradient(
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TetC2Gradient.h"
+}
+
+void TetCnBasis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/HGrad/TetCnBasis.h"
+}
+void TetCnGradient(const std::array<double, 3>& param, std::vector<double>& basisGradient,
+  const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/HGrad/TetCnGradient.h"
 }
 
 void TetF2Basis(
@@ -701,6 +770,19 @@ void TriC2Gradient(
 #include "Basis/HGrad/TriC2Gradient.h"
 }
 
+void TriCnBasis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/HGrad/TriCnBasis.h"
+}
+void TriCnGradient(const std::array<double, 3>& param, std::vector<double>& basisGradient,
+  const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/HGrad/TriCnGradient.h"
+}
+
 void TriG1Basis(
   const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
@@ -805,6 +887,19 @@ void WdgC2Gradient(
 #include "Basis/HGrad/WdgC2Gradient.h"
 }
 
+void WdgCnBasis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/HGrad/WdgCnBasis.h"
+}
+void WdgCnGradient(const std::array<double, 3>& param, std::vector<double>& basisGradient,
+  const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/HGrad/WdgCnGradient.h"
+}
+
 void WdgF2Basis(
   const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
@@ -894,6 +989,7 @@ bool RegisterOperators()
   // # Basis functions
   basisMap["C"_token][1]["vtkDGEdge"_token] = {  2, 1, EdgeC1Basis, Basis_HGrad_EdgeC1Basis };
   basisMap["C"_token][2]["vtkDGEdge"_token] = {  3, 1, EdgeC2Basis, Basis_HGrad_EdgeC2Basis };
+  basisMap["A"_token][-1]["vtkDGEdge"_token] = { vtkDGOperatorEntry::TensorProductFunctionCount, 1, EdgeCnBasis, Basis_HGrad_EdgeCnBasis };
   basisMap["G"_token][1]["vtkDGEdge"_token] = {  2, 1, EdgeG1Basis, Basis_HGrad_EdgeG1Basis };
   basisMap["G"_token][2]["vtkDGEdge"_token] = {  3, 1, EdgeG2Basis, Basis_HGrad_EdgeG2Basis };
   basisMap["G"_token][3]["vtkDGEdge"_token] = {  4, 1, EdgeG3Basis, Basis_HGrad_EdgeG3Basis };
@@ -901,8 +997,9 @@ bool RegisterOperators()
   basisMap["G"_token][5]["vtkDGEdge"_token] = {  6, 1, EdgeG5Basis, Basis_HGrad_EdgeG5Basis };
 
   basisMap["C"_token][1]["vtkDGHex"_token]  = {  8, 1, HexC1Basis,  Basis_HGrad_HexC1Basis };
-  basisMap["I"_token][2]["vtkDGHex"_token]  = { 20, 1, HexI2Basis,  Basis_HGrad_HexI2Basis };
   basisMap["C"_token][2]["vtkDGHex"_token]  = { 27, 1, HexC2Basis,  Basis_HGrad_HexC2Basis };
+  basisMap["A"_token][-1]["vtkDGHex"_token]  = { vtkDGOperatorEntry::TensorProductFunctionCount, 1, HexCnBasis,  Basis_HGrad_HexCnBasis };
+  basisMap["I"_token][2]["vtkDGHex"_token]  = { 20, 1, HexI2Basis,  Basis_HGrad_HexI2Basis };
   basisMap["G"_token][1]["vtkDGHex"_token]  = {  8, 1, HexG1Basis,  Basis_HGrad_HexG1Basis };
   basisMap["G"_token][2]["vtkDGHex"_token]  = { 27, 1, HexG2Basis,  Basis_HGrad_HexG2Basis };
   basisMap["G"_token][3]["vtkDGHex"_token]  = { 64, 1, HexG3Basis,  Basis_HGrad_HexGnBasis };
@@ -910,8 +1007,8 @@ bool RegisterOperators()
   basisMap["G"_token][5]["vtkDGHex"_token]  = {216, 1, HexG5Basis,  Basis_HGrad_HexGnBasis };
 
   basisMap["C"_token][1]["vtkDGPyr"_token]  = {  5, 1, PyrC1Basis,  Basis_HGrad_PyrC1Basis };
-  basisMap["I"_token][2]["vtkDGPyr"_token]  = { 13, 1, PyrI2Basis,  Basis_HGrad_PyrI2Basis };
   basisMap["C"_token][2]["vtkDGPyr"_token]  = { 18, 1, PyrC2Basis,  Basis_HGrad_PyrC2Basis };
+  basisMap["I"_token][2]["vtkDGPyr"_token]  = { 13, 1, PyrI2Basis,  Basis_HGrad_PyrI2Basis };
   basisMap["F"_token][2]["vtkDGPyr"_token]  = { 19, 1, PyrF2Basis,  Basis_HGrad_PyrF2Basis };
   basisMap["G"_token][1]["vtkDGPyr"_token]  = {  5, 1, PyrG1Basis,  Basis_HGrad_PyrGnBasis };
   basisMap["G"_token][2]["vtkDGPyr"_token]  = { 14, 1, PyrG2Basis,  Basis_HGrad_PyrGnBasis };
@@ -921,6 +1018,7 @@ bool RegisterOperators()
 
   basisMap["C"_token][1]["vtkDGQuad"_token] = {  4, 1, QuadC1Basis, Basis_HGrad_QuadC1Basis };
   basisMap["C"_token][2]["vtkDGQuad"_token] = {  9, 1, QuadC2Basis, Basis_HGrad_QuadC2Basis };
+  basisMap["A"_token][-1]["vtkDGQuad"_token] = { vtkDGOperatorEntry::TensorProductFunctionCount, 1, QuadCnBasis, Basis_HGrad_QuadCnBasis };
   basisMap["G"_token][1]["vtkDGQuad"_token] = {  4, 1, QuadG1Basis, Basis_HGrad_QuadG1Basis };
   basisMap["G"_token][2]["vtkDGQuad"_token] = {  9, 1, QuadG2Basis, Basis_HGrad_QuadG2Basis };
   basisMap["G"_token][3]["vtkDGQuad"_token] = { 16, 1, QuadG3Basis, Basis_HGrad_QuadGnBasis };
@@ -929,6 +1027,7 @@ bool RegisterOperators()
 
   basisMap["C"_token][1]["vtkDGTet"_token]  = {  4, 1, TetC1Basis,  Basis_HGrad_TetC1Basis };
   basisMap["C"_token][2]["vtkDGTet"_token]  = { 10, 1, TetC2Basis,  Basis_HGrad_TetC2Basis };
+  basisMap["A"_token][-1]["vtkDGTet"_token]  = { vtkDGOperatorEntry::SimplexFunctionCount, 1, TetCnBasis,  Basis_HGrad_TetCnBasis };
   basisMap["F"_token][2]["vtkDGTet"_token]  = { 15, 1, TetF2Basis,  Basis_HGrad_TetF2Basis };
   basisMap["G"_token][1]["vtkDGTet"_token]  = {  4, 1, TetG1Basis,  Basis_HGrad_TetGnBasis };
   basisMap["G"_token][2]["vtkDGTet"_token]  = { 10, 1, TetG2Basis,  Basis_HGrad_TetGnBasis };
@@ -938,6 +1037,7 @@ bool RegisterOperators()
 
   basisMap["C"_token][1]["vtkDGTri"_token]  = {  3, 1, TriC1Basis,  Basis_HGrad_TriC1Basis };
   basisMap["C"_token][2]["vtkDGTri"_token]  = {  6, 1, TriC2Basis,  Basis_HGrad_TriC2Basis };
+  basisMap["A"_token][-1]["vtkDGTri"_token]  = { vtkDGOperatorEntry::SimplexFunctionCount, 1, TriCnBasis,  Basis_HGrad_TriCnBasis };
   basisMap["G"_token][1]["vtkDGTri"_token]  = {  3, 1, TriG1Basis,  Basis_HGrad_TriG1Basis };
   basisMap["G"_token][2]["vtkDGTri"_token]  = {  6, 1, TriG2Basis,  Basis_HGrad_TriG2Basis };
   basisMap["G"_token][3]["vtkDGTri"_token]  = { 10, 1, TriG3Basis,  Basis_HGrad_TriG3Basis };
@@ -945,8 +1045,9 @@ bool RegisterOperators()
   basisMap["G"_token][5]["vtkDGTri"_token]  = { 21, 1, TriG5Basis,  Basis_HGrad_TriG5Basis };
 
   basisMap["C"_token][1]["vtkDGWdg"_token]  = {  6, 1, WdgC1Basis,  Basis_HGrad_WdgC1Basis };
-  basisMap["I"_token][2]["vtkDGWdg"_token]  = { 15, 1, WdgI2Basis,  Basis_HGrad_WdgI2Basis };
   basisMap["C"_token][2]["vtkDGWdg"_token]  = { 18, 1, WdgC2Basis,  Basis_HGrad_WdgC2Basis };
+  basisMap["A"_token][-1]["vtkDGWdg"_token]  = { vtkDGOperatorEntry::WedgeFunctionCount, 1, WdgCnBasis,  Basis_HGrad_WdgCnBasis };
+  basisMap["I"_token][2]["vtkDGWdg"_token]  = { 15, 1, WdgI2Basis,  Basis_HGrad_WdgI2Basis };
   basisMap["F"_token][2]["vtkDGWdg"_token]  = { 21, 1, WdgF2Basis,  Basis_HGrad_WdgF2Basis };
   basisMap["G"_token][1]["vtkDGWdg"_token]  = {  6, 1, WdgG1Basis,  Basis_HGrad_WdgG1Basis };
   basisMap["G"_token][2]["vtkDGWdg"_token]  = { 18, 1, WdgG2Basis,  Basis_HGrad_WdgG2Basis };
@@ -957,6 +1058,7 @@ bool RegisterOperators()
   // # Gradients of basis functions
   gradMap["C"_token][1]["vtkDGEdge"_token] = {  2, 3, EdgeC1Gradient, Basis_HGrad_EdgeC1Gradient };
   gradMap["C"_token][2]["vtkDGEdge"_token] = {  3, 3, EdgeC2Gradient, Basis_HGrad_EdgeC2Gradient };
+  gradMap["A"_token][-1]["vtkDGEdge"_token] = { vtkDGOperatorEntry::TensorProductFunctionCount, 3, EdgeCnGradient, Basis_HGrad_EdgeCnGradient };
   gradMap["G"_token][1]["vtkDGEdge"_token] = {  2, 3, EdgeG1Gradient, Basis_HGrad_EdgeG1Gradient };
   gradMap["G"_token][2]["vtkDGEdge"_token] = {  3, 3, EdgeG2Gradient, Basis_HGrad_EdgeG2Gradient };
   gradMap["G"_token][3]["vtkDGEdge"_token] = {  4, 3, EdgeG3Gradient, Basis_HGrad_EdgeG3Gradient };
@@ -964,8 +1066,9 @@ bool RegisterOperators()
   gradMap["G"_token][5]["vtkDGEdge"_token] = {  6, 3, EdgeG5Gradient, Basis_HGrad_EdgeG5Gradient };
 
   gradMap["C"_token][1]["vtkDGHex"_token]  = {  8, 3, HexC1Gradient,  Basis_HGrad_HexC1Gradient };
-  gradMap["I"_token][2]["vtkDGHex"_token]  = { 20, 3, HexI2Gradient,  Basis_HGrad_HexI2Gradient };
   gradMap["C"_token][2]["vtkDGHex"_token]  = { 27, 3, HexC2Gradient,  Basis_HGrad_HexC2Gradient };
+  gradMap["A"_token][-1]["vtkDGHex"_token]  = { vtkDGOperatorEntry::TensorProductFunctionCount, 3, HexCnGradient,  Basis_HGrad_HexCnGradient };
+  gradMap["I"_token][2]["vtkDGHex"_token]  = { 20, 3, HexI2Gradient,  Basis_HGrad_HexI2Gradient };
   gradMap["G"_token][1]["vtkDGHex"_token]  = {  8, 3, HexG1Gradient,  Basis_HGrad_HexG1Gradient };
   gradMap["G"_token][2]["vtkDGHex"_token]  = { 27, 3, HexG2Gradient,  Basis_HGrad_HexG2Gradient };
   gradMap["G"_token][3]["vtkDGHex"_token]  = { 64, 3, HexG3Gradient,  Basis_HGrad_HexGnGradient };
@@ -973,8 +1076,8 @@ bool RegisterOperators()
   gradMap["G"_token][5]["vtkDGHex"_token]  = {216, 3, HexG5Gradient,  Basis_HGrad_HexGnGradient };
 
   gradMap["C"_token][1]["vtkDGPyr"_token]  = {  5, 3, PyrC1Gradient,  Basis_HGrad_PyrC1Gradient };
-  gradMap["I"_token][2]["vtkDGPyr"_token]  = { 13, 3, PyrI2Gradient,  Basis_HGrad_PyrI2Gradient };
   gradMap["C"_token][2]["vtkDGPyr"_token]  = { 18, 3, PyrC2Gradient,  Basis_HGrad_PyrC2Gradient };
+  gradMap["I"_token][2]["vtkDGPyr"_token]  = { 13, 3, PyrI2Gradient,  Basis_HGrad_PyrI2Gradient };
   gradMap["F"_token][2]["vtkDGPyr"_token]  = { 19, 3, PyrF2Gradient,  Basis_HGrad_PyrF2Gradient };
   gradMap["G"_token][1]["vtkDGPyr"_token]  = {  5, 3, PyrG1Gradient,  Basis_HGrad_PyrGnGradient };
   gradMap["G"_token][2]["vtkDGPyr"_token]  = { 14, 3, PyrG2Gradient,  Basis_HGrad_PyrGnGradient };
@@ -984,6 +1087,7 @@ bool RegisterOperators()
 
   gradMap["C"_token][1]["vtkDGQuad"_token] = {  4, 3, QuadC1Gradient, Basis_HGrad_QuadC1Gradient };
   gradMap["C"_token][2]["vtkDGQuad"_token] = {  9, 3, QuadC2Gradient, Basis_HGrad_QuadC2Gradient };
+  gradMap["A"_token][-1]["vtkDGQuad"_token] = { vtkDGOperatorEntry::TensorProductFunctionCount, 3, QuadCnGradient, Basis_HGrad_QuadCnGradient };
   gradMap["G"_token][1]["vtkDGQuad"_token] = {  4, 3, QuadG1Gradient, Basis_HGrad_QuadG1Gradient };
   gradMap["G"_token][2]["vtkDGQuad"_token] = {  9, 3, QuadG2Gradient, Basis_HGrad_QuadG2Gradient };
   gradMap["G"_token][3]["vtkDGQuad"_token] = { 16, 3, QuadG3Gradient, Basis_HGrad_QuadGnGradient };
@@ -992,6 +1096,7 @@ bool RegisterOperators()
 
   gradMap["C"_token][1]["vtkDGTet"_token]  = {  4, 3, TetC1Gradient,  Basis_HGrad_TetC1Gradient };
   gradMap["C"_token][2]["vtkDGTet"_token]  = { 10, 3, TetC2Gradient,  Basis_HGrad_TetC2Gradient };
+  gradMap["A"_token][-1]["vtkDGTet"_token]  = { vtkDGOperatorEntry::SimplexFunctionCount, 3, TetCnGradient,  Basis_HGrad_TetCnGradient };
   gradMap["F"_token][2]["vtkDGTet"_token]  = { 15, 3, TetF2Gradient,  Basis_HGrad_TetF2Gradient };
   gradMap["G"_token][1]["vtkDGTet"_token]  = {  4, 3, TetG1Gradient,  Basis_HGrad_TetGnGradient };
   gradMap["G"_token][2]["vtkDGTet"_token]  = { 10, 3, TetG2Gradient,  Basis_HGrad_TetGnGradient };
@@ -1001,6 +1106,7 @@ bool RegisterOperators()
 
   gradMap["C"_token][1]["vtkDGTri"_token]  = {  3, 3, TriC1Gradient,  Basis_HGrad_TriC1Gradient };
   gradMap["C"_token][2]["vtkDGTri"_token]  = {  6, 3, TriC2Gradient,  Basis_HGrad_TriC2Gradient };
+  gradMap["A"_token][-1]["vtkDGTri"_token]  = { vtkDGOperatorEntry::SimplexFunctionCount, 3, TriCnGradient,  Basis_HGrad_TriCnGradient };
   gradMap["G"_token][1]["vtkDGTri"_token]  = {  3, 3, TriG1Gradient,  Basis_HGrad_TriG1Gradient };
   gradMap["G"_token][2]["vtkDGTri"_token]  = {  6, 3, TriG2Gradient,  Basis_HGrad_TriG2Gradient };
   gradMap["G"_token][3]["vtkDGTri"_token]  = { 10, 3, TriG3Gradient,  Basis_HGrad_TriG3Gradient };
@@ -1008,8 +1114,9 @@ bool RegisterOperators()
   gradMap["G"_token][5]["vtkDGTri"_token]  = { 21, 3, TriG5Gradient,  Basis_HGrad_TriG5Gradient };
 
   gradMap["C"_token][1]["vtkDGWdg"_token]  = {  6, 3, WdgC1Gradient,  Basis_HGrad_WdgC1Gradient };
-  gradMap["I"_token][2]["vtkDGWdg"_token]  = { 15, 3, WdgI2Gradient,  Basis_HGrad_WdgI2Gradient };
   gradMap["C"_token][2]["vtkDGWdg"_token]  = { 18, 3, WdgC2Gradient,  Basis_HGrad_WdgC2Gradient };
+  gradMap["A"_token][-1]["vtkDGWdg"_token]  = { vtkDGOperatorEntry::WedgeFunctionCount, 3, WdgCnGradient,  Basis_HGrad_WdgCnGradient };
+  gradMap["I"_token][2]["vtkDGWdg"_token]  = { 15, 3, WdgI2Gradient,  Basis_HGrad_WdgI2Gradient };
   gradMap["F"_token][2]["vtkDGWdg"_token]  = { 21, 3, WdgF2Gradient,  Basis_HGrad_WdgF2Gradient };
   gradMap["G"_token][1]["vtkDGWdg"_token]  = {  6, 3, WdgG1Gradient,  Basis_HGrad_WdgG1Gradient };
   gradMap["G"_token][2]["vtkDGWdg"_token]  = { 18, 3, WdgG2Gradient,  Basis_HGrad_WdgG2Gradient };
