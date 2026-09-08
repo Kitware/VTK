@@ -18,6 +18,11 @@ set(VTK_MODULE_ENABLE_VTK_IONanoVDB WANT CACHE STRING "")
 # Finding nanovdb requires a little help as it is not automatically found by CMake on all fedora configs
 set(OpenVDB_nanovdb_INCLUDE_DIR "/usr/local/include/nanovdb" CACHE PATH "Path to NanoVDB include files")
 
+# fedora44 has Boost's own CMake config files installed. Without this,
+# find_package(Boost) calls (e.g. via OpenVDB's FindOpenVDB.cmake) emit
+# a CMP0167 dev warning; setting NEW here makes Config mode the default.
+set(CMAKE_POLICY_DEFAULT_CMP0167 NEW CACHE STRING "")
+
 # Disable wayland testing as CI machines do not have a wayland compositor.
 set(VTK_USE_Wayland OFF CACHE BOOL "")
 
