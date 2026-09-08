@@ -168,606 +168,716 @@ inline RealT gaussPoint(unsigned int order, unsigned int index)
 }
 
 // NOLINTBEGIN(readability-duplicate-include)
-void EdgeC1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void EdgeC1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeC1Basis.h"
 }
-void EdgeC1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void EdgeC1Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeC1Gradient.h"
 }
 
-void EdgeC2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void EdgeC2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeC2Basis.h"
 }
-void EdgeC2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void EdgeC2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeC2Gradient.h"
 }
 
-void EdgeG1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void EdgeG1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeG1Basis.h"
 }
-void EdgeG1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void EdgeG1Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeG1Gradient.h"
 }
 
-void EdgeG2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void EdgeG2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeG2Basis.h"
 }
-void EdgeG2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void EdgeG2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeG2Gradient.h"
 }
 
-void EdgeG3Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void EdgeG3Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeG3Basis.h"
 }
-void EdgeG3Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void EdgeG3Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeG3Gradient.h"
 }
 
-void EdgeG4Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void EdgeG4Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeG4Basis.h"
 }
-void EdgeG4Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void EdgeG4Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeG4Gradient.h"
 }
 
-void EdgeG5Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void EdgeG5Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeG5Basis.h"
 }
-void EdgeG5Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void EdgeG5Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/EdgeG5Gradient.h"
 }
 
-void HexC1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void HexC1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/HexC1Basis.h"
 }
-void HexC1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void HexC1Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/HexC1Gradient.h"
 }
 
-void HexI2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void HexI2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/HexI2Basis.h"
 }
-void HexI2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void HexI2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/HexI2Gradient.h"
 }
 
-void HexC2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void HexC2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/HexC2Basis.h"
 }
-void HexC2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void HexC2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/HexC2Gradient.h"
 }
 
-void HexG1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void HexG1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/HexG1Basis.h"
 }
-void HexG1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void HexG1Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/HexG1Gradient.h"
 }
 
-void HexG2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void HexG2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/HexG2Basis.h"
 }
-void HexG2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void HexG2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/HexG2Gradient.h"
 }
 
-void HexG3Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void HexG3Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(3);
 #include "Basis/HGrad/HexGnBasis.h"
 }
-void HexG3Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void HexG3Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(3);
 #include "Basis/HGrad/HexGnGradient.h"
 }
 
-void HexG4Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void HexG4Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(4);
 #include "Basis/HGrad/HexGnBasis.h"
 }
-void HexG4Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void HexG4Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(4);
 #include "Basis/HGrad/HexGnGradient.h"
 }
 
-void HexG5Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void HexG5Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(5);
 #include "Basis/HGrad/HexGnBasis.h"
 }
-void HexG5Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void HexG5Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(5);
 #include "Basis/HGrad/HexGnGradient.h"
 }
 
-void PyrC1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void PyrC1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/PyrC1Basis.h"
 }
-void PyrC1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void PyrC1Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/PyrC1Gradient.h"
 }
 
-void PyrI2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void PyrI2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/PyrI2Basis.h"
 }
-void PyrI2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void PyrI2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/PyrI2Gradient.h"
 }
 
-void PyrC2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void PyrC2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/PyrC2Basis.h"
 }
-void PyrC2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void PyrC2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/PyrC2Gradient.h"
 }
 
-void PyrF2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void PyrF2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/PyrF2Basis.h"
 }
-void PyrF2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void PyrF2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/PyrF2Gradient.h"
 }
 
-void PyrG1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void PyrG1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(1);
 #include "Basis/HGrad/PyrGnBasis.h"
 }
-void PyrG1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void PyrG1Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(1);
 #include "Basis/HGrad/PyrGnGradient.h"
 }
 
-void PyrG2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void PyrG2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(2);
 #include "Basis/HGrad/PyrGnBasis.h"
 }
-void PyrG2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void PyrG2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(2);
 #include "Basis/HGrad/PyrGnGradient.h"
 }
 
-void PyrG3Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void PyrG3Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(3);
 #include "Basis/HGrad/PyrGnBasis.h"
 }
-void PyrG3Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void PyrG3Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(3);
 #include "Basis/HGrad/PyrGnGradient.h"
 }
 
-void PyrG4Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void PyrG4Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(4);
 #include "Basis/HGrad/PyrGnBasis.h"
 }
-void PyrG4Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void PyrG4Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(4);
 #include "Basis/HGrad/PyrGnGradient.h"
 }
 
-void PyrG5Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void PyrG5Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(5);
 #include "Basis/HGrad/PyrGnBasis.h"
 }
-void PyrG5Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void PyrG5Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(5);
 #include "Basis/HGrad/PyrGnGradient.h"
 }
 
-void QuadC1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void QuadC1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/QuadC1Basis.h"
 }
-void QuadC1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void QuadC1Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/QuadC1Gradient.h"
 }
 
-void QuadC2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void QuadC2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/QuadC2Basis.h"
 }
-void QuadC2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void QuadC2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/QuadC2Gradient.h"
 }
 
-void QuadG1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void QuadG1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/QuadG1Basis.h"
 }
-void QuadG1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void QuadG1Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/QuadG1Gradient.h"
 }
 
-void QuadG2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void QuadG2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/QuadG2Basis.h"
 }
-void QuadG2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void QuadG2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/QuadG2Gradient.h"
 }
 
-void QuadG3Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void QuadG3Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(3);
 #include "Basis/HGrad/QuadGnBasis.h"
 }
-void QuadG3Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void QuadG3Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(3);
 #include "Basis/HGrad/QuadGnGradient.h"
 }
 
-void QuadG4Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void QuadG4Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(4);
 #include "Basis/HGrad/QuadGnBasis.h"
 }
-void QuadG4Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void QuadG4Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(4);
 #include "Basis/HGrad/QuadGnGradient.h"
 }
 
-void QuadG5Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void QuadG5Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(5);
 #include "Basis/HGrad/QuadGnBasis.h"
 }
-void QuadG5Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void QuadG5Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(5);
 #include "Basis/HGrad/QuadGnGradient.h"
 }
 
-void TetC1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TetC1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TetC1Basis.h"
 }
-void TetC1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TetC1Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TetC1Gradient.h"
 }
 
-void TetC2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TetC2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TetC2Basis.h"
 }
-void TetC2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TetC2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TetC2Gradient.h"
 }
 
-void TetF2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TetF2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TetF2Basis.h"
 }
-void TetF2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TetF2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TetF2Gradient.h"
 }
 
-void TetG1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TetG1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(1);
 #include "Basis/HGrad/TetGnBasis.h"
 }
-void TetG1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TetG1Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(1);
 #include "Basis/HGrad/TetGnGradient.h"
 }
 
-void TetG2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TetG2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(2);
 #include "Basis/HGrad/TetGnBasis.h"
 }
-void TetG2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TetG2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(2);
 #include "Basis/HGrad/TetGnGradient.h"
 }
 
-void TetG3Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TetG3Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(3);
 #include "Basis/HGrad/TetGnBasis.h"
 }
-void TetG3Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TetG3Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(3);
 #include "Basis/HGrad/TetGnGradient.h"
 }
 
-void TetG4Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TetG4Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(4);
 #include "Basis/HGrad/TetGnBasis.h"
 }
-void TetG4Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TetG4Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(4);
 #include "Basis/HGrad/TetGnGradient.h"
 }
 
-void TetG5Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TetG5Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(5);
 #include "Basis/HGrad/TetGnBasis.h"
 }
-void TetG5Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TetG5Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(5);
 #include "Basis/HGrad/TetGnGradient.h"
 }
 
-void TriC1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TriC1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TriC1Basis.h"
 }
-void TriC1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TriC1Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TriC1Gradient.h"
 }
 
-void TriC2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TriC2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TriC2Basis.h"
 }
-void TriC2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TriC2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TriC2Gradient.h"
 }
 
-void TriG1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TriG1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TriG1Basis.h"
 }
-void TriG1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TriG1Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TriG1Gradient.h"
 }
 
-void TriG2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TriG2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TriG2Basis.h"
 }
-void TriG2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TriG2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TriG2Gradient.h"
 }
 
-void TriG3Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TriG3Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TriG3Basis.h"
 }
-void TriG3Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TriG3Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TriG3Gradient.h"
 }
 
-void TriG4Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TriG4Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TriG4Basis.h"
 }
-void TriG4Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TriG4Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TriG4Gradient.h"
 }
 
-void TriG5Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TriG5Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TriG5Basis.h"
 }
-void TriG5Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void TriG5Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/TriG5Gradient.h"
 }
 
-void WdgC1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void WdgC1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/WdgC1Basis.h"
 }
-void WdgC1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void WdgC1Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/WdgC1Gradient.h"
 }
 
-void WdgI2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void WdgI2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/WdgI2Basis.h"
 }
-void WdgI2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void WdgI2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/WdgI2Gradient.h"
 }
 
-void WdgC2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void WdgC2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/WdgC2Basis.h"
 }
-void WdgC2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void WdgC2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/WdgC2Gradient.h"
 }
 
-void WdgF2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void WdgF2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/WdgF2Basis.h"
 }
-void WdgF2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void WdgF2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HGrad/WdgF2Gradient.h"
 }
 
-void WdgG1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void WdgG1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(1);
 #include "Basis/HGrad/WdgG1Basis.h"
 }
-void WdgG1Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void WdgG1Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(1);
 #include "Basis/HGrad/WdgG1Gradient.h"
 }
 
-void WdgG2Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void WdgG2Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(2);
 #include "Basis/HGrad/WdgG2Basis.h"
 }
-void WdgG2Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void WdgG2Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(2);
 #include "Basis/HGrad/WdgG2Gradient.h"
 }
 
-void WdgG3Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void WdgG3Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(3);
 #include "Basis/HGrad/WdgG3Basis.h"
 }
-void WdgG3Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void WdgG3Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(3);
 #include "Basis/HGrad/WdgG3Gradient.h"
 }
 
-void WdgG4Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void WdgG4Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(4);
 #include "Basis/HGrad/WdgG4Basis.h"
 }
-void WdgG4Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void WdgG4Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(4);
 #include "Basis/HGrad/WdgG4Gradient.h"
 }
 
-void WdgG5Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void WdgG5Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisOrderHeader(5);
 #include "Basis/HGrad/WdgG5Basis.h"
 }
-void WdgG5Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void WdgG5Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisOrderHeader(5);
 #include "Basis/HGrad/WdgG5Gradient.h"

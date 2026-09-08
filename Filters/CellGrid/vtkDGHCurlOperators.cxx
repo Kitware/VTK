@@ -45,31 +45,36 @@ inline RealT abs(RealT x)
   return std::fabs(x);
 }
 
-void HexI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void HexI1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HCurl/HexI1Basis.h"
 }
 
-void QuadI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void QuadI1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HCurl/QuadI1Basis.h"
 }
 
-void TetI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TetI1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HCurl/TetI1Basis.h"
 }
 
-void TriI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TriI1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HCurl/TriI1Basis.h"
 }
 
-void WdgI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void WdgI1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/HCurl/WdgI1Basis.h"

@@ -628,6 +628,41 @@ vtkCellGridResponders::TagSet vtkDGCell::GetAttributeTags(
     { "order"_token, { static_cast<vtkStringToken::Hash>(attributeInfo.Order) } } };
 }
 
+std::vector<int> vtkDGCell::GetBasisOrder(const vtkCellAttribute::CellTypeInfo& attributeInfo) const
+{
+  int dimension = this->GetDimension();
+  if (dimension <= 0)
+  {
+    // A vertex has no parametric axes and so no order along any of them. Its
+    // basis has a single degree of freedom whatever order is asked for.
+    return {};
+  }
+
+  // An attribute may override the nominal order with one order per parametric
+  // axis. Such an array holds a single tuple of "dimension" components: one
+  // tuple because the order is fixed for every cell sharing this
+  // vtkCellAttribute::CellTypeInfo, and one component per axis because that is
+  // what an anisotropic order means. An order varying from cell to cell would
+  // have to be resolved once per cell, and the operators this feeds bind their
+  // order once for the whole block.
+  auto* orderArray = attributeInfo.GetArrayForRoleAs<vtkDataArray>("order"_token);
+  if (orderArray && orderArray->GetNumberOfTuples() == 1 &&
+    orderArray->GetNumberOfComponents() == dimension)
+  {
+    std::vector<int> order(dimension);
+    for (int axis = 0; axis < dimension; ++axis)
+    {
+      order[axis] = static_cast<int>(orderArray->GetComponent(0, axis));
+    }
+    return order;
+  }
+
+  // Either the attribute named no such array, or the array is shaped in a way
+  // this cannot read as one order per axis. Fall back to the nominal order,
+  // which every axis then shares.
+  return std::vector<int>(dimension, attributeInfo.Order);
+}
+
 vtkDGOperatorEntry vtkDGCell::GetOperatorEntry(
   vtkStringToken opName, const vtkCellAttribute::CellTypeInfo& attributeInfo)
 {
@@ -648,19 +683,50 @@ vtkDGOperatorEntry vtkDGCell::GetOperatorEntry(
   {
     return vtkDGOperatorEntry();
   }
-  auto orderit = basisit->second.find(attributeInfo.Order);
-  if (orderit == basisit->second.end())
+  auto order = this->GetBasisOrder(attributeInfo);
+  bool isotropic = true;
+  for (const auto& axisOrder : order)
   {
-    return vtkDGOperatorEntry();
+    isotropic &= axisOrder == order[0];
   }
-  for (const auto& className : classNames)
+
+  // Prefer an operator registered for this exact order, then fall back to one
+  // registered under -1, which accepts any order. An anisotropic attribute skips
+  // the exact-order lookup: the operators registered for a specific order
+  // implement one order along every axis, so matching one to an attribute whose
+  // axes differ would quietly evaluate the wrong basis.
+  std::vector<int> orderKeys;
+  if (isotropic)
   {
-    auto cellit = orderit->second.find(className);
-    if (cellit == orderit->second.end())
+    orderKeys.push_back(attributeInfo.Order);
+  }
+  orderKeys.push_back(-1);
+
+  for (const auto& orderKey : orderKeys)
+  {
+    auto orderit = basisit->second.find(orderKey);
+    if (orderit == basisit->second.end())
     {
       continue;
     }
-    return cellit->second;
+    for (const auto& className : classNames)
+    {
+      auto cellit = orderit->second.find(className);
+      if (cellit == orderit->second.end())
+      {
+        // This shape has no operator at this order; a later candidate order may
+        // still provide one, so keep looking rather than giving up here.
+        continue;
+      }
+      // Hand out a copy bound to the order this attribute asks for. Operators
+      // implementing a single fixed order ignore the order and are returned as-is.
+      vtkDGOperatorEntry& entry = cellit->second;
+      if (!entry.SetOrder(order))
+      {
+        return vtkDGOperatorEntry();
+      }
+      return entry;
+    }
   }
   return vtkDGOperatorEntry();
 }

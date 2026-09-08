@@ -414,7 +414,25 @@ public:
   vtkCellGridResponders::TagSet GetAttributeTags(
     vtkCellAttribute* attribute, bool inheritedTypes = false);
 
+  /// Return the polynomial order of \a attributeInfo along each parametric axis.
+  ///
+  /// The result always holds one entry per parametric axis of this cell shape
+  /// (so it is empty for vertices). When \a attributeInfo has an array in the
+  /// "order" role holding a single tuple with one component per axis, that
+  /// array provides an anisotropic order; otherwise the nominal
+  /// vtkCellAttribute::CellTypeInfo::Order is used for every axis.
+  ///
+  /// Note that the order may not vary from cell to cell; it is fixed for all
+  /// the cells sharing a vtkCellAttribute::CellTypeInfo.
+  std::vector<int> GetBasisOrder(const vtkCellAttribute::CellTypeInfo& attributeInfo) const;
+
   /// Return an operator entry
+  ///
+  /// The returned entry is bound to the polynomial order that \a attributeInfo
+  /// requests, so it is ready to evaluate even when the registered operator
+  /// accepts an arbitrary order. If no operator is registered for
+  /// \a attributeInfo, or if the registered one cannot supply the requested
+  /// order, the returned entry converts to false.
   vtkDGOperatorEntry GetOperatorEntry(
     vtkStringToken opName, const vtkCellAttribute::CellTypeInfo& attributeInfo);
 

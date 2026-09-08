@@ -37,13 +37,15 @@ VTK_ABI_NAMESPACE_BEGIN
 
 using namespace vtk::literals;
 
-void CellC0Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void CellC0Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/Constant/CellC0Basis.h"
 }
 
-void CellC0Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void CellC0Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
   vtkBasisHeader();
 #include "Basis/Constant/CellC0Gradient.h"
