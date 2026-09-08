@@ -100,7 +100,7 @@ if (VTK_ENABLE_VISRTX)
       VisRTX_VERSION VERSION_GREATER_EQUAL "0.2.0")
     message(FATAL_ERROR
       "VisRTX 0.2.0 and above are intended to be used via the ANARI interface.
-      To use ANARI, please activate VTK_MODULE_ENABLE_VTK_RenderingAnari instead.")
+      To use ANARI, please activate VTK_MODULE_ENABLE_VTK_RenderingAnariCore and/or VTK_MODULE_ENABLE_VTK_RenderingAnariOpenGL instead.")
   endif ()
   vtk_module_link(VTK::RenderingRayTracing
     PUBLIC
