@@ -28,22 +28,20 @@
 #include <cstdint>
 #include <string>
 
-#include <webgpu/webgpu_cpp.h>
-
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 struct QVTKWebGPUWidget::PlatformSurface
 {
 #ifdef _WIN32
-  wgpu::SurfaceSourceWindowsHWND Descriptor;
+  WGPUSurfaceSourceWindowsHWND Descriptor = WGPU_SURFACE_SOURCE_WINDOWS_HWND_INIT;
 #elif defined(__APPLE__)
-  wgpu::SurfaceSourceMetalLayer Descriptor;
+  WGPUSurfaceSourceMetalLayer Descriptor = WGPU_SURFACE_SOURCE_METAL_LAYER_INIT;
   void* MetalLayer = nullptr;
 #elif defined(VTK_USE_Wayland)
-  wgpu::SurfaceSourceWaylandSurface Descriptor;
+  WGPUSurfaceSourceWaylandSurface Descriptor = WGPU_SURFACE_SOURCE_WAYLAND_SURFACE_INIT;
 #elif defined(VTK_USE_X)
-  wgpu::SurfaceSourceXlibWindow Descriptor;
+  WGPUSurfaceSourceXlibWindow Descriptor = WGPU_SURFACE_SOURCE_XLIB_WINDOW_INIT;
 #endif
 };
 
@@ -204,9 +202,9 @@ void QVTKWebGPUWidget::createSurfaceDescriptor()
   this->Platform->Descriptor.hwnd = hwnd;
   this->Platform->Descriptor.hinstance = hinstance;
 
-  this->SurfaceDescriptor = {};
-  this->SurfaceDescriptor.label = "VTK Qt WebGPU Widget Surface";
-  this->SurfaceDescriptor.nextInChain = &this->Platform->Descriptor;
+  this->SurfaceDescriptor = WGPU_SURFACE_DESCRIPTOR_INIT;
+  this->SurfaceDescriptor.label = WGPUStringView{ "VTK Qt WebGPU Widget Surface", WGPU_STRLEN };
+  this->SurfaceDescriptor.nextInChain = &this->Platform->Descriptor.chain;
 
 #elif defined(__APPLE__)
   // macOS: Create a Metal layer and get it from the view
@@ -233,9 +231,9 @@ void QVTKWebGPUWidget::createSurfaceDescriptor()
 
       this->Platform->Descriptor.layer = this->Platform->MetalLayer;
 
-      this->SurfaceDescriptor = {};
-      this->SurfaceDescriptor.label = "VTK Qt WebGPU Widget Surface";
-      this->SurfaceDescriptor.nextInChain = &this->Platform->Descriptor;
+      this->SurfaceDescriptor = WGPU_SURFACE_DESCRIPTOR_INIT;
+      this->SurfaceDescriptor.label = WGPUStringView{ "VTK Qt WebGPU Widget Surface", WGPU_STRLEN };
+      this->SurfaceDescriptor.nextInChain = &this->Platform->Descriptor.chain;
     }
   }
 
@@ -267,9 +265,9 @@ void QVTKWebGPUWidget::createSurfaceDescriptor()
   this->Platform->Descriptor.display = display;
   this->Platform->Descriptor.window = static_cast<uint64_t>(wid);
 
-  this->SurfaceDescriptor = {};
-  this->SurfaceDescriptor.label = "VTK Qt WebGPU Widget Surface";
-  this->SurfaceDescriptor.nextInChain = &this->Platform->Descriptor;
+  this->SurfaceDescriptor = WGPU_SURFACE_DESCRIPTOR_INIT;
+  this->SurfaceDescriptor.label = WGPUStringView{ "VTK Qt WebGPU Widget Surface", WGPU_STRLEN };
+  this->SurfaceDescriptor.nextInChain = &this->Platform->Descriptor.chain;
 #else
   qWarning() << "QVTKWebGPUWidget: the X11 surface path requires Qt 6";
 #endif

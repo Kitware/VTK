@@ -143,7 +143,7 @@ private:
   struct PlatformSurface;
   std::unique_ptr<PlatformSurface> Platform;
 
-  wgpu::SurfaceDescriptor SurfaceDescriptor;
+  WGPUSurfaceDescriptor SurfaceDescriptor = WGPU_SURFACE_DESCRIPTOR_INIT;
 };
 
 VTK_ABI_NAMESPACE_END
