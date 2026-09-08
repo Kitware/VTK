@@ -77,8 +77,28 @@ bool vtkWebGPUProcLoader::Load(const std::string& libPath)
   }
 #endif
 
+  this->Implementation = vtkWebGPUProcLoader::DetectImplementation();
+
   this->Loaded = true;
   return true;
+}
+
+//------------------------------------------------------------------------------
+vtkWebGPUProcLoader::ImplementationType vtkWebGPUProcLoader::DetectImplementation()
+{
+#if defined(__EMSCRIPTEN__)
+  // --use-port=emdawnwebgpu links Dawn into the module.
+  return vtkWebGPUProcLoader::Dawn;
+#else
+  // wgpuGenerateReport comes from wgpu.h, the extension header wgpu-native ships
+  // alongside webgpu.h. Dawn does not declare or export it.
+  const WGPUStringView marker{ "wgpuGenerateReport", WGPU_STRLEN };
+  if (vtkWebGPUProcTableGetProc(vtkWebGPUProcTableGet(), marker) != nullptr)
+  {
+    return vtkWebGPUProcLoader::WgpuNative;
+  }
+  return vtkWebGPUProcLoader::Dawn;
+#endif
 }
 
 //------------------------------------------------------------------------------

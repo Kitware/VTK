@@ -594,6 +594,7 @@ private:
   bool RenderTexturesSetup = false;
 
   WGPUSurface Surface = nullptr;
+  WGPUTexture SurfaceTexture = nullptr;
   WGPUCommandEncoder CommandEncoder = nullptr;
   int SurfaceConfiguredSize[2];
   WGPUTextureFormat PreferredSurfaceTextureFormat = WGPUTextureFormat_BGRA8Unorm;

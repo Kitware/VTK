@@ -26,6 +26,12 @@ LICENSE = """// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder
 
 DECL = re.compile(r"^WGPU_EXPORT\s+.*?\b(wgpu[A-Za-z0-9_]+)\s*\(", re.MULTILINE)
 
+# Entry points that an implementation is allowed to omit. Nothing in VTK calls
+# wgpuGetProcAddress: symbols are resolved straight out of the loaded library,
+# because the function is a Dawn extension that wgpu-native exports as a stub
+# which panics when called. A library that leaves it out entirely still loads.
+OPTIONAL = {"wgpuGetProcAddress"}
+
 
 def entry_points(header_text):
     names = list(dict.fromkeys(DECL.findall(header_text)))
@@ -139,11 +145,14 @@ def write_source(names):
         lines += [
             f'  resolved.{member} = reinterpret_cast<WGPUProc{member}>(',
             f'    getProcAddress(WGPUStringView{{ "{name}", WGPU_STRLEN }}));',
-            f"  if (resolved.{member} == nullptr)",
-            "  {",
-            f'    return "{name}";',
-            "  }",
         ]
+        if name not in OPTIONAL:
+            lines += [
+                f"  if (resolved.{member} == nullptr)",
+                "  {",
+                f'    return "{name}";',
+                "  }",
+            ]
     lines += [
         "  vtkWebGPUProcs = resolved;",
         "  return nullptr;",

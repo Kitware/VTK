@@ -16,11 +16,13 @@
 // Global proc table instance
 static vtkWebGPUProcTable g_vtkWebGPUProcTable;
 
-// Impl struct holds the loaded library handle and bootstrap function pointer
+// Impl struct holds the loaded library handle. Entry points are resolved one by
+// one from that handle rather than through wgpuGetProcAddress: the function is a
+// Dawn extension that wgpu-native exports as a stub which panics when called,
+// and that panic crosses an extern "C" boundary and aborts the process.
 struct vtkWebGPUProcTableImpl
 {
-  vtkLibHandle libHandle;                    // Handle from vtkDynamicLoader
-  WGPUProcGetProcAddress getProcAddressFunc; // Bootstrap function
+  vtkLibHandle libHandle; // Handle from vtkDynamicLoader
 };
 
 #if !defined(__EMSCRIPTEN__)
@@ -80,7 +82,6 @@ vtkWebGPUProcTable vtkWebGPUProcTableLoad(const char* libPath)
     return NULL;
   }
   wasmTable->libHandle = NULL;
-  wasmTable->getProcAddressFunc = NULL;
   g_vtkWebGPUProcTable = wasmTable;
   return wasmTable;
 #else
@@ -126,17 +127,6 @@ vtkWebGPUProcTable vtkWebGPUProcTableLoad(const char* libPath)
     return NULL;
   }
 
-  // Get the wgpuGetProcAddress bootstrap function
-  WGPUProcGetProcAddress getProcAddress =
-    (WGPUProcGetProcAddress)vtkDynamicLoader::GetSymbolAddress(handle, "wgpuGetProcAddress");
-  if (!getProcAddress)
-  {
-    fprintf(stderr, "vtkWebGPUProcTable: wgpuGetProcAddress not found: %s\n",
-      vtkDynamicLoader::LastError());
-    vtkDynamicLoader::CloseLibrary(handle);
-    return NULL;
-  }
-
   // Create proc table instance
   vtkWebGPUProcTableImpl* table = (vtkWebGPUProcTableImpl*)malloc(sizeof(vtkWebGPUProcTableImpl));
   if (!table)
@@ -146,7 +136,6 @@ vtkWebGPUProcTable vtkWebGPUProcTableLoad(const char* libPath)
   }
 
   table->libHandle = handle;
-  table->getProcAddressFunc = getProcAddress;
 
   g_vtkWebGPUProcTable = table;
   return table;
@@ -200,5 +189,23 @@ WGPUProc vtkWebGPUProcTableGetProc(vtkWebGPUProcTable table, WGPUStringView proc
   }
 
   vtkWebGPUProcTableImpl* impl = (vtkWebGPUProcTableImpl*)table;
-  return impl->getProcAddressFunc(procName);
+  if (!impl->libHandle || !procName.data)
+  {
+    return NULL;
+  }
+
+  // A string view carries an explicit length and is not required to be NUL
+  // terminated, so copy it before handing it to the loader.
+  size_t length = procName.length == WGPU_STRLEN ? strlen(procName.data) : procName.length;
+  char* name = (char*)malloc(length + 1);
+  if (!name)
+  {
+    return NULL;
+  }
+  memcpy(name, procName.data, length);
+  name[length] = '\0';
+
+  WGPUProc proc = (WGPUProc)vtkDynamicLoader::GetSymbolAddress(impl->libHandle, name);
+  free(name);
+  return proc;
 }

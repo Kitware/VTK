@@ -42,10 +42,6 @@ const char* vtkWebGPUProcDispatchResolve(WGPUProc (*getProcAddress)(WGPUStringVi
   }
   resolved.GetProcAddress = reinterpret_cast<WGPUProcGetProcAddress>(
     getProcAddress(WGPUStringView{ "wgpuGetProcAddress", WGPU_STRLEN }));
-  if (resolved.GetProcAddress == nullptr)
-  {
-    return "wgpuGetProcAddress";
-  }
   resolved.AdapterGetFeatures = reinterpret_cast<WGPUProcAdapterGetFeatures>(
     getProcAddress(WGPUStringView{ "wgpuAdapterGetFeatures", WGPU_STRLEN }));
   if (resolved.AdapterGetFeatures == nullptr)

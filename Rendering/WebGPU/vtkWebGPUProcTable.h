@@ -48,7 +48,8 @@ extern "C"
 
   /**
    * Get a function pointer from the proc table by name.
-   * This wraps wgpuGetProcAddress() from the loaded implementation.
+   * Symbols are resolved directly from the loaded library, not through
+   * wgpuGetProcAddress(), which not every implementation provides.
    */
   WGPUProc vtkWebGPUProcTableGetProc(vtkWebGPUProcTable table, WGPUStringView procName);
 
