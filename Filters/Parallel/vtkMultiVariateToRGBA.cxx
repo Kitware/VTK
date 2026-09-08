@@ -897,9 +897,14 @@ int vtkMultiVariateToRGBA::RequestDataObject(
 int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if (!this->StoreGBC && !this->StoreRGBA)
+  if (this->StoreRGBA && this->StoreA)
   {
-    vtkErrorMacro("You cannot have both StoreGBC and StoreRGBA set to false");
+    vtkErrorMacro("You cannot have both StoreRGBA and StoreA set to true");
+    return 0;
+  }
+  if (!this->StoreGBC && !this->StoreRGBA && !this->StoreA)
+  {
+    vtkErrorMacro("You cannot have StoreGBC, StoreRGBA and StoreA all set to false");
     return 0;
   }
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -999,23 +1004,31 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   {
     attributes->AddArray(gbcScalars);
   }
-  if (this->StoreRGBA)
+  if (this->StoreRGBA || this->StoreA)
   {
-    vtkNew<vtkDoubleArray> hslScalars;
-    hslScalars->SetName("hsl");
-    hslScalars->SetNumberOfComponents(3);
-    hslScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
-    {
-      GBCToHSLWorker worker(this, vtkMultiVariateToRGBA::ColorLightness);
-      worker(gbcScalars.GetPointer(), hslScalars.GetPointer());
-    }
     vtkNew<vtkDoubleArray> rgbaScalars;
     rgbaScalars->SetName("rgba");
     rgbaScalars->SetNumberOfComponents(4);
     rgbaScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
+    if (this->StoreRGBA)
     {
+      vtkNew<vtkDoubleArray> hslScalars;
+      hslScalars->SetName("hsl");
+      hslScalars->SetNumberOfComponents(3);
+      hslScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
+      {
+        GBCToHSLWorker worker(this, vtkMultiVariateToRGBA::ColorLightness);
+        worker(gbcScalars.GetPointer(), hslScalars.GetPointer());
+      }
       HSLToRGBWorker worker;
       worker(hslScalars.GetPointer(), rgbaScalars.GetPointer());
+    }
+    else
+    {
+      // StoreA: only the alpha component is computed, RGB is left at 0.
+      rgbaScalars->FillComponent(0, 0.0);
+      rgbaScalars->FillComponent(1, 0.0);
+      rgbaScalars->FillComponent(2, 0.0);
     }
     {
       ComputeAlphaWorker worker;

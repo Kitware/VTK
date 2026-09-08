@@ -77,7 +77,13 @@ public:
    *
    * If StoreRGBA (default is true, in which case we store the computed point/cell
    * array named 'rgba') is set to false, we don't compute the color.
-   * Setting both parameters to false is an error.
+   *
+   * If StoreA (default is false) is set to true, we store a point/cell
+   * array named 'rgba' that only has its alpha (A) component computed; the
+   * RGB part is initialized to 0. This is a cheaper alternative to StoreRGBA
+   * when only opacity is needed. StoreRGBA and StoreA cannot both be true.
+   *
+   * Setting StoreGBC, StoreRGBA and StoreA all to false is an error.
    *
    * @sa vtkChartRadViz, vtkPlotRadViz
    */
@@ -87,6 +93,8 @@ public:
   vtkGetMacro(StoreVertices, bool);
   vtkSetMacro(StoreRGBA, bool);
   vtkGetMacro(StoreRGBA, bool);
+  vtkSetMacro(StoreA, bool);
+  vtkGetMacro(StoreA, bool);
   ///@}
 
   /**
@@ -261,6 +269,7 @@ protected:
   bool StoreGBC = false;
   bool StoreVertices = false;
   bool StoreRGBA = true;
+  bool StoreA = false;
   bool FlipY = true;
   std::vector<int> PartitionIndices;
   std::vector<int> PartitionOffsets;
