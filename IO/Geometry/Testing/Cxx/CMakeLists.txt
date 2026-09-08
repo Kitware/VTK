@@ -132,6 +132,10 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFReaderMorphingQuantized,TestGLTFReaderAnimation.cxx 200 DATA{../Data/glTF/AnimatedMorphCubeQuantized/AnimatedMorphCube.gltf,AnimatedMorphCube.bin}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestGLTFReaderSkinning,TestGLTFReaderAnimation.cxx 200 DATA{../Data/glTF/SimpleSkin/SimpleSkin.gltf}
 )
 

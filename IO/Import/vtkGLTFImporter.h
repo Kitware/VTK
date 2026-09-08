@@ -44,6 +44,8 @@
  * - KHR_texture_transform :
  *   The importer supports the KHR_texture_transform extension, but assumes all texture transforms
  * are equal. The base color texture transform is used for all textures.
+ * - KHR_mesh_quantization :
+ *   The buffers are converted to VTK float arrays when loaded.
  *
  * When selecting the input method, `Stream` has a
  * higher priority than `FileName` i.e. if a stream is provided, the filename is ignored.
