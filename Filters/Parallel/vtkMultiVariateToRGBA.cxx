@@ -1035,7 +1035,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
       worker(normalizedScalars.GetPointer(), rgbaScalars.GetPointer());
     }
     {
-      ComputeLensAlphaWorker worker(this->LensCenter, this->LensRadius, this->OutsideLensAlphaCap);
+      ComputeLensAlphaWorker worker(this->LensCenter, this->LensRadius, this->OutsideLensAlpha);
       worker(gbcScalars.GetPointer(), rgbaScalars.GetPointer());
     }
     attributes->AddArray(rgbaScalars);

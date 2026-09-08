@@ -21,7 +21,7 @@
  *
  * Points' opacity can be further modified using a lens (LensCenter,
  * LensRadius) which modifies the opacity of the points outside the
- * lens (see OutsideLensAlphaCap).
+ * lens (see OutsideLensAlpha).
  *
  * You can specify a partition of the set of components in groups (subsets)
  * (see SetPartitionIndices) so that components in each group (subset) are
@@ -121,11 +121,11 @@ public:
   vtkGetMacro(LensRadius, double);
   /**
    * Alpha (opacity) cap for points outside the lens. Each point's alpha is
-   * clamped to min(its alpha, OutsideLensAlphaCap). Default is 0
+   * clamped to min(its alpha, OutsideLensAlpha). Default is 0
    * (points outside the lens fully transparent).
    */
-  vtkSetMacro(OutsideLensAlphaCap, double);
-  vtkGetMacro(OutsideLensAlphaCap, double);
+  vtkSetMacro(OutsideLensAlpha, double);
+  vtkGetMacro(OutsideLensAlpha, double);
   /**
    * Clamp the lens circle (lensCenter, lensRadius) so that it intersects the
    * reference circle (center, radius). GetLensRadius returns the adjusted
@@ -281,7 +281,7 @@ protected:
   /**
    * Alpha cap for points outside the lens.
    */
-  double OutsideLensAlphaCap = 0.0;
+  double OutsideLensAlpha = 0.0;
   /**
    * Custom ranges used as the global min/max when normalizing scalars,
    * interleaved as [min0, max0, min1, max1, ...], one pair per partition

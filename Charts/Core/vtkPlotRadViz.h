@@ -38,7 +38,7 @@
  *
  * Points' opacity can be further modified using a lens which modifies
  * the opacity of the points outside the lens (see
- * OutsideLensAlphaCap). By default the lens does not change the
+ * OutsideLensAlpha). By default the lens does not change the
  * points' opacity. The lens can be shown or hidden using
  * LensVisibility.
  *
@@ -215,12 +215,12 @@ public:
   vtkGetSmartPointerMacro(LensPen, vtkPen);
   /**
    * Alpha (opacity) cap for points outside the lens. Each point's alpha is
-   * clamped to min(its alpha, OutsideLensAlphaCap). Default is 1
+   * clamped to min(its alpha, OutsideLensAlpha). Default is 1
    * (points outside the lens keep their computed opacity). Set a lower
    * value to fade or hide the points outside the lens.
    */
-  vtkSetMacro(OutsideLensAlphaCap, double);
-  vtkGetMacro(OutsideLensAlphaCap, double);
+  vtkSetMacro(OutsideLensAlpha, double);
+  vtkGetMacro(OutsideLensAlpha, double);
   /**
    * Show the lens if true. Default is false.
    */
@@ -339,7 +339,7 @@ protected:
   /**
    * Returns a per-point RGBA array using 'pen' color for RGB and 'rgba's A
    * component for alpha. Used to apply the already computed opacity
-   * (including the lens's OutsideLensAlphaCap) to a single-color plot when
+   * (including the lens's OutsideLensAlpha) to a single-color plot when
    * ScalarVisibility is off.
    */
   vtkSmartPointer<vtkDoubleArray> ApplyPenColor(vtkPen* pen, vtkDataArray* rgba);
@@ -405,7 +405,7 @@ protected:
   /**
    * Alpha cap for points outside the lens.
    */
-  double OutsideLensAlphaCap = 1.0;
+  double OutsideLensAlpha = 1.0;
   /**
    * Show the lens if true.
    */

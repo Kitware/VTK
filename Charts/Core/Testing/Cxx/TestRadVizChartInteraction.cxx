@@ -216,7 +216,7 @@ int TestRadVizChartInteraction(int argc, char* argv[])
   plot->GetPen()->SetWidth(6);
   plot->ColorWheelVisibilityOff();
   plot->ScalarVisibilityOn();
-  plot->SetOutsideLensAlphaCap(0.01);
+  plot->SetOutsideLensAlpha(0.01);
 
   plot->SetInputDataSet(vtkDataSet::SafeDownCast(reader->GetOutputDataObject(0)));
 
