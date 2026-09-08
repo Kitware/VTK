@@ -12,6 +12,7 @@
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
@@ -294,18 +295,12 @@ std::tuple<vtkDataArray*, vtkDataArray*, vtkDataArray*> vtkPlotRadViz::GetVertic
   if (table)
   {
     gbc = this->GetArray(table, "gbc");
-    if (this->ScalarVisibility)
-    {
-      rgba = this->GetArray(table, "rgba");
-    }
+    rgba = this->GetArray(table, "rgba");
   }
   else if (dataset)
   {
     gbc = this->GetArray(dataset, "gbc");
-    if (this->ScalarVisibility)
-    {
-      rgba = this->GetArray(dataset, "rgba");
-    }
+    rgba = this->GetArray(dataset, "rgba");
   }
   else
   {
@@ -359,7 +354,10 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     this->ComputeGBC->SetStoreGBC(true);
     this->ComputeGBC->SetStoreVertices(true);
     this->ComputeGBC->SetVerticesRotation(this->VerticesRotation);
-    this->ComputeGBC->SetStoreRGBA(this->ScalarVisibility);
+    // RGBA is always computed, even when ScalarVisibility is off, so that
+    // the lens can still cap the (single-color) points' alpha via its A
+    // component (see OutsideLensAlphaCap).
+    this->ComputeGBC->SetStoreRGBA(true);
     this->ComputeGBC->SetLensRadius(this->LensRadius / this->Internals->Radius);
     this->ComputeGBC->SetOutsideLensAlphaCap(this->OutsideLensAlphaCap);
     this->ComputeGBC->SetPartitionIndices(this->PartitionIndices);
@@ -383,7 +381,11 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     }
     else
     {
-      this->DrawMarkers(painter, gbc, this->Pen);
+      // Points share a single color (the pen's), but reuse the already
+      // computed per-point alpha (rgba's A component) so the lens still
+      // fades out points outside it.
+      auto colors = this->ApplyPenColor(this->Pen, rgba);
+      this->DrawColoredMarkers(painter, gbc, this->Pen, colors);
     }
     // draw the vertices
     this->Vertices = this->DrawMarkers(painter, vertices, this->VerticesPen, ActiveVertexIndex);
@@ -412,6 +414,24 @@ vtkSmartPointer<vtkPoints2D> vtkPlotRadViz::TransformPoints(vtkDataArray* points
     vtkErrorMacro("Invalid type for the points array: " << points->GetClassName());
   }
   return transformedPoints;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkDoubleArray> vtkPlotRadViz::ApplyPenColor(vtkPen* pen, vtkDataArray* rgba)
+{
+  vtkColor4ub penColor = pen->GetColorObject();
+  double r = penColor.GetRed() / 255.0;
+  double g = penColor.GetGreen() / 255.0;
+  double b = penColor.GetBlue() / 255.0;
+  vtkIdType numberOfTuples = rgba->GetNumberOfTuples();
+  auto colors = vtkSmartPointer<vtkDoubleArray>::New();
+  colors->SetNumberOfComponents(4);
+  colors->SetNumberOfTuples(numberOfTuples);
+  for (vtkIdType i = 0; i < numberOfTuples; ++i)
+  {
+    colors->SetTuple4(i, r, g, b, rgba->GetComponent(i, 3));
+  }
+  return colors;
 }
 
 vtkSmartPointer<vtkUnsignedCharArray> vtkPlotRadViz::TransformColors(vtkDataArray* colors)

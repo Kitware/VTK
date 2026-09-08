@@ -73,6 +73,7 @@ class vtkColorSeries;
 class vtkDataObject;
 class vtkDataSet;
 class vtkDataArray;
+class vtkDoubleArray;
 class vtkMultiVariateToRGBA;
 class vtkPoints2D;
 class vtkStringArray;
@@ -335,6 +336,13 @@ protected:
   void ComputeAutoLabels();
   vtkSmartPointer<vtkPoints2D> TransformPoints(vtkDataArray* points);
   vtkSmartPointer<vtkUnsignedCharArray> TransformColors(vtkDataArray* rgba);
+  /**
+   * Returns a per-point RGBA array using 'pen' color for RGB and 'rgba's A
+   * component for alpha. Used to apply the already computed opacity
+   * (including the lens's OutsideLensAlphaCap) to a single-color plot when
+   * ScalarVisibility is off.
+   */
+  vtkSmartPointer<vtkDoubleArray> ApplyPenColor(vtkPen* pen, vtkDataArray* rgba);
   /**
    * Returns the horizontal and vertical text justification for xy coordinates.
    */
