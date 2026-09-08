@@ -407,6 +407,10 @@ struct HSLToRGBWorker
   }
 };
 
+/**
+ * Make pixels with very small average (over components) normalized
+ * value transparent.
+ */
 struct ComputeAlphaWorker
 {
   ComputeAlphaWorker() = default;
