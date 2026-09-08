@@ -14,6 +14,18 @@
  * GL_ELAPSED_TIME query may be active at a time. Since GL_TIMESTAMP is not
  * available on OpenGL ES, timings will not be available on those platforms.
  * Use the static IsSupported() method to determine if the timer is available.
+ *
+ * WebAssembly is the exception: WebGL 2 offers timing through
+ * EXT_disjoint_timer_query_webgl2, but browsers report zero counter bits for
+ * GL_TIMESTAMP, so a single GL_TIME_ELAPSED query is used there instead. Developers
+ * using this class must take note of two restrictions.
+ *
+ * 1. Timers may not overlap or nest, since only one GL_TIME_ELAPSED query may be
+ * active at a time; a timer started while another is in flight is a no-op.
+ * 2. Absolute times are unavailable, so GetStartTime() returns 0 and GetStopTime()
+ * returns the elapsed time.
+ *
+ * IsSupported() returns false when the browser lacks the extension.
  */
 
 #ifndef vtkOpenGLRenderTimer_h
@@ -107,6 +119,7 @@ public:
 
   /**
    * If Ready() returns true, return the start or stop time in nanoseconds.
+   * Not available under WebAssembly, see the class documentation.
    * @{
    */
   vtkTypeUInt64 GetStartTime();

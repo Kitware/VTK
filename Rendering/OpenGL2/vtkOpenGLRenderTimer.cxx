@@ -8,10 +8,110 @@
 
 #include "vtk_glad.h"
 
+#if defined(__EMSCRIPTEN__)
+#include "webgl/webgl2_ext.h" // for EXT_disjoint_timer_query_webgl2
+#if defined(EMSCRIPTEN_GL_EXT_disjoint_timer_query_webgl2)
+// WebGL 2 exposes GPU timing through EXT_disjoint_timer_query_webgl2, but the
+// browsers that implement it report zero GL_QUERY_COUNTER_BITS_EXT for
+// GL_TIMESTAMP_EXT (the counter is disabled as a timing side channel
+// mitigation), which the extension spec explicitly allows. queryCounterEXT()
+// therefore raises GL_INVALID_OPERATION and its queries never become
+// available, so the timestamp based implementation used everywhere else cannot
+// work here.
+//
+// Fall back to a single GL_TIME_ELAPSED_EXT query spanning the
+// whole interval. The consequences of this are documented in the header.
+#define VTK_RENDER_TIMER_USE_TIME_ELAPSED
+// gl2ext.h keeps its prototypes behind GL_GLEXT_PROTOTYPES.
+#define GL_GLEXT_PROTOTYPES
+#include <GLES2/gl2ext.h>           // for glGetQueryObjectui64vEXT
+#include <emscripten/html5_webgl.h> // for emscripten_webgl_enable_extension
+#endif                              // defined(EMSCRIPTEN_GL_EXT_disjoint_timer_query_webgl2)
+#else
 // glQueryCounter unavailable in OpenGL ES:
 #ifdef GL_ES_VERSION_3_0
-#define NO_TIMESTAMP_QUERIES
+#define VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
+#endif // GL_ES_VERSION_3_0
+#endif // defined(__EMSCRIPTEN__)
+
+namespace
+{
+#if !defined(VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES)
+
+//------------------------------------------------------------------------------
+// Returns true once the result of `query` can be read back without stalling.
+bool QueryResultAvailable(vtkTypeUInt32 query)
+{
+  if (query == 0)
+  {
+    return false;
+  }
+#ifdef GL_ES_VERSION_3_0
+  // OpenGL ES / WebGL 2 only provide the unsigned flavor of this entry point.
+  GLuint ready = 0;
+  glGetQueryObjectuiv(static_cast<GLuint>(query), GL_QUERY_RESULT_AVAILABLE, &ready);
+#else
+  GLint ready = 0;
+  glGetQueryObjectiv(static_cast<GLuint>(query), GL_QUERY_RESULT_AVAILABLE, &ready);
 #endif
+  return ready != 0;
+}
+
+//------------------------------------------------------------------------------
+// Reads the (nanosecond) result of `query`. Only call once QueryResultAvailable
+// returned true, otherwise this stalls until the GPU catches up.
+vtkTypeUInt64 QueryResultNanoseconds(vtkTypeUInt32 query)
+{
+  GLuint64 result = 0;
+#ifdef VTK_RENDER_TIMER_USE_TIME_ELAPSED
+  glGetQueryObjectui64vEXT(static_cast<GLuint>(query), GL_QUERY_RESULT, &result);
+#else
+  glGetQueryObjectui64v(static_cast<GLuint>(query), GL_QUERY_RESULT, &result);
+#endif
+  return result;
+}
+
+#endif // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
+
+#ifdef VTK_RENDER_TIMER_USE_TIME_ELAPSED
+//------------------------------------------------------------------------------
+// True when the GPU signalled a disjoint operation (context switch, power
+// event, ...). Outstanding timers are invalid and must not be reprorted.
+bool GpuDisjointOccurred()
+{
+  GLint disjoint = 0;
+  glGetIntegerv(GL_GPU_DISJOINT_EXT, &disjoint);
+  return disjoint != 0;
+}
+
+// The GL_TIME_ELAPSED_EXT query currently being recorded, or 0 when the target
+// is idle. Only one such query may be active per context.
+GLuint ActiveElapsedQuery = 0;
+
+//------------------------------------------------------------------------------
+// The browser may not implement the extension at all (WebKit, for one). Cache
+// the answer, but only once a context actually exists.
+bool TimerQueryExtensionAvailable()
+{
+  static int available = -1;
+  if (available < 0)
+  {
+    const EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context = emscripten_webgl_get_current_context();
+    if (context == 0)
+    {
+      return false; // no context yet, ask again later.
+    }
+    // Firefox exposes the WebGL 1 spelling on WebGL 2 contexts, so accept either.
+    available = (emscripten_webgl_enable_extension(context, "EXT_disjoint_timer_query_webgl2") ||
+                  emscripten_webgl_enable_extension(context, "EXT_disjoint_timer_query"))
+      ? 1
+      : 0;
+  }
+  return available == 1;
+}
+#endif // VTK_RENDER_TIMER_USE_TIME_ELAPSED
+
+} // end anonymous namespace
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -39,8 +139,10 @@ vtkOpenGLRenderTimer::~vtkOpenGLRenderTimer()
 //------------------------------------------------------------------------------
 bool vtkOpenGLRenderTimer::IsSupported()
 {
-#ifdef NO_TIMESTAMP_QUERIES
+#ifdef VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   return false;
+#elif defined(VTK_RENDER_TIMER_USE_TIME_ELAPSED)
+  return TimerQueryExtensionAvailable();
 #else
   static const bool s = !vtkOpenGLRenderer::HaveAppleQueryAllocationBug();
   return s;
@@ -50,7 +152,7 @@ bool vtkOpenGLRenderTimer::IsSupported()
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderTimer::Reset()
 {
-#ifndef NO_TIMESTAMP_QUERIES
+#ifndef VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   if (this->StartQuery == 0 && this->EndQuery == 0)
   {
     // short-circuit to avoid checking if queries weren't initialized at all.
@@ -65,6 +167,21 @@ void vtkOpenGLRenderTimer::Reset()
     return;
   }
 
+#ifdef VTK_RENDER_TIMER_USE_TIME_ELAPSED
+  // StartQuery and EndQuery alias the same object here, so close the target if
+  // it is still recording and delete the object exactly once.
+  if (this->StartQuery != 0 && ActiveElapsedQuery == static_cast<GLuint>(this->StartQuery))
+  {
+    glEndQuery(GL_TIME_ELAPSED_EXT);
+    ActiveElapsedQuery = 0;
+  }
+  if (this->StartQuery != 0)
+  {
+    glDeleteQueries(1, static_cast<GLuint*>(&this->StartQuery));
+  }
+  this->StartQuery = 0;
+  this->EndQuery = 0;
+#else
   if (this->StartQuery != 0)
   {
     glDeleteQueries(1, static_cast<GLuint*>(&this->StartQuery));
@@ -76,12 +193,15 @@ void vtkOpenGLRenderTimer::Reset()
     glDeleteQueries(1, static_cast<GLuint*>(&this->EndQuery));
     this->EndQuery = 0;
   }
+#endif
 
   this->StartReady = false;
   this->EndReady = false;
   this->StartTime = 0;
   this->EndTime = 0;
-#endif // NO_TIMESTAMP_QUERIES
+  this->ReusableStarted = false;
+  this->ReusableEnded = false;
+#endif // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
 }
 
 //------------------------------------------------------------------------------
@@ -94,16 +214,27 @@ void vtkOpenGLRenderTimer::Start()
 
   this->Reset();
 
-#ifndef NO_TIMESTAMP_QUERIES
+#ifdef VTK_RENDER_TIMER_USE_TIME_ELAPSED
+  if (ActiveElapsedQuery != 0)
+  {
+    vtkGenericWarningMacro("vtkOpenGLRenderTimer::Start called while another "
+                           "GL_TIME_ELAPSED query is in flight. Timers cannot be nested on this "
+                           "platform, no result will be reported.");
+    return;
+  }
+  glGenQueries(1, static_cast<GLuint*>(&this->StartQuery));
+  glBeginQuery(GL_TIME_ELAPSED_EXT, static_cast<GLuint>(this->StartQuery));
+  ActiveElapsedQuery = static_cast<GLuint>(this->StartQuery);
+#elif !defined(VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES)
   glGenQueries(1, static_cast<GLuint*>(&this->StartQuery));
   glQueryCounter(static_cast<GLuint>(this->StartQuery), GL_TIMESTAMP);
-#endif // NO_TIMESTAMP_QUERIES
+#endif
 }
 
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderTimer::Stop()
 {
-#ifndef NO_TIMESTAMP_QUERIES
+#ifndef VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   if (!this->IsSupported())
   {
     return;
@@ -123,68 +254,98 @@ void vtkOpenGLRenderTimer::Stop()
     return;
   }
 
+#ifdef VTK_RENDER_TIMER_USE_TIME_ELAPSED
+  glEndQuery(GL_TIME_ELAPSED_EXT);
+  ActiveElapsedQuery = 0;
+  // The single elapsed query carries both endpoints.
+  this->EndQuery = this->StartQuery;
+#else
   glGenQueries(1, static_cast<GLuint*>(&this->EndQuery));
   glQueryCounter(static_cast<GLuint>(this->EndQuery), GL_TIMESTAMP);
-#endif // NO_TIMESTAMP_QUERIES
+#endif
+#endif // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
 }
 
 //------------------------------------------------------------------------------
 bool vtkOpenGLRenderTimer::Started()
 {
-#ifndef NO_TIMESTAMP_QUERIES
+#ifndef VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   return this->StartQuery != 0;
-#else  // NO_TIMESTAMP_QUERIES
+#else  // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   return false;
-#endif // NO_TIMESTAMP_QUERIES
+#endif // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
 }
 
 //------------------------------------------------------------------------------
 bool vtkOpenGLRenderTimer::Stopped()
 {
-#ifndef NO_TIMESTAMP_QUERIES
+#ifndef VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   return this->EndQuery != 0;
-#else  // NO_TIMESTAMP_QUERIES
+#else  // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   return false;
-#endif // NO_TIMESTAMP_QUERIES
+#endif // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
 }
 
 //------------------------------------------------------------------------------
 bool vtkOpenGLRenderTimer::Ready()
 {
-#ifndef NO_TIMESTAMP_QUERIES
+#ifndef VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   if (!this->IsSupported())
   {
     return false;
   }
 
+  // querying 0 is invalid.
+  if (this->StartQuery == 0 || this->EndQuery == 0)
+  {
+    return false;
+  }
+
+#ifdef VTK_RENDER_TIMER_USE_TIME_ELAPSED
+  if (!this->EndReady)
+  {
+    if (!QueryResultAvailable(this->StartQuery))
+    {
+      return false;
+    }
+
+    if (GpuDisjointOccurred())
+    {
+      // The measurement is meaningless, drop it instead of reporting a spike.
+      this->Reset();
+      return false;
+    }
+
+    // Absolute timestamps are unavailable, report the interval as [0, elapsed].
+    this->StartTime = 0;
+    this->EndTime = QueryResultNanoseconds(this->StartQuery);
+    this->StartReady = true;
+    this->EndReady = true;
+  }
+#else
   if (!this->StartReady)
   {
-    GLint ready;
-    glGetQueryObjectiv(static_cast<GLuint>(this->StartQuery), GL_QUERY_RESULT_AVAILABLE, &ready);
-    if (!ready)
+    if (!QueryResultAvailable(this->StartQuery))
     {
       return false;
     }
 
     this->StartReady = true;
-    glGetQueryObjectui64v(static_cast<GLuint>(this->StartQuery), GL_QUERY_RESULT,
-      reinterpret_cast<GLuint64*>(&this->StartTime));
+    this->StartTime = QueryResultNanoseconds(this->StartQuery);
   }
 
   if (!this->EndReady)
   {
-    GLint ready;
-    glGetQueryObjectiv(static_cast<GLuint>(this->EndQuery), GL_QUERY_RESULT_AVAILABLE, &ready);
-    if (!ready)
+    if (!QueryResultAvailable(this->EndQuery))
     {
       return false;
     }
 
     this->EndReady = true;
-    glGetQueryObjectui64v(static_cast<GLuint>(this->EndQuery), GL_QUERY_RESULT,
-      reinterpret_cast<GLuint64*>(&this->EndTime));
+    this->EndTime = QueryResultNanoseconds(this->EndQuery);
   }
-#endif // NO_TIMESTAMP_QUERIES
+#endif
+#endif // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
 
   return true;
 }
@@ -192,76 +353,76 @@ bool vtkOpenGLRenderTimer::Ready()
 //------------------------------------------------------------------------------
 float vtkOpenGLRenderTimer::GetElapsedSeconds()
 {
-#ifndef NO_TIMESTAMP_QUERIES
+#ifndef VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   if (!this->Ready())
   {
     return 0.f;
   }
 
   return (this->EndTime - this->StartTime) * 1e-9f;
-#else  // NO_TIMESTAMP_QUERIES
+#else  // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   return 0.f;
-#endif // NO_TIMESTAMP_QUERIES
+#endif // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
 }
 
 //------------------------------------------------------------------------------
 float vtkOpenGLRenderTimer::GetElapsedMilliseconds()
 {
-#ifndef NO_TIMESTAMP_QUERIES
+#ifndef VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   if (!this->Ready())
   {
     return 0.f;
   }
 
   return (this->EndTime - this->StartTime) * 1e-6f;
-#else  // NO_TIMESTAMP_QUERIES
+#else  // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   return 0.f;
-#endif // NO_TIMESTAMP_QUERIES
+#endif // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
 }
 
 //------------------------------------------------------------------------------
 vtkTypeUInt64 vtkOpenGLRenderTimer::GetElapsedNanoseconds()
 {
-#ifndef NO_TIMESTAMP_QUERIES
+#ifndef VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   if (!this->Ready())
   {
     return 0;
   }
 
   return (this->EndTime - this->StartTime);
-#else  // NO_TIMESTAMP_QUERIES
+#else  // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   return 0;
-#endif // NO_TIMESTAMP_QUERIES
+#endif // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
 }
 
 //------------------------------------------------------------------------------
 vtkTypeUInt64 vtkOpenGLRenderTimer::GetStartTime()
 {
-#ifndef NO_TIMESTAMP_QUERIES
+#ifndef VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   if (!this->Ready())
   {
     return 0;
   }
 
   return this->StartTime;
-#else  // NO_TIMESTAMP_QUERIES
+#else  // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   return 0;
-#endif // NO_TIMESTAMP_QUERIES
+#endif // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
 }
 
 //------------------------------------------------------------------------------
 vtkTypeUInt64 vtkOpenGLRenderTimer::GetStopTime()
 {
-#ifndef NO_TIMESTAMP_QUERIES
+#ifndef VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   if (!this->Ready())
   {
     return 0;
   }
 
   return this->EndTime;
-#else  // NO_TIMESTAMP_QUERIES
+#else  // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   return 0;
-#endif // NO_TIMESTAMP_QUERIES
+#endif // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
 }
 
 //------------------------------------------------------------------------------
@@ -273,12 +434,34 @@ void vtkOpenGLRenderTimer::ReleaseGraphicsResources()
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderTimer::ReusableStart()
 {
-#ifndef NO_TIMESTAMP_QUERIES
+#ifndef VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   if (!this->IsSupported())
   {
     return;
   }
 
+#ifdef VTK_RENDER_TIMER_USE_TIME_ELAPSED
+  if (this->ReusableStarted)
+  {
+    return;
+  }
+
+  if (ActiveElapsedQuery != 0)
+  {
+    // Another timer owns the target. Skip this frame rather than raise a GL
+    // error, the next call will try again.
+    return;
+  }
+
+  if (this->StartQuery == 0)
+  {
+    glGenQueries(1, static_cast<GLuint*>(&this->StartQuery));
+  }
+  glBeginQuery(GL_TIME_ELAPSED_EXT, static_cast<GLuint>(this->StartQuery));
+  ActiveElapsedQuery = static_cast<GLuint>(this->StartQuery);
+  this->ReusableStarted = true;
+  this->ReusableEnded = false;
+#else
   if (this->StartQuery == 0)
   {
     glGenQueries(1, static_cast<GLuint*>(&this->StartQuery));
@@ -292,13 +475,14 @@ void vtkOpenGLRenderTimer::ReusableStart()
     this->ReusableStarted = true;
     this->ReusableEnded = false;
   }
-#endif // NO_TIMESTAMP_QUERIES
+#endif
+#endif // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
 }
 
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderTimer::ReusableStop()
 {
-#ifndef NO_TIMESTAMP_QUERIES
+#ifndef VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   if (!this->IsSupported())
   {
     return;
@@ -311,6 +495,17 @@ void vtkOpenGLRenderTimer::ReusableStop()
     return;
   }
 
+#ifdef VTK_RENDER_TIMER_USE_TIME_ELAPSED
+  if (this->ReusableEnded)
+  {
+    return;
+  }
+
+  glEndQuery(GL_TIME_ELAPSED_EXT);
+  ActiveElapsedQuery = 0;
+  this->EndQuery = this->StartQuery;
+  this->ReusableEnded = true;
+#else
   if (this->EndQuery == 0)
   {
     glGenQueries(1, static_cast<GLuint*>(&this->EndQuery));
@@ -322,24 +517,43 @@ void vtkOpenGLRenderTimer::ReusableStop()
     glQueryCounter(static_cast<GLuint>(this->EndQuery), GL_TIMESTAMP);
     this->ReusableEnded = true;
   }
-#endif // NO_TIMESTAMP_QUERIES
+#endif
+#endif // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
 }
 
 //------------------------------------------------------------------------------
 float vtkOpenGLRenderTimer::GetReusableElapsedSeconds()
 {
-#ifndef NO_TIMESTAMP_QUERIES
+#ifndef VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   // we do not have an end query yet so we cannot have a time
   if (!this->EndQuery)
   {
     return 0.0;
   }
 
+#ifdef VTK_RENDER_TIMER_USE_TIME_ELAPSED
+  if (this->ReusableStarted && this->ReusableEnded && QueryResultAvailable(this->EndQuery))
+  {
+    if (GpuDisjointOccurred())
+    {
+      // The measurement is meaningless, drop it instead of reporting a spike.
+      this->StartTime = 0;
+      this->EndTime = 0;
+    }
+    else
+    {
+      // Absolute timestamps are unavailable, report the interval as [0, elapsed].
+      this->StartTime = 0;
+      this->EndTime = QueryResultNanoseconds(this->EndQuery);
+    }
+    // it was ready so prepare another flight
+    this->ReusableStarted = false;
+    this->ReusableEnded = false;
+  }
+#else
   if (this->ReusableStarted && !this->StartReady)
   {
-    GLint ready;
-    glGetQueryObjectiv(static_cast<GLuint>(this->StartQuery), GL_QUERY_RESULT_AVAILABLE, &ready);
-    if (ready)
+    if (QueryResultAvailable(this->StartQuery))
     {
       this->StartReady = true;
     }
@@ -347,34 +561,31 @@ float vtkOpenGLRenderTimer::GetReusableElapsedSeconds()
 
   if (this->StartReady && this->ReusableEnded && !this->EndReady)
   {
-    GLint ready;
-    glGetQueryObjectiv(static_cast<GLuint>(this->EndQuery), GL_QUERY_RESULT_AVAILABLE, &ready);
-    if (ready)
+    if (QueryResultAvailable(this->EndQuery))
     {
       this->EndReady = true;
     }
   }
 
-  // if everything is ready read the times to get a new elapsed time
-  // and then prep for a new flight. This also has the benefit that
-  // if no one is getting the elapsed time then nothing is done
+  // if we have a complete flight, then get the times and prepare for another
+  // flight. Note that we cannot use the Ready() method as it will not work
   // beyond the first flight.
   if (this->StartReady && this->EndReady)
   {
-    glGetQueryObjectui64v(static_cast<GLuint>(this->StartQuery), GL_QUERY_RESULT,
-      reinterpret_cast<GLuint64*>(&this->StartTime));
-    glGetQueryObjectui64v(static_cast<GLuint>(this->EndQuery), GL_QUERY_RESULT,
-      reinterpret_cast<GLuint64*>(&this->EndTime));
+    this->StartTime = QueryResultNanoseconds(this->StartQuery);
+    this->EndTime = QueryResultNanoseconds(this->EndQuery);
     // it was ready so prepare another flight
     this->ReusableStarted = false;
     this->ReusableEnded = false;
     this->StartReady = false;
     this->EndReady = false;
   }
+#endif
 
   return (this->EndTime - this->StartTime) * 1e-9f;
-#else  // NO_TIMESTAMP_QUERIES
+#else  // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
   return 0.f;
-#endif // NO_TIMESTAMP_QUERIES
+#endif // VTK_RENDER_TIMER_NO_TIMESTAMP_QUERIES
 }
+
 VTK_ABI_NAMESPACE_END
