@@ -176,6 +176,16 @@ void vtkDGOperation<InputIterator, OutputIterator>::AddSource(vtkCellGrid* grid,
   }
   bool sharedDOF = cellTypeInfo.DOFSharing.IsValid();
   auto* values = cellTypeInfo.GetArrayForRoleAs<vtkDataArray>("values"_token);
+  // An attribute that shares degrees of freedom indexes them with the array in
+  // its own "connectivity" role. That is usually the cell's connectivity, but it
+  // need not be: an attribute whose basis numbers its degrees of freedom
+  // differently than the cell's corners must say so, or its coefficients would
+  // be paired with the wrong basis functions.
+  auto* dofConnectivity = cellTypeInfo.GetArrayForRoleAs<vtkDataArray>("connectivity"_token);
+  if (!dofConnectivity)
+  {
+    dofConnectivity = cellSpec.Connectivity;
+  }
   bool shapeSharing = false;
   vtkDataArray* shapeConn = nullptr;
   vtkDataArray* shapeValues = nullptr;
@@ -216,7 +226,7 @@ void vtkDGOperation<InputIterator, OutputIterator>::AddSource(vtkCellGrid* grid,
         case None:
         {
           vtkDGOperationEvaluator<InputIterator, OutputIterator, SharedDOF, Cells, None>::prepEntry(
-            entry, op, cellSpec.Connectivity, values, nullptr, source.Offset);
+            entry, op, dofConnectivity, values, nullptr, source.Offset);
         }
         break;
         case InverseJacobian:
@@ -224,13 +234,13 @@ void vtkDGOperation<InputIterator, OutputIterator>::AddSource(vtkCellGrid* grid,
           if (shapeSharing)
           {
             vtkDGOperationEvaluator<InputIterator, OutputIterator, SharedDOF, Cells,
-              InverseJacobian, SharedDOF>::prepEntry(entry, op, cellSpec.Connectivity, values,
-              nullptr, source.Offset, shapeGradient, shapeConn, shapeValues);
+              InverseJacobian, SharedDOF>::prepEntry(entry, op, dofConnectivity, values, nullptr,
+              source.Offset, shapeGradient, shapeConn, shapeValues);
           }
           else
           {
             vtkDGOperationEvaluator<InputIterator, OutputIterator, SharedDOF, Cells,
-              InverseJacobian, Discontinuous>::prepEntry(entry, op, cellSpec.Connectivity, values,
+              InverseJacobian, Discontinuous>::prepEntry(entry, op, dofConnectivity, values,
               nullptr, source.Offset, shapeGradient, nullptr, shapeValues);
           }
         }
@@ -240,14 +250,14 @@ void vtkDGOperation<InputIterator, OutputIterator>::AddSource(vtkCellGrid* grid,
           if (shapeSharing)
           {
             vtkDGOperationEvaluator<InputIterator, OutputIterator, SharedDOF, Cells, ScaledJacobian,
-              SharedDOF>::prepEntry(entry, op, cellSpec.Connectivity, values, nullptr,
-              source.Offset, shapeGradient, shapeConn, shapeValues);
+              SharedDOF>::prepEntry(entry, op, dofConnectivity, values, nullptr, source.Offset,
+              shapeGradient, shapeConn, shapeValues);
           }
           else
           {
             vtkDGOperationEvaluator<InputIterator, OutputIterator, SharedDOF, Cells, ScaledJacobian,
-              Discontinuous>::prepEntry(entry, op, cellSpec.Connectivity, values, nullptr,
-              source.Offset, shapeGradient, nullptr, shapeValues);
+              Discontinuous>::prepEntry(entry, op, dofConnectivity, values, nullptr, source.Offset,
+              shapeGradient, nullptr, shapeValues);
           }
         }
         break;
@@ -310,7 +320,7 @@ void vtkDGOperation<InputIterator, OutputIterator>::AddSource(vtkCellGrid* grid,
         case None:
         {
           vtkDGOperationEvaluator<InputIterator, OutputIterator, SharedDOF, Sides, None>::prepEntry(
-            entry, op, cellSpec.Connectivity, values, source.Connectivity, source.Offset);
+            entry, op, dofConnectivity, values, source.Connectivity, source.Offset);
         }
         break;
         case InverseJacobian:
@@ -318,13 +328,13 @@ void vtkDGOperation<InputIterator, OutputIterator>::AddSource(vtkCellGrid* grid,
           if (shapeSharing)
           {
             vtkDGOperationEvaluator<InputIterator, OutputIterator, SharedDOF, Sides,
-              InverseJacobian, SharedDOF>::prepEntry(entry, op, cellSpec.Connectivity, values,
+              InverseJacobian, SharedDOF>::prepEntry(entry, op, dofConnectivity, values,
               source.Connectivity, source.Offset, shapeGradient, shapeConn, shapeValues);
           }
           else
           {
             vtkDGOperationEvaluator<InputIterator, OutputIterator, SharedDOF, Sides,
-              InverseJacobian, Discontinuous>::prepEntry(entry, op, cellSpec.Connectivity, values,
+              InverseJacobian, Discontinuous>::prepEntry(entry, op, dofConnectivity, values,
               source.Connectivity, source.Offset, shapeGradient, nullptr, shapeValues);
           }
         }
@@ -334,14 +344,14 @@ void vtkDGOperation<InputIterator, OutputIterator>::AddSource(vtkCellGrid* grid,
           if (shapeSharing)
           {
             vtkDGOperationEvaluator<InputIterator, OutputIterator, SharedDOF, Sides, ScaledJacobian,
-              SharedDOF>::prepEntry(entry, op, cellSpec.Connectivity, values, source.Connectivity,
+              SharedDOF>::prepEntry(entry, op, dofConnectivity, values, source.Connectivity,
               source.Offset, shapeGradient, shapeConn, shapeValues);
           }
           else
           {
             vtkDGOperationEvaluator<InputIterator, OutputIterator, SharedDOF, Sides, ScaledJacobian,
-              Discontinuous>::prepEntry(entry, op, cellSpec.Connectivity, values,
-              source.Connectivity, source.Offset, shapeGradient, nullptr, shapeValues);
+              Discontinuous>::prepEntry(entry, op, dofConnectivity, values, source.Connectivity,
+              source.Offset, shapeGradient, nullptr, shapeValues);
           }
         }
         break;
