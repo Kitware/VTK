@@ -1,6 +1,7 @@
 vtk_add_test_cxx(vtkFiltersCellGridCxxTests tests
   TestBasisFunctions.cxx,NO_VALID
   TestCellGridArbitraryOrder.cxx,NO_VALID
+  TestCellGridChangeBasis.cxx,NO_VALID
   TestCellGridBezierBasis.cxx,NO_VALID
   TestCellGridEvaluator.cxx,NO_VALID
   TestCellGridExtractSurface.cxx,NO_VALID
