@@ -24,6 +24,7 @@
 #include "vtkDGEvaluator.h"
 #include "vtkDGHex.h"
 #include "vtkDGInterpolateCalculator.h"
+#include "vtkDGLagrangePoints.h"
 #include "vtkDGPyr.h"
 #include "vtkDGQuad.h"
 #include "vtkDGRangeResponder.h"
@@ -38,6 +39,7 @@
 #include "vtkDGWarp.h"
 #include "vtkDGWdg.h"
 #include "vtkInterpolateCalculator.h"
+#include "vtkLagrangePoints.h"
 #include "vtkUnstructuredGridToCellGrid.h"
 
 #include "vtkDGBezierOperators.h"
@@ -149,6 +151,7 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     // Attribute calculators
     vtkNew<vtkDGInterpolateCalculator> dgInterp;
     vtkNew<vtkDGAttributeInformation> dgAttInfo;
+    vtkNew<vtkDGLagrangePoints> dgLagrangePts;
 
     auto* responders = vtkCellMetadata::GetResponders();
 
@@ -173,6 +176,7 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     // # Register vtkInterpolateCalculator responders.
     registerCalculatorResponder<vtkInterpolateCalculator>(responders, dgInterp.GetPointer());
     registerCalculatorResponder<vtkCellAttributeInformation>(responders, dgAttInfo.GetPointer());
+    registerCalculatorResponder<vtkLagrangePoints>(responders, dgLagrangePts.GetPointer());
   }
 
   return true;

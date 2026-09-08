@@ -35,10 +35,12 @@ set(classes
   # Calculator bases
   vtkInterpolateCalculator
   vtkCellAttributeInformation
+  vtkLagrangePoints
 
   # Calculator implementations
   vtkDGInterpolateCalculator
   vtkDGAttributeInformation
+  vtkDGLagrangePoints
 
   # Cell types
   vtkDGCell
