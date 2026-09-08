@@ -7,3 +7,6 @@ specification 1.1. The parameters have been moved to the extensions that define
 lights (which are free to ignore them if soft shadows are not supported).
 
 The ANARI 1.1 specification was first supported by the ANARI SDK version 0.16.
+
+VTK works with either specification: it detects at compile time whether the ANARI SDK it is
+built against provides `KHR_LIGHT_PRIMARY_VISIBILITY` or the older `KHR_AREA_LIGHTS` extension.
