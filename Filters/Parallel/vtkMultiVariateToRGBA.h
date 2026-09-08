@@ -73,9 +73,9 @@ public:
    * we store the computed vertices as a field array named 'vertices'.
    *
    * If StoreGBC (default is false) is set to true, we
-   * store the computed GBC as an array named 'gbc'.
+   * store the computed GBC as a point/cell array named 'gbc'.
    *
-   * If StoreRGBA (default is true, in which case we store the computed
+   * If StoreRGBA (default is true, in which case we store the computed point/cell
    * array named 'rgba') is set to false, we don't compute the color.
    * Setting both parameters to false is an error.
    *
