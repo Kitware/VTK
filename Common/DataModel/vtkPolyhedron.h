@@ -455,6 +455,13 @@ protected:
   // These faces are numbered in global id space
   vtkNew<vtkCellArray> GlobalFaces;
 
+  /**
+   * Face points as mesh (global) point ids, matching the GlobalFaces
+   * representation. GetFacePoints() returns cell-local ids per vtkCell3D's
+   * contract; this exists for the internal consumers that need global ids.
+   */
+  vtkIdType GetGlobalFacePoints(vtkIdType faceId, const vtkIdType*& pts);
+
   // If edges are needed. Note that the edge numbering is in canonical space.
   int EdgesGenerated = 0;           // true/false
   vtkNew<vtkEdgeTable> EdgeTable;   // keep track of all edges

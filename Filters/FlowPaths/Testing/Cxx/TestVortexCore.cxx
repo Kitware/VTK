@@ -3,6 +3,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkHexahedron.h"
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
@@ -210,6 +211,32 @@ void constructVelocityProfile(vtkUnstructuredGrid* unstructuredGrid)
   unstructuredGrid->GetPointData()->AddArray(velocityArray);
   unstructuredGrid->GetPointData()->SetActiveVectors("velocity");
 }
+
+// Same field stored as float. vtkGradientFilter's output follows its input
+// type, so a float velocity yields a float jacobian and jacobian_prime. The
+// higher order path used to downcast jacobian_prime to vtkDoubleArray, which
+// silently produced null and reached the dispatch worker unchecked.
+void constructFloatVelocityProfile(vtkUnstructuredGrid* unstructuredGrid)
+{
+  vtkPoints* pointArray = unstructuredGrid->GetPoints();
+
+  vtkNew<vtkFloatArray> velocityArray;
+  velocityArray->SetName("velocity");
+  velocityArray->SetNumberOfComponents(3);
+  velocityArray->SetNumberOfTuples(pointArray->GetNumberOfPoints());
+
+  for (int i = 0; i < pointArray->GetNumberOfPoints(); ++i)
+  {
+    constexpr double s = .5, r = .5, k = .1;
+    const double* p = pointArray->GetPoint(i);
+    const float v[3] = { static_cast<float>(-s * p[1] + r * s * sin(k * p[2])),
+      static_cast<float>(s * p[0] - r * s * cos(k * p[2])), 1.f };
+    velocityArray->SetTypedTuple(i, v);
+  }
+
+  unstructuredGrid->GetPointData()->AddArray(velocityArray);
+  unstructuredGrid->GetPointData()->SetActiveVectors("velocity");
+}
 }
 
 int TestVortexCore(int argc, char* argv[])
@@ -263,6 +290,39 @@ int TestVortexCore(int argc, char* argv[])
   {
     std::cerr << "Output 2 attribute check failed" << std::endl;
     return EXIT_FAILURE;
+  }
+
+  // Higher order method on a float velocity field. vtkGradientFilter follows
+  // its input type, so jacobian_prime is float here; downcasting it to
+  // vtkDoubleArray gave null and crashed in the dispatch worker.
+  {
+    vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid = constructGrid(5, 5, 5, Hexahedra);
+    constructFloatVelocityProfile(unstructuredGrid);
+
+    if (!vtkFloatArray::SafeDownCast(unstructuredGrid->GetPointData()->GetArray("velocity")))
+    {
+      std::cerr << "Velocity must be float to cover the jacobian_prime downcast" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    vtkNew<vtkVortexCore> vortexCore;
+    vortexCore->SetHigherOrderMethod(true);
+    vortexCore->SetInputArrayToProcess(
+      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "velocity");
+    vortexCore->SetInputData(unstructuredGrid);
+    vortexCore->Update();
+
+    vtkPolyData* output3 = vtkPolyData::SafeDownCast(vortexCore->GetOutput());
+    if (!output3 || output3->CheckAttributes())
+    {
+      std::cerr << "Float higher order output attribute check failed" << std::endl;
+      return EXIT_FAILURE;
+    }
+    if (!output3->GetNumberOfCells())
+    {
+      std::cerr << "Float higher order method produced no cells" << std::endl;
+      return EXIT_FAILURE;
+    }
   }
 
   return EXIT_SUCCESS;

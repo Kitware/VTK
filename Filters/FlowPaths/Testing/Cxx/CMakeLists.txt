@@ -15,6 +15,7 @@ vtk_add_test_cxx(vtkFiltersFlowPathsCxxTests tests
   TestLagrangianParticleTrackerWithGravity.cxx,NO_VALID
   TestStreamTracerImplicitArray.cxx,NO_VALID
   TestVortexCore.cxx,NO_VALID
+  TestVortexCorePolyhedra.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestVectorFieldTopology.cxx
   TestVectorFieldTopologyAMR.cxx
   TestVectorFieldTopologyNoIterativeSeeding.cxx

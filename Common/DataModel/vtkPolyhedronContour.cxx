@@ -573,7 +573,7 @@ void vtkPolyhedronContour::OutputClip(vtkPolyhedron* cell, vtkCellArray* connect
   for (vtkIdType faceIdx = 0; faceIdx < numFaces; ++faceIdx)
   {
     const vtkIdType* facePts = nullptr;
-    vtkIdType numFaceVerts = cell->GetFacePoints(faceIdx, facePts);
+    vtkIdType numFaceVerts = cell->GetGlobalFacePoints(faceIdx, facePts);
     if (numFaceVerts < 3 || !facePts)
     {
       continue;
