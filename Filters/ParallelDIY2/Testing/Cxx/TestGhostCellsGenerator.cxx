@@ -2753,6 +2753,27 @@ bool TestUnstructuredGrid(
     vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(outPDSWithGID->GetPartition(id));
     bool error = false;
 
+    vtkDataArray* globalPointIds = ug->GetPointData()->GetGlobalIds();
+    if (!globalPointIds)
+    {
+      vtkLog(ERROR, "Missing point global ids in partition " << id);
+      error = true;
+    }
+    else
+    {
+      std::set<vtkIdType> uniqueGlobalPointIds;
+      for (vtkIdType pointId = 0; pointId < globalPointIds->GetNumberOfTuples(); ++pointId)
+      {
+        vtkIdType globalPointId = static_cast<vtkIdType>(globalPointIds->GetTuple1(pointId));
+        if (!uniqueGlobalPointIds.insert(globalPointId).second)
+        {
+          vtkLog(ERROR, "Duplicate point global id " << globalPointId << " in partition " << id);
+          error = true;
+          break;
+        }
+      }
+    }
+
     // Number of points is hardcoded. The topology of the output is kind of weird because out of the
     // 4 partitions, the first partition has one edge that has global ids that don't match its
     // counter part in the other partitions. This test ensures that global ids trump point
