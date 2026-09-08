@@ -17,11 +17,12 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUnsignedCharArray;
 
-class VTKRENDERINGCORE_EXPORT vtkStereoCompositor : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkStereoCompositor : public vtkObject
 {
 public:
   static vtkStereoCompositor* New();

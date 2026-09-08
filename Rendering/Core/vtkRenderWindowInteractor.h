@@ -371,9 +371,7 @@ public:
    * Set/Get the object used to perform operations through the interactor
    * By default, a valid but disabled picking manager is instantiated.
    */
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetPickingManager(vtkPickingManager*);
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGetObjectMacro(PickingManager, vtkPickingManager);
   ///@}
 

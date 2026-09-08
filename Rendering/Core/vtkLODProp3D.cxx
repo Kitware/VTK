@@ -88,6 +88,50 @@ vtkLODProp3D::~vtkLODProp3D()
   this->PickCallback->Delete();
 }
 
+void vtkLODProp3D::ClearLODs()
+{
+  for (int i = 0; i < this->NumberOfEntries; i++)
+  {
+    if (this->LODs[i].ID != VTK_INDEX_NOT_IN_USE && this->LODs[i].Prop3D != nullptr)
+    {
+      this->LODs[i].Prop3D->RemoveConsumer(this);
+      this->LODs[i].Prop3D->RemoveObserver(this->PickCallback);
+      this->LODs[i].Prop3D->Delete();
+      this->LODs[i].Prop3D = nullptr;
+      this->LODs[i].ID = VTK_INDEX_NOT_IN_USE;
+    }
+  }
+  delete[] this->LODs;
+  this->LODs = nullptr;
+  this->NumberOfEntries = 0;
+  this->NumberOfLODs = 0;
+}
+
+//------------------------------------------------------------------------------
+void vtkLODProp3D::RebuildLODBookkeeping()
+{
+  this->NumberOfLODs = 0;
+  for (int i = 0; i < this->NumberOfEntries; i++)
+  {
+    if (this->LODs[i].Prop3D == nullptr)
+    {
+      // An empty slot must also read as unused, otherwise ConvertIDToIndex and the destructor
+      // would treat it as a live LOD.
+      this->LODs[i].ID = VTK_INDEX_NOT_IN_USE;
+      continue;
+    }
+    this->NumberOfLODs++;
+    if (this->LODs[i].ID >= this->CurrentIndex)
+    {
+      // Never hand out an ID that is already taken.
+      this->CurrentIndex = this->LODs[i].ID + 1;
+    }
+    this->LODs[i].Prop3D->AddConsumer(this);
+    this->LODs[i].Prop3D->AddObserver(vtkCommand::PickEvent, this->PickCallback);
+  }
+}
+
+//------------------------------------------------------------------------------
 int vtkLODProp3D::ConvertIDToIndex(int id)
 {
   int index = 0;
@@ -213,6 +257,7 @@ void vtkLODProp3D::RemoveLOD(int id)
   this->LODs[index].Prop3D->RemoveConsumer(this);
   this->LODs[index].Prop3D->RemoveObserver(this->PickCallback);
   this->LODs[index].Prop3D->Delete();
+  this->LODs[index].Prop3D = nullptr;
   this->LODs[index].ID = VTK_INDEX_NOT_IN_USE;
   this->NumberOfLODs--;
 }

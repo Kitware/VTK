@@ -17,6 +17,7 @@
 #include "vtkNew.h"                 // For.... vtkNew!
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For.... vtkSmartPointer!
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -28,7 +29,7 @@ class vtkRenderer;
 class vtkTextProperty;
 class vtkTextRenderer;
 
-class VTKRENDERINGCORE_EXPORT vtkFlagpoleLabel : public vtkActor
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkFlagpoleLabel : public vtkActor
 {
 public:
   static vtkFlagpoleLabel* New();

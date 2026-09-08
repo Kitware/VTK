@@ -47,6 +47,7 @@
 
 #include "vtkProp3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAssemblyPaths;
@@ -55,7 +56,7 @@ class vtkMapper;
 class vtkProperty;
 class vtkActor;
 
-class VTKRENDERINGCORE_EXPORT vtkAssembly : public vtkProp3D
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkAssembly : public vtkProp3D
 {
 public:
   static vtkAssembly* New();

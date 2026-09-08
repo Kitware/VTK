@@ -25,7 +25,7 @@ DATA_FILE = "marshal_modules.json"
 MARSHAL_HINT_REGEX = r"VTK_MARSHAL(AUTO|MANUAL)"
 MARSHAL_HINT_REGEXES = [r"VTK_MARSHALAUTO", r"VTK_MARSHALMANUAL"]
 MODULE_HEADER_REGEX = r'^#include "vtk.*Module\.h"'
-MODULE_EXPORT_REGEX = r"^class VTK.*_EXPORT"
+MODULE_EXPORT_REGEX = r"^(class\s+|)VTK.*_EXPORT"
 WRAPHINT_HEADER_REGEX = r'^#include "vtkWrappingHints\.h"'
 
 SCRIPT_DIR = pathlib.Path(os.path.dirname(__file__))
@@ -220,7 +220,7 @@ def update():
                 new_lines[export_line_num - 1] = export_line_text.replace(
                     target, '')
             # Removes vtkWrappingHints.h below the include of the vtk*Module.h
-            if has_exported_class and wrap_hint_header_line_match is not None:
+            if has_exported_class and existing_macro_line_match is not None and wrap_hint_header_line_match is not None:
                 if not len(new_lines):
                     new_lines.extend(f.readlines())
                 wrappings_hints_line = new_lines[wrap_hint_header_line_match[0] - 1]

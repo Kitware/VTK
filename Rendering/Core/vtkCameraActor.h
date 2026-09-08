@@ -16,6 +16,7 @@
 
 #include "vtkProp3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
@@ -24,7 +25,7 @@ class vtkPolyDataMapper;
 class vtkActor;
 class vtkProperty;
 
-class VTKRENDERINGCORE_EXPORT vtkCameraActor : public vtkProp3D
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkCameraActor : public vtkProp3D
 {
 public:
   static vtkCameraActor* New();

@@ -19,6 +19,7 @@
 
 #include "vtkMapper2D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 #include "vtkNew.h" // For vtkNew
 
@@ -33,7 +34,7 @@ class vtkTexture;
 class vtkTimeStamp;
 class vtkViewport;
 
-class VTKRENDERINGCORE_EXPORT vtkTextMapper : public vtkMapper2D
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkTextMapper : public vtkMapper2D
 {
 public:
   vtkTypeMacro(vtkTextMapper, vtkMapper2D);

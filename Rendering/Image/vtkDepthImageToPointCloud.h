@@ -58,11 +58,13 @@
 
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkRenderingImageModule.h" // For export macro
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 
-class VTKRENDERINGIMAGE_EXPORT vtkDepthImageToPointCloud : public vtkPolyDataAlgorithm
+class VTKRENDERINGIMAGE_EXPORT VTK_MARSHALAUTO vtkDepthImageToPointCloud
+  : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

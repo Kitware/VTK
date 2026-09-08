@@ -33,6 +33,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
@@ -41,7 +42,7 @@ class vtkHardwareSelector;
 class vtkRenderWindowInteractor;
 class vtkScenePickerSelectionRenderCommand;
 
-class VTKRENDERINGCORE_EXPORT vtkScenePicker : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkScenePicker : public vtkObject
 {
 
   friend class vtkRenderer;

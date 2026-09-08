@@ -31,6 +31,7 @@
 
 #include "vtkInteractorObserver.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 #include "vtkNew.h" // vtkNew
 
@@ -40,7 +41,8 @@ class vtkActor2D;
 class vtkStringArray;
 
 // The superclass that all commands should be subclasses of
-class VTKRENDERINGCORE_EXPORT vtkInteractorEventRecorder : public vtkInteractorObserver
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkInteractorEventRecorder
+  : public vtkInteractorObserver
 {
 public:
   static vtkInteractorEventRecorder* New();

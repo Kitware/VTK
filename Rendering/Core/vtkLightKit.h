@@ -82,13 +82,14 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkLight;
 class vtkPiecewiseFunction;
 class vtkRenderer;
 
-class VTKRENDERINGCORE_EXPORT vtkLightKit : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkLightKit : public vtkObject
 {
 public:
   static vtkLightKit* New();

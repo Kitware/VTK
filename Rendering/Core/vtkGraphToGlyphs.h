@@ -20,6 +20,7 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // for SP ivars
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDistanceToCamera;
@@ -29,7 +30,7 @@ class vtkGlyphSource2D;
 class vtkRenderer;
 class vtkSphereSource;
 
-class VTKRENDERINGCORE_EXPORT vtkGraphToGlyphs : public vtkPolyDataAlgorithm
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkGraphToGlyphs : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGraphToGlyphs* New();

@@ -38,11 +38,12 @@
 #include "vtkAlgorithm.h"
 #include "vtkImageData.h"           // makes things a bit easier
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 
-class VTKRENDERINGCORE_EXPORT vtkRendererSource : public vtkAlgorithm
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkRendererSource : public vtkAlgorithm
 {
 public:
   static vtkRendererSource* New();

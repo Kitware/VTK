@@ -22,11 +22,12 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // for export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 
-class VTKRENDERINGCORE_EXPORT vtkBackgroundColorMonitor : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkBackgroundColorMonitor : public vtkObject
 {
 public:
   static vtkBackgroundColorMonitor* New();
