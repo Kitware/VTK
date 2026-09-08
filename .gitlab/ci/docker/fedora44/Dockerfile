@@ -13,6 +13,9 @@ RUN sh /root/install_adios.sh
 COPY install_openvr.sh /root/install_openvr.sh
 RUN sh /root/install_openvr.sh
 
+COPY install_conduit.sh /root/install_conduit.sh
+RUN sh /root/install_conduit.sh
+
 COPY install_catalyst.sh /root/install_catalyst.sh
 RUN sh /root/install_catalyst.sh
 

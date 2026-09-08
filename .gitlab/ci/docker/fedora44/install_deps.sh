@@ -57,7 +57,7 @@ dnf install -y --setopt=install_weak_deps=False \
 dnf install -y --setopt=install_weak_deps=False \
     python3 python3-devel python3-pip python3-numpy python3-tkinter \
     python3-mpi4py-mpich python3-mpi4py-openmpi python3-matplotlib \
-    python3-xarray python3-cftime netcdf4-python
+    python3-xarray python3-cftime netcdf4-python python3-setuptools
 
 # CI dependencies packages
 dnf install -y --setopt=install_weak_deps=False \

@@ -29,6 +29,8 @@ catalyst_build () {
     cmake --build "$catalyst_build_root/$subdir" --target install
 }
 
+# Catalyst installs configured to use the vendored Conduit
+
 # MPI-less
 catalyst_build nompi /usr \
     -DCATALYST_USE_MPI=OFF
@@ -41,6 +43,39 @@ catalyst_build mpich /usr/lib64/mpich \
 # OpenMPI
 catalyst_build openmpi /usr/lib64/openmpi \
     -DCATALYST_USE_MPI=ON \
+    -DCMAKE_INSTALL_LIBDIR=lib
+
+# The Catalyst installs below are configured to use an external Conduit. They
+# live under /opt, rather than /usr, to prevent them getting used accidentally.
+#
+# Any build enabling VTK::conduit must use one of these (the installs above
+# mangle their vendored Conduit).
+#
+# Installing outside the MPI prefixes means MPI is no longer found via
+# CMAKE_INSTALL_PREFIX, so the MPI prefix has to be passed explicitly
+# for these builds.
+
+# MPI-less, external Conduit
+catalyst_build nompi-ext /opt/catalyst-ext/nompi \
+    -DCATALYST_WITH_EXTERNAL_CONDUIT=ON \
+    -DConduit_DIR=/opt/conduit/nompi/lib/cmake/conduit \
+    -DCATALYST_USE_MPI=OFF \
+    -DCMAKE_INSTALL_LIBDIR=lib
+
+# MPICH, external Conduit
+catalyst_build mpich-ext /opt/catalyst-ext/mpich \
+    -DCATALYST_WITH_EXTERNAL_CONDUIT=ON \
+    -DConduit_DIR=/opt/conduit/mpich/lib/cmake/conduit \
+    -DCATALYST_USE_MPI=ON \
+    -DCMAKE_PREFIX_PATH=/usr/lib64/mpich \
+    -DCMAKE_INSTALL_LIBDIR=lib
+
+# OpenMPI, external Conduit
+catalyst_build openmpi-ext /opt/catalyst-ext/openmpi \
+    -DCATALYST_WITH_EXTERNAL_CONDUIT=ON \
+    -DConduit_DIR=/opt/conduit/openmpi/lib/cmake/conduit \
+    -DCATALYST_USE_MPI=ON \
+    -DCMAKE_PREFIX_PATH=/usr/lib64/openmpi \
     -DCMAKE_INSTALL_LIBDIR=lib
 
 rm -rf "$catalyst_root"
