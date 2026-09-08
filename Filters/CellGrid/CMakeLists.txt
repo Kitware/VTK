@@ -53,6 +53,7 @@ set(classes
   vtkDeRhamCell
 
   # Numerics and low-level classes
+  vtkDGBezierOperators
   vtkDGConstantOperators
   vtkDGHGradOperators
   vtkDGHCurlOperators
@@ -78,6 +79,18 @@ set(templates
 # Encode the basis implementations as strings we can
 # pass as shader code.
 set(basis_files
+  Basis/Bezier/EdgeCnBasis.h
+  Basis/Bezier/EdgeCnGradient.h
+  Basis/Bezier/HexCnBasis.h
+  Basis/Bezier/HexCnGradient.h
+  Basis/Bezier/QuadCnBasis.h
+  Basis/Bezier/QuadCnGradient.h
+  Basis/Bezier/TetCnBasis.h
+  Basis/Bezier/TetCnGradient.h
+  Basis/Bezier/TriCnBasis.h
+  Basis/Bezier/TriCnGradient.h
+  Basis/Bezier/WdgCnBasis.h
+  Basis/Bezier/WdgCnGradient.h
   Basis/Constant/CellC0Basis.h
   Basis/Constant/CellC0Gradient.h
   Basis/HCurl/HexI1Basis.h

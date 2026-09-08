@@ -40,6 +40,7 @@
 #include "vtkInterpolateCalculator.h"
 #include "vtkUnstructuredGridToCellGrid.h"
 
+#include "vtkDGBezierOperators.h"
 #include "vtkDGConstantOperators.h"
 #include "vtkDGHCurlOperators.h"
 #include "vtkDGHDivOperators.h"
@@ -55,9 +56,9 @@ using namespace vtk::literals;
 template <typename CalcType, typename ResponderType>
 void registerCalculatorResponder(vtkCellGridResponders* responders, ResponderType* instance)
 {
-  // All the DG cells support constant and HGRAD function spaces:
+  // All the DG cells support constant, HGRAD, and Bezier function spaces:
   responders->RegisterCalculator<vtkDGCell, CalcType>(instance,
-    { { { "function-space"_token, { "constant"_token, "HGRAD"_token } },
+    { { { "function-space"_token, { "constant"_token, "HGRAD"_token, "Bezier"_token } },
       { "basis"_token, { "I"_token, "C"_token, "G"_token, "A"_token } } } });
   // Only DeRham cells support HCURL and HGRAD function spaces:
   responders->RegisterCalculator<vtkDeRhamCell, CalcType>(instance,
@@ -128,6 +129,7 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     vtk::basis::hgrad::RegisterOperators();
     vtk::basis::hcurl::RegisterOperators();
     vtk::basis::hdiv::RegisterOperators();
+    vtk::basis::bezier::RegisterOperators();
 
     // Query responders
     vtkNew<vtkDGBoundsResponder> dgBds;

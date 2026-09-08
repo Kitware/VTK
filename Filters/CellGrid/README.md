@@ -15,6 +15,12 @@ which admit functions from the following function spaces
   ensure vectors are normal to each side of the parent cell.
 + HCurl – curl-based vector fields whose shape functions (defined for each 1-dimensional side)
   ensure continuity of the portion of any vector that is directed along the edge of a cell.
++ Bezier – Bernstein-Bézier basis functions, which span the same polynomials as HGrad of the
+  same order but take control points rather than interpolated values as their degrees of
+  freedom. They interpolate only at a cell's corners; in exchange they are non-negative and
+  sum to one, so the function's values over a cell lie within the convex hull of its control
+  values. Algorithms such as isocontouring use that bound to reject cells, or regions of
+  cells, without evaluating the function there.
 
 Note that only 2-d and 3-d cell-shapes can have HDiv and HCurl
 [cell-attributes](https://vtk.org/doc/nightly/html/classvtkCellAttribute.html).
@@ -105,15 +111,23 @@ The `CellTypeInfo` object stores the following
   the attribute.
   For DG cells, this is `constant` for traditional cell-constant data; `HGRAD` for
   traditional point-based Lagrange interpolation; `HCURL` for Nédélec-style edge bases;
-  and `HDIV` for Thomas-Raviart face bases.
+  `HDIV` for Thomas-Raviart face bases; and `Bezier` for Bernstein-Bézier control values.
 + `Basis` – a string token indicating the particular basis inside the function
   space that is used by the attribute on cells of the given type.
   For DG cells, this is `I` for "incomplete" (i.e., serendipity) bases, `C` for
-  "complete" polynomial bases, and `F` for "full" bases. These determine whether
-  the full tensor product of polynomials is covered by a cell's basis functions or
-  some are omitted. (`F` is used when the basis is enriched; e.g., the 15-node
-  tetrahedron.) For a given polynomial order, the number of basis function in `I`
-  should be less than `C` should be less than `F`.
+  "complete" polynomial bases at a fixed order, and `F` for "full" bases. These
+  determine whether the full tensor product of polynomials is covered by a
+  cell's basis functions or some are omitted. (`F` is used when the basis is
+  enriched; e.g., the 15-node tetrahedron.) For a given polynomial order, the
+  number of basis function in `I` should be less than `C` should be less
+  than `F`.
+  `A` is distinct from these three: it marks a basis registered for an
+  arbitrary order (see below) rather than a particular completeness class, and
+  such a basis numbers its degrees of freedom lexicographically instead of the
+  corner-first order the fixed-order `C` bases use. Every function space that
+  has an arbitrary-order basis - HGrad's and Bezier's, so far - uses `A` for
+  it, so the two never need to agree on numbering just because they share a
+  letter.
 + `Order` – the polynomial order of the basis functions.
   This is an integer specifying the "nominal" polynomial order of the basis.
   The nominal order is the polynomial order along each parametric axis of the cell.
@@ -177,15 +191,15 @@ cell, which the basis function's implementation reads as `order[0]`, `order[1]`,
 and `order[2]`. By default every axis takes the nominal
 `vtkCellAttribute::CellTypeInfo::Order`; supplying an array in the `order` role
 with a single tuple and one component per axis instead gives an anisotropic
-basis. The order is fixed for all cells sharing a `CellTypeInfo` – it may not
+basis. The order is fixed for all cells sharing a `CellTypeInfo`; it may not
 vary from cell to cell.
 
 Arbitrary-order implementations usually need scratch space whose size is not
 known at compile time. Declare it with the `WORKSPACE(type, name, size)` macro
 rather than a bare array, since the two compilation targets provide it
 differently: on the CPU it expands to a reusable `thread_local` vector, and in
-GLSL – where array sizes must be constant expressions and the order is baked
-into the generated shader – it expands to a fixed-size array.
+GLSL, where array sizes must be constant expressions and the order is baked
+into the generated shader, it expands to a fixed-size array.
 
 Note that the arbitrary-order bases number their degrees of freedom
 lexicographically, with the r-axis varying fastest, rather than in the
@@ -206,7 +220,14 @@ Which orders a shape admits depends on how its parameter space is built:
 + A vertex has an empty parameter space and one degree of freedom at every
   order.
 
-The pyramid has no arbitrary-order Lagrange basis. Its tensor-product structure
-degenerates at the apex, so higher-order pyramid elements use *rational* shape
-functions rather than polynomials; only the hand-written orders 0 through 2 are
-registered.
+The `Bezier` function space is registered the same way and for the same shapes, and
+shares the degree-of-freedom counts above, since the two bases span the same polynomials, so
+they have the same number of degrees of freedom. It differs in having no hand-written
+low-order operators, so every order reaches its arbitrary-order kernels.
+
+No arbitrary-order basis is registered for the pyramid, so only its hand-written orders 0 through
+2 are available. Its tensor-product structure degenerates at the apex, and a conforming space of
+higher order must contain *rational* functions for the traces on its faces to stay polynomial, so
+no polynomial basis of arbitrary order exists for it. Rational ones do, including a
+Bernstein-Bézier basis retaining the non-negativity and partition-of-unity properties, so this is
+a gap in what is implemented rather than in what is possible.
