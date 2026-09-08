@@ -29,7 +29,7 @@
 
 #define WORKSPACE(type,name,size) type name[size]
 
-const float gpts[36] = float[](
+const float gpts[36] = float[36](
      0,                     0,                     0,                     0,                     0,                     0,
     -0.577350269189625731,  0.577350269189625731,  0,                     0,                     0,                     0,
     -0.774596669241483404,  0.000000000000000000,  0.774596669241483404,  0,                     0,                     0,
