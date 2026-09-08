@@ -2760,13 +2760,13 @@ bool TestUnstructuredGrid(
     switch (id)
     {
       case 0:
-        if (ug->GetNumberOfPoints() != 491)
+        if (ug->GetNumberOfPoints() != 488)
         {
           error = true;
         }
         break;
       case 1:
-        if (ug->GetNumberOfPoints() != 532)
+        if (ug->GetNumberOfPoints() != 520)
         {
           error = true;
         }
@@ -2778,7 +2778,7 @@ bool TestUnstructuredGrid(
         }
         break;
       case 3:
-        if (ug->GetNumberOfPoints() != 532)
+        if (ug->GetNumberOfPoints() != 520)
         {
           error = true;
         }
