@@ -101,6 +101,7 @@ void vtkOpenXRCamera::Render(vtkRenderer* ren)
   vtkOpenXRRenderWindow* win = vtkOpenXRRenderWindow::SafeDownCast(ren->GetRenderWindow());
   vtkOpenGLState* ostate = win->GetState();
 
+  this->UpdateStereo(ren);
   int renSize[2];
   win->GetRenderBufferSize(renSize[0], renSize[1]);
 

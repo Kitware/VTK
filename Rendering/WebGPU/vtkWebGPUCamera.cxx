@@ -35,6 +35,7 @@ vtkOverrideAttribute* vtkWebGPUCamera::CreateOverrideAttributes()
 //------------------------------------------------------------------------------
 void vtkWebGPUCamera::Render(vtkRenderer* renderer)
 {
+  this->UpdateStereo(renderer);
   this->CacheSceneTransforms(renderer);
 }
 

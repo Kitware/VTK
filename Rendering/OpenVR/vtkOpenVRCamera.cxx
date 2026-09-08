@@ -152,7 +152,7 @@ void vtkOpenVRCamera::Render(vtkRenderer* ren)
 
   vtkVRRenderWindow* win = vtkVRRenderWindow::SafeDownCast(ren->GetRenderWindow());
   vtkOpenGLState* ostate = win->GetState();
-
+  this->UpdateStereo(ren);
   int renSize[2];
   win->GetRenderBufferSize(renSize[0], renSize[1]);
 

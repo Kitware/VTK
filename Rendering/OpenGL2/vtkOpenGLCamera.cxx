@@ -51,8 +51,7 @@ void vtkOpenGLCamera::Render(vtkRenderer* ren)
   vtkOpenGLRenderWindow* win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   vtkOpenGLState* ostate = win->GetState();
 
-  // find out if we should stereo render
-  this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
+  this->UpdateStereo(ren);
   ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft + 1);
 
   ostate->vtkglViewport(lowerLeft[0], lowerLeft[1], usize, vsize);

@@ -7,6 +7,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPerspectiveTransform.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkTimeStamp.h"
 #include "vtkTransform.h"
@@ -1967,6 +1968,17 @@ void vtkCamera::GetEyePosition(double eyePosition[3])
   eyePosition[0] = this->EyeTransformMatrix->GetElement(0, 3);
   eyePosition[1] = this->EyeTransformMatrix->GetElement(1, 3);
   eyePosition[2] = this->EyeTransformMatrix->GetElement(2, 3);
+}
+
+//------------------------------------------------------------------------------
+void vtkCamera::UpdateStereo(vtkRenderer* ren)
+{
+  vtkTypeBool stereo = ren->GetRenderWindow()->GetStereoRender();
+  if (stereo != this->Stereo)
+  {
+    this->Stereo = stereo;
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
