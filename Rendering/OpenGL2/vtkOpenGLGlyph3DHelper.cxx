@@ -35,6 +35,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
+#ifdef GL_ES_VERSION_3_0
 // Square lattice covering the disc of radius lineWidth/2, spacing lineWidth/ceil(lineWidth)
 // so consecutive samples are never more than 1 px apart. Corners outside the disc are
 // dropped. Returns pixel-space offsets; the shader converts to NDC.
@@ -68,6 +69,7 @@ void BuildLineWidthOffsets(float lineWidth, std::vector<float>& offsets)
     }
   }
 }
+#endif
 } // anonymous namespace
 
 vtkStandardNewMacro(vtkOpenGLGlyph3DHelper);
@@ -439,6 +441,10 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
     {
       this->UpdateShaders(this->Primitives[i], ren, actor);
       GLenum mode = this->GetOpenGLMode(representation, i);
+      if (mode == GL_LINES && !this->HaveWideLines(ren, actor))
+      {
+        ostate->vtkglLineWidth(actor->GetProperty()->GetLineWidth());
+      }
       this->Primitives[i].IBO->Bind();
       for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
       {
@@ -549,6 +555,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
   this->UsingInstancing = true;
   this->RenderPieceStart(ren, actor);
   int representation = actor->GetProperty()->GetRepresentation();
+  vtkOpenGLState* ostate = static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow())->GetState();
 
   bool withNormals = (this->VBOs->GetNumberOfComponents("normalMC") == 3);
 
@@ -591,6 +598,10 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
         if (!this->Primitives[i].Program)
         {
           return;
+        }
+        if (mode == GL_LINES && !this->HaveWideLines(ren, actor))
+        {
+          ostate->vtkglLineWidth(actor->GetProperty()->GetLineWidth());
         }
 #ifdef GL_ES_VERSION_3_0
         if (mode == GL_POINTS)
@@ -705,6 +716,10 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
         if (!this->Primitives[i].Program)
         {
           return;
+        }
+        if (mode == GL_LINES && !this->HaveWideLines(ren, actor))
+        {
+          ostate->vtkglLineWidth(actor->GetProperty()->GetLineWidth());
         }
 #ifdef GL_ES_VERSION_3_0
         if (mode == GL_POINTS)
