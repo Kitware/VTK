@@ -436,7 +436,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
   endif()
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt" AND
+if (("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt" OR
+     "$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora44_x86_64_webgpu") AND
     NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "qt5")
   list(APPEND test_exclusions
     # Qt6 test failures that need investigation.

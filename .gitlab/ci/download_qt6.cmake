@@ -13,8 +13,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "mindeps")
   return ()
 endif ()
 
-# Only build for jobs which include Qt.
-if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "qt")
+# Only build for jobs which include Qt. The fedora webgpu job needs it too: it builds the Qt
+# WebGPU widget so that a change to the WebGPU API cannot break it unnoticed.
+if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "qt" AND
+    NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora44_x86_64_webgpu")
   return ()
 endif ()
 
