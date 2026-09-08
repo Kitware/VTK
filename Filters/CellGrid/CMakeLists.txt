@@ -5,6 +5,7 @@ set(classes
   # Algorithms
   vtkCellGridCellCenters
   vtkCellGridCellSource
+  vtkCellGridChangeBasis
   vtkCellGridComputeSides
   vtkCellGridElevation
   vtkCellGridPointProbe
@@ -21,6 +22,7 @@ set(classes
   vtkDGBoundsResponder
   vtkDGCellCenterResponder
   vtkDGCellSourceResponder
+  vtkDGChangeBasisResponder
   vtkDGCopyResponder
   vtkDGElevationResponder
   vtkDGEvaluator

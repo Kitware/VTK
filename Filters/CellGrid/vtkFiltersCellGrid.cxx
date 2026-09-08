@@ -18,6 +18,7 @@
 #include "vtkDGBoundsResponder.h"
 #include "vtkDGCellCenterResponder.h"
 #include "vtkDGCellSourceResponder.h"
+#include "vtkDGChangeBasisResponder.h"
 #include "vtkDGCopyResponder.h"
 #include "vtkDGEdge.h"
 #include "vtkDGElevationResponder.h"
@@ -138,6 +139,7 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     vtkNew<vtkDGElevationResponder> dgElv;
     vtkNew<vtkDGCellCenterResponder> dgCtr;
     vtkNew<vtkDGCellSourceResponder> dgSrc;
+    vtkNew<vtkDGChangeBasisResponder> dgChb;
     vtkNew<vtkDGCopyResponder> dgCpy;
     vtkNew<vtkDGEvaluator> dgEva;
     vtkNew<vtkDGRangeResponder> dgRng;
@@ -156,6 +158,8 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     auto* responders = vtkCellMetadata::GetResponders();
 
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridBoundsQuery>(dgBds.GetPointer());
+    responders->RegisterQueryResponder<vtkDGCell, vtkCellGridChangeBasis::Query>(
+      dgChb.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridCopyQuery>(dgCpy.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridElevationQuery>(dgElv.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridCellCenters::Query>(
