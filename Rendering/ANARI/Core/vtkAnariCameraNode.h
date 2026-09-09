@@ -34,10 +34,12 @@ public:
    * Ensure the right type of ANARICamera object is being held.
    */
   void Build(bool prepass) override;
+
   /**
    * Sync ANARICamera parameters with vtkCamera.
    */
   void Synchronize(bool prepass) override;
+
   /**
    * Invalidates cached rendering data.
    */
@@ -51,11 +53,30 @@ private:
   vtkAnariCameraNode(const vtkAnariCameraNode&) = delete;
   void operator=(const vtkAnariCameraNode&) = delete;
 
+  /**
+   * Return the camera object associated to the camera node.
+   */
   vtkCamera* GetVtkCamera() const;
+
+  /**
+   * Return true if the camera from the node has a modified time higher than the render time.
+   */
   bool CameraWasModified() const;
 
+  /**
+   * Update the internal ANARI camera handle.
+   */
   void UpdateAnariObjectHandles();
-  void UpdateAnariCameraParameters();
+
+  /**
+   * Update camera parameters that have to change at all prepass.
+   */
+  void OnCameraPrePass();
+
+  /**
+   * Update camera parameters that change when CameraWasModified returns true.
+   */
+  void OnCameraModified();
 
   vtkAnariCameraNodeInternals* Internals{ nullptr };
 };

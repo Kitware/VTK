@@ -72,7 +72,7 @@ vtkAnariCameraNode::~vtkAnariCameraNode()
 void vtkAnariCameraNode::Build(bool prepass)
 {
   vtkAnariProfiling startProfiling("vtkAnariCameraNode::Build", vtkAnariProfiling::BROWN);
-  if (!prepass || !CameraWasModified())
+  if (!prepass || !this->CameraWasModified())
   {
     return;
   }
@@ -90,12 +90,25 @@ void vtkAnariCameraNode::Build(bool prepass)
 void vtkAnariCameraNode::Synchronize(bool prepass)
 {
   vtkAnariProfiling startProfiling("vtkAnariCameraNode::Synchronize", vtkAnariProfiling::BROWN);
-  if (!prepass || !CameraWasModified())
+  bool needsCommit = false;
+  if (prepass)
   {
-    return;
+    this->OnCameraPrePass();
+    needsCommit = true;
   }
-  this->UpdateAnariCameraParameters();
-  this->RenderTime = GetVtkCamera()->GetMTime();
+
+  if (this->CameraWasModified())
+  {
+    this->OnCameraModified();
+    this->RenderTime = this->GetVtkCamera()->GetMTime();
+    needsCommit = true;
+  }
+
+  if (needsCommit)
+  {
+    anari::commitParameters(
+      this->Internals->AnariDevice->GetHandle(), this->Internals->AnariCamera);
+  }
 }
 
 void vtkAnariCameraNode::UpdateAnariObjectHandles()
@@ -116,7 +129,25 @@ void vtkAnariCameraNode::UpdateAnariObjectHandles()
   }
 }
 
-void vtkAnariCameraNode::UpdateAnariCameraParameters()
+//----------------------------------------------------------------------------
+void vtkAnariCameraNode::OnCameraPrePass()
+{
+  // Set aspect ratio parameter
+  int tiledSize[2];
+  this->Internals->RendererNode->GetSize(tiledSize);
+  if (tiledSize[1] == 0)
+  {
+    vtkLogF(WARNING,
+      "Render window size height is 0, aborting camera aspect ratio computation to prevent "
+      "division by 0.");
+    return;
+  }
+  float aspectRatio = static_cast<float>(tiledSize[0]) / static_cast<float>(tiledSize[1]);
+  anari::setParameter(
+    this->Internals->AnariDevice->GetHandle(), this->Internals->AnariCamera, "aspect", aspectRatio);
+}
+
+void vtkAnariCameraNode::OnCameraModified()
 {
   bool stereo = false;
   bool right = false;
@@ -218,13 +249,6 @@ void vtkAnariCameraNode::UpdateAnariCameraParameters()
   anari::setParameter(this->Internals->AnariDevice->GetHandle(), this->Internals->AnariCamera,
     "apertureRadius", apertureRadius);
 
-  // Set aspect ratio parameter
-  int tiledSize[2];
-  this->Internals->RendererNode->GetSize(tiledSize);
-  float aspect = static_cast<float>(tiledSize[0]) / static_cast<float>(tiledSize[1]);
-  anari::setParameter(
-    this->Internals->AnariDevice->GetHandle(), this->Internals->AnariCamera, "aspect", aspect);
-
   // Set near and far clip plane distances
   double clippingRange[2];
   cam->GetClippingRange(clippingRange);
@@ -279,11 +303,13 @@ void vtkAnariCameraNode::UpdateAnariCameraParameters()
   anari::commitParameters(this->Internals->AnariDevice->GetHandle(), this->Internals->AnariCamera);
 }
 
+//----------------------------------------------------------------------------
 vtkCamera* vtkAnariCameraNode::GetVtkCamera() const
 {
   return static_cast<vtkCamera*>(this->Renderable);
 }
 
+//----------------------------------------------------------------------------
 bool vtkAnariCameraNode::CameraWasModified() const
 {
   return this->RenderTime < GetVtkCamera()->GetMTime();
