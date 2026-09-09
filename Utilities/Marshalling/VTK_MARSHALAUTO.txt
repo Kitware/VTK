@@ -151,6 +151,7 @@ Common/ExecutionModel/vtkUnstructuredGridAlgorithm.h
 Common/ExecutionModel/vtkUnstructuredGridBaseAlgorithm.h
 Common/Math/vtkMatrix3x3.h
 Common/Math/vtkMatrix4x4.h
+Common/Math/vtkQuaternionInterpolator.h
 Common/Transforms/vtkAbstractTransform.h
 Common/Transforms/vtkHomogeneousTransform.h
 Common/Transforms/vtkLinearTransform.h

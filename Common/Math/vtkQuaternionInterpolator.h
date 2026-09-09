@@ -45,12 +45,15 @@
 
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+
+#include <vector> // for arg, return
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkQuaterniond;
 class vtkQuaternionList;
 
-class VTKCOMMONMATH_EXPORT vtkQuaternionInterpolator : public vtkObject
+class VTKCOMMONMATH_EXPORT VTK_MARSHALAUTO vtkQuaternionInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkQuaternionInterpolator, vtkObject);
@@ -150,6 +153,19 @@ public:
   vtkGetMacro(InterpolationType, int);
   void SetInterpolationTypeToLinear() { this->SetInterpolationType(INTERPOLATION_TYPE_LINEAR); }
   void SetInterpolationTypeToSpline() { this->SetInterpolationType(INTERPOLATION_TYPE_SPLINE); }
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set all the (t, quaternion) samples as a flat interleaved array:
+   * t0, q0_0, q0_1, q0_2, q0_3, t1, q1_0, q1_1, q1_2, q1_3, ...
+   *
+   * The length of values passed in to the SetTimedQuaternions must be divisible by 5.
+   *
+   * Convenient method for wrapped languages and serialization.
+   */
+  void SetTimedQuaternions(const std::vector<double>& values);
+  std::vector<double> GetTimedQuaternions() const;
   ///@}
 
 protected:

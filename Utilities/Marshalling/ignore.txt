@@ -510,7 +510,6 @@ Common/Math/vtkFunctionSet.h
 Common/Math/vtkInitialValueProblemSolver.h
 Common/Math/vtkPolynomialSolversUnivariate.h
 Common/Math/vtkQuaternion.h
-Common/Math/vtkQuaternionInterpolator.h
 Common/Math/vtkReservoirSampler.h
 Common/Math/vtkRungeKutta2.h
 Common/Math/vtkRungeKutta4.h
