@@ -16,6 +16,8 @@ When both the `RenderingOpenGL2` and `RenderingWebGPU` libraries are linked, the
 
 - Git
 - tools for building VTK
+- A compiler C++ 20 compatible (eg: clang-19 or newer) required to compile Dawn. [VTK supports C++17 compilers].
+  *Not required if using pre-built dawn binaries*
 
 ### Desktop
 On desktop (Linux, macOS, and Windows), this module runs on Dawn's WebGPU
@@ -38,7 +40,7 @@ Here, `DAWN_INSTALL_DIR` should point to the directory where Dawn is installed (
 # Clone the repo and checkout the required version
 git clone https://github.com/google/dawn dawn && cd dawn
 git checkout v20260720.160313
-cmake -S . -B out/Debug -GNinja -DDAWN_FETCH_DEPENDENCIES=ON -DDAWN_ENABLE_INSTALL=ON
+cmake -S . -B out/Debug -GNinja -DDAWN_FETCH_DEPENDENCIES=ON -DDAWN_ENABLE_INSTALL=ON -DDAWN_BUILD_MONOLITHIC_LIBRARY=SHARED
 cmake --build out/Debug
 cmake --install out/Debug --prefix ${DAWN_INSTALL_DIR}
 ```
