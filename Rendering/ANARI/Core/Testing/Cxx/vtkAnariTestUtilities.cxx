@@ -57,7 +57,7 @@ const anari::Extensions& GetDeviceExtensions(vtkRenderWindow* renderWindow)
     vtkLogF(ERROR, "Expected vtkAnariRenderWindow but got %s", renderWindow->GetClassName());
   }
 
-  return anariRenderWindow->GetAnariDevice()->GetAnariDeviceExtensions();
+  return anariRenderWindow->GetAnariDevice()->GetExtensions();
 }
 
 }

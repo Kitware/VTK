@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAnariVolumeMapperNode.h"
+
+#include "vtkAnariDevice.h"
 #include "vtkAnariProfiling.h"
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariVolumeNode.h"
@@ -68,10 +70,10 @@ struct StructuredRegularSpatialFieldDataWorker
     VTK_ASSUME(scalars->GetNumberOfComponents() == 1);
     const auto scalarRange = vtk::DataArrayValueRange<1>(scalars);
 
-    auto dataArray =
-      anari::newArray3D(this->AnariDevice, ANARI_FLOAT32, this->Dim[0], this->Dim[1], this->Dim[2]);
+    auto dataArray = anari::newArray3D(
+      this->AnariDevice->GetHandle(), ANARI_FLOAT32, this->Dim[0], this->Dim[1], this->Dim[2]);
     {
-      auto dataArrayPtr = anari::map<float>(this->AnariDevice, dataArray);
+      auto dataArrayPtr = anari::map<float>(this->AnariDevice->GetHandle(), dataArray);
       int i = 0;
 
       for (auto val : scalarRange)
@@ -79,13 +81,14 @@ struct StructuredRegularSpatialFieldDataWorker
         dataArrayPtr[i++] = static_cast<float>(val);
       }
 
-      anari::unmap(this->AnariDevice, dataArray);
+      anari::unmap(this->AnariDevice->GetHandle(), dataArray);
     }
 
-    anari::setAndReleaseParameter(this->AnariDevice, this->AnariSpatialField, "data", dataArray);
+    anari::setAndReleaseParameter(
+      this->AnariDevice->GetHandle(), this->AnariSpatialField, "data", dataArray);
   }
 
-  anari::Device AnariDevice;
+  vtkSmartPointer<vtkAnariDevice> AnariDevice;
   anari::SpatialField AnariSpatialField;
   int* Dim;
 };
@@ -116,7 +119,7 @@ public:
 
   vtkAnariVolumeMapperNode* Owner{ nullptr };
   vtkAnariSceneGraph* AnariSceneGraph{ nullptr };
-  anari::Device AnariDevice{ nullptr };
+  vtkSmartPointer<vtkAnariDevice> AnariDevice{ nullptr };
   anari::Volume AnariVolume{ nullptr };
   std::unique_ptr<anari_structured::TransferFunction> TransferFunction;
 };
@@ -131,8 +134,7 @@ vtkAnariVolumeMapperNodeInternals::vtkAnariVolumeMapperNodeInternals(
 //----------------------------------------------------------------------------
 vtkAnariVolumeMapperNodeInternals::~vtkAnariVolumeMapperNodeInternals()
 {
-  anari::retain(this->AnariDevice, this->AnariVolume);
-  anari::retain(this->AnariDevice, this->AnariDevice);
+  anari::retain(this->AnariDevice->GetHandle(), this->AnariVolume);
 }
 
 //----------------------------------------------------------------------------
@@ -324,12 +326,11 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
 
     this->Internal->AnariSceneGraph =
       static_cast<vtkAnariSceneGraph*>(this->GetFirstAncestorOfType("vtkAnariSceneGraph"));
-    auto anariDevice = this->Internal->AnariSceneGraph->GetDeviceHandle();
+    vtkSmartPointer<vtkAnariDevice> anariDevice = this->Internal->AnariSceneGraph->GetDevice();
 
     if (!this->Internal->AnariDevice)
     {
       this->Internal->AnariDevice = anariDevice;
-      anari::retain(anariDevice, anariDevice);
     }
 
     //
@@ -350,11 +351,11 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
     if (this->Internal->AnariVolume == nullptr)
     {
       this->Internal->AnariVolume =
-        anari::newObject<anari::Volume>(anariDevice, "transferFunction1D");
+        anari::newObject<anari::Volume>(anariDevice->GetHandle(), "transferFunction1D");
 
       std::string volumeName = this->Internal->VolumeName + "_volume";
-      anari::setParameter(
-        anariDevice, this->Internal->AnariVolume, "name", ANARI_STRING, volumeName.c_str());
+      anari::setParameter(anariDevice->GetHandle(), this->Internal->AnariVolume, "name",
+        ANARI_STRING, volumeName.c_str());
     }
 
     auto anariVolume = this->Internal->AnariVolume;
@@ -368,18 +369,18 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
 
       // Spatial Field
       auto anariSpatialField =
-        anari::newObject<anari::SpatialField>(anariDevice, "structuredRegular");
+        anari::newObject<anari::SpatialField>(anariDevice->GetHandle(), "structuredRegular");
 
       std::string spatialFieldName = this->Internal->VolumeName + "_spatialfield";
-      anari::setParameter(
-        anariDevice, anariSpatialField, "name", ANARI_STRING, spatialFieldName.c_str());
+      anari::setParameter(anariDevice->GetHandle(), anariSpatialField, "name", ANARI_STRING,
+        spatialFieldName.c_str());
 
       this->Internal->DataTimeStep = std::numeric_limits<float>::quiet_NaN();
       if (info && info->Has(vtkDataObject::DATA_TIME_STEP()))
       {
         this->Internal->DataTimeStep = info->Get(vtkDataObject::DATA_TIME_STEP());
 
-        anari::setParameter(anariDevice, anariSpatialField, "usd::time", ANARI_FLOAT64,
+        anari::setParameter(anariDevice->GetHandle(), anariSpatialField, "usd::time", ANARI_FLOAT64,
           &this->Internal->DataTimeStep);
       }
 
@@ -390,25 +391,25 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
       origin[2] = bds[4];
       vec3 gridOrigin = { static_cast<float>(origin[0]), static_cast<float>(origin[1]),
         static_cast<float>(origin[2]) };
-      anari::setParameter(anariDevice, anariSpatialField, "origin", gridOrigin);
+      anari::setParameter(anariDevice->GetHandle(), anariSpatialField, "origin", gridOrigin);
 
       double spacing[3];
       data->GetSpacing(spacing);
       vec3 gridSpacing = { static_cast<float>(spacing[0]), static_cast<float>(spacing[1]),
         static_cast<float>(spacing[2]) };
 
-      anari::setParameter(anariDevice, anariSpatialField, "spacing", gridSpacing);
+      anari::setParameter(anariDevice->GetHandle(), anariSpatialField, "spacing", gridSpacing);
 
       // Filter
       const int filterType = vol->GetProperty()->GetInterpolationType();
 
       if (filterType == VTK_LINEAR_INTERPOLATION)
       {
-        anari::setParameter(anariDevice, anariSpatialField, "filter", "linear");
+        anari::setParameter(anariDevice->GetHandle(), anariSpatialField, "filter", "linear");
       }
       else if (filterType == VTK_NEAREST_INTERPOLATION)
       {
-        anari::setParameter(anariDevice, anariSpatialField, "filter", "nearest");
+        anari::setParameter(anariDevice->GetHandle(), anariSpatialField, "filter", "nearest");
       }
       else if (filterType == VTK_CUBIC_INTERPOLATION)
       {
@@ -448,9 +449,10 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
         worker(sa);
       }
 
-      anari::commitParameters(anariDevice, anariSpatialField);
-      anari::setAndReleaseParameter(anariDevice, anariVolume, "value", anariSpatialField);
-      anari::commitParameters(anariDevice, anariVolume);
+      anari::commitParameters(anariDevice->GetHandle(), anariSpatialField);
+      anari::setAndReleaseParameter(
+        anariDevice->GetHandle(), anariVolume, "value", anariSpatialField);
+      anari::commitParameters(anariDevice->GetHandle(), anariVolume);
     }
 
     if (volumeProperty->GetMTime() > this->Internal->PropertyTime ||
@@ -463,18 +465,19 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
       this->Internal->UpdateTransferFunction(vol, scalarRange[0], scalarRange[1]);
       anari_structured::TransferFunction* transferFunction = this->Internal->TransferFunction.get();
 
-      anari::setParameter(
-        anariDevice, anariVolume, "valueRange", ANARI_FLOAT32_BOX1, &transferFunction->valueRange);
+      anari::setParameter(anariDevice->GetHandle(), anariVolume, "valueRange", ANARI_FLOAT32_BOX1,
+        &transferFunction->valueRange);
 
       auto array1DColor = anari::newArray1D(
-        anariDevice, transferFunction->color.data(), transferFunction->color.size());
-      anari::setAndReleaseParameter(anariDevice, anariVolume, "color", array1DColor);
+        anariDevice->GetHandle(), transferFunction->color.data(), transferFunction->color.size());
+      anari::setAndReleaseParameter(anariDevice->GetHandle(), anariVolume, "color", array1DColor);
 
-      auto array1DOpacity = anari::newArray1D(
-        anariDevice, transferFunction->opacity.data(), transferFunction->opacity.size());
-      anari::setAndReleaseParameter(anariDevice, anariVolume, "opacity", array1DOpacity);
+      auto array1DOpacity = anari::newArray1D(anariDevice->GetHandle(),
+        transferFunction->opacity.data(), transferFunction->opacity.size());
+      anari::setAndReleaseParameter(
+        anariDevice->GetHandle(), anariVolume, "opacity", array1DOpacity);
 
-      anari::commitParameters(anariDevice, anariVolume);
+      anari::commitParameters(anariDevice->GetHandle(), anariVolume);
       this->Internal->PropertyTime.Modified();
     }
 
@@ -491,8 +494,8 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
     {
       this->Internal->AnariSceneGraph =
         static_cast<vtkAnariSceneGraph*>(this->GetFirstAncestorOfType("vtkAnariSceneGraph"));
-      auto anariDevice = this->Internal->AnariSceneGraph->GetDeviceHandle();
-      anari::release(anariDevice, this->Internal->AnariVolume);
+      vtkSmartPointer<vtkAnariDevice> anariDevice = this->Internal->AnariSceneGraph->GetDevice();
+      anari::release(anariDevice->GetHandle(), this->Internal->AnariVolume);
       this->Internal->AnariVolume = nullptr;
     }
     else

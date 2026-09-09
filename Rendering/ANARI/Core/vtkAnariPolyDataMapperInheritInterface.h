@@ -14,6 +14,9 @@
 #ifndef vtkAnariPolyDataMapperInheritInterface_h
 #define vtkAnariPolyDataMapperInheritInterface_h
 
+#include "vtkAnariDevice.h"
+#include "vtkSmartPointer.h"
+
 #include <anari/anari_cpp.hpp>
 #include <anari/anari_cpp/ext/std.h>
 
@@ -53,8 +56,7 @@ public:
   /**
    * Set the ANARI device to write to.
    */
-  virtual void SetDevice(
-    anari::Device& device, anari::Extensions& extensions, const char* const* anariExtensionStrings);
+  virtual void SetDevice(vtkSmartPointer<vtkAnariDevice> device);
 
   /**
    * Inheriting classes can own (override) representation choice,
@@ -88,9 +90,7 @@ public:
   virtual const char* GetCylindersPostfix() const;
   virtual const char* GetTrianglesPostfix() const;
 
-  anari::Device AnariDevice{ nullptr };
-  anari::Extensions AnariExtensions{};
-  const char* const* AnariExtensionStrings{ nullptr };
+  vtkSmartPointer<vtkAnariDevice> AnariDevice;
 };
 
 #endif

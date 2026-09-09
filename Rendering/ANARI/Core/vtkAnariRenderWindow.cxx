@@ -109,7 +109,7 @@ void vtkAnariRenderWindow::DoStereoRender()
     anari::Device device = this->AnariDevice->GetHandle();
 
     const bool rebuildSceneGraph =
-      !this->AnariSceneGraph || this->AnariSceneGraph->GetDeviceHandle() != device;
+      !this->AnariSceneGraph || this->AnariSceneGraph->GetDevice()->GetHandle() != device;
     if (rebuildSceneGraph)
     {
       vtkAnariSceneGraph* sceneGraph =
@@ -119,7 +119,7 @@ void vtkAnariRenderWindow::DoStereoRender()
       this->AnariSceneGraph->SetAnariDevice(this->AnariDevice);
       this->AnariSceneGraph->SetAnariRenderer(this->AnariRenderer);
     }
-    else if (this->AnariRenderer->GetHandle() != this->AnariSceneGraph->GetRendererHandle())
+    else if (this->AnariRenderer != this->AnariSceneGraph->GetAnariRenderer())
     {
       this->AnariSceneGraph->SetAnariRenderer(this->AnariRenderer);
     }
