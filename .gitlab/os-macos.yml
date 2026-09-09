@@ -8,6 +8,10 @@
         GIT_CLONE_PATH: "$CI_BUILDS_DIR/paraview-ci"
         TART_EXECUTOR_HOST_DIR: "false"
 
+.macos_wheel_test:
+    variables:
+        GIT_CLONE_PATH: "$CI_BUILDS_DIR/vtk-ci-ext/$CI_CONCURRENT_ID"
+
 .wheel_macos_arm64:
     extends: .macos
 
@@ -174,6 +178,28 @@
 .macos_arm64_builder_tags:
     tags:
         - vtk
+        - macos-arm64
+        - tart
+
+.macos_x86_64_wheel_tags:
+    extends:
+        - .macos_wheel_test
+    tags:
+        - vtk
+        - macos-x86_64
+        - shell
+        - concurrent
+        - xcode-26.3
+    variables:
+        DEVELOPER_DIR: "/Applications/Xcode-26.3.app/Contents/Developer"
+
+.macos_arm64_wheel_tags:
+    tags:
+        - vtk
+        # There is an odd situation where older machines end up timing out 7-8
+        # tests 8-10 minutes into the job. Keep the test jobs on machines where
+        # this has not been observed.
+        - vtk-wheel
         - macos-arm64
         - tart
 
