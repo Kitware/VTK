@@ -671,6 +671,13 @@ bool vtkGLTFDocumentLoader::ExtractPrimitiveAttributes(Primitive& primitive)
   // Load all attributes
   for (auto& attributePair : primitive.AttributeIndices)
   {
+    if (attributePair.second < 0 ||
+      attributePair.second >= static_cast<int>(this->InternalModel->Accessors.size()))
+    {
+      vtkErrorMacro("Invalid accessor index: " << attributePair.second);
+      return false;
+    }
+
     Accessor accessor = this->InternalModel->Accessors[attributePair.second];
     // Create array
     if (attributePair.first == "JOINTS_0")
