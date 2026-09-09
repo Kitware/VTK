@@ -27,12 +27,14 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
-#include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+
+#include <vector> // for arg, return
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunctionInternals;
 
-class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALMANUAL vtkPiecewiseFunction : public vtkDataObject
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkPiecewiseFunction : public vtkDataObject
 {
 public:
   static vtkPiecewiseFunction* New();
@@ -127,6 +129,21 @@ public:
    */
   double* GetDataPointer();
   void FillFromDataPointer(int, double*);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set all the (x, y, midpoint, sharpness) samples as a flat
+   * interleaved array:
+   * x0, y0, midpoint0, sharpness0, x1, y1, midpoint1, sharpness1, ...
+   *
+   * The length of values passed in to the SetTimedQuaternions must be
+   * divisible by 4.
+   *
+   * Convenient method for wrapped languages and serialization.
+   */
+  void SetNodeValues(const std::vector<double>& values);
+  std::vector<double> GetNodeValues() const;
   ///@}
 
   ///@{

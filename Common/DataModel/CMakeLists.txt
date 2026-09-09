@@ -353,7 +353,6 @@ if (VTK_WRAP_SERIALIZATION)
     vtkMultiBlockDataSetSerDesHelper.cxx
     vtkPartitionedDataSetSerDesHelper.cxx
     vtkPartitionedDataSetCollectionSerDesHelper.cxx
-    vtkPiecewiseFunctionSerDesHelper.cxx
     vtkTableSerDesHelper.cxx
     vtkUnstructuredGridSerDesHelper.cxx)
 endif ()
