@@ -425,6 +425,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
     "^VTK::RenderingAnnotationCxx-TestScalarBar$"
     "^VTK::RenderingAnnotationCxx-TestScalarBarSerDes$"
 
+    # glLineWidth > 1 not supported for glDrawElementsInstanced
+    "^VTK::RenderingCellGridPython-TestCellGridEdgeGaussBasis$"
+
     # https://gitlab.kitware.com/vtk/vtk/-/issues/20154
     # Segfault
     "^VTK::RenderingOpenGL2Cxx-TestStencilMaskPass$"
@@ -457,6 +460,17 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
       "^VTK::RenderingVolumeCxx-TestGPURayCastMultiVolumeTransfer2D$"
       "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingTransVol$" # not-stdthread
       "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingTransparentPolyData$" # not-stdthread
+
+      # Both wheel and non-wheel macos x86_64 builds suffer from
+      # shader support for glDrawElementsInstanced (only some
+      # triangles are rendered).
+      "^VTK::RenderingCellGridPython-TestCellGridEdgeGaussBasis$"
+      "^VTK::RenderingCellGridPython-TestCellGridQuadGaussBasis$"
+      "^VTK::RenderingCellGridPython-TestCellGridTriGaussBasis$"
+      "^VTK::RenderingCellGridPython-TestCellGridTetGaussBasis$"
+      "^VTK::RenderingCellGridPython-TestCellGridHexGaussBasis$"
+      "^VTK::RenderingCellGridPython-TestCellGridWdgGaussBasis$"
+      "^VTK::RenderingCellGridPython-TestCellGridPyrGaussBasis$"
     )
   endif ()
 
