@@ -401,7 +401,8 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
     }
 
     // Load base accessor data
-    if (accessor.BufferView >= 0)
+    if (accessor.BufferView >= 0 &&
+      accessor.BufferView < static_cast<int>(this->BufferViews->size()))
     {
       const BufferView& bufferView = this->BufferViews->operator[](accessor.BufferView);
 
