@@ -61,6 +61,28 @@ dummy:build:
         VTK_CI_RUN_ALWAYS: "true"
     needs: []
 
+## Unused testing data
+
+unused-test-data:build:
+    stage: quick
+    image: alpine:latest
+    tags:
+        - build
+        - docker
+        - linux-x86_64
+        - vtk
+    extends:
+        - .rules
+    script:
+        - apk add --no-cache git python3
+        - git config --global --add safe.directory "$CI_PROJECT_DIR"
+        # Exits non-zero when a content link is no longer referenced by any test.
+        - python3 Utilities/Maintenance/RemoveUnusedTestingData.py
+    variables:
+        VTK_CI_RUN_ALWAYS: "true"
+    needs: []
+    timeout: 15 minutes
+
 ## readthedocs documentation build
 readthedocs:build:
     stage: quick
