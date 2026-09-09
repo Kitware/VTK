@@ -639,8 +639,8 @@ vtkStringArray* vtkHDFUtilities::NewStringArray(
   /*
    * Create the memory datatype.
    */
-  hid_t memtype = H5Tcopy(H5T_C_S1);
-  if (H5Tset_size(memtype, H5T_VARIABLE) < 0)
+  vtkHDF::ScopedH5THandle memtype = H5Tcopy(H5T_C_S1);
+  if (memtype < 0 || H5Tset_size(memtype, H5T_VARIABLE) < 0)
   {
     vtkErrorWithObjectMacro(nullptr, << "Error H5Tset_size");
     return nullptr;
@@ -704,6 +704,11 @@ vtkStringArray* vtkHDFUtilities::NewStringArray(
   if (H5Dread(dataset, memtype, memspace, filespace, H5P_DEFAULT, rdata.data()) < 0)
   {
     vtkErrorWithObjectMacro(nullptr, << "Error H5Dread");
+    if (H5Treclaim(memtype, memspace, H5P_DEFAULT, static_cast<void*>(rdata.data())) < 0)
+    {
+      vtkErrorWithObjectMacro(nullptr, << "Error H5Treclaim");
+    }
+    return nullptr;
   }
 
   auto array = vtkStringArray::New();
@@ -711,6 +716,11 @@ vtkStringArray* vtkHDFUtilities::NewStringArray(
   for (size_t i = 0; i < size; ++i)
   {
     array->SetValue(i, rdata[i]);
+  }
+
+  if (H5Treclaim(memtype, memspace, H5P_DEFAULT, static_cast<void*>(rdata.data())) < 0)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Error H5Treclaim");
   }
 
   return array;
