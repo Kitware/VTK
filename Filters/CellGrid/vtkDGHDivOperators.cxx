@@ -16,6 +16,20 @@
 
 #define RealT double
 
+// Boilerplate shared by every operator function: unpack the parametric
+// coordinates and provide the constants basis functions may reference.
+// The `(void)` casts keep compilers quiet about the ones a given basis
+// happens not to use.
+#define vtkBasisHeader()                                                                           \
+  double rr = param[0];                                                                            \
+  double ss = param[1];                                                                            \
+  double tt = param[2];                                                                            \
+  constexpr double eps = std::numeric_limits<RealT>::epsilon();                                    \
+  (void)rr;                                                                                        \
+  (void)ss;                                                                                        \
+  (void)tt;                                                                                        \
+  (void)eps
+
 namespace vtk
 {
 namespace basis
@@ -33,71 +47,31 @@ inline RealT abs(RealT x)
 
 void HexI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  double rr = param[0];
-  double ss = param[1];
-  double tt = param[2];
-  constexpr double eps = std::numeric_limits<RealT>::epsilon();
-  (void)rr;
-  (void)ss;
-  (void)tt;
-  (void)eps;
-
+  vtkBasisHeader();
 #include "Basis/HDiv/HexI1Basis.h"
 }
 
 void QuadI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  double rr = param[0];
-  double ss = param[1];
-  double tt = param[2];
-  constexpr double eps = std::numeric_limits<RealT>::epsilon();
-  (void)rr;
-  (void)ss;
-  (void)tt;
-  (void)eps;
-
+  vtkBasisHeader();
 #include "Basis/HDiv/QuadI1Basis.h"
 }
 
 void TetI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  double rr = param[0];
-  double ss = param[1];
-  double tt = param[2];
-  constexpr double eps = std::numeric_limits<RealT>::epsilon();
-  (void)rr;
-  (void)ss;
-  (void)tt;
-  (void)eps;
-
+  vtkBasisHeader();
 #include "Basis/HDiv/TetI1Basis.h"
 }
 
 void TriI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  double rr = param[0];
-  double ss = param[1];
-  double tt = param[2];
-  constexpr double eps = std::numeric_limits<RealT>::epsilon();
-  (void)rr;
-  (void)ss;
-  (void)tt;
-  (void)eps;
-
+  vtkBasisHeader();
 #include "Basis/HDiv/TriI1Basis.h"
 }
 
 void WdgI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  double rr = param[0];
-  double ss = param[1];
-  double tt = param[2];
-  constexpr double eps = std::numeric_limits<RealT>::epsilon();
-  (void)rr;
-  (void)ss;
-  (void)tt;
-  (void)eps;
-
+  vtkBasisHeader();
 #include "Basis/HDiv/WdgI1Basis.h"
 }
 

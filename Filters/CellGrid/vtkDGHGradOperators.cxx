@@ -99,6 +99,10 @@
 
 #define RealT double
 
+// Boilerplate shared by every operator function: unpack the parametric
+// coordinates and provide the constants basis functions may reference.
+// The `(void)` casts keep compilers quiet about the ones a given basis
+// happens not to use.
 #define vtkBasisHeader()                                                                           \
   double rr = param[0];                                                                            \
   double ss = param[1];                                                                            \

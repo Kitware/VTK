@@ -13,6 +13,20 @@
 
 #define RealT double
 
+// Boilerplate shared by every operator function: unpack the parametric
+// coordinates and provide the constants basis functions may reference.
+// The `(void)` casts keep compilers quiet about the ones a given basis
+// happens not to use.
+#define vtkBasisHeader()                                                                           \
+  double rr = param[0];                                                                            \
+  double ss = param[1];                                                                            \
+  double tt = param[2];                                                                            \
+  constexpr double eps = std::numeric_limits<RealT>::epsilon();                                    \
+  (void)rr;                                                                                        \
+  (void)ss;                                                                                        \
+  (void)tt;                                                                                        \
+  (void)eps
+
 namespace vtk
 {
 namespace basis
@@ -25,29 +39,13 @@ using namespace vtk::literals;
 
 void CellC0Basis(const std::array<double, 3>& param, std::vector<double>& basis)
 {
-  double rr = param[0];
-  double ss = param[1];
-  double tt = param[2];
-  constexpr double eps = std::numeric_limits<RealT>::epsilon();
-  (void)rr;
-  (void)ss;
-  (void)tt;
-  (void)eps;
-
+  vtkBasisHeader();
 #include "Basis/Constant/CellC0Basis.h"
 }
 
 void CellC0Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
 {
-  double rr = param[0];
-  double ss = param[1];
-  double tt = param[2];
-  constexpr double eps = std::numeric_limits<RealT>::epsilon();
-  (void)rr;
-  (void)ss;
-  (void)tt;
-  (void)eps;
-
+  vtkBasisHeader();
 #include "Basis/Constant/CellC0Gradient.h"
 }
 
