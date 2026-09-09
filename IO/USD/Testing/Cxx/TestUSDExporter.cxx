@@ -20,6 +20,7 @@
 #include "vtkRenderer.h"
 #include "vtkScalarsToColors.h"
 #include "vtkSphereSource.h"
+#include "vtkStringFormatter.h"
 #include "vtkSuperquadricSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
@@ -726,7 +727,7 @@ int TestUSDExporter(int argc, char* argv[])
     for (int i = 1; i < 3; ++i)
     {
       std::string frameTextureFilename =
-        rootname + "_timesteps_tex0_frame" + std::to_string(i) + ".png";
+        rootname + "_timesteps_tex0_frame" + vtk::to_string(i) + ".png";
       if (vtksys::SystemTools::FileExists(frameTextureFilename.c_str(), true /* file */))
       {
         vtkLog(ERROR,
@@ -844,7 +845,7 @@ int TestUSDExporter(int argc, char* argv[])
     for (int i = 1; i < 3; ++i)
     {
       std::string frameNTextureFilename =
-        rootname + "_statictex_tex0_frame" + std::to_string(i) + ".png";
+        rootname + "_statictex_tex0_frame" + vtk::to_string(i) + ".png";
       if (vtksys::SystemTools::FileExists(frameNTextureFilename.c_str(), true /* file */))
       {
         vtkLog(ERROR,

@@ -9,6 +9,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
+#include "vtkStringFormatter.h"
 
 #if TEST_HAS_MPI
 #include "vtkMPIController.h"
@@ -81,7 +82,7 @@ int TestFidesConduitBasic(int argc, char* argv[])
   }
 
   std::string tempDir = argv[1];
-  std::string jsonPath = tempDir + "/fides_conduit_test_rank_" + std::to_string(rank) + ".json";
+  std::string jsonPath = tempDir + "/fides_conduit_test_rank_" + vtk::to_string(rank) + ".json";
   ScopedFileCleanup cleanup{ jsonPath };
 
   std::ofstream out(jsonPath);

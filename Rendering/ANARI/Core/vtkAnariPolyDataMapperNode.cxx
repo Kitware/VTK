@@ -3195,7 +3195,7 @@ void vtkAnariPolyDataMapperNode::SetActorNodeName()
   }
   else
   {
-    this->Internal->ActorName = "vtk_actor_" + std::to_string(this->RendererNode->ReservePropId());
+    this->Internal->ActorName = "vtk_actor_" + vtk::to_string(this->RendererNode->ReservePropId());
   }
 }
 

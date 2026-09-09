@@ -16,6 +16,7 @@
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkStringFormatter.h"
 #include "vtkVolume.h"
 #include "vtkVolumeNode.h"
 #include "vtkVolumeProperty.h"
@@ -343,7 +344,7 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
     else
     {
       this->Internal->VolumeName =
-        "vtk_volume_" + std::to_string(this->Internal->AnariSceneGraph->ReservePropId());
+        "vtk_volume_" + vtk::to_string(this->Internal->AnariSceneGraph->ReservePropId());
     }
 
     if (this->Internal->AnariVolume == nullptr)
