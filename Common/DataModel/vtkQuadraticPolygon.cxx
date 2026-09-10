@@ -4,12 +4,15 @@
 
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 #include "vtkQuadraticEdge.h"
+#include "vtkTriangle.h"
 
 #include <algorithm>
 #include <vector>
@@ -45,6 +48,9 @@ vtkQuadraticPolygon::vtkQuadraticPolygon()
 {
   this->Polygon = vtkSmartPointer<vtkPolygon>::New();
   this->Edge = vtkSmartPointer<vtkQuadraticEdge>::New();
+  this->Triangle = vtkSmartPointer<vtkTriangle>::New();
+  this->TriScalars = vtkSmartPointer<vtkDoubleArray>::New();
+  this->TriScalars->SetNumberOfTuples(3);
   this->UseMVCInterpolation = true;
 }
 
@@ -122,8 +128,46 @@ void vtkQuadraticPolygon::Clip(double value, vtkDataArray* cellScalars,
   vtkDataArray* convertedCellScalars = cellScalars->NewInstance();
   vtkQuadraticPolygon::PermuteToPolygon(cellScalars, convertedCellScalars);
 
-  this->Polygon->Clip(
-    value, convertedCellScalars, locator, polys, inPd, outPd, inCd, cellId, outCd, insideOut);
+  if (this->Polygon->ClipIfTrivial(
+        value, convertedCellScalars, locator, polys, inPd, outPd, inCd, cellId, outCd, insideOut))
+  {
+    convertedCellScalars->Delete();
+    return;
+  }
+
+  // Triangulate the underlying linear polygon representation and clip each
+  // resulting triangle against the clip value individually, emitting a
+  // triangle/quad per surviving fragment as its own output cell.
+  vtkNew<vtkIdList> outTris;
+  int success = this->Polygon->EarCutTriangulation(outTris);
+
+  if (success)
+  {
+    vtkPoints* polyPoints = this->Polygon->GetPoints();
+    vtkIdList* polyPointIds = this->Polygon->GetPointIds();
+
+    for (int i = 0; i < outTris->GetNumberOfIds(); i += 3)
+    {
+      int p1 = outTris->GetId(i);
+      int p2 = outTris->GetId(i + 1);
+      int p3 = outTris->GetId(i + 2);
+
+      this->Triangle->Points->SetPoint(0, polyPoints->GetPoint(p1));
+      this->Triangle->Points->SetPoint(1, polyPoints->GetPoint(p2));
+      this->Triangle->Points->SetPoint(2, polyPoints->GetPoint(p3));
+
+      this->Triangle->PointIds->SetId(0, polyPointIds->GetId(p1));
+      this->Triangle->PointIds->SetId(1, polyPointIds->GetId(p2));
+      this->Triangle->PointIds->SetId(2, polyPointIds->GetId(p3));
+
+      this->TriScalars->SetTuple(0, convertedCellScalars->GetTuple(p1));
+      this->TriScalars->SetTuple(1, convertedCellScalars->GetTuple(p2));
+      this->TriScalars->SetTuple(2, convertedCellScalars->GetTuple(p3));
+
+      this->Triangle->Clip(
+        value, this->TriScalars, locator, polys, inPd, outPd, inCd, cellId, outCd, insideOut);
+    }
+  }
 
   convertedCellScalars->Delete();
 }
