@@ -5,8 +5,13 @@
 // .SECTION Description
 // this program tests the Polygon
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkMathUtilities.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 #include "vtkSmartPointer.h"
@@ -250,6 +255,129 @@ int TestPolygon(int, char*[])
     if (!intersect)
     {
       return EXIT_FAILURE;
+    }
+  }
+
+  // Test that clipping a polygon produces a single output polygon (not a set
+  // of triangles), and that point data at the newly-created cut points is
+  // interpolated correctly.
+  {
+    // A 5-sided "house" polygon: a unit-height square base with a triangular
+    // roof whose apex reaches y = 2.
+    vtkSmartPointer<vtkPolygon> house = vtkSmartPointer<vtkPolygon>::New();
+    house->GetPointIds()->SetNumberOfIds(5);
+    house->GetPoints()->SetNumberOfPoints(5);
+    const double houseCoords[5][3] = {
+      { 0.0, 0.0, 0.0 },
+      { 2.0, 0.0, 0.0 },
+      { 2.0, 1.0, 0.0 },
+      { 1.0, 2.0, 0.0 }, // apex
+      { 0.0, 1.0, 0.0 },
+    };
+    for (vtkIdType i = 0; i < 5; i++)
+    {
+      house->GetPointIds()->SetId(i, i);
+      house->GetPoints()->SetPoint(i, houseCoords[i]);
+    }
+
+    // Clip using the y-coordinate as the scalar field, cutting through the
+    // roof above the eaves (edges (2,3) and (3,4)) but below the apex.
+    const double clipValue = 1.5;
+    vtkSmartPointer<vtkDoubleArray> cellScalars = vtkSmartPointer<vtkDoubleArray>::New();
+    cellScalars->SetNumberOfTuples(5);
+    for (vtkIdType i = 0; i < 5; i++)
+    {
+      cellScalars->SetValue(i, houseCoords[i][1]);
+    }
+
+    // Point data to be interpolated at the cut points, distinct from the
+    // clip scalar field so that interpolation is exercised independently.
+    vtkSmartPointer<vtkDoubleArray> field = vtkSmartPointer<vtkDoubleArray>::New();
+    field->SetName("field");
+    field->SetNumberOfTuples(5);
+    for (vtkIdType i = 0; i < 5; i++)
+    {
+      field->SetValue(i, 10.0 * i);
+    }
+    vtkSmartPointer<vtkPointData> inPD = vtkSmartPointer<vtkPointData>::New();
+    inPD->AddArray(field);
+    vtkSmartPointer<vtkPointData> outPD = vtkSmartPointer<vtkPointData>::New();
+    outPD->InterpolateAllocate(inPD);
+
+    vtkSmartPointer<vtkCellData> inCD = vtkSmartPointer<vtkCellData>::New();
+    vtkSmartPointer<vtkCellData> outCD = vtkSmartPointer<vtkCellData>::New();
+    outCD->CopyAllocate(inCD);
+
+    vtkSmartPointer<vtkPoints> outPoints = vtkSmartPointer<vtkPoints>::New();
+    vtkSmartPointer<vtkPointLocator> locator = vtkSmartPointer<vtkPointLocator>::New();
+    double bounds[6] = { -1.0, 3.0, -1.0, 3.0, -1.0, 1.0 };
+    locator->InitPointInsertion(outPoints, bounds);
+
+    vtkSmartPointer<vtkCellArray> outPolys = vtkSmartPointer<vtkCellArray>::New();
+
+    // insideOut = 1 keeps the low (base) side of the clip plane, i.e. the
+    // hexagon formed by the square base plus the lower portion of the roof.
+    house->Clip(clipValue, cellScalars, locator, outPolys, inPD, outPD, inCD, 0, outCD, 1);
+
+    if (outPolys->GetNumberOfCells() != 1)
+    {
+      std::cerr << "ERROR: clipping the house polygon should produce exactly one polygon, got "
+                << outPolys->GetNumberOfCells() << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    vtkIdType npts;
+    const vtkIdType* pts;
+    outPolys->GetCellAtId(0, npts, pts);
+
+    if (npts != 6)
+    {
+      std::cerr << "ERROR: the clipped house polygon should have 6 points, got " << npts
+                << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    // Expected points, in order, with the point-data field value expected at
+    // each. The two new points cut the roof edges (2,3) and (3,4) exactly
+    // halfway (since the apex sits at y = 2, the eaves at y = 1, and the
+    // clip value is 1.5), so their field values are the midpoint of the
+    // field values at the edge's endpoints.
+    const double expectedXYZ[6][3] = {
+      { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 0.0 }, { 2.0, 0.0, 0.0 }, { 2.0, 1.0, 0.0 },
+      { 1.5, 1.5, 0.0 }, // cut point on edge (2,3)
+      { 0.5, 1.5, 0.0 }, // cut point on edge (3,4)
+    };
+    const double expectedField[6] = { 40.0, 0.0, 10.0, 20.0, 25.0, 35.0 };
+
+    vtkDoubleArray* outField = vtkDoubleArray::SafeDownCast(outPD->GetArray("field"));
+    if (!outField)
+    {
+      std::cerr << "ERROR: the clipped polygon's output point data is missing the 'field' array"
+                << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    for (vtkIdType i = 0; i < npts; i++)
+    {
+      double p[3];
+      outPoints->GetPoint(pts[i], p);
+      if (!vtkMathUtilities::NearlyEqual<double>(p[0], expectedXYZ[i][0]) ||
+        !vtkMathUtilities::NearlyEqual<double>(p[1], expectedXYZ[i][1]) ||
+        !vtkMathUtilities::NearlyEqual<double>(p[2], expectedXYZ[i][2]))
+      {
+        std::cerr << "ERROR: clipped house polygon point " << i << " is (" << p[0] << ", " << p[1]
+                  << ", " << p[2] << "), expected (" << expectedXYZ[i][0] << ", "
+                  << expectedXYZ[i][1] << ", " << expectedXYZ[i][2] << ")" << std::endl;
+        return EXIT_FAILURE;
+      }
+
+      const double fieldValue = outField->GetValue(pts[i]);
+      if (!vtkMathUtilities::NearlyEqual<double>(fieldValue, expectedField[i]))
+      {
+        std::cerr << "ERROR: clipped house polygon point " << i << " has field value " << fieldValue
+                  << ", expected " << expectedField[i] << std::endl;
+        return EXIT_FAILURE;
+      }
     }
   }
 

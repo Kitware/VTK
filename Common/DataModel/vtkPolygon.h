@@ -69,6 +69,19 @@ public:
   ///@}
 
   /**
+   * Evaluate a polygon against a clip value without clipping it. If the
+   * polygon has fewer than 3 points, or lies entirely on the discarded side
+   * of the clip value, nothing is output and false is returned. If it lies
+   * entirely on the kept side, it is passed through unchanged as a single
+   * output polygon and false is returned. Otherwise the polygon straddles
+   * the clip value, no output is produced, and false is returned to indicate
+   * that the polygon was not clipped.
+   */
+  bool ClipIfTrivial(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* tris, vtkPointData* inPD, vtkPointData* outPD, vtkCellData* inCD,
+    vtkIdType cellId, vtkCellData* outCD, int insideOut);
+
+  /**
    * Compute the area of a polygon. This is a convenience function
    * which simply calls static double ComputeArea(vtkPoints *p,
    * vtkIdType numPts, vtkIdType *pts, double normal[3]);
@@ -312,6 +325,8 @@ protected:
   vtkSmartPointer<vtkDoubleArray> TriScalars;
   vtkSmartPointer<vtkLine> Line;
   vtkSmartPointer<vtkPriorityQueue> EarClipQueue; // reused ear-clip removal queue
+  vtkSmartPointer<vtkCellArray> ClippedTris;      // reused scratch triangle/quad buffer for Clip()
+  vtkSmartPointer<vtkCellData> ScratchCD;         // reused scratch cell data buffer for Clip()
 
   // Parameter indicating whether to use Mean Value Coordinate algorithm
   // for interpolation. The parameter is false by default.

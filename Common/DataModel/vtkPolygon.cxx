@@ -26,6 +26,7 @@
 #include "vtkVector.h"
 
 #include <algorithm>
+#include <map>
 #include <vector>
 
 namespace
@@ -61,6 +62,8 @@ vtkPolygon::vtkPolygon()
   this->TriScalars = vtkSmartPointer<vtkDoubleArray>::New();
   this->TriScalars->ReserveValues(3);
   this->Line = vtkSmartPointer<vtkLine>::New();
+  this->ClippedTris = vtkSmartPointer<vtkCellArray>::New();
+  this->ScratchCD = vtkSmartPointer<vtkCellData>::New();
   this->Tolerance = 1.0e-06;
   this->Tol = 0.0; // Internal tolerance derived from this->Tolerance
   this->SuccessfulTriangulation = 0;
@@ -2028,15 +2031,129 @@ void vtkPolygon::Derivatives(
   }
 }
 
+namespace
+{
 //------------------------------------------------------------------------------
-void vtkPolygon::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
-  vtkCellArray* tris, vtkPointData* inPD, vtkPointData* outPD, vtkCellData* inCD, vtkIdType cellId,
-  vtkCellData* outCD, int insideOut)
+// Reconstruct the boundary loop(s) of the region covered by a set of
+// triangles/quads produced by an ear-cut algorithm applied to a polygon and potentially
+// clipped. Edges shared by two adjacent fragments are interior
+// diagonals of the ear-cut triangulation (or edges that survived clipping
+// unchanged on both sides) and are discarded. The surviving,
+// directed edges are then chained into one or more closed loops to produce
+// a polygon.
+void ExtractBoundaryLoops(vtkCellArray* cells, std::vector<std::vector<vtkIdType>>& loops)
+{
+  using Edge = std::pair<vtkIdType, vtkIdType>;
+  std::map<Edge, int> edgeCount;
+
+  vtkIdType npts;
+  const vtkIdType* pts;
+  for (vtkIdType c = 0; c < cells->GetNumberOfCells(); ++c)
+  {
+    cells->GetCellAtId(c, npts, pts);
+    for (vtkIdType i = 0; i < npts; ++i)
+    {
+      vtkIdType a = pts[i];
+      vtkIdType b = pts[(i + 1) % npts];
+      if (a != b)
+      {
+        ++edgeCount[Edge(a, b)];
+      }
+    }
+  }
+
+  // Cancel each edge against its reverse, keeping only the net count of
+  // directed boundary edges.
+  std::vector<Edge> boundaryEdges;
+  std::map<Edge, bool> visited;
+  for (const auto& entry : edgeCount)
+  {
+    const Edge& e = entry.first;
+    if (visited[e])
+    {
+      continue;
+    }
+    visited[e] = true;
+    const Edge reverse(e.second, e.first);
+    int forward = entry.second;
+    int backward = 0;
+    auto rit = edgeCount.find(reverse);
+    if (rit != edgeCount.end())
+    {
+      backward = rit->second;
+      visited[reverse] = true;
+    }
+    for (int k = backward; k < forward; ++k)
+    {
+      boundaryEdges.push_back(e);
+    }
+    for (int k = forward; k < backward; ++k)
+    {
+      boundaryEdges.push_back(reverse);
+    }
+  }
+
+  // Chain the surviving directed edges into closed loops.
+  std::multimap<vtkIdType, vtkIdType> outgoing;
+  for (const auto& e : boundaryEdges)
+  {
+    outgoing.emplace(e.first, e.second);
+  }
+
+  std::map<Edge, bool> used;
+  for (const auto& start : boundaryEdges)
+  {
+    if (used[start])
+    {
+      continue;
+    }
+    std::vector<vtkIdType> loop;
+    vtkIdType first = start.first;
+    vtkIdType current = first;
+    vtkIdType next = start.second;
+    used[start] = true;
+    loop.push_back(current);
+    while (next != first)
+    {
+      loop.push_back(next);
+      current = next;
+      auto range = outgoing.equal_range(current);
+      bool found = false;
+      for (auto it = range.first; it != range.second; ++it)
+      {
+        Edge candidate(current, it->second);
+        if (!used[candidate])
+        {
+          used[candidate] = true;
+          next = it->second;
+          found = true;
+          break;
+        }
+      }
+      if (!found)
+      {
+        loop.clear();
+        break;
+      }
+    }
+    if (loop.size() >= 3)
+    {
+      loops.push_back(std::move(loop));
+    }
+  }
+}
+}
+
+//------------------------------------------------------------------------------
+bool vtkPolygon::ClipIfTrivial(double value, vtkDataArray* cellScalars,
+  vtkIncrementalPointLocator* locator, vtkCellArray* tris, vtkPointData* inPD, vtkPointData* outPD,
+  vtkCellData* inCD, vtkIdType cellId, vtkCellData* outCD, int insideOut)
 {
   const vtkIdType numPts = this->Points->GetNumberOfPoints();
   if (numPts < 3)
   {
-    return;
+    // Nothing to do - so consider it clipped.
+    return true;
   }
 
   // Classify each vertex as kept or discarded by the clip value. A vertex whose
@@ -2067,45 +2184,83 @@ void vtkPolygon::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPoi
     }
     const vtkIdType newCellId = tris->InsertNextCell(static_cast<int>(numPts), outIds.data());
     outCD->CopyData(inCD, cellId, newCellId);
-    return;
+    return true;
   }
 
   if (!anyIn) // polygon lies entirely on the discarded side: nothing to output
   {
+    return true;
+  }
+
+  return false; // the polygon straddles the clip value: return that it's not clipped
+}
+
+//------------------------------------------------------------------------------
+void vtkPolygon::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+  vtkCellArray* tris, vtkPointData* inPD, vtkPointData* outPD, vtkCellData* inCD, vtkIdType cellId,
+  vtkCellData* outCD, int insideOut)
+{
+  if (this->ClipIfTrivial(
+        value, cellScalars, locator, tris, inPD, outPD, inCD, cellId, outCD, insideOut))
+  {
     return;
   }
 
-  // The polygon straddles the clip value: fall back to the historical
-  // approach of triangulating the polygon and clipping each triangle
-  // independently.
+  // The polygon straddles the clip value: triangulate it and clip each
+  // triangle, then merge the surviving fragments back into a single output
+  // polygon (see below).
   this->TriScalars->SetNumberOfTuples(3);
 
   this->SuccessfulTriangulation = 1;
   int success = this->EarCutTriangulation(this->Tris);
 
-  if (success) // clip triangles
+  if (!success)
   {
-    for (int i = 0; i < this->Tris->GetNumberOfIds(); i += 3)
-    {
-      int p1 = this->Tris->GetId(i);
-      int p2 = this->Tris->GetId(i + 1);
-      int p3 = this->Tris->GetId(i + 2);
+    return;
+  }
 
-      this->Triangle->Points->SetPoint(0, this->Points->GetPoint(p1));
-      this->Triangle->Points->SetPoint(1, this->Points->GetPoint(p2));
-      this->Triangle->Points->SetPoint(2, this->Points->GetPoint(p3));
+  // Clip each ear-cut triangle. The real locator/outPD are
+  // used so that points are merged and interpolated correctly across
+  // fragments, but the fragments themselves (triangles/quads) go into a
+  // scratch cell array and scratch cell data. The
+  // fragments' shared edges - interior diagonals of the ear-cut
+  // triangulation, or edges that survived clipping unchanged - are then
+  // removed so that only the outer boundary of the clipped region
+  // remains, which is emitted as one polygon per boundary loop.
+  // ClippedTris/ScratchCD are reused per-instance scratch buffers (like Tris
+  // and TriScalars above) to avoid reallocating them on every call.
+  this->ClippedTris->Reset();
+  this->ScratchCD->CopyAllocate(inCD);
 
-      this->Triangle->PointIds->SetId(0, this->PointIds->GetId(p1));
-      this->Triangle->PointIds->SetId(1, this->PointIds->GetId(p2));
-      this->Triangle->PointIds->SetId(2, this->PointIds->GetId(p3));
+  for (int i = 0; i < this->Tris->GetNumberOfIds(); i += 3)
+  {
+    int p1 = this->Tris->GetId(i);
+    int p2 = this->Tris->GetId(i + 1);
+    int p3 = this->Tris->GetId(i + 2);
 
-      this->TriScalars->SetTuple(0, cellScalars->GetTuple(p1));
-      this->TriScalars->SetTuple(1, cellScalars->GetTuple(p2));
-      this->TriScalars->SetTuple(2, cellScalars->GetTuple(p3));
+    this->Triangle->Points->SetPoint(0, this->Points->GetPoint(p1));
+    this->Triangle->Points->SetPoint(1, this->Points->GetPoint(p2));
+    this->Triangle->Points->SetPoint(2, this->Points->GetPoint(p3));
 
-      this->Triangle->Clip(
-        value, this->TriScalars, locator, tris, inPD, outPD, inCD, cellId, outCD, insideOut);
-    }
+    this->Triangle->PointIds->SetId(0, this->PointIds->GetId(p1));
+    this->Triangle->PointIds->SetId(1, this->PointIds->GetId(p2));
+    this->Triangle->PointIds->SetId(2, this->PointIds->GetId(p3));
+
+    this->TriScalars->SetTuple(0, cellScalars->GetTuple(p1));
+    this->TriScalars->SetTuple(1, cellScalars->GetTuple(p2));
+    this->TriScalars->SetTuple(2, cellScalars->GetTuple(p3));
+
+    this->Triangle->Clip(value, this->TriScalars, locator, this->ClippedTris, inPD, outPD, inCD,
+      cellId, this->ScratchCD, insideOut);
+  }
+
+  std::vector<std::vector<vtkIdType>> loops;
+  ::ExtractBoundaryLoops(this->ClippedTris, loops);
+
+  for (auto& loop : loops)
+  {
+    const vtkIdType newCellId = tris->InsertNextCell(static_cast<int>(loop.size()), loop.data());
+    outCD->CopyData(inCD, cellId, newCellId);
   }
 }
 
