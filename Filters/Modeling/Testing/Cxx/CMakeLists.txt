@@ -8,6 +8,9 @@ vtk_add_test_cxx(vtkFiltersModelingCxxTests tests
   TestQuadRotationalExtrusionMultiBlock.cxx
   TestRotationalExtrusion.cxx
   TestRotationalExtrusion2.cxx
+  TestRotationalExtrusionVolume.cxx
+  TestRotationalExtrusionVolume2.cxx
+  TestRotationalExtrusionAMR.cxx
   TestSelectEnclosedPoints.cxx
   TestVolumeOfRevolutionFilter.cxx
   UnitTestBandedPolyDataContourFilterNaN.cxx,NO_DATA,NO_VALID,NO_OUTPUT

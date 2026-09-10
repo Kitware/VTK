@@ -103,5 +103,5 @@ int TestRotationalExtrusion2(int argc, char* argv[])
     iren->Start();
   }
 
-  return !retVal;
+  return retVal ? EXIT_SUCCESS : EXIT_FAILURE;
 }
