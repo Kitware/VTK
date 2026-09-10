@@ -43,3 +43,19 @@ vtk_module_add_module(VTK::RenderingVolumeWebGPU
   PRIVATE_HEADERS ${private_headers} ${vtk_object_factory_header})
 
 vtk_module_compile_features(VTK::RenderingVolumeWebGPU PUBLIC cxx_std_17)
+
+# This module calls the wgpu* entry points directly, and VTK links no
+# implementation, so those names are not bound at link time. VTK::RenderingWebGPU
+# redirects them to the table it resolves at runtime with a forced include; do
+# the same here so the calls reach that table rather than an undefined symbol.
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(_vtk_webgpu_dispatch_header
+    "${CMAKE_CURRENT_SOURCE_DIR}/../WebGPU/Private/vtkWebGPUProcDispatch.h")
+  if(MSVC)
+    set(_vtk_webgpu_force_include "/FI${_vtk_webgpu_dispatch_header}")
+  else()
+    set(_vtk_webgpu_force_include "-include${_vtk_webgpu_dispatch_header}")
+  endif()
+  vtk_module_compile_options(VTK::RenderingVolumeWebGPU
+    PRIVATE "${_vtk_webgpu_force_include}")
+endif()
