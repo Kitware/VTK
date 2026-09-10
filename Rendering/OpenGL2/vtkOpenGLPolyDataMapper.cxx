@@ -2301,7 +2301,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       {
         if (this->DrawingLines(*this->LastBoundBO, actor))
         {
-          toString << "  if (normalVCVSOutput.z < 0) { normalVCVSOutput = -normalVCVSOutput; }\n";
+          toString << "  if (normalVCVSOutput.z < 0.0) { normalVCVSOutput = -normalVCVSOutput; }\n";
         }
         else
         {
@@ -2466,7 +2466,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       {
         if (this->DrawingLines(*this->LastBoundBO, actor))
         {
-          toString << "  if (normalVCVSOutput.z < 0) { normalVCVSOutput = -normalVCVSOutput; }\n";
+          toString << "  if (normalVCVSOutput.z < 0.0) { normalVCVSOutput = -normalVCVSOutput; }\n";
         }
         else
         {

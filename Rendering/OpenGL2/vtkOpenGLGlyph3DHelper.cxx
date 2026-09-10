@@ -7,6 +7,7 @@
 #include "vtkCamera.h"
 #include "vtkDataObject.h"
 #include "vtkHardwareSelector.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLBufferObject.h"
@@ -24,12 +25,53 @@
 #include "vtkProperty.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
+#include "vtkTextureObject.h"
 #include "vtkTransformFeedback.h"
 
 #include "vtkGlyph3DVS.h"
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+#ifdef GL_ES_VERSION_3_0
+// Square lattice covering the disc of radius lineWidth/2, spacing lineWidth/ceil(lineWidth)
+// so consecutive samples are never more than 1 px apart. Corners outside the disc are
+// dropped. Returns pixel-space offsets; the shader converts to NDC.
+void BuildLineWidthOffsets(float lineWidth, std::vector<float>& offsets)
+{
+  offsets.clear();
+  if (lineWidth <= 1.0f)
+  {
+    offsets.push_back(0.0f);
+    offsets.push_back(0.0f);
+    return;
+  }
+
+  const float half = 0.5f * lineWidth;
+  const int steps = 2 * vtkMath::Ceil(half);
+  const float step = lineWidth / static_cast<float>(steps);
+  const float r2 = half * half + 1e-4f;
+
+  offsets.reserve(2 * (steps + 1) * (steps + 1));
+  for (int j = 0; j <= steps; ++j)
+  {
+    const float y = j * step - half;
+    for (int i = 0; i <= steps; ++i)
+    {
+      const float x = i * step - half;
+      if (x * x + y * y <= r2)
+      {
+        offsets.push_back(x);
+        offsets.push_back(y);
+      }
+    }
+  }
+}
+#endif
+} // anonymous namespace
+
 vtkStandardNewMacro(vtkOpenGLGlyph3DHelper);
 
 //------------------------------------------------------------------------------
@@ -61,6 +103,13 @@ void vtkOpenGLGlyph3DHelper::ReleaseGraphicsResources(vtkWindow* window)
   this->NormalMatrixBuffer->ReleaseGraphicsResources();
   this->MatrixBuffer->ReleaseGraphicsResources();
   this->ColorBuffer->ReleaseGraphicsResources();
+  if (this->LineWidthOffsetsTexture)
+  {
+    this->LineWidthOffsetsTexture->ReleaseGraphicsResources(window);
+    this->LineWidthOffsetsTexture = nullptr;
+  }
+  // Force the offsets to be rebuilt and re-uploaded into a new texture.
+  this->CachedLineWidth = -1.0;
   this->Superclass::ReleaseGraphicsResources(window);
 }
 
@@ -71,6 +120,9 @@ void vtkOpenGLGlyph3DHelper::GetShaderTemplate(
   this->Superclass::GetShaderTemplate(shaders, ren, actor);
 
   shaders[vtkShader::Vertex]->SetSource(vtkGlyph3DVS);
+#ifdef GL_ES_VERSION_3_0
+  shaders[vtkShader::Geometry]->SetSource("");
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -80,6 +132,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(
   this->Superclass::ReplaceShaderValues(shaders, ren, actor);
 #ifdef GL_ES_VERSION_3_0
   this->ReplaceShaderPointSize(shaders, ren, actor);
+  this->ReplaceShaderWideLines(shaders, ren, actor);
 #endif
 }
 
@@ -286,6 +339,42 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderPointSize(
   shaders[vtkShader::Vertex]->SetSource(VSSource);
 }
 
+//------------------------------------------------------------------------------
+void vtkOpenGLGlyph3DHelper::ReplaceShaderWideLines(
+  std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* renderer, vtkActor* actor)
+{
+  // Thick lines are emulated by drawing shifted copies of each line, one per instance.
+  // gl_InstanceID is always zero outside of an instanced draw call, so this must not be
+  // applied when the glyphs are drawn one at a time. See GlyphRender.
+  if (this->UsingInstancing && this->HaveWideLines(renderer, actor))
+  {
+    // The offsets are fetched from a texture rather than a uniform array so that the number of
+    // samples is limited by GL_MAX_TEXTURE_SIZE instead of GL_MAX_VERTEX_UNIFORM_VECTORS, whose
+    // GLES 3.0 minimum of 256 vectors is easily exhausted by a wide line. This also keeps the
+    // shader source independent of the line width, so changing the width no longer rebuilds it.
+    // The samplerBuffer is emulated with a 2D texture on GLES, see
+    // vtkOpenGLShaderCache::ReplaceShaderValues.
+    std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+    vtkShaderProgram::Substitute(VSSource, "//VTK::LineWidthGLES30::Dec",
+      R"(uniform vec2 viewportSize;
+uniform float halfLineWidth;
+uniform int lineWidthCopies;
+uniform highp samplerBuffer lineWidthOffsets;
+)");
+    vtkShaderProgram::Substitute(VSSource, "//VTK::LineWidthGLES30::Impl",
+      R"(if (halfLineWidth > 0.0)
+  {
+    int lineCopyInstanceID = gl_InstanceID % lineWidthCopies;
+    float w = gl_Position.w;
+    vec3 ndc = gl_Position.xyz / w;
+    ndc.xy += 2.0 * texelFetchBuffer(lineWidthOffsets, lineCopyInstanceID).xy / viewportSize;
+    gl_Position = vec4(ndc * w, w);
+  })");
+    shaders[vtkShader::Vertex]->SetSource(VSSource);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
   std::vector<unsigned char>& colors, std::vector<float>& matrices,
   std::vector<float>& normalMatrices, std::vector<vtkIdType>& pickIds, vtkMTimeType pointMTime,
@@ -352,6 +441,10 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
     {
       this->UpdateShaders(this->Primitives[i], ren, actor);
       GLenum mode = this->GetOpenGLMode(representation, i);
+      if (mode == GL_LINES && !this->HaveWideLines(ren, actor))
+      {
+        ostate->vtkglLineWidth(actor->GetProperty()->GetLineWidth());
+      }
       this->Primitives[i].IBO->Bind();
       for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
       {
@@ -409,11 +502,52 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
 
 //------------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::SetMapperShaderParameters(
-  vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
+  vtkOpenGLHelper& cellBO, vtkRenderer* renderer, vtkActor* actor)
 {
-  this->Superclass::SetMapperShaderParameters(cellBO, ren, actor);
+  this->Superclass::SetMapperShaderParameters(cellBO, renderer, actor);
+#ifdef GL_ES_VERSION_3_0
+  // Must match the condition guarding the shader code in ReplaceShaderWideLines.
+  if (this->UsingInstancing && this->HaveWideLines(renderer, actor))
+  {
+    int vp[4] = {};
+    auto* renWin = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+    vtkOpenGLState* ostate = renWin->GetState();
+    ostate->vtkglGetIntegerv(GL_VIEWPORT, vp);
+    float vpSize[2];
+    vpSize[0] = vp[2];
+    vpSize[1] = vp[3];
+    const float lineWidth = actor->GetProperty()->GetLineWidth();
+
+    // Rebuild and re-upload the sample offsets when the line width changes. This is done here
+    // rather than while building the shader because the draw call needs the offset count even on
+    // the frames where the shader is reused.
+    if (lineWidth != this->CachedLineWidth || !this->LineWidthOffsetsTexture)
+    {
+      BuildLineWidthOffsets(lineWidth, this->LineWidthOffsets);
+      this->CachedLineWidth = lineWidth;
+      if (!this->LineWidthOffsetsTexture)
+      {
+        this->LineWidthOffsetsTexture = vtkSmartPointer<vtkTextureObject>::New();
+      }
+      this->LineWidthOffsetsTexture->SetContext(renWin);
+      this->LineWidthOffsetsTexture->EmulateTextureBufferWith2DTexturesFromRaw(
+        static_cast<unsigned int>(this->LineWidthOffsets.size() / 2), 2, VTK_FLOAT,
+        this->LineWidthOffsets.data());
+    }
+
+    const int lineWidthCopies = static_cast<int>(this->LineWidthOffsets.size() / 2);
+    this->LineWidthOffsetsTexture->Activate();
+    cellBO.Program->SetUniform2f("viewportSize", vpSize);
+    cellBO.Program->SetUniformf("halfLineWidth", 0.5 * lineWidth);
+    cellBO.Program->SetUniformi("lineWidthCopies", lineWidthCopies);
+    cellBO.Program->SetUniformi(
+      "lineWidthOffsets", this->LineWidthOffsetsTexture->GetTextureUnit());
+    vtkOpenGLCheckErrorMacro("failed after WideLines uniform update");
+  }
+#endif
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* actor,
   vtkIdType numPts, std::vector<unsigned char>& colors, std::vector<float>& matrices,
   std::vector<float>& normalMatrices, vtkMTimeType pointMTime, bool culling)
@@ -421,6 +555,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
   this->UsingInstancing = true;
   this->RenderPieceStart(ren, actor);
   int representation = actor->GetProperty()->GetRepresentation();
+  vtkOpenGLState* ostate = static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow())->GetState();
 
   bool withNormals = (this->VBOs->GetNumberOfComponents("normalMC") == 3);
 
@@ -463,6 +598,10 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
         if (!this->Primitives[i].Program)
         {
           return;
+        }
+        if (mode == GL_LINES && !this->HaveWideLines(ren, actor))
+        {
+          ostate->vtkglLineWidth(actor->GetProperty()->GetLineWidth());
         }
 #ifdef GL_ES_VERSION_3_0
         if (mode == GL_POINTS)
@@ -571,10 +710,16 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
       }
       else
       {
+        GLsizei instanceCount = static_cast<GLsizei>(numPts);
+        int divisor = 1;
         this->UpdateShaders(this->Primitives[i], ren, actor);
         if (!this->Primitives[i].Program)
         {
           return;
+        }
+        if (mode == GL_LINES && !this->HaveWideLines(ren, actor))
+        {
+          ostate->vtkglLineWidth(actor->GetProperty()->GetLineWidth());
         }
 #ifdef GL_ES_VERSION_3_0
         if (mode == GL_POINTS)
@@ -582,6 +727,11 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
           // set point size from actor property when drawing points and not selecting points
           const float pointSize = actor->GetProperty()->GetPointSize();
           this->Primitives[i].Program->SetUniformf("pointSize", pointSize);
+        }
+        if (this->HaveWideLines(ren, actor))
+        {
+          divisor = static_cast<int>(this->LineWidthOffsets.size() / 2);
+          instanceCount = numPts * divisor;
         }
 #endif
 
@@ -593,8 +743,8 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
 
           this->MatrixBuffer->Bind();
           if (!this->Primitives[i].VAO->AddAttributeMatrixWithDivisor(this->Primitives[i].Program,
-                this->MatrixBuffer, "GCMCMatrix", 0, 16 * sizeof(float), VTK_FLOAT, 4, false, 1,
-                4 * sizeof(float)))
+                this->MatrixBuffer, "GCMCMatrix", 0, 16 * sizeof(float), VTK_FLOAT, 4, false,
+                divisor, 4 * sizeof(float)))
           {
             vtkErrorMacro("Error setting 'GCMCMatrix' in shader VAO.");
           }
@@ -605,7 +755,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
             this->NormalMatrixBuffer->Bind();
             if (!this->Primitives[i].VAO->AddAttributeMatrixWithDivisor(this->Primitives[i].Program,
                   this->NormalMatrixBuffer, "glyphNormalMatrix", 0, 9 * sizeof(float), VTK_FLOAT, 3,
-                  false, 1, 3 * sizeof(float)))
+                  false, divisor, 3 * sizeof(float)))
             {
               vtkErrorMacro("Error setting 'glyphNormalMatrix' in shader VAO.");
             }
@@ -617,7 +767,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
             this->ColorBuffer->Bind();
             if (!this->Primitives[i].VAO->AddAttributeArrayWithDivisor(this->Primitives[i].Program,
                   this->ColorBuffer, "glyphColor", 0, 4 * sizeof(unsigned char), VTK_UNSIGNED_CHAR,
-                  4, true, 1, false))
+                  4, true, divisor, false))
             {
               vtkErrorMacro("Error setting 'diffuse color' in shader VAO.");
             }
@@ -630,24 +780,29 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
 
 #ifdef GL_ES_VERSION_3_0
         glDrawElementsInstanced(mode, static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
-          GL_UNSIGNED_INT, nullptr, numPts);
+          GL_UNSIGNED_INT, nullptr, instanceCount);
 #else
         if (GLAD_GL_ARB_draw_instanced)
         {
           glDrawElementsInstancedARB(mode,
             static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount), GL_UNSIGNED_INT, nullptr,
-            numPts);
+            instanceCount);
         }
         else
         {
           glDrawElementsInstanced(mode, static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
-            GL_UNSIGNED_INT, nullptr, numPts);
+            GL_UNSIGNED_INT, nullptr, instanceCount);
         }
 #endif
 
         this->Primitives[i].IBO->Release();
       }
     }
+  }
+
+  if (this->LineWidthOffsetsTexture)
+  {
+    this->LineWidthOffsetsTexture->Deactivate();
   }
 
   vtkOpenGLCheckErrorMacro("failed after Render");

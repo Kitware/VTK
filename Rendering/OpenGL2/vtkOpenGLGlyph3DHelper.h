@@ -16,9 +16,11 @@
 #include "vtkOpenGLInstanceCulling.h" // For vtkOpenGLInstanceCulling
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkSmartPointer.h"           // For vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
+class vtkTextureObject;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLGlyph3DHelper : public vtkOpenGLPolyDataMapper
 {
@@ -80,6 +82,8 @@ protected:
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
   void ReplaceShaderPointSize(
     std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act);
+  void ReplaceShaderWideLines(
+    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act);
   ///@}
 
   /**
@@ -103,6 +107,19 @@ protected:
 private:
   vtkOpenGLGlyph3DHelper(const vtkOpenGLGlyph3DHelper&) = delete;
   void operator=(const vtkOpenGLGlyph3DHelper&) = delete;
+
+  ///@{
+  /**
+   * Screen-space sample offsets used to emulate wide lines on GLES 3.0/WebGL2, where there is
+   * no geometry shader to expand a segment into a quad. Each glyph is instead drawn once per
+   * offset. The offsets are rebuilt whenever the line width changes and are fetched by the
+   * vertex shader from LineWidthOffsetsTexture, so their count is not bounded by the uniform
+   * budget. CachedLineWidth is negative when the offsets have not been built yet.
+   */
+  float CachedLineWidth = -1.0;
+  std::vector<float> LineWidthOffsets;
+  vtkSmartPointer<vtkTextureObject> LineWidthOffsetsTexture;
+  ///@}
 };
 
 VTK_ABI_NAMESPACE_END
