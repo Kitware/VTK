@@ -154,6 +154,7 @@ int TestVolumeRepresentation(int argc, char* argv[])
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
+    view->GetRenderWindow()->SetOffScreenRendering(false);
     view->Start();
   }
   return !retVal;

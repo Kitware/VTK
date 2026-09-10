@@ -8,11 +8,13 @@
 // vtkScivisDataRepresentation.
 
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkScivisDataRepresentation.h"
 #include "vtkScivisRepresentation.h"
 #include "vtkScivisView.h"
+#include "vtkTesting.h"
 #include "vtkTextActor.h"
 
 #include <iostream>
@@ -34,7 +36,7 @@ namespace
 class TextAnnotation : public vtkScivisRepresentation
 {
 public:
-  static TextAnnotation* New() { return new TextAnnotation; }
+  static TextAnnotation* New() { VTK_STANDARD_NEW_BODY(TextAnnotation); }
   vtkTypeMacro(TextAnnotation, vtkScivisRepresentation);
 
   void SetVisibility(bool val) override { this->Text->SetVisibility(val); }
@@ -63,7 +65,7 @@ private:
 
 }
 
-int TestAnnotationRepresentation(int, char*[])
+int TestAnnotationRepresentation(int argc, char* argv[])
 {
   vtkNew<vtkScivisView> view;
   view->GetRenderWindow()->SetOffScreenRendering(true);
@@ -89,6 +91,13 @@ int TestAnnotationRepresentation(int, char*[])
   view->ResetCamera();
   view->Render();
 
+  vtkNew<vtkTesting> testing;
+  testing->AddArguments(argc, argv);
+  if (testing->IsInteractiveModeSpecified())
+  {
+    view->GetRenderWindow()->SetOffScreenRendering(false);
+    view->Start();
+  }
   view->RemoveRepresentation(title);
   CHECK(view->GetNumberOfRepresentations() == 0, "the annotation was not removed");
 
