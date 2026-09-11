@@ -44,11 +44,12 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunction;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkSpline : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkSpline : public vtkObject
 {
 public:
   vtkTypeMacro(vtkSpline, vtkObject);
@@ -64,6 +65,7 @@ public:
   void SetParametricRange(double tMin, double tMax);
   void SetParametricRange(double tRange[2]) { this->SetParametricRange(tRange[0], tRange[1]); }
   void GetParametricRange(double tRange[2]) const;
+  vtkGetVector2Macro(ParametricRange, double);
   ///@}
 
   ///@{
@@ -74,6 +76,14 @@ public:
   vtkSetMacro(ClampValue, vtkTypeBool);
   vtkGetMacro(ClampValue, vtkTypeBool);
   vtkBooleanMacro(ClampValue, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get PiecewiseFunction.
+   */
+  void SetPiecewiseFunction(vtkPiecewiseFunction* pwf);
+  vtkGetObjectMacro(PiecewiseFunction, vtkPiecewiseFunction);
   ///@}
 
   /**

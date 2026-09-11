@@ -18,9 +18,11 @@
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkMath.h"                              // for vtkMath::Pi()
 #include "vtkParametricFunction.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKuen : public vtkParametricFunction
+class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT VTK_MARSHALAUTO vtkParametricKuen
+  : public vtkParametricFunction
 {
 public:
   vtkTypeMacro(vtkParametricKuen, vtkParametricFunction);

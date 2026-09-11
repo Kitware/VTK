@@ -12,6 +12,7 @@ PRIVATE_DEPENDS
 OPTIONAL_DEPENDS
   VTK::ChartsCore
   VTK::CommonColor
+  VTK::CommonComputationalGeometry
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel

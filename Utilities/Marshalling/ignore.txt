@@ -1,3 +1,4 @@
+Common/ComputationalGeometry/vtkBilinearQuadIntersection.h
 Common/Core/vtkABI.h
 Common/Core/vtkAOSDataArrayTemplate.h
 Common/Core/vtkAbstractBuffer.h
@@ -419,7 +420,6 @@ Common/DataModel/vtkSortFieldData.h
 Common/DataModel/vtkSphere.h
 Common/DataModel/vtkSpheres.h
 Common/DataModel/vtkSphericalPointIterator.h
-Common/DataModel/vtkSpline.h
 Common/DataModel/vtkStaticCellLinksTemplate.h
 Common/DataModel/vtkStaticCellLocator.h
 Common/DataModel/vtkStaticEdgeLocatorTemplate.h
