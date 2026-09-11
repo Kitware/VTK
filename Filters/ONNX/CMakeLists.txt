@@ -9,8 +9,12 @@ set(classes
 set(private_headers
   "Private/vtkONNXInferenceInternals.h")
 
+set(headers
+  vtkONNXInternalUtils.h)
+
 vtk_module_add_module(VTK::FiltersONNX
   CLASSES ${classes}
+  HEADERS ${headers}
   PRIVATE_HEADERS ${private_headers})
 
 vtk_module_link(VTK::FiltersONNX

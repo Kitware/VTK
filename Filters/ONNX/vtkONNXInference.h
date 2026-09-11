@@ -152,7 +152,10 @@ public:
    * The shape (a, b, c, d) can be mapped to (c, a, b, d) with permutation (2, 0, 1, 3).
    */
   void SetInputPermutation(const std::vector<int>& shape);
+  void SetInputPermutationElement(vtkIdType idx, int permutationElement);
   const std::vector<int>& GetInputPermutation() const;
+  void SetNumberOfInputPermutationElements(vtkIdType nb);
+  void ClearInputPermutation();
   ///@}
 
   ///@{
@@ -165,7 +168,10 @@ public:
    * The shape (a, b, c, d) can be mapped to (c, a, b, d) with permutation (2, 0, 1, 3).
    */
   void SetOutputPermutation(const std::vector<int>& permutation);
+  void SetOutputPermutationElement(vtkIdType idx, int permutationElement);
   const std::vector<int>& GetOutputPermutation() const;
+  void SetNumberOfOutputPermutationElements(vtkIdType nb);
+  void ClearOutputPermutation();
   ///@}
 
   ///@{
@@ -203,6 +209,32 @@ public:
   vtkGetMacro(ArrayAssociation, int);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get whether to automatically detect input shape from the ONNX model.
+   * When enabled, the input shape is read from the model file, with any dynamic
+   * dimension (-1) replaced by 1.
+   * This will override the input shape if it was set manually. (default: false)
+   */
+  void SetAutoDetectInputShape(bool SetAutoDetectInputShape);
+  vtkGetMacro(AutoDetectInputShape, bool);
+  vtkBooleanMacro(AutoDetectInputShape, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get whether to automatically detect input/output permutations.
+   * When enabled, the filter attempts to infer permutations by matching
+   * the VTK array shape (NumTuples, NumComponents) to the model's expected shape.
+   * The output permutation is set as the inverse of the input permutation.
+   * This will override the permutations if they were set manually.
+   * (default: false)
+   */
+  vtkSetMacro(AutoDetectPermutation, bool);
+  vtkGetMacro(AutoDetectPermutation, bool);
+  vtkBooleanMacro(AutoDetectPermutation, bool);
+  ///@}
+
 protected:
   vtkONNXInference();
   ~vtkONNXInference() override = default;
@@ -227,8 +259,9 @@ private:
   /**
    * This instanciates the ONNX runtime session by reading the file specified
    * by this->ModelFile.
+   * Return true if instantiation succeeded, false otherwise.
    */
-  void InitializeSession();
+  bool InitializeSession();
 
   /**
    * Return true if the filter should generate time steps.
@@ -273,6 +306,9 @@ private:
 
   int ArrayAssociation = vtkDataObject::CELL;
   std::vector<float> InputDataBuffer;
+
+  bool AutoDetectInputShape = false;
+  bool AutoDetectPermutation = false;
 
   bool Initialized = false;
   std::unique_ptr<vtkONNXInferenceInternals> Internals;

@@ -13,13 +13,29 @@
 #include "vtkONNXInternalUtils.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <numeric>
 #include <onnxruntime_cxx_api.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkONNXInference);
+
+namespace
+{
+/**
+ * Wraps a raw float buffer into a ONNX Runtime tensor. Note that the ONNX object directly
+ * references the memory pointed by data and does not manage or own it.
+ */
+Ort::Value RawToTensor(float* data, const std::vector<int64_t>& shape)
+{
+  int64_t numberElements = vtkONNXInternalUtils::TensorNumberOfElements(shape);
+
+  Ort::MemoryInfo memInfo =
+    Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
+
+  return Ort::Value::CreateTensor<float>(memInfo, data, numberElements, shape.data(), shape.size());
+}
+}
 
 //------------------------------------------------------------------------------
 vtkONNXInference::vtkONNXInference()
@@ -35,7 +51,7 @@ void vtkONNXInference::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputDimension: " << this->OutputDimension << endl;
   os << indent << "ArrayAssociation: " << this->ArrayAssociation << endl;
   os << indent << "InputShape: (";
-  for (size_t i = 0; i < this->InputShape.size(); ++i)
+  for (std::size_t i = 0; i < this->InputShape.size(); ++i)
   {
     if (i > 0)
     {
@@ -44,10 +60,12 @@ void vtkONNXInference::PrintSelf(ostream& os, vtkIndent indent)
     os << this->InputShape[i];
   }
   os << ")" << std::endl;
+  os << indent << "AutoDetectInputShape: " << (this->AutoDetectInputShape ? "On" : "Off") << endl;
+  os << indent << "AutoDetectPermutation: " << (this->AutoDetectPermutation ? "On" : "Off") << endl;
 }
 
 //------------------------------------------------------------------------------
-void vtkONNXInference::InitializeSession()
+bool vtkONNXInference::InitializeSession()
 {
   Ort::SessionOptions sessionOptions;
 
@@ -74,8 +92,26 @@ void vtkONNXInference::InitializeSession()
   {
     vtkErrorMacro(<< e.what());
     this->Internals->Session.reset();
+    return false;
   }
+
+  if (this->AutoDetectInputShape)
+  {
+    Ort::TypeInfo typeInfo = this->Internals->Session->GetInputTypeInfo(0);
+    Ort::ConstTensorTypeAndShapeInfo tensorInfo = typeInfo.GetTensorTypeAndShapeInfo();
+    std::vector<int64_t> shape = tensorInfo.GetShape();
+
+    // Replace dynamic dimensions (-1) with 1
+    // Typically used for the batch dimension
+    for (int64_t& dim : shape)
+    {
+      dim = dim < 0 ? 1 : dim;
+    }
+    this->SetInputShape(shape);
+  }
+
   this->Initialized = true;
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -101,7 +137,7 @@ void vtkONNXInference::SetTimeStepValues(const std::vector<double>& times)
 //------------------------------------------------------------------------------
 void vtkONNXInference::SetTimeStepValue(vtkIdType idx, double timeStepValue)
 {
-  if (idx < 0 || static_cast<size_t>(idx) >= this->TimeStepValues.size())
+  if (idx < 0 || static_cast<std::size_t>(idx) >= this->TimeStepValues.size())
   {
     vtkErrorMacro("Time step index is out of bounds.");
     return;
@@ -114,25 +150,34 @@ void vtkONNXInference::SetTimeStepValue(vtkIdType idx, double timeStepValue)
 //------------------------------------------------------------------------------
 void vtkONNXInference::SetNumberOfTimeStepValues(vtkIdType nb)
 {
-  vtkDebugMacro("setting NumberOfTimeStepValues to nb");
-  this->TimeStepValues.resize(nb);
-  this->Modified();
+  if (static_cast<vtkIdType>(this->TimeStepValues.size()) != nb)
+  {
+    vtkDebugMacro("setting NumberOfTimeStepValues to nb");
+    this->TimeStepValues.resize(nb);
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkONNXInference::ClearTimeStepValues()
 {
-  vtkDebugMacro("setting TimeStepValues to empty list");
-  this->TimeStepValues.clear();
-  this->Modified();
+  if (!this->TimeStepValues.empty())
+  {
+    vtkDebugMacro("Clearing TimeStepValues");
+    this->TimeStepValues.clear();
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkONNXInference::SetNumberOfInputShapeElements(vtkIdType nb)
 {
-  vtkDebugMacro("setting InputShape to nb");
-  this->InputShape.resize(nb);
-  this->Modified();
+  if (static_cast<vtkIdType>(this->InputShape.size()) != nb)
+  {
+    vtkDebugMacro("setting InputShape to nb");
+    this->InputShape.resize(nb);
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -149,7 +194,7 @@ void vtkONNXInference::SetInputParameters(const std::vector<float>& inputParamet
 //------------------------------------------------------------------------------
 void vtkONNXInference::SetInputParameter(vtkIdType idx, float inputParameter)
 {
-  if (idx < 0 || static_cast<size_t>(idx) > this->InputParameters.size())
+  if (idx < 0 || static_cast<std::size_t>(idx) > this->InputParameters.size())
   {
     vtkErrorMacro("Input parameter index is out of bounds.");
     return;
@@ -177,7 +222,7 @@ void vtkONNXInference::SetInputShape(const std::vector<int64_t>& shape)
 //------------------------------------------------------------------------------
 void vtkONNXInference::SetInputShape(vtkIdType idx, int shapeElement)
 {
-  if (idx < 0 || static_cast<size_t>(idx) >= this->InputShape.size())
+  if (idx < 0 || static_cast<std::size_t>(idx) >= this->InputShape.size())
   {
     vtkErrorMacro("Input shape index is out of bounds.");
     return;
@@ -207,17 +252,23 @@ const std::vector<int64_t>& vtkONNXInference::GetInputShape() const
 //------------------------------------------------------------------------------
 void vtkONNXInference::ClearInputParameters()
 {
-  vtkDebugMacro("setting InputParameters to empty list");
-  this->InputParameters.clear();
-  this->Modified();
+  if (!this->InputParameters.empty())
+  {
+    vtkDebugMacro("Clearing InputParameters");
+    this->InputParameters.clear();
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkONNXInference::ClearInputShape()
 {
-  vtkDebugMacro("setting InputShape to empty list");
-  this->InputShape.clear();
-  this->Modified();
+  if (!this->InputShape.empty())
+  {
+    vtkDebugMacro("Clearing InputShape");
+    this->InputShape.clear();
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -227,6 +278,44 @@ void vtkONNXInference::SetInputPermutation(const std::vector<int>& permutation)
   {
     vtkDebugMacro("setting InputPermutation");
     this->InputPermutation = permutation;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkONNXInference::SetInputPermutationElement(vtkIdType idx, int permutationElement)
+{
+  if (idx < 0 || static_cast<std::size_t>(idx) >= this->InputPermutation.size())
+  {
+    vtkErrorMacro("Input permutation index is out of bounds.");
+    return;
+  }
+  if (this->InputPermutation[idx] != permutationElement)
+  {
+    vtkDebugMacro("setting InputPermutation");
+    this->InputPermutation[idx] = permutationElement;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkONNXInference::SetNumberOfInputPermutationElements(vtkIdType nb)
+{
+  if (static_cast<vtkIdType>(this->InputPermutation.size()) != nb)
+  {
+    vtkDebugMacro("setting InputPermutation size to " << nb);
+    this->InputPermutation.resize(nb);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkONNXInference::ClearInputPermutation()
+{
+  if (!this->InputPermutation.empty())
+  {
+    vtkDebugMacro("Clearing InputPermutation");
+    this->InputPermutation.clear();
     this->Modified();
   }
 }
@@ -249,9 +338,59 @@ void vtkONNXInference::SetOutputPermutation(const std::vector<int>& permutation)
 }
 
 //------------------------------------------------------------------------------
+void vtkONNXInference::SetOutputPermutationElement(vtkIdType idx, int permutationElement)
+{
+  if (idx < 0 || static_cast<std::size_t>(idx) >= this->OutputPermutation.size())
+  {
+    vtkErrorMacro("Output permutation index is out of bounds.");
+    return;
+  }
+  if (this->OutputPermutation[idx] != permutationElement)
+  {
+    vtkDebugMacro("setting OutputPermutation");
+    this->OutputPermutation[idx] = permutationElement;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkONNXInference::SetNumberOfOutputPermutationElements(vtkIdType nb)
+{
+  if (static_cast<vtkIdType>(this->OutputPermutation.size()) != nb)
+  {
+    vtkDebugMacro("setting OutputPermutation size to " << nb);
+    this->OutputPermutation.resize(nb);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkONNXInference::ClearOutputPermutation()
+{
+  if (!this->OutputPermutation.empty())
+  {
+    vtkDebugMacro("Clearing OutputPermutation");
+    this->OutputPermutation.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 const std::vector<int>& vtkONNXInference::GetOutputPermutation() const
 {
   return this->OutputPermutation;
+}
+
+//------------------------------------------------------------------------------
+void vtkONNXInference::SetAutoDetectInputShape(bool autoDetect)
+{
+  if (this->AutoDetectInputShape != autoDetect)
+  {
+    vtkDebugMacro("setting autoDetect");
+    this->AutoDetectInputShape = autoDetect;
+    this->Modified();
+    this->Initialized = false;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -279,13 +418,13 @@ std::vector<Ort::Value> vtkONNXInference::RunModel(Ort::Value& inputTensor)
   // Retrieve names
   std::vector<std::string> inputNames;
   inputNames.reserve(this->Internals->Session->GetInputCount());
-  for (size_t i = 0; i < this->Internals->Session->GetInputCount(); ++i)
+  for (std::size_t i = 0; i < this->Internals->Session->GetInputCount(); ++i)
   {
     inputNames.emplace_back(this->Internals->Session->GetInputNameAllocated(i, allocator).get());
   }
   std::vector<std::string> outputNames;
   outputNames.reserve(this->Internals->Session->GetOutputCount());
-  for (size_t i = 0; i < this->Internals->Session->GetOutputCount(); ++i)
+  for (std::size_t i = 0; i < this->Internals->Session->GetOutputCount(); ++i)
   {
     outputNames.emplace_back(this->Internals->Session->GetOutputNameAllocated(i, allocator).get());
   }
@@ -305,9 +444,9 @@ std::vector<Ort::Value> vtkONNXInference::RunModel(Ort::Value& inputTensor)
 int vtkONNXInference::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if (!this->Initialized)
+  if (!this->Initialized && !this->InitializeSession())
   {
-    this->InitializeSession();
+    return 0;
   }
 
   // Time handling: snap requested time to one of available time.
@@ -416,8 +555,7 @@ int vtkONNXInference::ExecuteData(vtkDataObject* input, vtkDataObject* output, d
     outData = outputTensors[0].GetTensorMutableData<float>();
     Ort::TensorTypeAndShapeInfo shapeInfo = outputTensors[0].GetTensorTypeAndShapeInfo();
     outputShape = shapeInfo.GetShape();
-    outputNumElements =
-      std::accumulate(outputShape.begin(), outputShape.end(), 1LL, std::multiplies<>());
+    outputNumElements = vtkONNXInternalUtils::TensorNumberOfElements(outputShape);
 
     if (numElements != outputNumElements / this->OutputDimension)
     {
@@ -440,7 +578,7 @@ int vtkONNXInference::ExecuteData(vtkDataObject* input, vtkDataObject* output, d
     vtkONNXInternalUtils::IsPermutation(this->OutputPermutation))
   {
     std::vector<int64_t> vtkShape(outputShape.size());
-    for (size_t i = 0; i < vtkShape.size(); ++i)
+    for (std::size_t i = 0; i < vtkShape.size(); ++i)
     {
       vtkShape[i] = outputShape[this->OutputPermutation[i]];
     }
@@ -475,7 +613,7 @@ bool vtkONNXInference::GenerateInputTensorFromParameters(
   }
   try
   {
-    inputTensor = vtkONNXInternalUtils::RawToTensor(parameters.data(), { this->InputShape[0] });
+    inputTensor = ::RawToTensor(parameters.data(), { this->InputShape[0] });
   }
   catch (const Ort::Exception& exception)
   {
@@ -509,6 +647,18 @@ bool vtkONNXInference::GenerateInputTensorFromFieldArray(
     return false;
   }
 
+  if (this->AutoDetectPermutation)
+  {
+    int64_t numTuples = modelInput->GetNumberOfTuples();
+    int64_t numComponents = modelInput->GetNumberOfComponents();
+
+    std::vector<int> detectedPerm = vtkONNXInternalUtils::InversePermutation(
+      vtkONNXInternalUtils::FindMatchingPermutation(numTuples, numComponents, this->InputShape));
+
+    this->InputPermutation = detectedPerm;
+    this->OutputPermutation = vtkONNXInternalUtils::InversePermutation(detectedPerm);
+  }
+
   // Apply permutation if any
   if (!this->InputPermutation.empty() &&
     vtkONNXInternalUtils::IsPermutation(this->InputPermutation))
@@ -524,7 +674,7 @@ bool vtkONNXInference::GenerateInputTensorFromFieldArray(
   // Get ONNX tensor
   try
   {
-    inputTensor = vtkONNXInternalUtils::RawToTensor(modelInputData, this->InputShape);
+    inputTensor = ::RawToTensor(modelInputData, this->InputShape);
   }
   catch (const Ort::Exception& exception)
   {
