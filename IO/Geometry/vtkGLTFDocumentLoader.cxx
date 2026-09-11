@@ -311,35 +311,29 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
    * Maps ComponentType value to actual component type, then calls
    * ExecuteBufferDataExtractionWorker, forwarding template types and parameters.
    */
-  template <typename ArrayType, typename vtkArrayDispatchType>
+  template <typename ArrayType>
   void DispatchWorkerExecutionByComponentType(
     ArrayType* output, const Accessor& accessor, const BufferView& bufferView)
   {
     switch (accessor.ComponentTypeValue)
     {
       case ComponentType::BYTE:
-        this->ExecuteBufferDataExtractionWorker<char, ArrayType, vtkArrayDispatchType>(
-          output, accessor, bufferView);
+        this->ExecuteBufferDataExtractionWorker<int8_t, ArrayType>(output, accessor, bufferView);
         break;
       case ComponentType::UNSIGNED_BYTE:
-        this->ExecuteBufferDataExtractionWorker<unsigned char, ArrayType, vtkArrayDispatchType>(
-          output, accessor, bufferView);
+        this->ExecuteBufferDataExtractionWorker<uint8_t, ArrayType>(output, accessor, bufferView);
         break;
       case ComponentType::SHORT:
-        this->ExecuteBufferDataExtractionWorker<short, ArrayType, vtkArrayDispatchType>(
-          output, accessor, bufferView);
+        this->ExecuteBufferDataExtractionWorker<int16_t, ArrayType>(output, accessor, bufferView);
         break;
       case ComponentType::UNSIGNED_SHORT:
-        this->ExecuteBufferDataExtractionWorker<uint16_t, ArrayType, vtkArrayDispatchType>(
-          output, accessor, bufferView);
+        this->ExecuteBufferDataExtractionWorker<uint16_t, ArrayType>(output, accessor, bufferView);
         break;
       case ComponentType::UNSIGNED_INT:
-        this->ExecuteBufferDataExtractionWorker<uint32_t, ArrayType, vtkArrayDispatchType>(
-          output, accessor, bufferView);
+        this->ExecuteBufferDataExtractionWorker<uint32_t, ArrayType>(output, accessor, bufferView);
         break;
       case ComponentType::FLOAT:
-        this->ExecuteBufferDataExtractionWorker<float, ArrayType, vtkArrayDispatchType>(
-          output, accessor, bufferView);
+        this->ExecuteBufferDataExtractionWorker<float, ArrayType>(output, accessor, bufferView);
         break;
       default:
         return;
@@ -354,22 +348,13 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
   void DispatchWorkerExecution(
     ArrayType* output, const Accessor& accessor, const BufferView& bufferView)
   {
-    if (accessor.Normalized || accessor.ComponentTypeValue == ComponentType::FLOAT)
-    {
-      this->DispatchWorkerExecutionByComponentType<ArrayType, vtkArrayDispatch::Reals>(
-        output, accessor, bufferView);
-    }
-    else
-    {
-      this->DispatchWorkerExecutionByComponentType<ArrayType, vtkArrayDispatch::Integrals>(
-        output, accessor, bufferView);
-    }
+    this->DispatchWorkerExecutionByComponentType<ArrayType>(output, accessor, bufferView);
   }
 
   /**
    * Creates a new BufferDataExtractionWorker, initializes it and starts its execution
    */
-  template <typename ComponentType, typename ArrayType, typename vtkArrayDispatchType>
+  template <typename ComponentType, typename ArrayType>
   void ExecuteBufferDataExtractionWorker(
     ArrayType* output, const Accessor& accessor, const BufferView& bufferView)
   {
@@ -386,7 +371,7 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
     worker.LoadTangents = this->LoadTangents;
 
     // Start worker execution
-    vtkArrayDispatch::DispatchByValueType<vtkArrayDispatchType>::Execute(output, worker);
+    worker(output);
   }
 
   void Setup(int accessorId, vtkGLTFDocumentLoader::AccessorType expectedType)
@@ -1723,7 +1708,7 @@ std::shared_ptr<vtkGLTFDocumentLoader::Model> vtkGLTFDocumentLoader::GetInternal
 std::vector<std::string> vtkGLTFDocumentLoader::GetSupportedExtensions()
 {
   return { "KHR_lights_punctual", "KHR_materials_unlit", "KHR_texture_transform",
-    "KHR_materials_ior" };
+    "KHR_materials_ior", "KHR_mesh_quantization" };
 }
 
 //------------------------------------------------------------------------------
