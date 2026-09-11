@@ -32,6 +32,7 @@ PRIVATE_DEPENDS
   VTK::ParallelCore
 TEST_DEPENDS
   VTK::diy2
+  VTK::FiltersGeneral
   VTK::FiltersGeometry
   VTK::ImagingCore
   VTK::InteractionStyle
