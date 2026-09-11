@@ -24,6 +24,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
 #include <numeric>
 #include <string>
 #include <unordered_map>
@@ -272,8 +273,9 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Additionally to having this->MergePoints set to true,
   // points can be merge if there are not input cells cells OR if global point ids are
   // available in the inputs.
-  const bool haveGlobalIdsArray =
-    vtkIdTypeArray::SafeDownCast(datasets.front()->GetPointData()->GetGlobalIds());
+  const bool allDatasetsHaveGlobalIdsArray =
+    std::all_of(datasets.begin(), datasets.end(), [](const auto& dataset)
+      { return vtkIdTypeArray::SafeDownCast(dataset->GetPointData()->GetGlobalIds()) != nullptr; });
 
   bool reallyMergePoints = false;
   if (this->MergePoints == 1 && inputVector[0]->GetNumberOfInformationObjects() > 0)
@@ -281,7 +283,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
     reallyMergePoints = true;
 
     // If global point ids are present, we merge points sharing same global id
-    if (!haveGlobalIdsArray)
+    if (!allDatasetsHaveGlobalIdsArray)
     {
       // ensure that none of the inputs has ghost-cells.
       // (originally the code was checking for ghost cells only on 1st input,
@@ -324,7 +326,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // Since paraview/paraview#19961, global point ids can be used for the merging
   // decision. In this case, they can be merged.
   auto outputPD = output->GetPointData();
-  if (!reallyMergePoints || haveGlobalIdsArray)
+  if (!reallyMergePoints || allDatasetsHaveGlobalIdsArray)
   {
     outputPD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
   }
@@ -344,7 +346,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
     globalIndices.resize(static_cast<size_t>(totalNumberOfPoints));
     std::vector<vtkIdType> mergeMap(static_cast<size_t>(totalNumberOfPoints), -1);
     vtkIdType totalMergedPoints = 0;
-    if (haveGlobalIdsArray) // merge points with global ids
+    if (allDatasetsHaveGlobalIdsArray) // merge points with global ids
     {
       std::unordered_map<vtkIdType, vtkIdType> addedPointsMap;
       for (size_t idx = 0; idx < datasets.size(); ++idx)
@@ -426,7 +428,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
     mergedNewPoints->SetDataType(newPoints->GetDataType());
     mergedNewPoints->SetNumberOfPoints(totalMergedPoints);
     vtkNew<vtkPointData> mergedNewPD;
-    if (haveGlobalIdsArray)
+    if (allDatasetsHaveGlobalIdsArray)
     {
       mergedNewPD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
     }
@@ -436,7 +438,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
     //    and they are used to copy the points and point data.
     // 2) When global ids are used, we need to mark the points whose point data will NOT be copied.
     //    That's why a mergeMap is used instead of globalIndices.
-    vtkIdType* pointMap = haveGlobalIdsArray ? mergeMap.data() : globalIndices.data();
+    vtkIdType* pointMap = allDatasetsHaveGlobalIdsArray ? mergeMap.data() : globalIndices.data();
     vtkStaticCleanUnstructuredGrid::CopyPoints(
       newPoints, outputPD, mergedNewPoints, mergedNewPD, pointMap);
 
