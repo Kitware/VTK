@@ -8,6 +8,7 @@
 #include "Private/vtkWebGPUHelpersPrivate.h"
 #include "Private/vtkWebGPUImplExtensions.h"
 #include "Private/vtkWebGPUPipelineLayoutInternals.h"
+#include "Private/vtkWebGPUProcLoader.h"
 #include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 #include "vtkCollectionRange.h"
@@ -883,8 +884,18 @@ void vtkWebGPURenderWindow::CreateColorCopyPipeline()
   WGPUBindGroupLayout colorCopyBgl = bgl;
   vtkWebGPU::PipelineLayout pipelineLayout = vtkWebGPU::PipelineLayout::Acquire(
     vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(device, &colorCopyBgl));
-  wgpuPipelineLayoutSetLabel(
-    pipelineLayout, WGPUStringView{ "FSQ Color Copy pipeline layout", WGPU_STRLEN });
+  // Labels are debugging aids and wgpu-native leaves every wgpu*SetLabel body as
+  // `unimplemented!()`, which panics and aborts rather than returning an error.
+  // The symbol is exported, so it has to be skipped by implementation, not by
+  // whether it resolves.
+  if (vtkWebGPUProcLoader* loader = vtkWebGPUProcLoader::GetInstance())
+  {
+    if (loader->GetImplementation() != vtkWebGPUProcLoader::WgpuNative)
+    {
+      wgpuPipelineLayoutSetLabel(
+        pipelineLayout, WGPUStringView{ "FSQ Color Copy pipeline layout", WGPU_STRLEN });
+    }
+  }
 
   vtkWebGPU::ReleaseAndNull(this->ColorCopyRenderPipeline.BindGroup, wgpuBindGroupRelease);
   this->ColorCopyRenderPipeline.BindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(device, bgl,
@@ -1296,9 +1307,12 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
   }
   WGPUSurfaceTexture surfaceTexture = WGPU_SURFACE_TEXTURE_INIT;
   wgpuSurfaceGetCurrentTexture(this->Surface, &surfaceTexture);
-  // The surface hands back an owned reference each frame; adopt it so it is not
-  // leaked once this function returns.
-  vtkWebGPU::Texture currentTexture = vtkWebGPU::Texture::Acquire(surfaceTexture.texture);
+  // The surface hands back an owned reference each frame. Adopt it into the
+  // member so it stays alive until Frame() has submitted and presented the work
+  // that draws into it; a stale one from a frame that never reached Frame() is
+  // dropped here.
+  vtkWebGPU::ReleaseAndNull(this->SurfaceTexture, wgpuTextureRelease);
+  this->SurfaceTexture = surfaceTexture.texture;
 
   // Early exit if surface did not give a texture
   if (surfaceTexture.texture == nullptr)
@@ -1495,6 +1509,10 @@ void vtkWebGPURenderWindow::Frame()
 #ifndef __EMSCRIPTEN__
   wgpuSurfacePresent(this->Surface);
 #endif
+
+  // The frame's work has been submitted, so the reference the surface handed out
+  // in RenderOffscreenTexture() can go.
+  vtkWebGPU::ReleaseAndNull(this->SurfaceTexture, wgpuTextureRelease);
 
   // Clean up staging buffer for SetPixelData.
   if (this->StagingPixelData.Buffer != nullptr)
@@ -2252,6 +2270,7 @@ void vtkWebGPURenderWindow::ReleaseGraphicsResources(vtkWindow* w)
   this->DestroyIdsAttachment();
   this->DestroyDepthStencilAttachment();
   this->DestroyOffscreenColorAttachment();
+  vtkWebGPU::ReleaseAndNull(this->SurfaceTexture, wgpuTextureRelease);
   this->UnconfigureSurface();
   vtkWebGPU::ReleaseAndNull(this->Surface, wgpuSurfaceRelease);
 }

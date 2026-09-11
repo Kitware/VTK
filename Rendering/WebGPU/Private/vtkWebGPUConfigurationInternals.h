@@ -8,6 +8,7 @@
 #include "vtkWebGPUConfiguration.h"
 #include "vtk_wgpu.h"
 
+#include <atomic>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -18,6 +19,7 @@ public:
 
   vtkWebGPU::Adapter Adapter;
   vtkWebGPU::Device Device;
+  std::atomic<bool> RequestComplete{ false };
   bool DeviceReady = false;
   bool Timedout = false;
 

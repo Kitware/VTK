@@ -14,13 +14,17 @@
 #include "vtkWebGPUHelpers.h"
 #include "vtkWebGPURenderWindow.h"
 
+#include "vtk_wgpu.h"
 #include "vtksys/SystemInformation.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
+#include <atomic>
+#include <chrono>
 #include <cstdint>
 #include <cstring>
 #include <sstream>
+#include <thread>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
@@ -414,6 +418,33 @@ WGPUInstance vtkWebGPUConfiguration::GetInstance()
   return vtkWebGPUConfigurationInternals::Instance;
 }
 
+namespace
+{
+#if !defined(__EMSCRIPTEN__)
+//------------------------------------------------------------------------------
+// Drive the instance event loop until a pending request reports completion or
+// timeoutMS elapses. Returns false only on timeout.
+bool WaitForRequest(vtkWebGPUConfiguration* config, std::atomic<bool>& complete, double timeoutMS)
+{
+  const auto start = std::chrono::steady_clock::now();
+  while (!complete.load())
+  {
+    config->ProcessEvents();
+    const auto elapsed =
+      std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start).count();
+    if (elapsed >= timeoutMS)
+    {
+      return false;
+    }
+    // Yield rather than spin: the implementation completes these requests on its
+    // own threads and there is nothing else for this one to do meanwhile.
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  }
+  return true;
+}
+#endif
+}
+
 //------------------------------------------------------------------------------
 bool vtkWebGPUConfiguration::Initialize()
 {
@@ -442,10 +473,10 @@ bool vtkWebGPUConfiguration::Initialize()
   adapterOptions.backendType = internals.ToWGPUBackendType(this->Backend);
   adapterOptions.powerPreference = internals.ToWGPUPowerPreferenceType(this->PowerPreference);
 
-  std::uint64_t timeoutNS = UINT64_MAX;
   internals.Timedout = false;
+  internals.RequestComplete.store(false);
   WGPURequestAdapterCallbackInfo adapterCallbackInfo = {};
-  adapterCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
+  adapterCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
   adapterCallbackInfo.callback = [](WGPURequestAdapterStatus status, WGPUAdapter adapter,
                                    WGPUStringView message, void* userdata1, void* /*userdata2*/)
   {
@@ -454,21 +485,43 @@ bool vtkWebGPUConfiguration::Initialize()
     {
       vtkGenericWarningMacro(
         "Failed to get an adapter:" << vtkWebGPUStringViewToStdString(message));
+      // The request is over either way; leaving this unset would make the caller
+      // wait out the full timeout for a result that is never coming.
+      internalsData->RequestComplete.store(true);
       return;
     }
     // The callback is handed ownership of the adapter, so adopt it.
     internalsData->Adapter = vtkWebGPU::Adapter::Acquire(adapter);
+    internalsData->RequestComplete.store(true);
   };
   adapterCallbackInfo.userdata1 = this->Internals.get();
   WGPUFutureWaitInfo adapterWaitInfo = {};
   adapterWaitInfo.future = wgpuInstanceRequestAdapter(
     vtkWebGPUConfigurationInternals::Instance, &adapterOptions, adapterCallbackInfo);
+#if defined(__EMSCRIPTEN__)
+  // Emscripten links Dawn, which implements wgpuInstanceWaitAny.
+  const std::uint64_t timeoutNS = UINT64_MAX;
   auto waitStatus =
     wgpuInstanceWaitAny(vtkWebGPUConfigurationInternals::Instance, 1, &adapterWaitInfo, timeoutNS);
   if (waitStatus == WGPUWaitStatus_TimedOut)
   {
-    vtkWarningMacro(<< "Request adapter timed out!");
-    return internals.DeviceReady;
+    internals.Timedout = true;
+    vtkErrorMacro(<< "Request adapter timed out!");
+    return false;
+  }
+#else
+  (void)adapterWaitInfo;
+  if (!WaitForRequest(this, internals.RequestComplete, this->Timeout))
+  {
+    internals.Timedout = true;
+    vtkErrorMacro(<< "Request adapter timed out!");
+    return false;
+  }
+#endif
+  if (internals.Adapter == nullptr)
+  {
+    vtkErrorMacro(<< "Failed to acquire a WebGPU adapter.");
+    return false;
   }
   internals.Timedout = false;
 
@@ -535,8 +588,9 @@ bool vtkWebGPUConfiguration::Initialize()
 
   // Synchronously create the device
   internals.Timedout = false;
+  internals.RequestComplete.store(false);
   WGPURequestDeviceCallbackInfo deviceCallbackInfo = {};
-  deviceCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
+  deviceCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
   deviceCallbackInfo.callback = [](WGPURequestDeviceStatus status, WGPUDevice device,
                                   WGPUStringView message, void* userdata1, void* /*userdata2*/)
   {
@@ -544,26 +598,42 @@ bool vtkWebGPUConfiguration::Initialize()
     if (status != WGPURequestDeviceStatus_Success)
     {
       vtkGenericWarningMacro("Failed to get a device:" << vtkWebGPUStringViewToStdString(message));
+      // See the adapter callback: signal completion on the failure path too.
+      internalsData->RequestComplete.store(true);
       return;
     }
     // The callback is handed ownership of the device, so adopt it.
     internalsData->Device = vtkWebGPU::Device::Acquire(device);
+    internalsData->RequestComplete.store(true);
   };
   deviceCallbackInfo.userdata1 = this->Internals.get();
   WGPUFutureWaitInfo deviceWaitInfo = {};
   deviceWaitInfo.future =
     wgpuAdapterRequestDevice(internals.Adapter, &deviceDescriptor, deviceCallbackInfo);
+#if defined(__EMSCRIPTEN__)
   waitStatus =
     wgpuInstanceWaitAny(vtkWebGPUConfigurationInternals::Instance, 1, &deviceWaitInfo, UINT64_MAX);
   if (waitStatus == WGPUWaitStatus_TimedOut)
   {
-    vtkWarningMacro(<< "Request device timed out!");
-    return internals.DeviceReady;
+    internals.Timedout = true;
+    vtkErrorMacro(<< "Request device timed out!");
+    return false;
   }
-  if (internals.Device != nullptr)
+#else
+  (void)deviceWaitInfo;
+  if (!WaitForRequest(this, internals.RequestComplete, this->Timeout))
   {
-    internals.DeviceReady = true;
+    internals.Timedout = true;
+    vtkErrorMacro(<< "Request device timed out!");
+    return false;
   }
+#endif
+  if (internals.Device == nullptr)
+  {
+    vtkErrorMacro(<< "Failed to acquire a WebGPU device.");
+    return false;
+  }
+  internals.DeviceReady = true;
   return internals.DeviceReady;
 }
 

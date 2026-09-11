@@ -58,10 +58,9 @@ VTK_ABI_NAMESPACE_BEGIN
  * Reference-counted owner of a WebGPU C API handle.
  *
  * @tparam T          the raw handle type, e.g. `WGPUBuffer`
- * @tparam AddRefFn   the matching `wgpu<Type>AddRef` function
- * @tparam ReleaseFn  the matching `wgpu<Type>Release` function
+ * @tparam Traits     a type with static `AddRef(T)` and `Release(T)` members
  */
-template <typename T, void (*AddRefFn)(T), void (*ReleaseFn)(T)>
+template <typename T, typename Traits>
 class Handle
 {
 public:
@@ -91,7 +90,7 @@ public:
   {
     if (raw != nullptr)
     {
-      AddRefFn(raw);
+      Traits::AddRef(raw);
     }
     return Handle::Acquire(raw);
   }
@@ -103,7 +102,7 @@ public:
   {
     if (this->Raw != nullptr)
     {
-      AddRefFn(this->Raw);
+      Traits::AddRef(this->Raw);
     }
   }
 
@@ -136,7 +135,7 @@ public:
   {
     if (T raw = std::exchange(this->Raw, nullptr))
     {
-      ReleaseFn(raw);
+      Traits::Release(raw);
     }
   }
 
@@ -170,23 +169,23 @@ private:
   T Raw = nullptr;
 };
 
-template <typename T, void (*A)(T), void (*R)(T)>
-bool operator==(const Handle<T, A, R>& handle, std::nullptr_t)
+template <typename T, typename Traits>
+bool operator==(const Handle<T, Traits>& handle, std::nullptr_t)
 {
   return handle.Get() == nullptr;
 }
-template <typename T, void (*A)(T), void (*R)(T)>
-bool operator!=(const Handle<T, A, R>& handle, std::nullptr_t)
+template <typename T, typename Traits>
+bool operator!=(const Handle<T, Traits>& handle, std::nullptr_t)
 {
   return handle.Get() != nullptr;
 }
-template <typename T, void (*A)(T), void (*R)(T)>
-bool operator==(std::nullptr_t, const Handle<T, A, R>& handle)
+template <typename T, typename Traits>
+bool operator==(std::nullptr_t, const Handle<T, Traits>& handle)
 {
   return handle.Get() == nullptr;
 }
-template <typename T, void (*A)(T), void (*R)(T)>
-bool operator!=(std::nullptr_t, const Handle<T, A, R>& handle)
+template <typename T, typename Traits>
+bool operator!=(std::nullptr_t, const Handle<T, Traits>& handle)
 {
   return handle.Get() != nullptr;
 }
@@ -209,8 +208,21 @@ void ReleaseAndNull(T& raw, ReleaseFn release)
   }
 }
 
+// The `wgpu*` names redirect to dispatch table entries, whose addresses are not
+// constant expressions and so cannot be template arguments.
 #define vtkWebGPUDeclareHandle(Name)                                                               \
-  using Name = Handle<WGPU##Name, &wgpu##Name##AddRef, &wgpu##Name##Release>
+  struct Name##Traits                                                                              \
+  {                                                                                                \
+    static void AddRef(WGPU##Name handle)                                                          \
+    {                                                                                              \
+      wgpu##Name##AddRef(handle);                                                                  \
+    }                                                                                              \
+    static void Release(WGPU##Name handle)                                                         \
+    {                                                                                              \
+      wgpu##Name##Release(handle);                                                                 \
+    }                                                                                              \
+  };                                                                                               \
+  using Name = Handle<WGPU##Name, Name##Traits>
 
 vtkWebGPUDeclareHandle(Adapter);
 vtkWebGPUDeclareHandle(BindGroup);
