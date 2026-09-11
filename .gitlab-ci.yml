@@ -2768,7 +2768,7 @@ macos-x86_64-kits-python-qt-stdthread:test:
 #     extends:
 #         - .macos_x86_64_kits_python_qt_ext_vtk
 #         - .cmake_test_external_macos
-#         - .macos_ext_builder_tags
+#         - .macos_x86_64_builder_tags
 #         - .cmake_junit_artifacts
 #         - .rules
 #     needs:
@@ -2780,7 +2780,7 @@ wheel-macos-python310-arm64:build:
     extends:
         - .wheel_macos310_arm64
         - .cmake_build_wheel_macos
-        - .macos_arm64_wheel_builder_tags
+        - .macos_arm64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
     needs: []
@@ -2789,7 +2789,7 @@ wheel-macos-python310-arm64:test:
     extends:
         - .wheel_macos310_arm64
         - .cmake_test_wheel_macos
-        - .macos_arm64_wheel_builder_tags
+        - .macos_arm64_wheel_tags
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
     needs:
@@ -2799,7 +2799,7 @@ wheel-macos-python310-x86_64:build:
     extends:
         - .wheel_macos310_x86_64
         - .cmake_build_wheel_macos
-        - .macos_x86_64_wheel_builder_tags
+        - .macos_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
     timeout: 120 minutes
@@ -2809,7 +2809,7 @@ wheel-macos-python310-x86_64:test:
     extends:
         - .wheel_macos310_x86_64
         - .cmake_test_wheel_macos
-        - .macos_x86_64_wheel_builder_tags
+        - .macos_x86_64_wheel_tags
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
     needs:
@@ -2819,7 +2819,7 @@ wheel-macos-python311-arm64:build:
     extends:
         - .wheel_macos311_arm64
         - .cmake_build_wheel_macos
-        - .macos_arm64_wheel_builder_tags
+        - .macos_arm64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
     needs: []
@@ -2828,7 +2828,7 @@ wheel-macos-python311-arm64:test:
     extends:
         - .wheel_macos311_arm64
         - .cmake_test_wheel_macos
-        - .macos_arm64_wheel_builder_tags
+        - .macos_arm64_wheel_tags
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
     needs:
@@ -2838,7 +2838,7 @@ wheel-macos-python311-x86_64:build:
     extends:
         - .wheel_macos311_x86_64
         - .cmake_build_wheel_macos
-        - .macos_x86_64_wheel_builder_tags
+        - .macos_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
     timeout: 120 minutes
@@ -2848,7 +2848,7 @@ wheel-macos-python311-x86_64:test:
     extends:
         - .wheel_macos311_x86_64
         - .cmake_test_wheel_macos
-        - .macos_x86_64_wheel_builder_tags
+        - .macos_x86_64_wheel_tags
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
     needs:
@@ -2858,7 +2858,7 @@ wheel-macos-python312-arm64:build:
     extends:
         - .wheel_macos312_arm64
         - .cmake_build_wheel_macos
-        - .macos_arm64_wheel_builder_tags
+        - .macos_arm64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
     needs: []
@@ -2867,7 +2867,7 @@ wheel-macos-python312-arm64:test:
     extends:
         - .wheel_macos312_arm64
         - .cmake_test_wheel_macos
-        - .macos_arm64_wheel_builder_tags
+        - .macos_arm64_wheel_tags
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
     needs:
@@ -2877,7 +2877,7 @@ wheel-macos-python312-x86_64:build:
     extends:
         - .wheel_macos312_x86_64
         - .cmake_build_wheel_macos
-        - .macos_x86_64_wheel_builder_tags
+        - .macos_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
     timeout: 120 minutes
@@ -2887,7 +2887,7 @@ wheel-macos-python312-x86_64:test:
     extends:
         - .wheel_macos312_x86_64
         - .cmake_test_wheel_macos
-        - .macos_x86_64_wheel_builder_tags
+        - .macos_x86_64_wheel_tags
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
     needs:
@@ -2897,7 +2897,7 @@ wheel-macos-python313-arm64:build:
     extends:
         - .wheel_macos313_arm64
         - .cmake_build_wheel_macos
-        - .macos_arm64_wheel_builder_tags
+        - .macos_arm64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_previous_build
     needs: []
@@ -2906,7 +2906,7 @@ wheel-macos-python313-arm64:test:
     extends:
         - .wheel_macos313_arm64
         - .cmake_test_wheel_macos
-        - .macos_arm64_wheel_builder_tags
+        - .macos_arm64_wheel_tags
         - .rules
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_previous_test
@@ -2917,7 +2917,7 @@ wheel-macos-python313-x86_64:build:
     extends:
         - .wheel_macos313_x86_64
         - .cmake_build_wheel_macos
-        - .macos_x86_64_wheel_builder_tags
+        - .macos_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_previous_build
     timeout: 120 minutes
@@ -2927,7 +2927,7 @@ wheel-macos-python313-x86_64:test:
     extends:
         - .wheel_macos313_x86_64
         - .cmake_test_wheel_macos
-        - .macos_x86_64_wheel_builder_tags
+        - .macos_x86_64_wheel_tags
         - .rules
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_previous_test
@@ -2938,7 +2938,7 @@ wheel-macos-python314-arm64:build:
     extends:
         - .wheel_macos314_arm64
         - .cmake_build_wheel_macos
-        - .macos_arm64_wheel_builder_tags
+        - .macos_arm64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_latest_build
     needs: []
@@ -2947,7 +2947,7 @@ wheel-macos-python314-arm64:test:
     extends:
         - .wheel_macos314_arm64
         - .cmake_test_wheel_macos
-        - .macos_arm64_wheel_builder_tags
+        - .macos_arm64_wheel_tags
         - .rules_variables_wheel_latest_test
         - .cdash_annotations_artifacts
     needs:
@@ -2957,7 +2957,7 @@ wheel-macos-python314-x86_64:build:
     extends:
         - .wheel_macos314_x86_64
         - .cmake_build_wheel_macos
-        - .macos_x86_64_wheel_builder_tags
+        - .macos_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_latest_build
     timeout: 120 minutes
@@ -2967,7 +2967,7 @@ wheel-macos-python314-x86_64:test:
     extends:
         - .wheel_macos314_x86_64
         - .cmake_test_wheel_macos
-        - .macos_x86_64_wheel_builder_tags
+        - .macos_x86_64_wheel_tags
         - .rules_variables_wheel_latest_test
         - .cdash_annotations_artifacts
     needs:
@@ -2977,7 +2977,7 @@ wheel-macos-python314-x86_64:test:
 #    extends:
 #        - .wheel_macos314t_arm64
 #        - .cmake_build_wheel_macos
-#        - .macos_arm64_wheel_builder_tags
+#        - .macos_arm64_builder_tags
 #        - .cmake_wheel_artifacts
 #        - .rules_variables_wheel_weekly_build
 #    timeout: 120 minutes
@@ -2987,7 +2987,7 @@ wheel-macos-python314-x86_64:test:
 #    extends:
 #        - .wheel_macos314t_arm64
 #        - .cmake_test_wheel_macos
-#        - .macos_arm64_wheel_builder_tags
+#        - .macos_arm64_builder_tags
 #        - .rules_variables_wheel_weekly_test
 #        - .cdash_annotations_artifacts
 #    needs:
@@ -2997,7 +2997,7 @@ wheel-macos-python314t-x86_64:build:
     extends:
         - .wheel_macos314t_x86_64
         - .cmake_build_wheel_macos
-        - .macos_x86_64_wheel_builder_tags
+        - .macos_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_weekly_build
     timeout: 120 minutes
@@ -3007,7 +3007,7 @@ wheel-macos-python314t-x86_64:test:
     extends:
         - .wheel_macos314t_x86_64
         - .cmake_test_wheel_macos
-        - .macos_x86_64_wheel_builder_tags
+        - .macos_x86_64_wheel_tags
         - .rules_variables_wheel_weekly_test
         - .cdash_annotations_artifacts
     needs:

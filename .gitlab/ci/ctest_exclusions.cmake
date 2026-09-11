@@ -271,10 +271,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     "^VTK::RenderingAnnotationPython-xyPlot4$"
     "^VTK::RenderingCorePython-pickImageData$"
 
-    # Crowded geometry?
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/18230
-    "^VTK::ViewsInfovisCxx-TestTreeMapView(SerDes)?$"
-
     # Line rendering differences.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18229
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryClipPlanes(SerDes)?$"
@@ -298,19 +294,227 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
     "^VTK::CommonDataModelPython-TestClipPolyhedra$"
     "^VTK::ImagingCoreCxx-TestStencilWithPolyDataContour(SerDes)?$"
 
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19372
+    "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
+
     # edge rendering issues (OpenGL support abandoned on macos)
     "^VTK::FiltersMeshingPython-TestVoronoi3D-Lissajous$"
     "^VTK::FiltersMeshingPython-TestVoronoi3D2$"
     "^VTK::FiltersMeshingPython-TestVoronoi2D3$"
     "^VTK::FiltersMeshingPython-TestVoronoi2D$"
     "^VTK::FiltersMeshingCxx-TestVoronoiHull2(SerDes)?$"
-    "^VTK::FiltersMeshingCxx-TestVoronoi2DSurfaceNets(SerDes)?$")
+    "^VTK::FiltersMeshingCxx-TestVoronoi2DSurfaceNets(SerDes)?$"
+
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/20151
+    # Timeouts
+    "^VTK::DomainsChemistryOpenGL2Cxx-TestPDBBallAndStickShadowsDOFSSAA$"
+    "^VTK::IOPLYCxx-TestPLYReader$"
+    "^VTK::IOPLYCxx-TestPLYReaderIntensity$"
+    "^VTK::IOPLYCxx-TestPLYReaderPointCloud$"
+    "^VTK::IOPLYCxx-TestPLYReaderTextureUVPoints$"
+    "^VTK::IOPLYCxx-TestPLYWriterAlpha$"
+    "^VTK::IOSegYCxx-TestSegY2DReader$"
+    "^VTK::IOSegYCxx-TestSegY2DReaderZoom$"
+    "^VTK::IOVPICCxx-TestVPICReader$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotationSerDes$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotationVectorsSerDes$"
+    "^VTK::RenderingLICOpenGL2Cxx-TestSurfaceLICPlanarVectorNormalizeOff$"
+    "^VTK::RenderingLICOpenGL2Cxx-TestSurfaceLICPlanarVectorNormalizeOffSerDes$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBRAnisotropy$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBRAnisotropySerDes$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBRClearCoat$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBRClearCoatSerDes$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBREdgeTint$" # x86_64 is stdthread-only
+    "^VTK::RenderingOpenGL2Cxx-TestPBREdgeTintSerDes$" # x86_64 is stdthread-only
+    "^VTK::RenderingOpenGL2Cxx-TestPBRHdrEnvironment$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBRHdrEnvironmentSerDes$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBRIrradianceHDR$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBRMapping$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBRMappingSerDes$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBRMaterials$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBRMaterialsSerDes$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBRMaterialsCoat$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBRMaterialsCoatSerDes$"
+    "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlur$"
+    "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlurSerDes$"
+    "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlurWithRenderPasses$"
+    "^VTK::RenderingOpenGL2Cxx-TestSkyboxCubeRotation$"
+    "^VTK::RenderingOpenGL2Cxx-TestSkyboxCubeRotationSerDes$"
+    "^VTK::RenderingOpenGL2Cxx-TestSkyboxNoBlurSerDes$"
+    "^VTK::RenderingOpenGL2Cxx-TestSkyboxWithRenderPassSerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastCameraInsideSmallSpacing$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastCameraInsideTransformation$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastCameraInsideTransformationSerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastCropping1$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastCropping1SerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastDepthPeeling$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastDepthPeelingBlendModes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastDepthPeelingMultiViewport$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastMapperShadowsSerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastModelTransformMatrix$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastMultiVolumeAddRemove$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastMultiVolumeAddRemoveSerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastMultiVolumeCellDataSerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastMultiVolumeOverlapping$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastMultiVolumeOverlappingSerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastMultiVolumeShadeSerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastMultiVolumeTransfer2DSerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastSSAO$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastThreeComponentsAdditive$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastThreeComponentsAdditiveSerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastThreeComponentsIndependent$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastThreeComponentsIndependentSerDes$"
+    "^VTK::RenderingVolumeCxx-TestMultiBlockMapperRectilinearGrid$"
+    "^VTK::RenderingVolumeCxx-TestMultiBlockMapperRectilinearGridSerDes$"
+    "^VTK::RenderingVolumeCxx-TestMultiBlockMapperRectilinearGridSerDes$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingTransVolSerDes$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingTransparentPolyDataSerDes$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastMultiVolumeClipping$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastMultiVolumeClippingSerDes$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastSlicePlane$"
+    #"^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastSlicePlaneSerDes$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastTextureStreaming$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastTextureStreamingSerDes$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastTextureStreamingMask$"
+    #"^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastTextureStreamingMaskSerDes$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastUserShader$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestSurfaceProbeVolumeMapper$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestSurfaceProbeVolumeMapperColoring$"
+    "^VTK::SerializationManagerPython-TestSkybox$"
+
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/20153
+    # Missing geometry/textures
+    "^VTK::FiltersCorePython-TestPolyDataPlaneCutter$"
+    "^VTK::RenderingAnnotationCxx-TestLegendScaleActorCustomLabels$"
+    "^VTK::RenderingAnnotationCxx-TestLegendScaleActorCustomLabelsSerDes$"
+    "^VTK::RenderingImageCxx-TestImageResliceMapperBackground$"
+    "^VTK::RenderingImageCxx-TestImageSliceMapperBackground$"
+    "^VTK::RenderingImageCxx-TestImageSliceMapperBackgroundSerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastAverageIP$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastAverageIPSerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastCameraInsideNonUniformScaleTransform$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastCameraInsideNonUniformScaleTransformSerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastCameraInsideSerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastCompositeBinaryMaskSerDes$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastJitteringSerDes$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastToggleJittering$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastToggleJitteringSerDes$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastUserShader2$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastUserShader2SerDes$"
+    "^VTK::RenderingVolumeCxx-TestGPUVolumeRayCastMapperSerDes$"
+    # Differences
+    "^VTK::FiltersPointsPython-TestHierarchicalBinningFilter$"
+    "^VTK::FiltersPointsPython-TestStatisticalOutlierRemoval$"
+    "^VTK::InteractionWidgetsCxx-TestOrthoPlanes$"
+    "^VTK::InteractionWidgetsCxx-TestOrthoPlanesSerDes$"
+    "^VTK::InteractionWidgetsCxx-TestPlaybackWidget$"
+    "^VTK::InteractionWidgetsCxx-TestPlaybackWidgetSerDes$"
+    "^VTK::InteractionWidgetsCxx-TestSplineWidget$"
+    "^VTK::InteractionWidgetsCxx-TestSplineWidgetSerDes$"
+    "^VTK::RenderingAnnotationCxx-TestLegendBoxActor$"
+    "^VTK::RenderingAnnotationCxx-TestLegendBoxActorSerDes$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestHardwareSelector$"
+    "^VTK::RenderingFreeTypeCxx-TestFlagpoleLabel$"
+    "^VTK::RenderingFreeTypeCxx-TestFlagpoleLabelSerDes$"
+    # Offset lines
+    "^VTK::FiltersGeneralPython-cursor2D$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary2DMaterial$"
+    "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridTernary2DMaterialSerDes$"
+    "^VTK::RenderingAnnotationCxx-TestLegendBoxActor2$"
+    "^VTK::RenderingAnnotationCxx-TestLegendBoxActor2SerDes$"
+    "^VTK::RenderingAnnotationCxx-TestScalarBar$"
+    "^VTK::RenderingAnnotationCxx-TestScalarBarSerDes$"
+
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/20154
+    # Segfault
+    "^VTK::RenderingOpenGL2Cxx-TestStencilMaskPass$"
+    "^VTK::RenderingOpenGL2Cxx-TestStencilMaskPassSerDes$"
+  )
+
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "x86_64")
+    list(APPEND test_exclusions
+      # https://gitlab.kitware.com/vtk/vtk/-/issues/18229
+      # Miscolored axes lines
+      "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$"
+
+      # https://gitlab.kitware.com/vtk/vtk/-/issues/20153
+      # Missing geometry/textures
+      "^VTK::RenderingCoreCxx-OpenGL-RenderNonFinite$"
+
+      # https://gitlab.kitware.com/vtk/vtk/-/issues/20151
+      # timeouts
+      "^VTK::InteractionStyleCxx-TestTrackballEnvironmentRotate$" # not-stdthread
+      "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotation$" # stdthread
+      "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotationVectors$" # stdthread
+      "^VTK::RenderingOpenGL2Cxx-TestPBRMultipleScatteringIBL$" # not-stdthread
+      "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlur$"
+      "^VTK::RenderingOpenGL2Cxx-TestSkyboxNoBlur$"
+      "^VTK::RenderingOpenGL2Cxx-TestSkyboxWithRenderPass$"
+      "^VTK::RenderingVolumeCxx-TestGPURayCastMapperRectilinearGrid$"
+      "^VTK::RenderingVolumeCxx-TestGPURayCastMultiVolumeCellData$"
+      "^VTK::RenderingVolumeCxx-TestGPURayCastMultiVolumeRGBA$" # not-stdthread
+      "^VTK::RenderingVolumeCxx-TestGPURayCastMultiVolumeShade$"
+      "^VTK::RenderingVolumeCxx-TestGPURayCastMultiVolumeTransfer2D$"
+      "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingTransVol$" # not-stdthread
+      "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingTransparentPolyData$" # not-stdthread
+    )
+  endif ()
 
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "arm64")
-    # Unknown NSInternalInconsistencyException when using macos arm64
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/19916
     list(APPEND test_exclusions
-      "^vtkJavaTests-Regression$")
+      # Unknown NSInternalInconsistencyException when using macos arm64
+      # https://gitlab.kitware.com/vtk/vtk/-/issues/19916
+      "^vtkJavaTests-Regression$"
+
+      # https://gitlab.kitware.com/vtk/vtk/-/issues/20153
+      # Selection issues?
+      "^VTK::InteractionStylePython-TestStyleRubberBandZoomPerspective$"
+      # Stripes across the image
+      "^VTK::FiltersMeshingPython-TestVoronoi2D2$"
+      # Missing triangles
+      "^VTK::FiltersSourcesCxx-TestMultiBlock$"
+      "^VTK::FiltersSourcesCxx-TestMultiBlockSerDes$"
+      "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperCellScalars$"
+      "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperCellScalarsSerDes$"
+      "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperMixedGeometryCellScalars$"
+      "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperMixedGeometryCellScalarsSerDes$"
+      "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperMixedGeometryEdges$"
+      "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperMixedGeometryEdgesSerDes$"
+      "^VTK::RenderingOpenGL2Cxx-TestShadowMapPass$"
+      "^VTK::RenderingOpenGL2Cxx-TestShadowMapPassSerDes$"
+      "^VTK::RenderingVolumeCxx-TestGPURayCastComputeNormalFromOpacity$"
+      "^VTK::RenderingVolumeCxx-TestGPURayCastComputeNormalFromOpacitySerDes$"
+      "^VTK::RenderingVolumeCxx-TestGPURayCastMIPBinaryMask$"
+      "^VTK::RenderingVolumeCxx-TestGPURayCastMIPBinaryMaskSerDes$"
+      "^VTK::RenderingVolumeCxx-TestGPURayCastShadedClipping$"
+      "^VTK::RenderingVolumeCxx-TestGPURayCastShadedClippingSerDes$"
+      "^VTK::RenderingVolumeCxx-TestGPURayCastVolumePlane$"
+      "^VTK::RenderingVolumeCxx-TestGPURayCastVolumePlaneSerDes$"
+      "^VTK::RenderingAnnotationCxx-TestPolarAxes_Text3D$"
+      "^VTK::RenderingAnnotationCxx-TestPolarAxes_Text3DSerDes$"
+      # Raycasting issues?
+      "^VTK::RenderingVolumeCxx-TestGPURayCastCameraInside$"
+      "^VTK::RenderingVolumeCxx-TestGPURayCastCompositeBinaryMask$"
+
+      # https://gitlab.kitware.com/vtk/vtk/-/issues/20154
+      # segfault
+      "^VTK::GUISupportQtCxx-TestQVTKOpenGLStereoWidgetSwapWindows$"
+
+      # https://gitlab.kitware.com/vtk/vtk/-/issues/20151
+      # Timeouts
+      "^VTK::IONetCDFCxx-SLACParticleReader$"
+      "^VTK::IONetCDFCxx-SLACReaderLinear$"
+      "^VTK::IONetCDFCxx-SLACReaderQuadratic$"
+      "^VTK::IONetCDFCxx-TestMPASReader$"
+      "^VTK::IONetCDFCxx-TestNetCDFCAMReader$"
+      "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastCellData$"
+      "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingOpaque$"
+      "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingTransVol$"
+      "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingTransparentPolyData$"
+      "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthTextureFormat$"
+      "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastIsosurface$"
+      "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastJittering$"
+    )
   endif()
 endif ()
 
@@ -327,8 +531,15 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel_macos" AND
     "^VTK::RenderingAnnotationPython-xyPlot4$"
     "^VTK::RenderingCorePython-pickImageData$"
 
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/20153
+    # Missing geometry/textures
+    "^VTK::IOEnSightPython-nacaBinary$"
+    "^VTK::FiltersHybridPython-largeImageOffset$"
+    "^VTK::FiltersGeometryPython-LagrangeGeometricOperations$"
+
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19578
-    "^VTK::FiltersGeneralCxx-TestContourTriangulatorHoles$")
+    "^VTK::FiltersGeneralCxx-TestContourTriangulatorHoles$"
+  )
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
@@ -341,7 +552,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
 
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19372
-    "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
     "^VTK::FiltersCellGridPython-TestCellGridToUnstructuredGrid$"
     "^VTK::FiltersCellGridPython-TestCellGridTransform$"
     "^VTK::FiltersCellGridPython-TestCellGridCellCenters$"
@@ -423,7 +633,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
       "^VTK::FiltersCellGridPython-TestCellGridToUnstructuredGrid$"
       "^VTK::FiltersCellGridPython-TestCellGridTransform$"
       "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
-      "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
       "^VTK::RenderingCellGridPython-TestCellGridRendering$"
       "^VTK::RenderingOpenGL2Python-TestArrayRenderer$"
     )
