@@ -1,8 +1,18 @@
 $erroractionpreference = "stop"
 
-$version = "3.31.6"
-$sha256sum = "D163CD3AB4959B0A53FA8988F2DDBD2E6C501658201E6A154386BAD9DBE4F836"
-$filename = "cmake-$version-windows-x86_64"
+$version = "4.0.7"
+
+if ("$env:PROCESSOR_ARCHITECTURE" -eq "AMD64") {
+    $sha256sum = "3C0BFE3EF9956B39A741AFE1385499969BCD100DBA7B5076D648BD2FBC56131C"
+    $platform = "windows-x86_64"
+} elseif ("$env:PROCESSOR_ARCHITECTURE" -eq "ARM64") {
+    $sha256sum = "790049744F7A414F44E9D921600F5190A363E83629567E7096613603C18FF17D"
+    $platform = "windows-arm64"
+} else {
+    throw ('unknown PROCESSOR_ARCHITECTURE: ' + "$env:PROCESSOR_ARCHITECTURE")
+}
+
+$filename = "cmake-$version-$platform"
 $tarball = "$filename.zip"
 
 $outdir = $pwd.Path
@@ -16,4 +26,5 @@ if ($hash.Hash -ne $sha256sum) {
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::ExtractToDirectory("$outdir\$tarball", "$outdir")
-Move-Item -Path "$outdir\$filename" -Destination "$outdir\cmake"
+Move-Item -Path "$outdir\$filename" -Destination "$outdir\cmake$env:CMAKE_SUFFIX"
+Remove-Item "$outdir\$tarball"

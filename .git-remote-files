@@ -3,3 +3,21 @@ commit = 8f83cbcdac0af41574abfb632dfbe2c403948803
 branch = master
 target = ThirdParty/update-common.sh
 comment = third-party import script
+
+[file "cmake/4.0/cmake.ps1" from "https://gitlab.kitware.com/utils/ci-scripts.git"]
+commit = 8dd8a4510cee4166b9e7fef1e2cbe7e8c24c357d
+branch = master
+target = .gitlab/ci/cmake.ps1
+comment = cmake windows download script
+
+[file "cmake/4.0/cmake.sh" from "https://gitlab.kitware.com/utils/ci-scripts.git"]
+commit = 8dd8a4510cee4166b9e7fef1e2cbe7e8c24c357d
+branch = master
+target = .gitlab/ci/cmake.sh
+comment = cmake unix download script
+
+[file "cmake/3.13/cmake.sh" from "https://gitlab.kitware.com/utils/ci-scripts.git"]
+commit = 8dd8a4510cee4166b9e7fef1e2cbe7e8c24c357d
+branch = master
+target = .gitlab/ci/cmake-mindeps.sh
+comment = cmake-mindeps unix download script
