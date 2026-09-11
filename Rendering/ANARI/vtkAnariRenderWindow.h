@@ -81,7 +81,7 @@ protected:
    * OffscreenRenderingOn() to enforce it.
    */
   vtkAnariRenderWindow();
-  ~vtkAnariRenderWindow() override = default;
+  ~vtkAnariRenderWindow() override;
 
   /**
    * Called to trigger the rendering to ANARI.
