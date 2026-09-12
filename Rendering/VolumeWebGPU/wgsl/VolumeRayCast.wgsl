@@ -53,6 +53,10 @@ const BLEND_SLICE: u32 = 6u;
 
 const FAR_AWAY: f32 = 3.4e38;
 
+// Opacity a ray must reach before it is worth naming in the selection ids. Matches the threshold
+// vtkVolumeShaderComposer uses for the same purpose.
+const ID_OPACITY_THRESHOLD: f32 = 3.0 / 255.0;
+
 // One light of the renderer, in world space. `direction` points from the light towards what it
 // lights; the positional fields are ignored unless `positional` is set.
 struct Light {
@@ -152,6 +156,11 @@ struct VolumeParams {
   blend_mode: u32,
   // How far a labelled voxel goes from the volume's own transfer functions to its label's.
   mask_blend_factor: f32,
+  // The prop this volume belongs to, as hardware selection numbers them.
+  prop_id: u32,
+  padding1: u32,
+  padding2: u32,
+  padding3: u32,
   clip_planes: array<vec4<f32>, MAX_CLIP_PLANES>,
 }
 
@@ -733,8 +742,38 @@ struct RayState {
   count: f32,
 }
 
+struct FragmentOutput {
+  @location(0) color: vec4<f32>,
+  // {cell, prop, composite, process} the hardware selector reads. Each is written one above its
+  // real value because the selector reserves zero for "nothing was drawn here".
+  @location(1) ids: vec4<u32>,
+}
+
+// The ids for a sample of \a volume_index at \a tex_coord. A ray that showed nothing writes zeros,
+// which leaves whatever the geometry behind it had already claimed.
+fn selectionIds(volume_index: u32, tex_coord: vec3<f32>, hit: bool) -> vec4<u32> {
+  if (!hit) {
+    return vec4<u32>(0u);
+  }
+  let params = volumes[volume_index];
+  let dims = max(params.dims, vec3<f32>(1.0));
+  let voxel = vec3<u32>(clamp(voxelOf(volume_index, tex_coord), vec3<f32>(0.0),
+    dims - vec3<f32>(1.0)));
+  let extent = vec3<u32>(dims);
+  let cell = voxel.z * extent.y * extent.x + voxel.y * extent.x + voxel.x;
+  return vec4<u32>(cell + 1u, params.prop_id + 1u, 1u, 1u);
+}
+
 @fragment
-fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f32> {
+fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> FragmentOutput {
+  // Where the ray first had enough opacity to be worth naming, which is what the OpenGL mapper
+  // reports too. Anything fainter leaves the ids alone.
+  var id_volume = 0u;
+  var id_coord = vec3<f32>(0.0);
+  var id_found = false;
+  var seen_volume = 0u;
+  var seen_coord = vec3<f32>(0.0);
+  var seen_any = false;
   let viewport = globals.viewport;
   let ndc = vec2<f32>((frag_coord.x - viewport.x) / viewport.z * 2.0 - 1.0,
                       1.0 - (frag_coord.y - viewport.y) / viewport.w * 2.0);
@@ -833,12 +872,26 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
       let remaining = 1.0 - slice_alpha;
       slice_color += remaining * sample.a * sample.rgb;
       slice_alpha += remaining * sample.a;
+      if (!seen_any) {
+        seen_volume = chosen;
+        seen_coord = tex_coord;
+        seen_any = true;
+      }
+      if (!id_found && slice_alpha > ID_OPACITY_THRESHOLD) {
+        id_volume = chosen;
+        id_coord = tex_coord;
+        id_found = true;
+      }
     }
 
     if (slice_alpha <= 0.0) {
       discard;
     }
-    return finalColor(min(slice_color, vec3<f32>(1.0)), min(slice_alpha, 1.0));
+    var slice_out: FragmentOutput;
+    slice_out.color = finalColor(min(slice_color, vec3<f32>(1.0)), min(slice_alpha, 1.0));
+    slice_out.ids = selectionIds(select(seen_volume, id_volume, id_found),
+      select(seen_coord, id_coord, id_found), id_found || seen_any);
+    return slice_out;
   }
 
   var state: RayState;
@@ -931,6 +984,9 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
     var weighted_color = vec3<f32>(0.0);
     var weight_sum = 0.0;
     var transmittance = 1.0;
+    var step_opacity = 0.0;
+    var step_volume = 0u;
+    var step_coord = vec3<f32>(0.0);
 
     for (var i = 0u; i < globals.num_volumes; i++) {
       if (t < t_near_of[i] || t >= t_far_of[i]) {
@@ -1134,6 +1190,17 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
         sample_color = shade(i, color, tex_coord, shading_gradient);
       }
 
+      if (!seen_any) {
+        seen_volume = i;
+        seen_coord = tex_coord;
+        seen_any = true;
+      }
+      if (opacity > step_opacity) {
+        step_opacity = opacity;
+        step_volume = i;
+        step_coord = tex_coord;
+      }
+
       weighted_color += opacity * sample_color;
       weight_sum += opacity;
       transmittance *= 1.0 - opacity;
@@ -1144,6 +1211,11 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
       let remaining = 1.0 - state.alpha;
       state.color += remaining * alpha * (weighted_color / weight_sum);
       state.alpha += remaining * alpha;
+      if (!id_found && state.alpha > ID_OPACITY_THRESHOLD) {
+        id_volume = step_volume;
+        id_coord = step_coord;
+        id_found = true;
+      }
       if (state.alpha >= 0.99) {
         break;
       }
@@ -1159,6 +1231,11 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
         discard;
       }
       let index = state.value_volume;
+      if (!id_found) {
+        id_volume = index;
+        id_coord = select(seen_coord, id_coord, id_found);
+        id_found = seen_any;
+      }
       let component = volumes[index].primary_component;
       let value = clamp(state.value, 0.0, 1.0);
       let alpha = opacityOf(index, component, value);
@@ -1184,5 +1261,9 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> @location(0) vec4<f
     discard;
   }
 
-  return finalColor(state.color, state.alpha);
+  var out: FragmentOutput;
+  out.color = finalColor(state.color, state.alpha);
+  out.ids = selectionIds(select(seen_volume, id_volume, id_found),
+    select(seen_coord, id_coord, id_found), id_found || seen_any);
+  return out;
 }

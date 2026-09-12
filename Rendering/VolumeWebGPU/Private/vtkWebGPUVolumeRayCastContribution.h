@@ -106,6 +106,9 @@ struct vtkWebGPUVolumeRayCastContribution
   bool HasMask = false;
   bool MaskHidesNeighbours = false;
 
+  /// Index of this volume's prop in the renderer, which selection reports as the prop id.
+  std::uint32_t PropId = 0;
+
   /// A label map mask names a transfer function per label, and MaskBlendFactor says how far to
   /// go from the volume's own transfer functions towards the label's.
   int MaximumLabel = 0;

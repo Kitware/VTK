@@ -22,6 +22,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPURenderWindow.h"
+#include "vtkWebGPURenderer.h"
 #include "vtkWindow.h"
 
 #include "VolumeRayCast.h"
@@ -42,6 +43,9 @@ constexpr int MaxComponents = 4;
 constexpr int MaxIsoValues = Internals::MaximumIsoValues;
 constexpr int TableSize = Internals::TableSize;
 constexpr int Table2DSize = vtkWebGPUVolumeTransferFunction2DSize;
+/// A renderer numbers its props from zero without gaps, so the search stops at the first gap; this
+/// only bounds it against a renderer that somehow never reports one.
+constexpr vtkTypeUInt32 MaxPropsSearched = 65536u;
 
 // Flags shared with VolumeRayCast.wgsl.
 enum GlobalFlag : std::uint32_t
@@ -168,9 +172,12 @@ struct VolumeParams
   std::uint32_t BlendMode;
   /// How far a labelled voxel goes from the volume's own transfer functions to its label's.
   float MaskBlendFactor;
+  /// The prop this volume belongs to, as hardware selection numbers them.
+  std::uint32_t PropId;
+  std::uint32_t Padding1[3];
   float ClipPlanes[MaxClipPlanes][4];
 };
-static_assert(sizeof(VolumeParams) == 496, "VolumeParams must match the WGSL layout");
+static_assert(sizeof(VolumeParams) == 512, "VolumeParams must match the WGSL layout");
 
 // Must match Page in VolumeRayCast.wgsl.
 struct PageEntry
@@ -938,6 +945,29 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
 {
   auto configuration = window->GetWGPUConfiguration();
 
+  // Hardware selection numbers props by where the renderer keeps them, and only the renderer can
+  // say. Asking it per volume rather than caching keeps this right when props come and go.
+  if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
+  {
+    for (auto& contribution : this->Contributions)
+    {
+      contribution.PropId = 0;
+      for (vtkTypeUInt32 id = 0; id < MaxPropsSearched; ++id)
+      {
+        vtkProp* prop = wgpuRenderer->GetPropWithId(id);
+        if (prop == nullptr)
+        {
+          break;
+        }
+        if (prop == contribution.Volume)
+        {
+          contribution.PropId = id;
+          break;
+        }
+      }
+    }
+  }
+
   // Check if volumes can overlap and if they all have the same blend mode
   int primaryBlendMode = 0;
   bool allSameBlendMode = this->AllBlendModesMatch(primaryBlendMode);
@@ -1137,6 +1167,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
       params.Flags |= VolumeFlagNearest;
     }
     params.MaskBlendFactor = std::clamp(contribution.MaskBlendFactor, 0.0f, 1.0f);
+    params.PropId = contribution.PropId;
     if (contribution.MaximumLabel > 0)
     {
       params.Flags |= VolumeFlagLabelMap;
@@ -1766,16 +1797,26 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::EnsurePipeline(vtkWebGPURe
   blendState.color = blend;
   blendState.alpha = blend;
 
-  WGPUColorTargetState colorTarget = WGPU_COLOR_TARGET_STATE_INIT;
-  colorTarget.format = colorFormat;
-  colorTarget.blend = &blendState;
-  colorTarget.writeMask = WGPUColorWriteMask_All;
+  const WGPUTextureFormat idsFormat = window->GetPreferredSelectorIdsTextureFormat();
+
+  WGPUColorTargetState targets[2];
+  targets[0] = WGPU_COLOR_TARGET_STATE_INIT;
+  targets[0].format = colorFormat;
+  targets[0].blend = &blendState;
+  targets[0].writeMask = WGPUColorWriteMask_All;
+
+  // The ids the hardware selector reads. Integer formats cannot blend, and must not: an id is a
+  // name, so the fragment nearest the eye has to replace what is there rather than mix with it.
+  targets[1] = WGPU_COLOR_TARGET_STATE_INIT;
+  targets[1].format = idsFormat;
+  targets[1].blend = nullptr;
+  targets[1].writeMask = WGPUColorWriteMask_All;
 
   WGPUFragmentState fragment = WGPU_FRAGMENT_STATE_INIT;
   fragment.module = shaderModule;
   fragment.entryPoint = WGPUStringView{ "fragmentMain", WGPU_STRLEN };
-  fragment.targetCount = 1;
-  fragment.targets = &colorTarget;
+  fragment.targetCount = 2;
+  fragment.targets = targets;
 
   WGPUPipelineLayoutDescriptor layoutDescriptor = WGPU_PIPELINE_LAYOUT_DESCRIPTOR_INIT;
   layoutDescriptor.label = WGPUStringView{ "VolumeRayCastPipelineLayout", WGPU_STRLEN };
@@ -1814,15 +1855,23 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::RecordRenderPass(
     return;
   }
 
-  WGPURenderPassColorAttachment attachment = WGPU_RENDER_PASS_COLOR_ATTACHMENT_INIT;
-  attachment.view = window->GetOffscreenColorAttachmentView();
-  attachment.loadOp = WGPULoadOp_Load;
-  attachment.storeOp = WGPUStoreOp_Store;
+  WGPURenderPassColorAttachment attachments[2];
+  attachments[0] = WGPU_RENDER_PASS_COLOR_ATTACHMENT_INIT;
+  attachments[0].view = window->GetOffscreenColorAttachmentView();
+  attachments[0].loadOp = WGPULoadOp_Load;
+  attachments[0].storeOp = WGPUStoreOp_Store;
+
+  // Loaded, not cleared: the geometry drawn before this pass has already named itself here, and
+  // the volume only replaces those ids where it is solid enough to hide what is behind it.
+  attachments[1] = WGPU_RENDER_PASS_COLOR_ATTACHMENT_INIT;
+  attachments[1].view = window->GetHardwareSelectorAttachmentView();
+  attachments[1].loadOp = WGPULoadOp_Load;
+  attachments[1].storeOp = WGPUStoreOp_Store;
 
   WGPURenderPassDescriptor descriptor = WGPU_RENDER_PASS_DESCRIPTOR_INIT;
   descriptor.label = WGPUStringView{ "vtkWebGPUVolumeRayCastCoordinator", WGPU_STRLEN };
-  descriptor.colorAttachmentCount = 1;
-  descriptor.colorAttachments = &attachment;
+  descriptor.colorAttachmentCount = 2;
+  descriptor.colorAttachments = attachments;
   descriptor.depthStencilAttachment = nullptr;
 
   auto pass = vtkWebGPU::RenderPassEncoder::Acquire(window->NewRenderPass(descriptor));
