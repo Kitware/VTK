@@ -4,6 +4,7 @@ vtk_add_test_cxx(vtkIONetCDFCxxTests tests
   SLACReaderLinear.cxx
   SLACReaderQuadratic.cxx
   TestMPASReader.cxx
+  TestMPASReaderHistory.cxx
   TestNetCDFCAMReader.cxx
   TestNetCDFPOPReader.cxx
   TestNetCDFCFWriter.cxx

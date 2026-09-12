@@ -65,6 +65,16 @@ public:
 
   ///@{
   /**
+   * Specify an optional MPAS history file from which to read field data.
+   * When unset, both field and grid data are read from FileName.
+   * The grid dimensions in the history file must match those in FileName.
+   */
+  vtkSetFilePathMacro(HistoryFileName);
+  vtkGetFilePathMacro(HistoryFileName);
+  ///@}
+
+  ///@{
+  /**
    * Get the number of data cells
    */
   vtkGetMacro(MaximumCells, int);
@@ -225,7 +235,8 @@ protected:
   void ReleaseNcData();
   void DestroyData();
 
-  char* FileName; // First field part file giving path
+  char* FileName;        // File containing the grid
+  char* HistoryFileName; // Optional file containing the fields
 
   size_t NumberOfTimeSteps; // Temporal domain
   double DTime;             // The current time
@@ -297,6 +308,7 @@ private:
 
   void SetDefaults();
   int GetNcDims();
+  int GetHistoryNcDims();
   int GetNcAtts();
   int CheckParams();
   int GetNcVars(const char* cellDimName, const char* pointDimName);
