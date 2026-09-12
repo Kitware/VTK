@@ -31,14 +31,6 @@ struct vtkFreeTypeTools::FTThreadLocalData
   FTC_ImageCache* ImageCache;
   FTC_CMapCache* CMapCache;
 
-  ///@{
-  /**
-   * Pointer back to the owning vtkFreeTypeTools so we can use its
-   * MaximumNumber* settings when creating the FTC_Manager.
-   */
-  vtkFreeTypeTools* Owner;
-  ///@}
-
   FTThreadLocalData();
   ~FTThreadLocalData();
 

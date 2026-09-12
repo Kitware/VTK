@@ -21,6 +21,7 @@
 #include "fonts/vtkEmbeddedFonts.h"
 
 #include <algorithm>
+#include <atomic>
 #include <cassert>
 #include <cstdint>
 #include <limits>
@@ -107,9 +108,12 @@ public:
 
 //------------------------------------------------------------------------------
 // The singleton, and the singleton cleanup counter
-vtkFreeTypeTools* vtkFreeTypeTools::Instance;
+std::atomic<vtkFreeTypeTools*> vtkFreeTypeTools::Instance{ nullptr };
 std::mutex vtkFreeTypeTools::InstanceMutex;
 static unsigned int vtkFreeTypeToolsCleanupCounter;
+
+// Source of the unique ids that key each instance's per-thread data.
+static std::atomic<vtkTypeUInt64> vtkFreeTypeToolsNextInstanceId{ 1 };
 
 //------------------------------------------------------------------------------
 // The embedded fonts
@@ -145,7 +149,6 @@ vtkFreeTypeTools::FTThreadLocalData::FTThreadLocalData()
   , CacheManager(nullptr)
   , ImageCache(nullptr)
   , CMapCache(nullptr)
-  , Owner(nullptr)
 {
 }
 
@@ -193,21 +196,20 @@ void vtkFreeTypeTools::FTThreadLocalData::ReleaseCaches()
 //------------------------------------------------------------------------------
 // thread_local storage: each thread gets one FTThreadLocalData per
 // vtkFreeTypeTools instance. Because non-static data members cannot be
-// thread_local in C++, we store a thread_local map keyed by the tools pointer.
-static thread_local std::map<vtkFreeTypeTools*,
-  std::unique_ptr<vtkFreeTypeTools::FTThreadLocalData>>
+// thread_local in C++, we store a thread_local map keyed by the instance's
+// unique id.
+static thread_local std::map<vtkTypeUInt64, std::unique_ptr<vtkFreeTypeTools::FTThreadLocalData>>
   vtkFTThreadLocalMap;
 
 //------------------------------------------------------------------------------
 vtkFreeTypeTools::FTThreadLocalData& vtkFreeTypeTools::GetThreadLocalData()
 {
-  auto it = vtkFTThreadLocalMap.find(this);
+  auto it = vtkFTThreadLocalMap.find(this->InstanceId);
   if (it == vtkFTThreadLocalMap.end())
   {
     auto tld = std::make_unique<FTThreadLocalData>();
-    tld->Owner = this;
     tld->InitLibrary();
-    it = vtkFTThreadLocalMap.emplace(this, std::move(tld)).first;
+    it = vtkFTThreadLocalMap.emplace(this->InstanceId, std::move(tld)).first;
   }
   return *it->second;
 }
@@ -215,38 +217,47 @@ vtkFreeTypeTools::FTThreadLocalData& vtkFreeTypeTools::GetThreadLocalData()
 //------------------------------------------------------------------------------
 vtkFreeTypeTools* vtkFreeTypeTools::GetInstance()
 {
-  // Double-checked locking pattern.
-  if (!vtkFreeTypeTools::Instance)
+  // Double-checked locking: the fast path is a lock-free acquire load so that
+  // concurrent callers do not serialize on the mutex once the singleton exists.
+  vtkFreeTypeTools* instance = vtkFreeTypeTools::Instance.load(std::memory_order_acquire);
+  if (!instance)
   {
-    std::lock_guard<std::mutex> lock(vtkFreeTypeTools::InstanceMutex);
-    if (!vtkFreeTypeTools::Instance)
+    std::scoped_lock<std::mutex> lock(vtkFreeTypeTools::InstanceMutex);
+    instance = vtkFreeTypeTools::Instance.load(std::memory_order_relaxed);
+    if (!instance)
     {
-      vtkFreeTypeTools::Instance =
+      instance =
         static_cast<vtkFreeTypeTools*>(vtkObjectFactory::CreateInstance("vtkFreeTypeTools"));
-      if (!vtkFreeTypeTools::Instance)
+      if (!instance)
       {
-        vtkFreeTypeTools::Instance = new vtkFreeTypeTools;
-        vtkFreeTypeTools::Instance->InitializeObjectBase();
+        instance = new vtkFreeTypeTools;
+        instance->InitializeObjectBase();
       }
+      // Publish only once the instance is fully constructed.
+      vtkFreeTypeTools::Instance.store(instance, std::memory_order_release);
     }
   }
-  return vtkFreeTypeTools::Instance;
+  return instance;
 }
 
 //------------------------------------------------------------------------------
 void vtkFreeTypeTools::SetInstance(vtkFreeTypeTools* instance)
 {
-  if (vtkFreeTypeTools::Instance == instance)
+  // Replacing the singleton is expected to happen while no other thread is
+  // using it; the atomic accesses here only guarantee that readers never
+  // observe a partially written pointer.
+  vtkFreeTypeTools* previous = vtkFreeTypeTools::Instance.load(std::memory_order_acquire);
+  if (previous == instance)
   {
     return;
   }
 
-  if (vtkFreeTypeTools::Instance)
+  if (previous)
   {
-    vtkFreeTypeTools::Instance->Delete();
+    previous->Delete();
   }
 
-  vtkFreeTypeTools::Instance = instance;
+  vtkFreeTypeTools::Instance.store(instance, std::memory_order_release);
 
   // User will call ->Delete() after setting instance
 
@@ -267,6 +278,7 @@ vtkFreeTypeTools::vtkFreeTypeTools()
   this->MaximumNumberOfBytes = 300000UL * this->MaximumNumberOfSizes;
   this->TextPropertyLookup = new vtkTextPropertyLookup();
   this->ScaleToPowerTwo = true;
+  this->InstanceId = vtkFreeTypeToolsNextInstanceId++;
   // Per-thread FreeType library and caches are created on demand in
   // GetThreadLocalData() the first time each thread uses this instance.
 }
@@ -274,14 +286,18 @@ vtkFreeTypeTools::vtkFreeTypeTools()
 //------------------------------------------------------------------------------
 vtkFreeTypeTools::~vtkFreeTypeTools()
 {
-  // Do NOT call vtkFTThreadLocalMap.erase(this) here.  On platforms where
-  // thread-local destructors run before global/static destructors (glibc),
-  // vtkFTThreadLocalMap has already been destroyed by the time this dtor
-  // runs, so accessing it would be a use-after-destruction double-free.
-  // The thread-local map destructor already calls ~FTThreadLocalData() for
-  // every entry, which properly releases FreeType resources.  Entries for
-  // threads that outlive this object will be cleaned up when those threads
-  // exit.
+  // Do NOT touch vtkFTThreadLocalMap here.  On platforms where thread-local
+  // destructors run before global/static destructors (glibc), the map has
+  // already been destroyed by the time this dtor runs, so accessing it would
+  // be a use-after-destruction double-free.  Leaving the entries alone is
+  // safe: the map's own destructor calls ~FTThreadLocalData() for every entry,
+  // which releases the FreeType resources on the thread that owns them, and
+  // entries are keyed by InstanceId so a leftover entry can never be handed to
+  // a later instance.  Entries belonging to threads that outlive this object
+  // are released when those threads exit.
+  //
+  // Note that FreeType objects can only be destroyed by their owning thread,
+  // so deferring to thread exit is also the only correct option here.
   delete TextPropertyLookup;
 }
 
@@ -476,20 +492,27 @@ void vtkFreeTypeTools::InitializeCacheManager(FTThreadLocalData& tld)
 
   FT_Error error;
 
-  // Create the cache manager itself
-  tld.CacheManager = new FTC_Manager;
+  // Create the cache manager itself. This goes through the virtual
+  // CreateFTCManager() so that subclasses such as vtkFontConfigFreeTypeTools
+  // can install their own face requester.
+  // The handles are value-initialized so that a failed creation leaves a null
+  // handle behind rather than an indeterminate one.
+  tld.CacheManager = new FTC_Manager();
 
-  error = FTC_Manager_New(tld.Library, this->MaximumNumberOfFaces, this->MaximumNumberOfSizes,
-    this->MaximumNumberOfBytes, vtkFreeTypeToolsFaceRequester, static_cast<FT_Pointer>(this),
-    tld.CacheManager);
+  error = this->CreateFTCManager();
 
   if (error)
   {
     vtkErrorMacro(<< "Failed allocating a new FreeType Cache Manager");
+    // Nothing usable was created, so drop the handle instead of building the
+    // caches below on top of it.
+    delete tld.CacheManager;
+    tld.CacheManager = nullptr;
+    return;
   }
 
   // The image cache
-  tld.ImageCache = new FTC_ImageCache;
+  tld.ImageCache = new FTC_ImageCache();
   error = FTC_ImageCache_New(*tld.CacheManager, tld.ImageCache);
 
   if (error)
@@ -498,7 +521,7 @@ void vtkFreeTypeTools::InitializeCacheManager(FTThreadLocalData& tld)
   }
 
   // The charmap cache
-  tld.CMapCache = new FTC_CMapCache;
+  tld.CMapCache = new FTC_CMapCache();
   error = FTC_CMapCache_New(*tld.CacheManager, tld.CMapCache);
 
   if (error)

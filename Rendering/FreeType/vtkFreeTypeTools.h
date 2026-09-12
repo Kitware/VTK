@@ -20,7 +20,7 @@
 #include "vtkTextRenderer.h"            // For Metrics struct
 
 #include <array>        // for std::array
-#include <memory>       // for std::unique_ptr
+#include <atomic>       // for std::atomic
 #include <mutex>        // for std::mutex
 #include <shared_mutex> // for std::shared_mutex
 
@@ -393,8 +393,10 @@ protected:
 
   /**
    * The singleton instance and the mutex that protects its creation.
+   * Instance is atomic so that the lock-free fast path in GetInstance() does
+   * not race with the thread that publishes a newly created singleton.
    */
-  static vtkFreeTypeTools* Instance;
+  static std::atomic<vtkFreeTypeTools*> Instance;
   static std::mutex InstanceMutex;
 
   /**
@@ -427,6 +429,14 @@ protected:
 private:
   vtkFreeTypeTools(const vtkFreeTypeTools&) = delete;
   void operator=(const vtkFreeTypeTools&) = delete;
+
+  /**
+   * Unique id used to key this instance's per-thread data. A monotonically
+   * increasing id is used instead of the instance address so that data left
+   * behind by a destroyed instance can never be picked up by a later instance
+   * that happens to be allocated at the same address.
+   */
+  vtkTypeUInt64 InstanceId;
 
   /**
    * Internal helper called by RenderString methods
