@@ -820,7 +820,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastTwoComponentsDependentGradient$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastTwoComponentsIndependent$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastVolumeGhostArraysCellData$"
-    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastVolumePicking$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestMultiBlockMapperRectilinearGrid$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataOverlappingCells$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussian$"
