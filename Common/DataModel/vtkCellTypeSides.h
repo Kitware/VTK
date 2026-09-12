@@ -64,6 +64,7 @@
 #include "vtkBiQuadraticTriangle.h"
 #include "vtkCellType.h"
 #include "vtkCellTypeTraits.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkGenericCell.h"
 #include "vtkHexagonalPrism.h"
 #include "vtkHexahedron.h"
@@ -1342,6 +1343,14 @@ static_assert(vtkCellTypeTraits<VTK_EMPTY_CELL>::IsLinear &&
     vtkCellTypeTraits<VTK_POLYHEDRON>::IsLinear,
   "DispatchCellSides() dispatches only the linear cell types to their classes, the others to "
   "NonLinearCellSides");
+
+//------------------------------------------------------------------------------
+// The dimension of the codimension-one sides of a cell type: 2 for a 3D cell, whose sides are its
+// faces, 1 for a 2D cell, whose sides are its edges, and -1 for the 0D and 1D cells.
+inline int GetSideDimension(unsigned char cellType)
+{
+  return vtkCellTypeUtilities::GetDimension(cellType) - 1;
+}
 
 //------------------------------------------------------------------------------
 // The number of sides of dimension sideDim (0 for the vertices, 1 for the edges, 2 for the faces)

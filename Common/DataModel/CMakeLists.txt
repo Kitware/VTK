@@ -268,6 +268,7 @@ set(classes
   vtkUnstructuredGrid
   vtkUnstructuredGridBase
   vtkUnstructuredGridCellIterator
+  vtkUnstructuredGridSideMap
   vtkVertex
   vtkVertexListIterator
   vtkVoxel

@@ -139,6 +139,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestStructuredData.cxx
   TestUnstructuredGridSides.cxx
   TestDataObjectTypes.cxx
+  TestUnstructuredGridSideMap.cxx
   TestPolyDataRemoveDeletedCells.cxx
   UnitTestCells.cxx
   UnitTestImplicitDataSet.cxx
