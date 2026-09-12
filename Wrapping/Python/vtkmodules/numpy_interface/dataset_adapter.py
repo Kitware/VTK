@@ -119,6 +119,7 @@ class ArrayAssociation :
     CELL  = vtkDataObject.CELL
     FIELD = vtkDataObject.FIELD
     ROW = vtkDataObject.ROW
+    SIDE = vtkDataObject.SIDE
 
 class VTKObjectWrapper(object):
     """Superclass for classes that wrap VTK objects with Python objects.
@@ -1024,6 +1025,8 @@ class DataSetAttributes(VTKObjectWrapper):
             arrLength = self.DataSet.GetNumberOfPoints()
         elif self.Association == ArrayAssociation.CELL:
             arrLength = self.DataSet.GetNumberOfCells()
+        elif self.Association == ArrayAssociation.SIDE:
+            arrLength = self.DataSet.GetNumberOfSides()
         elif self.Association == ArrayAssociation.ROW \
           and self.DataSet.GetNumberOfColumns() > 0:
             arrLength = self.DataSet.GetNumberOfRows()

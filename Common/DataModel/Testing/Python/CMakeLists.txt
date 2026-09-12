@@ -59,6 +59,7 @@ vtk_add_test_python(
   TestCompareDataSet.py,NO_DATA,NO_VALID
   TestSelectionPythonAPI.py,NO_DATA,NO_VALID,NO_OUTPUT
   TestDataSetProperties.py,NO_DATA,NO_VALID,NO_OUTPUT
+  TestSideData.py,NO_DATA,NO_VALID,NO_OUTPUT
   TestMeshBuildingPythonAPI.py,NO_DATA,NO_VALID,NO_OUTPUT
   TestGraphPythonAPI.py,NO_DATA,NO_VALID,NO_OUTPUT
   TestImplicitFunctionsPythonAPI.py,NO_DATA,NO_VALID,NO_OUTPUT
