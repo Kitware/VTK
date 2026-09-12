@@ -10,6 +10,7 @@
 // traverse it in opposite directions. Every test here that involves a shared side ends
 // up leaning on that.
 
+#include "vtkCallbackCommand.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -1457,8 +1458,452 @@ void TestReproducibleNumbering()
   CHECK(differing == 0, differing << " of 4 builds numbered the sides differently");
 }
 
-} // anonymous namespace
+//------------------------------------------------------------------------------
+// Side data reached through the grid, the way point and cell data are.
+void TestGridSideData()
+{
+  auto grid = MakeHexGrid(3, 3, 3);
+  const int SIDE = vtkDataObject::SIDE;
 
+  // A grid has side data the way it has cell data, an empty collection until
+  // arrays are added, and asking about it must not number the sides: a generic
+  // walk over attribute types should not set off an O(n) build.
+  vtkSideData* sideData = grid->GetSideData();
+  CHECK(sideData != nullptr, "GetSideData should never return null");
+  CHECK(grid->GetAttributes(SIDE) == sideData, "GetAttributes should return the side data");
+  CHECK(grid->GetAttributesAsFieldData(SIDE) == sideData,
+    "GetAttributesAsFieldData should return the side data");
+  CHECK(
+    grid->GetNumberOfElements(SIDE) == 0, "no side map and no side arrays, so no sides counted");
+  CHECK(!grid->HasSideMap(), "asking about side attributes should not have built the map");
+
+  const vtkIdType numberOfSides = grid->GetNumberOfSides();
+  CHECK(numberOfSides == 108, "a 3x3x3 hex block has 108 sides, not " << numberOfSides);
+  CHECK(grid->GetNumberOfElements(SIDE) == numberOfSides,
+    "GetNumberOfElements disagrees with GetNumberOfSides");
+
+  // Side data is a vtkDataSetAttributes like any other, so it takes arrays the
+  // same way point and cell data do.
+  vtkNew<vtkDoubleArray> flux;
+  flux->SetName("flux");
+  flux->SetNumberOfTuples(numberOfSides);
+  for (vtkIdType i = 0; i < numberOfSides; ++i)
+  {
+    flux->SetValue(i, static_cast<double>(i));
+  }
+  sideData->AddArray(flux);
+  sideData->SetActiveScalars("flux");
+
+  CHECK(sideData->GetScalars() == flux.Get(), "active scalars should work on side data");
+  CHECK(grid->GetAttributeTypeForArray(flux) == SIDE,
+    "an array in side data should report the side attribute type");
+
+  // And the existing attribute types still answer for themselves.
+  vtkNew<vtkDoubleArray> height;
+  height->SetName("height");
+  height->SetNumberOfTuples(grid->GetNumberOfPoints());
+  height->FillValue(0.0);
+  grid->GetPointData()->AddArray(height);
+  CHECK(grid->GetAttributeTypeForArray(height) == vtkDataObject::POINT,
+    "a point array should still report POINT");
+
+  // Initialize drops it all, as it does the rest of the grid.
+  grid->Initialize();
+  CHECK(!grid->HasSideMap(), "Initialize should have dropped the side map");
+  CHECK(
+    grid->GetSideData()->GetNumberOfArrays() == 0, "Initialize should have dropped the side data");
+}
+
+//------------------------------------------------------------------------------
+// The numbering and the data indexed by it have to travel together.
+void TestGridCopies()
+{
+  auto grid = MakeHexGrid(2, 2, 2);
+  const vtkIdType numberOfSides = grid->GetNumberOfSides();
+
+  vtkNew<vtkDoubleArray> flux;
+  flux->SetName("flux");
+  flux->SetNumberOfTuples(numberOfSides);
+  for (vtkIdType i = 0; i < numberOfSides; ++i)
+  {
+    flux->SetValue(i, static_cast<double>(i) * 0.5);
+  }
+  grid->GetSideData()->AddArray(flux);
+
+  // Shallow: the copy has the same sides, in the same order, sharing arrays.
+  vtkNew<vtkUnstructuredGrid> shallow;
+  shallow->ShallowCopy(grid);
+  CHECK(shallow->HasSideMap(), "ShallowCopy should have carried the side map");
+  // Carried, not rebuilt. A rebuild would produce the same numbering on this
+  // mesh and so would go unnoticed by the checks below, but on an authored
+  // numbering it would quietly transpose every value.
+  CHECK(shallow->GetSideMap()->GetHalfSideToSide() == grid->GetSideMap()->GetHalfSideToSide(),
+    "a shallow copy should share the numbering rather than rebuild it");
+  CHECK(shallow->GetNumberOfSides() == numberOfSides, "shallow copy side count");
+  CHECK(shallow->GetSideMap()->GetDataSet() == shallow.Get(),
+    "the copied map should point at the copy, not the original");
+  CHECK(shallow->GetSideData()->GetArray("flux") == flux.Get(),
+    "a shallow copy should share the side array");
+
+  // Deep: its own arrays, same values.
+  vtkNew<vtkUnstructuredGrid> deep;
+  deep->DeepCopy(grid);
+  CHECK(deep->HasSideMap(), "DeepCopy should have carried the side map");
+  CHECK(deep->GetNumberOfSides() == numberOfSides, "deep copy side count");
+  vtkDataArray* deepFlux = deep->GetSideData()->GetArray("flux");
+  CHECK(deepFlux != nullptr && deepFlux != flux.Get(), "a deep copy should own its side array");
+  CHECK(deep->GetSideMap()->GetHalfSideToSide() != grid->GetSideMap()->GetHalfSideToSide(),
+    "a deep copy should own its side map arrays");
+
+  // The numbering survived, so side i still means the same side and still
+  // carries the same value on every copy.
+  vtkNew<vtkIdList> original;
+  vtkNew<vtkIdList> copied;
+  vtkIdType mismatches = 0;
+  for (vtkIdType sideId = 0; sideId < numberOfSides; ++sideId)
+  {
+    SidePoints(grid->GetSideMap(), sideId, original);
+    SidePoints(deep->GetSideMap(), sideId, copied);
+    if (ToVector(original) != ToVector(copied) ||
+      deepFlux->GetComponent(sideId, 0) != flux->GetValue(sideId))
+    {
+      ++mismatches;
+    }
+  }
+  CHECK(mismatches == 0, mismatches << " sides changed meaning across a deep copy");
+
+  // A grid with no side map copies as a grid with no side map.
+  auto plain = MakeHexGrid(1, 1, 1);
+  vtkNew<vtkUnstructuredGrid> plainCopy;
+  plainCopy->ShallowCopy(plain);
+  CHECK(!plainCopy->HasSideMap(), "copying a grid with no side map should not make one");
+
+  // CopyStructure carries the numbering, which belongs to the topology, and
+  // CopyAttributes the side data, as they do for the cells and cell data.
+  vtkNew<vtkUnstructuredGrid> structure;
+  structure->CopyStructure(grid);
+  CHECK(structure->HasSideMap(), "CopyStructure should have carried the side map");
+  CHECK(structure->GetSideMap()->GetHalfSideToSide() == grid->GetSideMap()->GetHalfSideToSide(),
+    "a copied structure should share the numbering rather than rebuild it");
+  CHECK(structure->GetSideData()->GetNumberOfArrays() == 0,
+    "CopyStructure should leave the side data to CopyAttributes");
+  structure->CopyAttributes(grid);
+  CHECK(structure->GetSideData()->GetArray("flux") == grid->GetSideData()->GetArray("flux"),
+    "CopyAttributes should have passed the side data");
+  CHECK(structure->GetSideData() != grid->GetSideData(),
+    "the copy's side data should be its own collection");
+}
+
+//------------------------------------------------------------------------------
+// The identity a finite-volume loop rests on. Summing an outward-signed
+// quantity over every cell's sides must leave only the boundary: each interior
+// side is counted once as +f by the cell that owns it and once as -f by the
+// other, and cancels. If the orientation convention were wrong anywhere, the
+// two would not cancel and the total would drift.
+void CheckFluxTelescoping(vtkUnstructuredGrid* grid, const char* what)
+{
+  const vtkIdType numberOfSides = grid->GetNumberOfSides();
+
+  vtkNew<vtkDoubleArray> flux;
+  flux->SetName("flux");
+  flux->SetNumberOfTuples(numberOfSides);
+  for (vtkIdType sideId = 0; sideId < numberOfSides; ++sideId)
+  {
+    // Something that varies, so cancellation cannot happen by accident.
+    flux->SetValue(sideId, 1.0 + 0.37 * static_cast<double>(sideId));
+  }
+  grid->GetSideData()->AddArray(flux);
+
+  vtkUnstructuredGridSideMap* sides = grid->GetSideMap();
+
+  double summedOverCells = 0.0;
+  for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId)
+  {
+    for (vtkIdType localSide = 0; localSide < sides->GetNumberOfCellSides(cellId); ++localSide)
+    {
+      const vtkIdType sideId = sides->GetCellSide(cellId, localSide);
+      summedOverCells += sides->GetSideOrientation(cellId, localSide) * flux->GetValue(sideId);
+    }
+  }
+
+  double summedOverBoundary = 0.0;
+  vtkNew<vtkIdList> cellIds;
+  for (vtkIdType sideId = 0; sideId < numberOfSides; ++sideId)
+  {
+    sides->GetSideCells(sideId, cellIds);
+    if (cellIds->GetNumberOfIds() == 1)
+    {
+      summedOverBoundary += flux->GetValue(sideId);
+    }
+  }
+
+  CHECK(std::abs(summedOverCells - summedOverBoundary) < 1e-9,
+    "outward-signed flux did not telescope over " << what << ": cells gave " << summedOverCells
+                                                  << ", boundary gave " << summedOverBoundary);
+  std::cerr << "--- flux telescoping, " << what << ": " << summedOverCells << " over cells, "
+            << summedOverBoundary << " over boundary" << std::endl;
+}
+
+void TestFluxTelescoping()
+{
+  // In 3D this is the divergence theorem over sides. In 2D it is the same
+  // statement over edges, which is the shape of a staggered-grid model
+  // carrying the normal component of velocity on each edge.
+  CheckFluxTelescoping(MakeHexGrid(4, 3, 2), "hexahedra");
+  CheckFluxTelescoping(MakeQuadSheet(5, 4, false), "quad sheet");
+  CheckFluxTelescoping(MakeTetPair(), "tetrahedra");
+  CheckFluxTelescoping(MakeVoxelGrid(3, 3, 2), "voxels");
+  CheckFluxTelescoping(MakePixelSheet(4, 4), "pixel sheet");
+}
+
+//------------------------------------------------------------------------------
+// A copy of an up-to-date map is not built again, so the points of the sides
+// of its higher-order cells have to come out the same.
+void TestHigherOrderCopy()
+{
+  auto grid = MakeHigherOrderHexPair(VTK_LAGRANGE_HEXAHEDRON, 2);
+  const vtkIdType numberOfSides = grid->GetNumberOfSides();
+  vtkNew<vtkUnstructuredGrid> deep;
+  deep->DeepCopy(grid);
+  vtkNew<vtkUnstructuredGrid> shallow;
+  shallow->ShallowCopy(grid);
+  vtkNew<vtkIdList> original;
+  vtkNew<vtkIdList> copied;
+  vtkIdType mismatches = 0;
+  for (vtkIdType sideId = 0; sideId < numberOfSides; ++sideId)
+  {
+    SidePoints(grid->GetSideMap(), sideId, original);
+    SidePoints(deep->GetSideMap(), sideId, copied);
+    mismatches += ToVector(original) != ToVector(copied) ? 1 : 0;
+    SidePoints(shallow->GetSideMap(), sideId, copied);
+    mismatches += ToVector(original) != ToVector(copied) ? 1 : 0;
+  }
+  CHECK(mismatches == 0, mismatches << " sides of higher-order cells lost their points in a copy");
+}
+
+//------------------------------------------------------------------------------
+// A staggered-grid ocean or atmosphere model, as a reader would bring it in:
+// columns of hexagonal prisms over a patch of a honeycomb, two layers deep,
+// with the normal velocity on every side in the file's own side numbering and
+// measured from the file's own cell of each side. The reader supplies the
+// numbering, adds the velocity as side data, and negates it where the file's
+// cell is not the side's representative. A constant velocity field then has no
+// net flux out of any cell.
+void TestStaggeredColumns()
+{
+  // The corners of the hexagons of a honeycomb around the origin, merged.
+  vtkNew<vtkPoints> points;
+  std::map<std::pair<long, long>, vtkIdType> merged;
+  const double radius = 1.0;
+  auto corner = [&](double x, double y)
+  {
+    const auto key = std::make_pair(std::lround(x * 1e6), std::lround(y * 1e6));
+    auto found = merged.find(key);
+    if (found != merged.end())
+    {
+      return found->second;
+    }
+    const vtkIdType id = points->InsertNextPoint(x, y, 0.0);
+    merged.emplace(key, id);
+    return id;
+  };
+  struct Hexagon
+  {
+    double X, Y;
+  };
+  std::vector<Hexagon> hexagons = { { 0, 0 } };
+  for (int k = 0; k < 6; ++k)
+  {
+    const double angle = vtkMath::Pi() / 3.0 * k + vtkMath::Pi() / 6.0;
+    hexagons.push_back(
+      { std::sqrt(3.0) * radius * std::cos(angle), std::sqrt(3.0) * radius * std::sin(angle) });
+  }
+  // The planar corners, counterclockwise seen from above, of every hexagon.
+  std::vector<std::array<vtkIdType, 6>> rings;
+  for (const Hexagon& h : hexagons)
+  {
+    std::array<vtkIdType, 6> ring;
+    for (int k = 0; k < 6; ++k)
+    {
+      const double angle = vtkMath::Pi() / 3.0 * k;
+      ring[k] = corner(h.X + radius * std::cos(angle), h.Y + radius * std::sin(angle));
+    }
+    rings.push_back(ring);
+  }
+  // Three levels of the planar points.
+  const vtkIdType numberOfPlanar = points->GetNumberOfPoints();
+  vtkNew<vtkPoints> levels;
+  for (int level = 0; level < 3; ++level)
+  {
+    for (vtkIdType i = 0; i < numberOfPlanar; ++i)
+    {
+      double x[3];
+      points->GetPoint(i, x);
+      levels->InsertNextPoint(x[0], x[1], static_cast<double>(level));
+    }
+  }
+  vtkNew<vtkUnstructuredGrid> grid;
+  grid->SetPoints(levels);
+  for (int layer = 0; layer < 2; ++layer)
+  {
+    for (const auto& ring : rings)
+    {
+      vtkIdType prism[12];
+      for (int k = 0; k < 6; ++k)
+      {
+        prism[k] = ring[k] + layer * numberOfPlanar;
+        prism[6 + k] = ring[k] + (layer + 1) * numberOfPlanar;
+      }
+      grid->InsertNextCell(VTK_HEXAGONAL_PRISM, 12, prism);
+    }
+  }
+
+  // The file: its own numbering of the sides, here the derived one reversed,
+  // and its own cell of every side, here the last one that has it, whose
+  // outward normal the file measures the velocity along.
+  vtkNew<vtkUnstructuredGridSideMap> derived;
+  derived->SetDataSet(grid);
+  const vtkIdType numberOfSides = derived->GetNumberOfSides();
+  const double velocity[3] = { 0.3, -1.1, 0.7 };
+  std::vector<double> fileVelocity(numberOfSides);
+  std::vector<std::pair<vtkIdType, vtkIdType>> fileCell(numberOfSides);
+  vtkNew<vtkIdList> sidePoints;
+  vtkNew<vtkIdList> cellPoints;
+  vtkNew<vtkGenericCell> cell;
+  for (vtkIdType sideId = 0; sideId < numberOfSides; ++sideId)
+  {
+    const vtkIdType fileId = numberOfSides - 1 - sideId;
+    vtkDataArray* cells = derived->GetSideCellsArray();
+    vtkDataArray* localSides = derived->GetSideLocalSidesArray();
+    const vtkIdType last =
+      static_cast<vtkIdType>(derived->GetSideOffsets()->GetTuple1(sideId + 1)) - 1;
+    const vtkIdType cellId = static_cast<vtkIdType>(cells->GetTuple1(last));
+    const vtkIdType localSide = static_cast<vtkIdType>(localSides->GetTuple1(last));
+    fileCell[fileId] = { cellId, localSide };
+    unsigned char faceType = VTK_EMPTY_CELL;
+    grid->GetCellFacePoints(
+      cellId, static_cast<int>(localSide), sidePoints, faceType, cellPoints, cell);
+    // The area vector of the side, outward from the file's cell (Newell).
+    double area[3] = { 0.0, 0.0, 0.0 };
+    const vtkIdType n = sidePoints->GetNumberOfIds();
+    for (vtkIdType i = 0; i < n; ++i)
+    {
+      double a[3], b[3];
+      grid->GetPoint(sidePoints->GetId(i), a);
+      grid->GetPoint(sidePoints->GetId((i + 1) % n), b);
+      area[0] += 0.5 * (a[1] * b[2] - a[2] * b[1]);
+      area[1] += 0.5 * (a[2] * b[0] - a[0] * b[2]);
+      area[2] += 0.5 * (a[0] * b[1] - a[1] * b[0]);
+    }
+    fileVelocity[fileId] = vtkMath::Dot(velocity, area);
+  }
+
+  // The reader.
+  vtkNew<vtkIdTypeArray> ids;
+  ids->SetNumberOfTuples(derived->GetNumberOfHalfSides());
+  for (vtkIdType halfSide = 0; halfSide < derived->GetNumberOfHalfSides(); ++halfSide)
+  {
+    ids->SetValue(halfSide,
+      numberOfSides - 1 -
+        static_cast<vtkIdType>(derived->GetHalfSideToSide()->GetTuple1(halfSide)));
+  }
+  vtkUnstructuredGridSideMap* sides = grid->GetSideMap();
+  sides->SetSideIds(ids, numberOfSides);
+  vtkNew<vtkDoubleArray> normalVelocity;
+  normalVelocity->SetName("normalVelocity");
+  normalVelocity->SetNumberOfTuples(numberOfSides);
+  for (vtkIdType fileId = 0; fileId < numberOfSides; ++fileId)
+  {
+    const auto& [cellId, localSide] = fileCell[fileId];
+    normalVelocity->SetValue(
+      fileId, sides->GetSideOrientation(cellId, localSide) * fileVelocity[fileId]);
+  }
+  grid->GetSideData()->AddArray(normalVelocity);
+
+  // No net flux out of any cell.
+  double worst = 0.0;
+  for (vtkIdType cellId = 0; cellId < grid->GetNumberOfCells(); ++cellId)
+  {
+    double net = 0.0;
+    for (vtkIdType localSide = 0; localSide < sides->GetNumberOfCellSides(cellId); ++localSide)
+    {
+      net += sides->GetSideOrientation(cellId, localSide) *
+        normalVelocity->GetValue(sides->GetCellSide(cellId, localSide));
+    }
+    worst = std::max(worst, std::abs(net));
+  }
+  CHECK(sides->GetAuthored(), "the file's numbering is kept");
+  // 7 hexagons on each of 3 levels, and 30 distinct hexagon edges in each of 2 layers.
+  CHECK(numberOfSides == 7 * 3 + 30 * 2, "sides of the columns: " << numberOfSides);
+  CHECK(worst < 1e-9, "a constant velocity has a net flux of " << worst << " out of a cell");
+}
+
+//------------------------------------------------------------------------------
+// Once the grid has side data the numbering it is indexed by is pinned: Reset
+// is refused, moving the points keeps both, and a change of the cells drops
+// both, since the values no longer name the sides they were attached to.
+void TestPinnedNumbering()
+{
+  auto grid = MakeTetPair();
+  vtkUnstructuredGridSideMap* sides = grid->GetSideMap();
+  vtkNew<vtkDoubleArray> flux;
+  flux->SetName("flux");
+  flux->SetNumberOfTuples(grid->GetNumberOfSides());
+  flux->FillValue(1.0);
+  grid->GetSideData()->AddArray(flux);
+
+  sides->SetGlobalWarningDisplay(0);
+  sides->Initialize();
+  sides->SetGlobalWarningDisplay(1);
+  CHECK(sides->IsMapBuilt(), "Initialize should be refused while side data is attached");
+
+  double x[3];
+  grid->GetPoints()->GetPoint(0, x);
+  grid->GetPoints()->SetPoint(0, x[0] + 0.1, x[1], x[2]);
+  grid->GetPoints()->Modified();
+  CHECK(sides->IsMapBuilt(), "moving the points should not invalidate the sides");
+  CHECK(grid->GetSideData()->GetArray("flux") != nullptr,
+    "moving the points should keep the side data");
+
+  vtkNew<vtkCellArray> swapped;
+  vtkNew<vtkIdList> cellPoints;
+  grid->GetCellPoints(1, cellPoints);
+  swapped->InsertNextCell(cellPoints);
+  grid->GetCellPoints(0, cellPoints);
+  swapped->InsertNextCell(cellPoints);
+  vtkNew<vtkUnsignedCharArray> types;
+  types->SetNumberOfValues(2);
+  types->SetValue(0, static_cast<unsigned char>(grid->GetCellType(1)));
+  types->SetValue(1, static_cast<unsigned char>(grid->GetCellType(0)));
+  grid->SetCells(types, swapped);
+  sides->SetGlobalWarningDisplay(0);
+  sides->BuildMap();
+  sides->SetGlobalWarningDisplay(1);
+  CHECK(grid->GetSideData()->GetNumberOfArrays() == 0,
+    "a change of the cells should drop the side data with the numbering");
+}
+
+//------------------------------------------------------------------------------
+// The grid builds its map when asked for it, and the grid and its map, which
+// refer to each other, are collected together.
+void TestGridOwnsSideMap()
+{
+  bool deleted = false;
+  vtkNew<vtkCallbackCommand> onDelete;
+  onDelete->SetClientData(&deleted);
+  onDelete->SetCallback([](vtkObject*, unsigned long, void* clientData, void*)
+    { *static_cast<bool*>(clientData) = true; });
+  {
+    auto grid = MakeTetPair();
+    vtkUnstructuredGridSideMap* sides = grid->GetSideMap();
+    CHECK(sides->IsMapBuilt(), "GetSideMap should return a built map");
+    CHECK(sides->GetDataSet() == grid.Get(), "the map should refer to its grid");
+    sides->AddObserver(vtkCommand::DeleteEvent, onDelete);
+  }
+  CHECK(deleted, "the grid and its side map should be collected together");
+}
+
+} // anonymous namespace
 int TestUnstructuredGridSideMap(int, char*[])
 {
   TestHexBlock();
@@ -1467,6 +1912,11 @@ int TestUnstructuredGridSideMap(int, char*[])
   TestAuthoredNumbering();
   TestSideIdArrayTypes();
   TestLaziness();
+  TestGridSideData();
+  TestGridCopies();
+  TestPinnedNumbering();
+  TestGridOwnsSideMap();
+  TestFluxTelescoping();
   TestQuadSheet();
   TestMixedPolygons();
   TestWindingDiagnostic();
@@ -1479,8 +1929,10 @@ int TestUnstructuredGridSideMap(int, char*[])
   TestHigherOrderQuadrilaterals();
   TestPolyhedronWinding();
   TestTopologyChanges();
+  TestHigherOrderCopy();
   TestCellsInsertedAfterTypesCached();
   TestGhostCells();
+  TestStaggeredColumns();
   TestReproducibleNumbering();
   ReportMemory();
 
