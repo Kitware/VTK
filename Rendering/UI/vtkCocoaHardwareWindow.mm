@@ -53,6 +53,10 @@
     // Get the interactor's current cache of the size.
     int size[2];
     vtkRenderWindowInteractor* interactor = self.vtkWindow->GetInteractor();
+    if (!interactor)
+    {
+      return;
+    }
     interactor->GetSize(size);
 
     if (newWidth != size[0] || newHeight != size[1])
