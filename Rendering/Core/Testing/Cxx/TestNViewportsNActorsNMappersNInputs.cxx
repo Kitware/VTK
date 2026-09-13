@@ -41,7 +41,7 @@ int TestNViewportsNActorsNMappersNInputs(int argc, char* argv[])
     ren->SetViewport(xmins[i], ymins[i], xmaxs[i], ymaxs[i]);
     renderWindow->AddRenderer(ren);
   }
-  renderWindow->SetSize(800, 800);
+  renderWindow->SetSize(600, 600);
   renderWindow->SetInteractor(interactor);
   interactor->Initialize();
 
