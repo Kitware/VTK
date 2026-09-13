@@ -34,6 +34,7 @@
 #include <memory> // for std::unique_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkImageData;
 
 class vtkRenderer;
 class vtkVolume;
@@ -108,6 +109,16 @@ public:
    * to be called from anywhere else.
    */
   void Render(vtkRenderer* renderer);
+
+  ///@{
+  /**
+   * Copy what the last render to image produced into \a output. The colour is RGBA bytes and the
+   * depth is one component of \a scalarType, holding the window space depth of the first sample
+   * the ray found visible. Return false when the pass has not been drawn in that mode.
+   */
+  bool GetImageColor(vtkImageData* output);
+  bool GetImageDepth(int scalarType, vtkImageData* output);
+  ///@}
   void ReleaseGraphicsResources(vtkWebGPUVolumeRayCastMapper* mapper);
   ///@}
 

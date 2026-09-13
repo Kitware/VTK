@@ -93,6 +93,22 @@ void vtkWebGPUVolumeRayCastCoordinator::ReleaseAll()
 }
 
 //------------------------------------------------------------------------------
+bool vtkWebGPUVolumeRayCastCoordinator::GetImageColor(vtkImageData* output)
+{
+  auto& internals = *this->Internals;
+  vtkWebGPURenderWindow* window = internals.LastWindow;
+  return window != nullptr && internals.ReadImage(window, false, VTK_UNSIGNED_CHAR, output);
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUVolumeRayCastCoordinator::GetImageDepth(int scalarType, vtkImageData* output)
+{
+  auto& internals = *this->Internals;
+  vtkWebGPURenderWindow* window = internals.LastWindow;
+  return window != nullptr && internals.ReadImage(window, true, scalarType, output);
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUVolumeRayCastCoordinator::Render(vtkRenderer* renderer)
 {
   auto* window = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());

@@ -27,6 +27,7 @@ const FLAG_HAS_DEPTH: u32 = 16u;
 const FLAG_DEFAULT_LIGHTING: u32 = 32u;
 const FLAG_TWO_SIDED_LIGHTING: u32 = 64u;
 const FLAG_PER_VOLUME_BLEND: u32 = 128u;
+const FLAG_CLAMP_DEPTH_TO_BACKFACE: u32 = 256u;
 
 // VolumeParams.flags
 const VOLUME_FLAG_SHADE: u32 = 1u;
@@ -744,9 +745,17 @@ struct RayState {
 
 struct FragmentOutput {
   @location(0) color: vec4<f32>,
-  // {cell, prop, composite, process} the hardware selector reads. Each is written one above its
-  // real value because the selector reserves zero for "nothing was drawn here".
-  @location(1) ids: vec4<u32>,
+//VTK::FragmentOutput::SecondDef
+}
+
+// Window space depth of the sample at ray parameter \a t, which is a distance from the near plane
+// along the ray. A ray that showed nothing reports the far plane, as the OpenGL mapper does.
+fn firstHitDepth(near_point: vec3<f32>, direction: vec3<f32>, t: f32, hit: bool) -> f32 {
+  if (!hit) {
+    return 1.0;
+  }
+  let clip = globals.view_projection * vec4<f32>(near_point + t * direction, 1.0);
+  return clamp(clip.z / clip.w, 0.0, 1.0);
 }
 
 // The ids for a sample of \a volume_index at \a tex_coord. A ray that showed nothing writes zeros,
@@ -770,9 +779,11 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> FragmentOutput {
   // reports too. Anything fainter leaves the ids alone.
   var id_volume = 0u;
   var id_coord = vec3<f32>(0.0);
+  var id_t = 0.0;
   var id_found = false;
   var seen_volume = 0u;
   var seen_coord = vec3<f32>(0.0);
+  var seen_t = 0.0;
   var seen_any = false;
   let viewport = globals.viewport;
   let ndc = vec2<f32>((frag_coord.x - viewport.x) / viewport.z * 2.0 - 1.0,
@@ -875,11 +886,13 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> FragmentOutput {
       if (!seen_any) {
         seen_volume = chosen;
         seen_coord = tex_coord;
+        seen_t = nearest;
         seen_any = true;
       }
       if (!id_found && slice_alpha > ID_OPACITY_THRESHOLD) {
         id_volume = chosen;
         id_coord = tex_coord;
+        id_t = nearest;
         id_found = true;
       }
     }
@@ -887,11 +900,10 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> FragmentOutput {
     if (slice_alpha <= 0.0) {
       discard;
     }
-    var slice_out: FragmentOutput;
-    slice_out.color = finalColor(min(slice_color, vec3<f32>(1.0)), min(slice_alpha, 1.0));
-    slice_out.ids = selectionIds(select(seen_volume, id_volume, id_found),
-      select(seen_coord, id_coord, id_found), id_found || seen_any);
-    return slice_out;
+    var out: FragmentOutput;
+    out.color = finalColor(min(slice_color, vec3<f32>(1.0)), min(slice_alpha, 1.0));
+//VTK::FragmentOutput::SecondWrite
+    return out;
   }
 
   var state: RayState;
@@ -1193,6 +1205,7 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> FragmentOutput {
       if (!seen_any) {
         seen_volume = i;
         seen_coord = tex_coord;
+        seen_t = t;
         seen_any = true;
       }
       if (opacity > step_opacity) {
@@ -1214,6 +1227,7 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> FragmentOutput {
       if (!id_found && state.alpha > ID_OPACITY_THRESHOLD) {
         id_volume = step_volume;
         id_coord = step_coord;
+        id_t = t;
         id_found = true;
       }
       if (state.alpha >= 0.99) {
@@ -1257,13 +1271,20 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> FragmentOutput {
     state.alpha = min(state.alpha, 1.0);
   }
 
-  if (state.alpha <= 0.0) {
+  // A ray that showed nothing reports the far plane, unless the volume asked for the depth of the
+  // face where the ray leaves it instead. That has to be settled before the fragment is thrown
+  // away, or the depth it was asked for would never be written.
+  if (!seen_any && (globals.flags & FLAG_CLAMP_DEPTH_TO_BACKFACE) != 0u && t_last > 0.0) {
+    seen_t = t_last;
+    seen_any = true;
+  }
+
+  if (state.alpha <= 0.0 && !seen_any) {
     discard;
   }
 
   var out: FragmentOutput;
   out.color = finalColor(state.color, state.alpha);
-  out.ids = selectionIds(select(seen_volume, id_volume, id_found),
-    select(seen_coord, id_coord, id_found), id_found || seen_any);
+//VTK::FragmentOutput::SecondWrite
   return out;
 }

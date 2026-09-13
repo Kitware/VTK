@@ -65,6 +65,23 @@ public:
   /// Whether the pass for this frame has already been recorded.
   bool Rendered = true;
 
+  /// Render to image draws the volume alone into textures of this object's own, with the depth of
+  /// the first sample that was visible where the selection ids otherwise go. The window's
+  /// attachments are left alone, which is what makes the mode ignore the rest of the scene.
+  bool RenderToImage = false;
+  /// The window the last pass was drawn with, so the image can be read back afterwards. Not a
+  /// reference: the render window outlives the coordinator it owns.
+  vtkWebGPURenderWindow* LastWindow = nullptr;
+  vtkWebGPU::Texture ImageColor;
+  vtkWebGPU::TextureView ImageColorView;
+  vtkWebGPU::Texture ImageDepth;
+  vtkWebGPU::TextureView ImageDepthView;
+  int ImageSize[2] = { 0, 0 };
+  void EnsureImageTargets(vtkWebGPURenderWindow* window);
+  /// Copy one of the two image targets back into \a output. Returns false when nothing has been
+  /// drawn into them yet.
+  bool ReadImage(vtkWebGPURenderWindow* window, bool depth, int scalarType, vtkImageData* output);
+
 private:
   void BeginFrame();
   /// Drop everything built on the device, keeping what was gathered for this frame.
@@ -163,6 +180,7 @@ private:
   vtkWebGPU::BindGroup BindGroup;
   vtkWebGPU::RenderPipeline Pipeline;
   WGPUTextureFormat PipelineColorFormat = WGPUTextureFormat_Undefined;
+  bool PipelineRenderToImage = false;
 
   bool DepthAvailable = false;
   /// Renderer viewport in framebuffer pixels: origin x, origin y, width, height.

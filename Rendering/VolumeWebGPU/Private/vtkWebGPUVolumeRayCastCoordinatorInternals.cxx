@@ -57,8 +57,31 @@ enum GlobalFlag : std::uint32_t
   FlagHasDepth = 16u,
   FlagDefaultLighting = 32u,
   FlagTwoSidedLighting = 64u,
-  FlagPerVolumeBlend = 128u
+  FlagPerVolumeBlend = 128u,
+  FlagClampDepthToBackface = 256u
 };
+
+/// Single channel float, so the depth comes back as it was written rather than through eight bit
+/// colour. The image the mapper hands over is converted to whatever scalar type was asked for.
+constexpr WGPUTextureFormat ImageDepthFormat = WGPUTextureFormat_R32Float;
+
+/// Put \a replacement wherever \a marker appears. Every occurrence has to go: the fragment stage
+/// leaves by more than one route and each has to write the output, or WGSL quietly zeroes it.
+void vtkWebGPUVolumeReplace(
+  std::string& source, const std::string& marker, const std::string& replacement)
+{
+  std::size_t at = source.find(marker);
+  if (at == std::string::npos)
+  {
+    vtkLogF(ERROR, "VolumeRayCast.wgsl no longer carries %s", marker.c_str());
+    return;
+  }
+  while (at != std::string::npos)
+  {
+    source.replace(at, marker.size(), replacement);
+    at = source.find(marker, at + replacement.size());
+  }
+}
 
 enum VolumeFlag : std::uint32_t
 {
@@ -1407,6 +1430,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
 
   globals.NumberOfVolumes = static_cast<std::uint32_t>(this->Contributions.size());
   globals.JitterScale = static_cast<float>(smallestStep);
+  this->RenderToImage = primary->GetRenderToImage() != 0;
   globals.EmptyThreshold = static_cast<float>(primary->GetEmptySpaceOpacityThreshold());
   globals.BlendMode = static_cast<std::uint32_t>(primaryBlendMode);
   globals.MinimumStepFactor = static_cast<float>(primary->GetMinimumSampleDistanceFactor());
@@ -1489,6 +1513,10 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
   // march is allowed to step over them anyway.
   this->SkipEmptyBricks = (globals.Flags & FlagSkipEmpty) != 0u;
   this->EmptyThreshold = globals.EmptyThreshold;
+  if (this->RenderToImage && primary->GetClampDepthToBackface() != 0)
+  {
+    globals.Flags |= FlagClampDepthToBackface;
+  }
   if (this->DrawFullScreen)
   {
     globals.Flags |= FlagFullScreen;
@@ -1772,13 +1800,27 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
 void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::EnsurePipeline(vtkWebGPURenderWindow* window)
 {
   const WGPUTextureFormat colorFormat = window->GetPreferredSurfaceTextureFormat();
-  if (this->Pipeline != nullptr && this->PipelineColorFormat == colorFormat)
+  if (this->Pipeline != nullptr && this->PipelineColorFormat == colorFormat &&
+    this->PipelineRenderToImage == this->RenderToImage)
   {
     return;
   }
 
   auto device = window->GetDevice();
-  const std::string source = window->PreprocessShaderSource(VolumeRayCast);
+  // The second fragment output is the selection ids normally and the first hit depth when the
+  // volume is being drawn into an image, so the shader is finished off here rather than branched
+  // at runtime: the two write different types to the same location.
+  std::string source = VolumeRayCast;
+  const std::string secondDef = this->RenderToImage ? "  @location(1) first_hit_depth: vec4<f32>,"
+                                                    : "  @location(1) ids: vec4<u32>,";
+  const std::string secondWrite = this->RenderToImage
+    ? "  out.first_hit_depth = vec4<f32>(firstHitDepth(near_point, ray_direction, seen_t,\n"
+      "    seen_any), 0.0, 0.0, 1.0);"
+    : "  out.ids = selectionIds(select(seen_volume, id_volume, id_found),\n"
+      "    select(seen_coord, id_coord, id_found), id_found || seen_any);";
+  vtkWebGPUVolumeReplace(source, "//VTK::FragmentOutput::SecondDef", secondDef);
+  vtkWebGPUVolumeReplace(source, "//VTK::FragmentOutput::SecondWrite", secondWrite);
+  source = window->PreprocessShaderSource(source);
 
   WGPUShaderSourceWGSL wgsl = WGPU_SHADER_SOURCE_WGSL_INIT;
   wgsl.code = vtkWebGPUMakeStringView(source);
@@ -1797,7 +1839,8 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::EnsurePipeline(vtkWebGPURe
   blendState.color = blend;
   blendState.alpha = blend;
 
-  const WGPUTextureFormat idsFormat = window->GetPreferredSelectorIdsTextureFormat();
+  const WGPUTextureFormat idsFormat =
+    this->RenderToImage ? ImageDepthFormat : window->GetPreferredSelectorIdsTextureFormat();
 
   WGPUColorTargetState targets[2];
   targets[0] = WGPU_COLOR_TARGET_STATE_INIT;
@@ -1844,6 +1887,166 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::EnsurePipeline(vtkWebGPURe
   this->Pipeline =
     vtkWebGPU::RenderPipeline::Acquire(wgpuDeviceCreateRenderPipeline(device, &descriptor));
   this->PipelineColorFormat = colorFormat;
+  this->PipelineRenderToImage = this->RenderToImage;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUVolumeRayCastCoordinator::vtkInternals::ReadImage(
+  vtkWebGPURenderWindow* window, bool depth, int scalarType, vtkImageData* output)
+{
+  WGPUTexture texture = depth ? this->ImageDepth.Get() : this->ImageColor.Get();
+  if (texture == nullptr || output == nullptr)
+  {
+    return false;
+  }
+  auto configuration = window->GetWGPUConfiguration();
+  const std::uint32_t width = wgpuTextureGetWidth(texture);
+  const std::uint32_t height = wgpuTextureGetHeight(texture);
+  const std::uint32_t texelSize = 4;
+  // A copy out of a texture has to start each row on a 256 byte boundary, so the rows are padded
+  // on the way out and packed again below.
+  const std::uint32_t bytesPerRow = ((width * texelSize + 255u) / 256u) * 256u;
+
+  WGPUBufferDescriptor bufferDescriptor = WGPU_BUFFER_DESCRIPTOR_INIT;
+  bufferDescriptor.label = WGPUStringView{ "VolumeRenderToImageReadback", WGPU_STRLEN };
+  bufferDescriptor.size = static_cast<std::uint64_t>(bytesPerRow) * height;
+  bufferDescriptor.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead;
+  auto buffer = vtkWebGPU::Buffer::Acquire(configuration->CreateBuffer(bufferDescriptor));
+
+  WGPUTexelCopyTextureInfo from = WGPU_TEXEL_COPY_TEXTURE_INFO_INIT;
+  from.texture = texture;
+  WGPUTexelCopyBufferInfo to = WGPU_TEXEL_COPY_BUFFER_INFO_INIT;
+  to.buffer = buffer;
+  to.layout.bytesPerRow = bytesPerRow;
+  to.layout.rowsPerImage = height;
+  const WGPUExtent3D extent = { width, height, 1 };
+
+  auto encoder = vtkWebGPU::CommandEncoder::Acquire(
+    wgpuDeviceCreateCommandEncoder(configuration->GetDevice(), nullptr));
+  wgpuCommandEncoderCopyTextureToBuffer(encoder, &from, &to, &extent);
+  auto commands = vtkWebGPU::CommandBuffer::Acquire(wgpuCommandEncoderFinish(encoder, nullptr));
+  auto queue = vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(configuration->GetDevice()));
+  WGPUCommandBuffer raw = commands;
+  wgpuQueueSubmit(queue, 1, &raw);
+
+  bool done = false;
+  bool mapped = false;
+  struct Waiting
+  {
+    bool* Done;
+    bool* Mapped;
+  } waiting{ &done, &mapped };
+  WGPUBufferMapCallbackInfo callbackInfo = {};
+  callbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+  callbackInfo.callback = [](WGPUMapAsyncStatus status, WGPUStringView, void* userdata, void*)
+  {
+    auto* state = static_cast<Waiting*>(userdata);
+    *state->Mapped = status == WGPUMapAsyncStatus_Success;
+    *state->Done = true;
+  };
+  callbackInfo.userdata1 = &waiting;
+  wgpuBufferMapAsync(buffer, WGPUMapMode_Read, 0, bufferDescriptor.size, callbackInfo);
+  while (!done)
+  {
+    configuration->ProcessEvents();
+  }
+  if (!mapped)
+  {
+    return false;
+  }
+
+  const auto* bytes = static_cast<const std::uint8_t*>(
+    wgpuBufferGetConstMappedRange(buffer, 0, bufferDescriptor.size));
+  if (bytes == nullptr)
+  {
+    wgpuBufferUnmap(buffer);
+    return false;
+  }
+
+  output->SetDimensions(static_cast<int>(width), static_cast<int>(height), 1);
+  output->AllocateScalars(depth ? scalarType : VTK_UNSIGNED_CHAR, depth ? 1 : 4);
+  const bool swap = this->PipelineColorFormat == WGPUTextureFormat_BGRA8Unorm ||
+    this->PipelineColorFormat == WGPUTextureFormat_BGRA8UnormSrgb;
+  for (std::uint32_t y = 0; y < height; ++y)
+  {
+    // A texture starts at its top row and a vtkImageData at its bottom one, so the rows are turned
+    // over on the way across, as the render window does when it reads its own attachments back.
+    const std::uint8_t* row = bytes + static_cast<std::size_t>(height - 1 - y) * bytesPerRow;
+    for (std::uint32_t x = 0; x < width; ++x)
+    {
+      if (depth)
+      {
+        float value;
+        std::memcpy(&value, row + x * texelSize, sizeof(value));
+        switch (scalarType)
+        {
+          case VTK_UNSIGNED_CHAR:
+            *static_cast<unsigned char*>(output->GetScalarPointer(x, y, 0)) =
+              static_cast<unsigned char>(std::lround(std::clamp(value, 0.0f, 1.0f) * 255.0));
+            break;
+          case VTK_UNSIGNED_SHORT:
+            *static_cast<unsigned short*>(output->GetScalarPointer(x, y, 0)) =
+              static_cast<unsigned short>(std::lround(std::clamp(value, 0.0f, 1.0f) * 65535.0));
+            break;
+          default:
+            *static_cast<float*>(output->GetScalarPointer(x, y, 0)) = value;
+            break;
+        }
+      }
+      else
+      {
+        auto* out = static_cast<unsigned char*>(output->GetScalarPointer(x, y, 0));
+        const std::uint8_t* in = row + x * texelSize;
+        out[0] = swap ? in[2] : in[0];
+        out[1] = in[1];
+        out[2] = swap ? in[0] : in[2];
+        out[3] = in[3];
+      }
+    }
+  }
+  wgpuBufferUnmap(buffer);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::EnsureImageTargets(
+  vtkWebGPURenderWindow* window)
+{
+  const int* size = window->GetSize();
+  if (this->ImageColor != nullptr && this->ImageSize[0] == size[0] && this->ImageSize[1] == size[1])
+  {
+    return;
+  }
+  auto configuration = window->GetWGPUConfiguration();
+  this->ImageSize[0] = size[0];
+  this->ImageSize[1] = size[1];
+
+  const auto make = [&](WGPUTextureFormat format, const char* label, vtkWebGPU::Texture& texture,
+                      vtkWebGPU::TextureView& view)
+  {
+    WGPUTextureDescriptor descriptor = WGPU_TEXTURE_DESCRIPTOR_INIT;
+    descriptor.label = WGPUStringView{ label, WGPU_STRLEN };
+    descriptor.dimension = WGPUTextureDimension_2D;
+    descriptor.size = { static_cast<std::uint32_t>(size[0]), static_cast<std::uint32_t>(size[1]),
+      1 };
+    descriptor.format = format;
+    descriptor.usage = WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_CopySrc;
+    descriptor.mipLevelCount = 1;
+    descriptor.sampleCount = 1;
+    texture = vtkWebGPU::Texture::Acquire(configuration->CreateTexture(descriptor));
+
+    WGPUTextureViewDescriptor viewDescriptor = WGPU_TEXTURE_VIEW_DESCRIPTOR_INIT;
+    viewDescriptor.label = descriptor.label;
+    viewDescriptor.format = format;
+    viewDescriptor.dimension = WGPUTextureViewDimension_2D;
+    viewDescriptor.mipLevelCount = 1;
+    viewDescriptor.arrayLayerCount = 1;
+    view = vtkWebGPU::TextureView::Acquire(configuration->CreateView(texture, viewDescriptor));
+  };
+
+  make(window->GetPreferredSurfaceTextureFormat(), "VolumeRenderToImageColor", this->ImageColor,
+    this->ImageColorView);
+  make(ImageDepthFormat, "VolumeRenderToImageDepth", this->ImageDepth, this->ImageDepthView);
 }
 
 //------------------------------------------------------------------------------
@@ -1855,17 +2058,35 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::RecordRenderPass(
     return;
   }
 
+  if (this->RenderToImage)
+  {
+    this->EnsureImageTargets(window);
+  }
+
   WGPURenderPassColorAttachment attachments[2];
   attachments[0] = WGPU_RENDER_PASS_COLOR_ATTACHMENT_INIT;
-  attachments[0].view = window->GetOffscreenColorAttachmentView();
-  attachments[0].loadOp = WGPULoadOp_Load;
-  attachments[0].storeOp = WGPUStoreOp_Store;
-
-  // Loaded, not cleared: the geometry drawn before this pass has already named itself here, and
-  // the volume only replaces those ids where it is solid enough to hide what is behind it.
   attachments[1] = WGPU_RENDER_PASS_COLOR_ATTACHMENT_INIT;
-  attachments[1].view = window->GetHardwareSelectorAttachmentView();
-  attachments[1].loadOp = WGPULoadOp_Load;
+  if (this->RenderToImage)
+  {
+    // Cleared, and aimed away from the window: the mode is documented to ignore the rest of the
+    // scene and to leave a transparent background outside the volume.
+    attachments[0].view = this->ImageColorView;
+    attachments[0].loadOp = WGPULoadOp_Clear;
+    attachments[0].clearValue = { 0.0, 0.0, 0.0, 0.0 };
+    attachments[1].view = this->ImageDepthView;
+    attachments[1].loadOp = WGPULoadOp_Clear;
+    attachments[1].clearValue = { 1.0, 1.0, 1.0, 1.0 };
+  }
+  else
+  {
+    attachments[0].view = window->GetOffscreenColorAttachmentView();
+    attachments[0].loadOp = WGPULoadOp_Load;
+    // Loaded, not cleared: the geometry drawn before this pass has already named itself here, and
+    // the volume only replaces those ids where it is solid enough to hide what is behind it.
+    attachments[1].view = window->GetHardwareSelectorAttachmentView();
+    attachments[1].loadOp = WGPULoadOp_Load;
+  }
+  attachments[0].storeOp = WGPUStoreOp_Store;
   attachments[1].storeOp = WGPUStoreOp_Store;
 
   WGPURenderPassDescriptor descriptor = WGPU_RENDER_PASS_DESCRIPTOR_INIT;
@@ -1901,6 +2122,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::Render(
     return;
   }
   this->Rendered = true;
+  this->LastWindow = window;
 
   // A renderer can be moved to another render window, and nothing built on the old device may be
   // touched by the new one.

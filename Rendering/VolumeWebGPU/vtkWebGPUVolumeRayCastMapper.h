@@ -40,10 +40,12 @@
 
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkRenderingVolumeWebGPUModule.h" // for export macro
+#include "vtkWeakPointer.h"                 // for vtkWeakPointer
 
 #include <memory> // for std::unique_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkImageData;
 
 class vtkOverrideAttribute;
 class vtkVolumeProperty;
@@ -66,6 +68,16 @@ public:
   using Superclass::GetBounds;
 
   void GPURender(vtkRenderer* ren, vtkVolume* vol) override;
+
+  ///@{
+  /**
+   * What the last render produced while RenderToImage was on: the volume drawn alone over a
+   * transparent background, and the window space depth of the first sample each ray found visible.
+   * Both are empty until such a render has happened.
+   */
+  void GetColorImage(vtkImageData* output) override;
+  void GetDepthImage(vtkImageData* output) override;
+  ///@}
   int IsRenderSupported(vtkRenderWindow* window, vtkVolumeProperty* property) override;
   void ReleaseGraphicsResources(vtkWindow* window) override;
 
@@ -181,6 +193,10 @@ private:
   void operator=(const vtkWebGPUVolumeRayCastMapper&) = delete;
 
   std::unique_ptr<vtkInternals> Internals;
+
+  /// The renderer the last GPURender ran with, so that the render to image results can be found
+  /// again afterwards. Weak: the renderer owns the props, not the other way round.
+  vtkWeakPointer<vtkRenderer> LastRenderer;
 };
 
 #define vtkWebGPUVolumeRayCastMapper_OVERRIDE_ATTRIBUTES                                           \

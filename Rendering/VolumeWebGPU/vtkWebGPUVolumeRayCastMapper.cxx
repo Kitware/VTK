@@ -126,8 +126,27 @@ double* vtkWebGPUVolumeRayCastMapper::GetBounds()
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastMapper::GetColorImage(vtkImageData* output)
+{
+  if (auto* coordinator = vtkWebGPUVolumeRayCastCoordinator::GetForRenderer(this->LastRenderer))
+  {
+    coordinator->GetImageColor(output);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastMapper::GetDepthImage(vtkImageData* output)
+{
+  if (auto* coordinator = vtkWebGPUVolumeRayCastCoordinator::GetForRenderer(this->LastRenderer))
+  {
+    coordinator->GetImageDepth(this->GetDepthImageScalarType(), output);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol)
 {
+  this->LastRenderer = ren;
   auto* window = vtkWebGPURenderWindow::SafeDownCast(ren->GetRenderWindow());
   auto* renderer = vtkWebGPURenderer::SafeDownCast(ren);
   if (window == nullptr || renderer == nullptr)
