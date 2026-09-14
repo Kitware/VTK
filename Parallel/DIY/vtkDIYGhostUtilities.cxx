@@ -5045,7 +5045,7 @@ void DeepCopyInputAndAllocateGhostsForUnstructuredData(
     for (auto& pair : blockStructures)
     {
       BlockStructureType& blockStructure = pair.second;
-      if (!blockStructure.GhostGlobalPointIds || !blockStructure.ReceivedSharedPointIds)
+      if (!blockStructure.GhostGlobalPointIds)
       {
         continue;
       }
@@ -5053,21 +5053,11 @@ void DeepCopyInputAndAllocateGhostsForUnstructuredData(
       std::map<vtkIdType, vtkIdType>& redirectionMapForDuplicatePointIds =
         blockStructure.RedirectionMapForDuplicatePointIds;
 
-      auto sharedPointIds = vtk::DataArrayValueRange<1>(blockStructure.ReceivedSharedPointIds);
-      using ConstRef = typename decltype(sharedPointIds)::ConstReferenceType;
-
       vtkIdType numberOfMatchingPoints = 0;
 
-      for (ConstRef pointId : sharedPointIds)
+      for (vtkIdType pointId = 0; pointId < globalIds.size(); ++pointId)
       {
-        ConstRef globalId = globalIds[pointId];
-
-        if (pointIdLocator.empty())
-        {
-          pointIdLocator.emplace(globalId, 0);
-          pointIdRedirection.push_back(pointIdOffset + pointId);
-          continue;
-        }
+        const vtkIdType globalId = globalIds[pointId];
 
         auto it = pointIdLocator.find(globalId);
         if (it != pointIdLocator.end())
