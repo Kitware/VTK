@@ -18,7 +18,7 @@ int TestNActorsNMappersOneInput(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetWindowName(__func__);
-  renWin->SetSize(800, 800);
+  renWin->SetSize(600, 600);
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderer> renderer;

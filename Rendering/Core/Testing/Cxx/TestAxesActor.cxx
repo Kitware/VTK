@@ -21,7 +21,7 @@ int TestAxesActor(int argc, char* argv[])
   renderer->SetBackground(0.1, 0.1, 0.1);
 
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->SetSize(800, 800);
+  renderWindow->SetSize(600, 600);
   renderWindow->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> iren;
