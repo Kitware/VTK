@@ -127,15 +127,6 @@ public:
 
   ///@{
   /**
-   * Set the user light transform applied after the camera transform.
-   * Can be null to disable it.
-   */
-  void SetUserLightTransform(vtkTransform* transform);
-  vtkTransform* GetUserLightTransform();
-  ///@}
-
-  ///@{
-  /**
    * Get environment textures used for image based lighting.
    */
   vtkSetSmartPointerMacro(EnvMapLookupTable, vtkPBRLUTTexture);
@@ -244,11 +235,6 @@ protected:
   int LightingComplexity;
   int LightingCount;
   vtkMTimeType LightingUpdateTime;
-
-  /**
-   * Optional user transform for lights
-   */
-  vtkSmartPointer<vtkTransform> UserLightTransform;
 
   vtkSmartPointer<vtkPBRLUTTexture> EnvMapLookupTable;
   vtkSmartPointer<vtkPBRIrradianceTexture> EnvMapIrradiance;

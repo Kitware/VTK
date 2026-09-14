@@ -1095,18 +1095,6 @@ int vtkWebGPURenderer::UpdateLights()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderer::SetUserLightTransform(vtkTransform* transform)
-{
-  this->UserLightTransform = transform;
-}
-
-//------------------------------------------------------------------------------
-vtkTransform* vtkWebGPURenderer::GetUserLightTransform()
-{
-  return this->UserLightTransform;
-}
-
-//------------------------------------------------------------------------------
 void vtkWebGPURenderer::SetEnvironmentTexture(vtkTexture*, bool vtkNotUsed(isSRGB) /*=false*/) {}
 
 //------------------------------------------------------------------------------

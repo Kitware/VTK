@@ -68,8 +68,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64" OR
     "^VTK::ViewsInfovisCxx-TestRenderView(SerDes)?$"
 
     # ANARI volume rendering issue: https://gitlab.kitware.com/vtk/vtk/-/work_items/20024
-    "^VTK::RenderingAnariCxx-TestAnariCameraInside"
-    "^VTK::RenderingAnariCxx-TestAnariCameraInsideSmallSpacing"
+    "^VTK::RenderingAnariCoreCxx-TestAnariCameraInside"
+    "^VTK::RenderingAnariCoreCxx-TestAnariCameraInsideSmallSpacing"
     )
 endif ()
 
@@ -881,8 +881,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "helide")
   list(APPEND test_exclusions
     # ANARI test requires the latest changes from anari-sdk PR
     # (https://github.com/KhronosGroup/ANARI-SDK/pull/335)
-    "^VTK::RenderingAnariCxx-TestAnariPolyDataTexture$"
-    "^VTK::RenderingAnariCxx-TestAnariRenderMesh$")
+    "^VTK::RenderingAnariCoreCxx-TestAnariPolyDataTexture$"
+    "^VTK::RenderingAnariCoreCxx-TestAnariRenderMesh$")
 endif ()
 
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")

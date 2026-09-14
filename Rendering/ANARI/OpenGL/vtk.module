@@ -1,0 +1,23 @@
+NAME
+  VTK::RenderingAnariOpenGL
+LIBRARY_NAME
+  vtkRenderingAnariOpenGL
+CONDITION
+  CMAKE_VERSION VERSION_GREATER 3.18
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::RenderingAnariCore
+  VTK::RenderingOpenGL2
+  VTK::RenderingVolumeOpenGL2
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::InteractionStyle
+  VTK::IOPLY
+  VTK::IOLegacy
+  VTK::RenderingAnnotation
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

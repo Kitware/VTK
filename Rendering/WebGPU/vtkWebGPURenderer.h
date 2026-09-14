@@ -136,15 +136,6 @@ public:
 
   ///@{
   /**
-   * Set the user light transform applied after the camera transform.
-   * Can be null to disable it.
-   */
-  void SetUserLightTransform(vtkTransform* transform);
-  vtkTransform* GetUserLightTransform();
-  ///@}
-
-  ///@{
-  /**
    * Set/Get the usage of render bundles. The default value is true.
    * Render bundles are a performance optimization that minimize CPU time when many
    * WGPURenderPassEncoder::Draw calls are used.
@@ -360,11 +351,6 @@ private:
 
   vtkMTimeType LightingUpdateTime;
   vtkTimeStamp LightingUploadTimestamp;
-
-  /**
-   * Optional user transform for lights
-   */
-  vtkSmartPointer<vtkTransform> UserLightTransform;
 
   /**
    * Whether the compute render buffers of the mappers of the actors of this renderer have already

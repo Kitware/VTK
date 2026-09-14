@@ -1141,9 +1141,9 @@ void vtkOpenGLRenderer::UpdateLightingUniforms(vtkShaderProgram* program)
         double tDirView[3];
         viewTF->TransformNormal(lightDir, tDirView);
 
-        if (!light->LightTypeIsSceneLight() && this->UserLightTransform.GetPointer() != nullptr)
+        if (!light->LightTypeIsSceneLight() && this->GetUserLightTransform() != nullptr)
         {
-          double* tDir = this->UserLightTransform->TransformNormal(tDirView);
+          double* tDir = this->GetUserLightTransform()->TransformNormal(tDirView);
           lightDirection[0] = tDir[0];
           lightDirection[1] = tDir[1];
           lightDirection[2] = tDir[2];
@@ -1169,9 +1169,9 @@ void vtkOpenGLRenderer::UpdateLightingUniforms(vtkShaderProgram* program)
           lightAttenuation[2] = attn[2];
           double tlpView[3];
           viewTF->TransformPoint(lp, tlpView);
-          if (!light->LightTypeIsSceneLight() && this->UserLightTransform.GetPointer() != nullptr)
+          if (!light->LightTypeIsSceneLight() && this->GetUserLightTransform() != nullptr)
           {
-            double* tlp = this->UserLightTransform->TransformPoint(tlpView);
+            double* tlp = this->GetUserLightTransform()->TransformPoint(tlpView);
             lightPosition[0] = tlp[0];
             lightPosition[1] = tlp[1];
             lightPosition[2] = tlp[2];
@@ -1195,18 +1195,6 @@ void vtkOpenGLRenderer::UpdateLightingUniforms(vtkShaderProgram* program)
   }
 
   program->SetUniformGroupUpdateTime(vtkShaderProgram::LightingGroup, ltime);
-}
-
-//------------------------------------------------------------------------------
-void vtkOpenGLRenderer::SetUserLightTransform(vtkTransform* transform)
-{
-  this->UserLightTransform = transform;
-}
-
-//------------------------------------------------------------------------------
-vtkTransform* vtkOpenGLRenderer::GetUserLightTransform()
-{
-  return this->UserLightTransform;
 }
 
 //------------------------------------------------------------------------------

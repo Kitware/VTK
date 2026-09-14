@@ -134,9 +134,10 @@ endif ()
 
 # anari/helide
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "helide")
-  set(VTK_MODULE_ENABLE_VTK_RenderingAnari YES CACHE STRING "")
+  set(VTK_MODULE_ENABLE_VTK_RenderingAnariOpenGL YES CACHE STRING "")
 else ()
-  set(VTK_MODULE_ENABLE_VTK_RenderingAnari NO CACHE STRING "")
+  set(VTK_MODULE_ENABLE_VTK_RenderingAnariCore NO CACHE STRING "")
+  set(VTK_MODULE_ENABLE_VTK_RenderingAnariOpenGL NO CACHE STRING "")
 endif ()
 
 # Mangling
