@@ -114,5 +114,8 @@ int TestGPURayCastCameraInsideSmallSpacing(int argc, char* argv[])
   ren->GetActiveCamera()->SetViewUp(-0.217149, 0.823645, -0.523885);
   ren->ResetCameraClippingRange();
 
+  // Needs an extra render to get a less noisy result. Smooth rendering helps to prevent flaky
+  // tests.
+  renWin->Render();
   return vtkRegressionTestImage(renWin) == vtkTesting::PASSED ? EXIT_SUCCESS : EXIT_FAILURE;
 }

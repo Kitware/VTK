@@ -13,7 +13,6 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-#include "vtkAnariRenderWindow.h"
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -57,20 +56,22 @@ int TestAnariDynamicObject(int argc, char* argv[])
 
   vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariDynamicObject");
 
-  vtkCamera* camera = renderer->GetActiveCamera();
-  double* cameraPosition = camera->GetPosition();
+  // Copy is necessary to manipulate coordinates and make sure SetPosition modifies the camera
+  // accordingly.
+  double cameraPosition[3];
+  renderer->GetActiveCamera()->GetPosition(cameraPosition);
 
   sphere->SetPhiResolution(5);
   sphere->SetThetaResolution(5);
   cameraPosition[0] += 0.5;
   renderer->SetBackground(0.0, 0.8, 0.2);
-  camera->SetPosition(cameraPosition);
+  renderer->GetActiveCamera()->SetPosition(cameraPosition);
   renWin->Render();
 
   sphere->SetPhiResolution(20);
   sphere->SetThetaResolution(20);
   cameraPosition[0] -= 2.0;
-  camera->SetPosition(cameraPosition);
+  renderer->GetActiveCamera()->SetPosition(cameraPosition);
   renderer->SetBackground(0.0, 0.2, 0.8);
   renWin->Render();
 
