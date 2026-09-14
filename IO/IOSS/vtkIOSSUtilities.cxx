@@ -478,7 +478,7 @@ const Ioss::ElementTopology* GetElementTopology(int vtk_cell_type)
       elementType = "edge2";
       break;
     case VTK_QUADRATIC_EDGE:
-      elementType = "edge4";
+      elementType = "edge3";
       break;
     case VTK_TRIANGLE:
       elementType = "tri3";
@@ -499,7 +499,7 @@ const Ioss::ElementTopology* GetElementTopology(int vtk_cell_type)
       elementType = "tet4";
       break;
     case VTK_QUADRATIC_TETRA:
-      elementType = "tet11";
+      elementType = "tet10";
       break;
     case VTK_LAGRANGE_TETRAHEDRON:
       elementType = "tet15";
