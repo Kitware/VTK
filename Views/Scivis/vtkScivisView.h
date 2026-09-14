@@ -46,6 +46,7 @@
  * - GetRenderer() for lights and props of your own
  * - GetLightKit() for the light rig's intensity, warmth, angle and ratios
  * - GetOrientationMarkerWidget() for the axes marker's viewport and marker
+ * - GetScalarBars() for the bars labelling what the colors mean
  * - GetSelector() for how a screen region becomes a selection
  *
  * @par A family of its own:
@@ -75,12 +76,14 @@ class vtkInteractorStyleRubberBand3D;
 class vtkInteractorStyleTrackballCamera;
 class vtkLight;
 class vtkLightKit;
+class vtkLookupTableManager;
 class vtkOrientationMarkerWidget;
 class vtkScivisSelector;
 class vtkRenderWindow;
 class vtkRenderWindowInteractor;
 class vtkRenderer;
 class vtkScivisRepresentation;
+class vtkScivisScalarBars;
 
 class VTKVIEWSSCIVIS_EXPORT vtkScivisView : public vtkObject
 {
@@ -242,6 +245,32 @@ public:
   vtkInteractorObserver* GetInteractorStyle();
   ///@}
 
+  ///@{
+  /**
+   * The lookup tables the view colors through, keyed by array name.
+   *
+   * Every representation drawing a given array is offered the same table, so
+   * that representations of one array come out the same color and span one
+   * range.  Share a manager between views to keep their colors in step; a view
+   * that is not given one has its own.  Setting null installs a fresh one
+   * rather than leaving the view without.
+   */
+  void SetLookupTableManager(vtkLookupTableManager* manager);
+  vtkLookupTableManager* GetLookupTableManager();
+  ///@}
+
+  /**
+   * The scalar bars kept for what the representations are drawing: whether they
+   * are maintained at all, whether the user can move them, and the bars
+   * themselves.
+   *
+   * @code
+   * view->GetScalarBars()->DraggableOn();
+   * view->GetScalarBars()->GetActor("Temperature", assoc)->SetTitle("T (K)");
+   * @endcode
+   */
+  vtkScivisScalarBars* GetScalarBars();
+
   /**
    * Selection: how a screen region becomes a selection, whether points or cells
    * come back, and what was picked last.
@@ -321,6 +350,8 @@ private:
 
   vtkNew<vtkOrientationMarkerWidget> OrientationWidget;
   vtkNew<vtkLightKit> LightKit;
+  vtkSmartPointer<vtkLookupTableManager> LookupTableManager;
+  vtkNew<vtkScivisScalarBars> ScalarBars;
   // The headlight that lights the scene while the light kit is off.  Owning one
   // is what keeps vtkRenderer from inventing its own -- see the constructor.
   vtkNew<vtkLight> DefaultLight;

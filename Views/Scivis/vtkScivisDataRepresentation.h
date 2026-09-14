@@ -99,6 +99,19 @@ public:
    * was taken up -- so ignoring the offer leaves both your colors and your
    * range alone.
    *
+   * That makes this the wrong place for an application to choose a color map:
+   * the view offers again on every render, and a map set here is replaced by
+   * the one the view shares for the array.  To choose the map an array is drawn
+   * through, register it with the view's vtkLookupTableManager, which is where
+   * a view takes what it offers from:
+   *
+   * @code
+   * view->GetLookupTableManager()->SetLookupTable("Temperature", myMap);
+   * @endcode
+   *
+   * Every representation drawing that array is then handed your map, its scalar
+   * bar shows it, and the range you gave it is kept rather than spanned over
+   * the data.
    */
   virtual void SetColorMap(vtkScalarsToColors* map) = 0;
   virtual vtkScalarsToColors* GetColorMap() = 0;
