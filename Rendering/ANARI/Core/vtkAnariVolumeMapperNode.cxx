@@ -134,7 +134,7 @@ vtkAnariVolumeMapperNodeInternals::vtkAnariVolumeMapperNodeInternals(
 //----------------------------------------------------------------------------
 vtkAnariVolumeMapperNodeInternals::~vtkAnariVolumeMapperNodeInternals()
 {
-  anari::retain(this->AnariDevice->GetHandle(), this->AnariVolume);
+  anari::release(this->AnariDevice->GetHandle(), this->AnariVolume);
 }
 
 //----------------------------------------------------------------------------
