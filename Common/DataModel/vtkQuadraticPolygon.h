@@ -25,9 +25,11 @@
 #include "vtkNonLinearCell.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDoubleArray;
 class vtkQuadraticEdge;
 class vtkPolygon;
 class vtkIdTypeArray;
+class vtkTriangle;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkQuadraticPolygon : public vtkNonLinearCell
 {
@@ -110,6 +112,10 @@ protected:
   // variables used by instances of this class
   vtkSmartPointer<vtkPolygon> Polygon;
   vtkSmartPointer<vtkQuadraticEdge> Edge;
+
+  // Reused scratch objects for Clip(), to avoid reallocating them on every call.
+  vtkSmartPointer<vtkTriangle> Triangle;
+  vtkSmartPointer<vtkDoubleArray> TriScalars;
 
   // Parameter indicating whether to use Mean Value Coordinate algorithm
   // for interpolation. The parameter is true by default.
