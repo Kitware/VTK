@@ -10,6 +10,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkSMPTools.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkVector.h"
 
@@ -115,7 +116,7 @@ void vtkDGInterpolateCalculator::ThreadLocalData::EnsureInitialized(
 void vtkDGInterpolateCalculator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  vtkIndent i2 = indent.GetNextIndent();
+  const vtkIndent i2 = indent.GetNextIndent();
   ThreadLocalData& tl = this->LocalData.Local();
   tl.EnsureInitialized(this->CellType, this->Field);
   os << indent << "FieldEvaluator:\n";
@@ -146,24 +147,38 @@ void vtkDGInterpolateCalculator::Evaluate(
 }
 
 void vtkDGInterpolateCalculator::Evaluate(
-  vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result)
+  vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result, bool useMultithreading)
 {
   ThreadLocalData& tl = this->LocalData.Local();
+  tl.EnsureInitialized(this->CellType, this->Field);
   vtkDoubleArray* dresult = vtkDoubleArray::SafeDownCast(result);
   if (!dresult)
   {
     dresult = tl.LocalField.GetPointer();
   }
-
   assert(cellIds->GetNumberOfTuples() == rst->GetNumberOfTuples());
 
   vtkIdType numEvals = cellIds->GetNumberOfTuples();
   dresult->SetNumberOfComponents(this->Field->GetNumberOfComponents());
-  dresult->SetNumberOfTuples(cellIds->GetNumberOfTuples());
-  tl.EnsureInitialized(this->CellType, this->Field);
-  vtkDGArraysInputAccessor inIt(cellIds, rst);
-  vtkDGArrayOutputAccessor outIt(dresult);
-  tl.FieldEvaluator.Evaluate(inIt, outIt, 0, numEvals);
+  dresult->SetNumberOfTuples(numEvals);
+  if (useMultithreading)
+  {
+    vtkSMPTools::For(0, numEvals,
+      [&](vtkIdType begin, vtkIdType end)
+      {
+        ThreadLocalData& threadData = this->LocalData.Local();
+        threadData.EnsureInitialized(this->CellType, this->Field);
+        vtkDGArraysInputAccessor threadInIt(cellIds, rst);
+        vtkDGArrayOutputAccessor threadOutIt(dresult);
+        threadData.FieldEvaluator.Evaluate(threadInIt, threadOutIt, begin, end);
+      });
+  }
+  else
+  {
+    vtkDGArraysInputAccessor inIt(cellIds, rst);
+    vtkDGArrayOutputAccessor outIt(dresult);
+    tl.FieldEvaluator.Evaluate(inIt, outIt, 0, numEvals);
+  }
 
   // Finally, if we were given a non-vtkDoubleArray, copy the results
   // back into the output array.
@@ -209,7 +224,7 @@ void vtkDGInterpolateCalculator::EvaluateDerivative(
 }
 
 void vtkDGInterpolateCalculator::EvaluateDerivative(
-  vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result)
+  vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result, bool useMultithreading)
 {
   if (!this->AnalyticDerivative())
   {
@@ -218,17 +233,36 @@ void vtkDGInterpolateCalculator::EvaluateDerivative(
     return;
   }
 
-  vtkIdType numEvals = cellIds->GetNumberOfTuples();
   ThreadLocalData& tl = this->LocalData.Local();
+  tl.EnsureInitialized(this->CellType, this->Field);
   vtkDoubleArray* dresult = vtkDoubleArray::SafeDownCast(result);
   if (!dresult)
   {
     dresult = tl.LocalField.GetPointer();
   }
-  tl.EnsureInitialized(this->CellType, this->Field);
-  vtkDGArraysInputAccessor inIt(cellIds, rst);
-  vtkDGArrayOutputAccessor outIt(dresult);
-  tl.FieldDerivative.Evaluate(inIt, outIt, 0, numEvals);
+  assert(cellIds->GetNumberOfTuples() == rst->GetNumberOfTuples());
+
+  vtkIdType numEvals = cellIds->GetNumberOfTuples();
+  dresult->SetNumberOfComponents(tl.FieldDerivative.GetNumberOfResultComponents());
+  dresult->SetNumberOfTuples(numEvals);
+  if (useMultithreading)
+  {
+    vtkSMPTools::For(0, numEvals,
+      [&](vtkIdType begin, vtkIdType end)
+      {
+        ThreadLocalData& threadData = this->LocalData.Local();
+        threadData.EnsureInitialized(this->CellType, this->Field);
+        vtkDGArraysInputAccessor threadInIt(cellIds, rst);
+        vtkDGArrayOutputAccessor threadOutIt(dresult);
+        threadData.FieldDerivative.Evaluate(threadInIt, threadOutIt, begin, end);
+      });
+  }
+  else
+  {
+    vtkDGArraysInputAccessor inIt(cellIds, rst);
+    vtkDGArrayOutputAccessor outIt(dresult);
+    tl.FieldDerivative.Evaluate(inIt, outIt, 0, numEvals);
+  }
 
   if (dresult != result)
   {

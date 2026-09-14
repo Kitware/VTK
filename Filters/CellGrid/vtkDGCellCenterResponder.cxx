@@ -293,7 +293,7 @@ void vtkDGCellCenterResponder::GenerateOutputVertices(
     attWindow->SetNumberOfComponents(nc);
     attWindow->SetArray(
       attValues->GetPointer(0) + nc * vertBegin, (vertEnd - vertBegin) * nc, /* save */ 1);
-    dgCalc->Evaluate(cellIds, rst, attWindow);
+    dgCalc->Evaluate(cellIds, rst, attWindow, /*useMultithreading*/ true);
   }
 }
 

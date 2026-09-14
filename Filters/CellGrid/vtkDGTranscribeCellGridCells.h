@@ -36,6 +36,8 @@ protected:
   vtkDGTranscribeCellGridCells() = default;
   ~vtkDGTranscribeCellGridCells() override = default;
 
+  void GenerateSamples(
+    TranscribeQuery* request, vtkDGCell* cellType, vtkCellGridResponders* caches);
   void GenerateConnectivity(
     TranscribeQuery* request, vtkDGCell* cellType, vtkCellGridResponders* caches);
   void GeneratePointData(

@@ -42,11 +42,14 @@
 #include "vtkStringToken.h"           // For ivars
 #include "vtkUnstructuredGridAlgorithm.h"
 
-#include <unordered_map>
+#include <atomic>        // For atomic
+#include <unordered_map> // For unordered_map
+#include <vector>        // For vector
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class vtkIncrementalOctreePointLocator;
+class vtkDoubleArray;
+class vtkIdTypeArray;
 
 class VTKFILTERSCELLGRID_EXPORT vtkCellGridToUnstructuredGrid : public vtkUnstructuredGridAlgorithm
 {
@@ -70,8 +73,21 @@ public:
       /// than one type, since pyramids also produce tetrahedra, and a responder
       /// transcribing the sides of a cell emits the type of the side.
       int CellType{ VTK_EMPTY_CELL };
+      /// How many samples the responder will take of its cells and sides.
+      ///
+      /// Every sample becomes a candidate output point; samples that coincide
+      /// are merged into one point after the GenerateSamples pass.
+      vtkIdType NumberOfSamples{ 0 };
       vtkIdType NumberOfCells{ 0 };
-      vtkIdType NumberOfConnectivityEntries{ 0 };
+      /// The number of point-ids this type contributes to the output
+      /// connectivity, not counting the per-cell offsets.
+      vtkIdType NumberOfConnectivityIds{ 0 };
+      /// Where this type's share of the output begins.
+      ///
+      /// The query fills these in between passes by accumulating the counts
+      /// above, so every responder can write its output by index instead of
+      /// appending. They are only valid once the counting pass has finished.
+      vtkIdType SampleOffset{ 0 };
       vtkIdType CellOffset{ 0 };
       vtkIdType ConnOffset{ 0 };
     };
@@ -83,17 +99,24 @@ public:
 
     /// Passes performed by the query.
     ///
-    /// In between CountOutputs and GenerateConnectivity, the query class will
-    /// allocate vtkCellArray storage.
+    /// In between CountOutputs and GenerateSamples, the query class accumulates
+    /// the counts responders reported into the offsets each one writes at, and
+    /// allocates room for every sample.
+    ///
+    /// In between GenerateSamples and GenerateConnectivity, the query class
+    /// merges coincident samples into output points, allocates vtkCellArray
+    /// storage, and computes the point weights.
     ///
     /// In between GenerateConnectivity and GeneratePointData, the query class will
     /// allocate array storage for all arrays in the output vtkPointData.
     enum PassType : int
     {
       CountOutputs = 0, //!< Responders should insert into GetOutputAllocations().
+      GenerateSamples =
+        1, //!< Responders should write sample coordinates and their source cell + parameters.
       GenerateConnectivity =
-        1, //!< Responders should insert points into the locator, point-count map, and connectivity.
-      GeneratePointData = 2 //!< Responders should populate point-data.
+        2, //!< Responders should write output point-ids, connectivity, and cell types.
+      GeneratePointData = 3 //!< Responders should populate point-data.
     };
 
     bool Initialize() override;
@@ -145,7 +168,7 @@ public:
       return static_cast<vtkIdType>(1) << shift;
     }
 
-    /// Force three passes through this query.
+    /// Force one pass per PassType through this query.
     bool IsAnotherPassRequired() override { return this->Pass < PassType::GeneratePointData; }
 
     /// Get the request's output cell-grid.
@@ -160,23 +183,31 @@ public:
     /// Return an output attribute (or null).
     vtkDataArray* GetOutputArray(vtkCellAttribute* inputAttribute);
 
-    /// Return the point-locator.
+    /// Return the array holding one candidate output point per sample.
     ///
-    /// Responders should use this to transform any input connectivity
-    /// they have to connectivity entries referencing the output points
-    /// using this locator. Insert points in the CountOutputs pass and
-    /// fetch point IDs in the GenerateOuputs pass.
-    vtkIncrementalOctreePointLocator* GetLocator() { return this->Locator.GetPointer(); }
-
-    /// This map is used to count the number of references to output points.
+    /// During the GenerateSamples pass, responders must fill the tuples in
+    /// [SampleOffset, SampleOffset + NumberOfSamples) of their allocation with
+    /// the world coordinates of every sample they take. Coincident samples are
+    /// what stitches neighboring cells together, so responders should not try
+    /// to avoid emitting them: the query merges them afterwards.
     ///
-    /// During the GenerateConnectivity pass, responders should increment
-    /// values so each entry corresponds to the number of cells that
-    /// reference the point ID which serves as the key.
-    using ConnectivityCountType = std::map<vtkIdType, int>;
-    ConnectivityCountType& GetConnectivityCount() { return this->ConnectivityCount; }
+    /// The array is released once the samples have been merged, so it is only
+    /// valid during the GenerateSamples pass.
+    vtkDoubleArray* GetSampleCoordinates() { return this->SampleCoordinates.GetPointer(); }
 
-    /// The reciprocal of this->GetConnectivityCount().
+    /// Map a sample index to the output point the sample was merged into.
+    ///
+    /// This is only valid from the GenerateConnectivity pass onwards. It is
+    /// indexed exactly like GetSampleCoordinates() was.
+    vtkIdTypeArray* GetSampleToPoint() { return this->SampleToPoint.GetPointer(); }
+
+    /// How many samples were merged into each output point.
+    ///
+    /// This is counted once the samples have been merged and inverted into the
+    /// weights below when the GeneratePointData pass begins.
+    using ConnectivityCountType = std::vector<std::atomic<int>>;
+
+    /// The reciprocal of the number of samples merged into each output point.
     ///
     /// This vector is only valid during the GeneratePointData pass.
     using ConnectivityWeightType = std::vector<float>;
@@ -202,12 +233,23 @@ public:
     OutputAllocations OutputOffsets;
     // Map input to output attributes:
     std::unordered_map<vtkCellAttribute*, vtkDataArray*> AttributeMap;
-    /// A locator used to insert cell-grid points into a vtkPoints instance.
-    vtkNew<vtkIncrementalOctreePointLocator> Locator;
-    /// Number of cells referencing a given output point.
+    /// One candidate output point per sample, before coincident ones merge.
+    vtkNew<vtkDoubleArray> SampleCoordinates;
+    /// The output point each sample was merged into.
+    vtkNew<vtkIdTypeArray> SampleToPoint;
+    /// The number of samples merged into each output point.
     ConnectivityCountType ConnectivityCount;
     /// The reciprocal of every entry in ConnectivityCount.
     ConnectivityWeightType ConnectivityWeights;
+    /// Totals over every cell type, accumulated with the offsets below.
+    vtkIdType TotalCells{ 0 };
+    vtkIdType TotalConnectivityIds{ 0 };
+    /// Storage handed to the output vtkCellArray, written by index.
+    vtkNew<vtkIdTypeArray> CellArrayOffsets;
+    vtkNew<vtkIdTypeArray> CellArrayConnectivity;
+
+    /// Merge coincident samples and allocate the output points they became.
+    void MergeSamplesIntoPoints();
 
   private:
     Query(const Query&) = delete;

@@ -38,13 +38,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Evaluate(vtkIdType cellId, const vtkVector3d& rst, std::vector<double>& value) override;
-  void Evaluate(vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result) override;
+  void Evaluate(vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result,
+    bool useMultithreading = false) override;
 
   bool AnalyticDerivative() const override;
   void EvaluateDerivative(vtkIdType cellId, const vtkVector3d& rst, std::vector<double>& jacobian,
     double neighborhood) override;
-  void EvaluateDerivative(
-    vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result) override;
+  void EvaluateDerivative(vtkIdTypeArray* cellIds, vtkDataArray* rst, vtkDataArray* result,
+    bool useMultithreading = false) override;
 
   vtkSmartPointer<vtkCellAttributeCalculator> PrepareForGrid(
     vtkCellMetadata* cell, vtkCellAttribute* field) override;
