@@ -90,6 +90,14 @@ vtkAnariPass::vtkAnariPass()
 }
 
 // ----------------------------------------------------------------------------
+vtkAnariPass::~vtkAnariPass()
+{
+  // Release the scene graph's ANARI objects while the device and its library
+  // are still alive; the members would otherwise be destroyed after them.
+  this->SceneGraph = nullptr;
+}
+
+// ----------------------------------------------------------------------------
 void vtkAnariPass::RenderAnariFrame(vtkRenderer* renderer, const vtkFrameInformation& frameInfo)
 {
   vtkAnariProfiling startProfiling("vtkAnariPass::Render", vtkAnariProfiling::YELLOW);
