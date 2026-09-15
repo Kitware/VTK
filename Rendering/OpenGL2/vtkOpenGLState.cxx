@@ -519,8 +519,12 @@ void vtkOpenGLState::vtkglBindFramebuffer(unsigned int target, unsigned int val)
     {
       cs.DrawBinding.Binding = val;
       ::glBindFramebuffer(GL_DRAW_FRAMEBUFFER, val);
+      // The draw buffer belongs to the framebuffer, so re-read it here. GL ES has no
+      // GL_DRAW_BUFFER; its equivalent query is GL_DRAW_BUFFER0.
 #ifdef GL_DRAW_BUFFER
       ::glGetIntegerv(GL_DRAW_BUFFER, (int*)&cs.DrawBinding.DrawBuffers[0]);
+#else
+      ::glGetIntegerv(GL_DRAW_BUFFER0, (int*)&cs.DrawBinding.DrawBuffers[0]);
 #endif
     }
   }
