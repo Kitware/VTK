@@ -130,6 +130,22 @@ public:
   vtkBooleanMacro(ShowCursor, bool);
   ///@}
 
+  ///@{
+  /**
+   * Force repeat count to zero when playing a stream of a version older then 1.3
+   * Default is Off.
+   * Before https://gitlab.kitware.com/vtk/vtk/-/merge_requests/13467 and because of
+   * https://gitlab.kitware.com/vtk/vtk/-/work_items/20123, repeat count was not properly supported
+   * Fixed in https://gitlab.kitware.com/vtk/vtk/-/merge_requests/13542.
+   * This means that modern code that properly respect repeat count will get improper
+   * repeat count values with old recordings.
+   * The solution is to force the repeat count to 0 in those cases.
+   */
+  vtkSetMacro(OldRepeatCountWorkAround, bool);
+  vtkGetMacro(OldRepeatCountWorkAround, bool);
+  vtkBooleanMacro(OldRepeatCountWorkAround, bool);
+  ///@}
+
 protected:
   vtkInteractorEventRecorder();
   ~vtkInteractorEventRecorder() override;
@@ -189,6 +205,7 @@ private:
   void operator=(const vtkInteractorEventRecorder&) = delete;
 
   bool ShowCursor = false;
+  bool OldRepeatCountWorkAround = false;
   vtkNew<vtkActor2D> CursorActor;
 };
 

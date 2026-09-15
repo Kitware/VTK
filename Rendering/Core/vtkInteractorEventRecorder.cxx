@@ -25,7 +25,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorEventRecorder);
 
-float vtkInteractorEventRecorder::StreamVersion = 1.2f;
+float vtkInteractorEventRecorder::StreamVersion = 1.3f;
 
 //------------------------------------------------------------------------------
 vtkInteractorEventRecorder::vtkInteractorEventRecorder()
@@ -479,6 +479,11 @@ void vtkInteractorEventRecorder::ReadEvent(const std::string& line)
       iss >> keyCode;
       iss >> repeatCount;
       iss >> keySym;
+
+      if (this->CurrentStreamVersion < 1.3 && this->OldRepeatCountWorkAround)
+      {
+        repeatCount = 0;
+      }
 
       void* callData = nullptr;
       vtkSmartPointer<vtkStringArray> stringArray;
