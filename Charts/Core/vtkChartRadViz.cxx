@@ -3,6 +3,7 @@
 
 #include "vtkChartRadViz.h"
 
+#include "vtkCommand.h"
 #include "vtkContext2D.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
@@ -325,6 +326,11 @@ bool vtkChartRadViz::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
     {
       std::copy(pos.GetData(), pos.GetData() + 2, this->Internals->DragLensStart);
     }
+    if (this->Internals->DragVertexIndex >= 0 || this->Internals->ResizeLens ||
+      this->Internals->DragLens)
+    {
+      this->Internals->Plot->InvokeEvent(vtkCommand::StartInteractionEvent);
+    }
     return true;
   }
   else
@@ -380,6 +386,12 @@ void vtkChartRadViz::GetActiveElement(
 //------------------------------------------------------------------------------
 bool vtkChartRadViz::MouseButtonReleaseEvent(const vtkContextMouseEvent& vtkNotUsed(mouse))
 {
+  if (this->Internals->Plot &&
+    (this->Internals->DragVertexIndex >= 0 || this->Internals->ResizeLens ||
+      this->Internals->DragLens))
+  {
+    this->Internals->Plot->InvokeEvent(vtkCommand::EndInteractionEvent);
+  }
   this->Internals->DragVertexIndex = -1;
   this->Internals->ResizeLens = false;
   this->Internals->DragLens = false;
