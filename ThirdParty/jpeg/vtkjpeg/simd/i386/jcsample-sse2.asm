@@ -1,26 +1,22 @@
 ;
-; jcsample.asm - downsampling (SSE2)
+; Downsampling (32-bit SSE2)
 ;
 ; Copyright 2009 Pierre Ossman <ossman@cendio.se> for Cendio AB
-; Copyright (C) 2016, D. R. Commander.
+; Copyright (C) 2016, 2024-2026, D. R. Commander.
 ;
 ; Based on the x86 SIMD extension for IJG JPEG library
 ; Copyright (C) 1999-2006, MIYASAKA Masaru.
 ; For conditions of distribution and use, see copyright notice in jsimdext.inc
 ;
-; This file should be assembled with NASM (Netwide Assembler),
-; can *not* be assembled with Microsoft's MASM or any compatible
-; assembler (including Borland's Turbo Assembler).
-; NASM is available from http://nasm.sourceforge.net/ or
-; http://sourceforge.net/project/showfiles.php?group_id=6208
+; This file should be assembled with NASM (Netwide Assembler) or Yasm.
 
 %include "jsimdext.inc"
 
 ; --------------------------------------------------------------------------
     SECTION     SEG_TEXT
     BITS        32
-;
-; Downsample pixel values of a single component.
+
+; Downsample components from a single plane.
 ; This version handles the common case of 2:1 horizontal and 1:1 vertical,
 ; without smoothing.
 ;
@@ -28,8 +24,7 @@
 ; jsimd_h2v1_downsample_sse2(JDIMENSION image_width, int max_v_samp_factor,
 ;                            JDIMENSION v_samp_factor,
 ;                            JDIMENSION width_in_blocks, JSAMPARRAY input_data,
-;                            JSAMPARRAY output_data);
-;
+;                            JSAMPARRAY output_data)
 
 %define img_width(b)    (b) + 8         ; JDIMENSION image_width
 %define max_v_samp(b)   (b) + 12        ; int max_v_samp_factor
@@ -51,7 +46,7 @@ EXTN(jsimd_h2v1_downsample_sse2):
     push        edi
 
     mov         ecx, JDIMENSION [width_blks(ebp)]
-    shl         ecx, 3                  ; imul ecx,DCTSIZE (ecx = output_cols)
+    shl         ecx, 3                  ; imul ecx, DCTSIZE (ecx = output_cols)
     jz          near .return
 
     mov         edx, JDIMENSION [img_width(ebp)]
@@ -69,14 +64,14 @@ EXTN(jsimd_h2v1_downsample_sse2):
 
     cld
     mov         esi, JSAMPARRAY [input_data(ebp)]  ; input_data
-    alignx      16, 7
+    ALIGNX      16, 7
 .expandloop:
     push        eax
     push        ecx
 
     mov         edi, JSAMPROW [esi]
     add         edi, edx
-    mov         al, JSAMPLE [edi-1]
+    mov         al, JSAMPLE [edi - 1]
 
     rep stosb
 
@@ -99,12 +94,12 @@ EXTN(jsimd_h2v1_downsample_sse2):
     mov         edx, 0x00010000         ; bias pattern
     movd        xmm7, edx
     pcmpeqw     xmm6, xmm6
-    pshufd      xmm7, xmm7, 0x00        ; xmm7={0, 1, 0, 1, 0, 1, 0, 1}
-    psrlw       xmm6, BYTE_BIT          ; xmm6={0xFF 0x00 0xFF 0x00 ..}
+    pshufd      xmm7, xmm7, 0x00        ; xmm7 = { 0, 1, 0, 1, 0, 1, 0, 1 }
+    psrlw       xmm6, BYTE_BIT          ; xmm6 = { 0xFF 0x00 0xFF 0x00 .. }
 
     mov         esi, JSAMPARRAY [input_data(ebp)]   ; input_data
     mov         edi, JSAMPARRAY [output_data(ebp)]  ; output_data
-    alignx      16, 7
+    ALIGNX      16, 7
 .rowloop:
     push        ecx
     push        edi
@@ -115,18 +110,18 @@ EXTN(jsimd_h2v1_downsample_sse2):
 
     cmp         ecx, byte SIZEOF_XMMWORD
     jae         short .columnloop
-    alignx      16, 7
+    ALIGNX      16, 7
 
 .columnloop_r8:
-    movdqa      xmm0, XMMWORD [esi+0*SIZEOF_XMMWORD]
+    movdqa      xmm0, XMMWORD [esi + 0 * SIZEOF_XMMWORD]
     pxor        xmm1, xmm1
     mov         ecx, SIZEOF_XMMWORD
     jmp         short .downsample
-    alignx      16, 7
+    ALIGNX      16, 7
 
 .columnloop:
-    movdqa      xmm0, XMMWORD [esi+0*SIZEOF_XMMWORD]
-    movdqa      xmm1, XMMWORD [esi+1*SIZEOF_XMMWORD]
+    movdqa      xmm0, XMMWORD [esi + 0 * SIZEOF_XMMWORD]
+    movdqa      xmm1, XMMWORD [esi + 1 * SIZEOF_XMMWORD]
 
 .downsample:
     movdqa      xmm2, xmm0
@@ -146,11 +141,11 @@ EXTN(jsimd_h2v1_downsample_sse2):
 
     packuswb    xmm0, xmm1
 
-    movdqa      XMMWORD [edi+0*SIZEOF_XMMWORD], xmm0
+    movdqa      XMMWORD [edi + 0 * SIZEOF_XMMWORD], xmm0
 
-    sub         ecx, byte SIZEOF_XMMWORD    ; outcol
-    add         esi, byte 2*SIZEOF_XMMWORD  ; inptr
-    add         edi, byte 1*SIZEOF_XMMWORD  ; outptr
+    sub         ecx, byte SIZEOF_XMMWORD      ; outcol
+    add         esi, byte 2 * SIZEOF_XMMWORD  ; inptr
+    add         edi, byte 1 * SIZEOF_XMMWORD  ; outptr
     cmp         ecx, byte SIZEOF_XMMWORD
     jae         short .columnloop
     test        ecx, ecx
@@ -176,7 +171,7 @@ EXTN(jsimd_h2v1_downsample_sse2):
 
 ; --------------------------------------------------------------------------
 ;
-; Downsample pixel values of a single component.
+; Downsample components from a single plane.
 ; This version handles the standard case of 2:1 horizontal and 2:1 vertical,
 ; without smoothing.
 ;
@@ -184,8 +179,7 @@ EXTN(jsimd_h2v1_downsample_sse2):
 ; jsimd_h2v2_downsample_sse2(JDIMENSION image_width, int max_v_samp_factor,
 ;                            JDIMENSION v_samp_factor,
 ;                            JDIMENSION width_in_blocks, JSAMPARRAY input_data,
-;                            JSAMPARRAY output_data);
-;
+;                            JSAMPARRAY output_data)
 
 %define img_width(b)    (b) + 8         ; JDIMENSION image_width
 %define max_v_samp(b)   (b) + 12        ; int max_v_samp_factor
@@ -207,7 +201,7 @@ EXTN(jsimd_h2v2_downsample_sse2):
     push        edi
 
     mov         ecx, JDIMENSION [width_blks(ebp)]
-    shl         ecx, 3                  ; imul ecx,DCTSIZE (ecx = output_cols)
+    shl         ecx, 3                  ; imul ecx, DCTSIZE (ecx = output_cols)
     jz          near .return
 
     mov         edx, JDIMENSION [img_width(ebp)]
@@ -225,14 +219,14 @@ EXTN(jsimd_h2v2_downsample_sse2):
 
     cld
     mov         esi, JSAMPARRAY [input_data(ebp)]  ; input_data
-    alignx      16, 7
+    ALIGNX      16, 7
 .expandloop:
     push        eax
     push        ecx
 
     mov         edi, JSAMPROW [esi]
     add         edi, edx
-    mov         al, JSAMPLE [edi-1]
+    mov         al, JSAMPLE [edi - 1]
 
     rep stosb
 
@@ -255,39 +249,39 @@ EXTN(jsimd_h2v2_downsample_sse2):
     mov         edx, 0x00020001         ; bias pattern
     movd        xmm7, edx
     pcmpeqw     xmm6, xmm6
-    pshufd      xmm7, xmm7, 0x00        ; xmm7={1, 2, 1, 2, 1, 2, 1, 2}
-    psrlw       xmm6, BYTE_BIT          ; xmm6={0xFF 0x00 0xFF 0x00 ..}
+    pshufd      xmm7, xmm7, 0x00        ; xmm7 = { 1, 2, 1, 2, 1, 2, 1, 2 }
+    psrlw       xmm6, BYTE_BIT          ; xmm6 = { 0xFF 0x00 0xFF 0x00 .. }
 
     mov         esi, JSAMPARRAY [input_data(ebp)]   ; input_data
     mov         edi, JSAMPARRAY [output_data(ebp)]  ; output_data
-    alignx      16, 7
+    ALIGNX      16, 7
 .rowloop:
     push        ecx
     push        edi
     push        esi
 
-    mov         edx, JSAMPROW [esi+0*SIZEOF_JSAMPROW]  ; inptr0
-    mov         esi, JSAMPROW [esi+1*SIZEOF_JSAMPROW]  ; inptr1
-    mov         edi, JSAMPROW [edi]                    ; outptr
+    mov         edx, JSAMPROW [esi + 0 * SIZEOF_JSAMPROW]  ; inptr0
+    mov         esi, JSAMPROW [esi + 1 * SIZEOF_JSAMPROW]  ; inptr1
+    mov         edi, JSAMPROW [edi]                        ; outptr
 
     cmp         ecx, byte SIZEOF_XMMWORD
     jae         short .columnloop
-    alignx      16, 7
+    ALIGNX      16, 7
 
 .columnloop_r8:
-    movdqa      xmm0, XMMWORD [edx+0*SIZEOF_XMMWORD]
-    movdqa      xmm1, XMMWORD [esi+0*SIZEOF_XMMWORD]
+    movdqa      xmm0, XMMWORD [edx + 0 * SIZEOF_XMMWORD]
+    movdqa      xmm1, XMMWORD [esi + 0 * SIZEOF_XMMWORD]
     pxor        xmm2, xmm2
     pxor        xmm3, xmm3
     mov         ecx, SIZEOF_XMMWORD
     jmp         short .downsample
-    alignx      16, 7
+    ALIGNX      16, 7
 
 .columnloop:
-    movdqa      xmm0, XMMWORD [edx+0*SIZEOF_XMMWORD]
-    movdqa      xmm1, XMMWORD [esi+0*SIZEOF_XMMWORD]
-    movdqa      xmm2, XMMWORD [edx+1*SIZEOF_XMMWORD]
-    movdqa      xmm3, XMMWORD [esi+1*SIZEOF_XMMWORD]
+    movdqa      xmm0, XMMWORD [edx + 0 * SIZEOF_XMMWORD]
+    movdqa      xmm1, XMMWORD [esi + 0 * SIZEOF_XMMWORD]
+    movdqa      xmm2, XMMWORD [edx + 1 * SIZEOF_XMMWORD]
+    movdqa      xmm3, XMMWORD [esi + 1 * SIZEOF_XMMWORD]
 
 .downsample:
     movdqa      xmm4, xmm0
@@ -317,12 +311,12 @@ EXTN(jsimd_h2v2_downsample_sse2):
 
     packuswb    xmm0, xmm2
 
-    movdqa      XMMWORD [edi+0*SIZEOF_XMMWORD], xmm0
+    movdqa      XMMWORD [edi + 0 * SIZEOF_XMMWORD], xmm0
 
-    sub         ecx, byte SIZEOF_XMMWORD    ; outcol
-    add         edx, byte 2*SIZEOF_XMMWORD  ; inptr0
-    add         esi, byte 2*SIZEOF_XMMWORD  ; inptr1
-    add         edi, byte 1*SIZEOF_XMMWORD  ; outptr
+    sub         ecx, byte SIZEOF_XMMWORD      ; outcol
+    add         edx, byte 2 * SIZEOF_XMMWORD  ; inptr0
+    add         esi, byte 2 * SIZEOF_XMMWORD  ; inptr1
+    add         edi, byte 1 * SIZEOF_XMMWORD  ; outptr
     cmp         ecx, byte SIZEOF_XMMWORD
     jae         near .columnloop
     test        ecx, ecx
@@ -332,9 +326,9 @@ EXTN(jsimd_h2v2_downsample_sse2):
     pop         edi
     pop         ecx
 
-    add         esi, byte 2*SIZEOF_JSAMPROW  ; input_data
-    add         edi, byte 1*SIZEOF_JSAMPROW  ; output_data
-    dec         eax                          ; rowctr
+    add         esi, byte 2 * SIZEOF_JSAMPROW  ; input_data
+    add         edi, byte 1 * SIZEOF_JSAMPROW  ; output_data
+    dec         eax                            ; rowctr
     jg          near .rowloop
 
 .return:

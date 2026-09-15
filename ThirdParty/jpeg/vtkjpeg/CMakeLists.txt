@@ -1,56 +1,113 @@
 set(sources
-  jcapimin.c
-  jcapistd.c
-  jccoefct.c
-  jccolor.c
-  jcdctmgr.c
-  jchuff.c
-  jcicc.c
-  jcinit.c
-  jcmainct.c
-  jcmarker.c
-  jcmaster.c
-  jcomapi.c
-  jcparam.c
-  jcphuff.c
-  jcprepct.c
-  jcsample.c
-  jctrans.c
-  jdapimin.c
-  jdapistd.c
-  jdatadst.c
-  jdatasrc.c
-  jdcoefct.c
-  jdcolor.c
-  jddctmgr.c
-  jdhuff.c
-  jdicc.c
-  jdinput.c
-  jdmainct.c
-  jdmarker.c
-  jdmaster.c
-  jdmerge.c
-  jdphuff.c
-  jdpostct.c
-  jdsample.c
-  jdtrans.c
-  jerror.c
-  jfdctflt.c
-  jfdctfst.c
-  jfdctint.c
-  jidctflt.c
-  jidctfst.c
-  jidctint.c
-  jidctred.c
-  jquant1.c
-  jquant2.c
-  jutils.c
-  jmemmgr.c
-  jmemnobs.c
+  src/jcapimin.c
+  src/jcapistd.c
+  src/jccoefct.c
+  src/jccolor.c
+  src/jcdctmgr.c
+  src/jchuff.c
+  src/jcicc.c
+  src/jcinit.c
+  src/jcmainct.c
+  src/jcmarker.c
+  src/jcmaster.c
+  src/jcomapi.c
+  src/jcparam.c
+  src/jcphuff.c
+  src/jcprepct.c
+  src/jcsample.c
+  src/jctrans.c
+  src/jdapimin.c
+  src/jdapistd.c
+  src/jdatadst.c
+  src/jdatasrc.c
+  src/jdcoefct.c
+  src/jdcolor.c
+  src/jddctmgr.c
+  src/jdhuff.c
+  src/jdicc.c
+  src/jdinput.c
+  src/jdmainct.c
+  src/jdmarker.c
+  src/jdmaster.c
+  src/jdmerge.c
+  src/jdphuff.c
+  src/jdpostct.c
+  src/jdsample.c
+  src/jdtrans.c
+  src/jerror.c
+  src/jfdctflt.c
+  src/jfdctfst.c
+  src/jfdctint.c
+  src/jidctflt.c
+  src/jidctfst.c
+  src/jidctint.c
+  src/jidctred.c
+  src/jquant1.c
+  src/jquant2.c
+  src/jutils.c
+  src/jmemmgr.c
+  src/jmemnobs.c
 
-  jaricom.c
-  jcarith.c
-  jdarith.c)
+  src/jcdiffct.c
+  src/jclhuff.c
+  src/jclossls.c
+  src/jddiffct.c
+  src/jdlhuff.c
+  src/jdlossls.c
+  src/jpeg_nbits.c
+
+  src/jaricom.c
+  src/jcarith.c
+  src/jdarith.c)
+
+# libjpeg-turbo 3.0 supports run-time selection of 8-, 12-, and 16-bit data
+# precision. The sources above are compiled as 8-bit (the default
+# `BITS_IN_JSAMPLE`). These wrappers provide the 12- and 16-bit variants.
+list(APPEND sources
+  src/wrapper/jcapistd-12.c
+  src/wrapper/jccoefct-12.c
+  src/wrapper/jccolor-12.c
+  src/wrapper/jcdctmgr-12.c
+  src/wrapper/jcdiffct-12.c
+  src/wrapper/jclossls-12.c
+  src/wrapper/jcmainct-12.c
+  src/wrapper/jcprepct-12.c
+  src/wrapper/jcsample-12.c
+  src/wrapper/jdapistd-12.c
+  src/wrapper/jdcoefct-12.c
+  src/wrapper/jdcolor-12.c
+  src/wrapper/jddctmgr-12.c
+  src/wrapper/jddiffct-12.c
+  src/wrapper/jdlossls-12.c
+  src/wrapper/jdmainct-12.c
+  src/wrapper/jdmerge-12.c
+  src/wrapper/jdpostct-12.c
+  src/wrapper/jdsample-12.c
+  src/wrapper/jfdctfst-12.c
+  src/wrapper/jfdctint-12.c
+  src/wrapper/jidctflt-12.c
+  src/wrapper/jidctfst-12.c
+  src/wrapper/jidctint-12.c
+  src/wrapper/jidctred-12.c
+  src/wrapper/jquant1-12.c
+  src/wrapper/jquant2-12.c
+  src/wrapper/jutils-12.c
+
+  src/wrapper/jcapistd-16.c
+  src/wrapper/jccolor-16.c
+  src/wrapper/jcdiffct-16.c
+  src/wrapper/jclossls-16.c
+  src/wrapper/jcmainct-16.c
+  src/wrapper/jcprepct-16.c
+  src/wrapper/jcsample-16.c
+  src/wrapper/jdapistd-16.c
+  src/wrapper/jdcolor-16.c
+  src/wrapper/jddiffct-16.c
+  src/wrapper/jdlossls-16.c
+  src/wrapper/jdmainct-16.c
+  src/wrapper/jdpostct-16.c
+  src/wrapper/jdsample-16.c
+  src/wrapper/jutils-16.c)
 
 include(CheckSymbolExists)
 check_symbol_exists("memset" "string.h" HAVE_MEMSET)
@@ -70,18 +127,12 @@ set(HAVE_UNSIGNED_SHORT 1)
 set(BITS_IN_JSAMPLE 8)
 
 set(JPEG_LIB_VERSION 80)
-set(LIBJPEG_TURBO_VERSION "2.0.0")
-set(LIBJPEG_TURBO_VERSION_NUMBER "2000000")
+set(LIBJPEG_TURBO_VERSION "3.1.4.1")
+set(LIBJPEG_TURBO_VERSION_NUMBER "3001004")
 set(MEM_SRCDST_SUPPORTED 1)
 set(C_ARITH_CODING_SUPPORTED 1)
 set(D_ARITH_CODING_SUPPORTED 1)
 set(NEED_SYS_TYPES_H 1)
-
-if (WIN32)
-  set(header_input_dir "/win")
-else ()
-  set(header_input_dir "/")
-endif ()
 
 if (BUILD_SHARED_LIBS)
   set(JPEG_SHARED_LIBS 1)
@@ -147,22 +198,18 @@ if (VTK_JPEG_ENABLE_SIMD AND NOT EMSCRIPTEN)
   if(NOT WITH_SIMD)
     message(FATAL_ERROR "VTK_JPEG_ENABLE_SIMD=ON but SIMD compilation is not available")
   endif()
-else()
-  list(APPEND sources
-    jsimd_none.c
-  )
 endif()
 
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}${header_input_dir}/jconfig.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/jconfig.h")
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/jconfig.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/src/jconfig.h")
 
 set(headers
-  jerror.h
-  jmorecfg.h
-  jpeglib.h
-  vtk_jpeg_mangle.h
-  "${CMAKE_CURRENT_BINARY_DIR}/jconfig.h")
+  src/jerror.h
+  src/jmorecfg.h
+  src/jpeglib.h
+  src/vtk_jpeg_mangle.h
+  "${CMAKE_CURRENT_BINARY_DIR}/src/jconfig.h")
 
 include(CheckTypeSize)
 check_type_size("size_t" SIZE_T)
@@ -173,24 +220,53 @@ set(INLINE "inline")
 set(PACKAGE_NAME "vtkjpeg")
 string(TIMESTAMP BUILD "%Y%m%d")
 
+# libjpeg-turbo 3.0 added `HIDDEN` and `THREAD_LOCAL` to `jconfigint.h.in`.
+include(CheckCSourceCompiles)
+if (NOT WIN32)
+  check_c_source_compiles("extern const int table[1]; const int __attribute__((visibility(\"hidden\"))) table[1] = { 0 }; int main(void) { return table[0]; }"
+    HIDDEN_WORKS)
+  if (HIDDEN_WORKS)
+    set(HIDDEN "__attribute__((visibility(\"hidden\")))")
+  endif ()
+endif ()
+if (MSVC)
+  set(THREAD_LOCAL "__declspec(thread)")
+else ()
+  set(THREAD_LOCAL "__thread")
+endif ()
+check_c_source_compiles("static ${THREAD_LOCAL} int i;  int main(void) { i = 0;  return i; }"
+  HAVE_THREAD_LOCAL)
+if (NOT HAVE_THREAD_LOCAL)
+  unset(THREAD_LOCAL)
+endif ()
+
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/jconfigint.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/jconfigint.h")
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/jconfigint.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/src/jconfigint.h")
+
+# libjpeg-turbo 3.0 turned jversion.h into a configured template.
+set(COPYRIGHT_YEAR "1991-2026")
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/jversion.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/src/jversion.h")
 
 set(private_headers
-  "${CMAKE_CURRENT_BINARY_DIR}/jconfigint.h")
+  "${CMAKE_CURRENT_BINARY_DIR}/src/jconfigint.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/src/jversion.h")
 
 vtk_module_add_module(VTK::jpeg
   SOURCES ${sources}
   HEADERS ${headers}
+  HEADER_DIRECTORIES
   HEADERS_SUBDIR "vtkjpeg"
   PRIVATE_HEADERS ${private_headers})
 vtk_module_include(VTK::jpeg
   PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src>")
 
 if(WITH_SIMD)
-  target_include_directories(simd PRIVATE "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
+  target_include_directories(simd PRIVATE "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src>")
   # XXX(cmake-3.26): `BUILD_LOCAL_INTERFACE` genex.
   if (CMAKE_VERSION VERSION_LESS "3.26")
     # Avoid needing to export the `simd` target. Only works as long as

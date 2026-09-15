@@ -2,9 +2,10 @@
 ; jsimdext.inc - common declarations
 ;
 ; Copyright 2009 Pierre Ossman <ossman@cendio.se> for Cendio AB
-; Copyright (C) 2010, 2016, 2018-2019, D. R. Commander.
+; Copyright (C) 2010, 2016, 2018-2019, 2024, D. R. Commander.
 ; Copyright (C) 2018, Matthieu Darbois.
 ; Copyright (C) 2018, Matthias Räncker.
+; Copyright (C) 2023, Aliaksiej Kandracienka.
 ;
 ; Based on the x86 SIMD extension for IJG JPEG library - version 1.02
 ;
@@ -75,6 +76,14 @@
 ; mark stack as non-executable
 section .note.GNU-stack noalloc noexec nowrite progbits
 
+%ifdef __CET__
+%ifdef __x86_64__
+section .note.gnu.property note alloc noexec align=8
+    dd 0x00000004, 0x00000010, 0x00000005, 0x00554e47
+    dd 0xc0000002, 0x00000004, 0x00000003, 0x00000000
+%endif
+%endif
+
 ; -- segment definition --
 ;
 %ifdef __x86_64__
@@ -134,7 +143,7 @@ section .note.GNU-stack noalloc noexec nowrite progbits
 %ifnidn __OUTPUT_FORMAT__, elfx32
 %define POINTER         qword           ; general pointer type
 %define SIZEOF_POINTER  SIZEOF_QWORD    ; sizeof(POINTER)
-%define POINTER_BIT     QWORD_BIT       ; sizeof(POINTER)*BYTE_BIT
+%define POINTER_BIT     QWORD_BIT       ; sizeof(POINTER) * BYTE_BIT
 %define resp            resq
 %define dp              dq
 %define raxp            rax
@@ -158,7 +167,7 @@ section .note.GNU-stack noalloc noexec nowrite progbits
 %ifndef raxp
 %define POINTER         dword           ; general pointer type
 %define SIZEOF_POINTER  SIZEOF_DWORD    ; sizeof(POINTER)
-%define POINTER_BIT     DWORD_BIT       ; sizeof(POINTER)*BYTE_BIT
+%define POINTER_BIT     DWORD_BIT       ; sizeof(POINTER) * BYTE_BIT
 %define resp            resd
 %define dp              dd
 ; x86_64 ILP32 ABI (x32)
@@ -182,25 +191,25 @@ section .note.GNU-stack noalloc noexec nowrite progbits
 
 %define INT             dword           ; signed integer type
 %define SIZEOF_INT      SIZEOF_DWORD    ; sizeof(INT)
-%define INT_BIT         DWORD_BIT       ; sizeof(INT)*BYTE_BIT
+%define INT_BIT         DWORD_BIT       ; sizeof(INT) * BYTE_BIT
 
 %define FP32            dword           ; IEEE754 single
 %define SIZEOF_FP32     SIZEOF_DWORD    ; sizeof(FP32)
-%define FP32_BIT        DWORD_BIT       ; sizeof(FP32)*BYTE_BIT
+%define FP32_BIT        DWORD_BIT       ; sizeof(FP32) * BYTE_BIT
 
 %define MMWORD          qword           ; int64  (MMX register)
 %define SIZEOF_MMWORD   SIZEOF_QWORD    ; sizeof(MMWORD)
-%define MMWORD_BIT      QWORD_BIT       ; sizeof(MMWORD)*BYTE_BIT
+%define MMWORD_BIT      QWORD_BIT       ; sizeof(MMWORD) * BYTE_BIT
 
 ; NASM is buggy and doesn't properly handle operand sizes for SSE
 ; instructions, so for now we have to define XMMWORD as blank.
 %define XMMWORD                         ; int128 (SSE register)
 %define SIZEOF_XMMWORD  SIZEOF_OWORD    ; sizeof(XMMWORD)
-%define XMMWORD_BIT     OWORD_BIT       ; sizeof(XMMWORD)*BYTE_BIT
+%define XMMWORD_BIT     OWORD_BIT       ; sizeof(XMMWORD) * BYTE_BIT
 
 %define YMMWORD                         ; int256 (AVX register)
 %define SIZEOF_YMMWORD  SIZEOF_YWORD    ; sizeof(YMMWORD)
-%define YMMWORD_BIT     YWORD_BIT       ; sizeof(YMMWORD)*BYTE_BIT
+%define YMMWORD_BIT     YWORD_BIT       ; sizeof(YMMWORD) * BYTE_BIT
 
 ; Similar hacks for when we load a dword or MMWORD into an xmm# register
 %define XMM_DWORD
@@ -214,11 +223,11 @@ section .note.GNU-stack noalloc noexec nowrite progbits
 %define SIZEOF_YWORD  32                ; sizeof(yword)
 
 %define BYTE_BIT      8                 ; CHAR_BIT in C
-%define WORD_BIT      16                ; sizeof(word)*BYTE_BIT
-%define DWORD_BIT     32                ; sizeof(dword)*BYTE_BIT
-%define QWORD_BIT     64                ; sizeof(qword)*BYTE_BIT
-%define OWORD_BIT     128               ; sizeof(oword)*BYTE_BIT
-%define YWORD_BIT     256               ; sizeof(yword)*BYTE_BIT
+%define WORD_BIT      16                ; sizeof(word) * BYTE_BIT
+%define DWORD_BIT     32                ; sizeof(dword) * BYTE_BIT
+%define QWORD_BIT     64                ; sizeof(qword) * BYTE_BIT
+%define OWORD_BIT     128               ; sizeof(oword) * BYTE_BIT
+%define YWORD_BIT     256               ; sizeof(yword) * BYTE_BIT
 
 ; --------------------------------------------------------------------------
 ;  External Symbol Name
@@ -271,7 +280,7 @@ const_base:
 
 %define GOTOFF(got, sym)  (got) + (sym) - const_base
 
-%imacro get_GOT 1
+%imacro GET_GOT 1
     ; NOTE: this macro destroys ecx resister.
     call        %%geteip
     add         ecx, byte (%%ref - $)
@@ -283,16 +292,16 @@ const_base:
     push        ebp
     xor         ebp, ebp                ; ebp = 0
 %ifidni %1, ebx  ; (%1 == ebx)
-    ; db 0x8D,0x9C + jmp near const_base =
-    ;   lea ebx, [ecx+ebp*8+(const_base-%%ref)] ; 8D,9C,E9,(offset32)
-    db          0x8D, 0x9C              ; 8D,9C
-    jmp         near const_base         ; E9,(const_base-%%ref)
+    ; db 0x8D, 0x9C + jmp near const_base =
+    ;   lea ebx, [ecx + ebp * 8 + (const_base - %%ref)] ; 8D, 9C, E9, (offset32)
+    db          0x8D, 0x9C              ; 8D, 9C
+    jmp         near const_base         ; E9, (const_base - %%ref)
 %%ref:
 %else  ; (%1 != ebx)
-    ; db 0x8D,0x8C + jmp near const_base =
-    ;   lea ecx, [ecx+ebp*8+(const_base-%%ref)] ; 8D,8C,E9,(offset32)
-    db          0x8D, 0x8C              ; 8D,8C
-    jmp         near const_base         ; E9,(const_base-%%ref)
+    ; db 0x8D, 0x8C + jmp near const_base =
+    ;   lea ecx, [ecx + ebp * 8 + (const_base - %%ref)] ; 8D, 8C, E9, (offset32)
+    db          0x8D, 0x8C              ; 8D, 8C
+    jmp         near const_base         ; E9, (const_base - %%ref)
 %%ref:
     mov         %1, ecx
 %endif  ; (%1 == ebx)
@@ -303,7 +312,7 @@ const_base:
 
 %define GOTOFF(got, sym)  (got) + (sym) wrt ..gotoff
 
-%imacro get_GOT 1
+%imacro GET_GOT 1
     extern      GOT_SYMBOL
     call        %%geteip
     add         %1, GOT_SYMBOL + $$ - $ wrt ..gotpc
@@ -316,13 +325,13 @@ const_base:
 
 %endif    ; GOT_SYMBOL == _MACHO_PIC_ ----------------
 
-%imacro pushpic 1.nolist
+%imacro PUSHPIC 1.nolist
     push        %1
 %endmacro
-%imacro poppic  1.nolist
+%imacro POPPIC  1.nolist
     pop         %1
 %endmacro
-%imacro movpic  2.nolist
+%imacro MOVPIC  2.nolist
     mov         %1, %2
 %endmacro
 
@@ -330,13 +339,13 @@ const_base:
 
 %define GOTOFF(got, sym)  (sym)
 
-%imacro get_GOT 1.nolist
+%imacro GET_GOT 1.nolist
 %endmacro
-%imacro pushpic 1.nolist
+%imacro PUSHPIC 1.nolist
 %endmacro
-%imacro poppic  1.nolist
+%imacro POPPIC  1.nolist
 %endmacro
-%imacro movpic  2.nolist
+%imacro MOVPIC  2.nolist
 %endmacro
 
 %endif   ;  PIC -----------------------------------------
@@ -346,31 +355,34 @@ const_base:
 ;  ".balign n,,m" in GNU as
 ;
 %define MSKLE(x, y)  (~(((y) & 0xFFFF) - ((x) & 0xFFFF)) >> 16)
-%define FILLB(b, n)  (($$-(b)) & ((n)-1))
+%define FILLB(b, n)  (($$ - (b)) & ((n) - 1))
 
-%imacro alignx 1-2.nolist 0xFFFF
+%imacro ALIGNX 1-2.nolist 0xFFFF
 %%bs: \
   times MSKLE(FILLB(%%bs, %1), %2) & MSKLE(16, FILLB($, %1)) & FILLB($, %1) \
-        db 0x90                                      ; nop
+        db 0x90                         ; nop
   times MSKLE(FILLB(%%bs, %1), %2) & FILLB($, %1) / 9 \
-        db 0x8D, 0x9C, 0x23, 0x00, 0x00, 0x00, 0x00  ; lea ebx,[ebx+0x00000000]
+        db 0x8D, 0x9C, 0x23, 0x00, 0x00, 0x00, 0x00 \
+                                        ; lea ebx, [ebx + 0x00000000]
   times MSKLE(FILLB(%%bs, %1), %2) & FILLB($, %1) / 7 \
-        db 0x8D, 0xAC, 0x25, 0x00, 0x00, 0x00, 0x00  ; lea ebp,[ebp+0x00000000]
+        db 0x8D, 0xAC, 0x25, 0x00, 0x00, 0x00, 0x00 \
+                                        ; lea ebp, [ebp + 0x00000000]
   times MSKLE(FILLB(%%bs, %1), %2) & FILLB($, %1) / 6 \
-        db 0x8D, 0xAD, 0x00, 0x00, 0x00, 0x00        ; lea ebp,[ebp+0x00000000]
+        db 0x8D, 0xAD, 0x00, 0x00, 0x00, 0x00 \
+                                        ; lea ebp, [ebp + 0x00000000]
   times MSKLE(FILLB(%%bs, %1), %2) & FILLB($, %1) / 4 \
-        db 0x8D, 0x6C, 0x25, 0x00                    ; lea ebp,[ebp+0x00]
+        db 0x8D, 0x6C, 0x25, 0x00       ; lea ebp, [ebp + 0x00]
   times MSKLE(FILLB(%%bs, %1), %2) & FILLB($, %1) / 3 \
-        db 0x8D, 0x6D, 0x00                          ; lea ebp,[ebp+0x00]
+        db 0x8D, 0x6D, 0x00             ; lea ebp, [ebp + 0x00]
   times MSKLE(FILLB(%%bs, %1), %2) & FILLB($, %1) / 2 \
-        db 0x8B, 0xED                                ; mov ebp,ebp
+        db 0x8B, 0xED                   ; mov ebp, ebp
   times MSKLE(FILLB(%%bs, %1), %2) & FILLB($, %1) / 1 \
-        db 0x90                                      ; nop
+        db 0x90                         ; nop
 %endmacro
 
 ; Align the next data on {2,4,8,16,..}-byte boundary.
 ;
-%imacro alignz 1.nolist
+%imacro ALIGNZ 1.nolist
     align       %1, db 0                ; filling zeros
 %endmacro
 
@@ -378,7 +390,7 @@ const_base:
 
 %ifdef WIN64
 
-%imacro collect_args 1
+%imacro COLLECT_ARGS 1
     sub         rsp, SIZEOF_XMMWORD
     movaps      XMMWORD [rsp], xmm6
     sub         rsp, SIZEOF_XMMWORD
@@ -397,17 +409,17 @@ const_base:
 %endif
 %if %1 > 4
     push        r14
-    mov         r14, [rax+48]
+    mov         r14, [rbp + 48]
 %endif
 %if %1 > 5
     push        r15
-    mov         r15, [rax+56]
+    mov         r15, [rbp + 56]
 %endif
     push        rsi
     push        rdi
 %endmacro
 
-%imacro uncollect_args 1
+%imacro UNCOLLECT_ARGS 1
     pop         rdi
     pop         rsi
 %if %1 > 5
@@ -428,37 +440,37 @@ const_base:
     add         rsp, SIZEOF_XMMWORD
 %endmacro
 
-%imacro push_xmm 1
+%imacro PUSH_XMM 1
     sub         rsp, %1 * SIZEOF_XMMWORD
-    movaps      XMMWORD [rsp+0*SIZEOF_XMMWORD], xmm8
+    movaps      XMMWORD [rsp + 0 * SIZEOF_XMMWORD], xmm8
 %if %1 > 1
-    movaps      XMMWORD [rsp+1*SIZEOF_XMMWORD], xmm9
+    movaps      XMMWORD [rsp + 1 * SIZEOF_XMMWORD], xmm9
 %endif
 %if %1 > 2
-    movaps      XMMWORD [rsp+2*SIZEOF_XMMWORD], xmm10
+    movaps      XMMWORD [rsp + 2 * SIZEOF_XMMWORD], xmm10
 %endif
 %if %1 > 3
-    movaps      XMMWORD [rsp+3*SIZEOF_XMMWORD], xmm11
+    movaps      XMMWORD [rsp + 3 * SIZEOF_XMMWORD], xmm11
 %endif
 %endmacro
 
-%imacro pop_xmm 1
-    movaps      xmm8, XMMWORD [rsp+0*SIZEOF_XMMWORD]
+%imacro POP_XMM 1
+    movaps      xmm8, XMMWORD [rsp + 0 * SIZEOF_XMMWORD]
 %if %1 > 1
-    movaps      xmm9, XMMWORD [rsp+1*SIZEOF_XMMWORD]
+    movaps      xmm9, XMMWORD [rsp + 1 * SIZEOF_XMMWORD]
 %endif
 %if %1 > 2
-    movaps      xmm10, XMMWORD [rsp+2*SIZEOF_XMMWORD]
+    movaps      xmm10, XMMWORD [rsp + 2 * SIZEOF_XMMWORD]
 %endif
 %if %1 > 3
-    movaps      xmm11, XMMWORD [rsp+3*SIZEOF_XMMWORD]
+    movaps      xmm11, XMMWORD [rsp + 3 * SIZEOF_XMMWORD]
 %endif
     add         rsp, %1 * SIZEOF_XMMWORD
 %endmacro
 
 %else
 
-%imacro collect_args 1
+%imacro COLLECT_ARGS 1
     push        r10
     mov         r10, rdi
 %if %1 > 1
@@ -483,7 +495,7 @@ const_base:
 %endif
 %endmacro
 
-%imacro uncollect_args 1
+%imacro UNCOLLECT_ARGS 1
 %if %1 > 5
     pop         r15
 %endif
@@ -502,13 +514,26 @@ const_base:
     pop         r10
 %endmacro
 
-%imacro push_xmm 1
+%imacro PUSH_XMM 1
 %endmacro
 
-%imacro pop_xmm 1
+%imacro POP_XMM 1
 %endmacro
 
 %endif
+
+%endif
+
+%ifdef __CET__
+
+%imacro ENDBR64 0
+    dd 0xfa1e0ff3
+%endmacro
+
+%else
+
+%imacro ENDBR64 0
+%endmacro
 
 %endif
 
