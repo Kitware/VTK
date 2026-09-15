@@ -62,6 +62,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestSplitByCellScalarFilter.cxx,NO_VALID
   TestTableBasedClipDataSet.cxx,NO_VALID
   TestTableFFT.cxx,NO_VALID
+  TestTableProbe.cxx,NO_VALID
   TestTableSplitColumnComponents.cxx,NO_VALID
   TestTableToRectilinearGrid.cxx,NO_VALID
   TestTemporalPathLineFilter.cxx,NO_VALID

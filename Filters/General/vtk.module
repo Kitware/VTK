@@ -50,6 +50,7 @@ TEST_DEPENDS
   VTK::IOGeometry
   VTK::IOHDF
   VTK::IOImage
+  VTK::IOInfovis
   VTK::IOLegacy
   VTK::IOXML
   VTK::ImagingCore
