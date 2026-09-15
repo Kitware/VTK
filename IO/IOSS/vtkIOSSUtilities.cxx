@@ -336,6 +336,8 @@ int GetCellType(const Ioss::ElementTopology* topology)
           return VTK_LINE;
         case 3:
           return VTK_QUADRATIC_EDGE;
+        case 4:
+          return VTK_CUBIC_LINE;
       }
       // If we don't have a "fast-path" cell, see if the arbitrary-order
       // Lagrange cell can handle it.
@@ -370,6 +372,8 @@ int GetCellType(const Ioss::ElementTopology* topology)
           return VTK_QUADRATIC_QUAD;
         case 9:
           return VTK_BIQUADRATIC_QUAD;
+        case 6:
+          return VTK_QUADRATIC_LINEAR_QUAD;
         case 4:
           return VTK_QUAD;
       }
@@ -478,6 +482,9 @@ const Ioss::ElementTopology* GetElementTopology(int vtk_cell_type)
       elementType = "edge2";
       break;
     case VTK_QUADRATIC_EDGE:
+      elementType = "edge3";
+      break;
+    case VTK_CUBIC_LINE:
       elementType = "edge4";
       break;
     case VTK_TRIANGLE:
@@ -486,8 +493,14 @@ const Ioss::ElementTopology* GetElementTopology(int vtk_cell_type)
     case VTK_QUADRATIC_TRIANGLE:
       elementType = "tri6";
       break;
+    case VTK_BIQUADRATIC_TRIANGLE:
+      elementType = "tri7";
+      break;
     case VTK_QUAD:
       elementType = "quad4";
+      break;
+    case VTK_QUADRATIC_LINEAR_QUAD:
+      elementType = "quad6";
       break;
     case VTK_QUADRATIC_QUAD:
       elementType = "quad8";
@@ -499,7 +512,7 @@ const Ioss::ElementTopology* GetElementTopology(int vtk_cell_type)
       elementType = "tet4";
       break;
     case VTK_QUADRATIC_TETRA:
-      elementType = "tet11";
+      elementType = "tet10";
       break;
     case VTK_LAGRANGE_TETRAHEDRON:
       elementType = "tet15";
@@ -512,6 +525,9 @@ const Ioss::ElementTopology* GetElementTopology(int vtk_cell_type)
       break;
     case VTK_PYRAMID:
       elementType = "pyramid5";
+      break;
+    case VTK_QUADRATIC_LINEAR_WEDGE:
+      elementType = "wedge12";
       break;
     case VTK_QUADRATIC_WEDGE:
       elementType = "wedge15";
