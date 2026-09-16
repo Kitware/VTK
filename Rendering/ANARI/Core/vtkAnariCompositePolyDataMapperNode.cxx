@@ -39,7 +39,12 @@ void vtkAnariCompositePolyDataMapperNode::Synchronize(bool prepass)
   vtkAnariProfiling startProfiling(
     "vtkAnariCompositePolyDataMapperNode::Render", vtkAnariProfiling::BROWN);
 
-  if (!prepass || !ActorWasModified())
+  if (!prepass || !this->GetVtkActor()->GetVisibility())
+  {
+    return;
+  }
+
+  if (!this->ActorWasModified() && !this->MapperWasModified())
   {
     return;
   }
