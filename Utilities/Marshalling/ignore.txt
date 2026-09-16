@@ -373,7 +373,6 @@ Common/DataModel/vtkOrderedTriangulator.h
 Common/DataModel/vtkOutEdgeIterator.h
 Common/DataModel/vtkOverlappingAMR.h
 Common/DataModel/vtkOverlappingAMRMetaData.h
-Common/DataModel/vtkPath.h
 Common/DataModel/vtkPentagonalPrism.h
 Common/DataModel/vtkPeriodicDataArray.h
 Common/DataModel/vtkPerlinNoise.h

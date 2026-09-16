@@ -14,11 +14,12 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIntArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkPath : public vtkPointSet
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkPath : public vtkPointSet
 {
 public:
   static vtkPath* New();

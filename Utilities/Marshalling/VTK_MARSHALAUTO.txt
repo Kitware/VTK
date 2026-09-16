@@ -111,6 +111,7 @@ Common/DataModel/vtkDirectedGraph.h
 Common/DataModel/vtkImageData.h
 Common/DataModel/vtkImplicitFunction.h
 Common/DataModel/vtkMultiPieceDataSet.h
+Common/DataModel/vtkPath.h
 Common/DataModel/vtkPiecewiseFunction.h
 Common/DataModel/vtkPlane.h
 Common/DataModel/vtkPlaneCollection.h
