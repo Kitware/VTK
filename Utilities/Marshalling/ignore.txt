@@ -740,12 +740,10 @@ Rendering/LICOpenGL2/vtkSurfaceLICComposite.h
 Rendering/LICOpenGL2/vtkSurfaceLICHelper.h
 Rendering/LICOpenGL2/vtkTextureIO.h
 Rendering/LOD/vtkQuadricLODActor.h
-Rendering/Label/vtkLabeledFormatter.h
 Rendering/Label/vtkLabelHierarchyAlgorithm.h
 Rendering/Label/vtkLabelHierarchyCompositeIterator.h
 Rendering/Label/vtkLabelHierarchyIterator.h
 Rendering/Label/vtkLabelHierarchyPrivate.h
-Rendering/Label/vtkLabelPlacer.h
 Rendering/Label/vtkLabelSizeCalculator.h
 Rendering/Label/vtkPointSetToLabelHierarchy.h
 Rendering/OpenGL2/vtkArrayRenderer.h
