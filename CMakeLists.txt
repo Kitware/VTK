@@ -144,9 +144,7 @@ set(sources
   src/common/tuklib_physmem.c
   src/liblzma/check/check.c
   src/liblzma/check/crc32_fast.c
-  src/liblzma/check/crc32_table.c
   src/liblzma/check/crc64_fast.c
-  src/liblzma/check/crc64_table.c
   src/liblzma/check/sha256.c
   src/liblzma/common/alone_decoder.c
   src/liblzma/common/alone_encoder.c
