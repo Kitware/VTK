@@ -47,7 +47,7 @@ if useDebugDevice:
 renWin.SetUseDebugDevice(useDebugDevice)
 
 # General renderer parameters:
-anariDevice.SetParameterf('ambientRadiance', 1.0)
+anariRenderer.SetParameterf('ambientRadiance', 1.0)
 
 # VisRTX specific renderer parameters:
 anariRenderer.SetParameterf('lightFalloff', 0.5)
