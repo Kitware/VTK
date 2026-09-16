@@ -17,13 +17,14 @@
 #ifndef vtkXMLImageDataWriter_h
 #define vtkXMLImageDataWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLStructuredDataWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
-class VTKIOXML_EXPORT vtkXMLImageDataWriter : public vtkXMLStructuredDataWriter
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLImageDataWriter : public vtkXMLStructuredDataWriter
 {
 public:
   static vtkXMLImageDataWriter* New();

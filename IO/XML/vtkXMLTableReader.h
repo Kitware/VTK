@@ -12,7 +12,8 @@
 #ifndef vtkXMLTableReader_h
 #define vtkXMLTableReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLReader.h"
 
 #include <map> // needed for std::map
@@ -23,7 +24,7 @@ class vtkIdTypeArray;
 class vtkUnsignedCharArray;
 class vtkTable;
 
-class VTKIOXML_EXPORT vtkXMLTableReader : public vtkXMLReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLTableReader : public vtkXMLReader
 {
 public:
   vtkTypeMacro(vtkXMLTableReader, vtkXMLReader);

@@ -18,13 +18,15 @@
 #ifndef vtkXMLPartitionedDataSetReader_h
 #define vtkXMLPartitionedDataSetReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLCompositeDataReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 
-class VTKIOXML_EXPORT vtkXMLPartitionedDataSetReader : public vtkXMLCompositeDataReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLPartitionedDataSetReader
+  : public vtkXMLCompositeDataReader
 {
 public:
   static vtkXMLPartitionedDataSetReader* New();

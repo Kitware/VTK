@@ -15,11 +15,12 @@
 
 #include "vtkIOXMLModule.h" // needed for export macro.
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkXMLDataElement;
 
-class VTKIOXML_EXPORT vtkXMLHierarchicalBoxDataFileConverter : public vtkObject
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLHierarchicalBoxDataFileConverter : public vtkObject
 {
 public:
   static vtkXMLHierarchicalBoxDataFileConverter* New();

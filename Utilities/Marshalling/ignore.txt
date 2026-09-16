@@ -542,6 +542,10 @@ Filters/Meshing/vtkVoronoiCore2D.h
 Filters/Meshing/vtkVoronoiCore3D.h
 Filters/Meshing/vtkVoronoiHull.h
 Filters/Meshing/vtkVoronoiTile.h
+IO/XML/vtkXMLOffsetsManager.h
+IO/XML/vtkXMLPHyperTreeGridReader.h
+IO/XML/vtkXMLReaderVersion.h
+IO/XML/vtkXMLWriterC.h
 Imaging/Color/vtkImageHSIToRGB.h
 Imaging/Color/vtkImageHSVToRGB.h
 Imaging/Color/vtkImageLuminance.h

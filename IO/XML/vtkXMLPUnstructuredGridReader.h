@@ -17,14 +17,16 @@
 #ifndef vtkXMLPUnstructuredGridReader_h
 #define vtkXMLPUnstructuredGridReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLPUnstructuredDataReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkUnstructuredGrid;
 
-class VTKIOXML_EXPORT vtkXMLPUnstructuredGridReader : public vtkXMLPUnstructuredDataReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLPUnstructuredGridReader
+  : public vtkXMLPUnstructuredDataReader
 {
 public:
   vtkTypeMacro(vtkXMLPUnstructuredGridReader, vtkXMLPUnstructuredDataReader);

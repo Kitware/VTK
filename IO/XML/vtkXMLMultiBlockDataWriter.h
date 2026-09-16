@@ -11,11 +11,12 @@
 #ifndef vtkXMLMultiBlockDataWriter_h
 #define vtkXMLMultiBlockDataWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLCompositeDataWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIOXML_EXPORT vtkXMLMultiBlockDataWriter : public vtkXMLCompositeDataWriter
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLMultiBlockDataWriter : public vtkXMLCompositeDataWriter
 {
 public:
   static vtkXMLMultiBlockDataWriter* New();

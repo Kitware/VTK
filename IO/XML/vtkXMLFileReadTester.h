@@ -12,11 +12,12 @@
 #ifndef vtkXMLFileReadTester_h
 #define vtkXMLFileReadTester_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLParser.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIOXML_EXPORT vtkXMLFileReadTester : public vtkXMLParser
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLFileReadTester : public vtkXMLParser
 {
 public:
   vtkTypeMacro(vtkXMLFileReadTester, vtkXMLParser);

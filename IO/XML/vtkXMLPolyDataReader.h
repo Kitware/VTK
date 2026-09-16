@@ -17,13 +17,14 @@
 #ifndef vtkXMLPolyDataReader_h
 #define vtkXMLPolyDataReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLUnstructuredDataReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
-class VTKIOXML_EXPORT vtkXMLPolyDataReader : public vtkXMLUnstructuredDataReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLPolyDataReader : public vtkXMLUnstructuredDataReader
 {
 public:
   vtkTypeMacro(vtkXMLPolyDataReader, vtkXMLUnstructuredDataReader);

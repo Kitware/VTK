@@ -18,7 +18,8 @@
 #ifndef vtkXMLMultiBlockDataReader_h
 #define vtkXMLMultiBlockDataReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLCompositeDataReader.h"
 
 #include <set>    // For std::set
@@ -27,7 +28,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataAssembly;
 
-class VTKIOXML_EXPORT vtkXMLMultiBlockDataReader : public vtkXMLCompositeDataReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLMultiBlockDataReader : public vtkXMLCompositeDataReader
 {
 public:
   static vtkXMLMultiBlockDataReader* New();

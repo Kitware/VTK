@@ -14,8 +14,9 @@
 #define vtkXMLReader_h
 
 #include "vtkAlgorithm.h"
-#include "vtkIOXMLModule.h"  // For export macro
-#include "vtkSmartPointer.h" // for vtkSmartPointer.
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkSmartPointer.h"  // for vtkSmartPointer.
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <istream>   // for IStream
 #include <memory>    // for std::unique_ptr
@@ -38,7 +39,7 @@ class vtkStringArray;
 class vtkXMLDataElement;
 class vtkXMLDataParser;
 
-class VTKIOXML_EXPORT vtkXMLReader : public vtkAlgorithm
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLReader : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkXMLReader, vtkAlgorithm);

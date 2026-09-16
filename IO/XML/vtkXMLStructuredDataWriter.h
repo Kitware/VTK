@@ -11,7 +11,8 @@
 #ifndef vtkXMLStructuredDataWriter_h
 #define vtkXMLStructuredDataWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -19,7 +20,7 @@ class vtkAbstractArray;
 class vtkInformation;
 class vtkInformationVector;
 
-class VTKIOXML_EXPORT vtkXMLStructuredDataWriter : public vtkXMLWriter
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLStructuredDataWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLStructuredDataWriter, vtkXMLWriter);

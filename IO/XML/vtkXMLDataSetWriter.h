@@ -17,13 +17,14 @@
 #ifndef vtkXMLDataSetWriter_h
 #define vtkXMLDataSetWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLDataObjectWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
 
-class VTKIOXML_EXPORT vtkXMLDataSetWriter : public vtkXMLDataObjectWriter
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLDataSetWriter : public vtkXMLDataObjectWriter
 {
 public:
   vtkTypeMacro(vtkXMLDataSetWriter, vtkXMLDataObjectWriter);

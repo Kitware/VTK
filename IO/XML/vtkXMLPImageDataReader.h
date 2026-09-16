@@ -17,13 +17,14 @@
 #ifndef vtkXMLPImageDataReader_h
 #define vtkXMLPImageDataReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLPStructuredDataReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
-class VTKIOXML_EXPORT vtkXMLPImageDataReader : public vtkXMLPStructuredDataReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLPImageDataReader : public vtkXMLPStructuredDataReader
 {
 public:
   vtkTypeMacro(vtkXMLPImageDataReader, vtkXMLPStructuredDataReader);

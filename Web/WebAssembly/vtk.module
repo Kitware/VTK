@@ -25,6 +25,7 @@ OPTIONAL_DEPENDS
   VTK::ImagingCore
   VTK::InteractionStyle
   VTK::InteractionWidgets
+  VTK::IOXML
   VTK::RenderingAnnotation
   VTK::RenderingCore
   VTK::RenderingContext2D

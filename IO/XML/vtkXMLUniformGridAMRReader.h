@@ -19,8 +19,9 @@
 #ifndef vtkXMLUniformGridAMRReader_h
 #define vtkXMLUniformGridAMRReader_h
 
-#include "vtkIOXMLModule.h"  // For export macro
-#include "vtkSmartPointer.h" // needed for vtkSmartPointer.
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkSmartPointer.h"  // needed for vtkSmartPointer.
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLPartitionedDataSetCollectionReader.h"
 
 #include <map> // std::map
@@ -29,7 +30,8 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkOverlappingAMR;
 class vtkUniformGridAMR;
 
-class VTKIOXML_EXPORT vtkXMLUniformGridAMRReader : public vtkXMLPartitionedDataSetCollectionReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLUniformGridAMRReader
+  : public vtkXMLPartitionedDataSetCollectionReader
 {
 public:
   static vtkXMLUniformGridAMRReader* New();

@@ -17,13 +17,15 @@
 #ifndef vtkXMLPRectilinearGridReader_h
 #define vtkXMLPRectilinearGridReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLPStructuredDataReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRectilinearGrid;
 
-class VTKIOXML_EXPORT vtkXMLPRectilinearGridReader : public vtkXMLPStructuredDataReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLPRectilinearGridReader
+  : public vtkXMLPStructuredDataReader
 {
 public:
   vtkTypeMacro(vtkXMLPRectilinearGridReader, vtkXMLPStructuredDataReader);

@@ -18,7 +18,8 @@
 #ifndef vtkXMLWriter_h
 #define vtkXMLWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLWriterBase.h"
 
 #include <sstream> // For ostringstream ivar
@@ -47,7 +48,7 @@ class OffsetsManager;      // one per piece/per time
 class OffsetsManagerGroup; // array of OffsetsManager
 class OffsetsManagerArray; // array of OffsetsManagerGroup
 
-class VTKIOXML_EXPORT vtkXMLWriter : public vtkXMLWriterBase
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLWriter : public vtkXMLWriterBase
 {
 public:
   vtkTypeMacro(vtkXMLWriter, vtkXMLWriterBase);

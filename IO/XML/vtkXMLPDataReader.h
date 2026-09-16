@@ -15,7 +15,8 @@
 #ifndef vtkXMLPDataReader_h
 #define vtkXMLPDataReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLPDataObjectReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -23,7 +24,7 @@ class vtkAbstractArray;
 class vtkDataSet;
 class vtkXMLDataReader;
 
-class VTKIOXML_EXPORT vtkXMLPDataReader : public vtkXMLPDataObjectReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLPDataReader : public vtkXMLPDataObjectReader
 {
 public:
   vtkTypeMacro(vtkXMLPDataReader, vtkXMLPDataObjectReader);

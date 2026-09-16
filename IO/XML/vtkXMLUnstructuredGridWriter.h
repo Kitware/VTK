@@ -18,13 +18,15 @@
 #ifndef vtkXMLUnstructuredGridWriter_h
 #define vtkXMLUnstructuredGridWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLUnstructuredDataWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGridBase;
 
-class VTKIOXML_EXPORT vtkXMLUnstructuredGridWriter : public vtkXMLUnstructuredDataWriter
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLUnstructuredGridWriter
+  : public vtkXMLUnstructuredDataWriter
 {
 public:
   vtkTypeMacro(vtkXMLUnstructuredGridWriter, vtkXMLUnstructuredDataWriter);

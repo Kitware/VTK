@@ -15,8 +15,9 @@
 #ifndef vtkXMLCompositeDataWriter_h
 #define vtkXMLCompositeDataWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
-#include "vtkStdString.h"   // needed for vtkStdString.
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkStdString.h"     // needed for vtkStdString.
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -25,7 +26,7 @@ class vtkCompositeDataSet;
 class vtkXMLDataElement;
 class vtkXMLCompositeDataWriterInternals;
 
-class VTKIOXML_EXPORT vtkXMLCompositeDataWriter : public vtkXMLWriter
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLCompositeDataWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLCompositeDataWriter, vtkXMLWriter);
