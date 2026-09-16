@@ -531,6 +531,7 @@ Rendering/Core/vtkBackgroundColorMonitor.h
 Rendering/Core/vtkBillboardTextActor3D.h
 Rendering/Core/vtkCamera.h
 Rendering/Core/vtkCameraActor.h
+Rendering/Core/vtkCameraInterpolator.h
 Rendering/Core/vtkCellCenterDepthSort.h
 Rendering/Core/vtkCellPicker.h
 Rendering/Core/vtkCompositePolyDataMapper.h

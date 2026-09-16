@@ -5,6 +5,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTransform.h"
 #include "vtkTupleInterpolator.h"
+#include <algorithm>
 #include <list>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -231,6 +232,55 @@ void vtkCameraInterpolator::RemoveCamera(double t)
   {
     this->CameraList->erase(iter);
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkCameraInterpolator::SetTimedCameras(const std::vector<double>& values)
+{
+  constexpr std::size_t numDoubles = sizeof(vtkICamera) / sizeof(double);
+  static_assert(numDoubles == 14, "Expects exactly 14 8-byte floats in vtkICamera struct.");
+  if ((values.size() % numDoubles) != 0)
+  {
+    vtkErrorMacro(<< "The length of timed cameras array is not divisible by " << numDoubles
+                  << ". Expects a sequence of t, P[3], FP[3], VUP[3], CR[2], VA[1], PS[1], ...");
+    return;
+  }
+  const std::size_t numberOfCameras = values.size() / numDoubles;
+  this->CameraList->clear();
+  const double* ptr = values.data();
+  for (std::size_t i = 0; i < numberOfCameras; ++i, ptr += numDoubles)
+  {
+    vtkICamera camera;
+    camera.Time = ptr[0];
+    std::copy_n(ptr + 1, 3, camera.P);
+    std::copy_n(ptr + 4, 3, camera.FP);
+    std::copy_n(ptr + 7, 3, camera.VUP);
+    std::copy_n(ptr + 10, 2, camera.CR);
+    camera.VA[0] = ptr[12];
+    camera.PS[0] = ptr[13];
+    this->CameraList->push_back(camera);
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+std::vector<double> vtkCameraInterpolator::GetTimedCameras() const
+{
+  constexpr std::size_t numDoubles = sizeof(vtkICamera) / sizeof(double);
+  static_assert(numDoubles == 14, "Expects exactly 14 8-byte floats in vtkICamera struct.");
+  std::vector<double> result;
+  result.reserve(this->CameraList->size() * numDoubles);
+  for (const auto& camera : *this->CameraList)
+  {
+    result.push_back(camera.Time);
+    result.insert(result.end(), camera.P, camera.P + 3);
+    result.insert(result.end(), camera.FP, camera.FP + 3);
+    result.insert(result.end(), camera.VUP, camera.VUP + 3);
+    result.insert(result.end(), camera.CR, camera.CR + 2);
+    result.insert(result.end(), camera.VA, camera.VA + 1);
+    result.insert(result.end(), camera.PS, camera.PS + 1);
+  }
+  return result;
 }
 
 //------------------------------------------------------------------------------
