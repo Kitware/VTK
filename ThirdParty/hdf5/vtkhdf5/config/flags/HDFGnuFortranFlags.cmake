@@ -22,9 +22,9 @@ message (VERBOSE "Warnings Configuration: default Fortran: ${CMAKE_Fortran_FLAGS
 #-----------------------------------------------------------------------------
 if (NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10.0)
   if (HDF5_ENABLE_BUILD_DIAGS)
-    message (STATUS "... default color and URL extended diagnostic messages enabled")
+    # message (STATUS "... default color and URL extended diagnostic messages enabled")
   else ()
-    message (STATUS "... disable color and URL extended diagnostic messages")
+    # message (STATUS "... disable color and URL extended diagnostic messages")
     #set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fdiagnostics-urls=never -fno-diagnostics-color")
   endif ()
 endif ()
