@@ -728,7 +728,6 @@ Rendering/Core/vtkTDxInteractorStyleSettings.h
 Rendering/Core/vtkTDxMotionEventInfo.h
 Rendering/Core/vtkTextRenderer.h
 Rendering/Core/vtkTransformInterpolator.h
-Rendering/Core/vtkTupleInterpolator.h
 Rendering/Core/vtkUniforms.h
 Rendering/Core/vtkViewDependentErrorMetric.h
 Rendering/GridAxes/vtkGridAxesHelper.h

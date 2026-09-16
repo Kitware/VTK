@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTupleInterpolator.h"
 #include "vtkKochanekSpline.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkSpline.h"
 
 #include <algorithm>
+#include <cstddef>
+#include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTupleInterpolator);
@@ -40,9 +41,7 @@ void vtkTupleInterpolator::SetNumberOfComponents(int numComp)
   numComp = (numComp < 1 ? 1 : numComp);
   if (numComp != this->NumberOfComponents)
   {
-    this->Initialize(); // wipe out data
-    this->NumberOfComponents = numComp;
-    this->InitializeInterpolation();
+    this->ReinitializeInterpolation(numComp);
     this->Modified();
   }
 }
@@ -228,9 +227,14 @@ void vtkTupleInterpolator::SetInterpolationType(int type)
   type = std::clamp<int>(type, INTERPOLATION_TYPE_LINEAR, INTERPOLATION_TYPE_SPLINE);
   if (type != this->InterpolationType)
   {
-    this->Initialize(); // wipe out data
+    // Snapshot the samples before the interpolation functions are replaced.
+    const std::vector<double> samples = this->GetTimedTuples();
+    const int numComp = this->NumberOfComponents;
+    this->Initialize(); // wipe out the interpolation functions
     this->InterpolationType = type;
+    this->NumberOfComponents = numComp;
     this->InitializeInterpolation();
+    this->RestoreTimedTuples(samples, numComp);
     this->Modified();
   }
 }
@@ -252,6 +256,12 @@ void vtkTupleInterpolator::SetInterpolatingSpline(vtkSpline* spline)
     spline->Register(this);
   }
   this->InterpolatingSpline = spline;
+  // The per-component splines are copies of the prototype, so they have to be
+  // built again. Their samples are carried over.
+  if (this->InterpolationType == INTERPOLATION_TYPE_SPLINE && this->NumberOfComponents > 0)
+  {
+    this->ReinitializeInterpolation(this->NumberOfComponents);
+  }
   this->Modified();
 }
 
@@ -327,6 +337,159 @@ void vtkTupleInterpolator::InterpolateTuple(double t, double tuple[])
       tuple[i] = this->Spline[i]->Evaluate(t);
     }
   }
+}
+
+//------------------------------------------------------------------------------
+vtkPiecewiseFunction* vtkTupleInterpolator::GetComponentFunction(int i) const
+{
+  if (i < 0 || i >= this->NumberOfComponents)
+  {
+    return nullptr;
+  }
+  if (this->InterpolationType == INTERPOLATION_TYPE_LINEAR)
+  {
+    return this->Linear ? this->Linear[i] : nullptr;
+  }
+  return (this->Spline && this->Spline[i]) ? this->Spline[i]->GetPiecewiseFunction() : nullptr;
+}
+
+//------------------------------------------------------------------------------
+std::vector<double> vtkTupleInterpolator::GetTimedTuples() const
+{
+  std::vector<double> result;
+  vtkPiecewiseFunction* first = this->GetComponentFunction(0);
+  if (!first)
+  {
+    return result;
+  }
+  const int numTuples = first->GetSize();
+  if (numTuples <= 0)
+  {
+    return result;
+  }
+  const std::size_t stride = static_cast<std::size_t>(this->NumberOfComponents) + 1;
+  result.resize(static_cast<std::size_t>(numTuples) * stride, 0.0);
+
+  // All components share the same parameter values, take them from the first.
+  double node[4];
+  for (int j = 0; j < numTuples; j++)
+  {
+    first->GetNodeValue(j, node);
+    result[static_cast<std::size_t>(j) * stride] = node[0];
+  }
+  for (int i = 0; i < this->NumberOfComponents; i++)
+  {
+    vtkPiecewiseFunction* function = this->GetComponentFunction(i);
+    if (!function)
+    {
+      continue;
+    }
+    const int size = std::min(numTuples, function->GetSize());
+    for (int j = 0; j < size; j++)
+    {
+      function->GetNodeValue(j, node);
+      result[static_cast<std::size_t>(j) * stride + 1 + i] = node[1];
+    }
+  }
+  return result;
+}
+
+//------------------------------------------------------------------------------
+void vtkTupleInterpolator::SetTimedTuples(const std::vector<double>& values)
+{
+  if (this->NumberOfComponents <= 0)
+  {
+    vtkErrorMacro(<< "Set the number of components before setting the timed tuples.");
+    return;
+  }
+  const std::size_t stride = static_cast<std::size_t>(this->NumberOfComponents) + 1;
+  if ((values.size() % stride) != 0)
+  {
+    vtkErrorMacro(<< "The length of the timed tuples array is not divisible by " << stride
+                  << ". Expects a sequence of t0, c0_0, ..., c0_" << (this->NumberOfComponents - 1)
+                  << ", t1, etc");
+    return;
+  }
+  if (values.empty())
+  {
+    for (int i = 0; i < this->NumberOfComponents; i++)
+    {
+      if (vtkPiecewiseFunction* function = this->GetComponentFunction(i))
+      {
+        function->RemoveAllPoints();
+      }
+    }
+  }
+  else
+  {
+    this->RestoreTimedTuples(values, this->NumberOfComponents);
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkTupleInterpolator::RestoreTimedTuples(const std::vector<double>& values, int numComp)
+{
+  if (values.empty() || numComp <= 0 || this->NumberOfComponents <= 0)
+  {
+    return;
+  }
+  const std::size_t stride = static_cast<std::size_t>(numComp) + 1;
+  if ((values.size() % stride) != 0)
+  {
+    vtkErrorMacro(<< "The length of the timed tuples array is not divisible by " << stride << '.');
+    return;
+  }
+  const int numTuples = static_cast<int>(values.size() / stride);
+
+  // Interlaced time/value pairs, as expected by FillFromDataPointer.
+  std::vector<double> ptr(2 * static_cast<std::size_t>(numTuples), 0.0);
+  for (int j = 0; j < numTuples; j++)
+  {
+    ptr[2 * static_cast<std::size_t>(j)] = values[static_cast<std::size_t>(j) * stride];
+  }
+  for (int i = 0; i < this->NumberOfComponents; i++)
+  {
+    for (int j = 0; j < numTuples; j++)
+    {
+      // Components beyond the ones present in `values` are zero-filled.
+      ptr[2 * static_cast<std::size_t>(j) + 1] =
+        (i < numComp) ? values[static_cast<std::size_t>(j) * stride + 1 + i] : 0.0;
+    }
+    if (this->InterpolationType == INTERPOLATION_TYPE_LINEAR && this->Linear && this->Linear[i])
+    {
+      this->Linear[i]->FillFromDataPointer(numTuples, ptr.data());
+    }
+    else if (this->InterpolationType == INTERPOLATION_TYPE_SPLINE && this->Spline &&
+      this->Spline[i])
+    {
+      this->Spline[i]->FillFromDataPointer(numTuples, ptr.data());
+    }
+    else
+    {
+      vtkWarningMacro(<< "Interpolation initialization failed for " << this->NumberOfComponents
+                      << " components.");
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkTupleInterpolator::ReinitializeInterpolation(int numComp)
+{
+  const std::vector<double> samples = this->GetTimedTuples();
+  const int oldNumComp = this->NumberOfComponents;
+  this->Initialize(); // wipe out the interpolation functions
+  this->NumberOfComponents = numComp;
+  this->InitializeInterpolation();
+  this->RestoreTimedTuples(samples, oldNumComp);
+}
+
+//------------------------------------------------------------------------------
+std::vector<double> vtkTupleInterpolator::InterpolateTuple(double t)
+{
+  std::vector<double> result(this->NumberOfComponents);
+  this->InterpolateTuple(t, result.data());
+  return result;
 }
 
 //------------------------------------------------------------------------------

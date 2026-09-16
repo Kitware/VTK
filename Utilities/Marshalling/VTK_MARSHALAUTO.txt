@@ -613,6 +613,7 @@ Rendering/Core/vtkTextPropertyCollection.h
 Rendering/Core/vtkTexturedActor2D.h
 Rendering/Core/vtkTransformCoordinateSystems.h
 Rendering/Core/vtkTranslucentPass.h
+Rendering/Core/vtkTupleInterpolator.h
 Rendering/Core/vtkViewport.h
 Rendering/Core/vtkVisibilitySort.h
 Rendering/Core/vtkVolume.h
