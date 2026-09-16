@@ -207,4 +207,40 @@ interpolator.InterpolateTransform(13.2,xform)
 cubeActor.SetUserMatrix(xform.GetMatrix())
 renWin.Render()
 #animate()
+
+# Exercise the Get/SetTimedTransforms round-trip (used by (de)serialization)
+# and verify that a transform interpolator reconstructed purely from the flat
+# array interpolates identically to the original.
+timedTransforms = interpolator.GetTimedTransforms()
+expectedLength = interpolator.GetNumberOfTransforms() * 11
+if len(timedTransforms) != expectedLength:
+    raise RuntimeError(
+        f"GetTimedTransforms() returned {len(timedTransforms)} values, expected {expectedLength}")
+
+roundTripInterpolator = vtkTransformInterpolator()
+roundTripInterpolator.SetInterpolationTypeToSpline()
+roundTripInterpolator.SetTimedTransforms(timedTransforms)
+
+if roundTripInterpolator.GetNumberOfTransforms() != interpolator.GetNumberOfTransforms():
+    raise RuntimeError("SetTimedTransforms() did not restore the expected number of transforms")
+
+testXform1 = vtkTransform()
+testXform2 = vtkTransform()
+tmin = interpolator.GetMinimumT()
+tmax = interpolator.GetMaximumT()
+numSteps = 10
+for i in range(numSteps + 1):
+    t = tmin + (tmax - tmin) * i / float(numSteps)
+    interpolator.InterpolateTransform(t, testXform1)
+    roundTripInterpolator.InterpolateTransform(t, testXform2)
+    m1 = testXform1.GetMatrix()
+    m2 = testXform2.GetMatrix()
+    for row in range(4):
+        for col in range(4):
+            a = m1.GetElement(row, col)
+            b = m2.GetElement(row, col)
+            if abs(a - b) > 1e-6:
+                raise RuntimeError(
+                    f"Round-tripped vtkTransformInterpolator diverges at {t=}, element({row},{col}): {a} vs {b}")
+
 # --- end of script --
