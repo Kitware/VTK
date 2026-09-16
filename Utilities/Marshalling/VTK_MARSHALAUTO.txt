@@ -607,11 +607,13 @@ Rendering/Core/vtkSelectVisiblePoints.h
 Rendering/Core/vtkSequencePass.h
 Rendering/Core/vtkSkybox.h
 Rendering/Core/vtkStereoCompositor.h
+Rendering/Core/vtkStringToImage.h
 Rendering/Core/vtkTextActor.h
 Rendering/Core/vtkTextActor3D.h
 Rendering/Core/vtkTextMapper.h
 Rendering/Core/vtkTextProperty.h
 Rendering/Core/vtkTextPropertyCollection.h
+Rendering/Core/vtkTextRenderer.h
 Rendering/Core/vtkTexturedActor2D.h
 Rendering/Core/vtkTransformCoordinateSystems.h
 Rendering/Core/vtkTransformInterpolator.h
@@ -626,6 +628,10 @@ Rendering/Core/vtkVolumetricPass.h
 Rendering/Core/vtkWindowLevelLookupTable.h
 Rendering/Core/vtkWindowToImageFilter.h
 Rendering/Core/vtkWorldPointPicker.h
+Rendering/FreeType/vtkFreeTypeStringToImage.h
+Rendering/FreeType/vtkMathTextFreeTypeTextRenderer.h
+Rendering/FreeType/vtkTextRendererStringToImage.h
+Rendering/FreeType/vtkVectorText.h
 Rendering/GridAxes/vtkGridAxesActor2D.h
 Rendering/GridAxes/vtkGridAxesActor3D.h
 Rendering/Image/vtkDepthImageToPointCloud.h

@@ -719,14 +719,14 @@ Rendering/Core/vtkRendererDelegate.h
 Rendering/Core/vtkRenderingCoreEnums.h
 Rendering/Core/vtkRenderingCorePCH.h
 Rendering/Core/vtkStateStorage.h
-Rendering/Core/vtkStringToImage.h
 Rendering/Core/vtkTDxInteractorStyle.h
 Rendering/Core/vtkTDxInteractorStyleCamera.h
 Rendering/Core/vtkTDxInteractorStyleSettings.h
 Rendering/Core/vtkTDxMotionEventInfo.h
-Rendering/Core/vtkTextRenderer.h
 Rendering/Core/vtkUniforms.h
 Rendering/Core/vtkViewDependentErrorMetric.h
+Rendering/FreeType/vtkFreeTypeTools.h
+Rendering/FreeType/vtkMathTextUtilities.h
 Rendering/GridAxes/vtkGridAxesHelper.h
 Rendering/GridAxes/vtkGridAxesPlaneActor2D.h
 Rendering/LICOpenGL2/vtkBatchedSurfaceLICMapper.h

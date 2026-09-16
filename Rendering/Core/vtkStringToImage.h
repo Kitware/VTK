@@ -16,13 +16,14 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkVector.h"              // For vtkVector2i
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkStdString;
 class vtkTextProperty;
 class vtkImageData;
 
-class VTKRENDERINGCORE_EXPORT vtkStringToImage : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkStringToImage : public vtkObject
 {
 public:
   vtkTypeMacro(vtkStringToImage, vtkObject);

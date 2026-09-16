@@ -12,9 +12,11 @@
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkStringToImage.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGFREETYPE_EXPORT vtkTextRendererStringToImage : public vtkStringToImage
+class VTKRENDERINGFREETYPE_EXPORT VTK_MARSHALAUTO vtkTextRendererStringToImage
+  : public vtkStringToImage
 {
 public:
   vtkTypeMacro(vtkTextRendererStringToImage, vtkStringToImage);
