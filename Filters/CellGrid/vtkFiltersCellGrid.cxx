@@ -58,7 +58,7 @@ void registerCalculatorResponder(vtkCellGridResponders* responders, ResponderTyp
   // All the DG cells support constant and HGRAD function spaces:
   responders->RegisterCalculator<vtkDGCell, CalcType>(instance,
     { { { "function-space"_token, { "constant"_token, "HGRAD"_token } },
-      { "basis"_token, { "I"_token, "C"_token } } } });
+      { "basis"_token, { "I"_token, "C"_token, "G"_token } } } });
   // Only DeRham cells support HCURL and HGRAD function spaces:
   responders->RegisterCalculator<vtkDeRhamCell, CalcType>(instance,
     { { { "function-space"_token, { "HCURL"_token, "HDIV"_token } },
@@ -98,6 +98,7 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     vtkStringToken basisI = "I";
     vtkStringToken basisC = "C";
     vtkStringToken basisF = "F";
+    vtkStringToken basisG = "G";
     vtkStringToken fsGrad = "HGRAD";
     vtkStringToken fsCurl = "HCURL";
     vtkStringToken fsDiv = "HDIV";
@@ -110,6 +111,7 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     (void)basisI;
     (void)basisC;
     (void)basisF;
+    (void)basisG;
     (void)fsGrad;
     (void)fsCurl;
     (void)fsDiv;

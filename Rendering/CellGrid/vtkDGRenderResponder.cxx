@@ -23,6 +23,7 @@
 #include "vtkOpenGLRenderPass.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
@@ -241,6 +242,13 @@ bool vtkDGRenderResponder::CacheEntry::IsUpToDate(vtkRenderer* renderer, vtkActo
 void vtkDGRenderResponder::CacheEntry::PrepareHelper(
   vtkRenderer* renderer, vtkActor* actor, vtkMapper* mapper) const
 {
+  // This forces the shader "#version" to the most modern version available from the OpenGL library.
+  // There does not seem to be a way to request "#version > xy".
+  if (auto rw = dynamic_cast<vtkOpenGLRenderWindow*>(renderer->GetRenderWindow()))
+  {
+    rw->GetShaderCache()->SyncGLSLShaderVersionOn();
+  }
+
   auto* cgMapper = vtkCellGridMapper::SafeDownCast(mapper);
   this->RenderHelper = std::unique_ptr<vtkDrawTexturedElements>(new vtkDrawTexturedElements);
   auto primType = vtkDGRenderResponder::PrimitiveFromShape(this->CellSource->SourceShape);
@@ -459,11 +467,14 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
   std::string shaderBasisSource = fmt::vformat(shaderBasisTemplate, store);
   auto shapeBasisOp = this->CellType->GetOperatorEntry("Basis", shapeTypeInfo);
   auto shapeGradientOp = this->CellType->GetOperatorEntry("BasisGradient", shapeTypeInfo);
-  shaderBasisSource += shapeBasisOp.GetShaderString("shapeBasisAt", "basis");
-  shaderBasisSource += shapeGradientOp.GetShaderString("shapeBasisGradientAt", "basisGradient");
+  shaderBasisSource +=
+    shapeBasisOp.GetShaderString("shapeBasisAt", "basis", shapeInfo->GetBasisOrder());
+  shaderBasisSource += shapeGradientOp.GetShaderString(
+    "shapeBasisGradientAt", "basisGradient", shapeInfo->GetBasisOrder());
   if (this->Color)
   {
-    shaderBasisSource += colorBasisOp.GetShaderString("colorBasisAt", "basis");
+    shaderBasisSource +=
+      colorBasisOp.GetShaderString("colorBasisAt", "basis", colorInfo->GetBasisOrder());
   }
   else
   {

@@ -87,6 +87,56 @@ int vtkMath::CeilLog2(vtkTypeUInt64 x)
   return y;
 }
 
+double vtkMath::JacobiPolynomial(int nn, double alpha, double beta, double xx)
+{
+  // Both of the implementations below are correct and within 1e-12 of one
+  // another over alpha, beta, xx in [-1,1]³, nn in [0,4].
+  // However, option 2 is ~3.3x faster.
+#if 0
+  // Option 1: Compute via the hypergeometric function.
+  double vv =
+    std::tgamma(alpha + nn + 1.) /
+    std::tgamma(alpha + beta + nn + 1.) /
+    static_cast<double>(vtkMath::Factorial(nn));
+  double ss = 0.;
+  for (int mm = 0; mm <= nn; ++mm)
+  {
+    double bb = static_cast<double>(vtkMath::Binomial(nn, mm)) *
+      std::tgamma(alpha + beta + mm + nn + 1.) /
+      std::tgamma(alpha + mm + 1.) *
+      std::pow((xx - 1.) / 2., mm);
+    ss += bb;
+  }
+  return ss * vv;
+#else
+  // Option 2: Compute using binomial expressions and powers of partitions of unity.
+  double vv = 0.;
+  for (int ss = 0; ss <= nn; ++ss)
+  {
+    double term = vtkMath::RealBinomial(nn + alpha, nn - ss) *
+      vtkMath::RealBinomial(nn + beta, ss) * std::pow(0.5 * (xx - 1), ss) *
+      std::pow(0.5 * (xx + 1), nn - ss);
+    vv += term;
+  }
+  return vv;
+#endif
+}
+
+double vtkMath::JacobiPolynomialDerivative(int nn, double alpha, double beta, double xx)
+{
+  assert(alpha >= -1.);
+  assert(beta >= -1.);
+  assert(nn >= 0);
+  double result;
+  if (nn == 0)
+  {
+    return 0.;
+  }
+  double tmp = JacobiPolynomial(nn - 1, alpha + 1, beta + 1, xx);
+  result = 0.5 * (nn + alpha + beta + 1.) * tmp;
+  return result;
+}
+
 //------------------------------------------------------------------------------
 // Generate pseudo-random numbers distributed according to the uniform
 // distribution between 0.0 and 1.0.
@@ -171,6 +221,20 @@ vtkTypeInt64 vtkMath::Binomial(int m, int n)
     r *= static_cast<double>(m - i + 1) / i;
   }
   return static_cast<vtkTypeInt64>(r);
+}
+
+//------------------------------------------------------------------------------
+// The extended binomial function that accepts its first parameter as real-valued.
+double vtkMath::RealBinomial(double mm, int nn)
+{
+  double vv = 1.;
+  double aa = mm;
+  double ff = nn;
+  for (int ii = 0; ii < nn; ++ii, ff -= 1, aa -= 1)
+  {
+    vv *= aa / ff;
+  }
+  return vv;
 }
 
 //------------------------------------------------------------------------------

@@ -110,7 +110,8 @@ for attId in cg.GetUnorderedCellAttributeIds():
     if cellAtt.GetName() == cellAttName:
         cname = vtkStringToken('field_conn')
         vname = vtkStringToken('field_vals')
-        ar.BindArrayToTexture(cname, conn, True) # Reshape to a 1-D array with 1 component per tuple.
+        if conn is not None:
+            ar.BindArrayToTexture(cname, conn, True) # Reshape to a 1-D array with 1 component per tuple.
         ar.BindArrayToTexture(vname, vals, True) # Always reshape since #comps can be > 4.
         ar.PrepareColormap(None)
         # Get the range of the field and, if invalid, reset to a valid default range centered around 0.

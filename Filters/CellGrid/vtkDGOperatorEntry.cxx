@@ -8,7 +8,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 std::string vtkDGOperatorEntry::GetShaderString(
-  const std::string& functionName, const std::string& parameterName) const
+  const std::string& functionName, const std::string& parameterName, int order) const
 {
   std::ostringstream wrapper;
   int parameterSize = this->NumberOfFunctions * this->OperatorSize;
@@ -19,6 +19,7 @@ std::string vtkDGOperatorEntry::GetShaderString(
           << "  RealT rr = param.x;\n"
           << "  RealT ss = param.y;\n"
           << "  RealT tt = param.z;\n"
+          << "  const int order = " << order << ";\n"
           << this->ShaderOp << "\n"
           << "}\n";
   return wrapper.str();

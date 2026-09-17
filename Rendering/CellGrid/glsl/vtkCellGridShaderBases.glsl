@@ -11,6 +11,53 @@ void shapeGradientAt(in vec3 param, in float coeff[{ShapeCoeffPerCell}], out vec
 
 #define RealT float
 
+/// Evaluate the extended binomial (mm choose nn) which allows mm to be a floating-point number.
+RealT binomial(in RealT mm, in int nn)
+{{
+  RealT vv = 1.;
+  RealT aa = mm;
+  RealT ff = nn;
+  for (int ii = 0; ii < nn; ++ii, ff -= 1, aa -= 1)
+  {{
+    vv *= aa / ff;
+  }}
+  return vv;
+}}
+
+#define power(x, y)                                                                                \
+  RealT((y <= 0.0) ? 1.0 : (((x < 0.0) && (mod(RealT(y), 2.) != 0.0)) ? -1.0 : 1.0) * pow(abs(x), y))
+
+/// Evaluate the Jacobi polynomial.
+///
+/// The Jacobi polynomials are a generalization of the Legendre, the Chebyshev,
+/// and the Gegenbauer polynomials. They form an orthogonal basis on [-1,1].
+RealT jacobi(in int order, in RealT alpha, in RealT beta, in RealT xx)
+{{
+  RealT vv = 0.;
+  for (int ss = 0; ss <= order; ++ss)
+  {{
+    RealT term =
+      binomial(order + alpha, order - ss) *
+      binomial(order + beta, ss ) *
+      power(0.5 * (xx - 1), ss) *
+      power(0.5 * (xx + 1), order - ss);
+    vv += term;
+  }}
+  return vv;
+}}
+
+RealT jacobi_dx(int nn, RealT alpha, RealT beta, RealT xx)
+{{
+  RealT result;
+  if (nn == 0)
+  {{
+    return 0.;
+  }}
+  RealT tmp = jacobi(nn - 1, alpha + 1, beta + 1, xx);
+  result = 0.5 * (nn + alpha + beta + 1.) * tmp;
+  return result;
+}}
+
 #ifdef SHAPE_pyramid
 int pyramid_axisPermutationForSide(in int side)
 {{
