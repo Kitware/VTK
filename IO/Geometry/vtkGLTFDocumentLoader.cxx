@@ -316,37 +316,32 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
    * ExecuteBufferDataExtractionWorker, forwarding template types and parameters.
    */
   template <typename ArrayType, typename vtkArrayDispatchType>
-  void DispatchWorkerExecutionByComponentType(
+  bool DispatchWorkerExecutionByComponentType(
     ArrayType* output, const Accessor& accessor, const BufferView& bufferView)
   {
     switch (accessor.ComponentTypeValue)
     {
       case ComponentType::BYTE:
-        this->ExecuteBufferDataExtractionWorker<char, ArrayType, vtkArrayDispatchType>(
+        return this->ExecuteBufferDataExtractionWorker<char, ArrayType, vtkArrayDispatchType>(
           output, accessor, bufferView);
-        break;
       case ComponentType::UNSIGNED_BYTE:
-        this->ExecuteBufferDataExtractionWorker<unsigned char, ArrayType, vtkArrayDispatchType>(
-          output, accessor, bufferView);
-        break;
+        return this
+          ->ExecuteBufferDataExtractionWorker<unsigned char, ArrayType, vtkArrayDispatchType>(
+            output, accessor, bufferView);
       case ComponentType::SHORT:
-        this->ExecuteBufferDataExtractionWorker<short, ArrayType, vtkArrayDispatchType>(
+        return this->ExecuteBufferDataExtractionWorker<short, ArrayType, vtkArrayDispatchType>(
           output, accessor, bufferView);
-        break;
       case ComponentType::UNSIGNED_SHORT:
-        this->ExecuteBufferDataExtractionWorker<uint16_t, ArrayType, vtkArrayDispatchType>(
+        return this->ExecuteBufferDataExtractionWorker<uint16_t, ArrayType, vtkArrayDispatchType>(
           output, accessor, bufferView);
-        break;
       case ComponentType::UNSIGNED_INT:
-        this->ExecuteBufferDataExtractionWorker<uint32_t, ArrayType, vtkArrayDispatchType>(
+        return this->ExecuteBufferDataExtractionWorker<uint32_t, ArrayType, vtkArrayDispatchType>(
           output, accessor, bufferView);
-        break;
       case ComponentType::FLOAT:
-        this->ExecuteBufferDataExtractionWorker<float, ArrayType, vtkArrayDispatchType>(
+        return this->ExecuteBufferDataExtractionWorker<float, ArrayType, vtkArrayDispatchType>(
           output, accessor, bufferView);
-        break;
       default:
-        return;
+        return false;
     }
   }
 
@@ -355,17 +350,17 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
    * forwarding template types and parameters.
    */
   template <typename ArrayType>
-  void DispatchWorkerExecution(
+  bool DispatchWorkerExecution(
     ArrayType* output, const Accessor& accessor, const BufferView& bufferView)
   {
     if (accessor.Normalized || accessor.ComponentTypeValue == ComponentType::FLOAT)
     {
-      this->DispatchWorkerExecutionByComponentType<ArrayType, vtkArrayDispatch::Reals>(
+      return this->DispatchWorkerExecutionByComponentType<ArrayType, vtkArrayDispatch::Reals>(
         output, accessor, bufferView);
     }
     else
     {
-      this->DispatchWorkerExecutionByComponentType<ArrayType, vtkArrayDispatch::Integrals>(
+      return this->DispatchWorkerExecutionByComponentType<ArrayType, vtkArrayDispatch::Integrals>(
         output, accessor, bufferView);
     }
   }
@@ -374,9 +369,15 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
    * Creates a new BufferDataExtractionWorker, initializes it and starts its execution
    */
   template <typename ComponentType, typename ArrayType, typename vtkArrayDispatchType>
-  void ExecuteBufferDataExtractionWorker(
+  bool ExecuteBufferDataExtractionWorker(
     ArrayType* output, const Accessor& accessor, const BufferView& bufferView)
   {
+    if (bufferView.Buffer < 0 || bufferView.Buffer >= static_cast<int>(this->Buffers->size()))
+    {
+      vtkErrorWithObjectMacro(nullptr, "Invalid buffer index:" << bufferView.Buffer);
+      return false;
+    }
+
     // Create worker
     BufferDataExtractionWorker<ComponentType> worker;
     // Set worker parameters
@@ -391,6 +392,7 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
 
     // Start worker execution
     vtkArrayDispatch::DispatchByValueType<vtkArrayDispatchType>::Execute(output, worker);
+    return true;
   }
 
   void Setup(int accessorId, vtkGLTFDocumentLoader::AccessorType expectedType)
@@ -427,7 +429,11 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
 
       output->SetNumberOfComponents(GetNumberOfComponentsForType(this->ExpectedType));
 
-      DispatchWorkerExecution<ArrayType>(output, accessor, bufferView);
+      if (!DispatchWorkerExecution<ArrayType>(output, accessor, bufferView))
+      {
+        this->Result = false;
+        return;
+      }
     }
     else if (!accessor.IsSparse)
     {
@@ -459,7 +465,12 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
       mockIndicesAccessor.NumberOfComponents = 1;
       mockIndicesAccessor.ComponentTypeValue = sparse.IndicesComponentType;
 
-      DispatchWorkerExecution<vtkIntArray>(sparseIndices, mockIndicesAccessor, indicesBufferView);
+      if (!DispatchWorkerExecution<vtkIntArray>(
+            sparseIndices, mockIndicesAccessor, indicesBufferView))
+      {
+        this->Result = false;
+        return;
+      }
 
       // Load values
       vtkNew<ArrayType> sparseValues;
@@ -469,8 +480,12 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
       mockValuesAccessor.Count = sparse.Count;
       mockValuesAccessor.ByteOffset = sparse.ValuesByteOffset;
 
-      DispatchWorkerExecution<ArrayType>(
-        sparseValues.GetPointer(), mockValuesAccessor, valuesBufferView);
+      if (!DispatchWorkerExecution<ArrayType>(
+            sparseValues.GetPointer(), mockValuesAccessor, valuesBufferView))
+      {
+        this->Result = false;
+        return;
+      }
 
       // Replace values into original (non sparse) array
       for (int id = 0; id < sparseIndices->GetNumberOfValues(); id++)
