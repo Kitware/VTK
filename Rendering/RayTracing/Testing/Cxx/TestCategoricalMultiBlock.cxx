@@ -2,12 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // This test verifies that we can give each block its own material and
 // also override them easily.
-//
-// The command line arguments are:
-// -I        => run in interactive mode; unless this is used, the program will
-//              not allow interaction and exit
-//              In interactive mode it responds to the keys listed
-//              vtkOSPRayTestInteractor.h
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -23,6 +17,7 @@
 #include "vtkOSPRayRendererNode.h"
 #include "vtkOSPRayTestInteractor.h"
 #include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -161,7 +156,6 @@ int TestCategoricalMultiBlock(int argc, char* argv[])
   iren->CreateRepeatingTimer(10); // every 10 msec we'll rerender if needed
   iren->AddObserver(vtkCommand::TimerEvent, looper);
 
-  // todo: use standard vtk testing conventions
-  iren->Start();
-  return 0;
+  int result = vtkRegressionTestImage(renWin);
+  return result == vtkTesting::PASSED ? EXIT_SUCCESS : EXIT_FAILURE;
 }

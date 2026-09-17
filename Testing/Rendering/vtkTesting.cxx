@@ -406,14 +406,7 @@ int vtkTesting::RegressionTest(double thresh, ostream& os)
       rtW2if->SetInputBufferTypeToRGBA();
       break;
   }
-
-  for (unsigned int i = 0; i < this->Args.size(); ++i)
-  {
-    if ("-NoRerender" == this->Args[i])
-    {
-      rtW2if->ShouldRerenderOff();
-    }
-  }
+  rtW2if->ShouldRerenderOff();
 
   std::ostringstream out1;
   // perform and extra render to make sure it is displayed
@@ -1199,6 +1192,9 @@ int vtkTesting::SerDesTest(double thresh)
 
   desManager->UpdateObjectsFromStates();
   this->SetRenderWindow(vtkRenderWindow::SafeDownCast(desManager->GetObjectAtId(rwId)));
+  // Render should be called after serialization,
+  // it may not have when skipping the regular regression test
+  this->RenderWindow->Render();
   int res = this->RegressionTest(thresh, std::cout);
 
   // Dump JSON states and blobs when the serdes test fails
