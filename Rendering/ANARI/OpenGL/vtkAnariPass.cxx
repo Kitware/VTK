@@ -107,9 +107,7 @@ void vtkAnariPass::RenderAnariFrame(vtkRenderer* renderer, const vtkFrameInforma
 
   if (renderer)
   {
-    const bool rebuildSceneGraph =
-      !this->SceneGraph || this->SceneGraph->GetDevice()->GetHandle() != anariDevice->GetHandle();
-    if (rebuildSceneGraph)
+    if (!this->SceneGraph)
     {
       vtkAnariSceneGraph* sceneGraph =
         vtkAnariSceneGraph::SafeDownCast(this->Factory->CreateNode(renderer));
