@@ -8,6 +8,7 @@
 #include "vtkCellGridCopyQuery.h"
 #include "vtkCellGridElevationQuery.h"
 #include "vtkCellGridEvaluator.h"
+#include "vtkCellGridFindCriticalPoints.h"
 #include "vtkCellGridRangeQuery.h"
 #include "vtkCellGridSidesQuery.h"
 #include "vtkCellGridSummaryInformationQuery.h"
@@ -23,6 +24,7 @@
 #include "vtkDGEdge.h"
 #include "vtkDGElevationResponder.h"
 #include "vtkDGEvaluator.h"
+#include "vtkDGFindCriticalPointsResponder.h"
 #include "vtkDGHex.h"
 #include "vtkDGInterpolateCalculator.h"
 #include "vtkDGLagrangePoints.h"
@@ -142,6 +144,7 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     vtkNew<vtkDGChangeBasisResponder> dgChb;
     vtkNew<vtkDGCopyResponder> dgCpy;
     vtkNew<vtkDGEvaluator> dgEva;
+    vtkNew<vtkDGFindCriticalPointsResponder> dgFcp;
     vtkNew<vtkDGRangeResponder> dgRng;
     vtkNew<vtkDGSummaryInformationResponder> dgSum;
     vtkNew<vtkDGSidesResponder> dgSds;
@@ -162,6 +165,8 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
       dgChb.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridCopyQuery>(dgCpy.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridElevationQuery>(dgElv.GetPointer());
+    responders->RegisterQueryResponder<vtkDGCell, vtkCellGridFindCriticalPoints::Query>(
+      dgFcp.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridCellCenters::Query>(
       dgCtr.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridCellSource::Query>(dgSrc.GetPointer());

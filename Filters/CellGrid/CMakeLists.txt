@@ -8,6 +8,7 @@ set(classes
   vtkCellGridChangeBasis
   vtkCellGridComputeSides
   vtkCellGridElevation
+  vtkCellGridFindCriticalPoints
   vtkCellGridPointProbe
   vtkCellGridTransform
   vtkUnstructuredGridToCellGrid
@@ -25,6 +26,7 @@ set(classes
   vtkDGChangeBasisResponder
   vtkDGCopyResponder
   vtkDGElevationResponder
+  vtkDGFindCriticalPointsResponder
   vtkDGEvaluator
   vtkDGRangeResponder
   vtkDGSummaryInformationResponder
