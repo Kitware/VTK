@@ -24,9 +24,10 @@
 #include "vtkCameraManipulator.h"
 
 #include "vtkInteractionStyleModule.h" // needed for export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKINTERACTIONSTYLE_EXPORT vtkTableTopRotate : public vtkCameraManipulator
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkTableTopRotate : public vtkCameraManipulator
 {
 public:
   static vtkTableTopRotate* New();

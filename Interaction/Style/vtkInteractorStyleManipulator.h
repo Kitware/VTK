@@ -21,11 +21,13 @@
 #include "vtkInteractorStyle.h"
 
 #include "vtkInteractionStyleModule.h" // needed for export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
 class vtkCameraManipulator;
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleManipulator : public vtkInteractorStyle
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleManipulator
+  : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleManipulator* New();

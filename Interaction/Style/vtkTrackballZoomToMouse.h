@@ -14,9 +14,10 @@
 #include "vtkTrackballZoom.h"
 
 #include "vtkInteractionStyleModule.h" // needed for export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKINTERACTIONSTYLE_EXPORT vtkTrackballZoomToMouse : public vtkTrackballZoom
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkTrackballZoomToMouse : public vtkTrackballZoom
 {
 public:
   static vtkTrackballZoomToMouse* New();

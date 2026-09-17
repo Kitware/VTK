@@ -17,11 +17,12 @@
 #include "vtkCameraManipulator.h"
 
 #include "vtkInteractionStyleModule.h" // needed for export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 #include <memory> // for std::unique_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKINTERACTIONSTYLE_EXPORT vtkTrackballPan : public vtkCameraManipulator
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkTrackballPan : public vtkCameraManipulator
 {
 public:
   static vtkTrackballPan* New();
