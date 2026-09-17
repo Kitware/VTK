@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef Filters_CellGrid_vtkDGHCurlOperators_h
-#define Filters_CellGrid_vtkDGHCurlOperators_h
+#ifndef vtkDGHCurlOperators_h
+#define vtkDGHCurlOperators_h
 
 #include "vtkFiltersCellGridModule.h" // For export macro.
 
@@ -22,4 +22,4 @@ VTK_ABI_NAMESPACE_END
 } // namespace basis
 } // namespace vtk
 
-#endif // Filters_CellGrid_vtkDGHCurlOperators_h
+#endif // vtkDGHCurlOperators_h

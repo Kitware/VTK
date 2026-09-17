@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef Filters_CellGrid_vtkDGBezierOperators_h
-#define Filters_CellGrid_vtkDGBezierOperators_h
+#ifndef vtkDGBezierOperators_h
+#define vtkDGBezierOperators_h
 
 #include "vtkCellAttribute.h" // For CellTypeInfo.
 #include "vtkDGOperatorEntry.h"
@@ -34,4 +34,4 @@ VTK_ABI_NAMESPACE_END
 } // namespace basis
 } // namespace vtk
 
-#endif // Filters_CellGrid_vtkDGBezierOperators_h
+#endif // vtkDGBezierOperators_h

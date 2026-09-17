@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef Filters_CellGrid_vtkDGHGradOperators_h
-#define Filters_CellGrid_vtkDGHGradOperators_h
+#ifndef vtkDGHGradOperators_h
+#define vtkDGHGradOperators_h
 
 #include "vtkCellAttribute.h" // For CellTypeInfo.
 #include "vtkDGCell.h"        // For shape enum.
@@ -50,4 +50,4 @@ VTK_ABI_NAMESPACE_END
 } // namespace basis
 } // namespace vtk
 
-#endif // Filters_CellGrid_vtkDGHGradOperators_h
+#endif // vtkDGHGradOperators_h

@@ -58,6 +58,7 @@ set(classes
 
   # Numerics and low-level classes
   vtkDGBezierOperators
+  vtkDGBezierFindCriticalPoints
   vtkDGConstantOperators
   vtkDGHGradOperators
   vtkDGHCurlOperators
