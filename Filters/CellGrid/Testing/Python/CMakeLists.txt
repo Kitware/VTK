@@ -6,6 +6,7 @@ vtk_add_test_python(
   TestCellGridTransform.py,NO_RT
   TestGroupDataSetsFilterCellGrid.py,NO_RT
   TestCopyCellGrid.py,NO_RT
+  TestQuadraticHexToCellGrid.py,NO_RT
   TestUnstructuredGridToCellGrid.py,NO_RT
   TestCellGridPointProbe.py,NO_RT
 )

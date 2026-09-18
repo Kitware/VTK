@@ -16,8 +16,10 @@
 #include <cmath>
 #include <cstdlib>
 #include <iomanip>
+#include <map>
 #include <sstream>
 #include <type_traits>
+#include <vector>
 
 #include <iostream>
 
@@ -35,40 +37,41 @@ namespace
 constexpr char iossCurlPrefix[] = "EDGE_COEFF_";
 constexpr char iossDivPrefix[] = "FACE_COEFF_";
 
-vtkDGCell::Shape dgCellShapeFromVTKShape(int vtkCellType)
+// Describes how one VTK cell type is transcribed into a vtkDGCell: the DG shape
+// that claims it; the basis ("C" = complete, "I" = incomplete/serendipity) and
+// order of the shape attribute; the connectivity width; and a permutation taking
+// DG node order to VTK node order (empty when the two orders coincide).
+struct TranscriptionSource
 {
-  auto result = vtkDGCell::Shape::None;
-  switch (vtkCellType)
-  {
-    case VTK_VERTEX:
-      result = vtkDGCell::Shape::Vertex;
-      break;
-    case VTK_LINE:
-      result = vtkDGCell::Shape::Edge;
-      break;
-    case VTK_TRIANGLE:
-      result = vtkDGCell::Shape::Triangle;
-      break;
-    case VTK_QUAD:
-      result = vtkDGCell::Shape::Quadrilateral;
-      break;
-    case VTK_TETRA:
-      result = vtkDGCell::Shape::Tetrahedron;
-      break;
-    case VTK_HEXAHEDRON:
-      result = vtkDGCell::Shape::Hexahedron;
-      break;
-    case VTK_WEDGE:
-      result = vtkDGCell::Shape::Wedge;
-      break;
-    case VTK_PYRAMID:
-      result = vtkDGCell::Shape::Pyramid;
-      break;
-    // TODO: Handle quadratic and higher-order cells.
-    default:
-      break;
-  }
-  return result;
+  vtkDGCell::Shape Shape{ vtkDGCell::Shape::None };
+  vtkStringToken Basis{ "C"_token };
+  int Order{ 1 };
+  int NumberOfNodes{ 0 };
+  std::vector<int> NodePermutation; // DG slot ii takes VTK slot NodePermutation[ii].
+};
+
+const TranscriptionSource* transcriptionSourceForVTKCellType(int vtkCellType)
+{
+  // The VTK_QUADRATIC_HEXAHEDRON permutation reorders mid-edge nodes from VTK's
+  // (bottom, top, vertical) edge order to the (bottom, vertical, top) order of
+  // the HexI2 basis (see Basis/HGrad/HexI2Basis.h), which follows the
+  // Exodus/IOSS HEX20 convention.
+  static const std::map<int, TranscriptionSource> vtkCellTypeMap = {
+    { VTK_VERTEX, { vtkDGCell::Shape::Vertex, "C"_token, 1, 1, {} } },
+    { VTK_LINE, { vtkDGCell::Shape::Edge, "C"_token, 1, 2, {} } },
+    { VTK_TRIANGLE, { vtkDGCell::Shape::Triangle, "C"_token, 1, 3, {} } },
+    { VTK_QUAD, { vtkDGCell::Shape::Quadrilateral, "C"_token, 1, 4, {} } },
+    { VTK_TETRA, { vtkDGCell::Shape::Tetrahedron, "C"_token, 1, 4, {} } },
+    { VTK_HEXAHEDRON, { vtkDGCell::Shape::Hexahedron, "C"_token, 1, 8, {} } },
+    { VTK_WEDGE, { vtkDGCell::Shape::Wedge, "C"_token, 1, 6, {} } },
+    { VTK_PYRAMID, { vtkDGCell::Shape::Pyramid, "C"_token, 1, 5, {} } },
+    // TODO: Add descriptors for the remaining quadratic and higher-order cells.
+    { VTK_QUADRATIC_HEXAHEDRON,
+      { vtkDGCell::Shape::Hexahedron, "I"_token, 2, 20,
+        { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19, 12, 13, 14, 15 } } },
+  };
+  auto it = vtkCellTypeMap.find(vtkCellType);
+  return it == vtkCellTypeMap.end() ? nullptr : &it->second;
 }
 
 bool findArrays(vtkStringToken fieldName, vtkDataSetAttributes* cellData,
@@ -425,8 +428,8 @@ bool vtkDGTranscribeUnstructuredCells::ClaimMatchingCells(
 #endif
     if (entry.second.CellTypePriority <= 0)
     {
-      auto matchingCellType = dgCellShapeFromVTKShape(entry.first);
-      if (cellType->GetShape() == matchingCellType)
+      const auto* source = ::transcriptionSourceForVTKCellType(entry.first);
+      if (source && cellType->GetShape() == source->Shape)
       {
         vtkStringToken typeToken = cellType->GetClassName();
         entry.second.CellType = typeToken;
@@ -446,13 +449,6 @@ bool vtkDGTranscribeUnstructuredCells::TranscribeMatchingCells(
     vtkLogF(TRACE, "  Skipping %s; no allocations.", typeToken.Data().c_str());
     return true; // No cells to transcribe.
   }
-  vtkNew<vtkTypeInt64Array> conn;
-  int nn = cellType->GetNumberOfCorners();
-  conn->SetNumberOfComponents(nn);
-  conn->ReserveTuples(it->second);
-  conn->SetName("conn");
-  std::vector<vtkTypeInt64> element;
-  element.resize(nn);
   // Create a set of all the cell types we are mapping to the cellType type.
   std::set<int> cellTypesToTranscribe;
   for (auto& entry : query->CellTypeMap)
@@ -462,6 +458,50 @@ bool vtkDGTranscribeUnstructuredCells::TranscribeMatchingCells(
       cellTypesToTranscribe.insert(entry.first);
     }
   }
+  // Resolve the basis, order, and connectivity width shared by every claimed
+  // input cell type. When claimed types disagree (e.g. linear and quadratic
+  // hexahedra in one partition), fall back to a linear (order-1) transcription
+  // that keeps only corner nodes, since each vtkDGCell holds a single
+  // fixed-width connectivity array.
+  vtkStringToken basis = "C"_token;
+  int order = 1;
+  int nn = cellType->GetNumberOfCorners();
+  bool mixedOrders = false;
+  bool firstSource = true;
+  for (int inputCellType : cellTypesToTranscribe)
+  {
+    const auto* source = ::transcriptionSourceForVTKCellType(inputCellType);
+    if (!source)
+    {
+      continue;
+    }
+    if (firstSource)
+    {
+      basis = source->Basis;
+      order = source->Order;
+      nn = source->NumberOfNodes;
+      firstSource = false;
+    }
+    else if (basis != source->Basis || order != source->Order)
+    {
+      mixedOrders = true;
+    }
+  }
+  if (mixedOrders)
+  {
+    vtkWarningMacro("Input has cells of mixed polynomial order mapped to "
+      << typeToken.Data() << "; transcribing all of them at order 1. "
+      << "Higher-order nodes will be ignored.");
+    basis = "C"_token;
+    order = 1;
+    nn = cellType->GetNumberOfCorners();
+  }
+  vtkNew<vtkTypeInt64Array> conn;
+  conn->SetNumberOfComponents(nn);
+  conn->ReserveTuples(it->second);
+  conn->SetName("conn");
+  std::vector<vtkTypeInt64> element;
+  element.resize(nn);
   // Iterate the input data and transcribe every cell of a proper type.
   auto cit = vtk::TakeSmartPointer(query->Input->NewCellIterator());
   for (cit->InitTraversal(); !cit->IsDoneWithTraversal(); cit->GoToNextCell())
@@ -470,19 +510,23 @@ bool vtkDGTranscribeUnstructuredCells::TranscribeMatchingCells(
     {
       continue; // Skip this cell
     }
-    // Transcribe the cell.
+    // Transcribe the cell, permuting nodes into the DG basis order when the
+    // input cell type prescribes a permutation. When falling back to order 1,
+    // copying the first \a nn point IDs is correct because every supported
+    // input type lists the corner nodes first, in the same order.
     auto* pointIds = cit->GetPointIds();
-    int ii = 0;
-    for (const auto& pointId : *pointIds)
+    const std::vector<int>* perm = nullptr;
+    if (order > 1)
     {
-      if (ii < nn)
+      const auto* source = ::transcriptionSourceForVTKCellType(cit->GetCellType());
+      if (source && !source->NodePermutation.empty())
       {
-        element[ii++] = static_cast<vtkTypeInt64>(pointId);
+        perm = &source->NodePermutation;
       }
-      else
-      {
-        break;
-      }
+    }
+    for (int ii = 0; ii < nn; ++ii)
+    {
+      element[ii] = static_cast<vtkTypeInt64>(pointIds->GetId(perm ? (*perm)[ii] : ii));
     }
     conn->InsertNextTypedTuple(element.data());
   }
@@ -547,9 +591,8 @@ bool vtkDGTranscribeUnstructuredCells::TranscribeMatchingCells(
     vtkCellAttribute::CellTypeInfo cellTypeInfo;
     cellTypeInfo.DOFSharing = "CG"_token;
     cellTypeInfo.FunctionSpace = "HGRAD"_token;
-    cellTypeInfo.Basis = "C"_token;
-    cellTypeInfo.Order =
-      1; // TODO: FIXME: Determine proper order based on cell connectivity and shape?
+    cellTypeInfo.Basis = basis;
+    cellTypeInfo.Order = order;
     cellTypeInfo.ArraysByRole["values"] = coords;
     cellTypeInfo.ArraysByRole["connectivity"] = conn;
     shape->SetCellTypeInfo(typeToken, cellTypeInfo);
@@ -564,7 +607,7 @@ bool vtkDGTranscribeUnstructuredCells::TranscribeMatchingCells(
   // First, spelunk the input's field data for IOSS annotations
   // indicating some arrays have unusual function spaces.
   this->AddCellAttributes(query, cellType);
-  this->AddPointAttributes(query, cellType);
+  this->AddPointAttributes(query, cellType, basis, order);
   return true;
 }
 
@@ -771,7 +814,8 @@ void vtkDGTranscribeUnstructuredCells::AddCellAttributes(TranscribeQuery* query,
   }
 }
 
-void vtkDGTranscribeUnstructuredCells::AddPointAttributes(TranscribeQuery* query, vtkDGCell* dgCell)
+void vtkDGTranscribeUnstructuredCells::AddPointAttributes(
+  TranscribeQuery* query, vtkDGCell* dgCell, vtkStringToken basis, int order)
 {
   using BlockAttributesKey = vtkUnstructuredGridToCellGrid::TranscribeQuery::BlockAttributesKey;
   using BlockAttributesValue = vtkUnstructuredGridToCellGrid::TranscribeQuery::BlockAttributesValue;
@@ -783,7 +827,8 @@ void vtkDGTranscribeUnstructuredCells::AddPointAttributes(TranscribeQuery* query
     return;
   }
 
-  // I. Use point-data arrays as CG HGRAD C1 cell-attributes.
+  // I. Use point-data arrays as CG HGRAD cell-attributes matching the basis
+  //    and order of the shape attribute (they share its connectivity array).
   int nn = pointData->GetNumberOfArrays();
   for (int ii = 0; ii < nn; ++ii)
   {
@@ -799,7 +844,7 @@ void vtkDGTranscribeUnstructuredCells::AddPointAttributes(TranscribeQuery* query
     vtkStringToken dofSharing = "CG";
     vtkStringToken attributeSpace = vtkCellAttribute::EncodeSpace("ℝ", numberOfComponents);
     auto* attr = ::createOrAppendCellAttribute(query->Output, dgCell, arr->GetName(),
-      attributeSpace, numberOfComponents, dofSharing, "HGRAD"_token, "C"_token, 1, arr);
+      attributeSpace, numberOfComponents, dofSharing, "HGRAD"_token, basis, order, arr);
     (void)attr;
   }
 }

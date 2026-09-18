@@ -4,8 +4,16 @@
  * @class   vtkDGTranscribeUnstructuredCells
  * @brief   Transcribe unstructured-grid cells as vtkDGCell subclasses.
  *
- * This class currently only outputs linear geometry but can properly
- * model higher-order polynomial cell-attributes.
+ * This class transcribes the 8 linear VTK cell types plus
+ * VTK_QUADRATIC_HEXAHEDRON (as an order-2 serendipity hexahedron whose
+ * mid-edge nodes are permuted into the Exodus/IOSS HEX20 order used by the
+ * DG basis functions). Point-data arrays become continuous (CG) HGRAD
+ * cell-attributes of the same order as the shape attribute.
+ *
+ * When linear and higher-order cells of the same shape appear in one
+ * partition, all of them are transcribed at order 1 (corner nodes only)
+ * and a warning is emitted, since each vtkDGCell holds a single fixed-width
+ * connectivity array.
  */
 #ifndef vtkDGTranscribeUnstructuredCells_h
 #define vtkDGTranscribeUnstructuredCells_h
@@ -39,7 +47,8 @@ protected:
   ~vtkDGTranscribeUnstructuredCells() override = default;
 
   void AddCellAttributes(TranscribeQuery* query, vtkDGCell* dgCell);
-  void AddPointAttributes(TranscribeQuery* query, vtkDGCell* dgCell);
+  void AddPointAttributes(
+    TranscribeQuery* query, vtkDGCell* dgCell, vtkStringToken basis, int order);
 
 private:
   vtkDGTranscribeUnstructuredCells(const vtkDGTranscribeUnstructuredCells&) = delete;
