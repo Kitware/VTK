@@ -4724,8 +4724,11 @@ VTK_MODULE_AUTOINIT(${_vtk_add_module_library_name})
   endif ()
 
   if (_vtk_build_ENABLE_SERIALIZATION AND _vtk_add_module_include_marshal)
+    # A module exposing a C API (e.g. `vtkXMLWriterC.h`) has this header
+    # included from C translation units, which cannot parse the registrar.
     string(APPEND _vtk_add_module_module_content
       "
+#ifdef __cplusplus
 VTK_ABI_NAMESPACE_BEGIN
 ${_vtk_add_module_EXPORT_MACRO_PREFIX}_EXPORT void AddRegistrar_${_vtk_add_module_library_name}();
 VTK_ABI_NAMESPACE_END
@@ -4739,6 +4742,7 @@ namespace
     }
   } ${_vtk_add_module_library_name}_SerDesRegistrar_Instance;
 }
+#endif
 ")
   endif ()
 
