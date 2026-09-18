@@ -40,6 +40,7 @@ vtk_add_test_python(
   TestStridedArrayPython.py
   TestIndexedArrayPython.py
   TestCompositeArrayPython.py
+  TestPartitionedArrayPython.py
   TestStructuredPointArrayPython.py
   TestSOAMemorySafety.py
   TestSetBuffer.py
