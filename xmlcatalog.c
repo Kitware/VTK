@@ -3,8 +3,10 @@
  *
  * See Copyright for the status of this software.
  *
- * daniel@veillard.com
+ * Author: Daniel Veillard
  */
+
+#define XML_DEPRECATED
 
 #include "libxml.h"
 
@@ -38,19 +40,25 @@
 
 #if defined(LIBXML_CATALOG_ENABLED) && defined(LIBXML_OUTPUT_ENABLED)
 static int shell = 0;
+#ifdef LIBXML_SGML_CATALOG_ENABLED
 static int sgml = 0;
+#endif
 static int noout = 0;
 static int create = 0;
 static int add = 0;
 static int del = 0;
+#ifdef LIBXML_SGML_CATALOG_ENABLED
 static int convert = 0;
 static int no_super_update = 0;
+#endif
 static int verbose = 0;
 static char *filename = NULL;
 
 
+#ifdef LIBXML_SGML_CATALOG_ENABLED
 #ifndef XML_SGML_DEFAULT_CATALOG
 #define XML_SGML_DEFAULT_CATALOG XML_SYSCONFDIR "/sgml/catalog"
+#endif
 #endif
 
 /************************************************************************
@@ -59,12 +67,10 @@ static char *filename = NULL;
  *									*
  ************************************************************************/
 /**
- * xmlShellReadline:
- * @prompt:  the prompt value
- *
  * Read a string
  *
- * Returns a pointer to it or NULL on EOF the caller is expected to
+ * @param prompt  the prompt value
+ * @returns a pointer to it or NULL on EOF the caller is expected to
  *     free the returned string.
  */
 static char *
@@ -129,6 +135,12 @@ static void usershell(void) {
 	       (*cur != '\n') && (*cur != '\r')) {
 	    if (*cur == 0)
 		break;
+            /* Do not read beyond the command array capacity */
+            if (i >= (int)sizeof(command) - 2) {
+                printf("Invalid command %s\n", cur);
+                i = 0;
+                break;
+            }
 	    command[i++] = *cur++;
 	}
 	command[i] = 0;
@@ -146,6 +158,11 @@ static void usershell(void) {
 	while ((*cur != '\n') && (*cur != '\r') && (*cur != 0)) {
 	    if (*cur == 0)
 		break;
+            if (i >= (int)sizeof(arg) - 2) {
+                printf("Invalid arg %s\n", arg);
+                i = 0;
+                break;
+            }
 	    arg[i++] = *cur++;
 	}
 	arg[i] = 0;
@@ -158,6 +175,11 @@ static void usershell(void) {
 	cur = arg;
 	memset(argv, 0, sizeof(argv));
 	while (*cur != 0) {
+            if (i >= (int)sizeof(argv) / (int)sizeof(char*)) {
+                printf("Too much arguments\n");
+                break;
+            }
+
 	    while ((*cur == ' ') || (*cur == '\t')) cur++;
 	    if (*cur == '\'') {
 		cur++;
@@ -306,22 +328,26 @@ static void usershell(void) {
  ************************************************************************/
 static void usage(const char *name) {
     /* split into 2 printf's to avoid overly long string (gcc warning) */
-    printf("\
-Usage : %s [options] catalogfile entities...\n\
-\tParse the catalog file (void specification possibly expressed as \"\"\n\
-\tappoints the default system one) and query it for the entities\n\
-\t--sgml : handle SGML Super catalogs for --add and --del\n\
-\t--shell : run a shell allowing interactive queries\n\
-\t--create : create a new catalog\n\
-\t--add 'type' 'orig' 'replace' : add an XML entry\n\
-\t--add 'entry' : add an SGML entry\n", name);
-    printf("\
-\t--del 'values' : remove values\n\
-\t--noout: avoid dumping the result on stdout\n\
-\t         used with --add or --del, it saves the catalog changes\n\
-\t         and with --sgml it automatically updates the super catalog\n\
-\t--no-super-update: do not update the SGML super catalog\n\
-\t-v --verbose : provide debug information\n");
+    printf(
+"Usage : %s [options] catalogfile entities...\n"
+"\tParse the catalog file (void specification possibly expressed as \"\"\n"
+"\tappoints the default system one) and query it for the entities\n"
+#ifdef LIBXML_SGML_CATALOG_ENABLED
+"\t--sgml : handle SGML Super catalogs for --add and --del\n"
+#endif
+"\t--shell : run a shell allowing interactive queries\n"
+"\t--create : create a new catalog\n"
+"\t--add 'type' 'orig' 'replace' : add an XML entry\n"
+"\t--add 'entry' : add an SGML entry\n", name);
+    printf(
+"\t--del 'values' : remove values\n"
+"\t--noout: avoid dumping the result on stdout\n"
+"\t         used with --add or --del, it saves the catalog changes\n"
+"\t         and with --sgml it automatically updates the super catalog\n"
+#ifdef LIBXML_SGML_CATALOG_ENABLED
+"\t--no-super-update: do not update the SGML super catalog\n"
+#endif
+"\t-v --verbose : provide debug information\n");
 }
 int main(int argc, char **argv) {
     int i;
@@ -358,23 +384,29 @@ int main(int argc, char **argv) {
 	    (!strcmp(argv[i], "--shell"))) {
 	    shell++;
             noout = 1;
+#ifdef LIBXML_SGML_CATALOG_ENABLED
 	} else if ((!strcmp(argv[i], "-sgml")) ||
 	    (!strcmp(argv[i], "--sgml"))) {
 	    sgml++;
+#endif
 	} else if ((!strcmp(argv[i], "-create")) ||
 	    (!strcmp(argv[i], "--create"))) {
 	    create++;
+#ifdef LIBXML_SGML_CATALOG_ENABLED
 	} else if ((!strcmp(argv[i], "-convert")) ||
 	    (!strcmp(argv[i], "--convert"))) {
 	    convert++;
 	} else if ((!strcmp(argv[i], "-no-super-update")) ||
 	    (!strcmp(argv[i], "--no-super-update"))) {
 	    no_super_update++;
+#endif
 	} else if ((!strcmp(argv[i], "-add")) ||
 	    (!strcmp(argv[i], "--add"))) {
+#ifdef LIBXML_SGML_CATALOG_ENABLED
 	    if (sgml)
 		i += 2;
 	    else
+#endif
 		i += 3;
 	    add++;
 	} else if ((!strcmp(argv[i], "-del")) ||
@@ -386,14 +418,21 @@ int main(int argc, char **argv) {
 	    usage(argv[0]);
 	    return(1);
 	}
+	if (i > argc) {
+	    fprintf(stderr, "Missing arguments for option\n");
+	    usage(argv[0]);
+	    return(1);
+	}
     }
 
     for (i = 1; i < argc; i++) {
 	if ((!strcmp(argv[i], "-add")) ||
 	    (!strcmp(argv[i], "--add"))) {
+#ifdef LIBXML_SGML_CATALOG_ENABLED
 	    if (sgml)
 		i += 2;
 	    else
+#endif
 		i += 3;
 	    continue;
 	} else if ((!strcmp(argv[i], "-del")) ||
@@ -401,7 +440,11 @@ int main(int argc, char **argv) {
 	    i += 1;
 
 	    /* No catalog entry specified */
-	    if (i == argc || (sgml && i + 1 == argc)) {
+	    if (i == argc
+#ifdef LIBXML_SGML_CATALOG_ENABLED
+                || (sgml && i + 1 == argc)
+#endif
+                ) {
 		fprintf(stderr, "No catalog entry specified to remove from\n");
 		usage (argv[0]);
 		return(1);
@@ -432,8 +475,10 @@ int main(int argc, char **argv) {
 	break;
     }
 
+#ifdef LIBXML_SGML_CATALOG_ENABLED
     if (convert)
         ret = xmlCatalogConvert();
+#endif
 
     if ((add) || (del)) {
 	for (i = 1; i < argc ; i++) {
@@ -446,6 +491,7 @@ int main(int argc, char **argv) {
 		strcmp(argv[i], "-del") && strcmp(argv[i], "--del"))
 		continue;
 
+#ifdef LIBXML_SGML_CATALOG_ENABLED
 	    if (sgml) {
 		/*
 		 * Maintenance of SGML catalogs.
@@ -538,7 +584,9 @@ int main(int argc, char **argv) {
 
                 xmlFreeCatalog(catal);
                 xmlFreeCatalog(super);
-	    } else {
+	    } else
+#endif /* LIBXML_SGML_CATALOG_ENABLED */
+            {
 		if ((!strcmp(argv[i], "-add")) ||
 		    (!strcmp(argv[i], "--add"))) {
 			if ((argv[i + 3] == NULL) || (argv[i + 3][0] == 0))
@@ -603,7 +651,15 @@ int main(int argc, char **argv) {
 	    }
 	}
     }
-    if ((!sgml) && ((add) || (del) || (create) || (convert))) {
+    if (
+#ifdef LIBXML_SGML_CATALOG_ENABLED
+        (!sgml) &&
+#endif
+        ((add) || (del) || (create)
+#ifdef LIBXML_SGML_CATALOG_ENABLED
+         || (convert)
+#endif
+        )) {
 	if (noout && filename && *filename) {
 	    FILE *out;
 

@@ -3,7 +3,7 @@
  *
  * See Copyright for the status of this software.
  *
- * joelwreed@comcast.net
+ * Author: Joel W. Reed
  *
  * http://www.fortran-2000.com/ArnaudRecipes/sharedlib.html
  */
@@ -42,20 +42,21 @@ static int xmlModulePlatformSymbol(void *handle, const char *name, void **result
  ************************************************************************/
 
 /**
- * xmlModuleOpen:
- * @name: the module name
- * @options: a set of xmlModuleOption
- *
  * Opens a module/shared library given its name or path
+ *
+ * @deprecated Will be removed.
+ *
  * NOTE: that due to portability issues, behaviour can only be
- * guaranteed with @name using ASCII. We cannot guarantee that
+ * guaranteed with `name` using ASCII. We cannot guarantee that
  * an UTF-8 string would work, which is why name is a const char *
  * and not a const xmlChar * .
  * TODO: options are not yet implemented.
  *
- * Returns a handle for the module or NULL in case of error
+ * @param name  the module name
+ * @param options  a set of xmlModuleOption
+ * @returns a handle for the module or NULL in case of error
  */
-xmlModulePtr
+xmlModule *
 xmlModuleOpen(const char *name, int options ATTRIBUTE_UNUSED)
 {
     xmlModulePtr module;
@@ -78,21 +79,22 @@ xmlModuleOpen(const char *name, int options ATTRIBUTE_UNUSED)
 }
 
 /**
- * xmlModuleSymbol:
- * @module: the module
- * @name: the name of the symbol
- * @symbol: the resulting symbol address
- *
  * Lookup for a symbol address in the given module
+ *
+ * @deprecated Will be removed.
+ *
  * NOTE: that due to portability issues, behaviour can only be
- * guaranteed with @name using ASCII. We cannot guarantee that
+ * guaranteed with `name` using ASCII. We cannot guarantee that
  * an UTF-8 string would work, which is why name is a const char *
  * and not a const xmlChar * .
  *
- * Returns 0 if the symbol was found, or -1 in case of error
+ * @param module  the module
+ * @param name  the name of the symbol
+ * @param symbol  the resulting symbol address
+ * @returns 0 if the symbol was found, or -1 in case of error
  */
 int
-xmlModuleSymbol(xmlModulePtr module, const char *name, void **symbol)
+xmlModuleSymbol(xmlModule *module, const char *name, void **symbol)
 {
     int rc = -1;
 
@@ -108,17 +110,17 @@ xmlModuleSymbol(xmlModulePtr module, const char *name, void **symbol)
 }
 
 /**
- * xmlModuleClose:
- * @module: the module handle
- *
  * The close operations unload the associated module and free the
  * data associated to the module.
  *
- * Returns 0 in case of success, -1 in case of argument error and -2
+ * @deprecated Will be removed.
+ *
+ * @param module  the module handle
+ * @returns 0 in case of success, -1 in case of argument error and -2
  *         if the module could not be closed/unloaded.
  */
 int
-xmlModuleClose(xmlModulePtr module)
+xmlModuleClose(xmlModule *module)
 {
     int rc;
 
@@ -135,17 +137,17 @@ xmlModuleClose(xmlModulePtr module)
 }
 
 /**
- * xmlModuleFree:
- * @module: the module handle
- *
  * The free operations free the data associated to the module
  * but does not unload the associated shared library which may still
  * be in use.
  *
- * Returns 0 in case of success, -1 in case of argument error
+ * @deprecated Will be removed.
+ *
+ * @param module  the module handle
+ * @returns 0 in case of success, -1 in case of argument error
  */
 int
-xmlModuleFree(xmlModulePtr module)
+xmlModuleFree(xmlModule *module)
 {
     if (NULL == module)
         return -1;
@@ -164,10 +166,8 @@ xmlModuleFree(xmlModulePtr module)
 #endif
 
 /**
- * xmlModulePlatformOpen:
- * @name: path to the module
- *
- * returns a handle on success, and zero on error.
+ * @param name  path to the module
+ * @returns a handle on success, and zero on error.
  */
 
 static void *
@@ -177,10 +177,9 @@ xmlModulePlatformOpen(const char *name)
 }
 
 /*
- * xmlModulePlatformClose:
- * @handle: handle to the module
+ * @param handle  handle to the module
  *
- * returns 0 on success, and non-zero on error.
+ * @returns 0 on success, and non-zero on error.
  */
 
 static int
@@ -190,9 +189,9 @@ xmlModulePlatformClose(void *handle)
 }
 
 /*
- * xmlModulePlatformSymbol:
  * http://www.opengroup.org/onlinepubs/009695399/functions/dlsym.html
- * returns 0 on success and the loaded symbol in result, and -1 on error.
+ *
+ * @returns 0 on success and the loaded symbol in result, and -1 on error.
  */
 
 static int
@@ -210,8 +209,7 @@ xmlModulePlatformSymbol(void *handle, const char *name, void **symbol)
 #ifdef HAVE_SHLLOAD             /* HAVE_SHLLOAD */
 #include <dl.h>
 /*
- * xmlModulePlatformOpen:
- * returns a handle on success, and zero on error.
+ * @returns a handle on success, and zero on error.
  */
 
 static void *
@@ -221,8 +219,7 @@ xmlModulePlatformOpen(const char *name)
 }
 
 /*
- * xmlModulePlatformClose:
- * returns 0 on success, and non-zero on error.
+ * @returns 0 on success, and non-zero on error.
  */
 
 static int
@@ -232,9 +229,9 @@ xmlModulePlatformClose(void *handle)
 }
 
 /*
- * xmlModulePlatformSymbol:
  * http://docs.hp.com/en/B2355-90683/shl_load.3X.html
- * returns 0 on success and the loaded symbol in result, and -1 on error.
+ *
+ * @returns 0 on success and the loaded symbol in result, and -1 on error.
  */
 
 static int
@@ -256,8 +253,7 @@ xmlModulePlatformSymbol(void *handle, const char *name, void **symbol)
 #include <windows.h>
 
 /*
- * xmlModulePlatformOpen:
- * returns a handle on success, and zero on error.
+ * @returns a handle on success, and zero on error.
  */
 
 static void *
@@ -267,8 +263,7 @@ xmlModulePlatformOpen(const char *name)
 }
 
 /*
- * xmlModulePlatformClose:
- * returns 0 on success, and non-zero on error.
+ * @returns 0 on success, and non-zero on error.
  */
 
 static int
@@ -281,9 +276,9 @@ xmlModulePlatformClose(void *handle)
 }
 
 /*
- * xmlModulePlatformSymbol:
  * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dllproc/base/getprocaddress.asp
- * returns 0 on success and the loaded symbol in result, and -1 on error.
+ *
+ * @returns 0 on success and the loaded symbol in result, and -1 on error.
  */
 
 static int
