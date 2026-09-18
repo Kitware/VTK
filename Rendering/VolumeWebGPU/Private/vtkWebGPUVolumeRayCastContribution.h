@@ -148,6 +148,11 @@ struct vtkWebGPUVolumeRayCastContribution
   /// Bumped whenever any of the data above is rebuilt, so the coordinator can leave the layers
   /// and blocks it already uploaded alone.
   vtkMTimeType ContentTime = 0;
+  /// When the voxels themselves last changed. Only this invalidates resident bricks: a new transfer
+  /// function changes what the bricks mean, not what they hold.
+  vtkMTimeType BrickTime = 0;
+  /// When cells were last classified on their own, as bricks of a streamed volume arrive.
+  vtkMTimeType CellsTime = 0;
 };
 
 VTK_ABI_NAMESPACE_END

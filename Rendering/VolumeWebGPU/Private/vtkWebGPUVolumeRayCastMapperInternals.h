@@ -148,6 +148,10 @@ private:
     vtkMTimeType TransferFunctionTime = 0;
     /// Bumped whenever anything above is rebuilt.
     vtkTimeStamp ContentTime;
+    /// Bumped only when the voxels change, which is all that makes a resident brick stale.
+    vtkTimeStamp BrickTime;
+    /// Bumped when cells are classified piecemeal, without the rest of the input changing.
+    vtkTimeStamp CellsTime;
   };
 
   bool CollectInputs(vtkVolume* volume);

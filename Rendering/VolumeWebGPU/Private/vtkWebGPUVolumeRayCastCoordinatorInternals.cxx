@@ -661,7 +661,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateCells(vtkWebGPURende
     const auto& contribution = this->Contributions[index];
     const LayerState& layer = this->CellLayers[index];
     stale = layer.Mapper != contribution.Mapper || layer.Port != contribution.Port ||
-      layer.ContentTime != contribution.ContentTime;
+      layer.ContentTime != std::max(contribution.ContentTime, contribution.CellsTime);
   }
   if (!stale)
   {
@@ -682,7 +682,8 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateCells(vtkWebGPURende
       std::copy(contribution.CellClassification->begin(), contribution.CellClassification->end(),
         classification.begin() + 2 * this->CellOffsets[index]);
     }
-    this->CellLayers[index] = { contribution.Mapper, contribution.Port, contribution.ContentTime };
+    this->CellLayers[index] = { contribution.Mapper, contribution.Port,
+      std::max(contribution.ContentTime, contribution.CellsTime) };
   }
 
   auto configuration = window->GetWGPUConfiguration();
@@ -719,10 +720,10 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateResidency(
       continue;
     }
     auto& seen = this->BrickContent[contribution.BrickSource];
-    if (seen != contribution.ContentTime)
+    if (seen != contribution.BrickTime)
     {
       this->Pool.Forget(contribution.BrickSource);
-      seen = contribution.ContentTime;
+      seen = contribution.BrickTime;
     }
   }
 

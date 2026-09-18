@@ -450,6 +450,7 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
   // The cells were measured again, so their classification is stale.
   input.TransferFunctionTime = 0;
   input.ContentTime.Modified();
+  input.BrickTime.Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -1036,6 +1037,8 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::SyncDeviceResources(
     contribution.OpacityTable = &input.OpacityTable;
     contribution.GradientTable = &input.GradientTable;
     contribution.ContentTime = input.ContentTime.GetMTime();
+    contribution.BrickTime = input.BrickTime.GetMTime();
+    contribution.CellsTime = input.CellsTime.GetMTime();
 
     if (!coordinator->GetInternals()->Offer(contribution))
     {
