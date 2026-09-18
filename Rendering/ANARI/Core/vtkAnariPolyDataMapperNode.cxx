@@ -275,12 +275,6 @@ public:
   void SetAnariConfig(vtkAnariSceneGraph*);
 
   /**
-   * Sets inherit interface to something new and assigns ANARI state.
-   * If null, just assigns ANARI state to existing interface.
-   */
-  void SetInheritInterface(vtkAnariPolyDataMapperInheritInterface* inheritInterface = nullptr);
-
-  /**
    * Converts the given string to lowercase.
    */
   std::string StrToLower(std::string s);
@@ -306,7 +300,7 @@ public:
   void ResetIds();
 
   vtkAnariPolyDataMapperNode* Owner{ nullptr };
-  vtkAnariPolyDataMapperInheritInterface* InheritInterface{ nullptr };
+  std::shared_ptr<vtkAnariPolyDataMapperInheritInterface> InheritInterface = nullptr;
   vtkAnariSceneGraph* AnariRendererNode{ nullptr };
 
   std::vector<anari::Surface> Surfaces;
@@ -329,7 +323,6 @@ private:
 vtkAnariPolyDataMapperNodeInternals::vtkAnariPolyDataMapperNodeInternals(
   vtkAnariPolyDataMapperNode* owner)
   : Owner(owner)
-  , InheritInterface(new vtkAnariPolyDataMapperInheritInterface())
 {
 }
 
@@ -337,7 +330,6 @@ vtkAnariPolyDataMapperNodeInternals::vtkAnariPolyDataMapperNodeInternals(
 vtkAnariPolyDataMapperNodeInternals::~vtkAnariPolyDataMapperNodeInternals()
 {
   this->ClearSurfaces();
-  delete this->InheritInterface;
 }
 
 //----------------------------------------------------------------------------
@@ -1467,20 +1459,7 @@ void vtkAnariPolyDataMapperNodeInternals::SetAnariConfig(vtkAnariSceneGraph* ana
 {
   this->AnariRendererNode = anariRendererNode;
   this->AnariDevice = anariRendererNode->GetDevice();
-  this->SetInheritInterface();
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariPolyDataMapperNodeInternals::SetInheritInterface(
-  vtkAnariPolyDataMapperInheritInterface* inheritInterface)
-{
-  if (inheritInterface != nullptr)
-  {
-    delete this->InheritInterface;
-    this->InheritInterface = inheritInterface;
-  }
-
-  this->InheritInterface->SetDevice(this->AnariDevice);
+  // this->SetInheritInterface(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -3108,6 +3087,10 @@ void vtkAnariPolyDataMapperNode::Build(bool prepass)
   {
     this->Internal->SetAnariConfig(this->RendererNode);
   }
+  if (!this->InheritInterfaceInitialized())
+  {
+    this->CreateInheritInterface<vtkAnariPolyDataMapperInheritInterface>();
+  }
 
   auto* actor = GetVtkActor();
   if (!actor->HasObserver(vtkCommand::ModifiedEvent))
@@ -3242,10 +3225,17 @@ void vtkAnariPolyDataMapperNode::SetActorNodeName()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariPolyDataMapperNode::SetInheritInterface(
-  vtkAnariPolyDataMapperInheritInterface* inheritInterface)
+bool vtkAnariPolyDataMapperNode::InheritInterfaceInitialized() const
 {
-  this->Internal->SetInheritInterface(inheritInterface);
+  return this->Internal->InheritInterface != nullptr;
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariPolyDataMapperNode::SetInheritInterface(
+  std::shared_ptr<vtkAnariPolyDataMapperInheritInterface> inheritInterface)
+{
+  inheritInterface->SetDevice(this->Internal->AnariDevice);
+  this->Internal->InheritInterface = inheritInterface;
 }
 
 VTK_ABI_NAMESPACE_END

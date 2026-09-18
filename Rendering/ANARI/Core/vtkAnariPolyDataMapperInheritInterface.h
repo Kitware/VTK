@@ -90,6 +90,7 @@ public:
   virtual const char* GetCylindersPostfix() const;
   virtual const char* GetTrianglesPostfix() const;
 
+protected:
   vtkSmartPointer<vtkAnariDevice> AnariDevice;
 };
 

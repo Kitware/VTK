@@ -693,7 +693,6 @@ vtkStandardNewMacro(vtkAnariGlyph3DMapperNode);
 vtkAnariGlyph3DMapperNode::vtkAnariGlyph3DMapperNode()
 {
   this->Internal = new vtkAnariGlyph3DMapperNodeInternals(this);
-  this->SetInheritInterface(new vtkAnariGlyph3DMapperInheritInterface(this->Internal));
 }
 
 //----------------------------------------------------------------------------
@@ -718,6 +717,11 @@ vtkCompositeDataDisplayAttributes* vtkAnariGlyph3DMapperNode::GetCompositeDispla
 //----------------------------------------------------------------------------
 void vtkAnariGlyph3DMapperNode::Synchronize(bool prepass)
 {
+  if (!this->InheritInterfaceInitialized())
+  {
+    this->CreateInheritInterface<vtkAnariGlyph3DMapperInheritInterface>(this->Internal);
+  }
+
   this->Internal->UpdateGlyphs();
 
   this->Superclass::Synchronize(prepass);
