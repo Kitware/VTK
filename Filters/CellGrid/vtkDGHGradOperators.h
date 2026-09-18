@@ -34,6 +34,17 @@ bool VTKFILTERSCELLGRID_EXPORT RegisterOperators();
 bool VTKFILTERSCELLGRID_EXPORT FixedOrderLagrangePoints(vtkDGCell::Shape shape,
   vtkStringToken basis, int nominalOrder, std::vector<std::vector<double>>& points);
 
+/// Fetch parametric coordinates where the "G" (Gauss-point) basis functions interpolate.
+///
+/// The G bases are nodal on the Gauss points rather than on a uniform lattice, so
+/// they need their own point set. Returns true and fills \a points for the shapes
+/// whose G basis is nodal; returns false for the tetrahedron and pyramid, whose G
+/// bases are modal and so interpolate nowhere (see TestCellGridLagrangePoints).
+///
+/// Prefer the vtkLagrangePoints calculator, which calls this when appropriate.
+bool VTKFILTERSCELLGRID_EXPORT FixedOrderGaussPoints(
+  vtkDGCell::Shape shape, int nominalOrder, std::vector<std::vector<double>>& points);
+
 VTK_ABI_NAMESPACE_END
 } // namespace hgrad
 } // namespace basis

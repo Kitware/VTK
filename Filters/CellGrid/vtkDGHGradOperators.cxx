@@ -1472,6 +1472,212 @@ bool FixedOrderLagrangePoints(vtkDGCell::Shape shape, vtkStringToken basis, int 
   return true;
 }
 
+namespace
+{
+
+/// Nodes of the triangle's "G" bases, for orders 1 through 5.
+///
+/// The tensor-product shapes take their Gauss nodes from the 1-D \a gpts table
+/// above, but a triangle's are the points of a symmetric rule and cannot be
+/// built from a 1-D set. They are listed in the order the basis functions are
+/// enumerated: TestCellGridLagrangePoints evaluates the basis at these points
+/// and requires the identity matrix, which pins down both the points and their
+/// pairing with the degrees of freedom.
+const std::vector<std::vector<std::array<double, 2>>>& TriangleGaussNodes()
+{
+  // Initialized on first use, so construction is thread-safe.
+  static const std::vector<std::vector<std::array<double, 2>>> nodes{
+    // Triangle Gauss-point nodes, order 1-5 (3, 6, 10, 15, 21 points).
+    {
+      // order 1
+      { 0.16666666666666666, 0.16666666666666666 },
+      { 0.66666666666666663, 0.16666666666666669 },
+      { 0.16666666666666669, 0.66666666666666663 },
+    },
+    {
+      // order 2
+      { 0.091576213509799997, 0.091576213509800011 },
+      { 0.81684757298050015, 0.091576213509799956 },
+      { 0.091576213509799886, 0.81684757298049993 },
+      { 0.10810301816810003, 0.44594849091600036 },
+      { 0.44594849091600008, 0.10810301816809999 },
+      { 0.44594849091600008, 0.44594849091599997 },
+    },
+    {
+      // order 3
+      { 0.055564052669792995, 0.055564052669793078 },
+      { 0.88887189466041217, 0.055564052669793543 },
+      { 0.05556405266979314, 0.88887189466041316 },
+      { 0.29553371173589277, 0.070255540518383647 },
+      { 0.63421074774572062, 0.070255540518382578 },
+      { 0.63421074774572328, 0.29553371173589488 },
+      { 0.29553371173589377, 0.63421074774572328 },
+      { 0.070255540518384049, 0.63421074774572062 },
+      { 0.070255540518383786, 0.29553371173589266 },
+      { 0.33333333333333276, 0.33333333333333165 },
+    },
+    {
+      // order 4
+      { 0.035870877695733973, 0.035870877695733883 },
+      { 0.92825824460853401, 0.03587087769573391 },
+      { 0.035870877695734556, 0.92825824460853468 },
+      { 0.20150388188179977, 0.047312487011715879 },
+      { 0.47430878777707719, 0.051382424445842879 },
+      { 0.7511836311064809, 0.047312487011717537 },
+      { 0.75118363110648489, 0.20150388188179871 },
+      { 0.47430878777707736, 0.47430878777707941 },
+      { 0.20150388188180132, 0.75118363110648489 },
+      { 0.047312487011716101, 0.75118363110647346 },
+      { 0.051382424445842588, 0.47430878777708124 },
+      { 0.047312487011716343, 0.20150388188180202 },
+      { 0.24172939576796645, 0.24172939576796684 },
+      { 0.51654120846406848, 0.2417293957679677 },
+      { 0.24172939576796787, 0.51654120846406137 },
+    },
+    {
+      // order 5
+      { 0.028112952182664158, 0.028112952182663919 },
+      { 0.94377409563467429, 0.028112952182660831 },
+      { 0.028112952182663454, 0.94377409563466119 },
+      { 0.14856581227088814, 0.033533207700613903 },
+      { 0.35719629861567614, 0.037824789609183222 },
+      { 0.60497891177512486, 0.037824789609184437 },
+      { 0.81790098002851497, 0.033533207700614784 },
+      { 0.81790098002848755, 0.14856581227089186 },
+      { 0.60497891177513641, 0.35719629861567298 },
+      { 0.35719629861568036, 0.60497891177512952 },
+      { 0.14856581227088492, 0.81790098002849354 },
+      { 0.033533207700613361, 0.81790098002850942 },
+      { 0.037824789609186282, 0.60497891177511576 },
+      { 0.037824789609185484, 0.3571962986156802 },
+      { 0.033533207700614028, 0.14856581227088839 },
+      { 0.17713909846931261, 0.17713909846931619 },
+      { 0.64572180306136384, 0.17713909846932788 },
+      { 0.177139098469316, 0.64572180306138749 },
+      { 0.4055085958674387, 0.1889828082651421 },
+      { 0.40550859586744437, 0.40550859586742838 },
+      { 0.18898280826513217, 0.40550859586741922 },
+    },
+  };
+  return nodes;
+}
+
+} // anonymous namespace
+
+bool FixedOrderGaussPoints(
+  vtkDGCell::Shape shape, int nominalOrder, std::vector<std::vector<double>>& points)
+{
+  points.clear();
+  // The "G" bases are registered at orders 1 through 5; gpts holds no other row.
+  if (nominalOrder < 1 || nominalOrder > 5)
+  {
+    return false;
+  }
+  unsigned int order = static_cast<unsigned int>(nominalOrder);
+  int count = nominalOrder + 1; // 1-D Gauss points along each axis
+
+  switch (shape)
+  {
+    case vtkDGCell::Shape::Edge:
+      for (int ii = 0; ii < count; ++ii)
+      {
+        points.push_back({ gaussPoint(order, ii) });
+      }
+      return true;
+
+    // The prismatic shapes enumerate their degrees of freedom with the r-axis
+    // varying fastest, matching the tensor-product basis functions.
+    case vtkDGCell::Shape::Quadrilateral:
+      for (int jj = 0; jj < count; ++jj)
+      {
+        for (int ii = 0; ii < count; ++ii)
+        {
+          points.push_back({ gaussPoint(order, ii), gaussPoint(order, jj) });
+        }
+      }
+      return true;
+
+    case vtkDGCell::Shape::Hexahedron:
+      // The hexahedron's hand-written second-order basis numbers its degrees of
+      // freedom the way the 27-node "C2" basis does - corners, then edges, then
+      // the body center and the six face centers - rather than lexicographically
+      // like the arbitrary-order kernel used at orders 3 and above. Reuse that
+      // layout and simply move each point from the uniform lattice onto the
+      // Gauss points, so the two orderings cannot drift apart.
+      if (nominalOrder == 2)
+      {
+        std::vector<std::vector<double>> uniform;
+        if (!FixedOrderLagrangePoints(shape, "C"_token, 2, uniform))
+        {
+          return false;
+        }
+        for (const auto& pt : uniform)
+        {
+          std::vector<double> mapped;
+          mapped.reserve(pt.size());
+          for (double coord : pt)
+          {
+            if (coord < -0.5)
+            {
+              coord = 0;
+            }
+            else if (coord > 0.5)
+            {
+              coord = 2;
+            }
+            else
+            {
+              coord = 1;
+            }
+            mapped.push_back(gaussPoint(order, coord));
+          }
+          points.push_back(mapped);
+        }
+        return true;
+      }
+      for (int kk = 0; kk < count; ++kk)
+      {
+        for (int jj = 0; jj < count; ++jj)
+        {
+          for (int ii = 0; ii < count; ++ii)
+          {
+            points.push_back(
+              { gaussPoint(order, ii), gaussPoint(order, jj), gaussPoint(order, kk) });
+          }
+        }
+      }
+      return true;
+
+    case vtkDGCell::Shape::Triangle:
+      for (const auto& node : TriangleGaussNodes()[nominalOrder - 1])
+      {
+        points.push_back({ node[0], node[1] });
+      }
+      return true;
+
+    // A wedge is a triangle crossed with an edge, with the triangle's index
+    // varying fastest.
+    case vtkDGCell::Shape::Wedge:
+      for (int kk = 0; kk < count; ++kk)
+      {
+        for (const auto& node : TriangleGaussNodes()[nominalOrder - 1])
+        {
+          points.push_back({ node[0], node[1], gaussPoint(order, kk) });
+        }
+      }
+      return true;
+
+    // The tetrahedron's and pyramid's "G" bases are modal rather than nodal:
+    // built from Jacobi polynomials, their functions do not reach 1 anywhere in
+    // the cell, so there are no points to report. This mirrors the 18-node
+    // quadratic pyramid handled by FixedOrderLagrangePoints().
+    case vtkDGCell::Shape::Tetrahedron:
+    case vtkDGCell::Shape::Pyramid:
+    default:
+      return false;
+  }
+}
+
 VTK_ABI_NAMESPACE_END
 } // namespace hgrad
 } // namespace basis
