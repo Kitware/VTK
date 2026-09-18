@@ -660,6 +660,13 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
     // Get current node
     const int nodeId = nodeIdStack.top();
     nodeIdStack.pop();
+    if (nodeId < 0 || nodeId >= static_cast<int>(model->Nodes.size()))
+    {
+      vtkErrorMacro("Invalid node index: " << nodeId << " , aborting.");
+      this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
+      return;
+    }
+
     const auto& node = model->Nodes[nodeId];
 
     // Add this node into the scene hierarchy
@@ -684,6 +691,13 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
     // Import node's geometry
     if (node.Mesh >= 0)
     {
+      if (node.Mesh >= static_cast<int>(model->Meshes.size()))
+      {
+        vtkErrorMacro("Invalid node mesh index: " << node.Mesh << " , aborting.");
+        this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
+        return;
+      }
+
       auto mesh = model->Meshes[node.Mesh];
       int primitiveId = 0;
       for (auto primitive : mesh.Primitives)
@@ -909,6 +923,14 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
     // Get current node
     int nodeId = nodeIdStack.top();
     nodeIdStack.pop();
+
+    if (nodeId < 0 || nodeId >= static_cast<int>(model->Nodes.size()))
+    {
+      vtkErrorMacro("Invalid nodeId: " << nodeId << ", aborting.");
+      this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
+      return;
+    }
+
     const vtkGLTFDocumentLoader::Node& node = model->Nodes[nodeId];
 
     // Import node's camera

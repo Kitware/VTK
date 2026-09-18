@@ -94,11 +94,41 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
     DATA{../Data/Input/world_invalid.obj}
 )
 
-# Test an file with an invalid image
+# Test an file with an invalid input
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestGLTFImporter-Invalid,TestGLTFImporterInvalid.cxx,NO_VALID
     DATA{../Data/glTF/invalid.gltf}
     DATA{../Data/glTF/Duck0.bin}
+)
+
+# https://gitlab.kitware.com/vtk/vtk/-/work_items/19736
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporter-InvalidMesh,TestGLTFImporterInvalid.cxx,NO_VALID
+    DATA{../Data/glTF/crash-input-75.gltf}
+)
+
+# https://gitlab.kitware.com/vtk/vtk/-/work_items/19732
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporter-InvalidAccessor,TestGLTFImporterInvalid.cxx,NO_VALID
+    DATA{../Data/glTF/crash-input-72.gltf}
+)
+
+# https://gitlab.kitware.com/vtk/vtk/-/work_items/19733
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporter-InvalidWorker1,TestGLTFImporterInvalid.cxx,NO_VALID
+    DATA{../Data/glTF/crash-input-100-107-126.gltf}
+)
+
+# https://gitlab.kitware.com/vtk/vtk/-/work_items/19734
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporter-InvalidWorker2,TestGLTFImporterInvalid.cxx,NO_VALID
+    DATA{../Data/glTF/crash-input-112.gltf}
+)
+
+# https://gitlab.kitware.com/vtk/vtk/-/work_items/19735
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporter-InvalidString,TestGLTFImporterInvalid.cxx,NO_VALID
+    DATA{../Data/glTF/crash-input-106.gltf}
 )
 
 # Test that a file with an unrecognized image type loads successfully with a warning
@@ -117,6 +147,16 @@ endif ()
   set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Invalid PROPERTIES FAIL_REGULAR_EXPRESSION "")
   set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-Invalid PROPERTIES PASS_REGULAR_EXPRESSION "Failed to open file")
   set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-Invalid PROPERTIES FAIL_REGULAR_EXPRESSION "")
+  set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-InvalidMesh PROPERTIES PASS_REGULAR_EXPRESSION "Invalid node mesh index")
+  set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-InvalidMesh PROPERTIES FAIL_REGULAR_EXPRESSION "")
+  set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-InvalidAccessor PROPERTIES PASS_REGULAR_EXPRESSION "Invalid accessor index")
+  set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-InvalidAccessor PROPERTIES FAIL_REGULAR_EXPRESSION "")
+  set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-InvalidWorker1 PROPERTIES PASS_REGULAR_EXPRESSION "Error loading mesh.primitive attribute")
+  set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-InvalidWorker1 PROPERTIES FAIL_REGULAR_EXPRESSION "")
+  set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-InvalidWorker2 PROPERTIES PASS_REGULAR_EXPRESSION "Error loading mesh.primitive attribute")
+  set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-InvalidWorker2 PROPERTIES FAIL_REGULAR_EXPRESSION "")
+  set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-InvalidString PROPERTIES PASS_REGULAR_EXPRESSION "Invalid node index")
+  set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-InvalidString PROPERTIES FAIL_REGULAR_EXPRESSION "")
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestVRMLImporter.cxx,NO_VALID
