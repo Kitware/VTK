@@ -1112,12 +1112,11 @@ fn fragmentMain(@builtin(position) frag_coord: vec4<f32>) -> FragmentOutput {
           y = (magnitude - params.gradient_opacity_min[primary]) *
             params.gradient_opacity_scale[primary];
         }
+        // Taken as it is, per sample: the OpenGL mapper does not correct a two dimensional
+        // transfer function for the sample distance, as it does the one dimensional ones.
         let sample = transfer2DAt(i, primary, normalized, y);
         color = sample.rgb;
         opacity = sample.a;
-        if (opacity > 0.0) {
-          opacity = correctOpacity(opacity, step, params.opacity_unit_distance);
-        }
       } else if ((params.flags & VOLUME_FLAG_INDEPENDENT_COMPONENTS) == 0u) {
         // Dependent components describe one colour: the last carries opacity, the rest are
         // colour channels. Two means the first is a scalar to colour, four means the first
