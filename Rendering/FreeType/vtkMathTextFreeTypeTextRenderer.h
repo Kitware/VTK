@@ -21,12 +21,14 @@
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkTextRenderer.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFreeTypeTools;
 class vtkMathTextUtilities;
 
-class VTKRENDERINGFREETYPE_EXPORT vtkMathTextFreeTypeTextRenderer : public vtkTextRenderer
+class VTKRENDERINGFREETYPE_EXPORT VTK_MARSHALAUTO vtkMathTextFreeTypeTextRenderer
+  : public vtkTextRenderer
 {
 public:
   vtkTypeMacro(vtkMathTextFreeTypeTextRenderer, vtkTextRenderer);

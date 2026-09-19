@@ -111,6 +111,8 @@ Common/DataModel/vtkDirectedGraph.h
 Common/DataModel/vtkImageData.h
 Common/DataModel/vtkImplicitFunction.h
 Common/DataModel/vtkMultiPieceDataSet.h
+Common/DataModel/vtkPath.h
+Common/DataModel/vtkPiecewiseFunction.h
 Common/DataModel/vtkPlane.h
 Common/DataModel/vtkPlaneCollection.h
 Common/DataModel/vtkPointData.h
@@ -150,6 +152,7 @@ Common/ExecutionModel/vtkUnstructuredGridAlgorithm.h
 Common/ExecutionModel/vtkUnstructuredGridBaseAlgorithm.h
 Common/Math/vtkMatrix3x3.h
 Common/Math/vtkMatrix4x4.h
+Common/Math/vtkQuaternionInterpolator.h
 Common/Transforms/vtkAbstractTransform.h
 Common/Transforms/vtkHomogeneousTransform.h
 Common/Transforms/vtkLinearTransform.h
@@ -529,6 +532,7 @@ Rendering/Core/vtkBackgroundColorMonitor.h
 Rendering/Core/vtkBillboardTextActor3D.h
 Rendering/Core/vtkCamera.h
 Rendering/Core/vtkCameraActor.h
+Rendering/Core/vtkCameraInterpolator.h
 Rendering/Core/vtkCellCenterDepthSort.h
 Rendering/Core/vtkCellPicker.h
 Rendering/Core/vtkCompositePolyDataMapper.h
@@ -603,14 +607,18 @@ Rendering/Core/vtkSelectVisiblePoints.h
 Rendering/Core/vtkSequencePass.h
 Rendering/Core/vtkSkybox.h
 Rendering/Core/vtkStereoCompositor.h
+Rendering/Core/vtkStringToImage.h
 Rendering/Core/vtkTextActor.h
 Rendering/Core/vtkTextActor3D.h
 Rendering/Core/vtkTextMapper.h
 Rendering/Core/vtkTextProperty.h
 Rendering/Core/vtkTextPropertyCollection.h
+Rendering/Core/vtkTextRenderer.h
 Rendering/Core/vtkTexturedActor2D.h
 Rendering/Core/vtkTransformCoordinateSystems.h
+Rendering/Core/vtkTransformInterpolator.h
 Rendering/Core/vtkTranslucentPass.h
+Rendering/Core/vtkTupleInterpolator.h
 Rendering/Core/vtkViewport.h
 Rendering/Core/vtkVisibilitySort.h
 Rendering/Core/vtkVolume.h
@@ -620,6 +628,10 @@ Rendering/Core/vtkVolumetricPass.h
 Rendering/Core/vtkWindowLevelLookupTable.h
 Rendering/Core/vtkWindowToImageFilter.h
 Rendering/Core/vtkWorldPointPicker.h
+Rendering/FreeType/vtkFreeTypeStringToImage.h
+Rendering/FreeType/vtkMathTextFreeTypeTextRenderer.h
+Rendering/FreeType/vtkTextRendererStringToImage.h
+Rendering/FreeType/vtkVectorText.h
 Rendering/GridAxes/vtkGridAxesActor2D.h
 Rendering/GridAxes/vtkGridAxesActor3D.h
 Rendering/Image/vtkDepthImageToPointCloud.h

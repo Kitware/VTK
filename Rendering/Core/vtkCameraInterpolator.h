@@ -39,6 +39,9 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
+
+#include <vector> // for arg, return
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
@@ -46,7 +49,7 @@ class vtkCameraList;
 class vtkTupleInterpolator;
 class vtkCameraList;
 
-class VTKRENDERINGCORE_EXPORT vtkCameraInterpolator : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkCameraInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCameraInterpolator, vtkObject);
@@ -189,6 +192,27 @@ public:
    */
   virtual void SetClippingRangeInterpolator(vtkTupleInterpolator*);
   vtkGetObjectMacro(ClippingRangeInterpolator, vtkTupleInterpolator);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set all the (t, camera) samples as a flat interleaved array:
+   * t0, P0[0..2], FP0[0..2], VUP0[0..2], CR0[0..1], VA0[0], PS0[0], t1, ...
+   *
+   * The length of values passed in to SetTimedCameras must be divisible by 14.
+   *
+   * Convenient method for wrapped languages and serialization.
+   *
+   * @note the acronyms are short forms.
+   * P: Position
+   * FP: Focal point
+   * VUP: View up
+   * CR: Clipping range
+   * VA: View angle
+   * PS: Parallel scale
+   */
+  void SetTimedCameras(const std::vector<double>& values);
+  std::vector<double> GetTimedCameras() const;
   ///@}
 
   /**

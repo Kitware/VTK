@@ -1126,6 +1126,46 @@ vtkPiecewiseFunction* vtkPiecewiseFunction::GetData(vtkInformationVector* v, int
 }
 
 //------------------------------------------------------------------------------
+void vtkPiecewiseFunction::SetNodeValues(const std::vector<double>& values)
+{
+  constexpr std::size_t numDoubles = sizeof(vtkPiecewiseFunctionNode) / sizeof(double);
+  if ((values.size() % numDoubles) != 0)
+  {
+    vtkErrorMacro(<< "The length of values is not divisible by " << numDoubles
+                  << ". Expects a sequence of X0, Y0, midpoint_0, sharpness_0, etc");
+    return;
+  }
+  const std::size_t numberOfNodes = values.size() / numDoubles;
+  this->RemoveAllPoints();
+  this->Internal->Nodes.reserve(numberOfNodes);
+  for (std::size_t i = 0; i < values.size();)
+  {
+    auto node = new vtkPiecewiseFunctionNode{};
+    node->X = values[i++];
+    node->Y = values[i++];
+    node->Midpoint = values[i++];
+    node->Sharpness = values[i++];
+    this->Internal->Nodes.emplace_back(node);
+  }
+  this->SortAndUpdateRange();
+}
+
+//------------------------------------------------------------------------------
+std::vector<double> vtkPiecewiseFunction::GetNodeValues() const
+{
+  std::vector<double> result;
+  result.reserve(this->Internal->Nodes.size() * sizeof(vtkPiecewiseFunctionNode) / sizeof(double));
+  for (auto* node : this->Internal->Nodes)
+  {
+    result.emplace_back(node->X);
+    result.emplace_back(node->Y);
+    result.emplace_back(node->Midpoint);
+    result.emplace_back(node->Sharpness);
+  }
+  return result;
+}
+
+//------------------------------------------------------------------------------
 void vtkPiecewiseFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

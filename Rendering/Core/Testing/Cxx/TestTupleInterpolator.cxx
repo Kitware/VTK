@@ -10,10 +10,28 @@
 
 #include <array>
 #include <cmath>
+#include <cstdlib>
+#include <initializer_list>
+#include <iostream>
+#include <iterator>
 
 namespace
 {
 constexpr double epsilon = 1e-12;
+
+struct InitializerListAsCArray
+{
+  std::vector<double> Data;
+
+  // Adds the initializer list into `Data` and returns a pointer to the location
+  // of the newly added values.
+  double* PointerTo(std::initializer_list<double> in)
+  {
+    std::size_t i = this->Data.size();
+    std::copy(in.begin(), in.end(), std::back_inserter(this->Data));
+    return &this->Data[i];
+  }
+};
 }
 
 // Test if the interpolation is correct on a few data
@@ -174,6 +192,53 @@ bool TestTupleInterpolatorFillFromData()
   return retVal;
 }
 
+// Test if GetTimedTuples is correct
+int TestTupleInterpolatorSetGetTimedTuples(int type)
+{
+  std::cout << "Run TestTupleInterpolatorSetGetTimedTuples with interpolation type=" << type
+            << '\n';
+  InitializerListAsCArray storage;
+  bool success = true;
+  vtkNew<vtkTupleInterpolator> interpolator;
+  interpolator->SetNumberOfComponents(3);
+  interpolator->SetInterpolationType(type);
+  interpolator->AddTuple(0., storage.PointerTo({ 1., 2., 3. }));
+  interpolator->AddTuple(4., storage.PointerTo({ 5., 6., 7. }));
+  auto timedTuples = interpolator->GetTimedTuples();
+  if (timedTuples.size() != 8)
+  {
+    success = false;
+    std::cerr << "In line " << __LINE__ << ", number of values in GetTimedTuples is not 8\n";
+  }
+  for (std::size_t i = 0; i < timedTuples.size(); ++i)
+  {
+    if (timedTuples[i] != i)
+    {
+      success = false;
+      std::cerr << "In line " << __LINE__ << ", expected " << i << " at timedTuples[" << i
+                << "], got " << timedTuples[i] << "\n";
+    }
+  }
+  interpolator->SetTimedTuples({ 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0 });
+  {
+    auto interpResult = interpolator->InterpolateTuple(7.0);
+    if (interpResult[0] != 6.0 || interpResult[1] != 5.0 || interpResult[2] != 4.0)
+    {
+      success = false;
+      std::cerr << "In line " << __LINE__ << ", expected InterpolateTuple(7.0) = {6,5,4}, got "
+                << interpResult[0] << "," << interpResult[1] << "," << interpResult[2] << '\n';
+    }
+    interpResult = interpolator->InterpolateTuple(3.0);
+    if (interpResult[0] != 2.0 || interpResult[1] != 1.0 || interpResult[2] != 0.0)
+    {
+      success = false;
+      std::cerr << "In line " << __LINE__ << ", expected InterpolateTuple(7.0) = {2,1,0}, got "
+                << interpResult[0] << "," << interpResult[1] << "," << interpResult[2] << '\n';
+    }
+  }
+  return success ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 //------------------------------------------------------------------------------
 int TestTupleInterpolator(int, char*[])
 {
@@ -182,6 +247,8 @@ int TestTupleInterpolator(int, char*[])
 
   retVal += TestTupleInterpolatorInterpolateTuple();
   retVal += TestTupleInterpolatorFillFromData();
+  retVal += TestTupleInterpolatorSetGetTimedTuples(vtkTupleInterpolator::INTERPOLATION_TYPE_LINEAR);
+  retVal += TestTupleInterpolatorSetGetTimedTuples(vtkTupleInterpolator::INTERPOLATION_TYPE_SPLINE);
 
   return retVal;
 }

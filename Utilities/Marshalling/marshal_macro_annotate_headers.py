@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# coding=utf8
 """
 Usage:
     python3 ./Utilities/Marshalling/marshal_macro_annotate_headers.py
@@ -16,10 +14,6 @@ import os
 import pathlib
 import re
 import sys
-
-if sys.version_info < (3, 6):
-    print("This script requires Python 3.6 or higher")
-    sys.exit(1)
 
 DATA_FILE = "marshal_modules.json"
 MARSHAL_HINT_REGEX = r"VTK_MARSHAL(AUTO|MANUAL)"
@@ -116,8 +110,10 @@ def get_status():
                         success &= False
                     existing_macro_line_match = find_matching_line(
                         header, MARSHAL_HINT_REGEX)
+                    class_name = pathlib.Path(filename).stem
+                    export_regex = rf"^(class\s+|)VTK.*_EXPORT(\s+VTK_MARSHAL(AUTO|MANUAL))?\s+{re.escape(class_name)}\b"
                     module_export_line_match = find_matching_line(
-                        header, MODULE_EXPORT_REGEX)
+                        header, export_regex)
                     if existing_macro_line_match is not None and module_export_line_match is not None:
                         print(
                             f"ERROR: {header} (from ignore.txt) cannot have {existing_macro_line_match[1].group(0)} macro.")
@@ -151,8 +147,10 @@ def update():
                 # Skip files that already have the marshal hint macro
                 existing_macro_line_match = find_matching_line(
                     header, macro_regex)
+                class_name = pathlib.Path(parts[-1]).stem
+                export_regex = rf"^(class\s+|)(VTK.*_EXPORT)(\s+VTK_MARSHAL(AUTO|MANUAL))?\s+{re.escape(class_name)}\b"
                 module_export_line_match = find_matching_line(
-                    header, MODULE_EXPORT_REGEX)
+                    header, export_regex)
                 if module_export_line_match is None:
                     print(
                         f"WARNING: {header} does not have an exported class. Skipping...")
@@ -174,7 +172,7 @@ def update():
                             # Remove existing macro
                             export_line_text = export_line_text.replace(
                                 MARSHAL_HINT_REGEXES[0] + " ", "").replace(MARSHAL_HINT_REGEXES[1] + " ", "")
-                            target = export_text_match.group()
+                            target = export_text_match.group(2)
                             replacement = f"{target} {marshal_file.stem}"
                             new_lines[export_line_num - 1] = export_line_text.replace(
                                 target, replacement)
@@ -204,8 +202,10 @@ def update():
                 ignored_header, MARSHAL_HINT_REGEX)
             wrap_hint_header_line_match = find_matching_line(
                 ignored_header, WRAPHINT_HEADER_REGEX)
+            class_name = ignored_header.stem
+            export_regex = rf"^(class\s+|)VTK.*_EXPORT(\s+VTK_MARSHAL(AUTO|MANUAL))?\s+{re.escape(class_name)}\b"
             module_export_line_match = find_matching_line(
-                ignored_header, MODULE_EXPORT_REGEX)
+                ignored_header, export_regex)
             if module_export_line_match is None:
                 print(
                     f"INFO: {ignored_header} does not have an exported class. Skipping...")
@@ -277,9 +277,8 @@ if __name__ == "__main__":
 
     if args.test:
         if not get_status():
-            exit(1)
-    elif args.update:
-        if not update():
-            exit(1)
+            sys.exit(1)
+    elif args.update and not update():
+        sys.exit(1)
 
     print('OK')

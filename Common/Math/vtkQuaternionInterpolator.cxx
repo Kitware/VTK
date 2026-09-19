@@ -6,6 +6,7 @@
 #include "vtkQuaternion.h"
 
 #include <algorithm>
+#include <iterator>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -343,6 +344,38 @@ void vtkQuaternionInterpolator::InterpolateQuaternion(double t, vtkQuaterniond& 
     q = qc.Slerp(2.0 * T * (1.0 - T), qd);
     q.NormalizeWithAngleInDegrees();
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkQuaternionInterpolator::SetTimedQuaternions(const std::vector<double>& values)
+{
+  constexpr std::size_t numDoubles = sizeof(TimedQuaternion) / sizeof(double);
+  static_assert(numDoubles == 5, "Expects exactly 5 8-byte floats in TimedQuaternion struct.");
+  if ((values.size() % numDoubles) != 0)
+  {
+    vtkErrorMacro(<< "The length of timed quaternions array is not divisible by " << numDoubles
+                  << ". Expects a sequence of t0, q0_1, q0_2, "
+                     "q0_3, q0_4, etc");
+    return;
+  }
+  const std::size_t numberOfQuaternions = values.size() / numDoubles;
+  this->QuaternionList->clear();
+  this->QuaternionList->resize(numberOfQuaternions);
+  std::copy_n(
+    values.data(), values.size(), reinterpret_cast<double*>(this->QuaternionList->data()));
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+std::vector<double> vtkQuaternionInterpolator::GetTimedQuaternions() const
+{
+  constexpr std::size_t numDoubles = sizeof(TimedQuaternion) / sizeof(double);
+  static_assert(numDoubles == 5, "Expects exactly 5 8-byte floats in TimedQuaternion struct.");
+  std::vector<double> result;
+  result.resize(this->QuaternionList->size() * numDoubles);
+  std::copy_n(
+    reinterpret_cast<double*>(this->QuaternionList->data()), result.size(), result.data());
+  return result;
 }
 
 //------------------------------------------------------------------------------

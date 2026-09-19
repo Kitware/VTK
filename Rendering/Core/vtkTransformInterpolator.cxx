@@ -9,6 +9,7 @@
 #include "vtkQuaternionInterpolator.h"
 #include "vtkTransform.h"
 #include "vtkTupleInterpolator.h"
+#include <algorithm>
 #include <list>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -225,6 +226,49 @@ void vtkTransformInterpolator::RemoveTransform(double t)
   {
     this->TransformList->erase(iter);
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkTransformInterpolator::SetTimedTransforms(const std::vector<double>& values)
+{
+  constexpr std::size_t numDoubles = sizeof(vtkQTransform) / sizeof(double);
+  static_assert(numDoubles == 11, "Expects exactly 11 8-byte floats in vtkQTransform struct.");
+  if ((values.size() % numDoubles) != 0)
+  {
+    vtkErrorMacro(<< "The length of timed transforms array is not divisible by " << numDoubles
+                  << ". Expects a sequence of t, P[3], S[3], Q[4], ...");
+    return;
+  }
+  const std::size_t numberOfTransforms = values.size() / numDoubles;
+  this->TransformList->clear();
+  const double* ptr = values.data();
+  for (std::size_t i = 0; i < numberOfTransforms; ++i, ptr += numDoubles)
+  {
+    vtkQTransform xform;
+    xform.Time = ptr[0];
+    std::copy_n(ptr + 1, 3, xform.P);
+    std::copy_n(ptr + 4, 3, xform.S);
+    xform.Q.Set(ptr[7], ptr[8], ptr[9], ptr[10]);
+    this->TransformList->push_back(xform);
+  }
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+std::vector<double> vtkTransformInterpolator::GetTimedTransforms() const
+{
+  constexpr std::size_t numDoubles = sizeof(vtkQTransform) / sizeof(double);
+  static_assert(numDoubles == 11, "Expects exactly 11 8-byte floats in vtkQTransform struct.");
+  std::vector<double> result;
+  result.reserve(this->TransformList->size() * numDoubles);
+  for (const auto& xform : *this->TransformList)
+  {
+    result.push_back(xform.Time);
+    result.insert(result.end(), xform.P, xform.P + 3);
+    result.insert(result.end(), xform.S, xform.S + 3);
+    result.insert(result.end(), xform.Q.GetData(), xform.Q.GetData() + 4);
+  }
+  return result;
 }
 
 //------------------------------------------------------------------------------

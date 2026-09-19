@@ -25,9 +25,10 @@
 
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkRenderingFreeTypeModule.h" // For export macro
+#include "vtkWrappingHints.h"           // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGFREETYPE_EXPORT vtkVectorText : public vtkPolyDataAlgorithm
+class VTKRENDERINGFREETYPE_EXPORT VTK_MARSHALAUTO vtkVectorText : public vtkPolyDataAlgorithm
 {
 public:
   static vtkVectorText* New();

@@ -38,6 +38,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkTuple.h"               // For metrics struct
 #include "vtkVector.h"              // For metrics struct
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
@@ -64,7 +65,7 @@ private:
   vtkTextRendererCleanup& operator=(const vtkTextRendererCleanup& rhs) = delete;
 };
 
-class VTKRENDERINGCORE_EXPORT vtkTextRenderer : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkTextRenderer : public vtkObject
 {
 public:
   struct Metrics

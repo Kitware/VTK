@@ -135,6 +135,45 @@ def animate():
 
 interpolator.InterpolateCamera(8.2, camera)
 
+# Exercise the Get/SetTimedCameras round-trip (used by (de)serialization) and
+# verify that a camera interpolator reconstructed purely from the flat array
+# interpolates identically to the original.
+timedCameras = interpolator.GetTimedCameras()
+expectedLength = interpolator.GetNumberOfCameras() * 14
+if len(timedCameras) != expectedLength:
+    raise RuntimeError(
+        f"GetTimedCameras() returned {len(timedCameras)} values, expected {expectedLength}")
+
+interpolator2 = vtkCameraInterpolator()
+interpolator2.SetInterpolationTypeToSpline()
+interpolator2.SetTimedCameras(timedCameras)
+
+if interpolator2.GetNumberOfCameras() != interpolator.GetNumberOfCameras():
+    raise RuntimeError("SetTimedCameras() did not restore the expected number of cameras")
+
+testCamera1 = vtkCamera()
+testCamera2 = vtkCamera()
+tmin = interpolator.GetMinimumT()
+tmax = interpolator.GetMaximumT()
+numSteps = 10
+for i in range(numSteps + 1):
+    t = tmin + (tmax - tmin) * i / float(numSteps)
+    interpolator.InterpolateCamera(t, testCamera1)
+    interpolator2.InterpolateCamera(t, testCamera2)
+    for getter in ("GetPosition", "GetFocalPoint", "GetViewUp", "GetClippingRange"):
+        v1 = getattr(testCamera1, getter)()
+        v2 = getattr(testCamera2, getter)()
+        for a, b in zip(v1, v2):
+            if abs(a - b) > 1e-6:
+                raise RuntimeError(
+                    f"interpolator2 diverges at {t=}: {getter} {v1} vs {v2}")
+    if abs(testCamera1.GetViewAngle() - testCamera2.GetViewAngle()) > 1e-6:
+        raise RuntimeError(
+            f"Round-tripped vtkCameraInterpolator view angle mismatch at {t=}")
+    if abs(testCamera1.GetParallelScale() - testCamera2.GetParallelScale()) > 1e-6:
+        raise RuntimeError(
+            f"Round-tripped vtkCameraInterpolator parallel scale mismatch at {t=}")
+
 # animate()
 
 #iren.Start()

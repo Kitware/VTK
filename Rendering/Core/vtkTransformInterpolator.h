@@ -40,6 +40,9 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
+
+#include <vector> // for arg, return
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform;
@@ -49,7 +52,7 @@ class vtkTupleInterpolator;
 class vtkQuaternionInterpolator;
 class vtkTransformList;
 
-class VTKRENDERINGCORE_EXPORT vtkTransformInterpolator : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkTransformInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkTransformInterpolator, vtkObject);
@@ -165,6 +168,24 @@ public:
    */
   virtual void SetRotationInterpolator(vtkQuaternionInterpolator*);
   vtkGetObjectMacro(RotationInterpolator, vtkQuaternionInterpolator);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set all the (t, transform) samples as a flat interleaved array:
+   * t0, P0[0..2], S0[0..2], Q0[0..3], t1, ...
+   *
+   * The length of values passed in to SetTimedTransforms must be divisible by 11.
+   *
+   * Convenient method for wrapped languages and serialization.
+   *
+   * @note the acronyms are short forms.
+   * P: Position
+   * S: Scale
+   * Q: Quaternion for rotation
+   */
+  void SetTimedTransforms(const std::vector<double>& values);
+  std::vector<double> GetTimedTransforms() const;
   ///@}
 
   /**

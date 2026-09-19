@@ -373,7 +373,6 @@ Common/DataModel/vtkOrderedTriangulator.h
 Common/DataModel/vtkOutEdgeIterator.h
 Common/DataModel/vtkOverlappingAMR.h
 Common/DataModel/vtkOverlappingAMRMetaData.h
-Common/DataModel/vtkPath.h
 Common/DataModel/vtkPentagonalPrism.h
 Common/DataModel/vtkPeriodicDataArray.h
 Common/DataModel/vtkPerlinNoise.h
@@ -510,7 +509,6 @@ Common/Math/vtkFunctionSet.h
 Common/Math/vtkInitialValueProblemSolver.h
 Common/Math/vtkPolynomialSolversUnivariate.h
 Common/Math/vtkQuaternion.h
-Common/Math/vtkQuaternionInterpolator.h
 Common/Math/vtkReservoirSampler.h
 Common/Math/vtkRungeKutta2.h
 Common/Math/vtkRungeKutta4.h
@@ -696,7 +694,6 @@ Rendering/Core/vtkAbstractHyperTreeGridMapper.h
 Rendering/Core/vtkAbstractInteractionDevice.h
 Rendering/Core/vtkAbstractRenderDevice.h
 Rendering/Core/vtkCIEDE2000.h
-Rendering/Core/vtkCameraInterpolator.h
 Rendering/Core/vtkCellGraphicsPrimitiveMap.h
 Rendering/Core/vtkCellGridMapper.h
 Rendering/Core/vtkCellGridRenderRequest.h
@@ -722,16 +719,14 @@ Rendering/Core/vtkRendererDelegate.h
 Rendering/Core/vtkRenderingCoreEnums.h
 Rendering/Core/vtkRenderingCorePCH.h
 Rendering/Core/vtkStateStorage.h
-Rendering/Core/vtkStringToImage.h
 Rendering/Core/vtkTDxInteractorStyle.h
 Rendering/Core/vtkTDxInteractorStyleCamera.h
 Rendering/Core/vtkTDxInteractorStyleSettings.h
 Rendering/Core/vtkTDxMotionEventInfo.h
-Rendering/Core/vtkTextRenderer.h
-Rendering/Core/vtkTransformInterpolator.h
-Rendering/Core/vtkTupleInterpolator.h
 Rendering/Core/vtkUniforms.h
 Rendering/Core/vtkViewDependentErrorMetric.h
+Rendering/FreeType/vtkFreeTypeTools.h
+Rendering/FreeType/vtkMathTextUtilities.h
 Rendering/GridAxes/vtkGridAxesHelper.h
 Rendering/GridAxes/vtkGridAxesPlaneActor2D.h
 Rendering/LICOpenGL2/vtkBatchedSurfaceLICMapper.h
@@ -745,12 +740,10 @@ Rendering/LICOpenGL2/vtkSurfaceLICComposite.h
 Rendering/LICOpenGL2/vtkSurfaceLICHelper.h
 Rendering/LICOpenGL2/vtkTextureIO.h
 Rendering/LOD/vtkQuadricLODActor.h
-Rendering/Label/vtkLabeledFormatter.h
 Rendering/Label/vtkLabelHierarchyAlgorithm.h
 Rendering/Label/vtkLabelHierarchyCompositeIterator.h
 Rendering/Label/vtkLabelHierarchyIterator.h
 Rendering/Label/vtkLabelHierarchyPrivate.h
-Rendering/Label/vtkLabelPlacer.h
 Rendering/Label/vtkLabelSizeCalculator.h
 Rendering/Label/vtkPointSetToLabelHierarchy.h
 Rendering/OpenGL2/vtkArrayRenderer.h
