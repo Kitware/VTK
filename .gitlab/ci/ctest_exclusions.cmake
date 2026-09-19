@@ -812,7 +812,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastMapperSampleDistance$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastMultiVolumeClipping$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastPositionalLights$"
-    "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastTransfer2DYScalars$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastTwoComponentsDependent$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastTwoComponentsDependentGradient$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastTwoComponentsIndependent$"
