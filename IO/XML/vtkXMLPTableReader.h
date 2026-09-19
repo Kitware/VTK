@@ -17,14 +17,15 @@
 #ifndef vtkXMLPTableReader_h
 #define vtkXMLPTableReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLPDataObjectReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkTable;
 class vtkXMLTableReader;
 
-class VTKIOXML_EXPORT vtkXMLPTableReader : public vtkXMLPDataObjectReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLPTableReader : public vtkXMLPDataObjectReader
 {
 public:
   vtkTypeMacro(vtkXMLPTableReader, vtkXMLPDataObjectReader);

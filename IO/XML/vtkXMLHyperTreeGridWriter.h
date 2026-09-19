@@ -51,8 +51,9 @@
 #ifndef vtkXMLHyperTreeGridWriter_h
 #define vtkXMLHyperTreeGridWriter_h
 
-#include "vtkIOXMLModule.h"  // For export macro
-#include "vtkSmartPointer.h" // For internal attributes
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkSmartPointer.h"  // For internal attributes
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLWriter.h"
 
 #include <vector> // std::vector
@@ -68,7 +69,7 @@ class vtkHyperTreeGridNonOrientedCursor;
 class vtkTypeInt64Array;
 class vtkTypeUInt32Array;
 
-class VTKIOXML_EXPORT vtkXMLHyperTreeGridWriter : public vtkXMLWriter
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLHyperTreeGridWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLHyperTreeGridWriter, vtkXMLWriter);

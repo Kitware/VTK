@@ -16,8 +16,9 @@
 #ifndef vtkXMLGenericDataObjectReader_h
 #define vtkXMLGenericDataObjectReader_h
 
-#include "vtkIOXMLModule.h"  // For export macro
-#include "vtkSmartPointer.h" // for API
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkSmartPointer.h"  // for API
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLDataReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -30,7 +31,7 @@ class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkXMLFileReadTester;
 
-class VTKIOXML_EXPORT vtkXMLGenericDataObjectReader : public vtkXMLDataReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLGenericDataObjectReader : public vtkXMLDataReader
 {
 public:
   vtkTypeMacro(vtkXMLGenericDataObjectReader, vtkXMLDataReader);

@@ -14,7 +14,8 @@
 #ifndef vtkXMLUnstructuredDataReader_h
 #define vtkXMLUnstructuredDataReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLDataReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -23,7 +24,7 @@ class vtkIdTypeArray;
 class vtkPointSet;
 class vtkUnsignedCharArray;
 
-class VTKIOXML_EXPORT vtkXMLUnstructuredDataReader : public vtkXMLDataReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLUnstructuredDataReader : public vtkXMLDataReader
 {
 public:
   vtkTypeMacro(vtkXMLUnstructuredDataReader, vtkXMLDataReader);

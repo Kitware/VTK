@@ -17,14 +17,15 @@
 #define vtkXMLWriterBase_h
 
 #include "vtkAlgorithm.h"
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <string> // for std::string
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataCompressor;
 
-class VTKIOXML_EXPORT vtkXMLWriterBase : public vtkAlgorithm
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLWriterBase : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkXMLWriterBase, vtkAlgorithm);

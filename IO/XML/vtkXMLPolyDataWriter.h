@@ -18,13 +18,14 @@
 #ifndef vtkXMLPolyDataWriter_h
 #define vtkXMLPolyDataWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLUnstructuredDataWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
-class VTKIOXML_EXPORT vtkXMLPolyDataWriter : public vtkXMLUnstructuredDataWriter
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLPolyDataWriter : public vtkXMLUnstructuredDataWriter
 {
 public:
   vtkTypeMacro(vtkXMLPolyDataWriter, vtkXMLUnstructuredDataWriter);

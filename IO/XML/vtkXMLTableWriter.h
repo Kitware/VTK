@@ -11,13 +11,14 @@
 #ifndef vtkXMLTableWriter_h
 #define vtkXMLTableWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkTable;
 
-class VTKIOXML_EXPORT vtkXMLTableWriter : public vtkXMLWriter
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLTableWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLTableWriter, vtkXMLWriter);

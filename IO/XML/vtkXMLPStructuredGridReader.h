@@ -17,13 +17,15 @@
 #ifndef vtkXMLPStructuredGridReader_h
 #define vtkXMLPStructuredGridReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLPStructuredDataReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkStructuredGrid;
 
-class VTKIOXML_EXPORT vtkXMLPStructuredGridReader : public vtkXMLPStructuredDataReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLPStructuredGridReader
+  : public vtkXMLPStructuredDataReader
 {
 public:
   vtkTypeMacro(vtkXMLPStructuredGridReader, vtkXMLPStructuredDataReader);

@@ -17,13 +17,15 @@
 #ifndef vtkXMLRectilinearGridWriter_h
 #define vtkXMLRectilinearGridWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLStructuredDataWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRectilinearGrid;
 
-class VTKIOXML_EXPORT vtkXMLRectilinearGridWriter : public vtkXMLStructuredDataWriter
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLRectilinearGridWriter
+  : public vtkXMLStructuredDataWriter
 {
 public:
   static vtkXMLRectilinearGridWriter* New();

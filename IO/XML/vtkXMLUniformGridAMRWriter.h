@@ -12,11 +12,12 @@
 #ifndef vtkXMLUniformGridAMRWriter_h
 #define vtkXMLUniformGridAMRWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLCompositeDataWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIOXML_EXPORT vtkXMLUniformGridAMRWriter : public vtkXMLCompositeDataWriter
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLUniformGridAMRWriter : public vtkXMLCompositeDataWriter
 {
 public:
   static vtkXMLUniformGridAMRWriter* New();

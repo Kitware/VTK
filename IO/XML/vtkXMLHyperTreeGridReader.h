@@ -29,7 +29,8 @@
 #ifndef vtkXMLHyperTreeGridReader_h
 #define vtkXMLHyperTreeGridReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLReader.h"
 
 #include <limits.h> // Use internal
@@ -42,7 +43,7 @@ class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedCursor;
 class vtkIdTypeArray;
 
-class VTKIOXML_EXPORT vtkXMLHyperTreeGridReader : public vtkXMLReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLHyperTreeGridReader : public vtkXMLReader
 {
 public:
   vtkTypeMacro(vtkXMLHyperTreeGridReader, vtkXMLReader);

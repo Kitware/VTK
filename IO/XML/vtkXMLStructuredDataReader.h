@@ -15,11 +15,12 @@
 #ifndef vtkXMLStructuredDataReader_h
 #define vtkXMLStructuredDataReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLDataReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIOXML_EXPORT vtkXMLStructuredDataReader : public vtkXMLDataReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLStructuredDataReader : public vtkXMLDataReader
 {
 public:
   vtkTypeMacro(vtkXMLStructuredDataReader, vtkXMLDataReader);

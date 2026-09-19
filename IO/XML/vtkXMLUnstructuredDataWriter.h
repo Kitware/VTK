@@ -11,7 +11,8 @@
 #ifndef vtkXMLUnstructuredDataWriter_h
 #define vtkXMLUnstructuredDataWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLWriter.h"
 
 #include "vtkSmartPointer.h" // for vtkSmartPointer
@@ -24,7 +25,7 @@ class vtkDataArray;
 class vtkIdTypeArray;
 class vtkUnstructuredGrid;
 
-class VTKIOXML_EXPORT vtkXMLUnstructuredDataWriter : public vtkXMLWriter
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLUnstructuredDataWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLUnstructuredDataWriter, vtkXMLWriter);

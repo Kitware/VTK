@@ -11,13 +11,14 @@
 #ifndef vtkXMLStatisticalModelWriter_h
 #define vtkXMLStatisticalModelWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkStatisticalModel;
 
-class VTKIOXML_EXPORT vtkXMLStatisticalModelWriter : public vtkXMLWriter
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLStatisticalModelWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLStatisticalModelWriter, vtkXMLWriter);

@@ -18,7 +18,8 @@
 #ifndef vtkXMLCompositeDataReader_h
 #define vtkXMLCompositeDataReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -32,7 +33,7 @@ VTK_ABI_NAMESPACE_END
 #include <string> // for std::string
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIOXML_EXPORT vtkXMLCompositeDataReader : public vtkXMLReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLCompositeDataReader : public vtkXMLReader
 {
 public:
   vtkTypeMacro(vtkXMLCompositeDataReader, vtkXMLReader);

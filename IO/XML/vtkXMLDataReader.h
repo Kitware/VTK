@@ -15,13 +15,14 @@
 #ifndef vtkXMLDataReader_h
 #define vtkXMLDataReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLReader.h"
 
 #include <memory> // for std::unique_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIOXML_EXPORT vtkXMLDataReader : public vtkXMLReader
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLDataReader : public vtkXMLReader
 {
 public:
   vtkTypeMacro(vtkXMLDataReader, vtkXMLReader);

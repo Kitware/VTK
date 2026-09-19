@@ -17,13 +17,14 @@
 #ifndef vtkXMLStructuredGridWriter_h
 #define vtkXMLStructuredGridWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
+#include "vtkIOXMLModule.h"   // For export macro
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 #include "vtkXMLStructuredDataWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkStructuredGrid;
 
-class VTKIOXML_EXPORT vtkXMLStructuredGridWriter : public vtkXMLStructuredDataWriter
+class VTKIOXML_EXPORT VTK_MARSHALAUTO vtkXMLStructuredGridWriter : public vtkXMLStructuredDataWriter
 {
 public:
   static vtkXMLStructuredGridWriter* New();
