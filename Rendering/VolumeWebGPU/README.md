@@ -153,6 +153,5 @@ than at what the transfer functions make of them.
   buffer describes. Anything beyond that is not drawn, with a warning. This is a
   limit on how many volumes, not on how large they are.
 - Six lights and six clipping planes.
-- The first component of the scalars is rendered; independent multi-component
-  volumes and two dimensional transfer functions are not implemented.
-- Cropping regions and AMR volumes are not implemented.
+- Rectilinear grids, volumetric scattering and reduced image sample distances are
+  not implemented.
