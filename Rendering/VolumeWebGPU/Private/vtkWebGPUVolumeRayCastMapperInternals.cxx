@@ -892,42 +892,24 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateHiddenVoxels(Input& input
   }
   if (cellGhosts != nullptr)
   {
-    // A point belongs to up to eight cells, and a ghosted cell takes every point of it with it.
+    // A ghosted cell is recorded at its lowest corner, as the OpenGL mapper records it, and the
+    // neighbour rule then hides the samples around that corner. Marking all eight corners would
+    // erode a second voxel off every boundary on top of that.
     const int* dims = input.Dimensions;
     const int cells[3] = { std::max(dims[0] - 1, 1), std::max(dims[1] - 1, 1),
       std::max(dims[2] - 1, 1) };
-    for (int z = 0; z < dims[2]; ++z)
+    const vtkIdType count = std::min<vtkIdType>(
+      cellGhosts->GetNumberOfTuples(), static_cast<vtkIdType>(cells[0]) * cells[1] * cells[2]);
+    for (vtkIdType cell = 0; cell < count; ++cell)
     {
-      for (int y = 0; y < dims[1]; ++y)
+      if (cellGhosts->GetValue(cell) == 0)
       {
-        for (int x = 0; x < dims[0]; ++x)
-        {
-          bool hidden = false;
-          for (int dz = -1; dz <= 0 && !hidden; ++dz)
-          {
-            for (int dy = -1; dy <= 0 && !hidden; ++dy)
-            {
-              for (int dx = -1; dx <= 0 && !hidden; ++dx)
-              {
-                const int cx = x + dx;
-                const int cy = y + dy;
-                const int cz = z + dz;
-                if (cx < 0 || cy < 0 || cz < 0 || cx >= cells[0] || cy >= cells[1] ||
-                  cz >= cells[2])
-                {
-                  continue;
-                }
-                const vtkIdType cell = (static_cast<vtkIdType>(cz) * cells[1] + cy) * cells[0] + cx;
-                hidden = cell < cellGhosts->GetNumberOfTuples() && cellGhosts->GetValue(cell) != 0;
-              }
-            }
-          }
-          if (hidden)
-          {
-            input.Hidden[((static_cast<vtkIdType>(z) * dims[1] + y) * dims[0] + x) * 2] = 255;
-          }
-        }
+        continue;
       }
+      const vtkIdType x = cell % cells[0];
+      const vtkIdType y = (cell / cells[0]) % cells[1];
+      const vtkIdType z = cell / (static_cast<vtkIdType>(cells[0]) * cells[1]);
+      input.Hidden[((z * dims[1] + y) * dims[0] + x) * 2] = 255;
     }
   }
 }
