@@ -23,6 +23,7 @@
 #include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 #include <array>   // for array
+#include <memory>  // for unique_ptr
 #include <set>     // for set
 #include <utility> // for pair
 #include <vector>  // for TextureInfo
@@ -33,6 +34,7 @@ class vtkOpenGLLowMemoryCellTypeAgent;
 class vtkOpenGLLowMemoryVerticesAgent;
 class vtkOpenGLLowMemoryLinesAgent;
 class vtkOpenGLLowMemoryPolygonsAgent;
+class vtkOpenGLRenderTimer;
 class vtkOverrideAttribute;
 class vtkShaderProgram;
 
@@ -417,6 +419,9 @@ private:
   friend class vtkOpenGLLowMemoryPolygonsAgent;
 
   vtkNew<vtkMatrix4x4> TempMatrix4;
+  // used to occasionally invoke timers
+  unsigned int TimerQueryCounter = 1; // init to 1 as 0 indicates we have initiated a request
+  std::unique_ptr<vtkOpenGLRenderTimer> TimerQuery;
 };
 
 #define vtkOpenGLLowMemoryPolyDataMapper_OVERRIDE_ATTRIBUTES                                       \

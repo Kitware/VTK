@@ -99,6 +99,7 @@ set(cxx_tests
   TestLabeledContourMapperNoLabels.cxx
   TestLabeledContourMapperWithActorMatrix.cxx
   TestLineRendering.cxx,NO_DATA
+  TestLODProp3D.cxx,NO_VALID
   TestManyActors.cxx,NO_VALID
   TestManyRenderWindows.cxx,NO_VALID,NO_RT,NO_DATA
   TestMapVectorsAsRGBColors.cxx

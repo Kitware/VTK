@@ -26,6 +26,7 @@
 #include "vtkOpenGLLowMemoryStripsAgent.h"
 #include "vtkOpenGLLowMemoryVerticesAgent.h"
 #include "vtkOpenGLRenderPass.h"
+#include "vtkOpenGLRenderTimer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
@@ -179,6 +180,7 @@ vtkStandardNewMacro(vtkOpenGLLowMemoryPolyDataMapper);
 
 //------------------------------------------------------------------------------
 vtkOpenGLLowMemoryPolyDataMapper::vtkOpenGLLowMemoryPolyDataMapper()
+  : TimerQuery(new vtkOpenGLRenderTimer())
 {
   // turns off color map textures from vtkDrawTexturedElements. (we use our own)
   this->IncludeColormap = false;
@@ -236,6 +238,8 @@ vtkOpenGLLowMemoryPolyDataMapper::vtkOpenGLLowMemoryPolyDataMapper()
   (void)pointIdOffset;
   (void)primitiveIdOffset;
   (void)useIndexedPointId;
+
+  this->TimeToDraw = 0.0001; // placeholder (need anything other than 0)
 }
 
 //------------------------------------------------------------------------------
@@ -287,6 +291,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReleaseGraphicsResources(vtkWindow* windo
     this->InternalColorTexture->ReleaseGraphicsResources(window);
   }
   this->ReleaseResources(window);
+  this->TimerQuery->ReleaseGraphicsResources();
   // Reset the render timestamp so that the next render will update the buffers.
   this->RenderTimeStamp = vtkTimeStamp();
 }
@@ -427,6 +432,24 @@ void vtkOpenGLLowMemoryPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkAct
 //------------------------------------------------------------------------------
 void vtkOpenGLLowMemoryPolyDataMapper::RenderPieceStart(vtkRenderer* renderer, vtkActor* actor)
 {
+  if (this->CurrentInput)
+  {
+    // timer calls take time, for lots of "small" actors
+    // the timer can be a big hit. So we only update
+    // once per million cells or every 100 renders
+    // whichever happens first
+    vtkIdType numCells = this->CurrentInput->GetNumberOfCells();
+    if (numCells > 0)
+    {
+      this->TimerQueryCounter++;
+      if (this->TimerQueryCounter > 100 ||
+        static_cast<double>(this->TimerQueryCounter) > 1000000.0 / numCells)
+      {
+        this->TimerQuery->ReusableStart();
+        this->TimerQueryCounter = 0;
+      }
+    }
+  }
   if (!this->IsUpToDate(renderer, actor))
   {
     this->DeleteTextureBuffers();
@@ -530,6 +553,20 @@ void vtkOpenGLLowMemoryPolyDataMapper::RenderPieceFinish(vtkRenderer* renderer, 
   if (this->ColorTextureMap)
   {
     this->InternalColorTexture->PostRender(renderer);
+  }
+  // timer calls take time, for lots of "small" actors
+  // the timer can be a big hit. So we assume zero time
+  // for anything less than 100K cells
+  if (this->TimerQueryCounter == 0)
+  {
+    this->TimerQuery->ReusableStop();
+    this->TimeToDraw = this->TimerQuery->GetReusableElapsedSeconds();
+    // If the timer is not accurate enough, set it to a small
+    // time so that it is not zero
+    if (this->TimeToDraw == 0.0)
+    {
+      this->TimeToDraw = 0.0001;
+    }
   }
   this->RenderTimeStamp.Modified();
 }

@@ -246,7 +246,10 @@ struct WriteTypedArrayWithScale
 vtkStandardNewMacro(vtkWebGPUPolyDataMapper);
 
 //------------------------------------------------------------------------------
-vtkWebGPUPolyDataMapper::vtkWebGPUPolyDataMapper() = default;
+vtkWebGPUPolyDataMapper::vtkWebGPUPolyDataMapper()
+{
+  this->TimeToDraw = 0.0001;
+}
 
 //------------------------------------------------------------------------------
 vtkWebGPUPolyDataMapper::~vtkWebGPUPolyDataMapper() = default;
