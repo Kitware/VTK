@@ -1169,8 +1169,10 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
 
     params.PageOffset = this->PageOffsets[index];
     params.CellOffset = this->CellOffsets[index];
-    params.PoolKind =
-      static_cast<std::uint32_t>((contribution.BytePool ? 0 : 1) + (components > 1 ? 2 : 0));
+    // The pool the bricks were uploaded to, which is chosen by channels rather than components:
+    // a second transfer function axis array rides in a channel of its own.
+    params.PoolKind = static_cast<std::uint32_t>(
+      (contribution.BytePool ? 0 : 1) + (contribution.PoolChannels > 1 ? 2 : 0));
     params.BrickSize = static_cast<float>(std::max(brickSize, 1));
     params.CellSize = static_cast<float>(std::max(contribution.CellSize, 1));
     params.OpacityUnitDistance =
