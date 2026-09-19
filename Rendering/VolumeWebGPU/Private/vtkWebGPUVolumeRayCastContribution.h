@@ -153,6 +153,9 @@ struct vtkWebGPUVolumeRayCastContribution
   vtkMTimeType BrickTime = 0;
   /// When cells were last classified on their own, as bricks of a streamed volume arrive.
   vtkMTimeType CellsTime = 0;
+  /// Read a brick at a time. A brick fetched from such a volume is also the first look at its
+  /// cells, so the picture keeps changing for a frame after it arrives.
+  bool Streaming = false;
 };
 
 VTK_ABI_NAMESPACE_END

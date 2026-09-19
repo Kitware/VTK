@@ -23,6 +23,7 @@
 
 #include "Private/vtkWebGPUVolumeRayCastContribution.h"
 
+#include "vtkImageData.h" // for the stream shell
 #include "vtkMatrix4x4.h" // for the per input index to physical transform
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
@@ -36,6 +37,8 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkAlgorithm;
+class vtkInformation;
 class vtkDataArray;
 class vtkImageData;
 class vtkVolume;
@@ -65,10 +68,55 @@ public:
   /// Per port appearance overrides, used when a port is not backed by its own vtkVolume.
   std::map<int, vtkSmartPointer<vtkVolumeProperty>> PortProperties;
 
+  /**
+   * What is known of a port that is read a brick at a time. Only pipeline information is needed to
+   * decide, plus one voxel read to learn exactly which array the mapper takes and how it is stored.
+   */
+  struct Stream
+  {
+    bool Active = false;
+    vtkAlgorithm* Source = nullptr;
+    int SourcePort = 0;
+    int WholeExtent[6] = { 0, -1, 0, -1, 0, -1 };
+    /// The volume's geometry with no voxels in it, standing in for the data everywhere the whole
+    /// volume would otherwise be asked about.
+    vtkNew<vtkImageData> Shell;
+    /// Type, components and name of the array read, and nothing else.
+    vtkSmartPointer<vtkDataArray> Scalars;
+    /// The range the source publishes for that array, when it does.
+    bool HasRange = false;
+    double Range[2] = { 0.0, 1.0 };
+    vtkMTimeType PipelineTime = 0;
+    /// The source could stream but what it produces cannot be, say because it is cell data. Held
+    /// until something upstream changes, so the whole volume is asked for meanwhile.
+    bool Refused = false;
+  };
+
+  /**
+   * Whether \a port would be streamed, judged from its pipeline information alone. Safe to call
+   * while a pipeline request is being answered, which UpdateStream is not.
+   */
+  bool WantsStreaming(int port, vtkInformation* info);
+
+  /**
+   * Whether \a port is streamed, bringing what is known of its source up to date. Asks the
+   * pipeline for information only; the one voxel probe is repeated only when something upstream
+   * changed.
+   */
+  bool UpdateStream(int port);
+  std::map<int, Stream> Streams;
+
+  /**
+   * Read \a extent, in the source's own index space, from \a source through the pipeline. The
+   * block returned belongs to the source and is only good until its next update.
+   */
+  static vtkImageData* ReadExtent(vtkAlgorithm* source, int sourcePort, const int extent[6]);
+
 private:
   struct Input : public vtkWebGPUVolumeBrickSource
   {
     int Port = 0;
+    vtkWebGPUVolumeRayCastMapper* Mapper = nullptr;
     vtkImageData* Data = nullptr;
     vtkVolumeProperty* Property = nullptr;
     vtkMatrix4x4* WorldMatrix = nullptr;
@@ -152,6 +200,18 @@ private:
     vtkTimeStamp BrickTime;
     /// Bumped when cells are classified piecemeal, without the rest of the input changing.
     vtkTimeStamp CellsTime;
+
+    /// Read a brick at a time from Source, whose index space starts at WholeExtent. Data is then
+    /// the stream's shell and Scalars only describes the array.
+    bool Streaming = false;
+    vtkAlgorithm* Source = nullptr;
+    int SourcePort = 0;
+    int WholeExtent[6] = { 0, -1, 0, -1, 0, -1 };
+    /// No range was published, so the transfer functions' own range stands in for the data's.
+    bool RangeFromFunctions = false;
+    /// Cells measured as their bricks arrived, waiting to be classified.
+    std::vector<std::size_t> PendingCells;
+    bool FetchStreamedBrick(const int brick[3], int slotSize, void* voxels);
   };
 
   bool CollectInputs(vtkVolume* volume);

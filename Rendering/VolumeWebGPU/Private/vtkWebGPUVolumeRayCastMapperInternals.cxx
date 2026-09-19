@@ -6,15 +6,23 @@
 #include "Private/vtkWebGPUVolumeRayCastCoordinatorInternals.h"
 
 #include "vtkAbstractMapper.h"
+#include "vtkAlgorithm.h"
+#include "vtkAlgorithmOutput.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkDataArray.h"
+#include "vtkDataObject.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkDemandDrivenPipeline.h"
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMultiVolume.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
@@ -117,24 +125,28 @@ void MeasureCells(const T* texels, int components, int component, const int dime
 //------------------------------------------------------------------------------
 // Copy one brick and its one voxel apron, repeating the edge where the apron would leave the
 // volume. The apron lets the shader interpolate inside a brick without reaching into a
-// neighbouring slot, so a brick boundary leaves no seam.
+// neighbouring slot, so a brick boundary leaves no seam. \a source holds the block of the volume
+// starting at \a blockOrigin that is \a blockDimensions in size: the whole volume, or the piece of
+// it a streamed brick was read as.
 template <typename T, typename D>
 void ExtractBrick(const T* source, int components, int channels, const int dimensions[3],
-  int brickSize, const int brick[3], int slotSize, D* destination)
+  int brickSize, const int brick[3], int slotSize, D* destination, const int blockOrigin[3],
+  const int blockDimensions[3])
 {
   const auto pick = [](int value, int last) { return std::clamp(value, 0, last); };
   const int copied = std::min(components, channels);
   for (int z = 0; z < slotSize; ++z)
   {
-    const int sz = pick(brick[2] * brickSize + z - 1, dimensions[2] - 1);
+    const int sz = pick(brick[2] * brickSize + z - 1, dimensions[2] - 1) - blockOrigin[2];
     for (int y = 0; y < slotSize; ++y)
     {
-      const int sy = pick(brick[1] * brickSize + y - 1, dimensions[1] - 1);
-      const vtkIdType row = (static_cast<vtkIdType>(sz) * dimensions[1] + sy) * dimensions[0];
+      const int sy = pick(brick[1] * brickSize + y - 1, dimensions[1] - 1) - blockOrigin[1];
+      const vtkIdType row =
+        (static_cast<vtkIdType>(sz) * blockDimensions[1] + sy) * blockDimensions[0];
       D* out = destination + (static_cast<vtkIdType>(z) * slotSize + y) * slotSize * channels;
       for (int x = 0; x < slotSize; ++x)
       {
-        const int sx = pick(brick[0] * brickSize + x - 1, dimensions[0] - 1);
+        const int sx = pick(brick[0] * brickSize + x - 1, dimensions[0] - 1) - blockOrigin[0];
         const vtkIdType tuple = (row + sx) * components;
         for (int c = 0; c < copied; ++c)
         {
@@ -143,6 +155,80 @@ void ExtractBrick(const T* source, int components, int channels, const int dimen
         for (int c = copied; c < channels; ++c)
         {
           out[x * channels + c] = D(0);
+        }
+      }
+    }
+  }
+}
+
+constexpr int WholeOrigin[3] = { 0, 0, 0 };
+
+//------------------------------------------------------------------------------
+// Scalar extremes of the cells that lie wholly inside the voxels [\a low, \a high], read from a
+// streamed block. A cell reaching outside is left unmeasured rather than half measured: it could
+// otherwise look empty and keep the brick that holds the rest of it from ever being read.
+template <typename T>
+void MeasureBlockCells(const T* texels, int components, int component, const int blockOrigin[3],
+  const int blockDimensions[3], const int dimensions[3], int cellSize, const int cellDimensions[3],
+  const int low[3], const int high[3], std::vector<float>& minimum, std::vector<float>& maximum,
+  std::vector<std::size_t>* measured)
+{
+  int first[3];
+  int last[3];
+  for (int i = 0; i < 3; ++i)
+  {
+    first[i] = low[i] / cellSize;
+    last[i] = std::min(high[i] / cellSize, cellDimensions[i] - 1);
+  }
+  for (int cz = first[2]; cz <= last[2]; ++cz)
+  {
+    const int z0 = cz * cellSize;
+    const int z1 = std::min(z0 + cellSize, dimensions[2] - 1);
+    if (z0 < low[2] || z1 > high[2])
+    {
+      continue;
+    }
+    for (int cy = first[1]; cy <= last[1]; ++cy)
+    {
+      const int y0 = cy * cellSize;
+      const int y1 = std::min(y0 + cellSize, dimensions[1] - 1);
+      if (y0 < low[1] || y1 > high[1])
+      {
+        continue;
+      }
+      for (int cx = first[0]; cx <= last[0]; ++cx)
+      {
+        const int x0 = cx * cellSize;
+        const int x1 = std::min(x0 + cellSize, dimensions[0] - 1);
+        if (x0 < low[0] || x1 > high[0])
+        {
+          continue;
+        }
+        float lowest = std::numeric_limits<float>::max();
+        float highest = std::numeric_limits<float>::lowest();
+        for (int z = z0; z <= z1; ++z)
+        {
+          for (int y = y0; y <= y1; ++y)
+          {
+            const vtkIdType row = (static_cast<vtkIdType>(z - blockOrigin[2]) * blockDimensions[1] +
+                                    (y - blockOrigin[1])) *
+              blockDimensions[0];
+            for (int x = x0; x <= x1; ++x)
+            {
+              const float value =
+                static_cast<float>(texels[(row + x - blockOrigin[0]) * components + component]);
+              lowest = std::min(lowest, value);
+              highest = std::max(highest, value);
+            }
+          }
+        }
+        const std::size_t index =
+          (static_cast<std::size_t>(cz) * cellDimensions[1] + cy) * cellDimensions[0] + cx;
+        minimum[index] = lowest;
+        maximum[index] = highest;
+        if (measured != nullptr)
+        {
+          measured->push_back(index);
         }
       }
     }
@@ -242,6 +328,202 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::ReleaseGraphicsResources()
 }
 
 //------------------------------------------------------------------------------
+vtkImageData* vtkWebGPUVolumeRayCastMapper::vtkInternals::ReadExtent(
+  vtkAlgorithm* source, int sourcePort, const int extent[6])
+{
+  vtkNew<vtkInformation> request;
+  request->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
+  vtkNew<vtkInformationVector> requests;
+  requests->SetInformationObject(sourcePort, request);
+  if (!source->Update(sourcePort, requests))
+  {
+    return nullptr;
+  }
+  auto* block = vtkImageData::SafeDownCast(source->GetOutputDataObject(sourcePort));
+  if (block == nullptr)
+  {
+    return nullptr;
+  }
+  // A source may hand back more than was asked for, never less.
+  const int* got = block->GetExtent();
+  for (int i = 0; i < 3; ++i)
+  {
+    if (got[2 * i] > extent[2 * i] || got[2 * i + 1] < extent[2 * i + 1])
+    {
+      return nullptr;
+    }
+  }
+  return block;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUVolumeRayCastMapper::vtkInternals::WantsStreaming(int port, vtkInformation* info)
+{
+  // A mask and a second transfer function axis are whole volumes of their own, and are read whole.
+  if (info == nullptr || this->Self->GetMaskInput() != nullptr ||
+    this->Self->GetTransfer2DYAxisArray() != nullptr)
+  {
+    return false;
+  }
+  const auto known = this->Streams.find(port);
+  if (known != this->Streams.end() && known->second.Refused)
+  {
+    return false;
+  }
+  if (!info->Has(vtkAlgorithm::CAN_PRODUCE_SUB_EXTENT()) ||
+    info->Get(vtkAlgorithm::CAN_PRODUCE_SUB_EXTENT()) == 0 ||
+    !info->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+  {
+    return false;
+  }
+  int whole[6];
+  info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), whole);
+  double voxels = 1.0;
+  for (int i = 0; i < 3; ++i)
+  {
+    voxels *= std::max(0, whole[2 * i + 1] - whole[2 * i] + 1);
+  }
+  if (voxels <= 0.0)
+  {
+    return false;
+  }
+  // Small enough to hold is faster to read in one go, so only what would not fit is streamed.
+  vtkInformation* field = vtkDataObject::GetActiveFieldInformation(
+    info, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  const int type = field != nullptr && field->Has(vtkDataObject::FIELD_ARRAY_TYPE())
+    ? field->Get(vtkDataObject::FIELD_ARRAY_TYPE())
+    : VTK_FLOAT;
+  const int components = field != nullptr && field->Has(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS())
+    ? field->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS())
+    : 1;
+  const double bytes = voxels * vtkDataArray::GetDataTypeSize(type) * components;
+  return bytes > static_cast<double>(this->Self->GetStreamingThresholdMB()) * 1024.0 * 1024.0;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateStream(int port)
+{
+  Stream& stream = this->Streams[port];
+  stream.Active = false;
+
+  if (this->Self->GetNumberOfInputConnections(port) < 1)
+  {
+    return false;
+  }
+  vtkAlgorithmOutput* connection = this->Self->GetInputConnection(port, 0);
+  vtkAlgorithm* source = connection != nullptr ? connection->GetProducer() : nullptr;
+  if (source == nullptr)
+  {
+    return false;
+  }
+  const int sourcePort = connection->GetIndex();
+  source->UpdateInformation();
+  vtkInformation* info = source->GetOutputInformation(sourcePort);
+  if (info == nullptr)
+  {
+    return false;
+  }
+
+  // Anything upstream changing starts the port over, including a refusal to stream it.
+  int whole[6] = { 0, -1, 0, -1, 0, -1 };
+  if (info->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+  {
+    info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), whole);
+  }
+  auto* executive = vtkDemandDrivenPipeline::SafeDownCast(source->GetExecutive());
+  vtkMTimeType pipelineTime = 0;
+  if (executive != nullptr)
+  {
+    executive->UpdatePipelineMTime();
+    pipelineTime = executive->GetPipelineMTime();
+  }
+  if (stream.Source != source || stream.SourcePort != sourcePort ||
+    !std::equal(whole, whole + 6, stream.WholeExtent) || stream.PipelineTime != pipelineTime)
+  {
+    stream.Source = source;
+    stream.SourcePort = sourcePort;
+    std::copy_n(whole, 6, stream.WholeExtent);
+    stream.PipelineTime = pipelineTime;
+    stream.Scalars = nullptr;
+    stream.Refused = false;
+  }
+
+  if (!this->WantsStreaming(port, info))
+  {
+    return false;
+  }
+  if (stream.Scalars == nullptr)
+  {
+    // The shell starts its extent at zero, as the input clones the mapper renders from do, with
+    // the origin moved to where the whole extent actually begins.
+    double spacing[3] = { 1.0, 1.0, 1.0 };
+    double origin[3] = { 0.0, 0.0, 0.0 };
+    double direction[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+    if (info->Has(vtkDataObject::SPACING()))
+    {
+      info->Get(vtkDataObject::SPACING(), spacing);
+    }
+    if (info->Has(vtkDataObject::ORIGIN()))
+    {
+      info->Get(vtkDataObject::ORIGIN(), origin);
+    }
+    if (info->Has(vtkDataObject::DIRECTION()))
+    {
+      info->Get(vtkDataObject::DIRECTION(), direction);
+    }
+    vtkImageData* shell = stream.Shell;
+    shell->SetDimensions(whole[1] - whole[0] + 1, whole[3] - whole[2] + 1, whole[5] - whole[4] + 1);
+    shell->SetSpacing(spacing);
+    shell->SetDirectionMatrix(direction);
+    shell->SetOrigin(origin);
+    double start[3];
+    const double index[3] = { static_cast<double>(whole[0]), static_cast<double>(whole[2]),
+      static_cast<double>(whole[4]) };
+    shell->TransformContinuousIndexToPhysicalPoint(index, start);
+    shell->SetOrigin(start);
+    shell->Modified();
+
+    // One voxel is enough to see which array the mapper will take and how it is stored.
+    const int corner[6] = { whole[0], whole[0], whole[2], whole[2], whole[4], whole[4] };
+    vtkImageData* probe = ReadExtent(source, sourcePort, corner);
+    int cellFlag = 0;
+    vtkDataArray* scalars = probe == nullptr
+      ? nullptr
+      : vtkAbstractMapper::GetScalars(probe, this->Self->GetScalarMode(),
+          this->Self->GetArrayAccessMode(), this->Self->GetArrayId(), this->Self->GetArrayName(),
+          cellFlag);
+    // Cell data and ghost arrays are not streamed: both are defined against a whole grid.
+    if (scalars == nullptr || cellFlag != 0 || probe->GetPointGhostArray() != nullptr ||
+      probe->GetCellGhostArray() != nullptr)
+    {
+      stream.Refused = true;
+      return false;
+    }
+    stream.Scalars = vtkSmartPointer<vtkDataArray>::Take(scalars->NewInstance());
+    stream.Scalars->SetNumberOfComponents(scalars->GetNumberOfComponents());
+    stream.Scalars->SetName(scalars->GetName());
+
+    stream.HasRange = false;
+    vtkInformation* field = vtkDataObject::GetActiveFieldInformation(
+      info, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+    if (field != nullptr && field->Has(vtkDataObject::FIELD_RANGE()))
+    {
+      const char* published =
+        field->Has(vtkDataObject::FIELD_NAME()) ? field->Get(vtkDataObject::FIELD_NAME()) : nullptr;
+      const char* read = scalars->GetName();
+      if (published == nullptr || read == nullptr || std::strcmp(published, read) == 0)
+      {
+        field->Get(vtkDataObject::FIELD_RANGE(), stream.Range);
+        stream.HasRange = stream.Range[1] > stream.Range[0];
+      }
+    }
+  }
+
+  stream.Active = true;
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool vtkWebGPUVolumeRayCastMapper::vtkInternals::CollectInputs(vtkVolume* volume)
 {
   this->ActivePorts.clear();
@@ -251,7 +533,13 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::CollectInputs(vtkVolume* volume
 
   for (int port : ports)
   {
-    auto* image = vtkImageData::SafeDownCast(this->Self->GetTransformedInput(port));
+    // A streamed port has no data to hand over, only its shell and the array it will be read as.
+    const auto streamed = this->Streams.find(port);
+    Stream* stream =
+      streamed != this->Streams.end() && streamed->second.Active ? &streamed->second : nullptr;
+    auto* image = stream != nullptr
+      ? stream->Shell.Get()
+      : vtkImageData::SafeDownCast(this->Self->GetTransformedInput(port));
     if (image == nullptr)
     {
       continue;
@@ -259,9 +547,11 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::CollectInputs(vtkVolume* volume
     // Not always the active point scalars: the mapper may have been pointed at a named array, or
     // at the cell data.
     int cellFlag = 0;
-    vtkDataArray* scalars = vtkAbstractMapper::GetScalars(image, this->Self->GetScalarMode(),
-      this->Self->GetArrayAccessMode(), this->Self->GetArrayId(), this->Self->GetArrayName(),
-      cellFlag);
+    vtkDataArray* scalars = stream != nullptr
+      ? stream->Scalars.Get()
+      : vtkAbstractMapper::GetScalars(image, this->Self->GetScalarMode(),
+          this->Self->GetArrayAccessMode(), this->Self->GetArrayId(), this->Self->GetArrayName(),
+          cellFlag);
     if (scalars == nullptr || cellFlag == 2)
     {
       continue;
@@ -322,6 +612,20 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::CollectInputs(vtkVolume* volume
 
     Input& input = this->InputCache[port];
     input.Port = port;
+    input.Mapper = this->Self;
+    if (input.Streaming != (stream != nullptr))
+    {
+      input.CellSize = 0;
+      input.DataTime = 0;
+      input.ColorTable.clear();
+    }
+    input.Streaming = stream != nullptr;
+    if (stream != nullptr)
+    {
+      input.Source = stream->Source;
+      input.SourcePort = stream->SourcePort;
+      std::copy_n(stream->WholeExtent, 6, input.WholeExtent);
+    }
     input.Data = image;
     vtkImageData* mask = this->Self->GetMaskInput();
     if (input.Mask != mask || input.MaskType != this->Self->GetMaskType() ||
@@ -407,13 +711,37 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
   input.ValueBias = 0.0f;
   // A second axis array takes the channel a second component would have taken.
   input.PoolChannels = (input.NumberOfComponents > 1 || input.YAxisScalars != nullptr) ? 4 : 1;
-  for (int component = 0; component < 4; ++component)
+  input.RangeFromFunctions = false;
+  if (input.Streaming)
   {
-    scalars->GetRange(input.DataRange[component], std::min(component, available - 1));
+    // Finding the range of a streamed volume would mean reading all of it, which is what
+    // streaming is there to avoid, so it is taken from the source or, failing that, from the
+    // transfer functions themselves.
+    const Stream& stream = this->Streams[input.Port];
+    for (int component = 0; component < 4; ++component)
+    {
+      input.DataRange[component][0] = stream.Range[0];
+      input.DataRange[component][1] = stream.Range[1];
+    }
+    input.RangeFromFunctions = !stream.HasRange;
+    if (input.RangeFromFunctions)
+    {
+      vtkWarningWithObjectMacro(this->Self,
+        << "Input " << input.Port << " is streamed and its source publishes no scalar range, so "
+        << "the transfer functions are mapped over their own range. Publish "
+        << "vtkDataObject::FIELD_RANGE() from the source to map them over the data's.");
+    }
   }
-  if (input.YAxisScalars != nullptr)
+  else
   {
-    input.YAxisScalars->GetRange(input.DataRange[1], 0);
+    for (int component = 0; component < 4; ++component)
+    {
+      scalars->GetRange(input.DataRange[component], std::min(component, available - 1));
+    }
+    if (input.YAxisScalars != nullptr)
+    {
+      input.YAxisScalars->GetRange(input.DataRange[1], 0);
+    }
   }
 
   input.CellSize = cellSize;
@@ -422,26 +750,45 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
     input.CellDimensions[i] = std::max(1, (dimensions[i] - 1) / cellSize + 1);
   }
 
-  void* source = scalars->GetVoidPointer(0);
-  // Every component is measured, because a region that one component maps to nothing may be
-  // exactly where another one carries what there is to see.
-  for (int component = 0; component < input.NumberOfComponents; ++component)
+  if (input.Streaming)
   {
-    const int read = std::min(component, available - 1);
-    switch (scalars->GetDataType())
+    // Nothing is known of a cell until the brick holding it is read. An unknown cell is marked by
+    // a minimum above its maximum and counts as holding everything, so it is never skipped.
+    const std::size_t cells = static_cast<std::size_t>(input.CellDimensions[0]) *
+      input.CellDimensions[1] * input.CellDimensions[2];
+    for (int component = 0; component < input.NumberOfComponents; ++component)
     {
-      vtkTemplateMacro(
-        MeasureCells(static_cast<const VTK_TT*>(source), available, read, dimensions, cellSize,
-          input.CellDimensions, input.CellMinimum[component], input.CellMaximum[component]));
-      default:
-        vtkErrorWithObjectMacro(
-          this->Self, << "Unsupported scalar type on input " << input.Port << ".");
-        input.CellSize = 0;
-        return;
+      input.CellMinimum[component].assign(cells, std::numeric_limits<float>::max());
+      input.CellMaximum[component].assign(cells, std::numeric_limits<float>::lowest());
     }
+    input.PendingCells.clear();
+    input.Hidden.clear();
+    input.MaskHidesNeighbours = false;
+    input.MaximumLabel = 0;
   }
+  else
+  {
+    void* source = scalars->GetVoidPointer(0);
+    // Every component is measured, because a region that one component maps to nothing may be
+    // exactly where another one carries what there is to see.
+    for (int component = 0; component < input.NumberOfComponents; ++component)
+    {
+      const int read = std::min(component, available - 1);
+      switch (scalars->GetDataType())
+      {
+        vtkTemplateMacro(
+          MeasureCells(static_cast<const VTK_TT*>(source), available, read, dimensions, cellSize,
+            input.CellDimensions, input.CellMinimum[component], input.CellMaximum[component]));
+        default:
+          vtkErrorWithObjectMacro(
+            this->Self, << "Unsupported scalar type on input " << input.Port << ".");
+          input.CellSize = 0;
+          return;
+      }
+    }
 
-  this->UpdateHiddenVoxels(input);
+    this->UpdateHiddenVoxels(input);
+  }
 
   input.Mask = this->Self->GetMaskInput();
   input.MaskType = this->Self->GetMaskType();
@@ -598,9 +945,92 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchMask(
 }
 
 //------------------------------------------------------------------------------
+bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchStreamedBrick(
+  const int brick[3], int slotSize, void* voxels)
+{
+  if (this->Source == nullptr || this->Mapper == nullptr || this->Scalars == nullptr ||
+    slotSize <= 2 || this->CellSize <= 0)
+  {
+    return false;
+  }
+  const int brickSize = slotSize - 2;
+
+  // The voxels the slot needs, its apron included, in the volume's own index space and then in
+  // the source's.
+  int low[3];
+  int high[3];
+  int extent[6];
+  for (int i = 0; i < 3; ++i)
+  {
+    low[i] = std::clamp(brick[i] * brickSize - 1, 0, this->Dimensions[i] - 1);
+    high[i] = std::clamp(brick[i] * brickSize + brickSize, 0, this->Dimensions[i] - 1);
+    extent[2 * i] = this->WholeExtent[2 * i] + low[i];
+    extent[2 * i + 1] = this->WholeExtent[2 * i] + high[i];
+  }
+  vtkImageData* block = vtkInternals::ReadExtent(this->Source, this->SourcePort, extent);
+  if (block == nullptr)
+  {
+    return false;
+  }
+  int cellFlag = 0;
+  vtkDataArray* scalars = vtkAbstractMapper::GetScalars(block, this->Mapper->GetScalarMode(),
+    this->Mapper->GetArrayAccessMode(), this->Mapper->GetArrayId(), this->Mapper->GetArrayName(),
+    cellFlag);
+  // The source changed what it produces under the mapper; the next frame will notice and start
+  // over, so this brick is simply left out.
+  if (scalars == nullptr || cellFlag != 0 ||
+    scalars->GetDataType() != this->Scalars->GetDataType() ||
+    scalars->GetNumberOfComponents() != this->Scalars->GetNumberOfComponents())
+  {
+    return false;
+  }
+
+  const int* got = block->GetExtent();
+  const int blockOrigin[3] = { got[0] - this->WholeExtent[0], got[2] - this->WholeExtent[2],
+    got[4] - this->WholeExtent[4] };
+  const int blockDimensions[3] = { got[1] - got[0] + 1, got[3] - got[2] + 1, got[5] - got[4] + 1 };
+  const int components = scalars->GetNumberOfComponents();
+  const int channels = this->PoolChannels;
+  const void* source = scalars->GetVoidPointer(0);
+
+  switch (scalars->GetDataType())
+  {
+    vtkTemplateMacro(
+      if (this->BytePool) {
+        ExtractBrick(static_cast<const VTK_TT*>(source), components, channels, this->Dimensions,
+          brickSize, brick, slotSize, static_cast<unsigned char*>(voxels), blockOrigin,
+          blockDimensions);
+      } else {
+        ExtractBrick(static_cast<const VTK_TT*>(source), components, channels, this->Dimensions,
+          brickSize, brick, slotSize, static_cast<float*>(voxels), blockOrigin, blockDimensions);
+      });
+    default:
+      return false;
+  }
+
+  // The brick is also the first look anyone has had at its cells.
+  for (int component = 0; component < this->NumberOfComponents; ++component)
+  {
+    const int read = std::min(component, components - 1);
+    switch (scalars->GetDataType())
+    {
+      vtkTemplateMacro(MeasureBlockCells(static_cast<const VTK_TT*>(source), components, read,
+        blockOrigin, blockDimensions, this->Dimensions, this->CellSize, this->CellDimensions, low,
+        high, this->CellMinimum[component], this->CellMaximum[component],
+        component == 0 ? &this->PendingCells : nullptr));
+    }
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchBrick(
   const int brick[3], int slotSize, void* voxels)
 {
+  if (this->Streaming)
+  {
+    return this->FetchStreamedBrick(brick, slotSize, voxels);
+  }
   vtkDataArray* scalars = this->Scalars;
   if (scalars == nullptr || slotSize <= 2)
   {
@@ -619,10 +1049,11 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchBrick(
     vtkTemplateMacro(
       if (this->BytePool) {
         ExtractBrick(static_cast<const VTK_TT*>(source), components, channels, this->Dimensions,
-          brickSize, brick, slotSize, static_cast<unsigned char*>(voxels));
+          brickSize, brick, slotSize, static_cast<unsigned char*>(voxels), WholeOrigin,
+          this->Dimensions);
       } else {
         ExtractBrick(static_cast<const VTK_TT*>(source), components, channels, this->Dimensions,
-          brickSize, brick, slotSize, static_cast<float*>(voxels));
+          brickSize, brick, slotSize, static_cast<float*>(voxels), WholeOrigin, this->Dimensions);
       });
     default:
       return false;
@@ -637,7 +1068,7 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchBrick(
     switch (this->YAxisScalars->GetDataType())
     {
       vtkTemplateMacro(ExtractBrick(static_cast<const VTK_TT*>(yaxis), yComponents, 1,
-        this->Dimensions, brickSize, brick, slotSize, axis.data()));
+        this->Dimensions, brickSize, brick, slotSize, axis.data(), WholeOrigin, this->Dimensions));
       default:
         return false;
     }
@@ -698,6 +1129,12 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateTransferFunctions(Input& 
     // tabulated over. SCALAR, the default, reads the function at the data value; NATIVE reads it at
     // the same fraction of the function's own range.
     double data[2] = { input.DataRange[component][0], input.DataRange[component][1] };
+    if (input.RangeFromFunctions && scalarOpacity != nullptr)
+    {
+      scalarOpacity->GetRange(data);
+      input.DataRange[component][0] = data[0];
+      input.DataRange[component][1] = data[1];
+    }
     if (data[1] <= data[0])
     {
       data[1] = data[0] + 1.0;
@@ -923,13 +1360,35 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateTransferFunctions(Input& 
 //------------------------------------------------------------------------------
 void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateCellClassification(Input& input)
 {
-  if (!input.CellClassification.empty() || input.CellMinimum[0].empty())
+  if (input.CellMinimum[0].empty())
+  {
+    return;
+  }
+  // Either every cell, when the transfer functions or the data changed, or only the cells of a
+  // streamed volume measured since the last frame.
+  const bool whole = input.CellClassification.empty();
+  if (!whole && input.PendingCells.empty())
   {
     return;
   }
 
   const std::size_t cells = input.CellMinimum[0].size();
-  input.CellClassification.assign(cells * 2, 0.0f);
+  std::vector<std::size_t> every;
+  if (whole)
+  {
+    input.CellClassification.assign(cells * 2, 0.0f);
+    every.resize(cells);
+    for (std::size_t cell = 0; cell < cells; ++cell)
+    {
+      every[cell] = cell;
+    }
+  }
+  const std::vector<std::size_t>& chosen = whole ? every : input.PendingCells;
+  for (std::size_t cell : chosen)
+  {
+    input.CellClassification[cell * 2] = 0.0f;
+    input.CellClassification[cell * 2 + 1] = 0.0f;
+  }
 
   // A cell is only empty when every component says so, and it is as detailed as the component
   // that varies most across it, so each one is asked in turn and the answers are combined.
@@ -949,8 +1408,15 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateCellClassification(Input&
     const double origin = input.ScalarRange[table][0];
     const double scale = 1.0 / (input.ScalarRange[table][1] - origin);
 
-    for (std::size_t cell = 0; cell < cells; ++cell)
+    for (std::size_t cell : chosen)
     {
+      // Not read yet: it could hold anything, so it is treated as holding everything.
+      if (input.CellMinimum[measured][cell] > input.CellMaximum[measured][cell])
+      {
+        input.CellClassification[cell * 2] = 1.0f;
+        input.CellClassification[cell * 2 + 1] = 1.0f;
+        continue;
+      }
       const double low = std::clamp((input.CellMinimum[measured][cell] - origin) * scale, 0.0, 1.0);
       const double high =
         std::clamp((input.CellMaximum[measured][cell] - origin) * scale, 0.0, 1.0);
@@ -974,7 +1440,15 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateCellClassification(Input&
     }
   }
 
-  input.ContentTime.Modified();
+  input.PendingCells.clear();
+  if (whole)
+  {
+    input.ContentTime.Modified();
+  }
+  else
+  {
+    input.CellsTime.Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1039,6 +1513,7 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::SyncDeviceResources(
     contribution.ContentTime = input.ContentTime.GetMTime();
     contribution.BrickTime = input.BrickTime.GetMTime();
     contribution.CellsTime = input.CellsTime.GetMTime();
+    contribution.Streaming = input.Streaming;
 
     if (!coordinator->GetInternals()->Offer(contribution))
     {

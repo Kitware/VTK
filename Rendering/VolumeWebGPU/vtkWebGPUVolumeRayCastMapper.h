@@ -69,6 +69,18 @@ public:
 
   void GPURender(vtkRenderer* ren, vtkVolume* vol) override;
 
+  /**
+   * Reads streamed inputs a brick at a time instead of updating them whole first.
+   */
+  void Render(vtkRenderer* ren, vtkVolume* vol) override;
+
+  /**
+   * Asks nothing of a streamed input when the mapper is updated, as vtkVolume does before every
+   * render: its bricks are read as they are needed instead.
+   */
+  vtkTypeBool ProcessRequest(
+    vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
+
   ///@{
   /**
    * What the last render produced while RenderToImage was on: the volume drawn alone over a
@@ -167,6 +179,27 @@ public:
   vtkGetMacro(InteractiveMaximumNumberOfSamples, int);
   ///@}
 
+  ///@{
+  /**
+   * Read an input through the pipeline a brick at a time, rather than updating it whole, when its
+   * source can produce sub-extents and the volume would otherwise take more than this many
+   * megabytes. Only the bricks the rays reach are read, and the volume fills in over the frames
+   * that follow; vtkWebGPUVolumeRayCastCoordinator::GetComplete() says when it has. 0 streams
+   * whenever the source allows it. Defaults to 1024.
+   *
+   * The transfer functions of a streamed input are mapped over the range its source publishes
+   * with vtkDataObject::FIELD_RANGE(), or over their own range when none is published. An input
+   * with a mask, a second transfer function axis array, cell scalars or ghost arrays is read whole.
+   */
+  vtkSetClampMacro(StreamingThresholdMB, int, 0, VTK_INT_MAX);
+  vtkGetMacro(StreamingThresholdMB, int);
+  ///@}
+
+  /**
+   * Whether the input on \a port is read a brick at a time.
+   */
+  bool IsStreaming(int port = 0);
+
   /// Device side state, defined in a private header so that no WebGPU type reaches this one.
   class vtkInternals;
 
@@ -187,6 +220,7 @@ protected:
   double MaximumSampleDistanceFactor = 6.0;
   double EmptySpaceOpacityThreshold = 0.001;
   int InteractiveMaximumNumberOfSamples = 256;
+  int StreamingThresholdMB = 1024;
 
 private:
   vtkWebGPUVolumeRayCastMapper(const vtkWebGPUVolumeRayCastMapper&) = delete;

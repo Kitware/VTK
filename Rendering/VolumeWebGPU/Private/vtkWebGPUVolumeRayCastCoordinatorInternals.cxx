@@ -914,6 +914,11 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateResidency(
     table[candidate.Page].Slot = slot;
     table[candidate.Page].Flags |= PageResident;
     --allowance;
+    // Its cells were measured just now and are classified next frame, which changes the picture.
+    if (contribution.Streaming)
+    {
+      this->Complete = false;
+    }
   }
 
   auto configuration = window->GetWGPUConfiguration();
