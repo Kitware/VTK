@@ -82,6 +82,11 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
     DATA{../Data/Input/TestOBJImporter-ScalarsDuplication.obj}
 )
 
+vtk_add_test_cxx(vtkIOImportCxxTests tests   
+  TestOBJImporter-GroupFirstLine,TestOBJImporter.cxx
+    DATA{../Data/Input/group_first_line.obj}
+)
+
 # Test a malformed file
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestOBJImporter-Malformed,TestOBJImporter.cxx,NO_VALID
