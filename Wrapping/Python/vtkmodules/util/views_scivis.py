@@ -29,6 +29,7 @@ from vtkmodules.util import colors as _colors
 from vtkmodules.vtkViewsScivis import (
     vtkScivisView,
     vtkSurfaceRepresentation,
+    vtkTextOverlayRepresentation,
     vtkVolumeRepresentation,
 )
 
@@ -79,6 +80,20 @@ def _resolve_color(color):
             )
     return tuple(color)
 
+
+
+def _wrapped_base(cls):
+    """The VTK class behind an override class.
+
+    The override classes below add properties of their own -- named colors, and
+    anything reached by delegation -- that the wrapped class knows nothing
+    about.  Deciding what VTK's own constructor handling will accept has to ask
+    that class, not this one.
+    """
+    for klass in cls.__mro__:
+        if klass.__module__.startswith("vtkmodules.vtk"):
+            return klass
+    return cls
 
 
 def _check_property(obj, name):
@@ -144,7 +159,7 @@ class _Delegating:
         native, deferred = {}, {}
         for name, value in kwargs.items():
             # A dict is always ours to apply: VTK would try to assign it.
-            if isinstance(value, dict) or not hasattr(type(self), name):
+            if isinstance(value, dict) or not hasattr(_wrapped_base(type(self)), name):
                 deferred[name] = value
             else:
                 native[name] = value
@@ -219,6 +234,23 @@ class SurfaceRepresentation(_Delegating, vtkSurfaceRepresentation):
     @edge_color.setter
     def edge_color(self, value):
         self.SetEdgeColor(*_resolve_color(value))
+
+
+@vtkTextOverlayRepresentation.override
+class TextOverlayRepresentation(_Delegating, vtkTextOverlayRepresentation):
+    """``vtkTextOverlayRepresentation`` with named colors and property delegation."""
+
+    # How the text is drawn lives on the text property, so ``font_size``,
+    # ``bold`` and the rest read as if they were the representation's own.
+    _delegates = ("GetTextProperty", "GetTextActor")
+
+    @property
+    def color(self):
+        return self.GetTextProperty().GetColor()
+
+    @color.setter
+    def color(self, value):
+        self.GetTextProperty().SetColor(*_resolve_color(value))
 
 
 @vtkScivisView.override

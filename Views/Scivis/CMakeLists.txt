@@ -7,6 +7,7 @@ set(classes
   vtkScivisView
   vtkScivisSelector
   vtkSurfaceRepresentation
+  vtkTextOverlayRepresentation
   vtkVolumeRepresentation
   )
 

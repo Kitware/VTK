@@ -5,6 +5,7 @@ vtk_add_test_cxx(vtkViewsScivisCxxTests tests
   TestScivisViewSelection.cxx,NO_VALID
   TestSurfaceRepresentation.cxx
   TestScivisScalarBars.cxx,NO_VALID
+  TestTextOverlayRepresentation.cxx,NO_VALID
   TestViewLighting.cxx,NO_VALID
   TestVolumeRepresentation.cxx
   )

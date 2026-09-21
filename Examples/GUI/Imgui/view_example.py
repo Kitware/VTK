@@ -22,7 +22,11 @@ from vtkmodules.vtkFiltersSources import (
 # vtkDataObject provides the field association constants; importing
 # vtkCommonDataModel also registers the pythonic vtkSelection API used below.
 from vtkmodules.vtkCommonDataModel import vtkDataObject
-from vtkmodules.vtkViewsScivis import vtkScivisSelector, vtkScivisView
+from vtkmodules.vtkViewsScivis import (
+    vtkScivisSelector,
+    vtkScivisView,
+    vtkTextOverlayRepresentation,
+)
 
 # --- VTK Setup ---
 view = vtkScivisView(use_light_kit=True)
@@ -58,9 +62,25 @@ class GUIState:
     field_assoc = vtkDataObject.FIELD_ASSOCIATION_CELLS
     drag_start = None  # Screen coords (x, y) when drag starts
     selection_info = ""  # Text summary of last selection
+    text_visible = False
+    text_content = "ScivisView"
+    text_pos = [20, 40]
+    text_font_size = 24
+    text_color = [1.0, 1.0, 1.0]
 
 
 state = GUIState()
+
+# A text overlay is a representation with no data behind it, added to and
+# removed from the view like any other.  What it says and where it sits are its
+# own; how it is drawn belongs to its text property, which font_size and color
+# reach through here.
+text_rep = vtkTextOverlayRepresentation(
+    text=state.text_content,
+    position=tuple(state.text_pos),
+    font_size=state.text_font_size,
+    color="white",
+)
 
 
 class RepState:
@@ -206,6 +226,40 @@ def custom_gui():
         changed, state.show_axes = imgui.checkbox("Orientation Axes", state.show_axes)
         if changed:
             view.orientation_axes_visibility = state.show_axes
+
+    imgui.spacing()
+
+    # Text overlay section.
+    if imgui.collapsing_header("Text Overlay"):
+        changed, state.text_visible = imgui.checkbox("Show Text", state.text_visible)
+        if changed:
+            if state.text_visible:
+                view.AddRepresentation(text_rep)
+            else:
+                view.RemoveRepresentation(text_rep)
+
+        if state.text_visible:
+            changed, state.text_content = imgui.input_text("Text", state.text_content)
+            if changed:
+                text_rep.text = state.text_content
+
+            changed, state.text_pos[0] = imgui.slider_int("X", state.text_pos[0], 0, 500)
+            if changed:
+                text_rep.position = tuple(state.text_pos)
+
+            changed, state.text_pos[1] = imgui.slider_int("Y", state.text_pos[1], 0, 500)
+            if changed:
+                text_rep.position = tuple(state.text_pos)
+
+            changed, state.text_font_size = imgui.slider_int(
+                "Font Size", state.text_font_size, 8, 72
+            )
+            if changed:
+                text_rep.font_size = state.text_font_size
+
+            changed, state.text_color = imgui.color_edit3("Text Color", state.text_color)
+            if changed:
+                text_rep.color = tuple(state.text_color)
 
     imgui.spacing()
 

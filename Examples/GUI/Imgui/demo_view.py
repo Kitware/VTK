@@ -8,7 +8,7 @@
 """Demo of vtkScivisView and vtkSurfaceRepresentation."""
 
 from vtkmodules.vtkFiltersSources import vtkConeSource, vtkSphereSource, vtkCylinderSource
-from vtkmodules.vtkViewsScivis import vtkScivisView
+from vtkmodules.vtkViewsScivis import vtkScivisView, vtkTextOverlayRepresentation
 
 # Registers the OpenGL implementations of the rendering classes.  Without it the
 # view builds a base vtkRenderWindow and nothing is drawn.
@@ -29,6 +29,12 @@ view.show(vtkConeSource(resolution=32),
 
 view.show(vtkCylinderSource(center=(2, 0, 0), resolution=24),
           color="sea_green", opacity=0.6, representation="wireframe", line_width=2)
+
+# A text overlay is a representation like any other, so it goes in with +=.  It
+# has no data behind it, so how it is drawn lives on its text property, which
+# font_size and color reach through here.
+view += vtkTextOverlayRepresentation(
+    text="ScivisView Demo", position=(20, 20), font_size=22, color="white")
 
 # Enable the light kit for professional lighting
 view.use_light_kit = True
