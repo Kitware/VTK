@@ -28,6 +28,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <limits>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -101,6 +102,8 @@ int vtkGhostCellsGenerator::Execute(vtkDataObject* inputDO, vtkInformationVector
   {
     vtkNew<vtkGenerateGlobalIds> gidGenerator;
     gidGenerator->SetInputData(modifInputDO);
+    gidGenerator->SetController(this->Controller);
+    gidGenerator->SetTolerance(std::numeric_limits<double>::epsilon());
     gidGenerator->Update();
     modifInputDO->ShallowCopy(gidGenerator->GetOutputDataObject(0));
   }
