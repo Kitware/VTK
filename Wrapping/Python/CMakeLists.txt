@@ -158,6 +158,7 @@ set(python_files
   vtkmodules/util/colors.py
   vtkmodules/util/data_array_selection.py
   vtkmodules/util/data_model.py
+  vtkmodules/util/dlpack_support.py
   vtkmodules/util/execution_model.py
   vtkmodules/util/functions.py
   vtkmodules/util/graph.py

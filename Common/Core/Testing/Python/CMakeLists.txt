@@ -52,6 +52,7 @@ vtk_add_test_python(
   TestTerminationCrash.py
   TestVariant.py
   TestVersion.py
+  TestDLPack.py
   TestVtkBufferNumpy.py
   TestWeakref.py
   TestCollectionPythonAPI.py
