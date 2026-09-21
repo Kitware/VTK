@@ -11,7 +11,6 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLine.h"
-#include "vtkLongArray.h"
 #include "vtkNew.h"
 #include "vtkOBBTree.h"
 #include "vtkObjectFactory.h"
@@ -50,6 +49,52 @@ struct simPolygon
   int orientation;
 };
 
+//------------------------------------------------------------------------------
+void SignWithTolerance(const double value[3], double epsilon, int sign[3])
+{
+  for (int i = 0; i < 3; ++i)
+  {
+    sign[i] = (value[i] > epsilon) - (value[i] < -epsilon);
+  }
+}
+
+//------------------------------------------------------------------------------
+bool AllSame(const int array[3], int value)
+{
+  return array[0] == value && array[1] == value && array[2] == value;
+}
+
+// Compute the intersection between a triangle and a plane. Output the number of intersections and
+// fill intersectionInterval which represents the position on the intersectionLineDirection. You
+// should check for coplanar triangles before calling this.
+//------------------------------------------------------------------------------
+int TrianglePlaneIntersectionInterval(double* const pts[3], const double distance[3],
+  const int sign[3], const double intersectionLineDirection[3], double intersectionInterval[2])
+{
+  int n = 0;
+  for (int i = 0; i < 3; ++i)
+  {
+    if (sign[i] == 0)
+    {
+      intersectionInterval[n++] = vtkMath::Dot(pts[i], intersectionLineDirection);
+    }
+  }
+  for (int i = 0; i < 3; ++i)
+  {
+    int j = (i + 1) % 3;
+    if (sign[i] * sign[j] < 0)
+    {
+      double linearCoeff = distance[i] / (distance[i] - distance[j]);
+      double intersectionPoint[3];
+      for (int k = 0; k < 3; ++k)
+      {
+        intersectionPoint[k] = pts[i][k] + linearCoeff * (pts[j][k] - pts[i][k]);
+      }
+      intersectionInterval[n++] = vtkMath::Dot(intersectionPoint, intersectionLineDirection);
+    }
+  }
+  return n;
+}
 }
 
 typedef std::multimap<vtkIdType, vtkIdType> IntersectionMapType;
@@ -1942,13 +1987,6 @@ int vtkIntersectionPolyDataFilter::TriangleTriangleIntersection(double p1[3], do
   dist1[1] = vtkMath::Dot(n2, q1) + s2;
   dist1[2] = vtkMath::Dot(n2, r1) + s2;
 
-  // If signs of all points are the same, all the points lie on the
-  // same side of the supporting plane, and we can exit early.
-  if ((dist1[0] * dist1[1] > tolerance) && (dist1[0] * dist1[2] > tolerance))
-  {
-    // vtkDebugMacro(<<"Same side supporting plane 1!");
-    return 0;
-  }
   // Do the same for p2, q2, r2 and supporting plane of first
   // triangle.
   double dist2[3];
@@ -1956,23 +1994,32 @@ int vtkIntersectionPolyDataFilter::TriangleTriangleIntersection(double p1[3], do
   dist2[1] = vtkMath::Dot(n1, q2) + s1;
   dist2[2] = vtkMath::Dot(n1, r2) + s1;
 
-  // If signs of all points are the same, all the points lie on the
-  // same side of the supporting plane, and we can exit early.
-  if ((dist2[0] * dist2[1] > tolerance) && (dist2[0] * dist2[2] > tolerance))
-  {
-    // vtkDebugMacro(<<"Same side supporting plane 2!");
-    return 0;
-  }
+  int discreteSignedDistance1[3], discreteSignedDistance2[3];
+  ::SignWithTolerance(dist1, tolerance, discreteSignedDistance1);
+  ::SignWithTolerance(dist2, tolerance, discreteSignedDistance2);
+
   // Check for coplanarity of the supporting planes.
-  if (fabs(n1[0] - n2[0]) < 1e-9 && fabs(n1[1] - n2[1]) < 1e-9 && fabs(n1[2] - n2[2]) < 1e-9 &&
-    fabs(s1 - s2) < 1e-9)
+  if (::AllSame(discreteSignedDistance1, 0) || ::AllSame(discreteSignedDistance2, 0))
   {
     coplanar = 1;
-    // vtkDebugMacro(<<"Coplanar!");
+    return 0;
+  }
+  coplanar = 0;
+
+  // If signs of all points are the same, all the points lie on the
+  // same side of the supporting plane, and we can exit early.
+  if (::AllSame(discreteSignedDistance1, 1) || ::AllSame(discreteSignedDistance1, -1) ||
+    ::AllSame(discreteSignedDistance2, 1) || ::AllSame(discreteSignedDistance2, -1))
+  {
     return 0;
   }
 
-  coplanar = 0;
+  // Register PolyData 2 only if it traverses PolyData 1 above the threshold.
+  if (discreteSignedDistance2[0] <= 0 && discreteSignedDistance2[1] <= 0 &&
+    discreteSignedDistance2[2] <= 0)
+  {
+    return 0;
+  }
 
   // There are more efficient ways to find the intersection line (if
   // it exists), but this is clear enough.
@@ -1989,51 +2036,10 @@ int vtkIntersectionPolyDataFilter::TriangleTriangleIntersection(double p1[3], do
   vtkMath::Cross(n1, n2, v);
   vtkMath::Normalize(v);
 
-  int index1 = 0, index2 = 0;
-  double t1[3], t2[3];
-  int ts1 = 50, ts2 = 50;
-  for (int i = 0; i < 3; i++)
-  {
-    double t, x[3];
-    int id1 = i, id2 = (i + 1) % 3;
+  double t1[2], t2[2];
+  int index1 = ::TrianglePlaneIntersectionInterval(pts1, dist1, discreteSignedDistance1, v, t1);
+  int index2 = ::TrianglePlaneIntersectionInterval(pts2, dist2, discreteSignedDistance2, v, t2);
 
-    // Find t coordinate on line of intersection between two planes.
-    double val1 = vtkPlane::IntersectWithLine(pts1[id1], pts1[id2], n2, p2, t, x);
-    if (val1 == 1 || (t > (0 - tolerance) && t < (1 + tolerance)))
-    {
-      if (t < 1 + tolerance && t > 1 - tolerance)
-      {
-        ts1 = index1;
-      }
-
-      t1[index1++] = vtkMath::Dot(x, v) - vtkMath::Dot(p, v);
-    }
-
-    double val2 = vtkPlane::IntersectWithLine(pts2[id1], pts2[id2], n1, p1, t, x);
-    if (val2 == 1 || (t > (0 - tolerance) && t < (1 + tolerance)))
-    {
-      if (t < 1 + tolerance && t > 1 - tolerance)
-      {
-        ts2 = index2;
-      }
-
-      t2[index2++] = vtkMath::Dot(x, v) - vtkMath::Dot(p, v);
-    }
-  }
-
-  // If the value of the index is greater than 2, the intersecting point
-  // actually is intersected by all three edges. In this case, set the two
-  // edges to the two edges where the intersecting point is not the end point
-  if (index1 > 2)
-  {
-    index1--;
-    std::swap(t1[ts1], t1[2]);
-  }
-  if (index2 > 2)
-  {
-    index2--;
-    std::swap(t2[ts2], t2[2]);
-  }
   // Check if only one edge or all edges intersect the supporting
   // planes intersection.
   if (index1 != 2 || index2 != 2)
