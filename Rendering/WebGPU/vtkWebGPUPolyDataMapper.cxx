@@ -2089,11 +2089,19 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   descriptor.EnableBlending(0);
   descriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
   auto depthState = descriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
-  depthState->depthWriteEnabled = WGPUOptionalBool_True;
+  const bool usesDeepFramebuffer =
+    vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(wgpuRenderer, wgpuActor);
+  depthState->depthWriteEnabled =
+    usesDeepFramebuffer ? WGPUOptionalBool_False : WGPUOptionalBool_True;
   depthState->depthCompare = WGPUCompareFunction_LessEqual;
   descriptor.cTargets[1].format = wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat();
   descriptor.cFragment.targetCount++;
   descriptor.DisableBlending(1);
+  if (usesDeepFramebuffer)
+  {
+    descriptor.cTargets[0].writeMask = WGPUColorWriteMask_None;
+    descriptor.cTargets[1].writeMask = WGPUColorWriteMask_None;
+  }
 
   this->RebuildGraphicsPipelines = false;
 
@@ -4063,7 +4071,6 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderMainEnd(
       abufferNodes[abufferNode].next = abufferPrev;
     }
   }
-  discard;
   return output;
 })",
     /*all=*/true);
