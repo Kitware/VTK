@@ -20,6 +20,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkExtractGhostCells.h"
 #include "vtkGenerateTimeSteps.h"
 #include "vtkGhostCellsGenerator.h"
 #include "vtkGroupDataSetsFilter.h"
@@ -41,6 +42,7 @@
 #include "vtkRandomAttributeGenerator.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRemoveGhosts.h"
+#include "vtkSphereSource.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
@@ -3564,6 +3566,47 @@ bool TestArraySerialization(vtkMultiProcessController* contr, int myrank, bool u
 
   return true;
 }
+
+//----------------------------------------------------------------------------
+bool TestGenerateGlobalIds(vtkMultiProcessController* controller)
+{
+  // Check that generating global ids does not change the result of GCG,
+  // Especially when points' position do not match exactly,
+  // Which is the case for a distributed Sphere source.
+  // See https://gitlab.kitware.com/paraview/paraview/-/work_items/23389
+  vtkNew<vtkSphereSource> sphere;
+  sphere->SetThetaResolution(32);
+  sphere->SetPhiResolution(16);
+  sphere->UpdatePiece(controller->GetLocalProcessId(), controller->GetNumberOfProcesses(), 0);
+
+  vtkNew<vtkGhostCellsGenerator> ghosts;
+  ghosts->SetInputDataObject(sphere->GetOutput());
+  ghosts->BuildIfRequiredOff();
+
+  vtkNew<vtkExtractGhostCells> extractedGhosts;
+  extractedGhosts->SetInputConnection(ghosts->GetOutputPort());
+  extractedGhosts->Update();
+
+  vtkNew<vtkGhostCellsGenerator> ghostsWithGlobalIds;
+  ghostsWithGlobalIds->SetInputDataObject(sphere->GetOutput());
+  ghostsWithGlobalIds->BuildIfRequiredOff();
+  ghostsWithGlobalIds->GenerateGlobalIdsOn();
+
+  vtkNew<vtkExtractGhostCells> extractedGhostsWithGlobalIds;
+  extractedGhostsWithGlobalIds->SetInputConnection(ghostsWithGlobalIds->GetOutputPort());
+  extractedGhostsWithGlobalIds->Update();
+
+  vtkUnstructuredGrid* output = extractedGhostsWithGlobalIds->GetOutput();
+  output->GetPointData()->RemoveArray(output->GetPointData()->GetGlobalIds()->GetName());
+  output->GetCellData()->RemoveArray(output->GetCellData()->GetGlobalIds()->GetName());
+
+  if (!vtkTestUtilities::CompareDataObjects(extractedGhosts->GetOutput(), output))
+  {
+    vtkLog(ERROR, "Generating global IDs changed the extracted ghost cells");
+    return false;
+  }
+  return true;
+}
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
@@ -3624,6 +3667,11 @@ int TestGhostCellsGenerator(int argc, char* argv[])
 
   if (!::TestArraySerialization(contr, myrank, false) ||
     !::TestArraySerialization(contr, myrank, true))
+  {
+    retVal = EXIT_FAILURE;
+  }
+
+  if (!::TestGenerateGlobalIds(contr))
   {
     retVal = EXIT_FAILURE;
   }
