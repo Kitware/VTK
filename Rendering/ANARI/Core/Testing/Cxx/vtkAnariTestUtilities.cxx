@@ -41,7 +41,7 @@ void SetParameterDefaults(vtkRenderWindow* renderWindow, bool useDebugDevice, co
   anariRenderWindow->SetUseDebugDevice(useDebugDevice);
 
   // General renderer parameters:
-  anariDevice->SetParameterf("ambientRadiance", 1.f);
+  anariRenderer->SetParameterf("ambientRadiance", 1.f);
 
   // VisRTX specific renderer parameters:
   anariRenderer->SetParameterf("lightFalloff", 0.5f);

@@ -21,3 +21,4 @@ vtk_module_test_data(
   Data/tooth.nhdr)
 
 add_subdirectory(Cxx)
+add_subdirectory(Python)
