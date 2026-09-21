@@ -11,7 +11,9 @@
 #include "vtkAOSDataArrayTemplate.h"
 
 #include "vtkArrayIteratorTemplate.h"
+#include "vtkCollection.h"
 #include "vtkCommand.h"
+#include "vtkMemoryDescriptor.h"
 
 //-----------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -528,6 +530,30 @@ bool vtkAOSDataArrayTemplate<ValueTypeT>::ReallocateTuples(vtkIdType numTuples)
     return true;
   }
   return false;
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+vtkCollection* vtkAOSDataArrayTemplate<ValueTypeT>::NewMemoryDescriptors()
+{
+  vtkCollection* collection = vtkCollection::New();
+
+  ValueType* pointer = this->GetPointer(0);
+  if (!pointer || this->GetNumberOfValues() == 0)
+  {
+    return collection;
+  }
+
+  vtkMemoryDescriptor* descriptor = vtkMemoryDescriptor::New();
+  descriptor->Set(reinterpret_cast<vtkTypeInt64>(pointer),
+    this->GetNumberOfValues() * static_cast<vtkTypeInt64>(sizeof(ValueType)), "host", "data");
+  // Hold this array open for as long as the descriptor lives; whoever takes
+  // the pointer may outlive every other reference to the array.
+  descriptor->SetOwner(this);
+
+  collection->AddItem(descriptor);
+  descriptor->Delete();
+  return collection;
 }
 
 VTK_ABI_NAMESPACE_END

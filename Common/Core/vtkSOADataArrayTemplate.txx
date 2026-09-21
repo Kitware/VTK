@@ -12,10 +12,13 @@
 
 #include "vtkArrayIteratorTemplate.h"
 #include "vtkBuffer.h"
+#include "vtkCollection.h"
 #include "vtkCommand.h"
+#include "vtkMemoryDescriptor.h"
 
 #include <array>
 #include <cassert>
+#include <string>
 
 //-----------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -476,6 +479,44 @@ void vtkSOADataArrayTemplate<ValueType>::SetTypedComponent(
   vtkIdType tupleIdx, int comp, ValueType value)
 {
   this->Data[comp]->GetBuffer()[tupleIdx] = value;
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+vtkCollection* vtkSOADataArrayTemplate<ValueTypeT>::NewMemoryDescriptors()
+{
+  vtkCollection* collection = vtkCollection::New();
+
+  const int numComponents = this->GetNumberOfComponents();
+  const vtkIdType numTuples = this->GetNumberOfTuples();
+  if (numComponents < 1 || numTuples == 0)
+  {
+    return collection;
+  }
+
+  for (int comp = 0; comp < numComponents; ++comp)
+  {
+    ValueType* pointer = this->GetComponentArrayPointer(comp);
+    if (!pointer)
+    {
+      // A component with no buffer makes the set incomplete, and a partial
+      // description is worse than none: a consumer would wire up the
+      // components that answered and silently lose the rest.
+      collection->RemoveAllItems();
+      return collection;
+    }
+
+    const std::string role = "component_" + std::to_string(comp);
+    vtkMemoryDescriptor* descriptor = vtkMemoryDescriptor::New();
+    descriptor->Set(reinterpret_cast<vtkTypeInt64>(pointer),
+      numTuples * static_cast<vtkTypeInt64>(sizeof(ValueType)), "host", role.c_str());
+    // Hold this array open for as long as the descriptor lives.
+    descriptor->SetOwner(this);
+    collection->AddItem(descriptor);
+    descriptor->Delete();
+  }
+
+  return collection;
 }
 
 VTK_ABI_NAMESPACE_END

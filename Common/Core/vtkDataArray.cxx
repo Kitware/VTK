@@ -6,6 +6,7 @@
 
 #include "vtkDataArray.h"
 
+#include "vtkCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
@@ -14,6 +15,7 @@
 #include "vtkInformationVector.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
+#include "vtkMemoryDescriptor.h"
 #include "vtkTypeTraits.h"
 
 #include <algorithm> // for min(), max()
@@ -1117,4 +1119,21 @@ void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "LookupTable: (none)\n";
   }
 }
+
+//------------------------------------------------------------------------------
+vtkCollection* vtkDataArray::NewMemoryDescriptors()
+{
+  // Nothing. A vtkDataArray in general has no contiguous buffer to point at:
+  // an implicit or computed array has no storage at all, and one with a
+  // non-standard layout has storage that no single pointer describes. The
+  // only thing that could be handed out for those is a flattened copy, and a
+  // descriptor over a copy is a snapshot of a temporary wearing the shape of
+  // a view: writes through it go nowhere, and writes to the array are never
+  // seen. Silent in both directions.
+  //
+  // Subclasses that really do own contiguous memory override this. The rest
+  // report nothing, and callers can tell the difference.
+  return vtkCollection::New();
+}
+
 VTK_ABI_NAMESPACE_END

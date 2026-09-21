@@ -108,6 +108,7 @@ Common/Core/vtkMarshalContext.h
 Common/Core/vtkMath.h
 Common/Core/vtkMathUtilities.h
 Common/Core/vtkMatrixUtilities.h
+Common/Core/vtkMemoryDescriptor.h
 Common/Core/vtkMersenneTwister.h
 Common/Core/vtkMeta.h
 Common/Core/vtkMinimalStandardRandomSequence.h
