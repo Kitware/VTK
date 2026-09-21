@@ -7,19 +7,26 @@
 #ifndef vtkmDataArray_hxx
 #define vtkmDataArray_hxx
 
+#include "vtkCollection.h"
+#include "vtkMemoryDescriptor.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 #include "vtkmDataArrayUtilities.h"
 
 #include <viskores/cont/ArrayCopy.h>
 #include <viskores/cont/ArrayHandleConstant.h>
 #include <viskores/cont/ArrayHandleCounting.h>
 #include <viskores/cont/ArrayHandleIndex.h>
+#include <viskores/cont/ArrayHandleRecombineVec.h>
 #include <viskores/cont/ArrayHandleRuntimeVec.h>
+#include <viskores/cont/ArrayHandleSOA.h>
 #include <viskores/cont/ArrayHandleTransform.h>
 #include <viskores/cont/ArrayRangeCompute.h>
+#include <viskores/cont/RuntimeDeviceTracker.h>
 #include <viskores/cont/UnknownArrayHandle.h>
 
 #include <cassert>
+#include <string>
 
 #ifndef vtkmDataArray_h
 #error "vtkmDataArray.hxx should only be included from vtkmDataArray.h."
@@ -634,7 +641,7 @@ void* vtkmDataArray<T>::GetVoidPointer(vtkIdType valueIdx)
 
 //-----------------------------------------------------------------------------
 template <typename T>
-void* vtkmDataArray<T>::GetDeviceVoidPointer(vtkIdType valueIdx)
+T* vtkmDataArray<T>::GetDevicePointer(vtkIdType valueIdx)
 {
   viskores::cont::ArrayHandleRuntimeVec<T> array{ this->GetNumberOfComponents() };
   if (this->GetVtkmUnknownArrayHandle().template CanConvert<decltype(array)>())
@@ -664,6 +671,13 @@ void* vtkmDataArray<T>::GetDeviceVoidPointer(vtkIdType valueIdx)
     return &(pointer[valueIdx]);
   }
   return nullptr;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+void* vtkmDataArray<T>::GetDeviceVoidPointer(vtkIdType valueIdx)
+{
+  return this->GetDevicePointer(valueIdx);
 }
 
 //-----------------------------------------------------------------------------
@@ -841,7 +855,7 @@ bool vtkmDataArray<T>::ReallocateTuples(vtkIdType numberOfTuples)
 template <typename T>
 vtkDataArray::MemorySpace vtkmDataArray<T>::GetMemorySpace()
 {
-  auto pointer = this->GetDeviceVoidPointer(0);
+  auto pointer = this->GetDevicePointer(0);
   if (pointer)
   {
     if (vtkmDataArrayUtilities::IsCudaDevicePointer(pointer))
@@ -854,6 +868,176 @@ vtkDataArray::MemorySpace vtkmDataArray<T>::GetMemorySpace()
     }
   }
   return vtkDataArray::MemorySpace::HostMemory;
+}
+
+//-----------------------------------------------------------------------------
+/// Address of an ArrayHandleBasic's buffer, in whichever space it lives.
+///
+/// The write pointer, not the read one: a descriptor says where the memory is
+/// and says nothing about what will be done to it, and handing out a const
+/// pointer that a consumer then writes through would be worse than useless.
+template <typename ComponentType>
+inline vtkTypeInt64 vtkmDescribeBufferAddress(
+  const viskores::cont::ArrayHandleBasic<ComponentType>& array, const char*& space)
+{
+  auto& tracker = viskores::cont::GetRuntimeDeviceTracker();
+  if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagCuda{}))
+  {
+    space = "cuda";
+    return reinterpret_cast<vtkTypeInt64>(
+      array.GetWritePointer(viskores::cont::DeviceAdapterTagCuda{}));
+  }
+  if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagKokkos{}))
+  {
+    space = "hip";
+    return reinterpret_cast<vtkTypeInt64>(
+      array.GetWritePointer(viskores::cont::DeviceAdapterTagKokkos{}));
+  }
+  space = "host";
+  return reinterpret_cast<vtkTypeInt64>(array.GetWritePointer());
+}
+
+//------------------------------------------------------------------------------
+template <typename T>
+vtkCollection* vtkmDataArray<T>::NewMemoryDescriptors()
+{
+  auto* collection = vtkCollection::New();
+  if (this->GetNumberOfValues() == 0)
+  {
+    return collection;
+  }
+
+  // Ask the handle what it is, and describe only what it really holds.
+  //
+  // An implicit or computed handle -- uniform point coordinates, a constant,
+  // a cast, a transform, all ordinary filter output -- has no buffer at all,
+  // and a struct-of-arrays has one per component. Asked for a flat pointer,
+  // Viskores materialises a copy and returns that; a descriptor over it looks
+  // like a view of the array and is a snapshot of a temporary, so writes
+  // through it go nowhere and writes to the array are never seen. Silent in
+  // both directions.
+  //
+  // Describing nothing is the honest answer for a handle whose values only
+  // exist once someone asks for them, and the caller can tell the difference.
+  const auto unknown = this->GetVtkmUnknownArrayHandle();
+  const int numComponents = this->GetNumberOfComponents();
+  const vtkIdType numTuples = this->GetNumberOfTuples();
+  const char* space = "host";
+
+  auto describe = [&](vtkTypeInt64 address, vtkTypeInt64 bytes, const char* role)
+  {
+    auto* descriptor = vtkMemoryDescriptor::New();
+    descriptor->Set(address, bytes, space, role);
+    // Keep this array alive for as long as the descriptor lives; without it
+    // the consumer holds a pointer into memory Viskores is free to release.
+    descriptor->SetOwner(this);
+    collection->AddItem(descriptor);
+    descriptor->Delete();
+  };
+
+  // One contiguous buffer, interleaved: what the factory builds for AoS, and
+  // what a plain basic handle is.
+  viskores::cont::ArrayHandleRuntimeVec<T> interleaved{ numComponents };
+  if (unknown.template CanConvert<decltype(interleaved)>())
+  {
+    unknown.AsArrayHandle(interleaved);
+    const vtkTypeInt64 address = vtkmDescribeBufferAddress(interleaved.GetComponentsArray(), space);
+    if (address)
+    {
+      describe(address,
+        static_cast<vtkTypeInt64>(this->GetNumberOfValues()) * static_cast<vtkTypeInt64>(sizeof(T)),
+        "data");
+    }
+    return collection;
+  }
+
+  // A buffer per component. Viskores fixes the component count in the type,
+  // so each width has to be asked for by name.
+  const vtkTypeInt64 componentBytes =
+    static_cast<vtkTypeInt64>(numTuples) * static_cast<vtkTypeInt64>(sizeof(T));
+  auto describeSOA = [&](auto soa) -> bool
+  {
+    if (!unknown.template CanConvert<decltype(soa)>())
+    {
+      return false;
+    }
+    unknown.AsArrayHandle(soa);
+    for (viskores::IdComponent comp = 0; comp < numComponents; ++comp)
+    {
+      const vtkTypeInt64 address = vtkmDescribeBufferAddress(soa.GetArray(comp), space);
+      if (!address)
+      {
+        // A component with no buffer makes the set incomplete, and a partial
+        // description is worse than none: a consumer would wire up the
+        // components that answered and silently lose the rest.
+        collection->RemoveAllItems();
+        return true;
+      }
+      describe(address, componentBytes, ("component_" + vtk::to_string(comp)).c_str());
+    }
+    return true;
+  };
+
+  switch (numComponents)
+  {
+    case 2:
+      if (describeSOA(viskores::cont::ArrayHandleSOA<viskores::Vec<T, 2>>{}))
+      {
+        return collection;
+      }
+      break;
+    case 3:
+      if (describeSOA(viskores::cont::ArrayHandleSOA<viskores::Vec<T, 3>>{}))
+      {
+        return collection;
+      }
+      break;
+    case 4:
+      if (describeSOA(viskores::cont::ArrayHandleSOA<viskores::Vec<T, 4>>{}))
+      {
+        return collection;
+      }
+      break;
+    default:
+      break;
+  }
+
+  // Reading a value swaps in a helper that holds the array as a recombined
+  // vector of per-component strided views, and that is what the handle
+  // reports from then on. So the same array describes itself differently
+  // before and after anyone looks at it, unless this case is handled too.
+  //
+  // A strided component is only a plain buffer when it is not actually
+  // strided. Anything else -- an interleaved view, a modulo or a divisor --
+  // is a pattern over memory rather than a run of it, and DLPack has no way
+  // to say so.
+  viskores::cont::ArrayHandleRecombineVec<T> recombined;
+  if (unknown.template CanConvert<decltype(recombined)>())
+  {
+    unknown.AsArrayHandle(recombined);
+    for (viskores::IdComponent comp = 0; comp < numComponents; ++comp)
+    {
+      auto component = recombined.GetComponentArray(comp);
+      if (component.GetStride() != 1 || component.GetOffset() != 0 || component.GetModulo() != 0 ||
+        component.GetDivisor() != 1)
+      {
+        collection->RemoveAllItems();
+        return collection;
+      }
+      const vtkTypeInt64 address = vtkmDescribeBufferAddress(component.GetBasicArray(), space);
+      if (!address)
+      {
+        collection->RemoveAllItems();
+        return collection;
+      }
+      describe(address, componentBytes, ("component_" + vtk::to_string(comp)).c_str());
+    }
+    return collection;
+  }
+
+  // Anything left undescribed is implicit, computed, or a layout this does not
+  // know. The empty collection says so.
+  return collection;
 }
 
 VTK_ABI_NAMESPACE_END
