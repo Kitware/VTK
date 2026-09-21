@@ -84,7 +84,7 @@ int numberOfSidesOfDimension<vtkDGWdg>(int dimension)
 }
 
 template <typename CellType>
-bool TestDGCellType()
+bool TestDGCellType(vtkDGCell::ShapeType shapeType)
 {
   vtkNew<vtkCellGrid> grid;
   auto cell = vtkCellMetadata::NewInstance<CellType>(grid);
@@ -95,6 +95,13 @@ bool TestDGCellType()
 
   std::cout << "Created " << cell->GetClassName() << " metadata:\n";
   std::string shapeName = vtkDGCell::GetShapeName(cell->GetShape()).Data();
+
+  if (cell->GetParameterSpaceType() != shapeType)
+  {
+    std::cerr << "ERROR: Expected " << vtkDGCell::GetShapeTypeName(shapeType).Data() << " but got "
+              << vtkDGCell::GetShapeTypeName(cell->GetParameterSpaceType()).Data() << " instead.\n";
+    return false;
+  }
 
   if (cell->GetNumberOfCells() != 0)
   {
@@ -228,14 +235,14 @@ int TestDGCells(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkFiltersCellGrid::RegisterCellsAndResponders();
   // clang-format off
   if (
-    !TestDGCellType<vtkDGEdge>() ||
-    !TestDGCellType<vtkDGHex>() ||
-    !TestDGCellType<vtkDGPyr>() ||
-    !TestDGCellType<vtkDGQuad>() ||
-    !TestDGCellType<vtkDGTet>() ||
-    !TestDGCellType<vtkDGTri>() ||
-    !TestDGCellType<vtkDGVert>() ||
-    !TestDGCellType<vtkDGWdg>())
+    !TestDGCellType<vtkDGEdge>(vtkDGCell::ShapeType::Prismatic) ||
+    !TestDGCellType<vtkDGHex>(vtkDGCell::ShapeType::Prismatic) ||
+    !TestDGCellType<vtkDGPyr>(vtkDGCell::ShapeType::Mixed) ||
+    !TestDGCellType<vtkDGQuad>(vtkDGCell::ShapeType::Prismatic) ||
+    !TestDGCellType<vtkDGTet>(vtkDGCell::ShapeType::Barycentric) ||
+    !TestDGCellType<vtkDGTri>(vtkDGCell::ShapeType::Barycentric) ||
+    !TestDGCellType<vtkDGVert>(vtkDGCell::ShapeType::Null) ||
+    !TestDGCellType<vtkDGWdg>(vtkDGCell::ShapeType::Mixed))
   {
     return EXIT_FAILURE;
   }

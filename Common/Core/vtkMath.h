@@ -215,12 +215,23 @@ public:
    */
   static vtkTypeInt64 Factorial(int N);
 
+  ///@{
   /**
    * The number of combinations of n objects from a pool of m objects (m>n).
    * This is commonly known as "m choose n" and sometimes denoted \f$_mC_n\f$
    * or \f$\left(\begin{array}{c}m \\ n\end{array}\right)\f$.
+   *
+   * The DoubleBinomial() variant returns a double-precision number that is
+   * approximate for \a m > 55. It is also a simple table lookup for \a m <= 55.
+   * The mantissa of double-precision floating-point numbers can only
+   * represent 52-bit integers exactly and binomial coefficients
+   * above m = 55 are too large.
+   *
+   * If \a m < 0 or \a n < 0 or \a n > \a m, then this method will return 0.
    */
   static vtkTypeInt64 Binomial(int m, int n);
+  static double DoubleBinomial(int m, int n);
+  ///@}
 
   /**
    * A version of Binomial that allows \a mm to be real-valued.

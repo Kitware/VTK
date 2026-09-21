@@ -16,6 +16,20 @@
 
 #define RealT double
 
+// Boilerplate shared by every operator function: unpack the parametric
+// coordinates and provide the constants basis functions may reference.
+// The `(void)` casts keep compilers quiet about the ones a given basis
+// happens not to use.
+#define vtkBasisHeader()                                                                           \
+  double rr = param[0];                                                                            \
+  double ss = param[1];                                                                            \
+  double tt = param[2];                                                                            \
+  constexpr double eps = std::numeric_limits<RealT>::epsilon();                                    \
+  (void)rr;                                                                                        \
+  (void)ss;                                                                                        \
+  (void)tt;                                                                                        \
+  (void)eps
+
 namespace vtk
 {
 namespace basis
@@ -31,73 +45,38 @@ inline RealT abs(RealT x)
   return std::fabs(x);
 }
 
-void HexI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void HexI1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
-  double rr = param[0];
-  double ss = param[1];
-  double tt = param[2];
-  constexpr double eps = std::numeric_limits<RealT>::epsilon();
-  (void)rr;
-  (void)ss;
-  (void)tt;
-  (void)eps;
-
+  vtkBasisHeader();
 #include "Basis/HCurl/HexI1Basis.h"
 }
 
-void QuadI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void QuadI1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
-  double rr = param[0];
-  double ss = param[1];
-  double tt = param[2];
-  constexpr double eps = std::numeric_limits<RealT>::epsilon();
-  (void)rr;
-  (void)ss;
-  (void)tt;
-  (void)eps;
-
+  vtkBasisHeader();
 #include "Basis/HCurl/QuadI1Basis.h"
 }
 
-void TetI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TetI1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
-  double rr = param[0];
-  double ss = param[1];
-  double tt = param[2];
-  constexpr double eps = std::numeric_limits<RealT>::epsilon();
-  (void)rr;
-  (void)ss;
-  (void)tt;
-  (void)eps;
-
+  vtkBasisHeader();
 #include "Basis/HCurl/TetI1Basis.h"
 }
 
-void TriI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void TriI1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
-  double rr = param[0];
-  double ss = param[1];
-  double tt = param[2];
-  constexpr double eps = std::numeric_limits<RealT>::epsilon();
-  (void)rr;
-  (void)ss;
-  (void)tt;
-  (void)eps;
-
+  vtkBasisHeader();
 #include "Basis/HCurl/TriI1Basis.h"
 }
 
-void WdgI1Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void WdgI1Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
-  double rr = param[0];
-  double ss = param[1];
-  double tt = param[2];
-  constexpr double eps = std::numeric_limits<RealT>::epsilon();
-  (void)rr;
-  (void)ss;
-  (void)tt;
-  (void)eps;
-
+  vtkBasisHeader();
 #include "Basis/HCurl/WdgI1Basis.h"
 }
 

@@ -18,12 +18,14 @@
 #include "vtkDGBoundsResponder.h"
 #include "vtkDGCellCenterResponder.h"
 #include "vtkDGCellSourceResponder.h"
+#include "vtkDGChangeBasisResponder.h"
 #include "vtkDGCopyResponder.h"
 #include "vtkDGEdge.h"
 #include "vtkDGElevationResponder.h"
 #include "vtkDGEvaluator.h"
 #include "vtkDGHex.h"
 #include "vtkDGInterpolateCalculator.h"
+#include "vtkDGLagrangePoints.h"
 #include "vtkDGPyr.h"
 #include "vtkDGQuad.h"
 #include "vtkDGRangeResponder.h"
@@ -38,8 +40,10 @@
 #include "vtkDGWarp.h"
 #include "vtkDGWdg.h"
 #include "vtkInterpolateCalculator.h"
+#include "vtkLagrangePoints.h"
 #include "vtkUnstructuredGridToCellGrid.h"
 
+#include "vtkDGBezierOperators.h"
 #include "vtkDGConstantOperators.h"
 #include "vtkDGHCurlOperators.h"
 #include "vtkDGHDivOperators.h"
@@ -55,10 +59,10 @@ using namespace vtk::literals;
 template <typename CalcType, typename ResponderType>
 void registerCalculatorResponder(vtkCellGridResponders* responders, ResponderType* instance)
 {
-  // All the DG cells support constant and HGRAD function spaces:
+  // All the DG cells support constant, HGRAD, and Bezier function spaces:
   responders->RegisterCalculator<vtkDGCell, CalcType>(instance,
-    { { { "function-space"_token, { "constant"_token, "HGRAD"_token } },
-      { "basis"_token, { "I"_token, "C"_token, "G"_token } } } });
+    { { { "function-space"_token, { "constant"_token, "HGRAD"_token, "Bezier"_token } },
+      { "basis"_token, { "I"_token, "C"_token, "G"_token, "A"_token } } } });
   // Only DeRham cells support HCURL and HGRAD function spaces:
   responders->RegisterCalculator<vtkDeRhamCell, CalcType>(instance,
     { { { "function-space"_token, { "HCURL"_token, "HDIV"_token } },
@@ -99,6 +103,7 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     vtkStringToken basisC = "C";
     vtkStringToken basisF = "F";
     vtkStringToken basisG = "G";
+    vtkStringToken basisA = "A";
     vtkStringToken fsGrad = "HGRAD";
     vtkStringToken fsCurl = "HCURL";
     vtkStringToken fsDiv = "HDIV";
@@ -112,6 +117,7 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     (void)basisC;
     (void)basisF;
     (void)basisG;
+    (void)basisA;
     (void)fsGrad;
     (void)fsCurl;
     (void)fsDiv;
@@ -126,12 +132,14 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     vtk::basis::hgrad::RegisterOperators();
     vtk::basis::hcurl::RegisterOperators();
     vtk::basis::hdiv::RegisterOperators();
+    vtk::basis::bezier::RegisterOperators();
 
     // Query responders
     vtkNew<vtkDGBoundsResponder> dgBds;
     vtkNew<vtkDGElevationResponder> dgElv;
     vtkNew<vtkDGCellCenterResponder> dgCtr;
     vtkNew<vtkDGCellSourceResponder> dgSrc;
+    vtkNew<vtkDGChangeBasisResponder> dgChb;
     vtkNew<vtkDGCopyResponder> dgCpy;
     vtkNew<vtkDGEvaluator> dgEva;
     vtkNew<vtkDGRangeResponder> dgRng;
@@ -145,10 +153,13 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     // Attribute calculators
     vtkNew<vtkDGInterpolateCalculator> dgInterp;
     vtkNew<vtkDGAttributeInformation> dgAttInfo;
+    vtkNew<vtkDGLagrangePoints> dgLagrangePts;
 
     auto* responders = vtkCellMetadata::GetResponders();
 
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridBoundsQuery>(dgBds.GetPointer());
+    responders->RegisterQueryResponder<vtkDGCell, vtkCellGridChangeBasis::Query>(
+      dgChb.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridCopyQuery>(dgCpy.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridElevationQuery>(dgElv.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridCellCenters::Query>(
@@ -169,6 +180,7 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     // # Register vtkInterpolateCalculator responders.
     registerCalculatorResponder<vtkInterpolateCalculator>(responders, dgInterp.GetPointer());
     registerCalculatorResponder<vtkCellAttributeInformation>(responders, dgAttInfo.GetPointer());
+    registerCalculatorResponder<vtkLagrangePoints>(responders, dgLagrangePts.GetPointer());
   }
 
   return true;

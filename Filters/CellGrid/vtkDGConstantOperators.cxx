@@ -13,6 +13,20 @@
 
 #define RealT double
 
+// Boilerplate shared by every operator function: unpack the parametric
+// coordinates and provide the constants basis functions may reference.
+// The `(void)` casts keep compilers quiet about the ones a given basis
+// happens not to use.
+#define vtkBasisHeader()                                                                           \
+  double rr = param[0];                                                                            \
+  double ss = param[1];                                                                            \
+  double tt = param[2];                                                                            \
+  constexpr double eps = std::numeric_limits<RealT>::epsilon();                                    \
+  (void)rr;                                                                                        \
+  (void)ss;                                                                                        \
+  (void)tt;                                                                                        \
+  (void)eps
+
 namespace vtk
 {
 namespace basis
@@ -23,31 +37,17 @@ VTK_ABI_NAMESPACE_BEGIN
 
 using namespace vtk::literals;
 
-void CellC0Basis(const std::array<double, 3>& param, std::vector<double>& basis)
+void CellC0Basis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>&)
 {
-  double rr = param[0];
-  double ss = param[1];
-  double tt = param[2];
-  constexpr double eps = std::numeric_limits<RealT>::epsilon();
-  (void)rr;
-  (void)ss;
-  (void)tt;
-  (void)eps;
-
+  vtkBasisHeader();
 #include "Basis/Constant/CellC0Basis.h"
 }
 
-void CellC0Gradient(const std::array<double, 3>& param, std::vector<double>& basisGradient)
+void CellC0Gradient(
+  const std::array<double, 3>& param, std::vector<double>& basisGradient, const std::vector<int>&)
 {
-  double rr = param[0];
-  double ss = param[1];
-  double tt = param[2];
-  constexpr double eps = std::numeric_limits<RealT>::epsilon();
-  (void)rr;
-  (void)ss;
-  (void)tt;
-  (void)eps;
-
+  vtkBasisHeader();
 #include "Basis/Constant/CellC0Gradient.h"
 }
 

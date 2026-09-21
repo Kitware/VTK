@@ -5,6 +5,7 @@ set(classes
   # Algorithms
   vtkCellGridCellCenters
   vtkCellGridCellSource
+  vtkCellGridChangeBasis
   vtkCellGridComputeSides
   vtkCellGridElevation
   vtkCellGridPointProbe
@@ -21,6 +22,7 @@ set(classes
   vtkDGBoundsResponder
   vtkDGCellCenterResponder
   vtkDGCellSourceResponder
+  vtkDGChangeBasisResponder
   vtkDGCopyResponder
   vtkDGElevationResponder
   vtkDGEvaluator
@@ -35,10 +37,12 @@ set(classes
   # Calculator bases
   vtkInterpolateCalculator
   vtkCellAttributeInformation
+  vtkLagrangePoints
 
   # Calculator implementations
   vtkDGInterpolateCalculator
   vtkDGAttributeInformation
+  vtkDGLagrangePoints
 
   # Cell types
   vtkDGCell
@@ -53,6 +57,7 @@ set(classes
   vtkDeRhamCell
 
   # Numerics and low-level classes
+  vtkDGBezierOperators
   vtkDGConstantOperators
   vtkDGHGradOperators
   vtkDGHCurlOperators
@@ -78,6 +83,18 @@ set(templates
 # Encode the basis implementations as strings we can
 # pass as shader code.
 set(basis_files
+  Basis/Bezier/EdgeCnBasis.h
+  Basis/Bezier/EdgeCnGradient.h
+  Basis/Bezier/HexCnBasis.h
+  Basis/Bezier/HexCnGradient.h
+  Basis/Bezier/QuadCnBasis.h
+  Basis/Bezier/QuadCnGradient.h
+  Basis/Bezier/TetCnBasis.h
+  Basis/Bezier/TetCnGradient.h
+  Basis/Bezier/TriCnBasis.h
+  Basis/Bezier/TriCnGradient.h
+  Basis/Bezier/WdgCnBasis.h
+  Basis/Bezier/WdgCnGradient.h
   Basis/Constant/CellC0Basis.h
   Basis/Constant/CellC0Gradient.h
   Basis/HCurl/HexI1Basis.h
@@ -94,6 +111,8 @@ set(basis_files
   Basis/HGrad/EdgeC1Gradient.h
   Basis/HGrad/EdgeC2Basis.h
   Basis/HGrad/EdgeC2Gradient.h
+  Basis/HGrad/EdgeCnBasis.h
+  Basis/HGrad/EdgeCnGradient.h
   Basis/HGrad/EdgeG1Basis.h
   Basis/HGrad/EdgeG1Gradient.h
   Basis/HGrad/EdgeG2Basis.h
@@ -108,6 +127,8 @@ set(basis_files
   Basis/HGrad/HexC1Gradient.h
   Basis/HGrad/HexC2Basis.h
   Basis/HGrad/HexC2Gradient.h
+  Basis/HGrad/HexCnBasis.h
+  Basis/HGrad/HexCnGradient.h
   Basis/HGrad/HexG1Basis.h
   Basis/HGrad/HexG1Gradient.h
   Basis/HGrad/HexG2Basis.h
@@ -122,14 +143,16 @@ set(basis_files
   Basis/HGrad/PyrC2Gradient.h
   Basis/HGrad/PyrF2Basis.h
   Basis/HGrad/PyrF2Gradient.h
-  Basis/HGrad/PyrI2Basis.h
-  Basis/HGrad/PyrI2Gradient.h
   Basis/HGrad/PyrGnBasis.h
   Basis/HGrad/PyrGnGradient.h
+  Basis/HGrad/PyrI2Basis.h
+  Basis/HGrad/PyrI2Gradient.h
   Basis/HGrad/QuadC1Basis.h
   Basis/HGrad/QuadC1Gradient.h
   Basis/HGrad/QuadC2Basis.h
   Basis/HGrad/QuadC2Gradient.h
+  Basis/HGrad/QuadCnBasis.h
+  Basis/HGrad/QuadCnGradient.h
   Basis/HGrad/QuadG1Basis.h
   Basis/HGrad/QuadG1Gradient.h
   Basis/HGrad/QuadG2Basis.h
@@ -140,6 +163,8 @@ set(basis_files
   Basis/HGrad/TetC1Gradient.h
   Basis/HGrad/TetC2Basis.h
   Basis/HGrad/TetC2Gradient.h
+  Basis/HGrad/TetCnBasis.h
+  Basis/HGrad/TetCnGradient.h
   Basis/HGrad/TetF2Basis.h
   Basis/HGrad/TetF2Gradient.h
   Basis/HGrad/TetGnBasis.h
@@ -148,6 +173,8 @@ set(basis_files
   Basis/HGrad/TriC1Gradient.h
   Basis/HGrad/TriC2Basis.h
   Basis/HGrad/TriC2Gradient.h
+  Basis/HGrad/TriCnBasis.h
+  Basis/HGrad/TriCnGradient.h
   Basis/HGrad/TriG1Basis.h
   Basis/HGrad/TriG1Gradient.h
   Basis/HGrad/TriG2Basis.h
@@ -162,10 +189,10 @@ set(basis_files
   Basis/HGrad/WdgC1Gradient.h
   Basis/HGrad/WdgC2Basis.h
   Basis/HGrad/WdgC2Gradient.h
+  Basis/HGrad/WdgCnBasis.h
+  Basis/HGrad/WdgCnGradient.h
   Basis/HGrad/WdgF2Basis.h
   Basis/HGrad/WdgF2Gradient.h
-  Basis/HGrad/WdgI2Basis.h
-  Basis/HGrad/WdgI2Gradient.h
   Basis/HGrad/WdgG1Basis.h
   Basis/HGrad/WdgG1Gradient.h
   Basis/HGrad/WdgG2Basis.h
@@ -176,6 +203,8 @@ set(basis_files
   Basis/HGrad/WdgG4Gradient.h
   Basis/HGrad/WdgG5Basis.h
   Basis/HGrad/WdgG5Gradient.h
+  Basis/HGrad/WdgI2Basis.h
+  Basis/HGrad/WdgI2Gradient.h
 )
 foreach(file IN LISTS basis_files)
   get_filename_component(basis_name "${file}" NAME_WE)

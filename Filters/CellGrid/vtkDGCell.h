@@ -82,6 +82,18 @@ public:
     // Polyhedron    //!< We may one day support an n-faced polyhedral volume with polygonal sides.
   };
 
+  /// Information about whether a shape's parameterization is simplicial (barycentric),
+  /// tensor-product (prismatic), or mixed (i.e., a combination of both).
+  ///
+  /// Cells provide this information as a convenience to query responders and attribute calculators.
+  enum ShapeType
+  {
+    Null,        //!< A null parameter space (the null set is the cell's parameter space).
+    Prismatic,   //!< The parameter-space is a tensor product of independent coordinate axes.
+    Barycentric, //!< The parameter-space is a augmented with a dependent coordinate.
+    Mixed        //!< Some parameter-space axes are prismatic and some are barycentric.
+  };
+
   /// Records describing the source arrays for cells or cell-sides.
   struct Source
   {
@@ -202,9 +214,18 @@ public:
   /// Note that this also converts IOSS shape names to DG enums, so there are
   /// additional cases to handle spheres as points, springs as lines, etc.
   static Shape GetShapeEnum(vtkStringToken shapeName);
+  /// For the given \a shape, return a description of the parameter space.
+  static ShapeType GetShapeType(Shape shape);
+  /// Given a \a shapeType, return a user-presentable string token describing it.
+  static vtkStringToken GetShapeTypeName(ShapeType shapeType);
+  /// Given a string \a shapeTypeName, return its matching shape type.
+  static ShapeType GetShapeTypeName(vtkStringToken shapeTypeName);
 
   /// Return the topological shape of this cell or side type.
   virtual Shape GetShape() const = 0;
+
+  /// Return a description of the cell's parameter space.
+  ShapeType GetParameterSpaceType() const;
 
   /// Return the parametric dimension of this cell type (0, 1, 2, or 3).
   virtual int GetDimension() const { return vtkDGCell::GetShapeDimension(this->GetShape()); }
@@ -393,7 +414,25 @@ public:
   vtkCellGridResponders::TagSet GetAttributeTags(
     vtkCellAttribute* attribute, bool inheritedTypes = false);
 
+  /// Return the polynomial order of \a attributeInfo along each parametric axis.
+  ///
+  /// The result always holds one entry per parametric axis of this cell shape
+  /// (so it is empty for vertices). When \a attributeInfo has an array in the
+  /// "order" role holding a single tuple with one component per axis, that
+  /// array provides an anisotropic order; otherwise the nominal
+  /// vtkCellAttribute::CellTypeInfo::Order is used for every axis.
+  ///
+  /// Note that the order may not vary from cell to cell; it is fixed for all
+  /// the cells sharing a vtkCellAttribute::CellTypeInfo.
+  std::vector<int> GetBasisOrder(const vtkCellAttribute::CellTypeInfo& attributeInfo) const;
+
   /// Return an operator entry
+  ///
+  /// The returned entry is bound to the polynomial order that \a attributeInfo
+  /// requests, so it is ready to evaluate even when the registered operator
+  /// accepts an arbitrary order. If no operator is registered for
+  /// \a attributeInfo, or if the registered one cannot supply the requested
+  /// order, the returned entry converts to false.
   vtkDGOperatorEntry GetOperatorEntry(
     vtkStringToken opName, const vtkCellAttribute::CellTypeInfo& attributeInfo);
 

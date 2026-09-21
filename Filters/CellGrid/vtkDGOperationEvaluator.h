@@ -225,7 +225,7 @@ public:
     {
       throw std::logic_error("Invalid shape DOF-sharing enumerant.");
     }
-    this->ShapeGradientEntry.Op(this->RST, this->ShapeBasisTuple);
+    this->ShapeGradientEntry.Evaluate(this->RST, this->ShapeBasisTuple);
     this->ShapeInnerProduct();
   }
 
@@ -311,7 +311,7 @@ public:
         {
           this->RST[jj] = param[jj];
         }
-        this->OpEntry.Op(this->RST, this->BasisTuple);
+        this->OpEntry.Evaluate(this->RST, this->BasisTuple);
         this->InnerProduct(ii, outIter);
         if (Modifier == InverseJacobian)
         {
@@ -346,7 +346,7 @@ public:
         {
           this->RST[jj] = param[jj];
         }
-        this->OpEntry.Op(this->RST, this->BasisTuple);
+        this->OpEntry.Evaluate(this->RST, this->BasisTuple);
         this->InnerProduct(ii, outIter);
         if (Modifier == InverseJacobian)
         {
@@ -375,7 +375,7 @@ public:
         {
           this->RST[jj] = param[jj];
         }
-        this->OpEntry.Op(this->RST, this->BasisTuple);
+        this->OpEntry.Evaluate(this->RST, this->BasisTuple);
         this->InnerProduct(ii, outIter);
         if (Modifier == InverseJacobian)
         {
@@ -404,7 +404,7 @@ public:
         {
           this->RST[jj] = param[jj];
         }
-        this->OpEntry.Op(this->RST, this->BasisTuple);
+        this->OpEntry.Evaluate(this->RST, this->BasisTuple);
         this->InnerProduct(ii, outIter);
         if (Modifier == InverseJacobian)
         {

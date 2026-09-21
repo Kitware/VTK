@@ -113,6 +113,12 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGAttributeInformation::PrepareFo
       // NB: For now, we only support order 0 and 1
       numberOfBasisFunctions = order == 0 ? 1 : numberOfSides;
       break;
+    // The Bernstein-Bezier basis spans the same polynomials as the Lagrange
+    // basis of the same order, so it has exactly as many degrees of freedom and
+    // shares every count below. Only the name differs, since the two need
+    // distinct shader functions.
+    case "bezier"_hash:
+    case "Bezier"_hash:
     case "hgrad"_hash:
     case "HGRAD"_hash:
     case "HGrad"_hash:
@@ -121,7 +127,8 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGAttributeInformation::PrepareFo
       sideDim = 0;
       basisValueSize = 1;
       numberOfSides = cellType->GetNumberOfSidesOfDimension(sideDim);
-      basisName << "HGrad";
+      basisName << (functionSpace == "bezier"_token || functionSpace == "Bezier"_token ? "Bezier"
+                                                                                       : "HGrad");
       switch (cellType->GetShape())
       {
         default:
@@ -146,6 +153,7 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGAttributeInformation::PrepareFo
             default:
             case "C"_hash: // "C"omplete basis
             case "c"_hash: // "C"omplete basis
+            case "A"_hash: // "A"rbitrary-order (complete) basis
               numberOfBasisFunctions = op1 * op1 * op1;
               integrationScheme = 'c';
               break;
@@ -164,6 +172,7 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGAttributeInformation::PrepareFo
               break;
             default:
             case "C"_hash: // "C"omplete basis
+            case "A"_hash: // "A"rbitrary-order (complete) basis
               numberOfBasisFunctions = op1 * op2 * op3 / 6;
               integrationScheme = 'c';
               break;
@@ -246,6 +255,7 @@ vtkSmartPointer<vtkCellAttributeCalculator> vtkDGAttributeInformation::PrepareFo
               break;
             default:
             case "C"_hash: // "C"omplete basis
+            case "A"_hash: // "A"rbitrary-order (complete) basis
               numberOfBasisFunctions = op1 * op1 * op2 / 2;
               integrationScheme = 'c';
               break;
