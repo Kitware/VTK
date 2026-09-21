@@ -24,12 +24,13 @@
 #include "vtkObject.h"
 
 #include "vtkInteractionStyleModule.h" // needed for export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkRenderWindowInteractor;
 
-class VTKINTERACTIONSTYLE_EXPORT vtkCameraManipulator : public vtkObject
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkCameraManipulator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCameraManipulator, vtkObject);

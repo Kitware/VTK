@@ -18,11 +18,12 @@
 
 #include "vtkCommand.h"                // for vtkCommand::UserEvent
 #include "vtkInteractionStyleModule.h" // needed for export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 
-class VTKINTERACTIONSTYLE_EXPORT vtkJoystickFly : public vtkCameraManipulator
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkJoystickFly : public vtkCameraManipulator
 {
 public:
   vtkTypeMacro(vtkJoystickFly, vtkCameraManipulator);

@@ -13,9 +13,10 @@
 
 #include "vtkInteractionStyleModule.h" // needed for export macro
 #include "vtkJoystickFly.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKINTERACTIONSTYLE_EXPORT vtkJoystickFlyOut : public vtkJoystickFly
+class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkJoystickFlyOut : public vtkJoystickFly
 {
 public:
   static vtkJoystickFlyOut* New();
