@@ -15,7 +15,6 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
-#include "vtkMathUtilities.h"
 #include "vtkMultiVariateToRGBA.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
@@ -35,6 +34,7 @@
 // clang-format on
 
 #include <algorithm>
+#include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -459,57 +459,55 @@ double vtkPlotRadViz::GetAngle(double vertex[2], double mousePos[2])
 
 std::pair<int, int> vtkPlotRadViz::GetJustification(double xy[2])
 {
-  if (vtkMathUtilities::FuzzyCompare(xy[1], 0.0))
+  // Center the label around each cardinal angle (0, 90, 180, 270) for a
+  // window of 30 degrees (+/- 15 degrees), instead of only for the exact
+  // angle. Outside of these windows, justify based on the quadrant.
+  constexpr double CARDINAL_ANGLE_WINDOW = 15.0;
+  double angle = vtkMath::DegreesFromRadians(std::atan2(xy[1], xy[0]));
+  if (angle < 0.0)
   {
-    if (xy[0] > 0)
-    {
-      // angle: 0
-      return { VTK_TEXT_LEFT, VTK_TEXT_CENTERED };
-    }
-    else
-    {
-      // angle: 180
-      return { VTK_TEXT_RIGHT, VTK_TEXT_CENTERED };
-    }
+    angle += 360.0;
   }
-  else if (vtkMathUtilities::FuzzyCompare(xy[0], 0.0))
+
+  if (angle <= CARDINAL_ANGLE_WINDOW || angle >= 360.0 - CARDINAL_ANGLE_WINDOW)
   {
-    if (xy[1] > 0)
-    {
-      // angle: 90
-      return { VTK_TEXT_CENTERED, VTK_TEXT_BOTTOM };
-    }
-    else
-    {
-      // angle: 270
-      return { VTK_TEXT_CENTERED, VTK_TEXT_TOP };
-    }
+    // around angle: 0
+    return { VTK_TEXT_LEFT, VTK_TEXT_CENTERED };
   }
-  else if (xy[0] > 0)
+  else if (std::abs(angle - 180.0) <= CARDINAL_ANGLE_WINDOW)
   {
-    if (xy[1] > 0)
-    {
-      // first quadrant (0 < angle < 90)
-      return { VTK_TEXT_LEFT, VTK_TEXT_BOTTOM };
-    }
-    else
-    {
-      // forth quadrant (270 < angle < 360)
-      return { VTK_TEXT_LEFT, VTK_TEXT_TOP };
-    }
+    // around angle: 180
+    return { VTK_TEXT_RIGHT, VTK_TEXT_CENTERED };
+  }
+  else if (std::abs(angle - 90.0) <= CARDINAL_ANGLE_WINDOW)
+  {
+    // around angle: 90
+    return { VTK_TEXT_CENTERED, VTK_TEXT_BOTTOM };
+  }
+  else if (std::abs(angle - 270.0) <= CARDINAL_ANGLE_WINDOW)
+  {
+    // around angle: 270
+    return { VTK_TEXT_CENTERED, VTK_TEXT_TOP };
+  }
+  else if (angle < 90.0)
+  {
+    // first quadrant (0 < angle < 90)
+    return { VTK_TEXT_LEFT, VTK_TEXT_BOTTOM };
+  }
+  else if (angle < 180.0)
+  {
+    // second quadrant (90 < angle < 180)
+    return { VTK_TEXT_RIGHT, VTK_TEXT_BOTTOM };
+  }
+  else if (angle < 270.0)
+  {
+    // third quadrant (180 < angle < 270)
+    return { VTK_TEXT_RIGHT, VTK_TEXT_TOP };
   }
   else
   {
-    if (xy[1] > 0)
-    {
-      // second quadrant (90 < angle < 180)
-      return { VTK_TEXT_RIGHT, VTK_TEXT_BOTTOM };
-    }
-    else
-    {
-      // third quadrant (180 < angle < 270)
-      return { VTK_TEXT_RIGHT, VTK_TEXT_TOP };
-    }
+    // forth quadrant (270 < angle < 360)
+    return { VTK_TEXT_LEFT, VTK_TEXT_TOP };
   }
 }
 
