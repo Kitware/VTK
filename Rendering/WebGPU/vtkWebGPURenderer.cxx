@@ -1335,12 +1335,42 @@ void vtkWebGPURenderer::EndRecording()
       wgpuRenderPassEncoderExecuteBundles(renderEncoder, 1, &this->Bundle);
     }
   }
-  this->ResolveDeepFramebuffer(renderEncoder);
 #if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
   wgpuRenderPassEncoderPopDebugGroup(renderEncoder);
 #endif
   wgpuRenderPassEncoderEnd(renderEncoder);
   vtkWebGPU::ReleaseAndNull(this->WGPURenderEncoder, wgpuRenderPassEncoderRelease);
+
+  if (this->UseDeepFramebufferTransparency && this->DeepFramebuffer != nullptr)
+  {
+    auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow);
+    if (wgpuRenderWindow != nullptr)
+    {
+      vtkWebGPURenderPassDescriptorInternals resolvePassDesc(
+        { wgpuRenderWindow->GetOffscreenColorAttachmentView(),
+          wgpuRenderWindow->GetHardwareSelectorAttachmentView() },
+        wgpuRenderWindow->GetDepthStencilView(),
+        /*clearColor=*/false, /*clearDepth=*/false, /*clearStencil=*/false);
+      resolvePassDesc.label =
+        WGPUStringView{ "vtkWebGPURenderer::ResolveDeepFramebuffer", WGPU_STRLEN };
+      WGPURenderPassEncoder resolveEncoder =
+        wgpuRenderWindow->NewRenderPass(static_cast<WGPURenderPassDescriptor&>(resolvePassDesc));
+
+      int vpWidth, vpHeight, vpOriginX, vpOriginY;
+      this->GetTiledSizeAndOrigin(&vpWidth, &vpHeight, &vpOriginX, &vpOriginY);
+      if (auto* window = this->GetVTKWindow())
+      {
+        int* actSize = window->GetActualSize();
+        vpOriginY = actSize[1] - vpOriginY - vpHeight;
+      }
+      wgpuRenderPassEncoderSetViewport(resolveEncoder, vpOriginX, vpOriginY,
+        static_cast<float>(vpWidth), static_cast<float>(vpHeight), 0.0f, 1.0f);
+
+      this->ResolveDeepFramebuffer(resolveEncoder);
+      wgpuRenderPassEncoderEnd(resolveEncoder);
+      wgpuRenderPassEncoderRelease(resolveEncoder);
+    }
+  }
 }
 
 void vtkWebGPURenderer::PostRasterizationRender()
