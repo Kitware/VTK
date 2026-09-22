@@ -4,6 +4,7 @@
 #include "vtkActor.h"
 #include "vtkCubeSource.h"
 #include "vtkImageData.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
@@ -18,7 +19,6 @@
 
 #include <algorithm>
 #include <cstdlib>
-#include <iostream>
 #include <vector>
 
 namespace
@@ -66,7 +66,7 @@ std::vector<unsigned char> Render(bool withHiddenSphere)
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   if (wgpuRenderer == nullptr)
   {
-    std::cerr << "ERROR: renderer is not a vtkWebGPURenderer\n";
+    vtkLog(ERROR, "renderer is not a vtkWebGPURenderer");
     return {};
   }
   wgpuRenderer->UseDeepFramebufferTransparencyOn();
@@ -94,7 +94,7 @@ std::vector<unsigned char> Render(bool withHiddenSphere)
     vtkUnsignedCharArray::SafeDownCast(capture->GetOutput()->GetPointData()->GetScalars());
   if (scalars == nullptr)
   {
-    std::cerr << "ERROR: no pixels captured\n";
+    vtkLog(ERROR, "no pixels captured");
     return {};
   }
   const vtkIdType n = scalars->GetNumberOfValues();
@@ -114,7 +114,7 @@ int TestDeepFramebufferOpaqueOcclusion(int, char*[])
 
   if (boxOnly.empty() || boxAndSphere.empty() || boxOnly.size() != boxAndSphere.size())
   {
-    std::cerr << "ERROR: could not capture both renders\n";
+    vtkLog(ERROR, "could not capture both renders");
     return EXIT_FAILURE;
   }
 
@@ -131,8 +131,9 @@ int TestDeepFramebufferOpaqueOcclusion(int, char*[])
   const std::size_t pixelCount = boxOnly.size() / 3;
   if (covered * 4 < pixelCount)
   {
-    std::cerr << "ERROR: the opaque box covers only " << covered << " of " << pixelCount
-              << " pixels; it is not occluding anything\n";
+    vtkLog(ERROR,
+      "the opaque box covers only " << covered << " of " << pixelCount
+                                    << " pixels; it is not occluding anything");
     return EXIT_FAILURE;
   }
 
@@ -149,15 +150,17 @@ int TestDeepFramebufferOpaqueOcclusion(int, char*[])
   }
   if (differing > 0)
   {
-    std::cerr << "ERROR: " << differing << " of " << boxOnly.size()
-              << " channel values changed when a fully hidden translucent sphere was added (worst "
-              << worst
-              << "); its fragments are reaching the fragment lists despite failing the depth "
-                 "test, and the resolve then draws them over the opaque geometry\n";
+    vtkLog(ERROR,
+      "" << differing << " of " << boxOnly.size()
+         << " channel values changed when a fully hidden translucent sphere was added (worst "
+         << worst
+         << "); its fragments are reaching the fragment lists despite failing the depth "
+            "test, and the resolve then draws them over the opaque geometry");
     return EXIT_FAILURE;
   }
 
-  std::cout << "geometry hidden behind opaque surfaces stays hidden over " << pixelCount
-            << " pixels, " << covered << " covered by the box\n";
+  vtkLog(INFO,
+    "geometry hidden behind opaque surfaces stays hidden over "
+      << pixelCount << " pixels, " << covered << " covered by the box");
   return EXIT_SUCCESS;
 }

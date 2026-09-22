@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkActor.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -14,7 +15,6 @@
 #include "vtkWebGPURenderer.h"
 
 #include <cstdlib>
-#include <iostream>
 
 namespace
 {
@@ -43,7 +43,7 @@ bool ReadCentreIds(
   window->GetIdsData(cx, cy, cx, cy, ids);
   if (ids->GetNumberOfTuples() < 1 || ids->GetNumberOfComponents() < 2)
   {
-    std::cerr << "ERROR: no ids were read back at (" << cx << ", " << cy << ")\n";
+    vtkLog(ERROR, "no ids were read back at (" << cx << ", " << cy << ")");
     return false;
   }
   cellId = ids->GetTypedComponent(0, 0);
@@ -66,7 +66,7 @@ int TestDeepFramebufferPicking(int, char*[])
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   if (wgpuRenderer == nullptr)
   {
-    std::cerr << "ERROR: renderer is not a vtkWebGPURenderer\n";
+    vtkLog(ERROR, "renderer is not a vtkWebGPURenderer");
     return EXIT_FAILURE;
   }
   wgpuRenderer->UseDeepFramebufferTransparencyOn();
@@ -82,7 +82,7 @@ int TestDeepFramebufferPicking(int, char*[])
   auto* wgpuWindow = vtkWebGPURenderWindow::SafeDownCast(window);
   if (wgpuWindow == nullptr)
   {
-    std::cerr << "ERROR: render window is not a vtkWebGPURenderWindow\n";
+    vtkLog(ERROR, "render window is not a vtkWebGPURenderWindow");
     return EXIT_FAILURE;
   }
 
@@ -99,15 +99,17 @@ int TestDeepFramebufferPicking(int, char*[])
   }
   if (nearProp == 0)
   {
-    std::cerr << "ERROR: no prop id at the centre; the translucent fragments were discarded "
-                 "without their ids reaching the attachment\n";
+    vtkLog(ERROR,
+      "no prop id at the centre; the translucent fragments were discarded "
+      "without their ids reaching the attachment");
     return EXIT_FAILURE;
   }
   if (nearCell == 0)
   {
-    std::cerr << "ERROR: prop id " << nearProp
-              << " reached the attachment but the cell id did not; cell picking through "
-                 "translucent layers will not work\n";
+    vtkLog(ERROR,
+      "prop id " << nearProp
+                 << " reached the attachment but the cell id did not; cell picking through "
+                    "translucent layers will not work");
     return EXIT_FAILURE;
   }
 
@@ -122,18 +124,21 @@ int TestDeepFramebufferPicking(int, char*[])
   }
   if (midProp == 0)
   {
-    std::cerr << "ERROR: no prop id at the centre after removing the nearest sphere\n";
+    vtkLog(ERROR, "no prop id at the centre after removing the nearest sphere");
     return EXIT_FAILURE;
   }
   if (midProp == nearProp)
   {
-    std::cerr << "ERROR: the centre still reports prop " << midProp
-              << " after the nearest sphere was removed, so the ids are coming from some "
-                 "layer other than the nearest one\n";
+    vtkLog(ERROR,
+      "the centre still reports prop " << midProp
+                                       << " after the nearest sphere was removed, so the ids are "
+                                          "coming from some layer other than the nearest one");
     return EXIT_FAILURE;
   }
 
-  std::cout << "nearest layer picked: prop " << nearProp << " cell " << nearCell
-            << "; after removing it, prop " << midProp << " cell " << midCell << "\n";
+  vtkLog(INFO,
+    "nearest layer picked: prop " << nearProp << " cell " << nearCell
+                                  << "; after removing it, prop " << midProp << " cell "
+                                  << midCell);
   return EXIT_SUCCESS;
 }

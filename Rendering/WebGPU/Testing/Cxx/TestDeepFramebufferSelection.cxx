@@ -6,6 +6,7 @@
 #include "vtkHardwareSelector.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProp.h"
@@ -19,7 +20,6 @@
 #include "vtkWebGPURenderer.h"
 
 #include <cstdlib>
-#include <iostream>
 #include <map>
 #include <string>
 
@@ -57,7 +57,7 @@ std::map<std::string, vtkIdType> Select(bool deepFramebuffer, int association)
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   if (wgpuRenderer == nullptr)
   {
-    std::cerr << "ERROR: renderer is not a vtkWebGPURenderer\n";
+    vtkLog(ERROR, "renderer is not a vtkWebGPURenderer");
     return {};
   }
   wgpuRenderer->SetUseDeepFramebufferTransparency(deepFramebuffer);
@@ -85,7 +85,7 @@ std::map<std::string, vtkIdType> Select(bool deepFramebuffer, int association)
   vtkSelection* selection = selector->Select();
   if (selection == nullptr)
   {
-    std::cerr << "ERROR: the selector returned no selection\n";
+    vtkLog(ERROR, "the selector returned no selection");
     return picked;
   }
   for (unsigned int node = 0; node < selection->GetNumberOfNodes(); ++node)
@@ -121,18 +121,20 @@ bool Compare(const char* what, int association)
   const auto deep = Select(true, association);
   if (plain.empty())
   {
-    std::cerr << "ERROR: " << what
-              << ": the ordinary translucent path selected nothing, so there is nothing to "
-                 "compare against\n";
+    vtkLog(ERROR,
+      "" << what
+         << ": the ordinary translucent path selected nothing, so there is nothing to compare "
+            "against");
     return false;
   }
   if (plain != deep)
   {
-    std::cerr << "ERROR: " << what << ": the deep framebuffer changed what was selected. Without "
-              << "it: " << Describe(plain) << "- with it: " << Describe(deep) << "\n";
+    vtkLog(ERROR,
+      "" << what << ": the deep framebuffer changed what was selected. Without it: "
+         << Describe(plain) << "- with it: " << Describe(deep));
     return false;
   }
-  std::cout << what << ": " << Describe(plain) << "with and without the deep framebuffer\n";
+  vtkLog(INFO, "" << what << ": " << Describe(plain) << "with and without the deep framebuffer");
   return true;
 }
 }

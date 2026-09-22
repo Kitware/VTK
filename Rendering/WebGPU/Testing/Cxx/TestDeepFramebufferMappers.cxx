@@ -6,6 +6,7 @@
 #include "vtkCompositePolyDataMapper.h"
 #include "vtkGlyph3DMapper.h"
 #include "vtkImageData.h"
+#include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
@@ -22,7 +23,6 @@
 
 #include <algorithm>
 #include <cstdlib>
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -100,7 +100,7 @@ std::vector<unsigned char> RenderInOrder(
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   if (wgpuRenderer == nullptr)
   {
-    std::cerr << "ERROR: renderer is not a vtkWebGPURenderer\n";
+    vtkLog(ERROR, "renderer is not a vtkWebGPURenderer");
     return {};
   }
   wgpuRenderer->UseDeepFramebufferTransparencyOn();
@@ -125,7 +125,7 @@ std::vector<unsigned char> RenderInOrder(
     vtkUnsignedCharArray::SafeDownCast(capture->GetOutput()->GetPointData()->GetScalars());
   if (scalars == nullptr)
   {
-    std::cerr << "ERROR: no pixels captured\n";
+    vtkLog(ERROR, "no pixels captured");
     return {};
   }
   const vtkIdType n = scalars->GetNumberOfValues();
@@ -143,7 +143,7 @@ bool OrderIndependent(const std::string& what, const std::vector<vtkSmartPointer
   const std::vector<unsigned char> reverse = RenderInOrder(actors, true);
   if (forward.empty() || reverse.empty() || forward.size() != reverse.size())
   {
-    std::cerr << "ERROR: " << what << ": could not capture both renders\n";
+    vtkLog(ERROR, "" << what << ": could not capture both renders");
     return false;
   }
 
@@ -160,8 +160,9 @@ bool OrderIndependent(const std::string& what, const std::vector<vtkSmartPointer
   const std::size_t pixelCount = forward.size() / 3;
   if (covered * 20 < pixelCount)
   {
-    std::cerr << "ERROR: " << what << ": only " << covered << " of " << pixelCount
-              << " pixels are covered by geometry\n";
+    vtkLog(ERROR,
+      "" << what << ": only " << covered << " of " << pixelCount
+         << " pixels are covered by geometry");
     return false;
   }
 
@@ -178,14 +179,16 @@ bool OrderIndependent(const std::string& what, const std::vector<vtkSmartPointer
   }
   if (differing > 0)
   {
-    std::cerr << "ERROR: " << what << ": " << differing << " of " << forward.size()
-              << " channel values differ between draw orders (worst " << worst
-              << "); this mapper's translucent fragments are not reaching the fragment lists\n";
+    vtkLog(ERROR,
+      "" << what << ": " << differing << " of " << forward.size()
+         << " channel values differ between draw orders (worst " << worst
+         << "); this mapper's translucent fragments are not reaching the fragment lists");
     return false;
   }
 
-  std::cout << what << ": order independent over " << pixelCount << " pixels, " << covered
-            << " covered by geometry\n";
+  vtkLog(INFO,
+    "" << what << ": order independent over " << pixelCount << " pixels, " << covered
+       << " covered by geometry");
   return true;
 }
 }

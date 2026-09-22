@@ -3,6 +3,7 @@
 
 #include "vtkActor.h"
 #include "vtkImageData.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
@@ -16,7 +17,6 @@
 
 #include <algorithm>
 #include <cstdlib>
-#include <iostream>
 #include <vector>
 
 namespace
@@ -60,7 +60,7 @@ std::vector<unsigned char> RenderInOrder(bool reversed, int size)
   }
   else
   {
-    std::cerr << "ERROR: renderer is not a vtkWebGPURenderer\n";
+    vtkLog(ERROR, "renderer is not a vtkWebGPURenderer");
     return {};
   }
   for (const auto& actor : actors)
@@ -82,7 +82,7 @@ std::vector<unsigned char> RenderInOrder(bool reversed, int size)
   auto* scalars = vtkUnsignedCharArray::SafeDownCast(image->GetPointData()->GetScalars());
   if (scalars == nullptr)
   {
-    std::cerr << "ERROR: no pixels captured\n";
+    vtkLog(ERROR, "no pixels captured");
     return {};
   }
   const vtkIdType n = scalars->GetNumberOfValues();
@@ -104,7 +104,7 @@ int TestDeepFramebufferTransparency(int, char*[])
 
   if (forward.empty() || reverse.empty() || forward.size() != reverse.size())
   {
-    std::cerr << "ERROR: capture failed (" << forward.size() << " vs " << reverse.size() << ")\n";
+    vtkLog(ERROR, "capture failed (" << forward.size() << " vs " << reverse.size() << ")");
     return EXIT_FAILURE;
   }
 
@@ -120,8 +120,9 @@ int TestDeepFramebufferTransparency(int, char*[])
   const std::size_t pixelCount = forward.size() / 3;
   if (nonBackground * 20 < pixelCount)
   {
-    std::cerr << "ERROR: only " << nonBackground << " of " << pixelCount
-              << " pixels differ from the background; the spheres were not composited\n";
+    vtkLog(ERROR,
+      "only " << nonBackground << " of " << pixelCount
+              << " pixels differ from the background; the spheres were not composited");
     return EXIT_FAILURE;
   }
 
@@ -138,13 +139,15 @@ int TestDeepFramebufferTransparency(int, char*[])
   }
   if (differing > 0)
   {
-    std::cerr << "ERROR: " << differing << " of " << forward.size()
-              << " channel values differ between draw orders (worst " << worst
-              << "); transparency is not order independent\n";
+    vtkLog(ERROR,
+      "" << differing << " of " << forward.size()
+         << " channel values differ between draw orders (worst " << worst
+         << "); transparency is not order independent");
     return EXIT_FAILURE;
   }
 
-  std::cout << "order independent over " << pixelCount << " pixels, " << nonBackground
-            << " covered by geometry\n";
+  vtkLog(INFO,
+    "order independent over " << pixelCount << " pixels, " << nonBackground
+                              << " covered by geometry");
   return EXIT_SUCCESS;
 }

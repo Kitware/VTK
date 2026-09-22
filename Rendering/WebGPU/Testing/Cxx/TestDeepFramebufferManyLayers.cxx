@@ -3,6 +3,7 @@
 
 #include "vtkActor.h"
 #include "vtkImageData.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPlaneSource.h"
 #include "vtkPointData.h"
@@ -17,7 +18,6 @@
 
 #include <algorithm>
 #include <cstdlib>
-#include <iostream>
 #include <vector>
 
 namespace
@@ -61,7 +61,7 @@ std::vector<unsigned char> RenderInOrder(bool reversed)
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   if (wgpuRenderer == nullptr)
   {
-    std::cerr << "ERROR: renderer is not a vtkWebGPURenderer\n";
+    vtkLog(ERROR, "renderer is not a vtkWebGPURenderer");
     return {};
   }
   wgpuRenderer->UseDeepFramebufferTransparencyOn();
@@ -86,7 +86,7 @@ std::vector<unsigned char> RenderInOrder(bool reversed)
     vtkUnsignedCharArray::SafeDownCast(capture->GetOutput()->GetPointData()->GetScalars());
   if (scalars == nullptr)
   {
-    std::cerr << "ERROR: no pixels captured\n";
+    vtkLog(ERROR, "no pixels captured");
     return {};
   }
   const vtkIdType n = scalars->GetNumberOfValues();
@@ -106,7 +106,7 @@ int TestDeepFramebufferManyLayers(int, char*[])
 
   if (forward.empty() || reverse.empty() || forward.size() != reverse.size())
   {
-    std::cerr << "ERROR: could not capture both renders\n";
+    vtkLog(ERROR, "could not capture both renders");
     return EXIT_FAILURE;
   }
 
@@ -123,8 +123,9 @@ int TestDeepFramebufferManyLayers(int, char*[])
   const std::size_t pixelCount = forward.size() / 3;
   if (covered * 20 < pixelCount)
   {
-    std::cerr << "ERROR: only " << covered << " of " << pixelCount
-              << " pixels are covered by geometry; the stack did not render\n";
+    vtkLog(ERROR,
+      "only " << covered << " of " << pixelCount
+              << " pixels are covered by geometry; the stack did not render");
     return EXIT_FAILURE;
   }
 
@@ -141,13 +142,15 @@ int TestDeepFramebufferManyLayers(int, char*[])
   }
   if (differing > 0)
   {
-    std::cerr << "ERROR: " << differing << " of " << forward.size()
-              << " channel values differ between draw orders (worst " << worst
-              << "); the layers kept past the per-pixel limit depend on draw order\n";
+    vtkLog(ERROR,
+      "" << differing << " of " << forward.size()
+         << " channel values differ between draw orders (worst " << worst
+         << "); the layers kept past the per-pixel limit depend on draw order");
     return EXIT_FAILURE;
   }
 
-  std::cout << LayerCount << " layers per pixel resolved identically in both draw orders over "
-            << pixelCount << " pixels, " << covered << " covered by geometry\n";
+  vtkLog(INFO,
+    "" << LayerCount << " layers per pixel resolved identically in both draw orders over "
+       << pixelCount << " pixels, " << covered << " covered by geometry");
   return EXIT_SUCCESS;
 }
