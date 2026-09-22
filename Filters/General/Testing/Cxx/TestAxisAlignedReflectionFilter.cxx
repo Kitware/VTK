@@ -16,12 +16,12 @@
 #include "vtkInformation.h"
 #include "vtkLogger.h"
 #include "vtkMatrix3x3.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
-#include "vtkPointDataToCellData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyLineSource.h"
 #include "vtkRandomAttributeGenerator.h"
@@ -778,6 +778,81 @@ int TestCacheMultiBlockOfMultiBlock(int argc, char* argv[])
   return EXIT_SUCCESS;
 }
 
+//------------------------------------------------------------------------------
+int TestCacheMultiBlockCellData(int, char*[])
+{
+  vtkLogScopeFunction(INFO);
+
+  const unsigned int numBlocks = 2;
+  vtkNew<vtkMultiBlockDataSet> mb;
+  for (unsigned int i = 0; i < numBlocks; ++i)
+  {
+    vtkNew<vtkSphereSource> sphere;
+    sphere->SetPhiResolution(10);
+    sphere->SetThetaResolution(10);
+    vtkNew<vtkRandomAttributeGenerator> rag;
+    rag->SetInputConnection(sphere->GetOutputPort());
+    rag->GenerateAllCellDataOn();
+    rag->SetNumberOfComponents(3);
+    rag->Update();
+    mb->SetBlock(i, rag->GetOutput());
+  }
+
+  bool ret = true;
+
+  vtkNew<vtkAxisAlignedReflectionFilter> reflect;
+  reflect->SetInputDataObject(mb);
+  reflect->SetPlaneModeToXMin();
+  reflect->Update();
+  auto output = vtkPartitionedDataSetCollection::SafeDownCast(reflect->GetOutput());
+
+  {
+    vtkLogScopeF(INFO, "UseMeshCache");
+    auto initialMeshTimes = vtkDataObjectMeshCache::GetDataObjectMeshMTimes(output);
+
+    // Forcing a cache-hit with new array.
+    for (unsigned int i = 0; i < numBlocks; ++i)
+    {
+      auto leaf = vtkDataSet::SafeDownCast(mb->GetBlock(i));
+      auto arr = leaf->GetCellData()->GetArray(0);
+      arr->SetComponent(0, 0, arr->GetComponent(0, 0) + 1.0);
+    }
+    mb->Modified();
+
+    reflect->Update();
+    auto secondMeshTimes = vtkDataObjectMeshCache::GetDataObjectMeshMTimes(output);
+    bool sameMeshTimes = initialMeshTimes == secondMeshTimes;
+    vtkLogIf(ERROR, !sameMeshTimes, "Mesh cache was not used, meshMTimes differ.");
+    ret &= sameMeshTimes;
+  }
+
+  for (unsigned int i = 0; i < numBlocks; ++i)
+  {
+    vtkLogScopeF(INFO, "ReflectArray");
+    auto inLeaf = vtkDataSet::SafeDownCast(mb->GetBlock(i));
+    auto reflectPDS =
+      vtkPartitionedDataSet::SafeDownCast(output->GetPartitionedDataSet(numBlocks + i));
+    auto reflectLeaf = vtkDataSet::SafeDownCast(reflectPDS->GetPartition(0));
+    auto inputCopyPDS = vtkPartitionedDataSet::SafeDownCast(output->GetPartitionedDataSet(i));
+    auto inputCopy = vtkDataSet::SafeDownCast(inputCopyPDS->GetPartition(0));
+
+    auto inVec = inLeaf->GetCellData()->GetArray("RandomCellVectors");
+    auto reflectVec = reflectLeaf->GetCellData()->GetArray("RandomCellVectors");
+    auto expectedReflectVec = ::CreateReflectedArray(inVec);
+    bool checkReflectCellArray =
+      vtkTestUtilities::CompareAbstractArray(expectedReflectVec, reflectVec);
+    vtkLogIf(ERROR, !checkReflectCellArray, "Cell array was not reflected as expected.");
+    ret &= checkReflectCellArray;
+
+    auto inputCopyVec = inputCopy->GetCellData()->GetArray("RandomCellVectors");
+    bool checkInputCopyArray = vtkTestUtilities::CompareAbstractArray(inVec, inputCopyVec);
+    vtkLogIf(ERROR, !checkInputCopyArray, "Input copy cell data not forwarded correctly.");
+    ret &= checkInputCopyArray;
+  }
+
+  return ret ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 // This function tests all the input types, and each input type will test a different plane mode.
 int TestAxisAlignedReflectionFilter(int argc, char* argv[])
 {
@@ -787,5 +862,5 @@ int TestAxisAlignedReflectionFilter(int argc, char* argv[])
     TestPartitionedDataSetCollection(argc, argv) || TestMultiBlockMultiPiece(argc, argv) ||
     TestMultiBlockOnlyDataSets(argc, argv) || TestMultiBlockEmptyPiece(argc, argv) ||
     TestUnstructuredGridWithGlobalIds(argc, argv) || TestStaticMesh(argc, argv) ||
-    TestCacheMultiBlockOfMultiBlock(argc, argv);
+    TestCacheMultiBlockOfMultiBlock(argc, argv) || TestCacheMultiBlockCellData(argc, argv);
 }
