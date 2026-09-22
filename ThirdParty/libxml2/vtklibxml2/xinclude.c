@@ -6,7 +6,7 @@
  *
  * See Copyright for the status of this software.
  *
- * daniel@veillard.com
+ * Author: Daniel Veillard
  */
 
 #define IN_LIBXML
@@ -131,10 +131,9 @@ xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlNodePtr tree);
  ************************************************************************/
 
 /**
- * xmlXIncludeErrMemory:
- * @extra:  extra information
- *
  * Handle an out of memory condition
+ *
+ * @param ctxt  an XInclude context
  */
 static void
 xmlXIncludeErrMemory(xmlXIncludeCtxtPtr ctxt)
@@ -148,13 +147,13 @@ xmlXIncludeErrMemory(xmlXIncludeCtxtPtr ctxt)
 }
 
 /**
- * xmlXIncludeErr:
- * @ctxt: the XInclude context
- * @node: the context node
- * @msg:  the error message
- * @extra:  extra information
- *
  * Handle an XInclude error
+ *
+ * @param ctxt  the XInclude context
+ * @param node  the context node
+ * @param error  the error code
+ * @param msg  the error message
+ * @param extra  extra information
  */
 static void LIBXML_ATTR_FORMAT(4,0)
 xmlXIncludeErr(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, int error,
@@ -203,14 +202,12 @@ xmlXIncludeErr(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node, int error,
 }
 
 /**
- * xmlXIncludeGetProp:
- * @ctxt:  the XInclude context
- * @cur:  the node
- * @name:  the attribute name
- *
  * Get an XInclude attribute
  *
- * Returns the value (to be freed) or NULL if not found
+ * @param ctxt  the XInclude context
+ * @param cur  the node
+ * @param name  the attribute name
+ * @returns the value (to be freed) or NULL if not found
  */
 static xmlChar *
 xmlXIncludeGetProp(xmlXIncludeCtxtPtr ctxt, xmlNodePtr cur,
@@ -234,10 +231,9 @@ xmlXIncludeGetProp(xmlXIncludeCtxtPtr ctxt, xmlNodePtr cur,
     return(ret);
 }
 /**
- * xmlXIncludeFreeRef:
- * @ref: the XInclude reference
- *
  * Free an XInclude reference
+ *
+ * @param ref  the XInclude reference
  */
 static void
 xmlXIncludeFreeRef(xmlXIncludeRefPtr ref) {
@@ -253,15 +249,13 @@ xmlXIncludeFreeRef(xmlXIncludeRefPtr ref) {
 }
 
 /**
- * xmlXIncludeNewContext:
- * @doc:  an XML Document
- *
  * Creates a new XInclude context
  *
- * Returns the new set
+ * @param doc  an XML Document
+ * @returns the new set
  */
-xmlXIncludeCtxtPtr
-xmlXIncludeNewContext(xmlDocPtr doc) {
+xmlXIncludeCtxt *
+xmlXIncludeNewContext(xmlDoc *doc) {
     xmlXIncludeCtxtPtr ret;
 
     if (doc == NULL)
@@ -279,13 +273,12 @@ xmlXIncludeNewContext(xmlDocPtr doc) {
 }
 
 /**
- * xmlXIncludeFreeContext:
- * @ctxt: the XInclude context
- *
  * Free an XInclude context
+ *
+ * @param ctxt  the XInclude context
  */
 void
-xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt) {
+xmlXIncludeFreeContext(xmlXIncludeCtxt *ctxt) {
     int i;
 
     if (ctxt == NULL)
@@ -318,11 +311,10 @@ xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt) {
 }
 
 /**
- * xmlXIncludeParseFile:
- * @ctxt:  the XInclude context
- * @URL:  the URL or file path
- *
  * parse a document for XInclude
+ *
+ * @param ctxt  the XInclude context
+ * @param URL  the URL or file path
  */
 static xmlDocPtr
 xmlXIncludeParseFile(xmlXIncludeCtxtPtr ctxt, const char *URL) {
@@ -395,11 +387,10 @@ error:
 }
 
 /**
- * xmlXIncludeAddNode:
- * @ctxt:  the XInclude context
- * @cur:  the new node
- *
  * Add a new node to process to an XInclude context
+ *
+ * @param ctxt  the XInclude context
+ * @param cur  the new node
  */
 static xmlXIncludeRefPtr
 xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr cur) {
@@ -599,12 +590,10 @@ error:
 }
 
 /**
- * xmlXIncludeRecurseDoc:
- * @ctxt:  the XInclude context
- * @doc:  the new document
- * @url:  the associated URL
- *
  * The XInclude recursive nature is handled at this point.
+ *
+ * @param ctxt  the XInclude context
+ * @param doc  the new document
  */
 static void
 xmlXIncludeRecurseDoc(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc) {
@@ -703,14 +692,13 @@ done:
 }
 
 /**
- * xmlXIncludeCopyNode:
- * @ctxt:  the XInclude context
- * @elem:  the element
- * @copyChildren:  copy children instead of node if true
- *
  * Make a copy of the node while expanding nested XIncludes.
  *
- * Returns a node list, not a single node.
+ * @param ctxt  the XInclude context
+ * @param elem  the element
+ * @param copyChildren  copy children instead of node if true
+ * @param targetBase  the xml:base of the target node
+ * @returns a node list, not a single node.
  */
 static xmlNodePtr
 xmlXIncludeCopyNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr elem,
@@ -825,14 +813,13 @@ error:
 
 #ifdef LIBXML_XPTR_ENABLED
 /**
- * xmlXIncludeCopyXPointer:
- * @ctxt:  the XInclude context
- * @obj:  the XPointer result from the evaluation.
- *
  * Build a node list tree copy of the XPointer result.
  * This will drop Attributes and Namespace declarations.
  *
- * Returns an xmlNodePtr list or NULL.
+ * @param ctxt  the XInclude context
+ * @param obj  the XPointer result from the evaluation.
+ * @param targetBase  the xml:base of the target node
+ * @returns an xmlNode list or NULL.
  *         the caller has to free the node tree.
  */
 static xmlNodePtr
@@ -923,12 +910,11 @@ struct _xmlXIncludeMergeData {
 };
 
 /**
- * xmlXIncludeMergeOneEntity:
- * @ent: the entity
- * @doc:  the including doc
- * @name: the entity name
- *
  * Implements the merge of one entity
+ *
+ * @param payload  the entity
+ * @param vdata  the merge data
+ * @param name  unused
  */
 static void
 xmlXIncludeMergeEntity(void *payload, void *vdata,
@@ -1004,14 +990,12 @@ error:
 }
 
 /**
- * xmlXIncludeMergeEntities:
- * @ctxt: an XInclude context
- * @doc:  the including doc
- * @from:  the included doc
- *
  * Implements the entity merge
  *
- * Returns 0 if merge succeeded, -1 if some processing failed
+ * @param ctxt  an XInclude context
+ * @param doc  the including doc
+ * @param from  the included doc
+ * @returns 0 if merge succeeded, -1 if some processing failed
  */
 static int
 xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
@@ -1067,14 +1051,11 @@ xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
 }
 
 /**
- * xmlXIncludeLoadDoc:
- * @ctxt:  the XInclude context
- * @url:  the associated URL
- * @ref:  an XMLXincludeRefPtr
- *
  * Load the document, and store the result in the XInclude context
  *
- * Returns 0 in case of success, -1 in case of failure
+ * @param ctxt  the XInclude context
+ * @param ref  an XMLXincludeRefPtr
+ * @returns 0 in case of success, -1 in case of failure
  */
 static int
 xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, xmlXIncludeRefPtr ref) {
@@ -1285,7 +1266,7 @@ loaded:
 	set = xptr->nodesetval;
 	if (set != NULL) {
 	    for (i = 0;i < set->nodeNr;i++) {
-		if (set->nodeTab[i] == NULL)
+		if (set->nodeTab[i] == NULL) /* shouldn't happen */
 		    continue;
 		switch (set->nodeTab[i]->type) {
 		    case XML_ELEMENT_NODE:
@@ -1304,15 +1285,13 @@ loaded:
 			               XML_XINCLUDE_XPTR_RESULT,
 				       "XPointer selects an attribute: #%s\n",
 				       fragment);
-			set->nodeTab[i] = NULL;
-			continue;
+			goto xptr_error;
 		    case XML_NAMESPACE_DECL:
 			xmlXIncludeErr(ctxt, ref->elem,
 			               XML_XINCLUDE_XPTR_RESULT,
 				       "XPointer selects a namespace: #%s\n",
 				       fragment);
-			set->nodeTab[i] = NULL;
-			continue;
+			goto xptr_error;
 		    case XML_DOCUMENT_TYPE_NODE:
 		    case XML_DOCUMENT_FRAG_NODE:
 		    case XML_NOTATION_NODE:
@@ -1322,17 +1301,17 @@ loaded:
 		    case XML_ENTITY_DECL:
 		    case XML_XINCLUDE_START:
 		    case XML_XINCLUDE_END:
+                        /* shouldn't happen */
 			xmlXIncludeErr(ctxt, ref->elem,
 			               XML_XINCLUDE_XPTR_RESULT,
 				   "XPointer selects unexpected nodes: #%s\n",
 				       fragment);
-			set->nodeTab[i] = NULL;
-			set->nodeTab[i] = NULL;
-			continue; /* for */
+			goto xptr_error;
 		}
 	    }
 	}
         ref->inc = xmlXIncludeCopyXPointer(ctxt, xptr, ref->base);
+xptr_error:
         xmlXPathFreeObject(xptr);
     }
 
@@ -1346,13 +1325,11 @@ error:
 }
 
 /**
- * xmlXIncludeLoadTxt:
- * @ctxt:  the XInclude context
- * @ref:  an XMLXincludeRefPtr
- *
  * Load the content, and store the result in the XInclude context
  *
- * Returns 0 in case of success, -1 in case of failure
+ * @param ctxt  the XInclude context
+ * @param ref  an XMLXincludeRefPtr
+ * @returns 0 in case of success, -1 in case of failure
  */
 static int
 xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, xmlXIncludeRefPtr ref) {
@@ -1432,6 +1409,8 @@ xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, xmlXIncludeRefPtr ref) {
         xmlCtxtSetResourceLoader(pctxt, ctxt->resourceLoader,
                                  ctxt->resourceCtxt);
 
+    xmlCtxtUseOptions(pctxt, ctxt->parseFlags);
+
     inputStream = xmlLoadResource(pctxt, (const char*) url, NULL,
                                   XML_RESOURCE_XINCLUDE_TEXT);
     if (inputStream == NULL) {
@@ -1442,7 +1421,8 @@ xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, xmlXIncludeRefPtr ref) {
             xmlXIncludeErrMemory(ctxt);
         else if ((pctxt->errNo != XML_ERR_OK) &&
                  (pctxt->errNo != XML_IO_ENOENT) &&
-                 (pctxt->errNo != XML_IO_UNKNOWN))
+                 (pctxt->errNo != XML_IO_UNKNOWN) &&
+                 (pctxt->errNo != XML_IO_NETWORK_ATTEMPT))
             xmlXIncludeErr(ctxt, NULL, pctxt->errNo, "load error", NULL);
 	goto error;
     }
@@ -1544,15 +1524,13 @@ error:
 }
 
 /**
- * xmlXIncludeLoadFallback:
- * @ctxt:  the XInclude context
- * @fallback:  the fallback node
- * @ref:  an XMLXincludeRefPtr
- *
  * Load the content of the fallback node, and store the result
  * in the XInclude context
  *
- * Returns 0 in case of success, -1 in case of failure
+ * @param ctxt  the XInclude context
+ * @param fallback  the fallback node
+ * @param ref  an XMLXincludeRefPtr
+ * @returns 0 in case of success, -1 in case of failure
  */
 static int
 xmlXIncludeLoadFallback(xmlXIncludeCtxtPtr ctxt, xmlNodePtr fallback,
@@ -1586,14 +1564,12 @@ xmlXIncludeLoadFallback(xmlXIncludeCtxtPtr ctxt, xmlNodePtr fallback,
  ************************************************************************/
 
 /**
- * xmlXIncludeExpandNode:
- * @ctxt: an XInclude context
- * @node: an XInclude node
- *
  * If the XInclude node wasn't processed yet, create a new RefPtr,
  * add it to ctxt->incTab and load the included items.
  *
- * Returns the new or existing xmlXIncludeRefPtr, or NULL in case of error.
+ * @param ctxt  an XInclude context
+ * @param node  an XInclude node
+ * @returns the new or existing xmlXIncludeRef, or NULL in case of error.
  */
 static xmlXIncludeRefPtr
 xmlXIncludeExpandNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node) {
@@ -1658,13 +1634,11 @@ xmlXIncludeExpandNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node) {
 }
 
 /**
- * xmlXIncludeLoadNode:
- * @ctxt: an XInclude context
- * @ref: an xmlXIncludeRefPtr
- *
  * Find and load the infoset replacement for the given node.
  *
- * Returns 0 if substitution succeeded, -1 if some processing failed
+ * @param ctxt  an XInclude context
+ * @param ref  an xmlXIncludeRef
+ * @returns 0 if substitution succeeded, -1 if some processing failed
  */
 static int
 xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, xmlXIncludeRefPtr ref) {
@@ -1713,13 +1687,11 @@ xmlXIncludeLoadNode(xmlXIncludeCtxtPtr ctxt, xmlXIncludeRefPtr ref) {
 }
 
 /**
- * xmlXIncludeIncludeNode:
- * @ctxt: an XInclude context
- * @ref: an xmlXIncludeRefPtr
- *
  * Implement the infoset replacement for the given node
  *
- * Returns 0 if substitution succeeded, -1 if some processing failed
+ * @param ctxt  an XInclude context
+ * @param ref  an xmlXIncludeRef
+ * @returns 0 if substitution succeeded, -1 if some processing failed
  */
 static int
 xmlXIncludeIncludeNode(xmlXIncludeCtxtPtr ctxt, xmlXIncludeRefPtr ref) {
@@ -1829,13 +1801,11 @@ err_memory:
 }
 
 /**
- * xmlXIncludeTestNode:
- * @ctxt: the XInclude processing context
- * @node: an XInclude node
- *
  * test if the node is an XInclude node
  *
- * Returns 1 true, 0 otherwise
+ * @param ctxt  the XInclude processing context
+ * @param node  an XInclude node
+ * @returns 1 true, 0 otherwise
  */
 static int
 xmlXIncludeTestNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node) {
@@ -1900,13 +1870,11 @@ xmlXIncludeTestNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node) {
 }
 
 /**
- * xmlXIncludeDoProcess:
- * @ctxt: the XInclude processing context
- * @tree: the top of the tree to process
+ * Implement the XInclude substitution on the XML document `doc`
  *
- * Implement the XInclude substitution on the XML document @doc
- *
- * Returns 0 if no substitution were done, -1 if some processing failed
+ * @param ctxt  the XInclude processing context
+ * @param tree  the top of the tree to process
+ * @returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
 static int
@@ -1983,13 +1951,11 @@ xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlNodePtr tree) {
 }
 
 /**
- * xmlXIncludeDoProcessRoot:
- * @ctxt: the XInclude processing context
- * @tree: the top of the tree to process
+ * Implement the XInclude substitution on the XML document `doc`
  *
- * Implement the XInclude substitution on the XML document @doc
- *
- * Returns 0 if no substitution were done, -1 if some processing failed
+ * @param ctxt  the XInclude processing context
+ * @param tree  the top of the tree to process
+ * @returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
 static int
@@ -2003,33 +1969,29 @@ xmlXIncludeDoProcessRoot(xmlXIncludeCtxtPtr ctxt, xmlNodePtr tree) {
 }
 
 /**
- * xmlXIncludeGetLastError:
- * @ctxt:  an XInclude processing context
+ * @since 2.13.0
  *
- * Available since 2.13.0.
- *
- * Returns the last error code.
+ * @param ctxt  an XInclude processing context
+ * @returns the last error code.
  */
 int
-xmlXIncludeGetLastError(xmlXIncludeCtxtPtr ctxt) {
+xmlXIncludeGetLastError(xmlXIncludeCtxt *ctxt) {
     if (ctxt == NULL)
         return(XML_ERR_ARGUMENT);
     return(ctxt->errNo);
 }
 
 /**
- * xmlXIncludeSetErrorHandler:
- * @ctxt:  an XInclude processing context
- * @handler:  error handler
- * @data:  user data which will be passed to the handler
- *
  * Register a callback function that will be called on errors and
  * warnings. If handler is NULL, the error handler will be deactivated.
  *
- * Available since 2.13.0.
+ * @since 2.13.0
+ * @param ctxt  an XInclude processing context
+ * @param handler  error handler
+ * @param data  user data which will be passed to the handler
  */
 void
-xmlXIncludeSetErrorHandler(xmlXIncludeCtxtPtr ctxt,
+xmlXIncludeSetErrorHandler(xmlXIncludeCtxt *ctxt,
                            xmlStructuredErrorFunc handler, void *data) {
     if (ctxt == NULL)
         return;
@@ -2038,18 +2000,16 @@ xmlXIncludeSetErrorHandler(xmlXIncludeCtxtPtr ctxt,
 }
 
 /**
- * xmlXIncludeSetResourceLoader:
- * @ctxt:  an XInclude processing context
- * @loader:  resource loader
- * @data:  user data which will be passed to the loader
- *
  * Register a callback function that will be called to load included
  * documents.
  *
- * Available since 2.14.0.
+ * @since 2.14.0
+ * @param ctxt  an XInclude processing context
+ * @param loader  resource loader
+ * @param data  user data which will be passed to the loader
  */
 void
-xmlXIncludeSetResourceLoader(xmlXIncludeCtxtPtr ctxt,
+xmlXIncludeSetResourceLoader(xmlXIncludeCtxt *ctxt,
                              xmlResourceLoader loader, void *data) {
     if (ctxt == NULL)
         return;
@@ -2058,16 +2018,14 @@ xmlXIncludeSetResourceLoader(xmlXIncludeCtxtPtr ctxt,
 }
 
 /**
- * xmlXIncludeSetFlags:
- * @ctxt:  an XInclude processing context
- * @flags: a set of xmlParserOption used for parsing XML includes
- *
  * Set the flags used for further processing of XML resources.
  *
- * Returns 0 in case of success and -1 in case of error.
+ * @param ctxt  an XInclude processing context
+ * @param flags  a set of xmlParserOption used for parsing XML includes
+ * @returns 0 in case of success and -1 in case of error.
  */
 int
-xmlXIncludeSetFlags(xmlXIncludeCtxtPtr ctxt, int flags) {
+xmlXIncludeSetFlags(xmlXIncludeCtxt *ctxt, int flags) {
     if (ctxt == NULL)
         return(-1);
     ctxt->parseFlags = flags;
@@ -2075,16 +2033,14 @@ xmlXIncludeSetFlags(xmlXIncludeCtxtPtr ctxt, int flags) {
 }
 
 /**
- * xmlXIncludeSetStreamingMode:
- * @ctxt:  an XInclude processing context
- * @mode:  whether streaming mode should be enabled
- *
  * In streaming mode, XPointer expressions aren't allowed.
  *
- * Returns 0 in case of success and -1 in case of error.
+ * @param ctxt  an XInclude processing context
+ * @param mode  whether streaming mode should be enabled
+ * @returns 0 in case of success and -1 in case of error.
  */
 int
-xmlXIncludeSetStreamingMode(xmlXIncludeCtxtPtr ctxt, int mode) {
+xmlXIncludeSetStreamingMode(xmlXIncludeCtxt *ctxt, int mode) {
     if (ctxt == NULL)
         return(-1);
     ctxt->isStream = !!mode;
@@ -2092,20 +2048,18 @@ xmlXIncludeSetStreamingMode(xmlXIncludeCtxtPtr ctxt, int mode) {
 }
 
 /**
- * xmlXIncludeProcessTreeFlagsData:
- * @tree: an XML node
- * @flags: a set of xmlParserOption used for parsing XML includes
- * @data: application data that will be passed to the parser context
+ * Implement the XInclude substitution on the XML node `tree`
+ *
+ * @param tree  an XML node
+ * @param flags  a set of xmlParserOption used for parsing XML includes
+ * @param data  application data that will be passed to the parser context
  *        in the _private field of the parser context(s)
- *
- * Implement the XInclude substitution on the XML node @tree
- *
- * Returns 0 if no substitution were done, -1 if some processing failed
+ * @returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
 
 int
-xmlXIncludeProcessTreeFlagsData(xmlNodePtr tree, int flags, void *data) {
+xmlXIncludeProcessTreeFlagsData(xmlNode *tree, int flags, void *data) {
     xmlXIncludeCtxtPtr ctxt;
     int ret = 0;
 
@@ -2127,19 +2081,17 @@ xmlXIncludeProcessTreeFlagsData(xmlNodePtr tree, int flags, void *data) {
 }
 
 /**
- * xmlXIncludeProcessFlagsData:
- * @doc: an XML document
- * @flags: a set of xmlParserOption used for parsing XML includes
- * @data: application data that will be passed to the parser context
+ * Implement the XInclude substitution on the XML document `doc`
+ *
+ * @param doc  an XML document
+ * @param flags  a set of xmlParserOption used for parsing XML includes
+ * @param data  application data that will be passed to the parser context
  *        in the _private field of the parser context(s)
- *
- * Implement the XInclude substitution on the XML document @doc
- *
- * Returns 0 if no substitution were done, -1 if some processing failed
+ * @returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
 int
-xmlXIncludeProcessFlagsData(xmlDocPtr doc, int flags, void *data) {
+xmlXIncludeProcessFlagsData(xmlDoc *doc, int flags, void *data) {
     xmlNodePtr tree;
 
     if (doc == NULL)
@@ -2151,46 +2103,40 @@ xmlXIncludeProcessFlagsData(xmlDocPtr doc, int flags, void *data) {
 }
 
 /**
- * xmlXIncludeProcessFlags:
- * @doc: an XML document
- * @flags: a set of xmlParserOption used for parsing XML includes
+ * Implement the XInclude substitution on the XML document `doc`
  *
- * Implement the XInclude substitution on the XML document @doc
- *
- * Returns 0 if no substitution were done, -1 if some processing failed
+ * @param doc  an XML document
+ * @param flags  a set of xmlParserOption used for parsing XML includes
+ * @returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
 int
-xmlXIncludeProcessFlags(xmlDocPtr doc, int flags) {
+xmlXIncludeProcessFlags(xmlDoc *doc, int flags) {
     return xmlXIncludeProcessFlagsData(doc, flags, NULL);
 }
 
 /**
- * xmlXIncludeProcess:
- * @doc: an XML document
+ * Implement the XInclude substitution on the XML document `doc`
  *
- * Implement the XInclude substitution on the XML document @doc
- *
- * Returns 0 if no substitution were done, -1 if some processing failed
+ * @param doc  an XML document
+ * @returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
 int
-xmlXIncludeProcess(xmlDocPtr doc) {
-    return(xmlXIncludeProcessFlags(doc, 0));
+xmlXIncludeProcess(xmlDoc *doc) {
+    return(xmlXIncludeProcessFlags(doc, doc ? doc->parseFlags : 0));
 }
 
 /**
- * xmlXIncludeProcessTreeFlags:
- * @tree: a node in an XML document
- * @flags: a set of xmlParserOption used for parsing XML includes
- *
  * Implement the XInclude substitution for the given subtree
  *
- * Returns 0 if no substitution were done, -1 if some processing failed
+ * @param tree  a node in an XML document
+ * @param flags  a set of xmlParserOption used for parsing XML includes
+ * @returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
 int
-xmlXIncludeProcessTreeFlags(xmlNodePtr tree, int flags) {
+xmlXIncludeProcessTreeFlags(xmlNode *tree, int flags) {
     xmlXIncludeCtxtPtr ctxt;
     int ret = 0;
 
@@ -2210,32 +2156,28 @@ xmlXIncludeProcessTreeFlags(xmlNodePtr tree, int flags) {
 }
 
 /**
- * xmlXIncludeProcessTree:
- * @tree: a node in an XML document
- *
  * Implement the XInclude substitution for the given subtree
  *
- * Returns 0 if no substitution were done, -1 if some processing failed
+ * @param tree  a node in an XML document
+ * @returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
 int
-xmlXIncludeProcessTree(xmlNodePtr tree) {
-    return(xmlXIncludeProcessTreeFlags(tree, 0));
+xmlXIncludeProcessTree(xmlNode *tree) {
+    return(xmlXIncludeProcessTreeFlags(tree, (tree && tree->doc) ? tree->doc->parseFlags : 0));
 }
 
 /**
- * xmlXIncludeProcessNode:
- * @ctxt: an existing XInclude context
- * @node: a node in an XML document
- *
  * Implement the XInclude substitution for the given subtree reusing
  * the information and data coming from the given context.
  *
- * Returns 0 if no substitution were done, -1 if some processing failed
+ * @param ctxt  an existing XInclude context
+ * @param node  a node in an XML document
+ * @returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
 int
-xmlXIncludeProcessNode(xmlXIncludeCtxtPtr ctxt, xmlNodePtr node) {
+xmlXIncludeProcessNode(xmlXIncludeCtxt *ctxt, xmlNode *node) {
     int ret = 0;
 
     if ((node == NULL) || (node->type == XML_NAMESPACE_DECL) ||

@@ -18,7 +18,6 @@ XML_HIDDEN void
 xmlCleanupMemoryInternal(void);
 
 /**
- * xmlGrowCapacity:
  * @array:  pointer to array
  * @capacity:  pointer to capacity (in/out)
  * @elemSize:  size of an element in bytes
@@ -54,5 +53,8 @@ xmlGrowCapacity(int capacity, size_t elemSize, int min, int max) {
 
     return(capacity + extra);
 }
+
+XML_HIDDEN void *
+xmlGrowArray(void *array, size_t elemSize, int *capacity, int min, int max);
 
 #endif /* XML_MEMORY_H_PRIVATE__ */
