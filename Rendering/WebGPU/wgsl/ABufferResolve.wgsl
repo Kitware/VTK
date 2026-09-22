@@ -17,6 +17,7 @@ struct FragmentNode
 
 const ABUFFER_END: u32 = 0xFFFFFFFFu;
 const MAX_LAYERS: u32 = 16u;
+const MAX_LIST_STEPS: u32 = 4096u;
 
 @group(0) @binding(0) var<uniform> scene_transform: SceneTransform;
 @group(0) @binding(2) var<storage, read_write> abufferHeads: array<atomic<u32>>;
@@ -60,10 +61,12 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
   var nearestProcess: u32 = 0u;
   var count: u32 = 0u;
   var node: u32 = atomicLoad(&abufferHeads[pixel]);
+  var steps: u32 = 0u;
   loop {
-    if (node == ABUFFER_END) {
+    if (node == ABUFFER_END || node >= arrayLength(&abufferNodes) || steps >= MAX_LIST_STEPS) {
       break;
     }
+    steps = steps + 1u;
     let nodeDepth = abufferNodes[node].depth;
     let nodeColor = abufferNodes[node].color;
     let nodeCell = abufferNodes[node].cellId;
@@ -81,27 +84,27 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
     }
 
     if (count < MAX_LAYERS) {
-      var j: i32 = i32(count) - 1;
+      var j: u32 = count;
       loop {
-        if (j < 0 || depths[u32(j)] >= nodeDepth) {
+        if (j == 0u || depths[j - 1u] <= nodeDepth) {
           break;
         }
-        depths[u32(j) + 1u] = depths[u32(j)];
-        colors[u32(j) + 1u] = colors[u32(j)];
-        j = j - 1;
+        depths[j] = depths[j - 1u];
+        colors[j] = colors[j - 1u];
+        j = j - 1u;
       }
-      depths[u32(j + 1)] = nodeDepth;
-      colors[u32(j + 1)] = nodeColor;
+      depths[j] = nodeDepth;
+      colors[j] = nodeColor;
       count = count + 1u;
-    } else if (nodeDepth < depths[0]) {
-      var j: u32 = 0u;
+    } else if (nodeDepth < depths[MAX_LAYERS - 1u]) {
+      var j: u32 = MAX_LAYERS - 1u;
       loop {
-        if (j + 1u >= MAX_LAYERS || depths[j + 1u] <= nodeDepth) {
+        if (j == 0u || depths[j - 1u] <= nodeDepth) {
           break;
         }
-        depths[j] = depths[j + 1u];
-        colors[j] = colors[j + 1u];
-        j = j + 1u;
+        depths[j] = depths[j - 1u];
+        colors[j] = colors[j - 1u];
+        j = j - 1u;
       }
       depths[j] = nodeDepth;
       colors[j] = nodeColor;
@@ -114,14 +117,14 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
   }
 
   var accum = vec4<f32>(0.0, 0.0, 0.0, 0.0);
-  var k: u32 = 0u;
+  var k: u32 = count;
   loop {
-    if (k >= count) {
+    if (k == 0u) {
       break;
     }
+    k = k - 1u;
     let src = unpack4x8unorm(colors[k]);
     accum = vec4<f32>(src.rgb * src.a + accum.rgb * (1.0 - src.a), src.a + accum.a * (1.0 - src.a));
-    k = k + 1u;
   }
 
   output.color = accum;
