@@ -86,7 +86,7 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
     if (count < MAX_LAYERS) {
       var j: u32 = count;
       loop {
-        if (j == 0u || depths[j - 1u] <= nodeDepth) {
+        if (j == 0u || depths[j - 1u] < nodeDepth || (depths[j - 1u] == nodeDepth && colors[j - 1u] <= nodeColor)) {
           break;
         }
         depths[j] = depths[j - 1u];
@@ -96,10 +96,10 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
       depths[j] = nodeDepth;
       colors[j] = nodeColor;
       count = count + 1u;
-    } else if (nodeDepth < depths[MAX_LAYERS - 1u]) {
+    } else if (nodeDepth < depths[MAX_LAYERS - 1u] || (nodeDepth == depths[MAX_LAYERS - 1u] && nodeColor < colors[MAX_LAYERS - 1u])) {
       var j: u32 = MAX_LAYERS - 1u;
       loop {
-        if (j == 0u || depths[j - 1u] <= nodeDepth) {
+        if (j == 0u || depths[j - 1u] < nodeDepth || (depths[j - 1u] == nodeDepth && colors[j - 1u] <= nodeColor)) {
           break;
         }
         depths[j] = depths[j - 1u];
