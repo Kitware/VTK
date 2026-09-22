@@ -656,6 +656,40 @@ std::vector<int> vtkMultiVariateToRGBA::GetPartitionOffsets() VTK_FUTURE_CONST
 }
 
 //------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::ClearPartitionIndices()
+{
+  if (!this->PartitionIndices.empty())
+  {
+    this->PartitionIndices.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::AddPartitionIndex(int index)
+{
+  this->PartitionIndices.push_back(index);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::ClearPartitionOffsets()
+{
+  if (!this->PartitionOffsets.empty())
+  {
+    this->PartitionOffsets.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::AddPartitionOffset(int offset)
+{
+  this->PartitionOffsets.push_back(offset);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetAllColumnNames()
 {
   vtkSmartPointer<vtkStringArray> names = vtkSmartPointer<vtkStringArray>::New();

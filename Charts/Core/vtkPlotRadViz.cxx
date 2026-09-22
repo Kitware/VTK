@@ -751,6 +751,40 @@ std::vector<int> vtkPlotRadViz::GetPartitionOffsets() VTK_FUTURE_CONST
 }
 
 //------------------------------------------------------------------------------
+void vtkPlotRadViz::ClearPartitionIndices()
+{
+  if (!this->PartitionIndices.empty())
+  {
+    this->PartitionIndices.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::AddPartitionIndex(int index)
+{
+  this->PartitionIndices.push_back(index);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::ClearPartitionOffsets()
+{
+  if (!this->PartitionOffsets.empty())
+  {
+    this->PartitionOffsets.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::AddPartitionOffset(int offset)
+{
+  this->PartitionOffsets.push_back(offset);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkPlotRadViz::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

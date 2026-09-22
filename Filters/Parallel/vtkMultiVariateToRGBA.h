@@ -220,6 +220,20 @@ public:
 
   ///@{
   /**
+   * Element-wise, ClientServer-wrappable equivalents of SetPartitionIndices()
+   * and SetPartitionOffsets(). The ParaView server manager XML cannot invoke
+   * a method taking a std::vector argument, so it instead calls
+   * ClearPartitionIndices()/ClearPartitionOffsets() once to empty the list,
+   * followed by one AddPartitionIndex()/AddPartitionOffset() call per value.
+   */
+  void ClearPartitionIndices();
+  void AddPartitionIndex(int index);
+  void ClearPartitionOffsets();
+  void AddPartitionOffset(int offset);
+  ///@}
+
+  ///@{
+  /**
    * Set the visibility of the specified column/component by name (a table
    * column name, or a component name of the dataset array being
    * processed). Only visible (i.e. not hidden) columns/components are used

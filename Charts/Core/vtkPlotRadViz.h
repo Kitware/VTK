@@ -295,6 +295,20 @@ public:
 
   ///@{
   /**
+   * Element-wise, ClientServer-wrappable equivalents of SetPartitionIndices()
+   * and SetPartitionOffsets(). The ParaView server manager XML cannot invoke
+   * a method taking a std::vector argument, so it instead calls
+   * ClearPartitionIndices()/ClearPartitionOffsets() once to empty the list,
+   * followed by one AddPartitionIndex()/AddPartitionOffset() call per value.
+   */
+  void ClearPartitionIndices();
+  void AddPartitionIndex(int index);
+  void ClearPartitionOffsets();
+  void AddPartitionOffset(int offset);
+  ///@}
+
+  ///@{
+  /**
    * Custom ranges used as the global min/max when normalizing scalars,
    * instead of the range computed from the data, one [min, max] range per
    * partition group. This is a passthrough to the underlying
