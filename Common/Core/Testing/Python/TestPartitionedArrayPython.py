@@ -236,6 +236,37 @@ def test_dataset_is_weakly_referenced():
           "reductions should still work once the composite is gone")
 
 
+def test_dataset_holder_is_reused():
+    """Re-assigning the dataset reuses the vtkWeakReference holder."""
+    mb = make_composite_dataset()
+    array = mb.point_data["scalars"]
+    holder = array.__dict__["_dataset"]
+    check(isinstance(holder, vtkWeakReference),
+          "the first assignment should allocate a weak reference holder")
+
+    other = make_composite_dataset()
+    array.dataset = other
+    check(array.__dict__["_dataset"] is holder,
+          "re-assigning the dataset should reuse the existing holder")
+    check(array.dataset is other, "the holder should point at the new dataset")
+
+    # A None assignment drops the holder, so the next one has to allocate.
+    array.dataset = None
+    check(array.__dict__["_dataset"] is None,
+          "assigning None should clear the back-pointer")
+    array.dataset = mb
+    check(isinstance(array.__dict__["_dataset"], vtkWeakReference),
+          "assigning after a clear should allocate a new holder")
+    check(array.dataset is mb, "the new holder should point at the dataset")
+
+    # The reused holder must not have turned into a strong reference.
+    ref = weakref.ref(mb)
+    del mb
+    gc.collect()
+    check(ref() is None, "the composite should be released when the caller drops it")
+    check(array.dataset is None, "dataset should be None once the composite is gone")
+
+
 def test_temporary_composite_dataset():
     """Arrays taken from a temporary composite still resolve their blocks."""
     array = make_composite_dataset().point_data["scalars"]
@@ -466,6 +497,7 @@ test_shape_of_empty()
 test_array_function_fallback()
 test_registered_overrides_take_priority()
 test_dataset_is_weakly_referenced()
+test_dataset_holder_is_reused()
 test_temporary_composite_dataset()
 test_array_ufunc_protocol()
 test_empty_composite()
