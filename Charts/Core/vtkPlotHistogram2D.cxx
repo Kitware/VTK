@@ -3,6 +3,7 @@
 
 #include "vtkPlotHistogram2D.h"
 
+#include "vtkArrayComponents.h"
 #include "vtkArrayDispatch.h"
 #include "vtkAxis.h"
 #include "vtkContext2D.h"
@@ -10,60 +11,13 @@
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
 #include "vtkScalarsToColors.h"
 #include "vtkStringArray.h"
 
-#include "vtkObjectFactory.h"
-
 #include <algorithm>
-
-namespace
-{
-
-/**
- * Worker to compute magnitude of vector array.
- */
-struct MagnitudeWorker
-{
-  template <typename ArrayT>
-  void operator()(ArrayT* vecs, vtkDoubleArray* mags)
-  {
-    VTK_ASSUME(vecs->GetNumberOfComponents() == 2 || vecs->GetNumberOfComponents() == 3);
-
-    const auto vecRange = vtk::DataArrayTupleRange(vecs);
-    auto magRange = vtk::DataArrayValueRange<1>(mags);
-
-    using VecTuple = typename decltype(vecRange)::ConstTupleReferenceType;
-
-    vtkSMPTools::Transform(vecRange.cbegin(), vecRange.cend(), magRange.begin(),
-      [](const VecTuple& tuple)
-      {
-        double mag = 0.0;
-        for (const auto comp : tuple)
-        {
-          const double castedValue = static_cast<double>(comp); // Needed to avoid value overflow
-          mag += castedValue * castedValue;
-        }
-        return std::sqrt(mag);
-      });
-  }
-};
-
-/**
- * Worker to return void pointer with the right offset.
- */
-struct OffsetWorker
-{
-  template <typename ArrayT>
-  void operator()(ArrayT* input, void*& output, int offset)
-  {
-    output = input->GetPointer(offset);
-  }
-};
-
-}
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -161,7 +115,7 @@ void vtkPlotHistogram2D::GetBounds(double bounds[4])
   }
   else
   {
-    std::fill(bounds, bounds + 4, 0.);
+    std::fill_n(bounds, 4, 0.);
   }
 }
 
@@ -310,66 +264,35 @@ bool vtkPlotHistogram2D::UpdateCache()
 
   if (this->TransferFunction)
   {
-    vtkDataArray* inputDataArray = nullptr;
-    void* const inputVoidArray = this->GetInputArrayPointer(inputDataArray);
-
-    if (!inputVoidArray || !inputDataArray)
+    vtkDataArray* selectedArray = this->GetSelectedArray();
+    if (!selectedArray)
     {
       return false;
     }
+    int vectorComponent;
+    int vectorMode = this->TransferFunction->GetVectorMode();
+    if (vtkPlotHistogram2D::CanComputeMagnitude(selectedArray) &&
+      vectorMode == vtkScalarsToColors::VectorModes::MAGNITUDE)
+    {
+      this->MagnitudeArray->ShallowCopy(
+        vtk::ComponentOrNormAsArray(selectedArray, vtkArrayComponents::L2Norm));
+      selectedArray = this->MagnitudeArray;
+      vectorComponent = 0;
+    }
+    else
+    {
+      vectorComponent = this->TransferFunction->GetVectorComponent();
+    }
 
-    const int inputType = inputDataArray->GetDataType();
-    const int nbComponents = inputDataArray->GetNumberOfComponents();
+    const int nbComponents = selectedArray->GetNumberOfComponents();
     const int dimension = this->Input->GetDimensions()[0] * this->Input->GetDimensions()[1];
     unsigned char* output = reinterpret_cast<unsigned char*>(this->Output->GetScalarPointer());
 
     this->TransferFunction->MapScalarsThroughTable(
-      inputVoidArray, output, inputType, dimension, nbComponents, 4);
+      selectedArray, output, dimension, nbComponents, vectorComponent, 4);
   }
 
   return true;
-}
-
-//------------------------------------------------------------------------------
-void* vtkPlotHistogram2D::GetInputArrayPointer(vtkDataArray*& inputArray)
-{
-  vtkDataArray* selectedArray = this->GetSelectedArray();
-  if (!selectedArray)
-  {
-    inputArray = nullptr;
-    return nullptr;
-  }
-
-  int vectorMode = this->TransferFunction->GetVectorMode();
-  if (vtkPlotHistogram2D::CanComputeMagnitude(selectedArray) &&
-    vectorMode == vtkScalarsToColors::VectorModes::MAGNITUDE)
-  {
-    MagnitudeWorker worker;
-    this->MagnitudeArray->SetNumberOfTuples(selectedArray->GetNumberOfTuples());
-
-    if (!vtkArrayDispatch::Dispatch::Execute(selectedArray, worker, this->MagnitudeArray))
-    {
-      // Otherwise fallback to using the vtkDataArray API.
-      worker(selectedArray, this->MagnitudeArray);
-    }
-
-    inputArray = this->MagnitudeArray;
-    return this->MagnitudeArray->GetPointer(0);
-  }
-
-  OffsetWorker worker;
-  void* array = nullptr;
-  int vectorComponent = this->TransferFunction->GetVectorComponent();
-
-  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>::Execute(
-        selectedArray, worker, array, vectorComponent))
-  {
-    vtkErrorMacro(<< "Not support selected array of type : " << selectedArray->GetClassName());
-    return nullptr;
-  }
-
-  inputArray = selectedArray;
-  return array;
 }
 
 //------------------------------------------------------------------------------

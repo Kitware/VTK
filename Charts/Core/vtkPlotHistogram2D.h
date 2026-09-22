@@ -157,12 +157,6 @@ private:
    */
   inline vtkDataArray* GetSelectedArray();
   /**
-   * Returns the void pointer to the selected array. If the transfer
-   * function is set to magnitude mode, it will return the cached
-   * magnitude array. Also set the vtkDataArray pointer in parameter.
-   */
-  void* GetInputArrayPointer(vtkDataArray*& inputArray);
-  /**
    * Returns the value of the selected array at the coordinates given
    * in parameters. The value is casted to double. It takes magnitude
    * array into account, so as component, for n-components arrays.
