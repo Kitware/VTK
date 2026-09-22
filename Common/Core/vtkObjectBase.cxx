@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <sstream>
+#include <thread>
 
 #ifdef VTK_USE_MEMKIND
 #include <memkind.h>
@@ -609,11 +610,39 @@ void vtkObjectBase::vtkMemkindRAII::Restore()
 #endif
 }
 
+namespace
+{
+
+struct SpinLock
+{
+  std::atomic<bool>& Lock;
+
+  void lock() noexcept
+  {
+    // c.f https://en.wikipedia.org/wiki/Spinlock#Significant_optimizations for implementation
+    while (true)
+    {
+      if (!this->Lock.exchange(true, std::memory_order_acquire))
+      {
+        return;
+      }
+      while (this->Lock.load(std::memory_order_relaxed))
+      {
+        std::this_thread::yield();
+      }
+    }
+  }
+
+  void unlock() noexcept { this->Lock.store(false, std::memory_order_release); }
+};
+
+}
+
 //------------------------------------------------------------------------------
 std::shared_ptr<vtkObjectBase::WeakControlBlock> vtkObjectBase::GetWeakControlBlock()
 {
-  std::scoped_lock<std::mutex> guard(this->WeakBlockMutex);
-  (void)guard;
+  SpinLock spinlock{ this->WeakBlockMutex };
+  std::scoped_lock<SpinLock> guard{ spinlock };
 
   auto block = this->WeakBlock.lock();
   if (!block)
