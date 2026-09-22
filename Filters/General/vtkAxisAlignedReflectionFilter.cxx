@@ -11,7 +11,6 @@
 #include "vtkDataAssemblyUtilities.h"
 #include "vtkDataObjectMeshCache.h"
 #include "vtkDataObjectTree.h"
-#include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkExplicitStructuredGrid.h"
@@ -267,21 +266,11 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
       return false;
     }
 
-    // output dataset ids to update
-    const std::string reflectPath =
-      std::string("/") + ::ROOT_NODE_NAME + std::string("/") + ::REFLECT_NODE_NAME;
-    auto assembly = outputPDSC->GetDataAssembly();
-    auto selectedNodes = assembly->SelectNodes({ reflectPath });
-    std::set<unsigned int> dataSetIds;
-    for (auto nodeid : selectedNodes)
-    {
-      const auto datasets = assembly->GetDataSetIndices(nodeid);
-      dataSetIds.insert(datasets.begin(), datasets.end());
-    }
-
     if (inputDS)
     {
-      auto outLeaf = vtkDataSet::SafeDownCast(outputPDSC->GetPartition(*dataSetIds.begin(), 0));
+      const unsigned int outLeafOffset = this->CopyInput ? 1 : 0;
+      auto outLeaf = vtkDataSet::SafeDownCast(outputPDSC->GetPartition(outLeafOffset, 0));
+
       vtkReflectionUtilities::CopyAndReflect(inputDS->GetPointData(), outLeaf->GetPointData(),
         mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, this->ReflectAllInputArrays);
       vtkReflectionUtilities::CopyAndReflect(inputDS->GetCellData(), outLeaf->GetCellData(),
@@ -293,30 +282,45 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
     }
     else if (inputTree)
     {
-      vtkSmartPointer<vtkDataObjectTreeIterator> iter =
-        vtkSmartPointer<vtkDataObjectTreeIterator>::New();
-      iter->SetDataSet(inputTree);
-      iter->InitTraversal();
-      iter->SkipEmptyNodesOff();
-      for (const auto id : dataSetIds)
+      // Convert input as output class to help with cross iteration
+      vtkNew<vtkConvertToPartitionedDataSetCollection> converter;
+      converter->SetInputDataObject(inputTree);
+      converter->Update();
+      auto inputPDC = converter->GetOutput();
+      if (!inputPDC)
       {
-        auto outLeaf = vtkDataSet::SafeDownCast(outputPDSC->GetPartition(id, 0));
-        auto inLeaf = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+        vtkErrorMacro(
+          "Failed to convert input data object tree to partitioned dataset collection.");
+        return 0;
+      }
 
-        iter->GoToNextItem();
-        if (!inLeaf || !outLeaf)
+      const unsigned int inputCopyOffset =
+        this->CopyInput ? inputPDC->GetNumberOfPartitionedDataSets() : 0;
+      for (unsigned int i = 0; i < inputPDC->GetNumberOfPartitionedDataSets(); ++i)
+      {
+        for (unsigned int p = 0; p < inputPDC->GetNumberOfPartitions(i); ++p)
         {
-          continue;
-        }
+          auto inLeaf = vtkDataSet::SafeDownCast(inputPDC->GetPartition(i, p));
+          auto outLeaf = vtkDataSet::SafeDownCast(outputPDSC->GetPartition(i + inputCopyOffset, p));
+          if (!inLeaf || !outLeaf)
+          {
+            continue;
+          }
 
-        vtkReflectionUtilities::CopyAndReflect(inLeaf->GetPointData(), outLeaf->GetPointData(),
-          mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, this->ReflectAllInputArrays);
-        vtkReflectionUtilities::CopyAndReflect(inLeaf->GetCellData(), outLeaf->GetCellData(),
-          mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, this->ReflectAllInputArrays);
+          vtkReflectionUtilities::CopyAndReflect(inLeaf->GetPointData(), outLeaf->GetPointData(),
+            mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, this->ReflectAllInputArrays);
+          vtkReflectionUtilities::CopyAndReflect(inLeaf->GetCellData(), outLeaf->GetCellData(),
+            mirrorDir, mirrorSymmetricTensorDir, mirrorTensorDir, this->ReflectAllInputArrays);
 
-        if (this->CopyInput)
-        {
-          ::RemoveGlobalIds(outLeaf);
+          if (this->CopyInput)
+          {
+            vtkDataSet* inputCopy = outputPDSC->GetPartition(i, p);
+            if (inputCopy)
+            {
+              inputCopy->ShallowCopy(inLeaf);
+              ::RemoveGlobalIds(inputCopy);
+            }
+          }
         }
       }
     }
