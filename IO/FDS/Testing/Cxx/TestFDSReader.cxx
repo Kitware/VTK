@@ -283,61 +283,63 @@ bool TestExampleFile(const std::string& dataRoot)
   }
 
   // Test boundary
-  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_3"));
+  nodeIds = outAssembly->GetDataSetIndices(
+    outAssembly->FindFirstNodeWithName("Mesh01_Blockage_3_Y_positive"));
   auto* boundary3 = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
-  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_5"));
+  nodeIds = outAssembly->GetDataSetIndices(
+    outAssembly->FindFirstNodeWithName("Mesh01_Blockage_5_X_positive"));
   auto* boundary5 = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
   if (!boundary3)
   {
-    vtkLog(ERROR, "Mesh01_Blockage_3 boundary is nullptr");
+    vtkLog(ERROR, "Mesh01_Blockage_3_Y_positive boundary patch is nullptr");
     return false;
   }
   if (!boundary5)
   {
-    vtkLog(ERROR, "Mesh01_Blockage_5 boundary is nullptr");
+    vtkLog(ERROR, "Mesh01_Blockage_5_X_positive boundary patch is nullptr");
     return false;
   }
 
-  if (!testValue(
-        boundary3->GetNumberOfPoints(), 266, "number of points in Mesh01_Blockage_3 boundary"))
+  if (!testValue(boundary3->GetNumberOfPoints(), 266,
+        "number of points in Mesh01_Blockage_3_Y_positive boundary patch"))
   {
     return false;
   }
 
-  if (!testValue(
-        boundary3->GetNumberOfCells(), 234, "number of cells in Mesh01_Blockage_3 boundary"))
+  if (!testValue(boundary3->GetNumberOfCells(), 234,
+        "number of cells in Mesh01_Blockage_3_Y_positive boundary patch"))
   {
     return false;
   }
 
   if (!boundary3->GetPointData()->GetArray("gauge"))
   {
-    vtkLog(ERROR, "Mesh01_Blockage_3 boundary has no \"gauge\" point data array.");
+    vtkLog(ERROR, "Mesh01_Blockage_3_Y_positive boundary patch has no \"gauge\" point data array.");
     return false;
   }
 
   constexpr double value_at_t0 = -0.00013127682905178517103195190429688;
   if (!testValueFuzzy(boundary3->GetPointData()->GetArray("gauge")->GetComponent(0, 0), value_at_t0,
-        "gauge in Mesh01_Blockage_3 boundary"))
+        "gauge in Mesh01_Blockage_3_Y_positive boundary patch"))
   {
     return false;
   }
 
   if (!boundary3->GetCellData()->GetArray("gauge"))
   {
-    vtkLog(ERROR, "Mesh01_Blockage_3 boundary has no \"gauge\" point data array.");
+    vtkLog(ERROR, "Mesh01_Blockage_3_Y_positive boundary patch has no \"gauge\" point data array.");
     return false;
   }
 
   // Same value than before since no interpolation is done on the corner of the boundary
   if (!testValueFuzzy(boundary3->GetCellData()->GetArray("gauge")->GetComponent(0, 0), value_at_t0,
-        "gauge in Mesh01_Blockage_3 boundary"))
+        "gauge in Mesh01_Blockage_3_Y_positive boundary patch"))
   {
     return false;
   }
 
-  if (!testValueFuzzy(boundary5->GetPointData()->GetArray("gauge")->GetComponent(39, 0),
-        -0.000470318947918713092803955078125, "gauge in Mesh01_Blockage_5"))
+  if (!testValueFuzzy(boundary5->GetPointData()->GetArray("gauge")->GetComponent(7, 0),
+        -0.000470318947918713092803955078125, "gauge in Mesh01_Blockage_5_X_positive"))
   {
     return false;
   }
@@ -361,25 +363,27 @@ bool TestExampleFile(const std::string& dataRoot)
 
   output = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutput());
   outAssembly = output->GetDataAssembly();
-  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_3"));
+  nodeIds = outAssembly->GetDataSetIndices(
+    outAssembly->FindFirstNodeWithName("Mesh01_Blockage_3_Y_positive"));
   boundary3 = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
-  nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_5"));
+  nodeIds = outAssembly->GetDataSetIndices(
+    outAssembly->FindFirstNodeWithName("Mesh01_Blockage_5_X_positive"));
   boundary5 = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
 
   constexpr double value_at_t8 = 0.935839116573333740234375;
   if (!testValueFuzzy(boundary3->GetPointData()->GetArray("gauge")->GetComponent(0, 0), value_at_t8,
-        "gauge in Mesh01_Blockage_3 boundary at time value 8.1"))
+        "gauge in Mesh01_Blockage_3_Y_positive boundary patch at time value 8.1"))
   {
     return false;
   }
   if (!testValueFuzzy(boundary3->GetCellData()->GetArray("gauge")->GetComponent(0, 0), value_at_t8,
-        "gauge (cell-centered) in Mesh01_Blockage_3 boundary at time value 8.1"))
+        "gauge (cell-centered) in Mesh01_Blockage_3_Y_positive boundary patch at time value 8.1"))
   {
     return false;
   }
 
-  if (!testValueFuzzy(boundary5->GetPointData()->GetArray("gauge")->GetComponent(39, 0),
-        0.070915885269641876220703125, "gauge in Mesh01_Blockage_5"))
+  if (!testValueFuzzy(boundary5->GetPointData()->GetArray("gauge")->GetComponent(7, 0),
+        0.070915885269641876220703125, "gauge in Mesh01_Blockage_5_X_positive"))
   {
     return false;
   }
