@@ -92,7 +92,7 @@ def shapeInfoFromWriter(cgrid, filename):
     writer.SetInputDataObject(0, cgrid)
     writer.SetFileName(path)
     writer.Write()
-    with open(path) as fp:
+    with open(path, encoding='utf-8') as fp:
         doc = json.load(fp)
     infos = {}
     for attribute in doc['attributes']:
