@@ -183,7 +183,7 @@ bool vtkOBJImporter::CanReadFile(vtkResourceStream* stream)
     if (line.rfind("mtllib ", 0) == 0 || line.rfind("usemtl ", 0) == 0 ||
       line.rfind("v ", 0) == 0 || line.rfind("vt ", 0) == 0 || line.rfind("vn ", 0) == 0 ||
       line.rfind("p ", 0) == 0 || line.rfind("l ", 0) == 0 || line.rfind("f ", 0) == 0 ||
-      line.rfind("o ", 0) == 0 || line.rfind("s ", 0) == 0)
+      line.rfind("o ", 0) == 0 || line.rfind("s ", 0) == 0 || line.rfind("g ", 0) == 0)
     {
       ret = true;
     }
