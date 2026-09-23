@@ -126,6 +126,15 @@ public:
   bool ResizeObserverInstalled = false;
   bool ExpandedCanvasToContainerElement = false;
   int RepeatCounter = 0;
+
+  /// Bitmask of mouse buttons pressed on the canvas. Used to ignore mouse ups
+  /// which do not have a corresponding mouse down on the canvas.
+  unsigned int PressedButtons = 0;
+  /// Position of the canvas relative to the viewport, in CSS pixels.
+  /// Used to convert the window-relative coordinates of a mouseup event
+  /// into canvas-relative coordinates.
+  int CanvasOffsetX = 0;
+  int CanvasOffsetY = 0;
 };
 
 //------------------------------------------------------------------------------
@@ -290,8 +299,11 @@ void vtkWebAssemblyRenderWindowInteractor::RegisterUICallbacks()
 
   emscripten_set_mousedown_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
     EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_mouseup_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  // Listen on window so that a button pressed on the canvas and released outside of it
+  // is caught by the this->ProcessEvent(). Otherwise the interactor thinks the button is
+  // held down.
+  emscripten_set_mouseup_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_WINDOW, &internals, 0,
+    vtkInternals::MaybeProxyEvent, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
 
   emscripten_set_touchmove_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
     EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
@@ -347,8 +359,9 @@ void vtkWebAssemblyRenderWindowInteractor::UnRegisterUICallbacks()
 
   emscripten_set_mousedown_callback_on_thread(
     canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_mouseup_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_mouseup_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 0, nullptr,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  internals.PressedButtons = 0;
 
   emscripten_set_touchmove_callback_on_thread(
     canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
@@ -478,6 +491,8 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
     {
       auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
+      internals.CanvasOffsetX = emEvent->clientX - emEvent->targetX;
+      internals.CanvasOffsetY = emEvent->clientY - emEvent->targetY;
       this->SetEventInformationFlipY(
         emEvent->targetX * dpr, emEvent->targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey);
       this->SetAltKey(emEvent->altKey);
@@ -487,6 +502,9 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     case EMSCRIPTEN_EVENT_MOUSEDOWN:
     {
       auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
+      internals.CanvasOffsetX = emEvent->clientX - emEvent->targetX;
+      internals.CanvasOffsetY = emEvent->clientY - emEvent->targetY;
+      internals.PressedButtons |= (1u << emEvent->button); // store button press bit.
       this->SetEventInformationFlipY(
         emEvent->targetX * dpr, emEvent->targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey);
       this->SetAltKey(emEvent->altKey);
@@ -496,8 +514,16 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     case EMSCRIPTEN_EVENT_MOUSEUP:
     {
       auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
+      const unsigned int buttonBit = 1u << emEvent->button;
+      if (!(internals.PressedButtons & buttonBit)) // check that the button was down on the canvas
+      {
+        break;
+      }
+      internals.PressedButtons &= ~buttonBit; // zero button press bit
+      const int canvasX = emEvent->clientX - internals.CanvasOffsetX;
+      const int canvasY = emEvent->clientY - internals.CanvasOffsetY;
       this->SetEventInformationFlipY(
-        emEvent->targetX * dpr, emEvent->targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey);
+        canvasX * dpr, canvasY * dpr, emEvent->ctrlKey, emEvent->shiftKey);
       this->SetAltKey(emEvent->altKey);
       this->InvokeEvent(::EmscriptenMouseButtonUpEventMap[emEvent->button]);
       break;
