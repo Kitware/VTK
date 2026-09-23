@@ -111,6 +111,39 @@ frame, so a volume larger than the pool draws immediately and fills in over the
 frames that follow. `GetComplete()` says whether the last frame got everything
 it asked for.
 
+## Streaming, and never reading a volume whole
+
+Residency decides what is kept on the device out of a volume that has been read.
+Streaming asks the question one stage earlier: what is worth reading at all.
+
+When the source of an input publishes
+`vtkStreamingDemandDrivenPipeline::CAN_PRODUCE_SUB_EXTENT()` and the volume is
+larger than the mapper's `StreamingThresholdMB`, the input is never updated
+whole. `vtkVolume::RenderVolumetricGeometry` calls `Mapper->Update()` before
+every render, so the mapper overrides `ProcessRequest` and answers
+`REQUEST_UPDATE_EXTENT` for a streamed port with an empty extent, which asks the
+pipeline for nothing. Bricks are then fetched one at a time as the coordinator
+claims them, each by an `Update(port, requests)` over that brick's extent grown
+by its apron.
+
+What that costs is knowing the volume before reading it. The scalar range, which
+the transfer functions are tabulated over, has to come from the source's
+`vtkDataObject::FIELD_RANGE()` rather than from the array; without one the
+transfer functions' own range is used and a warning is issued. Cell
+classification cannot be done up front either, so cells start out unknown and
+are classified as the bricks covering them arrive. An unknown cell is treated as
+full - opacity 1, varying - so the march is conservative until it knows better,
+and the frame after a brick lands is the one that sees its cells. That is why
+`GetComplete()` stays false for a frame after the last brick.
+
+An input with a mask, a second transfer function axis array, cell scalars or
+ghost arrays is read whole however large it is: the first two are whole volumes
+of their own, and the last two are defined against a whole grid. A mask and a
+second axis show in the pipeline's metadata; cell and ghost arrays do not, so a
+single voxel is read first and what that probe finds decides whether the input
+is streamed at all. A refusal lasts until something upstream of the input
+changes, at which point it is asked again.
+
 ## Interpolation, and the finished colour
 
 `vtkVolumeProperty::InterpolationType` picks between reading the nearest voxel
