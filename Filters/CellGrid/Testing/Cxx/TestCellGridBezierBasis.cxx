@@ -3,8 +3,7 @@
 
 // Exercise the arbitrary-order Bernstein-Bezier basis functions registered for
 // the DG cell shapes: vertex, edge, quadrilateral, hexahedron, triangle,
-// tetrahedron, and wedge. (The pyramid is absent for the same reason it has no
-// arbitrary-order Lagrange basis; see TestCellGridArbitraryOrder.)
+// tetrahedron, wedge, and pyramid.
 //
 // A Bernstein-Bezier basis is not nodal, so most of the checks in
 // TestCellGridArbitraryOrder do not apply: away from a cell's corners the
@@ -31,6 +30,7 @@
 #include "vtkDGEdge.h"
 #include "vtkDGHex.h"
 #include "vtkDGOperatorEntry.h"
+#include "vtkDGPyr.h"
 #include "vtkDGQuad.h"
 #include "vtkDGTet.h"
 #include "vtkDGTri.h"
@@ -56,7 +56,8 @@ enum class Layout
 {
   Prismatic, //!< A tensor product with an independent order along each axis.
   Simplex,   //!< A barycentric multi-index with one degree shared by all axes.
-  Wedge      //!< A triangle's multi-index times an edge's control points.
+  Wedge,     //!< A triangle's multi-index times an edge's control points.
+  Pyramid    //!< A square cross-section (i, j) that shrinks as k climbs to n.
 };
 
 bool testValue(double actual, double expected, const std::string& what)
@@ -138,6 +139,29 @@ std::vector<std::array<double, 3>> DomainPoints(
       }
     }
     break;
+
+    case Layout::Pyramid:
+    {
+      // Domain point (i, j, k) sits at height t = k/n, where the pyramid's
+      // own cross-section has half-width w = (n - k)/n; r and s are then the
+      // i-th and j-th of n - k + 1 equally spaced points spanning [-w, w].
+      int nn = order[0];
+      for (int kk = 0; kk <= nn; ++kk)
+      {
+        int mm = nn - kk;
+        double tt = nn > 0 ? double(kk) / nn : 0.;
+        for (int jj = 0; jj <= mm; ++jj)
+        {
+          for (int ii = 0; ii <= mm; ++ii)
+          {
+            double rr = nn > 0 ? double(2 * ii - mm) / nn : 0.;
+            double ss = nn > 0 ? double(2 * jj - mm) / nn : 0.;
+            points.push_back({ { rr, ss, tt } });
+          }
+        }
+      }
+    }
+    break;
   }
   return points;
 }
@@ -155,6 +179,8 @@ int AxisOrder(Layout layout, const std::vector<int>& order, int axis)
       return order[0];
     case Layout::Wedge:
       return axis < 2 ? order[0] : order[2];
+    case Layout::Pyramid:
+      return order[0];
     default:
       break;
   }
@@ -202,6 +228,14 @@ std::vector<std::array<double, 3>> Corners(Layout layout, int dimension)
         corners.push_back({ { 0., 1., zz } });
       }
       break;
+    case Layout::Pyramid:
+      // Matches vtkDGPyr::Parameters.
+      corners.push_back({ { -1., -1., 0. } });
+      corners.push_back({ { 1., -1., 0. } });
+      corners.push_back({ { 1., 1., 0. } });
+      corners.push_back({ { -1., 1., 0. } });
+      corners.push_back({ { 0., 0., 1. } });
+      break;
   }
   return corners;
 }
@@ -215,12 +249,18 @@ const std::vector<std::array<double, 3>>& SamplePoints(Layout layout)
     { 0.7, 0.15, 0.05 }, { 0.05, 0.6, 0.2 }, { 0.33, 0.33, 0.01 }, { 0.02, 0.03, 0.9 } };
   static const std::vector<std::array<double, 3>> wedge{ { 0.25, 0.25, 0. }, { 0.1, 0.2, -0.65 },
     { 0.7, 0.15, 0.4 }, { 0.05, 0.6, 0.93 }, { 0.33, 0.33, -0.87 }, { 0.02, 0.03, 0.11 } };
+  // Every point keeps |r|, |s| well inside [-w, w] (w = 1 - t), including near
+  // the apex (t = 0.9), so central differencing never steps outside the cell.
+  static const std::vector<std::array<double, 3>> pyramid{ { 0., 0., 0.5 }, { 0.2, -0.1, 0.3 },
+    { -0.5, 0.4, 0.1 }, { 0.05, 0.05, 0.9 }, { -0.3, -0.3, 0.6 }, { 0.15, -0.15, 0.75 } };
   switch (layout)
   {
     case Layout::Simplex:
       return simplex;
     case Layout::Wedge:
       return wedge;
+    case Layout::Pyramid:
+      return pyramid;
     default:
       break;
   }
@@ -414,28 +454,29 @@ int TestCellGridBezierBasis(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkDGTri> tri;
   vtkNew<vtkDGTet> tet;
   vtkNew<vtkDGWdg> wdg;
+  vtkNew<vtkDGPyr> pyr;
 
-  // Unlike the Lagrange bases there are no hand-written low-order operators to
-  // take precedence, so every order reaches the arbitrary-order kernels.
-  for (int order = 0; order <= 5; ++order)
+  // The Bezier function space registers nothing but the arbitrary-order ("A")
+  // operators, at order -1, so every order below reaches the kernels under test
+  // and none of them carries an order bound. The orders past 5 matter: they are
+  // where a shape's own fixed-order bases stop, so nothing else covers them.
+  for (int order = 0; order <= 8; ++order)
   {
     ok &= TestBasis(edge, Layout::Prismatic, { order });
     ok &= TestBasis(quad, Layout::Prismatic, { order, order });
     ok &= TestBasis(tri, Layout::Simplex, { order, order });
-    if (order <= 4)
-    {
-      ok &= TestBasis(hex, Layout::Prismatic, { order, order, order });
-      ok &= TestBasis(tet, Layout::Simplex, { order, order, order });
-      ok &= TestBasis(wdg, Layout::Wedge, { order, order, order });
-    }
+    ok &= TestBasis(hex, Layout::Prismatic, { order, order, order });
+    ok &= TestBasis(tet, Layout::Simplex, { order, order, order });
+    ok &= TestBasis(wdg, Layout::Wedge, { order, order, order });
+    ok &= TestBasis(pyr, Layout::Pyramid, { order, order, order });
   }
 
   // Anisotropic order along each parametric axis. A simplex has a single total
-  // degree, so only the prismatic shapes and the wedge's t-axis admit this.
+  // degree shared by every axis and a pyramid one degree for the whole cell, so
+  // only the prismatic shapes and the wedge's t-axis admit this.
   ok &= TestBasis(quad, Layout::Prismatic, { 3, 5 });
   ok &= TestBasis(hex, Layout::Prismatic, { 4, 2, 3 });
   ok &= TestBasis(wdg, Layout::Wedge, { 3, 3, 5 });
 
-  std::cout << (ok ? "PASS\n" : "FAIL\n");
   return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }

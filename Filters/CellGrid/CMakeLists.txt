@@ -87,6 +87,8 @@ set(basis_files
   Basis/Bezier/EdgeCnGradient.h
   Basis/Bezier/HexCnBasis.h
   Basis/Bezier/HexCnGradient.h
+  Basis/Bezier/PyrCnBasis.h
+  Basis/Bezier/PyrCnGradient.h
   Basis/Bezier/QuadCnBasis.h
   Basis/Bezier/QuadCnGradient.h
   Basis/Bezier/TetCnBasis.h
