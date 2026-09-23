@@ -69,6 +69,18 @@ protected:
   int RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override
   {
+    if (this->GetAbortExecute())
+    {
+      vtkErrorMacro("Filter should not execute while aborted");
+      return 0;
+    }
+
+    if (this->CheckAbort())
+    {
+      // We dont consider this a failure despite being aborted
+      return 1;
+    }
+
     vtkDataSet* input = vtkDataSet::GetData(inputVector[0], 0);
     double bounds[6];
     input->GetBounds(bounds);
@@ -112,7 +124,6 @@ void AddPerBlockFieldData(vtkCompositeDataSet* data)
       array->SetValue(0, iter->GetCurrentFlatIndex());
       array->SetName("compositeIndexBasedData");
       fd->AddArray(array);
-      std::cout << "Assigning field data " << iter->GetCurrentFlatIndex() << std::endl;
     }
   }
 }
@@ -166,6 +177,13 @@ int TestComposite(std::string& inputDataFile, bool isAMR)
 
   vtkNew<vtkTestAlgorithm> testAlg;
   testAlg->SetInputData(data);
+
+  // Check aborting works as expected with composite data pipeline
+  testAlg->AbortExecuteOn();
+  testAlg->Update();
+  testAlg->AbortExecuteOff();
+
+  // Properly update
   testAlg->Update();
 
   int retVal = VTK_SUCCESS;
