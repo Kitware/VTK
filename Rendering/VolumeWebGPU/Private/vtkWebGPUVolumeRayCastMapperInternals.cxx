@@ -61,16 +61,6 @@ std::uint16_t PackHalf(float value)
 }
 
 //------------------------------------------------------------------------------
-template <typename T>
-void CopyFirstComponent(const T* source, int components, vtkIdType count, float* destination)
-{
-  for (vtkIdType i = 0; i < count; ++i)
-  {
-    destination[i] = static_cast<float>(source[i * components]);
-  }
-}
-
-//------------------------------------------------------------------------------
 // Scalar extremes of every cell, including one voxel of overlap on the far side so the range also
 // covers what interpolation can produce inside the cell.
 template <typename T>

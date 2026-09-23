@@ -41,7 +41,6 @@ constexpr int MaxLights = Internals::MaximumLights;
 constexpr int MaxClipPlanes = Internals::MaximumClipPlanes;
 constexpr int MaxComponents = 4;
 constexpr int MaxIsoValues = Internals::MaximumIsoValues;
-constexpr int TableSize = Internals::TableSize;
 constexpr int Table2DSize = vtkWebGPUVolumeTransferFunction2DSize;
 /// A renderer numbers its props from zero without gaps, so the search stops at the first gap; this
 /// only bounds it against a renderer that somehow never reports one.
