@@ -217,6 +217,17 @@ Which orders a shape admits depends on how its parameter space is built:
 + The wedge is a triangle crossed with an edge. `order[0]` is the order of the
   triangular cross-section and `order[2]` the order along t; `order[1]` must
   equal `order[0]`.
++ The pyramid takes a single order, like the simplicial shapes. Its
+  tensor-product structure degenerates at the apex, and a conforming space
+  must contain *rational* functions for the traces on its faces to stay
+  polynomial, so both of its arbitrary-order bases are rational in the
+  reference coordinates. With a = (r + w)/(2w), b = (s + w)/(2w), c = t and
+  w = 1 - t, they span the rational pyramid space of Bergot, Cohen and
+  Duruflé (J. Sci. Comput. 42:345-381, 2010), of dimension
+  (n+1)(n+2)(2n+3)/6. The `Bezier` basis is that of Chan and Warburton
+  (arXiv:1508.05609), which stays non-negative and sums to one. Note that the
+  hand-written pyramid bases (e.g. the 19-function `F2`) are not contained in
+  this space, so converting them to an arbitrary-order basis is inexact.
 + A vertex has an empty parameter space and one degree of freedom at every
   order.
 
@@ -224,10 +235,3 @@ The `Bezier` function space is registered the same way and for the same shapes, 
 shares the degree-of-freedom counts above, since the two bases span the same polynomials, so
 they have the same number of degrees of freedom. It differs in having no hand-written
 low-order operators, so every order reaches its arbitrary-order kernels.
-
-No arbitrary-order basis is registered for the pyramid, so only its hand-written orders 0 through
-2 are available. Its tensor-product structure degenerates at the apex, and a conforming space of
-higher order must contain *rational* functions for the traces on its faces to stay polynomial, so
-no polynomial basis of arbitrary order exists for it. Rational ones do, including a
-Bernstein-Bézier basis retaining the non-negativity and partition-of-unity properties, so this is
-a gap in what is implemented rather than in what is possible.
