@@ -109,17 +109,14 @@ int vtkSTLReader::RequestData(vtkInformation* vtkNotUsed(request),
     stream = fileStream;
   }
 
-  std::string solid;
-  vtkNew<vtkResourceParser> asciiTester;
-  asciiTester->SetStream(stream);
-  asciiTester->ReadLine(solid, 5);
-  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
-
   vtkNew<vtkPoints> newPts;
   vtkNew<vtkCellArray> newPolys;
   vtkSmartPointer<vtkFloatArray> newScalars;
 
-  if (solid == "solid")
+  std::string solid;
+  vtkNew<vtkResourceParser> asciiTester;
+  asciiTester->SetStream(stream);
+  if (asciiTester->Parse(solid) == vtkParseResult::Ok && solid == "solid")
   {
     // First word is "solid", which means the data should be ASCII.
     newPts->Reserve(5000);
@@ -130,6 +127,7 @@ int vtkSTLReader::RequestData(vtkInformation* vtkNotUsed(request),
       newScalars->ReserveValues(5000);
     }
 
+    stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
     vtkNew<vtkResourceParser> parser;
     parser->SetStream(stream);
     if (!this->ReadASCIISTL(parser, newPts.Get(), newPolys.Get(), newScalars))
@@ -149,6 +147,7 @@ int vtkSTLReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
   else
   {
+    stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
     if (!this->ReadBinarySTL(stream, newPts.Get(), newPolys.Get()))
     {
       vtkErrorMacro("Error reading a binary STL. Aborting.");
@@ -771,13 +770,14 @@ bool vtkSTLReader::CanReadFile(vtkResourceStream* stream)
   asciiTester->SetStream(stream);
 
   std::string solid;
-  if (asciiTester->ReadLine(solid, 5) != vtkParseResult::Limit)
+  if (asciiTester->Parse(solid) == vtkParseResult::Ok && solid == "solid")
   {
-    return false;
+    return true;
   }
-
-  if (solid != "solid")
+  else
   {
+    // Not an ascii stl, validate its a proper binary file
+
     // Skip binary header
     stream->Seek(::STL_HEADER_SIZE, vtkResourceStream::SeekDirection::Begin);
 
@@ -797,8 +797,9 @@ bool vtkSTLReader::CanReadFile(vtkResourceStream* stream)
     {
       return false;
     }
+
+    return true;
   }
-  return true;
 }
 
 VTK_ABI_NAMESPACE_END
