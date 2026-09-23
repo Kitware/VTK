@@ -1,7 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAnariLightNode.h"
+
 #include "vtkAnariCameraNode.h"
+#include "vtkAnariDevice.h"
 #include "vtkAnariProfiling.h"
 #include "vtkAnariSceneGraph.h"
 
@@ -9,7 +11,6 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
-#include "vtkInformationIntegerKey.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -218,9 +219,9 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   vtkLight* light = this->GetVtkLight();
   this->RenderTime = light->GetMTime();
 
-  auto anariDevice = this->Internals->RendererNode->GetDeviceHandle();
+  vtkSmartPointer<vtkAnariDevice> anariDevice = this->Internals->RendererNode->GetDevice();
   auto vtkRenderer = this->Internals->RendererNode->GetRenderer();
-  auto anariExtensions = this->Internals->RendererNode->GetAnariDeviceExtensions();
+  auto anariExtensions = this->Internals->RendererNode->GetDevice()->GetExtensions();
 
   this->ClearLight();
 
@@ -295,10 +296,10 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   {
     if (anariExtensions.ANARI_KHR_LIGHT_HDRI)
     {
-      anariLight = anari::newObject<anari::Light>(anariDevice, "hdri");
+      anariLight = anari::newObject<anari::Light>(anariDevice->GetHandle(), "hdri");
 
       // Direction to which the center of the texture will be mapped to
-      anari::setParameter(anariDevice, anariLight, "direction", lightDirection);
+      anari::setParameter(anariDevice->GetHandle(), anariLight, "direction", lightDirection);
 
       // Environment map
       vtkImageData* imageData = envTexture->GetInput();
@@ -333,9 +334,9 @@ void vtkAnariLightNode::Synchronize(bool prepass)
         }
       }
 
-      auto array2D = anariNewArray2D(
-        anariDevice, floatData.data(), nullptr, nullptr, ANARI_FLOAT32_VEC3, xsize, ysize);
-      anari::setAndReleaseParameter(anariDevice, anariLight, "radiance", array2D);
+      auto array2D = anariNewArray2D(anariDevice->GetHandle(), floatData.data(), nullptr, nullptr,
+        ANARI_FLOAT32_VEC3, xsize, ysize);
+      anari::setAndReleaseParameter(anariDevice->GetHandle(), anariLight, "radiance", array2D);
     }
     else
     {
@@ -352,16 +353,16 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     {
       if (anariExtensions.ANARI_KHR_LIGHT_POINT)
       {
-        anariLight = anari::newObject<anari::Light>(anariDevice, "point");
+        anariLight = anari::newObject<anari::Light>(anariDevice->GetHandle(), "point");
         vtkDebugMacro(<< "Point Light");
 
         // The position of the point light
-        anari::setParameter(anariDevice, anariLight, "position", lightPosition);
+        anari::setParameter(anariDevice->GetHandle(), anariLight, "position", lightPosition);
         // The overall amount of light emitted by the light in a direction in W/sr
-        anari::setParameter(anariDevice, anariLight, "intensity", lightIntensity);
+        anari::setParameter(anariDevice->GetHandle(), anariLight, "intensity", lightIntensity);
         // The size of the point light
         float radius = static_cast<float>(vtkAnariLightNode::GetRadius(light));
-        anari::setParameter(anariDevice, anariLight, "radius", radius);
+        anari::setParameter(anariDevice->GetHandle(), anariLight, "radius", radius);
       }
       else
       {
@@ -373,21 +374,21 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     {
       if (anariExtensions.ANARI_KHR_LIGHT_SPOT)
       {
-        anariLight = anari::newObject<anari::Light>(anariDevice, "spot");
+        anariLight = anari::newObject<anari::Light>(anariDevice->GetHandle(), "spot");
         vtkDebugMacro(<< "Spot Light");
 
         // The overall amount of light emitted by the light in a direction in W/sr
-        anari::setParameter(anariDevice, anariLight, "intensity", lightIntensity);
+        anari::setParameter(anariDevice->GetHandle(), anariLight, "intensity", lightIntensity);
         // The position of the point light
-        anari::setParameter(anariDevice, anariLight, "position", lightPosition);
+        anari::setParameter(anariDevice->GetHandle(), anariLight, "position", lightPosition);
         // main emission direction, the axis of the spot
-        anari::setParameter(anariDevice, anariLight, "direction", lightDirection);
+        anari::setParameter(anariDevice->GetHandle(), anariLight, "direction", lightDirection);
         // full opening angle (in radians) of the spot; outside of this cone is no illumination
-        anari::setParameter(
-          anariDevice, anariLight, "openingAngle", vtkMath::RadiansFromDegrees(coneAngle));
+        anari::setParameter(anariDevice->GetHandle(), anariLight, "openingAngle",
+          vtkMath::RadiansFromDegrees(coneAngle));
         // size (angle in radians) of the region between the rim (of the illumination cone) and
         // full intensity of the spot; should be smaller than half of `openingAngle`
-        anari::setParameter(anariDevice, anariLight, "falloffAngle",
+        anari::setParameter(anariDevice->GetHandle(), anariLight, "falloffAngle",
           static_cast<float>(vtkAnariLightNode::GetFalloffAngle(light)));
       }
       else
@@ -401,20 +402,20 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   {
     if (anariExtensions.ANARI_KHR_LIGHT_DIRECTIONAL)
     {
-      anariLight = anari::newObject<anari::Light>(anariDevice, "directional");
+      anariLight = anari::newObject<anari::Light>(anariDevice->GetHandle(), "directional");
       vtkDebugMacro(<< "Directional Light");
 
       // main emission direction of the directional light
-      anari::setParameter(anariDevice, anariLight, "direction", lightDirection);
+      anari::setParameter(anariDevice->GetHandle(), anariLight, "direction", lightDirection);
       // the amount of light arriving at a surface point, assuming the light is
       // oriented towards to the surface, in W/m^2^
       float irradiance =
         static_cast<float>(vtkAnariLightNode::GetLightScale(light) * light->GetIntensity());
-      anari::setParameter(anariDevice, anariLight, "irradiance", irradiance);
+      anari::setParameter(anariDevice->GetHandle(), anariLight, "irradiance", irradiance);
 
       float radius = static_cast<float>(vtkAnariLightNode::GetRadius(light));
       // apparent size (angle in radians) of the light
-      anari::setParameter(anariDevice, anariLight, "angularDiameter", radius);
+      anari::setParameter(anariDevice->GetHandle(), anariLight, "angularDiameter", radius);
     }
     else
     {
@@ -426,12 +427,12 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   if (anariLight != nullptr)
   {
     // All light sources accept the following parameters
-    anari::setParameter(anariDevice, anariLight, "color", lightColor);
+    anari::setParameter(anariDevice->GetHandle(), anariLight, "color", lightColor);
 
     if (::AnariSupportsLightVisibility(anariExtensions))
     {
       bool isVisible = light->GetSwitch() ? true : false;
-      anari::setParameter(anariDevice, anariLight, "visible", isVisible);
+      anari::setParameter(anariDevice->GetHandle(), anariLight, "visible", isVisible);
     }
     else
     {
@@ -439,7 +440,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
         this, " doesn't support light visibility (KHR_LIGHT_PRIMARY_VISIBILITY::visible).");
     }
 
-    anari::commitParameters(anariDevice, anariLight);
+    anari::commitParameters(anariDevice->GetHandle(), anariLight);
   }
 
   this->Internals->AnariLight = anariLight;
@@ -465,11 +466,11 @@ void vtkAnariLightNode::ClearLight()
 {
   if (this->Internals->RendererNode != nullptr)
   {
-    anari::Device anariDevice = this->Internals->RendererNode->GetDeviceHandle();
+    vtkSmartPointer<vtkAnariDevice> anariDevice = this->Internals->RendererNode->GetDevice();
 
     if (anariDevice)
     {
-      anari::release(anariDevice, this->Internals->AnariLight);
+      anari::release(anariDevice->GetHandle(), this->Internals->AnariLight);
       this->Internals->AnariLight = nullptr;
     }
   }

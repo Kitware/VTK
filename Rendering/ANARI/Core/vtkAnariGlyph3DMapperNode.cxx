@@ -32,9 +32,6 @@
 #include "vtkExecutive.h"
 #include "vtkGlyph3DMapper.h"
 #include "vtkGlyphSource2D.h"
-#include "vtkInformation.h"
-#include "vtkInformationDoubleVectorKey.h"
-#include "vtkInformationIntegerKey.h"
 #include "vtkLineSource.h"
 #include "vtkMapper.h"
 #include "vtkObjectFactory.h"
@@ -269,8 +266,7 @@ public:
   {
   }
 
-  void SetDevice(anari::Device& device, anari::Extensions& extensions,
-    const char* const* anariExtensionStrings) override;
+  void SetDevice(vtkSmartPointer<vtkAnariDevice> device) override;
 
   int GetSurfaceRepresentation(vtkProperty* property) const override;
   ParameterFlags GetBaseUpdateResponsibility() const override;
@@ -295,9 +291,9 @@ public:
 };
 
 //----------------------------------------------------------------------------
-void vtkAnariGlyph3DMapperInheritInterface::SetDevice(
-  anari::Device& device, anari::Extensions& extensions, const char* const* anariExtensionStrings)
+void vtkAnariGlyph3DMapperInheritInterface::SetDevice(vtkSmartPointer<vtkAnariDevice> device)
 {
+  auto anariExtensionStrings = device->GetExtensionStrings();
   if (anariExtensionStrings != nullptr)
   {
     for (int i = 0; anariExtensionStrings[i] != nullptr; ++i)
@@ -309,7 +305,7 @@ void vtkAnariGlyph3DMapperInheritInterface::SetDevice(
       }
     }
   }
-  vtkAnariPolyDataMapperInheritInterface::SetDevice(device, extensions, anariExtensionStrings);
+  vtkAnariPolyDataMapperInheritInterface::SetDevice(device);
 }
 
 //----------------------------------------------------------------------------
@@ -342,7 +338,7 @@ anari::Geometry vtkAnariGlyph3DMapperInheritInterface::InitializeSpheres(vtkPoly
 
   if (this->SupportsGlyphExtension)
   {
-    glyphGeometry = anari::newObject<anari::Geometry>(this->AnariDevice, "glyph");
+    glyphGeometry = anari::newObject<anari::Geometry>(this->AnariDevice->GetHandle(), "glyph");
 
     const char* shapeType = "sphere";
     switch (this->Internal->CurrentGlyphShape)
@@ -361,7 +357,7 @@ anari::Geometry vtkAnariGlyph3DMapperInheritInterface::InitializeSpheres(vtkPoly
       default:
         break;
     }
-    anari::setParameter(this->AnariDevice, glyphGeometry, "shapeType", shapeType);
+    anari::setParameter(this->AnariDevice->GetHandle(), glyphGeometry, "shapeType", shapeType);
 
     float scaleX = static_cast<float>(this->Internal->CurrentGlyphDims[0]);
     float scaleY = static_cast<float>(this->Internal->CurrentGlyphDims[1]);
@@ -370,8 +366,8 @@ anari::Geometry vtkAnariGlyph3DMapperInheritInterface::InitializeSpheres(vtkPoly
     // so a ccw 90 degree rotation along Y is required for ANARI to mimick VTK.
     float shapeTransform[16] = { 0.0, 0.0, -scaleZ, 0.0, 0.0, scaleY, 0.0, 0.0, scaleX, 0.0, 0.0,
       0.0, 0.0, 0.0, 0.0, 1.0 };
-    anari::setParameter(
-      this->AnariDevice, glyphGeometry, "shapeTransform", ANARI_FLOAT32_MAT4, shapeTransform);
+    anari::setParameter(this->AnariDevice->GetHandle(), glyphGeometry, "shapeTransform",
+      ANARI_FLOAT32_MAT4, shapeTransform);
 
     size_t numPoints = vertices.size();
     size_t numIndices = indexArray.size();
@@ -598,9 +594,10 @@ void vtkAnariGlyph3DMapperInheritInterface::SetIndexArray(
         ++newNumIndices;
     }
 
-    auto indicesArray = anari::newArray1D(this->AnariDevice, ANARI_UINT32, newNumIndices);
+    auto indicesArray =
+      anari::newArray1D(this->AnariDevice->GetHandle(), ANARI_UINT32, newNumIndices);
     {
-      auto indicesArrayPtr = anari::map<uint32_t>(this->AnariDevice, indicesArray);
+      auto indicesArrayPtr = anari::map<uint32_t>(this->AnariDevice->GetHandle(), indicesArray);
 
       size_t currAnariIdx = 0;
       for (size_t i = 0; i < pointArray.size(); i++)
@@ -609,11 +606,11 @@ void vtkAnariGlyph3DMapperInheritInterface::SetIndexArray(
           indicesArrayPtr[currAnariIdx++] = static_cast<uint32_t>(i);
       }
 
-      anari::unmap(this->AnariDevice, indicesArray);
+      anari::unmap(this->AnariDevice->GetHandle(), indicesArray);
     }
 
     anari::setAndReleaseParameter(
-      this->AnariDevice, glyphGeometry, "primitive.index", indicesArray);
+      this->AnariDevice->GetHandle(), glyphGeometry, "primitive.index", indicesArray);
   }
 }
 
@@ -623,9 +620,10 @@ void vtkAnariGlyph3DMapperInheritInterface::SetGlyphOrientArray(
 {
   size_t numOrients = orients.size() / 4;
 
-  auto orientsArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32_QUAT_IJKW, numOrients);
+  auto orientsArray =
+    anari::newArray1D(this->AnariDevice->GetHandle(), ANARI_FLOAT32_QUAT_IJKW, numOrients);
   {
-    auto arrayPtr = anari::map<float>(this->AnariDevice, orientsArray);
+    auto arrayPtr = anari::map<float>(this->AnariDevice->GetHandle(), orientsArray);
 
     // ANARI expects the scalar in the third component
     for (size_t i = 0; i < numOrients; ++i)
@@ -636,11 +634,11 @@ void vtkAnariGlyph3DMapperInheritInterface::SetGlyphOrientArray(
       arrayPtr[i * 4 + 3] = orients[i * 4];
     }
 
-    anari::unmap(this->AnariDevice, orientsArray);
+    anari::unmap(this->AnariDevice->GetHandle(), orientsArray);
   }
 
   anari::setAndReleaseParameter(
-    this->AnariDevice, glyphGeometry, "vertex.orientation", orientsArray);
+    this->AnariDevice->GetHandle(), glyphGeometry, "vertex.orientation", orientsArray);
 }
 
 //----------------------------------------------------------------------------
@@ -649,22 +647,24 @@ void vtkAnariGlyph3DMapperInheritInterface::SetGlyphScaleArray(
 {
   size_t numScales = scales.size() / 3;
 
-  auto scalesArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32_VEC3, numScales);
+  auto scalesArray =
+    anari::newArray1D(this->AnariDevice->GetHandle(), ANARI_FLOAT32_VEC3, numScales);
   {
-    auto arrayPtr = anari::map<float>(this->AnariDevice, scalesArray);
+    auto arrayPtr = anari::map<float>(this->AnariDevice->GetHandle(), scalesArray);
 
     memcpy(arrayPtr, scales.data(), scales.size() * sizeof(float));
 
-    anari::unmap(this->AnariDevice, scalesArray);
+    anari::unmap(this->AnariDevice->GetHandle(), scalesArray);
   }
 
-  anari::setAndReleaseParameter(this->AnariDevice, glyphGeometry, "vertex.scale", scalesArray);
+  anari::setAndReleaseParameter(
+    this->AnariDevice->GetHandle(), glyphGeometry, "vertex.scale", scalesArray);
 }
 
 void vtkAnariGlyph3DMapperInheritInterface::SetGlyphScale(
   anari::Geometry& glyphGeometry, float scaleFactor)
 {
-  anari::setParameter(this->AnariDevice, glyphGeometry, "scale", scaleFactor);
+  anari::setParameter(this->AnariDevice->GetHandle(), glyphGeometry, "scale", scaleFactor);
 }
 
 //----------------------------------------------------------------------------
@@ -673,16 +673,17 @@ void vtkAnariGlyph3DMapperInheritInterface::SetGlyphIdArray(
 {
   size_t numIds = pointIds.size();
 
-  auto idsArray = anari::newArray1D(this->AnariDevice, ANARI_UINT32, numIds);
+  auto idsArray = anari::newArray1D(this->AnariDevice->GetHandle(), ANARI_UINT32, numIds);
   {
-    auto arrayPtr = anari::map<float>(this->AnariDevice, idsArray);
+    auto arrayPtr = anari::map<float>(this->AnariDevice->GetHandle(), idsArray);
 
     memcpy(arrayPtr, pointIds.data(), pointIds.size() * sizeof(uint32_t));
 
-    anari::unmap(this->AnariDevice, idsArray);
+    anari::unmap(this->AnariDevice->GetHandle(), idsArray);
   }
 
-  anari::setAndReleaseParameter(this->AnariDevice, glyphGeometry, "primitive.id", idsArray);
+  anari::setAndReleaseParameter(
+    this->AnariDevice->GetHandle(), glyphGeometry, "primitive.id", idsArray);
 }
 
 //============================================================================
@@ -692,7 +693,6 @@ vtkStandardNewMacro(vtkAnariGlyph3DMapperNode);
 vtkAnariGlyph3DMapperNode::vtkAnariGlyph3DMapperNode()
 {
   this->Internal = new vtkAnariGlyph3DMapperNodeInternals(this);
-  this->SetInheritInterface(new vtkAnariGlyph3DMapperInheritInterface(this->Internal));
 }
 
 //----------------------------------------------------------------------------
@@ -717,6 +717,11 @@ vtkCompositeDataDisplayAttributes* vtkAnariGlyph3DMapperNode::GetCompositeDispla
 //----------------------------------------------------------------------------
 void vtkAnariGlyph3DMapperNode::Synchronize(bool prepass)
 {
+  if (!this->InheritInterfaceInitialized())
+  {
+    this->CreateInheritInterface<vtkAnariGlyph3DMapperInheritInterface>(this->Internal);
+  }
+
   this->Internal->UpdateGlyphs();
 
   this->Superclass::Synchronize(prepass);

@@ -50,10 +50,10 @@ int TestAnariGPUVolumeRayCastMapper(int argc, char* argv[])
   resample->SetInputConnection(headReader->GetOutputPort());
   resample->SetResizeMethodToOutputDimensions();
   resample->SetOutputDimensions(512, 512, 512);
-  resample->Update();
 
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
   volumeMapper->SetInputConnection(resample->GetOutputPort());
+  volumeMapper->Update();
 
   double scalarRange[2];
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
@@ -99,14 +99,13 @@ int TestAnariGPUVolumeRayCastMapper(int argc, char* argv[])
   volume->SetProperty(volumeProperty);
   ren->AddVolume(volume);
 
-  vtkAnariTestUtilities::SetParameterDefaults(renWin, useDebugDevice, "TestAnariVolumeRenderer");
+  vtkAnariTestUtilities::SetParameterDefaults(
+    renWin, useDebugDevice, "TestAnariGPUVolumeRayCastMapper");
 
   auto cam = ren->GetActiveCamera();
   cam->SetFocalPoint(85.7721, 88.4044, 33.8576);
   cam->SetPosition(-173.392, 611.09, -102.892);
   cam->SetViewUp(0.130638, -0.194997, -0.972065);
-
-  renWin->Render();
 
   const auto& extensions = vtkAnariTestUtilities::GetDeviceExtensions(renWin);
   if (extensions.ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR)
@@ -123,6 +122,6 @@ int TestAnariGPUVolumeRayCastMapper(int argc, char* argv[])
     return !retVal;
   }
 
-  vtkLogF(WARNING, "Required feature KHR_VOLUME_TRANSFER_FUNCTION1D not supported.");
+  vtkLogF(WARNING, "Required feature ANARI_KHR_SPATIAL_FIELD_STRUCTURED_REGULAR not supported.");
   return VTK_SKIP_RETURN_CODE;
 }

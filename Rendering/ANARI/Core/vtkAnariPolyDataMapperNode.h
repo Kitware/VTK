@@ -61,7 +61,24 @@ protected:
   void ClearSurfaces();
   void SetActorNodeName();
 
-  void SetInheritInterface(vtkAnariPolyDataMapperInheritInterface* inheritInterface);
+  /**
+   * Return true if the inherit interface is not a nullptr.
+   */
+  bool InheritInterfaceInitialized() const;
+
+  /**
+   * Convenience function to create an inherit interface. Arguments can be given to construct the
+   * interface class.
+   */
+  template <typename T, typename... Args>
+  void CreateInheritInterface(Args... args)
+  {
+    static_assert(std::is_base_of<vtkAnariPolyDataMapperInheritInterface, T>::value,
+      "vtkAnariPolyDataMapperNode::CreateInheritInterface, T should be a base of "
+      "vtkAnariPolyDataMapperInheritInterface");
+    std::shared_ptr<T> interface = std::make_shared<T>(std::forward<Args>(args)...);
+    this->SetInheritInterface(interface);
+  }
 
   void AnariRenderPoly(vtkAnariActorNode* anariActorNode, vtkPolyData* poly, double* diffuse,
     double opacity, const std::string& materialName);
@@ -72,6 +89,13 @@ protected:
 private:
   vtkAnariPolyDataMapperNode(const vtkAnariPolyDataMapperNode&) = delete;
   void operator=(const vtkAnariPolyDataMapperNode&) = delete;
+
+  /**
+   * Set the inherit interface to use internally.
+   * Inherit interface is used to override rendering functionality for child of this class.
+   */
+  void SetInheritInterface(
+    std::shared_ptr<vtkAnariPolyDataMapperInheritInterface> inheritInterface);
 
   vtkMTimeType PolyDataMTime = 0;
 };

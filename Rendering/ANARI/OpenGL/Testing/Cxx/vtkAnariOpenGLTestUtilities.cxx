@@ -47,7 +47,7 @@ void SetParameterDefaults(
 
 const anari::Extensions& GetDeviceExtensions(vtkAnariPass* anariPass)
 {
-  return anariPass->GetAnariDevice()->GetAnariDeviceExtensions();
+  return anariPass->GetAnariDevice()->GetExtensions();
 }
 
 }

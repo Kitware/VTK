@@ -1,11 +1,16 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+// As anari/anari_cpp.hpp already includes anari_extension_utility.h internally, this needs to be
+// included before vtkAnariDevice.h, otherwise #pragma once will discard the inclusion.
+#define ANARI_EXTENSION_UTILITY_IMPL
+#include <anari/frontend/anari_extension_utility.h>
+
 #include "vtkAnariDevice.h"
+
 #include "vtkAnariProfiling.h"
 
 #include "vtkLogger.h"
-#include "vtkObject.h"
 #include "vtkObjectFactory.h"
 
 #include <anari/anari_cpp/ext/std.h>
@@ -58,14 +63,11 @@ static void AnariStatusCallback(const void* userData, anari::Device device, anar
 }
 
 // ----------------------------------------------------------------------------
-class vtkAnariDeviceInternals : public vtkObject
+class vtkAnariDeviceInternals
 {
 public:
-  static vtkAnariDeviceInternals* New();
-  vtkTypeMacro(vtkAnariDeviceInternals, vtkObject);
-
   vtkAnariDeviceInternals() = default;
-  ~vtkAnariDeviceInternals() override;
+  ~vtkAnariDeviceInternals();
 
   bool IsInitialized() const;
   bool InitAnari(const char* libraryName = "environment", const char* deviceName = "default",
@@ -115,18 +117,18 @@ bool vtkAnariDeviceInternals::InitAnari(
 
   this->CleanupAnariObjects();
 
-  vtkDebugMacro(<< "VTK Anari Library name: "
-                << ((libraryName != nullptr) ? libraryName : "nullptr"));
-  vtkDebugMacro(<< "VTK Anari Device type: " << deviceName);
+  vtkLogF(TRACE, "VTK Anari Library name: %s", libraryName != nullptr ? libraryName : "nullptr");
+  vtkLogF(TRACE, "VTK Anari Device type: %s", deviceName);
 
   this->AnariLibrary = anari::loadLibrary(libraryName, AnariStatusCallback);
 
   if (!this->AnariLibrary)
   {
     this->CleanupAnariObjects();
-    vtkErrorMacro(
-      << "[ANARI::" << libraryName << "] Could not load " << libraryName
-      << " library. Make sure to set ANARI_LIBRARY and expose it to your LIBRARY_PATH.\n");
+    vtkLogF(ERROR,
+      "[ANARI::%s] Could not load %s library. Make sure to set ANARI_LIBRARY and expose it to your "
+      "LIBRARY_PATH.",
+      libraryName, libraryName);
     return false;
   }
 
@@ -134,8 +136,7 @@ bool vtkAnariDeviceInternals::InitAnari(
   if (!this->AnariDevice)
   {
     this->CleanupAnariObjects();
-    vtkErrorMacro(<< "[ANARI::" << libraryName << "] Could not load " << deviceName
-                  << " device.\n");
+    vtkLogF(ERROR, "[ANARI::%s] Could not load %s device", libraryName, deviceName);
     return false;
   }
 
@@ -148,7 +149,7 @@ bool vtkAnariDeviceInternals::InitAnari(
     if (!debugLibrary)
     {
       this->CleanupAnariObjects();
-      vtkErrorMacro(<< "[ANARI::" << libraryName << "] Could not load debug library.");
+      vtkLogF(ERROR, "[ANARI::%s] Could not load debug library.", libraryName);
       return false;
     }
 
@@ -156,7 +157,7 @@ bool vtkAnariDeviceInternals::InitAnari(
     if (!debugDevice)
     {
       this->CleanupAnariObjects();
-      vtkErrorMacro(<< "[ANARI::" << libraryName << "] Could not load debug device.");
+      vtkLogF(ERROR, "[ANARI::%s] Could not load debug device.", libraryName);
       return false;
     }
 
@@ -178,7 +179,7 @@ bool vtkAnariDeviceInternals::InitAnari(
   auto list = (const char* const*)anariGetDeviceExtensions(this->AnariLibrary, deviceName);
   for (const auto* i = list; list != nullptr && *i != nullptr; ++i)
   {
-    vtkDebugMacro(<< "[" << libraryName << ":" << deviceName << "] Feature => " << *i);
+    vtkLogF(TRACE, "[%s:%s] Feature => %s", libraryName, deviceName, *i);
   }
 
   anariGetDeviceExtensionStruct(&this->AnariExtensions, this->AnariLibrary, deviceName);
@@ -189,12 +190,12 @@ bool vtkAnariDeviceInternals::InitAnari(
     this->AnariExtensions.ANARI_KHR_GEOMETRY_TRIANGLE &&
     this->AnariExtensions.ANARI_KHR_INSTANCE_TRANSFORM)
   {
-    vtkDebugMacro(<< "[ANARI::" << libraryName << "] Loaded " << deviceName << " device.\n");
+    vtkLogF(TRACE, "[ANARI::%s] Loaded %s device.", libraryName, deviceName);
   }
   else
   {
-    vtkDebugMacro(<< "[ANARI::" << libraryName << "] Loaded " << deviceName
-                  << " device doesn't have the minimum required features.\n");
+    vtkLogF(TRACE, "[ANARI::%s] Loaded %s device doesn't have the minimum required feature.",
+      libraryName, deviceName);
   }
 
   this->AnariLibraryName = libraryName;
@@ -249,11 +250,6 @@ void vtkAnariDeviceInternals::CommitDeviceParameters()
 }
 
 // ----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkAnariDeviceInternals);
-
-//============================================================================
-
-// ----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAnariDevice);
 
 //----------------------------------------------------------------------------
@@ -289,13 +285,13 @@ anari::Device vtkAnariDevice::GetHandle() const
 }
 
 // ----------------------------------------------------------------------------
-const anari::Extensions& vtkAnariDevice::GetAnariDeviceExtensions() const
+const anari::Extensions& vtkAnariDevice::GetExtensions() const
 {
   return this->Internal->AnariExtensions;
 }
 
 // ----------------------------------------------------------------------------
-const char* const* vtkAnariDevice::GetAnariDeviceExtensionStrings() const
+const char* const* vtkAnariDevice::GetExtensionStrings() const
 {
   return (const char* const*)anariGetDeviceExtensions(
     this->Internal->AnariLibrary, this->Internal->AnariDeviceName.c_str());
@@ -382,13 +378,13 @@ void vtkAnariDevice::CommitParameters()
 // ----------------------------------------------------------------------------
 vtkAnariDevice::vtkAnariDevice()
 {
-  this->Internal = vtkAnariDeviceInternals::New();
+  this->Internal = new vtkAnariDeviceInternals();
 }
 
 // ----------------------------------------------------------------------------
 vtkAnariDevice::~vtkAnariDevice()
 {
-  this->Internal->Delete();
+  delete this->Internal;
   this->Internal = nullptr;
 }
 

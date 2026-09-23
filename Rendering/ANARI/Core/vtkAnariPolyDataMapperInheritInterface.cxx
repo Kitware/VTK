@@ -9,12 +9,9 @@
 vtkAnariPolyDataMapperInheritInterface::~vtkAnariPolyDataMapperInheritInterface() {}
 
 //----------------------------------------------------------------------------
-void vtkAnariPolyDataMapperInheritInterface::SetDevice(
-  anari::Device& device, anari::Extensions& extensions, const char* const* anariExtensionStrings)
+void vtkAnariPolyDataMapperInheritInterface::SetDevice(vtkSmartPointer<vtkAnariDevice> device)
 {
   this->AnariDevice = device;
-  this->AnariExtensions = extensions;
-  this->AnariExtensionStrings = anariExtensionStrings;
 }
 
 //----------------------------------------------------------------------------
@@ -35,7 +32,7 @@ anari::Geometry vtkAnariPolyDataMapperInheritInterface::InitializeSpheres(vtkPol
   vtkProperty*, std::vector<vec3>&, std::vector<uint32_t>&, double, vtkDataArray*,
   vtkPiecewiseFunction*, std::vector<vec2>&, std::vector<vec2>&, std::vector<vec4>&, int)
 {
-  return anari::newObject<anari::Geometry>(this->AnariDevice, "sphere");
+  return anari::newObject<anari::Geometry>(this->AnariDevice->GetHandle(), "sphere");
 }
 
 //----------------------------------------------------------------------------
@@ -43,7 +40,7 @@ anari::Geometry vtkAnariPolyDataMapperInheritInterface::InitializeCurves(vtkPoly
   std::vector<vec3>&, std::vector<uint32_t>&, double, vtkDataArray*, vtkPiecewiseFunction*,
   std::vector<vec2>&, std::vector<vec2>&, std::vector<vec4>&, int)
 {
-  return anari::newObject<anari::Geometry>(this->AnariDevice, "curve");
+  return anari::newObject<anari::Geometry>(this->AnariDevice->GetHandle(), "curve");
 }
 
 //----------------------------------------------------------------------------
@@ -51,7 +48,7 @@ anari::Geometry vtkAnariPolyDataMapperInheritInterface::InitializeCylinders(vtkP
   vtkProperty*, std::vector<vec3>&, std::vector<uint32_t>&, double, vtkDataArray*,
   vtkPiecewiseFunction*, std::vector<vec2>&, std::vector<vec2>&, std::vector<vec4>&, int)
 {
-  return anari::newObject<anari::Geometry>(this->AnariDevice, "cylinder");
+  return anari::newObject<anari::Geometry>(this->AnariDevice->GetHandle(), "cylinder");
 }
 
 //----------------------------------------------------------------------------
@@ -59,7 +56,7 @@ anari::Geometry vtkAnariPolyDataMapperInheritInterface::InitializeTriangles(vtkP
   vtkProperty*, std::vector<vec3>&, std::vector<uint32_t>&, std::vector<vec3>&, std::vector<vec2>&,
   std::vector<vec2>&, std::vector<vec4>&, int)
 {
-  return anari::newObject<anari::Geometry>(this->AnariDevice, "triangle");
+  return anari::newObject<anari::Geometry>(this->AnariDevice->GetHandle(), "triangle");
 }
 
 //----------------------------------------------------------------------------

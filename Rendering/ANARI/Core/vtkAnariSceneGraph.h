@@ -77,6 +77,7 @@ public:
    * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* ACCUMULATION_COUNT();
+
   //@{
   /**
    * Convenience method to set/get ACCUMULATION_COUNT on a vtkRenderer.
@@ -91,6 +92,7 @@ public:
    * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* COMPOSITE_ON_GL();
+
   //@{
   /**
    * Convenience method to set/get COMPOSITE_ON_GL on a vtkRenderer.
@@ -98,11 +100,6 @@ public:
   static void SetCompositeOnGL(vtkRenderer* renderer, int);
   static int GetCompositeOnGL(vtkRenderer* renderer);
   //@}
-
-  //@{
-  /**
-   * Methods for other nodes to access
-   */
 
   /**
    * Accessed by the AnariLightNode to add an ANARILight to the world.
@@ -135,24 +132,12 @@ public:
    * Get the ANARI back-end device. A device is an object which provides the
    * implementation of all ANARI API calls outside of libraries.
    */
-  anari::Device GetDeviceHandle() const;
+  vtkSmartPointer<vtkAnariDevice> GetDevice() const;
 
   /**
    * Get the currently set ANARI renderer.
    */
-  anari::Renderer GetRendererHandle() const;
-
-  /**
-   * Get the extensions supported by the current back-end device.
-   */
-  const anari::Extensions& GetAnariDeviceExtensions() const;
-  //@}
-
-  /**
-   * Get the extensions supported by the current back-end device.
-   */
-  const char* const* GetAnariDeviceExtensionStrings() const;
-  //@}
+  vtkSmartPointer<vtkAnariRenderer> GetAnariRenderer() const;
 
   /**
    * Get the last rendered ColorBuffer
@@ -166,7 +151,7 @@ public:
 
   // if you want to traverse your children in a specific order
   // or way override this method
-  virtual void Traverse(int operation) override;
+  void Traverse(int operation) override;
 
   /**
    * Convenience method to get and downcast renderable.

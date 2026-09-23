@@ -107,9 +107,7 @@ void vtkAnariPass::RenderAnariFrame(vtkRenderer* renderer, const vtkFrameInforma
 
   if (renderer)
   {
-    const bool rebuildSceneGraph =
-      !this->SceneGraph || this->SceneGraph->GetDeviceHandle() != anariDevice->GetHandle();
-    if (rebuildSceneGraph)
+    if (!this->SceneGraph)
     {
       vtkAnariSceneGraph* sceneGraph =
         vtkAnariSceneGraph::SafeDownCast(this->Factory->CreateNode(renderer));
@@ -117,7 +115,7 @@ void vtkAnariPass::RenderAnariFrame(vtkRenderer* renderer, const vtkFrameInforma
       this->SceneGraph->SetAnariDevice(anariDevice);
       this->SceneGraph->SetAnariRenderer(anariRenderer);
     }
-    else if (anariRenderer->GetHandle() != this->SceneGraph->GetRendererHandle())
+    else if (anariRenderer != this->SceneGraph->GetAnariRenderer())
     {
       this->SceneGraph->SetAnariRenderer(anariRenderer);
     }
@@ -149,7 +147,7 @@ void vtkAnariPass::BlitAnariFrameToOpenGLFrame(
   vtkRenderWindow* renderWindow = vtkRenderWindow::SafeDownCast(renderer->GetVTKWindow());
   vtkOpenGLRenderWindow* windowOpenGL = vtkOpenGLRenderWindow::SafeDownCast(renderWindow);
 
-  this->SetupFrame(windowOpenGL, renderer, this->GetAnariDevice()->GetAnariDeviceExtensions());
+  this->SetupFrame(windowOpenGL, renderer, this->GetAnariDevice()->GetExtensions());
   if (!this->OpenGLQuadHelper->Program || !this->OpenGLQuadHelper->Program->GetCompiled())
   {
     vtkErrorMacro("Couldn't build the shader program.");

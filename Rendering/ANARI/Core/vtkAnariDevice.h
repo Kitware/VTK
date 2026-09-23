@@ -62,12 +62,12 @@ public:
   /**
    * Get the current ANARI device extensions, which will be empty if not yet setup
    */
-  const anari::Extensions& GetAnariDeviceExtensions() const;
+  const anari::Extensions& GetExtensions() const;
 
   /**
    * Get the current ANARI device extensions as list of strings
    */
-  const char* const* GetAnariDeviceExtensionStrings() const;
+  const char* const* GetExtensionStrings() const;
 
   /**
    * Set a callback that gets called whenever a new device has been created
@@ -112,21 +112,14 @@ public:
   std::vector<std::string> GetAnariRendererSubTypes() const;
 
 protected:
-  /**
-   * Default constructor.
-   */
   vtkAnariDevice();
-
-  /**
-   * Destructor.
-   */
   ~vtkAnariDevice() override;
 
 private:
   vtkAnariDevice(const vtkAnariDevice&) = delete;
   void operator=(const vtkAnariDevice&) = delete;
 
-  vtkAnariDeviceInternals* Internal{ nullptr };
+  vtkAnariDeviceInternals* Internal = nullptr;
 };
 
 VTK_ABI_NAMESPACE_END
