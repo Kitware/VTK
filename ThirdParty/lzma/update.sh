@@ -8,7 +8,7 @@ readonly name="lzma"
 readonly ownership="$name Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/xz.git"
-readonly tag="for/vtk-20260127-5.6.4"
+readonly tag="for/vtk-20260922-5.8.4"
 readonly paths="
 CMakeLists.vtk.txt
 COPYING
@@ -19,9 +19,7 @@ src/common/tuklib_cpucores.c
 src/common/tuklib_physmem.c
 src/liblzma/check/check.c
 src/liblzma/check/crc32_fast.c
-src/liblzma/check/crc32_table.c
 src/liblzma/check/crc64_fast.c
-src/liblzma/check/crc64_table.c
 src/liblzma/check/sha256.c
 src/liblzma/common/alone_decoder.c
 src/liblzma/common/alone_encoder.c

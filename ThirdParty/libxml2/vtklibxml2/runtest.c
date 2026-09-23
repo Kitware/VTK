@@ -8,7 +8,7 @@
  *
  * See Copyright for the status of this software.
  *
- * daniel@veillard.com
+ * Author: Daniel Veillard
  */
 
 #define XML_DEPRECATED
@@ -26,6 +26,10 @@
   #include <io.h>
 #else
   #include <unistd.h>
+#endif
+
+#ifdef LIBXML_ZLIB_ENABLED
+#include <zlib.h>
 #endif
 
 #include <libxml/parser.h>
@@ -166,13 +170,13 @@ static int glob(const char *pattern, ATTRIBUTE_UNUSED int flags,
     if (hFind == INVALID_HANDLE_VALUE)
         return(0);
     nb_paths = 20;
-    ret->gl_pathv = (char **) malloc(nb_paths * sizeof(char *));
+    ret->gl_pathv = (char **) xmlMalloc(nb_paths * sizeof(char *));
     if (ret->gl_pathv == NULL) {
 	FindClose(hFind);
         return(-1);
     }
     strncpy(directory + len, FindFileData.cFileName, 499 - len);
-    ret->gl_pathv[ret->gl_pathc] = strdup(directory);
+    ret->gl_pathv[ret->gl_pathc] = xmlMemStrdup(directory);
     if (ret->gl_pathv[ret->gl_pathc] == NULL)
         goto done;
     ret->gl_pathc++;
@@ -180,14 +184,14 @@ static int glob(const char *pattern, ATTRIBUTE_UNUSED int flags,
         if (FindFileData.cFileName[0] == '.')
 	    continue;
         if (ret->gl_pathc + 2 > nb_paths) {
-            char **tmp = realloc(ret->gl_pathv, nb_paths * 2 * sizeof(char *));
+            char **tmp = xmlRealloc(ret->gl_pathv, nb_paths * 2 * sizeof(char *));
             if (tmp == NULL)
                 break;
             ret->gl_pathv = tmp;
             nb_paths *= 2;
 	}
 	strncpy(directory + len, FindFileData.cFileName, 499 - len);
-	ret->gl_pathv[ret->gl_pathc] = strdup(directory);
+	ret->gl_pathv[ret->gl_pathc] = xmlMemStrdup(directory);
         if (ret->gl_pathv[ret->gl_pathc] == NULL)
             break;
         ret->gl_pathc++;
@@ -208,8 +212,9 @@ static void globfree(glob_t *pglob) {
 
     for (i = 0;i < pglob->gl_pathc;i++) {
          if (pglob->gl_pathv[i] != NULL)
-             free(pglob->gl_pathv[i]);
+             xmlFree(pglob->gl_pathv[i]);
     }
+    xmlFree(pglob->gl_pathv);
 }
 
 #elif HAVE_DECL_GLOB
@@ -366,7 +371,7 @@ static char *resultFilename(const char *filename, const char *out,
 
     if (snprintf(res, 499, "%s%s%s", out, base, suffixbuff) >= 499)
         res[499] = 0;
-    return(strdup(res));
+    return(xmlMemStrdup(res));
 }
 
 static int checkTestFile(const char *filename) {
@@ -515,12 +520,12 @@ static int loadMem(const char *filename, const char **mem, int *size) {
     int siz = 0;
     if (stat(filename, &info) < 0)
 	return(-1);
-    base = malloc(info.st_size + 1);
+    base = xmlMalloc(info.st_size + 1);
     if (base == NULL)
 	return(-1);
     fd = open(filename, RD_FLAGS);
     if (fd  < 0) {
-        free(base);
+        xmlFree(base);
 	return(-1);
     }
     while ((res = read(fd, &base[siz], info.st_size - siz)) > 0) {
@@ -529,7 +534,7 @@ static int loadMem(const char *filename, const char **mem, int *size) {
     close(fd);
 #if !defined(_WIN32)
     if (siz != info.st_size) {
-        free(base);
+        xmlFree(base);
 	return(-1);
     }
 #endif
@@ -540,7 +545,7 @@ static int loadMem(const char *filename, const char **mem, int *size) {
 }
 
 static int unloadMem(const char *mem) {
-    free((char *)mem);
+    xmlFree((char *)mem);
     return(0);
 }
 
@@ -607,12 +612,10 @@ static int callbacks = 0;
 static int quiet = 0;
 
 /**
- * isStandaloneDebug:
- * @ctxt:  An XML parser context
- *
  * Is this document tagged standalone ?
  *
- * Returns 1 if true
+ * @param ctxt  An XML parser context
+ * @returns 1 if true
  */
 static int
 isStandaloneDebug(void *ctx ATTRIBUTE_UNUSED)
@@ -625,12 +628,10 @@ isStandaloneDebug(void *ctx ATTRIBUTE_UNUSED)
 }
 
 /**
- * hasInternalSubsetDebug:
- * @ctxt:  An XML parser context
- *
  * Does this document has an internal subset
  *
- * Returns 1 if true
+ * @param ctxt  An XML parser context
+ * @returns 1 if true
  */
 static int
 hasInternalSubsetDebug(void *ctx ATTRIBUTE_UNUSED)
@@ -643,12 +644,10 @@ hasInternalSubsetDebug(void *ctx ATTRIBUTE_UNUSED)
 }
 
 /**
- * hasExternalSubsetDebug:
- * @ctxt:  An XML parser context
- *
  * Does this document has an external subset
  *
- * Returns 1 if true
+ * @param ctxt  An XML parser context
+ * @returns 1 if true
  */
 static int
 hasExternalSubsetDebug(void *ctx ATTRIBUTE_UNUSED)
@@ -661,10 +660,9 @@ hasExternalSubsetDebug(void *ctx ATTRIBUTE_UNUSED)
 }
 
 /**
- * internalSubsetDebug:
- * @ctxt:  An XML parser context
- *
  * Does this document has an internal subset
+ *
+ * @param ctxt  An XML parser context
  */
 static void
 internalSubsetDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name,
@@ -687,10 +685,9 @@ internalSubsetDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name,
 }
 
 /**
- * externalSubsetDebug:
- * @ctxt:  An XML parser context
- *
  * Does this document has an external subset
+ *
+ * @param ctxt  An XML parser context
  */
 static void
 externalSubsetDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name,
@@ -711,18 +708,16 @@ externalSubsetDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name,
 }
 
 /**
- * resolveEntityDebug:
- * @ctxt:  An XML parser context
- * @publicId: The public ID of the entity
- * @systemId: The system ID of the entity
- *
  * Special entity resolver, better left to the parser, it has
  * more context than the application layer.
  * The default behaviour is to NOT resolve the entities, in that case
  * the ENTITY_REF nodes are built in the structure (and the parameter
  * values).
  *
- * Returns the xmlParserInputPtr if inlined or NULL for DOM behaviour.
+ * @param ctxt  An XML parser context
+ * @param publicId  The public ID of the entity
+ * @param systemId  The system ID of the entity
+ * @returns the xmlParserInput if inlined or NULL for DOM behaviour.
  */
 static xmlParserInputPtr
 resolveEntityDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *publicId, const xmlChar *systemId)
@@ -751,13 +746,11 @@ resolveEntityDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *publicId, const xm
 }
 
 /**
- * getEntityDebug:
- * @ctxt:  An XML parser context
- * @name: The entity name
- *
  * Get an entity by name
  *
- * Returns the xmlParserInputPtr if inlined or NULL for DOM behaviour.
+ * @param ctxt  An XML parser context
+ * @param name  The entity name
+ * @returns the xmlParserInput if inlined or NULL for DOM behaviour.
  */
 static xmlEntityPtr
 getEntityDebug(void *ctx, const xmlChar *name)
@@ -773,13 +766,11 @@ getEntityDebug(void *ctx, const xmlChar *name)
 }
 
 /**
- * getParameterEntityDebug:
- * @ctxt:  An XML parser context
- * @name: The entity name
- *
  * Get a parameter entity by name
  *
- * Returns the xmlParserInputPtr
+ * @param ctxt  An XML parser context
+ * @param name  The entity name
+ * @returns the xmlParserInput
  */
 static xmlEntityPtr
 getParameterEntityDebug(void *ctx, const xmlChar *name)
@@ -796,15 +787,14 @@ getParameterEntityDebug(void *ctx, const xmlChar *name)
 
 
 /**
- * entityDeclDebug:
- * @ctxt:  An XML parser context
- * @name:  the entity name
- * @type:  the entity type
- * @publicId: The public ID of the entity
- * @systemId: The system ID of the entity
- * @content: the entity value (without processing).
- *
  * An entity definition has been parsed
+ *
+ * @param ctxt  An XML parser context
+ * @param name  the entity name
+ * @param type  the entity type
+ * @param publicId  The public ID of the entity
+ * @param systemId  The system ID of the entity
+ * @param content  the entity value (without processing).
  */
 static void
 entityDeclDebug(void *ctx, const xmlChar *name, int type,
@@ -839,12 +829,11 @@ entityDeclDebug(void *ctx, const xmlChar *name, int type,
 }
 
 /**
- * attributeDeclDebug:
- * @ctxt:  An XML parser context
- * @name:  the attribute name
- * @type:  the attribute type
- *
  * An attribute definition has been parsed
+ *
+ * @param ctxt  An XML parser context
+ * @param name  the attribute name
+ * @param type  the attribute type
  */
 static void
 attributeDeclDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar * elem,
@@ -864,13 +853,12 @@ attributeDeclDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar * elem,
 }
 
 /**
- * elementDeclDebug:
- * @ctxt:  An XML parser context
- * @name:  the element name
- * @type:  the element type
- * @content: the element value (without processing).
- *
  * An element definition has been parsed
+ *
+ * @param ctxt  An XML parser context
+ * @param name  the element name
+ * @param type  the element type
+ * @param content  the element value (without processing).
  */
 static void
 elementDeclDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name, int type,
@@ -884,13 +872,12 @@ elementDeclDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name, int type,
 }
 
 /**
- * notationDeclDebug:
- * @ctxt:  An XML parser context
- * @name: The name of the notation
- * @publicId: The public ID of the entity
- * @systemId: The system ID of the entity
- *
  * What to do when a notation declaration has been parsed.
+ *
+ * @param ctxt  An XML parser context
+ * @param name  The name of the notation
+ * @param publicId  The public ID of the entity
+ * @param systemId  The system ID of the entity
  */
 static void
 notationDeclDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name,
@@ -904,14 +891,13 @@ notationDeclDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name,
 }
 
 /**
- * unparsedEntityDeclDebug:
- * @ctxt:  An XML parser context
- * @name: The name of the entity
- * @publicId: The public ID of the entity
- * @systemId: The system ID of the entity
- * @notationName: the name of the notation
- *
  * What to do when an unparsed entity declaration is parsed
+ *
+ * @param ctxt  An XML parser context
+ * @param name  The name of the entity
+ * @param publicId  The public ID of the entity
+ * @param systemId  The system ID of the entity
+ * @param notationName  the name of the notation
  */
 static void
 unparsedEntityDeclDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name,
@@ -935,12 +921,11 @@ const xmlChar *nullstr = BAD_CAST "(null)";
 }
 
 /**
- * setDocumentLocatorDebug:
- * @ctxt:  An XML parser context
- * @loc: A SAX Locator
- *
  * Receive the document locator at startup, actually xmlDefaultSAXLocator
  * Everything is available on the context, so this is useless in our case.
+ *
+ * @param ctxt  An XML parser context
+ * @param loc  A SAX Locator
  */
 static void
 setDocumentLocatorDebug(void *ctx ATTRIBUTE_UNUSED, xmlSAXLocatorPtr loc ATTRIBUTE_UNUSED)
@@ -952,10 +937,9 @@ setDocumentLocatorDebug(void *ctx ATTRIBUTE_UNUSED, xmlSAXLocatorPtr loc ATTRIBU
 }
 
 /**
- * startDocumentDebug:
- * @ctxt:  An XML parser context
- *
  * called when the document start being processed.
+ *
+ * @param ctxt  An XML parser context
  */
 static void
 startDocumentDebug(void *ctx ATTRIBUTE_UNUSED)
@@ -967,10 +951,9 @@ startDocumentDebug(void *ctx ATTRIBUTE_UNUSED)
 }
 
 /**
- * endDocumentDebug:
- * @ctxt:  An XML parser context
- *
  * called when the document end has been detected.
+ *
+ * @param ctxt  An XML parser context
  */
 static void
 endDocumentDebug(void *ctx ATTRIBUTE_UNUSED)
@@ -982,11 +965,10 @@ endDocumentDebug(void *ctx ATTRIBUTE_UNUSED)
 }
 
 /**
- * startElementDebug:
- * @ctxt:  An XML parser context
- * @name:  The element name
- *
  * called when an opening tag has been processed.
+ *
+ * @param ctxt  An XML parser context
+ * @param name  The element name
  */
 static void
 startElementDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name, const xmlChar **atts)
@@ -1008,11 +990,10 @@ startElementDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name, const xmlChar
 }
 
 /**
- * endElementDebug:
- * @ctxt:  An XML parser context
- * @name:  The element name
- *
  * called when the end of an element has been detected.
+ *
+ * @param ctxt  An XML parser context
+ * @param name  The element name
  */
 static void
 endElementDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name)
@@ -1024,13 +1005,12 @@ endElementDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name)
 }
 
 /**
- * charactersDebug:
- * @ctxt:  An XML parser context
- * @ch:  a xmlChar string
- * @len: the number of xmlChar
- *
  * receiving some chars from the parser.
  * Question: how much at a time ???
+ *
+ * @param ctxt  An XML parser context
+ * @param ch  a xmlChar string
+ * @param len  the number of xmlChar
  */
 static void
 charactersDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *ch, int len)
@@ -1049,11 +1029,10 @@ charactersDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *ch, int len)
 }
 
 /**
- * referenceDebug:
- * @ctxt:  An XML parser context
- * @name:  The entity name
- *
  * called when an entity reference is detected.
+ *
+ * @param ctxt  An XML parser context
+ * @param name  The entity name
  */
 static void
 referenceDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name)
@@ -1065,14 +1044,13 @@ referenceDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name)
 }
 
 /**
- * ignorableWhitespaceDebug:
- * @ctxt:  An XML parser context
- * @ch:  a xmlChar string
- * @start: the first char in the string
- * @len: the number of xmlChar
- *
  * receiving some ignorable whitespaces from the parser.
  * Question: how much at a time ???
+ *
+ * @param ctxt  An XML parser context
+ * @param ch  a xmlChar string
+ * @param start  the first char in the string
+ * @param len  the number of xmlChar
  */
 static void
 ignorableWhitespaceDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *ch, int len)
@@ -1090,13 +1068,12 @@ ignorableWhitespaceDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *ch, int len)
 }
 
 /**
- * processingInstructionDebug:
- * @ctxt:  An XML parser context
- * @target:  the target name
- * @data: the PI data's
- * @len: the number of xmlChar
- *
  * A processing instruction has been parsed.
+ *
+ * @param ctxt  An XML parser context
+ * @param target  the target name
+ * @param data  the PI data's
+ * @param len  the number of xmlChar
  */
 static void
 processingInstructionDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *target,
@@ -1114,12 +1091,11 @@ processingInstructionDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *target,
 }
 
 /**
- * cdataBlockDebug:
- * @ctx: the user data (XML parser context)
- * @value:  The pcdata content
- * @len:  the block length
- *
  * called when a pcdata block has been parsed
+ *
+ * @param ctx  the user data (XML parser context)
+ * @param value  The pcdata content
+ * @param len  the block length
  */
 static void
 cdataBlockDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *value, int len)
@@ -1132,11 +1108,10 @@ cdataBlockDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *value, int len)
 }
 
 /**
- * commentDebug:
- * @ctxt:  An XML parser context
- * @value:  the comment content
- *
  * A comment has been parsed.
+ *
+ * @param ctxt  An XML parser context
+ * @param value  the comment content
  */
 static void
 commentDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *value)
@@ -1148,13 +1123,12 @@ commentDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *value)
 }
 
 /**
- * warningDebug:
- * @ctxt:  An XML parser context
- * @msg:  the message to display/transmit
- * @...:  extra parameters for the message display
- *
  * Display and format a warning messages, gives file, line, position and
  * extra parameters.
+ *
+ * @param ctxt  An XML parser context
+ * @param msg  the message to display/transmit
+ * @param ...  extra parameters for the message display
  */
 static void
 warningDebug(void *ctx ATTRIBUTE_UNUSED, const char *msg, ...)
@@ -1171,13 +1145,12 @@ warningDebug(void *ctx ATTRIBUTE_UNUSED, const char *msg, ...)
 }
 
 /**
- * errorDebug:
- * @ctxt:  An XML parser context
- * @msg:  the message to display/transmit
- * @...:  extra parameters for the message display
- *
  * Display and format a error messages, gives file, line, position and
  * extra parameters.
+ *
+ * @param ctxt  An XML parser context
+ * @param msg  the message to display/transmit
+ * @param ...  extra parameters for the message display
  */
 static void
 errorDebug(void *ctx ATTRIBUTE_UNUSED, const char *msg, ...)
@@ -1194,13 +1167,12 @@ errorDebug(void *ctx ATTRIBUTE_UNUSED, const char *msg, ...)
 }
 
 /**
- * fatalErrorDebug:
- * @ctxt:  An XML parser context
- * @msg:  the message to display/transmit
- * @...:  extra parameters for the message display
- *
  * Display and format a fatalError messages, gives file, line, position and
  * extra parameters.
+ *
+ * @param ctxt  An XML parser context
+ * @param msg  the message to display/transmit
+ * @param ...  extra parameters for the message display
  */
 static void
 fatalErrorDebug(void *ctx ATTRIBUTE_UNUSED, const char *msg, ...)
@@ -1257,11 +1229,10 @@ static xmlSAXHandlerPtr debugSAXHandler = &debugSAXHandlerStruct;
  * SAX2 specific callbacks
  */
 /**
- * startElementNsDebug:
- * @ctxt:  An XML parser context
- * @name:  The element name
- *
  * called when an opening tag has been processed.
+ *
+ * @param ctxt  An XML parser context
+ * @param name  The element name
  */
 static void
 startElementNsDebug(void *ctx ATTRIBUTE_UNUSED,
@@ -1314,11 +1285,10 @@ startElementNsDebug(void *ctx ATTRIBUTE_UNUSED,
 }
 
 /**
- * endElementDebug:
- * @ctxt:  An XML parser context
- * @name:  The element name
- *
  * called when the end of an element has been detected.
+ *
+ * @param ctxt  An XML parser context
+ * @param name  The element name
  */
 static void
 endElementNsDebug(void *ctx ATTRIBUTE_UNUSED,
@@ -1379,11 +1349,10 @@ static xmlSAXHandlerPtr debugSAX2Handler = &debugSAX2HandlerStruct;
 
 #ifdef LIBXML_HTML_ENABLED
 /**
- * htmlstartElementDebug:
- * @ctxt:  An XML parser context
- * @name:  The element name
- *
  * called when an opening tag has been processed.
+ *
+ * @param ctxt  An XML parser context
+ * @param name  The element name
  */
 static void
 htmlstartElementDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name, const xmlChar **atts)
@@ -1414,13 +1383,12 @@ htmlstartElementDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *name, const xml
 }
 
 /**
- * htmlcharactersDebug:
- * @ctxt:  An XML parser context
- * @ch:  a xmlChar string
- * @len: the number of xmlChar
- *
  * receiving some chars from the parser.
  * Question: how much at a time ???
+ *
+ * @param ctxt  An XML parser context
+ * @param ch  a xmlChar string
+ * @param len  the number of xmlChar
  */
 static void
 htmlcharactersDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *ch, int len)
@@ -1435,13 +1403,12 @@ htmlcharactersDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *ch, int len)
 }
 
 /**
- * htmlcdataDebug:
- * @ctxt:  An XML parser context
- * @ch:  a xmlChar string
- * @len: the number of xmlChar
- *
  * receiving some cdata chars from the parser.
  * Question: how much at a time ???
+ *
+ * @param ctxt  An XML parser context
+ * @param ch  a xmlChar string
+ * @param len  the number of xmlChar
  */
 static void
 htmlcdataDebug(void *ctx ATTRIBUTE_UNUSED, const xmlChar *ch, int len)
@@ -1501,14 +1468,12 @@ hashFreeEntity(void *payload, const xmlChar *name ATTRIBUTE_UNUSED) {
 }
 
 /**
- * saxParseTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a file using the SAX API and check for errors.
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 saxParseTest(const char *filename, const char *result,
@@ -1526,7 +1491,7 @@ saxParseTest(const char *filename, const char *result,
     SAXdebug = fopen(temp, "wb");
     if (SAXdebug == NULL) {
         fprintf(stderr, "Failed to write to %s\n", temp);
-	free(temp);
+	xmlFree(temp);
 	return(-1);
     }
 
@@ -1599,7 +1564,7 @@ saxParseTest(const char *filename, const char *result,
 done:
     if (temp != NULL) {
         unlink(temp);
-        free(temp);
+        xmlFree(temp);
     }
 
     return(ret);
@@ -1743,14 +1708,12 @@ static xmlSAXHandler tokenizeHtmlSAXHandler = {
 };
 
 /**
- * htmlTokenizerTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a file using the SAX API and check for errors.
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 htmlTokenizerTest(const char *filename, const char *result,
@@ -1773,7 +1736,7 @@ htmlTokenizerTest(const char *filename, const char *result,
     SAXdebug = fopen(temp, "wb");
     if (SAXdebug == NULL) {
         fprintf(stderr, "Failed to write to %s\n", temp);
-	free(temp);
+	xmlFree(temp);
 	return(-1);
     }
 
@@ -1825,7 +1788,7 @@ htmlTokenizerTest(const char *filename, const char *result,
 
     if (temp != NULL) {
         unlink(temp);
-        free(temp);
+        xmlFree(temp);
     }
 
     return(ret);
@@ -1838,16 +1801,14 @@ htmlTokenizerTest(const char *filename, const char *result,
  *									*
  ************************************************************************/
 /**
- * oldParseTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages: unused
- *
- * Parse a file using the old xmlParseFile API, then serialize back
+ * Parse a file using the old #xmlParseFile API, then serialize back
  * reparse the result and serialize again, then check for deviation
  * in serialization.
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages: unused
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 oldParseTest(const char *filename, const char *result,
@@ -1901,7 +1862,7 @@ oldParseTest(const char *filename, const char *result,
 
     if (temp != NULL) {
         unlink(temp);
-        free(temp);
+        xmlFree(temp);
     }
 
     return(res);
@@ -1909,15 +1870,13 @@ oldParseTest(const char *filename, const char *result,
 
 #ifdef LIBXML_PUSH_ENABLED
 /**
- * pushParseTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages: unused
- *
  * Parse a file using the Push API, then serialize back
  * to check for content.
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages: unused
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 pushParseTest(const char *filename, const char *result,
@@ -1980,7 +1939,7 @@ pushParseTest(const char *filename, const char *result,
 #endif
     res = ctxt->wellFormed;
     xmlFreeParserCtxt(ctxt);
-    free((char *)base);
+    xmlFree((char *)base);
     if (!res) {
 	xmlFreeDoc(doc);
 	fprintf(stderr, "Failed to parse %s\n", filename);
@@ -2096,15 +2055,13 @@ endElementNsBnd(void *ctx, const xmlChar *localname, const xmlChar *prefix,
 }
 
 /**
- * pushBoundaryTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages: unused
- *
  * Test whether the push parser detects boundaries between syntactical
  * elements correctly.
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages: unused
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 pushBoundaryTest(const char *filename, const char *result,
@@ -2286,7 +2243,7 @@ pushBoundaryTest(const char *filename, const char *result,
 #endif
     res = ctxt->wellFormed;
     xmlFreeParserCtxt(ctxt);
-    free((char *)base);
+    xmlFree((char *)base);
     if (numCallbacks > 1) {
 	xmlFreeDoc(doc);
 	fprintf(stderr, "Failed push boundary callback test (%d@%lu-%lu): %s\n",
@@ -2393,8 +2350,8 @@ testParseContent(xmlParserCtxtPtr ctxt, xmlDocPtr doc, const char *filename) {
     xmlFreeNodeList(list);
 
     /* xmlParseInNodeContext uses the document's encoding. */
-    xmlFree((xmlChar *) doc->encoding);
-    doc->encoding = (const xmlChar *) xmlStrdup(BAD_CAST "UTF-8");
+    xmlFree(doc->encoding);
+    doc->encoding = xmlStrdup(BAD_CAST "UTF-8");
     xmlParseInNodeContext(root, content, strlen(content),
                           ctxt->options | XML_PARSE_NOERROR,
                           &list);
@@ -2411,16 +2368,14 @@ testParseContent(xmlParserCtxtPtr ctxt, xmlDocPtr doc, const char *filename) {
 }
 
 /**
- * memParseTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages: unused
- *
- * Parse a file using the old xmlReadMemory API, then serialize back
+ * Parse a file using the old #xmlReadMemory API, then serialize back
  * reparse the result and serialize again, then check for deviation
  * in serialization.
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages: unused
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 memParseTest(const char *filename, const char *result,
@@ -2466,16 +2421,14 @@ memParseTest(const char *filename, const char *result,
 }
 
 /**
- * noentParseTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages: unused
- *
  * Parse a file with entity resolution, then serialize back
  * reparse the result and serialize again, then check for deviation
  * in serialization.
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages: unused
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 noentParseTest(const char *filename, const char *result,
@@ -2519,20 +2472,87 @@ noentParseTest(const char *filename, const char *result,
 
     if (temp != NULL) {
         unlink(temp);
-        free(temp);
+        xmlFree(temp);
     }
     return(res);
 }
 
+#ifdef LIBXML_XINCLUDE_ENABLED
 /**
- * errParseTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
+ * Parse a file and run xmlXIncludeProcess() to verify that doc->parseFlags
+ * is propagated properly.
  *
- * Parse a file using the xmlReadFile API and check for errors.
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
+ */
+static int
+xincludeProcessTest(const char *filename, const char *result, const char *err,
+                    int options) {
+    xmlParserCtxtPtr ctxt;
+    xmlDocPtr doc;
+    xmlChar *base = NULL;
+    int size, res;
+    int ret = 0;
+
+    nb_tests++;
+
+    /* Create a new parser context */
+    ctxt = xmlNewParserCtxt();
+    if (ctxt == NULL)
+        return(-1);
+
+    /* Load the data from `filename` into a parser context */
+    xmlCtxtSetErrorHandler(ctxt, testStructuredErrorHandler, NULL);
+    doc = xmlCtxtReadFile(ctxt, filename, NULL, options);
+    xmlFreeParserCtxt(ctxt);
+
+    /* Check if `doc` was created successfully */
+    if (doc == NULL) {
+        testErrorHandler(NULL, "%s : failed to parse\n", filename);
+        return(-1);
+    }
+
+    /*
+     * Run xmlXIncludeProcess() with a structured error handler to check that
+     * the parse flags are propagated.
+     */
+    xmlSetStructuredErrorFunc(NULL, testStructuredErrorHandler);
+    xmlXIncludeProcess(doc);
+    xmlSetStructuredErrorFunc(NULL, NULL);
+
+    /* Check the result and for any errors */
+    if (result) {
+        xmlDocDumpMemory(doc, &base, &size);
+        res = compareFileMem(result, (char *) base, size);
+        xmlFree(base);
+        if (res != 0) {
+            fprintf(stderr, "Result for %s failed in %s\n", filename, result);
+            ret = -1;
+        }
+    }
+
+    if ((ret == 0) && (err != NULL)) {
+        res = compareFileMem(err, testErrors, testErrorsSize);
+        if (res != 0) {
+            fprintf(stderr, "Error for %s failed\n", filename);
+            ret = -1;
+        }
+    }
+
+    xmlFreeDoc(doc);
+    return(ret);
+}
+#endif
+
+/**
+ * Parse a file using the #xmlReadFile API and check for errors.
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 errParseTest(const char *filename, const char *result, const char *err,
@@ -2614,14 +2634,12 @@ errParseTest(const char *filename, const char *result, const char *err,
 
 #if defined(LIBXML_VALID_ENABLED) || defined(LIBXML_HTML_ENABLED)
 /**
- * fdParseTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
+ * Parse a file using the #xmlReadFd API and check for errors.
  *
- * Parse a file using the xmlReadFd API and check for errors.
- *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 fdParseTest(const char *filename, const char *result, const char *err,
@@ -2741,7 +2759,7 @@ streamProcessTest(const char *filename, const char *result, const char *err,
 	t = fopen(temp, "wb");
 	if (t == NULL) {
 	    fprintf(stderr, "Can't open temp file %s\n", temp);
-	    free(temp);
+	    xmlFree(temp);
 	    return(-1);
 	}
     }
@@ -2754,7 +2772,7 @@ streamProcessTest(const char *filename, const char *result, const char *err,
 	    fclose(t);
             if (temp != NULL) {
                 unlink(temp);
-                free(temp);
+                xmlFree(temp);
             }
 	    return(0);
 	}
@@ -2781,7 +2799,7 @@ streamProcessTest(const char *filename, const char *result, const char *err,
 	ret = compareFiles(temp, result);
         if (temp != NULL) {
             unlink(temp);
-            free(temp);
+            xmlFree(temp);
         }
 	if (ret) {
 	    fprintf(stderr, "Result for %s failed in %s\n", filename, result);
@@ -2800,15 +2818,192 @@ streamProcessTest(const char *filename, const char *result, const char *err,
     return(0);
 }
 
+#ifdef __linux__
+
 /**
- * streamParseTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
+ * Parse a file using the reader for Fd and checks that the corresponding fd is
+ * correctly closed and there's no memory leak
  *
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
+ */
+static int
+xmlReaderForFdTest(const char *filename, const char *result ATTRIBUTE_UNUSED,
+                   const char *err ATTRIBUTE_UNUSED, int options ATTRIBUTE_UNUSED) {
+    xmlTextReaderPtr reader;
+    int fd = 0;
+    int ret;
+
+    fd = open(filename, O_RDONLY, 0);
+    if (fd == -1) {
+        fprintf(stderr, "Error opening test file %s\n", filename);
+        return 1;
+    }
+
+    reader = xmlReaderForFd(fd, filename, NULL, 0);
+    if (reader) {
+        xmlFreeTextReader(reader);
+    } else {
+        fprintf(stderr, "Error creating reader for file %s\n", filename);
+        ret = 1;
+    }
+
+    /* Ensure that no new fd was created and never closed */
+    ret = fcntl(fd + 1, F_GETFD);
+    if (ret != -1) {
+        fprintf(stderr, "File descriptor %d was not closed correctly %s\n", fd + 1, filename);
+    } else {
+        ret = 0;
+    }
+
+    /* Ensure that the manual open fd is still open */
+    ret = fcntl(fd, F_GETFD);
+    if (ret != 0) {
+        fprintf(stderr, "File descriptor %d was early closed correctly %s\n", fd, filename);
+    }
+
+    close(fd);
+
+    /* Check if we close the fd correctly */
+    ret = fcntl(fd, F_GETFD);
+    if (ret != -1) {
+        fprintf(stderr, "File descriptor %d was not closed correctly %s\n", fd, filename);
+    } else {
+        ret = 0;
+    }
+
+    return(ret);
+}
+
+#if defined(LIBXML_ZLIB_ENABLED) && defined(LIBXML_OUTPUT_ENABLED)
+static int
+xmllintGzWrite(void *ctxt, const char *buf, int len) {
+    return gzwrite(ctxt, buf, len);
+}
+
+static int
+xmllintGzClose(void *ctxt) {
+    if (gzclose(ctxt) != Z_OK)
+        return -1;
+
+    return 0;
+}
+
+/**
+ * Parse a file using the reader for Fd and checks that the corresponding fd is
+ * correctly closed and there's no memory leak
+ *
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
+ */
+static int
+xmlReaderForFdGzTest(const char *filename, const char *result ATTRIBUTE_UNUSED,
+                     const char *err ATTRIBUTE_UNUSED, int options ATTRIBUTE_UNUSED) {
+    /** Gzip the file and test again to verify the zipper branch */
+    char tmp[500] = {0};
+    gzFile gz = NULL;
+    xmlSaveCtxtPtr ctxt = NULL;
+    xmlDocPtr doc = NULL;
+    int ret = 0;
+
+    if (snprintf(tmp, 499, "%s.gz", baseFilename(filename)) >= 499) {
+        tmp[499] = 0;
+    }
+
+    gz = gzopen(tmp, "wb9");
+    if (gz == NULL) {
+        fprintf(stderr, "Error creating gz file %s\n", tmp);
+        return 1;
+    }
+
+    doc = xmlReadFile(filename, NULL, 0);
+    if (doc == NULL) {
+        fprintf(stderr, "Error reading test doc %s\n", filename);
+        gzclose(gz);
+        return 1;
+    }
+    ctxt = xmlSaveToIO(xmllintGzWrite, xmllintGzClose, gz, NULL, 0);
+    if (ctxt == NULL) {
+        fprintf(stderr, "Error creating save contxt %s\n", tmp);
+        xmlFreeDoc(doc);
+        gzclose(gz);
+        return 1;
+    }
+
+    if (xmlSaveDoc(ctxt, doc) < 0) {
+        fprintf(stderr, "Error saving file %s\n", tmp);
+        xmlSaveClose(ctxt);
+        xmlFreeDoc(doc);
+        return 1;
+    }
+
+    xmlSaveClose(ctxt);
+    xmlFreeDoc(doc);
+
+    ret = xmlReaderForFdTest(tmp, NULL, NULL, 0);
+    unlink(tmp);
+
+    return(ret);
+}
+#endif
+
+#endif
+
+#ifdef LIBXML_READER_ENABLED
+/**
+ * Checking that xmlTextReaderReadOuterXml copy the XML_DTD_NODE
+ *
+ * xmlTextReaderReadOuterXml does not copy XML_DTD_NODE since libxml2 2.13.0
+ * https://gitlab.gnome.org/GNOME/libxml2/-/issues/1108
+ */
+static int
+xmlTextReaderReadOuterXmlTest(const char *filename ATTRIBUTE_UNUSED,
+                              const char *result ATTRIBUTE_UNUSED,
+                              const char *err ATTRIBUTE_UNUSED,
+                              int options ATTRIBUTE_UNUSED) {
+    xmlTextReaderPtr reader = NULL;
+    int ret = 0;
+    int res = 1;
+    xmlChar *out = NULL;
+
+    const char *doc = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                      "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\""
+                      "  \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">"
+                      "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"400\" height=\"300\">"
+                      "  <rect width=\"400\" height=\"300\" fill=\"white\"/>"
+                      "</svg>";
+
+    reader = xmlReaderForMemory(doc, strlen(doc), "doc.svg", NULL, XML_PARSE_NOENT);
+
+    while (res == 1) {
+        res = xmlTextReaderRead(reader);
+        if (xmlTextReaderNodeType(reader) == XML_READER_TYPE_DOCUMENT_TYPE) {
+            out = xmlTextReaderReadOuterXml(reader);
+            ret = xmlStrEqual(out, BAD_CAST "<!DOCTYPE svg PUBLIC \"-//W3C//DTD //SVG //1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">") == 1;
+            if (out != NULL) {
+                xmlFree(out);
+                out = NULL;
+            }
+            break;
+        }
+    }
+
+    xmlFreeTextReader(reader);
+    return(ret);
+}
+#endif
+
+/**
  * Parse a file using the reader API and check for errors.
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 streamParseTest(const char *filename, const char *result, const char *err,
@@ -2825,14 +3020,12 @@ streamParseTest(const char *filename, const char *result, const char *err,
 }
 
 /**
- * walkerParseTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a file using the walker, i.e. a reader built from a atree.
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 walkerParseTest(const char *filename, const char *result, const char *err,
@@ -2854,14 +3047,12 @@ walkerParseTest(const char *filename, const char *result, const char *err,
 }
 
 /**
- * streamMemParseTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a file using the reader API from memory and check for errors.
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 streamMemParseTest(const char *filename, const char *result, const char *err,
@@ -2882,7 +3073,7 @@ streamMemParseTest(const char *filename, const char *result, const char *err,
     xmlTextReaderSetStructuredErrorHandler(reader, testStructuredErrorHandler,
                                            NULL);
     ret = streamProcessTest(filename, result, err, reader, NULL, options);
-    free((char *)base);
+    xmlFree((char *)base);
     xmlFreeTextReader(reader);
     return(ret);
 }
@@ -2937,14 +3128,12 @@ testXPath(const char *str, int xptr, int expr) {
 }
 
 /**
- * xpathExprTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a file containing XPath standalone expressions and evaluate them
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 xpathCommonTest(const char *filename, const char *result,
@@ -2962,7 +3151,7 @@ xpathCommonTest(const char *filename, const char *result,
     xpathOutput = fopen(temp, "wb");
     if (xpathOutput == NULL) {
 	fprintf(stderr, "failed to open output file %s\n", temp);
-        free(temp);
+        xmlFree(temp);
 	return(-1);
     }
 
@@ -2970,7 +3159,7 @@ xpathCommonTest(const char *filename, const char *result,
     if (input == NULL) {
         fprintf(stderr,
 		"Cannot open %s for reading\n", filename);
-        free(temp);
+        xmlFree(temp);
 	return(-1);
     }
     while (fgets(expression, 4500, input) != NULL) {
@@ -2999,20 +3188,18 @@ xpathCommonTest(const char *filename, const char *result,
 
     if (temp != NULL) {
         unlink(temp);
-        free(temp);
+        xmlFree(temp);
     }
     return(ret);
 }
 
 /**
- * xpathExprTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a file containing XPath standalone expressions and evaluate them
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 xpathExprTest(const char *filename, const char *result,
@@ -3022,15 +3209,13 @@ xpathExprTest(const char *filename, const char *result,
 }
 
 /**
- * xpathDocTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a file containing XPath expressions and evaluate them against
  * a set of corresponding documents.
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 xpathDocTest(const char *filename,
@@ -3074,15 +3259,13 @@ xpathDocTest(const char *filename,
 
 #ifdef LIBXML_XPTR_ENABLED
 /**
- * xptrDocTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a file containing XPath expressions and evaluate them against
  * a set of corresponding documents.
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 xptrDocTest(const char *filename,
@@ -3127,15 +3310,13 @@ xptrDocTest(const char *filename,
 
 #ifdef LIBXML_VALID_ENABLED
 /**
- * xmlidDocTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a file containing xml:id and check for errors and verify
  * that XPath queries will work on them as expected.
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 xmlidDocTest(const char *filename,
@@ -3166,7 +3347,7 @@ xmlidDocTest(const char *filename,
     if (xpathOutput == NULL) {
 	fprintf(stderr, "failed to open output file %s\n", temp);
         xmlFreeDoc(xpathDocument);
-        free(temp);
+        xmlFree(temp);
 	return(-1);
     }
 
@@ -3183,7 +3364,7 @@ xmlidDocTest(const char *filename,
 
     if (temp != NULL) {
         unlink(temp);
-        free(temp);
+        xmlFree(temp);
     }
     xmlFreeDoc(xpathDocument);
 
@@ -3237,14 +3418,12 @@ handleURI(const char *str, const char *base, FILE *o) {
 }
 
 /**
- * uriCommonTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a file containing URI and check for errors
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 uriCommonTest(const char *filename,
@@ -3264,7 +3443,7 @@ uriCommonTest(const char *filename,
     o = fopen(temp, "wb");
     if (o == NULL) {
 	fprintf(stderr, "failed to open output file %s\n", temp);
-        free(temp);
+        xmlFree(temp);
 	return(-1);
     }
     f = fopen(filename, "rb");
@@ -3273,7 +3452,7 @@ uriCommonTest(const char *filename,
 	fclose(o);
         if (temp != NULL) {
             unlink(temp);
-            free(temp);
+            xmlFree(temp);
         }
 	return(-1);
     }
@@ -3319,20 +3498,18 @@ uriCommonTest(const char *filename,
 
     if (temp != NULL) {
         unlink(temp);
-        free(temp);
+        xmlFree(temp);
     }
     return(res);
 }
 
 /**
- * uriParseTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a file containing URI and check for errors
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 uriParseTest(const char *filename,
@@ -3343,15 +3520,13 @@ uriParseTest(const char *filename,
 }
 
 /**
- * uriBaseTest:
- * @filename: the file to parse
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a file containing URI, compose them against a fixed base and
  * check for errors
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the file to parse
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 uriBaseTest(const char *filename,
@@ -3399,12 +3574,10 @@ static const char *urip_cur = NULL;
 static int urip_rlen;
 
 /**
- * uripMatch:
- * @URI: an URI to test
- *
  * Check for an urip: query
  *
- * Returns 1 if yes and 0 if another Input module should be used
+ * @param URI  an URI to test
+ * @returns 1 if yes and 0 if another Input module should be used
  */
 static int
 uripMatch(const char * URI) {
@@ -3420,13 +3593,11 @@ uripMatch(const char * URI) {
 }
 
 /**
- * uripOpen:
- * @URI: an URI to test
- *
- * Return a pointer to the urip: query handler, in this example simply
+ * Returns a pointer to the urip: query handler, in this example simply
  * the urip_current pointer...
  *
- * Returns an Input context or NULL in case or error
+ * @param URI  an URI to test
+ * @returns an Input context or NULL in case or error
  */
 static void *
 uripOpen(const char * URI) {
@@ -3444,12 +3615,10 @@ uripOpen(const char * URI) {
 }
 
 /**
- * uripClose:
- * @context: the read context
- *
  * Close the urip: query handler
  *
- * Returns 0 or -1 in case of error
+ * @param context  the read context
+ * @returns 0 or -1 in case of error
  */
 static int
 uripClose(void * context) {
@@ -3460,14 +3629,12 @@ uripClose(void * context) {
 }
 
 /**
- * uripRead:
- * @context: the read context
- * @buffer: where to store data
- * @len: number of bytes to read
- *
  * Implement an urip: query read.
  *
- * Returns the number of bytes read or -1 in case of error
+ * @param context  the read context
+ * @param buffer  where to store data
+ * @param len  number of bytes to read
+ * @returns the number of bytes read or -1 in case of error
  */
 static int
 uripRead(void * context, char * buffer, int len) {
@@ -3494,15 +3661,13 @@ urip_checkURL(const char *URL) {
 }
 
 /**
- * uriPathTest:
- * @filename: ignored
- * @result: ignored
- * @err: ignored
- *
  * Run a set of tests to check how Path and URI are handled before
  * being passed to the I/O layer
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  ignored
+ * @param result  ignored
+ * @param err  ignored
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 uriPathTest(const char *filename ATTRIBUTE_UNUSED,
@@ -3567,9 +3732,6 @@ schemasOneTest(const char *sch,
         testErrorsSize = parseErrorsSize;
         testErrors[parseErrorsSize] = 0;
 
-        if (schemas == NULL)
-            goto done;
-
         ctxt = xmlSchemaNewValidCtxt(schemas);
         xmlSchemaSetValidStructuredErrors(ctxt, testStructuredErrorHandler,
                                           NULL);
@@ -3580,6 +3742,7 @@ schemasOneTest(const char *sch,
             doc = xmlReadFile(filename, NULL, options);
             if (doc == NULL) {
                 fprintf(stderr, "failed to parse instance %s for %s\n", filename, sch);
+                xmlSchemaFreeValidCtxt(ctxt);
                 return(-1);
             }
             validResult = xmlSchemaValidateDoc(ctxt, doc);
@@ -3599,9 +3762,9 @@ schemasOneTest(const char *sch,
 
         xmlSchemaFreeValidCtxt(ctxt);
 
-done:
         if (compareFileMem(err, testErrors, testErrorsSize)) {
-            fprintf(stderr, "Error for %s on %s failed\n", filename, sch);
+            fprintf(stderr, "Error for %s on %s failed in round %d: %s\n",
+                filename, sch, i, testErrors);
             ret = 1;
         }
     }
@@ -3609,15 +3772,13 @@ done:
     return(ret);
 }
 /**
- * schemasTest:
- * @filename: the schemas file
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a file containing URI, compose them against a fixed base and
  * check for errors
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the schemas file
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 schemasTest(const char *filename,
@@ -3692,14 +3853,57 @@ schemasTest(const char *filename,
 	}
 
         nb_tests++;
-        ret = schemasOneTest(filename, instance, err, options, schemas);
-        if (ret != 0)
-            res = ret;
+        if (schemas == NULL) {
+            /* schema load failed, verify the error message*/
+            if (compareFileMem(err, testErrors, testErrorsSize)) {
+                fprintf(stderr, "Error for %s failed\n", filename);
+                res = 1;
+            }
+        } else {
+            ret = schemasOneTest(filename, instance, err, options, schemas);
+            if (ret != 0)
+                res = ret;
+        }
     }
     globfree(&globbuf);
     xmlSchemaFree(schemas);
 
     return(res);
+}
+
+/**
+ * Validate an XML instance using XSI-based dynamic schema assembly.
+ * The validation context is created with a NULL schema, so the schema
+ * is discovered from xsi:schemaLocation in the instance document.
+ *
+ * @param filename  the XML instance file
+ * @param result  unused
+ * @param err  unused
+ * @param options  parser options
+ * @returns 0 in case of success, an error code otherwise
+ */
+static int
+schemasXsiTest(const char *filename,
+               const char *resul ATTRIBUTE_UNUSED,
+               const char *errr ATTRIBUTE_UNUSED,
+               int options) {
+    const char *base = baseFilename(filename);
+    int len, ret;
+    char err[500];
+    char prefix[500];
+
+    len = strlen(base);
+    if ((len > 499) || (len < 5))
+        return(-1);
+    memcpy(prefix, base, len - 4); /* remove .xml */
+    prefix[len - 4] = 0;
+
+    ret = snprintf(err, 499, "result/schemas/%s_0.err", prefix);
+    if (ret >= 499)
+        err[499] = 0;
+
+    nb_tests++;
+    return(schemasOneTest(filename, filename, err, options, NULL));
 }
 #endif /* LIBXML_SCHEMAS_ENABLED */
 
@@ -3742,14 +3946,12 @@ rngOneTest(const char *sch,
     return(0);
 }
 /**
- * rngTest:
- * @filename: the schemas file
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse an RNG schemas and then apply it to the related .xml
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the schemas file
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 rngTest(const char *filename,
@@ -3832,16 +4034,78 @@ rngTest(const char *filename,
     return(ret);
 }
 
+/**
+ * Parse an RNG schemas with a custom RNG_INCLUDE_LIMIT
+ *
+ * @param filename  the schemas file
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
+ */
+static int
+rngIncludeTest(const char *filename,
+               const char *resul ATTRIBUTE_UNUSED,
+               const char *errr ATTRIBUTE_UNUSED,
+               int options ATTRIBUTE_UNUSED) {
+    xmlRelaxNGParserCtxtPtr ctxt;
+    xmlRelaxNGPtr schemas;
+    int ret = 0;
+
+    /* first compile the schemas if possible */
+    ctxt = xmlRelaxNGNewParserCtxt(filename);
+    xmlRelaxNGSetParserStructuredErrors(ctxt, testStructuredErrorHandler,
+                                        NULL);
+
+    /* Should work */
+    schemas = xmlRelaxNGParse(ctxt);
+    if (schemas == NULL) {
+        testErrorHandler(NULL, "Relax-NG schema %s failed to compile\n",
+                         filename);
+        ret = -1;
+        goto done;
+    }
+    xmlRelaxNGFree(schemas);
+    xmlRelaxNGFreeParserCtxt(ctxt);
+
+    ctxt = xmlRelaxNGNewParserCtxt(filename);
+    /* Should fail */
+    xmlRelaxParserSetIncLImit(ctxt, 2);
+    xmlRelaxNGSetParserStructuredErrors(ctxt, testStructuredErrorHandler,
+                                        NULL);
+    schemas = xmlRelaxNGParse(ctxt);
+    if (schemas != NULL) {
+        ret = -1;
+        xmlRelaxNGFree(schemas);
+    }
+    xmlRelaxNGFreeParserCtxt(ctxt);
+
+    ctxt = xmlRelaxNGNewParserCtxt(filename);
+    /* Should work */
+    xmlRelaxParserSetIncLImit(ctxt, 3);
+    xmlRelaxNGSetParserStructuredErrors(ctxt, testStructuredErrorHandler,
+                                        NULL);
+    schemas = xmlRelaxNGParse(ctxt);
+    if (schemas == NULL) {
+        testErrorHandler(NULL, "Relax-NG schema %s failed to compile\n",
+                         filename);
+        ret = -1;
+        goto done;
+    }
+    xmlRelaxNGFree(schemas);
+
+done:
+    xmlRelaxNGFreeParserCtxt(ctxt);
+    return(ret);
+}
+
 #ifdef LIBXML_READER_ENABLED
 /**
- * rngStreamTest:
- * @filename: the schemas file
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a set of files with streaming, applying an RNG schemas
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the schemas file
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 rngStreamTest(const char *filename,
@@ -3880,7 +4144,7 @@ rngStreamTest(const char *filename,
      */
     if ((!strcmp(prefix, "tutor10_1")) || (!strcmp(prefix, "tutor10_2")) ||
         (!strcmp(prefix, "tutor3_2")) || (!strcmp(prefix, "307377")) ||
-        (!strcmp(prefix, "tutor8_2")))
+        (!strcmp(prefix, "tutor8_2")) || (!strcmp(prefix, "simplifyChoiceNotAllowed")))
 	disable_err = 1;
 
     if (snprintf(pattern, 499, "./test/relaxng/%s_?.xml", prefix) >= 499)
@@ -3973,12 +4237,10 @@ schematronOneTest(const char *sch, const char *filename, int options,
 }
 
 /**
- * schematronTest:
- * @filename: the schemas file
- * @result: the file with expected result
- * @err: the file with error messages
- *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the schemas file
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 schematronTest(const char *filename,
@@ -4130,14 +4392,12 @@ static void patternNode(FILE *out, xmlTextReaderPtr reader,
 }
 
 /**
- * patternTest:
- * @filename: the schemas file
- * @result: the file with expected result
- * @err: the file with error messages
- *
  * Parse a set of files with streaming, applying an RNG schemas
  *
- * Returns 0 in case of success, an error code otherwise
+ * @param filename  the schemas file
+ * @param result  the file with expected result
+ * @param err  the file with error messages
+ * @returns 0 in case of success, an error code otherwise
  */
 static int
 patternTest(const char *filename,
@@ -4182,7 +4442,7 @@ patternTest(const char *filename,
     if (o == NULL) {
 	fprintf(stderr, "failed to open output file %s\n", temp);
 	fclose(f);
-        free(temp);
+        xmlFree(temp);
 	return(-1);
     }
     while (1) {
@@ -4268,7 +4528,7 @@ patternTest(const char *filename,
     }
     if (temp != NULL) {
         unlink(temp);
-        free(temp);
+        xmlFree(temp);
     }
     return(ret);
 }
@@ -4376,7 +4636,7 @@ xmlFree(expr);
     buffer = (xmlChar **)						\
 	xmlRealloc(buffer, buffer_size * sizeof(xmlChar*));	\
     if (buffer == NULL) {						\
-	perror("realloc failed");					\
+	perror("xmlRealloc failed");					\
 	return(NULL);							\
     }									\
 }
@@ -4403,7 +4663,7 @@ parse_list(xmlChar *str) {
     buffer_size = 1000;
     buffer = (xmlChar **) xmlMalloc(buffer_size * sizeof(xmlChar*));
     if (buffer == NULL) {
-	perror("malloc failed");
+	perror("xmlMalloc failed");
 	return(NULL);
     }
     out = buffer;
@@ -4505,7 +4765,7 @@ c14nRunTest(const char* xml_filename, int with_comments, int mode,
     if (result != NULL) xmlFree(result);
     if(xpath != NULL) xmlXPathFreeObject(xpath);
     if (inclusive_namespaces != NULL) xmlFree(inclusive_namespaces);
-    if (nslist != NULL) free((char *) nslist);
+    if (nslist != NULL) xmlFree((char *) nslist);
     xmlFreeDoc(doc);
 
     return(ret);
@@ -4531,16 +4791,16 @@ c14nCommonTest(const char *filename, int with_comments, int mode,
 
     if (snprintf(buf, 499, "result/c14n/%s/%s", subdir, prefix) >= 499)
         buf[499] = 0;
-    result = strdup(buf);
+    result = xmlMemStrdup(buf);
     if (snprintf(buf, 499, "test/c14n/%s/%s.xpath", subdir, prefix) >= 499)
         buf[499] = 0;
     if (checkTestFile(buf)) {
-	xpath = strdup(buf);
+	xpath = xmlMemStrdup(buf);
     }
     if (snprintf(buf, 499, "test/c14n/%s/%s.ns", subdir, prefix) >= 499)
         buf[499] = 0;
     if (checkTestFile(buf)) {
-	ns = strdup(buf);
+	ns = xmlMemStrdup(buf);
     }
 
     nb_tests++;
@@ -4548,9 +4808,9 @@ c14nCommonTest(const char *filename, int with_comments, int mode,
                     xpath, ns, result) < 0)
         ret = 1;
 
-    if (result != NULL) free(result);
-    if (xpath != NULL) free(xpath);
-    if (ns != NULL) free(ns);
+    if (result != NULL) xmlFree(result);
+    if (xpath != NULL) xmlFree(xpath);
+    if (ns != NULL) xmlFree(ns);
     return(ret);
 }
 
@@ -4821,7 +5081,7 @@ regexpTest(const char *filename, const char *result, const char *err,
     output = fopen(temp, "wb");
     if (output == NULL) {
 	fprintf(stderr, "failed to open output file %s\n", temp);
-        free(temp);
+        xmlFree(temp);
 	ret = -1;
         goto done;
     }
@@ -4872,7 +5132,7 @@ regexpTest(const char *filename, const char *result, const char *err,
     }
     if (temp != NULL) {
         unlink(temp);
-        free(temp);
+        xmlFree(temp);
     }
 
     ret = compareFileMem(err, testErrors, testErrorsSize);
@@ -4940,7 +5200,7 @@ automataTest(const char *filename, const char *result,
     output = fopen(temp, "wb");
     if (output == NULL) {
 	fprintf(stderr, "failed to open output file %s\n", temp);
-        free(temp);
+        xmlFree(temp);
 	return(-1);
     }
 
@@ -5117,13 +5377,106 @@ automataTest(const char *filename, const char *result,
     }
     if (temp != NULL) {
         unlink(temp);
-        free(temp);
+        xmlFree(temp);
     }
 
     return(res);
 }
 
 #endif /* LIBXML_REGEXP_ENABLED */
+
+/************************************************************************
+ *                                                                      *
+ *                      xmlCopy Tests                                   *
+ *                                                                      *
+ ************************************************************************/
+static int
+xmlCopyEntityTest(const char *filename ATTRIBUTE_UNUSED,
+                  const char *result ATTRIBUTE_UNUSED,
+                  const char *err ATTRIBUTE_UNUSED,
+                  int options ATTRIBUTE_UNUSED) {
+
+    int ret = 0;
+    xmlDocPtr doc = NULL;
+    xmlDocPtr copy = NULL;
+    xmlChar *before = NULL;
+    xmlChar *after = NULL;
+    const char *xml =
+        "<!DOCTYPE x [<!ENTITY e \"AAAA\">]>"
+        "<r ID=\"&e;_suffix\"/>";
+
+    doc = xmlReadMemory(xml, (int)strlen(xml), "doc.xml", NULL, 0);
+    if (!doc) {
+        fprintf(stderr, "xmlReadMemory failed\n");
+        ret = 1;
+        goto done;
+    }
+    copy = xmlCopyDoc(doc, 1);
+    if (!copy) {
+        fprintf(stderr, "xmlCopyDoc failed\n");
+        ret = 1;
+        goto done;
+    }
+
+    before = xmlGetProp(xmlDocGetRootElement(doc), BAD_CAST "ID");
+    after = xmlGetProp(xmlDocGetRootElement(copy), BAD_CAST "ID");
+
+    if (xmlStrcmp(before, after) != 0) {
+        fprintf(stderr, "RESET Attribute value changed after copy!\n");
+        ret = 1;
+    }
+
+done:
+    xmlFree(before);
+    xmlFree(after);
+    xmlFreeDoc(doc);
+    xmlFreeDoc(copy);
+
+    return ret;
+}
+
+static int
+xmlEntityValueNormTest(const char *filename ATTRIBUTE_UNUSED,
+                       const char *result ATTRIBUTE_UNUSED,
+                       const char *err ATTRIBUTE_UNUSED,
+                       int options ATTRIBUTE_UNUSED) {
+    int ret = 0;
+    xmlAttrPtr prop = NULL;
+    const char *str = "<!DOCTYPE doc [\n"
+        "<!ENTITY d  '&#xD;'>\n"
+        "<!ENTITY a  '&#xA;'>\n"
+        "<!ENTITY da '&#xD;&#xA;'>\n"
+        "<!ENTITY b  '&#10;'>\n"
+        "]>\n"
+        "<doc a1='&d;' a2='&a;' a3='&da;'\n"
+        "a4='&d;&d;A&a;&#x20;&a;B&da;'\n"
+        "a5='&#xd;&#xd;A&#xa;&#xa;B&#xd;&#xa;'\n"
+        "a6='&b;'\n"
+        "a7='\n\n&b;xyz'/>";
+    xmlDoc *doc1 = xmlReadDoc(BAD_CAST str, NULL, NULL, 0);
+    xmlDoc *doc2 = xmlReadDoc(BAD_CAST str, NULL, NULL, XML_PARSE_NOENT);
+
+    prop = doc1->children->next->properties;
+    while (prop != NULL) {
+        xmlChar *content1 = xmlGetProp(doc1->children->next, BAD_CAST prop->name);
+        xmlChar *content2 = xmlGetProp(doc2->children->next, BAD_CAST prop->name);
+
+        if (!xmlStrEqual(content1, content2)) {
+            ret = 1;
+            fprintf(stderr, "entity resolution differs %s\n", prop->name);
+        }
+
+        xmlFree(content1);
+        xmlFree(content2);
+
+        prop = prop->next;
+    }
+
+    xmlFreeDoc(doc1);
+    xmlFreeDoc(doc2);
+
+    return ret;
+}
 
 /************************************************************************
  *									*
@@ -5260,6 +5613,12 @@ testDesc testDescriptions[] = {
     { "XInclude regression tests without reader",
       errParseTest, "./test/XInclude/without-reader/*", "result/XInclude/", "",
       ".err", XML_PARSE_XINCLUDE },
+    { "XInclude issue1120 regression tests",
+      errParseTest, "./test/XInclude/issue1120/*", "result/XInclude/", "",
+      ".err", XML_PARSE_XINCLUDE | XML_PARSE_NONET },
+    { "XInclude xmlXIncludeProcess() issue1120 regression tests",
+      xincludeProcessTest, "./test/XInclude/issue1120/*", "result/XInclude/",
+      "", ".err", XML_PARSE_NONET },
 #endif
 #ifdef LIBXML_XPATH_ENABLED
 #ifdef LIBXML_DEBUG_ENABLED
@@ -5294,11 +5653,17 @@ testDesc testDescriptions[] = {
     { "Schemas regression tests" ,
       schemasTest, "./test/schemas/*_*.xsd", NULL, NULL, NULL,
       0 },
+    { "Schemas XSI assembly tests" ,
+      schemasXsiTest, "./test/schemas/any1_0.xml", "result/schemas/",  NULL, NULL,
+      0 },
 #endif
 #ifdef LIBXML_RELAXNG_ENABLED
     { "Relax-NG regression tests" ,
       rngTest, "./test/relaxng/*.rng", NULL, NULL, NULL,
       XML_PARSE_DTDATTR | XML_PARSE_NOENT },
+    { "Relax-NG include limit tests" ,
+      rngIncludeTest, "./test/relaxng/include/include-limit.rng", NULL, NULL, NULL,
+      0 },
 #ifdef LIBXML_READER_ENABLED
     { "Relax-NG streaming regression tests" ,
       rngStreamTest, "./test/relaxng/*.rng", NULL, NULL, NULL,
@@ -5347,6 +5712,22 @@ testDesc testDescriptions[] = {
       automataTest, "./test/automata/*", "result/automata/", "", NULL,
       0 },
 #endif
+
+#if defined(LIBXML_READER_ENABLED) && defined(__linux__)
+    { "xmlReaderForFd memory leak tests",
+      xmlReaderForFdTest, "./test/slashdot.xml", NULL, NULL, NULL, 0 },
+#if defined(LIBXML_OUTPUT_ENABLED) && defined(LIBXML_ZLIB_ENABLED)
+    { "xmlReaderForFdGz memory leak tests",
+      xmlReaderForFdGzTest, "./test/slashdot.xml", NULL, NULL, NULL, 0 },
+#endif
+#endif
+#if defined(LIBXML_OUTPUT_ENABLED) && defined(LIBXML_READER_ENABLED)
+    { "xmlTextReaderReadOuterXml copy XML_DTD_NODE",
+      xmlTextReaderReadOuterXmlTest, NULL, NULL, NULL, NULL, 0 },
+#endif
+    { "xmlCopyEntity children test" , xmlCopyEntityTest, NULL, NULL, NULL, NULL, 0 },
+    { "xml Entity values normalization" , xmlEntityValueNormTest, NULL, NULL, NULL, NULL, 0 },
+
     {NULL, NULL, NULL, NULL, NULL, NULL, 0}
 };
 
@@ -5446,9 +5827,9 @@ launchTests(testDescPtr tst) {
             }
             testErrorsSize = 0;
 	    if (result)
-		free(result);
+		xmlFree(result);
 	    if (error)
-		free(error);
+		xmlFree(error);
 	}
 	globfree(&globbuf);
     } else {

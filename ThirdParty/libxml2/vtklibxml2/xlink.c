@@ -4,7 +4,7 @@
  *
  * See Copyright for the status of this software.
  *
- * daniel@veillard.com
+ * Author: Daniel Veillard
  */
 
 
@@ -34,41 +34,36 @@ static xlinkHandlerPtr xlinkDefaultHandler = NULL;
 static xlinkNodeDetectFunc	xlinkDefaultDetect = NULL;
 
 /**
- * xlinkGetDefaultHandler:
- *
- * DEPRECATED: Don't use.
- *
  * Get the default xlink handler.
  *
- * Returns the current xlinkHandlerPtr value.
+ * @deprecated Don't use.
+ *
+ * @returns the current xlinkHandler value.
  */
-xlinkHandlerPtr
+xlinkHandler *
 xlinkGetDefaultHandler(void) {
     return(xlinkDefaultHandler);
 }
 
 
 /**
- * xlinkSetDefaultHandler:
- * @handler:  the new value for the xlink handler block
- *
- * DEPRECATED: Don't use.
- *
  * Set the default xlink handlers
+ *
+ * @deprecated Don't use.
+ *
+ * @param handler  the new value for the xlink handler block
  */
 void
-xlinkSetDefaultHandler(xlinkHandlerPtr handler) {
+xlinkSetDefaultHandler(xlinkHandler *handler) {
     xlinkDefaultHandler = handler;
 }
 
 /**
- * xlinkGetDefaultDetect:
- *
- * DEPRECATED: Don't use.
- *
  * Get the default xlink detection routine
  *
- * Returns the current function or NULL;
+ * @deprecated Don't use.
+ *
+ * @returns the current function or NULL;
  */
 xlinkNodeDetectFunc
 xlinkGetDefaultDetect	(void) {
@@ -76,12 +71,11 @@ xlinkGetDefaultDetect	(void) {
 }
 
 /**
- * xlinkSetDefaultDetect:
- * @func: pointer to the new detection routine.
- *
- * DEPRECATED: Don't use.
- *
  * Set the default xlink detection routine
+ *
+ * @deprecated Don't use.
+ *
+ * @param func  pointer to the new detection routine.
  */
 void
 xlinkSetDefaultDetect	(xlinkNodeDetectFunc func) {
@@ -96,21 +90,21 @@ xlinkSetDefaultDetect	(xlinkNodeDetectFunc func) {
 
 
 /**
- * xlinkIsLink:
- * @doc:  the document containing the node
- * @node:  the node pointer itself
- *
  * Check whether the given node carries the attributes needed
  * to be a link element (or is one of the linking elements issued
  * from the (X)HTML DtDs).
  * This routine don't try to do full checking of the link validity
  * but tries to detect and return the appropriate link type.
  *
- * Returns the xlinkType of the node (XLINK_TYPE_NONE if there is no
+ * @deprecated The XLink code was never finished.
+ *
+ * @param doc  the document containing the node
+ * @param node  the node pointer itself
+ * @returns the xlinkType of the node (XLINK_TYPE_NONE if there is no
  *         link detected.
  */
 xlinkType
-xlinkIsLink	(xmlDocPtr doc, xmlNodePtr node) {
+xlinkIsLink	(xmlDoc *doc, xmlNode *node) {
     xmlChar *type = NULL, *role = NULL;
     xlinkType ret = XLINK_TYPE_NONE;
 

@@ -4,7 +4,7 @@
  *
  * See Copyright for the status of this software.
  *
- * Daniel Veillard <daniel@veillard.com>
+ * Author: Daniel Veillard
  */
 
 #define IN_LIBXML
@@ -70,13 +70,11 @@ xmlCtxtDumpCleanCtxt(xmlDebugCtxtPtr ctxt ATTRIBUTE_UNUSED)
 }
 
 /**
- * xmlNsCheckScope:
- * @node: the node
- * @ns: the namespace node
- *
  * Check that a given namespace is in scope on a node.
  *
- * Returns 1 if in scope, -1 in case of argument error,
+ * @param node  the node
+ * @param ns  the namespace node
+ * @returns 1 if in scope, -1 in case of argument error,
  *         -2 if the namespace is not in scope, and -3 if not on
  *         an ancestor node.
  */
@@ -139,11 +137,11 @@ xmlCtxtDumpSpaces(xmlDebugCtxtPtr ctxt)
 }
 
 /**
- * xmlDebugErr:
- * @ctxt:  a debug context
- * @error:  the error code
- *
  * Handle a debug error.
+ *
+ * @param ctxt  a debug context
+ * @param error  the error code
+ * @param msg  the error message
  */
 static void
 xmlDebugErr(xmlDebugCtxtPtr ctxt, int error, const char *msg)
@@ -167,12 +165,11 @@ xmlDebugErr3(xmlDebugCtxtPtr ctxt, int error, const char *msg, const char *extra
 }
 
 /**
- * xmlCtxtNsCheckScope:
- * @ctxt: the debugging context
- * @node: the node
- * @ns: the namespace node
- *
  * Report if a given namespace is is not in scope.
+ *
+ * @param ctxt  the debugging context
+ * @param node  the node
+ * @param ns  the namespace node
  */
 static void
 xmlCtxtNsCheckScope(xmlDebugCtxtPtr ctxt, xmlNodePtr node, xmlNsPtr ns)
@@ -201,11 +198,10 @@ xmlCtxtNsCheckScope(xmlDebugCtxtPtr ctxt, xmlNodePtr node, xmlNsPtr ns)
 }
 
 /**
- * xmlCtxtCheckString:
- * @ctxt: the debug context
- * @str: the string
- *
  * Do debugging on the string, currently it just checks the UTF-8 content
+ *
+ * @param ctxt  the debug context
+ * @param str  the string
  */
 static void
 xmlCtxtCheckString(xmlDebugCtxtPtr ctxt, const xmlChar * str)
@@ -220,12 +216,11 @@ xmlCtxtCheckString(xmlDebugCtxtPtr ctxt, const xmlChar * str)
 }
 
 /**
- * xmlCtxtCheckName:
- * @ctxt: the debug context
- * @name: the name
- *
  * Do debugging on the name, for example the dictionary status and
  * conformance to the Name production.
+ *
+ * @param ctxt  the debug context
+ * @param name  the name
  */
 static void
 xmlCtxtCheckName(xmlDebugCtxtPtr ctxt, const xmlChar * name)
@@ -343,12 +338,6 @@ xmlCtxtGenericNodeCheck(xmlDebugCtxtPtr ctxt, xmlNodePtr node) {
 	    if ((node->name == xmlStringText) ||
 	        (node->name == xmlStringTextNoenc))
 		break;
-	    /* some case of entity substitution can lead to this */
-	    if ((ctxt->dict != NULL) &&
-	        (node->name == xmlDictLookup(ctxt->dict, BAD_CAST "nbktext",
-		                             7)))
-		break;
-
 	    xmlDebugErr3(ctxt, XML_CHECK_WRONG_NAME,
 			 "Text node has wrong name '%s'",
 			 (const char *) node->name);
@@ -783,12 +772,10 @@ xmlCtxtDumpEntity(xmlDebugCtxtPtr ctxt, xmlEntityPtr ent)
 }
 
 /**
- * xmlCtxtDumpAttr:
- * @output:  the FILE * for the output
- * @attr:  the attribute
- * @depth:  the indentation level.
- *
  * Dumps debug information for the attribute
+ *
+ * @param ctxt  the debug context
+ * @param attr  the attribute
  */
 static void
 xmlCtxtDumpAttr(xmlDebugCtxtPtr ctxt, xmlAttrPtr attr)
@@ -821,12 +808,10 @@ xmlCtxtDumpAttr(xmlDebugCtxtPtr ctxt, xmlAttrPtr attr)
 }
 
 /**
- * xmlCtxtDumpAttrList:
- * @output:  the FILE * for the output
- * @attr:  the attribute list
- * @depth:  the indentation level.
- *
  * Dumps debug information for the attribute list
+ *
+ * @param ctxt  the debug context
+ * @param attr  the attribute list
  */
 static void
 xmlCtxtDumpAttrList(xmlDebugCtxtPtr ctxt, xmlAttrPtr attr)
@@ -838,12 +823,10 @@ xmlCtxtDumpAttrList(xmlDebugCtxtPtr ctxt, xmlAttrPtr attr)
 }
 
 /**
- * xmlCtxtDumpOneNode:
- * @output:  the FILE * for the output
- * @node:  the node
- * @depth:  the indentation level.
+ * Dumps debug information for the element node, it is not recursive/
  *
- * Dumps debug information for the element node, it is not recursive
+ * @param ctxt  the debug context
+ * @param node  the node
  */
 static void
 xmlCtxtDumpOneNode(xmlDebugCtxtPtr ctxt, xmlNodePtr node)
@@ -1021,12 +1004,10 @@ xmlCtxtDumpOneNode(xmlDebugCtxtPtr ctxt, xmlNodePtr node)
 }
 
 /**
- * xmlCtxtDumpNode:
- * @output:  the FILE * for the output
- * @node:  the node
- * @depth:  the indentation level.
- *
  * Dumps debug information for the element node, it is recursive
+ *
+ * @param ctxt  the debug context
+ * @param node  the node
  */
 static void
 xmlCtxtDumpNode(xmlDebugCtxtPtr ctxt, xmlNodePtr node)
@@ -1048,12 +1029,10 @@ xmlCtxtDumpNode(xmlDebugCtxtPtr ctxt, xmlNodePtr node)
 }
 
 /**
- * xmlCtxtDumpNodeList:
- * @output:  the FILE * for the output
- * @node:  the node list
- * @depth:  the indentation level.
- *
  * Dumps debug information for the list of element node, it is recursive
+ *
+ * @param ctxt  the debug context
+ * @param node  the node list
  */
 static void
 xmlCtxtDumpNodeList(xmlDebugCtxtPtr ctxt, xmlNodePtr node)
@@ -1134,11 +1113,10 @@ xmlCtxtDumpDocHead(xmlDebugCtxtPtr ctxt, xmlDocPtr doc)
 }
 
 /**
- * xmlCtxtDumpDocumentHead:
- * @output:  the FILE * for the output
- * @doc:  the document
- *
  * Dumps debug information concerning the document, not recursive
+ *
+ * @param ctxt  the debug context
+ * @param doc  the document
  */
 static void
 xmlCtxtDumpDocumentHead(xmlDebugCtxtPtr ctxt, xmlDocPtr doc)
@@ -1174,11 +1152,10 @@ xmlCtxtDumpDocumentHead(xmlDebugCtxtPtr ctxt, xmlDocPtr doc)
 }
 
 /**
- * xmlCtxtDumpDocument:
- * @output:  the FILE * for the output
- * @doc:  the document
- *
  * Dumps debug information for the document, it's recursive
+ *
+ * @param ctxt  the debug context
+ * @param doc  the document
  */
 static void
 xmlCtxtDumpDocument(xmlDebugCtxtPtr ctxt, xmlDocPtr doc)
@@ -1245,11 +1222,10 @@ xmlCtxtDumpEntityCallback(void *payload, void *data,
 }
 
 /**
- * xmlCtxtDumpEntities:
- * @output:  the FILE * for the output
- * @doc:  the document
- *
  * Dumps debug information for all the entities in use by the document
+ *
+ * @param ctxt  the debug context
+ * @param doc  the document
  */
 static void
 xmlCtxtDumpEntities(xmlDebugCtxtPtr ctxt, xmlDocPtr doc)
@@ -1277,11 +1253,10 @@ xmlCtxtDumpEntities(xmlDebugCtxtPtr ctxt, xmlDocPtr doc)
 }
 
 /**
- * xmlCtxtDumpDTD:
- * @output:  the FILE * for the output
- * @dtd:  the DTD
- *
  * Dumps debug information for the DTD
+ *
+ * @param ctxt  the debug context
+ * @param dtd  the DTD
  */
 static void
 xmlCtxtDumpDTD(xmlDebugCtxtPtr ctxt, xmlDtdPtr dtd)
@@ -1308,11 +1283,10 @@ xmlCtxtDumpDTD(xmlDebugCtxtPtr ctxt, xmlDtdPtr dtd)
  ************************************************************************/
 
 /**
- * xmlDebugDumpString:
- * @output:  the FILE * for the output
- * @str:  the string
- *
  * Dumps information about the string, shorten it if necessary
+ *
+ * @param output  the FILE * for the output
+ * @param str  the string
  */
 void
 xmlDebugDumpString(FILE * output, const xmlChar * str)
@@ -1338,15 +1312,14 @@ xmlDebugDumpString(FILE * output, const xmlChar * str)
 }
 
 /**
- * xmlDebugDumpAttr:
- * @output:  the FILE * for the output
- * @attr:  the attribute
- * @depth:  the indentation level.
- *
  * Dumps debug information for the attribute
+ *
+ * @param output  the FILE * for the output
+ * @param attr  the attribute
+ * @param depth  the indentation level.
  */
 void
-xmlDebugDumpAttr(FILE *output, xmlAttrPtr attr, int depth) {
+xmlDebugDumpAttr(FILE *output, xmlAttr *attr, int depth) {
     xmlDebugCtxt ctxt;
 
     if (output == NULL) return;
@@ -1359,14 +1332,13 @@ xmlDebugDumpAttr(FILE *output, xmlAttrPtr attr, int depth) {
 
 
 /**
- * xmlDebugDumpEntities:
- * @output:  the FILE * for the output
- * @doc:  the document
- *
  * Dumps debug information for all the entities in use by the document
+ *
+ * @param output  the FILE * for the output
+ * @param doc  the document
  */
 void
-xmlDebugDumpEntities(FILE * output, xmlDocPtr doc)
+xmlDebugDumpEntities(FILE * output, xmlDoc *doc)
 {
     xmlDebugCtxt ctxt;
 
@@ -1378,15 +1350,14 @@ xmlDebugDumpEntities(FILE * output, xmlDocPtr doc)
 }
 
 /**
- * xmlDebugDumpAttrList:
- * @output:  the FILE * for the output
- * @attr:  the attribute list
- * @depth:  the indentation level.
- *
  * Dumps debug information for the attribute list
+ *
+ * @param output  the FILE * for the output
+ * @param attr  the attribute list
+ * @param depth  the indentation level.
  */
 void
-xmlDebugDumpAttrList(FILE * output, xmlAttrPtr attr, int depth)
+xmlDebugDumpAttrList(FILE * output, xmlAttr *attr, int depth)
 {
     xmlDebugCtxt ctxt;
 
@@ -1399,15 +1370,14 @@ xmlDebugDumpAttrList(FILE * output, xmlAttrPtr attr, int depth)
 }
 
 /**
- * xmlDebugDumpOneNode:
- * @output:  the FILE * for the output
- * @node:  the node
- * @depth:  the indentation level.
- *
  * Dumps debug information for the element node, it is not recursive
+ *
+ * @param output  the FILE * for the output
+ * @param node  the node
+ * @param depth  the indentation level.
  */
 void
-xmlDebugDumpOneNode(FILE * output, xmlNodePtr node, int depth)
+xmlDebugDumpOneNode(FILE * output, xmlNode *node, int depth)
 {
     xmlDebugCtxt ctxt;
 
@@ -1420,15 +1390,14 @@ xmlDebugDumpOneNode(FILE * output, xmlNodePtr node, int depth)
 }
 
 /**
- * xmlDebugDumpNode:
- * @output:  the FILE * for the output
- * @node:  the node
- * @depth:  the indentation level.
- *
  * Dumps debug information for the element node, it is recursive
+ *
+ * @param output  the FILE * for the output
+ * @param node  the node
+ * @param depth  the indentation level.
  */
 void
-xmlDebugDumpNode(FILE * output, xmlNodePtr node, int depth)
+xmlDebugDumpNode(FILE * output, xmlNode *node, int depth)
 {
     xmlDebugCtxt ctxt;
 
@@ -1442,15 +1411,14 @@ xmlDebugDumpNode(FILE * output, xmlNodePtr node, int depth)
 }
 
 /**
- * xmlDebugDumpNodeList:
- * @output:  the FILE * for the output
- * @node:  the node list
- * @depth:  the indentation level.
- *
  * Dumps debug information for the list of element node, it is recursive
+ *
+ * @param output  the FILE * for the output
+ * @param node  the node list
+ * @param depth  the indentation level.
  */
 void
-xmlDebugDumpNodeList(FILE * output, xmlNodePtr node, int depth)
+xmlDebugDumpNodeList(FILE * output, xmlNode *node, int depth)
 {
     xmlDebugCtxt ctxt;
 
@@ -1464,14 +1432,13 @@ xmlDebugDumpNodeList(FILE * output, xmlNodePtr node, int depth)
 }
 
 /**
- * xmlDebugDumpDocumentHead:
- * @output:  the FILE * for the output
- * @doc:  the document
- *
  * Dumps debug information concerning the document, not recursive
+ *
+ * @param output  the FILE * for the output
+ * @param doc  the document
  */
 void
-xmlDebugDumpDocumentHead(FILE * output, xmlDocPtr doc)
+xmlDebugDumpDocumentHead(FILE * output, xmlDoc *doc)
 {
     xmlDebugCtxt ctxt;
 
@@ -1485,14 +1452,13 @@ xmlDebugDumpDocumentHead(FILE * output, xmlDocPtr doc)
 }
 
 /**
- * xmlDebugDumpDocument:
- * @output:  the FILE * for the output
- * @doc:  the document
- *
  * Dumps debug information for the document, it's recursive
+ *
+ * @param output  the FILE * for the output
+ * @param doc  the document
  */
 void
-xmlDebugDumpDocument(FILE * output, xmlDocPtr doc)
+xmlDebugDumpDocument(FILE * output, xmlDoc *doc)
 {
     xmlDebugCtxt ctxt;
 
@@ -1506,14 +1472,13 @@ xmlDebugDumpDocument(FILE * output, xmlDocPtr doc)
 }
 
 /**
- * xmlDebugDumpDTD:
- * @output:  the FILE * for the output
- * @dtd:  the DTD
- *
  * Dumps debug information for the DTD
+ *
+ * @param output  the FILE * for the output
+ * @param dtd  the DTD
  */
 void
-xmlDebugDumpDTD(FILE * output, xmlDtdPtr dtd)
+xmlDebugDumpDTD(FILE * output, xmlDtd *dtd)
 {
     xmlDebugCtxt ctxt;
 
@@ -1533,17 +1498,15 @@ xmlDebugDumpDTD(FILE * output, xmlDtdPtr dtd)
  ************************************************************************/
 
 /**
- * xmlDebugCheckDocument:
- * @output:  the FILE * for the output
- * @doc:  the document
- *
  * Check the document for potential content problems, and output
- * the errors to @output
+ * the errors to `output`
  *
- * Returns the number of errors found
+ * @param output  the FILE * for the output
+ * @param doc  the document
+ * @returns the number of errors found
  */
 int
-xmlDebugCheckDocument(FILE * output, xmlDocPtr doc)
+xmlDebugCheckDocument(FILE * output, xmlDoc *doc)
 {
     xmlDebugCtxt ctxt;
 
