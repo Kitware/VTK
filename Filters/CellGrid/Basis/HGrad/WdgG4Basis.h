@@ -1,5 +1,5 @@
-#define size_tri ((order + 1) * (order + 2) / 2)
-#define size_lin (order + 1)
+const int size_tri = (order + 1) * (order + 2) / 2;
+const int size_lin = order + 1;
 
 WORKSPACE(RealT, term_tri, size_tri);
 WORKSPACE(RealT, term_lin, size_lin);
