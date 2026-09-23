@@ -246,8 +246,17 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderClip(
   }
 
   shaders[vtkShader::Vertex]->SetSource(VSSource);
-
   this->Superclass::ReplaceShaderClip(shaders, ren, actor);
+#if defined(GL_ES_VERSION_3_0)
+  VSSource = shaders[vtkShader::Vertex]->GetSource();
+  vtkShaderProgram::Substitute(
+    VSSource, "uniform int numClipPlanes", "uniform highp int numClipPlanes");
+  auto FSSource = shaders[vtkShader::Fragment]->GetSource();
+  vtkShaderProgram::Substitute(
+    FSSource, "uniform int numClipPlanes", "uniform highp int numClipPlanes");
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
+  shaders[vtkShader::Vertex]->SetSource(VSSource);
+#endif
 }
 
 //------------------------------------------------------------------------------
