@@ -1782,7 +1782,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::InitializeImageSampleFBO(vtkR
 //------------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndImageSample(vtkRenderer* ren)
 {
-  if (this->Parent->ImageSampleDistance != 1.f)
+  // BeginImageSample only pushes the binding once InitializeImageSampleFBO succeeds.
+  if (this->Parent->ImageSampleDistance != 1.f && this->ImageSampleFBO)
   {
     this->ImageSampleFBO->DeactivateDrawBuffers();
     if (this->RenderPassAttached)
