@@ -7,11 +7,15 @@ renders it with WebGPU once you ask for that backend, for instance by passing
 `--vtk-factory-prefer=RenderingBackend=WebGPU`.
 
 It composites, maximum and minimum intensity, average intensity and additive
-blending, colour, scalar opacity and gradient opacity transfer functions,
-Blinn-Phong shading from the lights of the renderer, clipping planes, and it
-terminates rays against the opaque geometry already in the frame.
+blending, colour, scalar opacity and gradient opacity transfer functions, two
+dimensional transfer functions, binary and label map masks, independent and
+dependent multi-component scalars, Blinn-Phong shading from the lights of the
+renderer, clipping planes, and it terminates rays against the opaque geometry
+already in the frame. Volumes answer `vtkHardwareSelector`, and
+`SetRenderToImage(true)` gives `GetColorImage()` and `GetDepthImage()` the
+volume drawn alone and the depth of the first sample each ray found visible.
 
-Three things work differently from `vtkOpenGLGPUVolumeRayCastMapper`.
+Four things work differently from `vtkOpenGLGPUVolumeRayCastMapper`.
 
 Volumes that share a renderer are ray cast together and may overlap in space.
 Adding the props is all it takes:
@@ -54,6 +58,22 @@ kept, and the rest arrive over the frames that follow, capped by
 `SetMaximumBricksPerFrame()`. `GetComplete()` says whether the last frame got
 everything it asked for. A pass that fits in the pool - which is the ordinary
 case - is complete in one frame and none of this is visible.
+
+A volume need not be read from disk whole either. When the source of an input
+can produce sub-extents - it publishes
+`vtkStreamingDemandDrivenPipeline::CAN_PRODUCE_SUB_EXTENT()` - and the volume
+would take more megabytes than `SetStreamingThresholdMB()` allows, the mapper
+asks the pipeline for one brick at a time instead of updating the input. Only
+the bricks the rays reach are ever read, so a view of one corner of an image
+reads that corner. The default threshold is 1024 MB; 0 streams whenever the
+source allows it, and `IsStreaming()` says what an input settled on. The
+transfer functions are then mapped over the range the source publishes with
+`vtkDataObject::FIELD_RANGE()`, since no one has read the scalars to find it.
+Inputs carrying a mask, a second transfer function axis, cell scalars or ghost
+arrays are read whole.
+
+`Examples/Medical/Python/StreamOMEZarr.py` renders an OME-Zarr image this way,
+local or remote, without reading more of it than the camera looks at.
 
 The `VTK::RenderingVolume` C++ tests now run once per rendering backend, the way
 the `VTK::RenderingCore` ones do, so their names carry a backend prefix:
