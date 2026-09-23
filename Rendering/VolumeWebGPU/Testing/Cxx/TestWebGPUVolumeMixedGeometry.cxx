@@ -47,10 +47,15 @@ int TestWebGPUVolumeMixedGeometry(int argc, char* argv[])
 
   const double nearColor[3] = { 1.0, 0.9, 0.2 };
   const double farColor[3] = { 1.0, 0.2, 0.9 };
-  for (const auto& sphere : { std::make_pair(70.0, nearColor), std::make_pair(-70.0, farColor) })
+  const struct
+  {
+    double Depth;
+    const double* Color;
+  } spheres[] = { { 70.0, nearColor }, { -70.0, farColor } };
+  for (const auto& sphere : spheres)
   {
     vtkNew<vtkSphereSource> geometry;
-    geometry->SetCenter(0.0, 0.0, sphere.first);
+    geometry->SetCenter(0.0, 0.0, sphere.Depth);
     geometry->SetRadius(20.0);
     geometry->SetThetaResolution(48);
     geometry->SetPhiResolution(48);
@@ -60,7 +65,7 @@ int TestWebGPUVolumeMixedGeometry(int argc, char* argv[])
 
     vtkNew<vtkActor> actor;
     actor->SetMapper(geometryMapper);
-    actor->GetProperty()->SetColor(sphere.second[0], sphere.second[1], sphere.second[2]);
+    actor->GetProperty()->SetColor(sphere.Color[0], sphere.Color[1], sphere.Color[2]);
     actor->GetProperty()->SetAmbient(1.0);
     actor->GetProperty()->SetDiffuse(0.0);
     renderer->AddActor(actor);
