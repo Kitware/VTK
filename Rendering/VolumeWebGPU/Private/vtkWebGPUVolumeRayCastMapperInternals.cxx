@@ -898,9 +898,9 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateHiddenVoxels(Input& input
     const int* dims = input.Dimensions;
     const int cells[3] = { std::max(dims[0] - 1, 1), std::max(dims[1] - 1, 1),
       std::max(dims[2] - 1, 1) };
-    const vtkIdType count = std::min<vtkIdType>(
+    const vtkIdType cellCount = std::min<vtkIdType>(
       cellGhosts->GetNumberOfTuples(), static_cast<vtkIdType>(cells[0]) * cells[1] * cells[2]);
-    for (vtkIdType cell = 0; cell < count; ++cell)
+    for (vtkIdType cell = 0; cell < cellCount; ++cell)
     {
       if (cellGhosts->GetValue(cell) == 0)
       {
