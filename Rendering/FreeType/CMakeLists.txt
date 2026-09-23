@@ -31,7 +31,8 @@ set(sources
   fonts/face_times_italic.cxx)
 
 set(private_headers
-  ${vtk_object_factory_header})
+  ${vtk_object_factory_header}
+  vtkFreeTypeToolsPrivate.h)
 
 vtk_module_add_module(VTK::RenderingFreeType
   CLASSES         ${classes}

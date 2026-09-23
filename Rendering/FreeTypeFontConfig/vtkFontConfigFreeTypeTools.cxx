@@ -3,6 +3,8 @@
 
 #include "vtkFontConfigFreeTypeTools.h"
 
+#include "vtkFreeTypeToolsPrivate.h"
+
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
@@ -72,9 +74,10 @@ vtkFontConfigFreeTypeTools::~vtkFontConfigFreeTypeTools() = default;
 
 FT_Error vtkFontConfigFreeTypeTools::CreateFTCManager()
 {
-  return FTC_Manager_New(*this->GetLibrary(), this->MaximumNumberOfFaces,
-    this->MaximumNumberOfSizes, this->MaximumNumberOfBytes, vtkFontConfigFreeTypeToolsFaceRequester,
-    static_cast<FT_Pointer>(this), this->CacheManager);
+  FTThreadLocalData& tld = this->GetThreadLocalData();
+  return FTC_Manager_New(tld.Library, this->MaximumNumberOfFaces, this->MaximumNumberOfSizes,
+    this->MaximumNumberOfBytes, vtkFontConfigFreeTypeToolsFaceRequester,
+    static_cast<FT_Pointer>(this), tld.CacheManager);
 }
 
 bool vtkFontConfigFreeTypeTools::LookupFaceFontConfig(

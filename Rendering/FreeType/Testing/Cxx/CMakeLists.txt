@@ -24,6 +24,7 @@ vtk_add_test_cxx(vtkRenderingFreeTypeCxxTests tests
 
 vtk_add_test_cxx(vtkRenderingFreeTypeCxxTests no_data_tests
   NO_DATA NO_VALID NO_OUTPUT
+  TestFreeTypeToolsThreaded.cxx
   TestTextBoundingBox.cxx
   )
 list(APPEND tests
