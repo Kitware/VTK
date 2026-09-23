@@ -74,6 +74,16 @@ int vtkDGOperatorEntry::WedgeFunctionCount(const std::vector<int>& order)
   return (order[0] + 1) * (order[0] + 2) / 2 * (order[2] + 1);
 }
 
+int vtkDGOperatorEntry::PyramidFunctionCount(const std::vector<int>& order)
+{
+  if (order.size() != 3 || order[0] < 0 || order[1] != order[0] || order[2] != order[0])
+  {
+    return 0;
+  }
+  const int nn = order[0];
+  return (nn + 1) * (nn + 2) * (2 * nn + 3) / 6;
+}
+
 bool vtkDGOperatorEntry::SetOrder(const std::vector<int>& order)
 {
   if (!this->FunctionCount)

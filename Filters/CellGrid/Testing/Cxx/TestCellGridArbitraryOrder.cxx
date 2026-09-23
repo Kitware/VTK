@@ -3,9 +3,7 @@
 
 // Exercise the arbitrary-order ("A") HGrad basis functions registered for the
 // DG cell shapes: vertex, edge, quadrilateral, hexahedron, triangle,
-// tetrahedron, and wedge. (The pyramid has no arbitrary-order Lagrange basis; a
-// polynomial one does not exist, since the tensor-product structure degenerates
-// at the apex.)
+// tetrahedron, wedge, and pyramid.
 //
 // The properties checked here define a nodal Lagrange basis, so together they
 // pin the basis down completely:
@@ -13,12 +11,28 @@
 // + partition of unity - the basis functions sum to 1 everywhere;
 // + the Kronecker delta property - the i-th function is 1 at the i-th Lagrange
 //   point and 0 at every other one;
-// + polynomial reproduction - interpolating a polynomial drawn from the space
-//   the basis spans reproduces it exactly, along with its gradient.
+// + reproduction - interpolating a function drawn from the space the basis
+//   spans reproduces it exactly, along with its gradient.
 //
 // The last of these is the property downstream code relies on and is by far the
 // most sensitive: an error anywhere in a basis function or its gradient shows
 // up as a mismatch at parametric coordinates away from the Lagrange points.
+//
+// Every shape runs through TestBasis(), the Lattice enum saying how its
+// Lagrange points are laid out and which space it spans. The pyramid differs
+// only in what it reproduces: its basis (PyrCnBasis in vtkDGHGradOperators.cxx)
+// is rational rather than polynomial, so most monomials are not in its span at
+// all. That is not particular to this basis - no conforming pyramid element can
+// be polynomial, and every pyramid basis in this module divides by 1 - t,
+// PyrC1Basis.h and PyrC2Basis.h included - so there is no polynomial
+// arbitrary-order pyramid basis to compare against instead. The modal "G"
+// basis, which spans the same space, stands in for the polynomial there, every
+// one of its functions tried in turn for the same reason PolynomialTerms()
+// below carries every monomial rather than one.
+//
+// Gradients are checked here only through reproduction, which compares them
+// against another basis; TestCellGridBasisGradients checks each one against a
+// central difference of its own basis, which no other basis can taint.
 //
 // Note that the Cn bases number their degrees of freedom lexicographically (the
 // r-axis varying fastest), which is *not* the corner-first ordering used by the
@@ -29,6 +43,7 @@
 #include "vtkDGEdge.h"
 #include "vtkDGHex.h"
 #include "vtkDGOperatorEntry.h"
+#include "vtkDGPyr.h"
 #include "vtkDGQuad.h"
 #include "vtkDGTet.h"
 #include "vtkDGTri.h"
@@ -38,6 +53,7 @@
 #include "vtkNew.h"
 #include "vtkStringFormatter.h"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdlib>
@@ -55,7 +71,8 @@ enum class Lattice
 {
   Prismatic, //!< A tensor product with an independent order along each axis.
   Simplex,   //!< A principal lattice with one total degree shared by all axes.
-  Wedge      //!< A triangle's principal lattice times an edge's points.
+  Wedge,     //!< A triangle's principal lattice times an edge's points.
+  Pyramid    //!< Square layers shrinking to a point at the apex.
 };
 
 bool testValue(double actual, double expected, const std::string& what)
@@ -140,6 +157,29 @@ std::vector<std::array<double, 3>> LagrangePoints(
       }
     }
     break;
+
+    case Lattice::Pyramid:
+    {
+      // Layer kk lies at t = kk/n and carries a uniform (n-kk+1)^2 grid whose
+      // own half-width is 1 - t, so the cross-section shrinks to one node at
+      // the apex. This is the lattice PyrCnBasis.h and vtkDGLagrangePoints
+      // use; re-derived here so a change to either has to disagree to pass.
+      int nn = order[0];
+      for (int kk = 0; kk <= nn; ++kk)
+      {
+        int mm = nn - kk;
+        double tt = nn > 0 ? double(kk) / nn : 0.;
+        for (int jj = 0; jj <= mm; ++jj)
+        {
+          for (int ii = 0; ii <= mm; ++ii)
+          {
+            points.push_back({ { nn > 0 ? double(2 * ii - mm) / nn : 0.,
+              nn > 0 ? double(2 * jj - mm) / nn : 0., tt } });
+          }
+        }
+      }
+    }
+    break;
   }
   return points;
 }
@@ -195,6 +235,10 @@ std::vector<Term> PolynomialTerms(Lattice lattice, const std::vector<int>& order
             {
               add(rr, ss, tt);
             }
+            break;
+          case Lattice::Pyramid:
+            // Rational rather than polynomial, so no monomial basis to list;
+            // TestBasis() reproduces the modal "G" basis in its place.
             break;
         }
       }
@@ -265,12 +309,17 @@ const std::vector<std::array<double, 3>>& SamplePoints(Lattice lattice)
   // The triangle's samples paired with coordinates along t in [-1, 1].
   static const std::vector<std::array<double, 3>> wedge{ { 0.25, 0.25, 0. }, { 0.1, 0.2, -0.65 },
     { 0.7, 0.15, 0.4 }, { 0.05, 0.6, 0.93 }, { 0.33, 0.33, -0.87 }, { 0.02, 0.03, 0.11 } };
+  // Strictly inside |r|, |s| < 1 - t, so that no rational term divides by zero.
+  static const std::vector<std::array<double, 3>> pyramid{ { 0., 0., 0.5 }, { 0.2, -0.1, 0.3 },
+    { -0.5, 0.4, 0.1 }, { 0.05, 0.05, 0.9 }, { -0.3, -0.3, 0.6 }, { 0.15, -0.15, 0.75 } };
   switch (lattice)
   {
     case Lattice::Simplex:
       return simplex;
     case Lattice::Wedge:
       return wedge;
+    case Lattice::Pyramid:
+      return pyramid;
     default:
       break;
   }
@@ -352,7 +401,55 @@ bool TestBasis(vtkDGCell* cellType, Lattice lattice, const std::vector<int>& ord
     }
   }
 
+  // What the basis must reproduce exactly. Every lattice but the pyramid's
+  // spans a space of polynomials, so a single polynomial carrying every
+  // monomial of that space covers it. The pyramid's span is rational (see the
+  // file comment), so the modal "G" basis - which spans the same space, and is
+  // fetched through the same public API rather than from anything internal to
+  // the basis under test - stands in for it, every one of its functions tried
+  // in turn.
   auto terms = PolynomialTerms(lattice, order, dimension);
+  vtkDGOperatorEntry modalOp;
+  vtkDGOperatorEntry modalGradientOp;
+  std::vector<double> modeAtPoints;
+  if (lattice == Lattice::Pyramid)
+  {
+    vtkCellAttribute::CellTypeInfo modalInfo;
+    modalInfo.FunctionSpace = "HGRAD";
+    modalInfo.Basis = "G";
+    modalInfo.Order = order[0];
+    modalOp = cellType->GetOperatorEntry("Basis", modalInfo);
+    modalGradientOp = cellType->GetOperatorEntry("BasisGradient", modalInfo);
+    if (modalOp && modalGradientOp && modalOp.NumberOfFunctions != numberOfFunctions)
+    {
+      std::cerr << "  ERROR: the modal \"G\" basis has " << modalOp.NumberOfFunctions
+                << " functions where the nodal one has " << numberOfFunctions << ".\n";
+      return false;
+    }
+    // modeAtPoints[ii * numberOfFunctions + mm] is the mm-th modal function's
+    // value at the ii-th Lagrange point.
+    if (modalOp && modalGradientOp)
+    {
+      modeAtPoints.resize(numberOfFunctions * numberOfFunctions);
+      for (int ii = 0; ii < numberOfFunctions; ++ii)
+      {
+        std::vector<double> modeAtPoint(numberOfFunctions);
+        modalOp.Evaluate(points[ii], modeAtPoint);
+        std::copy(
+          modeAtPoint.begin(), modeAtPoint.end(), modeAtPoints.begin() + ii * numberOfFunctions);
+      }
+    }
+    else
+    {
+      // The modal basis is registered at fixed orders 1-5 only; past that the
+      // nodal basis is still checked, just without a function to reproduce.
+      std::cout << "    (no modal \"G\" basis at this order; reproduction not checked)\n";
+    }
+  }
+  bool reproduce = lattice != Lattice::Pyramid || !modeAtPoints.empty();
+  std::vector<double> modalBasis(lattice == Lattice::Pyramid ? numberOfFunctions : 0);
+  std::vector<double> modalGradient(lattice == Lattice::Pyramid ? numberOfFunctions * 3 : 0);
+
   for (const auto& rst : SamplePoints(lattice))
   {
     basisOp.Evaluate(rst, basis);
@@ -377,30 +474,60 @@ bool TestBasis(vtkDGCell* cellType, Lattice lattice, const std::vector<int>& ord
       ok &= testValue(gradientSum, 0., "sum of basis gradients along axis " + vtk::to_string(axis));
     }
 
-    // Polynomial reproduction: interpolating a polynomial from the space the
-    // basis spans, given its values at the Lagrange points, must reproduce the
-    // polynomial and its gradient.
-    double interpolated = 0.;
-    std::array<double, 3> interpolatedGradient{ { 0., 0., 0. } };
-    for (int ii = 0; ii < numberOfFunctions; ++ii)
+    // Reproduction: interpolating a function of the basis' own span from its
+    // values at the Lagrange points must give back that function and its
+    // gradient here.
+    int numberOfTargets = reproduce ? 1 : 0;
+    if (lattice == Lattice::Pyramid && reproduce)
     {
-      double coefficient = Evaluate(terms, points[ii]);
-      interpolated += coefficient * basis[ii];
+      modalOp.Evaluate(rst, modalBasis);
+      modalGradientOp.Evaluate(rst, modalGradient);
+      numberOfTargets = numberOfFunctions;
+    }
+    for (int target = 0; target < numberOfTargets; ++target)
+    {
+      double interpolated = 0.;
+      std::array<double, 3> interpolatedGradient{ { 0., 0., 0. } };
+      for (int ii = 0; ii < numberOfFunctions; ++ii)
+      {
+        double coefficient = lattice == Lattice::Pyramid
+          ? modeAtPoints[ii * numberOfFunctions + target]
+          : Evaluate(terms, points[ii]);
+        interpolated += coefficient * basis[ii];
+        for (int axis = 0; axis < gradientOp.OperatorSize; ++axis)
+        {
+          interpolatedGradient[axis] += coefficient * gradient[ii * gradientOp.OperatorSize + axis];
+        }
+      }
+
+      std::array<double, 3> expectedGradient;
+      double expectedValue;
+      std::string what;
+      if (lattice == Lattice::Pyramid)
+      {
+        expectedValue = modalBasis[target];
+        for (int axis = 0; axis < 3; ++axis)
+        {
+          expectedGradient[axis] = modalGradient[target * 3 + axis];
+        }
+        what = "mode " + vtk::to_string(target);
+      }
+      else
+      {
+        expectedValue = Evaluate(terms, rst, &expectedGradient);
+        what = "polynomial";
+      }
+
+      ok &= testValue(interpolated, expectedValue, "interpolated " + what + " value");
       for (int axis = 0; axis < gradientOp.OperatorSize; ++axis)
       {
-        interpolatedGradient[axis] += coefficient * gradient[ii * gradientOp.OperatorSize + axis];
+        // The fixed-order HGrad gradients report a 3-tuple per basis function
+        // no matter the cell dimension, padding the unused axes with zeros;
+        // the arbitrary-order ones must match that convention.
+        double expected = axis < dimension ? expectedGradient[axis] : 0.;
+        ok &= testValue(interpolatedGradient[axis], expected,
+          "interpolated " + what + " d/dx" + vtk::to_string(axis));
       }
-    }
-    std::array<double, 3> expectedGradient;
-    ok &= testValue(interpolated, Evaluate(terms, rst, &expectedGradient), "interpolated value");
-    for (int axis = 0; axis < gradientOp.OperatorSize; ++axis)
-    {
-      // The fixed-order HGrad gradients report a 3-tuple per basis function no
-      // matter the cell dimension, padding the unused axes with zeros; the
-      // arbitrary-order ones must match that convention.
-      double expected = axis < dimension ? expectedGradient[axis] : 0.;
-      ok &=
-        testValue(interpolatedGradient[axis], expected, "interpolated d/dx" + vtk::to_string(axis));
     }
   }
 
@@ -421,39 +548,37 @@ int TestCellGridArbitraryOrder(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkDGTri> tri;
   vtkNew<vtkDGTet> tet;
   vtkNew<vtkDGWdg> wdg;
+  vtkNew<vtkDGPyr> pyr;
 
-  // Orders 1 and 2 have hand-written operators, so the arbitrary-order ones are
-  // only reachable from order 3 up. Order 0 has no fixed-order registration and
-  // does reach them.
-  for (int order = 0; order <= 6; ++order)
+  // Every order reaches the arbitrary-order operators, orders 1 and 2 included:
+  // vtkDGCell::GetOperatorEntry() looks the basis token up before the order, and
+  // the "A" token is registered at order -1 alone, so the hand-written "C"
+  // operators at those orders are never in reach from here.
+  //
+  // No shape carries an order bound. Above order 5 the pyramid has no modal "G"
+  // basis for TestBasis() to reproduce, so those orders check the Kronecker
+  // delta property, partition of unity and gradient cancellation only - the
+  // first of which is what a badly conditioned solve breaks soonest.
+  for (int order = 0; order <= 8; ++order)
   {
-    if (order == 1 || order == 2)
-    {
-      continue;
-    }
     ok &= TestBasis(edge, Lattice::Prismatic, { order });
     ok &= TestBasis(quad, Lattice::Prismatic, { order, order });
     ok &= TestBasis(tri, Lattice::Simplex, { order, order });
-    // Keep the volumetric shapes' orders low enough that the test stays quick;
-    // an order-6 hexahedron has 343 basis functions evaluated at 343 points.
-    if (order <= 4)
-    {
-      ok &= TestBasis(hex, Lattice::Prismatic, { order, order, order });
-      ok &= TestBasis(tet, Lattice::Simplex, { order, order, order });
-      ok &= TestBasis(wdg, Lattice::Wedge, { order, order, order });
-    }
+    ok &= TestBasis(hex, Lattice::Prismatic, { order, order, order });
+    ok &= TestBasis(tet, Lattice::Simplex, { order, order, order });
+    ok &= TestBasis(wdg, Lattice::Wedge, { order, order, order });
+    ok &= TestBasis(pyr, Lattice::Pyramid, { order, order, order });
   }
 
   // Anisotropic order along each parametric axis. A simplex has a single total
-  // degree, so only the prismatic shapes and the wedge's t-axis admit this.
-  // A nominal order that a hand-written operator implements, but with axes that
-  // disagree: the fixed-order operator must not be chosen, since it implements
-  // one order along every axis.
+  // degree shared by every axis and a pyramid one degree for the whole cell, so
+  // only the prismatic shapes and the wedge's t-axis admit this. The nominal
+  // orders here are ones a hand-written operator implements, which the
+  // arbitrary-order lattice and function count must not be confused by.
   ok &= TestBasis(quad, Lattice::Prismatic, { 2, 3 });
   ok &= TestBasis(quad, Lattice::Prismatic, { 3, 5 });
   ok &= TestBasis(hex, Lattice::Prismatic, { 4, 2, 3 });
   ok &= TestBasis(wdg, Lattice::Wedge, { 3, 3, 5 });
 
-  std::cout << (ok ? "PASS\n" : "FAIL\n");
   return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }

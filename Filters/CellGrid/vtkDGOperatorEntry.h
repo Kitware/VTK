@@ -142,6 +142,11 @@ public:
   /// A wedge: a triangle (the r- and s-axes) crossed with an edge (the t-axis),
   /// so the two counts multiply. The triangular axes must share an order.
   static int WedgeFunctionCount(const std::vector<int>& order);
+
+  /// A pyramid: (n+1)(n+2)(2n+3)/6 functions for a single degree n (all three
+  /// axes share one order; an anisotropic order is rejected, unlike a
+  /// hexahedron's independent per-axis orders).
+  static int PyramidFunctionCount(const std::vector<int>& order);
   ///@}
 
   /// Return a glsl string that defines this operator.
