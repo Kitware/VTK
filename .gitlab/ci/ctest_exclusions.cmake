@@ -799,10 +799,11 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingCoreCxx-WebGPU-TestTStripsNormalsTCoords$"
     "^VTK::RenderingCoreCxx-WebGPU-TestTStripsTCoords$"
     "^VTK::RenderingCoreCxx-WebGPU-TestWindowToImageFilter$"
-    # RenderingVolumeCxx tests that fail with WebGPU. The volume mapper does not implement
-    # masks, cropping, multi component and two dimensional transfer functions, rendering to a
-    # depth image or to a texture yet, and its shading and sampling differ from the OpenGL
-    # mapper closely enough to render but not closely enough to match its baselines.
+    # RenderingVolumeCxx tests that fail with WebGPU. The rectilinear grid ones need input the
+    # mapper does not implement yet. The rest render correctly but do not match baselines taken
+    # from the OpenGL mapper: the two march their rays from different offsets, so the two
+    # pictures differ along silhouettes, where a step either reaches the volume or does not. The
+    # difference falls to nothing as the sample distance does.
     # see https://gitlab.kitware.com/vtk/vtk/-/issues/19921
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCameraInside$"
     "^VTK::RenderingVolumeCxx-WebGPU-TestGPURayCastCameraInsideNonUniformScaleTransform$"
