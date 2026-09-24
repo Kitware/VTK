@@ -2,6 +2,7 @@ vtk_add_test_cxx(vtkIOLegacyCxxTests tests
   TestLegacyArrayInfNan.cxx,NO_DATA,NO_VALID
   TestLegacyArrayMetaData.cxx,NO_VALID
   TestLegacyCompositeDataReaderWriter.cxx,NO_VALID
+  TestLegacyDataReaderCharacterizeFile.cxx,NO_DATA,NO_VALID
   TestLegacyGhostCellsImport.cxx
   TestLegacyMappedUnstructuredGrid.cxx,NO_DATA,NO_VALID
   TestLegacyPartitionedDataSetCollectionReaderWriter.cxx,NO_DATA,NO_VALID
