@@ -1,7 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+// VTK_DEPRECATED_IN_9_7_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkImageReslice.h"
 
+#include "vtkAOSDataArrayTemplate.h"
+#include "vtkDataArray.h"
 #include "vtkGarbageCollector.h"
 #include "vtkImageData.h"
 #include "vtkImageInterpolator.h"
@@ -16,6 +22,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 
@@ -40,9 +47,8 @@ vtkCxxSetObjectMacro(vtkImageReslice, ResliceTransform, vtkAbstractTransform);
 
 //------------------------------------------------------------------------------
 // typedef for pixel converter method
-typedef void (vtkImageReslice::*vtkImageResliceConvertScalarsType)(VTK_FUTURE_CONST void* outPtr,
-  void* inPtr, int inputType, int inNumComponents, int count, int idX, int idY, int idZ,
-  int threadId);
+typedef void (vtkImageReslice::*vtkImageResliceConvertScalarsType)(
+  vtkDataArray* input, void* outPtr, int count, int idX, int idY, int idZ, int threadId);
 
 // typedef for the floating point type used by the code
 typedef double vtkImageResliceFloatingPointType;
@@ -576,11 +582,31 @@ int vtkImageReslice::ConvertScalarInfo(int& vtkNotUsed(scalarType), int& vtkNotU
 }
 
 //------------------------------------------------------------------------------
-void vtkImageReslice::ConvertScalars(VTK_FUTURE_CONST void* vtkNotUsed(inPtr),
-  void* vtkNotUsed(outPtr), int vtkNotUsed(inputType), int vtkNotUsed(inputComponents),
+void vtkImageReslice::ConvertScalars(vtkDataArray* vtkNotUsed(input), void* vtkNotUsed(outPtr),
   int vtkNotUsed(count), int vtkNotUsed(idX), int vtkNotUsed(idY), int vtkNotUsed(idZ),
   int vtkNotUsed(threadId))
 {
+}
+
+//------------------------------------------------------------------------------
+void vtkImageReslice::ConvertScalars(VTK_FUTURE_CONST void* inPtr, void* outPtr, int inputType,
+  int inputComponents, int count, int idX, int idY, int idZ, int threadId)
+{
+  // Wrap the raw pointer in a vtkDataArray and forward to the vtkDataArray-based overload,
+  // so that derived classes only need to override that one.
+  auto input = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(inputType));
+  input->SetNumberOfComponents(inputComponents);
+  // NOLINTNEXTLINE(readability-redundant-casting)
+  input->SetVoidArray(const_cast<void*>(inPtr), count * inputComponents, 1);
+  this->ConvertScalars(input, outPtr, count, idX, idY, idZ, threadId);
+}
+
+//------------------------------------------------------------------------------
+void vtkImageReslice::ConvertScalarsBase(VTK_FUTURE_CONST void* inPtr, void* outPtr, int inputType,
+  int inputNumComponents, int count, int idX, int idY, int idZ, int threadId)
+{
+  this->ConvertScalars(
+    inPtr, outPtr, inputType, inputNumComponents, count, idX, idY, idZ, threadId);
 }
 
 //------------------------------------------------------------------------------
@@ -2064,7 +2090,12 @@ void vtkImageResliceExecute(vtkImageReslice* self, vtkDataArray* scalars,
   F inPoint0[4] = { 0.0, 0.0, 0.0, 0.0 };
   F inPoint1[4] = { 0.0, 0.0, 0.0, 0.0 };
 
-  int floatType = vtkTypeTraits<F>::VTKTypeID();
+  // array wrapping floatPtr, reused across calls to convertScalars
+  vtkNew<vtkAOSDataArrayTemplate<F>> convertArray;
+  if (convertScalars)
+  {
+    convertArray->SetNumberOfComponents(inComponents);
+  }
 
   // create an iterator to march through the data
   vtkImagePointDataIterator iter(outData, outExt, stencil, self, threadId);
@@ -2199,8 +2230,10 @@ void vtkImageResliceExecute(vtkImageReslice* self, vtkDataArray* scalars,
 
             if (convertScalars)
             {
-              (self->*convertScalars)(tmpPtr - inComponents * (idX - startIdX), outPtr, floatType,
-                inComponents, numpixels, startIdX, idY, idZ, threadId);
+              convertArray->SetArray(tmpPtr - inComponents * (idX - startIdX),
+                static_cast<vtkIdType>(numpixels) * inComponents, 1);
+              (self->*convertScalars)(
+                convertArray, outPtr, numpixels, startIdX, idY, idZ, threadId);
 
               outPtr = static_cast<char*>(outPtr) + numpixels * outComponents * scalarSize;
             }
@@ -2783,10 +2816,15 @@ void vtkReslicePermuteExecute(vtkImageReslice* self, vtkDataArray* scalars,
     doConversion = false;
   }
 
-  int floatType = vtkTypeTraits<F>::VTKTypeID();
-
   // useful information from the interpolator
   int inComponents = interpolator->GetNumberOfComponents();
+
+  // array wrapping floatPtr, reused across calls to convertScalars
+  vtkNew<vtkAOSDataArrayTemplate<F>> convertArray;
+  if (convertScalars)
+  {
+    convertArray->SetNumberOfComponents(inComponents);
+  }
 
   // fill in the interpolation tables
   int clipExt[6];
@@ -2939,8 +2977,8 @@ void vtkReslicePermuteExecute(vtkImageReslice* self, vtkDataArray* scalars,
 
           if (convertScalars)
           {
-            (self->*convertScalars)(
-              floatPtr, outPtr, floatType, inComponents, span, idXmin, idY, idZ, threadId);
+            convertArray->SetArray(floatPtr, static_cast<vtkIdType>(span) * inComponents, 1);
+            (self->*convertScalars)(convertArray, outPtr, span, idXmin, idY, idZ, threadId);
 
             outPtr =
               (static_cast<char*>(outPtr) + static_cast<size_t>(span) * outComponents * scalarSize);
@@ -3281,13 +3319,18 @@ void vtkImageReslice::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkReslicePermuteExecute(this, scalars, this->Interpolator, outData[0], outPtr,
       this->ScalarShift, this->ScalarScale,
-      (this->HasConvertScalars ? &vtkImageReslice::ConvertScalarsBase : nullptr), outExt, threadId,
-      newmat);
+      (this->HasConvertScalars
+          ? static_cast<vtkImageResliceConvertScalarsType>(&vtkImageReslice::ConvertScalarsBase)
+          : nullptr),
+      outExt, threadId, newmat);
   }
   else
   {
     vtkImageResliceExecute(this, scalars, this->Interpolator, outData[0], outPtr, this->ScalarShift,
-      this->ScalarScale, (this->HasConvertScalars ? &vtkImageReslice::ConvertScalarsBase : nullptr),
+      this->ScalarScale,
+      (this->HasConvertScalars
+          ? static_cast<vtkImageResliceConvertScalarsType>(&vtkImageReslice::ConvertScalarsBase)
+          : nullptr),
       outExt, threadId, newmat, newtrans);
   }
 }

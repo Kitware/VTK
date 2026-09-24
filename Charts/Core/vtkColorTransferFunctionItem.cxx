@@ -7,16 +7,11 @@
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
 #include "vtkColorTransferFunction.h"
-#include "vtkContext2D.h"
+#include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
-#include "vtkPen.h"
 #include "vtkPlotBar.h"
 #include "vtkPointData.h"
-#include "vtkPoints2D.h"
-
-#include <cassert>
-#include <cmath>
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -107,17 +102,18 @@ void vtkColorTransferFunctionItem::ComputeTexture()
 
   // Could depend of the screen resolution
   const int dimension = this->GetTextureWidth();
-  double* values = new double[dimension];
+  vtkNew<vtkDoubleArray> values;
+  values->SetNumberOfValues(dimension);
   // Texture 1D
   this->Texture->SetExtent(0, dimension - 1, 0, 0, 0, 0);
   this->Texture->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
   for (int i = 0; i < dimension; ++i)
   {
-    values[i] = dataBounds[0] + i * (dataBounds[1] - dataBounds[0]) / (dimension - 1);
+    values->SetValue(i, dataBounds[0] + i * (dataBounds[1] - dataBounds[0]) / (dimension - 1));
   }
   unsigned char* ptr = reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0, 0, 0));
   this->ColorTransferFunction->MapScalarsThroughTable(
-    values, ptr, VTK_DOUBLE, dimension, VTK_LUMINANCE, VTK_RGBA);
+    values, ptr, dimension, VTK_LUMINANCE, 0, VTK_RGBA);
   if (this->Opacity != 1.0)
   {
     for (int i = 0; i < dimension; ++i)
@@ -126,7 +122,6 @@ void vtkColorTransferFunctionItem::ComputeTexture()
       ptr += 4;
     }
   }
-  delete[] values;
 }
 
 //------------------------------------------------------------------------------

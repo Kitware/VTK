@@ -38,6 +38,7 @@
 #ifndef vtkImageReslice_h
 #define vtkImageReslice_h
 
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 #include "vtkWrappingHints.h"
@@ -54,6 +55,7 @@ class vtkMatrix4x4;
 class vtkImageStencilData;
 class vtkScalarsToColors;
 class vtkAbstractImageInterpolator;
+class vtkDataArray;
 
 class VTKIMAGINGCORE_EXPORT VTK_MARSHALAUTO vtkImageReslice : public vtkThreadedImageAlgorithm
 {
@@ -565,15 +567,28 @@ protected:
    * of any type.  This method will be called from multiple threads,
    * so it must be thread-safe in derived classes.
    */
+  virtual void ConvertScalars(
+    vtkDataArray* input, void* outPtr, int count, int idX, int idY, int idZ, int threadId);
+
+  void ConvertScalarsBase(
+    vtkDataArray* input, void* outPtr, int count, int idX, int idY, int idZ, int threadId)
+  {
+    this->ConvertScalars(input, outPtr, count, idX, idY, idZ, threadId);
+  }
+
+  /**
+   * This is kept for backwards compatibility with derived classes that
+   * override this raw-pointer overload instead of the vtkDataArray-based
+   * ConvertScalars above.  The default implementation wraps the raw
+   * pointer in a vtkDataArray and forwards to the vtkDataArray-based
+   * overload.
+   */
+  VTK_DEPRECATED_IN_9_7_0("Use the ConvertScalars overload taking vtkDataArray* instead")
   virtual void ConvertScalars(VTK_FUTURE_CONST void* inPtr, void* outPtr, int inputType,
     int inputNumComponents, int count, int idX, int idY, int idZ, int threadId);
 
   void ConvertScalarsBase(VTK_FUTURE_CONST void* inPtr, void* outPtr, int inputType,
-    int inputNumComponents, int count, int idX, int idY, int idZ, int threadId)
-  {
-    this->ConvertScalars(
-      inPtr, outPtr, inputType, inputNumComponents, count, idX, idY, idZ, threadId);
-  }
+    int inputNumComponents, int count, int idX, int idY, int idZ, int threadId);
 
   /**
    * For derived classes, this should be called at the very end of
