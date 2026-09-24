@@ -215,7 +215,7 @@ void vtkInteractorEventRecorder::Play()
     this->State = vtkInteractorEventRecorder::Playing;
 
     std::string line;
-    this->CurrentStreamVersion = 0;
+    this->CurrentStreamVersion = 0.0f;
     while (vtksys::SystemTools::GetLineFromStream(*this->InputStream, line))
     {
       this->ReadEvent(line);
@@ -462,7 +462,7 @@ void vtkInteractorEventRecorder::ReadEvent(const std::string& line)
     {
       iss >> pos[0];
       iss >> pos[1];
-      if (this->CurrentStreamVersion >= 1.1)
+      if (this->CurrentStreamVersion >= 1.1f)
       {
         int m;
         iss >> m;
@@ -480,14 +480,14 @@ void vtkInteractorEventRecorder::ReadEvent(const std::string& line)
       iss >> repeatCount;
       iss >> keySym;
 
-      if (this->CurrentStreamVersion < 1.3 && this->OldRepeatCountWorkAround)
+      if (this->CurrentStreamVersion < 1.3f && this->OldRepeatCountWorkAround)
       {
         repeatCount = 0;
       }
 
       void* callData = nullptr;
       vtkSmartPointer<vtkStringArray> stringArray;
-      if (this->CurrentStreamVersion >= 1.2)
+      if (this->CurrentStreamVersion >= 1.2f)
       {
         int tmp;
         iss >> tmp;
