@@ -75,6 +75,7 @@ class vtkInteractorObserver;
 class vtkInteractorStyleRubberBand3D;
 class vtkInteractorStyleTrackballCamera;
 class vtkLight;
+class vtkCamera;
 class vtkLightKit;
 class vtkLookupTableManager;
 class vtkOrientationMarkerWidget;
@@ -286,6 +287,52 @@ public:
    * @endcode
    */
   vtkScivisSelector* GetSelector();
+
+  /**
+   * The camera the scene is viewed with, for anything finer than the framing
+   * and the standard directions below -- a parallel projection, a view angle,
+   * or a position worked out by the application.
+   */
+  vtkCamera* GetCamera();
+
+  ///@{
+  /**
+   * Look at the scene from a standard direction and frame it.
+   *
+   * The camera is left looking along the named axis with a sensible up vector,
+   * and then framed on everything the representations are drawing, as
+   * ResetCamera() does.  These follow the conventions ParaView uses:
+   *
+   * - ViewPositiveX() looks along +X, the right side, up +Z
+   * - ViewNegativeX() looks along -X, the left side, up +Z
+   * - ViewPositiveY() looks along +Y, the front, up +Z
+   * - ViewNegativeY() looks along -Y, the back, up +Z
+   * - ViewPositiveZ() looks along +Z, the top, up +Y
+   * - ViewNegativeZ() looks along -Z, the bottom, up +Y
+   * - ViewIsometric() looks from 45 degrees round and about 35 degrees up
+   *
+   * Like any other camera move -- one made through GetCamera(), or one the user
+   * makes by dragging -- these show up in the view's modified time, because the
+   * camera belongs to the renderer and the renderer's modified time is part of
+   * the view's.
+   */
+  void ViewPositiveX();
+  void ViewNegativeX();
+  void ViewPositiveY();
+  void ViewNegativeY();
+  void ViewPositiveZ();
+  void ViewNegativeZ();
+  void ViewIsometric();
+  ///@}
+
+  /**
+   * Look along @a look with @a up pointing up, and frame the scene.  The
+   * direction runs from the camera towards what it is looking at, so the
+   * standard directions above are this with one axis picked out.
+   */
+  void SetViewDirection(double look[3], double up[3]);
+  void SetViewDirection(
+    double lookX, double lookY, double lookZ, double upX, double upY, double upZ);
 
   void Start();
 
