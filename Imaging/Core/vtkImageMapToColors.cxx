@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageMapToColors.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCharArray.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkScalarsToColors.h"
@@ -142,129 +144,125 @@ int vtkImageMapToColors::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-//------------------------------------------------------------------------------
-// This non-templated function executes the filter for any type of data.
-// All the data to process should be achieved outside this method as
-// we can not always rely on the ActiveScalar information.
-
-static void vtkImageMapToColorsExecute(vtkImageMapToColors* self, vtkImageData* inData,
-  vtkDataArray* inArray, vtkCharArray* maskArray, vtkImageData* outData, vtkDataArray* outArray,
-  VTK_FUTURE_CONST int outExt[6], int id, unsigned char* nanColor)
+namespace
 {
-  int idxY, idxZ;
-  int extX, extY, extZ;
-  vtkIdType inIncX, inIncY, inIncZ, inMaskIncX, inMaskIncY, inMaskIncZ;
-  vtkIdType outIncX, outIncY, outIncZ;
-  unsigned long count = 0;
-  unsigned long target;
-  int dataType = inArray->GetDataType();
-  int scalarSize = inArray->GetDataTypeSize();
-
-  int coordinate[3] = { outExt[0], outExt[2], outExt[4] };
-  void* inPtr = inData->GetArrayPointer(inArray, coordinate);
-  char* inMask =
-    maskArray ? static_cast<char*>(inData->GetArrayPointer(maskArray, coordinate)) : nullptr;
-
-  int numberOfComponents, numberOfOutputComponents, outputFormat;
-  int rowLength;
-  vtkScalarsToColors* lookupTable = self->GetLookupTable();
-  unsigned char* outPtr =
-    static_cast<unsigned char*>(outData->GetArrayPointer(outArray, coordinate));
-  unsigned char* outPtr1;
-  void* inPtr1;
-
-  // find the region to loop over
-  extX = outExt[1] - outExt[0] + 1;
-  extY = outExt[3] - outExt[2] + 1;
-  extZ = outExt[5] - outExt[4] + 1;
-
-  target = static_cast<unsigned long>(extZ * extY / 50.0);
-  target++;
-
-  // Get increments to march through data
-  inData->GetContinuousIncrements(inArray, outExt, inIncX, inIncY, inIncZ);
-  inMaskIncX = inMaskIncY = inMaskIncZ = 0;
-  if (maskArray)
+struct MapToColorsWorker
+{
+  template <typename ArrayT>
+  void operator()(ArrayT* inArray, vtkImageMapToColors* self, vtkImageData* inData,
+    vtkCharArray* maskArray, vtkImageData* outData, unsigned char* outPtr,
+    VTK_FUTURE_CONST int outExt[6], int id, unsigned char* nanColor)
   {
-    inData->GetContinuousIncrements(maskArray, outExt, inMaskIncX, inMaskIncY, inMaskIncZ);
-  }
-  // because we are using void * and char * we must take care
-  // of the scalar size in the increments
-  inIncY *= scalarSize;
-  inIncZ *= scalarSize;
-  outData->GetContinuousIncrements(outArray, outExt, outIncX, outIncY, outIncZ);
-  numberOfComponents = inData->GetNumberOfScalarComponents();
-  numberOfOutputComponents = outData->GetNumberOfScalarComponents();
-  outputFormat = self->GetOutputFormat();
-  rowLength = extX * scalarSize * numberOfComponents;
+    using ValueType = vtk::GetAPIType<ArrayT>;
 
-  // Loop through output pixels
-  outPtr1 = outPtr;
-  inPtr1 = static_cast<void*>(static_cast<char*>(inPtr) + self->GetActiveComponent() * scalarSize);
-  for (idxZ = 0; idxZ < extZ; idxZ++)
-  {
-    for (idxY = 0; !self->AbortExecute && idxY < extY; idxY++)
+    int extX, extY, extZ;
+    vtkIdType inIncX, inIncY, inIncZ, inMaskIncX, inMaskIncY, inMaskIncZ;
+    vtkIdType outIncX, outIncY, outIncZ;
+    unsigned long target;
+    int dataType = inArray->GetDataType();
+    int numberOfComponents, numberOfOutputComponents, outputFormat;
+    int rowLength;
+    vtkScalarsToColors* lookupTable = self->GetLookupTable();
+
+    char* inMask = maskArray
+      ? maskArray->GetPointer(inData->GetValueIndexForExtent(maskArray, outExt))
+      : nullptr;
+
+    // find the region to loop over
+    extX = outExt[1] - outExt[0] + 1;
+    extY = outExt[3] - outExt[2] + 1;
+    extZ = outExt[5] - outExt[4] + 1;
+
+    target = static_cast<unsigned long>(extZ * extY / 50.0);
+    target++;
+
+    // Get increments to march through data
+    inData->GetContinuousIncrements(inArray, outExt, inIncX, inIncY, inIncZ);
+    inMaskIncX = inMaskIncY = inMaskIncZ = 0;
+    if (maskArray)
     {
-      if (!id)
+      inData->GetContinuousIncrements(maskArray, outExt, inMaskIncX, inMaskIncY, inMaskIncZ);
+    }
+    outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+    numberOfComponents = inData->GetNumberOfScalarComponents();
+    numberOfOutputComponents = outData->GetNumberOfScalarComponents();
+    outputFormat = self->GetOutputFormat();
+    rowLength = extX * numberOfComponents;
+
+    vtkNew<ArrayT> tempArray;
+    tempArray->SetNumberOfComponents(numberOfComponents);
+
+    unsigned long count = 0;
+    unsigned char* outPtr1 = outPtr;
+    ValueType* inPtr1 = inArray->GetPointer(inData->GetValueIndexForExtent(inArray, outExt)) +
+      self->GetActiveComponent();
+    for (int idxZ = 0; idxZ < extZ; idxZ++)
+    {
+      for (int idxY = 0; !self->AbortExecute && idxY < extY; idxY++)
       {
-        if (!(count % target))
+        if (!id)
         {
-          self->UpdateProgress(count / (50.0 * target));
-        }
-        count++;
-      }
-      lookupTable->MapScalarsThroughTable(
-        inPtr1, outPtr1, dataType, extX, numberOfComponents, outputFormat);
-      // Handle NaN color when mask
-      if (inMask != nullptr)
-      {
-        unsigned char* outPtr2 = outPtr1;
-        for (vtkIdType idx = 0; idx < extX; ++idx, outPtr2 += outputFormat)
-        {
-          if (!inMask[idx])
+          if (!(count % target))
           {
-            switch (outputFormat)
+            self->UpdateProgress(count / (50.0 * target));
+          }
+          count++;
+        }
+        tempArray->SetArray(inPtr1, extX * numberOfComponents, 1);
+        lookupTable->MapScalarsThroughTable(
+          tempArray, outPtr1, extX, numberOfComponents, 0, outputFormat);
+        // Handle NaN color when mask
+        if (inMask != nullptr)
+        {
+          unsigned char* outPtr2 = outPtr1;
+          for (vtkIdType idx = 0; idx < extX; ++idx, outPtr2 += outputFormat)
+          {
+            if (!inMask[idx])
             {
-              case 4:
-                outPtr2[3] = nanColor[3];
-                [[fallthrough]];
-              case 3:
-                outPtr2[2] = nanColor[2];
-                [[fallthrough]];
-              case 2:
-                outPtr2[1] = nanColor[1];
-                [[fallthrough]];
-              case 1:
-                outPtr2[0] = nanColor[0];
+              switch (outputFormat)
+              {
+                case 4:
+                  outPtr2[3] = nanColor[3];
+                  [[fallthrough]];
+                case 3:
+                  outPtr2[2] = nanColor[2];
+                  [[fallthrough]];
+                case 2:
+                  outPtr2[1] = nanColor[1];
+                  [[fallthrough]];
+                case 1:
+                  outPtr2[0] = nanColor[0];
+              }
             }
           }
         }
-      }
-      if (self->GetPassAlphaToOutput() && dataType == VTK_UNSIGNED_CHAR && numberOfComponents > 1 &&
-        (outputFormat == VTK_RGBA || outputFormat == VTK_LUMINANCE_ALPHA))
-      {
-        unsigned char* outPtr2 = outPtr1 + numberOfOutputComponents - 1;
-        unsigned char* inPtr2 = static_cast<unsigned char*>(inPtr1) -
-          self->GetActiveComponent() * scalarSize + numberOfComponents - 1;
-        for (int i = 0; i < extX; i++)
+        if (self->GetPassAlphaToOutput() && dataType == VTK_UNSIGNED_CHAR &&
+          numberOfComponents > 1 &&
+          (outputFormat == VTK_RGBA || outputFormat == VTK_LUMINANCE_ALPHA))
         {
-          *outPtr2 = (*outPtr2 * *inPtr2) / 255;
-          outPtr2 += numberOfOutputComponents;
-          inPtr2 += numberOfComponents;
+          unsigned char* outPtr2 = outPtr1 + numberOfOutputComponents - 1;
+          ValueType* inPtr2 = inPtr1 - self->GetActiveComponent() + numberOfComponents - 1;
+          for (int i = 0; i < extX; i++)
+          {
+            *outPtr2 = static_cast<unsigned char>((*outPtr2 * *inPtr2) / 255);
+            outPtr2 += numberOfOutputComponents;
+            inPtr2 += numberOfComponents;
+          }
         }
+        outPtr1 += outIncY + extX * numberOfOutputComponents;
+        inPtr1 += inIncY + rowLength;
+
+        // Just move pointer if not nullptr
+        inMask += inMask ? inMaskIncY + extX : 0;
       }
-      outPtr1 += outIncY + extX * numberOfOutputComponents;
-      inPtr1 = static_cast<void*>(static_cast<char*>(inPtr1) + inIncY + rowLength);
+      outPtr1 += outIncZ;
+      inPtr1 += inIncZ;
 
       // Just move pointer if not nullptr
-      inMask += inMask ? inMaskIncY + extX : 0;
+      inMask += inMask ? inMaskIncZ : 0;
     }
-    outPtr1 += outIncZ;
-    inPtr1 = static_cast<void*>(static_cast<char*>(inPtr1) + inIncZ);
-
-    // Just move pointer if not nullptr
-    inMask += inMask ? inMaskIncZ : 0;
   }
+};
 }
 
 //------------------------------------------------------------------------------
@@ -275,14 +273,19 @@ void vtkImageMapToColors::ThreadedRequestData(vtkInformation* vtkNotUsed(request
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
   vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
-  vtkDataArray* outArray = outData[0]->GetPointData()->GetScalars();
   vtkCharArray* maskArray =
     vtkArrayDownCast<vtkCharArray>(inData[0][0]->GetPointData()->GetArray("vtkValidPointMask"));
   vtkDataArray* inArray = this->GetInputArrayToProcess(0, inputVector);
+  unsigned char* outPtr =
+    static_cast<unsigned char*>(outData[0]->GetScalarPointerForExtent(outExt));
 
-  // Working method
-  vtkImageMapToColorsExecute(
-    this, inData[0][0], inArray, maskArray, outData[0], outArray, outExt, id, this->NaNColor);
+  MapToColorsWorker worker;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>::Execute(inArray, worker,
+        this, inData[0][0], maskArray, outData[0], outPtr, outExt, id, this->NaNColor))
+  {
+    vtkErrorMacro(<< "ThreadedRequestData: Unsupported array type for input scalars: "
+                  << inArray->GetClassName());
+  }
 }
 
 //------------------------------------------------------------------------------

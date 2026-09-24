@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageResliceToColors.h"
 
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -148,9 +149,8 @@ int vtkImageResliceToColors::ConvertScalarInfo(int& scalarType, int& numComponen
 }
 
 //------------------------------------------------------------------------------
-void vtkImageResliceToColors::ConvertScalars(VTK_FUTURE_CONST void* inPtr, void* outPtr,
-  int inputType, int inputComponents, int count, int vtkNotUsed(idX), int vtkNotUsed(idY),
-  int vtkNotUsed(idZ), int vtkNotUsed(threadId))
+void vtkImageResliceToColors::ConvertScalars(vtkDataArray* input, void* outPtr, int count,
+  int vtkNotUsed(idX), int vtkNotUsed(idY), int vtkNotUsed(idZ), int vtkNotUsed(threadId))
 {
   vtkScalarsToColors* table = this->LookupTable;
   if (!table)
@@ -158,15 +158,16 @@ void vtkImageResliceToColors::ConvertScalars(VTK_FUTURE_CONST void* inPtr, void*
     table = this->DefaultLookupTable;
   }
 
+  int inputComponents = input->GetNumberOfComponents();
   if (inputComponents == 1 && this->LookupTable)
   {
-    table->MapScalarsThroughTable(inPtr, static_cast<unsigned char*>(outPtr), inputType, count,
-      inputComponents, this->OutputFormat);
+    table->MapScalarsThroughTable(
+      input, static_cast<unsigned char*>(outPtr), count, inputComponents, 0, this->OutputFormat);
   }
   else
   {
-    table->MapVectorsThroughTable(inPtr, static_cast<unsigned char*>(outPtr), inputType, count,
-      inputComponents, this->OutputFormat);
+    table->MapVectorsThroughTable(
+      input, static_cast<unsigned char*>(outPtr), count, inputComponents, this->OutputFormat);
   }
 }
 VTK_ABI_NAMESPACE_END

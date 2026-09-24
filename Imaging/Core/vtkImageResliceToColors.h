@@ -24,6 +24,7 @@
 #include "vtkWrappingHints.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDataArray;
 class vtkScalarsToColors;
 
 class VTKIMAGINGCORE_EXPORT VTK_MARSHALAUTO vtkImageResliceToColors : public vtkImageReslice
@@ -86,8 +87,9 @@ protected:
 
   int ConvertScalarInfo(int& scalarType, int& numComponents) override;
 
-  void ConvertScalars(VTK_FUTURE_CONST void* inPtr, void* outPtr, int inputType,
-    int inputNumComponents, int count, int idX, int idY, int idZ, int threadId) override;
+  using vtkImageReslice::ConvertScalars;
+  void ConvertScalars(
+    vtkDataArray* input, void* outPtr, int count, int idX, int idY, int idZ, int threadId) override;
 
 private:
   vtkImageResliceToColors(const vtkImageResliceToColors&) = delete;

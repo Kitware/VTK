@@ -3,13 +3,12 @@
 
 #include "vtkLookupTableItem.h"
 #include "vtkCallbackCommand.h"
+#include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
-
-#include <cassert>
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -94,17 +93,18 @@ void vtkLookupTableItem::ComputeTexture()
   }
   // Could depend of the screen resolution
   constexpr int dimension = 256;
-  double values[256];
+  vtkNew<vtkDoubleArray> values;
+  values->SetNumberOfValues(dimension);
   // Texture 1D
   this->Texture->SetExtent(0, dimension - 1, 0, 0, 0, 0);
   this->Texture->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
   // TODO: Support log scale ?
   for (int i = 0; i < dimension; ++i)
   {
-    values[i] = bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1);
+    values->SetValue(i, bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1));
   }
   unsigned char* ptr = reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0, 0, 0));
-  this->LookupTable->MapScalarsThroughTable(values, ptr, VTK_DOUBLE, dimension, 1, 4);
+  this->LookupTable->MapScalarsThroughTable(values, ptr, dimension, 1, 0, 4);
   if (this->Opacity != 1.)
   {
     for (int i = 0; i < dimension; ++i)

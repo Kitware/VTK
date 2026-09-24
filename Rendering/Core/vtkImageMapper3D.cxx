@@ -19,6 +19,7 @@
 #include "vtkPlane.h"
 #include "vtkRenderer.h"
 #include "vtkScalarsToColors.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTemplateAliasMacro.h"
 
@@ -638,6 +639,10 @@ static void vtkImageMapperApplyLookupTableToImageScalars(void* inPtr, unsigned c
     newPtr = malloc(scalarSize * numComp * ncols);
   }
 
+  // array wrapping tmpPtr, reused across calls to Map{Scalars,Vectors}ThroughTable
+  auto tmpArray = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(scalarType));
+  tmpArray->SetNumberOfComponents(numComp);
+
   // loop through the data and copy it for the texture
   for (int idy = 0; idy < nrows; idy++)
   {
@@ -671,13 +676,14 @@ static void vtkImageMapperApplyLookupTableToImageScalars(void* inPtr, unsigned c
     }
 
     // pass the data through the lookup table
+    tmpArray->SetVoidArray(tmpPtr, static_cast<vtkIdType>(ncols) * numComp, 1);
     if (numComp == 1)
     {
-      lookupTable->MapScalarsThroughTable(tmpPtr, outPtr, scalarType, ncols, numComp, VTK_RGBA);
+      lookupTable->MapScalarsThroughTable(tmpArray, outPtr, ncols, numComp, 0, VTK_RGBA);
     }
     else
     {
-      lookupTable->MapVectorsThroughTable(tmpPtr, outPtr, scalarType, ncols, numComp, VTK_RGBA);
+      lookupTable->MapVectorsThroughTable(tmpArray, outPtr, ncols, numComp, VTK_RGBA);
     }
 
     outPtr += outIncY;

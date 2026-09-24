@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageMapToWindowLevelColors.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkScalarsToColors.h"
@@ -228,154 +230,167 @@ void vtkImageMapToWindowLevelClamps(vtkImageData* data, double w, double l, T& l
   }
 }
 
-//------------------------------------------------------------------------------
-// This non-templated function executes the filter for any type of data.
-template <class T>
-void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors* self,
-  vtkImageData* inData, T* inPtr, vtkImageData* outData, unsigned char* outPtr,
-  VTK_FUTURE_CONST int outExt[6], int id)
+namespace
 {
-  int idxX, idxY, idxZ;
-  int extX, extY, extZ;
-  vtkIdType inIncX, inIncY, inIncZ;
-  vtkIdType outIncX, outIncY, outIncZ;
-  unsigned long count = 0;
-  unsigned long target;
-  int dataType = inData->GetScalarType();
-  int numberOfComponents, numberOfOutputComponents, outputFormat;
-  int rowLength;
-  vtkScalarsToColors* lookupTable = self->GetLookupTable();
-  unsigned char* outPtr1;
-  T* inPtr1;
-  unsigned char* optr;
-  T* iptr;
-  double shift = self->GetWindow() / 2.0 - self->GetLevel();
-  double scale = 255.0 / self->GetWindow();
-
-  T lower, upper;
-  unsigned char lower_val, upper_val, result_val;
-  unsigned short ushort_val;
-  vtkImageMapToWindowLevelClamps(
-    inData, self->GetWindow(), self->GetLevel(), lower, upper, lower_val, upper_val);
-
-  // find the region to loop over
-  extX = outExt[1] - outExt[0] + 1;
-  extY = outExt[3] - outExt[2] + 1;
-  extZ = outExt[5] - outExt[4] + 1;
-
-  target = static_cast<unsigned long>(extZ * extY / 50.0);
-  target++;
-
-  // Get increments to march through data
-  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
-
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  numberOfComponents = inData->GetNumberOfScalarComponents();
-  numberOfOutputComponents = outData->GetNumberOfScalarComponents();
-  outputFormat = self->GetOutputFormat();
-
-  rowLength = extX * numberOfComponents;
-
-  // Loop through output pixels
-  outPtr1 = outPtr;
-  inPtr1 = inPtr + self->GetActiveComponent();
-  for (idxZ = 0; idxZ < extZ; idxZ++)
+/**
+ * Worker that maps each row of raw input pixels through the window/level
+ * transform (and, if set, the lookup table). A single array of the input's
+ * concrete (AOS) type is allocated once and re-pointed at each row via
+ * SetArray, so the lookup table can be driven through its
+ * vtkAbstractArray-based MapScalarsThroughTable overload instead of the
+ * deprecated raw void pointer / dataType overload.
+ */
+struct MapToWindowLevelColorsWorker
+{
+  template <typename ArrayT>
+  void operator()(ArrayT* inArray, vtkImageMapToWindowLevelColors* self, vtkImageData* inData,
+    vtkImageData* outData, unsigned char* outPtr, VTK_FUTURE_CONST int outExt[6], int id)
   {
-    for (idxY = 0; !self->AbortExecute && idxY < extY; idxY++)
+    using ValueType = vtk::GetAPIType<ArrayT>;
+
+    int extX, extY, extZ;
+    vtkIdType inIncX, inIncY, inIncZ;
+    vtkIdType outIncX, outIncY, outIncZ;
+    unsigned long target;
+    int numberOfComponents, numberOfOutputComponents, outputFormat;
+    int rowLength;
+
+    vtkScalarsToColors* lookupTable = self->GetLookupTable();
+    double shift = self->GetWindow() / 2.0 - self->GetLevel();
+    double scale = 255.0 / self->GetWindow();
+
+    ValueType lower, upper;
+    unsigned char lower_val, upper_val, result_val;
+    unsigned short ushort_val;
+    vtkImageMapToWindowLevelClamps(
+      inData, self->GetWindow(), self->GetLevel(), lower, upper, lower_val, upper_val);
+
+    // find the region to loop over
+    extX = outExt[1] - outExt[0] + 1;
+    extY = outExt[3] - outExt[2] + 1;
+    extZ = outExt[5] - outExt[4] + 1;
+
+    target = static_cast<unsigned long>(extZ * extY / 50.0);
+    target++;
+
+    // Get increments to march through data
+    inData->GetContinuousIncrements(inArray, outExt, inIncX, inIncY, inIncZ);
+    outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+    numberOfComponents = inData->GetNumberOfScalarComponents();
+    numberOfOutputComponents = outData->GetNumberOfScalarComponents();
+    outputFormat = self->GetOutputFormat();
+    rowLength = extX * numberOfComponents;
+
+    vtkNew<ArrayT> tempArray;
+    if (lookupTable)
     {
-      if (!id)
-      {
-        if (!(count % target))
-        {
-          self->UpdateProgress(count / (50.0 * target));
-        }
-        count++;
-      }
-
-      iptr = inPtr1;
-      optr = outPtr1;
-
-      if (lookupTable)
-      {
-        lookupTable->MapScalarsThroughTable(
-          inPtr1, outPtr1, dataType, extX, numberOfComponents, outputFormat);
-
-        for (idxX = 0; idxX < extX; idxX++)
-        {
-          if (*iptr <= lower)
-          {
-            ushort_val = lower_val;
-          }
-          else if (*iptr >= upper)
-          {
-            ushort_val = upper_val;
-          }
-          else
-          {
-            ushort_val = static_cast<unsigned char>((*iptr + shift) * scale);
-          }
-          *optr = static_cast<unsigned char>((*optr * ushort_val) >> 8);
-          switch (outputFormat)
-          {
-            case VTK_RGBA:
-              *(optr + 1) = static_cast<unsigned char>((*(optr + 1) * ushort_val) >> 8);
-              *(optr + 2) = static_cast<unsigned char>((*(optr + 2) * ushort_val) >> 8);
-              *(optr + 3) = 255;
-              break;
-            case VTK_RGB:
-              *(optr + 1) = static_cast<unsigned char>((*(optr + 1) * ushort_val) >> 8);
-              *(optr + 2) = static_cast<unsigned char>((*(optr + 2) * ushort_val) >> 8);
-              break;
-            case VTK_LUMINANCE_ALPHA:
-              *(optr + 1) = 255;
-              break;
-          }
-          iptr += numberOfComponents;
-          optr += numberOfOutputComponents;
-        }
-      }
-      else
-      {
-        for (idxX = 0; idxX < extX; idxX++)
-        {
-          if (*iptr <= lower)
-          {
-            result_val = lower_val;
-          }
-          else if (*iptr >= upper)
-          {
-            result_val = upper_val;
-          }
-          else
-          {
-            result_val = static_cast<unsigned char>((*iptr + shift) * scale);
-          }
-          *optr = result_val;
-          switch (outputFormat)
-          {
-            case VTK_RGBA:
-              *(optr + 1) = result_val;
-              *(optr + 2) = result_val;
-              *(optr + 3) = 255;
-              break;
-            case VTK_RGB:
-              *(optr + 1) = result_val;
-              *(optr + 2) = result_val;
-              break;
-            case VTK_LUMINANCE_ALPHA:
-              *(optr + 1) = 255;
-              break;
-          }
-          iptr += numberOfComponents;
-          optr += numberOfOutputComponents;
-        }
-      }
-      outPtr1 += outIncY + extX * numberOfOutputComponents;
-      inPtr1 += inIncY + rowLength;
+      tempArray->SetNumberOfComponents(numberOfComponents);
     }
-    outPtr1 += outIncZ;
-    inPtr1 += inIncZ;
+
+    unsigned long count = 0;
+    unsigned char* outPtr1 = outPtr;
+    ValueType* inPtr1 = inArray->GetPointer(inData->GetValueIndexForExtent(inArray, outExt)) +
+      self->GetActiveComponent();
+    for (int idxZ = 0; idxZ < extZ; idxZ++)
+    {
+      for (int idxY = 0; !self->AbortExecute && idxY < extY; idxY++)
+      {
+        if (!id)
+        {
+          if (!(count % target))
+          {
+            self->UpdateProgress(count / (50.0 * target));
+          }
+          count++;
+        }
+
+        ValueType* iptr = inPtr1;
+        unsigned char* optr = outPtr1;
+
+        if (lookupTable)
+        {
+          tempArray->SetArray(inPtr1, extX * numberOfComponents, 1);
+          lookupTable->MapScalarsThroughTable(
+            tempArray, outPtr1, extX, numberOfComponents, 0, outputFormat);
+
+          for (int idxX = 0; idxX < extX; idxX++)
+          {
+            if (*iptr <= lower)
+            {
+              ushort_val = lower_val;
+            }
+            else if (*iptr >= upper)
+            {
+              ushort_val = upper_val;
+            }
+            else
+            {
+              ushort_val = static_cast<unsigned char>((*iptr + shift) * scale);
+            }
+            *optr = static_cast<unsigned char>((*optr * ushort_val) >> 8);
+            switch (outputFormat)
+            {
+              case VTK_RGBA:
+                *(optr + 1) = static_cast<unsigned char>((*(optr + 1) * ushort_val) >> 8);
+                *(optr + 2) = static_cast<unsigned char>((*(optr + 2) * ushort_val) >> 8);
+                *(optr + 3) = 255;
+                break;
+              case VTK_RGB:
+                *(optr + 1) = static_cast<unsigned char>((*(optr + 1) * ushort_val) >> 8);
+                *(optr + 2) = static_cast<unsigned char>((*(optr + 2) * ushort_val) >> 8);
+                break;
+              case VTK_LUMINANCE_ALPHA:
+                *(optr + 1) = 255;
+                break;
+            }
+            iptr += numberOfComponents;
+            optr += numberOfOutputComponents;
+          }
+        }
+        else
+        {
+          for (int idxX = 0; idxX < extX; idxX++)
+          {
+            if (*iptr <= lower)
+            {
+              result_val = lower_val;
+            }
+            else if (*iptr >= upper)
+            {
+              result_val = upper_val;
+            }
+            else
+            {
+              result_val = static_cast<unsigned char>((*iptr + shift) * scale);
+            }
+            *optr = result_val;
+            switch (outputFormat)
+            {
+              case VTK_RGBA:
+                *(optr + 1) = result_val;
+                *(optr + 2) = result_val;
+                *(optr + 3) = 255;
+                break;
+              case VTK_RGB:
+                *(optr + 1) = result_val;
+                *(optr + 2) = result_val;
+                break;
+              case VTK_LUMINANCE_ALPHA:
+                *(optr + 1) = 255;
+                break;
+            }
+            iptr += numberOfComponents;
+            optr += numberOfOutputComponents;
+          }
+        }
+        outPtr1 += outIncY + extX * numberOfOutputComponents;
+        inPtr1 += inIncY + rowLength;
+      }
+      outPtr1 += outIncZ;
+      inPtr1 += inIncZ;
+    }
   }
+};
 }
 
 //------------------------------------------------------------------------------
@@ -386,16 +401,16 @@ void vtkImageMapToWindowLevelColors::ThreadedRequestData(vtkInformation* vtkNotU
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
   vtkImageData*** inData, vtkImageData** outData, VTK_FUTURE_CONST int outExt[6], int id)
 {
-  void* inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
-  void* outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+  vtkDataArray* inArray = inData[0][0]->GetPointData()->GetScalars();
+  unsigned char* outPtr =
+    static_cast<unsigned char*>(outData[0]->GetScalarPointerForExtent(outExt));
 
-  switch (inData[0][0]->GetScalarType())
+  MapToWindowLevelColorsWorker worker;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>::Execute(
+        inArray, worker, this, inData[0][0], outData[0], outPtr, outExt, id))
   {
-    vtkTemplateMacro(vtkImageMapToWindowLevelColorsExecute(this, inData[0][0],
-      static_cast<VTK_TT*>(inPtr), outData[0], static_cast<unsigned char*>(outPtr), outExt, id));
-    default:
-      vtkErrorMacro(<< "Execute: Unknown ScalarType");
-      return;
+    vtkErrorMacro(<< "ThreadedRequestData: Unsupported array type for input scalars: "
+                  << inArray->GetClassName());
   }
 }
 

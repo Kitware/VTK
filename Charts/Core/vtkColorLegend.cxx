@@ -7,11 +7,9 @@
 #include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
 #include "vtkContextScene.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
-#include "vtkPen.h"
-#include "vtkPoints2D.h"
 #include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
 #include "vtkTransform2D.h"
@@ -273,7 +271,8 @@ void vtkColorLegend::ComputeTexture()
 
   // Could depend on the screen resolution
   constexpr int dimension = 256;
-  double* values = new double[dimension];
+  vtkNew<vtkDoubleArray> values;
+  values->SetNumberOfValues(dimension);
   // Texture 1D
   if (this->Orientation == vtkColorLegend::VERTICAL)
   {
@@ -287,11 +286,10 @@ void vtkColorLegend::ComputeTexture()
 
   for (int i = 0; i < dimension; ++i)
   {
-    values[i] = bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1);
+    values->SetValue(i, bounds[0] + i * (bounds[1] - bounds[0]) / (dimension - 1));
   }
   unsigned char* ptr = reinterpret_cast<unsigned char*>(this->ImageData->GetScalarPointer());
-  this->TransferFunction->MapScalarsThroughTable(values, ptr, VTK_DOUBLE, dimension, 1, 4);
-  delete[] values;
+  this->TransferFunction->MapScalarsThroughTable(values, ptr, dimension, 1, 0, 4);
 }
 
 //------------------------------------------------------------------------------
