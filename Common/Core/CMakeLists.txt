@@ -320,6 +320,7 @@ set(classes
   vtkLookupTable
   vtkMath
   vtkMarshalContext
+  vtkMemoryDescriptor
   vtkMersenneTwister
   vtkMinimalStandardRandomSequence
   vtkMultiThreader

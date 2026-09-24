@@ -95,7 +95,27 @@ public:
   T* GetPointer(vtkIdType valueIdx);
   T* WritePointer(vtkIdType valueIdx, vtkIdType numValues);
   vtkDataArray::MemorySpace GetMemorySpace() override;
+  T* GetDevicePointer(vtkIdType valueIdx);
   void* GetDeviceVoidPointer(vtkIdType valueIdx) override;
+
+  /// Describe the memory backing this array, without copying it off the
+  /// device. The descriptor holds a reference to this array, so a consumer
+  /// can keep the buffer alive on its own.
+  ///
+  /// Describes what the handle really holds, rather than converting it: an
+  /// interleaved handle reports one "data" buffer, and an SoA one reports
+  /// "component_0", "component_1", ... , one per component. Nothing is
+  /// materialised to answer the question.
+  ///
+  /// A handle with no buffers behind it -- implicit, constant, transformed,
+  /// any of the ordinary filter outputs -- reports nothing. Viskores would
+  /// happily generate a flat copy on request, but a descriptor over that is
+  /// a snapshot of a temporary wearing the shape of a view: writes through
+  /// it go nowhere and writes to the array are never seen.
+  ///
+  /// The caller takes ownership of the returned collection.
+  VTK_NEWINSTANCE
+  vtkCollection* NewMemoryDescriptors() override;
   ///@}
 
   /// Support methods for \c vtkGenericDataArray.

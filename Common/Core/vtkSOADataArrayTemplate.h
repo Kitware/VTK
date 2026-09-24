@@ -24,6 +24,7 @@
 #include "vtkCompiler.h"         // for VTK_USE_EXTERN_TEMPLATE
 #include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkGenericDataArray.h"
+#include "vtkWrappingHints.h" // For VTK_NEWINSTANCE
 
 // The export macro below makes no sense, but is necessary for older compilers
 // when we export instantiations of this class from vtkCommonCore.
@@ -185,6 +186,21 @@ public:
    * a particular components (ie. a single array of the struct-of-arrays).
    */
   ValueType* GetComponentArrayPointer(int comp);
+
+  /**
+   * One descriptor per component, roled "component_0", "component_1", ...
+   *
+   * A struct-of-arrays keeps each component in its own buffer, so no single
+   * pointer describes the array. Each descriptor is a view of the component's
+   * real storage; nothing is flattened into a temporary to produce them.
+   *
+   * A consumer wanting one contiguous buffer -- DLPack, for instance -- has
+   * to see that there is more than one here and say so.
+   *
+   * The caller takes ownership of the returned collection.
+   */
+  VTK_NEWINSTANCE
+  vtkCollection* NewMemoryDescriptors() override;
 
   /**
    * Return the underlying buffer object for a particular component. This can

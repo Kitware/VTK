@@ -25,6 +25,7 @@
 #include "vtkCompiler.h"         // for VTK_USE_EXTERN_TEMPLATE
 #include "vtkDataArrayMeta.h"    // For vtkDataArrayMeta::ComponentType
 #include "vtkGenericDataArray.h"
+#include "vtkWrappingHints.h" // For VTK_NEWINSTANCE
 
 namespace vtk
 {
@@ -239,6 +240,19 @@ public:
   ValueType* GetPointer(vtkIdType valueIdx);
   void* GetVoidPointer(vtkIdType valueIdx) override;
   ///@}
+
+  /**
+   * One descriptor for the single contiguous buffer this array owns.
+   *
+   * An array-of-structs already is that buffer, so the descriptor points at
+   * the array's own memory and holds a reference to keep it alive. The base
+   * class cannot describe anything in general, which is why this is an
+   * override rather than the default.
+   *
+   * The caller takes ownership of the returned collection.
+   */
+  VTK_NEWINSTANCE
+  vtkCollection* NewMemoryDescriptors() override;
 
   /**
    * Return the underlying buffer object. This can be used for zero-copy

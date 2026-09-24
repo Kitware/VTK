@@ -28,6 +28,7 @@
 #include "vtkWrappingHints.h"    // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkCollection;
 class vtkDoubleArray;
 class vtkIdList;
 class vtkInformationStringKey;
@@ -608,6 +609,42 @@ public:
    * Returns nullptr if the data is not on a device.
    */
   virtual void* GetDeviceVoidPointer(vtkIdType vtkNotUsed(valueIdx)) { return nullptr; }
+
+  /**
+   * Return descriptors for the memory buffers backing this array.
+   *
+   * Each vtkMemoryDescriptor carries a pointer, a size in bytes, a memory
+   * space ("host", "cuda", "hip", ...) and a role:
+   * - "data"        -- one flat buffer (AoS layout)
+   * - "component_0" -- first component of an SoA layout, and so on
+   *
+   * Every returned descriptor holds a reference to this array, so the memory
+   * it points at stays valid for as long as the descriptor does. That is the
+   * whole point of handing back descriptors rather than raw pointers: a
+   * consumer -- possibly in another language, on another thread -- can keep
+   * the buffer alive without knowing anything about VTK's object model.
+   *
+   * Only storage the array really owns is described, so a descriptor is
+   * always a view: whoever holds it writes through it and the array sees the
+   * write. The default implementation therefore describes nothing and returns
+   * an empty collection, because a vtkDataArray in general has no contiguous
+   * buffer to point at -- an implicit or computed array has no storage, and a
+   * non-standard layout has storage that no single pointer describes.
+   * Subclasses that really do own contiguous memory, on the host or on a
+   * device, override this; the rest report nothing, and a caller can tell the
+   * difference.
+   *
+   * The caller takes ownership of the returned collection -- hence New rather
+   * than Get in the name.
+   *
+   * VTK_NEWINSTANCE is load-bearing: it tells the wrappers the reference is
+   * owned rather than borrowed. Without it a wrapped caller adds one of its
+   * own and the collection is never destroyed -- which leaks the descriptor,
+   * and with it the reference the descriptor holds on this array. Asking an
+   * array where its memory lives would leak the array.
+   */
+  VTK_NEWINSTANCE
+  virtual vtkCollection* NewMemoryDescriptors();
 
 protected:
   friend class vtkPoints;

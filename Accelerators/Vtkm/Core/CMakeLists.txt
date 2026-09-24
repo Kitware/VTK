@@ -6,6 +6,9 @@ set(private_headers
   vtkmlib/Portals.hxx
   vtkmlib/PortalTraits.h)
 
+set(classes
+  vtkmDataArrayFactory)
+
 set(nowrap_classes
   vtkmDataArray
   vtkmDataArrayUtilities
@@ -29,6 +32,7 @@ vtk_module_add_module(VTK::AcceleratorsVTKmCore
   HEADER_DIRECTORIES
   SOURCES ${sources}
   HEADERS ${headers}
+  CLASSES ${classes}
   NOWRAP_HEADERS  ${nowrap_headers}
   NOWRAP_CLASSES  ${nowrap_classes}
   PRIVATE_HEADERS ${private_headers})
