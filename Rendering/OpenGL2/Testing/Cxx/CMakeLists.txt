@@ -98,6 +98,10 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestSkyboxNoBlur.cxx
   TestSobelGradientMagnitudePass.cxx
   TestSphereMap.cxx
+  TestSphereMapper.cxx
+  TestSphereMapperBesideCamera.cxx
+  TestSphereMapperSelection.cxx,NO_DATA,NO_VALID,NO_SERDES
+  TestSphereMapperTranslucent.cxx
   TestSpherePoints.cxx
   TestSphereVertex.cxx
   TestSRGB.cxx

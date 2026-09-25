@@ -61,7 +61,9 @@ void vtkOpenGLLowMemoryCellTypeAgent::PreDraw(
     return;
   }
   this->PreDrawInternal(renderer, actor, mapper);
-  if (actor->GetProperty()->GetRepresentation() == VTK_POINTS || this->InVertexVisibilityPass)
+  // quads are drawn as they are, no matter the representation.
+  if (!this->DrawElementsAsInstancedQuads &&
+    (actor->GetProperty()->GetRepresentation() == VTK_POINTS || this->InVertexVisibilityPass))
   {
     mapper->ElementType = vtkDrawTexturedElements::ElementShape::Point;
   }
@@ -89,6 +91,11 @@ void vtkOpenGLLowMemoryCellTypeAgent::PreDraw(
   if (actor->GetProperty()->GetRenderPointsAsSpheres() &&
     mapper->ElementType == vtkDrawTexturedElements::ElementShape::Point)
   {
+    needLighting = true;
+  }
+  if (this->DrawElementsAsInstancedQuads)
+  {
+    // the fragment shader computes a normal for the surface inside the quad.
     needLighting = true;
   }
   const auto& loc = mapper->UniformLocs;
@@ -139,15 +146,25 @@ void vtkOpenGLLowMemoryCellTypeAgent::Draw(vtkRenderer* renderer, vtkActor* acto
 #endif
   const auto& offsets = cellGroup.Offsets;
   mapper->FirstVertexId = offsets.VertexIdOffset;
-  mapper->NumberOfElements = cellGroup.NumberOfElements;
-  // when rendering vertices, increase number of elements and draw 1 instance.
-  if (actor->GetProperty()->GetRepresentation() == VTK_POINTS || this->InVertexVisibilityPass)
+  if (this->DrawElementsAsInstancedQuads)
   {
-    mapper->NumberOfElements *= this->NumberOfPointsPerPrimitive;
+    // One instance per element.
+    // A triangle strip with 2 triangles will be drawn using 4 vertices.
+    mapper->NumberOfElements = 2;
+    mapper->NumberOfInstances = cellGroup.NumberOfElements;
   }
   else
   {
-    mapper->NumberOfElements *= this->NumberOfPseudoPrimitivesPerElement;
+    mapper->NumberOfElements = cellGroup.NumberOfElements;
+    // when rendering vertices, increase number of elements and draw 1 instance.
+    if (actor->GetProperty()->GetRepresentation() == VTK_POINTS || this->InVertexVisibilityPass)
+    {
+      mapper->NumberOfElements *= this->NumberOfPointsPerPrimitive;
+    }
+    else
+    {
+      mapper->NumberOfElements *= this->NumberOfPseudoPrimitivesPerElement;
+    }
   }
   const auto& loc = mapper->UniformLocs;
   mapper->ShaderProgram->SetUniformi(loc.CellIdOffset, offsets.CellIdOffset);
@@ -160,7 +177,8 @@ void vtkOpenGLLowMemoryCellTypeAgent::Draw(vtkRenderer* renderer, vtkActor* acto
   // Hybrid dispatch: choose indexed (glDrawElementsInstanced) vs the non-indexed
   // flat-stream expansion for this cell group, and tell the shader which point-id
   // source to use. Both consume the same connectivity, bound two ways.
-  const bool indexed =
+  // Instanced quads index the connectivity with gl_InstanceID, so they are never indexed.
+  const bool indexed = !this->DrawElementsAsInstancedQuads &&
     mapper->ShouldUseIndexedRendering(renderer, actor, cellGroup, this->NumberOfPointsPerPrimitive,
       this->NumberOfPseudoPrimitivesPerElement, this->InVertexVisibilityPass);
   mapper->SetIndexedDrawEnabled(indexed);
@@ -179,6 +197,7 @@ void vtkOpenGLLowMemoryCellTypeAgent::PostDraw(
   // Follow reverse order as in PreDraw.
   mapper->vtkDrawTexturedElements::PostDraw(renderer, actor, mapper);
   this->PostDrawInternal(renderer, actor, mapper);
+  mapper->NumberOfInstances = 1;
 }
 
 VTK_ABI_NAMESPACE_END

@@ -183,7 +183,6 @@ set(shader_files
   glsl/vtkSimpleSplatVS.glsl
   glsl/vtkSobelGradientMagnitudePass1FS.glsl
   glsl/vtkSobelGradientMagnitudePass2FS.glsl
-  glsl/vtkSphereMapperGS.glsl
   glsl/vtkStickMapperGS.glsl
   glsl/vtkTextureObjectFS.glsl)
 set(public_shader_files

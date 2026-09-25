@@ -782,7 +782,6 @@ Rendering/OpenGL2/vtkOpenGLRenderUtilities.h
 Rendering/OpenGL2/vtkOpenGLResourceFreeCallback.h
 Rendering/OpenGL2/vtkOpenGLShaderCache.h
 Rendering/OpenGL2/vtkOpenGLShaderDeclaration.h
-Rendering/OpenGL2/vtkOpenGLSphereMapper.h
 Rendering/OpenGL2/vtkOpenGLState.h
 Rendering/OpenGL2/vtkOpenGLStickMapper.h
 Rendering/OpenGL2/vtkOpenGLTextMapper.h

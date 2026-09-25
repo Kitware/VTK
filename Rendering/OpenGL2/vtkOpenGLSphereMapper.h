@@ -6,27 +6,37 @@
  *
  * An OpenGL mapper that uses imposters to draw spheres. Supports
  * transparency and picking as well.
+ *
+ * Every point of the input is drawn as a sphere, regardless of the cells in the input.
+ * Each point is drawn as an instanced, camera-facing quad (a 4-vertex triangle strip)
+ * that is expanded in the vertex shader. The fragment shader ray-casts the sphere
+ * within that quad to compute the normal and depth of every fragment.
+ * No geometry shader is required, so this mapper also works with OpenGL ES 3.0 and WebGL2.
  */
 
 #ifndef vtkOpenGLSphereMapper_h
 #define vtkOpenGLSphereMapper_h
 
-#include "vtkOpenGLPolyDataMapper.h"
+#include "vtkOpenGLLowMemoryPolyDataMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLSphereMapper : public vtkOpenGLPolyDataMapper
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLSphereMapper
+  : public vtkOpenGLLowMemoryPolyDataMapper
 {
 public:
   static vtkOpenGLSphereMapper* New();
-  vtkTypeMacro(vtkOpenGLSphereMapper, vtkOpenGLPolyDataMapper);
+  vtkTypeMacro(vtkOpenGLSphereMapper, vtkOpenGLLowMemoryPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
   /**
    * Convenience method to set the array to scale with.
+   * The first component of this point data array is the radius of each sphere.
    */
   vtkSetStringMacro(ScaleArray);
+  vtkGetStringMacro(ScaleArray);
   ///@}
 
   ///@{
@@ -36,60 +46,45 @@ public:
    */
   vtkSetMacro(Radius, float);
   vtkGetMacro(Radius, float);
+  ///@}
 
   /**
    * This calls RenderPiece (twice when transparent)
    */
   void Render(vtkRenderer* ren, vtkActor* act) override;
 
-  /**
-   * allows a mapper to update a selections color buffers
-   * Called from a prop which in turn is called from the selector
-   */
-  // void ProcessSelectorPixelBuffers(vtkHardwareSelector *sel,
-  //   int propid, vtkProp *prop) override;
-
 protected:
   vtkOpenGLSphereMapper();
   ~vtkOpenGLSphereMapper() override;
 
   /**
-   * Create the basic shaders before replacement
+   * Upload the scale array as a texture buffer in addition to the arrays
+   * uploaded by the superclass.
    */
-  void GetShaderTemplate(
-    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
+  bool BindArraysToTextureBuffers(vtkRenderer* renderer, vtkActor* actor,
+    vtkCellGraphicsPrimitiveMap::CellTypeMapperOffsets& offsets) override;
+  void InstallArrayTextureShaderDeclarations() override;
 
   /**
-   * Perform string replacements on the shader templates
+   * Place the corners of the quad around each sphere.
    */
-  void ReplaceShaderValues(
-    std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* act) override;
+  void ReplaceShaderPosition(
+    vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource) override;
 
   /**
-   * Set the shader parameters related to the Camera
+   * Ray-cast the sphere to compute the normal and depth of each fragment.
    */
-  void SetCameraShaderParameters(vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act) override;
+  void ReplaceShaderNormal(
+    vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource) override;
 
-  /**
-   * Set the shader parameters related to the actor/mapper
-   */
-  void SetMapperShaderParameters(vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act) override;
+  void SetShaderParameters(vtkRenderer* renderer, vtkActor* actor) override;
 
-  const char* ScaleArray;
-
-  /**
-   * Update the VBO to contain point based values
-   */
-  void BuildBufferObjects(vtkRenderer* ren, vtkActor* act) override;
-
-  void RenderPieceDraw(vtkRenderer* ren, vtkActor* act) override;
-
-  virtual void CreateVBO(vtkPolyData* poly, vtkIdType numPts, unsigned char* colors,
-    int colorComponents, vtkIdType nc, float* sizes, vtkIdType ns, vtkRenderer* ren);
-
+  char* ScaleArray = nullptr;
+  float Radius = 0.3f;
   // used for transparency
-  bool Invert;
-  float Radius;
+  bool Invert = false;
+  // whether the scale array was uploaded in the last call to BindArraysToTextureBuffers
+  bool HasScaleArray = false;
 
 private:
   vtkOpenGLSphereMapper(const vtkOpenGLSphereMapper&) = delete;

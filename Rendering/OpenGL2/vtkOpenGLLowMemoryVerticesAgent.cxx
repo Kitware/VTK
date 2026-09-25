@@ -18,7 +18,10 @@ vtkOpenGLLowMemoryVerticesAgent::~vtkOpenGLLowMemoryVerticesAgent() = default;
 void vtkOpenGLLowMemoryVerticesAgent::PreDrawInternal(
   vtkRenderer*, vtkActor*, vtkOpenGLLowMemoryPolyDataMapper* lmMapper) const
 {
-  lmMapper->ElementType = vtkDrawTexturedElements::ElementShape::Point;
+  this->DrawElementsAsInstancedQuads = lmMapper->DrawPointsAsQuads;
+  lmMapper->ElementType = this->DrawElementsAsInstancedQuads
+    ? vtkDrawTexturedElements::ElementShape::TriangleStrip
+    : vtkDrawTexturedElements::ElementShape::Point;
   lmMapper->ShaderProgram->SetUniformi(lmMapper->UniformLocs.CellType, VTK_VERTEX);
 }
 
