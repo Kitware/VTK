@@ -122,6 +122,65 @@ class TestImageDataProperties(unittest.TestCase):
         retrieved = self.img.point_data["data"]
         np.testing.assert_allclose(np.asarray(retrieved), original)
 
+    def test_point_data_setter_sequence(self):
+        """Lists, tuples and ranges are arrays, not scalars."""
+        self.img.point_data["list"] = list(range(self.npts))
+        self.img.point_data["tuple"] = tuple(0.5 * i for i in range(self.npts))
+        self.img.point_data["range"] = range(self.npts)
+        self.img.point_data["nested"] = [[i, 0, 0] for i in range(self.npts)]
+
+        np.testing.assert_array_equal(
+            np.asarray(self.img.point_data["list"]), np.arange(self.npts)
+        )
+        np.testing.assert_array_equal(
+            np.asarray(self.img.point_data["tuple"]),
+            0.5 * np.arange(self.npts),
+        )
+        np.testing.assert_array_equal(
+            np.asarray(self.img.point_data["range"]), np.arange(self.npts)
+        )
+        self.assertEqual(self.img.point_data["nested"].shape, (self.npts, 3))
+
+    def test_point_data_setter_tuple_broadcast(self):
+        """A single tuple fills every point, as a 1-D numpy array does."""
+        self.img.point_data["v"] = [1.0, 2.0, 3.0]
+        v = np.asarray(self.img.point_data["v"])
+        self.assertEqual(v.shape, (self.npts, 3))
+        np.testing.assert_array_equal(v[-1], [1.0, 2.0, 3.0])
+
+    def test_cell_data_setter_sequence(self):
+        """Assign cell arrays from a list, and from a dict of lists."""
+        self.img.cell_data["material"] = [i % 3 for i in range(self.ncells)]
+        np.testing.assert_array_equal(
+            np.asarray(self.img.cell_data["material"]),
+            np.arange(self.ncells) % 3,
+        )
+
+        self.img.cell_data = {"id": list(range(self.ncells))}
+        self.assertEqual(self.img.cell_data.keys(), ("id",))
+        self.assertEqual(
+            self.img.cell_data["id"].GetNumberOfTuples(), self.ncells
+        )
+
+    def test_field_data_setter_sequence(self):
+        """Field data takes its length from a list."""
+        self.img.field_data["info"] = [1.0, 2.0, 3.0]
+        np.testing.assert_array_equal(
+            np.asarray(self.img.field_data["info"]), [1.0, 2.0, 3.0]
+        )
+
+    def test_field_data_setter_scalar(self):
+        """Scalars, numpy scalars and 0-d arrays make one-value arrays."""
+        self.img.field_data["py"] = 0.5
+        self.img.field_data["np"] = np.float32(0.5)
+        self.img.field_data["zero_d"] = np.array(0.5)
+        expected = {"py": np.float64, "np": np.float32, "zero_d": np.float64}
+        for name, dtype in expected.items():
+            arr = self.img.field_data[name]
+            self.assertEqual(arr.GetNumberOfTuples(), 1)
+            self.assertEqual(arr.dtype, dtype)
+            self.assertEqual(arr[0], 0.5)
+
 
 class TestPolyDataProperties(unittest.TestCase):
     """Verify setters work on PolyData (inherited from DataSet)."""

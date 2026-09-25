@@ -262,6 +262,11 @@ class FieldDataBase(object):
                 "first." % name
             )
 
+        # Lists, tuples and other array-likes become arrays.  Scalars become
+        # 0-d arrays, which fill the whole array below.
+        if not isinstance(narray, numpy.ndarray):
+            narray = numpy.asarray(narray)
+
         if self.association == vtkDataObject.POINT:
             arrLength = dataset.GetNumberOfPoints()
         elif self.association == vtkDataObject.CELL:
@@ -272,17 +277,11 @@ class FieldDataBase(object):
         ):
             arrLength = dataset.GetNumberOfRows()
         else:
-            if not isinstance(narray, numpy.ndarray):
-                arrLength = 1
-            else:
-                arrLength = narray.shape[0]
+            arrLength = narray.shape[0] if narray.ndim > 0 else 1
 
         # Fixup input array length:
-        if (
-            not isinstance(narray, numpy.ndarray) or numpy.ndim(narray) == 0
-        ):  # Scalar input
-            dtype = narray.dtype if isinstance(narray, numpy.ndarray) else type(narray)
-            tmparray = numpy.empty(arrLength, dtype=dtype)
+        if narray.ndim == 0:  # Scalar input
+            tmparray = numpy.empty(arrLength, dtype=narray.dtype)
             tmparray.fill(narray)
             narray = tmparray
         elif narray.shape[0] != arrLength:  # Vector input
