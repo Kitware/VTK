@@ -39,3 +39,46 @@ The OSPRay backend repository for ANARI can be found on [GitHub](https://github.
 With the changes applied in the superbuild CMake file, the build can be achieved by calling the follwing lines:
 
 To run an application using ANARI-OSPRay the name of the anari library is `ANARI_LIBRARY=ospray`.
+
+### Example
+
+The following code snippet is an example showing how to render an image using only ANARI offscreen and saving it to disk:
+
+```c++
+// To test with helide, available in the ANARI SDK:
+// export ANARI_LIBRARY=helide
+
+// Classic VTK rendering pipeline
+vtkNew<vtkSphereSource> source;
+
+vtkNew<vtkPolyDataMapper> mapper;
+mapper->SetInputConnection(source->GetOutputPort());
+
+vtkNew<vtkActor> actor;
+actor->SetMapper(mapper);
+
+vtkNew<vtkRenderer> renderer;
+renderer->AddActor(actor);
+
+// We use directly the 'vtkAnariRenderWindow' for simplicity.
+// User can rely on the render window factory by using
+// vtkNew<vtkRenderWindow> and set at runtime the environment variable like this:
+// VTK_FACTORY_PREFER=SupportRenderPass=false
+vtkNew<vtkAnariRenderWindow> renderWindow;
+renderWindow->AddRenderer(renderer);
+renderWindow->Render();
+
+// Write the result on disk
+vtkNew<vtkWindowToImageFilter> windowToImage;
+windowToImage->SetInput(renderWindow);
+windowToImage->Update();
+
+vtkNew<vtkPNGWriter> writer;
+std::string outputFileName = "AnariSphere.png";
+writer->SetFileName(outputFileName.c_str());
+writer->SetInputConnection(windowToImage->GetOutputPort());
+writer->Write();
+```
+
+For onscreen interactive rendering, please see the [ANARIOpenGL module](../OpenGL/README.md). If you want to rely on the factory, see the
+related [documentation](/advanced/runtime_settings.md).
