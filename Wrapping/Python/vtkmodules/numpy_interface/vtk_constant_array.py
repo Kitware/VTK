@@ -212,8 +212,8 @@ class VTKConstantArray(VTKDataArrayMixin):
         When all operands are VTKConstantArrays or plain scalars,
         the result is wrapped back into a VTKConstantArray of the
         same shape.  When mixed with a real numpy array, the constant
-        is passed as a 0-d array of its dtype and the result is wrapped
-        as VTKAOSArray.
+        is passed as a one-element array of its dtype and the result is
+        wrapped as VTKAOSArray.
         """
         if method != '__call__':
             return NotImplemented
@@ -222,8 +222,9 @@ class VTKConstantArray(VTKDataArrayMixin):
         if out is not None:
             return NotImplemented
 
-        has_real_array = any(
-            isinstance(inp, numpy.ndarray) for inp in inputs
+        only_scalars = all(
+            isinstance(inp, VTKConstantArray) or numpy.ndim(inp) == 0
+            for inp in inputs
         )
 
         new_inputs = []
@@ -234,27 +235,26 @@ class VTKConstantArray(VTKDataArrayMixin):
                     return NotImplemented
                 if first_const is None:
                     first_const = inp
-                # A 0-d array rather than GetConstantValue(), which is a
-                # plain Python number: numpy treats Python numbers as
-                # "weak", so the constant's dtype would be lost and
-                # float32 + 2 would become float64.
+                # A one-element array stands in for the constant so that
+                # numpy promotes it like the full array. A plain Python
+                # number would lose the dtype, and numpy 1.x promotes a
+                # 0-d array by its value, so either one turns float32 + 2
+                # into float64 on some numpy version.
                 new_inputs.append(
-                    numpy.asarray(inp.GetConstantValue(), dtype=inp.dtype))
+                    numpy.full(1, inp.GetConstantValue(), dtype=inp.dtype))
             else:
                 new_inputs.append(inp)
 
         result = ufunc(*new_inputs, **kwargs)
 
         # All constant or scalar -> wrap as new constant array
-        if not has_real_array and first_const is not None:
-            if numpy.isscalar(result) or (
-                    isinstance(result, numpy.ndarray) and result.ndim == 0):
-                result_dtype = numpy.result_type(result)
-                try:
-                    return first_const._new_like(result, result_dtype)
-                except (KeyError, TypeError):
-                    return numpy.full(
-                        first_const.shape, result, dtype=result_dtype)
+        if (only_scalars and first_const is not None
+                and isinstance(result, numpy.ndarray)):
+            try:
+                return first_const._new_like(result[0], result.dtype)
+            except (KeyError, TypeError):
+                return numpy.full(
+                    first_const.shape, result[0], dtype=result.dtype)
 
         # Mixed with real array -> wrap as VTKAOSArray
         return self._wrap_result(result)

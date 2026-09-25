@@ -42,10 +42,18 @@ def check(condition, msg):
         errors += 1
 
 
+# Each operator is checked against the ufunc it stands for rather than the
+# ndarray operator: numpy 2.0 - 2.2 square the array for ** 2 without
+# promoting, so float32_array ** numpy.float64(2) stays float32 there while
+# numpy.power() gives float64.
 OPS = {
-    "+": operator.add, "-": operator.sub, "*": operator.mul,
-    "/": operator.truediv, "//": operator.floordiv, "**": operator.pow,
-    "%": operator.mod,
+    "+": (operator.add, np.add),
+    "-": (operator.sub, np.subtract),
+    "*": (operator.mul, np.multiply),
+    "/": (operator.truediv, np.true_divide),
+    "//": (operator.floordiv, np.floor_divide),
+    "**": (operator.pow, np.power),
+    "%": (operator.mod, np.mod),
 }
 
 # Structured point arrays don't define //, ** or %.
@@ -147,11 +155,11 @@ def test_scalar_promotion(dtype):
         label = f"{name}[{np.dtype(dtype).name}]"
         for s in SCALARS[dtype]:
             for op_name in ops:
-                op = OPS[op_name]
+                op, ufunc = OPS[op_name]
                 compare(label, f"arr {op_name} {s!r}",
-                        outcome(lambda: op(arr, s)), outcome(lambda: op(ref, s)))
+                        outcome(lambda: op(arr, s)), outcome(lambda: ufunc(ref, s)))
                 compare(label, f"{s!r} {op_name} arr",
-                        outcome(lambda: op(s, arr)), outcome(lambda: op(s, ref)))
+                        outcome(lambda: op(s, arr)), outcome(lambda: ufunc(s, ref)))
             compare(label, f"np.add(arr, {s!r})",
                     outcome(lambda: np.add(arr, s)), outcome(lambda: np.add(ref, s)))
 
