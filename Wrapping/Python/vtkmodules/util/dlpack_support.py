@@ -76,6 +76,7 @@ anything asynchronous produced the data.
 """
 
 import ctypes
+import sys
 
 from vtkmodules.vtkCommonCore import (
     VTK_CHAR,
@@ -267,53 +268,88 @@ _PyCapsule_GetPointer.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
 # gives the deleter. Keying this table by anything the deleter cannot
 # recover means nothing is ever released and every export leaks -- device
 # memory included.
+#
+# The consumer decides when the deleter runs, and that can be during
+# interpreter shutdown, after this module's globals have been cleared:
+# importing torch is enough to have this module torn down before __main__,
+# so a tensor still referenced from a script is freed afterwards. The
+# consumer then reads the deleter out of the managed tensor and calls it.
+# So the table (which owns the managed tensors) and the callbacks must
+# outlive the module, and the callbacks must not look anything up in its
+# globals. They are made immortal, bind what they use when they are
+# created, and do nothing once the interpreter is finalizing: leaking an
+# export at exit is harmless, and calling back into a half torn-down module
+# is not.
 
-_pinned = {}
+_CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+
+
+def _immortal(obj):
+    """Leak one reference to *obj*, so it outlives interpreter teardown."""
+    ctypes.pythonapi.Py_IncRef(ctypes.py_object(obj))
+    return obj
+
+
+def _shutdown_safe(function):
+    """Wrap *function* as an immortal C callback that ignores null
+    pointers and does nothing once the interpreter is finalizing."""
+    is_finalizing = sys.is_finalizing
+
+    def callback(pointer):
+        if pointer and not is_finalizing():
+            function(pointer)
+
+    return _immortal(_CALLBACK(callback))
+
+
+_pinned = _immortal({})
 _next_key = 1  # 0 round-trips through c_void_p as None
 
 
-def _release(managed_ptr, struct=_DLManagedTensor):
-    """Drop what was pinned for the export at *managed_ptr*.
+def _releaser(struct):
+    """Return a function dropping what was pinned for an export.
 
     *struct* says which layout to read: manager_ctx sits at a different
     offset in the two.
     """
-    if not managed_ptr:
-        return
-    managed = ctypes.cast(managed_ptr, ctypes.POINTER(struct)).contents
-    _pinned.pop(managed.manager_ctx, None)
+    pinned, cast, pointer_type = _pinned, ctypes.cast, ctypes.POINTER(struct)
+
+    def release(managed_ptr):
+        pinned.pop(cast(managed_ptr, pointer_type).contents.manager_ctx, None)
+
+    return release
 
 
-@ctypes.CFUNCTYPE(None, ctypes.c_void_p)
-def _tensor_deleter(managed_ptr):
-    """Called by the consumer when it is done with the tensor."""
-    _release(managed_ptr, _DLManagedTensor)
+_release = _releaser(_DLManagedTensor)
+_release_versioned = _releaser(_DLManagedTensorVersioned)
+
+# Called by the consumer when it is done with the tensor. The deleter is
+# handed only a pointer and cannot tell the layouts apart, so there is one
+# per layout.
+_tensor_deleter = _shutdown_safe(_release)
+_tensor_deleter_versioned = _shutdown_safe(_release_versioned)
 
 
-@ctypes.CFUNCTYPE(None, ctypes.c_void_p)
-def _tensor_deleter_versioned(managed_ptr):
-    """As above for a v1.0 tensor: the deleter is handed only a pointer
-    and cannot tell the layouts apart, so there is one per layout."""
-    _release(managed_ptr, _DLManagedTensorVersioned)
-
-
-@ctypes.CFUNCTYPE(None, ctypes.c_void_p)
-def _capsule_destructor(capsule_ptr):
-    """Release an export no consumer ever adopted.
+def _unadopted_releaser():
+    """Return a function releasing an export no consumer ever adopted.
 
     A consumer that takes the tensor renames the capsule to
     "used_dltensor" and takes over calling the deleter. A capsule
     collected still named "dltensor" was nobody's responsibility.
     """
-    if not capsule_ptr:
-        return
-    if _PyCapsule_IsValid(capsule_ptr, b"dltensor"):
-        _release(_PyCapsule_GetPointer(capsule_ptr, b"dltensor"), _DLManagedTensor)
-    elif _PyCapsule_IsValid(capsule_ptr, b"dltensor_versioned"):
-        _release(
-            _PyCapsule_GetPointer(capsule_ptr, b"dltensor_versioned"),
-            _DLManagedTensorVersioned,
-        )
+    is_valid, get_pointer = _PyCapsule_IsValid, _PyCapsule_GetPointer
+    release, release_versioned = _release, _release_versioned
+
+    def release_unadopted(capsule_ptr):
+        if is_valid(capsule_ptr, b"dltensor"):
+            release(get_pointer(capsule_ptr, b"dltensor"))
+        elif is_valid(capsule_ptr, b"dltensor_versioned"):
+            release_versioned(get_pointer(capsule_ptr, b"dltensor_versioned"))
+
+    return release_unadopted
+
+
+_capsule_destructor = _shutdown_safe(_unadopted_releaser())
 
 
 def supported_device_types():

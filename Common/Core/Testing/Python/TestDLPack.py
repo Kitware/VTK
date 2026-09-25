@@ -56,6 +56,46 @@ def wrap(source):
     return numpy_support.numpy_to_vtk(source, deep=False)
 
 
+# A consumer that keeps an export until interpreter shutdown, the way
+# PyTorch does. It holds only raw addresses and reads the deleter out of
+# the managed tensor when it is freed. Hung off sys, which is torn down
+# after every ordinary module, it is freed after dlpack_support's globals
+# are gone -- the order PyTorch produces for a tensor in __main__. The
+# leading underscore in sys._late_consumer matters: it is cleared early in
+# that teardown, while sys.stderr can still report an exception raised in
+# the callback. Without it, the failure happens but goes unreported.
+LATE_CONSUMER = """
+import ctypes
+import sys
+
+from vtkmodules.vtkCommonCore import vtkFloatArray
+from vtkmodules.util.dlpack_support import _DLManagedTensor, vtk_to_dlpack
+
+
+class Consumer:
+    def __init__(self, capsule):
+        get_pointer = ctypes.pythonapi.PyCapsule_GetPointer
+        get_pointer.restype = ctypes.c_void_p
+        get_pointer.argtypes = [ctypes.py_object, ctypes.c_char_p]
+        set_name = ctypes.pythonapi.PyCapsule_SetName
+        set_name.argtypes = [ctypes.py_object, ctypes.c_char_p]
+
+        self.managed = get_pointer(capsule, b"dltensor")
+        set_name(capsule, b"used_dltensor")
+        self.deleter_slot = self.managed + _DLManagedTensor.deleter.offset
+        self.read_pointer = ctypes.c_void_p.from_address
+        self.function = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+
+    def __del__(self):
+        self.function(self.read_pointer(self.deleter_slot).value)(self.managed)
+
+
+array = vtkFloatArray()
+array.SetNumberOfValues(4)
+sys._late_consumer = Consumer(vtk_to_dlpack(array))
+"""
+
+
 def make_array(values, n_components=1, cls=vtkFloatArray):
     array = cls()
     array.SetNumberOfComponents(n_components)
@@ -232,6 +272,31 @@ class TestDLPack(Testing.vtkTest):
             ctypes.addressof(managed), b"dltensor", None)
         with self.assertRaises(ValueError):
             dlpack_to_vtk(capsule)
+
+    def testConsumerMayReleaseDuringShutdown(self):
+        """A consumer may call the deleter after this module is torn down.
+
+        Importing torch is enough to have dlpack_support cleared before
+        __main__, so a tensor a script still holds is released after the
+        module's globals are gone. That used to segfault (the callback had
+        been freed) or raise inside the callback (its globals were None).
+        It runs in a child interpreter because only a real shutdown gets
+        the order right; see LATE_CONSUMER.
+        """
+        import os
+        import subprocess
+        import sys
+
+        # Under vtkpython, sys.executable is the plain interpreter and VTK
+        # is on sys.path only because vtkpython put it there, so the child
+        # is handed the parent's path.
+        env = dict(os.environ, PYTHONPATH=os.pathsep.join(sys.path))
+        result = subprocess.run(
+            [sys.executable, "-c", LATE_CONSUMER],
+            capture_output=True, text=True, timeout=300, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("Exception ignored", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
 
     def testDescriptorReleaseIsCalledOnce(self):
         """SetRelease is the hook a non-VTK producer hangs its lifetime on."""
