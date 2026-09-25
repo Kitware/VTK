@@ -1926,14 +1926,14 @@ void vtkTecplotReader::ReadFile(vtkInformation* outInfo)
           this->CellBased.resize(this->NumberOfVariables, 0);
 
           // read token to ascertain VARLOCATION syntax usage
-          std::string var_format_type = this->Internal->GetNextToken();
+          tok = this->Internal->GetNextToken();
 
           // if each variable will have data type specified explicitly (as is handled in old Tecplot
           // reader), else a range is specified for CELLCENTERED only, with NODAL values assumed
           // implicitly
-          if (var_format_type == "NODAL" || var_format_type == "CELLCENTERED")
+          if (tok == "NODAL" || tok == "CELLCENTERED")
           {
-            if (var_format_type == "CELLCENTERED")
+            if (tok == "CELLCENTERED")
             {
               this->CellBased[0] = 1;
             }
@@ -1948,47 +1948,86 @@ void vtkTecplotReader::ReadFile(vtkInformation* outInfo)
           }
           else
           {
-            do
+            while (!tok.empty())
             {
-              // remove left square bracket, if it exists
-              size_t brack_pos = var_format_type.find('[');
-              if (brack_pos != std::string::npos)
-                var_format_type.erase(brack_pos, brack_pos + 1);
-
-              // remove right square bracket, if it exists
-              brack_pos = var_format_type.find(']');
-              if (brack_pos != std::string::npos)
-                var_format_type.erase(brack_pos, brack_pos + 1);
-
-              // if a range is defined, then split again, convert to int and set to cell data
-              // else if a single value is defined, then just set the flag directly
-              if (var_format_type.find('-') != std::string::npos)
+              if (tok.front() == '[')
               {
-                std::vector<std::string> var_range;
-                vtksys::SystemTools::Split(var_format_type, var_range, '-');
+                tok.erase(0, 1);
 
-                int cell_start, cell_end;
-                VTK_FROM_CHARS_IF_ERROR_RETURN(var_range[0], cell_start, );
-                --cell_start; // convert from FORTRAN to C-indexing
-                VTK_FROM_CHARS_IF_ERROR_RETURN(var_range[1], cell_end, );
-                for (int i = cell_start; i != cell_end; ++i)
+                std::vector<int> pendingVars;
+
+                while (!tok.empty())
                 {
-                  this->CellBased[i] = 1;
+                  bool isLastInGroup = (tok.back() == ']');
+
+                  if (isLastInGroup)
+                  {
+                    tok.pop_back();
+                  }
+
+                  if (!tok.empty())
+                  {
+                    // Check if we have a range
+                    if (tok.find('-') != std::string::npos)
+                    {
+                      std::vector<std::string> varRange;
+                      vtksys::SystemTools::Split(tok, varRange, '-');
+
+                      if (varRange.size() == 2)
+                      {
+                        std::size_t varStart = 0, varEnd = 0;
+                        VTK_FROM_CHARS_IF_ERROR_RETURN(varRange[0], varStart, );
+                        VTK_FROM_CHARS_IF_ERROR_RETURN(varRange[1], varEnd, );
+
+                        for (std::size_t v = varStart - 1; v <= varEnd - 1; ++v)
+                        {
+                          pendingVars.push_back(static_cast<int>(v));
+                        }
+                      }
+                    }
+                    else
+                    {
+                      std::size_t vardIdx = 0;
+                      VTK_FROM_CHARS_IF_ERROR_RETURN(tok, vardIdx, );
+                      pendingVars.push_back(static_cast<int>(vardIdx) - 1);
+                    }
+                  }
+
+                  if (isLastInGroup)
+                  {
+                    break;
+                  }
+                  tok = this->Internal->GetNextToken();
+                }
+
+                tok = this->Internal->GetNextToken();
+                if (tok == "CELLCENTERED")
+                {
+                  for (int v : pendingVars)
+                  {
+                    this->CellBased[v] = 1;
+                  }
+                }
+              }
+              else if (auto singleVar = vtk::scan_int<int>(tok))
+              {
+                tok = this->Internal->GetNextToken();
+                if (tok == "CELLCENTERED")
+                {
+                  this->CellBased[singleVar->value()] = 1;
                 }
               }
               else
               {
-                int index;
-                VTK_FROM_CHARS_IF_ERROR_RETURN(var_format_type, index, );
-                --index; // convert from FORTRAN to C-indexing
-                this->CellBased[index] = 1;
+                break;
               }
-
-              // get next value
-              var_format_type = this->Internal->GetNextToken();
-
-              // continue until the CELLCENTERED keyword is found
-            } while (var_format_type != "CELLCENTERED");
+              if (this->Internal->NextCharEOL)
+              {
+                break;
+              }
+              tok = this->Internal->GetNextToken();
+            }
+            tokenReady = true;
           }
         }
         else if (tok == "DT")
