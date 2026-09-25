@@ -364,7 +364,11 @@ class VTKAffineArray(VTKDataArrayMixin):
                                 self_input._num_values,
                                 dtype)
 
-                        if ufunc is numpy.true_divide and self_first:
+                        # Dividing by zero materializes instead, so numpy
+                        # gives inf and nan rather than Python raising
+                        # ZeroDivisionError on the slope and intercept.
+                        if (ufunc is numpy.true_divide and self_first
+                                and scalar != 0):
                             return VTKAffineArray._from_params(
                                 self_input._slope / scalar,
                                 self_input._intercept / scalar,
