@@ -145,14 +145,14 @@ int vtkCellGridPointProbe::RequestData(
   vtkNew<vtkTypeUInt32Array> outputCellType;
   outputCellType->SetNumberOfTuples(numCells);
   outputCellType->SetName("CellType");
-  vtkIdType sct = 0; // Where in summary{CellType/CellOffsets} are we?
-  for (vtkIdType ii = 0; ii < numCells; ++ii)
+  // Each cell type's points are contiguous; the last summary entry only marks
+  // the end of the others.
+  const vtkIdType numCellTypes = summaryCellType->GetNumberOfTuples() - 1;
+  for (vtkIdType sct = 0; sct < numCellTypes; ++sct)
   {
-    if (ii >= static_cast<vtkIdType>(summaryCellOffsets->GetValue(sct)))
-    {
-      ++sct;
-    }
-    outputCellType->SetValue(ii, summaryCellType->GetValue(summaryCellOffsets->GetValue(sct)));
+    vtkSMPTools::Fill(outputCellType->GetPointer(summaryCellOffsets->GetValue(sct)),
+      outputCellType->GetPointer(summaryCellOffsets->GetValue(sct + 1)),
+      summaryCellType->GetValue(sct));
   }
   // store everything in output
   polydest->Initialize();
@@ -160,6 +160,7 @@ int vtkCellGridPointProbe::RequestData(
   polydest->SetVerts(vertices);
   auto* pd = polydest->GetPointData();
   pd->AddArray(outputCellType);
+  pd->AddArray(inputPointIds);
   pd->AddArray(outputCellIds);
   pd->AddArray(outputCellParams);
   if (interpolate)

@@ -11,6 +11,11 @@
  * produce an output polydata containing the
  * points from P that lie inside C and have values of A interpolated to them.
  *
+ * Each output point reports the index of the point of P it copies
+ * ("InputPointIndex"), the cell containing it ("CellType" and
+ * "ContainingCellID") and its parametric coordinates there
+ * ("ParametricCoordinates").
+ *
  * Note that points of P may be repeated in the output if they are contained
  * in multiple cells of C (i.e., because multiple cells overlap some points).
  * This is most likely to occur at/near boundaries of cells in C.
