@@ -5,6 +5,7 @@
 #include <vtkCellData.h>
 #include <vtkDataSet.h>
 #include <vtkDataSetAttributes.h>
+#include <vtkGenerateGlobalIds.h>
 #include <vtkIdList.h>
 #include <vtkIdTypeArray.h>
 #include <vtkInformation.h>
@@ -15,6 +16,7 @@
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
+#include <vtkSphereSource.h>
 #include <vtkUnstructuredGrid.h>
 
 #include <numeric> // for iota
@@ -816,6 +818,25 @@ bool TestToleranceModes()
 
   return true;
 }
+
+//------------------------------------------------------------------------------
+bool TestPartialGlobalIds()
+{
+  vtkLogScopeFunction(INFO);
+
+  vtkNew<vtkSphereSource> sphere;
+
+  vtkNew<vtkGenerateGlobalIds> globalIds;
+  globalIds->SetInputConnection(sphere->GetOutputPort());
+
+  vtkNew<vtkAppendFilter> append;
+  append->MergePointsOn();
+  append->AddInputConnection(globalIds->GetOutputPort());
+  append->AddInputConnection(sphere->GetOutputPort());
+  append->Update();
+
+  return append->GetOutput()->GetNumberOfPoints() == sphere->GetOutput()->GetNumberOfPoints();
+}
 } // end anonymous namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -826,6 +847,7 @@ int TestAppendFilter(int, char*[])
   ret = ::TestMultiComponent() && ret;
   ret = ::TestDeepCopy() && ret;
   ret = ::TestToleranceModes() && ret;
+  ret = ::TestPartialGlobalIds() && ret;
 
   return ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }
