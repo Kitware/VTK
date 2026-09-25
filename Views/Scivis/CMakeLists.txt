@@ -2,6 +2,7 @@ set(classes
   vtkBlockProperties
   vtkLookupTableManager
   vtkScivisDataRepresentation
+  vtkScivisExporter
   vtkScivisRepresentation
   vtkScivisScalarBars
   vtkScivisView

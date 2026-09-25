@@ -62,6 +62,8 @@ class GUIState:
     field_assoc = vtkDataObject.FIELD_ASSOCIATION_CELLS
     drag_start = None  # Screen coords (x, y) when drag starts
     selection_info = ""  # Text summary of last selection
+    screenshot_magnification = 1
+    screenshot_status = ""
     text_visible = False
     text_content = "ScivisView"
     text_pos = [20, 40]
@@ -245,6 +247,31 @@ def custom_gui():
         changed, state.show_axes = imgui.checkbox("Orientation Axes", state.show_axes)
         if changed:
             view.orientation_axes_visibility = state.show_axes
+
+    imgui.spacing()
+
+    # Export section.  Writing the scene out is the exporter's, reached as
+    # view.exporter; how large a capture comes out is a setting on it rather
+    # than an argument repeated at each call.
+    if imgui.collapsing_header("Export"):
+        changed, state.screenshot_magnification = imgui.slider_int(
+            "Magnification", state.screenshot_magnification, 1, 4
+        )
+        if changed:
+            view.exporter.magnification = state.screenshot_magnification
+
+        if imgui.button("Save Screenshot"):
+            name = "scivis_view.png"
+            ok = view.exporter.SaveScreenshot(name)
+            state.screenshot_status = f"wrote {name}" if ok else "could not write"
+        imgui.same_line()
+        if imgui.button("Export Scene"):
+            name = "scivis_view.gltf"
+            ok = view.exporter.ExportScene(name)
+            state.screenshot_status = f"wrote {name}" if ok else "could not write"
+
+        if state.screenshot_status:
+            imgui.text(state.screenshot_status)
 
     imgui.spacing()
 

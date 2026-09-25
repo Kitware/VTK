@@ -48,6 +48,7 @@
  * - GetOrientationMarkerWidget() for the axes marker's viewport and marker
  * - GetScalarBars() for the bars labelling what the colors mean
  * - GetSelector() for how a screen region becomes a selection
+ * - GetExporter() for writing the scene out as a picture or as geometry
  *
  * @par A family of its own:
  * This is not a vtkView, and it shows only vtkScivisRepresentations.  The
@@ -80,6 +81,7 @@ class vtkLightKit;
 class vtkLookupTableManager;
 class vtkOrientationMarkerWidget;
 class vtkScivisSelector;
+class vtkScivisExporter;
 class vtkRenderWindow;
 class vtkRenderWindowInteractor;
 class vtkRenderer;
@@ -289,6 +291,19 @@ public:
   vtkScivisSelector* GetSelector();
 
   /**
+   * Getting the scene out: a picture of it, or the geometry in it.  How a
+   * capture comes out -- how large, and whether its background is transparent
+   * -- is the exporter's, and application code drives it the same way:
+   *
+   * @code
+   * view->GetExporter()->SetMagnification(2);
+   * view->GetExporter()->SaveScreenshot("frame.png");
+   * view->GetExporter()->ExportScene("scene.gltf");
+   * @endcode
+   */
+  vtkScivisExporter* GetExporter();
+
+  /**
    * The camera the scene is viewed with, for anything finer than the framing
    * and the standard directions below -- a parallel projection, a view angle,
    * or a position worked out by the application.
@@ -403,6 +418,7 @@ private:
   // is what keeps vtkRenderer from inventing its own -- see the constructor.
   vtkNew<vtkLight> DefaultLight;
   vtkNew<vtkScivisSelector> Selector;
+  vtkNew<vtkScivisExporter> Exporter;
 
   // One instance of each built-in style, so switching modes preserves whatever
   // the application configured on them.
