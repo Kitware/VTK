@@ -171,17 +171,6 @@ protected:
   void Init();
 
   /**
-   * Get the data arrays list from the tecplot file header.
-   */
-  void GetDataArraysList();
-
-  /**
-   * This function, the data loading engine, parses the Tecplot file to fill
-   * a vtkMultiBlockDataSet object.
-   */
-  void ReadFile(vtkMultiBlockDataSet* multZone);
-
-  /**
    * This function extracts each variable array from a block-packing (component-
    * based) zone and collects the 3D point coordinates in addition to data
    * attributes (node-based and / or cell-based). Note that Tecplot treats 3D
@@ -201,14 +190,44 @@ protected:
   void GetArraysFromPointPackingZone(int numNodes, vtkPoints* theNodes, vtkPointData* nodeData);
 
   /**
+   * This function fills an allocated vtkUnstructuredGrid object with numberCells
+   * cells of type cellTypeStr to define the grid topology.
+   */
+  void GetUnstructuredGridCells(
+    int numberCells, const char* cellTypeStr, vtkUnstructuredGrid* unstrctGrid);
+
+private:
+  int NumberOfVariables;
+  char* FileName;
+  vtkCallbackCommand* SelectionObserver;
+  vtkDataArraySelection* DataArraySelection;
+  vtkTecplotReaderInternal* Internal;
+
+  std::string DataTitle;
+  std::vector<int> CellBased;
+  std::vector<std::string> ZoneNames;
+  std::vector<std::string> Variables;
+
+  /**
+   * This function parses all the Tecplot file to fill the information of each
+   * zone in ZoneDataList.
+   */
+  void ReadFile(vtkInformation* outInfo);
+
+  /**
+   * This function the variable values in the file at the requested time step index.
+   */
+  void ReadData(vtkMultiBlockDataSet* multZone, std::size_t timeStepIndex);
+
+  /**
    * This function creates a vtkStructuredGrid object made up of a set of
    * points and the associated attributes (node-based and / or cell-based)
    * extracted from a block-packing (i.e., component-based) zone. This
    * vtkStructuredGrid is then inserted, with a specified zone name, to a
    * vtkMultiBlockDataSet object.
    */
-  void GetStructuredGridFromBlockPackingZone(int iDimSize, int jDimSize, int kDimSize, int zoneIndx,
-    const char* zoneName, vtkMultiBlockDataSet* multZone);
+  void GetStructuredGridFromBlockPackingZone(
+    int zoneDataIndex, int multiBlockIdx, vtkMultiBlockDataSet* multZone);
 
   /**
    * This function creates a vtkStructuredGrid object made up of a set of
@@ -217,8 +236,8 @@ protected:
    * vtkStructuredGrid is then inserted, with a specified zone name, to a
    * vtkMultiBlockDataSet object.
    */
-  void GetStructuredGridFromPointPackingZone(int iDimSize, int jDimSize, int kDimSize, int zoneIndx,
-    const char* zoneName, vtkMultiBlockDataSet* multZone);
+  void GetStructuredGridFromPointPackingZone(
+    int zoneDataIndex, int multiBlockIdx, vtkMultiBlockDataSet* multZone);
 
   /**
    * This function creates a vtkUnstructuredGrid object made up of a set of
@@ -227,8 +246,8 @@ protected:
    * vtkUnstructuredGrid is then inserted, with a specified zone name, to a
    * vtkMultiBlockDataSet object.
    */
-  void GetUnstructuredGridFromBlockPackingZone(int numNodes, int numCells, const char* cellType,
-    int zoneIndx, const char* zoneName, vtkMultiBlockDataSet* multZone);
+  void GetUnstructuredGridFromBlockPackingZone(
+    int zoneDataIndex, int multiBlockIdx, vtkMultiBlockDataSet* multZone);
 
   /**
    * This function creates a polyhedral vtkUnstructuredGrid object made up of a set of
@@ -237,8 +256,8 @@ protected:
    * vtkUnstructuredGrid is then inserted, with a specified zone name, to a
    * vtkMultiBlockDataSet object.
    */
-  void GetPolyhedralGridFromBlockPackingZone(int numNodes, int numElements, int numFaces,
-    int zoneIndex, const char* zoneName, vtkMultiBlockDataSet* multZone);
+  void GetPolyhedralGridFromBlockPackingZone(
+    int zoneDataIndex, int multiBlockIdx, vtkMultiBlockDataSet* multZone);
 
   /**
    * This function creates a polygonal vtkUnstructuredGrid object made up of a set of
@@ -247,8 +266,8 @@ protected:
    * vtkUnstructuredGrid is then inserted, with a specified zone name, to a
    * vtkMultiBlockDataSet object.
    */
-  void GetPolygonalGridFromBlockPackingZone(int numNodes, int numElements, int numFaces,
-    int zoneIndex, const char* zoneName, vtkMultiBlockDataSet* multZone);
+  void GetPolygonalGridFromBlockPackingZone(
+    int zoneDataIndex, int multiBlockIdx, vtkMultiBlockDataSet* multZone);
 
   /**
    * This function fills an allocated vtkUnstructuredGrid object with numberCells
@@ -269,28 +288,9 @@ protected:
    * vtkUnstructuredGrid is then inserted, with a specified zone name, to a
    * vtkMultiBlockDataSet object.
    */
-  void GetUnstructuredGridFromPointPackingZone(int numNodes, int numCells, const char* cellType,
-    int zoneIndx, const char* zoneName, vtkMultiBlockDataSet* multZone);
+  void GetUnstructuredGridFromPointPackingZone(
+    int zoneDataIndex, int multiBlockIndex, vtkMultiBlockDataSet* multZone);
 
-  /**
-   * This function fills an allocated vtkUnstructuredGrid object with numberCells
-   * cells of type cellTypeStr to define the grid topology.
-   */
-  void GetUnstructuredGridCells(
-    int numberCells, const char* cellTypeStr, vtkUnstructuredGrid* unstrctGrid);
-
-  int NumberOfVariables;
-  char* FileName;
-  vtkCallbackCommand* SelectionObserver;
-  vtkDataArraySelection* DataArraySelection;
-  vtkTecplotReaderInternal* Internal;
-
-  std::string DataTitle;
-  std::vector<int> CellBased;
-  std::vector<std::string> ZoneNames;
-  std::vector<std::string> Variables;
-
-private:
   vtkTecplotReader(const vtkTecplotReader&) = delete;
   void operator=(const vtkTecplotReader&) = delete;
 };
