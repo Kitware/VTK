@@ -38,11 +38,11 @@ Host arrays work with plain VTK. Device arrays require VTK built with
 wrap device memory; importing a device tensor without it raises
 ``RuntimeError`` rather than silently copying to the host.
 
-Metal tensors are imported as host arrays. A shared-storage MTLBuffer on
-Apple Silicon is unified memory, so its pointer is host-readable and the
-wrap is still zero-copy; Viskores has no Metal device adapter, so there is
-nothing else it could be. Private-storage buffers have no host-readable
-pointer, report null, and are rejected. VTK never *exports* Metal memory,
+Metal tensors are rejected. The data pointer a Metal tensor carries is the
+``MTLBuffer`` object itself, not memory the host can read -- PyTorch's MPS
+tensors, for one, are private-storage buffers with no host-readable contents
+at all -- and Viskores has no Metal device adapter to hand it to instead.
+Copy the tensor to the CPU first. VTK never *exports* Metal memory either,
 because no VTK array can hold it.
 
 Context, device and streams
@@ -123,18 +123,15 @@ kDLFloat = 2
 
 # DLPack device type -> the memory-space name vtkMemoryDescriptor uses.
 #
-# Metal maps to "host", not to a space of its own. Viskores has no Metal
-# device adapter and vtkDataArray::MemorySpace has no Metal value, so nothing
-# in VTK could ever branch on one -- carrying it would be a label that implies
-# a capability that does not exist. A shared-storage MTLBuffer on Apple
-# Silicon is unified memory, so treating the pointer as host memory is not a
-# compromise, it is what it is. (Private-storage buffers have no host-readable
-# pointer at all; they report null and are rejected below.)
+# Metal is deliberately absent. A Metal tensor's data pointer is the
+# MTLBuffer object, not its contents, so reading it as host memory reads the
+# object's own bytes -- PyTorch's MPS tensors come back as garbage that way,
+# and they are private-storage buffers with no host-readable contents to find
+# instead. dlpack_to_vtk rejects them by name.
 _DEVICE_TO_SPACE = {
     kDLCPU: "host",
     kDLCUDAHost: "host",
     kDLROCMHost: "host",
-    kDLMetal: "host",
     kDLCUDA: "cuda",
     kDLCUDAManaged: "cuda",
     kDLROCM: "hip",
@@ -542,12 +539,15 @@ def dlpack_to_vtk(source, name=None):
                 "that. Copy the source first if you want a VTK array from it."
             )
 
-    if not tensor.data:
+    if tensor.device.device_type == kDLMetal:
         raise ValueError(
-            "the tensor has a null data pointer. A Metal buffer with private "
-            "storage reports this, and its memory cannot be read from the host; "
-            "use shared storage."
+            "Metal tensors cannot be wrapped: their data pointer is the MTLBuffer "
+            "object, not memory the host can read. Copy the tensor to the CPU "
+            "first (for PyTorch, tensor.cpu())."
         )
+
+    if not tensor.data:
+        raise ValueError("the tensor has a null data pointer")
 
     if tensor.ndim not in (1, 2):
         raise ValueError(

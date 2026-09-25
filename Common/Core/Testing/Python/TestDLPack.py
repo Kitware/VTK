@@ -56,6 +56,28 @@ def wrap(source):
     return numpy_support.numpy_to_vtk(source, deep=False)
 
 
+def fake_capsule(data, device_type):
+    """A legacy capsule for a 1-D float32 tensor of 4 values at *data*.
+
+    Returns the capsule and the ctypes objects it points into, which must
+    stay alive while the capsule is in use.
+    """
+    import ctypes
+
+    managed = dlpack_support._DLManagedTensor()
+    managed.dl_tensor.data = data
+    managed.dl_tensor.ndim = 1
+    shape = (ctypes.c_int64 * 1)(4)
+    managed.dl_tensor.shape = shape
+    managed.dl_tensor.dtype.code = dlpack_support.kDLFloat
+    managed.dl_tensor.dtype.bits = 32
+    managed.dl_tensor.dtype.lanes = 1
+    managed.dl_tensor.device.device_type = device_type
+    capsule = dlpack_support._PyCapsule_New(
+        ctypes.addressof(managed), b"dltensor", None)
+    return capsule, (managed, shape)
+
+
 # A consumer that keeps an export until interpreter shutdown, the way
 # PyTorch does. It holds only raw addresses and reads the deleter out of
 # the managed tensor when it is freed. Hung off sys, which is torn down
@@ -237,16 +259,23 @@ class TestDLPack(Testing.vtkTest):
         self.assertIsNotNone(descriptor.GetOwner())
         self.assertTrue(descriptor.HasOwnership())
 
-    def testMetalImportsAsHost(self):
-        """A Metal tensor is imported as host memory, and never exported.
+    def testMetalIsRejected(self):
+        """A Metal tensor is refused, and never exported.
 
-        Viskores has no Metal device adapter and vtkDataArray::MemorySpace
-        has no Metal value, so no VTK array can hold Metal memory -- there is
-        nothing to export. Coming the other way, a shared-storage MTLBuffer on
-        Apple Silicon is unified memory, so the pointer is host-readable and
-        "host" is not an approximation, it is the truth.
+        Its data pointer is the MTLBuffer object rather than its contents,
+        so reading it as host memory would hand back the object's own bytes;
+        PyTorch's MPS tensors came back as garbage that way. Nothing on the
+        export side can hold Metal memory either. The pointer here is real
+        host memory, so the refusal cannot be the null-pointer check.
         """
-        self.assertEqual(dlpack_support._DEVICE_TO_SPACE[dlpack_support.kDLMetal], "host")
+        import ctypes
+
+        values = (ctypes.c_float * 4)(0, 1, 2, 3)
+        capsule, keep = fake_capsule(
+            ctypes.cast(values, ctypes.c_void_p), dlpack_support.kDLMetal)
+        with self.assertRaisesRegex(ValueError, "Metal"):
+            dlpack_to_vtk(capsule)
+        self.assertNotIn(dlpack_support.kDLMetal, dlpack_support.supported_device_types())
         self.assertNotIn("metal", dlpack_support._SPACE_TO_DEVICE)
 
     def testOnlyVTKsThreeSpacesAreExportable(self):
@@ -254,23 +283,11 @@ class TestDLPack(Testing.vtkTest):
         self.assertEqual(set(dlpack_support._SPACE_TO_DEVICE), {"host", "cuda", "hip"})
 
     def testNullPointerIsRejected(self):
-        """A private-storage Metal buffer reports a null pointer."""
+        """A tensor with a null data pointer is refused."""
         import ctypes
-        from vtkmodules.util.dlpack_support import _DLManagedTensor
 
-        managed = _DLManagedTensor()
-        managed.dl_tensor.data = ctypes.c_void_p(0)
-        managed.dl_tensor.ndim = 1
-        shape = (ctypes.c_int64 * 1)(4)
-        managed.dl_tensor.shape = shape
-        managed.dl_tensor.dtype.code = dlpack_support.kDLFloat
-        managed.dl_tensor.dtype.bits = 32
-        managed.dl_tensor.dtype.lanes = 1
-        managed.dl_tensor.device.device_type = dlpack_support.kDLMetal
-
-        capsule = dlpack_support._PyCapsule_New(
-            ctypes.addressof(managed), b"dltensor", None)
-        with self.assertRaises(ValueError):
+        capsule, keep = fake_capsule(ctypes.c_void_p(0), dlpack_support.kDLCPU)
+        with self.assertRaisesRegex(ValueError, "null data pointer"):
             dlpack_to_vtk(capsule)
 
     def testConsumerMayReleaseDuringShutdown(self):
