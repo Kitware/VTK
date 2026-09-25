@@ -705,9 +705,13 @@ vtkStringArray* vtkHDFUtilities::NewStringArray(
   if (H5Dread(dataset, memtype, memspace, filespace, H5P_DEFAULT, rdata.data()) < 0)
   {
     vtkErrorWithObjectMacro(nullptr, << "Error H5Dread");
+#if H5_VERSION_GE(1, 12, 0)
     if (H5Treclaim(memtype, memspace, H5P_DEFAULT, static_cast<void*>(rdata.data())) < 0)
+#else
+    if (H5Dvlen_reclaim(memtype, memspace, H5P_DEFAULT, static_cast<void*>(rdata.data())) < 0)
+#endif
     {
-      vtkErrorWithObjectMacro(nullptr, << "Error H5Treclaim");
+      vtkErrorWithObjectMacro(nullptr, << "Error freeing memory");
     }
     return nullptr;
   }
@@ -719,9 +723,13 @@ vtkStringArray* vtkHDFUtilities::NewStringArray(
     array->SetValue(i, rdata[i]);
   }
 
+#if H5_VERSION_GE(1, 12, 0)
   if (H5Treclaim(memtype, memspace, H5P_DEFAULT, static_cast<void*>(rdata.data())) < 0)
+#else
+  if (H5Dvlen_reclaim(memtype, memspace, H5P_DEFAULT, static_cast<void*>(rdata.data())) < 0)
+#endif
   {
-    vtkErrorWithObjectMacro(nullptr, << "Error H5Treclaim");
+    vtkErrorWithObjectMacro(nullptr, << "Error freeing memory");
   }
 
   return array;
