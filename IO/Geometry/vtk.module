@@ -35,9 +35,11 @@ TEST_DEPENDS
   VTK::FiltersExtraction
   VTK::FiltersGeneral
   VTK::FiltersGeometry
+  VTK::FiltersParallel
   VTK::FiltersSources
   VTK::IOAMR
   VTK::IOCityGML
+  VTK::IOHDF
   VTK::IOImage
   VTK::IOImport
   VTK::IOLegacy
