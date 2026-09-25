@@ -149,15 +149,17 @@ public:
     /// Flat list of classified probe points, populated by ClassifyPoints.
     /// Contiguous layout enables random-access indexing for parallel interpolation:
     /// the entry at index k maps to output slot alloc.Offset + k.
+    /// It is empty when classification is skipped (see InterpolateCellParameters()).
     std::vector<ClassifiedPoint> InputPoints;
     /// Offset into the global output arrays where this cell type's results begin.
     vtkIdType Offset{ 0 };
+    /// The number of output points (rows) of this cell type, starting at \a Offset:
+    /// the points classification found (the size of \a InputPoints), or those
+    /// of this cell type passed to InterpolateCellParameters().
+    vtkIdType NumberOfOutputPoints{ 0 };
 
-    /// Return the number of classified points for this cell type.
-    vtkIdType GetNumberOfOutputPoints() const
-    {
-      return static_cast<vtkIdType>(this->InputPoints.size());
-    }
+    /// Return the number of output points of this cell type.
+    vtkIdType GetNumberOfOutputPoints() const { return this->NumberOfOutputPoints; }
   };
 
   /// Set/get the cell-attribute to be evaluated.

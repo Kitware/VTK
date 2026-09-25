@@ -144,6 +144,30 @@ bool vtkCellGridEvaluator::Initialize()
   // Reset our state.
   this->Allocations.clear();
   this->InterpolatedValues->Initialize();
+
+  // Classification normally assigns each cell type its slice of the output;
+  // when it is skipped, the caller's arrays already describe those slices.
+  if (this->PhasesToPerform == Phases::Interpolate)
+  {
+    this->NumberOfOutputPoints = this->ClassifierCellIndices->GetNumberOfTuples();
+    const vtkIdType numTypes = this->ClassifierCellTypes->GetNumberOfTuples();
+    for (vtkIdType tt = 0; tt < numTypes; ++tt)
+    {
+      // The invalid hash marks points no cell contains.
+      const vtkTypeUInt32 cellType = this->ClassifierCellTypes->GetValue(tt);
+      if (cellType == vtkStringToken::InvalidHash())
+      {
+        continue;
+      }
+      const auto begin = static_cast<vtkIdType>(this->ClassifierCellOffsets->GetValue(tt));
+      const vtkIdType end = tt + 1 < numTypes
+        ? static_cast<vtkIdType>(this->ClassifierCellOffsets->GetValue(tt + 1))
+        : this->NumberOfOutputPoints;
+      auto& alloc = this->Allocations[vtkStringToken(cellType)];
+      alloc.Offset = begin;
+      alloc.NumberOfOutputPoints = end - begin;
+    }
+  }
   return ok;
 }
 
