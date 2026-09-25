@@ -36,6 +36,16 @@ def _override_structured_point_numpy(numpy_function):
     return decorator
 
 
+def _lazy_dtype_supported(axes):
+    """Whether a structured-point array can hold the per-axis results *axes*.
+
+    A comparison gives bool axes, and there is no bool structured-point
+    array; the caller materializes instead.
+    """
+    from ..vtkCommonCore import vtkStructuredPointArray
+    return numpy.dtype(axes[0].dtype).name in vtkStructuredPointArray.keys()
+
+
 class VTKStructuredAxisArray:
     """A lazy 1D array representing one coordinate component (X, Y, or Z)
     of a structured point array.
@@ -236,6 +246,9 @@ class VTKStructuredPointArray(VTKDataArrayMixin):
         extent = [0, dims[0] - 1, 0, dims[1] - 1, 0, dims[2] - 1]
         data_desc = vtkStructuredData.GetDataDescriptionFromExtent(extent)
         arr.ConstructBackend(xc, yc, zc, extent, data_desc)
+        # As vtk::CreateStructuredPointArray does: without this the array
+        # has one component and reports its shape as (n,) instead of (n, 3).
+        arr.SetNumberOfComponents(3)
         arr.SetNumberOfTuples(vtkStructuredData.GetNumberOfPoints(extent))
         return arr
 
@@ -245,14 +258,19 @@ class VTKStructuredPointArray(VTKDataArrayMixin):
 
         Returns a list of 3 numpy arrays [X, Y, Z], or None if the
         backend has not been constructed yet.
+
+        The axes are converted to this array's dtype. The coordinate
+        arrays can have a different one -- a rectilinear grid with float32
+        coordinates gets a double point array -- and everything built from
+        the axes should agree with ``dtype``.
         """
         xc = self.GetXCoordinates()
         if xc is None:
             return None
+        dtype = self.dtype
         return [
-            numpy_support.vtk_to_numpy(xc),
-            numpy_support.vtk_to_numpy(self.GetYCoordinates()),
-            numpy_support.vtk_to_numpy(self.GetZCoordinates()),
+            numpy.asarray(numpy_support.vtk_to_numpy(coords), dtype=dtype)
+            for coords in (xc, self.GetYCoordinates(), self.GetZCoordinates())
         ]
 
     def _get_dims(self):
@@ -371,7 +389,8 @@ class VTKStructuredPointArray(VTKDataArrayMixin):
             if (len(inputs) == 1
                     and isinstance(inputs[0], VTKStructuredPointArray)):
                 new_axes = [ufunc(a) for a in axes]
-                return VTKStructuredPointArray.from_axes(new_axes, dims=dims)
+                if _lazy_dtype_supported(new_axes):
+                    return VTKStructuredPointArray.from_axes(new_axes, dims=dims)
 
             # Binary ufunc with scalar
             if len(inputs) == 2:
@@ -394,8 +413,9 @@ class VTKStructuredPointArray(VTKDataArrayMixin):
                             else:
                                 new_axes = [ufunc(other_input, a)
                                             for a in self_axes]
-                            return VTKStructuredPointArray.from_axes(
-                                new_axes, dims=dims)
+                            if _lazy_dtype_supported(new_axes):
+                                return VTKStructuredPointArray.from_axes(
+                                    new_axes, dims=dims)
 
         # Fall back to materialization
         materialized = [numpy.asarray(x)
@@ -424,6 +444,12 @@ class VTKStructuredPointArray(VTKDataArrayMixin):
     def __rmul__(self, other):      return numpy.multiply(other, self)
     def __truediv__(self, other):   return numpy.true_divide(self, other)
     def __rtruediv__(self, other):  return numpy.true_divide(other, self)
+    def __floordiv__(self, other):  return numpy.floor_divide(self, other)
+    def __rfloordiv__(self, other): return numpy.floor_divide(other, self)
+    def __pow__(self, other):       return numpy.power(self, other)
+    def __rpow__(self, other):      return numpy.power(other, self)
+    def __mod__(self, other):       return numpy.mod(self, other)
+    def __rmod__(self, other):      return numpy.mod(other, self)
     def __neg__(self):              return numpy.negative(self)
     def __pos__(self):              return numpy.positive(self)
     def __abs__(self):              return numpy.absolute(self)
