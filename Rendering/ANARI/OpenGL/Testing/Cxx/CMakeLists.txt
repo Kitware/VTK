@@ -4,6 +4,7 @@ set(test_names
   TestAnariScalarBar
   TestAnariSmartVolumeMapper
   TestAnariStereo
+  TestAnariWindowResize
 )
 
 foreach(name IN LISTS test_names)
