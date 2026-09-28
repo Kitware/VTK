@@ -16,6 +16,7 @@ vtk_add_test_python(
   TestGraphLayoutFilter.py
   TestGroupTimeStepsFilter.py
   TestMarchingCubes.py
+  TestOBBTreeIntersectWithLine.py,NO_OUTPUT,NO_VALID
   TestPointConnectivityFilter.py
   TestRemoveGhostCells.py,NO_OUTPUT,NO_VALID
   TestRemovePolyData.py
