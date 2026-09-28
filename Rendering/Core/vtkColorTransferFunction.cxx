@@ -848,8 +848,10 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
   double logX = 0.0;
   if (usingLogScale)
   {
-    logStart = log10(xStart);
-    logEnd = log10(xEnd);
+    double tmpStart = (xStart <= 0.0) ? this->Range[0] * 1e-6 : xStart;
+    double tmpEnd = (xEnd <= 0.0) ? this->Range[0] * 1e-6 : xEnd;
+    logStart = log10(tmpStart);
+    logEnd = log10(tmpEnd);
   }
 
   vtkSmartPointer<vtkColorTransferFunction> ciede2000Helper = nullptr;
