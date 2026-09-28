@@ -326,12 +326,14 @@ vtkColorTransferFunction::~vtkColorTransferFunction()
   delete this->Internal;
 }
 
+//------------------------------------------------------------------------------
 // Return the number of points which specify this function
 int vtkColorTransferFunction::GetSize()
 {
   return static_cast<int>(this->Internal->Nodes.size());
 }
 
+//------------------------------------------------------------------------------
 // Since we no longer store the data in an array, we must
 // copy out of the vector into an array. No modified check -
 // could be added if performance is a problem
@@ -355,6 +357,12 @@ double* vtkColorTransferFunction::GetDataPointer()
   }
 
   return this->Function;
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkColorTransferFunction::UsingLogScale()
+{
+  return (this->GetScale() == VTK_CTF_LOG10 && this->Range[0] > 0.0) ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
