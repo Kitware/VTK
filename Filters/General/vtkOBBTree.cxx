@@ -3,7 +3,6 @@
 #include "vtkOBBTree.h"
 
 #include "vtkCellArray.h"
-#include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
@@ -692,6 +691,7 @@ int vtkOBBTree::IntersectWithLine(const double p1[3], const double p2[3], double
     vtkErrorMacro("IntersectWithLine: this method requires a vtkPolyData");
     return 0;
   }
+  vtkPolyData* polyData = static_cast<vtkPolyData*>(this->DataSet);
 
   int rval = 0; // return value for function
   vtkIdList* cells;
@@ -734,12 +734,11 @@ int vtkOBBTree::IntersectWithLine(const double p1[3], const double p2[3], double
         {
           // get the current cell
           cellId = cells->GetId(i);
-          this->DataSet->GetCell(cellId, cell);
-          const int cellType = cell->GetCellType();
-          const vtkIdType* ptIds = cell->GetPointIds()->GetPointer(0);
-          const vtkIdType numPts = cell->GetNumberOfPoints();
-          const auto cellPts =
-            vtkDoubleArray::FastDownCast(cell->GetPoints()->GetData())->GetPointer(0);
+          const int cellType = polyData->GetCellType(cellId);
+          vtkIdType numPts;
+          const vtkIdType* ptIds;
+          // use cell->PointIds as scratch space to be thread-safe
+          polyData->GetCellPoints(cellId, numPts, ptIds, cell->GetPointIds());
 
           // break the cell into triangles
           for (vtkIdType j = 0; j < numPts - 2; j++)
@@ -752,10 +751,10 @@ int vtkOBBTree::IntersectWithLine(const double p1[3], const double p2[3], double
             }
 
             // get the points for this triangle
-            double *pt1, *pt2, *pt3;
-            pt1 = cellPts + 3 * pt1Id;
-            pt2 = cellPts + 3 * pt2Id;
-            pt3 = cellPts + 3 * pt3Id;
+            double pt1[3], pt2[3], pt3[3];
+            polyData->GetPoint(pt1Id, pt1);
+            polyData->GetPoint(pt2Id, pt2);
+            polyData->GetPoint(pt3Id, pt3);
 
             if (vtkOBBTreeLineIntersectsTriangle(
                   p1, p2, pt1, pt2, pt3, tol, point, distance, sense) <= 0)
