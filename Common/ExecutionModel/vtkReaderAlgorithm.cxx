@@ -66,8 +66,9 @@ vtkTypeBool vtkReaderAlgorithm::ProcessRequest(
     {
       result = this->ReadMetaData(outInfo->GetInformationObject(0));
     }
-    catch (const std::exception&)
+    catch (const std::exception& e)
     {
+      vtkErrorMacro("Failed to read meta-data: " << e.what());
       result = 0;
     }
   }
@@ -77,8 +78,9 @@ vtkTypeBool vtkReaderAlgorithm::ProcessRequest(
     {
       result = this->ReadTimeDependentMetaData(timeIndex, outInfo->GetInformationObject(0));
     }
-    catch (const std::exception&)
+    catch (const std::exception& e)
     {
+      vtkErrorMacro("Failed to read time-dependent meta-data: " << e.what());
       result = 0;
     }
   }
@@ -104,8 +106,9 @@ vtkTypeBool vtkReaderAlgorithm::ProcessRequest(
         result = this->ReadArrays(piece, npieces, nghosts, timeIndex, output);
       }
     }
-    catch (const std::exception&)
+    catch (const std::exception& e)
     {
+      vtkErrorMacro("Failed to read data: " << e.what());
       result = 0;
     }
 
