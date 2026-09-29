@@ -1,42 +1,158 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkCellCenters.h"
+#include "vtkCellData.h"
 #include "vtkClipDataSet.h"
 #include "vtkCommand.h"
 #include "vtkContourGrid.h"
+#include "vtkDataSetTriangleFilter.h"
+#include "vtkElevationFilter.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
+#include "vtkObjectFactory.h"
+#include "vtkPassInputTypeAlgorithm.h"
 #include "vtkPlane.h"
+#include "vtkPointDataToCellData.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkShrinkFilter.h"
+#include "vtkSphereSource.h"
 #include "vtkUnstructuredGrid.h"
 
-class vtkHandler : public vtkObject
+#include <chrono>
+#include <iostream>
+#include <thread>
+
+namespace
+{
+
+vtkAlgorithm* gToAbort = nullptr;
+std::atomic<bool> gAllowAbort{ false };
+std::atomic<bool> gAllowEnd{ false };
+
+// A method to abort an algorithm while its running
+void toggleAbort()
+{
+  while (!gAllowAbort)
+  {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  }
+
+  // Then abort
+  gToAbort->SetAbortExecuteAndUpdateTime();
+  gAllowEnd = true;
+}
+
+// Update an algorithm then abort it from another thread
+void UpdateAbort(vtkAlgorithm* toUpdate, vtkAlgorithm* toAbort)
+{
+  gAllowAbort = false;
+  gAllowEnd = false;
+  gToAbort = toAbort;
+  std::thread abortThread(toggleAbort);
+  toUpdate->Update();
+  abortThread.join();
+}
+
+class vtkCustomRTAnalyticSource : public vtkRTAnalyticSource
 {
 public:
   int AbortEventCounts = 0;
   int CleanupEventCounts = 0;
 
-  static vtkHandler* New();
-  vtkTypeMacro(vtkHandler, vtkObject);
+  static vtkCustomRTAnalyticSource* New();
+  vtkTypeMacro(vtkCustomRTAnalyticSource, vtkRTAnalyticSource);
 
-  void AbortCallback() { this->AbortEventCounts++; }
+  void AbortCallback()
+  {
+    if (this->GetAbortExecute())
+    {
+      // Count abort event while aborted
+      this->AbortEventCounts++;
+    }
+  }
+
   void CleanupCallback() { this->CleanupEventCounts++; }
-};
-vtkStandardNewMacro(vtkHandler);
 
-int TestAbortExecute(int, char*[])
+  // Overridden to avoid races
+  void ExecuteDataWithInformation(vtkDataObject* data, vtkInformation* outInfo) override
+  {
+    gAllowAbort = true;
+    this->Superclass::ExecuteDataWithInformation(data, outInfo);
+
+    // Ensure there is no race by checking abort at the end
+    while (!gAllowEnd)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    this->CheckAbort();
+  }
+};
+vtkStandardNewMacro(vtkCustomRTAnalyticSource);
+
+class vtkCustomShrinkFilter : public vtkShrinkFilter
 {
-  vtkNew<vtkRTAnalyticSource> wavelet;
-  vtkNew<vtkShrinkFilter> shrink;
+public:
+  static vtkCustomShrinkFilter* New();
+  vtkTypeMacro(vtkCustomShrinkFilter, vtkShrinkFilter);
+
+  // Overridden to avoid races
+  int RequestData(
+    vtkInformation* req, vtkInformationVector** in, vtkInformationVector* out) override
+  {
+    gAllowAbort = true;
+    int ret = this->Superclass::RequestData(req, in, out);
+
+    // Ensure there is no race by checking abort at the end
+    while (!gAllowEnd)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    this->CheckAbort();
+    return ret;
+  }
+};
+vtkStandardNewMacro(vtkCustomShrinkFilter);
+
+class vtkCustomCellCenters : public vtkCellCenters
+{
+public:
+  int AbortEventCounts = 0;
+  int CleanupEventCounts = 0;
+
+  static vtkCustomCellCenters* New();
+  vtkTypeMacro(vtkCustomCellCenters, vtkCellCenters);
+
+  // Overridden to avoid races
+  int RequestData(
+    vtkInformation* req, vtkInformationVector** in, vtkInformationVector* out) override
+  {
+    gAllowAbort = true;
+    int ret = this->Superclass::RequestData(req, in, out);
+
+    // Ensure there is no race by checking abort at the end
+    while (!gAllowEnd)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    this->CheckAbort();
+    return ret;
+  }
+};
+vtkStandardNewMacro(vtkCustomCellCenters);
+
+bool AbortExecutePipeline()
+{
+  vtkNew<::vtkCustomRTAnalyticSource> wavelet;
+  vtkNew<::vtkCustomShrinkFilter> shrink;
   vtkNew<vtkContourGrid> contour;
   vtkNew<vtkClipDataSet> clip;
-  vtkNew<vtkHandler> handler;
 
-  wavelet->SetWholeExtent(0, 10, 0, 10, 0, 10);
-  wavelet->AddObserver(vtkCommand::AbortCheckEvent, handler.Get(), &vtkHandler::AbortCallback);
+  wavelet->SetWholeExtent(0, 50, 0, 50, 0, 50);
   wavelet->AddObserver(
-    vtkCommand::CleanupAbortCheckEvent, handler.Get(), &vtkHandler::CleanupCallback);
+    vtkCommand::AbortCheckEvent, wavelet.Get(), &::vtkCustomRTAnalyticSource::AbortCallback);
+  wavelet->AddObserver(vtkCommand::CleanupAbortCheckEvent, wavelet.Get(),
+    &::vtkCustomRTAnalyticSource::CleanupCallback);
 
   shrink->SetInputConnection(wavelet->GetOutputPort());
 
@@ -50,27 +166,29 @@ int TestAbortExecute(int, char*[])
   clip->SetInputConnection(contour->GetOutputPort());
   clip->SetClipFunction(clipPlane);
 
-  wavelet->SetAbortExecuteAndUpdateTime();
-  clip->Update();
+  ::UpdateAbort(clip, wavelet);
 
-  if (handler->AbortEventCounts != 1)
+  if (wavelet->AbortEventCounts != 1)
   {
-    vtkLog(ERROR, "Wavelet did not invoke expected abort check event");
+    vtkLog(
+      ERROR, << "Wavelet did not invoke expected abort check event: " << wavelet->AbortEventCounts);
+    return false;
   }
-  if (handler->CleanupEventCounts != 1)
+  if (wavelet->CleanupEventCounts != 1)
   {
     vtkLog(ERROR, "Wavelet did not invoke expected cleanup abort check event");
+    return false;
   }
   if (!wavelet->GetAbortExecute())
   {
     vtkLog(ERROR, "Wavelet AbortExecute flag is not set.");
-    return 1;
+    return false;
   }
 
   if (shrink->GetAbortExecute() || contour->GetAbortExecute() || clip->GetAbortExecute())
   {
     vtkLog(ERROR, "Shrink, Contour, or Clip AbortExecute flag is set.");
-    return 1;
+    return false;
   }
 
   if (!wavelet->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()) ||
@@ -79,35 +197,33 @@ int TestAbortExecute(int, char*[])
     !clip->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
     vtkLog(ERROR, "Wavelet, Shrink, Contour, or Clip ABORTED flag is not set.");
-    return 1;
+    return false;
   }
 
   if (clip->GetOutput()->GetNumberOfPoints())
   {
     vtkLog(ERROR, "Found output data.");
-    return 1;
+    return false;
   }
-
   wavelet->SetAbortExecute(0);
-  shrink->SetAbortExecuteAndUpdateTime();
-  clip->Update();
 
+  ::UpdateAbort(clip, shrink);
   if (!shrink->GetAbortExecute())
   {
     vtkLog(ERROR, "Shrink AbortExecute flag is not set.");
-    return 1;
+    return false;
   }
 
   if (wavelet->GetAbortExecute() || contour->GetAbortExecute() || clip->GetAbortExecute())
   {
     vtkLog(ERROR, "Wavelet, Contour, or Clip AbortExecute flag is set.");
-    return 1;
+    return false;
   }
 
   if (wavelet->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
     vtkLog(ERROR, "Wavelet ABORTED flag is set.");
-    return 1;
+    return false;
   }
 
   if (!shrink->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()) ||
@@ -115,13 +231,13 @@ int TestAbortExecute(int, char*[])
     !clip->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
     vtkLog(ERROR, "Wavelet, Shrink, Contour, or Clip ABORTED flag is not set.");
-    return 1;
+    return false;
   }
 
   if (clip->GetOutput()->GetNumberOfPoints())
   {
     vtkLog(ERROR, "Found output data.");
-    return 1;
+    return false;
   }
 
   shrink->SetAbortExecute(0);
@@ -131,7 +247,7 @@ int TestAbortExecute(int, char*[])
     clip->GetAbortExecute())
   {
     vtkLog(ERROR, "Wavelet, Shrink, Contour, or Clip AbortExecute flag is set.");
-    return 1;
+    return false;
   }
 
   if (wavelet->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()) ||
@@ -140,14 +256,90 @@ int TestAbortExecute(int, char*[])
     clip->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
     vtkLog(ERROR, "Wavelet, Shrink, Contour, or Clip ABORTED flag is set.");
-    return 1;
+    return false;
   }
 
   if (!clip->GetOutput()->GetNumberOfPoints())
   {
     vtkLog(ERROR, "No output data.");
-    return 1;
+    return false;
   }
 
-  return 0;
+  return true;
+}
+
+bool AbortExecuteSMP()
+{
+  int EXTENT = 30;
+  vtkNew<vtkRTAnalyticSource> imageSource;
+
+  imageSource->SetWholeExtent(-EXTENT, EXTENT, -EXTENT, EXTENT, -EXTENT, EXTENT);
+
+  vtkNew<vtkElevationFilter> ev;
+  ev->SetInputConnection(imageSource->GetOutputPort());
+  ev->SetLowPoint(-EXTENT, -EXTENT, -EXTENT);
+  ev->SetHighPoint(EXTENT, EXTENT, EXTENT);
+
+  vtkNew<vtkDataSetTriangleFilter> tetraFilter;
+  tetraFilter->SetInputConnection(ev->GetOutputPort());
+
+  vtkNew<vtkPointDataToCellData> p2c;
+  p2c->SetInputConnection(tetraFilter->GetOutputPort());
+  p2c->Update();
+
+  tetraFilter->GetOutput()->GetCellData()->ShallowCopy(p2c->GetOutput()->GetCellData());
+
+  vtkNew<::vtkCustomCellCenters> cc;
+  cc->SetInputData(tetraFilter->GetOutput());
+  ::UpdateAbort(cc, cc);
+
+  if (!cc->GetAbortExecute())
+  {
+    vtkLog(ERROR, "vtkCellCenters AbortExecute flag is not set.");
+    return false;
+  }
+
+  if (!cc->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
+  {
+    vtkLog(ERROR, "vtkCellCenters ABORTED flag is not set.");
+    return false;
+  }
+
+  if (cc->GetOutput()->GetNumberOfPoints() > 0)
+  {
+    vtkLog(ERROR, "Found output data.");
+    return false;
+  }
+
+  cc->SetAbortExecute(0);
+  cc->Update();
+
+  if (cc->GetAbortExecute())
+  {
+    vtkLog(ERROR, "vtkCellCenters AbortExecute flag is set.");
+    return false;
+  }
+
+  if (cc->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
+  {
+    vtkLog(ERROR, "vtkCellCenters ABORTED flag is set.");
+    return false;
+  }
+
+  if (cc->GetOutput()->GetActualMemorySize() == 0)
+  {
+    vtkLog(ERROR, "No output data.");
+    return false;
+  }
+
+  return true;
+}
+
+}
+
+int TestAbortExecute(int, char*[])
+{
+  bool ret = ::AbortExecutePipeline();
+  ret &= ::AbortExecuteSMP();
+  return ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }

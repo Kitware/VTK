@@ -11,22 +11,127 @@
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkTestUtilities.h"
 
-static int returnValue = 0;
+#include <chrono>
+#include <iostream>
+#include <thread>
 
-void PulseSourceTest()
+namespace
 {
-  vtkNew<vtkAMRGaussianPulseSource> src;
-  src->SetAbortExecuteAndUpdateTime();
-  src->Update();
+
+vtkAlgorithm* gToAbort = nullptr;
+std::atomic<bool> gAllowAbort{ false };
+std::atomic<bool> gAllowEnd{ false };
+
+// A method to abort an algorithm while its running
+void toggleAbort()
+{
+  while (!gAllowAbort)
+  {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  }
+
+  // Then abort
+  gToAbort->SetAbortExecuteAndUpdateTime();
+  gAllowEnd = true;
+}
+
+// Update an algorithm then abort it from another thread
+void UpdateAbort(vtkAlgorithm* toUpdate, vtkAlgorithm* toAbort)
+{
+  gAllowAbort = false;
+  gAllowEnd = false;
+  gToAbort = toAbort;
+  std::thread abortThread(toggleAbort);
+  toUpdate->Update();
+  abortThread.join();
+}
+
+class vtkCustomAMRGaussianPulseSource : public vtkAMRGaussianPulseSource
+{
+public:
+  static vtkCustomAMRGaussianPulseSource* New();
+  vtkTypeMacro(vtkCustomAMRGaussianPulseSource, vtkAMRGaussianPulseSource);
+
+  // Overridden to avoid races
+  int RequestData(
+    vtkInformation* req, vtkInformationVector** in, vtkInformationVector* out) override
+  {
+    gAllowAbort = true;
+    int ret = this->Superclass::RequestData(req, in, out);
+
+    // Ensure there is no race by checking abort at the end
+    while (!gAllowEnd)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    this->CheckAbort();
+    return ret;
+  }
+};
+vtkStandardNewMacro(vtkCustomAMRGaussianPulseSource);
+
+class vtkCustomAMRCutPlane : public vtkAMRCutPlane
+{
+public:
+  static vtkCustomAMRCutPlane* New();
+  vtkTypeMacro(vtkCustomAMRCutPlane, vtkAMRCutPlane);
+
+  // Overridden to avoid races
+  int RequestData(
+    vtkInformation* req, vtkInformationVector** in, vtkInformationVector* out) override
+  {
+    gAllowAbort = true;
+    int ret = this->Superclass::RequestData(req, in, out);
+
+    // Ensure there is no race by checking abort at the end
+    while (!gAllowEnd)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    this->CheckAbort();
+    return ret;
+  }
+};
+vtkStandardNewMacro(vtkCustomAMRCutPlane);
+
+class vtkCustomImageToAMR : public vtkImageToAMR
+{
+public:
+  static vtkCustomImageToAMR* New();
+  vtkTypeMacro(vtkCustomImageToAMR, vtkImageToAMR);
+
+  // Overridden to avoid races
+  int RequestData(
+    vtkInformation* req, vtkInformationVector** in, vtkInformationVector* out) override
+  {
+    gAllowAbort = true;
+    int ret = this->Superclass::RequestData(req, in, out);
+
+    // Ensure there is no race by checking abort at the end
+    while (!gAllowEnd)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    this->CheckAbort();
+    return ret;
+  }
+};
+vtkStandardNewMacro(vtkCustomImageToAMR);
+
+bool PulseSourceTest()
+{
+  vtkNew<::vtkCustomAMRGaussianPulseSource> src;
+  ::UpdateAbort(src, src);
 
   if (!src->GetAbortExecute() || !src->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
     vtkLog(ERROR, "vtkAMRGaussianPulseSource did not abort properly.");
-    returnValue = 1;
+    return false;
   }
 
   src->SetAbortExecute(0);
@@ -35,24 +140,23 @@ void PulseSourceTest()
   if (src->GetAbortExecute() || src->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
     vtkLog(ERROR, "vtkAMRGaussianPulseSource did not run properly.");
-    returnValue = 1;
+    return false;
   }
+  return true;
 }
 
-void CutPlaneTest()
+bool CutPlaneTest()
 {
-
   vtkNew<vtkAMRGaussianPulseSource> src;
 
-  vtkNew<vtkAMRCutPlane> cut;
+  vtkNew<::vtkCustomAMRCutPlane> cut;
   cut->SetInputConnection(src->GetOutputPort());
-  cut->SetAbortExecuteAndUpdateTime();
-  cut->Update();
+  ::UpdateAbort(cut, cut);
 
   if (!cut->GetAbortExecute() || !cut->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
     vtkLog(ERROR, "vtkAMRCutPlane did not abort properly.");
-    returnValue = 1;
+    return false;
   }
 
   cut->SetAbortExecute(0);
@@ -61,11 +165,12 @@ void CutPlaneTest()
   if (cut->GetAbortExecute() || cut->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
     vtkLog(ERROR, "vtkAMRCutPlane did not run properly.");
-    returnValue = 1;
+    return false;
   }
+  return true;
 }
 
-void ImageToAMRTest()
+bool ImageToAMRTest()
 {
   vtkNew<vtkRTAnalyticSource> imageSource;
   imageSource->SetWholeExtent(0, 0, -128, 128, -128, 128);
@@ -73,19 +178,17 @@ void ImageToAMRTest()
   vtkNew<vtkGenerateIds> idFilter;
   idFilter->SetInputConnection(imageSource->GetOutputPort());
 
-  vtkNew<vtkImageToAMR> amrConverter;
+  vtkNew<::vtkCustomImageToAMR> amrConverter;
   amrConverter->SetInputConnection(idFilter->GetOutputPort());
   amrConverter->SetNumberOfLevels(4);
   amrConverter->SetMaximumNumberOfBlocks(10);
-
-  amrConverter->SetAbortExecuteAndUpdateTime();
-  amrConverter->Update();
+  ::UpdateAbort(amrConverter, amrConverter);
 
   if (!amrConverter->GetAbortExecute() ||
     !amrConverter->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
     vtkLog(ERROR, "vtkAMRamrConverterFilter did not abort properly.");
-    returnValue = 1;
+    return false;
   }
 
   amrConverter->SetAbortExecute(0);
@@ -95,15 +198,17 @@ void ImageToAMRTest()
     amrConverter->GetOutputInformation(0)->Get(vtkAlgorithm::ABORTED()))
   {
     vtkLog(ERROR, "vtkAMRamrConverterFilter did not run properly.");
-    returnValue = 1;
+    return false;
   }
+  return true;
+}
 }
 
 int TestAMRAbortExecute(int, char*[])
 {
-  PulseSourceTest();
-  CutPlaneTest();
-  ImageToAMRTest();
+  bool ret = ::PulseSourceTest();
+  ret &= ::CutPlaneTest();
+  ret &= ::ImageToAMRTest();
 
-  return returnValue;
+  return ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }
