@@ -17,11 +17,14 @@ evicts the ghost the moment C++ destruction runs.
 
 import gc
 import sys
+import weakref
 from vtkmodules.util.numpy_support import numpy_to_vtk
 from vtkmodules.vtkCommonCore import (
+    vtkCallbackCommand,
     vtkIntArray,
     vtkObject,
     vtkObjectBase,
+    vtkVariant,
     vtkVariantArray,
 )
 from vtkmodules.vtkCommonDataModel import (
@@ -119,6 +122,65 @@ class TestGhostCleanup(Testing.vtkTest):
         o2 = a.GetValue(0).ToVTKObject()
         self.assertEqual(o2.customattr, "hello")
         self.assertNotEqual(original_id, id(o2))
+
+    def testUnobservedGhostReleased(self):
+        """A ghost of a non-vtkObject cannot have a DeleteEvent observer.
+        When its C++ object is deleted, its __dict__ must still be released
+        by the next ghost creation."""
+
+        class Payload:
+            pass
+
+        holder = vtkVariantArray()
+        cmd = vtkCallbackCommand()
+        payload = Payload()
+        cmd.payload = payload
+        ref = weakref.ref(payload)
+        del payload
+        holder.InsertNextValue(vtkVariant(cmd))
+        del cmd
+        _collect()
+
+        # The command is a ghost; deleting the C++ object makes it stale
+        holder.SetValue(0, vtkVariant())
+        _collect()
+
+        o = vtkObject()
+        o.x = 1
+        holder.InsertNextValue(vtkVariant(o))
+        del o
+        _collect()
+        self.assertIsNone(ref())
+
+    def testManyGhosts(self):
+        """Ghosts stay correct when many exist at once, including when some
+        of their C++ objects are deleted between ghost creations."""
+        n = 1000
+        holder = vtkVariantArray()
+        for i in range(n):
+            o = vtkObject()
+            o.index = i
+            holder.InsertNextValue(o)
+        del o
+        _collect()
+
+        # Delete every other object; their ghosts must go away and must
+        # not be resurrected by objects that reuse their addresses.
+        for i in range(0, n, 2):
+            holder.SetValue(i, vtkVariant())
+        _collect()
+        fresh = [vtkObject() for _ in range(n // 2)]
+        for f in fresh:
+            self.assertFalse(hasattr(f, "index"))
+
+        # Round-trip every survivor twice, which removes and re-adds its
+        # ghost each time.
+        for _ in range(2):
+            for i in range(1, n, 2):
+                o = holder.GetValue(i).ToVTKObject()
+                self.assertEqual(o.index, i)
+            del o
+            _collect()
 
 
 if __name__ == "__main__":

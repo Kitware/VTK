@@ -283,6 +283,10 @@ private:
   // its ghost proactively, instead of waiting for the next sweep.
   static void GhostDeleteCallback(vtkObject*, unsigned long, void* clientData, void*);
 
+  // Called when the DeleteEvent observer of a ghost is removed, so that the
+  // ghost is checked by the sweep if the observer was removed by other code.
+  static void GhostObserverDeleteCallback(void* clientData);
+
   vtkPythonObjectMap* ObjectMap;
   vtkPythonGhostMap* GhostMap;
   vtkPythonClassMap* ClassMap;
