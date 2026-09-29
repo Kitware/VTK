@@ -63,3 +63,16 @@ vtk_test_cxx_executable(
   DISABLE_FLOATING_POINT_EXCEPTIONS
   vtkAnariTestUtilities.cxx
 )
+
+if(TARGET VTK::ParallelMPI AND TARGET VTK::RenderingParallel)
+  set(vtkRenderingAnariCoreCxxTests-MPI_NUMPROCS 2)
+  vtk_add_test_mpi(vtkRenderingAnariCoreCxxTests-MPI anari_mpi_tests
+    TestAnariSynchronizedRenderers.cxx,TESTING_DATA
+  )
+  vtk_test_cxx_executable(
+    vtkRenderingAnariCoreCxxTests-MPI
+    anari_mpi_tests
+    RENDERING_FACTORY
+    DISABLE_FLOATING_POINT_EXCEPTIONS
+  )
+endif()

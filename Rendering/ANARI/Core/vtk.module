@@ -37,3 +37,6 @@ TEST_DEPENDS
   VTK::RenderingVolume
   VTK::RenderingFreeType
   VTK::ImagingHybrid
+TEST_OPTIONAL_DEPENDS
+  VTK::ParallelMPI
+  VTK::RenderingParallel
