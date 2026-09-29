@@ -340,6 +340,7 @@ void vtkPythonUtil::GhostDeleteCallback(vtkObject*, unsigned long, void* clientD
     // walk the GhostMap.
     PyObject* class_obj = (PyObject*)i->second.vtk_class;
     PyObject* dict_obj = i->second.vtk_dict;
+    vtkPythonMap->GhostMap->Unobserved.erase(ptr);
     vtkPythonMap->GhostMap->erase(i);
     Py_DECREF(class_obj);
     Py_DECREF(dict_obj);
@@ -436,7 +437,8 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject* obj)
         }
       }
 
-      // A stale ghost of a deleted object might be at the same address
+      // A ghost at this address can only belong to a deleted object, because
+      // FindObject consumes a live ghost when its object is wrapped again.
       vtkPythonGhostMap::iterator old = ghosts->find(pobj->vtk_ptr);
       if (old != ghosts->end())
       {
@@ -503,6 +505,8 @@ PyObject* vtkPythonUtil::FindObject(vtkObjectBase* ptr)
   vtkPythonGhostMap::iterator j = vtkPythonMap->GhostMap->find(ptr);
   if (j != vtkPythonMap->GhostMap->end())
   {
+    PyObject* class_obj = (PyObject*)j->second.vtk_class;
+    PyObject* dict_obj = j->second.vtk_dict;
     if (j->second.vtk_ptr.GetPointer())
     {
       // Detach the delete observer before we consume the ghost, otherwise it
@@ -519,10 +523,12 @@ PyObject* vtkPythonUtil::FindObject(vtkObjectBase* ptr)
       }
       obj = PyVTKObject_FromPointer(j->second.vtk_class, j->second.vtk_dict, ptr);
     }
-    Py_DECREF(j->second.vtk_class);
-    Py_DECREF(j->second.vtk_dict);
+    // Erase before DECREF: if the ghost is stale, releasing its dict can run
+    // Python code that adds a ghost, and the sweep there would erase this one.
     vtkPythonMap->GhostMap->Unobserved.erase(ptr);
     vtkPythonMap->GhostMap->erase(j);
+    Py_DECREF(class_obj);
+    Py_DECREF(dict_obj);
   }
 
   return obj;
