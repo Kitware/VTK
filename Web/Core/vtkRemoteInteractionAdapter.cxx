@@ -58,6 +58,8 @@ const std::unordered_map< std::string, enum_type > EVENT_MAP {
   {"StartRotate"                ,vtkCommand::StartRotateEvent},
   {"Rotate"                     ,vtkCommand::RotateEvent},
   {"EndRotate"                  ,vtkCommand::EndRotateEvent},
+  {"Tap"                        ,vtkCommand::TapEvent},
+  {"LongTap"                    ,vtkCommand::LongTapEvent},
   {"Button3D"                   ,vtkCommand::NoEvent},
   {"Move3D"                     ,vtkCommand::NoEvent},
   {"StartPointerLock"           ,vtkCommand::NoEvent},
@@ -131,6 +133,20 @@ bool vtkRemoteInteractionAdapter::ProcessEvent(vtkRenderWindowInteractor* iren,
       case vtkCommand::LeaveEvent:
         iren->InvokeEvent(eventType, (void*)&event);
         break;
+      case vtkCommand::LongTapEvent:
+      case vtkCommand::TapEvent:
+      {
+        double physicalPosition[2] = { event.at("position").at("x").get<double>(),
+          event.at("position").at("y").get<double>() };
+        double physicalSize[2] = { event.at("w").get<double>(), event.at("h").get<double>() };
+        int logicalPosition[2];
+        physicalToLogicalPosition(physicalPosition, logicalPosition, physicalSize, iren,
+          devicePixelRatio, devicePixelRatioTolerance);
+
+        iren->SetEventInformation(logicalPosition[0], logicalPosition[1]);
+        iren->InvokeEvent(eventType, (void*)&event);
+        break;
+      }
       case vtkCommand::MouseMoveEvent:
       case vtkCommand::LeftButtonPressEvent:
       case vtkCommand::LeftButtonReleaseEvent:
