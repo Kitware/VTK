@@ -3,6 +3,7 @@
 
 #include "vtkAnariRenderWindow.h"
 
+#include "vtkCommand.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverrideAttribute.h"
@@ -127,7 +128,9 @@ void vtkAnariRenderWindow::DoStereoRender()
   anariRendererNode->SetScale(this->GetTileScale());
 
   // Internal ANARI render call
+  renderer->InvokeEvent(vtkCommand::StartEvent);
   this->AnariSceneGraph->TraverseAllPasses();
+  renderer->InvokeEvent(vtkCommand::EndEvent);
 }
 
 //------------------------------------------------------------------------------
