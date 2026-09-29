@@ -21,15 +21,20 @@ import weakref
 from vtkmodules.util.numpy_support import numpy_to_vtk
 from vtkmodules.vtkCommonCore import (
     vtkCallbackCommand,
+    vtkFloatArray,
     vtkIntArray,
     vtkObject,
     vtkObjectBase,
+    vtkSOADataArrayTemplate,
     vtkVariant,
     vtkVariantArray,
 )
 from vtkmodules.vtkCommonDataModel import (
     VTK_LINE,
     vtkCellArray,
+    vtkMultiBlockDataSet,
+    vtkPolyData,
+    vtkRectilinearGrid,
     vtkUnstructuredGrid,
 )
 from vtkmodules.test import Testing
@@ -151,6 +156,30 @@ class TestGhostCleanup(Testing.vtkTest):
         del o
         _collect()
         self.assertIsNone(ref())
+
+    def testWrappingLeavesDictEmpty(self):
+        """Wrapping an existing C++ object must not populate __dict__,
+        otherwise every discarded wrapper is saved as a ghost."""
+        pd = vtkPolyData()
+        a = vtkFloatArray()
+        a.SetNumberOfValues(4)
+        pd.GetPointData().AddArray(a)
+        s = vtkSOADataArrayTemplate["float32"]()
+        s.SetNumberOfComponents(2)
+        s.SetNumberOfTuples(3)
+        pd.GetPointData().AddArray(s)
+        del a, s
+        mb = vtkMultiBlockDataSet()
+        mb.SetBlock(0, pd)
+        for obj in (
+            pd,
+            pd.GetPointData(),
+            pd.GetPointData().GetArray(0),
+            pd.GetPointData().GetArray(1),
+            mb,
+            vtkRectilinearGrid(),
+        ):
+            self.assertEqual(vars(obj), {}, type(obj).__name__)
 
     def testManyGhosts(self):
         """Ghosts stay correct when many exist at once, including when some

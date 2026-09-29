@@ -105,16 +105,13 @@ class FieldDataBase(object):
     ``PointData``, and ``CellData`` overrides.
     """
 
-    # Class-level default so the property works even if __init__ is skipped.
+    # Class-level defaults keep __dict__ empty for field data that is only
+    # wrapped, so the wrapper is not ghosted when it is discarded.
     _dataset = None
+    association = None
 
     def __init__(self, *args):
-        # SWIG pointer reconstruction: tp_new already returned the
-        # existing object; skip init to avoid clobbering state.
-        if args and isinstance(args[0], str):
-            return
-        self.association = None
-        self.dataset = None
+        pass
 
     def _set_dataset(self, dataset):
         """Store a *weak* reference to the owning dataset.
@@ -640,12 +637,13 @@ class DataSet(object):
         velocity = pd.point_data["velocity"]    # VTKAOSArray
         pd.cell_data["pressure"] = numpy_array  # set from numpy
     """
+    # Properties that hold numpy-compatible arrays, compared by __eq__.
+    # A class attribute, so that __dict__ stays empty for datasets that
+    # are only wrapped, and the wrapper is not ghosted when discarded.
+    _numpy_attrs = ()
+
     def __init__(self, *args, **kwargs) -> None:
-        # SWIG pointer reconstruction: tp_new already returned the
-        # existing object; skip init to avoid clobbering state.
-        if args and isinstance(args[0], str):
-            return
-        self._numpy_attrs = []
+        pass
 
     @property
     def point_data(self):
@@ -837,12 +835,12 @@ class RectilinearGrid(DataSet, vtkRectilinearGrid):
     Adds ``x_coordinates``, ``y_coordinates``, and ``z_coordinates``
     properties that can be get/set with numpy arrays or VTK arrays.
     """
+    _numpy_attrs = DataSet._numpy_attrs + (
+        "x_coordinates", "y_coordinates", "z_coordinates")
+
     def __init__(self, *args, **kwargs) -> None:
         DataSet.__init__(self, *args, **kwargs)
         vtkRectilinearGrid.__init__(self, **kwargs)
-        if args and isinstance(args[0], str):
-            return
-        self._numpy_attrs.extend(["x_coordinates", "y_coordinates", "z_coordinates"])
 
     @property
     def x_coordinates(self):
@@ -964,15 +962,15 @@ class CompositeDataSetBase(object):
     and ``vtkOverlappingAMR`` overrides.
     """
 
+    # Class-level defaults keep __dict__ empty for datasets that are only
+    # wrapped, so their wrappers are not ghosted when they are discarded.
+    _PointData = None
+    _CellData = None
+    _FieldData = None
+    _Points = None
+
     def __init__(self, *args, **kwargs):
-        # SWIG pointer reconstruction: tp_new already returned the
-        # existing object; skip init to avoid clobbering state.
-        if args and isinstance(args[0], str):
-            return
-        self._PointData = None
-        self._CellData = None
-        self._FieldData = None
-        self._Points = None
+        pass
 
     def __iter__(self):
         "Creates an iterator for the contained datasets."
