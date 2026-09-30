@@ -24,7 +24,9 @@ PRIVATE_DEPENDS
   VTK::FiltersSources
 TEST_DEPENDS
   VTK::CommonColor
+  VTK::CommonComputationalGeometry
   VTK::CommonSystem
+  VTK::CommonTransforms
   VTK::FiltersGeometry
   VTK::FiltersSources
   VTK::IOXML

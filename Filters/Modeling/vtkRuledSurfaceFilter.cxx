@@ -378,11 +378,10 @@ void vtkRuledSurfaceFilter::PointWalk(vtkPolyData* output, vtkPoints* inPts, int
   // Compute distance factor based on first two points
   //
 
-  vtkIdType endLoop2, startLoop2, i;
+  vtkIdType startLoop2, i;
 
   if (!this->OrientLoops)
   {
-    endLoop2 = npts2 - 1;
     startLoop2 = 0;
     inPts->GetPoint(pts[0], x);
     inPts->GetPoint(pts2[0], y);
@@ -406,16 +405,6 @@ void vtkRuledSurfaceFilter::PointWalk(vtkPolyData* output, vtkPoints* inPts, int
       }
     }
 
-    // If the starting point is not 0 then the end is behind us
-    if (startLoop2)
-    {
-      endLoop2 = startLoop2 - 1;
-    }
-    else
-    {
-      endLoop2 = npts2 - 1;
-    }
-
     distance2 = minD2 * this->DistanceFactor * this->DistanceFactor;
   }
 
@@ -423,31 +412,15 @@ void vtkRuledSurfaceFilter::PointWalk(vtkPolyData* output, vtkPoints* inPts, int
   // and generating triangles as we go.
   loc = 0;
   loc2 = startLoop2;
-  bool endOfLoop2 = false;
-  while (loc < (npts - 1) || (!endOfLoop2))
+  vtkIdType numberOfSteps2 = 0;
+  while (loc < (npts - 1) || numberOfSteps2 < (npts2 - 1))
   {
 
     // Determine the next point in loop 2
     next2 = loc2 + 1;
-    if ((!startLoop2) && (next2 == endLoop2))
+    if (next2 == npts2)
     {
-      // If we started 0 then when we hit the end of the loop
-      // we are done
-      endOfLoop2 = true;
-    }
-    else if (next2 == startLoop2)
-    {
-      // If we are here we have reached the end of the loop
-      // though we need to still process the starting point a second time
-      // to close the surface
-      endOfLoop2 = true;
-    }
-    else if (next2 == npts2)
-    {
-      // The only way we would reach the end of the original
-      // loop is if we did not start with the 0th point - since
-      // this point is repeated (its the same at the npts2-1 point
-      // we need to skip it
+      // Point 0 is repeated at npts2 - 1, so continue at point 1.
       next2 = 1;
     }
 
@@ -466,8 +439,9 @@ void vtkRuledSurfaceFilter::PointWalk(vtkPolyData* output, vtkPoints* inPts, int
         newPolys->InsertCellPoint(pts2[loc2]);  // a
       }
       loc2 = next2;
+      ++numberOfSteps2;
     }
-    else if (loc2 == endLoop2) // clamped at end of second line
+    else if (numberOfSteps2 >= (npts2 - 1)) // clamped at end of second line
     {
       inPts->GetPoint(pts[loc], x);
       inPts->GetPoint(pts[loc + 1], y);
@@ -502,6 +476,7 @@ void vtkRuledSurfaceFilter::PointWalk(vtkPolyData* output, vtkPoints* inPts, int
           newPolys->InsertCellPoint(pts2[loc2]);  // a
         }
         loc2 = next2;
+        ++numberOfSteps2;
       }
       else
       {
