@@ -189,13 +189,14 @@ int TestFDSReader3(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  if (!testValue(
-        boundary->GetNumberOfPoints(), 50, "number of points in Mesh01_Blockage_3 boundary"))
+  if (!testValue(boundary->GetNumberOfPoints(), 10,
+        "number of points in Mesh01_Blockage_3_X_negative boundary patch"))
   {
     return EXIT_FAILURE;
   }
 
-  if (!testValue(boundary->GetNumberOfCells(), 16, "number of cells in Mesh01_Blockage_3 boundary"))
+  if (!testValue(boundary->GetNumberOfCells(), 4,
+        "number of cells in Mesh01_Blockage_3_X_negative boundary patch"))
   {
     return EXIT_FAILURE;
   }

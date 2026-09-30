@@ -32,6 +32,7 @@
 #include "vtkTable.h"
 #include "vtkType.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <stdexcept>
 #include <string>
@@ -106,9 +107,22 @@ struct GridData
 };
 
 //------------------------------------------------------------------------------
+enum struct BlockagePatchOrientation
+{
+  Z_NEGATIVE = -3,
+  Y_NEGATIVE = -2,
+  X_NEGATIVE = -1,
+  UNKNOWN = 0,
+  X_POSITIVE = 1,
+  Y_POSITIVE = 2,
+  Z_POSITIVE = 3,
+};
+
+//------------------------------------------------------------------------------
 struct ObstacleData
 {
   vtkSmartPointer<vtkRectilinearGrid> Geometry;
+  // Matches with OBST_INDEX in BlockagePatch
   vtkIdType BlockageNumber;
   GridData* AssociatedGrid;
   std::array<vtkIdType, 6> subExtent;
@@ -124,12 +138,13 @@ struct BlockagePatch
   int J2 = 0;
   int K1 = 0;
   int K2 = 0;
-  int IOR = 0;
+  BlockagePatchOrientation IOR = BlockagePatchOrientation::UNKNOWN;
   int OBST_INDEX = 0;
   int NM = 0;
 
-  // Position of the patch in the patch list
-  vtkIdType pos = 0;
+  std::optional<vtkIdType> PatchIndex;
+
+  vtkSmartPointer<vtkRectilinearGrid> Geometry;
 };
 
 //------------------------------------------------------------------------------
@@ -522,7 +537,7 @@ void PreParseBoundaryFile(::BoundaryFieldData& bfData)
     }
     parser->Read(reinterpret_cast<char*>(&bfData.Patches[iBlock]), size);
     parser->Read(reinterpret_cast<char*>(&size), 4);
-    bfData.Patches[iBlock].pos = iBlock;
+    bfData.Patches[iBlock].PatchIndex = iBlock;
   }
 
   do
@@ -552,7 +567,7 @@ void PreParseBoundaryFile(::BoundaryFieldData& bfData)
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> ReadBoundaryFile(vtkFileResourceStream* fileStream,
   const ::BoundaryFieldData& bfData, vtkIdType requestedTimeStep, vtkIdType nComponents,
-  vtkRectilinearGrid& grid, ::ObstacleData& oData)
+  vtkRectilinearGrid& grid, ::BlockagePatch& patchData)
 {
   vtkNew<vtkResourceParser> parser;
   parser->Reset();
@@ -562,74 +577,34 @@ vtkSmartPointer<vtkDataArray> ReadBoundaryFile(vtkFileResourceStream* fileStream
   vtkSmartPointer<vtkFloatArray> result = vtkSmartPointer<vtkFloatArray>::New();
   result->SetNumberOfComponents(1);
   result->SetNumberOfTuples(grid.GetNumberOfPoints());
-  result->Fill(std::numeric_limits<float>::quiet_NaN());
 
-  bool foundPatch = false;
+  auto actualNumberOfValues = (patchData.I2 - patchData.I1 + 1) *
+    (patchData.J2 - patchData.J1 + 1) * (patchData.K2 - patchData.K1 + 1);
+  std::size_t nBytesFloat = actualNumberOfValues * sizeof(float);
+  unsigned int size = 0;
+  // patchData.PatchIndex should always have a value, but we use value_or(0) for clang-tidy
+  parser->Seek(bfData.TimeStepsPositionInFile[requestedTimeStep][patchData.PatchIndex.value_or(0)],
+    vtkResourceStream::SeekDirection::Begin);
+  parser->Read(reinterpret_cast<char*>(&size), 4);
 
-  for (auto& currentBlockagePatch : bfData.Patches)
+  if (size != nBytesFloat)
   {
-    if (static_cast<vtkIdType>(currentBlockagePatch.OBST_INDEX) != oData.BlockageNumber)
-    {
-      continue;
-    }
-    foundPatch = true;
-
-    auto actualNumberOfValues = (currentBlockagePatch.I2 - currentBlockagePatch.I1 + 1) *
-      (currentBlockagePatch.J2 - currentBlockagePatch.J1 + 1) *
-      (currentBlockagePatch.K2 - currentBlockagePatch.K1 + 1);
-    std::size_t nBytesFloat = actualNumberOfValues * sizeof(float);
-    unsigned int size = 0;
-    parser->Seek(bfData.TimeStepsPositionInFile[requestedTimeStep][currentBlockagePatch.pos],
-      vtkResourceStream::SeekDirection::Begin);
-    parser->Read(reinterpret_cast<char*>(&size), 4);
-
-    if (size != nBytesFloat)
-    {
-      throw vtkFDSReaderError(vtk::format(
-        "Line length seems to be {} bytes when expected {} for floats.", size, nBytesFloat));
-    }
-
-    vtkNew<vtkFloatArray> data;
-    data->SetNumberOfComponents(nComponents);
-    data->SetNumberOfTuples(actualNumberOfValues);
-    std::size_t readBytes = parser->Read(reinterpret_cast<char*>(data->GetPointer(0)), size);
-    if (readBytes != size)
-    {
-      throw vtkFDSReaderError(vtk::format(
-        "Did not read correct number of bytes from file, expected to read {} but read {}.", size,
-        readBytes));
-    }
-
-    auto bndMinI = oData.subExtent[0];
-    auto bndMinJ = oData.subExtent[2];
-    auto bndMinK = oData.subExtent[4];
-    int gridSizeI = grid.GetDimensions()[0];
-    int gridSizeJ = grid.GetDimensions()[1];
-    int patchSizeI = currentBlockagePatch.I2 - currentBlockagePatch.I1 + 1;
-    int patchSizeJ = currentBlockagePatch.J2 - currentBlockagePatch.J1 + 1;
-
-    for (int k = currentBlockagePatch.K1; k <= currentBlockagePatch.K2; ++k)
-    {
-      for (int j = currentBlockagePatch.J1; j <= currentBlockagePatch.J2; ++j)
-      {
-        for (int i = currentBlockagePatch.I1; i <= currentBlockagePatch.I2; ++i)
-        {
-          vtkIdType patchIndex = (k - currentBlockagePatch.K1) * (patchSizeJ * patchSizeI) +
-            (j - currentBlockagePatch.J1) * patchSizeI + (i - currentBlockagePatch.I1);
-          vtkIdType gridIndex =
-            (k - bndMinK) * (gridSizeJ * gridSizeI) + (j - bndMinJ) * gridSizeI + (i - bndMinI);
-          float value = data->GetTuple1(patchIndex);
-          result->SetTuple1(gridIndex, value);
-        }
-      }
-    }
+    throw vtkFDSReaderError(vtk::format(
+      "Line length seems to be {} bytes when expected {} for floats.", size, nBytesFloat));
   }
 
-  if (!foundPatch)
+  vtkNew<vtkFloatArray> data;
+  data->SetNumberOfComponents(nComponents);
+  data->SetNumberOfTuples(actualNumberOfValues);
+  std::size_t readBytes = parser->Read(reinterpret_cast<char*>(data->GetPointer(0)), size);
+  if (readBytes != size)
   {
-    return nullptr;
+    throw vtkFDSReaderError(vtk::format(
+      "Did not read correct number of bytes from file, expected to read {} but read {}.", size,
+      readBytes));
   }
-  return result;
+
+  return data;
 }
 
 //------------------------------------------------------------------------------
@@ -967,22 +942,34 @@ public:
       return;
     }
 
-    auto itBound = this->Internals->Boundaries.find(nodeId);
-    if (itBound == this->Internals->Boundaries.end())
+    // Only handle Patch nodes, not Boundary nodes
+    auto itBound = this->Internals->Patches.find(nodeId);
+    if (itBound == this->Internals->Patches.end())
     {
       return;
     }
 
-    auto& oData = itBound->second;
+    ::BlockagePatch& patchData = itBound->second;
+    ::ObstacleData& oData = this->Internals->Boundaries[this->GetAssembly()->GetParent(nodeId)];
 
-    vtkNew<vtkRectilinearGrid> copy;
-    copy->ShallowCopy(oData.Geometry);
-
-    for (const auto& bfieldData : this->Internals->BoundaryFields)
+    for (const BoundaryFieldData& bfieldData : this->Internals->BoundaryFields)
     {
       if (oData.AssociatedGrid->GridNb != static_cast<unsigned int>(bfieldData.GridID))
       {
         continue;
+      }
+
+      if (!patchData.PatchIndex.has_value())
+      {
+        std::vector<BlockagePatch>::const_iterator itPatch = std::find_if(
+          bfieldData.Patches.begin(), bfieldData.Patches.end(), [&patchData](const BlockagePatch& p)
+          { return p.OBST_INDEX == patchData.OBST_INDEX && p.IOR == patchData.IOR; });
+        if (itPatch == bfieldData.Patches.end())
+        {
+          // Patch doesn't exist in boundary files
+          continue;
+        }
+        patchData.PatchIndex = itPatch->PatchIndex;
       }
 
       vtkIdType requestedTimeStep = std::distance(bfieldData.TimeValues.begin(),
@@ -994,8 +981,9 @@ public:
 
       try
       {
-        vtkSmartPointer<vtkDataArray> field = ::ReadBoundaryFile(
-          this->BoundaryFiles[bfieldData.FileName], bfieldData, requestedTimeStep, 1, *copy, oData);
+        vtkSmartPointer<vtkDataArray> field =
+          ::ReadBoundaryFile(this->BoundaryFiles[bfieldData.FileName], bfieldData,
+            requestedTimeStep, 1, *patchData.Geometry, patchData);
 
         if (!field)
         {
@@ -1012,7 +1000,7 @@ public:
             vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<ValidArrayTypes, ValidArrayTypes>;
           ::ConvertToCellCenteredField worker;
 
-          const auto* ext = copy->GetExtent();
+          const auto* ext = patchData.Geometry->GetExtent();
           const std::array<vtkIdType, 6> extent = { ext[0], ext[1], ext[2], ext[3], ext[4],
             ext[5] };
 
@@ -1024,12 +1012,12 @@ public:
           }
 
           cellCenteredField->SetName(bfieldData.FieldName.c_str());
-          copy->GetCellData()->AddArray(cellCenteredField);
+          patchData.Geometry->GetCellData()->AddArray(cellCenteredField);
         }
         else
         {
           field->SetName(bfieldData.FieldName.c_str());
-          copy->GetPointData()->AddArray(field);
+          patchData.Geometry->GetPointData()->AddArray(field);
         }
       }
       catch (vtkFDSReaderError& err)
@@ -1045,7 +1033,7 @@ public:
     unsigned int lastIndex = this->OutputPDSC->GetNumberOfPartitionedDataSets();
     this->OutputPDSC->SetNumberOfPartitionedDataSets(lastIndex + 1);
     this->OutputPDSC->GetDataAssembly()->AddDataSetIndex(nodeId, lastIndex);
-    this->OutputPDSC->SetPartition(lastIndex, 0, copy);
+    this->OutputPDSC->SetPartition(lastIndex, 0, patchData.Geometry);
     this->OutputPDSC->GetMetaData(lastIndex)->Set(
       vtkCompositeDataSet::NAME(), this->OutputPDSC->GetDataAssembly()->GetNodeName(nodeId));
   }
@@ -1078,6 +1066,7 @@ struct vtkFDSReader::vtkInternals
   std::map<int, ::SliceData> Slices;
   std::map<int, ::ObstacleData> Boundaries;
   std::map<int, ::HRRData> HRRs;
+  std::map<int, ::BlockagePatch> Patches;
   std::vector<::DeviceFileData> DevcFiles;
   std::vector<::BoundaryFieldData> BoundaryFields;
 
@@ -1303,6 +1292,78 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   {
     vtkErrorMacro(<< "Error during parsing of SMV file at line " << parser.LineNumber);
     return 0;
+  }
+
+  // Add Patches
+  constexpr std::array<BlockagePatchOrientation, 6> ALL_ORIENTATIONS = {
+    BlockagePatchOrientation::X_NEGATIVE, BlockagePatchOrientation::X_POSITIVE,
+    BlockagePatchOrientation::Y_NEGATIVE, BlockagePatchOrientation::Y_POSITIVE,
+    BlockagePatchOrientation::Z_NEGATIVE, BlockagePatchOrientation::Z_POSITIVE
+  };
+  for (const auto& [boundaryNodeId, oData] : this->Internals->Boundaries)
+  {
+    for (BlockagePatchOrientation orientation : ALL_ORIENTATIONS)
+    {
+      BlockagePatch patch;
+
+      patch.OBST_INDEX = oData.BlockageNumber;
+      patch.IOR = orientation;
+
+      patch.I1 = oData.subExtent[patch.IOR == BlockagePatchOrientation::X_POSITIVE ? 1 : 0];
+      patch.I2 = oData.subExtent[patch.IOR == BlockagePatchOrientation::X_NEGATIVE ? 0 : 1];
+      patch.J1 = oData.subExtent[patch.IOR == BlockagePatchOrientation::Y_POSITIVE ? 3 : 2];
+      patch.J2 = oData.subExtent[patch.IOR == BlockagePatchOrientation::Y_NEGATIVE ? 2 : 3];
+      patch.K1 = oData.subExtent[patch.IOR == BlockagePatchOrientation::Z_POSITIVE ? 5 : 4];
+      patch.K2 = oData.subExtent[patch.IOR == BlockagePatchOrientation::Z_NEGATIVE ? 4 : 5];
+
+      int sizeI = patch.I2 - patch.I1;
+      int sizeJ = patch.J2 - patch.J1;
+      int sizeK = patch.K2 - patch.K1;
+
+      // Check that the patch is not 1D
+      if ((sizeI == 0 && sizeJ == 0) || (sizeJ == 0 && sizeK == 0) || (sizeI == 0 && sizeK == 0))
+      {
+        continue;
+      }
+
+      // Generate patch geometry
+      std::array<vtkIdType, 6> patchExtent{
+        patch.I1,
+        patch.I2,
+        patch.J1,
+        patch.J2,
+        patch.K1,
+        patch.K2,
+      };
+      patch.Geometry = ::GenerateSubGrid(oData.AssociatedGrid->Geometry, patchExtent);
+
+      // Create data assembly node
+      std::string orientation_string = static_cast<int>(patch.IOR) < 0 ? "negative" : "positive";
+      char axis;
+      switch (patch.IOR)
+      {
+        case BlockagePatchOrientation::X_POSITIVE:
+        case BlockagePatchOrientation::X_NEGATIVE:
+          axis = 'X';
+          break;
+        case BlockagePatchOrientation::Y_POSITIVE:
+        case BlockagePatchOrientation::Y_NEGATIVE:
+          axis = 'Y';
+          break;
+        case BlockagePatchOrientation::Z_POSITIVE:
+        case BlockagePatchOrientation::Z_NEGATIVE:
+          axis = 'Z';
+          break;
+        default:
+          axis = '?';
+          break;
+      }
+      std::string patchName = vtk::format(
+        "{}_{}_{}", this->Assembly->GetNodeName(boundaryNodeId), axis, orientation_string);
+      auto nodeId = this->GetNodeId(boundaryNodeId, patchName);
+
+      this->Internals->Patches[nodeId] = patch;
+    }
   }
 
   this->Internals->SMVParser = nullptr;
@@ -2060,6 +2121,7 @@ bool vtkFDSReader::ParseBNDFBNDC(bool cellCentered)
 
   return true;
 }
+
 // ----------------------------------------------------------------------------
 int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
