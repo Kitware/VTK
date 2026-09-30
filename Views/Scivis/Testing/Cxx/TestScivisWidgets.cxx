@@ -19,6 +19,8 @@
 #include "vtkSurfaceRepresentation.h"
 #include "vtkWidgetRepresentation.h"
 
+#include <cmath>
+
 namespace
 {
 
@@ -78,12 +80,33 @@ int TestWidgetsArePlacedOverTheScene()
   CHECK(
     farOrigin[0] > nearOrigin[0] + 10.0, "the plane did not follow the data it was placed over");
 
-  // And it lands within the scene rather than beside it.  How much of the
-  // extent it takes is the representation's business, not this component's.
+  // And it lands within the scene rather than beside it.
   double scene[6];
   CHECK(faraway->GetSceneBounds(scene), "the view reports no scene bounds");
   CHECK(
     farOrigin[0] >= scene[0] && farOrigin[0] <= scene[1], "the plane was placed outside the scene");
+
+  return EXIT_SUCCESS;
+}
+
+// A widget placed over the scene spans all of it.  The representations shrink
+// what they are placed over by half unless told otherwise, which put a box over
+// the middle half of the data.
+int TestWidgetsSpanTheScene()
+{
+  auto view = MakeView(40.0);
+  vtkBoxWidget2* box = view->GetWidgets()->AddBox();
+
+  double scene[6];
+  CHECK(view->GetSceneBounds(scene), "the view reports no scene bounds");
+  const double* placed = box->GetRepresentation()->GetBounds();
+  for (int i = 0; i < 3; ++i)
+  {
+    const double extent = scene[2 * i + 1] - scene[2 * i];
+    CHECK(std::abs(placed[2 * i] - scene[2 * i]) < 0.01 * extent &&
+        std::abs(placed[2 * i + 1] - scene[2 * i + 1]) < 0.01 * extent,
+      "the box does not span the scene");
+  }
 
   return EXIT_SUCCESS;
 }
@@ -158,8 +181,8 @@ int TestScivisWidgets(int, char*[])
 {
   if (TestAddingWiresAWidgetToTheView() != EXIT_SUCCESS ||
     TestWidgetsArePlacedOverTheScene() != EXIT_SUCCESS ||
-    TestAnyWidgetCanBeAdded() != EXIT_SUCCESS || TestRemoving() != EXIT_SUCCESS ||
-    TestOutlivingTheView() != EXIT_SUCCESS)
+    TestWidgetsSpanTheScene() != EXIT_SUCCESS || TestAnyWidgetCanBeAdded() != EXIT_SUCCESS ||
+    TestRemoving() != EXIT_SUCCESS || TestOutlivingTheView() != EXIT_SUCCESS)
   {
     return EXIT_FAILURE;
   }

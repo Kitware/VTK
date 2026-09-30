@@ -108,7 +108,8 @@ public:
    *
    * Placing is asked for rather than assumed: PlaceOverScene() sizes a widget
    * that occupies a region -- a plane, a box -- to the data, which is what the
-   * methods above do for the kinds that want it.  A widget the user clicks into
+   * methods above do for the kinds that want it.  It sets the representation's
+   * place factor to 1 so the widget spans the scene bounds exactly.  A widget the user clicks into
    * place, or that points at somewhere it was given, has nothing to place.
    */
   void Add(vtkAbstractWidget* widget);

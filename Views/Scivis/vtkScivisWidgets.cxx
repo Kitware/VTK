@@ -73,6 +73,10 @@ void vtkScivisWidgets::PlaceOverScene(vtkAbstractWidget* widget)
   double bounds[6];
   if (representation && this->View->GetSceneBounds(bounds))
   {
+    // Representations shrink what they are placed over by a place factor of
+    // 0.5 unless told otherwise, which would leave the widget around the middle
+    // half of the data rather than around the data.
+    representation->SetPlaceFactor(1.0);
     representation->PlaceWidget(bounds);
   }
 }
