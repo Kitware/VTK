@@ -21,11 +21,18 @@ representation = view.show(sphere, color="steel_blue")
 def on_selection(caller, event):
     # vtkSelection is a sequence of its nodes, and a node's list is an array.
     selection = view.selector.current_selection
-    picked = len(selection[0].selection_list) if selection and len(selection) else 0
-    print(f"selection changed: {picked} cell(s)")
+    if not selection or len(selection) == 0:
+        print("selection cleared")
+    elif selection[0].content_type == "FRUSTUM":
+        # A frustum selection is the region itself; its list is the frustum's
+        # eight corners, not what falls inside.
+        print("selection changed: a frustum")
+    else:
+        print(f"selection changed: {len(selection[0].selection_list)} cell(s)")
 
 
-view.AddObserver(vtkCommand.SelectionChangedEvent, on_selection)
+# The selector is what makes a selection, so it is what says one was made.
+view.selector.AddObserver(vtkCommand.SelectionChangedEvent, on_selection)
 
 view.ResetCamera()
 view.Render()
