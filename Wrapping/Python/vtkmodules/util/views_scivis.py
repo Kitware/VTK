@@ -374,6 +374,14 @@ class BlockProperties(vtkBlockProperties):
             raise IndexError("a block index is a flat index, which is never negative")
         return _Block(self, index)
 
+    # Any index makes a block, so without this Python would iterate by calling
+    # __getitem__ with 0, 1, 2, ... until an IndexError that never comes.
+    def __iter__(self):
+        raise TypeError(
+            "block properties are not iterable; index them by the flat index "
+            "of a block in the input"
+        )
+
 
 @vtkGridAxesRepresentation.override
 class GridAxesRepresentation(_Delegating, vtkGridAxesRepresentation):

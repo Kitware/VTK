@@ -283,6 +283,16 @@ class TestBlocksAreIndexedByBlock(unittest.TestCase):
         with self.assertRaises(IndexError):
             self.representation.GetBlocks()[-1]
 
+    def test_not_iterable(self):
+        # Every index makes a block, so iterating by index would never end.
+        blocks = self.representation.GetBlocks()
+        with self.assertRaises(TypeError):
+            iter(blocks)
+        with self.assertRaises(TypeError):
+            list(blocks)
+        with self.assertRaises(TypeError):
+            blocks[0] in blocks
+
 
 class TestShow(unittest.TestCase):
     def test_builds_configures_and_adds(self):
