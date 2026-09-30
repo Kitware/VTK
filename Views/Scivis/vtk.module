@@ -16,6 +16,7 @@ DEPENDS
   VTK::InteractionWidgets
   VTK::RenderingAnnotation
   VTK::RenderingCore
+  VTK::RenderingGridAxes
 PRIVATE_DEPENDS
   VTK::CommonColor
   VTK::IOExport
