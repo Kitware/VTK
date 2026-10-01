@@ -226,10 +226,12 @@ struct vtkHDFReader::DataCache
   template <typename T, typename ArrayT>
   void Set(int attribute, const std::string& name, const T& offset, vtkSmartPointer<ArrayT> array)
   {
+    auto key = KeyT{ attribute, name };
+    this->Map.erase(key); // remove previous cache if any
     std::vector<vtkIdType> buff(offset.size());
     std::copy(offset.begin(), offset.end(), buff.begin());
-    this->Map.emplace(KeyT{ attribute, name },
-      ValueT{ std::move(buff), static_cast<vtkSmartPointer<vtkAbstractArray>>(array) });
+    this->Map.emplace(
+      key, ValueT{ std::move(buff), static_cast<vtkSmartPointer<vtkAbstractArray>>(array) });
   }
 
   template <typename OffT>
