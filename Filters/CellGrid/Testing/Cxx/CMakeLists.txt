@@ -8,6 +8,7 @@ vtk_add_test_cxx(vtkFiltersCellGridCxxTests tests
   TestCellGridEvaluator.cxx,NO_VALID
   TestCellGridExtractSurface.cxx,NO_VALID
   TestCellGridFindCriticalPoints.cxx,NO_VALID
+  TestCellGridIsocontour.cxx,NO_VALID
   TestCellGridIsocontourPoints.cxx,NO_VALID
   TestCellGridHeterogeneousSides.cxx,NO_VALID
   TestCellGridLagrangePoints.cxx,NO_VALID
