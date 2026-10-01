@@ -478,6 +478,32 @@ def test_matrix_operations():
     tr = functions._trace(identity)
     check_close(np.asarray(tr), np.full(n, 3.0), "trace(identity) = 3")
 
+    # VTK arrays of tensors, in VTK's 9-component layout, which is what
+    # gradient() of a vector and strain() return.
+    jacobian = np.array([[1.0, 1.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 2.0]])
+    tensors = vtkDoubleArray(np.tile(jacobian.reshape(1, 9), (n, 1)))
+    check(tensors.shape == (n, 9), f"tensor array shape: {tensors.shape}")
+    check_close(np.asarray(functions.det(tensors)), np.full(n, 2.0),
+                "det of 9-component tensors")
+    check_close(np.asarray(functions.trace(tensors)), np.full(n, 4.0),
+                "trace of 9-component tensors")
+    # vtkMatrixMathFilter finds eigenvalues of symmetric tensors only.
+    symmetric = np.array([[2.0, 1.0, 0.0], [1.0, 2.0, 0.0], [0.0, 0.0, 3.0]])
+    symmetric_tensors = vtkDoubleArray(np.tile(symmetric.reshape(1, 9), (n, 1)))
+    check_close(np.sort(np.asarray(functions.eigenvalue(symmetric_tensors)), axis=1),
+                np.tile([1.0, 3.0, 3.0], (n, 1)),
+                "eigenvalue of 9-component tensors")
+    inverse = functions.inverse(tensors)
+    check_close(np.asarray(inverse),
+                np.tile(np.linalg.inv(jacobian).reshape(1, 9), (n, 1)),
+                "inverse of 9-component tensors")
+    check_close(np.asarray(functions.inverse(inverse)), np.asarray(tensors),
+                "inverse of inverse round trips")
+    # A plain 2-D ndarray is still one matrix, not rows of tensors.
+    single = np.arange(81.0).reshape(9, 9)
+    check_close(np.asarray(functions.trace(single)), np.trace(single),
+                "trace of one 9x9 ndarray")
+
     print("  matrix operations OK")
 
 
