@@ -19,12 +19,10 @@
  * Use input port 0 for the impulse data (vtkPointSet), and input port 1 for
  * the splat image (vtkImageData)
  *
- *
- * @bug
+ * @note
  * Any point outside of the extents of the image is thrown away, even if it is
  * close enough such that it's convolution with the splat image would overlap
  * the extents.
- *
  */
 
 #ifndef vtkFastSplatter_h

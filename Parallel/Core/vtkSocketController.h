@@ -9,7 +9,7 @@
  * process 0 will always correspond to self and process 1 to the
  * remote process. This class is best used with ports.
  *
- * @bug
+ * @note
  * Note that because process 0 will always correspond to self, this class breaks
  * assumptions usually implied when using ad-hoc polymorphism.  That is, the
  * vtkSocketController will behave differently than other subclasses of

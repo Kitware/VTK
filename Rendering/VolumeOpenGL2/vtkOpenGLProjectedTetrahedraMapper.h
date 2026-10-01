@@ -6,7 +6,7 @@
  * @class   vtkOpenGLProjectedTetrahedraMapper
  * @brief   OpenGL implementation of PT
  *
- * @bug
+ * @note
  * This mapper relies highly on the implementation of the OpenGL pipeline.
  * A typical hardware driver has lots of options and some settings can
  * cause this mapper to produce artifacts.

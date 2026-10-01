@@ -11,7 +11,7 @@
  * methods do.
  *
  *
- * @bug
+ * @note
  * Since MySQL requires that all bound parameters be passed in a
  * single mysql_stmt_bind_param call, there is no way to determine
  * which one is causing an error when one occurs.
