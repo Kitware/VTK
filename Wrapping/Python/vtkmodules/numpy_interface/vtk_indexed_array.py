@@ -52,8 +52,6 @@ class VTKIndexedArray(VTKDataArrayMixin):
         if isinstance(indexes, str):
             return
         super().__init__(**kwargs)
-        self._dataset = None
-        self._association = None
         if indexes is not None and array is not None:
             ncomps = array.GetNumberOfComponents()
             ntuples = indexes.GetNumberOfTuples()

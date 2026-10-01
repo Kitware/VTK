@@ -117,6 +117,14 @@ class VTKSOAArray(VTKDataArrayMixin):
     VTKAOSArray : Mixin for array-of-structures VTK arrays.
     """
 
+    # Class-level defaults keep __dict__ empty for arrays that are only
+    # wrapped, so their wrappers are not ghosted when they are discarded.
+    # Mutable state is created on first use instead of being shared here.
+    _components_cache = _UNINITIALIZED
+    _observer_id = None
+    _buffers = ()
+    _numpy_references = None
+
     # ---- construction -------------------------------------------------------
     def __init__(self, *args, **kwargs):
         # SWIG pointer reconstruction: tp_new already returned the
@@ -124,12 +132,6 @@ class VTKSOAArray(VTKDataArrayMixin):
         if args and isinstance(args[0], str):
             return
         super().__init__(**kwargs)
-        self._components_cache = _UNINITIALIZED
-        self._observer_id = None
-        self._buffers = []
-        self._numpy_references = {}
-        self._dataset = None
-        self._association = None
         if args:
             self._init_from_data(args[0])
 
@@ -185,6 +187,8 @@ class VTKSOAArray(VTKDataArrayMixin):
         super().SetArray(comp, array, size, *args, **kwargs)
         self._components_cache = _UNINITIALIZED  # invalidate lazy cache
         if hasattr(array, '__array_interface__'):
+            if self._numpy_references is None:
+                self._numpy_references = {}
             self._numpy_references[comp] = array
 
     # ---- lazy component initialization --------------------------------------

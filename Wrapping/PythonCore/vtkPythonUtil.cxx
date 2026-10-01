@@ -24,6 +24,7 @@
 #include <cstring>
 #include <iostream>
 #include <map>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -132,10 +133,14 @@ void vtkPythonObjectMap::remove(vtkObjectBase* key)
 // references to.  Python keeps the python 'dict' for VTK objects
 // even when they pass leave the python realm, so that if those
 // VTK objects come back, their 'dict' can be restored to them.
-// Periodically the weak pointers are checked and the dicts of
-// VTK objects that have been deleted are tossed away.
+// The dicts of VTK objects that have been deleted are tossed away,
+// either by a DeleteEvent observer or, for ghosts that have no such
+// observer, by checking their weak pointers when a new ghost is added.
 class vtkPythonGhostMap : public std::map<vtkObjectBase*, PyVTKObjectGhost>
 {
+public:
+  // Ghosts that have no DeleteEvent observer to evict them
+  std::set<vtkObjectBase*> Unobserved;
 };
 
 // Keep track of all the VTK classes that python knows about.
@@ -335,9 +340,33 @@ void vtkPythonUtil::GhostDeleteCallback(vtkObject*, unsigned long, void* clientD
     // walk the GhostMap.
     PyObject* class_obj = (PyObject*)i->second.vtk_class;
     PyObject* dict_obj = i->second.vtk_dict;
+    vtkPythonMap->GhostMap->Unobserved.erase(ptr);
     vtkPythonMap->GhostMap->erase(i);
     Py_DECREF(class_obj);
     Py_DECREF(dict_obj);
+  }
+}
+
+//------------------------------------------------------------------------------
+// Called when a ghost's DeleteEvent observer is destroyed.  This happens
+// after GhostDeleteCallback has evicted the ghost, or when FindObject
+// resurrects the ghost, or when other code removes the observer.  In the
+// last case the ghost is still in the map with its observer_tag set, and
+// since it can no longer be evicted by GhostDeleteCallback,
+// RemoveObjectFromMap must check it.
+void vtkPythonUtil::GhostObserverDeleteCallback(void* clientData)
+{
+  if (!vtkPythonMap || Py_IsInitialized() == 0)
+  {
+    return;
+  }
+  vtkObjectBase* ptr = static_cast<vtkObjectBase*>(clientData);
+  vtkPythonScopeGilEnsurer gilEnsurer(true);
+  vtkPythonGhostMap::iterator i = vtkPythonMap->GhostMap->find(ptr);
+  if (i != vtkPythonMap->GhostMap->end() && i->second.observer_tag != 0)
+  {
+    i->second.observer_tag = 0;
+    vtkPythonMap->GhostMap->Unobserved.insert(ptr);
   }
 }
 
@@ -380,41 +409,63 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject* obj)
     // if the VTK object still exists, then make a ghost
     if (wptr.GetPointer())
     {
+      vtkPythonGhostMap* ghosts = vtkPythonMap->GhostMap;
+
       // List of attrs to be deleted
       std::vector<PyObject*> delList;
 
-      // Erase ghosts of VTK objects that have been deleted
-      vtkPythonGhostMap::iterator i = vtkPythonMap->GhostMap->begin();
-      while (i != vtkPythonMap->GhostMap->end())
+      // Erase a ghost and save its attrs for deletion
+      auto discard = [&](vtkPythonGhostMap::iterator i)
       {
-        if (!i->second.vtk_ptr.GetPointer())
+        delList.push_back((PyObject*)i->second.vtk_class);
+        delList.push_back(i->second.vtk_dict);
+        ghosts->Unobserved.erase(i->first);
+        ghosts->erase(i);
+      };
+
+      // Erase ghosts of VTK objects that have been deleted.  Ghosts with a
+      // DeleteEvent observer are evicted by GhostDeleteCallback, so only the
+      // others need to be checked.  Checking every ghost each time a ghost
+      // is added would make the cost quadratic in the number of ghosts.
+      auto u = ghosts->Unobserved.begin();
+      while (u != ghosts->Unobserved.end())
+      {
+        vtkPythonGhostMap::iterator i = ghosts->find(*u++);
+        if (i != ghosts->end() && !i->second.vtk_ptr.GetPointer())
         {
-          delList.push_back((PyObject*)i->second.vtk_class);
-          delList.push_back(i->second.vtk_dict);
-          vtkPythonMap->GhostMap->erase(i++);
-        }
-        else
-        {
-          ++i;
+          discard(i);
         }
       }
 
+      // A ghost at this address can only belong to a deleted object, because
+      // FindObject consumes a live ghost when its object is wrapped again.
+      vtkPythonGhostMap::iterator old = ghosts->find(pobj->vtk_ptr);
+      if (old != ghosts->end())
+      {
+        discard(old);
+      }
+
       // Add this new ghost to the map
-      PyVTKObjectGhost& g = (*vtkPythonMap->GhostMap)[pobj->vtk_ptr];
+      PyVTKObjectGhost& g = (*ghosts)[pobj->vtk_ptr];
       g.vtk_ptr = wptr;
       g.vtk_class = Py_TYPE(pobj);
       g.vtk_dict = pobj->vtk_dict;
       Py_INCREF(g.vtk_class);
       Py_INCREF(g.vtk_dict);
 
-      // AddObserver only exists on vtkObject, so for non-vtkObject vtkObjectBase
-      // ghosts we fall back to the lazy sweep above.
+      // AddObserver only exists on vtkObject, so non-vtkObject vtkObjectBase
+      // ghosts are checked by the sweep above instead.
       if (vtkObject* vobj = vtkObject::SafeDownCast(pobj->vtk_ptr))
       {
         vtkNew<vtkCallbackCommand> cmd;
         cmd->SetCallback(&vtkPythonUtil::GhostDeleteCallback);
         cmd->SetClientData(pobj->vtk_ptr);
+        cmd->SetClientDataDeleteCallback(&vtkPythonUtil::GhostObserverDeleteCallback);
         g.observer_tag = vobj->AddObserver(vtkCommand::DeleteEvent, cmd);
+      }
+      else
+      {
+        ghosts->Unobserved.insert(pobj->vtk_ptr);
       }
 
       // Delete attrs of erased objects.  Must be done at the end.
@@ -454,23 +505,30 @@ PyObject* vtkPythonUtil::FindObject(vtkObjectBase* ptr)
   vtkPythonGhostMap::iterator j = vtkPythonMap->GhostMap->find(ptr);
   if (j != vtkPythonMap->GhostMap->end())
   {
+    PyObject* class_obj = (PyObject*)j->second.vtk_class;
+    PyObject* dict_obj = j->second.vtk_dict;
     if (j->second.vtk_ptr.GetPointer())
     {
       // Detach the delete observer before we consume the ghost, otherwise it
       // would fire later on this same C++ object's eventual destruction and
       // try to evict an entry that's already gone.
-      if (j->second.observer_tag)
+      if (unsigned long tag = j->second.observer_tag)
       {
+        // Clear the tag first, so GhostObserverDeleteCallback ignores this
+        j->second.observer_tag = 0;
         if (vtkObject* vobj = vtkObject::SafeDownCast(ptr))
         {
-          vobj->RemoveObserver(j->second.observer_tag);
+          vobj->RemoveObserver(tag);
         }
       }
       obj = PyVTKObject_FromPointer(j->second.vtk_class, j->second.vtk_dict, ptr);
     }
-    Py_DECREF(j->second.vtk_class);
-    Py_DECREF(j->second.vtk_dict);
+    // Erase before DECREF: if the ghost is stale, releasing its dict can run
+    // Python code that adds a ghost, and the sweep there would erase this one.
+    vtkPythonMap->GhostMap->Unobserved.erase(ptr);
     vtkPythonMap->GhostMap->erase(j);
+    Py_DECREF(class_obj);
+    Py_DECREF(dict_obj);
   }
 
   return obj;

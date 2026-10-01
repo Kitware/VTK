@@ -37,6 +37,10 @@ class VTKStridedArray(VTKDataArrayMixin):
     indexing, and ``to_numpy()``.
     """
 
+    # Class-level default keeps __dict__ empty for arrays that are only
+    # wrapped, so their wrappers are not ghosted when they are discarded.
+    _buffer_source = None
+
     # ---- construction -------------------------------------------------------
     def __init__(self, buffer=None, stride=1, offset=0, **kwargs):
         """Create a strided array.
@@ -59,9 +63,6 @@ class VTKStridedArray(VTKDataArrayMixin):
         if buffer is not None and isinstance(buffer, str):
             return
         super().__init__(**kwargs)
-        self._dataset = None
-        self._association = None
-        self._buffer_source = None
 
         # Convenience construction: (buffer, stride[, offset])
         if buffer is not None:
