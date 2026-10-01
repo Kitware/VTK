@@ -232,7 +232,7 @@ int vtkTemporalInterpolator::Execute(vtkInformation*,
     outData->ShallowCopy(newOutput);
   }
 
-  // @TODO remove this when we move to new time framework
+  // TODO remove this when we move to new time framework
   // stamp the new temporal dataset with a time key (old style of management)
   outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), upTime);
 

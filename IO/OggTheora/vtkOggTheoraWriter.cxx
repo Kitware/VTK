@@ -124,8 +124,8 @@ int vtkOggTheoraWriterInternal::Start()
   }
   thInfo.target_bitrate = 0; // variable bitrate recording (default)
   // allow a variable quality/size tradeoff
-  //! \todo still have to find appropriate quality parameters though...
-  //! valid values are in [0,63].
+  // todo: still have to find appropriate quality parameters though...
+  // valid values are in [0,63].
   switch (this->Writer->GetQuality())
   {
     case 0:

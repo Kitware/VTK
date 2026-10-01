@@ -15,10 +15,10 @@
  * Many parallel rendering schemes do not correctly handle transparency.
  * Unless otherwise documented, assume a sub class does not.
  *
- * @todo
+ * todo:
  * Synchronization/barrier primitives.
  *
- * @todo
+ * todo:
  * Query ranges of scalar values of objects in addition to the boundary in
  * three-space
  *

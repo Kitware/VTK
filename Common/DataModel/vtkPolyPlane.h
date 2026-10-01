@@ -10,7 +10,7 @@
  * vtkPolyPlane is a concrete implementation of the abstract class
  * vtkImplicitFunction.
  *
- * @todo
+ * todo
  * Generalize to extrusions along arbitrary directions.
  */
 

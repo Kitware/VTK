@@ -470,8 +470,8 @@ protected:
    * data is stored in TransformedInputs. Takes as an argument the port of an
    * input connection.
    *
-   * ///TODO Elaborate on why this is an issue, texture coords (?)
-   * \todo This is the workaround to deal with GPUVolumeRayCastMapper
+   * todo: Elaborate on why this is an issue, texture coords (?)
+   * todo: This is the workaround to deal with GPUVolumeRayCastMapper
    * not able to handle extents starting from non zero values.
    * There is not a easy fix in the GPU volume ray cast mapper hence
    * this fix has been introduced.
