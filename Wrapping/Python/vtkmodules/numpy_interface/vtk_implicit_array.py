@@ -65,6 +65,11 @@ class VTKImplicitArray(VTKDataArrayMixin):
     VTKSOAArray : Mixin for structure-of-arrays VTK arrays (zero-copy).
     """
 
+    # Class-level defaults keep __dict__ empty for arrays that are only
+    # wrapped, so their wrappers are not ghosted when they are discarded.
+    _array_cache = _UNINITIALIZED
+    _observer_id = None
+
     # ---- construction -------------------------------------------------------
     def __init__(self, *args, **kwargs):
         # SWIG pointer reconstruction: tp_new already returned the
@@ -72,10 +77,6 @@ class VTKImplicitArray(VTKDataArrayMixin):
         if args and isinstance(args[0], str):
             return
         super().__init__(**kwargs)
-        self._array_cache = _UNINITIALIZED
-        self._observer_id = None
-        self._dataset = None
-        self._association = None
 
     # ---- lazy materialisation -----------------------------------------------
     def _materialise(self):

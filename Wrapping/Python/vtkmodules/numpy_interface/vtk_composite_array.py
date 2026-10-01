@@ -35,6 +35,10 @@ class VTKCompositeArray(VTKDataArrayMixin):
     to minimize materialization.
     """
 
+    # Class-level default keeps __dict__ empty for arrays that are only
+    # wrapped, so their wrappers are not ghosted when they are discarded.
+    _arrays_cache = None
+
     # ---- construction -------------------------------------------------------
     def __init__(self, arrays=None, **kwargs):
         """Create a composite array.
@@ -52,9 +56,6 @@ class VTKCompositeArray(VTKDataArrayMixin):
         if isinstance(arrays, str):
             return
         super().__init__(**kwargs)
-        self._dataset = None
-        self._association = None
-        self._arrays_cache = None
         if arrays is not None:
             from ..vtkCommonCore import vtkDataArrayCollection
             array_list = list(arrays)

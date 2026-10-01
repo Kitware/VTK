@@ -139,8 +139,6 @@ class VTKAffineArray(VTKDataArrayMixin):
         if shape is None and not kwargs and self.IsBackendConstructed():
             return
         super().__init__(**kwargs)
-        self._dataset = None
-        self._association = None
         if shape is not None:
             if isinstance(shape, (tuple, list)):
                 if len(shape) == 1:
