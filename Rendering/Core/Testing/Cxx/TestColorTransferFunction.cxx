@@ -7,6 +7,64 @@
 
 #include <iostream>
 
+bool TestLogScaleNaNPropagation()
+{
+  vtkNew<vtkColorTransferFunction> ctf;
+  ctf->SetColorSpaceToRGB();
+  ctf->AddRGBPoint(0.05, 0.0, 0.0, 1.0);
+  ctf->AddRGBPoint(500.0, 1.0, 0.0, 0.0);
+
+  ctf->SetScaleToLog10();
+
+  // Test GetTable with a negative range. Ensure that evaluating negative ranges in log scale yields
+  // valid colors rather than NaN.
+  double table[3 * 10];
+  ctf->GetTable(-500.0, -100.0, 10, table);
+
+  for (int i = 0; i < 30; ++i)
+  {
+    if (vtkMath::IsNan(table[i]))
+    {
+      std::cerr << "ERROR: GetTable() with negative range in Log10 scale produced NaN values!"
+                << std::endl;
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool TestLogScale()
+{
+  vtkNew<vtkColorTransferFunction> ctf;
+  ctf->SetColorSpaceToRGB();
+  ctf->AddRGBPoint(0.05, 0.0, 0.0, 1.0);
+  ctf->AddRGBPoint(500.0, 1.0, 0.0, 0.0);
+
+  ctf->SetScaleToLog10();
+  ctf->SetUseBelowRangeColor(true);
+  ctf->SetBelowRangeColor(1.0, 1.0, 0.0);
+
+  if (ctf->UsingLogScale() != 1)
+  {
+    std::cerr << "ERROR: UsingLogScale() should return 1 when Scale is Log10 and Range[0] > 0.0!"
+              << std::endl;
+    return false;
+  }
+
+  double color[3];
+  ctf->GetColor(-505.0, color);
+
+  if (color[0] != 1.0 || color[1] != 1.0 || color[2] != 0.0)
+  {
+    std::cerr << "ERROR: Log scale below range mapping failed! Expected (1, 1, 0) got (" << color[0]
+              << ", " << color[1] << ", " << color[2] << ")" << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
 bool TestColorSpace()
 {
   vtkNew<vtkColorTransferFunction> ctf;
@@ -119,6 +177,16 @@ int TestColorTransferFunction(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (color[3] != 0.5)
   {
     std::cerr << "Nan Color opacity should be 0.5.\n";
+    return EXIT_FAILURE;
+  }
+
+  if (!TestLogScaleNaNPropagation())
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!TestLogScale())
+  {
     return EXIT_FAILURE;
   }
 
