@@ -24,6 +24,7 @@
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
@@ -48,6 +49,7 @@ constexpr int EXPECTED_SHAPE_AT_TIMESTEP[3][2] = { { 3, 1 }, { 1, 2 }, { 2, 2 } 
 
 int TestUGTemporal(const std::string& dataRoot);
 int TestImageDataTemporal(const std::string& dataRoot);
+int TestImageDataTemporalCache(const std::string& dataRoot);
 int TestPolyDataTemporal(const std::string& dataRoot);
 int TestPartitionedPolyDataTemporalWithOffset(const std::string& dataRoot);
 int TestPartitionedUGTemporal(const std::string& dataRoot);
@@ -102,6 +104,7 @@ int TestHDFReaderTemporal(int argc, char* argv[])
   std::string dataRoot = testUtils->GetDataRoot();
   int res = ::TestUGTemporal(dataRoot);
   res |= ::TestImageDataTemporal(dataRoot);
+  res |= ::TestImageDataTemporalCache(dataRoot);
   res |= ::TestPolyDataTemporal(dataRoot);
   res |= ::TestPartitionedPolyDataTemporalWithOffset(dataRoot);
   res |= ::TestPartitionedUGTemporal(dataRoot);
@@ -427,6 +430,33 @@ int TestImageDataTemporal(const std::string& dataRoot)
       std::cerr << "Image data are not the same for timestep " << iStep << std::endl;
       return EXIT_FAILURE;
     }
+  }
+
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+int TestImageDataTemporalCache(const std::string& dataRoot)
+{
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_image.vtkhdf").c_str());
+  reader->UpdateInformation();
+  double* timeSteps =
+    reader->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+
+  reader->UpdateTimeStep(timeSteps[0]);
+  auto image = vtkImageData::SafeDownCast(reader->GetOutputDataObject(0));
+  const double expectedValue = image->GetPointData()->GetArray("Modulator")->GetComponent(0, 0);
+
+  // After switching back to step 0 after going to step 1, cache should be properly cleared
+  reader->UpdateTimeStep(timeSteps[1]);
+  reader->UpdateTimeStep(timeSteps[0]);
+  image = vtkImageData::SafeDownCast(reader->GetOutputDataObject(0));
+  const double value = image->GetPointData()->GetArray("Modulator")->GetComponent(0, 0);
+  if (!vtkMathUtilities::FuzzyCompare(value, expectedValue, CHECK_TOLERANCE))
+  {
+    std::cerr << "Expected cached scalar " << expectedValue << ", got " << value << std::endl;
+    return EXIT_FAILURE;
   }
 
   return EXIT_SUCCESS;
