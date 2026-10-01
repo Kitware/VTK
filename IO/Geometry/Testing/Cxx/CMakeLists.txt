@@ -77,6 +77,7 @@ LIST(APPEND tecplotFiles
     tiny.dat
     1dgeom.dat
     solution_time.dat
+    var_share_list.dat
 )
 foreach(item IN LISTS tecplotFiles)
     get_filename_component(name "${item}" NAME_WE)
@@ -88,6 +89,7 @@ endforeach()
 
 LIST(APPEND tecplotCompareFiles
     solution_time.dat
+    var_share_list.dat
 )
 foreach(item IN LISTS tecplotCompareFiles)
     get_filename_component(name "${item}" NAME_WE)
