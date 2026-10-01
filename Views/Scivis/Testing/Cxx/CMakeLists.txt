@@ -12,5 +12,10 @@ vtk_add_test_cxx(vtkViewsScivisCxxTests tests
   TestVolumeRepresentation.cxx
   )
 
+if (VTK_WRAP_SERIALIZATION)
+  vtk_add_test_cxx(vtkViewsScivisCxxTests tests
+    TestScivisViewSerialization.cxx,NO_VALID)
+endif ()
+
 vtk_test_cxx_executable(vtkViewsScivisCxxTests tests
   RENDERING_FACTORY)

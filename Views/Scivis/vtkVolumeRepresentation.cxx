@@ -60,8 +60,8 @@ vtkVolumeRepresentation::vtkVolumeRepresentation()
   this->VolumeProperty->SetDiffuse(0.7);
   this->VolumeProperty->SetSpecular(0.2);
   this->VolumeProperty->SetSpecularPower(10.0);
-  this->VolumeActor->SetMapper(this->VolumeMapper);
-  this->VolumeActor->SetProperty(this->VolumeProperty);
+  this->Volume->SetMapper(this->VolumeMapper);
+  this->Volume->SetProperty(this->VolumeProperty);
 
   // The clipping planes belong to the contract, which owns the collection; the
   // mapper follows it from here on.
@@ -161,7 +161,7 @@ bool vtkVolumeRepresentation::AddToView(vtkScivisView* view)
   {
     return false;
   }
-  view->GetRenderer()->AddVolume(this->VolumeActor);
+  view->GetRenderer()->AddVolume(this->Volume);
   return true;
 }
 
@@ -172,7 +172,7 @@ bool vtkVolumeRepresentation::RemoveFromView(vtkScivisView* view)
   {
     return false;
   }
-  view->GetRenderer()->RemoveVolume(this->VolumeActor);
+  view->GetRenderer()->RemoveVolume(this->Volume);
   return true;
 }
 
@@ -183,7 +183,7 @@ vtkMTimeType vtkVolumeRepresentation::GetMTime()
   mTime = std::max(mTime, this->VolumeMapper->GetMTime());
   // vtkVolume::GetMTime() already accounts for the volume property, which in
   // turn accounts for the transfer functions.
-  mTime = std::max(mTime, this->VolumeActor->GetMTime());
+  mTime = std::max(mTime, this->Volume->GetMTime());
   return mTime;
 }
 
@@ -295,20 +295,20 @@ void vtkVolumeRepresentation::SetVisibility(bool val)
   {
     return;
   }
-  this->VolumeActor->SetVisibility(val);
+  this->Volume->SetVisibility(val);
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
 bool vtkVolumeRepresentation::GetVisibility()
 {
-  return this->VolumeActor->GetVisibility() != 0;
+  return this->Volume->GetVisibility() != 0;
 }
 
 //------------------------------------------------------------------------------
 vtkVolume* vtkVolumeRepresentation::GetVolume()
 {
-  return this->VolumeActor;
+  return this->Volume;
 }
 
 //------------------------------------------------------------------------------
@@ -473,7 +473,7 @@ bool vtkVolumeRepresentation::GetBounds(double bounds[6])
   // The volume's bounds rather than the data's, so that a volume that has been
   // positioned or transformed reports where it is drawn -- which is what the
   // surface representation reports through its actor.
-  const double* volumeBounds = this->VolumeActor->GetBounds();
+  const double* volumeBounds = this->Volume->GetBounds();
   if (!volumeBounds || volumeBounds[0] > volumeBounds[1])
   {
     return false;
@@ -520,7 +520,7 @@ void vtkVolumeRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "VolumeMapper: " << this->VolumeMapper << "\n";
-  os << indent << "VolumeActor: " << this->VolumeActor << "\n";
+  os << indent << "Volume: " << this->Volume << "\n";
   os << indent << "VolumeProperty: " << this->VolumeProperty << "\n";
 }
 

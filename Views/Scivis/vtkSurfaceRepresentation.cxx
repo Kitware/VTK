@@ -378,6 +378,12 @@ double* vtkSurfaceRepresentation::GetColor()
 }
 
 //------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::GetColor(double rgb[3])
+{
+  this->Actor->GetProperty()->GetColor(rgb);
+}
+
+//------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetOpacity(double val)
 {
   if (this->GetOpacity() == val)
@@ -410,6 +416,12 @@ void vtkSurfaceRepresentation::SetEdgeColor(double r, double g, double b)
 double* vtkSurfaceRepresentation::GetEdgeColor()
 {
   return this->Actor->GetProperty()->GetEdgeColor();
+}
+
+//------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::GetEdgeColor(double rgb[3])
+{
+  this->Actor->GetProperty()->GetEdgeColor(rgb[0], rgb[1], rgb[2]);
 }
 
 //------------------------------------------------------------------------------

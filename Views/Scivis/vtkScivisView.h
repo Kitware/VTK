@@ -69,7 +69,7 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"      // For ivars
 #include "vtkViewsScivisModule.h" // For export macro
-#include "vtkWrappingHints.h"     // For VTK_MARSHALEXCLUDE
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkInteractorObserver;
@@ -88,7 +88,7 @@ class vtkRenderer;
 class vtkScivisRepresentation;
 class vtkScivisScalarBars;
 
-class VTKVIEWSSCIVIS_EXPORT vtkScivisView : public vtkObject
+class VTKVIEWSSCIVIS_EXPORT VTK_MARSHALAUTO vtkScivisView : public vtkObject
 {
 public:
   static vtkScivisView* New();
@@ -145,8 +145,10 @@ public:
    */
   void SetBackground(double r, double g, double b);
   double* GetBackground() VTK_SIZEHINT(3);
+  void GetBackground(double rgb[3]);
   void SetBackground2(double r, double g, double b);
   double* GetBackground2() VTK_SIZEHINT(3);
+  void GetBackground2(double rgb[3]);
   void SetGradientBackground(bool val);
   bool GetGradientBackground();
   ///@}
@@ -157,6 +159,7 @@ public:
    */
   void SetWindowSize(int w, int h);
   int* GetWindowSize() VTK_SIZEHINT(2);
+  void GetWindowSize(int size[2]);
   void SetWindowTitle(const char* title);
   const char* GetWindowTitle();
   ///@}
@@ -272,6 +275,7 @@ public:
    * view->GetScalarBars()->GetActor("Temperature", assoc)->SetTitle("T (K)");
    * @endcode
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkScivisScalarBars* GetScalarBars();
 
   /**
@@ -301,6 +305,7 @@ public:
    * view->GetExporter()->ExportScene("scene.gltf");
    * @endcode
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkScivisExporter* GetExporter();
 
   /**
@@ -410,7 +415,7 @@ private:
   class Internals;
   Internals* Implementation;
 
-  vtkNew<vtkOrientationMarkerWidget> OrientationWidget;
+  vtkNew<vtkOrientationMarkerWidget> OrientationMarkerWidget;
   vtkNew<vtkLightKit> LightKit;
   vtkSmartPointer<vtkLookupTableManager> LookupTableManager;
   vtkNew<vtkScivisScalarBars> ScalarBars;

@@ -55,11 +55,13 @@
 
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkViewsScivisModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkScivisView;
 
-class VTKVIEWSSCIVIS_EXPORT vtkScivisRepresentation : public vtkPassInputTypeAlgorithm
+class VTKVIEWSSCIVIS_EXPORT VTK_MARSHALAUTO vtkScivisRepresentation
+  : public vtkPassInputTypeAlgorithm
 {
 public:
   vtkTypeMacro(vtkScivisRepresentation, vtkPassInputTypeAlgorithm);

@@ -41,12 +41,13 @@
 #include "vtkSmartPointer.h"      // For the returned image
 #include "vtkViewsScivisModule.h" // For export macro
 #include "vtkWeakPointer.h"       // For ivar
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkScivisView;
 
-class VTKVIEWSSCIVIS_EXPORT vtkScivisExporter : public vtkObject
+class VTKVIEWSSCIVIS_EXPORT VTK_MARSHALAUTO vtkScivisExporter : public vtkObject
 {
 public:
   static vtkScivisExporter* New();
