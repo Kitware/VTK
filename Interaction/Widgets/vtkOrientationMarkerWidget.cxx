@@ -645,8 +645,7 @@ void vtkOrientationMarkerWidget::SetInteractive(vtkTypeBool interact)
   }
   else
   {
-    vtkGenericWarningMacro("Set interactor and Enabled before changing \
-      interaction.");
+    vtkWarningMacro("Set interactor and Enabled before changing Interactive mode.");
   }
 }
 
