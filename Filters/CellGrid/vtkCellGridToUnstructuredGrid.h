@@ -39,6 +39,7 @@
 #include "vtkCellType.h"              // For initializer
 #include "vtkFiltersCellGridModule.h" // For export macro
 #include "vtkNew.h"                   // For ivar
+#include "vtkSmartPointer.h"          // For ivar
 #include "vtkStringToken.h"           // For ivars
 #include "vtkUnstructuredGridAlgorithm.h"
 
@@ -50,6 +51,8 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class vtkDoubleArray;
 class vtkIdTypeArray;
+class vtkTypeUInt32Array;
+class vtkTypeUInt64Array;
 
 class VTKFILTERSCELLGRID_EXPORT vtkCellGridToUnstructuredGrid : public vtkUnstructuredGridAlgorithm
 {
@@ -148,6 +151,53 @@ public:
     vtkGetMacro(PointMergeTolerance, double);
     ///@}
 
+    ///@{
+    /// Set/get whether samples that coincide are merged into one output point
+    /// (see SetPointMergeTolerance()). On by default.
+    ///
+    /// When it is off, every sample is an output point of its own: the cells
+    /// that one input cell is subdivided into share their points, but the cells
+    /// of different input cells share none, and each point takes the values of
+    /// the attributes in its own cell only (there is no averaging).
+    vtkSetMacro(MergePoints, bool);
+    vtkGetMacro(MergePoints, bool);
+    ///@}
+
+    ///@{
+    /// Set/get whether the output has point-data arrays saying which cell of the
+    /// input each output point was sampled in, as vtkCellGridIsocontourPoints
+    /// and vtkCellGridEvaluator report it. Off by default. The arrays are
+    /// "CellType" (the hash of the name of the input cell type), "CellId" (the ID
+    /// of the input cell or, for a sample of a side, of the side, as the
+    /// attribute calculators take it) and "RST" (the parametric coordinates of
+    /// the sample in that cell).
+    ///
+    /// A cell-attribute of the input must not have one of these names. A point
+    /// that samples of several cells were merged into reports one of them; turn
+    /// MergePoints off for each point to come from a single sample.
+    vtkSetMacro(GenerateInputCellArrays, bool);
+    vtkGetMacro(GenerateInputCellArrays, bool);
+    ///@}
+
+    /// The IDs of the cells to transcribe of each cell type.
+    using CellSelection = std::unordered_map<vtkStringToken, vtkSmartPointer<vtkIdTypeArray>>;
+
+    ///@{
+    /// Restrict the transcription of cell type \a cellType to the cells with the
+    /// IDs \a cellIds. The IDs are kept as they are, not copied or checked, so
+    /// they must be valid and stay unchanged while the query runs.
+    ///
+    /// Once any cell type has a selection, only the cell types with one are
+    /// transcribed, and only their selected cells (not the sides of the cell
+    /// type, which have their own IDs); the output holds nothing of the others.
+    /// Without any selection (the default) every cell is transcribed. The output
+    /// points are those of the selected cells only.
+    void SetCellsToTranscribe(vtkStringToken cellType, vtkIdTypeArray* cellIds);
+    void ClearCellsToTranscribe();
+    bool HasCellSelection() const { return !this->Selection.empty(); }
+    const CellSelection& GetCellSelection() const { return this->Selection; }
+    ///@}
+
     /// Return true if the user has asked the filter to stop.
     ///
     /// A high level can keep a responder busy for a long time, so it needs a
@@ -195,6 +245,24 @@ public:
     /// valid during the GenerateSamples pass.
     vtkDoubleArray* GetSampleCoordinates() { return this->SampleCoordinates.GetPointer(); }
 
+    ///@{
+    /// Return the arrays holding the cell ID and the parametric coordinates of
+    /// each sample, indexed like GetSampleCoordinates(), or null when
+    /// GenerateInputCellArrays is off.
+    ///
+    /// During the GenerateSamples pass, responders must fill them for every sample
+    /// they take, as they fill the coordinates. The ID is the one the attribute
+    /// calculators take, so for a sample of a side it is the side's.
+    vtkIdTypeArray* GetSampleCellIds()
+    {
+      return this->GenerateInputCellArrays ? this->SampleCellIds.GetPointer() : nullptr;
+    }
+    vtkDoubleArray* GetSampleParameters()
+    {
+      return this->GenerateInputCellArrays ? this->SampleParameters.GetPointer() : nullptr;
+    }
+    ///@}
+
     /// Map a sample index to the output point the sample was merged into.
     ///
     /// This is only valid from the GenerateConnectivity pass onwards. It is
@@ -225,6 +293,12 @@ public:
     int SubdivisionLevel{ 0 };
     /// The relative distance within which samples merge (see SetPointMergeTolerance()).
     double PointMergeTolerance{ 1e-12 };
+    /// Whether coincident samples merge (see SetMergePoints()).
+    bool MergePoints{ true };
+    /// Whether each point reports where it was sampled (see SetGenerateInputCellArrays()).
+    bool GenerateInputCellArrays{ false };
+    /// The cells to transcribe of each cell type (see SetCellsToTranscribe()).
+    CellSelection Selection;
     /// The algorithm running this query, used only to poll for an abort.
     vtkCellGridToUnstructuredGrid* Algorithm{ nullptr };
 
@@ -237,6 +311,13 @@ public:
     vtkNew<vtkDoubleArray> SampleCoordinates;
     /// The output point each sample was merged into.
     vtkNew<vtkIdTypeArray> SampleToPoint;
+    /// The cell and parametric coordinates of each sample, when GenerateInputCellArrays is on.
+    vtkNew<vtkIdTypeArray> SampleCellIds;
+    vtkNew<vtkDoubleArray> SampleParameters;
+    /// The output arrays saying where each point was sampled (see SetGenerateInputCellArrays()).
+    vtkSmartPointer<vtkTypeUInt32Array> InputCellTypes;
+    vtkSmartPointer<vtkTypeUInt64Array> InputCellIds;
+    vtkSmartPointer<vtkDoubleArray> InputParameters;
     /// The number of samples merged into each output point.
     ConnectivityCountType ConnectivityCount;
     /// The reciprocal of every entry in ConnectivityCount.
@@ -250,6 +331,9 @@ public:
 
     /// Merge coincident samples and allocate the output points they became.
     void MergeSamplesIntoPoints();
+    /// Write where each output point was sampled: the source of the sample it
+    /// was merged into, given by \a mergeMap (see GenerateInputCellArrays).
+    void WriteInputCells(const std::vector<vtkIdType>& mergeMap);
 
   private:
     Query(const Query&) = delete;
@@ -293,6 +377,38 @@ public:
   /// does contain points that close together.
   virtual void SetPointMergeTolerance(double tolerance);
   virtual double GetPointMergeTolerance() const;
+  ///@}
+
+  ///@{
+  /// Set/get whether output points that coincide are merged (on by default).
+  /// When it is off, the cells of different input cells share no points and
+  /// the attributes are not averaged between cells (see
+  /// Query::SetMergePoints()).
+  virtual void SetMergePoints(bool merge);
+  virtual bool GetMergePoints() const;
+  vtkBooleanMacro(MergePoints, bool);
+  ///@}
+
+  ///@{
+  /// Set/get whether the output has point-data arrays saying where in the input
+  /// each point was sampled: "CellType", "CellId" and
+  /// "RST" (see Query::SetGenerateInputCellArrays()). Off by default.
+  virtual void SetGenerateInputCellArrays(bool generate);
+  virtual bool GetGenerateInputCellArrays() const;
+  vtkBooleanMacro(GenerateInputCellArrays, bool);
+  ///@}
+
+  ///@{
+  /// Transcribe only the cells with the IDs \a cellIds of the cell type
+  /// \a cellType (a class name such as "vtkDGTet"), instead of every cell.
+  ///
+  /// The IDs are used as they are: they are not copied or checked, so they must
+  /// be valid. Once any cell type has been given cells, only the cell types
+  /// that have are transcribed, and only the cells requested; the output points
+  /// are those of the cells transcribed. Call ClearCellsToTranscribe() to
+  /// transcribe every cell again (the default).
+  virtual void SetCellsToTranscribe(vtkStringToken cellType, vtkIdTypeArray* cellIds);
+  virtual void ClearCellsToTranscribe();
   ///@}
 
 protected:

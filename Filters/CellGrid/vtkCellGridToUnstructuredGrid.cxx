@@ -15,11 +15,14 @@
 #include "vtkPolyData.h"
 #include "vtkSMPTools.h"
 #include "vtkStaticPointLocator.h"
+#include "vtkTypeUInt32Array.h"
+#include "vtkTypeUInt64Array.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
 #include <new>
+#include <numeric>
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -43,6 +46,10 @@ void vtkCellGridToUnstructuredGrid::Query::PrintSelf(ostream& os, vtkIndent inde
   os << indent << "AttributeMap: " << this->AttributeMap.size() << " entries\n";
   os << indent << "SubdivisionLevel: " << this->SubdivisionLevel << "\n";
   os << indent << "PointMergeTolerance: " << this->PointMergeTolerance << "\n";
+  os << indent << "Selection: " << this->Selection.size() << " cell types\n";
+  os << indent << "MergePoints: " << (this->MergePoints ? "On" : "Off") << "\n";
+  os << indent << "GenerateInputCellArrays: " << (this->GenerateInputCellArrays ? "On" : "Off")
+     << "\n";
 }
 
 bool vtkCellGridToUnstructuredGrid::Query::Initialize()
@@ -53,6 +60,11 @@ bool vtkCellGridToUnstructuredGrid::Query::Initialize()
   this->ConnectivityCount.clear();
   this->ConnectivityWeights.clear();
   this->SampleToPoint->Initialize();
+  this->SampleCellIds->Initialize();
+  this->SampleParameters->Initialize();
+  this->InputCellTypes = nullptr;
+  this->InputCellIds = nullptr;
+  this->InputParameters = nullptr;
   this->TotalCells = 0;
   this->TotalConnectivityIds = 0;
   this->SampleCoordinates->SetNumberOfComponents(3);
@@ -86,7 +98,42 @@ bool vtkCellGridToUnstructuredGrid::Query::Initialize()
     this->Output->GetPointData()->AddArray(outputArr);
     this->AttributeMap[inputAtt] = outputArr;
   }
+
+  if (this->GenerateInputCellArrays)
+  {
+    // The arrays below would replace an attribute's array of the same name.
+    for (const char* name : { "CellType", "CellId", "RST" })
+    {
+      if (this->Output->GetPointData()->GetArray(name))
+      {
+        vtkErrorMacro("The input has a cell-attribute named \""
+          << name << "\", which GenerateInputCellArrays would overwrite.");
+        return false;
+      }
+    }
+    this->InputCellTypes = vtkSmartPointer<vtkTypeUInt32Array>::New();
+    this->InputCellTypes->SetName("CellType");
+    this->InputCellIds = vtkSmartPointer<vtkTypeUInt64Array>::New();
+    this->InputCellIds->SetName("CellId");
+    this->InputParameters = vtkSmartPointer<vtkDoubleArray>::New();
+    this->InputParameters->SetName("RST");
+    this->InputParameters->SetNumberOfComponents(3);
+    this->Output->GetPointData()->AddArray(this->InputCellTypes);
+    this->Output->GetPointData()->AddArray(this->InputCellIds);
+    this->Output->GetPointData()->AddArray(this->InputParameters);
+  }
   return true;
+}
+
+void vtkCellGridToUnstructuredGrid::Query::SetCellsToTranscribe(
+  vtkStringToken cellType, vtkIdTypeArray* cellIds)
+{
+  this->Selection[cellType] = cellIds;
+}
+
+void vtkCellGridToUnstructuredGrid::Query::ClearCellsToTranscribe()
+{
+  this->Selection.clear();
 }
 
 void vtkCellGridToUnstructuredGrid::Query::MergeSamplesIntoPoints()
@@ -101,38 +148,49 @@ void vtkCellGridToUnstructuredGrid::Query::MergeSamplesIntoPoints()
   }
   vtkIdType* sampleToPoint = this->SampleToPoint->GetPointer(0);
 
-  // Neighboring cells sample the face they share at exactly the same places,
-  // since they interpolate the same shape attribute over the same parametric
-  // points. Welding those samples together is what makes the output watertight
-  // instead of a pile of disconnected cells.
-  //
-  // The tolerance has to be small compared to the distance between two samples
-  // of the same cell, or those sub-cells collapse instead. That distance halves
-  // with every level and scales with the model, so the tolerance is relative to
-  // the input's diagonal.
-  std::array<double, 6> bounds;
-  this->Input->GetBounds(bounds.data());
-  vtkBoundingBox bbox(bounds.data());
-  double diagonal = bbox.GetDiagonalLength();
-  double tolerance = diagonal > 0. ? diagonal * this->PointMergeTolerance : 0.;
-
-  vtkNew<vtkPoints> samplePoints;
-  samplePoints->SetData(this->SampleCoordinates);
-  vtkNew<vtkPolyData> sampleSet;
-  sampleSet->SetPoints(samplePoints);
-
+  // The sample each sample merges into: itself, unless another sample represents
+  // the samples it coincides with.
   std::vector<vtkIdType> mergeMap(static_cast<std::size_t>(numSamples));
-  vtkNew<vtkStaticPointLocator> locator;
-  locator->SetDataSet(sampleSet);
-  // Both traversal orders give a deterministic answer, but only BIN_ORDER is
-  // threaded: POINT_ORDER walks the points one at a time, on purpose, to keep
-  // the lowest-numbered sample of every group as its representative. Which
-  // sample represents a group is of no consequence here -- coincident samples
-  // hold the same coordinates by construction, and the numbering below does not
-  // depend on it -- so take the threaded one.
-  locator->SetTraversalOrderToBinOrder();
-  locator->BuildLocator();
-  locator->MergePoints(tolerance, mergeMap.data());
+  if (!this->MergePoints)
+  {
+    // Every sample is a point of its own.
+    std::iota(mergeMap.begin(), mergeMap.end(), static_cast<vtkIdType>(0));
+  }
+  else
+  {
+    // Neighboring cells sample the face they share at exactly the same places,
+    // since they interpolate the same shape attribute over the same parametric
+    // points. Welding those samples together is what makes the output watertight
+    // instead of a pile of disconnected cells.
+    //
+    // The tolerance has to be small compared to the distance between two samples
+    // of the same cell, or those sub-cells collapse instead. That distance halves
+    // with every level and scales with the model, so the tolerance is relative to
+    // the input's diagonal.
+    std::array<double, 6> bounds;
+    this->Input->GetBounds(bounds.data());
+    vtkBoundingBox bbox(bounds.data());
+    double diagonal = bbox.GetDiagonalLength();
+    double tolerance = diagonal > 0. ? diagonal * this->PointMergeTolerance : 0.;
+
+    vtkNew<vtkPoints> samplePoints;
+    samplePoints->SetData(this->SampleCoordinates);
+    vtkNew<vtkPolyData> sampleSet;
+    sampleSet->SetPoints(samplePoints);
+
+    vtkNew<vtkStaticPointLocator> locator;
+    locator->SetDataSet(sampleSet);
+    // Both traversal orders give a deterministic answer, but only BIN_ORDER is
+    // threaded: POINT_ORDER walks the points one at a time, on purpose, to keep
+    // the lowest-numbered sample of every group as its representative. Which
+    // sample represents a group matters little here -- coincident samples hold
+    // the same coordinates by construction, the numbering below does not depend
+    // on it, and only the source arrays (when generated) report it -- so take the
+    // threaded one.
+    locator->SetTraversalOrderToBinOrder();
+    locator->BuildLocator();
+    locator->MergePoints(tolerance, mergeMap.data());
+  }
 
   // Number the surviving samples in the order they appear, then send every
   // merged sample to whichever point its representative became. Numbering in
@@ -190,10 +248,51 @@ void vtkCellGridToUnstructuredGrid::Query::MergeSamplesIntoPoints()
       }
     });
 
+  if (this->GenerateInputCellArrays)
+  {
+    this->WriteInputCells(mergeMap);
+  }
+
   // The samples have served their purpose; only the map out of them is still
   // needed, so give the coordinates back before the output arrays are sized.
   this->SampleCoordinates->Initialize();
   this->SampleCoordinates->SetNumberOfComponents(3);
+}
+
+void vtkCellGridToUnstructuredGrid::Query::WriteInputCells(const std::vector<vtkIdType>& mergeMap)
+{
+  const vtkIdType numPoints = this->Output->GetNumberOfPoints();
+  this->InputCellTypes->SetNumberOfValues(numPoints);
+  this->InputCellIds->SetNumberOfValues(numPoints);
+  this->InputParameters->SetNumberOfTuples(numPoints);
+  const vtkIdType* sampleToPoint = this->SampleToPoint->GetPointer(0);
+  // Each cell type's samples are contiguous (see OutputAllocation), so the type of
+  // a sample is that of the allocation it is in. A point reports the sample that
+  // the others merged into.
+  for (const auto& entry : this->OutputOffsets)
+  {
+    const vtkTypeUInt32 cellType = entry.first.GetId();
+    const vtkIdType firstSample = entry.second.SampleOffset;
+    const vtkIdType endSample = firstSample + entry.second.NumberOfSamples;
+    vtkSMPTools::For(firstSample, endSample,
+      [&](vtkIdType begin, vtkIdType end)
+      {
+        for (vtkIdType sample = begin; sample < end; ++sample)
+        {
+          if (mergeMap[sample] != sample)
+          {
+            continue;
+          }
+          const vtkIdType point = sampleToPoint[sample];
+          this->InputCellTypes->SetValue(point, cellType);
+          this->InputCellIds->SetValue(
+            point, static_cast<vtkTypeUInt64>(this->SampleCellIds->GetValue(sample)));
+          this->InputParameters->SetTuple(point, sample, this->SampleParameters);
+        }
+      });
+  }
+  this->SampleCellIds->Initialize();
+  this->SampleParameters->Initialize();
 }
 
 void vtkCellGridToUnstructuredGrid::Query::StartPass()
@@ -225,6 +324,12 @@ void vtkCellGridToUnstructuredGrid::Query::StartPass()
       // mark of the conversion: three doubles per sample of every cell and side.
       this->SampleCoordinates->SetNumberOfComponents(3);
       this->SampleCoordinates->SetNumberOfTuples(totalSamples);
+      if (this->GenerateInputCellArrays)
+      {
+        this->SampleCellIds->SetNumberOfValues(totalSamples);
+        this->SampleParameters->SetNumberOfComponents(3);
+        this->SampleParameters->SetNumberOfTuples(totalSamples);
+      }
     }
     break;
     case PassType::GenerateConnectivity:
@@ -243,12 +348,16 @@ void vtkCellGridToUnstructuredGrid::Query::StartPass()
     break;
     case PassType::GeneratePointData:
     {
-      auto* pointData = this->Output->GetPointData();
-      auto numArrays = pointData->GetNumberOfArrays();
+      // Size the arrays of the attributes, which responders add to (the source
+      // arrays are written already).
       vtkIdType nn = this->Output->GetPoints()->GetNumberOfPoints();
-      for (int ii = 0; ii < numArrays; ++ii)
+      for (const auto& entry : this->AttributeMap)
       {
-        auto* array = pointData->GetArray(ii);
+        if (entry.first == this->Input->GetShapeAttribute())
+        {
+          continue;
+        }
+        auto* array = entry.second;
         int nc = array->GetNumberOfComponents();
         array->SetNumberOfTuples(nn);
         for (int jj = 0; jj < nc; ++jj)
@@ -326,6 +435,22 @@ int vtkCellGridToUnstructuredGrid::GetSubdivisionLevel() const
   return this->Request->GetSubdivisionLevel();
 }
 
+void vtkCellGridToUnstructuredGrid::SetCellsToTranscribe(
+  vtkStringToken cellType, vtkIdTypeArray* cellIds)
+{
+  this->Request->SetCellsToTranscribe(cellType, cellIds);
+  this->Modified();
+}
+
+void vtkCellGridToUnstructuredGrid::ClearCellsToTranscribe()
+{
+  if (this->Request->HasCellSelection())
+  {
+    this->Request->ClearCellsToTranscribe();
+    this->Modified();
+  }
+}
+
 void vtkCellGridToUnstructuredGrid::SetPointMergeTolerance(double tolerance)
 {
   tolerance = tolerance < 0. ? 0. : tolerance;
@@ -342,11 +467,44 @@ double vtkCellGridToUnstructuredGrid::GetPointMergeTolerance() const
   return this->Request->GetPointMergeTolerance();
 }
 
+void vtkCellGridToUnstructuredGrid::SetMergePoints(bool merge)
+{
+  if (this->Request->GetMergePoints() == merge)
+  {
+    return;
+  }
+  this->Request->SetMergePoints(merge);
+  this->Modified();
+}
+
+bool vtkCellGridToUnstructuredGrid::GetMergePoints() const
+{
+  return this->Request->GetMergePoints();
+}
+
+void vtkCellGridToUnstructuredGrid::SetGenerateInputCellArrays(bool generate)
+{
+  if (this->Request->GetGenerateInputCellArrays() == generate)
+  {
+    return;
+  }
+  this->Request->SetGenerateInputCellArrays(generate);
+  this->Modified();
+}
+
+bool vtkCellGridToUnstructuredGrid::GetGenerateInputCellArrays() const
+{
+  return this->Request->GetGenerateInputCellArrays();
+}
+
 void vtkCellGridToUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "SubdivisionLevel: " << this->GetSubdivisionLevel() << "\n";
   os << indent << "PointMergeTolerance: " << this->GetPointMergeTolerance() << "\n";
+  os << indent << "MergePoints: " << (this->GetMergePoints() ? "On" : "Off") << "\n";
+  os << indent << "GenerateInputCellArrays: " << (this->GetGenerateInputCellArrays() ? "On" : "Off")
+     << "\n";
   os << indent << "Query:\n";
   vtkIndent i2 = indent.GetNextIndent();
   this->Request->PrintSelf(os, i2);
