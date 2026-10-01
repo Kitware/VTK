@@ -170,14 +170,15 @@ protected:
    */
   void Init();
 
+private:
   /**
    * This function extracts each variable array from a block-packing (component-
    * based) zone and collects the 3D point coordinates in addition to data
    * attributes (node-based and / or cell-based). Note that Tecplot treats 3D
    * coordinates as variables too, though three special ones.
    */
-  void GetArraysFromBlockPackingZone(
-    int numNodes, int numCells, vtkPoints* theNodes, vtkPointData* nodeData, vtkCellData* cellData);
+  void GetArraysFromBlockPackingZone(int numNodes, int numCells, vtkPoints* theNodes,
+    vtkPointData* nodeData, vtkCellData* cellData, const std::vector<int>& variablesToRead);
 
   /**
    * This function extracts each variable array from a point-packing (tuple-
@@ -187,26 +188,8 @@ protected:
    * zone does not contain any cell data at all, instead it is supposed to
    * contain point data only, if any.
    */
-  void GetArraysFromPointPackingZone(int numNodes, vtkPoints* theNodes, vtkPointData* nodeData);
-
-  /**
-   * This function fills an allocated vtkUnstructuredGrid object with numberCells
-   * cells of type cellTypeStr to define the grid topology.
-   */
-  void GetUnstructuredGridCells(
-    int numberCells, const char* cellTypeStr, vtkUnstructuredGrid* unstrctGrid);
-
-private:
-  int NumberOfVariables;
-  char* FileName;
-  vtkCallbackCommand* SelectionObserver;
-  vtkDataArraySelection* DataArraySelection;
-  vtkTecplotReaderInternal* Internal;
-
-  std::string DataTitle;
-  std::vector<int> CellBased;
-  std::vector<std::string> ZoneNames;
-  std::vector<std::string> Variables;
+  void GetArraysFromPointPackingZone(int numNodes, vtkPoints* theNodes, vtkPointData* nodeData,
+    const std::vector<int>& variablesToRead);
 
   /**
    * This function parses all the Tecplot file to fill the information of each
@@ -293,6 +276,17 @@ private:
 
   vtkTecplotReader(const vtkTecplotReader&) = delete;
   void operator=(const vtkTecplotReader&) = delete;
+
+  int NumberOfVariables = 0;
+  char* FileName = nullptr;
+  vtkCallbackCommand* SelectionObserver = nullptr;
+  vtkDataArraySelection* DataArraySelection = nullptr;
+  vtkTecplotReaderInternal* Internal = nullptr;
+
+  std::string DataTitle;
+  std::vector<int> CellBased;
+  std::vector<std::string> ZoneNames;
+  std::vector<std::string> Variables;
 };
 
 VTK_ABI_NAMESPACE_END
