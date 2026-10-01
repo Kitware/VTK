@@ -226,8 +226,8 @@ Which orders a shape admits depends on how its parameter space is built:
   Duruflé (J. Sci. Comput. 42:345-381, 2010), of dimension
   (n+1)(n+2)(2n+3)/6. The `Bezier` basis is that of Chan and Warburton
   (arXiv:1508.05609), which stays non-negative and sums to one. Note that the
-  hand-written pyramid bases (e.g. the 19-function `F2`) are not contained in
-  this space, so converting them to an arbitrary-order basis is inexact.
+  19-node `F2` pyramid should be convertible to Bézier form, but doing so may
+  require degree elevation or rational coordinates.
 + A vertex has an empty parameter space and one degree of freedom at every
   order.
 
