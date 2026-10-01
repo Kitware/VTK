@@ -5,6 +5,7 @@
 // shows and hides it like any other, and that the parts of a view which only
 // make sense for data pass it over.
 
+#include "ScivisTestUtilities.h"
 #include "vtkNew.h"
 #include "vtkRenderer.h"
 #include "vtkScivisScalarBars.h"
@@ -18,16 +19,6 @@
 #include <cstring>
 #include <iostream>
 #include <string>
-
-#define CHECK(expr, msg)                                                                           \
-  do                                                                                               \
-  {                                                                                                \
-    if (!(expr))                                                                                   \
-    {                                                                                              \
-      std::cerr << "FAILED: " << (msg) << std::endl;                                               \
-      return EXIT_FAILURE;                                                                         \
-    }                                                                                              \
-  } while (false)
 
 namespace
 {

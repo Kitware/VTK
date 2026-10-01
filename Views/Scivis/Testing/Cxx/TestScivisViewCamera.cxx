@@ -5,6 +5,7 @@
 // looking, that the scene is framed afterwards, and that moving the camera is
 // not a change to the view itself.
 
+#include "ScivisTestUtilities.h"
 #include "vtkCamera.h"
 #include "vtkNew.h"
 #include "vtkRenderer.h"
@@ -14,16 +15,6 @@
 
 #include <cmath>
 #include <iostream>
-
-#define CHECK(expr, msg)                                                                           \
-  do                                                                                               \
-  {                                                                                                \
-    if (!(expr))                                                                                   \
-    {                                                                                              \
-      std::cerr << "FAILED: " << (msg) << std::endl;                                               \
-      return EXIT_FAILURE;                                                                         \
-    }                                                                                              \
-  } while (false)
 
 namespace
 {

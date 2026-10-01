@@ -5,6 +5,7 @@
 // shared by every representation that renders it, spanning the union of their
 // ranges, and coming and going with the scene.
 
+#include "ScivisTestUtilities.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkCommand.h"
 #include "vtkCoordinate.h"
@@ -28,22 +29,13 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkSurfaceRepresentation.h"
+#include "vtkTextProperty.h"
 #include "vtkTrivialProducer.h"
 #include "vtkVolumeRepresentation.h"
 
 #include <cmath>
 #include <cstring>
 #include <iostream>
-
-#define CHECK(expr, msg)                                                                           \
-  do                                                                                               \
-  {                                                                                                \
-    if (!(expr))                                                                                   \
-    {                                                                                              \
-      std::cerr << "FAILED: " << msg << "\n";                                                      \
-      return EXIT_FAILURE;                                                                         \
-    }                                                                                              \
-  } while (false)
 
 namespace
 {
@@ -450,6 +442,51 @@ int TestAMovedBarStaysPut()
 
   return EXIT_SUCCESS;
 }
+
+// The bars are made by the view as arrays appear, so what the set says has to
+// reach a bar that did not exist when it was said.
+int TestScalarBarsStyleReachesBarsMadeLater()
+{
+  vtkNew<vtkScivisView> view;
+  vtkScivisScalarBars* bars = view->GetScalarBars();
+
+  bars->SetTitleFontSize(28);
+  bars->SetLabelFontSize(22);
+  bars->SetTextColor(1.0, 0.0, 0.0);
+  bars->SetNumberOfLabels(9);
+  CHECK(bars->GetNumberOfBars() == 0, "there is a bar before anything is drawn");
+
+  // Only now does a bar exist.
+  vtkNew<vtkSphereSource> sphere;
+  vtkNew<vtkSurfaceRepresentation> surface;
+  surface->SetInputConnection(sphere->GetOutputPort());
+  surface->ColorByPointArray("Normals");
+  view->AddRepresentation(surface);
+  view->Render();
+
+  CHECK(bars->GetNumberOfBars() == 1, "no bar was made");
+  vtkScalarBarActor* bar = bars->GetActor(0);
+  CHECK(bar->GetTitleTextProperty()->GetFontSize() == 28,
+    "a bar made later did not take the title font size");
+  CHECK(bar->GetLabelTextProperty()->GetFontSize() == 22,
+    "a bar made later did not take the label font size");
+  CHECK(bar->GetLabelTextProperty()->GetColor()[0] == 1.0,
+    "a bar made later did not take the text color");
+  CHECK(bar->GetNumberOfLabels() == 9, "a bar made later did not take the number of labels");
+
+  // And changing the set afterwards reaches the bars already there.
+  bars->SetLabelFontSize(14);
+  CHECK(bar->GetLabelTextProperty()->GetFontSize() == 14,
+    "changing the set did not reach the bar already made");
+
+  bars->SetBarWidth(0.12);
+  bars->SetBarHeight(0.4);
+  view->Render();
+  CHECK(bar->GetWidth() == 0.12 && bar->GetHeight() == 0.4,
+    "the bar was not laid out at the size asked for");
+
+  return EXIT_SUCCESS;
+}
 }
 
 int TestScivisScalarBars(int, char*[])
@@ -457,7 +494,8 @@ int TestScivisScalarBars(int, char*[])
   if (TestOneBarPerArray() != EXIT_SUCCESS || TestOneBarPerDistinctArray() != EXIT_SUCCESS ||
     TestSuppliedLookupTable() != EXIT_SUCCESS || TestFieldDataHasNoBar() != EXIT_SUCCESS ||
     TestAutoVisibility() != EXIT_SUCCESS || TestSharedManager() != EXIT_SUCCESS ||
-    TestDraggable() != EXIT_SUCCESS || TestAMovedBarStaysPut() != EXIT_SUCCESS)
+    TestDraggable() != EXIT_SUCCESS || TestAMovedBarStaysPut() != EXIT_SUCCESS ||
+    TestScalarBarsStyleReachesBarsMadeLater() != EXIT_SUCCESS)
   {
     return EXIT_FAILURE;
   }

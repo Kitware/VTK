@@ -3,11 +3,11 @@ vtk_add_test_cxx(vtkViewsScivisCxxTests tests
   TestGridAxesRepresentation.cxx,NO_VALID
   TestSetterModifiedTime.cxx,NO_VALID
   TestScivisView.cxx
-  TestPromotedProperties.cxx,NO_VALID
   TestScivisExporter.cxx,NO_VALID
   TestScivisViewCamera.cxx,NO_VALID
   TestScivisViewSelection.cxx,NO_VALID
   TestSurfaceRepresentation.cxx
+  TestSurfaceRepresentationColoring.cxx,NO_VALID
   TestScivisScalarBars.cxx,NO_VALID
   TestTextOverlayRepresentation.cxx,NO_VALID
   TestViewLighting.cxx,NO_VALID

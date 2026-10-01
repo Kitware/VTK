@@ -6,26 +6,18 @@
 // representations rather than from the renderer -- that they do not measure
 // themselves and grow every render.
 
+#include "ScivisTestUtilities.h"
 #include "vtkGridAxesActor3D.h"
 #include "vtkGridAxesRepresentation.h"
 #include "vtkNew.h"
 #include "vtkScivisView.h"
 #include "vtkSphereSource.h"
 #include "vtkSurfaceRepresentation.h"
+#include "vtkTextProperty.h"
 
 #include <algorithm>
 #include <cmath>
 #include <iostream>
-
-#define CHECK(expr, msg)                                                                           \
-  do                                                                                               \
-  {                                                                                                \
-    if (!(expr))                                                                                   \
-    {                                                                                              \
-      std::cerr << "FAILED: " << (msg) << std::endl;                                               \
-      return EXIT_FAILURE;                                                                         \
-    }                                                                                              \
-  } while (false)
 
 namespace
 {
@@ -214,6 +206,28 @@ int TestPaddingTakesEffectAtOnce()
   return EXIT_SUCCESS;
 }
 
+// The text settings on the representation apply to all three axes at once.
+int TestTextSettingsReachEveryAxis()
+{
+  vtkNew<vtkGridAxesRepresentation> axes;
+  axes->SetLabelFontSize(24);
+  axes->SetTitleFontSize(30);
+  axes->SetLabelColor(1.0, 0.5, 0.25);
+  axes->SetTitleColor(0.25, 0.5, 1.0);
+
+  for (int axis = 0; axis < 3; ++axis)
+  {
+    vtkTextProperty* label = axes->GetGridAxesActor()->GetLabelTextProperty(axis);
+    vtkTextProperty* title = axes->GetGridAxesActor()->GetTitleTextProperty(axis);
+    CHECK(label->GetFontSize() == 24, "axis " << axis << " kept its own label font size");
+    CHECK(title->GetFontSize() == 30, "axis " << axis << " kept its own title font size");
+    CHECK(label->GetColor()[1] == 0.5, "axis " << axis << " kept its own label color");
+    CHECK(title->GetColor()[2] == 1.0, "axis " << axis << " kept its own title color");
+  }
+
+  return EXIT_SUCCESS;
+}
+
 }
 
 int TestGridAxesRepresentation(int, char*[])
@@ -221,7 +235,8 @@ int TestGridAxesRepresentation(int, char*[])
   if (TestTheAxesFollowTheScene() != EXIT_SUCCESS ||
     TestTheAxesDoNotMeasureThemselves() != EXIT_SUCCESS ||
     TestRemovingStopsTheListening() != EXIT_SUCCESS || TestAnEmptyScene() != EXIT_SUCCESS ||
-    TestPaddingTakesEffectAtOnce() != EXIT_SUCCESS)
+    TestPaddingTakesEffectAtOnce() != EXIT_SUCCESS ||
+    TestTextSettingsReachEveryAxis() != EXIT_SUCCESS)
   {
     return EXIT_FAILURE;
   }
