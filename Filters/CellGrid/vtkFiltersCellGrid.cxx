@@ -9,6 +9,7 @@
 #include "vtkCellGridElevationQuery.h"
 #include "vtkCellGridEvaluator.h"
 #include "vtkCellGridFindCriticalPoints.h"
+#include "vtkCellGridIsocontour.h"
 #include "vtkCellGridIsocontourPoints.h"
 #include "vtkCellGridRangeQuery.h"
 #include "vtkCellGridSidesQuery.h"
@@ -29,6 +30,7 @@
 #include "vtkDGHex.h"
 #include "vtkDGInterpolateCalculator.h"
 #include "vtkDGIsocontourPointsResponder.h"
+#include "vtkDGIsocontourResponder.h"
 #include "vtkDGLagrangePoints.h"
 #include "vtkDGPyr.h"
 #include "vtkDGQuad.h"
@@ -148,6 +150,7 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
     vtkNew<vtkDGEvaluator> dgEva;
     vtkNew<vtkDGFindCriticalPointsResponder> dgFcp;
     vtkNew<vtkDGIsocontourPointsResponder> dgIsp;
+    vtkNew<vtkDGIsocontourResponder> dgIso;
     vtkNew<vtkDGRangeResponder> dgRng;
     vtkNew<vtkDGSummaryInformationResponder> dgSum;
     vtkNew<vtkDGSidesResponder> dgSds;
@@ -172,6 +175,7 @@ bool vtkFiltersCellGrid::RegisterCellsAndResponders()
       dgFcp.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridIsocontourPoints::Query>(
       dgIsp.GetPointer());
+    responders->RegisterQueryResponder<vtkDGCell, vtkCellGridIsocontour::Query>(dgIso.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridCellCenters::Query>(
       dgCtr.GetPointer());
     responders->RegisterQueryResponder<vtkDGCell, vtkCellGridCellSource::Query>(dgSrc.GetPointer());
