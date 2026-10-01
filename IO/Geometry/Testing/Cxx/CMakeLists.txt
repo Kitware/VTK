@@ -76,12 +76,24 @@ LIST(APPEND tecplotFiles
     tecplot_fepolyhedron.dat
     tiny.dat
     1dgeom.dat
+    solution_time.dat
 )
 foreach(item IN LISTS tecplotFiles)
     get_filename_component(name "${item}" NAME_WE)
 
     vtk_add_test_cxx(vtkIOGeometryCxxTests tests
       TestTecplotReader2_${name},TestTecplotReader2.cxx ${item} NO_VALID NO_OUTPUT)
+
+endforeach()
+
+LIST(APPEND tecplotCompareFiles
+    solution_time.dat
+)
+foreach(item IN LISTS tecplotCompareFiles)
+    get_filename_component(name "${item}" NAME_WE)
+
+    vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+      TestTecplotReader3_${name},TestTecplotReader3.cxx ${item} NO_VALID NO_OUTPUT)
 
 endforeach()
 
