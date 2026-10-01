@@ -75,8 +75,14 @@
  *   returned; it would be named "Velocity" (matching the cell-attribute's
  *   name).
  *
+ * + `GetInterpolatedGradients()` – only when ComputeGradients is on: an array
+ *   with 3 components per tuple, the gradient of the (scalar) cell-attribute
+ *   in world coordinates at each point, in the order of the arrays above. It
+ *   is zero for points in cells that are not volumetric and where the shape's
+ *   Jacobian is singular (such as a pyramid's apex).
+ *
  * Note that because you can pass in the arrays above (except the interpolated
- * values) to short-circuit classification, it is possible to evaluate
+ * values and gradients) to short-circuit classification, it is possible to evaluate
  * multiple cell-attributes without duplicating the classification work.
  *
  * In InterpolateCellParameters mode, calling the methods above which begin
@@ -214,6 +220,23 @@ public:
   vtkGetObjectMacro(InterpolatedValues, vtkDataArray);
   ///@}
 
+  ///@{
+  /// Set/Get the array holding the gradient of the cell-attribute at each input point.
+  ///
+  /// This is only filled when ComputeGradients is on, and then only for scalar
+  /// cell-attributes. It has 3 components per tuple (the world-space gradient).
+  vtkGetObjectMacro(InterpolatedGradients, vtkDataArray);
+  vtkSetObjectMacro(InterpolatedGradients, vtkDataArray);
+  ///@}
+
+  ///@{
+  /// Set/get whether the interpolator also computes the gradient of the
+  /// cell-attribute at each point (see GetInterpolatedGradients()). Off by default.
+  vtkSetMacro(ComputeGradients, bool);
+  vtkGetMacro(ComputeGradients, bool);
+  vtkBooleanMacro(ComputeGradients, bool);
+  ///@}
+
   /// Configure the query to run the classifier but not the interpolator.
   void ClassifyPoints(vtkDataArray* points);
 
@@ -284,6 +307,8 @@ protected:
   vtkTypeUInt64Array* ClassifierCellIndices{ nullptr };
   vtkDataArray* ClassifierPointParameters{ nullptr };
   vtkDataArray* InterpolatedValues{ nullptr };
+  vtkDataArray* InterpolatedGradients{ nullptr };
+  bool ComputeGradients{ false };
 
   vtkNew<vtkStaticPointLocator> Locator;
 

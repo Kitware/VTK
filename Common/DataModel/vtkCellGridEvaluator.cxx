@@ -13,6 +13,7 @@
 #include "vtkTypeUInt32Array.h"
 
 #include <algorithm>
+#include <string>
 
 #include <iostream>
 
@@ -26,6 +27,8 @@ vtkCellGridEvaluator::vtkCellGridEvaluator()
   vtkNew<vtkDoubleArray> vals;
   this->SetClassifierPointIDs(pointIds);
   this->SetInterpolatedValues(vals);
+  vtkNew<vtkDoubleArray> gradients;
+  this->SetInterpolatedGradients(gradients);
 }
 
 vtkCellGridEvaluator::~vtkCellGridEvaluator()
@@ -38,6 +41,7 @@ vtkCellGridEvaluator::~vtkCellGridEvaluator()
   this->SetClassifierCellIndices(nullptr);
   this->SetClassifierPointParameters(nullptr);
   this->SetInterpolatedValues(nullptr);
+  this->SetInterpolatedGradients(nullptr);
   this->Locator->Initialize();
 }
 
@@ -54,6 +58,8 @@ void vtkCellGridEvaluator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ClassifierCellIndices: " << this->ClassifierCellIndices << "\n";
   os << indent << "ClassifierPointParameters: " << this->ClassifierPointParameters << "\n";
   os << indent << "InterpolatedValues: " << this->InterpolatedValues << "\n";
+  os << indent << "ComputeGradients: " << (this->ComputeGradients ? "On" : "Off") << "\n";
+  os << indent << "InterpolatedGradients: " << this->InterpolatedGradients << "\n";
 }
 
 void vtkCellGridEvaluator::ClassifyPoints(vtkDataArray* points)
@@ -146,6 +152,10 @@ bool vtkCellGridEvaluator::Initialize()
   if (this->InterpolatedValues)
   {
     this->InterpolatedValues->Initialize();
+  }
+  if (this->InterpolatedGradients)
+  {
+    this->InterpolatedGradients->Initialize();
   }
 
   // Classification normally assigns each cell type its slice of the output;
@@ -273,6 +283,23 @@ void vtkCellGridEvaluator::AllocateInterpolationOutput()
   this->InterpolatedValues->SetName(this->CellAttribute->GetName().Data().c_str());
   this->InterpolatedValues->SetNumberOfComponents(this->CellAttribute->GetNumberOfComponents());
   this->InterpolatedValues->SetNumberOfTuples(this->NumberOfOutputPoints);
+
+  if (this->ComputeGradients)
+  {
+    if (!this->InterpolatedGradients)
+    {
+      vtkNew<vtkDoubleArray> gradients;
+      this->SetInterpolatedGradients(gradients);
+    }
+    this->InterpolatedGradients->SetName(
+      (std::string(this->CellAttribute->GetName().Data()) + "Gradient").c_str());
+    this->InterpolatedGradients->SetNumberOfComponents(3);
+    this->InterpolatedGradients->SetNumberOfTuples(this->NumberOfOutputPoints);
+    // Cells that cannot compute a gradient leave it zero.
+    this->InterpolatedGradients->FillComponent(0, 0.);
+    this->InterpolatedGradients->FillComponent(1, 0.);
+    this->InterpolatedGradients->FillComponent(2, 0.);
+  }
 }
 
 bool vtkCellGridEvaluator::IsAnotherPassRequired()

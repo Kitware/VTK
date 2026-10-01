@@ -13,6 +13,7 @@
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInterpolateCalculator.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
 #include "vtkStaticPointLocator.h"
@@ -405,7 +406,73 @@ bool vtkDGEvaluator::InterpolatePoints(
       }
     });
 
+  if (query->GetComputeGradients())
+  {
+    this->ComputeGradients(query, dgCell, calc, caches);
+  }
   return true;
+}
+
+/// Fill the world-space gradient of the scalar attribute at the points of
+/// \a dgCell that InterpolatePoints() just evaluated.
+///
+/// The attribute's derivative is with respect to the parametric coordinates, so
+/// it is mapped through the shape's Jacobian. That needs the Jacobian to be
+/// invertible, so only volumetric cells get a gradient; the others, and points
+/// where it is singular (such as a pyramid's apex), keep the zero gradient the
+/// output was filled with.
+void vtkDGEvaluator::ComputeGradients(vtkCellGridEvaluator* query, vtkDGCell* dgCell,
+  vtkInterpolateCalculator* calc, vtkCellGridResponders* caches)
+{
+  auto attribute = query->GetCellAttribute();
+  if (attribute->GetNumberOfComponents() != 1)
+  {
+    vtkErrorMacro("Only the gradient of a scalar cell-attribute can be computed.");
+    return;
+  }
+  if (dgCell->GetDimension() != 3)
+  {
+    return;
+  }
+  auto shapeAttribute = dgCell->GetCellGrid()->GetShapeAttribute();
+  auto shapeCalc = caches->AttributeCalculator<vtkInterpolateCalculator>(
+    dgCell, shapeAttribute, dgCell->GetAttributeTags(shapeAttribute, true));
+  if (!shapeCalc)
+  {
+    vtkErrorMacro("Could not differentiate the shape attribute.");
+    return;
+  }
+
+  auto cellIds = query->GetClassifierCellIndices();
+  auto pointParams = query->GetClassifierPointParameters();
+  auto gradients = query->GetInterpolatedGradients();
+  auto& alloc = query->GetAllocationsForCellType(dgCell->GetClassName());
+  const vtkIdType start = alloc.Offset;
+  const vtkIdType end = start + alloc.GetNumberOfOutputPoints();
+  vtkSMPTools::For(start, end,
+    [&](vtkIdType begin, vtkIdType finish)
+    {
+      vtkVector3d rst;
+      std::vector<double> parametricGradient(3);
+      std::vector<double> jacobian(9);
+      for (vtkIdType ii = begin; ii < finish; ++ii)
+      {
+        const vtkIdType cellId = static_cast<vtkIdType>(cellIds->GetValue(ii));
+        pointParams->GetTuple(ii, rst.GetData());
+        calc->EvaluateDerivative(cellId, rst, parametricGradient);
+        shapeCalc->EvaluateDerivative(cellId, rst, jacobian);
+        // The world-space gradient g solves J^T g = p, where p is the parametric
+        // gradient and J the shape's Jacobian (J[i][j] = dx_i / dr_j, row-major,
+        // as the derivative is output).
+        double shapeJacobian[3][3];
+        std::copy_n(jacobian.begin(), 9, &shapeJacobian[0][0]);
+        double gradient[3];
+        if (vtkMath::LinearSolveTransposed3x3(shapeJacobian, parametricGradient.data(), gradient))
+        {
+          gradients->SetTuple(ii, gradient);
+        }
+      }
+    });
 }
 
 VTK_ABI_NAMESPACE_END

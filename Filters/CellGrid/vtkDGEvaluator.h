@@ -51,6 +51,11 @@ protected:
   bool InterpolatePoints(
     vtkCellGridEvaluator* query, vtkCellMetadata* cellType, vtkCellGridResponders* caches);
 
+  /// Compute the world-space gradient of a scalar attribute where
+  /// InterpolatePoints() evaluated it (see vtkCellGridEvaluator::ComputeGradients).
+  void ComputeGradients(vtkCellGridEvaluator* query, vtkDGCell* dgCell,
+    vtkInterpolateCalculator* calc, vtkCellGridResponders* caches);
+
 private:
   /// Invert the reference-to-world mapping for \a testPoint in cell \a cellId via
   /// Newton-Raphson. Returns true and sets \a rst to the parametric coordinates if
