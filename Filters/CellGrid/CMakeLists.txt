@@ -9,6 +9,7 @@ set(classes
   vtkCellGridComputeSides
   vtkCellGridElevation
   vtkCellGridFindCriticalPoints
+  vtkCellGridIsocontourPoints
   vtkCellGridPointProbe
   vtkCellGridTransform
   vtkUnstructuredGridToCellGrid
@@ -28,6 +29,7 @@ set(classes
   vtkDGElevationResponder
   vtkDGFindCriticalPointsResponder
   vtkDGEvaluator
+  vtkDGIsocontourPointsResponder
   vtkDGRangeResponder
   vtkDGSummaryInformationResponder
   vtkDGSidesResponder

@@ -38,6 +38,10 @@ struct VTKFILTERSCELLGRID_EXPORT CriticalPoint
   /// volume-interior point and smaller for one confined to a boundary.
   /// Corners are never reported (see the search functions below).
   int EntityDimension{ 0 };
+  /// The field's slope along each parametric axis at Parameter, when the
+  /// search that produced the point had it (as vtkCellGridIsocontourPoints'
+  /// search does); zero otherwise.
+  std::array<double, 3> Gradient{ { 0., 0., 0. } };
 };
 
 /// Evaluate a scalar Bezier field and its gradient at a parametric point.
