@@ -172,13 +172,7 @@ vtkScivisView::~vtkScivisView()
   {
     this->LightKit->RemoveLightsFromRenderer(this->Renderer);
   }
-  // Only if it still has an interactor: vtkOrientationMarkerWidget reports an
-  // error when enabled or disabled without one, and a view whose window was
-  // replaced by one carrying no interactor has left it with none.
-  if (this->OrientationMarkerWidget->GetInteractor())
-  {
-    this->OrientationMarkerWidget->SetEnabled(0);
-  }
+  this->OrientationMarkerWidget->SetEnabled(0);
   delete this->Implementation;
 }
 
