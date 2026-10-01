@@ -289,42 +289,44 @@ void vtkOrientationMarkerWidget::SetOrientationMarker(vtkProp* marker)
 //------------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::SetEnabled(int value)
 {
-  if (!this->Interactor)
+  if (value == this->Enabled)
   {
-    vtkErrorMacro("The interactor must be set prior to enabling/disabling widget");
+    return;
   }
 
-  if (value != this->Enabled)
+  if (value)
   {
-    if (value)
+    if (!this->Interactor)
     {
-      if (!this->CurrentRenderer)
+      vtkErrorMacro("The interactor must be set prior to enabling/disabling widget");
+      return;
+    }
+    if (!this->CurrentRenderer)
+    {
+      int* pos = this->Interactor->GetLastEventPosition();
+      this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(pos[0], pos[1]));
+
+      if (this->CurrentRenderer == nullptr)
       {
-        int* pos = this->Interactor->GetLastEventPosition();
-        this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(pos[0], pos[1]));
-
-        if (this->CurrentRenderer == nullptr)
-        {
-          return;
-        }
+        return;
       }
+    }
 
-      this->UpdateInternalViewport();
-      this->Enabled = 1;
-      this->BindOrientationMarker();
-      this->BindRenderer();
-      this->BindEvents();
-      this->InvokeEvent(vtkCommand::EnableEvent, nullptr);
-    }
-    else
-    {
-      this->InvokeEvent(vtkCommand::DisableEvent, nullptr);
-      this->Enabled = 0;
-      this->UnBindOrientationMarker();
-      this->UnBindRenderer();
-      this->UnBindEvents();
-      this->SetCurrentRenderer(nullptr);
-    }
+    this->UpdateInternalViewport();
+    this->Enabled = 1;
+    this->BindOrientationMarker();
+    this->BindRenderer();
+    this->BindEvents();
+    this->InvokeEvent(vtkCommand::EnableEvent, nullptr);
+  }
+  else
+  {
+    this->InvokeEvent(vtkCommand::DisableEvent, nullptr);
+    this->Enabled = 0;
+    this->UnBindOrientationMarker();
+    this->UnBindRenderer();
+    this->UnBindEvents();
+    this->SetCurrentRenderer(nullptr);
   }
 }
 
