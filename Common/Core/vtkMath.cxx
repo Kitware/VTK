@@ -1712,6 +1712,25 @@ void vtkMath::LinearSolve3x3(const double A[3][3], const double x[3], double y[3
 }
 
 //------------------------------------------------------------------------------
+bool vtkMath::LinearSolveTransposed3x3(const double A[3][3], const double x[3], double y[3])
+{
+  double transposed[3][3];
+  vtkMath::Transpose3x3(A, transposed);
+  double* rows[3] = { transposed[0], transposed[1], transposed[2] };
+  int index[3];
+  if (!vtkMath::LUFactorLinearSystem(rows, index, 3))
+  {
+    return false;
+  }
+  double solution[3] = { x[0], x[1], x[2] };
+  vtkMath::LUSolveLinearSystem(rows, index, solution, 3);
+  y[0] = solution[0];
+  y[1] = solution[1];
+  y[2] = solution[2];
+  return true;
+}
+
+//------------------------------------------------------------------------------
 template <class T1, class T2, class T3>
 inline void vtkMultiply3x3(const T1 A[3][3], const T2 v[3], T3 u[3])
 {
