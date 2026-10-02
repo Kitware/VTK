@@ -1,0 +1,2 @@
+* -whitespace
+include/nanoflann.hpp hooks-max-size=2097152
