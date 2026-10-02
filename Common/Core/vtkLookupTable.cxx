@@ -480,11 +480,11 @@ double vtkApplyLogScaleMain(double v, const double range[2], const double logRan
     }
     else if (range[0] > range[1])
     {
-      v = logRange[0];
+      v = logRange[0] - 1.0;
     }
     else
     {
-      v = logRange[1];
+      v = logRange[1] + 1.0;
     }
   }
   else
@@ -495,11 +495,11 @@ double vtkApplyLogScaleMain(double v, const double range[2], const double logRan
     }
     else if (range[0] <= range[1])
     {
-      v = logRange[0];
+      v = logRange[0] - 1.0;
     }
     else
     {
-      v = logRange[1];
+      v = logRange[1] + 1.0;
     }
   }
   return v;
