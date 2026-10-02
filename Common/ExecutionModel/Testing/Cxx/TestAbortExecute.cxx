@@ -335,11 +335,88 @@ bool AbortExecuteSMP()
   return true;
 }
 
+// A custom algorithm to check if RD has been called
+class vtkTestAlgorithm : public vtkPassInputTypeAlgorithm
+{
+public:
+  static vtkTestAlgorithm* New();
+  vtkTestAlgorithm(const vtkTestAlgorithm&) = delete;
+  void operator=(const vtkTestAlgorithm&) = delete;
+
+  vtkTypeMacro(vtkTestAlgorithm, vtkAlgorithm);
+
+  vtkGetMacro(RequestDataCount, int);
+
+protected:
+  int RequestData(vtkInformation* vtkNotUsed(request),
+    vtkInformationVector** vtkNotUsed(inputVector),
+    vtkInformationVector* vtkNotUsed(outputVector)) override
+  {
+    this->RequestDataCount++;
+
+    if (this->GetAbortExecute())
+    {
+      vtkErrorMacro("Filter should not execute while aborted");
+      return 0;
+    }
+
+    if (this->CheckAbort())
+    {
+      // We dont consider this a failure despite being aborted
+      return 1;
+    }
+    return 1;
+  }
+
+private:
+  vtkTestAlgorithm() = default;
+  int RequestDataCount = 0;
+};
+vtkStandardNewMacro(vtkTestAlgorithm);
+
+bool AbortExecuteNoThread()
+{
+  vtkNew<vtkSphereSource> sphere;
+
+  vtkNew<vtkTestAlgorithm> test;
+  test->SetInputConnection(sphere->GetOutputPort());
+
+  // Update once and check RD was called
+  test->Update();
+  if (test->GetRequestDataCount() != 1)
+  {
+    vtkLog(ERROR, "Unexpected RequestData count after a normal update.");
+    return false;
+  }
+
+  // Abort and update, then check RD was NOT called
+  test->AbortExecuteOn();
+  test->Update();
+  if (test->GetRequestDataCount() != 1)
+  {
+    vtkLog(ERROR, "Unexpected RequestData count after an update while aborted.");
+    return false;
+  }
+
+  // Stop aborting and update, then check RD was called again
+  test->AbortExecuteOff();
+  test->Update();
+
+  if (test->GetRequestDataCount() != 2)
+  {
+    vtkLog(ERROR, "Unexpected RequestData count after an update while aborted.");
+    return false;
+  }
+
+  return true;
+}
+
 }
 
 int TestAbortExecute(int, char*[])
 {
   bool ret = ::AbortExecutePipeline();
   ret &= ::AbortExecuteSMP();
+  ret &= ::AbortExecuteNoThread();
   return ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }
