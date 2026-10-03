@@ -6,8 +6,10 @@
 // that are not in a plane (a 3D tree). The distances of the 2D tree are in the
 // x-y plane: the z of the queries and of the petals is ignored.
 
+#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkKdTreePointLocator.h"
+#include "vtkLocatorInterface.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
@@ -118,6 +120,55 @@ bool Check(const char* name, const Points& pts, bool flat)
     for (vtkIdType i = 0; i < n; ++i)
     {
       if (std::abs(d2[i] - R * R) > 1e-9 && (d2[i] < R * R) != (within1.count(i) > 0))
+      {
+        ++errors;
+      }
+    }
+
+    // The points in the shell (minDist2, maxDist2], with and without a petal:
+    // a circle for the 2D tree, a sphere for the 3D one.
+    const double lo = 400.0, hi = 900.0;
+    vtkNew<vtkDoubleArray> petals;
+    if (flat)
+    {
+      petals->SetNumberOfComponents(3);
+      petals->InsertNextTuple3(50.0, 50.0, 30.0 * 30.0);
+    }
+    else
+    {
+      petals->SetNumberOfComponents(4);
+      petals->InsertNextTuple4(50.0, 50.0, 50.0, 30.0 * 30.0);
+    }
+    vtkDist2TupleArray shell;
+    for (int usePetals = 0; usePetals < 2; ++usePetals)
+    {
+      locator->FindPointsInShell(x, shell, lo, hi, true, usePetals ? petals.GetPointer() : nullptr);
+      std::set<vtkIdType> expectedShell;
+      for (vtkIdType i = 0; i < n; ++i)
+      {
+        bool inPetal = true;
+        if (usePetals)
+        {
+          const double c[3] = { 50.0, 50.0, 50.0 };
+          inPetal = Dist2(pts[i], c, flat) <= 900.0;
+        }
+        if (d2[i] > lo && d2[i] <= hi && inPetal)
+        {
+          expectedShell.insert(i);
+        }
+      }
+      std::set<vtkIdType> gotShell;
+      double previous = -1.0;
+      for (const auto& t : shell)
+      {
+        gotShell.insert(t.Id);
+        if (t.Dist2 != d2[t.Id] || t.Dist2 < previous)
+        {
+          ++errors;
+        }
+        previous = t.Dist2;
+      }
+      if (gotShell != expectedShell || shell.size() != gotShell.size())
       {
         ++errors;
       }

@@ -1,16 +1,23 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkKdTree.h"
 #include "vtkKdTreePointLocator.h"
+#include "vtkLocatorInterface.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkOctreePointLocator.h"
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkStaticPointLocator2D.h"
 #include "vtkStructuredGrid.h"
 
 #include <iostream>
 #include <random>
+#include <set>
+#include <vector>
 
 // returns true if 2 points are equidistant from x, within a tolerance
 bool ArePointsEquidistant(double x[3], vtkIdType id1, vtkIdType id2, vtkPointSet* grid)
@@ -282,6 +289,90 @@ int TestKdTreePointLocator()
   return rval;
 }
 
+// Brute-force validation of vtkStaticPointLocator2D::FindPointsInShell(), on
+// points in a plane: the distances are measured in the x-y plane, and the
+// petals are used as circles (their z is ignored).
+int TestStaticPointLocator2DShells()
+{
+  int rval = 0;
+  constexpr vtkIdType numPoints = 2000;
+
+  std::mt19937 rng(17);
+  std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+  vtkNew<vtkPoints> points;
+  points->SetDataTypeToDouble();
+  points->SetNumberOfPoints(numPoints);
+  for (vtkIdType i = 0; i < numPoints; i++)
+  {
+    points->SetPoint(i, dist(rng), dist(rng), 0.5);
+  }
+  vtkNew<vtkPolyData> pd;
+  pd->SetPoints(points);
+
+  vtkNew<vtkStaticPointLocator2D> locator;
+  locator->SetDataSet(pd);
+  locator->BuildLocator();
+
+  vtkNew<vtkDoubleArray> petals;
+  petals->SetNumberOfComponents(4);
+  petals->InsertNextTuple4(0.5, 0.5, 100.0, 0.09);
+  vtkDist2TupleArray results;
+  for (int trial = 0; trial < 30; trial++)
+  {
+    double x[3] = { dist(rng), dist(rng), 0.5 };
+    std::vector<double> allDist2(numPoints);
+    for (vtkIdType i = 0; i < numPoints; i++)
+    {
+      double p[3];
+      points->GetPoint(i, p);
+      allDist2[i] = (p[0] - x[0]) * (p[0] - x[0]) + (p[1] - x[1]) * (p[1] - x[1]);
+    }
+
+    // Exactly the points of the annulus (minDist2, maxDist2], sorted, and
+    // with and without a petal.
+    for (int usePetals = 0; usePetals < 2; ++usePetals)
+    {
+      const double lo = 0.01, hi = 0.04;
+      locator->FindPointsInShell(
+        x, results, lo, hi, true, usePetals ? petals.GetPointer() : nullptr);
+      std::set<vtkIdType> expectedShell;
+      for (vtkIdType i = 0; i < numPoints; i++)
+      {
+        double p[3];
+        points->GetPoint(i, p);
+        const double petalD2 = (p[0] - 0.5) * (p[0] - 0.5) + (p[1] - 0.5) * (p[1] - 0.5);
+        if (allDist2[i] > lo && allDist2[i] <= hi && (!usePetals || petalD2 <= 0.09))
+        {
+          expectedShell.insert(i);
+        }
+      }
+      std::set<vtkIdType> shellIds;
+      double previous = -1.0;
+      for (const auto& t : results)
+      {
+        shellIds.insert(t.Id);
+        if (t.Dist2 != allDist2[t.Id] || t.Dist2 < previous)
+        {
+          std::cerr << "vtkStaticPointLocator2D::FindPointsInShell: wrong or unsorted distance "
+                    << "for trial " << trial << "\n";
+          rval++;
+        }
+        previous = t.Dist2;
+      }
+      if (shellIds != expectedShell || results.size() != shellIds.size())
+      {
+        std::cerr << "vtkStaticPointLocator2D::FindPointsInShell: result set mismatch for trial "
+                  << trial << " (got " << results.size() << " points, expected "
+                  << expectedShell.size() << ")\n";
+        rval++;
+      }
+    }
+  }
+
+  return rval;
+}
+
 int TestPointLocators(int, char*[])
 {
   vtkKdTreePointLocator* kdTreeLocator = vtkKdTreePointLocator::New();
@@ -300,6 +391,7 @@ int TestPointLocators(int, char*[])
   octreeLocator->Delete();
 
   rval += TestKdTreePointLocator();
+  rval += TestStaticPointLocator2DShells();
 
   return rval;
 }
