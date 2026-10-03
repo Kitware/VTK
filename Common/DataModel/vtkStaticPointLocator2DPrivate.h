@@ -289,6 +289,8 @@ struct BucketList2D : public vtkBucketList2D
   void FindClosestNPoints(int N, const double x[3], vtkIdList* result);
   double FindNPointsInAnnulus(int N, const double x[3], vtkDist2TupleArray& results,
     double minDist2 = (-0.1), bool sort = true, vtkDoubleArray* petals = nullptr);
+  void FindPointsInShell(const double x[3], vtkDist2TupleArray& results, double minDist2,
+    double maxDist2, bool sort, vtkDoubleArray* petals);
   void FindPointsWithinRadius(double R, const double x[3], vtkIdList* result);
   int IntersectWithLine(double a0[3], double a1[3], double tol, double& t, double lineX[3],
     double ptX[3], vtkIdType& ptId);
@@ -580,6 +582,327 @@ struct BucketList2D : public vtkBucketList2D
     vtkSMPTools::For(0, numBatches, offMapper);
   }
 }; // BucketList2D
+
+//------------------------------------------------------------------------------
+// Iteration over the bins of a vtkStaticPointLocator2D in patches of
+// increasing levels around a center bin: the patch of level L is the square
+// of bins (2L+1)^2 around the center bin, and only its boundary bins (the bins
+// not in the patch of level L-1) are visited, each once. Used by
+// vtkStaticPointLocator2D::FindPointsInShell() and vtkAnnularBinIterator.
+//------------------------------------------------------------------------------
+// Hard coded bin iteration traversals for lower levels. Note the ping-pong
+// order (traversal of opposite bins).
+inline constexpr int vtkBucketPatchLevel1[8][2] = {
+  { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 },  // four edge centers, ping pong style
+  { -1, -1 }, { 1, 1 }, { 1, -1 }, { -1, 1 } // four patch corners, ping ponged
+}; // Level1
+
+inline constexpr int vtkBucketPatchLevel2[16][2] = {
+  { -2, 0 }, { 2, 0 }, { 0, -2 }, { 0, 2 },   // edge centers
+  { -1, -2 }, { 1, 2 }, { -2, -1 }, { 2, 1 }, // along edges
+  { 1, -2 }, { -1, 2 }, { -2, 1 }, { 2, -1 }, { -2, -2 }, { 2, 2 }, { 2, -2 }, { -2, 2 } // corners
+}; // Level2
+
+inline constexpr int vtkBucketPatchLevel3[24][2] = { { -3, 0 }, { 3, 0 }, { 0, -3 }, { 0, 3 },
+  { -1, -3 }, { 1, 3 }, { 3, -1 }, { -3, 1 }, { 1, -3 }, { -1, 3 }, { 3, 1 }, { -3, -1 },
+  { -2, -3 }, { 2, 3 }, { 3, -2 }, { -3, 2 }, { 2, -3 }, { -2, 3 }, { 3, 2 }, { -3, -2 },
+  { -3, -3 }, { 3, 3 }, { 3, -3 }, { -3, 3 } }; // Level3
+
+inline constexpr int vtkBucketPatchLevel4[32][2] = { { -4, 0 }, { 4, 0 }, { 0, -4 }, { 0, 4 },
+  { -1, -4 }, { 1, 4 }, { 4, -1 }, { -4, 1 }, { 1, -4 }, { -1, 4 }, { 4, 1 }, { -4, -1 },
+  { -2, -4 }, { 2, 4 }, { 4, -2 }, { -4, 2 }, { 2, -4 }, { -2, 4 }, { 4, 2 }, { -4, -2 },
+  { -3, -4 }, { 3, 4 }, { 4, -3 }, { -4, 3 }, { 3, -4 }, { -3, 4 }, { 4, 3 }, { -4, -3 },
+  { -4, -4 }, { 4, 4 }, { 4, -4 }, { -4, 4 } }; // Level4
+
+inline constexpr int vtkBucketPatchLevel5[40][2] = { { -5, 0 }, { 5, 0 }, { 0, -5 }, { 0, 5 },
+  { -1, -5 }, { 1, 5 }, { 5, -1 }, { -5, 1 }, { 1, -5 }, { -1, 5 }, { 5, 1 }, { -5, -1 },
+  { -2, -5 }, { 2, 5 }, { 5, -2 }, { -5, 2 }, { 2, -5 }, { -2, 5 }, { 5, 2 }, { -5, -2 },
+  { -3, -5 }, { 3, 5 }, { 5, -3 }, { -5, 3 }, { 3, -5 }, { -3, 5 }, { 5, 3 }, { -5, -3 },
+  { -4, -5 }, { 4, 5 }, { 5, -4 }, { -5, 4 }, { 4, -5 }, { -4, 5 }, { 5, 4 }, { -5, -4 },
+  { -5, -5 }, { 5, 5 }, { 5, -5 }, { -5, 5 } }; // Level5
+
+//------------------------------------------------------------------------------
+// Iterate over a specified level of an i-j patch (i.e., a hollow square of bins,
+// iteration occurs over the perimeter of the patch at a specified level).
+struct vtkBucketPatchIterator
+{
+  int Divs[2];  // the topology of a regular (2D locator) binning
+  int MaxLevel; // the maximum level of iteration based on locator
+
+  // The current state of iteration.
+  int Level;     // the current level over which we are iterating
+  int Center[2]; // the center of iteration of the current patch
+  int Span;      // the topological width of the patch at the current patch level
+  int NumBins;   // the number of bins to process at the current level
+  int BinNum;    // the current iteration position at the current level
+  int Interior;  // indicate whether (center+level) is interior to the patch
+  int IJ[2];     // the current IJ index of iteration
+
+  // Constructor
+  vtkBucketPatchIterator() = default;
+
+  // Initialize the patch iterator.
+  void Initialize(int divs[3], int maxLevel)
+  {
+    this->Divs[0] = divs[0];
+    this->Divs[1] = divs[1];
+    this->MaxLevel = maxLevel;
+  }
+
+  // Determine if the current bin is within the locator binning.
+  bool IsValid()
+  {
+    if (this->Interior)
+    {
+      return true;
+    }
+
+    if (this->IJ[0] < 0 || this->IJ[0] >= this->Divs[0] || this->IJ[1] < 0 ||
+      this->IJ[1] >= this->Divs[1])
+    {
+      return false;
+    }
+    return true;
+  }
+
+  // Return the current bin id.
+  vtkIdType GetBinId() { return (this->IJ[0] + this->IJ[1] * this->Divs[0]); }
+
+  // Update the IJ index.
+  void GetIJ(int ij[2])
+  {
+    ij[0] = this->IJ[0];
+    ij[1] = this->IJ[1];
+  }
+
+  // Initialize the patch iteration process. Indicate the center of the
+  // patch. This is used to specify the patch center of iteration.
+  vtkIdType Begin(int level, int center[2])
+  {
+    this->Level = level;
+    this->Center[0] = center[0];
+    this->Center[1] = center[1];
+    this->BinNum = 0; // starting iteration bin
+
+    if (level == 0)
+    {
+      this->IJ[0] = this->Center[0];
+      this->IJ[1] = this->Center[1];
+      this->NumBins = 1;
+      return this->GetBinId();
+    }
+
+    // For levels>0, further iteration will occur via repeated invocations
+    // of Next().
+
+    // The span: the number of bins spanning a face edge.
+    this->Span = 2 * level + 1;
+
+    // The total number of bins to process.
+    this->NumBins =
+      (level == 0 ? 1
+                  : (this->Span * this->Span) - ((2 * (level - 1) + 1) * (2 * (level - 1) + 1)));
+
+    // Determine whether the iteration region is inside of the locator. If the iteration
+    // region overlaps the locator boundary (i.e., is not interior), then bin validity checks
+    // have to be performed.
+    this->Interior = true;
+    if ((this->Center[0] - level) < 0 || (this->Center[0] + level) >= this->Divs[0] ||
+      (this->Center[1] - level) < 0 || (this->Center[1] + level) >= this->Divs[1])
+    {
+      this->Interior = false;
+    }
+
+    // Special case for levels 1-5. The bins are traversed in ping-pong order
+    // in increasing distance from center: first -/+ edge centers, then along edges,
+    // and finally corner points,
+    if (level == 1)
+    {
+      this->IJ[0] = this->Center[0] + vtkBucketPatchLevel1[0][0];
+      this->IJ[1] = this->Center[1] + vtkBucketPatchLevel1[0][1];
+    }
+    else if (level == 2)
+    {
+      this->IJ[0] = this->Center[0] + vtkBucketPatchLevel2[0][0];
+      this->IJ[1] = this->Center[1] + vtkBucketPatchLevel2[0][1];
+    }
+    else if (level == 3)
+    {
+      this->IJ[0] = this->Center[0] + vtkBucketPatchLevel3[0][0];
+      this->IJ[1] = this->Center[1] + vtkBucketPatchLevel3[0][1];
+    }
+    else if (level == 4)
+    {
+      this->IJ[0] = this->Center[0] + vtkBucketPatchLevel4[0][0];
+      this->IJ[1] = this->Center[1] + vtkBucketPatchLevel4[0][1];
+    }
+    else if (level == 5)
+    {
+      this->IJ[0] = this->Center[0] + vtkBucketPatchLevel5[0][0];
+      this->IJ[1] = this->Center[1] + vtkBucketPatchLevel5[0][1];
+    }
+    else // general case for larger levels
+    {
+      this->IJ[0] = this->Center[0];
+      this->IJ[1] = this->Center[1] - level;
+    }
+
+    // Make sure that the starting bin is valid
+    if (!this->IsValid())
+    {
+      return this->Next();
+    }
+
+    return this->GetBinId();
+  }
+
+  // Return binId<0 when iteration over the entirety of the current face patch
+  // completes.
+  vtkIdType Next()
+  {
+    // Loop until valid bin found, or bin traversal for this level is complete.
+    while (true)
+    {
+      // Advance the current bin number
+      this->BinNum++;
+
+      // Special case for level 0, or if visited all bins in the current level
+      int level = this->Level;
+      if (level == 0 || this->BinNum >= this->NumBins || level > this->MaxLevel)
+      {
+        return (-1);
+      }
+
+      // Special cases for levels 1-5
+      if (level == 1)
+      {
+        this->IJ[0] = this->Center[0] + vtkBucketPatchLevel1[this->BinNum][0];
+        this->IJ[1] = this->Center[1] + vtkBucketPatchLevel1[this->BinNum][1];
+      }
+      else if (level == 2)
+      {
+        this->IJ[0] = this->Center[0] + vtkBucketPatchLevel2[this->BinNum][0];
+        this->IJ[1] = this->Center[1] + vtkBucketPatchLevel2[this->BinNum][1];
+      }
+      else if (level == 3)
+      {
+        this->IJ[0] = this->Center[0] + vtkBucketPatchLevel3[this->BinNum][0];
+        this->IJ[1] = this->Center[1] + vtkBucketPatchLevel3[this->BinNum][1];
+      }
+      else if (level == 4)
+      {
+        this->IJ[0] = this->Center[0] + vtkBucketPatchLevel4[this->BinNum][0];
+        this->IJ[1] = this->Center[1] + vtkBucketPatchLevel4[this->BinNum][1];
+      }
+      else if (level == 5)
+      {
+        this->IJ[0] = this->Center[0] + vtkBucketPatchLevel5[this->BinNum][0];
+        this->IJ[1] = this->Center[1] + vtkBucketPatchLevel5[this->BinNum][1];
+      }
+      else // general iteration case - ping-pong rotation around patch
+      {
+        // four edge centers - recall that Begin() processed BinNum==0.
+        if (this->BinNum < 4)
+        {
+          if (this->BinNum == 1)
+          {
+            this->IJ[0] = this->Center[0];
+            this->IJ[1] = this->Center[1] + level;
+          }
+          else if (this->BinNum == 2)
+          {
+            this->IJ[0] = this->Center[0] - level;
+            this->IJ[1] = this->Center[1];
+          }
+          else // if ( this->BinNum == 3 )
+          {
+            this->IJ[0] = this->Center[0] + level;
+            this->IJ[1] = this->Center[1];
+          }
+        }
+
+        // four patch corners
+        else if (this->BinNum >= (this->NumBins - 4))
+        {
+          if (this->BinNum == (this->NumBins - 4))
+          {
+            this->IJ[0] = this->Center[0] - level;
+            this->IJ[1] = this->Center[1] - level;
+          }
+          else if (this->BinNum == (this->NumBins - 3))
+          {
+            this->IJ[0] = this->Center[0] + level;
+            this->IJ[1] = this->Center[1] + level;
+          }
+          else if (this->BinNum == (this->NumBins - 2))
+          {
+            this->IJ[0] = this->Center[0] + level;
+            this->IJ[1] = this->Center[1] - level;
+          }
+          else // if ( this->BinNum == (this->NumBins-1) )
+          {
+            this->IJ[0] = this->Center[0] - level;
+            this->IJ[1] = this->Center[1] + level;
+          }
+        }
+
+        // ping-pong rotation
+        else
+        {
+          int idx = (this->BinNum - 4) % 8;
+          int offset = ((this->BinNum - 4) / 8) + 1;
+          if (idx == 0)
+          {
+            this->IJ[0] = this->Center[0] - offset;
+            this->IJ[1] = this->Center[1] - level;
+          }
+          else if (idx == 1)
+          {
+            this->IJ[0] = this->Center[0] + offset;
+            this->IJ[1] = this->Center[1] + level;
+          }
+          else if (idx == 2)
+          {
+            this->IJ[0] = this->Center[0] - level;
+            this->IJ[1] = this->Center[1] - offset;
+          }
+          else if (idx == 3)
+          {
+            this->IJ[0] = this->Center[0] + level;
+            this->IJ[1] = this->Center[1] + offset;
+          }
+          else if (idx == 4)
+          {
+            this->IJ[0] = this->Center[0] + offset;
+            this->IJ[1] = this->Center[1] - level;
+          }
+          else if (idx == 5)
+          {
+            this->IJ[0] = this->Center[0] - offset;
+            this->IJ[1] = this->Center[1] + level;
+          }
+          else if (idx == 6)
+          {
+            this->IJ[0] = this->Center[0] - level;
+            this->IJ[1] = this->Center[1] + offset;
+          }
+          else // if ( idx == 7 )
+          {
+            this->IJ[0] = this->Center[0] + level;
+            this->IJ[1] = this->Center[1] - offset;
+          }
+        }
+      }
+
+      // Return when valid bin is found
+      if (this->IsValid())
+      {
+        return this->GetBinId();
+      }
+    } // while iterating over patch at current level
+  } // Next()
+
+}; // vtkBucketPatchIterator
 
 VTK_ABI_NAMESPACE_END
 #endif // vtkStaticPointLocator2DPrivate_h

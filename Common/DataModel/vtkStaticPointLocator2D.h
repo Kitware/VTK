@@ -159,6 +159,17 @@ public:
     double minDist2 = (-0.1), bool sort = true, vtkDoubleArray* petals = nullptr);
 
   /**
+   * Find all the points which are strictly greater than minDist2 and at most
+   * maxDist2 away from the query point x, optionally restricted to points
+   * inside (or on) at least one of the petals, and optionally sorted. See
+   * vtkAbstractPointLocator::FindPointsInShell(). The distances are measured
+   * in the x-y plane, and each petal is a circle (x,y,r2). The bins outside of the annulus, or
+   * outside of all the petals, are skipped.
+   */
+  void FindPointsInShell(const double x[3], vtkDist2TupleArray& results, double minDist2,
+    double maxDist2, bool sort = true, vtkDoubleArray* petals = nullptr) override;
+
+  /**
    * Find all points within a specified radius R of position x.
    * The result is not sorted in any specific manner.
    * These methods are thread safe if BuildLocator() is directly or

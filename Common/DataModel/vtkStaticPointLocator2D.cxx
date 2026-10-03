@@ -24,6 +24,7 @@
 #include "vtkStaticPointLocator2DPrivate.h"
 
 #include <algorithm>
+#include <cmath>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -957,6 +958,187 @@ double BucketList2D<TIds>::FindNPointsInAnnulus(int N, const double x[3],
 }
 
 //------------------------------------------------------------------------------
+// Gather the points of the buckets overlapping the annulus (minDist2, maxDist2]
+// around x, and inside at least one of the petals, with the distances in the
+// x-y plane. The buckets are visited in patches of increasing levels around
+// the bucket of x (see vtkBucketPatchIterator), from the first patch not
+// inside the inner circle to the last one reaching the outer circle.
+template <typename TIds>
+void BucketList2D<TIds>::FindPointsInShell(const double x[3], vtkDist2TupleArray& results,
+  double minDist2, double maxDist2, bool sort, vtkDoubleArray* petals)
+{
+  results.clear();
+  if (maxDist2 < 0.0 || maxDist2 <= minDist2)
+  {
+    return;
+  }
+
+  // The points are assigned to the buckets with GetBucketIndices(), which may
+  // round differently from the bucket bounds: the buckets are tested enlarged
+  // by delta, and with a relative slack on the squared distances.
+  double delta[2];
+  for (int i = 0; i < 2; ++i)
+  {
+    delta[i] = 1.0e-6 * this->H[i] +
+      1.0e-14 * (std::abs(this->Bounds[2 * i]) + std::abs(this->Bounds[2 * i + 1]));
+  }
+  constexpr double slack = 1.0e-12;
+  auto nearDist2 = [](const double lo[2], const double hi[2], const double* c)
+  {
+    double d2 = 0.0;
+    for (int i = 0; i < 2; ++i)
+    {
+      const double d = std::max({ lo[i] - c[i], c[i] - hi[i], 0.0 });
+      d2 += d * d;
+    }
+    return d2;
+  };
+  auto farDist2 = [](const double lo[2], const double hi[2], const double* c)
+  {
+    double d2 = 0.0;
+    for (int i = 0; i < 2; ++i)
+    {
+      const double d = std::max(c[i] - lo[i], hi[i] - c[i]);
+      d2 += d * d;
+    }
+    return d2;
+  };
+
+  int center[2];
+  this->GetBucketIndices(x, center);
+  // The bounds of the patch of buckets of a level around center, enlarged by
+  // delta (grow), or shrunk by it.
+  auto patchBounds = [this, &center, &delta](int level, bool grow, double lo[2], double hi[2])
+  {
+    for (int i = 0; i < 2; ++i)
+    {
+      const double margin = grow ? delta[i] : -delta[i];
+      lo[i] = this->Bounds[2 * i] + (center[i] - level) * this->H[i] - margin;
+      hi[i] = this->Bounds[2 * i] + (center[i] + level + 1) * this->H[i] + margin;
+    }
+  };
+
+  // Skip the patches inside the inner circle: all their points are at most
+  // minDist2 away.
+  double lo[3], hi[3];
+  int level = 0;
+  for (; level <= this->MaxLevel; ++level)
+  {
+    patchBounds(level, true, lo, hi);
+    if (farDist2(lo, hi, x) * (1.0 + slack) > minDist2)
+    {
+      break;
+    }
+  }
+
+  // Each petal is a circle (x,y,r2).
+  const vtkIdType numPetals = petals ? petals->GetNumberOfTuples() : 0;
+  const double* petal0 = numPetals > 0 ? petals->GetPointer(0) : nullptr;
+  vtkBucketPatchIterator patches;
+  patches.Initialize(this->Divisions, this->MaxLevel);
+  double p[3];
+  for (; level <= this->MaxLevel; ++level)
+  {
+    // The buckets of this level are outside of the patch of the previous
+    // level, on the sides that still have buckets, and their points may be up
+    // to delta inside of it: the patch is shrunk. Stop when none of them can
+    // reach the outer circle.
+    if (level > 0)
+    {
+      patchBounds(level - 1, false, lo, hi);
+      bool hasBuckets = false;
+      double minD2 = VTK_DOUBLE_MAX;
+      for (int i = 0; i < 2; ++i)
+      {
+        if (center[i] - level >= 0)
+        {
+          hasBuckets = true;
+          const double d = std::max(x[i] - lo[i], 0.0);
+          minD2 = std::min(d * d, minD2);
+        }
+        if (center[i] + level < this->Divisions[i])
+        {
+          hasBuckets = true;
+          const double d = std::max(hi[i] - x[i], 0.0);
+          minD2 = std::min(d * d, minD2);
+        }
+      }
+      if (!hasBuckets || minD2 * (1.0 - slack) > maxDist2)
+      {
+        break;
+      }
+    }
+
+    for (vtkIdType bucket = patches.Begin(level, center); bucket >= 0; bucket = patches.Next())
+    {
+      const vtkIdType numIds = this->GetNumberOfIds(bucket);
+      if (numIds <= 0)
+      {
+        continue;
+      }
+
+      // Skip the buckets outside of the annulus, or outside of all the petals.
+      this->GetBucketBounds(patches.IJ[0], patches.IJ[1], lo, hi);
+      for (int c = 0; c < 2; ++c)
+      {
+        lo[c] -= delta[c];
+        hi[c] += delta[c];
+      }
+      if (nearDist2(lo, hi, x) * (1.0 - slack) > maxDist2 ||
+        farDist2(lo, hi, x) * (1.0 + slack) <= minDist2)
+      {
+        continue;
+      }
+      bool inPetals = (numPetals == 0);
+      const double* petal = petal0;
+      for (vtkIdType n = 0; n < numPetals && !inPetals; ++n, petal += 3)
+      {
+        inPetals = (nearDist2(lo, hi, petal) * (1.0 - slack) <= petal[2]);
+      }
+      if (!inPetals)
+      {
+        continue;
+      }
+
+      const vtkLocatorTuple<TIds>* ids = this->GetIds(bucket);
+      for (vtkIdType n = 0; n < numIds; ++n)
+      {
+        const vtkIdType ptId = ids[n].PtId;
+        const double* pt = p;
+        if (this->FastPoints)
+        {
+          pt = this->FastPoints + 3 * ptId;
+        }
+        else
+        {
+          this->DataSet->GetPoint(ptId, p);
+        }
+        const double d2 = Distance2BetweenPoints2D(pt, x);
+        if (d2 <= minDist2 || d2 > maxDist2)
+        {
+          continue;
+        }
+        bool inPetal = (numPetals == 0);
+        petal = petal0;
+        for (vtkIdType m = 0; m < numPetals && !inPetal; ++m, petal += 3)
+        {
+          inPetal = (Distance2BetweenPoints2D(pt, petal) <= petal[2]);
+        }
+        if (inPetal)
+        {
+          results.emplace_back(ptId, d2);
+        }
+      }
+    }
+  }
+
+  if (sort)
+  {
+    std::sort(results.begin(), results.end());
+  }
+}
+
+//------------------------------------------------------------------------------
 // The radius R defines a block of buckets which the circle of radius R may
 // touch.
 template <typename TIds>
@@ -1839,6 +2021,29 @@ double vtkStaticPointLocator2D::FindNPointsInAnnulus(int N, const double x[3],
   {
     return static_cast<BucketList2D<int>*>(this->Buckets)
       ->FindNPointsInAnnulus(N, x, results, minDist2, sort, petals);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkStaticPointLocator2D::FindPointsInShell(const double x[3], vtkDist2TupleArray& results,
+  double minDist2, double maxDist2, bool sort, vtkDoubleArray* petals)
+{
+  this->BuildLocator(); // will subdivide if modified; otherwise returns
+  results.clear();
+  if (!this->Buckets)
+  {
+    return;
+  }
+
+  if (this->LargeIds)
+  {
+    static_cast<BucketList2D<vtkIdType>*>(this->Buckets)
+      ->FindPointsInShell(x, results, minDist2, maxDist2, sort, petals);
+  }
+  else
+  {
+    static_cast<BucketList2D<int>*>(this->Buckets)
+      ->FindPointsInShell(x, results, minDist2, maxDist2, sort, petals);
   }
 }
 

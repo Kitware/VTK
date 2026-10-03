@@ -79,6 +79,16 @@ public:
    */
   void FindPointsWithinRadius(double R, const double x[3], vtkIdList* result) override;
 
+  /**
+   * Find all the points which are strictly greater than minDist2 and at most
+   * maxDist2 away from the query point x, optionally restricted to points
+   * inside (or on) at least one of the petals, and optionally sorted. See
+   * vtkAbstractPointLocator::FindPointsInShell(). The kd-tree nodes outside
+   * of the shell, or outside of all the petals, are skipped.
+   */
+  void FindPointsInShell(const double x[3], vtkDist2TupleArray& results, double minDist2,
+    double maxDist2, bool sort = true, vtkDoubleArray* petals = nullptr) override;
+
   ///@{
   /**
    * Specify the maximum number of points a kd-tree leaf node may hold before

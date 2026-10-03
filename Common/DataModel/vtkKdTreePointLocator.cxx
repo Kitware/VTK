@@ -6,7 +6,10 @@
 #include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
+#include "vtkLocatorInterface.h" // For vtkDist2TupleArray
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
@@ -15,6 +18,7 @@
 
 #include "vtk_nanoflann.h"
 
+#include <algorithm>
 #include <limits>
 #include <vector>
 
@@ -210,11 +214,13 @@ public:
     std::copy_n(bounds, 6, this->Bounds);
   }
 
-  inline std::size_t kdtree_get_point_count() const { return this->Points.size(); }
+  const double* GetBounds() const { return this->Bounds; }
 
-  inline ValueType kdtree_get_pt(std::size_t idx, std::size_t dim) const
+  std::size_t kdtree_get_point_count() const { return this->Points.size(); }
+
+  ValueType kdtree_get_pt(std::size_t idx, std::size_t dim) const
   {
-    return this->Points[idx][dim];
+    return this->Points[idx][static_cast<int>(dim)];
   }
 
   // The bounding box has as many dimensions as the tree (2 or 3).
@@ -250,6 +256,8 @@ public:
     double radius, const double x[3], double& dist2) = 0;
   virtual void FindClosestNPoints(int N, const double x[3], vtkIdList* result) = 0;
   virtual void FindPointsWithinRadius(double R, const double x[3], vtkIdList* result) = 0;
+  virtual void FindPointsInShell(const double x[3], vtkDist2TupleArray& results, double minDist2,
+    double maxDist2, bool sort, vtkDoubleArray* petals) = 0;
   virtual void GenerateRepresentation(
     int level, const double bounds[6], vtkPoints* pts, vtkCellArray* polys) = 0;
   virtual int GetDimension() const = 0;
@@ -379,6 +387,23 @@ public:
     (void)this->Tree->radiusSearchCustomCallback(x, resultSet, params);
   }
 
+  void FindPointsInShell(const double x[3], vtkDist2TupleArray& results, double minDist2,
+    double maxDist2, bool sort, vtkDoubleArray* petals) override
+  {
+    results.clear();
+    if (this->Tree->nodes_.empty() || maxDist2 <= minDist2)
+    {
+      return;
+    }
+    Query q;
+    this->InitializeQuery(q, x, minDist2, maxDist2, petals, &results);
+    this->Dispatch(q);
+    if (sort)
+    {
+      std::sort(results.begin(), results.end());
+    }
+  }
+
   int GetDimension() const override { return DIM; }
 
   void GenerateRepresentation(
@@ -398,12 +423,237 @@ public:
   }
 
 private:
+  // The boxes are only skipped with a margin: the distances of their points
+  // round differently from the distances of their corners.
+  static constexpr double Slack = 1.0e-12;
+
+  // The state of a traversal. The box of the current node is [Lo, Hi], and Gap
+  // holds the distances of X to it along each axis: both are updated in place
+  // when going down the tree, and restored when going up.
+  struct Query
+  {
+    const double* X;
+    double MinDist2;
+    double MaxDist2;
+    const double* Petals;
+    std::vector<int>* PetalIds;
+    vtkDist2TupleArray* Results;
+    double Lo[3];
+    double Hi[3];
+    double Gap[3];
+  };
+
+  void InitializeQuery(Query& q, const double x[3], double minDist2, double maxDist2,
+    vtkDoubleArray* petals, vtkDist2TupleArray* results)
+  {
+    q.X = x;
+    q.MinDist2 = minDist2;
+    q.MaxDist2 = maxDist2;
+    q.Petals = (petals && petals->GetNumberOfTuples() > 0) ? petals->GetPointer(0) : nullptr;
+    q.PetalIds = nullptr;
+    q.Results = results;
+    const double* b = this->Cloud.GetBounds();
+    for (int i = 0; i < 3; ++i)
+    {
+      q.Lo[i] = b[2 * i];
+      q.Hi[i] = b[2 * i + 1];
+      q.Gap[i] = std::max({ q.Lo[i] - x[i], x[i] - q.Hi[i], 0.0 });
+    }
+    if (q.Petals)
+    {
+      // The petals still overlapping a node are listed per depth in PetalIds,
+      // so that the descendants of a node only test those.
+      const int numPetals = static_cast<int>(petals->GetNumberOfTuples());
+      q.PetalIds = &this->TLData.Local().PetalIds;
+      q.PetalIds->resize(numPetals);
+      for (int i = 0; i < numPetals; ++i)
+      {
+        (*q.PetalIds)[i] = i;
+      }
+    }
+  }
+
+  // Run the traversal specialized for the query: with or without a minimum
+  // distance, and with or without petals.
+  void Dispatch(Query& q)
+  {
+    const bool hasMin = q.MinDist2 >= 0.0;
+    const int numPetals = q.Petals ? static_cast<int>(q.PetalIds->size()) : 0;
+    if (hasMin)
+    {
+      if (q.Petals)
+      {
+        this->Traverse<true, true>(q, 0, 0, numPetals);
+      }
+      else
+      {
+        this->Traverse<true, false>(q, 0, 0, 0);
+      }
+    }
+    else
+    {
+      if (q.Petals)
+      {
+        this->Traverse<false, true>(q, 0, 0, numPetals);
+      }
+      else
+      {
+        this->Traverse<false, false>(q, 0, 0, 0);
+      }
+    }
+  }
+
+  // Squared distances from c to the nearest and to the farthest point of a box.
+  static double BoxNearDist2(const double lo[3], const double hi[3], const double* c)
+  {
+    double d2 = 0.0;
+    for (int i = 0; i < DIM; ++i)
+    {
+      const double d = std::max({ lo[i] - c[i], c[i] - hi[i], 0.0 });
+      d2 += d * d;
+    }
+    return d2;
+  }
+  static double BoxFarDist2(const double lo[3], const double hi[3], const double* c)
+  {
+    double d2 = 0.0;
+    for (int i = 0; i < DIM; ++i)
+    {
+      const double d = std::max(c[i] - lo[i], hi[i] - c[i]);
+      d2 += d * d;
+    }
+    return d2;
+  }
+
+  // Visit the subtree of a node, whose box is [q.Lo, q.Hi]: add its points
+  // with MinDist2 < d2 <= MaxDist2 from X that are inside at least one petal
+  // (if any). A node is skipped when its box is outside of the shell, or
+  // outside of all the petals. The petals overlapping the parent are
+  // PetalIds[first, first + numPetals): only those can overlap the node. The
+  // nodes are in depth-first pre-order: the left child follows its parent,
+  // and child2 is the offset from the parent to the right child. The child on
+  // the side of X is visited first, so that the points come roughly nearest
+  // first.
+  template <bool HasMin, bool HasPetals>
+  void Traverse(Query& q, std::size_t nodeIdx, std::size_t first, int numPetals)
+  {
+    double near = 0.0;
+    for (int i = 0; i < DIM; ++i)
+    {
+      near += q.Gap[i] * q.Gap[i];
+    }
+    if (near * (1.0 - Slack) > q.MaxDist2)
+    {
+      return;
+    }
+    if constexpr (HasMin)
+    {
+      if (BoxFarDist2(q.Lo, q.Hi, q.X) * (1.0 + Slack) <= q.MinDist2)
+      {
+        return;
+      }
+    }
+    if constexpr (HasPetals)
+    {
+      // Keep the petals overlapping this node, after those of its parent.
+      std::vector<int>& petalIds = *q.PetalIds;
+      const std::size_t next = first + numPetals;
+      if (petalIds.size() < next + numPetals)
+      {
+        petalIds.resize(2 * (next + numPetals));
+      }
+      int kept = 0;
+      for (int i = 0; i < numPetals; ++i)
+      {
+        const int petalId = petalIds[first + i];
+        const double* petal = q.Petals + (DIM + 1) * petalId;
+        if (BoxNearDist2(q.Lo, q.Hi, petal) * (1.0 - Slack) <= petal[DIM])
+        {
+          petalIds[next + kept++] = petalId;
+        }
+      }
+      if (kept == 0)
+      {
+        return;
+      }
+      first = next;
+      numPetals = kept;
+    }
+
+    const auto* node = this->Tree->nodes_.data() + nodeIdx;
+    if (node->isLeaf())
+    {
+      const int* petalIds = HasPetals ? q.PetalIds->data() + first : nullptr;
+      for (auto i = node->node_type.lr.left; i < node->node_type.lr.right; ++i)
+      {
+        const vtkIdType id = static_cast<vtkIdType>(this->Tree->vAcc_[i]);
+        double p[DIM];
+        for (int k = 0; k < DIM; ++k)
+        {
+          p[k] = this->Cloud.kdtree_get_pt(id, k);
+        }
+        const double d2 = Distance2(p, q.X);
+        if ((HasMin && d2 <= q.MinDist2) || d2 > q.MaxDist2)
+        {
+          continue;
+        }
+        if constexpr (HasPetals)
+        {
+          bool inPetal = false;
+          for (int k = 0; k < numPetals && !inPetal; ++k)
+          {
+            const double* petal = q.Petals + (DIM + 1) * petalIds[k];
+            inPetal = (Distance2(p, petal) <= petal[DIM]);
+          }
+          if (!inPetal)
+          {
+            continue;
+          }
+        }
+        q.Results->emplace_back(id, d2);
+      }
+      return;
+    }
+
+    // The children: the left one is [Lo, divlow] along dim, the right one
+    // [divhigh, Hi].
+    const int dim = node->node_type.sub.divfeat;
+    const double x = q.X[dim];
+    const double divLow = node->node_type.sub.divlow;
+    const double divHigh = node->node_type.sub.divhigh;
+    const double lo = q.Lo[dim];
+    const double hi = q.Hi[dim];
+    const double gap = q.Gap[dim];
+    const std::size_t leftIdx = nodeIdx + 1;
+    const std::size_t rightIdx = nodeIdx + node->child2;
+    const bool leftFirst = (x - divLow) + (x - divHigh) < 0.0;
+    for (int visit = 0; visit < 2; ++visit)
+    {
+      if ((visit == 0) == leftFirst)
+      {
+        q.Hi[dim] = divLow;
+        q.Gap[dim] = std::max(gap, x - divLow);
+        this->Traverse<HasMin, HasPetals>(q, leftIdx, first, numPetals);
+        q.Hi[dim] = hi;
+      }
+      else
+      {
+        q.Lo[dim] = divHigh;
+        q.Gap[dim] = std::max(gap, divHigh - x);
+        this->Traverse<HasMin, HasPetals>(q, rightIdx, first, numPetals);
+        q.Lo[dim] = lo;
+      }
+      q.Gap[dim] = gap;
+    }
+  }
+
   PointCloudType Cloud;
   std::unique_ptr<KdTreeType> Tree;
 
   struct ThreadLocalData
   {
     std::vector<double> Dists;
+    std::vector<int> PetalIds;
   };
   vtkSMPThreadLocal<ThreadLocalData> TLData;
 };
@@ -512,6 +762,18 @@ void vtkKdTreePointLocator::FindPointsWithinRadius(double R, const double x[3], 
   }
 
   this->Internals->Impl->FindPointsWithinRadius(R, x, result);
+}
+
+//------------------------------------------------------------------------------
+void vtkKdTreePointLocator::FindPointsInShell(const double x[3], vtkDist2TupleArray& results,
+  double minDist2, double maxDist2, bool sort, vtkDoubleArray* petals)
+{
+  this->BuildLocator();
+  results.clear();
+  if (this->Internals)
+  {
+    this->Internals->Impl->FindPointsInShell(x, results, minDist2, maxDist2, sort, petals);
+  }
 }
 
 //------------------------------------------------------------------------------
