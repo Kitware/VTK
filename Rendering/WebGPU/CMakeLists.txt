@@ -52,7 +52,8 @@ set(classes
   vtkWebGPUSkybox
   vtkWebGPUTexture
   vtkWebGPUTextureDeviceResource
-  vtkWebGPUTextureView)
+  vtkWebGPUTextureView
+  vtkWebGPUUniforms)
 
 set(private_headers
   "Private/vtkWebGPUActorInternals.h"
@@ -123,7 +124,7 @@ set(webgpu_overrides
   PolyDataMapper2D
   Property
   ShaderProperty
-  # NI: Uniforms
+  Uniforms
   Renderer
   # NI: RenderTimerLog
   Skybox
