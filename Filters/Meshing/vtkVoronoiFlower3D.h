@@ -157,12 +157,12 @@
  * @warning
  * This is a meshless Voronoi approach that implements an embarrassingly
  * parallel algorithm. At the core of the algorithm a locator is used to
- * determine points close to a specified position. Currently, a
- * vtkStaticPointLocator is used because it is both threaded (when
- * constructed) and supports thread-safe queries. While other locators could
- * be used in principal, they must support thread-safe operations. This is
- * done by defining and implementing an iterator that enables traversal of
- * neighborhood points surrounding each generating point.
+ * determine points close to a specified position: a vtkKdTreePointLocator by
+ * default (see SetPointLocator()), which is threaded when constructed and
+ * supports thread-safe queries. It adapts to the density of the points, so
+ * that clustered points are processed as fast as uniformly distributed ones. The neighborhood
+ * points of each generating point are traversed in spherical shells, with
+ * vtkAbstractPointLocator::FindPointsInShell().
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -172,7 +172,7 @@
  * points can be processed in well under one second elapsed time.
  *
  * @sa
- * vtkVoronoiCore3D vtkGeneralizedSurfaceNets3D vtkShellBinIterator
+ * vtkVoronoiCore3D vtkGeneralizedSurfaceNets3D
  * vtkVoronoiFlower2D vtkDelaunay2D vtkDelaunay3D vtkSurfaceNets3D
  * vtkSurfaceNets2D vtkConstrainedSmoothingFilter
  * vtkWindowedSincPolyDataFilter vtkJogglePoints
@@ -182,14 +182,16 @@
 #ifndef vtkVoronoiFlower3D_h
 #define vtkVoronoiFlower3D_h
 
+#include "vtkAbstractPointLocator.h" // For the point locator
 #include "vtkDataSetAlgorithm.h"
+#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_8_0
 #include "vtkFiltersMeshingModule.h" // For export macro
 #include "vtkIdTypeArray.h"          // for PointsOfInterest
 #include "vtkSmartPointer.h"         // For self-destructing data members
-#include "vtkStaticPointLocator.h"   // For point locator
 #include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkStaticPointLocator;
 
 class VTKFILTERSMESHING_EXPORT VTK_MARSHALAUTO vtkVoronoiFlower3D : public vtkDataSetAlgorithm
 {
@@ -356,12 +358,24 @@ public:
 
   ///@{
   /**
-   * Retrieve the internal locator to manually configure it, for example
-   * specifying the number of points per bucket. This method is generally
-   * used for debugging or testing purposes.
+   * Specify the point locator used to find the neighbors of the generating
+   * points. By default, a vtkKdTreePointLocator of 20 points per leaf, which
+   * adapts to the density of the points. A vtkStaticPointLocator can be used instead. The locator
+   * must support thread-safe queries once built, and should implement
+   * FindNPointsInShell() and FindPointsInShell() (the default implementations
+   * of vtkAbstractPointLocator are much slower). The filter builds the
+   * locator, and frees its search structure when done.
    */
-  vtkStaticPointLocator* GetLocator() { return this->Locator; }
+  vtkSetSmartPointerMacro(PointLocator, vtkAbstractPointLocator);
+  vtkGetSmartPointerMacro(PointLocator, vtkAbstractPointLocator);
   ///@}
+
+  /**
+   * Return the point locator if it is a vtkStaticPointLocator, nullptr
+   * otherwise.
+   */
+  VTK_DEPRECATED_IN_9_8_0("Use GetPointLocator() instead")
+  vtkStaticPointLocator* GetLocator();
 
   ///@{
   /**
@@ -499,11 +513,11 @@ private:
   int GenerateCellScalars;   // indicate whether cell scalars are to be produced
   vtkTypeBool MergePoints;   // merge near coincident points or not
   vtkIdType PointOfInterest; // specify a single input point to process
-  vtkSmartPointer<vtkIdTypeArray> PointsOfInterest; // list of points of interest
-  vtkIdType MaximumNumberOfHullClips;               // limit the number of hull clips
-  vtkSmartPointer<vtkStaticPointLocator> Locator;   // locator for finding proximal points
-  double PruneTolerance;                            // the prune spokes tolerance
-  unsigned int BatchSize;                           // process data in batches of specified size
+  vtkSmartPointer<vtkIdTypeArray> PointsOfInterest;      // list of points of interest
+  vtkIdType MaximumNumberOfHullClips;                    // limit the number of hull clips
+  vtkSmartPointer<vtkAbstractPointLocator> PointLocator; // locator for finding proximal points
+  double PruneTolerance;                                 // the prune spokes tolerance
+  unsigned int BatchSize;      // process data in batches of specified size
   vtkTypeBool BoundaryCapping; // cap the domain boundary if OutputType is SURFACE_NET
 
   /**

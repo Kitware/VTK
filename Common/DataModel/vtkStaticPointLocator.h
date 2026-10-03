@@ -17,9 +17,9 @@
  * incrementally insert points, use the vtkPointLocator or its kin to do so.
  *
  * @warning
- * Iterators (e.g., vtkShellBinIterator) over locator bins are available for
- * advanced usage. This can be used for example to locate points in proximity
- * to a query point.
+ * FindPointsInShell() and FindNPointsInShell() return the points around a
+ * query point in shells, optionally culled with petals (spheres), which can
+ * be used to visit the points nearest first.
  *
  * @warning
  * The internals of this class are templated. It may run slow if the code is
@@ -49,8 +49,7 @@
  *
  * @sa
  * vtkPointLocator vtkStaticPointLocator2D vtkCellLocator vtkLocator
- * vtkAbstractPointLocator vtkLocatorInterface vtkShellBinIterator
- * vtkAnnularBinIterator vtkVoronoiCore3D vtkVoronoi3D
+ * vtkAbstractPointLocator vtkLocatorInterface vtkVoronoiCore3D vtkVoronoi3D
  */
 
 #ifndef vtkStaticPointLocator_h

@@ -23,9 +23,9 @@
  * z-value is only used to define location of the 2D plane.
  *
  * @note
- * Iterators (e.g., vtkAnnularBinIterator) over locator bins are available
- * for advanced usage. This can be used for example to locate points in
- * proximity to a query point.
+ * FindPointsInShell() and FindNPointsInShell() return the points around a
+ * query point in annuli, optionally culled with petals (circles), which can
+ * be used to visit the points nearest first.
  *
  * @warning
  * This class is templated. It may run slower than serial execution if the code
@@ -44,7 +44,7 @@
  *
  * @sa
  * vtkStaticPointLocator vtkPointLocator vtkCellLocator vtkLocator
- * vtkAbstractPointLocator vtkAnnularBinIterator vtkShellBinIterator
+ * vtkAbstractPointLocator
  * vtkVoronoiCore2D vtkVoronoi2D
  */
 

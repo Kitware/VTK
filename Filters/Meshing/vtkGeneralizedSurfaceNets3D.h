@@ -124,21 +124,23 @@
  *
  * @sa
  * vtkSurfaceNets2D vtkSurfaceNets3D vtkVoronoi3D vtkVoronoiCore3D
- * vtkShellBinIterator vtkConstrainedSmoothingFilter
- * vtkWindowedSincPolyDataFilter
+ * vtkConstrainedSmoothingFilter vtkWindowedSincPolyDataFilter
  */
 
 #ifndef vtkGeneralizedSurfaceNets3D_h
 #define vtkGeneralizedSurfaceNets3D_h
 
+#include "vtkAbstractPointLocator.h"       // For the point locator
 #include "vtkConstrainedSmoothingFilter.h" // Perform surface smoothing
 #include "vtkContourValues.h"              // Manage contour values
+#include "vtkDeprecation.h"                // For VTK_DEPRECATED_IN_9_8_0
 #include "vtkFiltersMeshingModule.h"       // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkStaticPointLocator.h" // For point locator
-#include "vtkWrappingHints.h"      // For VTK_MARSHALAUTO
+#include "vtkSmartPointer.h"  // For self-destructing data members
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkStaticPointLocator;
 
 class VTKFILTERSMESHING_EXPORT VTK_MARSHALAUTO vtkGeneralizedSurfaceNets3D
   : public vtkPolyDataAlgorithm
@@ -404,12 +406,24 @@ public:
 
   ///@{
   /**
-   * Retrieve the internal locator to manually configure it, for example
-   * specifying the number of points per bucket. This method is generally
-   * used for debugging or testing purposes.
+   * Specify the point locator used to find the neighbors of the generating
+   * points. By default, a vtkKdTreePointLocator of 20 points per leaf, which
+   * adapts to the density of the points. A vtkStaticPointLocator can be used instead. The locator
+   * must support thread-safe queries once built, and should implement
+   * FindNPointsInShell() and FindPointsInShell() (the default implementations
+   * of vtkAbstractPointLocator are much slower). The filter builds the
+   * locator, and frees its search structure when done.
    */
-  vtkStaticPointLocator* GetLocator() { return this->Locator; }
+  vtkSetSmartPointerMacro(PointLocator, vtkAbstractPointLocator);
+  vtkGetSmartPointerMacro(PointLocator, vtkAbstractPointLocator);
   ///@}
+
+  /**
+   * Return the point locator if it is a vtkStaticPointLocator, nullptr
+   * otherwise.
+   */
+  VTK_DEPRECATED_IN_9_8_0("Use GetPointLocator() instead")
+  vtkStaticPointLocator* GetLocator();
 
   ///@{
   /**
@@ -502,7 +516,7 @@ protected:
 
   // Internal classes Related to point location and smoothing control
   vtkSmartPointer<vtkConstrainedSmoothingFilter> Smoother; // built in smoother
-  vtkSmartPointer<vtkStaticPointLocator> Locator;          // locator for finding proximal points
+  vtkSmartPointer<vtkAbstractPointLocator> PointLocator;   // locator for finding proximal points
 
   // Control the type of output mesh. Triangles by default.
   int OutputMeshType;

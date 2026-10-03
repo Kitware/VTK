@@ -81,12 +81,12 @@
  * @warning
  * This approach implements an embarrassingly parallel, meshless
  * algorithm. At the core of the algorithm a locator is used to determine
- * points close to a specified position. Currently, a vtkStaticPointLocator2D
- * is used because it is both threaded (when constructed) and supports
- * thread-safe queries. While other locators could be used in principal, they
- * must support thread-safe operations. This is done by defining and
- * implementing an iterator that enables traversal of neighborhood points
- * surrounding each generating point.
+ * points close to a specified position: any vtkAbstractPointLocator
+ * (typically a vtkKdTreePointLocator or a vtkStaticPointLocator2D) that is
+ * threaded when constructed and supports thread-safe queries. The points are
+ * expected to be in a plane of constant z. The neighborhood points of each
+ * generating point are traversed in annuli (see vtkVoronoiNeighborIterator in
+ * vtkVoronoiCore.h).
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -103,11 +103,10 @@
 #ifndef vtkVoronoiCore2D_h
 #define vtkVoronoiCore2D_h
 
-#include "vtkAnnularBinIterator.h"   // Iteration over the bins of the locator
+#include "vtkAbstractPointLocator.h" // for locating nearby points
 #include "vtkLocatorInterface.h"     // Interface to spatial locators
 #include "vtkPoints.h"               // for input points
 #include "vtkSMPTools.h"             // SMP parallel processing
-#include "vtkStaticPointLocator2D.h" // for locating nearby points
 #include "vtkVoronoiCore.h"          // Core includes
 #include "vtkVoronoiTile.h"          // Generate Voronoi convex tiles
 
@@ -205,7 +204,7 @@ struct vtkVoronoi2DLocalData
   int NumPrunes;                              // total number of pruning operations
   vtkBatchIdsType LocalBatches;               // list of batches processed by this thread
   vtkVoronoiSpokesType LocalSpokes;           // connecting edges/spokes for each tile
-  vtkAnnularBinIterator BIter;                // iterator over static point locator bins
+  vtkVoronoiNeighborIterator<2> BIter;        // iterator over the neighbors of a generator
   vtkVoronoiTile Tile;                        // computational 2D Voronoi tile algorithm
   typename TCompositor::LocalData Compositor; // gather data from compositing operations
   TClassifier Classifier;                     // Used to classify spokes (based on regions)
@@ -260,7 +259,7 @@ public:
    * spoke pruning and tolerance) are provided.
    */
   static std::unique_ptr<vtkVoronoiCore2D<TCompositor, TClassifier>> Execute(vtkAlgorithm* filter,
-    unsigned int batchSize, vtkStaticPointLocator2D* loc, vtkPoints* inPts, double padding,
+    unsigned int batchSize, vtkAbstractPointLocator* loc, vtkPoints* inPts, double padding,
     vtkIdType maxClips, bool validate, double pruneTol, TCompositor* comp, TClassifier* cl);
 
   ///@{
@@ -298,7 +297,7 @@ public:
    * Execute() method is preferred.
    */
   vtkVoronoiCore2D(vtkAlgorithm* filter, vtkVoronoiBatchManager& batcher,
-    vtkStaticPointLocator2D* loc, vtkPoints* inPts, double padding, vtkIdType maxClips,
+    vtkAbstractPointLocator* loc, vtkPoints* inPts, double padding, vtkIdType maxClips,
     bool validate, double pruneTol, TCompositor* comp, TClassifier* c);
 
   ///@{
@@ -361,7 +360,7 @@ private:
   vtkIdType NPts;                   // The number of input points
   vtkPoints* InPoints;              // Input points as data array
   const double* Points;             // Input points as pointer to x-y-z AOS doubles
-  vtkStaticPointLocator2D* Locator; // Used to (quickly) find nearby points
+  vtkAbstractPointLocator* Locator; // Used to (quickly) find nearby points
   double Padding;                   // The padding distance around the bounding box
   double Bounds[6];                 // locator bounds
   double PaddedBounds[6];           // the domain over which Voronoi is calculated
@@ -387,7 +386,7 @@ private:
    * Driver method that coordinates the process of tile generation. It
    * integrates with the locator, and the vtkVoronoiTile class.
    */
-  using vtkBinIterator = vtkAnnularBinIterator;
+  using vtkBinIterator = vtkVoronoiNeighborIterator<2>;
   bool BuildTile(vtkVoronoiTile& tile, vtkBinIterator* biter, const double* pts, vtkIdType maxClips,
     vtkDist2TupleArray& results, int& numPrunes);
 

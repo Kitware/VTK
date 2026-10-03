@@ -9,16 +9,14 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkKdTreePointLocator.h"
 #include "vtkLocatorInterface.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTransform.h"
+#include "vtkStaticPointLocator2D.h"
 #include "vtkVoronoiCore2D.h"
 
 #include <vector>
@@ -1039,8 +1037,11 @@ vtkVoronoiFlower2D::vtkVoronoiFlower2D()
   this->MergePoints = true;
 
   this->Padding = 0.001;
-  this->Locator = vtkSmartPointer<vtkStaticPointLocator2D>::New();
-  this->Locator->SetNumberOfPointsPerBucket(2);
+  // Larger leaves than the default of the locator are faster for the shells of
+  // points requested by the Voronoi tessellation.
+  auto locator = vtkSmartPointer<vtkKdTreePointLocator>::New();
+  locator->SetNumberOfPointsPerLeaf(20);
+  this->PointLocator = locator;
   this->Transform = nullptr;
   this->ProjectionPlaneMode = XY_PLANE;
   this->PointOfInterest = (-1);
@@ -1137,14 +1138,20 @@ int vtkVoronoiFlower2D::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // A locator is used to locate closest points.
-  if (!this->Locator)
+  if (!this->PointLocator)
   {
     vtkErrorMacro(<< "Point locator required\n");
     return 0;
   }
-  this->Locator->SetDataSet(tInput);
-  this->Locator->BuildLocator();
-  this->Locator->UseExistingSearchStructureOn();
+  this->PointLocator->SetDataSet(tInput);
+  this->PointLocator->BuildLocator();
+  if (!vtkVoronoiNeighborIterator<2>::IsLocatorSuited(this->PointLocator))
+  {
+    vtkWarningMacro("The point locator is not 2D: the points of a vtkKdTreePointLocator must be "
+                    "in a plane of constant z. The points are not culled with the Voronoi "
+                    "flower, which is slower.");
+  }
+  this->PointLocator->UseExistingSearchStructureOn();
 
   // Computational bounds
   double length = tInput->GetLength();
@@ -1189,7 +1196,7 @@ int vtkVoronoiFlower2D::RequestData(vtkInformation* vtkNotUsed(request),
     vtkEmptyVoronoi2DClassifier speedClassifier(regions);
     auto speed =
       vtkVoronoiCore2D<vtkEmptyVoronoi2DCompositor, vtkEmptyVoronoi2DClassifier>::Execute(this,
-        this->BatchSize, this->Locator, tPoints, padding, this->MaximumNumberOfTileClips,
+        this->BatchSize, this->PointLocator, tPoints, padding, this->MaximumNumberOfTileClips,
         this->Validate, this->PruneTolerance, nullptr, &speedClassifier);
 
     // Update execution parameters
@@ -1207,7 +1214,7 @@ int vtkVoronoiFlower2D::RequestData(vtkInformation* vtkNotUsed(request),
     SN2DCompositor initializeCompositor(this->BoundaryCapping);
     vtkVoronoiClassifier2D initializeClassifier(regions);
     auto sn = vtkVoronoiCore2D<SN2DCompositor, vtkVoronoiClassifier2D>::Execute(this,
-      this->BatchSize, this->Locator, tPoints, padding, this->MaximumNumberOfTileClips,
+      this->BatchSize, this->PointLocator, tPoints, padding, this->MaximumNumberOfTileClips,
       this->Validate, this->PruneTolerance, &initializeCompositor, &initializeClassifier);
 
     // Update execution parameters
@@ -1221,7 +1228,7 @@ int vtkVoronoiFlower2D::RequestData(vtkInformation* vtkNotUsed(request),
     // Generate the 2D Voronoi tessellation.
     vtkVoronoiClassifier2D initializeClassifier(regions);
     auto voro = vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>::Execute(this,
-      this->BatchSize, this->Locator, tPoints, padding, this->MaximumNumberOfTileClips,
+      this->BatchSize, this->PointLocator, tPoints, padding, this->MaximumNumberOfTileClips,
       this->Validate, this->PruneTolerance, nullptr, &initializeClassifier);
 
     // Update execution parameters
@@ -1276,7 +1283,7 @@ int vtkVoronoiFlower2D::RequestData(vtkInformation* vtkNotUsed(request),
     // Rerun with point of interest selected.
     vtkVoronoiClassifier2D poiClassifier(regions);
     auto voroPOI = vtkVoronoiCore2D<Del2DCompositor, vtkVoronoiClassifier2D>::Execute(this,
-      this->BatchSize, this->Locator, tPoints, padding, this->MaximumNumberOfTileClips,
+      this->BatchSize, this->PointLocator, tPoints, padding, this->MaximumNumberOfTileClips,
       this->Validate, this->PruneTolerance, nullptr, &poiClassifier);
 
     vtkInformation* outInfo3 = outputVector->GetInformationObject(2);
@@ -1294,7 +1301,7 @@ int vtkVoronoiFlower2D::RequestData(vtkInformation* vtkNotUsed(request),
   } // Produce sampled Voronoi flower
 
   // Return the locator to a normal processing mode.
-  this->Locator->UseExistingSearchStructureOff();
+  this->PointLocator->UseExistingSearchStructureOff();
 
   return 1;
 }
@@ -1304,20 +1311,20 @@ vtkIdType vtkVoronoiFlower2D::FindTile(double x[3])
 {
   // Make sure the filter has executed (i.e., a locator is available), and the
   // request is within the bounding box of the input points.
-  if (this->Locator == nullptr)
+  if (this->PointLocator == nullptr)
   {
     return (-1);
   }
 
   double bounds[6];
-  this->Locator->GetBounds(bounds);
+  this->PointLocator->GetBounds(bounds);
   if (x[0] < bounds[0] || x[0] > bounds[1] || x[1] < bounds[2] || x[1] > bounds[3])
   {
     return -1;
   }
 
   // Now simply request the closest point.
-  return this->Locator->FindClosestPoint(x);
+  return this->PointLocator->FindClosestPoint(x);
 }
 
 //------------------------------------------------------------------------------
@@ -1335,7 +1342,7 @@ void vtkVoronoiFlower2D::GetTileData(vtkIdType tileId, vtkPolyData* tileData)
 
   // Make sure the input is valid, a locator is available (i.e., the filter
   // has executed), and a Voronoi output has been produced.
-  if (tileId < 0 || this->Locator == nullptr ||
+  if (tileId < 0 || this->PointLocator == nullptr ||
     (this->OutputType != vtkVoronoiFlower2D::VORONOI &&
       this->OutputType != vtkVoronoiFlower2D::VORONOI_AND_DELAUNAY))
   {
@@ -1391,8 +1398,14 @@ int vtkVoronoiFlower2D::FillInputPortInformation(int port, vtkInformation* info)
 vtkMTimeType vtkVoronoiFlower2D::GetMTime()
 {
   vtkMTimeType mTime = this->vtkObject::GetMTime();
-  vtkMTimeType time = this->Locator->GetMTime();
+  vtkMTimeType time = this->PointLocator ? this->PointLocator->GetMTime() : 0;
   return (time > mTime ? time : mTime);
+}
+
+//------------------------------------------------------------------------------
+vtkStaticPointLocator2D* vtkVoronoiFlower2D::GetLocator()
+{
+  return vtkStaticPointLocator2D::SafeDownCast(this->PointLocator);
 }
 
 //------------------------------------------------------------------------------
@@ -1406,7 +1419,7 @@ void vtkVoronoiFlower2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Point Scalars: " << this->GeneratePointScalars << "\n";
   os << indent << "Generate Cell Scalars: " << this->GenerateCellScalars << "\n";
   os << indent << "Padding: " << this->Padding << "\n";
-  os << indent << "Locator: " << this->Locator << "\n";
+  os << indent << "Locator: " << this->PointLocator << "\n";
   os << indent << "Projection Plane Mode: " << this->ProjectionPlaneMode << "\n";
   os << indent << "Transform: " << (this->Transform ? "specified" : "none") << "\n";
   os << indent << "Point Of Interest: " << this->PointOfInterest << "\n";
