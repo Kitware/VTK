@@ -23,7 +23,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Control problem size and set debugging parameters
 NPts = 1000
-PointsPerBucket = 2
+PointsPerLeaf = 2
 GenerateFlower = 1
 PointOfInterest = -1
 
@@ -46,7 +46,7 @@ voronoi = vtkVoronoiFlower2D()
 voronoi.SetInputData(profile)
 voronoi.SetGenerateCellScalarsToPointIds()
 voronoi.SetPointOfInterest(PointOfInterest)
-voronoi.GetLocator().SetNumberOfPointsPerBucket(PointsPerBucket)
+voronoi.GetPointLocator().SetNumberOfPointsPerLeaf(PointsPerLeaf)
 voronoi.SetGenerateVoronoiFlower(GenerateFlower)
 voronoi.Update()
 

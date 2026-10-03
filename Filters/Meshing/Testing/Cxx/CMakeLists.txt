@@ -1,6 +1,5 @@
 vtk_add_test_cxx(vtkFiltersMeshingCxxTests tests
   TestGeneralizedSurfaceNets3D.cxx
-  TestShellBinIterator.cxx,NO_VALID
   TestLabeledImagePointSampler.cxx,
   TestLabeledImagePointSampler2.cxx,
   TestLabeledImagePointSampler3.cxx,

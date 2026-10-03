@@ -65,7 +65,7 @@ def KuzminFn(NPts,points):
 
 # Control problem size and set debugging parameters
 NPts = 1000
-PointsPerBucket = 1
+PointsPerLeaf = 1
 GenerateFlower = 1
 PointOfInterest = 17
 
@@ -130,7 +130,7 @@ voronoi = vtkVoronoiFlower2D()
 voronoi.SetInputData(profile)
 voronoi.SetGenerateCellScalarsToPointIds()
 voronoi.SetPointOfInterest(PointOfInterest)
-voronoi.GetLocator().SetNumberOfPointsPerBucket(PointsPerBucket)
+voronoi.GetPointLocator().SetNumberOfPointsPerLeaf(PointsPerLeaf)
 voronoi.SetGenerateVoronoiFlower(GenerateFlower)
 voronoi.ValidateOn()
 

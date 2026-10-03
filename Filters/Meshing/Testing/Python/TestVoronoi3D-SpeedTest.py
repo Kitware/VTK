@@ -15,7 +15,7 @@ if len(sys.argv) > 1:
     except ValueError:
         NPts = NPts
 
-PointsPerBucket = 1
+PointsPerLeaf = 1
 
 # create some points and display them. Points have an associated
 # point id (for debugging), and a region id (surface net).
@@ -54,7 +54,7 @@ voronoi = vtk.vtkVoronoiFlower3D()
 voronoi.SetInputData(profile)
 voronoi.SetPadding(0.001)
 voronoi.SetGenerateCellScalarsToNone()
-voronoi.GetLocator().SetNumberOfPointsPerBucket(PointsPerBucket)
+voronoi.GetPointLocator().SetNumberOfPointsPerLeaf(PointsPerLeaf)
 voronoi.SetOutputTypeToSpeedTest()
 voronoi.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, "Region Ids")
 voronoi.SetBatchSize(1000)

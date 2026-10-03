@@ -31,7 +31,7 @@ if len(sys.argv) > 1:
     except ValueError:
         NPts = 1000
 
-PointsPerBucket = 1
+PointsPerLeaf = 1
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -59,7 +59,7 @@ profile.SetPoints(points)
 #
 voronoi = vtkVoronoiFlower2D()
 voronoi.SetInputData(profile)
-voronoi.GetLocator().SetNumberOfPointsPerBucket(PointsPerBucket)
+voronoi.GetPointLocator().SetNumberOfPointsPerLeaf(PointsPerLeaf)
 voronoi.SetGenerateCellScalarsToRandom()
 voronoi.SetOutputTypeToDelaunay()
 
