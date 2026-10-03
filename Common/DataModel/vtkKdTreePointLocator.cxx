@@ -19,6 +19,7 @@
 #include "vtk_nanoflann.h"
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
 #include <vector>
 
@@ -256,6 +257,8 @@ public:
     double radius, const double x[3], double& dist2) = 0;
   virtual void FindClosestNPoints(int N, const double x[3], vtkIdList* result) = 0;
   virtual void FindPointsWithinRadius(double R, const double x[3], vtkIdList* result) = 0;
+  virtual double FindNPointsInShell(int N, const double x[3], vtkDist2TupleArray& results,
+    double minDist2, bool sort, vtkDoubleArray* petals) = 0;
   virtual void FindPointsInShell(const double x[3], vtkDist2TupleArray& results, double minDist2,
     double maxDist2, bool sort, vtkDoubleArray* petals) = 0;
   virtual void GenerateRepresentation(
@@ -387,6 +390,56 @@ public:
     (void)this->Tree->radiusSearchCustomCallback(x, resultSet, params);
   }
 
+  double FindNPointsInShell(int N, const double x[3], vtkDist2TupleArray& results, double minDist2,
+    bool sort, vtkDoubleArray* petals) override
+  {
+    results.clear();
+    if (N <= 0 || this->Tree->nodes_.empty())
+    {
+      return 0.0;
+    }
+
+    // A single traversal of the tree, nearest children first, keeps the N
+    // nearest valid points (farther than minDist2, and inside or on a petal),
+    // tested exactly as FindPointsInShell() does, and the points tied with the
+    // N-th one: the result is that of FindPointsInShell() with the returned
+    // maxDist2, so that a sequence of shells starting with this one returns
+    // every point exactly once. The distances of the N nearest points so far
+    // are kept in a max-heap, whose top limits the traversal.
+    Query q;
+    this->InitializeQuery(q, x, minDist2, std::numeric_limits<double>::max(), petals, &results);
+    q.N = N;
+    double heapBuffer[64];
+    std::vector<double> heapVector;
+    if (N <= 64)
+    {
+      q.Heap = heapBuffer;
+    }
+    else
+    {
+      heapVector.resize(N);
+      q.Heap = heapVector.data();
+    }
+    this->Dispatch<false>(q);
+    if (q.HeapSize == 0)
+    {
+      results.clear();
+      return 0.0;
+    }
+
+    // The N-th nearest valid distance: the points kept before it was known may
+    // be farther.
+    const double maxDist2 = q.Heap[0];
+    results.erase(std::remove_if(results.begin(), results.end(),
+                    [maxDist2](const vtkDist2Tuple& t) { return t.Dist2 > maxDist2; }),
+      results.end());
+    if (sort)
+    {
+      std::sort(results.begin(), results.end());
+    }
+    return maxDist2;
+  }
+
   void FindPointsInShell(const double x[3], vtkDist2TupleArray& results, double minDist2,
     double maxDist2, bool sort, vtkDoubleArray* petals) override
   {
@@ -397,7 +450,7 @@ public:
     }
     Query q;
     this->InitializeQuery(q, x, minDist2, maxDist2, petals, &results);
-    this->Dispatch(q);
+    this->Dispatch<true>(q);
     if (sort)
     {
       std::sort(results.begin(), results.end());
@@ -434,13 +487,17 @@ private:
   {
     const double* X;
     double MinDist2;
-    double MaxDist2;
+    double MaxDist2; // fixed for a shell, the N-th nearest distance so far for N points
     const double* Petals;
     std::vector<int>* PetalIds;
     vtkDist2TupleArray* Results;
     double Lo[3];
     double Hi[3];
     double Gap[3];
+    // The N nearest points: a max-heap of their distances.
+    int N = 0;
+    double* Heap = nullptr;
+    int HeapSize = 0;
   };
 
   void InitializeQuery(Query& q, const double x[3], double minDist2, double maxDist2,
@@ -475,6 +532,7 @@ private:
 
   // Run the traversal specialized for the query: with or without a minimum
   // distance, and with or without petals.
+  template <bool Shell>
   void Dispatch(Query& q)
   {
     const bool hasMin = q.MinDist2 >= 0.0;
@@ -483,22 +541,22 @@ private:
     {
       if (q.Petals)
       {
-        this->Traverse<true, true>(q, 0, 0, numPetals);
+        this->Traverse<Shell, true, true>(q, 0, 0, numPetals);
       }
       else
       {
-        this->Traverse<true, false>(q, 0, 0, 0);
+        this->Traverse<Shell, true, false>(q, 0, 0, 0);
       }
     }
     else
     {
       if (q.Petals)
       {
-        this->Traverse<false, true>(q, 0, 0, numPetals);
+        this->Traverse<Shell, false, true>(q, 0, 0, numPetals);
       }
       else
       {
-        this->Traverse<false, false>(q, 0, 0, 0);
+        this->Traverse<Shell, false, false>(q, 0, 0, 0);
       }
     }
   }
@@ -525,6 +583,41 @@ private:
     return d2;
   }
 
+  // Add a valid point at distance d2 to the result. For the N nearest points
+  // (Shell is false), it is only kept if it is not farther than the N-th
+  // nearest point so far, which then becomes the limit of the traversal.
+  template <bool Shell>
+  static void AddPoint(Query& q, vtkIdType id, double d2)
+  {
+    if constexpr (Shell)
+    {
+      q.Results->emplace_back(id, d2);
+    }
+    else
+    {
+      if (q.HeapSize == q.N && d2 > q.Heap[0])
+      {
+        return;
+      }
+      q.Results->emplace_back(id, d2);
+      if (q.HeapSize < q.N)
+      {
+        q.Heap[q.HeapSize++] = d2;
+        std::push_heap(q.Heap, q.Heap + q.HeapSize);
+      }
+      else if (d2 < q.Heap[0])
+      {
+        std::pop_heap(q.Heap, q.Heap + q.HeapSize);
+        q.Heap[q.HeapSize - 1] = d2;
+        std::push_heap(q.Heap, q.Heap + q.HeapSize);
+      }
+      if (q.HeapSize == q.N)
+      {
+        q.MaxDist2 = q.Heap[0];
+      }
+    }
+  }
+
   // Visit the subtree of a node, whose box is [q.Lo, q.Hi]: add its points
   // with MinDist2 < d2 <= MaxDist2 from X that are inside at least one petal
   // (if any). A node is skipped when its box is outside of the shell, or
@@ -533,8 +626,8 @@ private:
   // nodes are in depth-first pre-order: the left child follows its parent,
   // and child2 is the offset from the parent to the right child. The child on
   // the side of X is visited first, so that the points come roughly nearest
-  // first.
-  template <bool HasMin, bool HasPetals>
+  // first, and that for the N nearest points MaxDist2 shrinks sooner.
+  template <bool Shell, bool HasMin, bool HasPetals>
   void Traverse(Query& q, std::size_t nodeIdx, std::size_t first, int numPetals)
   {
     double near = 0.0;
@@ -610,7 +703,7 @@ private:
             continue;
           }
         }
-        q.Results->emplace_back(id, d2);
+        AddPoint<Shell>(q, id, d2);
       }
       return;
     }
@@ -633,14 +726,14 @@ private:
       {
         q.Hi[dim] = divLow;
         q.Gap[dim] = std::max(gap, x - divLow);
-        this->Traverse<HasMin, HasPetals>(q, leftIdx, first, numPetals);
+        this->Traverse<Shell, HasMin, HasPetals>(q, leftIdx, first, numPetals);
         q.Hi[dim] = hi;
       }
       else
       {
         q.Lo[dim] = divHigh;
         q.Gap[dim] = std::max(gap, divHigh - x);
-        this->Traverse<HasMin, HasPetals>(q, rightIdx, first, numPetals);
+        this->Traverse<Shell, HasMin, HasPetals>(q, rightIdx, first, numPetals);
         q.Lo[dim] = lo;
       }
       q.Gap[dim] = gap;
@@ -762,6 +855,20 @@ void vtkKdTreePointLocator::FindPointsWithinRadius(double R, const double x[3], 
   }
 
   this->Internals->Impl->FindPointsWithinRadius(R, x, result);
+}
+
+//------------------------------------------------------------------------------
+double vtkKdTreePointLocator::FindNPointsInShell(int N, const double x[3],
+  vtkDist2TupleArray& results, double minDist2, bool sort, vtkDoubleArray* petals)
+{
+  this->BuildLocator();
+  results.clear();
+  if (!this->Internals)
+  {
+    return 0.0;
+  }
+
+  return this->Internals->Impl->FindNPointsInShell(N, x, results, minDist2, sort, petals);
 }
 
 //------------------------------------------------------------------------------

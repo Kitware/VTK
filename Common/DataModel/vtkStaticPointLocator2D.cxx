@@ -15,6 +15,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
 
 //------------------------------------------------------------------------------
 // Parts of the locator and related classes are made visible through the
@@ -25,6 +26,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -583,386 +585,281 @@ FOUND_N:
   }
 }
 
-namespace // anonymous
-{
 //------------------------------------------------------------------------------
-// These classes and methods are in support of FindNPointsInAnnulus().
-
-// Iterate over the boundary of a footprint of bins. Takes into account both
-// inner and outer radius, i.e. culling bins that are not within the annulus.
-template <typename TIds>
-struct AnnulusIterator
+namespace
 {
-  vtkDataSet* DataSet; // access dataset points
-  double* FastPoints;  // fast path for points access
+// The buckets overlapping an annulus (MinDist2, maxDist2] around X, and at
+// least one of the petals (circles), with the distances in the x-y plane,
+// visited in patches of increasing levels around the bucket of X (see
+// vtkBucketPatchIterator), from the first patch not inside the inner circle.
+// The points are assigned to the buckets with GetBucketIndices(), which may
+// round differently from the bucket bounds: the buckets are tested enlarged by
+// Delta, and with a relative slack on the squared distances.
+template <typename TIds>
+class vtkBucketShell2D
+{
+public:
+  vtkBucketShell2D(
+    BucketList2D<TIds>* bins, const double x[3], double minDist2, vtkDoubleArray* petals)
+    : Bins(bins)
+    , X(x)
+    , MinDist2(minDist2)
+    , NumPetals(petals ? petals->GetNumberOfTuples() : 0)
+    , Petals(this->NumPetals > 0 ? petals->GetPointer(0) : nullptr)
+  {
+    bins->GetBucketIndices(x, this->Center);
+    for (int i = 0; i < 2; ++i)
+    {
+      this->Delta[i] = 1.0e-6 * bins->H[i] +
+        1.0e-14 * (std::abs(bins->Bounds[2 * i]) + std::abs(bins->Bounds[2 * i + 1]));
+    }
+
+    // A valid point is inside (or on) a petal, so it is at most Reach2 away.
+    if (this->NumPetals > 0)
+    {
+      double reach = 0.0;
+      for (vtkIdType m = 0; m < this->NumPetals; ++m)
+      {
+        const double* petal = this->Petals + 3 * m;
+        reach =
+          std::max(reach, std::sqrt(Distance2BetweenPoints2D(x, petal)) + std::sqrt(petal[2]));
+      }
+      this->Reach2 = reach * reach;
+    }
+
+    // Skip the patches inside the inner circle: all their points are at most
+    // MinDist2 away.
+    double lo[2], hi[2];
+    for (; this->Level <= bins->MaxLevel; ++this->Level)
+    {
+      this->GetPatchBounds(this->Level, true, lo, hi);
+      if (FarDist2(lo, hi, x) * (1.0 + Slack) > minDist2)
+      {
+        break;
+      }
+    }
+    this->Patches.Initialize(bins->Divisions, bins->MaxLevel);
+  }
+
+  // Add to results the valid points (in the annulus up to maxDist2, and inside
+  // or on a petal) of the next levels, until the next level is entirely beyond
+  // maxDist2 or the petals, or until results holds at least minSize points.
+  // The next call continues with the next level.
+  void Gather(double maxDist2, std::size_t minSize, vtkDist2TupleArray& results)
+  {
+    BucketList2D<TIds>* bins = this->Bins;
+    // The members used per point, as locals: results may alias them.
+    const double* x = this->X;
+    const double minDist2 = this->MinDist2;
+    const vtkIdType numPetals = this->NumPetals;
+    const double* petals = this->Petals;
+    const double* fastPoints = bins->FastPoints;
+    double lo[3], hi[3], p[3];
+    for (; this->Level <= bins->MaxLevel; ++this->Level)
+    {
+      if (results.size() >= minSize || !this->Reaches(std::min(maxDist2, this->Reach2)))
+      {
+        return;
+      }
+
+      for (vtkIdType bucket = this->Patches.Begin(this->Level, this->Center); bucket >= 0;
+           bucket = this->Patches.Next())
+      {
+        const vtkIdType numIds = bins->GetNumberOfIds(bucket);
+        if (numIds <= 0)
+        {
+          continue;
+        }
+
+        // Skip the buckets outside of the annulus, or outside of all the petals.
+        bins->GetBucketBounds(this->Patches.IJ[0], this->Patches.IJ[1], lo, hi);
+        for (int c = 0; c < 2; ++c)
+        {
+          lo[c] -= this->Delta[c];
+          hi[c] += this->Delta[c];
+        }
+        if (NearDist2(lo, hi, x) * (1.0 - Slack) > maxDist2 ||
+          FarDist2(lo, hi, x) * (1.0 + Slack) <= minDist2)
+        {
+          continue;
+        }
+        bool inPetals = (numPetals == 0);
+        const double* petal = petals;
+        for (vtkIdType m = 0; m < numPetals && !inPetals; ++m, petal += 3)
+        {
+          inPetals = (NearDist2(lo, hi, petal) * (1.0 - Slack) <= petal[2]);
+        }
+        if (!inPetals)
+        {
+          continue;
+        }
+
+        const vtkLocatorTuple<TIds>* ids = bins->GetIds(bucket);
+        for (vtkIdType n = 0; n < numIds; ++n)
+        {
+          const vtkIdType ptId = ids[n].PtId;
+          const double* pt = p;
+          if (fastPoints)
+          {
+            pt = fastPoints + 3 * ptId;
+          }
+          else
+          {
+            bins->DataSet->GetPoint(ptId, p);
+          }
+          const double d2 = Distance2BetweenPoints2D(pt, x);
+          if (d2 <= minDist2 || d2 > maxDist2)
+          {
+            continue;
+          }
+          bool inPetal = (numPetals == 0);
+          petal = petals;
+          for (vtkIdType m = 0; m < numPetals && !inPetal; ++m, petal += 3)
+          {
+            inPetal = (Distance2BetweenPoints2D(pt, petal) <= petal[2]);
+          }
+          if (inPetal)
+          {
+            results.emplace_back(ptId, d2);
+          }
+        }
+      }
+    }
+  }
+
+private:
+  static constexpr double Slack = 1.0e-12;
+
+  // The bounds of the patch of buckets of a level around Center, enlarged by
+  // Delta (grow), or shrunk by it.
+  void GetPatchBounds(int level, bool grow, double lo[2], double hi[2]) const
+  {
+    for (int i = 0; i < 2; ++i)
+    {
+      const double margin = grow ? this->Delta[i] : -this->Delta[i];
+      lo[i] = this->Bins->Bounds[2 * i] + (this->Center[i] - level) * this->Bins->H[i] - margin;
+      hi[i] = this->Bins->Bounds[2 * i] + (this->Center[i] + level + 1) * this->Bins->H[i] + margin;
+    }
+  }
+
+  // The squared distance from c to the farthest point of a box.
+  static double FarDist2(const double lo[2], const double hi[2], const double* c)
+  {
+    double d2 = 0.0;
+    for (int i = 0; i < 2; ++i)
+    {
+      const double d = std::max(c[i] - lo[i], hi[i] - c[i]);
+      d2 += d * d;
+    }
+    return d2;
+  }
+
+  // Whether some bucket of the current level can be within dist2 of X: they
+  // are outside of the patch of the previous level, on the sides that still
+  // have buckets. Their points may be up to Delta inside of it: the patch is
+  // shrunk.
+  bool Reaches(double dist2) const
+  {
+    if (this->Level == 0)
+    {
+      return true;
+    }
+    double lo[2], hi[2];
+    this->GetPatchBounds(this->Level - 1, false, lo, hi);
+    double minD2 = VTK_DOUBLE_MAX;
+    for (int i = 0; i < 2; ++i)
+    {
+      if (this->Center[i] - this->Level >= 0)
+      {
+        const double d = std::max(this->X[i] - lo[i], 0.0);
+        minD2 = std::min(d * d, minD2);
+      }
+      if (this->Center[i] + this->Level < this->Bins->Divisions[i])
+      {
+        const double d = std::max(hi[i] - this->X[i], 0.0);
+        minD2 = std::min(d * d, minD2);
+      }
+    }
+    return minD2 < VTK_DOUBLE_MAX && minD2 * (1.0 - Slack) <= dist2;
+  }
+
+  // The squared distance from c to the nearest point of a box.
+  static double NearDist2(const double lo[2], const double hi[2], const double* c)
+  {
+    double d2 = 0.0;
+    for (int i = 0; i < 2; ++i)
+    {
+      const double d = std::max({ lo[i] - c[i], c[i] - hi[i], 0.0 });
+      d2 += d * d;
+    }
+    return d2;
+  }
+
   BucketList2D<TIds>* Bins;
-  int Divs[2];          // Locator divisions
-  double R;             // Bin circumradius
-  int Level;            // The level of iterator expansion, level==0 is center
-  double X[2];          // The center of the iterator in physical space
-  int Center[2];        // The center of the iterator in index space
-  vtkIdType NumCircles; // The number of inclusive circles
-  double* Circles;      // The circles, 3 tuples with (x,y,r2)
-
-  // Keep track of iteration
-  int I, J;
-  int Min[2], Max[2];
-
-  // Use to enable / disable bin culling
-  int LEVEL_QUERY_THRESHOLD = 4;
-
-  AnnulusIterator(vtkDataSet* ds, BucketList2D<TIds>* bins, int divs[2], double binCircumRadius,
-    vtkDoubleArray* circles, const double x[2], int center[2])
-    : DataSet(ds)
-    , FastPoints(bins->FastPoints)
-    , Bins(bins)
-    , Divs{ divs[0], divs[1] }
-    , R(binCircumRadius)
-    , X{ x[0], x[1] }
-    , Center{ center[0], center[1] }
-    , NumCircles(0)
-    , Circles(nullptr)
-  {
-    if (circles)
-    {
-      this->NumCircles = circles->GetNumberOfTuples();
-      this->Circles = circles->GetPointer(0);
-    }
-  }
-
-  // Fast path for double points.
-  double* GetPoint(vtkIdType ptId) { return (this->FastPoints + 3 * ptId); }
-
-  // Initialize iterator and return starting bin idx. Also return the
-  // starting level of iteration (i.e., non-zero minR2 means that
-  // some inner bins may be skipped).
-  vtkIdType Initialize(int level, int& i, int& j)
-  {
-    // Prepare for traversal at level > 0
-    this->Level = level;
-
-    // Set the extents
-    for (int ii = 0; ii < 2; ++ii)
-    {
-      this->Min[ii] = this->Center[ii] - level;
-      this->Max[ii] = this->Center[ii] + level;
-      this->Min[ii] = this->Min[ii] < 0 ? 0 : this->Min[ii];
-      this->Max[ii] = this->Max[ii] >= this->Divs[ii] ? this->Divs[ii] - 1 : this->Max[ii];
-    }
-
-    // Initial iteration position
-    this->I = this->Min[0];
-    this->J = this->Min[1];
-
-    // Fast path for the common case level==0
-    if (level <= 0)
-    {
-      return (this->I + this->J * this->Divs[0]);
-    }
-
-    // Begin iteration until first bin on the annulus is discovered.
-    for (this->J = this->Min[1]; this->J <= this->Max[1]; ++this->J)
-    {
-      const vtkIdType jOffset = this->J * this->Divs[0];
-      const int jmCenter = std::abs(this->J - this->Center[1]);
-      for (this->I = this->Min[0]; this->I <= this->Max[0]; ++this->I)
-      {
-        const int imCenter = std::abs(this->I - this->Center[0]);
-        // We are iterating over the annulus at current level. The annulus
-        // circle requires one of I,J to have a value == level.
-        if (imCenter == this->Level || jmCenter == this->Level)
-        {
-          i = this->I;
-          j = this->J;
-          return (this->I + jOffset);
-        }
-      } // over I
-    } // over J
-
-    i = j = (-1);
-    return -1;
-  }
-
-  // Return the next bin in the iteration sequence over the annulus at the
-  // current level.
-  vtkIdType NextBin(int& i, int& j)
-  {
-    // There is no next bin at level 0
-    if (this->Level <= 0)
-    {
-      i = j = (-1);
-      return (-1);
-    }
-
-    // Begin iteration until a bin on the annulus is discovered. Note that
-    // I,J should have been previously set. However, we need to move to the
-    // next possible bin, meaning incrementing I,J.
-    while (this->J <= this->Max[1])
-    {
-      // Forward increment
-      this->I++;
-      if (this->I > this->Max[0])
-      {
-        this->I = this->Min[0];
-        this->J++;
-      }
-      // Check if on annulus boundary
-      if (this->J <= this->Max[1] &&
-        (this->I == (this->Center[0] + this->Level) || this->I == (this->Center[0] - this->Level) ||
-          this->J == (this->Center[1] + this->Level) || this->J == (this->Center[1] - this->Level)))
-      {
-        i = this->I;
-        j = this->J;
-        return (this->I + this->J * this->Divs[0]);
-      }
-    }
-
-    // Completed traversal
-    i = j = (-1);
-    return (-1); // nothing found
-  }
-
-  // Return true if the bin can be culled: if the bin specified by
-  // (i,j) is completely outside of the annulus request; and completely
-  // outside any of the optional circle petals, then the bin can be
-  // eliminated from further processing. Otherwise, false is returned.
-  bool CanCullBin(bool gathering, double minR2, double maxR2, int i, int j, int level)
-  {
-    // Bin culling is generally not worth it for smaller levels.
-    // If seeking the maxR2, need to examine all of the bins.
-    if (level < this->LEVEL_QUERY_THRESHOLD || gathering)
-    {
-      return false;
-    }
-
-    // Obtain the bucket bounding box
-    double min[3], max[3];
-    this->Bins->GetBucketBounds(i, j, min, max);
-
-    // Cull the bin if fully outside the (minR2,maxR2] footprint.
-    // Greater than the annulus request outer radius, and maxR2 determined.
-    if (!IntersectsCircle(min, max, this->X, maxR2))
-    {
-      return true;
-    }
-
-    // If strictly less than the annulus request inner radius,
-    // minR2 is always known.
-    if (InsideCircle(min, max, this->X, minR2))
-    {
-      return true;
-    }
-
-    // At this point, the bin overlaps the shell request. Cull the bin if not
-    // in any of the provided Voronoi tile circles (petals).
-    if (this->NumCircles > 0)
-    {
-      const double* circle = this->Circles;
-      for (int cNum = 0; cNum < this->NumCircles; ++cNum, circle += 3)
-      {
-        if (IntersectsCircle(min, max, circle, circle[2]))
-        {
-          return false;
-        }
-      }
-      return true; // not in any Voronoi flower petal
-    }
-
-    // The bin cannot be culled.
-    return false;
-  }
-
-  // Gather nearby points in the bin binIdx. Initially, we gather N points
-  // in order to define the circle S with center x and radius**2 maxR2.
-  // Then, after N points are defined, switch the gathering mode to all points
-  // in the circle (inclusive). Points are placed into the results vector,
-  // maxR2 is updated and returned.
-  double GatherPoints(int i, int j, vtkIdType binIdx, int level, int N, double minR2, double maxR2,
-    vtkDist2TupleArray& res)
-  {
-    bool gathering = true;
-
-    vtkIdType numIds = this->Bins->GetNumberOfIds(binIdx);
-    if (numIds <= 0 || this->CanCullBin(gathering, minR2, maxR2, i, j, level))
-    {
-      return maxR2;
-    }
-
-    const vtkLocatorTuple<TIds>* ids = this->Bins->GetIds(binIdx);
-    double* pt;
-    for (vtkIdType ii = 0; ii < numIds; ++ii)
-    {
-      vtkIdType ptId = ids[ii].PtId;
-      pt = this->GetPoint(ptId);
-      double d2 = Distance2BetweenPoints2D(this->X, pt);
-      if (d2 > minR2) // not culled by minimum annulus radius
-      {
-        // If not yet found N points, maxR2 may still be increasing
-        if (static_cast<int>(res.size()) < N)
-        {
-          res.emplace_back(vtkDist2Tuple(ptId, d2));
-          maxR2 = (d2 > maxR2 ? d2 : maxR2);
-        }
-        // maxR2 is determined, so gather points in circle
-        else if (d2 <= maxR2)
-        {
-          gathering = false;
-          res.emplace_back(vtkDist2Tuple(ptId, d2));
-        }
-      } // if potential candidate
-    } // for all points in this bin
-
-    return maxR2;
-  }
-
-  // Add points in the bin binIdx. Like GatherPoints(), except at this point
-  // maxR2 has been determined. Also will cull entire bins if they are not
-  // within the (minR2,MaxR2] query footprint.
-  void AddPoints(
-    int i, int j, vtkIdType binIdx, int level, double minR2, double maxR2, vtkDist2TupleArray& res)
-  {
-    bool gathering = false;
-
-    // If there is nothing in the bin, or the bin is outside of the
-    // search annulus, skip processing the bin.
-    vtkIdType numIds = this->Bins->GetNumberOfIds(binIdx);
-    if (numIds <= 0 || this->CanCullBin(gathering, minR2, maxR2, i, j, level))
-    {
-      return;
-    }
-
-    // Okay, process the points in the bin.
-    const vtkLocatorTuple<TIds>* ids = this->Bins->GetIds(binIdx);
-    double* pt;
-    for (vtkIdType ii = 0; ii < numIds; ++ii)
-    {
-      vtkIdType ptId = ids[ii].PtId;
-      pt = this->GetPoint(ptId);
-      double d2 = Distance2BetweenPoints2D(this->X, pt);
-      if (d2 > minR2 && d2 <= maxR2)
-      {
-        res.emplace_back(ptId, d2);
-      } // if within annulus footprint
-    } // for all points in this bin
-  }
-}; // AnnulusIterator
-
+  const double* X;
+  double MinDist2;
+  vtkIdType NumPetals;
+  const double* Petals;
+  double Reach2 = VTK_DOUBLE_MAX;
+  int Center[2];
+  double Delta[2];
+  int Level = 0; // the next level to visit
+  vtkBucketPatchIterator Patches;
+};
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
-// This algorithm works by grabbing the first N points it finds (using an
-// expanding wave across nearby bins so this initial set of points is
-// reasonably close to the query point). This operation also determines a
-// maximum maxR2 defining the radius of the initial nearby set around the query
-// point. Then, resuming the traversal after grabbing this initial set of >=N
-// points, all remaining points whose dist2 <= maxR2 are added to the results
-// list.  Finally, if requested a radial sort operation is performed if
-// requested. The optional circles parameter can be used to cull bins outside
-// of the circles.
+// The N nearest valid points (farther than minDist2, and inside (or on) one of
+// the petals), and those tied with the N-th one, in a single visit of the
+// buckets: the levels of buckets around x are gathered until they hold N valid
+// points, whose N-th nearest bounds the distance of the N-th nearest valid
+// point of all. The next levels are then only gathered up to that distance,
+// and that point is the N-th nearest of all the points gathered.
 template <typename TIds>
-double BucketList2D<TIds>::FindNPointsInAnnulus(int N, const double x[3],
-  vtkDist2TupleArray& results, double minR2, bool sort, vtkDoubleArray* circles)
+double BucketList2D<TIds>::FindNPointsInShell(int N, const double x[3], vtkDist2TupleArray& results,
+  double minDist2, bool sort, vtkDoubleArray* petals)
 {
-  // Clear out any previous results
   results.clear();
-
-  // Find the bucket the point is in. This is the center of the request
-  // footprint.
-  int center[2];
-  this->GetBucketIndices(x, center);
-
-  // Traverse and gather points in the bucket/bins contained in the annulus
-  // request. We hold the information in the results vector.
-  double minR = sqrt(minR2);
-  double maxR = 0, maxR2 = 0;
-
-  // Determine absolue limits of iteration (based on possible number of points).
-  vtkIdType numPts = this->DataSet->GetNumberOfPoints();
-  N = (numPts < N ? numPts : N);
-
-  // Gather N points if possible and determine maxR2. Make sure all points
-  // within maxR2 have been found. We use a annulus iterator to grow a
-  // "rectangular" annulus from the center bin. Skip over bins inside the
-  // inner radius minR2. The bin index is updated during iteration,  binIdx<0
-  // is returned when the iteration is exhausted.
-  vtkIdType binIdx;
-  int currentLevel = (minR <= 0 ? 0 : static_cast<int>(std::floor(minR / (2.0 * this->BinRadius))));
-  AnnulusIterator<TIds> aiter(
-    this->DataSet, this, this->Divisions, this->BinRadius, circles, x, center);
-
-  // Loop across levels, gathering points as we go. This will determine the maxR2. It also
-  // carves out some inner levels (based on current level) that do not have to be revisited.
-  while (static_cast<int>(results.size()) < N && currentLevel < this->MaxLevel)
+  if (N <= 0)
   {
-    int i, j;
-    binIdx = aiter.Initialize(currentLevel, i, j);
-    // Basically iterating over a "rectangular" footprint defined from
-    // the current level.
-    while (binIdx >= 0)
-    {
-      maxR2 = aiter.GatherPoints(i, j, binIdx, currentLevel, N, minR2, maxR2, results);
-      binIdx = aiter.NextBin(i, j);
-    }
-    ++currentLevel;
+    return 0.0;
   }
-  // Reset the level to the last successfully processed
-  int level = currentLevel - 1;
 
-  // We have determined maxR2 and ~N points in the request annulus
-  // (minR2 < p_d2 <= maxR2). Now gather any other remaining points
-  // within the request. It's typical that the number of points
-  // returned is >N.
-  maxR = sqrt(maxR2);
-
-  // Determine the range of indices in each direction based on radius maxR.
-  // This block of bins is processed to gather any additional points with
-  // radius <=maxR2.
-  double xMin[2], xMax[2];
-  xMin[0] = x[0] - maxR;
-  xMin[1] = x[1] - maxR;
-  xMax[0] = x[0] + maxR;
-  xMax[1] = x[1] + maxR;
-
-  // Find the rectangular footprint in the locator
-  int ijMin[2], ijMax[2];
-  this->GetBucketIndices(xMin, ijMin);
-  this->GetBucketIndices(xMax, ijMax);
-
-  // Add points within the footprint (defined by (center,level) and the
-  // annulus (minR2,maxR2].  Points within the (center+level)
-  // footprint have already been processed, so don't add them again.
-  vtkIdType jOffset;
-  vtkIdType icmLevel = (center[0] - level), icpLevel = (center[0] + level);
-  vtkIdType jcmLevel = (center[1] - level), jcpLevel = (center[1] + level);
-  for (int j = ijMin[1]; j <= ijMax[1]; ++j)
+  vtkBucketShell2D<TIds> shell(this, x, minDist2, petals);
+  const std::size_t numPoints = static_cast<std::size_t>(N);
+  shell.Gather(VTK_DOUBLE_MAX, numPoints, results);
+  if (results.empty())
   {
-    jOffset = j * this->xD;
-    for (int i = ijMin[0]; i <= ijMax[0]; ++i)
-    {
-      // Any bin outside the level processed earlier should be visited.
-      if ((i > icpLevel || i < icmLevel) || (j > jcpLevel || j < jcmLevel))
-      {
-        binIdx = i + jOffset;
-        aiter.AddPoints(i, j, binIdx, level, minR2, maxR2, results);
-      }
-    } // i-footprint
-  } // j-footprint
+    return 0.0;
+  }
 
-  // Sort if requested
+  // The N-th nearest point, or the farthest if there are fewer than N.
+  const std::size_t nth = std::min(numPoints, results.size()) - 1;
+  std::nth_element(results.begin(), results.begin() + nth, results.end());
+  if (results.size() >= numPoints)
+  {
+    const std::size_t numGathered = results.size();
+    shell.Gather(results[nth].Dist2, std::numeric_limits<std::size_t>::max(), results);
+    if (results.size() > numGathered)
+    {
+      std::nth_element(results.begin(), results.begin() + nth, results.end());
+    }
+  }
+  const double maxDist2 = results[nth].Dist2;
+  results.erase(std::remove_if(results.begin(), results.end(),
+                  [maxDist2](const vtkDist2Tuple& t) { return t.Dist2 > maxDist2; }),
+    results.end());
   if (sort)
   {
     std::sort(results.begin(), results.end());
   }
-
-  return maxR2;
+  return maxDist2;
 }
 
 //------------------------------------------------------------------------------
 // Gather the points of the buckets overlapping the annulus (minDist2, maxDist2]
 // around x, and inside at least one of the petals, with the distances in the
-// x-y plane. The buckets are visited in patches of increasing levels around
-// the bucket of x (see vtkBucketPatchIterator), from the first patch not
-// inside the inner circle to the last one reaching the outer circle.
+// x-y plane (see vtkBucketShell2D).
 template <typename TIds>
 void BucketList2D<TIds>::FindPointsInShell(const double x[3], vtkDist2TupleArray& results,
   double minDist2, double maxDist2, bool sort, vtkDoubleArray* petals)
@@ -973,165 +870,8 @@ void BucketList2D<TIds>::FindPointsInShell(const double x[3], vtkDist2TupleArray
     return;
   }
 
-  // The points are assigned to the buckets with GetBucketIndices(), which may
-  // round differently from the bucket bounds: the buckets are tested enlarged
-  // by delta, and with a relative slack on the squared distances.
-  double delta[2];
-  for (int i = 0; i < 2; ++i)
-  {
-    delta[i] = 1.0e-6 * this->H[i] +
-      1.0e-14 * (std::abs(this->Bounds[2 * i]) + std::abs(this->Bounds[2 * i + 1]));
-  }
-  constexpr double slack = 1.0e-12;
-  auto nearDist2 = [](const double lo[2], const double hi[2], const double* c)
-  {
-    double d2 = 0.0;
-    for (int i = 0; i < 2; ++i)
-    {
-      const double d = std::max({ lo[i] - c[i], c[i] - hi[i], 0.0 });
-      d2 += d * d;
-    }
-    return d2;
-  };
-  auto farDist2 = [](const double lo[2], const double hi[2], const double* c)
-  {
-    double d2 = 0.0;
-    for (int i = 0; i < 2; ++i)
-    {
-      const double d = std::max(c[i] - lo[i], hi[i] - c[i]);
-      d2 += d * d;
-    }
-    return d2;
-  };
-
-  int center[2];
-  this->GetBucketIndices(x, center);
-  // The bounds of the patch of buckets of a level around center, enlarged by
-  // delta (grow), or shrunk by it.
-  auto patchBounds = [this, &center, &delta](int level, bool grow, double lo[2], double hi[2])
-  {
-    for (int i = 0; i < 2; ++i)
-    {
-      const double margin = grow ? delta[i] : -delta[i];
-      lo[i] = this->Bounds[2 * i] + (center[i] - level) * this->H[i] - margin;
-      hi[i] = this->Bounds[2 * i] + (center[i] + level + 1) * this->H[i] + margin;
-    }
-  };
-
-  // Skip the patches inside the inner circle: all their points are at most
-  // minDist2 away.
-  double lo[3], hi[3];
-  int level = 0;
-  for (; level <= this->MaxLevel; ++level)
-  {
-    patchBounds(level, true, lo, hi);
-    if (farDist2(lo, hi, x) * (1.0 + slack) > minDist2)
-    {
-      break;
-    }
-  }
-
-  // Each petal is a circle (x,y,r2).
-  const vtkIdType numPetals = petals ? petals->GetNumberOfTuples() : 0;
-  const double* petal0 = numPetals > 0 ? petals->GetPointer(0) : nullptr;
-  vtkBucketPatchIterator patches;
-  patches.Initialize(this->Divisions, this->MaxLevel);
-  double p[3];
-  for (; level <= this->MaxLevel; ++level)
-  {
-    // The buckets of this level are outside of the patch of the previous
-    // level, on the sides that still have buckets, and their points may be up
-    // to delta inside of it: the patch is shrunk. Stop when none of them can
-    // reach the outer circle.
-    if (level > 0)
-    {
-      patchBounds(level - 1, false, lo, hi);
-      bool hasBuckets = false;
-      double minD2 = VTK_DOUBLE_MAX;
-      for (int i = 0; i < 2; ++i)
-      {
-        if (center[i] - level >= 0)
-        {
-          hasBuckets = true;
-          const double d = std::max(x[i] - lo[i], 0.0);
-          minD2 = std::min(d * d, minD2);
-        }
-        if (center[i] + level < this->Divisions[i])
-        {
-          hasBuckets = true;
-          const double d = std::max(hi[i] - x[i], 0.0);
-          minD2 = std::min(d * d, minD2);
-        }
-      }
-      if (!hasBuckets || minD2 * (1.0 - slack) > maxDist2)
-      {
-        break;
-      }
-    }
-
-    for (vtkIdType bucket = patches.Begin(level, center); bucket >= 0; bucket = patches.Next())
-    {
-      const vtkIdType numIds = this->GetNumberOfIds(bucket);
-      if (numIds <= 0)
-      {
-        continue;
-      }
-
-      // Skip the buckets outside of the annulus, or outside of all the petals.
-      this->GetBucketBounds(patches.IJ[0], patches.IJ[1], lo, hi);
-      for (int c = 0; c < 2; ++c)
-      {
-        lo[c] -= delta[c];
-        hi[c] += delta[c];
-      }
-      if (nearDist2(lo, hi, x) * (1.0 - slack) > maxDist2 ||
-        farDist2(lo, hi, x) * (1.0 + slack) <= minDist2)
-      {
-        continue;
-      }
-      bool inPetals = (numPetals == 0);
-      const double* petal = petal0;
-      for (vtkIdType n = 0; n < numPetals && !inPetals; ++n, petal += 3)
-      {
-        inPetals = (nearDist2(lo, hi, petal) * (1.0 - slack) <= petal[2]);
-      }
-      if (!inPetals)
-      {
-        continue;
-      }
-
-      const vtkLocatorTuple<TIds>* ids = this->GetIds(bucket);
-      for (vtkIdType n = 0; n < numIds; ++n)
-      {
-        const vtkIdType ptId = ids[n].PtId;
-        const double* pt = p;
-        if (this->FastPoints)
-        {
-          pt = this->FastPoints + 3 * ptId;
-        }
-        else
-        {
-          this->DataSet->GetPoint(ptId, p);
-        }
-        const double d2 = Distance2BetweenPoints2D(pt, x);
-        if (d2 <= minDist2 || d2 > maxDist2)
-        {
-          continue;
-        }
-        bool inPetal = (numPetals == 0);
-        petal = petal0;
-        for (vtkIdType m = 0; m < numPetals && !inPetal; ++m, petal += 3)
-        {
-          inPetal = (Distance2BetweenPoints2D(pt, petal) <= petal[2]);
-        }
-        if (inPetal)
-        {
-          results.emplace_back(ptId, d2);
-        }
-      }
-    }
-  }
-
+  vtkBucketShell2D<TIds> shell(this, x, minDist2, petals);
+  shell.Gather(maxDist2, std::numeric_limits<std::size_t>::max(), results);
   if (sort)
   {
     std::sort(results.begin(), results.end());
@@ -2003,10 +1743,11 @@ void vtkStaticPointLocator2D::FindClosestNPoints(int N, const double x[3], vtkId
 }
 
 //------------------------------------------------------------------------------
-double vtkStaticPointLocator2D::FindNPointsInAnnulus(int N, const double x[3],
+double vtkStaticPointLocator2D::FindNPointsInShell(int N, const double x[3],
   vtkDist2TupleArray& results, double minDist2, bool sort, vtkDoubleArray* petals)
 {
   this->BuildLocator(); // will subdivide if modified; otherwise returns
+  results.clear();
   if (!this->Buckets)
   {
     return 0.0;
@@ -2015,13 +1756,20 @@ double vtkStaticPointLocator2D::FindNPointsInAnnulus(int N, const double x[3],
   if (this->LargeIds)
   {
     return static_cast<BucketList2D<vtkIdType>*>(this->Buckets)
-      ->FindNPointsInAnnulus(N, x, results, minDist2, sort, petals);
+      ->FindNPointsInShell(N, x, results, minDist2, sort, petals);
   }
   else
   {
     return static_cast<BucketList2D<int>*>(this->Buckets)
-      ->FindNPointsInAnnulus(N, x, results, minDist2, sort, petals);
+      ->FindNPointsInShell(N, x, results, minDist2, sort, petals);
   }
+}
+
+//------------------------------------------------------------------------------
+double vtkStaticPointLocator2D::FindNPointsInAnnulus(int N, const double x[3],
+  vtkDist2TupleArray& results, double minDist2, bool sort, vtkDoubleArray* petals)
+{
+  return this->FindNPointsInShell(N, x, results, minDist2, sort, petals);
 }
 
 //------------------------------------------------------------------------------

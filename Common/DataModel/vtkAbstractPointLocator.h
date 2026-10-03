@@ -100,6 +100,25 @@ public:
   ///@}
 
   /**
+   * Find the N nearest points which are strictly greater than minDist2 away
+   * from the query point x (minDist2 is the square of the distance; if
+   * minDist2==0.0, coincident points are excluded -- use a negative value to
+   * include them), optionally restricted to points inside (or on) at least one
+   * of the petals (see FindPointsInShell()), and return the squared radius
+   * maxDist2 of the shell holding them: the squared distance of the N-th
+   * nearest valid point, or of the farthest one if there are fewer than N. The
+   * points returned are exactly those of FindPointsInShell(x, results,
+   * minDist2, maxDist2, sort, petals): the N nearest valid points, and any
+   * other one tied with the N-th, so that a sequence of shells starting with
+   * this one returns every point once. Results are optionally sorted from
+   * closest to farthest. The default implementation gathers shells of
+   * FindPointsInShell() of growing radius until they hold N valid points;
+   * subclasses can find the points faster.
+   */
+  virtual double FindNPointsInShell(int N, const double x[3], vtkDist2TupleArray& results,
+    double minDist2 = -0.1, bool sort = true, vtkDoubleArray* petals = nullptr);
+
+  /**
    * Find all the points which are strictly greater than minDist2 and at most
    * maxDist2 away from the query point x (both are squares of distances; if
    * minDist2==0.0, coincident points are excluded -- use a negative value to

@@ -287,7 +287,7 @@ struct BucketList2D : public vtkBucketList2D
   vtkIdType FindClosestPointWithinRadius(
     double radius, const double x[3], double inputDataLength, double& dist2);
   void FindClosestNPoints(int N, const double x[3], vtkIdList* result);
-  double FindNPointsInAnnulus(int N, const double x[3], vtkDist2TupleArray& results,
+  double FindNPointsInShell(int N, const double x[3], vtkDist2TupleArray& results,
     double minDist2 = (-0.1), bool sort = true, vtkDoubleArray* petals = nullptr);
   void FindPointsInShell(const double x[3], vtkDist2TupleArray& results, double minDist2,
     double maxDist2, bool sort, vtkDoubleArray* petals);

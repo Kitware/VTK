@@ -121,6 +121,85 @@ void vtkAbstractPointLocator::FindPointsInShell(const double x[3], vtkDist2Tuple
 }
 
 //------------------------------------------------------------------------------
+// The shells of FindPointsInShell() are gathered, with radii growing from the
+// radius of a ball holding N points at the average density of the points, until
+// they hold N valid points or reach the farthest corner of the bounds, which
+// is not farther than any point. The N-th nearest valid point is then the N-th
+// nearest of the points gathered.
+double vtkAbstractPointLocator::FindNPointsInShell(int N, const double x[3],
+  vtkDist2TupleArray& results, double minDist2, bool sort, vtkDoubleArray* petals)
+{
+  results.clear();
+  const vtkIdType numPoints = this->DataSet ? this->DataSet->GetNumberOfPoints() : 0;
+  if (N <= 0 || numPoints < 1)
+  {
+    return 0.0;
+  }
+
+  // The ball is in as many dimensions as the bounds are not flat.
+  double bounds[6];
+  this->DataSet->GetBounds(bounds);
+  double reach2 = 0.0;
+  double volume = 1.0;
+  int dimension = 0;
+  for (int i = 0; i < 3; ++i)
+  {
+    const double d = std::max(x[i] - bounds[2 * i], bounds[2 * i + 1] - x[i]);
+    reach2 += d * d;
+    const double length = bounds[2 * i + 1] - bounds[2 * i];
+    if (length > 0.0)
+    {
+      volume *= length;
+      ++dimension;
+    }
+  }
+  const double unitBall[4] = { 1.0, 2.0, vtkMath::Pi(), 4.0 / 3.0 * vtkMath::Pi() };
+  const double ballRadius = dimension == 0
+    ? 0.0
+    : std::pow(N * volume / (numPoints * unitBall[dimension]), 1.0 / dimension);
+  const double minRadius = minDist2 > 0.0 ? std::sqrt(minDist2) : 0.0;
+
+  vtkDist2TupleArray shell;
+  double innerDist2 = minDist2;
+  for (double radius = ballRadius;; radius *= 2.0)
+  {
+    double outerDist2 = (minRadius + radius) * (minRadius + radius);
+    const bool last = !(outerDist2 < reach2) || radius <= 0.0;
+    if (last)
+    {
+      outerDist2 = reach2;
+    }
+    if (outerDist2 > innerDist2)
+    {
+      this->FindPointsInShell(x, shell, innerDist2, outerDist2, false, petals);
+      results.insert(results.end(), shell.begin(), shell.end());
+      innerDist2 = outerDist2;
+    }
+    if (last || results.size() >= static_cast<std::size_t>(N))
+    {
+      break;
+    }
+  }
+  if (results.empty())
+  {
+    return 0.0;
+  }
+
+  // The N-th nearest point, or the farthest if there are fewer than N.
+  const std::size_t nth = std::min(static_cast<std::size_t>(N), results.size()) - 1;
+  std::nth_element(results.begin(), results.begin() + nth, results.end());
+  const double maxDist2 = results[nth].Dist2;
+  results.erase(std::remove_if(results.begin(), results.end(),
+                  [maxDist2](const vtkDist2Tuple& t) { return t.Dist2 > maxDist2; }),
+    results.end());
+  if (sort)
+  {
+    std::sort(results.begin(), results.end());
+  }
+  return maxDist2;
+}
+
+//------------------------------------------------------------------------------
 void vtkAbstractPointLocator::GetBounds(double* bnds)
 {
   for (int i = 0; i < 6; i++)

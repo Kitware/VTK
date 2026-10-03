@@ -147,26 +147,19 @@ public:
   void FindClosestNPoints(int N, const double x[3], vtkIdList* result) override;
 
   /**
-   * Find approximately N close points which are strictly greater than
-   * >minDist2 away from the query point x (minDist2 is the square of the
-   * distance). (Note: if minDist2==0.0, then no points coincident to x are
-   * returned. To obtain coincident points, set minDist2<0.) The number of
-   * points returned may != N either because there are fewer than N points in
-   * the locator, the query region >minDist2 defines a subset of <N points,
-   * or >N points may be returned because 1) its computationally simpler to
-   * do so, and 2) *all* points of distance maxDist2 are returned. The method
-   * returns the maximum distance squared (maxDist2) of the points, the point
-   * ids in the vtkIdList result, and the point's r**2 from x in radii2.
-   * Optionally, the points can be sorted by distance from the query point
-   * (sorted from closest to farthest).  This method is thread safe if
+   * Find the N nearest points which are strictly greater than minDist2 away
+   * from the query point x, optionally restricted to the petals, and return
+   * the squared radius maxDist2 of the shell holding them, the squared
+   * distance of the N-th nearest one. See
+   * vtkAbstractPointLocator::FindNPointsInShell(): the points returned are
+   * those of FindPointsInShell() up to maxDist2. The bins are visited in
+   * levels around x until they hold N valid points, and then only up to the
+   * distance of the N-th nearest of these. This method is thread safe if
    * BuildLocator() is directly or indirectly called from a single thread
-   * first. Finally, a powerful feature of this method in that it's possible
-   * to identify disjoint sets of points within nested spherical shells,
-   * with optional spherical petals. (The petals are represented by a
-   * four tuple of (x,y,z,r2).)
+   * first.
    */
   double FindNPointsInShell(int N, const double x[3], vtkDist2TupleArray& results,
-    double minDist2 = (-0.1), bool sort = true, vtkDoubleArray* petals = nullptr);
+    double minDist2 = (-0.1), bool sort = true, vtkDoubleArray* petals = nullptr) override;
 
   /**
    * Find all the points which are strictly greater than minDist2 and at most

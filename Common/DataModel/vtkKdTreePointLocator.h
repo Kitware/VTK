@@ -80,6 +80,20 @@ public:
   void FindPointsWithinRadius(double R, const double x[3], vtkIdList* result) override;
 
   /**
+   * Find the N nearest points which are strictly greater than minDist2 away
+   * from the query point x, optionally restricted to the petals, and return
+   * the squared radius maxDist2 of the shell holding them, the squared
+   * distance of the N-th nearest one. See
+   * vtkAbstractPointLocator::FindNPointsInShell(): the points returned are
+   * those of FindPointsInShell() up to maxDist2. The kd-tree is traversed
+   * once, nearest children first, keeping the N nearest valid points so far.
+   * This method is thread safe if BuildLocator() is directly or indirectly
+   * called from a single thread first.
+   */
+  double FindNPointsInShell(int N, const double x[3], vtkDist2TupleArray& results,
+    double minDist2 = -0.1, bool sort = true, vtkDoubleArray* petals = nullptr) override;
+
+  /**
    * Find all the points which are strictly greater than minDist2 and at most
    * maxDist2 away from the query point x, optionally restricted to points
    * inside (or on) at least one of the petals, and optionally sorted. See

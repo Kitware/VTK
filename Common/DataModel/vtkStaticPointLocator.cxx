@@ -27,6 +27,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -646,405 +647,274 @@ void BucketList<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList* r
   }
 }
 
-namespace // anonymous
-{
 //------------------------------------------------------------------------------
-// These classes and methods are in support of FindNPointsInShell().
-
-// Iterate over the boundary shell of a footprint of bins. Takes into account
-// both the inner and outer radius, i.e. culling bins that are not within the
-// request shell. It also uses the optional (Voronoi flower) spheres to further
-// cull the iteration process.
-template <typename TIds>
-struct ShellIterator
+namespace
 {
-  vtkDataSet* DataSet; // access dataset points
-  double* FastPoints;  // fast path for points access
-  BucketList<TIds>* Bins;
-  int Divs[3];          // Locator divisions
-  vtkIdType Slice;      // k-plane offsets
-  double R;             // bin circumradius
-  int Level;            // The level of iterator expansion, level==0 is center
-  double X[3];          // The center of the iterator in physical space
-  int Center[3];        // The center of the iterator in index space
-  vtkIdType NumSpheres; // The number of inclusive spheres
-  double* Spheres;      // The spheres, 4 tuples with (x,y,z,r2)
-
-  // Keep track of iteration
-  int I, J, K;
-  int Min[3], Max[3];
-
-  // Use to enable / disable bin culling
-  int LEVEL_QUERY_THRESHOLD = 3;
-
-  ShellIterator(vtkDataSet* ds, BucketList<TIds>* bins, int divs[3], double binCircumRadius,
-    vtkDoubleArray* spheres, const double x[3], int center[3])
-    : DataSet(ds)
-    , FastPoints(bins->FastPoints)
-    , Bins(bins)
-    , Divs{ divs[0], divs[1], divs[2] }
-    , R(binCircumRadius)
-    , X{ x[0], x[1], x[2] }
-    , Center{ center[0], center[1], center[2] }
-    , NumSpheres(0)
-    , Spheres(nullptr)
+// The buckets overlapping a shell (MinDist2, maxDist2] around X, and at least
+// one of the petals, visited in blocks of increasing levels around the bucket
+// of X (see vtkBucketBlockIterator), from the first block not inside the inner
+// sphere. The points are assigned to the buckets with GetBucketIndices(), which
+// may round differently from the bucket bounds: the buckets are tested
+// enlarged by Delta, and with a relative slack on the squared distances.
+template <typename TIds>
+class vtkBucketShell
+{
+public:
+  vtkBucketShell(BucketList<TIds>* bins, const double x[3], double minDist2, vtkDoubleArray* petals)
+    : Bins(bins)
+    , X(x)
+    , MinDist2(minDist2)
+    , NumPetals(petals ? petals->GetNumberOfTuples() : 0)
+    , Petals(this->NumPetals > 0 ? petals->GetPointer(0) : nullptr)
   {
-    this->Slice = this->Divs[0] * this->Divs[1];
-    if (spheres)
+    bins->GetBucketIndices(x, this->Center);
+    for (int i = 0; i < 3; ++i)
     {
-      this->NumSpheres = spheres->GetNumberOfTuples();
-      this->Spheres = spheres->GetPointer(0);
+      this->Delta[i] = 1.0e-6 * bins->H[i] +
+        1.0e-14 * (std::abs(bins->Bounds[2 * i]) + std::abs(bins->Bounds[2 * i + 1]));
     }
+
+    // A valid point is inside (or on) a petal, so it is at most Reach2 away.
+    if (this->NumPetals > 0)
+    {
+      double reach = 0.0;
+      for (vtkIdType m = 0; m < this->NumPetals; ++m)
+      {
+        const double* petal = this->Petals + 4 * m;
+        reach = std::max(
+          reach, std::sqrt(vtkMath::Distance2BetweenPoints(x, petal)) + std::sqrt(petal[3]));
+      }
+      this->Reach2 = reach * reach;
+    }
+
+    // Skip the blocks inside the inner sphere: all their points are at most
+    // MinDist2 away.
+    double lo[3], hi[3];
+    for (; this->Level <= bins->MaxLevel; ++this->Level)
+    {
+      this->GetBlockBounds(this->Level, true, lo, hi);
+      if (FarDist2(lo, hi, x) * (1.0 + Slack) > minDist2)
+      {
+        break;
+      }
+    }
+    this->Blocks.Initialize(bins->Divisions, bins->MaxLevel);
   }
 
-  // Fast path for double points.
-  double* GetPoint(vtkIdType ptId) { return (this->FastPoints + 3 * ptId); }
-
-  // Initialize iterator and return starting bin idx (also the starting bin
-  // (i,j,k). Return the starting level of iteration (i.e., non-zero minR2
-  // means that some inner bins may be skipped, and the level>0).
-  vtkIdType Initialize(int level, int& i, int& j, int& k)
+  // Add to results the valid points (in the shell up to maxDist2, and inside
+  // or on a petal) of the next levels, until the next level is entirely beyond
+  // maxDist2 or the petals, or until results holds at least minSize points.
+  // The next call continues with the next level.
+  void Gather(double maxDist2, std::size_t minSize, vtkDist2TupleArray& results)
   {
-    // Prepare for traversal at level >= 0
-    this->Level = level;
-
-    // Set the extents
-    for (int ii = 0; ii < 3; ++ii)
+    BucketList<TIds>* bins = this->Bins;
+    // The members used per point, as locals: results may alias them.
+    const double* x = this->X;
+    const double minDist2 = this->MinDist2;
+    const vtkIdType numPetals = this->NumPetals;
+    const double* petals = this->Petals;
+    const double* fastPoints = bins->FastPoints;
+    double lo[3], hi[3], p[3];
+    for (; this->Level <= bins->MaxLevel; ++this->Level)
     {
-      this->Min[ii] = this->Center[ii] - level;
-      this->Max[ii] = this->Center[ii] + level;
-      this->Min[ii] = this->Min[ii] < 0 ? 0 : this->Min[ii];
-      this->Max[ii] = this->Max[ii] >= this->Divs[ii] ? this->Divs[ii] - 1 : this->Max[ii];
-    }
-
-    // Initial iteration position
-    this->I = this->Min[0];
-    this->J = this->Min[1];
-    this->K = this->Min[2];
-
-    // Fast path for the common case level==0
-    if (level <= 0)
-    {
-      i = this->I;
-      j = this->J;
-      k = this->K;
-      return (this->I + (this->J * this->Divs[0]) + (this->K * this->Slice));
-    }
-
-    // Begin iteration until first bin on the shell is discovered.
-    for (this->K = this->Min[2]; this->K <= this->Max[2]; ++this->K)
-    {
-      const vtkIdType kOffset = this->K * this->Slice;
-      const int kmCenter = std::abs(this->K - this->Center[2]);
-      for (this->J = this->Min[1]; this->J <= this->Max[1]; ++this->J)
+      if (results.size() >= minSize || !this->Reaches(std::min(maxDist2, this->Reach2)))
       {
-        const vtkIdType jOffset = this->J * this->Divs[0];
-        const int jmCenter = std::abs(this->J - this->Center[1]);
-        for (this->I = this->Min[0]; this->I <= this->Max[0]; ++this->I)
+        return;
+      }
+
+      for (vtkIdType bucket = this->Blocks.Begin(this->Level, this->Center); bucket >= 0;
+           bucket = this->Blocks.Next())
+      {
+        const vtkIdType numIds = bins->GetNumberOfIds(bucket);
+        if (numIds <= 0)
         {
-          const int imCenter = std::abs(this->I - this->Center[0]);
-          // We are iterating over the shell at current level. The shell
-          // surface requires one of I,J,K to have a value == level.
-          if (imCenter == this->Level || jmCenter == this->Level || kmCenter == this->Level)
+          continue;
+        }
+
+        // Skip the buckets outside of the shell, or outside of all the petals.
+        bins->GetBucketBounds(
+          this->Blocks.IJK[0], this->Blocks.IJK[1], this->Blocks.IJK[2], lo, hi);
+        for (int c = 0; c < 3; ++c)
+        {
+          lo[c] -= this->Delta[c];
+          hi[c] += this->Delta[c];
+        }
+        if (NearDist2(lo, hi, x) * (1.0 - Slack) > maxDist2 ||
+          FarDist2(lo, hi, x) * (1.0 + Slack) <= minDist2)
+        {
+          continue;
+        }
+        bool inPetals = (numPetals == 0);
+        const double* petal = petals;
+        for (vtkIdType m = 0; m < numPetals && !inPetals; ++m, petal += 4)
+        {
+          inPetals = (NearDist2(lo, hi, petal) * (1.0 - Slack) <= petal[3]);
+        }
+        if (!inPetals)
+        {
+          continue;
+        }
+
+        const vtkLocatorTuple<TIds>* ids = bins->GetIds(bucket);
+        for (vtkIdType n = 0; n < numIds; ++n)
+        {
+          const vtkIdType ptId = ids[n].PtId;
+          const double* pt = p;
+          if (fastPoints)
           {
-            i = this->I;
-            j = this->J;
-            k = this->K;
-            return (this->I + jOffset + kOffset);
+            pt = fastPoints + 3 * ptId;
           }
-        } // over I
-      } // over J
-    } // over K
-
-    i = j = k = (-1);
-    return -1;
-  }
-
-  // Return the next bin in the iteration sequence over the shell at the
-  // current level. Also returns the (i,j,k) of the bin.
-  vtkIdType NextBin(int& i, int& j, int& k)
-  {
-    // There is no next bin at level 0
-    if (this->Level <= 0)
-    {
-      i = j = k = (-1);
-      return (-1);
-    }
-
-    // Begin iteration until a bin on the shell is discovered. Note that
-    // I,J,K should have been previously set. However, we need to move to the
-    // next possible bin, meaning incrementing I,J,K.
-    while (this->K <= this->Max[2])
-    {
-      // Forward increment
-      this->I++;
-      if (this->I > this->Max[0])
-      {
-        this->I = this->Min[0];
-        this->J++;
-        if (this->J > this->Max[1])
-        {
-          this->J = this->Min[1];
-          this->K++;
+          else
+          {
+            bins->DataSet->GetPoint(ptId, p);
+          }
+          const double d2 = vtkMath::Distance2BetweenPoints(pt, x);
+          if (d2 <= minDist2 || d2 > maxDist2)
+          {
+            continue;
+          }
+          bool inPetal = (numPetals == 0);
+          petal = petals;
+          for (vtkIdType m = 0; m < numPetals && !inPetal; ++m, petal += 4)
+          {
+            inPetal = (vtkMath::Distance2BetweenPoints(pt, petal) <= petal[3]);
+          }
+          if (inPetal)
+          {
+            results.emplace_back(ptId, d2);
+          }
         }
       }
-      // Check if on shell boundary
-      if (this->K <= this->Max[2] &&
-        (this->I == (this->Center[0] + this->Level) || this->I == (this->Center[0] - this->Level) ||
-          this->J == (this->Center[1] + this->Level) ||
-          this->J == (this->Center[1] - this->Level) ||
-          this->K == (this->Center[2] + this->Level) || this->K == (this->Center[2] - this->Level)))
-      {
-        i = this->I;
-        j = this->J;
-        k = this->K;
-        return (this->I + (this->J * this->Divs[0]) + (this->K * this->Slice));
-      }
     }
-
-    // Completed traversal
-    i = j = k = (-1);
-    return (-1);
   }
 
-  // Return true if the bin can be culled: if the bin specified by
-  // (i,j,k) is completely outside of the shell request; and completely
-  // outside any of the optional sphere petals, then the bin can be
-  // eliminated from further processing. Otherwise, false is returned.
-  bool CanCullBin(bool gathering, double minR2, double maxR2, int i, int j, int k, int level)
+private:
+  static constexpr double Slack = 1.0e-12;
+
+  // The bounds of the block of buckets of a level around Center, enlarged by
+  // Delta (grow), or shrunk by it.
+  void GetBlockBounds(int level, bool grow, double lo[3], double hi[3]) const
   {
-    // Bin culling is generally not worth it for smaller levels.
-    if (level < this->LEVEL_QUERY_THRESHOLD || gathering)
+    for (int i = 0; i < 3; ++i)
     {
-      return false;
+      const double margin = grow ? this->Delta[i] : -this->Delta[i];
+      lo[i] = this->Bins->Bounds[2 * i] + (this->Center[i] - level) * this->Bins->H[i] - margin;
+      hi[i] = this->Bins->Bounds[2 * i] + (this->Center[i] + level + 1) * this->Bins->H[i] + margin;
     }
+  }
 
-    // Obtain the bucket bounding box
-    double min[3], max[3];
-    this->Bins->GetBucketBounds(i, j, k, min, max);
+  // The squared distance from c to the farthest point of a box.
+  static double FarDist2(const double lo[3], const double hi[3], const double* c)
+  {
+    double d2 = 0.0;
+    for (int i = 0; i < 3; ++i)
+    {
+      const double d = std::max(c[i] - lo[i], hi[i] - c[i]);
+      d2 += d * d;
+    }
+    return d2;
+  }
 
-    // Cull the bin if fully outside the (minR2,maxR2] footprint.
-    // Greater than the shell request outer radius, and maxR2 determined.
-    if (!vtkBoundingBox::IntersectsSphere(min, max, this->X, maxR2))
+  // Whether some bucket of the current level can be within dist2 of X: they
+  // are outside of the block of the previous level, on the sides that still
+  // have buckets. Their points may be up to Delta inside of it: the block is
+  // shrunk.
+  bool Reaches(double dist2) const
+  {
+    if (this->Level == 0)
     {
       return true;
     }
-
-    // Strictly less than the shell request inner radius, minR2 is always known.
-    if (vtkBoundingBox::InsideSphere(min, max, this->X, minR2))
+    double lo[3], hi[3];
+    this->GetBlockBounds(this->Level - 1, false, lo, hi);
+    double minD2 = VTK_DOUBLE_MAX;
+    for (int i = 0; i < 3; ++i)
     {
-      return true;
-    }
-
-    // At this point, the bin overlaps the shell request. Cull the bin if not
-    // in any of the provided Voronoi hull spheres (petals).
-    if (this->NumSpheres > 0)
-    {
-      const double* sphere = this->Spheres;
-      for (int sNum = 0; sNum < this->NumSpheres; ++sNum, sphere += 4)
+      if (this->Center[i] - this->Level >= 0)
       {
-        if (vtkBoundingBox::IntersectsSphere(min, max, sphere, sphere[3]))
-        {
-          return false;
-        }
+        const double d = std::max(this->X[i] - lo[i], 0.0);
+        minD2 = std::min(d * d, minD2);
       }
-      return true; // not in any Voronoi flower petal
-    }
-
-    // The bin cannot be culled.
-    return false;
-  }
-
-  // Gather nearby points in the bin binIdx. Initially, we gather N points
-  // in order to define the sphere S with center x and radius**2 maxR2.
-  // Then, after N points are defined, switch the gathering mode to all points
-  // in S (inclusive).  Points are placed into the res results vector, maxR2
-  // is updated and returned.
-  double GatherPoints(int i, int j, int k, vtkIdType binIdx, int level, int N, double minR2,
-    double maxR2, vtkDist2TupleArray& res)
-  {
-    bool gathering = true;
-
-    vtkIdType numIds = this->Bins->GetNumberOfIds(binIdx);
-    if (numIds <= 0 || this->CanCullBin(gathering, minR2, maxR2, i, j, k, level))
-    {
-      return maxR2;
-    }
-
-    const vtkLocatorTuple<TIds>* ids = this->Bins->GetIds(binIdx);
-    double* pt;
-    for (vtkIdType ii = 0; ii < numIds; ++ii)
-    {
-      vtkIdType ptId = ids[ii].PtId;
-      pt = this->GetPoint(ptId);
-      double d2 = vtkMath::Distance2BetweenPoints(this->X, pt);
-      if (d2 > minR2) // not culled by minimum shell radius
+      if (this->Center[i] + this->Level < this->Bins->Divisions[i])
       {
-        // If not yet gathered N points, maxR2 may still be increasing
-        if (static_cast<int>(res.size()) < N)
-        {
-          res.emplace_back(ptId, d2);
-          maxR2 = (d2 > maxR2 ? d2 : maxR2);
-        }
-        // maxR2 is determined, so gather points in sphere
-        else if (d2 <= maxR2)
-        {
-          gathering = false;
-          res.emplace_back(ptId, d2);
-        }
-      } // if potential candidate
-    } // for all points in this bin
-
-    return maxR2;
-  }
-
-  // Add points in the bin binIdx. Like GatherPoints(), except at this point
-  // maxR2 has been determined. Also will cull entire bins if they are not
-  // within the (minR2,maxR2] query footprint.
-  void AddPoints(int i, int j, int k, vtkIdType binIdx, int level, double minR2, double maxR2,
-    vtkDist2TupleArray& res)
-  {
-    bool gathering = false;
-
-    // If there is nothing in the bin, or the bin is outside of the search space,
-    // skip processing the bin.
-    vtkIdType numIds = this->Bins->GetNumberOfIds(binIdx);
-    if (numIds <= 0 || this->CanCullBin(gathering, minR2, maxR2, i, j, k, level))
-    {
-      return;
+        const double d = std::max(hi[i] - this->X[i], 0.0);
+        minD2 = std::min(d * d, minD2);
+      }
     }
-
-    // Okay, process the points in the bin.
-    const vtkLocatorTuple<TIds>* ids = this->Bins->GetIds(binIdx);
-    double* pt;
-    for (vtkIdType ii = 0; ii < numIds; ++ii)
-    {
-      vtkIdType ptId = ids[ii].PtId;
-      pt = this->GetPoint(ptId);
-      double d2 = vtkMath::Distance2BetweenPoints(this->X, pt);
-      if (d2 > minR2 && d2 <= maxR2)
-      {
-        res.emplace_back(ptId, d2);
-      } // if within shell footprint
-    } // for all points in this bin
+    return minD2 < VTK_DOUBLE_MAX && minD2 * (1.0 - Slack) <= dist2;
   }
-}; // ShellIterator
 
+  // The squared distance from c to the nearest point of a box.
+  static double NearDist2(const double lo[3], const double hi[3], const double* c)
+  {
+    double d2 = 0.0;
+    for (int i = 0; i < 3; ++i)
+    {
+      const double d = std::max({ lo[i] - c[i], c[i] - hi[i], 0.0 });
+      d2 += d * d;
+    }
+    return d2;
+  }
+
+  BucketList<TIds>* Bins;
+  const double* X;
+  double MinDist2;
+  vtkIdType NumPetals;
+  const double* Petals;
+  double Reach2 = VTK_DOUBLE_MAX;
+  int Center[3];
+  double Delta[3];
+  int Level = 0; // the next level to visit
+  vtkBucketBlockIterator Blocks;
+};
 } // anonymous namespace
 
-//-----------------------------------------------------------------------------
-// This algorithm works by grabbing the first N points it finds (using an
-// expanding wave across nearby bins so this initial set of points is
-// reasonably close to the query point). This operation also determines a
-// maximum maxR2 defining the radius of the initial nearby set around the query
-// point. Then, resuming the traversal after grabbing this initial initial
-// set / N points, all remaining points whose dist2 <= maxR2 are added to
-// the results list.  A radial sort operation of the points is performed if
-// requested. Optional spheres can be used to that only data within them
-// are processed.
+//------------------------------------------------------------------------------
+// The N nearest valid points (farther than minDist2, and inside (or on) one of
+// the petals), and those tied with the N-th one, in a single visit of the
+// buckets: the levels of buckets around x are gathered until they hold N valid
+// points, whose N-th nearest bounds the distance of the N-th nearest valid
+// point of all. The next levels are then only gathered up to that distance,
+// and that point is the N-th nearest of all the points gathered.
 template <typename TIds>
 double BucketList<TIds>::FindNPointsInShell(int N, const double x[3], vtkDist2TupleArray& results,
-  double minR2, bool sort, vtkDoubleArray* spheres)
+  double minDist2, bool sort, vtkDoubleArray* petals)
 {
-  // Clear out any previous results.
   results.clear();
-
-  // Find the bucket/bin the point is in. This is the center of the request
-  // footprint.
-  int center[3];
-  this->GetBucketIndices(x, center);
-
-  // Traverse and gather points in the bucket/bins contained in the shell
-  // request (minR,maxR].
-  double minR = sqrt(minR2);
-  double maxR = 0, maxR2 = 0;
-
-  // Determine absolute limits of iteration (based on possible number of points).
-  vtkIdType numPts = this->DataSet->GetNumberOfPoints();
-  N = (numPts < N ? numPts : N);
-
-  // Gather N points if possible and determine maxR2. Make sure all points within maxR2
-  // have been found. We use a shell iterator to grow a "rectangular" shell from the center bin.
-  // Skip over bins inside the inner radius minR2. The bin index is updated during iteration,
-  // a binIdx<0 is returned when the iteration is exhausted.
-  vtkIdType binIdx;
-  int currentLevel = (minR <= 0 ? 0 : static_cast<int>(std::floor(minR / (2.0 * this->BinRadius))));
-  ShellIterator<TIds> siter(
-    this->DataSet, this, this->Divisions, this->BinRadius, spheres, x, center);
-
-  // Loop across levels, accruing points as we go. This will determine the maxR2. It also
-  // carves out some inner levels (based on current level) that do not have to be revisited.
-  while (static_cast<int>(results.size()) < N && currentLevel < this->MaxLevel)
+  if (N <= 0)
   {
-    int i, j, k;
-    binIdx = siter.Initialize(currentLevel, i, j, k);
-    // Basically iterating over a "rectangular" footprint defined from
-    // the current level.
-    while (binIdx >= 0)
-    {
-      maxR2 = siter.GatherPoints(i, j, k, binIdx, currentLevel, N, minR2, maxR2, results);
-      binIdx = siter.NextBin(i, j, k);
-    }
-    ++currentLevel;
+    return 0.0;
   }
-  int level = currentLevel - 1; // reset to the last level processed
 
-  // We have determined maxR2 and ~N points in the request annulus
-  // (minR2 < p_d2 <= maxR2). Now gather any other remaining points
-  // within the request. It's typical that the number of points
-  // returned is >N.
-  maxR = sqrt(maxR2);
-
-  // Determine the range of indices in each direction based on radius maxR.
-  // This block of bins is processed to gather any additional points with
-  // radius <=maxR2.
-  double xMin[3], xMax[3];
-  xMin[0] = x[0] - maxR;
-  xMin[1] = x[1] - maxR;
-  xMin[2] = x[2] - maxR;
-  xMax[0] = x[0] + maxR;
-  xMax[1] = x[1] + maxR;
-  xMax[2] = x[2] + maxR;
-
-  // Find the rectangular footprint in the locator
-  int ijkMin[3], ijkMax[3];
-  this->GetBucketIndices(xMin, ijkMin);
-  this->GetBucketIndices(xMax, ijkMax);
-
-  // Add points within the footprint (defined by (center,level) and the
-  // spherical shell request (minR2,maxR2] possibly cropped by the
-  // Voronoi flower petals.  Points within the (center+level)
-  // footprint have already been processed, so don't add them again.
-  vtkIdType jOffset, kOffset;
-  vtkIdType icmLevel = (center[0] - level), icpLevel = (center[0] + level);
-  vtkIdType jcmLevel = (center[1] - level), jcpLevel = (center[1] + level);
-  vtkIdType kcmLevel = (center[2] - level), kcpLevel = (center[2] + level);
-  for (int k = ijkMin[2]; k <= ijkMax[2]; ++k)
+  vtkBucketShell<TIds> shell(this, x, minDist2, petals);
+  const std::size_t numPoints = static_cast<std::size_t>(N);
+  shell.Gather(VTK_DOUBLE_MAX, numPoints, results);
+  if (results.empty())
   {
-    kOffset = k * this->xyD;
-    for (int j = ijkMin[1]; j <= ijkMax[1]; ++j)
-    {
-      jOffset = j * this->xD;
-      for (int i = ijkMin[0]; i <= ijkMax[0]; ++i)
-      {
-        // Any bin outside the level processed earlier should be visited.
-        if ((i > icpLevel || i < icmLevel) || (j > jcpLevel || j < jcmLevel) ||
-          (k > kcpLevel || k < kcmLevel))
-        {
-          binIdx = i + jOffset + kOffset;
-          siter.AddPoints(i, j, k, binIdx, level, minR2, maxR2, results);
-        }
-      } // i-footprint
-    } // j-footprint
-  } // k-footprint
+    return 0.0;
+  }
 
-  // Sort if requested
+  // The N-th nearest point, or the farthest if there are fewer than N.
+  const std::size_t nth = std::min(numPoints, results.size()) - 1;
+  std::nth_element(results.begin(), results.begin() + nth, results.end());
+  if (results.size() >= numPoints)
+  {
+    const std::size_t numGathered = results.size();
+    shell.Gather(results[nth].Dist2, std::numeric_limits<std::size_t>::max(), results);
+    if (results.size() > numGathered)
+    {
+      std::nth_element(results.begin(), results.begin() + nth, results.end());
+    }
+  }
+  const double maxDist2 = results[nth].Dist2;
+  results.erase(std::remove_if(results.begin(), results.end(),
+                  [maxDist2](const vtkDist2Tuple& t) { return t.Dist2 > maxDist2; }),
+    results.end());
   if (sort)
   {
     std::sort(results.begin(), results.end());
   }
-
-  return maxR2;
+  return maxDist2;
 }
 
 //------------------------------------------------------------------------------
@@ -1132,10 +1002,7 @@ void BucketList<TIds>::FindPointsWithinRadius(double R, const double x[3], vtkId
 
 //------------------------------------------------------------------------------
 // Gather the points of the buckets overlapping the shell (minDist2, maxDist2]
-// around x, and inside at least one of the petals. The buckets are visited in
-// blocks of increasing levels around the bucket of x (see
-// vtkBucketBlockIterator), from the first block not inside the inner sphere
-// to the last one reaching the outer sphere.
+// around x, and inside at least one of the petals (see vtkBucketShell).
 template <typename TIds>
 void BucketList<TIds>::FindPointsInShell(const double x[3], vtkDist2TupleArray& results,
   double minDist2, double maxDist2, bool sort, vtkDoubleArray* petals)
@@ -1146,164 +1013,8 @@ void BucketList<TIds>::FindPointsInShell(const double x[3], vtkDist2TupleArray& 
     return;
   }
 
-  // The points are assigned to the buckets with GetBucketIndices(), which may
-  // round differently from the bucket bounds: the buckets are tested enlarged
-  // by delta, and with a relative slack on the squared distances.
-  double delta[3];
-  for (int i = 0; i < 3; ++i)
-  {
-    delta[i] = 1.0e-6 * this->H[i] +
-      1.0e-14 * (std::abs(this->Bounds[2 * i]) + std::abs(this->Bounds[2 * i + 1]));
-  }
-  constexpr double slack = 1.0e-12;
-  auto nearDist2 = [](const double lo[3], const double hi[3], const double* c)
-  {
-    double d2 = 0.0;
-    for (int i = 0; i < 3; ++i)
-    {
-      const double d = std::max({ lo[i] - c[i], c[i] - hi[i], 0.0 });
-      d2 += d * d;
-    }
-    return d2;
-  };
-  auto farDist2 = [](const double lo[3], const double hi[3], const double* c)
-  {
-    double d2 = 0.0;
-    for (int i = 0; i < 3; ++i)
-    {
-      const double d = std::max(c[i] - lo[i], hi[i] - c[i]);
-      d2 += d * d;
-    }
-    return d2;
-  };
-
-  int center[3];
-  this->GetBucketIndices(x, center);
-  // The bounds of the block of buckets of a level around center, enlarged by
-  // delta (grow), or shrunk by it.
-  auto blockBounds = [this, &center, &delta](int level, bool grow, double lo[3], double hi[3])
-  {
-    for (int i = 0; i < 3; ++i)
-    {
-      const double margin = grow ? delta[i] : -delta[i];
-      lo[i] = this->Bounds[2 * i] + (center[i] - level) * this->H[i] - margin;
-      hi[i] = this->Bounds[2 * i] + (center[i] + level + 1) * this->H[i] + margin;
-    }
-  };
-
-  // Skip the blocks inside the inner sphere: all their points are at most
-  // minDist2 away.
-  double lo[3], hi[3];
-  int level = 0;
-  for (; level <= this->MaxLevel; ++level)
-  {
-    blockBounds(level, true, lo, hi);
-    if (farDist2(lo, hi, x) * (1.0 + slack) > minDist2)
-    {
-      break;
-    }
-  }
-
-  const vtkIdType numPetals = petals ? petals->GetNumberOfTuples() : 0;
-  const double* petal0 = numPetals > 0 ? petals->GetPointer(0) : nullptr;
-  vtkBucketBlockIterator blocks;
-  blocks.Initialize(this->Divisions, this->MaxLevel);
-  double p[3];
-  for (; level <= this->MaxLevel; ++level)
-  {
-    // The buckets of this level are outside of the block of the previous
-    // level, on the sides that still have buckets, and their points may be up
-    // to delta inside of it: the block is shrunk. Stop when none of them can
-    // reach the outer sphere.
-    if (level > 0)
-    {
-      blockBounds(level - 1, false, lo, hi);
-      bool hasBuckets = false;
-      double minD2 = VTK_DOUBLE_MAX;
-      for (int i = 0; i < 3; ++i)
-      {
-        if (center[i] - level >= 0)
-        {
-          hasBuckets = true;
-          const double d = std::max(x[i] - lo[i], 0.0);
-          minD2 = std::min(d * d, minD2);
-        }
-        if (center[i] + level < this->Divisions[i])
-        {
-          hasBuckets = true;
-          const double d = std::max(hi[i] - x[i], 0.0);
-          minD2 = std::min(d * d, minD2);
-        }
-      }
-      if (!hasBuckets || minD2 * (1.0 - slack) > maxDist2)
-      {
-        break;
-      }
-    }
-
-    for (vtkIdType bucket = blocks.Begin(level, center); bucket >= 0; bucket = blocks.Next())
-    {
-      const vtkIdType numIds = this->GetNumberOfIds(bucket);
-      if (numIds <= 0)
-      {
-        continue;
-      }
-
-      // Skip the buckets outside of the shell, or outside of all the petals.
-      this->GetBucketBounds(blocks.IJK[0], blocks.IJK[1], blocks.IJK[2], lo, hi);
-      for (int c = 0; c < 3; ++c)
-      {
-        lo[c] -= delta[c];
-        hi[c] += delta[c];
-      }
-      if (nearDist2(lo, hi, x) * (1.0 - slack) > maxDist2 ||
-        farDist2(lo, hi, x) * (1.0 + slack) <= minDist2)
-      {
-        continue;
-      }
-      bool inPetals = (numPetals == 0);
-      const double* petal = petal0;
-      for (vtkIdType n = 0; n < numPetals && !inPetals; ++n, petal += 4)
-      {
-        inPetals = (nearDist2(lo, hi, petal) * (1.0 - slack) <= petal[3]);
-      }
-      if (!inPetals)
-      {
-        continue;
-      }
-
-      const vtkLocatorTuple<TIds>* ids = this->GetIds(bucket);
-      for (vtkIdType n = 0; n < numIds; ++n)
-      {
-        const vtkIdType ptId = ids[n].PtId;
-        const double* pt = p;
-        if (this->FastPoints)
-        {
-          pt = this->FastPoints + 3 * ptId;
-        }
-        else
-        {
-          this->DataSet->GetPoint(ptId, p);
-        }
-        const double d2 = vtkMath::Distance2BetweenPoints(pt, x);
-        if (d2 <= minDist2 || d2 > maxDist2)
-        {
-          continue;
-        }
-        bool inPetal = (numPetals == 0);
-        petal = petal0;
-        for (vtkIdType m = 0; m < numPetals && !inPetal; ++m, petal += 4)
-        {
-          inPetal = (vtkMath::Distance2BetweenPoints(pt, petal) <= petal[3]);
-        }
-        if (inPetal)
-        {
-          results.emplace_back(ptId, d2);
-        }
-      }
-    }
-  }
-
+  vtkBucketShell<TIds> shell(this, x, minDist2, petals);
+  shell.Gather(maxDist2, std::numeric_limits<std::size_t>::max(), results);
   if (sort)
   {
     std::sort(results.begin(), results.end());
