@@ -16,6 +16,7 @@
 #include "vtkStaticPointLocator2D.h"
 #include "vtkStructuredGrid.h"
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <random>
@@ -292,9 +293,314 @@ int TestKdTreePointLocator()
   return rval;
 }
 
-// Brute-force validation of vtkStaticPointLocator2D::FindPointsInShell(), on
-// points in a plane: the distances are measured in the x-y plane, and the
-// petals are used as circles (their z is ignored).
+// Whether results holds exactly the points of FindPointsInShell() in the shell
+// (minDist2, maxDist2], with the same distances.
+bool IsSameAsShell(vtkAbstractPointLocator* loc, const double x[3],
+  const vtkDist2TupleArray& results, double minDist2, double maxDist2, vtkDoubleArray* petals)
+{
+  vtkDist2TupleArray shell;
+  loc->FindPointsInShell(x, shell, minDist2, maxDist2, true, petals);
+  auto byId = [](const vtkDist2Tuple& a, const vtkDist2Tuple& b) { return a.Id < b.Id; };
+  vtkDist2TupleArray a(results);
+  std::sort(a.begin(), a.end(), byId);
+  std::sort(shell.begin(), shell.end(), byId);
+  return a.size() == shell.size() &&
+    std::equal(a.begin(), a.end(), shell.begin(),
+      [](const vtkDist2Tuple& t1, const vtkDist2Tuple& t2)
+      { return t1.Id == t2.Id && t1.Dist2 == t2.Dist2; });
+}
+
+// Brute-force validation of vtkKdTreePointLocator::FindNPointsInShell(): checks
+// that the returned set is exactly the points with minDist2 < dist2 <= maxDist2,
+// that the returned maxDist2 is the exact N-th-nearest valid distance (covering
+// every point tied at that boundary), and that every returned point actually
+// satisfies those bounds. The result must also be exactly the one of
+// FindPointsInShell() with the returned maxDist2 (same ids, same distances),
+// so that nested shells starting with it return every point once.
+// vtkStaticPointLocator's FindNPointsInShell() must also return the points of
+// its FindPointsInShell(), at least N of them.
+int TestFindNPointsInShell()
+{
+  int rval = 0;
+  vtkIdType numPoints = 2000;
+
+  std::mt19937 rng(42); // fixed seed for reproducibility
+  std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+  vtkNew<vtkPoints> points;
+  points->SetDataTypeToDouble();
+  points->SetNumberOfPoints(numPoints);
+  for (vtkIdType i = 0; i < numPoints; i++)
+  {
+    double p[3] = { dist(rng), dist(rng), dist(rng) };
+    points->SetPoint(i, p);
+  }
+
+  vtkNew<vtkPolyData> pd;
+  pd->SetPoints(points);
+
+  vtkNew<vtkKdTreePointLocator> locator;
+  locator->SetDataSet(pd);
+  locator->BuildLocator();
+
+  // Cross-check against vtkStaticPointLocator's FindNPointsInShell(). Its
+  // radius is an upper bound of the N-th nearest distance, so it may return
+  // more points: this checks containment and bounds, not an exact match.
+  vtkNew<vtkStaticPointLocator> staticLocator;
+  staticLocator->SetDataSet(pd);
+  staticLocator->BuildLocator();
+
+  for (int trial = 0; trial < 30; trial++)
+  {
+    double x[3] = { dist(rng), dist(rng), dist(rng) };
+    int N = 5 + (trial % 20);
+    double minDist2 = (trial % 4) * 0.0005;
+
+    vtkDist2TupleArray results;
+    double maxDist2 = locator->FindNPointsInShell(N, x, results, minDist2, true);
+
+    // Ground truth via brute force.
+    std::vector<double> allDist2(numPoints);
+    for (vtkIdType i = 0; i < numPoints; i++)
+    {
+      double p[3];
+      points->GetPoint(i, p);
+      double dx = p[0] - x[0], dy = p[1] - x[1], dz = p[2] - x[2];
+      allDist2[i] = dx * dx + dy * dy + dz * dz;
+    }
+    std::vector<double> validDist2;
+    for (double d : allDist2)
+    {
+      if (d > minDist2)
+      {
+        validDist2.push_back(d);
+      }
+    }
+    std::sort(validDist2.begin(), validDist2.end());
+
+    double expectedMax2 = 0.0;
+    if (!validDist2.empty())
+    {
+      vtkIdType idx = std::min<vtkIdType>(N, static_cast<vtkIdType>(validDist2.size())) - 1;
+      expectedMax2 = validDist2[idx];
+    }
+
+    std::set<vtkIdType> expectedIds;
+    for (vtkIdType i = 0; i < numPoints; i++)
+    {
+      if (allDist2[i] > minDist2 && allDist2[i] <= expectedMax2 + 1e-12)
+      {
+        expectedIds.insert(i);
+      }
+    }
+
+    std::set<vtkIdType> resultIds;
+    for (const auto& t : results)
+    {
+      resultIds.insert(t.Id);
+    }
+
+    if (resultIds != expectedIds)
+    {
+      std::cerr << "FindNPointsInShell: result set mismatch for trial " << trial << " (N=" << N
+                << ", minDist2=" << minDist2 << ", got " << resultIds.size() << " points, expected "
+                << expectedIds.size() << ")\n";
+      rval++;
+    }
+    if (std::abs(maxDist2 - expectedMax2) > 1e-9)
+    {
+      std::cerr << "FindNPointsInShell: maxDist2 mismatch for trial " << trial << " (got "
+                << maxDist2 << ", expected " << expectedMax2 << ")\n";
+      rval++;
+    }
+    for (const auto& t : results)
+    {
+      if (!(t.Dist2 > minDist2) || t.Dist2 > maxDist2 + 1e-9)
+      {
+        std::cerr << "FindNPointsInShell: point " << t.Id
+                  << " out of [minDist2, maxDist2] bounds for trial " << trial << "\n";
+        rval++;
+      }
+    }
+    if (!IsSameAsShell(locator, x, results, minDist2, maxDist2, nullptr))
+    {
+      std::cerr << "FindNPointsInShell: differs from FindPointsInShell for trial " << trial << "\n";
+      rval++;
+    }
+
+    // vtkStaticPointLocator cross-check: its result may overshoot ours, but
+    // should never be a stricter (smaller/different) answer -- our exact
+    // result set must be contained in its (possibly larger) one, and its
+    // boundary distance must be at least as large as ours.
+    vtkDist2TupleArray staticResults;
+    double staticMaxDist2 = staticLocator->FindNPointsInShell(N, x, staticResults, minDist2, true);
+    if (static_cast<int>(staticResults.size()) < N ||
+      !IsSameAsShell(staticLocator, x, staticResults, minDist2, staticMaxDist2, nullptr))
+    {
+      std::cerr << "vtkStaticPointLocator::FindNPointsInShell: fewer than N points, or differs "
+                   "from FindPointsInShell for trial "
+                << trial << "\n";
+      rval++;
+    }
+
+    std::set<vtkIdType> staticIds;
+    for (const auto& t : staticResults)
+    {
+      staticIds.insert(t.Id);
+    }
+
+    for (vtkIdType kdId : resultIds)
+    {
+      if (staticIds.find(kdId) == staticIds.end())
+      {
+        std::cerr << "FindNPointsInShell: point " << kdId
+                  << " returned by vtkKdTreePointLocator is missing from "
+                     "vtkStaticPointLocator's (overshot) result for trial "
+                  << trial << "\n";
+        rval++;
+      }
+    }
+    if (maxDist2 > staticMaxDist2 + 1e-9)
+    {
+      std::cerr << "FindNPointsInShell: vtkKdTreePointLocator's maxDist2 (" << maxDist2
+                << ") exceeds vtkStaticPointLocator's (" << staticMaxDist2 << ") for trial "
+                << trial << "\n";
+      rval++;
+    }
+  }
+
+  // Petals: brute-force validation of vtkKdTreePointLocator, and
+  // vtkStaticPointLocator must return the points of its FindPointsInShell(),
+  // at least N of them (or all the valid points if there are fewer).
+  for (int trial = 0; trial < 30; trial++)
+  {
+    double x[3] = { dist(rng), dist(rng), dist(rng) };
+    int N = 5 + (trial % 20);
+    double minDist2 = (trial % 4) * 0.0005;
+
+    // A couple of petal spheres somewhere near the query point, small enough
+    // that they meaningfully restrict the candidate set.
+    vtkNew<vtkDoubleArray> petals;
+    petals->SetNumberOfComponents(4);
+    petals->SetNumberOfTuples(2);
+    petals->SetTuple4(0, x[0] + 0.1, x[1], x[2], 0.02);
+    petals->SetTuple4(1, x[0] - 0.1, x[1] + 0.1, x[2], 0.02);
+
+    vtkDist2TupleArray results;
+    double maxDist2 = locator->FindNPointsInShell(N, x, results, minDist2, true, petals);
+
+    auto inAnyPetal = [&](const double p[3])
+    {
+      for (vtkIdType s = 0; s < petals->GetNumberOfTuples(); s++)
+      {
+        double tuple[4];
+        petals->GetTuple(s, tuple);
+        double dx = p[0] - tuple[0], dy = p[1] - tuple[1], dz = p[2] - tuple[2];
+        if (dx * dx + dy * dy + dz * dz <= tuple[3])
+        {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    // Ground truth via brute force, restricted to points inside a petal.
+    std::vector<double> allDist2(numPoints);
+    std::vector<bool> inPetal(numPoints);
+    for (vtkIdType i = 0; i < numPoints; i++)
+    {
+      double p[3];
+      points->GetPoint(i, p);
+      double dx = p[0] - x[0], dy = p[1] - x[1], dz = p[2] - x[2];
+      allDist2[i] = dx * dx + dy * dy + dz * dz;
+      inPetal[i] = inAnyPetal(p);
+    }
+    std::vector<double> validDist2;
+    for (vtkIdType i = 0; i < numPoints; i++)
+    {
+      if (allDist2[i] > minDist2 && inPetal[i])
+      {
+        validDist2.push_back(allDist2[i]);
+      }
+    }
+    std::sort(validDist2.begin(), validDist2.end());
+
+    double expectedMax2 = 0.0;
+    if (!validDist2.empty())
+    {
+      vtkIdType idx = std::min<vtkIdType>(N, static_cast<vtkIdType>(validDist2.size())) - 1;
+      expectedMax2 = validDist2[idx];
+    }
+
+    std::set<vtkIdType> expectedIds;
+    for (vtkIdType i = 0; i < numPoints; i++)
+    {
+      if (allDist2[i] > minDist2 && inPetal[i] && allDist2[i] <= expectedMax2 + 1e-12)
+      {
+        expectedIds.insert(i);
+      }
+    }
+
+    std::set<vtkIdType> resultIds;
+    for (const auto& t : results)
+    {
+      resultIds.insert(t.Id);
+    }
+
+    if (resultIds != expectedIds)
+    {
+      std::cerr << "FindNPointsInShell (petals): result set mismatch for trial " << trial
+                << " (N=" << N << ", minDist2=" << minDist2 << ", got " << resultIds.size()
+                << " points, expected " << expectedIds.size() << ")\n";
+      rval++;
+    }
+    if (std::abs(maxDist2 - expectedMax2) > 1e-9)
+    {
+      std::cerr << "FindNPointsInShell (petals): maxDist2 mismatch for trial " << trial << " (got "
+                << maxDist2 << ", expected " << expectedMax2 << ")\n";
+      rval++;
+    }
+    for (const auto& t : results)
+    {
+      double p[3];
+      points->GetPoint(t.Id, p);
+      if (!(t.Dist2 > minDist2) || t.Dist2 > maxDist2 + 1e-9 || !inAnyPetal(p))
+      {
+        std::cerr << "FindNPointsInShell (petals): point " << t.Id
+                  << " out of bounds or outside all petals for trial " << trial << "\n";
+        rval++;
+      }
+    }
+    if (!IsSameAsShell(locator, x, results, minDist2, maxDist2, petals))
+    {
+      std::cerr << "FindNPointsInShell (petals): differs from FindPointsInShell for trial " << trial
+                << "\n";
+      rval++;
+    }
+
+    vtkDist2TupleArray staticResults;
+    const double staticMaxDist2 =
+      staticLocator->FindNPointsInShell(N, x, staticResults, minDist2, true, petals);
+    const std::size_t minCount = std::min(static_cast<std::size_t>(N), validDist2.size());
+    if (staticResults.size() < minCount ||
+      !IsSameAsShell(staticLocator, x, staticResults, minDist2, staticMaxDist2, petals))
+    {
+      std::cerr << "vtkStaticPointLocator::FindNPointsInShell (petals): fewer than N points, or "
+                   "differs from FindPointsInShell for trial "
+                << trial << "\n";
+      rval++;
+    }
+  }
+
+  return rval;
+}
+
+// Brute-force validation of vtkStaticPointLocator2D::FindNPointsInShell() and
+// FindPointsInShell(), on
+// points in a plane: the distances are measured in the x-y plane. The locator
+// may return more than the N nearest points, but every point that it returns
+// is in the shell (minDist2, maxDist2], and every point of that shell is
+// returned.
 int TestStaticPointLocator2DShells()
 {
   int rval = 0;
@@ -317,10 +623,6 @@ int TestStaticPointLocator2DShells()
   locator->SetDataSet(pd);
   locator->BuildLocator();
 
-  vtkNew<vtkDoubleArray> petals;
-  petals->SetNumberOfComponents(4);
-  petals->InsertNextTuple4(0.5, 0.5, 100.0, 0.09);
-  vtkDist2TupleArray results;
   for (int trial = 0; trial < 30; trial++)
   {
     double x[3] = { dist(rng), dist(rng), 0.5 };
@@ -332,8 +634,48 @@ int TestStaticPointLocator2DShells()
       allDist2[i] = (p[0] - x[0]) * (p[0] - x[0]) + (p[1] - x[1]) * (p[1] - x[1]);
     }
 
-    // Exactly the points of the annulus (minDist2, maxDist2], sorted, and
-    // with and without a petal.
+    const int N = 5 + (trial % 20);
+    const double minDist2 = (trial % 4) * 0.0005;
+    vtkDist2TupleArray results;
+    const double maxDist2 = locator->FindNPointsInShell(N, x, results, minDist2, true);
+
+    std::set<vtkIdType> expectedIds;
+    for (vtkIdType i = 0; i < numPoints; i++)
+    {
+      if (allDist2[i] > minDist2 && allDist2[i] <= maxDist2)
+      {
+        expectedIds.insert(i);
+      }
+    }
+    std::set<vtkIdType> resultIds;
+    for (const auto& t : results)
+    {
+      resultIds.insert(t.Id);
+    }
+    if (resultIds != expectedIds || static_cast<int>(resultIds.size()) < N ||
+      !IsSameAsShell(locator, x, results, minDist2, maxDist2, nullptr))
+    {
+      std::cerr << "vtkStaticPointLocator2D::FindNPointsInShell: result set mismatch for trial "
+                << trial << " (got " << resultIds.size() << " points, expected "
+                << expectedIds.size() << ")\n";
+      rval++;
+    }
+
+    // FindPointsInShell(): exactly the points of the annulus (minDist2,
+    // maxDist2], sorted, and with and without a petal (a circle).
+    vtkNew<vtkDoubleArray> petals;
+    petals->SetNumberOfComponents(3);
+    petals->InsertNextTuple3(0.5, 0.5, 0.09);
+
+    // FindNPointsInShell() with the petal: the points of FindPointsInShell().
+    const double petalMaxDist2 = locator->FindNPointsInShell(N, x, results, minDist2, true, petals);
+    if (!IsSameAsShell(locator, x, results, minDist2, petalMaxDist2, petals))
+    {
+      std::cerr << "vtkStaticPointLocator2D::FindNPointsInShell (petals): differs from "
+                   "FindPointsInShell for trial "
+                << trial << "\n";
+      rval++;
+    }
     for (int usePetals = 0; usePetals < 2; ++usePetals)
     {
       const double lo = 0.01, hi = 0.04;
@@ -570,6 +912,7 @@ int TestPointLocators(int, char*[])
   octreeLocator->Delete();
 
   rval += TestKdTreePointLocator();
+  rval += TestFindNPointsInShell();
   rval += TestStaticPointLocator2DShells();
   rval += TestRadiusBoundary();
   rval += TestShellBoundaries();

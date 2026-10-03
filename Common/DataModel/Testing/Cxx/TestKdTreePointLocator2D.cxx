@@ -125,6 +125,30 @@ bool Check(const char* name, const Points& pts, bool flat)
       }
     }
 
+    // The N points in a shell: the points of the nearest shells, with the
+    // distance of the last one, which includes its ties.
+    vtkDist2TupleArray shell;
+    const double maxD2 = locator->FindNPointsInShell(9, x, shell, 10.0, true, nullptr);
+    std::vector<double> farther;
+    for (vtkIdType i = 0; i < n; ++i)
+    {
+      if (d2[i] > 10.0)
+      {
+        farther.push_back(d2[i]);
+      }
+    }
+    std::sort(farther.begin(), farther.end());
+    const double nth = farther[8];
+    if (std::abs(maxD2 - nth) > 1e-9 * (1.0 + nth))
+    {
+      ++errors;
+    }
+    size_t expectedCount = std::upper_bound(farther.begin(), farther.end(), nth) - farther.begin();
+    if (shell.size() != expectedCount)
+    {
+      ++errors;
+    }
+
     // The points in the shell (minDist2, maxDist2], with and without a petal:
     // a circle for the 2D tree, a sphere for the 3D one.
     const double lo = 400.0, hi = 900.0;
@@ -139,7 +163,6 @@ bool Check(const char* name, const Points& pts, bool flat)
       petals->SetNumberOfComponents(4);
       petals->InsertNextTuple4(50.0, 50.0, 50.0, 30.0 * 30.0);
     }
-    vtkDist2TupleArray shell;
     for (int usePetals = 0; usePetals < 2; ++usePetals)
     {
       locator->FindPointsInShell(x, shell, lo, hi, true, usePetals ? petals.GetPointer() : nullptr);
