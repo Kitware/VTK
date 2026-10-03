@@ -3,6 +3,7 @@
 // This tests the vtkBinCellDataFilter class.
 
 #include <vtkBinCellDataFilter.h>
+#include <vtkCellArray.h>
 #include <vtkCellData.h>
 #include <vtkCellIterator.h>
 #include <vtkCellLocator.h>
@@ -21,6 +22,22 @@
 #include <vtkUnstructuredGrid.h>
 
 #include <iostream>
+
+vtkSmartPointer<vtkUnstructuredGrid> ReorderCells(vtkUnstructuredGrid* mesh, vtkIdType targetIds[])
+{
+  vtkNew<vtkCellArray> reorderedCells;
+  vtkNew<vtkUnsignedCharArray> reorderedCellTypes;
+  for (vtkIdType i = 0; i < mesh->GetNumberOfCells(); ++i)
+  {
+    reorderedCells->InsertNextCell(mesh->GetCell(targetIds[i])->GetPointIds());
+    reorderedCellTypes->InsertNextValue(mesh->GetCellType(targetIds[i]));
+  }
+  vtkNew<vtkUnstructuredGrid> reorderedMesh;
+  reorderedMesh->DeepCopy(mesh);
+  reorderedMesh->SetCells(reorderedCellTypes, reorderedCells);
+  reorderedMesh->Modified();
+  return reorderedMesh;
+}
 
 vtkSmartPointer<vtkUnstructuredGrid> ConstructDelaunay3DSphere(
   vtkIdType numberOfPoints, vtkMersenneTwister* seq, bool sampleShellOnly)
@@ -108,21 +125,36 @@ int TestBinCellDataFilter(int, char*[])
   vtkNew<vtkCellLocator> locator;
 
   vtkNew<vtkBinCellDataFilter> binDataFilter;
-  binDataFilter->SetInputData(inputGrid);
   binDataFilter->SetSourceData(sourceGrid);
   binDataFilter->SetCellLocator(locator);
   binDataFilter->SetComputeTolerance(false);
   binDataFilter->GenerateValues(3, .2, .8);
-  binDataFilter->Update();
 
+  vtkIdType cellPermutation[10][18] = { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                                          17 },
+    { 10, 6, 11, 14, 3, 13, 8, 0, 2, 7, 15, 9, 17, 16, 5, 4, 1, 12 },
+    { 3, 9, 4, 8, 0, 15, 13, 5, 10, 6, 11, 16, 2, 12, 1, 7, 14, 17 },
+    { 14, 2, 12, 13, 11, 17, 6, 3, 7, 4, 8, 5, 9, 1, 15, 0, 10, 16 },
+    { 1, 4, 8, 6, 10, 9, 5, 12, 11, 3, 17, 0, 7, 13, 2, 14, 16, 15 },
+    { 14, 17, 11, 9, 13, 4, 16, 8, 3, 10, 7, 0, 15, 1, 6, 2, 5, 12 },
+    { 0, 5, 14, 11, 3, 6, 2, 17, 4, 16, 9, 1, 13, 10, 7, 15, 12, 8 },
+    { 17, 2, 7, 11, 0, 1, 12, 8, 6, 15, 5, 16, 10, 9, 14, 3, 13, 4 },
+    { 2, 9, 4, 8, 0, 15, 7, 17, 16, 3, 14, 13, 1, 12, 10, 5, 11, 6 },
+    { 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 } };
+  for (unsigned int permId = 0; permId < 2; ++permId)
   {
+    vtkSmartPointer<vtkUnstructuredGrid> reorderedInputGrid =
+      ReorderCells(inputGrid, cellPermutation[permId]);
+    binDataFilter->SetInputData(reorderedInputGrid);
+    binDataFilter->Update();
+
     vtkIdTypeArray* binnedData = vtkIdTypeArray::SafeDownCast(
       binDataFilter->GetOutput()->GetCellData()->GetArray("binned_radius"));
 
     if (!binnedData)
     {
       std::cerr << "No binned data!" << std::endl;
-      return 1;
+      return EXIT_FAILURE;
     }
 
     for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
@@ -140,42 +172,46 @@ int TestBinCellDataFilter(int, char*[])
       std::cout << std::endl;
     }
 
-    vtkIdType expectedBins[18][4] = { { 0, 145, 220, 21 }, { 0, 692, 2253, 189 },
-      { 0, 0, 214, 255 }, { 0, 0, 888, 539 }, { 118, 1805, 1764, 173 }, { 0, 0, 115, 85 },
-      { 0, 9, 935, 416 }, { 0, 0, 123, 42 }, { 0, 196, 585, 92 }, { 0, 146, 663, 157 },
-      { 0, 23, 210, 16 }, { 0, 0, 2, 193 }, { 0, 18, 97, 39 }, { 13, 46, 33, 3 },
-      { 0, 0, 1368, 292 }, { 428, 2252, 1641, 136 }, { 0, 181, 192, 28 }, { 0, 0, 28, 13 } };
+    vtkIdType expectedBins[18][4] = { { 0, 145, 217, 20 }, { 0, 688, 2242, 185 },
+      { 0, 0, 219, 253 }, { 0, 0, 883, 526 }, { 118, 1792, 1740, 167 }, { 0, 0, 115, 83 },
+      { 0, 10, 940, 406 }, { 0, 0, 131, 52 }, { 0, 194, 580, 91 }, { 0, 153, 669, 158 },
+      { 0, 26, 211, 18 }, { 0, 0, 2, 193 }, { 0, 20, 102, 42 }, { 13, 51, 41, 3 },
+      { 0, 0, 1367, 294 }, { 428, 2240, 1636, 137 }, { 0, 184, 193, 27 }, { 0, 0, 30, 15 } };
 
     if (binnedData->GetNumberOfTuples() != 18)
     {
       std::cerr << "Number of cells (" << binnedData->GetNumberOfTuples()
                 << ") has deviated from expected value " << 18 << std::endl;
-      return 1;
+      return EXIT_FAILURE;
     }
 
     if (binnedData->GetNumberOfComponents() != 4)
     {
       std::cerr << "Number of bin values has deviated from expected value " << 4 << std::endl;
-      return 1;
+      return EXIT_FAILURE;
     }
 
     for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
     {
+      vtkIdType iPerm = cellPermutation[permId][i];
       for (vtkIdType j = 0; j < binnedData->GetNumberOfComponents(); j++)
       {
-        if (binnedData->GetTypedComponent(i, j) != expectedBins[i][j])
+        if (binnedData->GetTypedComponent(i, j) != expectedBins[iPerm][j])
         {
-          std::cerr << "Bin value (" << i << "," << j << ") has deviated from expected value "
-                    << expectedBins[i][j] << std::endl;
-          return 1;
+          std::cerr << "Bin value (" << i << "," << j
+                    << ") = " << binnedData->GetTypedComponent(i, j)
+                    << " has deviated from expected value " << expectedBins[iPerm][j] << std::endl;
+          return EXIT_FAILURE;
         }
       }
     }
   }
 
+  binDataFilter->SetInputData(inputGrid);
   binDataFilter->SetCellOverlapMethod(vtkBinCellDataFilter::CELL_POINTS);
   binDataFilter->Update();
-
+  // The method vtkBinCellDataFilter::CELL_POINTS is dependent on the cells' order.
+  // Thus, it is not stable to cell permutations.
   {
     vtkIdTypeArray* binnedData = vtkIdTypeArray::SafeDownCast(
       binDataFilter->GetOutput()->GetCellData()->GetArray("binned_radius"));
@@ -183,7 +219,7 @@ int TestBinCellDataFilter(int, char*[])
     if (!binnedData)
     {
       std::cerr << "No binned data!" << std::endl;
-      return 1;
+      return EXIT_FAILURE;
     }
 
     for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
@@ -201,23 +237,23 @@ int TestBinCellDataFilter(int, char*[])
       std::cout << std::endl;
     }
 
-    vtkIdType expectedBins[18][4] = { { 0, 179, 221, 63 }, { 0, 751, 2578, 458 },
-      { 0, 0, 283, 458 }, { 0, 0, 1086, 983 }, { 150, 1810, 2077, 303 }, { 0, 0, 174, 150 },
-      { 0, 5, 938, 718 }, { 0, 0, 121, 92 }, { 0, 259, 851, 180 }, { 0, 134, 603, 261 },
-      { 0, 16, 105, 6 }, { 0, 0, 3, 236 }, { 0, 2, 20, 40 }, { 2, 15, 50, 0 }, { 0, 6, 1703, 584 },
-      { 407, 2627, 2060, 168 }, { 0, 261, 242, 62 }, { 0, 0, 6, 12 } };
+    vtkIdType expectedBins[18][4] = { { 0, 179, 223, 63 }, { 0, 751, 2577, 445 },
+      { 0, 0, 283, 473 }, { 0, 0, 1084, 985 }, { 150, 1810, 2072, 295 }, { 0, 0, 173, 136 },
+      { 0, 5, 933, 704 }, { 0, 0, 138, 97 }, { 0, 259, 854, 194 }, { 0, 134, 603, 266 },
+      { 0, 16, 107, 6 }, { 0, 0, 3, 236 }, { 0, 2, 20, 40 }, { 2, 15, 52, 0 }, { 0, 6, 1688, 571 },
+      { 407, 2606, 1994, 156 }, { 0, 277, 284, 63 }, { 0, 0, 6, 12 } };
 
     if (binnedData->GetNumberOfTuples() != 18)
     {
       std::cerr << "Number of cells (" << binnedData->GetNumberOfTuples()
                 << ") has deviated from expected value " << 18 << std::endl;
-      return 1;
+      return EXIT_FAILURE;
     }
 
     if (binnedData->GetNumberOfComponents() != 4)
     {
       std::cerr << "Number of bin values has deviated from expected value " << 4 << std::endl;
-      return 1;
+      return EXIT_FAILURE;
     }
 
     for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
@@ -226,9 +262,10 @@ int TestBinCellDataFilter(int, char*[])
       {
         if (binnedData->GetTypedComponent(i, j) != expectedBins[i][j])
         {
-          std::cerr << "Bin value (" << i << "," << j << ") has deviated from expected value "
-                    << expectedBins[i][j] << std::endl;
-          return 1;
+          std::cerr << "Bin value (" << i << "," << j
+                    << ") = " << binnedData->GetTypedComponent(i, j)
+                    << " has deviated from expected value " << expectedBins[i][j] << std::endl;
+          return EXIT_FAILURE;
         }
       }
     }

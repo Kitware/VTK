@@ -176,7 +176,7 @@ vtkHexahedron::vtkHexahedron()
 int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,
   double pcoords[3], double& dist2, double weights[])
 {
-  double params[3] = { 0.5, 0.5, 0.5 };
+  double params[3];
   double derivs[24];
 
   // Efficient point access
@@ -202,9 +202,34 @@ int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], i
   double volumeBound = longestDiagonal * std::sqrt(longestDiagonal);
   double determinantTolerance = 1e-20 < .00001 * volumeBound ? 1e-20 : .00001 * volumeBound;
 
-  //  set initial position for Newton's method
+  //  set initial position for Newton's method: seed it with the exact solution of
+  //  the affine (parallelepiped) approximation defined by the edges out of vertex 0.
+  //  For a non-warped or mildly-warped hex this lands very close to the true answer
+  //  and noticeably cuts the number of Newton iterations below; for a degenerate
+  //  triple of edges, fall back to the cell center.
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
+  {
+    const double* p0 = pts;
+    double c1[3], c2[3], c3[3], p[3];
+    vtkMath::Subtract(pts + 3, p0, c1);
+    vtkMath::Subtract(pts + 9, p0, c2);
+    vtkMath::Subtract(pts + 12, p0, c3);
+    vtkMath::Subtract(x, p0, p);
+    const double detGuess = vtkMath::Determinant3x3(c1, c2, c3);
+    if (detGuess != 0.0)
+    {
+      pcoords[0] = vtkMath::Determinant3x3(p, c2, c3) / detGuess;
+      pcoords[1] = vtkMath::Determinant3x3(c1, p, c3) / detGuess;
+      pcoords[2] = vtkMath::Determinant3x3(c1, c2, p) / detGuess;
+    }
+    else
+    {
+      pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
+    }
+  }
+  params[0] = pcoords[0];
+  params[1] = pcoords[1];
+  params[2] = pcoords[2];
 
   //  enter iteration loop
   int converged = 0;
@@ -292,26 +317,29 @@ int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], i
   }
   else
   {
-    double pc[3], w[8];
     if (closestPoint)
     {
-      for (int i = 0; i < 3; i++) // only approximate, not really true for warped hexa
+      // The point lies outside the cell. Since a general hexahedron is trilinearly
+      // warped, its 6 faces are (possibly non-planar) bilinear patches rather than
+      // planes, so simply clamping pcoords component-wise is only approximate.
+      // Instead, project x onto each of the 6 faces via vtkQuad::EvaluatePosition
+      // (which itself handles a non-planar quad correctly) and keep the nearest
+      // result.
+      dist2 = VTK_DOUBLE_MAX;
+      for (int f = 0; f < 6; f++)
       {
-        if (pcoords[i] < 0.0)
+        auto face = this->GetFace(f);
+        int quadSubId;
+        double quadPcoords[3], quadWeights[4], cp[3], d2;
+        face->EvaluatePosition(x, cp, quadSubId, quadPcoords, d2, quadWeights);
+        if (d2 < dist2)
         {
-          pc[i] = 0.0;
-        }
-        else if (pcoords[i] > 1.0)
-        {
-          pc[i] = 1.0;
-        }
-        else
-        {
-          pc[i] = pcoords[i];
+          dist2 = d2;
+          closestPoint[0] = cp[0];
+          closestPoint[1] = cp[1];
+          closestPoint[2] = cp[2];
         }
       }
-      this->EvaluateLocation(subId, pc, closestPoint, w);
-      dist2 = vtkMath::Distance2BetweenPoints(closestPoint, x);
     }
     return 0;
   }
