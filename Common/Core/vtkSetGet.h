@@ -72,10 +72,17 @@
   "Undefined")))))))))))))))))))
 // clang-format on
 
-/* Various compiler-specific performance hints. */
+/* Various compiler-specific performance hints.
+ *
+ * VTK_ALWAYS_INLINE forces a function to be inlined, and VTK_NEVER_INLINE keeps it from being
+ * inlined, e.g., a rarely taken path of a hot loop. VTK_ALWAYS_INLINE_LAMBDA forces a lambda to be
+ * inlined, since a lambda cannot be declared inline: it goes after the parameters of the lambda,
+ * e.g., `[&](auto value) VTK_ALWAYS_INLINE_LAMBDA { ... }`. */
 #if defined(VTK_COMPILER_GCC) //------------------------------------------------
 
 #define VTK_ALWAYS_INLINE __attribute__((always_inline)) inline
+#define VTK_ALWAYS_INLINE_LAMBDA __attribute__((always_inline))
+#define VTK_NEVER_INLINE __attribute__((noinline))
 // CUDA does not recognize pragma options
 #if defined(__CUDACC__)
 #define VTK_ALWAYS_OPTIMIZE_START
@@ -88,6 +95,8 @@
 #elif defined(VTK_COMPILER_CLANG) //--------------------------------------------
 
 #define VTK_ALWAYS_INLINE __attribute__((always_inline)) inline
+#define VTK_ALWAYS_INLINE_LAMBDA __attribute__((always_inline))
+#define VTK_NEVER_INLINE __attribute__((noinline))
 // Clang doesn't seem to support temporarily increasing optimization level,
 // only decreasing it.
 #define VTK_ALWAYS_OPTIMIZE_START
@@ -96,6 +105,8 @@
 #elif defined(VTK_COMPILER_ICC) //----------------------------------------------
 
 #define VTK_ALWAYS_INLINE __attribute((always_inline)) inline
+#define VTK_ALWAYS_INLINE_LAMBDA __attribute((always_inline))
+#define VTK_NEVER_INLINE __attribute((noinline))
 // ICC doesn't seem to support temporarily increasing optimization level,
 // only decreasing it.
 #define VTK_ALWAYS_OPTIMIZE_START
@@ -104,6 +115,14 @@
 #elif defined(VTK_COMPILER_MSVC) //---------------------------------------------
 
 #define VTK_ALWAYS_INLINE __forceinline
+// Requires C++20 (/std:c++20 or /std:c++latest) and at least VS 2019 16.10 (_MSC_VER 1929)
+// Use _MSC_VER >= 1930 if you want to restrict to VS 2022+.
+#if _MSC_VER >= 1929 && _MSVC_LANG >= 202002L
+#define VTK_ALWAYS_INLINE_LAMBDA [[msvc::forceinline]]
+#else
+#define VTK_ALWAYS_INLINE_LAMBDA
+#endif
+#define VTK_NEVER_INLINE __declspec(noinline)
 #define VTK_ALWAYS_OPTIMIZE_START _Pragma("optimize(\"tgs\", on)")
 // optimize("", on) resets to command line settings
 #define VTK_ALWAYS_OPTIMIZE_END _Pragma("optimize(\"\", on)")
@@ -111,6 +130,8 @@
 #else //------------------------------------------------------------------------
 
 #define VTK_ALWAYS_INLINE inline
+#define VTK_ALWAYS_INLINE_LAMBDA
+#define VTK_NEVER_INLINE
 #define VTK_ALWAYS_OPTIMIZE_START
 #define VTK_ALWAYS_OPTIMIZE_END
 
