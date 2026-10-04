@@ -324,12 +324,19 @@ class VTKAOSArray(VTKDataArrayMixin):
     # ---- arithmetic operators -----------------------------------------------
     def _binop(self, other, op):
         a = self.__array__()
+        if numpy.isscalar(other):
+            # Hand scalars to numpy as they are so that its promotion rules
+            # apply. numpy.asarray(2) is an int64 array, which would turn
+            # float32 + 2 into float64.
+            return self._wrap_result(op(a, other))
         b = _aos_to_ndarray(other)
         a, b = _reshape_for_broadcast(a, b)
         return self._wrap_result(op(a, b))
 
     def _rbinop(self, other, op):
         a = self.__array__()
+        if numpy.isscalar(other):
+            return self._wrap_result(op(other, a))
         b = _aos_to_ndarray(other)
         b, a = _reshape_for_broadcast(b, a)
         return self._wrap_result(op(b, a))

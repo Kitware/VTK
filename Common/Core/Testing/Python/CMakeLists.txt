@@ -3,6 +3,7 @@ vtk_add_test_python(
   TestAOSArrayWrapping.py
   PythonSmoke.py
   TestArrayArguments.py
+  TestArrayScalarPromotion.py
   TestBufferChangedEvent.py
   TestArrays.py
   TestBuffer.py

@@ -25,6 +25,27 @@ from ._vtk_array_mixin import (
 _AFFINE_OVERRIDE, _override_affine_numpy = make_override_registry()
 
 
+def _lazy_result_dtype(ufunc, inputs, affine):
+    """Return the numpy scalar type of ``ufunc(*inputs)``, or None.
+
+    The ufunc is applied to an empty array of the affine array's dtype in
+    its place, so numpy's own promotion rules decide the result type (and
+    raise the same errors, such as for an out-of-bounds Python int)
+    without materializing anything.  None means VTK has no affine array of
+    that type and the caller should materialize instead.
+    """
+    from vtkmodules.vtkCommonCore import vtkAffineArray as _vtkAffineArray
+
+    probe = [numpy.empty(0, dtype=affine._dtype) if inp is affine else inp
+             for inp in inputs]
+    dtype = ufunc(*probe).dtype.type
+    try:
+        _vtkAffineArray[dtype]
+    except KeyError:
+        return None
+    return dtype
+
+
 class VTKAffineArray(VTKDataArrayMixin):
     """A memory-efficient array whose values follow an affine function.
 
@@ -328,41 +349,46 @@ class VTKAffineArray(VTKDataArrayMixin):
                 if numpy.isscalar(other_input) or (
                         isinstance(other_input, numpy.ndarray) and other_input.ndim == 0):
                     scalar = float(other_input)
+                    # The lazy result takes the dtype numpy would give the
+                    # materialized operation, so int8 / 2 is float64 rather
+                    # than slope and intercept truncated back to int8.
+                    dtype = _lazy_result_dtype(ufunc, inputs, self_input)
 
-                    if ufunc is numpy.multiply:
-                        return VTKAffineArray._from_params(
-                            self_input._slope * scalar,
-                            self_input._intercept * scalar,
-                            self_input._num_values,
-                            self_input._dtype)
+                    if dtype is not None:
+                        if ufunc is numpy.multiply:
+                            return VTKAffineArray._from_params(
+                                self_input._slope * scalar,
+                                self_input._intercept * scalar,
+                                self_input._num_values,
+                                dtype)
 
-                    if ufunc is numpy.true_divide and self_first:
-                        return VTKAffineArray._from_params(
-                            self_input._slope / scalar,
-                            self_input._intercept / scalar,
-                            self_input._num_values,
-                            self_input._dtype)
+                        if ufunc is numpy.true_divide and self_first:
+                            return VTKAffineArray._from_params(
+                                self_input._slope / scalar,
+                                self_input._intercept / scalar,
+                                self_input._num_values,
+                                dtype)
 
-                    if ufunc is numpy.add:
-                        return VTKAffineArray._from_params(
-                            self_input._slope,
-                            self_input._intercept + scalar,
-                            self_input._num_values,
-                            self_input._dtype)
-
-                    if ufunc is numpy.subtract:
-                        if self_first:
+                        if ufunc is numpy.add:
                             return VTKAffineArray._from_params(
                                 self_input._slope,
-                                self_input._intercept - scalar,
+                                self_input._intercept + scalar,
                                 self_input._num_values,
-                                self_input._dtype)
-                        else:
-                            return VTKAffineArray._from_params(
-                                -self_input._slope,
-                                scalar - self_input._intercept,
-                                self_input._num_values,
-                                self_input._dtype)
+                                dtype)
+
+                        if ufunc is numpy.subtract:
+                            if self_first:
+                                return VTKAffineArray._from_params(
+                                    self_input._slope,
+                                    self_input._intercept - scalar,
+                                    self_input._num_values,
+                                    dtype)
+                            else:
+                                return VTKAffineArray._from_params(
+                                    -self_input._slope,
+                                    scalar - self_input._intercept,
+                                    self_input._num_values,
+                                    dtype)
 
         # Fall back to materialization, wrap result for metadata propagation
         materialized = [numpy.asarray(x) if isinstance(x, VTKAffineArray) else x
