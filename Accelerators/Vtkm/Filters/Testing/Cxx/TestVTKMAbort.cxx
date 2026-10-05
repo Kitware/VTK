@@ -12,13 +12,71 @@
 
 #include <viskores/cont/Initialize.h>
 
+#include <chrono>
 #include <iostream>
+#include <thread>
+
+namespace
+{
+
+vtkAlgorithm* gToAbort = nullptr;
+std::atomic<bool> gAllowAbort{ false };
+std::atomic<bool> gAllowEnd{ false };
+
+// A method to abort an algorithm while its running
+void toggleAbort()
+{
+  while (!gAllowAbort)
+  {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  }
+
+  // Then abort
+  gToAbort->SetAbortExecuteAndUpdateTime();
+  gAllowEnd = true;
+}
+
+// Update an algorithm then abort it from another thread
+void UpdateAbort(vtkAlgorithm* toUpdate, vtkAlgorithm* toAbort)
+{
+  gAllowAbort = false;
+  gAllowEnd = false;
+  gToAbort = toAbort;
+  std::thread abortThread(toggleAbort);
+  toUpdate->Update();
+  abortThread.join();
+}
+
+class vtkmCustomContour : public vtkmContour
+{
+public:
+  static vtkmCustomContour* New();
+  vtkTypeMacro(vtkmCustomContour, vtkmContour);
+
+  // Overridden to avoid races
+  int RequestData(
+    vtkInformation* req, vtkInformationVector** in, vtkInformationVector* out) override
+  {
+    gAllowAbort = true;
+    int ret = this->Superclass::RequestData(req, in, out);
+
+    // Ensure there is no race by checking abort at the end
+    while (!gAllowEnd)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    this->CheckAbort();
+    return ret;
+  }
+};
+vtkStandardNewMacro(vtkmCustomContour);
+}
 
 int TestVTKMAbort(int, char*[])
 {
   vtkNew<vtkRTAnalyticSource> wavelet;
   vtkNew<vtkShrinkFilter> shrink;
-  vtkNew<vtkmContour> contour;
+  vtkNew<::vtkmCustomContour> contour;
   contour->ForceVTKmOn();
   vtkNew<vtkmClip> clip;
 
@@ -39,8 +97,7 @@ int TestVTKMAbort(int, char*[])
   //--------------------------------------------------------------------------
   std::cout << "Run 1 with abort on contour\n";
 
-  contour->SetAbortExecuteAndUpdateTime();
-  clip->Update();
+  ::UpdateAbort(clip, contour);
 
   if (!contour->GetAbortExecute())
   {

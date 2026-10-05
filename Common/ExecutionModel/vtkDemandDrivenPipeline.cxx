@@ -224,6 +224,12 @@ vtkTypeBool vtkDemandDrivenPipeline::ProcessRequest(
       outputPort = request->Get(FROM_OUTPUT_PORT());
     }
 
+    // Check if the algorithm is already aborted and should not be executed at all
+    if (this->Algorithm->GetAbortExecute())
+    {
+      return 1;
+    }
+
     // Make sure our outputs are up-to-date.
     int result = 1;
     if (this->NeedToExecuteData(outputPort, inInfoVec, outInfoVec))
