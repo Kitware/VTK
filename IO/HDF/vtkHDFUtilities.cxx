@@ -235,7 +235,7 @@ template <typename T>
 vtkDataArray* NewArray(
   hid_t dataset, const std::vector<hsize_t>& fileExtent, hsize_t numberOfComponents)
 {
-  int numberOfTuples = 1;
+  size_t numberOfTuples = 1;
   size_t ndims = fileExtent.size() / 2;
   for (size_t i = 0; i < ndims; ++i)
   {
