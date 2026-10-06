@@ -104,6 +104,7 @@ set(classes
   vtkRemoveUnusedPoints
   vtkResampleToImage
   vtkResampleWithDataSet
+  vtkResolveHangingNodes
   vtkReverseSense
   vtkSimpleElevationFilter
   vtkSmoothPolyDataFilter
