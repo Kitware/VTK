@@ -326,12 +326,14 @@ vtkColorTransferFunction::~vtkColorTransferFunction()
   delete this->Internal;
 }
 
+//------------------------------------------------------------------------------
 // Return the number of points which specify this function
 int vtkColorTransferFunction::GetSize()
 {
   return static_cast<int>(this->Internal->Nodes.size());
 }
 
+//------------------------------------------------------------------------------
 // Since we no longer store the data in an array, we must
 // copy out of the vector into an array. No modified check -
 // could be added if performance is a problem
@@ -355,6 +357,12 @@ double* vtkColorTransferFunction::GetDataPointer()
   }
 
   return this->Function;
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkColorTransferFunction::UsingLogScale()
+{
+  return (this->GetScale() == VTK_CTF_LOG10 && this->Range[0] > 0.0) ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
@@ -840,8 +848,10 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
   double logX = 0.0;
   if (usingLogScale)
   {
-    logStart = log10(xStart);
-    logEnd = log10(xEnd);
+    double tmpStart = (xStart <= 0.0) ? this->Range[0] * 1e-6 : xStart;
+    double tmpEnd = (xEnd <= 0.0) ? this->Range[0] * 1e-6 : xEnd;
+    logStart = log10(tmpStart);
+    logEnd = log10(tmpEnd);
   }
 
   vtkSmartPointer<vtkColorTransferFunction> ciede2000Helper = nullptr;

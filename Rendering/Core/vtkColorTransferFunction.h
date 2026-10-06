@@ -219,6 +219,12 @@ public:
   void SetScaleToLinear() { this->SetScale(VTK_CTF_LINEAR); }
   void SetScaleToLog10() { this->SetScale(VTK_CTF_LOG10); }
   vtkGetMacro(Scale, int);
+
+  /**
+   * This should return 1 if the subclass is using log scale for
+   * mapping scalars to colors.
+   */
+  vtkTypeBool UsingLogScale() override;
   ///@}
 
   ///@{
