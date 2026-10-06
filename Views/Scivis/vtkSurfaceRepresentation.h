@@ -37,6 +37,7 @@
 #include "vtkNew.h" // For ivars
 #include "vtkScivisDataRepresentation.h"
 #include "vtkViewsScivisModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -50,7 +51,8 @@ class vtkScalarsToColors;
 class vtkScivisView;
 class vtkSelection;
 
-class VTKVIEWSSCIVIS_EXPORT vtkSurfaceRepresentation : public vtkScivisDataRepresentation
+class VTKVIEWSSCIVIS_EXPORT VTK_MARSHALAUTO vtkSurfaceRepresentation
+  : public vtkScivisDataRepresentation
 {
 public:
   static vtkSurfaceRepresentation* New();
@@ -116,10 +118,12 @@ public:
    */
   void SetColor(double r, double g, double b);
   double* GetColor() VTK_SIZEHINT(3);
+  void GetColor(double rgb[3]);
   void SetOpacity(double val);
   double GetOpacity();
   void SetEdgeColor(double r, double g, double b);
   double* GetEdgeColor() VTK_SIZEHINT(3);
+  void GetEdgeColor(double rgb[3]);
   ///@}
 
   ///@{
@@ -257,6 +261,7 @@ public:
    */
   vtkActor* GetActor();
   vtkProperty* GetProperty();
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGeometryFilterDispatcher* GetGeometryFilter();
   vtkActor* GetSelectionActor();
   ///@}

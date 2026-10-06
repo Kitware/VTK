@@ -156,12 +156,12 @@ vtkScivisView::vtkScivisView()
 
   // Orientation axes marker
   vtkNew<vtkAxesActor> axes;
-  this->OrientationWidget->SetOrientationMarker(axes);
-  this->OrientationWidget->SetInteractor(this->GetInteractor());
-  this->OrientationWidget->SetDefaultRenderer(this->Renderer);
-  this->OrientationWidget->SetViewport(0.0, 0.0, 0.2, 0.2);
-  this->OrientationWidget->SetEnabled(1);
-  this->OrientationWidget->SetInteractive(false);
+  this->OrientationMarkerWidget->SetOrientationMarker(axes);
+  this->OrientationMarkerWidget->SetInteractor(this->GetInteractor());
+  this->OrientationMarkerWidget->SetDefaultRenderer(this->Renderer);
+  this->OrientationMarkerWidget->SetViewport(0.0, 0.0, 0.2, 0.2);
+  this->OrientationMarkerWidget->SetEnabled(1);
+  this->OrientationMarkerWidget->SetInteractive(false);
 }
 
 //------------------------------------------------------------------------------
@@ -175,13 +175,7 @@ vtkScivisView::~vtkScivisView()
   {
     this->LightKit->RemoveLightsFromRenderer(this->Renderer);
   }
-  // Only if it still has an interactor: vtkOrientationMarkerWidget reports an
-  // error when enabled or disabled without one, and a view whose window was
-  // replaced by one carrying no interactor has left it with none.
-  if (this->OrientationWidget->GetInteractor())
-  {
-    this->OrientationWidget->SetEnabled(0);
-  }
+  this->OrientationMarkerWidget->SetEnabled(0);
   delete this->Implementation;
 }
 
@@ -194,7 +188,7 @@ vtkMTimeType vtkScivisView::GetMTime()
   mTime = std::max(mTime, this->Renderer->GetMTime());
   mTime = std::max(mTime, this->GetRenderWindow()->GetMTime());
   mTime = std::max(mTime, this->LightKit->GetMTime());
-  mTime = std::max(mTime, this->OrientationWidget->GetMTime());
+  mTime = std::max(mTime, this->OrientationMarkerWidget->GetMTime());
   mTime = std::max(mTime, this->Selector->GetMTime());
   mTime = std::max(mTime, this->Exporter->GetMTime());
   mTime = std::max(mTime, this->LookupTableManager->GetMTime());
@@ -221,6 +215,12 @@ double* vtkScivisView::GetBackground()
 }
 
 //------------------------------------------------------------------------------
+void vtkScivisView::GetBackground(double rgb[3])
+{
+  this->Renderer->GetBackground(rgb[0], rgb[1], rgb[2]);
+}
+
+//------------------------------------------------------------------------------
 void vtkScivisView::SetBackground2(double r, double g, double b)
 {
   double* current = this->GetBackground2();
@@ -236,6 +236,12 @@ void vtkScivisView::SetBackground2(double r, double g, double b)
 double* vtkScivisView::GetBackground2()
 {
   return this->Renderer->GetBackground2();
+}
+
+//------------------------------------------------------------------------------
+void vtkScivisView::GetBackground2(double rgb[3])
+{
+  this->Renderer->GetBackground2(rgb[0], rgb[1], rgb[2]);
 }
 
 //------------------------------------------------------------------------------
@@ -274,6 +280,14 @@ int* vtkScivisView::GetWindowSize()
 }
 
 //------------------------------------------------------------------------------
+void vtkScivisView::GetWindowSize(int size[2])
+{
+  int* current = this->GetWindowSize();
+  size[0] = current[0];
+  size[1] = current[1];
+}
+
+//------------------------------------------------------------------------------
 void vtkScivisView::SetWindowTitle(const char* title)
 {
   const char* current = this->GetWindowTitle();
@@ -298,26 +312,26 @@ void vtkScivisView::SetOrientationAxesVisibility(bool val)
   {
     return;
   }
-  if (!this->OrientationWidget->GetInteractor())
+  if (!this->OrientationMarkerWidget->GetInteractor())
   {
     vtkErrorMacro("The orientation axes need an interactor; give the view a render window "
                   "that has one.");
     return;
   }
-  this->OrientationWidget->SetEnabled(val);
+  this->OrientationMarkerWidget->SetEnabled(val);
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
 bool vtkScivisView::GetOrientationAxesVisibility()
 {
-  return this->OrientationWidget->GetEnabled() != 0;
+  return this->OrientationMarkerWidget->GetEnabled() != 0;
 }
 
 //------------------------------------------------------------------------------
 vtkOrientationMarkerWidget* vtkScivisView::GetOrientationMarkerWidget()
 {
-  return this->OrientationWidget;
+  return this->OrientationMarkerWidget;
 }
 
 //------------------------------------------------------------------------------
@@ -587,7 +601,8 @@ void vtkScivisView::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FirstRender: " << this->FirstRender << "\n";
   os << indent << "ScalarBars:\n";
   this->ScalarBars->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "OrientationAxesVisibility: " << this->OrientationWidget->GetEnabled() << "\n";
+  os << indent << "OrientationAxesVisibility: " << this->OrientationMarkerWidget->GetEnabled()
+     << "\n";
   os << indent << "UseLightKit: " << this->UseLightKitFlag << "\n";
   os << indent << "InteractionMode: " << this->InteractionMode << "\n";
 }
@@ -650,10 +665,10 @@ void vtkScivisView::SetRenderWindow(vtkRenderWindow* window)
   // The marker is switched off while the interactor it knows about is still
   // alive.  Left enabled, it is disabled for us as that interactor goes away
   // with the window, and complains about being disabled without one.
-  const bool markerWasEnabled = this->OrientationWidget->GetEnabled() != 0;
+  const bool markerWasEnabled = this->OrientationMarkerWidget->GetEnabled() != 0;
   if (markerWasEnabled)
   {
-    this->OrientationWidget->SetEnabled(0);
+    this->OrientationMarkerWidget->SetEnabled(0);
   }
 
   // The renderers belong to the view rather than to the window that happened to
@@ -681,10 +696,10 @@ void vtkScivisView::SetRenderWindow(vtkRenderWindow* window)
     }
     // The marker listens to an interactor rather than to a window, and the one
     // it was given when this view was built belongs to the window just left.
-    this->OrientationWidget->SetInteractor(interactor);
+    this->OrientationMarkerWidget->SetInteractor(interactor);
     if (markerWasEnabled)
     {
-      this->OrientationWidget->SetEnabled(1);
+      this->OrientationMarkerWidget->SetEnabled(1);
     }
   }
   this->Modified();
@@ -704,10 +719,10 @@ void vtkScivisView::SetInteractor(vtkRenderWindowInteractor* interactor)
     return;
   }
 
-  const bool markerEnabled = this->OrientationWidget->GetEnabled() != 0;
+  const bool markerEnabled = this->OrientationMarkerWidget->GetEnabled() != 0;
   if (markerEnabled)
   {
-    this->OrientationWidget->SetEnabled(0);
+    this->OrientationMarkerWidget->SetEnabled(0);
   }
 
   // Whatever style was installed belongs to the view rather than to the
@@ -723,10 +738,10 @@ void vtkScivisView::SetInteractor(vtkRenderWindowInteractor* interactor)
     }
     // The marker listens to an interactor, not to the view, so it has to be
     // told about the one that just replaced the old.
-    this->OrientationWidget->SetInteractor(current);
+    this->OrientationMarkerWidget->SetInteractor(current);
     if (markerEnabled)
     {
-      this->OrientationWidget->SetEnabled(1);
+      this->OrientationMarkerWidget->SetEnabled(1);
     }
   }
   this->Modified();

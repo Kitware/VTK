@@ -45,12 +45,13 @@
 #include "vtkSmartPointer.h"      // For ivars
 #include "vtkViewsScivisModule.h" // For export macro
 #include "vtkWeakPointer.h"       // For ivars
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHardwareSelector;
 class vtkScivisView;
 
-class VTKVIEWSSCIVIS_EXPORT vtkScivisSelector : public vtkObject
+class VTKVIEWSSCIVIS_EXPORT VTK_MARSHALAUTO vtkScivisSelector : public vtkObject
 {
 public:
   static vtkScivisSelector* New();

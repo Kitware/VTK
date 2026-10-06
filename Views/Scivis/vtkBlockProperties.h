@@ -44,13 +44,14 @@
 #include "vtkObject.h"
 #include "vtkViewsScivisModule.h" // For export macro
 #include "vtkWeakPointer.h"       // For ivars
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
 class vtkCompositeDataDisplayAttributes;
 class vtkCompositePolyDataMapper;
 
-class VTKVIEWSSCIVIS_EXPORT vtkBlockProperties : public vtkObject
+class VTKVIEWSSCIVIS_EXPORT VTK_MARSHALAUTO vtkBlockProperties : public vtkObject
 {
 public:
   static vtkBlockProperties* New();

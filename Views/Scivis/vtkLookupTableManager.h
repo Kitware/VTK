@@ -26,12 +26,13 @@
 
 #include "vtkObject.h"
 #include "vtkViewsScivisModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkLookupTable;
 class vtkScalarsToColors;
 
-class VTKVIEWSSCIVIS_EXPORT vtkLookupTableManager : public vtkObject
+class VTKVIEWSSCIVIS_EXPORT VTK_MARSHALAUTO vtkLookupTableManager : public vtkObject
 {
 public:
   static vtkLookupTableManager* New();

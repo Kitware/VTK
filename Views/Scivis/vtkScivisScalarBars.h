@@ -45,13 +45,14 @@
 #include "vtkObject.h"
 #include "vtkViewsScivisModule.h" // For export macro
 #include "vtkWeakPointer.h"       // For ivar
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarBarActor;
 class vtkScalarBarWidget;
 class vtkScivisView;
 
-class VTKVIEWSSCIVIS_EXPORT vtkScivisScalarBars : public vtkObject
+class VTKVIEWSSCIVIS_EXPORT VTK_MARSHALAUTO vtkScivisScalarBars : public vtkObject
 {
 public:
   static vtkScivisScalarBars* New();

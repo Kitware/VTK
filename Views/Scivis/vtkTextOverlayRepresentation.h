@@ -44,12 +44,14 @@
 #include "vtkNew.h" // For ivar
 #include "vtkScivisRepresentation.h"
 #include "vtkViewsScivisModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkTextActor;
 class vtkTextProperty;
 
-class VTKVIEWSSCIVIS_EXPORT vtkTextOverlayRepresentation : public vtkScivisRepresentation
+class VTKVIEWSSCIVIS_EXPORT VTK_MARSHALAUTO vtkTextOverlayRepresentation
+  : public vtkScivisRepresentation
 {
 public:
   static vtkTextOverlayRepresentation* New();

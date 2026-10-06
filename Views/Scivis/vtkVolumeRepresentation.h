@@ -35,6 +35,7 @@
 #include "vtkNew.h" // For ivars
 #include "vtkScivisDataRepresentation.h"
 #include "vtkViewsScivisModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkColorTransferFunction;
@@ -46,7 +47,8 @@ class vtkSmartVolumeMapper;
 class vtkVolume;
 class vtkVolumeProperty;
 
-class VTKVIEWSSCIVIS_EXPORT vtkVolumeRepresentation : public vtkScivisDataRepresentation
+class VTKVIEWSSCIVIS_EXPORT VTK_MARSHALAUTO vtkVolumeRepresentation
+  : public vtkScivisDataRepresentation
 {
 public:
   static vtkVolumeRepresentation* New();
@@ -202,7 +204,7 @@ private:
   bool IsColoringBy(const char* arrayName, int scalarMode);
 
   vtkNew<vtkSmartVolumeMapper> VolumeMapper;
-  vtkNew<vtkVolume> VolumeActor;
+  vtkNew<vtkVolume> Volume;
   vtkNew<vtkVolumeProperty> VolumeProperty;
   bool DefaultTransferFunctionsCreated;
   bool UserSetColorTransferFunction;

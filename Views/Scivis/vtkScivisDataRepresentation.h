@@ -27,6 +27,7 @@
 #include "vtkScivisRepresentation.h"
 #include "vtkSmartPointer.h"      // For ivars
 #include "vtkViewsScivisModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithmOutput;
@@ -36,7 +37,8 @@ class vtkScalarsToColors;
 class vtkScivisView;
 class vtkSelection;
 
-class VTKVIEWSSCIVIS_EXPORT vtkScivisDataRepresentation : public vtkScivisRepresentation
+class VTKVIEWSSCIVIS_EXPORT VTK_MARSHALAUTO vtkScivisDataRepresentation
+  : public vtkScivisRepresentation
 {
 public:
   vtkTypeMacro(vtkScivisDataRepresentation, vtkScivisRepresentation);
@@ -135,8 +137,11 @@ public:
    * collection returned by GetClippingPlanes() works and takes effect on the
    * next render.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void AddClippingPlane(vtkPlane* plane);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void RemoveClippingPlane(vtkPlane* plane);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void RemoveAllClippingPlanes();
   void SetClippingPlanes(vtkPlaneCollection* planes);
   vtkPlaneCollection* GetClippingPlanes();
