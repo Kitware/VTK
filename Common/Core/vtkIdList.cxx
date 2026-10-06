@@ -12,12 +12,25 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIdList);
 
+namespace
+{
+// vtkBuffer invokes this with a byte count (size = numElements * sizeof(vtkIdType)).
+// The ids are allocated with new[], so that the pointer returned by Release() can be freed with
+// delete[].
+vtkMallocingFunction DefaultNewFunction = [](size_t size) -> void*
+{ return new vtkIdType[size / sizeof(vtkIdType)]; };
+vtkFreeingFunction DefaultDeleteFunction = [](void* ptr) { delete[] static_cast<vtkIdType*>(ptr); };
+}
+
 //------------------------------------------------------------------------------
 vtkIdList::vtkIdList()
 {
   this->Size = 0; // VTK_DEPRECATED_IN_9_7_0
   this->NumberOfIds = 0;
   this->Buffer = vtkBuffer<vtkIdType>::New();
+  this->Buffer->SetMallocFunction(DefaultNewFunction);
+  this->Buffer->SetReallocFunction(nullptr);
+  this->Buffer->SetFreeFunction(false, DefaultDeleteFunction);
 }
 
 //------------------------------------------------------------------------------
@@ -33,6 +46,8 @@ vtkIdType* vtkIdList::Release()
   // don't free the buffer when the vtkBuffer is deleted
   this->Buffer->SetFreeFunction(/*noFreeFunction*/ true, nullptr);
   this->Initialize();
+  // but free the next ones
+  this->Buffer->SetFreeFunction(false, DefaultDeleteFunction);
   return retval;
 }
 
