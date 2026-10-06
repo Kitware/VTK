@@ -932,7 +932,15 @@ def mean(array, axis=None, controller=None, size=None):
             return _mean(array, axis)
 
 def var(array, axis=None, controller=None):
-    """Composite + MPI aware variance."""
+    """Composite + MPI aware variance.
+    Example:
+        >>> import numpy as np
+        >>> arr = np.array([[1.0, 2.0, 3.0],
+        ...                 [4.0, 5.0, 6.0],
+        ...                 [7.0, 8.0, 9.0]])
+        >>> var(arr, axis=0)
+        array([ 6, 6, 6])
+    """
     if axis is None or axis == 0:
         size = array_count(array, axis, controller)
         center = mean(array, axis, controller, size)
