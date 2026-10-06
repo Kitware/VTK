@@ -267,9 +267,8 @@ class VTKStructuredPointArray(VTKDataArrayMixin):
         xc = self.GetXCoordinates()
         if xc is None:
             return None
-        dtype = self.dtype
         return [
-            numpy.asarray(numpy_support.vtk_to_numpy(coords), dtype=dtype)
+            numpy.asarray(numpy_support.vtk_to_numpy(coords), dtype=self.dtype)
             for coords in (xc, self.GetYCoordinates(), self.GetZCoordinates())
         ]
 
