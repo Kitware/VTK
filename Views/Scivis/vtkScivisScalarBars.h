@@ -92,10 +92,7 @@ public:
    * How every bar is drawn: the size of its title and of the numbers beside it,
    * their color, and how many numbers there are.
    *
-   * These belong to the set rather than to any one bar, because the bars are
-   * not yours to create -- a bar that appears later because a representation
-   * started drawing another array is drawn this way too.  Setting the same
-   * thing on GetActor() reaches one bar and is lost when that bar is retired.
+   * These apply to every bar, including ones created later.
    */
   void SetTitleFontSize(int size);
   int GetTitleFontSize();

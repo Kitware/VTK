@@ -73,11 +73,8 @@ public:
    * representation is drawn in.  Has no effect while the representation is
    * coloring by an array.
    *
-   * A block that has not been given a color or an opacity of its own is drawn
-   * the way the representation is, and that is what GetColor() and GetOpacity()
-   * report.  The display attributes underneath answer differently -- black, and
-   * zero -- for a block nobody has set, which would read as an invisible black
-   * block rather than as one drawn like all the others.
+   * A block that has not been given a color or an opacity of its own reports
+   * the representation's.
    */
   void SetColor(unsigned int index, double r, double g, double b);
   void GetColor(unsigned int index, double color[3]);

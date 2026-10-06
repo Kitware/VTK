@@ -7,15 +7,18 @@ properties you care about; a new view draws something reasonable before any of
 that.
 
 ```cpp
+vtkNew<vtkSphereSource> source;
 vtkNew<vtkScivisView> view;
 vtkNew<vtkSurfaceRepresentation> rep;
 rep->SetInputConnection(source->GetOutputPort());
-rep->ColorByPointArray("Temperature");
+rep->SetColor(1.0, 0.39, 0.28);
+rep->SetRepresentationToSurfaceWithEdges();
 view->AddRepresentation(rep);
 view->Start();
 ```
 
 ```python
+source = vtkSphereSource()
 view = vtkScivisView(window_title="Demo")
 view.show(source, color="tomato", representation="surfacewithedges")
 view.Start()
@@ -39,12 +42,11 @@ view.Start()
   representation of an array shares one map and range. Register a map there to
   choose it, and share a manager between views to keep them in step.
 
-Each class carries the properties applications set routinely, such as font
-sizes, titles and colors on the grid axes and text overlay, line width and
-specular on surfaces, and ambient, diffuse and specular on volumes. Those
-forward to the objects the classes hand out (`GetProperty()`,
-`GetTextProperty()`, `GetVolumeProperty()`, `GetGridAxesActor()`, ...), which
-remain the place for anything finer.
+The grid axes and text overlay carry the properties applications set routinely,
+such as font sizes, titles and colors. Those forward to the objects the classes
+hand out (`GetTextProperty()`, `GetGridAxesActor()`), which remain the place for
+anything finer, as `GetProperty()` and `GetVolumeProperty()` are for the line
+width, point size and lighting of surfaces and volumes.
 
 In Python, properties are snake case and accept names for enumerated values and
 colors (`rep.representation = "outline"`, `rep.color = "steel_blue"`). A

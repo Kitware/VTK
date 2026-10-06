@@ -86,10 +86,8 @@ public:
 
   ///@{
   /**
-   * How the text is drawn.  These are the text property's, promoted here
-   * because they are what an application sets: the size in points, the color,
-   * and whether it is bold or italic.  Anything else -- the font itself, the
-   * justification, a shadow -- is on GetTextProperty().
+   * How the text is drawn.
+   * For advanced style properties, use GetTextProperty() directly.
    */
   void SetFontSize(int size);
   int GetFontSize();

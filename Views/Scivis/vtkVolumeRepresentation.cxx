@@ -504,57 +504,6 @@ vtkScalarsToColors* vtkVolumeRepresentation::GetColorMap()
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeRepresentation::SetAmbient(double value)
-{
-  if (this->GetAmbient() == value)
-  {
-    return;
-  }
-  this->GetVolumeProperty()->SetAmbient(value);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkVolumeRepresentation::GetAmbient()
-{
-  return this->GetVolumeProperty()->GetAmbient();
-}
-
-//------------------------------------------------------------------------------
-void vtkVolumeRepresentation::SetDiffuse(double value)
-{
-  if (this->GetDiffuse() == value)
-  {
-    return;
-  }
-  this->GetVolumeProperty()->SetDiffuse(value);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkVolumeRepresentation::GetDiffuse()
-{
-  return this->GetVolumeProperty()->GetDiffuse();
-}
-
-//------------------------------------------------------------------------------
-void vtkVolumeRepresentation::SetSpecular(double value)
-{
-  if (this->GetSpecular() == value)
-  {
-    return;
-  }
-  this->GetVolumeProperty()->SetSpecular(value);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkVolumeRepresentation::GetSpecular()
-{
-  return this->GetVolumeProperty()->GetSpecular();
-}
-
-//------------------------------------------------------------------------------
 vtkVolumeProperty* vtkVolumeRepresentation::GetVolumeProperty()
 {
   return this->VolumeProperty;

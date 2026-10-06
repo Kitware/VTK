@@ -89,11 +89,8 @@ public:
    * points and start at the 12 vtkTextProperty defaults to, which suits the
    * space the axes leave for them; larger titles run into the labels.
    *
-   * These are the same text properties GetGridAxesActor() hands out, set on all
-   * three axes at once, which is what an application that cares about the size
-   * of its axis text almost always wants.  Reach for the actor's per-axis
-   * properties for anything finer -- a different font on one axis, a label
-   * format, italics.
+   * These apply to all three axes.  For per-axis settings, use
+   * GetGridAxesActor().
    */
   void SetLabelFontSize(int size);
   int GetLabelFontSize();

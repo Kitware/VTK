@@ -102,21 +102,6 @@ public:
    * ambient, diffuse, specular, specular power, interpolation type -- use
    * GetVolumeProperty().
    */
-  ///@{
-  /**
-   * How the volume responds to light, which has an effect while Shade is on.
-   * These belong to the volume property and are promoted here because they are
-   * the ones that get adjusted; interpolation, gradient opacity and the rest
-   * are on GetVolumeProperty().
-   */
-  void SetAmbient(double value);
-  double GetAmbient();
-  void SetDiffuse(double value);
-  double GetDiffuse();
-  void SetSpecular(double value);
-  double GetSpecular();
-  ///@}
-
   void SetShade(bool val);
   bool GetShade();
   ///@}

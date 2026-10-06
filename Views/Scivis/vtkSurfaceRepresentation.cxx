@@ -427,9 +427,6 @@ void vtkSurfaceRepresentation::GetEdgeColor(double rgb[3])
 //------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::ColorBySolidColor()
 {
-  // The counterpart of the three above: stop coloring by an array, and go back
-  // to the color the representation was given.  That color is left alone, so
-  // one set while an array was being drawn is what comes back.
   this->SetScalarVisibility(false);
 }
 
@@ -995,74 +992,6 @@ bool vtkSurfaceRepresentation::GetBounds(double bounds[6])
   }
   std::copy(actorBounds, actorBounds + 6, bounds);
   return true;
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetLineWidth(double value)
-{
-  if (this->GetLineWidth() == value)
-  {
-    return;
-  }
-  this->GetProperty()->SetLineWidth(value);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetLineWidth()
-{
-  return this->GetProperty()->GetLineWidth();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetPointSize(double value)
-{
-  if (this->GetPointSize() == value)
-  {
-    return;
-  }
-  this->GetProperty()->SetPointSize(value);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetPointSize()
-{
-  return this->GetProperty()->GetPointSize();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetSpecular(double value)
-{
-  if (this->GetSpecular() == value)
-  {
-    return;
-  }
-  this->GetProperty()->SetSpecular(value);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetSpecular()
-{
-  return this->GetProperty()->GetSpecular();
-}
-
-//------------------------------------------------------------------------------
-void vtkSurfaceRepresentation::SetSpecularPower(double value)
-{
-  if (this->GetSpecularPower() == value)
-  {
-    return;
-  }
-  this->GetProperty()->SetSpecularPower(value);
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-double vtkSurfaceRepresentation::GetSpecularPower()
-{
-  return this->GetProperty()->GetSpecularPower();
 }
 
 //------------------------------------------------------------------------------

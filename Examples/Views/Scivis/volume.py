@@ -18,8 +18,8 @@ view = vtkScivisView(window_title="Volume", size=(1000, 700))
 wavelet = vtkRTAnalyticSource(whole_extent=(-20, 20, -20, 20, -20, 20))
 volume = view.show(wavelet, "volume", scalar_opacity_unit_distance=1.5)
 
-# How it responds to light is on the representation; the transfer functions and
-# anything finer are on the objects it hands out.
+# Whether it is lit is on the representation; how it responds to light, the
+# transfer functions and anything finer are on the objects it hands out.
 volume.shade = True
 volume.ambient = 0.3
 volume.diffuse = 0.7
