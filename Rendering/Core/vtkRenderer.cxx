@@ -1818,6 +1818,8 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << "null" << endl;
   }
+
+  os << indent << "UseSphericalHarmonics: " << (this->UseSphericalHarmonics ? "On" : "Off") << "\n";
 }
 
 int vtkRenderer::VisibleActorCount()

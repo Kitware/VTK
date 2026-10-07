@@ -895,6 +895,17 @@ public:
 
   ///@{
   /**
+   * If this flag is true and the rendering engine supports it, the diffuse part of image based
+   * lighting is computed from the spherical harmonics coefficients of the environment instead of
+   * an irradiance texture. Default is true.
+   */
+  vtkSetMacro(UseSphericalHarmonics, bool);
+  vtkGetMacro(UseSphericalHarmonics, bool);
+  vtkBooleanMacro(UseSphericalHarmonics, bool);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the environment texture used for image based lighting.
    * This texture is supposed to represent the scene background.
    * @sa vtkTexture::UseSRGBColorSpaceOn
@@ -1263,6 +1274,7 @@ protected:
   vtkInformation* Information;
 
   bool UseImageBasedLighting;
+  bool UseSphericalHarmonics = true;
   vtkTexture* EnvironmentTexture;
 
 private:
