@@ -171,6 +171,19 @@ int TestLookupTable(int, char*[])
   TestAssert(table->GetIndex(lo * step) == 1);
   TestAssert(table->GetIndex(hi / step) == 254);
 
+  // symlog range test
+  table->SetScaleToSymlog();
+  table->SetTableRange(-100.0, 100.0);
+  table->SetSymlogLinearThreshold(10.0);
+  table->Build();
+  TestAssert(table->GetIndex(-100.0) == 0);
+  TestAssert(table->GetIndex(100.0) == 255);
+  TestAssert(table->GetIndex(0.0) == 128);
+  const vtkIdType expectedPosIdx = static_cast<vtkIdType>(
+    ((std::log10(2.0) + std::log10(11.0)) / (2.0 * std::log10(11.0))) * 256.0);
+  TestAssert(table->GetIndex(10.0) == expectedPosIdx);
+  TestAssert(table->GetIndex(vtkMath::Nan()) == -1);
+
   // negative log range
   double tmp = hi;
   hi = -lo;

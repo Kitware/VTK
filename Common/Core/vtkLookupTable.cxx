@@ -73,6 +73,7 @@ vtkLookupTable::vtkLookupTable(int sze, int vtkNotUsed(ext))
 
   this->Ramp = VTK_RAMP_SCURVE;
   this->Scale = VTK_SCALE_LINEAR;
+  this->SymlogLinearThreshold = 1.0;
 
   this->OpaqueFlag = 1;
 }
@@ -538,6 +539,80 @@ inline double vtkApplyLogScale(double v, const double range[2], const double log
 
 //------------------------------------------------------------------------------
 // Private structure for passing data between various internal functions
+
+//------------------------------------------------------------------------------
+inline double vtkSymlog(double v, double linthresh)
+{
+  return std::copysign(log10(1.0 + std::abs(v) / linthresh), v);
+}
+
+//------------------------------------------------------------------------------
+inline void vtkLookupTableSymlogRange(
+  const double range[2], double symlogRange[2], double linthresh)
+{
+  symlogRange[0] = vtkSymlog(range[0], linthresh);
+  symlogRange[1] = vtkSymlog(range[1], linthresh);
+}
+
+//------------------------------------------------------------------------------
+double vtkApplySymlogScaleMain(
+  double v, const double range[2], const double symlogRange[2], double linthresh)
+{
+  if (v < range[0])
+  {
+    if (range[0] <= range[1])
+    {
+      return symlogRange[0] - 1.0;
+    }
+    else
+    {
+      return symlogRange[1] + 1.0;
+    }
+  }
+  else if (v > range[1])
+  {
+    if (range[0] <= range[1])
+    {
+      return symlogRange[1] + 1.0;
+    }
+    else
+    {
+      return symlogRange[0] - 1.0;
+    }
+  }
+  else
+  {
+    return vtkSymlog(v, linthresh);
+  }
+}
+
+template <class T>
+double vtkApplySymlogScale(
+  T v, const double range[2], const double symlogRange[2], double linthresh)
+{
+  return vtkApplySymlogScaleMain(v, range, symlogRange, linthresh);
+}
+
+inline double vtkApplySymlogScale(
+  float v, const double range[2], const double symlogRange[2], double linthresh)
+{
+  if (vtkMath::IsNan(v))
+  {
+    return v;
+  }
+  return vtkApplySymlogScaleMain(v, range, symlogRange, linthresh);
+}
+
+inline double vtkApplySymlogScale(
+  double v, const double range[2], const double symlogRange[2], double linthresh)
+{
+  if (vtkMath::IsNan(v))
+  {
+    return v;
+  }
+  return vtkApplySymlogScaleMain(v, range, symlogRange, linthresh);
+}
+
 struct TableParameters
 {
   vtkIdType NumColors;
@@ -690,6 +765,15 @@ vtkIdType vtkLookupTable::GetIndex(double v)
     v = vtkApplyLogScale(v, this->TableRange, logRange);
     p.Range[0] = logRange[0];
     p.Range[1] = logRange[1];
+  }
+  else if (this->Scale == VTK_SCALE_SYMLOG)
+  { // handle symlog scale
+    double symlogRange[2];
+    vtkLookupTableSymlogRange(this->TableRange, symlogRange, this->SymlogLinearThreshold);
+    vtkLookupShiftAndScale(symlogRange, p.NumColors, p.Shift, p.Scale);
+    v = vtkApplySymlogScale(v, this->TableRange, symlogRange, this->SymlogLinearThreshold);
+    p.Range[0] = symlogRange[0];
+    p.Range[1] = symlogRange[1];
   }
   else
   { // plain old linear
@@ -890,7 +974,68 @@ struct vtkLookupTableMapData
             input += inIncr;
           }
         }
-      } // if log scale
+      }
+      else if (self->GetScale() == VTK_SCALE_SYMLOG)
+      {
+        double val;
+        double symlogRange[2];
+        vtkLookupTableSymlogRange(range, symlogRange, self->GetSymlogLinearThreshold());
+        vtkLookupShiftAndScale(symlogRange, p.NumColors, p.Shift, p.Scale);
+        p.Range[0] = symlogRange[0];
+        p.Range[1] = symlogRange[1];
+
+        if (outFormat == VTK_RGBA)
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplySymlogScale(*input, range, symlogRange, self->GetSymlogLinearThreshold());
+            vtkIdType idx = vtkLinearLookup(val, p);
+            cptr = table + 4 * idx;
+            memcpy(output, cptr, 4);
+            input += inIncr;
+            output += 4;
+          }
+        }
+        else if (outFormat == VTK_RGB)
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplySymlogScale(*input, range, symlogRange, self->GetSymlogLinearThreshold());
+            vtkIdType idx = vtkLinearLookup(val, p);
+            cptr = table + 4 * idx;
+            memcpy(output, cptr, 3);
+            input += inIncr;
+            output += 3;
+          }
+        }
+        else if (outFormat == VTK_LUMINANCE_ALPHA)
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplySymlogScale(*input, range, symlogRange, self->GetSymlogLinearThreshold());
+            vtkIdType idx = vtkLinearLookup(val, p);
+            cptr = table + 4 * idx;
+            output[0] =
+              static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+            output[1] = cptr[3];
+            input += inIncr;
+            output += 2;
+          }
+        }
+        else // outFormat == VTK_LUMINANCE
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplySymlogScale(*input, range, symlogRange, self->GetSymlogLinearThreshold());
+            vtkIdType idx = vtkLinearLookup(val, p);
+            cptr = table + 4 * idx;
+            *output++ =
+              static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+            input += inIncr;
+          }
+        }
+      }
+      // if log scale
 
       else // not log scale
       {
@@ -1010,7 +1155,71 @@ struct vtkLookupTableMapData
             input += inIncr;
           }
         }
-      } // log scale with blending
+      }
+      else if (self->GetScale() == VTK_SCALE_SYMLOG)
+      {
+        double val;
+        double symlogRange[2];
+        vtkLookupTableSymlogRange(range, symlogRange, self->GetSymlogLinearThreshold());
+        vtkLookupShiftAndScale(symlogRange, p.NumColors, p.Shift, p.Scale);
+        p.Range[0] = symlogRange[0];
+        p.Range[1] = symlogRange[1];
+
+        if (outFormat == VTK_RGBA)
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplySymlogScale(*input, range, symlogRange, self->GetSymlogLinearThreshold());
+            vtkIdType idx = vtkLinearLookup(val, p);
+            cptr = table + 4 * idx;
+            output[0] = cptr[0];
+            output[1] = cptr[1];
+            output[2] = cptr[2];
+            output[3] = static_cast<unsigned char>(cptr[3] * alpha + 0.5);
+            input += inIncr;
+            output += 4;
+          }
+        }
+        else if (outFormat == VTK_RGB)
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplySymlogScale(*input, range, symlogRange, self->GetSymlogLinearThreshold());
+            vtkIdType idx = vtkLinearLookup(val, p);
+            cptr = table + 4 * idx;
+            memcpy(output, cptr, 3);
+            input += inIncr;
+            output += 3;
+          }
+        }
+        else if (outFormat == VTK_LUMINANCE_ALPHA)
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplySymlogScale(*input, range, symlogRange, self->GetSymlogLinearThreshold());
+            vtkIdType idx = vtkLinearLookup(val, p);
+            cptr = table + 4 * idx;
+            output[0] =
+              static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+            output[1] = static_cast<unsigned char>(alpha * cptr[3] + 0.5);
+            input += inIncr;
+            output += 2;
+          }
+        }
+        else // outFormat == VTK_LUMINANCE
+        {
+          while (--i >= 0)
+          {
+            val = vtkApplySymlogScale(*input, range, symlogRange, self->GetSymlogLinearThreshold());
+            vtkIdType idx = vtkLinearLookup(val, p);
+            cptr = table + 4 * idx;
+            *output++ =
+              static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+            input += inIncr;
+          }
+        }
+      }
+      // log scale with blending
 
       else // no log scale with blending
       {
@@ -1356,7 +1565,11 @@ void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "TableRange: (" << this->TableRange[0] << ", " << this->TableRange[1] << ")\n";
-  os << indent << "Scale: " << (this->Scale == VTK_SCALE_LOG10 ? "Log10\n" : "Linear\n");
+  os << indent << "Scale: "
+     << (this->Scale == VTK_SCALE_LOG10
+            ? "Log10\n"
+            : (this->Scale == VTK_SCALE_SYMLOG ? "Symlog\n" : "Linear\n"));
+  os << indent << "SymlogLinearThreshold: " << this->SymlogLinearThreshold << "\n";
   os << indent << "HueRange: (" << this->HueRange[0] << ", " << this->HueRange[1] << ")\n";
   os << indent << "SaturationRange: (" << this->SaturationRange[0] << ", "
      << this->SaturationRange[1] << ")\n";
@@ -1410,6 +1623,7 @@ void vtkLookupTable::DeepCopy(vtkScalarsToColors* obj)
   }
 
   this->Scale = lut->Scale;
+  this->SymlogLinearThreshold = lut->SymlogLinearThreshold;
   this->TableRange[0] = lut->TableRange[0];
   this->TableRange[1] = lut->TableRange[1];
   this->HueRange[0] = lut->HueRange[0];
