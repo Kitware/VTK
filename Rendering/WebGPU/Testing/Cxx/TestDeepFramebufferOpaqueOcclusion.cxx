@@ -10,6 +10,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
@@ -19,6 +20,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <string>
 #include <vector>
 
 namespace
@@ -60,7 +62,7 @@ vtkSmartPointer<vtkActor> MakeHiddenTranslucentSphere()
   return actor;
 }
 
-std::vector<unsigned char> Render(bool withHiddenSphere)
+std::vector<unsigned char> Render(bool withHiddenSphere, bool interactive = false)
 {
   vtkNew<vtkRenderer> renderer;
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
@@ -85,6 +87,13 @@ std::vector<unsigned char> Render(bool withHiddenSphere)
     renderer->AddActor(MakeHiddenTranslucentSphere());
   }
   window->Render();
+  if (interactive)
+  {
+    vtkNew<vtkRenderWindowInteractor> iren;
+    iren->SetRenderWindow(window);
+    iren->Initialize();
+    iren->Start();
+  }
 
   vtkNew<vtkWindowToImageFilter> capture;
   capture->SetInput(window);
@@ -107,8 +116,23 @@ std::vector<unsigned char> Render(bool withHiddenSphere)
 }
 }
 
-int TestDeepFramebufferOpaqueOcclusion(int, char*[])
+int TestDeepFramebufferOpaqueOcclusion(int argc, char* argv[])
 {
+  bool interactive = false;
+  for (int i = 0; i < argc; ++i)
+  {
+    if (std::string(argv[i]) == "-I")
+    {
+      interactive = true;
+      break;
+    }
+  }
+
+  if (interactive)
+  {
+    Render(true, true);
+    return EXIT_SUCCESS;
+  }
   const std::vector<unsigned char> boxOnly = Render(false);
   const std::vector<unsigned char> boxAndSphere = Render(true);
 

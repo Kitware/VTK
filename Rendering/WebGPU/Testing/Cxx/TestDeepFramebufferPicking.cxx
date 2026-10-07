@@ -7,6 +7,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
@@ -52,8 +53,18 @@ bool ReadCentreIds(
 }
 }
 
-int TestDeepFramebufferPicking(int, char*[])
+int TestDeepFramebufferPicking(int argc, char* argv[])
 {
+  bool interactive = false;
+  for (int i = 0; i < argc; ++i)
+  {
+    if (std::string(argv[i]) == "-I")
+    {
+      interactive = true;
+      break;
+    }
+  }
+
   const double red[3] = { 1.0, 0.0, 0.0 };
   const double green[3] = { 0.0, 1.0, 0.0 };
   const double blue[3] = { 0.0, 0.0, 1.0 };
@@ -115,6 +126,14 @@ int TestDeepFramebufferPicking(int, char*[])
 
   renderer->RemoveActor(translucentNear);
   window->Render();
+  if (interactive)
+  {
+    vtkNew<vtkRenderWindowInteractor> iren;
+    iren->SetRenderWindow(window);
+    iren->Initialize();
+    iren->Start();
+    return EXIT_SUCCESS;
+  }
 
   vtkTypeUInt32 midCell = 0;
   vtkTypeUInt32 midProp = 0;

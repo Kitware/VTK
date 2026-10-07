@@ -14,6 +14,7 @@
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
@@ -88,7 +89,7 @@ vtkSmartPointer<vtkActor> MakeCompositeActor(double x, const double rgb[3])
 }
 
 std::vector<unsigned char> RenderInOrder(
-  const std::vector<vtkSmartPointer<vtkActor>>& actorsIn, bool reversed)
+  const std::vector<vtkSmartPointer<vtkActor>>& actorsIn, bool reversed, bool interactive = false)
 {
   std::vector<vtkSmartPointer<vtkActor>> actors = actorsIn;
   if (reversed)
@@ -116,6 +117,13 @@ std::vector<unsigned char> RenderInOrder(
   window->AddRenderer(renderer);
   renderer->ResetCamera();
   window->Render();
+  if (interactive)
+  {
+    vtkNew<vtkRenderWindowInteractor> iren;
+    iren->SetRenderWindow(window);
+    iren->Initialize();
+    iren->Start();
+  }
 
   vtkNew<vtkWindowToImageFilter> capture;
   capture->SetInput(window);
@@ -193,11 +201,29 @@ bool OrderIndependent(const std::string& what, const std::vector<vtkSmartPointer
 }
 }
 
-int TestDeepFramebufferMappers(int, char*[])
+int TestDeepFramebufferMappers(int argc, char* argv[])
 {
+  bool interactive = false;
+  for (int i = 0; i < argc; ++i)
+  {
+    if (std::string(argv[i]) == "-I")
+    {
+      interactive = true;
+      break;
+    }
+  }
+
   const double red[3] = { 1.0, 0.0, 0.0 };
   const double green[3] = { 0.0, 1.0, 0.0 };
   const double blue[3] = { 0.0, 0.0, 1.0 };
+
+  if (interactive)
+  {
+    RenderInOrder(
+      { MakeGlyphActor(-0.4, red), MakeGlyphActor(0.0, green), MakeGlyphActor(0.4, blue) }, false,
+      true);
+    return EXIT_SUCCESS;
+  }
 
   bool ok = true;
 

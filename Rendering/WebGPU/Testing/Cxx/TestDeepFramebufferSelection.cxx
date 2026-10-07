@@ -12,6 +12,7 @@
 #include "vtkProp.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
@@ -43,7 +44,8 @@ vtkSmartPointer<vtkActor> MakeSphere(double z, double opacity, const double rgb[
   return actor;
 }
 
-std::map<std::string, vtkIdType> Select(bool deepFramebuffer, int association)
+std::map<std::string, vtkIdType> Select(
+  bool deepFramebuffer, int association, bool interactive = false)
 {
   const double red[3] = { 1.0, 0.0, 0.0 };
   const double green[3] = { 0.0, 1.0, 0.0 };
@@ -72,6 +74,13 @@ std::map<std::string, vtkIdType> Select(bool deepFramebuffer, int association)
   window->AddRenderer(renderer);
   renderer->ResetCamera();
   window->Render();
+  if (interactive)
+  {
+    vtkNew<vtkRenderWindowInteractor> iren;
+    iren->SetRenderWindow(window);
+    iren->Initialize();
+    iren->Start();
+  }
 
   std::map<vtkProp*, std::string> names = { { opaqueFar, "far" }, { translucentMid, "mid" },
     { translucentNear, "near" } };
@@ -139,8 +148,24 @@ bool Compare(const char* what, int association)
 }
 }
 
-int TestDeepFramebufferSelection(int, char*[])
+int TestDeepFramebufferSelection(int argc, char* argv[])
 {
+  bool interactive = false;
+  for (int i = 0; i < argc; ++i)
+  {
+    if (std::string(argv[i]) == "-I")
+    {
+      interactive = true;
+      break;
+    }
+  }
+
+  if (interactive)
+  {
+    Select(true, vtkDataObject::FIELD_ASSOCIATION_CELLS, true);
+    return EXIT_SUCCESS;
+  }
+
   bool ok = true;
   ok &= Compare("cell selection", vtkDataObject::FIELD_ASSOCIATION_CELLS);
   ok &= Compare("point selection", vtkDataObject::FIELD_ASSOCIATION_POINTS);

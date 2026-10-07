@@ -10,6 +10,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
@@ -18,6 +19,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <string>
 #include <vector>
 
 namespace
@@ -45,7 +47,7 @@ vtkSmartPointer<vtkActor> MakeQuad(int layer)
   return actor;
 }
 
-std::vector<unsigned char> RenderInOrder(bool reversed)
+std::vector<unsigned char> RenderInOrder(bool reversed, bool interactive = false)
 {
   std::vector<vtkSmartPointer<vtkActor>> actors;
   for (int layer = 0; layer < LayerCount; ++layer)
@@ -77,6 +79,13 @@ std::vector<unsigned char> RenderInOrder(bool reversed)
   window->AddRenderer(renderer);
   renderer->ResetCamera();
   window->Render();
+  if (interactive)
+  {
+    vtkNew<vtkRenderWindowInteractor> iren;
+    iren->SetRenderWindow(window);
+    iren->Initialize();
+    iren->Start();
+  }
 
   vtkNew<vtkWindowToImageFilter> capture;
   capture->SetInput(window);
@@ -99,8 +108,23 @@ std::vector<unsigned char> RenderInOrder(bool reversed)
 }
 }
 
-int TestDeepFramebufferManyLayers(int, char*[])
+int TestDeepFramebufferManyLayers(int argc, char* argv[])
 {
+  bool interactive = false;
+  for (int i = 0; i < argc; ++i)
+  {
+    if (std::string(argv[i]) == "-I")
+    {
+      interactive = true;
+      break;
+    }
+  }
+
+  if (interactive)
+  {
+    RenderInOrder(false, true);
+    return EXIT_SUCCESS;
+  }
   const std::vector<unsigned char> forward = RenderInOrder(false);
   const std::vector<unsigned char> reverse = RenderInOrder(true);
 

@@ -9,6 +9,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkUnsignedCharArray.h"
@@ -17,6 +18,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <string>
 #include <vector>
 
 namespace
@@ -40,7 +42,7 @@ vtkSmartPointer<vtkActor> MakeSphere(double x, const double rgb[3], double opaci
   return actor;
 }
 
-std::vector<unsigned char> RenderInOrder(bool reversed, int size)
+std::vector<unsigned char> RenderInOrder(bool reversed, int size, bool interactive = false)
 {
   const double red[3] = { 1.0, 0.0, 0.0 };
   const double green[3] = { 0.0, 1.0, 0.0 };
@@ -73,6 +75,13 @@ std::vector<unsigned char> RenderInOrder(bool reversed, int size)
   window->SetSize(size, size);
   window->AddRenderer(renderer);
   window->Render();
+  if (interactive)
+  {
+    vtkNew<vtkRenderWindowInteractor> iren;
+    iren->SetRenderWindow(window);
+    iren->Initialize();
+    iren->Start();
+  }
 
   vtkNew<vtkWindowToImageFilter> capture;
   capture->SetInput(window);
@@ -96,9 +105,24 @@ std::vector<unsigned char> RenderInOrder(bool reversed, int size)
 
 } // namespace
 
-int TestDeepFramebufferTransparency(int, char*[])
+int TestDeepFramebufferTransparency(int argc, char* argv[])
 {
+  bool interactive = false;
+  for (int i = 0; i < argc; ++i)
+  {
+    if (std::string(argv[i]) == "-I")
+    {
+      interactive = true;
+      break;
+    }
+  }
+
   const int size = 300;
+  if (interactive)
+  {
+    RenderInOrder(false, size, true);
+    return EXIT_SUCCESS;
+  }
   const std::vector<unsigned char> forward = RenderInOrder(false, size);
   const std::vector<unsigned char> reverse = RenderInOrder(true, size);
 
