@@ -3998,7 +3998,7 @@ if actor.color_options.interpolation_type == VTK_PBR
     var tangent: vec3<f32> = vec3<f32>(1.0, 0.0, 0.0);
     if actor.color_options.anisotropy_rotation != 0.0
     {
-      tangent = rotateVector(tangent, normal_VC, actor.color_options.anisotropy_rotation);
+      tangent = rotateVector(tangent, normal_VC, 6.28318530718 * actor.color_options.anisotropy_rotation);
     }
     normal_for_ibl = computeAnisotropicBentNormal(normal_VC, v, tangent, actor.color_options.anisotropy);
   }
@@ -4039,7 +4039,7 @@ if actor.color_options.interpolation_type == VTK_PBR
     output.color += vec4<f32>(coat_contribution * actor.color_options.coat_strength, 0.0);
   }
 
-  if actor.color_options.emissive_factor > 0.0
+  if any(actor.color_options.emissive_factor > vec3<f32>(0.0))
   {
     let emissive_color: vec3<f32> = diffuse_color * actor.color_options.emissive_factor;
     output.color += vec4<f32>(actor.color_options.diffuse_intensity * emissive_color, 0.0);

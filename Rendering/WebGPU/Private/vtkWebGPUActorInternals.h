@@ -16,6 +16,8 @@
 
 #include "vtk_wgpu.h"
 
+#include <cstddef> // for offsetof
+
 VTK_ABI_NAMESPACE_BEGIN
 
 class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUActorInternals
@@ -87,24 +89,29 @@ public:
       vtkTypeUInt32 InterpolationType = VTK_FLAT;
       // Id to color by
       vtkTypeUInt32 Id = 0;
-      // PBR metallic factor (0.0 = dielectric, 1.0 = metallic)
       vtkTypeFloat32 Metallic = 0.0f;
-      // PBR roughness factor (0.0 = smooth, 1.0 = rough)
       vtkTypeFloat32 Roughness = 0.5f;
-      // PBR clear coat strength (0.0 = none, 1.0 = full)
-      vtkTypeFloat32 CoatStrength = 0.0f;
-      // PBR clear coat roughness factor
-      vtkTypeFloat32 CoatRoughness = 0.0f;
-      // PBR anisotropy amount (0.0 = none, 1.0 = full)
+      vtkTypeFloat32 BaseF0 = 0.04f;
       vtkTypeFloat32 Anisotropy = 0.0f;
-      // PBR anisotropy rotation in radians
       vtkTypeFloat32 AnisotropyRotation = 0.0f;
-      // PBR emissive color factor
-      vtkTypeFloat32 EmissiveFactor = 0.0f;
-      // PBR coat normal scale for normal mapping
-      vtkTypeFloat32 CoatNormalScale = 0.0f;
+      vtkTypeFloat32 CoatStrength = 0.0f;
+      vtkTypeFloat32 CoatRoughness = 0.0f;
+      vtkTypeFloat32 CoatF0 = 0.0f;
+      vtkTypeFloat32 CoatNormalScale = 1.0f;
+      vtkTypeFloat32 NormalScale = 1.0f;
+      vtkTypeFloat32 EmissiveFactor[3] = { 1.0f, 1.0f, 1.0f };
+      vtkTypeFloat32 OcclusionStrength = 1.0f;
+      vtkTypeFloat32 EdgeTint[3] = { 1.0f, 1.0f, 1.0f };
+      vtkTypeUInt32 Pad5 = 0;
+      vtkTypeFloat32 CoatColor[3] = { 1.0f, 1.0f, 1.0f };
+      vtkTypeUInt32 Pad6 = 0;
     } ColorOpts;
   };
+
+  static_assert(sizeof(ActorBlock::ColorOptions) == 192,
+    "ColorOptions must match the layout of ActorColorOptions in ActorColorOptions.wgsl");
+  static_assert(offsetof(ActorBlock, ColorOpts) == 160,
+    "ColorOptions must start where the Actor struct places color_options");
 
   class MapperBooleanCache
   {

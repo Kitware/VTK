@@ -32,20 +32,32 @@ struct ActorColorOptions {
   interpolation_type: u32,
   // Id to color by
   id: u32,
-  // PBR metallic factor (0.0 = dielectric, 1.0 = fully metallic)
+  // PBR metallic factor
   metallic: f32,
-  // PBR roughness factor (0.0 = mirror-smooth, 1.0 = fully rough)
+  // PBR roughness factor
   roughness: f32,
-  // Clear coat strength (0.0 = none, 1.0 = full)
-  coat_strength: f32,
-  // Clear coat roughness factor
-  coat_roughness: f32,
-  // Anisotropy amount (0.0 = none, 1.0 = full)
+  // Reflectance at normal incidence of the base layer
+  base_f0: f32,
+  // PBR anisotropy strength
   anisotropy: f32,
-  // Anisotropy rotation in radians
+  // Rotation of the anisotropy direction around the normal, in [0, 1]
   anisotropy_rotation: f32,
-  // Emissive color factor
-  emissive_factor: f32,
-  // Coat normal scale for normal mapping
+  // Clear coat layer strength
+  coat_strength: f32,
+  // Clear coat layer roughness
+  coat_roughness: f32,
+  // Reflectance at normal incidence of the clear coat layer
+  coat_f0: f32,
+  // Scale applied to the clear coat normal texture
   coat_normal_scale: f32,
+  // Scale applied to the normal texture
+  normal_scale: f32,
+  // Emissive color factor
+  emissive_factor: vec3<f32>,
+  // Ambient occlusion strength
+  occlusion_strength: f32,
+  // Reflectance at grazing angle of metals
+  edge_tint: vec3<f32>,
+  // Clear coat layer color
+  coat_color: vec3<f32>,
 }
