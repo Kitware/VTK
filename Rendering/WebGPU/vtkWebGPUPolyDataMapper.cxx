@@ -661,31 +661,16 @@ void vtkWebGPUPolyDataMapper::RecordPointSelectionDepthPass(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::RecordDrawCommands(
-  vtkRenderer* renderer, vtkActor* actor, const WGPURenderPassEncoder& passEncoder)
+std::vector<vtkWebGPUPolyDataMapper::ActivePipeline>
+vtkWebGPUPolyDataMapper::CollectActivePipelines(vtkActor* actor, int representation)
 {
-  vtkLogScopeFunction(TRACE);
-  WGPURenderPassEncoder encoder(passEncoder);
-  wgpuRenderPassEncoderSetBindGroup(encoder, 2, this->MeshAttributeBindGroup,
-    this->MeshAttributeDynamicOffsets.size(), this->MeshAttributeDynamicOffsets.data());
-  this->SetVertexBuffers(passEncoder);
-
-  if (this->SelectingPoints)
-  {
-    this->RecordPointSelectionDepthPass(renderer, actor, passEncoder);
-  }
-
-  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
-  auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
-
   auto* displayProperty = actor->GetProperty();
   const float pointSize = displayProperty->GetPointSize();
   const float lineWidth = displayProperty->GetLineWidth();
   const auto lineJoinType = displayProperty->GetLineJoin();
-  const int representation =
-    this->SelectingPoints ? VTK_POINTS : displayProperty->GetRepresentation();
   const bool showVertices = displayProperty->GetVertexVisibility();
 
+  std::vector<ActivePipeline> active;
   for (const auto& pipelineMapping : PipelineBindGroupCombos[representation])
   {
     const auto& pipelineType = pipelineMapping.first;
@@ -764,8 +749,8 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
       continue;
     }
 
-    std::vector<vtkWebGPUCellToPrimitiveConverter::TopologySourceType> homogeneousBindGroupTypes,
-      nonHomogeneousBindGroupTypes;
+    const bool homogeneous = IsPipelineForHomogeneousCellSize(pipelineType);
+    std::vector<vtkWebGPUCellToPrimitiveConverter::TopologySourceType> bindGroupTypes;
     for (const auto& bindGroupType : pipelineMapping.second)
     {
       const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
@@ -773,58 +758,17 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
       {
         continue;
       }
-      if (bgInfo.CellIdBuffer == nullptr)
+      if ((bgInfo.CellIdBuffer == nullptr) == homogeneous)
       {
-        homogeneousBindGroupTypes.emplace_back(bindGroupType);
-      }
-      else
-      {
-        nonHomogeneousBindGroupTypes.emplace_back(bindGroupType);
+        bindGroupTypes.emplace_back(bindGroupType);
       }
     }
-
-    const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineMapping.first];
-    const auto& pipelineLabel =
-      this->GetObjectDescription() + this->GetGraphicsPipelineTypeAsString(pipelineMapping.first);
-    if (IsPipelineForHomogeneousCellSize(pipelineType))
+    if (!bindGroupTypes.empty())
     {
-      if (!homogeneousBindGroupTypes.empty())
-      {
-        // Draw using homogeneous pipeline for bindgroups with homogeneous cells.
-        wgpuRenderPassEncoderSetPipeline(
-          encoder, wgpuPipelineCache->GetRenderPipeline(pipelineKey));
-        vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel.c_str());
-        for (const auto& bindGroupType : homogeneousBindGroupTypes)
-        {
-          const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-          wgpuRenderPassEncoderSetBindGroup(encoder, 3, bgInfo.BindGroup, 0, nullptr);
-          const auto topologyBGInfoName =
-            vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
-          vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
-          const auto args = this->GetDrawCallArgs(pipelineType, bindGroupType);
-          wgpuRenderPassEncoderDraw(
-            encoder, args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
-        }
-      }
-    }
-    else if (!nonHomogeneousBindGroupTypes.empty())
-    {
-      // Draw using non-homogeneous pipeline for bindgroups with non-homogeneous cells.
-      wgpuRenderPassEncoderSetPipeline(encoder, wgpuPipelineCache->GetRenderPipeline(pipelineKey));
-      vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel.c_str());
-      for (const auto& bindGroupType : nonHomogeneousBindGroupTypes)
-      {
-        const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-        wgpuRenderPassEncoderSetBindGroup(encoder, 3, bgInfo.BindGroup, 0, nullptr);
-        const auto topologyBGInfoName =
-          vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
-        vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
-        const auto args = this->GetDrawCallArgs(pipelineType, bindGroupType);
-        wgpuRenderPassEncoderDraw(
-          encoder, args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
-      }
+      active.push_back({ pipelineType, std::move(bindGroupTypes), false });
     }
   }
+
   if (showVertices && (representation != VTK_POINTS)) // Don't draw vertices on top of points.
   {
     std::vector<vtkWebGPUCellToPrimitiveConverter::TopologySourceType> homogeneousBindGroupTypes,
@@ -849,58 +793,65 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
     }
     if (!homogeneousBindGroupTypes.empty())
     {
-      GraphicsPipelineType pipelineType;
-      if (pointSize > 1 &&
-        this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE))
-      {
-        pipelineType = GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE;
-      }
-      else
-      {
-        pipelineType = GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE;
-      }
-      const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineType];
-      const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineType);
-      wgpuRenderPassEncoderSetPipeline(encoder, wgpuPipelineCache->GetRenderPipeline(pipelineKey));
-      vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel);
-      for (const auto& bindGroupType : homogeneousBindGroupTypes)
-      {
-        const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-        wgpuRenderPassEncoderSetBindGroup(encoder, 3, bgInfo.BindGroup, 0, nullptr);
-        const auto topologyBGInfoName =
-          vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
-        vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
-        const auto args = this->GetDrawCallArgsForDrawingVertices(bindGroupType);
-        wgpuRenderPassEncoderDraw(
-          encoder, args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
-      }
+      const auto pipelineType =
+        (pointSize > 1 &&
+          this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE))
+        ? GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE
+        : GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE;
+      active.push_back({ pipelineType, std::move(homogeneousBindGroupTypes), true });
     }
     if (!nonHomogeneousBindGroupTypes.empty())
     {
-      GraphicsPipelineType pipelineType;
-      if (pointSize > 1 && this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED))
-      {
-        pipelineType = GFX_PIPELINE_POINTS_SHAPED;
-      }
-      else
-      {
-        pipelineType = GFX_PIPELINE_POINTS;
-      }
-      const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineType];
-      const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineType);
-      wgpuRenderPassEncoderSetPipeline(encoder, wgpuPipelineCache->GetRenderPipeline(pipelineKey));
-      vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel);
-      for (const auto& bindGroupType : nonHomogeneousBindGroupTypes)
-      {
-        const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-        wgpuRenderPassEncoderSetBindGroup(encoder, 3, bgInfo.BindGroup, 0, nullptr);
-        const auto topologyBGInfoName =
-          vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
-        vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
-        const auto args = this->GetDrawCallArgsForDrawingVertices(bindGroupType);
-        wgpuRenderPassEncoderDraw(
-          encoder, args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
-      }
+      const auto pipelineType =
+        (pointSize > 1 && this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED))
+        ? GFX_PIPELINE_POINTS_SHAPED
+        : GFX_PIPELINE_POINTS;
+      active.push_back({ pipelineType, std::move(nonHomogeneousBindGroupTypes), true });
+    }
+  }
+  return active;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::RecordDrawCommands(
+  vtkRenderer* renderer, vtkActor* actor, const WGPURenderPassEncoder& passEncoder)
+{
+  vtkLogScopeFunction(TRACE);
+  WGPURenderPassEncoder encoder(passEncoder);
+  wgpuRenderPassEncoderSetBindGroup(encoder, 2, this->MeshAttributeBindGroup,
+    this->MeshAttributeDynamicOffsets.size(), this->MeshAttributeDynamicOffsets.data());
+  this->SetVertexBuffers(passEncoder);
+
+  if (this->SelectingPoints)
+  {
+    this->RecordPointSelectionDepthPass(renderer, actor, passEncoder);
+  }
+
+  const int representation =
+    this->SelectingPoints ? VTK_POINTS : actor->GetProperty()->GetRepresentation();
+
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
+  auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
+
+  for (const auto& activePipeline : this->CollectActivePipelines(actor, representation))
+  {
+    const auto& pipelineKey = this->GraphicsPipelineKeys[activePipeline.Type];
+    const auto pipelineLabel =
+      this->GetObjectDescription() + this->GetGraphicsPipelineTypeAsString(activePipeline.Type);
+    wgpuRenderPassEncoderSetPipeline(encoder, wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+    vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel.c_str());
+    for (const auto& bindGroupType : activePipeline.BindGroupTypes)
+    {
+      const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
+      wgpuRenderPassEncoderSetBindGroup(encoder, 3, bgInfo.BindGroup, 0, nullptr);
+      const auto topologyBGInfoName =
+        vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
+      vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
+      const auto args = activePipeline.DrawAsVertices
+        ? this->GetDrawCallArgsForDrawingVertices(bindGroupType)
+        : this->GetDrawCallArgs(activePipeline.Type, bindGroupType);
+      wgpuRenderPassEncoderDraw(
+        encoder, args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
     }
   }
 }
@@ -923,236 +874,28 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
 
-  auto* displayProperty = actor->GetProperty();
-  const float pointSize = displayProperty->GetPointSize();
-  const float lineWidth = displayProperty->GetLineWidth();
-  const auto lineJoinType = displayProperty->GetLineJoin();
   const int representation =
-    this->SelectingPoints ? VTK_POINTS : displayProperty->GetRepresentation();
-  const bool showVertices = displayProperty->GetVertexVisibility();
+    this->SelectingPoints ? VTK_POINTS : actor->GetProperty()->GetRepresentation();
 
-  for (const auto& pipelineMapping : PipelineBindGroupCombos[representation])
+  for (const auto& activePipeline : this->CollectActivePipelines(actor, representation))
   {
-    const auto& pipelineType = pipelineMapping.first;
-    // Skip pipelines that are not supported.
-    if (!this->IsPipelineSupported(pipelineType))
-    {
-      continue;
-    }
-    bool skip = false;
-    switch (pipelineType)
-    {
-      case GFX_PIPELINE_POINTS:
-        // do not draw points wider than 1 pixel using GFX_PIPELINE_POINTS pipeline.
-        // instead, let the GFX_PIPELINE_POINTS_SHAPED pipeline render the points
-        // if that is supported.
-        skip = (pointSize > 1) && this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED);
-        break;
-      case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
-        // do not draw points wider than 1 pixel using GFX_PIPELINE_POINTS pipeline.
-        // instead, let the GFX_PIPELINE_POINTS_SHAPED pipeline render the points
-        // if that is supported.
-        skip = (pointSize > 1) &&
-          this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE);
-        break;
-      case GFX_PIPELINE_POINTS_SHAPED:
-      case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
-        // Skip GFX_PIPELINE_POINTS_SHAPED for pointSize <= 1
-        skip = pointSize <= 1;
-        break;
-      case GFX_PIPELINE_LINES:
-        // do not draw lines wider than 1 pixel using GFX_PIPELINE_LINES pipeline.
-        // instead, let the GFX_PIPELINE_LINES_THICK pipeline render the points.
-        // GFX_PIPELINE_LINES_MITER_JOIN is used if "vtkProperty::UseMiterJoin" is turned on.
-        // GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN is used if "vtkProperty::UseRoundCapRoundJoin" is
-        // turned on.
-        if (lineWidth > 1)
-        {
-          skip = this->IsPipelineSupported(GFX_PIPELINE_LINES_THICK) ||
-            this->IsPipelineSupported(GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN) ||
-            this->IsPipelineSupported(GFX_PIPELINE_LINES_MITER_JOIN);
-        }
-        break;
-      case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
-        // do not draw lines wider than 1 pixel using GFX_PIPELINE_LINES pipeline.
-        // instead, let the GFX_PIPELINE_LINES_THICK pipeline render the points.
-        // GFX_PIPELINE_LINES_MITER_JOIN is used if "vtkProperty::UseMiterJoin" is turned on.
-        // GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN is used if "vtkProperty::UseRoundCapRoundJoin" is
-        // turned on.
-        if (lineWidth > 1)
-        {
-          skip = this->IsPipelineSupported(GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE) ||
-            this->IsPipelineSupported(
-              GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE) ||
-            this->IsPipelineSupported(GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE);
-        }
-        break;
-      case GFX_PIPELINE_LINES_THICK:
-      case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
-        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::NoJoin);
-        break;
-      case GFX_PIPELINE_LINES_MITER_JOIN:
-      case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
-        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::MiterJoin);
-        break;
-      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
-      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
-        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::RoundCapRoundJoin);
-        break;
-      case GFX_PIPELINE_TRIANGLES:
-      case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
-      case GFX_PIPELINE_NB_TYPES:
-        break;
-    }
-    if (skip)
-    {
-      continue;
-    }
-
-    std::vector<vtkWebGPUCellToPrimitiveConverter::TopologySourceType> homogeneousBindGroupTypes,
-      nonHomogeneousBindGroupTypes;
-    for (const auto& bindGroupType : pipelineMapping.second)
+    const auto& pipelineKey = this->GraphicsPipelineKeys[activePipeline.Type];
+    const auto pipelineLabel =
+      this->GetObjectDescription() + this->GetGraphicsPipelineTypeAsString(activePipeline.Type);
+    wgpuRenderBundleEncoderSetPipeline(encoder, wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+    vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel.c_str());
+    for (const auto& bindGroupType : activePipeline.BindGroupTypes)
     {
       const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-      if (bgInfo.VertexCount == 0)
-      {
-        continue;
-      }
-      if (bgInfo.CellIdBuffer == nullptr)
-      {
-        homogeneousBindGroupTypes.emplace_back(bindGroupType);
-      }
-      else
-      {
-        nonHomogeneousBindGroupTypes.emplace_back(bindGroupType);
-      }
-    }
-
-    const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineMapping.first];
-    const auto& pipelineLabel =
-      this->GetObjectDescription() + this->GetGraphicsPipelineTypeAsString(pipelineMapping.first);
-    if (IsPipelineForHomogeneousCellSize(pipelineType))
-    {
-      if (!homogeneousBindGroupTypes.empty())
-      {
-        // Draw using homogeneous pipeline for bindgroups with homogeneous cells.
-        wgpuRenderBundleEncoderSetPipeline(
-          encoder, wgpuPipelineCache->GetRenderPipeline(pipelineKey));
-        vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel.c_str());
-        for (const auto& bindGroupType : homogeneousBindGroupTypes)
-        {
-          const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-          wgpuRenderBundleEncoderSetBindGroup(encoder, 3, bgInfo.BindGroup, 0, nullptr);
-          const auto topologyBGInfoName =
-            vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
-          vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
-          const auto args = this->GetDrawCallArgs(pipelineType, bindGroupType);
-          wgpuRenderBundleEncoderDraw(
-            encoder, args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
-        }
-      }
-    }
-    else if (!nonHomogeneousBindGroupTypes.empty())
-    {
-      // Draw using non-homogeneous pipeline for bindgroups with non-homogeneous cells.
-      wgpuRenderBundleEncoderSetPipeline(
-        encoder, wgpuPipelineCache->GetRenderPipeline(pipelineKey));
-      vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel.c_str());
-      for (const auto& bindGroupType : nonHomogeneousBindGroupTypes)
-      {
-        const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-        wgpuRenderBundleEncoderSetBindGroup(encoder, 3, bgInfo.BindGroup, 0, nullptr);
-        const auto topologyBGInfoName =
-          vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
-        vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
-        const auto args = this->GetDrawCallArgs(pipelineType, bindGroupType);
-        wgpuRenderBundleEncoderDraw(
-          encoder, args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
-      }
-    }
-  }
-  if (showVertices && (representation != VTK_POINTS)) // Don't draw vertices on top of points.
-  {
-    std::vector<vtkWebGPUCellToPrimitiveConverter::TopologySourceType> homogeneousBindGroupTypes,
-      nonHomogeneousBindGroupTypes;
-    for (const auto& bindGroupType : { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS,
-           vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS,
-           vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS })
-    {
-      const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-      if (bgInfo.VertexCount == 0)
-      {
-        continue;
-      }
-      if (bgInfo.CellIdBuffer == nullptr)
-      {
-        homogeneousBindGroupTypes.emplace_back(bindGroupType);
-      }
-      else
-      {
-        nonHomogeneousBindGroupTypes.emplace_back(bindGroupType);
-      }
-    }
-    if (!homogeneousBindGroupTypes.empty())
-    {
-      GraphicsPipelineType pipelineType;
-      if (pointSize > 1 &&
-        this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE))
-      {
-        pipelineType = GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE;
-      }
-      else
-      {
-        pipelineType = GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE;
-      }
-      const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineType];
-      const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineType);
-      wgpuRenderBundleEncoderSetPipeline(
-        encoder, wgpuPipelineCache->GetRenderPipeline(pipelineKey));
-      vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel);
-      for (const auto& bindGroupType : homogeneousBindGroupTypes)
-      {
-        const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-        if (bgInfo.VertexCount == 0)
-        {
-          continue;
-        }
-        wgpuRenderBundleEncoderSetBindGroup(encoder, 3, bgInfo.BindGroup, 0, nullptr);
-        const auto topologyBGInfoName =
-          vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
-        vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
-        const auto args = this->GetDrawCallArgsForDrawingVertices(bindGroupType);
-        wgpuRenderBundleEncoderDraw(
-          encoder, args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
-      }
-    }
-    if (!nonHomogeneousBindGroupTypes.empty())
-    {
-      GraphicsPipelineType pipelineType;
-      if (pointSize > 1 && this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED))
-      {
-        pipelineType = GFX_PIPELINE_POINTS_SHAPED;
-      }
-      else
-      {
-        pipelineType = GFX_PIPELINE_POINTS;
-      }
-      const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineType];
-      const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineType);
-      wgpuRenderBundleEncoderSetPipeline(
-        encoder, wgpuPipelineCache->GetRenderPipeline(pipelineKey));
-      vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel);
-      for (const auto& bindGroupType : nonHomogeneousBindGroupTypes)
-      {
-        const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
-        wgpuRenderBundleEncoderSetBindGroup(encoder, 3, bgInfo.BindGroup, 0, nullptr);
-        const auto topologyBGInfoName =
-          vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
-        vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
-        const auto args = this->GetDrawCallArgsForDrawingVertices(bindGroupType);
-        wgpuRenderBundleEncoderDraw(
-          encoder, args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
-      }
+      wgpuRenderBundleEncoderSetBindGroup(encoder, 3, bgInfo.BindGroup, 0, nullptr);
+      const auto topologyBGInfoName =
+        vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
+      vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
+      const auto args = activePipeline.DrawAsVertices
+        ? this->GetDrawCallArgsForDrawingVertices(bindGroupType)
+        : this->GetDrawCallArgs(activePipeline.Type, bindGroupType);
+      wgpuRenderBundleEncoderDraw(
+        encoder, args.VertexCount, args.InstanceCount, args.VertexOffset, args.InstanceOffset);
     }
   }
 }
@@ -2259,87 +2002,14 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
 
   auto* displayProperty = actor->GetProperty();
   const float pointSize = displayProperty->GetPointSize();
-  const float lineWidth = displayProperty->GetLineWidth();
-  const auto lineJoinType = displayProperty->GetLineJoin();
   const int representation = displayProperty->GetRepresentation();
   const bool showVertices = displayProperty->GetVertexVisibility();
 
+  // Build exactly the pipelines that RecordDrawCommands will bind
   std::vector<GraphicsPipelineType> pipelinesToBuild;
-
-  for (const auto& pipelineMapping : PipelineBindGroupCombos[representation])
+  for (const auto& activePipeline : this->CollectActivePipelines(actor, representation))
   {
-    const auto& pipelineType = pipelineMapping.first;
-    if (!this->IsPipelineSupported(pipelineType))
-    {
-      continue;
-    }
-    bool skip = false;
-    switch (pipelineType)
-    {
-      case GFX_PIPELINE_POINTS:
-        skip = (pointSize > 1) && this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED);
-        break;
-      case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
-        skip = (pointSize > 1) &&
-          this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE);
-        break;
-      case GFX_PIPELINE_POINTS_SHAPED:
-      case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
-        skip = pointSize <= 1;
-        break;
-      case GFX_PIPELINE_LINES:
-        if (lineWidth > 1)
-        {
-          skip = this->IsPipelineSupported(GFX_PIPELINE_LINES_THICK) ||
-            this->IsPipelineSupported(GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN) ||
-            this->IsPipelineSupported(GFX_PIPELINE_LINES_MITER_JOIN);
-        }
-        break;
-      case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
-        if (lineWidth > 1)
-        {
-          skip = this->IsPipelineSupported(GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE) ||
-            this->IsPipelineSupported(
-              GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE) ||
-            this->IsPipelineSupported(GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE);
-        }
-        break;
-      case GFX_PIPELINE_LINES_THICK:
-      case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
-        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::NoJoin);
-        break;
-      case GFX_PIPELINE_LINES_MITER_JOIN:
-      case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
-        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::MiterJoin);
-        break;
-      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
-      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
-        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::RoundCapRoundJoin);
-        break;
-      case GFX_PIPELINE_TRIANGLES:
-      case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
-      case GFX_PIPELINE_NB_TYPES:
-        break;
-    }
-    if (skip)
-    {
-      continue;
-    }
-
-    // Now check if this pipeline actually has any topology data to render
-    bool hasData = false;
-    for (const auto& bindGroupType : pipelineMapping.second)
-    {
-      if (this->TopologyBindGroupInfos[bindGroupType].VertexCount > 0)
-      {
-        hasData = true;
-        break;
-      }
-    }
-    if (hasData)
-    {
-      pipelinesToBuild.push_back(pipelineType);
-    }
+    pipelinesToBuild.push_back(activePipeline.Type);
   }
 
   // A point selection records the point pipelines whatever the representation
@@ -2379,7 +2049,6 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
     }
   }
 
-  std::sort(pipelinesToBuild.begin(), pipelinesToBuild.end());
   pipelinesToBuild.erase(
     std::unique(pipelinesToBuild.begin(), pipelinesToBuild.end()), pipelinesToBuild.end());
 

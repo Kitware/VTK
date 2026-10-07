@@ -14,6 +14,7 @@
 
 #include <array>         // for ivar
 #include <unordered_set> // for the not set compute render buffers
+#include <vector>        // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
@@ -419,6 +420,23 @@ protected:
    */
   virtual bool IsPipelineSupported(GraphicsPipelineType vtkNotUsed(pipelineType)) { return true; }
   static bool IsPipelineForHomogeneousCellSize(GraphicsPipelineType pipelineType);
+
+  /**
+   * A graphics pipeline together with the topology bind groups it draws from.
+   */
+  struct ActivePipeline
+  {
+    GraphicsPipelineType Type;
+    std::vector<vtkWebGPUCellToPrimitiveConverter::TopologySourceType> BindGroupTypes;
+    // Vertices drawn on top of a surface or wireframe use their own draw call arguments.
+    bool DrawAsVertices = false;
+  };
+
+  /**
+   * Gather necessary pipelines to draw the actor in the correct order. A pipeline is included if
+the actor's display properties select it and it matches the required topology sources.
+   */
+  std::vector<ActivePipeline> CollectActivePipelines(vtkActor* actor, int representation);
 
   /**
    * Get the primitive topology type that should be used for the given pipeline.
