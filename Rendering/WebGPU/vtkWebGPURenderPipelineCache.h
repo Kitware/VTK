@@ -43,6 +43,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkWebGPUConfiguration;
 class vtkWebGPURenderer;
 class vtkWebGPURenderWindow;
 class vtkWindow;
@@ -105,6 +106,29 @@ public:
     const char* fragmentShaderSource);
 
   /**
+   * Start creating a render pipeline without waiting for it to be compiled.
+   *
+   * The pipeline is not in the cache when this returns. Call
+   * WaitForPendingRenderPipelines() before looking it up: submitting a batch and then
+   * waiting once lets the implementation compile the batch on its own threads, which
+   * is otherwise the most expensive part of rendering a first frame.
+   *
+   * @param descriptor The render pipeline descriptor to use.
+   * @param wgpuRenderWindow The WebGPU render window to use for creating the pipeline.
+   * @param vertexShaderSource The source code for the vertex shader.
+   * @param fragmentShaderSource The source code for the fragment shader.
+   */
+  void CreateRenderPipelineAsync(WGPURenderPipelineDescriptor* descriptor,
+    vtkWebGPURenderWindow* wgpuRenderWindow, const char* vertexShaderSource,
+    const char* fragmentShaderSource);
+
+  /**
+   * Wait for every pipeline started by CreateRenderPipelineAsync() to finish compiling
+   * and enter the cache. Does nothing when none are outstanding.
+   */
+  void WaitForPendingRenderPipelines();
+
+  /**
    * Substitute all occurrences of `search` with `replace` in `source`.
    * @param source The string in which to perform the substitution.
    * @param search The substring to search for.
@@ -128,8 +152,18 @@ private:
   vtkWebGPURenderPipelineCache(const vtkWebGPURenderPipelineCache&) = delete;
   void operator=(const vtkWebGPURenderPipelineCache&) = delete;
 
+  /**
+   * Validate the arguments, resolve the shader sources and point the descriptor at the
+   * matching shader modules. Returns false when an argument is unusable.
+   */
+  bool PrepareShaderModules(WGPURenderPipelineDescriptor* descriptor,
+    vtkWebGPURenderWindow* wgpuRenderWindow, const char* vertexShaderSource,
+    const char* fragmentShaderSource);
+
   class vtkInternals;
   std::unique_ptr<vtkInternals> Internals;
+  // Only needed to drive the event loop while pipelines are being compiled.
+  vtkWebGPUConfiguration* Configuration = nullptr;
 };
 
 VTK_ABI_NAMESPACE_END

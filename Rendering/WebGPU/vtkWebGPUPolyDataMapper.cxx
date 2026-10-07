@@ -2087,7 +2087,7 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
     // create a pipeline if it does not already exist
     if (wgpuPipelineCache->GetRenderPipeline(this->GraphicsPipelineKeys[i]) == nullptr)
     {
-      wgpuPipelineCache->CreateRenderPipeline(
+      wgpuPipelineCache->CreateRenderPipelineAsync(
         (&descriptor), wgpuRenderWindow, vertexShaderSource.c_str(), fragmentShaderSource.c_str());
     }
 
@@ -2109,6 +2109,9 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
       }
     }
   }
+  // Rendering state is frozen after this point, so the pipelines have to be in the cache
+  // before returning. Submitting them all first lets them be compiled concurrently.
+  wgpuPipelineCache->WaitForPendingRenderPipelines();
 }
 
 //------------------------------------------------------------------------------
