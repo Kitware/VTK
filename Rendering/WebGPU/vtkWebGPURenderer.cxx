@@ -1611,11 +1611,15 @@ void vtkWebGPURenderer::ResolveDeepFramebuffer(WGPURenderPassEncoder encoder)
       device, layouts, pipelineLabel + "-Layout"));
   pipelineDesc.layout = pipelineLayout;
 
-  const char* shaderSource = ABufferResolve;
-  const auto key = pipelineCache->GetPipelineKey(&pipelineDesc, shaderSource);
+  std::string shaderSource = ABufferResolve;
+  if (this->LastUseIBL)
+  {
+    shaderSource += "\n// SceneBindGroupLayout with image based lighting\n";
+  }
+  const auto key = pipelineCache->GetPipelineKey(&pipelineDesc, shaderSource.c_str());
   if (this->DeepFramebufferResolveKey != key)
   {
-    pipelineCache->CreateRenderPipeline(&pipelineDesc, wgpuRenderWindow, shaderSource);
+    pipelineCache->CreateRenderPipeline(&pipelineDesc, wgpuRenderWindow, shaderSource.c_str());
     this->DeepFramebufferResolveKey = key;
   }
   WGPURenderPipeline pipeline = pipelineCache->GetRenderPipeline(key);
