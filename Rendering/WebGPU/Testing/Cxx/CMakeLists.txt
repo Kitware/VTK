@@ -13,6 +13,7 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestDeepFramebufferTransparency.cxx,NO_DATA,NO_VALID
   TestComputeFrustumCulling.cxx,NO_DATA,NO_VALID
   TestSelectorPropIds.cxx,NO_DATA,NO_VALID
+  TestShaderCompilationMessages.cxx,NO_DATA,NO_VALID
   TestComputeOcclusionCulling.cxx,NO_DATA,NO_VALID
   TestComputeOcclusionCullingResize.cxx,NO_DATA,NO_VALID
   TestComputeModifyPointColors.cxx,NO_DATA,NO_SERDES
@@ -48,6 +49,10 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
 vtk_test_cxx_executable(vtkRenderingWebGPUCxxTests tests)
 set_property(TEST VTK::RenderingWebGPUCxx-TestDeepFramebufferImageBasedLighting
   APPEND PROPERTY FAIL_REGULAR_EXPRESSION "Validation error")
+
+# The test compiles a broken shader on purpose and checks the error it logs.
+set_tests_properties(VTK::RenderingWebGPUCxx-TestShaderCompilationMessages
+  PROPERTIES FAIL_REGULAR_EXPRESSION "")
 
 # The tests call wgpu* directly, so they take the same redirect as the module.
 if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
