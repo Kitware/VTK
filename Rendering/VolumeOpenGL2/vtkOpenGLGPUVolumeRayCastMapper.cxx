@@ -3080,6 +3080,11 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
     {
       // Update vtkVolumeTexture
       it->second.Texture->UpdateVolume(property);
+      // IndependentComponents may have changed, which does not change the texture
+      if (scalars != nullptr && property->GetMTime() > this->ShaderBuildTime.GetMTime())
+      {
+        it->second.ComponentMode = this->GetComponentMode(property, scalars);
+      }
     }
 
     // Volume may have changed, so make sure the helper updates its reference to it.

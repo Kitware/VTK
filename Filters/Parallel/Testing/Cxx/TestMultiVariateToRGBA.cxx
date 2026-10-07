@@ -102,6 +102,13 @@ int TestMultiVariateToRGBA(int argc, char* argv[])
   camera->Zoom(1.5);
   iren->Initialize();
 
+  // Changing IndependentComponents on an already rendered volume used to
+  // crash the GPU mapper.
+  volumeProperty->SetIndependentComponents(true);
+  renderWindow->Render();
+  volumeProperty->SetIndependentComponents(false);
+  renderWindow->Render();
+
   int retVal = vtkRegressionTestImage(renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
