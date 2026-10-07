@@ -55,7 +55,6 @@
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 
 #include <array>
-#include <fstream>
 #include <iostream>
 #include <iterator>
 #include <sstream>
