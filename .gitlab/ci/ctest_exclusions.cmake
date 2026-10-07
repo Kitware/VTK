@@ -387,8 +387,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlur$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlurSerDes$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlurWithRenderPasses$"
-    "^VTK::RenderingOpenGL2Cxx-TestSkyboxCubeRotation$"
-    "^VTK::RenderingOpenGL2Cxx-TestSkyboxCubeRotationSerDes$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxCubeRotation$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxCubeRotationSerDes$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxNoBlur(SerDes)?$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxWithRenderPassSerDes$"
     "^VTK::RenderingVolumeCxx-TestGPURayCastCameraInsideSmallSpacing$"
@@ -840,7 +840,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     # TestCoincident hangs (times out); TestGlyph3DMapperPicking is an image
     # mismatch.
     "^VTK::RenderingCoreCxx-WebGPU-TestCoincident$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestGlyph3DMapperPicking$")
+    "^VTK::RenderingCoreCxx-WebGPU-TestGlyph3DMapperPicking$"
+    # The test harness treats image comparison INFO logs as errors.
+    "^VTK::RenderingCoreCxx-WebGPU-TestSkyboxCubeRotation$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "webgpu")

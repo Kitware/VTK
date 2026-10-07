@@ -159,6 +159,7 @@ set(cxx_tests
   TestResizingWindowToImageFilterScaleFactors.cxx,NO_DATA,NO_VALID
   TestScalarModeToggle.cxx,NO_DATA
   TestSelectVisiblePoints.cxx,NO_VALID
+  TestSkyboxCubeRotation.cxx
   TestSplitViewportStereoHorizontal.cxx
   TestStereoBackgroundLeft.cxx
   TestStereoBackgroundRight.cxx
