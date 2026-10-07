@@ -282,6 +282,7 @@ void vtkWebGPURenderer::CreateBuffers()
   if (recreateLightsBuffer)
   {
     const std::string label = "LightInformation-" + this->GetObjectDescription();
+    vtkWebGPU::ReleaseAndNull(this->SceneLightsBuffer, wgpuBufferRelease);
     this->SceneLightsBuffer = wgpuConfiguration->CreateBuffer(lightSizePadded,
       static_cast<WGPUBufferUsage>(WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst), false,
       label.c_str());
