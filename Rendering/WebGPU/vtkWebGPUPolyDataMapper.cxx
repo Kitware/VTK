@@ -68,8 +68,6 @@ struct PBRShaderFeatures
 {
   bool ImageBasedLighting = false;
   bool Tangents = false;
-  bool Anisotropy = false;
-  bool Coat = false;
   bool LinearizeColors = false;
   bool AlbedoTexture = false;
   bool MaterialTexture = false;
@@ -163,33 +161,37 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     surface.normal = normal_VC;
     surface.view = normalize(-vertex.position_VC.xyz);
     surface.coat_normal = normal_VC;
+    let pbr_has_coat = actor.color_options.coat_strength > 0.0;
+    var pbr_has_anisotropy = false;
+    var anisotropy = 0.0;
 )";
   if (features.Tangents)
   {
     code << R"(
     var tangent = vertex.tangent_VC;
 )";
-    if (features.Anisotropy)
+    code << R"(
+    pbr_has_anisotropy = actor.color_options.anisotropy != 0.0;
+    if (pbr_has_anisotropy)
+    {
+      anisotropy = actor.color_options.anisotropy;
+      var rotation = 2.0 * PBR_PI * actor.color_options.anisotropy_rotation;
+)";
+    if (features.AnisotropyTexture)
     {
       code << R"(
-    var anisotropy = actor.color_options.anisotropy;
-    var rotation = 2.0 * PBR_PI * actor.color_options.anisotropy_rotation;
-)";
-      if (features.AnisotropyTexture)
-      {
-        code << R"(
-    anisotropy = pbr_anisotropy_sample.r * anisotropy;
-    rotation = pbr_anisotropy_sample.g * rotation;
-)";
-      }
-      code << R"(
-    let s = -sin(rotation);
-    let c = cos(rotation);
-    let n = normalize(surface.normal);
-    tangent = (1.0 - c) * dot(vertex.tangent_VC, n) * n + c * vertex.tangent_VC -
-      s * cross(n, vertex.tangent_VC);
+      anisotropy = pbr_anisotropy_sample.r * anisotropy;
+      rotation = pbr_anisotropy_sample.g * rotation;
 )";
     }
+    code << R"(
+      let s = -sin(rotation);
+      let c = cos(rotation);
+      let n = normalize(surface.normal);
+      tangent = (1.0 - c) * dot(vertex.tangent_VC, n) * n + c * vertex.tangent_VC -
+        s * cross(n, vertex.tangent_VC);
+    }
+)";
     code << R"(
     tangent = normalize(tangent - dot(tangent, surface.normal) * surface.normal);
     surface.tangent = tangent;
@@ -209,10 +211,13 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     if (features.CoatNormalTexture)
     {
       code << R"(
-    let coat_scale = actor.color_options.coat_normal_scale;
-    let coat_normal_TS = normalize((pbr_coat_normal_sample.xyz * 2.0 - 1.0) *
-      vec3<f32>(coat_scale, coat_scale, 1.0));
-    surface.coat_normal = normalize(tbn * coat_normal_TS);
+    if (pbr_has_coat)
+    {
+      let coat_scale = actor.color_options.coat_normal_scale;
+      let coat_normal_TS = normalize((pbr_coat_normal_sample.xyz * 2.0 - 1.0) *
+        vec3<f32>(coat_scale, coat_scale, 1.0));
+      surface.coat_normal = normalize(tbn * coat_normal_TS);
+    }
 )";
     }
   }
@@ -228,29 +233,25 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     let f90 = clamp(dot(material.F0, vec3<f32>(50.0 * 0.33)), 0.0, 1.0);
     material.F90 = mix(vec3<f32>(f90), actor.color_options.edge_tint, metallic);
 )";
-  if (features.Anisotropy)
-  {
-    code << R"(
-    material.anisotropy = anisotropy;
-    let r2 = roughness * roughness;
-    let aspect = sqrt(1.0 - 0.9 * anisotropy);
-    material.alpha_t = max(r2 / aspect, 0.001);
-    material.alpha_b = max(r2 * aspect, 0.001);
+  code << R"(
+    if (pbr_has_anisotropy)
+    {
+      material.anisotropy = anisotropy;
+      let r2 = roughness * roughness;
+      let aspect = sqrt(1.0 - 0.9 * anisotropy);
+      material.alpha_t = max(r2 / aspect, 0.001);
+      material.alpha_b = max(r2 * aspect, 0.001);
+    }
+    if (pbr_has_coat)
+    {
+      material.coat_strength = actor.color_options.coat_strength;
+      material.coat_roughness = actor.color_options.coat_roughness;
+      material.coat_F0 = vec3<f32>(actor.color_options.coat_f0);
+      material.coat_F90 = vec3<f32>(1.0);
+      material.coat_color_factor =
+        mix(vec3<f32>(1.0), actor.color_options.coat_color, material.coat_strength);
+    }
 )";
-  }
-  if (features.Coat)
-  {
-    code << R"(
-    material.coat_strength = actor.color_options.coat_strength;
-    material.coat_roughness = actor.color_options.coat_roughness;
-    material.coat_F0 = vec3<f32>(actor.color_options.coat_f0);
-    material.coat_F90 = vec3<f32>(1.0);
-    material.coat_color_factor =
-      mix(vec3<f32>(1.0), actor.color_options.coat_color, material.coat_strength);
-)";
-  }
-  const char* anisotropy = features.Anisotropy ? "true" : "false";
-  const char* coat = features.Coat ? "true" : "false";
   code << R"(
     var Lo = vec3<f32>(0.0);
     for (var i = 0u; i < scene_lights.count; i++)
@@ -294,8 +295,8 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
           }
         }
       }
-      Lo += pbrEvaluateLight(surface, material, L, light.color * attenuation, )"
-       << anisotropy << ", " << coat << R"();
+      Lo += pbrEvaluateLight(surface, material, L, light.color * attenuation,
+        pbr_has_anisotropy, pbr_has_coat);
     }
     pbr_color = vec3<f32>(0.0);
 )";
@@ -322,14 +323,14 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     }
     var reflection_normal = surface.normal;
 )";
-    if (features.Anisotropy)
+    code << R"(
+    if (pbr_has_anisotropy)
     {
-      code << R"(
-    let anisotropic_tangent = cross(surface.bitangent, surface.view);
-    let anisotropic_normal = cross(anisotropic_tangent, surface.bitangent);
-    reflection_normal = normalize(mix(surface.normal, anisotropic_normal, anisotropy));
-)";
+      let anisotropic_tangent = cross(surface.bitangent, surface.view);
+      let anisotropic_normal = cross(anisotropic_tangent, surface.bitangent);
+      reflection_normal = normalize(mix(surface.normal, anisotropic_normal, anisotropy));
     }
+)";
     code << R"(
     let reflection = normalize(environment_matrix * reflect(-surface.view, reflection_normal));
     let prefiltered = textureSampleLevel(ibl_prefilter_texture, ibl_sampler, reflection,
@@ -346,21 +347,21 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     let k_D = ibl_albedo * (1.0 - FssEss - FmsEms);
     pbr_color = FssEss * prefiltered + (FmsEms + k_D) * irradiance;
 )";
-    if (features.Coat)
+    code << R"(
+    if (pbr_has_coat)
     {
-      code << R"(
-    let coat_reflection =
-      normalize(environment_matrix * reflect(-surface.view, surface.coat_normal));
-    let coat_prefiltered = textureSampleLevel(ibl_prefilter_texture, ibl_sampler,
-      coat_reflection, material.coat_roughness * ibl_parameters.prefilter_max_level).rgb;
-    let coat_brdf = textureSampleLevel(ibl_brdf_texture, ibl_sampler,
-      vec2<f32>(surface.coat_NdV, material.coat_roughness), 0.0).rg;
-    let Fc = pbrFresnelSchlick(material.coat_F0, material.coat_F90, surface.coat_NdV) *
-      material.coat_strength;
-    pbr_color *= material.coat_color_factor;
-    pbr_color += coat_prefiltered * (material.coat_F0 * coat_brdf.r + coat_brdf.g) * Fc;
-)";
+      let coat_reflection =
+        normalize(environment_matrix * reflect(-surface.view, surface.coat_normal));
+      let coat_prefiltered = textureSampleLevel(ibl_prefilter_texture, ibl_sampler,
+        coat_reflection, material.coat_roughness * ibl_parameters.prefilter_max_level).rgb;
+      let coat_brdf = textureSampleLevel(ibl_brdf_texture, ibl_sampler,
+        vec2<f32>(surface.coat_NdV, material.coat_roughness), 0.0).rg;
+      let Fc = pbrFresnelSchlick(material.coat_F0, material.coat_F90, surface.coat_NdV) *
+        material.coat_strength;
+      pbr_color *= material.coat_color_factor;
+      pbr_color += coat_prefiltered * (material.coat_F0 * coat_brdf.r + coat_brdf.g) * Fc;
     }
+)";
   }
   code << R"(
     pbr_color += Lo;
@@ -565,8 +566,6 @@ vtkTypeUInt32 vtkWebGPUPolyDataMapper::GetShadingFeatures(vtkActor* actor, vtkRe
   }
   if (property->GetInterpolation() == VTK_PBR)
   {
-    features |= property->GetAnisotropy() != 0.0 ? 0x8u : 0u;
-    features |= property->GetCoatStrength() > 0.0 ? 0x10u : 0u;
     const auto textures = vtkWebGPUActorInternals::GetPBRTextures(actor);
     for (std::size_t i = 0; i < textures.size(); ++i)
     {
@@ -4175,8 +4174,6 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(GraphicsPipelineType p
     features.ImageBasedLighting = wgpuRenderer->HasImageBasedLighting();
     features.Tangents =
       this->HasPointAttributes[POINT_NORMALS] && this->HasPointAttributes[POINT_TANGENTS];
-    features.Anisotropy = features.Tangents && property->GetAnisotropy() != 0.0;
-    features.Coat = property->GetCoatStrength() > 0.0;
     features.LinearizeColors = this->HasPointAttributes[POINT_COLORS] ||
       this->HasCellAttributes[CELL_COLORS] || this->HasPointAttributes[POINT_COLOR_UVS];
     if (this->HasPointAttributes[POINT_UVS])
@@ -4188,9 +4185,9 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(GraphicsPipelineType p
       features.EmissiveTexture = textures[Internals::PBR_EMISSIVE] != nullptr;
       features.NormalTexture = features.Tangents && textures[Internals::PBR_NORMAL] != nullptr;
       features.AnisotropyTexture =
-        features.Anisotropy && textures[Internals::PBR_ANISOTROPY] != nullptr;
+        features.Tangents && textures[Internals::PBR_ANISOTROPY] != nullptr;
       features.CoatNormalTexture =
-        features.Tangents && features.Coat && textures[Internals::PBR_COAT_NORMAL] != nullptr;
+        features.Tangents && textures[Internals::PBR_COAT_NORMAL] != nullptr;
     }
     vtkWebGPURenderPipelineCache::Substitute(
       fss, "//VTK::Lights::Impl", BuildPBRLightingSource(features), /*all=*/true);
