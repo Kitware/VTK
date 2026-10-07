@@ -116,6 +116,16 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
         {
           wgpuTexture->Render(renderer);
         }
+        if (this->GetProperty()->GetInterpolation() == VTK_PBR)
+        {
+          for (const auto& item : this->GetProperty()->GetAllTextures())
+          {
+            if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(item.second))
+            {
+              wgpuTexture->Render(renderer);
+            }
+          }
+        }
         if (this->NeedToRecreateBindGroups())
         {
           this->CreateBindGroups(wgpuConfiguration);
@@ -471,6 +481,18 @@ bool vtkWebGPUActor::NeedToRecreateBindGroups()
       return true;
     }
   }
+  const auto pbrTextures = vtkWebGPUActorInternals::GetPBRTextures(this);
+  if (pbrTextures != internals.BoundPBRTextures)
+  {
+    return true;
+  }
+  for (auto* texture : pbrTextures)
+  {
+    if (texture && texture->GetMTime() > internals.DeviceResourcesBuildTimestamp)
+    {
+      return true;
+    }
+  }
   return false;
 }
 
@@ -511,6 +533,19 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
     }
   }
 
+  internals.BoundPBRTextures = vtkWebGPUActorInternals::GetPBRTextures(this);
+  for (auto* texture : internals.BoundPBRTextures)
+  {
+    if (texture)
+    {
+      auto devRc = texture->GetDeviceResource();
+      bglEntries.push_back(devRc->MakeSamplerBindGroupLayoutEntry(
+        bindingIdBGL++, static_cast<WGPUShaderStage>(WGPUShaderStage_Fragment)));
+      bglEntries.push_back(devRc->MakeTextureViewBindGroupLayoutEntry(
+        bindingIdBGL++, static_cast<WGPUShaderStage>(WGPUShaderStage_Fragment)));
+    }
+  }
+
   internals.ActorBindGroupLayout = vtkWebGPU::BindGroupLayout::Acquire(
     vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, bglEntries, actorDescription));
   std::uint32_t bindingIdBG = 0;
@@ -532,6 +567,16 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
         WGPUBindGroupEntry textureEntry = devRc->MakeTextureViewBindGroupEntry(bindingIdBG++);
         bgEntries.push_back(textureEntry);
       }
+    }
+  }
+
+  for (auto* texture : internals.BoundPBRTextures)
+  {
+    if (texture)
+    {
+      auto devRc = texture->GetDeviceResource();
+      bgEntries.push_back(devRc->MakeSamplerBindGroupEntry(bindingIdBG++));
+      bgEntries.push_back(devRc->MakeTextureViewBindGroupEntry(bindingIdBG++));
     }
   }
 

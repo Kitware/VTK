@@ -71,6 +71,12 @@ struct PBRShaderFeatures
   bool Anisotropy = false;
   bool Coat = false;
   bool LinearizeColors = false;
+  bool AlbedoTexture = false;
+  bool MaterialTexture = false;
+  bool EmissiveTexture = false;
+  bool NormalTexture = false;
+  bool AnisotropyTexture = false;
+  bool CoatNormalTexture = false;
 };
 
 std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
@@ -89,20 +95,73 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
   }
   code << R"(
   var pbr_color = pbr_ambient + pbr_albedo;
+)";
+  const auto sample = [&code](const char* name)
+  {
+    code << "  let pbr_" << name << "_sample = textureSample(pbr_" << name << "_texture, pbr_"
+         << name << "_sampler, vertex.uv);\n";
+  };
+  if (features.AlbedoTexture)
+  {
+    sample("albedo");
+    code << "  pbr_color = pbr_ambient + pbr_albedo * pbr_albedo_sample.rgb;\n";
+  }
+  if (features.MaterialTexture)
+  {
+    sample("material");
+  }
+  if (features.EmissiveTexture)
+  {
+    sample("emissive");
+  }
+  if (features.NormalTexture)
+  {
+    sample("normal");
+  }
+  if (features.AnisotropyTexture)
+  {
+    sample("anisotropy");
+  }
+  if (features.CoatNormalTexture)
+  {
+    sample("coat_normal");
+  }
+  code << R"(
   let pbr_lit = isLightingEnabled(actor.render_options.flags_2) &&
     (scene_lights.count > 0u || )"
        << (features.ImageBasedLighting ? "true" : "false") << R"();
   if (pbr_lit)
   {
-    let roughness = actor.color_options.roughness;
-    let metallic = actor.color_options.metallic;
-    let ao = 1.0;
-    let emissive = vec3<f32>(0.0);
-
+    var roughness = actor.color_options.roughness;
+    var metallic = actor.color_options.metallic;
+    var ao = 1.0;
+    var emissive = vec3<f32>(0.0);
+)";
+  if (features.AlbedoTexture)
+  {
+    code << R"(
+    pbr_albedo = pbr_albedo_sample.rgb * pbr_albedo;
+    opacity = pbr_albedo_sample.a;
+)";
+  }
+  if (features.MaterialTexture)
+  {
+    code << R"(
+    roughness = pbr_material_sample.g * roughness;
+    metallic = pbr_material_sample.b * metallic;
+    ao = pbr_material_sample.r;
+)";
+  }
+  if (features.EmissiveTexture)
+  {
+    code << R"(
+    emissive = pbr_emissive_sample.rgb * actor.color_options.emissive_factor;
+)";
+  }
+  code << R"(
     var surface: PBRSurface;
     surface.normal = normal_VC;
     surface.view = normalize(-vertex.position_VC.xyz);
-    surface.NdV = clamp(dot(surface.normal, surface.view), 1e-5, 1.0);
     surface.coat_normal = normal_VC;
 )";
   if (features.Tangents)
@@ -113,8 +172,17 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     if (features.Anisotropy)
     {
       code << R"(
-    let anisotropy = actor.color_options.anisotropy;
-    let rotation = 2.0 * PBR_PI * actor.color_options.anisotropy_rotation;
+    var anisotropy = actor.color_options.anisotropy;
+    var rotation = 2.0 * PBR_PI * actor.color_options.anisotropy_rotation;
+)";
+      if (features.AnisotropyTexture)
+      {
+        code << R"(
+    anisotropy = pbr_anisotropy_sample.r * anisotropy;
+    rotation = pbr_anisotropy_sample.g * rotation;
+)";
+      }
+      code << R"(
     let s = -sin(rotation);
     let c = cos(rotation);
     let n = normalize(surface.normal);
@@ -128,9 +196,28 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     surface.bitangent = cross(surface.normal, tangent);
     surface.TdV = dot(surface.tangent, surface.view);
     surface.BdV = dot(surface.bitangent, surface.view);
+    let tbn = mat3x3<f32>(surface.tangent, surface.bitangent, surface.normal);
 )";
+    if (features.NormalTexture)
+    {
+      code << R"(
+    let scale = actor.color_options.normal_scale;
+    let normal_TS = normalize((pbr_normal_sample.xyz * 2.0 - 1.0) * vec3<f32>(scale, scale, 1.0));
+    surface.normal = normalize(tbn * normal_TS);
+)";
+    }
+    if (features.CoatNormalTexture)
+    {
+      code << R"(
+    let coat_scale = actor.color_options.coat_normal_scale;
+    let coat_normal_TS = normalize((pbr_coat_normal_sample.xyz * 2.0 - 1.0) *
+      vec3<f32>(coat_scale, coat_scale, 1.0));
+    surface.coat_normal = normalize(tbn * coat_normal_TS);
+)";
+    }
   }
   code << R"(
+    surface.NdV = clamp(dot(surface.normal, surface.view), 1e-5, 1.0);
     surface.coat_NdV = clamp(dot(surface.coat_normal, surface.view), 1e-5, 1.0);
 
     var material: PBRMaterial;
@@ -2669,6 +2756,24 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderActorBindings(
                  << ") var actor_texture: texture_2d<" << textureSampleTypeStr << ">;\n";
     }
   }
+  static constexpr const char* pbrTextureNames[] = { "albedo", "material", "emissive", "normal",
+    "anisotropy", "coat_normal" };
+  const auto pbrTextures = vtkWebGPUActorInternals::GetPBRTextures(wgpuActor);
+  for (std::size_t i = 0; i < pbrTextures.size(); ++i)
+  {
+    if (pbrTextures[i])
+    {
+      // The bind group layout takes its sample type from the device resource, so the shader
+      // has to agree with it or the bind group fails validation.
+      const char* textureSampleTypeStr =
+        vtkWebGPURenderTextureDeviceResource::GetTextureSampleTypeString(
+          pbrTextures[i]->GetDeviceResource()->GetSampleType());
+      codeStream << "@group(" << GROUP_ACTOR << ") @binding(" << bindingId++ << ") var pbr_"
+                 << pbrTextureNames[i] << "_sampler: sampler;\n";
+      codeStream << "@group(" << GROUP_ACTOR << ") @binding(" << bindingId++ << ") var pbr_"
+                 << pbrTextureNames[i] << "_texture: texture_2d<" << textureSampleTypeStr << ">;\n";
+    }
+  }
 
   vtkWebGPURenderPipelineCache::Substitute(
     vss, "//VTK::Actor::Bindings", codeStream.str(), /*all=*/true);
@@ -4059,6 +4164,19 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(GraphicsPipelineType p
     features.Coat = property->GetCoatStrength() > 0.0;
     features.LinearizeColors = this->HasPointAttributes[POINT_COLORS] ||
       this->HasCellAttributes[CELL_COLORS] || this->HasPointAttributes[POINT_COLOR_UVS];
+    if (this->HasPointAttributes[POINT_UVS])
+    {
+      using Internals = vtkWebGPUActorInternals;
+      const auto textures = Internals::GetPBRTextures(wgpuActor);
+      features.AlbedoTexture = textures[Internals::PBR_ALBEDO] != nullptr;
+      features.MaterialTexture = textures[Internals::PBR_MATERIAL] != nullptr;
+      features.EmissiveTexture = textures[Internals::PBR_EMISSIVE] != nullptr;
+      features.NormalTexture = features.Tangents && textures[Internals::PBR_NORMAL] != nullptr;
+      features.AnisotropyTexture =
+        features.Anisotropy && textures[Internals::PBR_ANISOTROPY] != nullptr;
+      features.CoatNormalTexture =
+        features.Tangents && features.Coat && textures[Internals::PBR_COAT_NORMAL] != nullptr;
+    }
     vtkWebGPURenderPipelineCache::Substitute(
       fss, "//VTK::Lights::Impl", BuildPBRLightingSource(features), /*all=*/true);
     return;
