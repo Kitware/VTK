@@ -1,0 +1,7 @@
+NAME
+  VTK::nanoflann
+LIBRARY_NAME
+  vtknanoflann
+TEST_DEPENDS
+  VTK::TestingCore
+THIRD_PARTY
