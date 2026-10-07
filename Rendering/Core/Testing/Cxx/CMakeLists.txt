@@ -1,15 +1,4 @@
-set(extra_opengl2_tests
-  TestPBRAnisotropy.cxx
-  TestPBRClearCoat.cxx
-  TestPBRColorMultiplier.cxx
-  TestPBREdgeTint.cxx
-  TestPBRHdrEnvironment.cxx
-  TestPBRIrradianceHDR.cxx
-  TestPBRMapping.cxx
-  TestPBRMaterials.cxx
-  TestPBRMaterialsCoat.cxx
-  TestPBRTextureInterpolateScalars.cxx
-  )
+set(extra_opengl2_tests)
 if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
   list(APPEND extra_opengl2_tests TestOffscreenIsOffscreen.cxx,NO_DATA,NO_VALID)
 endif()
@@ -134,8 +123,18 @@ set(cxx_tests
   TestOpacityMSAA.cxx,LOOSE_VALID
   TestOrderedTriangulator.cxx
   TestOSConeCxx.cxx
+  TestPBRAnisotropy.cxx
+  TestPBRClearCoat.cxx
   TestPBRColorMap.cxx,NO_DATA
+  TestPBRColorMultiplier.cxx
+  TestPBREdgeTint.cxx
+  TestPBRHdrEnvironment.cxx
+  TestPBRIrradianceHDR.cxx
+  TestPBRMapping.cxx
+  TestPBRMaterials.cxx
+  TestPBRMaterialsCoat.cxx
   TestPBRMultipleScatteringIBL.cxx
+  TestPBRTextureInterpolateScalars.cxx
   TestPickingManager.cxx,NO_VALID
   TestPickTextActor.cxx,NO_VALID
   TestPointPicker.cxx,NO_DATA

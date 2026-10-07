@@ -10,24 +10,21 @@
 #include "vtkLight.h"
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
-#include "vtkOpenGLPolyDataMapper.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLSkybox.h"
-#include "vtkOpenGLTexture.h"
-#include "vtkPBRIrradianceTexture.h"
-#include "vtkPBRLUTTexture.h"
-#include "vtkPBRPrefilterTexture.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSkybox.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
+#include "vtkTexture.h"
 
 //------------------------------------------------------------------------------
 int TestPBRMaterials(int argc, char* argv[])
 {
-  vtkNew<vtkOpenGLRenderer> renderer;
+  vtkNew<vtkRenderer> renderer;
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(600, 600);
@@ -36,12 +33,9 @@ int TestPBRMaterials(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  vtkNew<vtkOpenGLSkybox> skybox;
+  vtkNew<vtkSkybox> skybox;
 
-  vtkSmartPointer<vtkPBRIrradianceTexture> irradiance = renderer->GetEnvMapIrradiance();
-  irradiance->SetIrradianceStep(0.3);
-
-  vtkNew<vtkOpenGLTexture> textureCubemap;
+  vtkNew<vtkTexture> textureCubemap;
   textureCubemap->CubeMapOn();
 
   std::string pathSkybox[6] = { "Data/skybox/posx.jpg", "Data/skybox/negx.jpg",

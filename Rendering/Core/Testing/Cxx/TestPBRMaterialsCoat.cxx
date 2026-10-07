@@ -5,24 +5,19 @@
 
 #include "vtkActor.h"
 #include "vtkActorCollection.h"
-#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkImageData.h"
 #include "vtkImageFlip.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkJPEGReader.h"
 #include "vtkNew.h"
-#include "vtkOpenGLPolyDataMapper.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLSkybox.h"
-#include "vtkOpenGLTexture.h"
-#include "vtkPBRIrradianceTexture.h"
-#include "vtkPBRLUTTexture.h"
-#include "vtkPBRPrefilterTexture.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkSkybox.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
@@ -30,7 +25,7 @@
 //----------------------------------------------------------------------------
 int TestPBRMaterialsCoat(int argc, char* argv[])
 {
-  vtkNew<vtkOpenGLRenderer> renderer;
+  vtkNew<vtkRenderer> renderer;
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(600, 600);
@@ -39,13 +34,11 @@ int TestPBRMaterialsCoat(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  vtkNew<vtkOpenGLSkybox> skybox;
+  vtkNew<vtkSkybox> skybox;
 
-  vtkSmartPointer<vtkPBRIrradianceTexture> irradiance = renderer->GetEnvMapIrradiance();
-  irradiance->SetIrradianceStep(0.3);
   renderer->UseSphericalHarmonicsOff();
 
-  vtkNew<vtkOpenGLTexture> textureCubemap;
+  vtkNew<vtkTexture> textureCubemap;
   textureCubemap->CubeMapOn();
 
   std::string pathSkybox[6] = { "Data/skybox/posx.jpg", "Data/skybox/negx.jpg",

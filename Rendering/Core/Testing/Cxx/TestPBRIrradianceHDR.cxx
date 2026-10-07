@@ -3,13 +3,12 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkHDRReader.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkPBRIrradianceTexture.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
@@ -22,7 +21,7 @@ int TestPBRIrradianceHDR(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  vtkNew<vtkOpenGLRenderer> renderer;
+  vtkNew<vtkRenderer> renderer;
   renderer->UseSphericalHarmonicsOn();
   renderer->UseImageBasedLightingOn();
   renWin->AddRenderer(renderer);

@@ -8,26 +8,20 @@
 #include "vtkCamera.h"
 #include "vtkCubeSource.h"
 #include "vtkDeflectNormals.h"
-#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkImageData.h"
 #include "vtkImageFlip.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkJPEGReader.h"
 #include "vtkLight.h"
 #include "vtkNew.h"
-#include "vtkOpenGLPolyDataMapper.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLSkybox.h"
-#include "vtkOpenGLTexture.h"
-#include "vtkPBRIrradianceTexture.h"
-#include "vtkPBRLUTTexture.h"
-#include "vtkPBRPrefilterTexture.h"
 #include "vtkPNGReader.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkPolyDataTangents.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
@@ -36,7 +30,7 @@
 //----------------------------------------------------------------------------
 int TestPBRClearCoat(int argc, char* argv[])
 {
-  vtkNew<vtkOpenGLRenderer> renderer;
+  vtkNew<vtkRenderer> renderer;
   renderer->AutomaticLightCreationOff();
 
   vtkNew<vtkLight> light;
@@ -52,11 +46,9 @@ int TestPBRClearCoat(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  vtkSmartPointer<vtkPBRIrradianceTexture> irradiance = renderer->GetEnvMapIrradiance();
-  irradiance->SetIrradianceStep(0.3);
   renderer->UseSphericalHarmonicsOff();
 
-  vtkNew<vtkOpenGLTexture> textureCubemap;
+  vtkNew<vtkTexture> textureCubemap;
   textureCubemap->CubeMapOn();
   textureCubemap->UseSRGBColorSpaceOn();
 
