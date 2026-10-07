@@ -263,5 +263,25 @@ int TestLookupTable(int, char*[])
   TestAssert(TestColor4uc(nanColor, mapped->GetPointer(4)));
   mapped->Delete();
 
+  // Test log scaling array mapping with out-of-bounds values
+  table->SetScaleToLog10();
+  table->SetTableRange(1.0, 100.0);
+  table->SetBelowRangeColor(1.0, 1.0, 0.0, 1.0); // Yellow
+  table->UseBelowRangeColorOn();
+  table->Build();
+
+  vtkSmartPointer<vtkDoubleArray> outOfBoundsArray = vtkSmartPointer<vtkDoubleArray>::New();
+  outOfBoundsArray->SetNumberOfComponents(1);
+  outOfBoundsArray->InsertNextValue(0.5);  // Below range
+  outOfBoundsArray->InsertNextValue(-5.0); // Negative (also below range)
+
+  vtkUnsignedCharArray* mappedOutOfBounds =
+    table->MapScalars(outOfBoundsArray, VTK_COLOR_MODE_MAP_SCALARS, 0);
+  const unsigned char yellow[4] = { 255, 255, 0, 255 };
+
+  TestAssert(TestColor4uc(yellow, mappedOutOfBounds->GetPointer(0)));
+  TestAssert(TestColor4uc(yellow, mappedOutOfBounds->GetPointer(4)));
+  mappedOutOfBounds->Delete();
+
   return rval;
 }
