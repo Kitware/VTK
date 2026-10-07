@@ -847,6 +847,7 @@ Views/Infovis/vtkHeatmapItem.h
 Views/Infovis/vtkTanglegramItem.h
 Views/Infovis/vtkTreeHeatmapItem.h
 Views/Scivis/vtkBlockProperties.h
+Views/Scivis/vtkGridAxesRepresentation.h
 Views/Scivis/vtkLookupTableManager.h
 Views/Scivis/vtkScivisDataRepresentation.h
 Views/Scivis/vtkScivisExporter.h
