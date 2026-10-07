@@ -22,7 +22,8 @@ float D_GGX(float NdH, float roughness)
   float a = roughness * roughness;
   float a2 = a * a;
   float d = (NdH * a2 - NdH) * NdH + 1.0;
-  return a2 / (PI * d * d);
+  float denom = max(PI * d * d, 1e-8);
+  return a2 / denom;
 }
 float V_SmithCorrelated(float NdV, float NdL, float roughness)
 {
