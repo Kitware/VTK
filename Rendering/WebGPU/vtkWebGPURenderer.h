@@ -357,6 +357,7 @@ private:
   WGPUBindGroupLayout SceneBindGroupLayout = nullptr;
 
   bool UseDeepFramebufferTransparency = true;
+  bool DeepFramebufferPopulated = false;
   vtkSmartPointer<vtkWebGPUDeepFramebuffer> DeepFramebuffer;
   WGPUBuffer DeepFramebufferPlaceholders[3] = { nullptr, nullptr, nullptr };
 

@@ -586,7 +586,8 @@ void vtkWebGPURenderer::UpdateBuffers()
 {
   this->RenderStage = RenderStageEnum::SyncDeviceResources;
   this->SetupBindGroupLayouts();
-  if (this->PrepareDeepFramebuffer())
+  this->DeepFramebufferPopulated = this->PrepareDeepFramebuffer();
+  if (this->DeepFramebufferPopulated)
   {
     this->DeepFramebuffer->Clear();
   }
@@ -1341,7 +1342,8 @@ void vtkWebGPURenderer::EndRecording()
   wgpuRenderPassEncoderEnd(renderEncoder);
   vtkWebGPU::ReleaseAndNull(this->WGPURenderEncoder, wgpuRenderPassEncoderRelease);
 
-  if (this->UseDeepFramebufferTransparency && this->DeepFramebuffer != nullptr)
+  if (this->UseDeepFramebufferTransparency && this->DeepFramebufferPopulated &&
+    this->DeepFramebuffer != nullptr)
   {
     auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow);
     if (wgpuRenderWindow != nullptr)
