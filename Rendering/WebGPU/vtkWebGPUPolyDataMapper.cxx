@@ -45,6 +45,7 @@
 #include "vtkWebGPURenderer.h"
 #include "vtkWebGPUTexture.h"
 
+#include "PBRFunctions.h"
 #include "vtkPolyDataFSWGSL.h"
 #include "vtkPolyDataVSWGSL.h"
 
@@ -60,6 +61,231 @@
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+struct PBRShaderFeatures
+{
+  bool ImageBasedLighting = false;
+  bool Tangents = false;
+  bool Anisotropy = false;
+  bool Coat = false;
+  bool LinearizeColors = false;
+};
+
+std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
+{
+  std::ostringstream code;
+  code << R"(
+  var pbr_ambient = actor.color_options.ambient_intensity * ambient_color;
+  var pbr_albedo = actor.color_options.diffuse_intensity * diffuse_color;
+)";
+  if (features.LinearizeColors)
+  {
+    code << R"(
+  pbr_ambient = pow(pbr_ambient, vec3<f32>(2.2));
+  pbr_albedo = pow(pbr_albedo, vec3<f32>(2.2));
+)";
+  }
+  code << R"(
+  var pbr_color = pbr_ambient + pbr_albedo;
+  let pbr_lit = isLightingEnabled(actor.render_options.flags_2) &&
+    (scene_lights.count > 0u || )"
+       << (features.ImageBasedLighting ? "true" : "false") << R"();
+  if (pbr_lit)
+  {
+    let roughness = actor.color_options.roughness;
+    let metallic = actor.color_options.metallic;
+    let ao = 1.0;
+    let emissive = vec3<f32>(0.0);
+
+    var surface: PBRSurface;
+    surface.normal = normal_VC;
+    surface.view = normalize(-vertex.position_VC.xyz);
+    surface.NdV = clamp(dot(surface.normal, surface.view), 1e-5, 1.0);
+    surface.coat_normal = normal_VC;
+)";
+  if (features.Tangents)
+  {
+    code << R"(
+    var tangent = vertex.tangent_VC;
+)";
+    if (features.Anisotropy)
+    {
+      code << R"(
+    let anisotropy = actor.color_options.anisotropy;
+    let rotation = 2.0 * PBR_PI * actor.color_options.anisotropy_rotation;
+    let s = -sin(rotation);
+    let c = cos(rotation);
+    let n = normalize(surface.normal);
+    tangent = (1.0 - c) * dot(vertex.tangent_VC, n) * n + c * vertex.tangent_VC -
+      s * cross(n, vertex.tangent_VC);
+)";
+    }
+    code << R"(
+    tangent = normalize(tangent - dot(tangent, surface.normal) * surface.normal);
+    surface.tangent = tangent;
+    surface.bitangent = cross(surface.normal, tangent);
+    surface.TdV = dot(surface.tangent, surface.view);
+    surface.BdV = dot(surface.bitangent, surface.view);
+)";
+  }
+  code << R"(
+    surface.coat_NdV = clamp(dot(surface.coat_normal, surface.view), 1e-5, 1.0);
+
+    var material: PBRMaterial;
+    material.albedo = pbr_albedo;
+    material.metallic = metallic;
+    material.roughness = roughness;
+    material.F0 = mix(vec3<f32>(actor.color_options.base_f0), pbr_albedo, metallic);
+    let f90 = clamp(dot(material.F0, vec3<f32>(50.0 * 0.33)), 0.0, 1.0);
+    material.F90 = mix(vec3<f32>(f90), actor.color_options.edge_tint, metallic);
+)";
+  if (features.Anisotropy)
+  {
+    code << R"(
+    material.anisotropy = anisotropy;
+    let r2 = roughness * roughness;
+    let aspect = sqrt(1.0 - 0.9 * anisotropy);
+    material.alpha_t = max(r2 / aspect, 0.001);
+    material.alpha_b = max(r2 * aspect, 0.001);
+)";
+  }
+  if (features.Coat)
+  {
+    code << R"(
+    material.coat_strength = actor.color_options.coat_strength;
+    material.coat_roughness = actor.color_options.coat_roughness;
+    material.coat_F0 = vec3<f32>(actor.color_options.coat_f0);
+    material.coat_F90 = vec3<f32>(1.0);
+    material.coat_color_factor =
+      mix(vec3<f32>(1.0), actor.color_options.coat_color, material.coat_strength);
+)";
+  }
+  const char* anisotropy = features.Anisotropy ? "true" : "false";
+  const char* coat = features.Coat ? "true" : "false";
+  code << R"(
+    var Lo = vec3<f32>(0.0);
+    for (var i = 0u; i < scene_lights.count; i++)
+    {
+      let light = scene_lights.values[i];
+      var L: vec3<f32>;
+      var attenuation = 1.0;
+      if (scene_lights.count == 1u && light.light_type == VTK_LIGHT_TYPE_HEADLIGHT)
+      {
+        L = surface.view;
+      }
+      else
+      {
+        var direction = light.direction_vc;
+        if (light.light_type == VTK_LIGHT_TYPE_HEADLIGHT)
+        {
+          direction = vec3<f32>(0.0, 0.0, -1.0);
+        }
+        if (light.positional == 0u)
+        {
+          L = -normalize(direction);
+        }
+        else
+        {
+          L = light.position_vc - vertex.position_VC.xyz;
+          let distance = length(L);
+          L = normalize(L);
+          attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * distance +
+            light.attenuation.z * distance * distance);
+          if (light.cone_angle < 90.0)
+          {
+            let cone_dot = dot(-L, normalize(direction));
+            if (cone_dot >= cos(radians(light.cone_angle)))
+            {
+              attenuation = attenuation * pow(cone_dot, light.exponent);
+            }
+            else
+            {
+              attenuation = 0.0;
+            }
+          }
+        }
+      }
+      Lo += pbrEvaluateLight(surface, material, L, light.color * attenuation, )"
+       << anisotropy << ", " << coat << R"();
+    }
+    pbr_color = vec3<f32>(0.0);
+)";
+  if (features.ImageBasedLighting)
+  {
+    code << R"(
+    let view = scene_transform.view;
+    let environment_matrix = ibl_parameters.environment_rotation *
+      transpose(mat3x3<f32>(view[0].xyz, view[1].xyz, view[2].xyz));
+    var irradiance: vec3<f32>;
+    if (ibl_parameters.use_spherical_harmonics != 0u)
+    {
+      var harmonics: array<vec3<f32>, 9>;
+      for (var k = 0u; k < 9u; k++)
+      {
+        harmonics[k] = ibl_spherical_harmonics[k].xyz;
+      }
+      irradiance = pbrEvaluateSphericalHarmonics(environment_matrix * surface.normal, &harmonics);
+    }
+    else
+    {
+      irradiance = textureSampleLevel(ibl_irradiance_texture, ibl_sampler,
+        environment_matrix * surface.normal, 0.0).rgb;
+    }
+    var reflection_normal = surface.normal;
+)";
+    if (features.Anisotropy)
+    {
+      code << R"(
+    let anisotropic_tangent = cross(surface.bitangent, surface.view);
+    let anisotropic_normal = cross(anisotropic_tangent, surface.bitangent);
+    reflection_normal = normalize(mix(surface.normal, anisotropic_normal, anisotropy));
+)";
+    }
+    code << R"(
+    let reflection = normalize(environment_matrix * reflect(-surface.view, reflection_normal));
+    let prefiltered = textureSampleLevel(ibl_prefilter_texture, ibl_sampler, reflection,
+      roughness * ibl_parameters.prefilter_max_level).rgb;
+    let brdf = textureSampleLevel(ibl_brdf_texture, ibl_sampler,
+      vec2<f32>(surface.NdV, roughness), 0.0).rg;
+    let ibl_albedo = (1.0 - metallic) * (1.0 - 0.04) * pbr_albedo;
+    let Fr = max(vec3<f32>(1.0 - roughness), material.F0) - material.F0;
+    let k_S = material.F0 + Fr * pow(1.0 - surface.NdV, 5.0);
+    let FssEss = k_S * brdf.r + material.F90 * brdf.g;
+    let Ems = 1.0 - (brdf.r + brdf.g);
+    let F_avg = material.F0 + (1.0 - material.F0) / 21.0;
+    let FmsEms = Ems * FssEss * F_avg / max(1.0 - F_avg * Ems, vec3<f32>(1e-5));
+    let k_D = ibl_albedo * (1.0 - FssEss - FmsEms);
+    pbr_color = FssEss * prefiltered + (FmsEms + k_D) * irradiance;
+)";
+    if (features.Coat)
+    {
+      code << R"(
+    let coat_reflection =
+      normalize(environment_matrix * reflect(-surface.view, surface.coat_normal));
+    let coat_prefiltered = textureSampleLevel(ibl_prefilter_texture, ibl_sampler,
+      coat_reflection, material.coat_roughness * ibl_parameters.prefilter_max_level).rgb;
+    let coat_brdf = textureSampleLevel(ibl_brdf_texture, ibl_sampler,
+      vec2<f32>(surface.coat_NdV, material.coat_roughness), 0.0).rg;
+    let Fc = pbrFresnelSchlick(material.coat_F0, material.coat_F90, surface.coat_NdV) *
+      material.coat_strength;
+    pbr_color *= material.coat_color_factor;
+    pbr_color += coat_prefiltered * (material.coat_F0 * coat_brdf.r + coat_brdf.g) * Fc;
+)";
+    }
+  }
+  code << R"(
+    pbr_color += Lo;
+    pbr_color = mix(pbr_color, pbr_color * ao, actor.color_options.occlusion_strength);
+    pbr_color += emissive;
+  }
+  output.color = vec4<f32>(pow(max(pbr_color, vec3<f32>(0.0)), vec3<f32>(1.0 / 2.2)),
+    actor.color_options.opacity * opacity);
+)";
+  return code.str();
+}
+}
 
 namespace
 {
@@ -2329,8 +2555,8 @@ const TRIANGLE_VERTS = array(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceShaderActorDef(GraphicsPipelineType vtkNotUsed(pipelineType),
-  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
-  std::string& vss, std::string& fss)
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* wgpuActor, std::string& vss,
+  std::string& fss)
 {
   const std::string code = R"(
 struct Actor
@@ -2341,7 +2567,15 @@ struct Actor
 };
 )";
   vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Actor::Def", code, /*all=*/true);
-  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Actor::Def", code, /*all=*/true);
+  if (wgpuActor->GetProperty()->GetInterpolation() == VTK_PBR)
+  {
+    vtkWebGPURenderPipelineCache::Substitute(
+      fss, "//VTK::Actor::Def", code + PBRFunctions, /*all=*/true);
+  }
+  else
+  {
+    vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Actor::Def", code, /*all=*/true);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -2366,38 +2600,9 @@ struct ClippingPlanes
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceShaderCustomDef(GraphicsPipelineType vtkNotUsed(pipelineType),
-  vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* vtkNotUsed(wgpuActor),
-  std::string& vtkNotUsed(vss), std::string& fss)
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& vtkNotUsed(vss), std::string& vtkNotUsed(fss))
 {
-  if (!wgpuRenderer->HasImageBasedLighting())
-  {
-    return;
-  }
-  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Custom::Def",
-    R"(fn approxBRDF(NdotV: f32, roughness: f32) -> vec2<f32> {
-  let c0 = vec4<f32>(-1.0, -0.0275, -0.572, 0.022);
-  let c1 = vec4<f32>(1.0, 0.0425, 1.04, -0.04);
-  let r = roughness * c0 + c1;
-  let a004 = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
-  return vec2<f32>(-1.04, 1.04) * a004 + r.zw;
-}
-
-fn rotateVector(v: vec3<f32>, axis: vec3<f32>, angle: f32) -> vec3<f32> {
-  let ca = cos(angle);
-  let sa = sin(angle);
-  return v * ca + cross(axis, v) * sa + axis * dot(axis, v) * (1.0 - ca);
-}
-
-fn computeAnisotropicBentNormal(N: vec3<f32>, V: vec3<f32>, T: vec3<f32>, anisotropy: f32) -> vec3<f32> {
-  let anisotropicTangent: vec3<f32> = cross(N, V);
-  let anisotropicBitangent: vec3<f32> = cross(anisotropicTangent, T);
-  return normalize(mix(N, cross(anisotropicBitangent, anisotropicTangent), anisotropy));
-}
-
-fn applyCoatNormalMapping(coat_normal: vec3<f32>, scale: f32) -> vec3<f32> {
-  return normalize(mix(vec3<f32>(0.0, 0.0, 1.0), coat_normal, scale));
-})",
-    /*all=*/true);
 }
 
 //------------------------------------------------------------------------------
@@ -3843,6 +4048,22 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderEdges(GraphicsPipelineType pi
 void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(GraphicsPipelineType pipelineType,
   vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor, std::string& fss)
 {
+  vtkProperty* property = wgpuActor->GetProperty();
+  if (property->GetInterpolation() == VTK_PBR)
+  {
+    PBRShaderFeatures features;
+    features.ImageBasedLighting = wgpuRenderer->HasImageBasedLighting();
+    features.Tangents =
+      this->HasPointAttributes[POINT_NORMALS] && this->HasPointAttributes[POINT_TANGENTS];
+    features.Anisotropy = features.Tangents && property->GetAnisotropy() != 0.0;
+    features.Coat = property->GetCoatStrength() > 0.0;
+    features.LinearizeColors = this->HasPointAttributes[POINT_COLORS] ||
+      this->HasCellAttributes[CELL_COLORS] || this->HasPointAttributes[POINT_COLOR_UVS];
+    vtkWebGPURenderPipelineCache::Substitute(
+      fss, "//VTK::Lights::Impl", BuildPBRLightingSource(features), /*all=*/true);
+    return;
+  }
+
   bool needLighting = false;
   switch (pipelineType)
   {
@@ -3874,102 +4095,89 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(GraphicsPipelineType p
     case GFX_PIPELINE_NB_TYPES:
       break;
   }
-
-  const bool useIBL = wgpuRenderer->HasImageBasedLighting() &&
-    (pipelineType == GFX_PIPELINE_TRIANGLES ||
-      pipelineType == GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE);
-
   if (needLighting)
   {
     vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Lights::Impl",
       R"(
-if actor.color_options.interpolation_type != VTK_PBR
+if scene_lights.count == 0u || !isLightingEnabled(actor.render_options.flags_2)
 {
   // No lights: ambient + diffuse only
-  if scene_lights.count == 0u || !isLightingEnabled(actor.render_options.flags_2)
-  {
-    output.color = vec4<f32>(
-      actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
-      actor.color_options.opacity * opacity
-    );
-  }
-  else
-  {
-    var total_diffuse: vec3<f32> = vec3<f32>(0.0);
-    var total_specular: vec3<f32> = vec3<f32>(0.0);
-    var total_ambient: vec3<f32> = actor.color_options.ambient_intensity * ambient_color;
-
-    // In view space, the camera is at the origin.
-    let frag_position_vc: vec3<f32> = vertex.position_VC.xyz;
-    let view_dir: vec3<f32> = normalize(-frag_position_vc);
-
-    for(var i: u32 = 0u; i < scene_lights.count; i = i + 1u)
-    {
-      let light: SceneLight = scene_lights.values[i];
-      let light_color: vec3<f32> = light.color;
-
-      // Compute diffuse and reflect direction based on light type
-      var df: f32 = 0.0;
-      var reflect_dir: vec3<f32>;
-
-      if(light.light_type == VTK_LIGHT_TYPE_HEADLIGHT)
-      {
-        // Headlight: illuminates along the camera view direction (i.e., -z in view space)
-        df = max(0.000001f, normal_VC.z);
-        reflect_dir = reflect(vec3<f32>(0.0, 0.0, -1.0), normal_VC);
-      }
-      else if(light.positional == 0u)
-      {
-        // Directional camera or scene light.
-        // light.direction_vc points FROM the light source TOWARD the scene (incident direction).
-        // Diffuse needs the direction FROM the surface TO the light, i.e. -light.direction_vc.
-        // Specular reflect() takes the incident ray (light.direction_vc), not its negation.
-        let light_dir: vec3<f32> = normalize(light.direction_vc);
-        df = max(dot(normal_VC, -light_dir), 0.0);
-        reflect_dir = reflect(light_dir, normal_VC);
-      }
-      else if(light.cone_angle >= 90.0f)
-      {
-        // Positional (point) light
-        let lvec: vec3<f32> = normalize(light.position_vc - frag_position_vc);
-        df = max(dot(normal_VC, lvec), 0.0);
-        reflect_dir = reflect(-lvec, normal_VC);
-      }
-      else
-      {
-        // Spot light
-        let lvec: vec3<f32> = normalize(light.position_vc - frag_position_vc);
-        let spot_dir: vec3<f32> = normalize(light.direction_vc);
-        // lvec points FROM fragment TO light, but cone check needs direction FROM light TO fragment
-        // aligned with the spot direction. Use -lvec to get direction from light to fragment.
-        let spot_cos: f32 = dot(-lvec, spot_dir);
-        let spot_cutoff: f32 = cos(radians(light.cone_angle));
-        if(spot_cos > spot_cutoff)
-        {
-          df = max(dot(normal_VC, lvec), 0.0) * pow(spot_cos, light.exponent);
-        }
-        reflect_dir = reflect(-lvec, normal_VC);
-      }
-
-      // Diffuse contribution
-      total_diffuse += df * diffuse_color * light_color;
-
-      // Specular contribution
-      let sf: f32 = pow(max(dot(view_dir, reflect_dir), 0.0), actor.color_options.specular_power);
-      total_specular += sf * actor.color_options.specular_intensity * actor.color_options.specular_color * light_color;
-    }
-
-    output.color = vec4<f32>(
-      total_ambient + actor.color_options.diffuse_intensity * total_diffuse + total_specular,
-      actor.color_options.opacity * opacity
-    );
-  }
+  output.color = vec4<f32>(
+    actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
+    actor.color_options.opacity * opacity
+  );
 }
 else
 {
-  output.color = vec4<f32>(diffuse_color, actor.color_options.opacity * opacity);
+  var total_diffuse: vec3<f32> = vec3<f32>(0.0);
+  var total_specular: vec3<f32> = vec3<f32>(0.0);
+  var total_ambient: vec3<f32> = actor.color_options.ambient_intensity * ambient_color;
+
+  // In view space, the camera is at the origin.
+  let frag_position_vc: vec3<f32> = vertex.position_VC.xyz;
+  let view_dir: vec3<f32> = normalize(-frag_position_vc);
+
+  for(var i: u32 = 0u; i < scene_lights.count; i = i + 1u)
+  {
+    let light: SceneLight = scene_lights.values[i];
+    let light_color: vec3<f32> = light.color;
+
+    // Compute diffuse and reflect direction based on light type
+    var df: f32 = 0.0;
+    var reflect_dir: vec3<f32>;
+
+    if(light.light_type == VTK_LIGHT_TYPE_HEADLIGHT)
+    {
+      // Headlight: illuminates along the camera view direction (i.e., -z in view space)
+      df = max(0.000001f, normal_VC.z);
+      reflect_dir = reflect(vec3<f32>(0.0, 0.0, -1.0), normal_VC);
+    }
+    else if(light.positional == 0u)
+    {
+      // Directional camera or scene light.
+      // light.direction_vc points FROM the light source TOWARD the scene (incident direction).
+      // Diffuse needs the direction FROM the surface TO the light, i.e. -light.direction_vc.
+      // Specular reflect() takes the incident ray (light.direction_vc), not its negation.
+      let light_dir: vec3<f32> = normalize(light.direction_vc);
+      df = max(dot(normal_VC, -light_dir), 0.0);
+      reflect_dir = reflect(light_dir, normal_VC);
+    }
+    else if(light.cone_angle >= 90.0f)
+    {
+      // Positional (point) light
+      let lvec: vec3<f32> = normalize(light.position_vc - frag_position_vc);
+      df = max(dot(normal_VC, lvec), 0.0);
+      reflect_dir = reflect(-lvec, normal_VC);
+    }
+    else
+    {
+      // Spot light
+      let lvec: vec3<f32> = normalize(light.position_vc - frag_position_vc);
+      let spot_dir: vec3<f32> = normalize(light.direction_vc);
+      // lvec points FROM fragment TO light, but cone check needs direction FROM light TO fragment
+      // aligned with the spot direction. Use -lvec to get direction from light to fragment.
+      let spot_cos: f32 = dot(-lvec, spot_dir);
+      let spot_cutoff: f32 = cos(radians(light.cone_angle));
+      if(spot_cos > spot_cutoff)
+      {
+        df = max(dot(normal_VC, lvec), 0.0) * pow(spot_cos, light.exponent);
+      }
+      reflect_dir = reflect(-lvec, normal_VC);
+    }
+
+    // Diffuse contribution
+    total_diffuse += df * diffuse_color * light_color;
+
+    // Specular contribution
+    let sf: f32 = pow(max(dot(view_dir, reflect_dir), 0.0), actor.color_options.specular_power);
+    total_specular += sf * actor.color_options.specular_intensity * actor.color_options.specular_color * light_color;
+  }
+
+  output.color = vec4<f32>(
+    total_ambient + actor.color_options.diffuse_intensity * total_diffuse + total_specular,
+    actor.color_options.opacity * opacity
+  );
 }
-//VTK::IBL::Impl
 )",
       /*all=*/true);
   }
@@ -3978,79 +4186,8 @@ else
     vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Lights::Impl",
       R"(output.color = vec4<f32>(
       actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
-      actor.color_options.opacity * opacity);
-//VTK::IBL::Impl)",
+      actor.color_options.opacity * opacity);)",
       true);
-  }
-
-  if (useIBL)
-  {
-    vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::IBL::Impl",
-      R"(
-if actor.color_options.interpolation_type == VTK_PBR
-{
-  let frag_pos: vec3<f32> = vertex.position_VC.xyz;
-  let v: vec3<f32> = normalize(-frag_pos);
-  var normal_for_ibl: vec3<f32> = normal_VC;
-
-  if actor.color_options.anisotropy > 0.0
-  {
-    var tangent: vec3<f32> = vec3<f32>(1.0, 0.0, 0.0);
-    if actor.color_options.anisotropy_rotation != 0.0
-    {
-      tangent = rotateVector(tangent, normal_VC, 6.28318530718 * actor.color_options.anisotropy_rotation);
-    }
-    normal_for_ibl = computeAnisotropicBentNormal(normal_VC, v, tangent, actor.color_options.anisotropy);
-  }
-
-  let NdotV: f32 = max(dot(normal_for_ibl, v), 0.001);
-  let metallic: f32 = actor.color_options.metallic;
-  let roughness: f32 = actor.color_options.roughness;
-  let F0: vec3<f32> = mix(vec3<f32>(0.04), diffuse_color, metallic);
-  let fresnel: vec3<f32> = F0 + (1.0 - F0) * pow(clamp(1.0 - NdotV, 0.0, 1.0), 5.0);
-  let model_view = scene_transform.view * actor.transform.world;
-  let env_matrix = ibl_parameters.environment_rotation *
-    transpose(mat3x3<f32>(model_view[0].xyz, model_view[1].xyz, model_view[2].xyz));
-  let env_dir: vec3<f32> = normalize(env_matrix * reflect(-v, normal_for_ibl));
-  let mip: f32 = roughness * ibl_parameters.prefilter_max_level;
-  let prefiltered: vec3<f32> = textureSampleLevel(ibl_prefilter_texture, ibl_sampler, env_dir, mip).rgb;
-  let brdf: vec2<f32> = textureSampleLevel(ibl_brdf_texture, ibl_sampler, vec2<f32>(NdotV, roughness), 0.0).rg;
-  let FssEss: vec3<f32> = fresnel * brdf.x + brdf.y;
-  let Ems: f32 = 1.0 - (brdf.x + brdf.y);
-  let Favg: vec3<f32> = F0 + (1.0 - F0) / 21.0;
-  let FmsEms: vec3<f32> = Ems * fresnel * Favg / (1.0 - Favg * Ems);
-  let k_D: vec3<f32> = diffuse_color * (1.0 - metallic) * (1.0 - fresnel);
-  let irradiance: vec3<f32> = textureSampleLevel(ibl_irradiance_texture, ibl_sampler, env_matrix * normal_for_ibl, 0.0).rgb;
-  let ibl_color: vec3<f32> = FssEss * prefiltered + (FmsEms + k_D) * irradiance;
-
-  output.color = vec4<f32>(actor.color_options.diffuse_intensity * ibl_color, actor.color_options.opacity * opacity);
-
-  if actor.color_options.coat_strength > 0.0
-  {
-    let coat_roughness: f32 = actor.color_options.coat_roughness;
-    let coat_NdotV: f32 = max(dot(normal_VC, v), 0.001);
-    let coat_F0: f32 = 0.04;
-    let coat_fresnel: f32 = coat_F0 + (1.0 - coat_F0) * pow(clamp(1.0 - coat_NdotV, 0.0, 1.0), 5.0);
-    let coat_env_dir: vec3<f32> = normalize(env_matrix * reflect(-v, normal_VC));
-    let coat_mip: f32 = coat_roughness * ibl_parameters.prefilter_max_level;
-    let coat_prefiltered: vec3<f32> = textureSampleLevel(ibl_prefilter_texture, ibl_sampler, coat_env_dir, coat_mip).rgb;
-    let coat_brdf: vec2<f32> = textureSampleLevel(ibl_brdf_texture, ibl_sampler, vec2<f32>(coat_NdotV, coat_roughness), 0.0).rg;
-    let coat_contribution: vec3<f32> = coat_fresnel * coat_brdf.x * coat_prefiltered;
-    output.color += vec4<f32>(coat_contribution * actor.color_options.coat_strength, 0.0);
-  }
-
-  if any(actor.color_options.emissive_factor > vec3<f32>(0.0))
-  {
-    let emissive_color: vec3<f32> = diffuse_color * actor.color_options.emissive_factor;
-    output.color += vec4<f32>(actor.color_options.diffuse_intensity * emissive_color, 0.0);
-  }
-}
-)",
-      /*all=*/true);
-  }
-  else
-  {
-    vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::IBL::Impl", "", /*all=*/true);
   }
 }
 

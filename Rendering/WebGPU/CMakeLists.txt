@@ -149,6 +149,7 @@ set(private_shader_files
   wgsl/OcclusionCullingCopyDepthTexture.wgsl
   wgsl/OcclusionCullingDepthMipmaps.wgsl
   wgsl/OcclusionCullingPropsCulling.wgsl
+  wgsl/PBRFunctions.wgsl
   wgsl/PointCloudMapperCopyDepthFromWindow.wgsl
   wgsl/PointCloudMapperCopyDepthToWindow.wgsl
   wgsl/PointCloudMapperShader.wgsl
