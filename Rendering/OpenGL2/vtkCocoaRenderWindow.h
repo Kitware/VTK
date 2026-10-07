@@ -380,6 +380,16 @@ public:
 
   ///@{
   /**
+   * Overridden to create the NSWindow and NSView if the new mode needs them.
+   * Call these on the main thread once the window has been initialized, because
+   * AppKit allows creating NSWindows and NSViews only there.
+   */
+  void SetShowWindow(bool val) override;
+  void SetUseOffScreenBuffers(bool val) override;
+  ///@}
+
+  ///@{
+  /**
    * Accessors for the pixel format object (Really an NSOpenGLPixelFormat*).
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
@@ -419,6 +429,35 @@ protected:
   std::stack<void*> ContextStack;
 
   void CreateGLContext();
+
+  /**
+   * Create the NSWindow (unless one was provided via SetRootWindow()) and the
+   * NSView (unless one was provided via SetWindowId()). If this is not called
+   * from the main thread, returns false, having created neither, because AppKit
+   * allows creating them only on the main thread. Returns true otherwise.
+   */
+  bool CreateNSWindowAndView();
+
+  /**
+   * Attach the NSOpenGLContext to the NSView, if there is one.
+   */
+  void LinkContextToNSView();
+
+  /**
+   * Create the NSWindow and NSView, if the window now needs them (to be shown,
+   * or to render into the default framebuffer) and does not have them yet, and
+   * attach the context. Without them the context renders only into offscreen
+   * buffers, which works on any thread. Returns false, having done nothing, when
+   * they are needed but cannot be created on the calling thread.
+   */
+  bool EnsureNSView();
+
+  /**
+   * Call EnsureNSView() where the window is about to be used and so must have
+   * what it needs: report the failure and keep the window offscreen, which is
+   * what it can still do on any thread.
+   */
+  void UpdateNSView();
 
   void CreateAWindow() override;
   void DestroyWindow() override;

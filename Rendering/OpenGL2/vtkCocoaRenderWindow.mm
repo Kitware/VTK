@@ -668,9 +668,16 @@ void vtkCocoaRenderWindow::SetupPalette(void*)
 }
 
 //----------------------------------------------------------------------------
-// Initialize the window for rendering.
-void vtkCocoaRenderWindow::CreateAWindow()
+bool vtkCocoaRenderWindow::CreateNSWindowAndView()
 {
+  // AppKit allows creating NSWindows and NSViews only on the main thread. The
+  // caller decides what to report, because a failure here is only a problem once
+  // a render needs them.
+  if (![NSThread isMainThread])
+  {
+    return false;
+  }
+
   static unsigned count = 1;
 
   // As vtk is both crossplatform and a library, we don't know if it is being
@@ -683,20 +690,16 @@ void vtkCocoaRenderWindow::CreateAWindow()
   //
   // So here we call +sharedApplication which will create the NSApplication
   // if it does not exist.  If it does exist, this does nothing.
-  // This call is intentionally delayed until this CreateAWindow call
+  // This call is intentionally delayed until an NSWindow or NSView is needed
   // to prevent Cocoa-window related stuff from happening in scenarios
   // where vtkRenderWindows are created but never shown.
   NSApplication* app = [NSApplication sharedApplication];
-
-  // Create the NSOpenGLPixelFormat and NSOpenGLContext.
-  this->CreateGLContext();
 
   // create an NSWindow only if neither an NSView nor an NSWindow have
   // been specified already.  This is the case for a 'pure vtk application'.
   // If you are using vtk in a 'regular Mac application' you should call
   // SetRootWindow() and SetWindowId() so that a window is not created here.
-  if (!this->GetRootWindow() && !this->GetWindowId() && !this->GetParentId() &&
-    this->GetConnectContextToNSView())
+  if (!this->GetRootWindow() && !this->GetWindowId() && !this->GetParentId())
   {
     // Ordinarily, only .app bundles get proper mouse and keyboard interaction,
     // but here we change the 'activation policy' to behave as if we were a
@@ -778,7 +781,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
     if (!theWindow)
     {
       vtkErrorMacro("Could not create window, serious error!");
-      return;
+      return false;
     }
 
     this->SetRootWindow(theWindow);
@@ -797,7 +800,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
   }
 
   // create an NSView if one has not been specified
-  if (!this->GetWindowId() && this->GetConnectContextToNSView())
+  if (!this->GetWindowId())
   {
     // For NSViews that display OpenGL, the OS defaults to drawing magnified,
     // not in high resolution. There is a tradeoff here between better visual
@@ -900,22 +903,25 @@ void vtkCocoaRenderWindow::CreateAWindow()
     }
   }
 
-  // Link the NSOpenGLContext and NSView, unless instructed not to.
-  NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
-  bool connectContextToNSView = this->GetConnectContextToNSView();
-  if (connectContextToNSView)
-  {
-    NSView* view = (NSView*)this->GetWindowId();
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [context setView:view];
-#pragma clang diagnostic pop
-  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+// Initialize the window for rendering.
+void vtkCocoaRenderWindow::CreateAWindow()
+{
+  // Create the NSOpenGLPixelFormat and NSOpenGLContext.
+  this->CreateGLContext();
+
+  this->UpdateNSView();
+
+  this->LinkContextToNSView();
 
   // the error "invalid drawable" in the console from this call can appear
   // but only early in the app's lifetime (ie sometime during launch)
   // IMPORTANT: this is necessary to update the context here in case of
   // hardware offscreen rendering.
+  NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
   [context update];
 
   this->MakeCurrent();
@@ -939,6 +945,77 @@ void vtkCocoaRenderWindow::CreateAWindow()
 #if !VTK_OBJC_IS_ARC
   [server release];
 #endif
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::LinkContextToNSView()
+{
+  NSView* view = (NSView*)this->GetWindowId();
+  if (this->ConnectContextToNSView && view)
+  {
+    NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    [context setView:view];
+#pragma clang diagnostic pop
+  }
+}
+
+//----------------------------------------------------------------------------
+bool vtkCocoaRenderWindow::EnsureNSView()
+{
+  NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
+  NSView* view = (NSView*)this->GetWindowId();
+  // Showing the window or rendering into its default framebuffer needs an NSView.
+  // Offscreen buffers need only the context.
+  const bool needsView =
+    this->ConnectContextToNSView && (this->ShowWindow || !this->UseOffScreenBuffers);
+  if (!context || view || !needsView)
+  {
+    return true;
+  }
+
+  if (!this->CreateNSWindowAndView())
+  {
+    return false;
+  }
+
+  // The server started observing before the NSWindow and NSView existed, so
+  // restart it to observe the new ones. Stopping first keeps an observation from
+  // being registered twice.
+  vtkCocoaServer* server = (vtkCocoaServer*)this->GetCocoaServer();
+  [server stopObservations];
+  [server startObservations];
+  this->LinkContextToNSView();
+  return true;
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::UpdateNSView()
+{
+  if (this->EnsureNSView())
+  {
+    return;
+  }
+
+  vtkErrorMacro("AppKit allows creating an NSWindow and NSView only on the main thread, so"
+                " this window keeps rendering offscreen.");
+  this->ShowWindow = false;
+  this->UseOffScreenBuffers = true;
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::SetShowWindow(bool val)
+{
+  this->Superclass::SetShowWindow(val);
+  this->EnsureNSView();
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::SetUseOffScreenBuffers(bool val)
+{
+  this->Superclass::SetUseOffScreenBuffers(val);
+  this->EnsureNSView();
 }
 
 //----------------------------------------------------------------------------
@@ -1064,25 +1141,20 @@ void vtkCocoaRenderWindow::Start()
   // called Initialize every render to do this
   if (this->OnScreenInitialized && this->Mapped)
   {
-    // Link the NSOpenGLContext and NSView, unless instructed not to.
-    // Although this is done in CreateAWindow, which seems like it should be
-    // sufficient, it's still needed in case previous calls to setView: failed
-    // to take effect (which can sometimes occur if the view was created externally).
-    NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
-    bool connectContextToNSView = this->GetConnectContextToNSView();
-    if (connectContextToNSView)
-    {
-      NSView* view = (NSView*)this->GetWindowId();
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      [context setView:view];
-#pragma clang diagnostic pop
-    }
+    // A window that has been shown, or switched to render into its default
+    // framebuffer, needs its NSWindow and NSView before this render.
+    this->UpdateNSView();
+
+    // Link the NSOpenGLContext and NSView. Although this is done in CreateAWindow,
+    // it's still needed in case previous calls to setView: failed to take effect
+    // (which can sometimes occur if the view was created externally).
+    this->LinkContextToNSView();
 
     // the error "invalid drawable" in the console from this call can appear
     // but only early in the app's lifetime (ie sometime during launch)
     // IMPORTANT: this is necessary to update the context here in case of
     // onscreen rendering.
+    NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
     [context update];
   }
 
@@ -1746,6 +1818,7 @@ bool vtkCocoaRenderWindow::GetConnectContextToNSView()
 void vtkCocoaRenderWindow::SetConnectContextToNSView(bool connect)
 {
   this->ConnectContextToNSView = connect;
+  this->EnsureNSView();
 }
 
 VTK_ABI_NAMESPACE_END
