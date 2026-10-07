@@ -150,6 +150,10 @@ that the above condition is always met on all supported platforms.
     Force EGL to use MESA software offscreen rendering.
   * `VTK_ENABLE_WEBGPU` (default `OFF`; required if using Emscripten): Enable
     WebGPU rendering support.
+  * `VTK_USE_DAWN_WEBGPU` (default `OFF`; requires `VTK_ENABLE_WEBGPU` and a
+    platform other than Emscripten): Declare Dawn's WebGPU extensions. Dawn must
+    be findable; configuration fails if it is not. The WebGPU backend itself
+    does not need Dawn, so leave this `OFF` unless you want those extensions.
   * `VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN` (default `OFF`): Whether to default
     to offscreen render windows by default or not.
   * `VTK_USE_OPENGL_DELAYED_LOAD` (default `OFF`; requires Windows and CMake >=

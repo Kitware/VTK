@@ -72,6 +72,8 @@ endif ()
 include(CMakeDependentOption)
 # (vtk/vtk#19315) Enable by default after WebGPU support is completed.
 option(VTK_ENABLE_WEBGPU "Enable the WebGPU experimental rendering backend." OFF)
+cmake_dependent_option(VTK_USE_DAWN_WEBGPU "Declare Dawn's WebGPU extensions. Requires Dawn." OFF
+  "VTK_ENABLE_WEBGPU;NOT CMAKE_SYSTEM_NAME STREQUAL \"Emscripten\"" OFF)
 
 include(GNUInstallDirs)
 
