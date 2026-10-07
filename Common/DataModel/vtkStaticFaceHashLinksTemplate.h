@@ -40,7 +40,7 @@
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
- * vtkStaticEdgeLocatorTemplate, vtkStaticCellLinksTemplate
+ * vtkStaticElementLocator, vtkStaticCellLinksTemplate
  */
 #ifndef vtkStaticFaceHashLinksTemplate_h
 #define vtkStaticFaceHashLinksTemplate_h

@@ -183,7 +183,7 @@ Contour extraction uses a single-pass cell helper, `ContourCell`. The helper
 runs the full López trace for one polyhedron and reports the intersected
 edges as `(globalPtId0, globalPtId1, t)` tuples plus a per-polygon
 vertex-count array. Iso-vertex deduplication is performed by the calling
-filter through its shared edge locator (`vtkStaticEdgeLocatorTemplate`); the
+filter through its shared edge locator (`vtkStaticEdgeLocator`); the
 helper does not write final iso-vertex coordinates. There is no separate
 count phase because `vtkContour3DLinearGrid` does not prefix-sum polyhedron
 cell sizes before running the trace: the point merger absorbs per-cell
@@ -200,7 +200,7 @@ through a shared edge locator:
 
 2. **Prefix sum + edge locator build** (serial): Global offsets are computed
    from per-cell counts, and the collected edge list is fed into a shared
-   `vtkStaticEdgeLocatorTemplate` that assigns unique iso-vertex IDs.
+   `vtkStaticEdgeLocator` that assigns unique iso-vertex IDs.
 
 3. **Emit pass** (parallel): Each thread calls `EmitClip` per cell, writing
    geometry into pre-allocated output arrays at the computed offsets.
@@ -266,8 +266,8 @@ existing VTK threaded filters.
 | Filter | Path | How polyhedra are handled |
 |--------|------|--------------------------|
 | `vtkContourFilter` | Delegates to `vtkContour3DLinearGrid` | Threaded fast + general paths |
-| `vtkContour3DLinearGrid` (fast) | `ContourCells::operator()` | `ContourCell` with `generateTriangles=true`; edge tuples deduplicated via the shared `vtkStaticEdgeLocatorTemplate` and triangle vertex coords emitted into thread-local point buffers |
-| `vtkContour3DLinearGrid` (general) | `ExtractEdges::operator()` | `ContourCell` producing edge tuples `(v0, v1, t)` for the shared `vtkStaticEdgeLocatorTemplate`; per-polygon vertex counts retained for the post-merge polygon emit pass when `GenerateTriangles=OFF` |
+| `vtkContour3DLinearGrid` (fast) | `ContourCells::operator()` | `ContourCell` with `generateTriangles=true`; edge tuples deduplicated via the shared `vtkStaticEdgeLocator` and triangle vertex coords emitted into thread-local point buffers |
+| `vtkContour3DLinearGrid` (general) | `ExtractEdges::operator()` | `ContourCell` producing edge tuples `(v0, v1, t)` for the shared `vtkStaticEdgeLocator`; per-polygon vertex counts retained for the post-merge polygon emit pass when `GenerateTriangles=OFF` |
 | `vtkTableBasedClipDataSet` | `ExtractCells` (integrated with MC batch pipeline) | Polyhedra flow through the same batch / prefix-sum / extract pipeline as other cell types, using the cell-array `CountClip` (classify phase) and `EmitClip` (extract phase). Fast-kept/discarded cells use sentinel case values; intersected cells go through Count/Emit with the shared edge locator. |
 | `vtkClipDataSet` | Per-cell fallback | `vtkPolyhedron::Clip` -> `Execute` -> `RunLopezTrace` |
 

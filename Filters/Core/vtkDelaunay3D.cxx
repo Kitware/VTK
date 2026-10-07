@@ -13,7 +13,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPolyData.h"
 #include "vtkSMPTools.h"
-#include "vtkStaticEdgeLocatorTemplate.h"
+#include "vtkStaticElementLocator.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
@@ -1005,7 +1005,8 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
   //
   if (this->Alpha > 0.0)
   {
-    using EdgeTupleType = EdgeTuple<vtkIdType, vtkIdType>;
+    using EdgeLocatorType = vtkStaticEdgeLocator<vtkIdType, vtkIdType>;
+    using EdgeTupleType = EdgeLocatorType::ElementType;
 
     double alpha2 = this->Alpha * this->Alpha;
     std::vector<char> pointUse(numPoints + 6, 0);
@@ -1090,7 +1091,7 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     // Build a static locator over the covered edges for O(1) membership tests.
-    vtkStaticEdgeLocatorTemplate<vtkIdType, vtkIdType> coveredLoc;
+    EdgeLocatorType coveredLoc;
     if (!coveredEdges.empty())
     {
       coveredLoc.BuildLocator(static_cast<vtkIdType>(coveredEdges.size()), coveredEdges.data());
@@ -1111,7 +1112,7 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
             vtkIdType ep1 = topo[i].PointIds[edgeVerts[j][0]];
             vtkIdType ep2 = topo[i].PointIds[edgeVerts[j][1]];
             if ((this->BoundingTriangulation || (ep1 < numPoints && ep2 < numPoints)) &&
-              (coveredEdges.empty() || coveredLoc.IsInsertedEdge(ep1, ep2) < 0))
+              (coveredEdges.empty() || coveredLoc.IsInsertedElement(ep1, ep2) < 0))
             {
               double ex1[3] = { coords[ep1 * 3], coords[ep1 * 3 + 1], coords[ep1 * 3 + 2] };
               double ex2[3] = { coords[ep2 * 3], coords[ep2 * 3 + 1], coords[ep2 * 3 + 2] };
@@ -1126,13 +1127,12 @@ int vtkDelaunay3D::RequestData(vtkInformation* vtkNotUsed(request),
 
       if (!lineEdges.empty())
       {
-        vtkStaticEdgeLocatorTemplate<vtkIdType, vtkIdType> lineLoc;
-        vtkIdType numUniqueEdges = 0;
-        const vtkIdType* edgeOffsets = lineLoc.MergeEdges(
-          static_cast<vtkIdType>(lineEdges.size()), lineEdges.data(), numUniqueEdges);
-        for (vtkIdType e = 0; e < numUniqueEdges; e++)
+        EdgeLocatorType lineLoc;
+        const auto& lineGroups =
+          lineLoc.GroupElements(static_cast<vtkIdType>(lineEdges.size()), lineEdges.data());
+        for (vtkIdType e = 0; e < lineGroups.GetNumberOfGroups(); e++)
         {
-          const EdgeTupleType& edge = lineEdges[edgeOffsets[e]];
+          const EdgeTupleType& edge = lineEdges[lineGroups.GetGroupOffset(e)];
           vtkIdType ln[2] = { edge.V0, edge.V1 };
           output->InsertNextCell(VTK_LINE, 2, ln);
           pointUse[edge.V0] = 1;

@@ -24,7 +24,7 @@
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPTools.h"
 #include "vtkStaticCellLinks.h"
-#include "vtkStaticEdgeLocatorTemplate.h"
+#include "vtkStaticElementLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -376,17 +376,18 @@ struct EvaluateCells
 
 // Represent clip edges. A clip edge has two values: (V0,V1) defining the
 // edge, plus the edge data CIdx and LIdx, which are output locations in the cell
-// and line connectivity arrays respectively. After sorting via MergeEdges(),
+// and line connectivity arrays respectively. After sorting via GroupElements(),
 // these indices are used to update the cell and line connectivity arrays to
 // use the newly generated point ids. The struct below is used in conjunction
-// with vtkStaticEdgeLocatorTemplate to associate data with the edges.
+// with vtkStaticEdgeLocator to associate data with the edges.
 struct IdxType
 {
   vtkIdType CIdx;
   vtkIdType LIdx;
 };
-using EdgeTupleType = EdgeTuple<vtkIdType, IdxType>;
-using EdgeLocatorType = vtkStaticEdgeLocatorTemplate<vtkIdType, IdxType>;
+using EdgeLocatorType = vtkStaticEdgeLocator<vtkIdType, IdxType>;
+using EdgeTupleType = EdgeLocatorType::ElementType;
+using EdgeGroupsType = EdgeLocatorType::GroupedElements;
 
 // Extract the cells (offsets and connectivity, plus clipped edges).
 // Also copy cell data.
@@ -513,7 +514,7 @@ struct OutputPointsWorker
 {
   template <typename InPtsT, typename OutPtsT>
   void operator()(InPtsT* inPts, OutPtsT* outPts, vtkIdType* ptMap, vtkIdType numNewPts,
-    const EdgeTupleType* mergeEdges, const vtkIdType* mergeOffsets, vtkPlane* plane,
+    const EdgeTupleType* mergeEdges, const EdgeGroupsType& mergeGroups, vtkPlane* plane,
     ArrayList* arrays, vtkPolyDataPlaneClipper* filter)
   {
     vtkIdType numInPts = inPts->GetNumberOfTuples();
@@ -563,8 +564,7 @@ struct OutputPointsWorker
     vtkMath::Normalize(normal);
     vtkIdType numKeptPts = numOutPts - numNewPts;
     vtkSMPTools::For(0, numNewPts,
-      [&, numKeptPts, outPts, mergeEdges, mergeOffsets, arrays, filter](
-        vtkIdType newPtId, vtkIdType endNewPtId)
+      [&, numKeptPts, outPts, mergeEdges, arrays, filter](vtkIdType newPtId, vtkIdType endNewPtId)
       {
         const auto in = vtk::DataArrayTupleRange<3>(inPts);
         auto out = vtk::DataArrayTupleRange<3>(outPts);
@@ -585,7 +585,7 @@ struct OutputPointsWorker
               break;
             }
           }
-          const EdgeTupleType* edge = mergeEdges + mergeOffsets[newPtId];
+          const EdgeTupleType* edge = mergeEdges + mergeGroups.GetGroupOffset(newPtId);
           const auto x0T = in[edge->V0];
           x0[0] = x0T[0];
           x0[1] = x0T[1];
@@ -614,18 +614,18 @@ struct OutputCells
   vtkIdType NumKeptPts;
   vtkIdType NumNewPts;
   const EdgeTupleType* MergeEdges;
-  const vtkIdType* MergeOffsets;
+  const EdgeGroupsType& MergeGroups;
   vtkIdType* OutCellsConn;
   vtkIdType* OutLinesConn;
   vtkPolyDataPlaneClipper* Filter;
 
   OutputCells(vtkIdType numKeptPts, vtkIdType numNewPts, const EdgeTupleType* mergeEdges,
-    const vtkIdType* mergeOffsets, vtkIdTypeArray* outCells, vtkIdTypeArray* outLines,
+    const EdgeGroupsType& mergeGroups, vtkIdTypeArray* outCells, vtkIdTypeArray* outLines,
     vtkPolyDataPlaneClipper* filter)
     : NumKeptPts(numKeptPts)
     , NumNewPts(numNewPts)
     , MergeEdges(mergeEdges)
-    , MergeOffsets(mergeOffsets)
+    , MergeGroups(mergeGroups)
     , OutCellsConn(outCells->GetPointer(0))
     , OutLinesConn(outLines->GetPointer(0))
     , Filter(filter)
@@ -637,14 +637,13 @@ struct OutputCells
     vtkIdType numKeptPts = this->NumKeptPts;
     vtkIdType numNewPts = this->NumNewPts;
     const EdgeTupleType* edges = this->MergeEdges;
-    const vtkIdType* offsets = this->MergeOffsets;
+    const EdgeGroupsType& groups = this->MergeGroups;
     vtkIdType* cellsConn = this->OutCellsConn;
     vtkIdType* linesConn = this->OutLinesConn;
     vtkPolyDataPlaneClipper* filter = this->Filter;
 
     vtkSMPTools::For(0, numNewPts,
-      [&, numKeptPts, edges, offsets, cellsConn, linesConn, filter](
-        vtkIdType newPtId, vtkIdType endNewPtId)
+      [&, numKeptPts, edges, cellsConn, linesConn, filter](vtkIdType newPtId, vtkIdType endNewPtId)
       {
         const EdgeTupleType* edge;
         bool isFirst = vtkSMPTools::GetSingleThread();
@@ -663,11 +662,12 @@ struct OutputCells
               break;
             }
           }
-          vtkIdType numEdges = offsets[newPtId + 1] - offsets[newPtId];
+          const vtkIdType numEdges = groups.GetGroupSize(newPtId);
+          const vtkIdType firstEdge = groups.GetGroupOffset(newPtId);
           vtkIdType updatedId = newPtId + numKeptPts;
-          for (auto i = 0; i < numEdges; ++i)
+          for (vtkIdType i = 0; i < numEdges; ++i)
           {
-            edge = edges + offsets[newPtId] + i;
+            edge = edges + firstEdge + i;
             cellsConn[edge->Data.CIdx] = updatedId;
             linesConn[edge->Data.LIdx] = updatedId;
           }
@@ -886,15 +886,15 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
 
   // New points are generated from groups of duplicate edges. The groups are
   // formed via sorting.
-  vtkIdType numNewPts;
-  const vtkIdType* mergeOffsets = edgeLocator.MergeEdges(2 * numEdges, mergeEdges, numNewPts);
+  const EdgeGroupsType& mergeGroups = edgeLocator.GroupElements(2 * numEdges, mergeEdges);
+  const vtkIdType numNewPts = mergeGroups.GetNumberOfGroups();
 
   // By merging edges, we've identified the new clip points (i.e., each set of
   // duplicate edges generates one new clip point). At this point we need to
   // update the cell and line connectivity arrays to their new point ids.
   vtkNew<vtkCellArray> outCells;
   vtkNew<vtkCellArray> outLines;
-  OutputCells oc(numKeptPts, numNewPts, mergeEdges, mergeOffsets, cellConn, lineConn, this);
+  OutputCells oc(numKeptPts, numNewPts, mergeEdges, mergeGroups, cellConn, lineConn, this);
   oc.Execute();
   outCells->SetData(cellOffsets, cellConn);
   outLines->SetData(2, lineConn);
@@ -932,10 +932,10 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
     vtkArrayDispatch::AOSPointArrays>;
   OutputPointsWorker opWorker;
   if (!OutputPointsDispatch::Execute(inPts->GetData(), outPts->GetData(), opWorker,
-        epWorker.KeptPtMap, numNewPts, mergeEdges, mergeOffsets, this->Plane, &ptArrays, this))
+        epWorker.KeptPtMap, numNewPts, mergeEdges, mergeGroups, this->Plane, &ptArrays, this))
   {
     opWorker(inPts->GetData(), outPts->GetData(), epWorker.KeptPtMap, numNewPts, mergeEdges,
-      mergeOffsets, this->Plane, &ptArrays, this);
+      mergeGroups, this->Plane, &ptArrays, this);
   }
   delete[] mergeEdges;
 

@@ -280,7 +280,6 @@ set(template_classes
   vtkMappedUnstructuredGridCellIterator
   vtkPeriodicDataArray
   vtkStaticCellLinksTemplate
-  vtkStaticEdgeLocatorTemplate
   vtkStaticElementLocator
   vtkStaticFaceHashLinksTemplate)
 
@@ -307,6 +306,7 @@ set(headers
   vtkLabelMapLookup.h
   vtkLocatorInterface.h
   vtkRect.h
+  vtkStaticEdgeLocatorTemplate.h
   vtkVector.h)
 
 set(nowrap_headers

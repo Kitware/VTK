@@ -45,7 +45,7 @@
  *
  * @warning
  *  vtkTableBasedClipDataSet makes use of an hash table for edges using the
- *  vtkStaticEdgeLocatorTemplate class to detect unique edges and eliminate duplicate
+ *  vtkStaticElementLocator class to detect unique edges and eliminate duplicate
  *  points. The hash-based mechanism simply compares the point Ids, without considering
  *  the actual inter-point distance (vtkClipDataSet adopts vtkMergePoints that though
  *  considers the inter-point distance for robust points merging ). As a result, some

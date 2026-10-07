@@ -76,7 +76,7 @@
  *
  * @sa
  * vtkContourGrid vtkContourFilter vtkFlyingEdges3D vtkMarchingCubes
- * vtkPolyDataNormals vtkStaticEdgeLocatorTemplate.h vtkScalarTree
+ * vtkPolyDataNormals vtkStaticElementLocator vtkScalarTree
  * vtkSpanSpace
  */
 
