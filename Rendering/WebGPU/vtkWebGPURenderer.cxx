@@ -43,6 +43,8 @@
 #include "vtkMath.h"
 #include "vtkMatrix3x3.h"
 
+#include <vtksys/SystemTools.hxx>
+
 #include <algorithm>
 #include <cstring>
 
@@ -321,6 +323,12 @@ void vtkWebGPURenderer::UpdateEnvironmentMap()
       auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
       regenerated = this->EnvironmentMap->Update(wgpuRenderWindow->GetWGPUConfiguration(), source);
       ready = this->EnvironmentMap->IsReady();
+      std::string dumpDirectory;
+      if (regenerated && vtksys::SystemTools::GetEnv("VTK_WEBGPU_PBR_DUMP_DIR", dumpDirectory) &&
+        !this->EnvironmentMap->Dump(wgpuRenderWindow->GetWGPUConfiguration(), dumpDirectory))
+      {
+        vtkWarningMacro("Failed to write the image based lighting textures to " << dumpDirectory);
+      }
     }
   }
   if (regenerated && ready == this->ImageBasedLightingReady)

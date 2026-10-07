@@ -33,6 +33,7 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestRenderBundleReuse.cxx,NO_DATA,NO_VALID
   TestLowPowerRenderWindow.cxx,NO_DATA,NO_SERDES
   TestPBRDebugView.cxx,NO_DATA,NO_VALID
+  TestPBRDumpTextures.cxx,NO_DATA,NO_VALID
   TestReportWebGPUCapabilities.cxx,NO_DATA,NO_VALID
   TestRenderWindowChangeDeviceLater.cxx,NO_DATA,NO_SERDES)
 

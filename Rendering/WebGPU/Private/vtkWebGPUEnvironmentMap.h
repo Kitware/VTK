@@ -12,6 +12,7 @@
 #include "vtkType.h"                 // for vtkMTimeType
 
 #include <cstdint> // for std::uint32_t
+#include <string>  // for std::string
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkWebGPUConfiguration;
@@ -51,6 +52,13 @@ public:
   static constexpr std::uint64_t GetHarmonicsBufferSize() { return 9 * 4 * sizeof(float); }
 
   std::uint32_t GetPrefilterLevels() const { return this->PrefilterLevels; }
+
+  /**
+   * Reads the generated textures back and writes them in the given directory: the lookup table,
+   * every face of the irradiance cube and of each prefilter level as PFM images, and the spherical
+   * harmonics coefficients as text. Returns false when a file could not be written.
+   */
+  bool Dump(vtkWebGPUConfiguration* configuration, const std::string& directory);
 
   void ReleaseGraphicsResources();
 
