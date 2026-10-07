@@ -49,11 +49,13 @@
 #include "vtkNew.h" // For ivar
 #include "vtkScivisRepresentation.h"
 #include "vtkViewsScivisModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkGridAxesActor3D;
 
-class VTKVIEWSSCIVIS_EXPORT vtkGridAxesRepresentation : public vtkScivisRepresentation
+class VTKVIEWSSCIVIS_EXPORT VTK_MARSHALAUTO vtkGridAxesRepresentation
+  : public vtkScivisRepresentation
 {
 public:
   static vtkGridAxesRepresentation* New();
