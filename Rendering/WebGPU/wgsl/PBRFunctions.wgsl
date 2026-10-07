@@ -39,7 +39,7 @@ fn pbrDistributionGGX(NdH: f32, roughness: f32) -> f32
   let a = roughness * roughness;
   let a2 = a * a;
   let d = (NdH * a2 - NdH) * NdH + 1.0;
-  return a2 / (PBR_PI * d * d);
+  return a2 / max(PBR_PI * d * d, 1e-8);
 }
 
 fn pbrVisibilitySmithCorrelated(NdV: f32, NdL: f32, roughness: f32) -> f32
