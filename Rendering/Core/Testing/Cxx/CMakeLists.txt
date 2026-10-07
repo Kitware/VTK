@@ -276,6 +276,14 @@ if (TARGET VTK::RenderingOpenGL2)
   endif()
   set_tests_properties(VTK::RenderingCoreCxx-OpenGL-TestManyRenderWindows
     PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestManyRenderWindows})
+  # Serializing the HDR environment texture makes this test slow.
+  if (TEST VTK::RenderingCoreCxx-OpenGL-TestPBRIrradianceHDRSerDes)
+    if (NOT VTK_TEST_TIMEOUT_TestPBRIrradianceHDRSerDes)
+      set(VTK_TEST_TIMEOUT_TestPBRIrradianceHDRSerDes 300)
+    endif ()
+    set_tests_properties(VTK::RenderingCoreCxx-OpenGL-TestPBRIrradianceHDRSerDes
+      PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestPBRIrradianceHDRSerDes})
+  endif ()
 endif ()
 
 if (TARGET VTK::RenderingWebGPU)
