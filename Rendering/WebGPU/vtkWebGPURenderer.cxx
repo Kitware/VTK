@@ -5,6 +5,7 @@
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
+#include "Private/vtkWebGPUEnvironmentMap.h"
 #include "Private/vtkWebGPUHandle.h"
 #include "Private/vtkWebGPUHelpersPrivate.h"
 #include "Private/vtkWebGPUPipelineLayoutInternals.h"
@@ -38,7 +39,9 @@
 #include "vtkWebGPUTexture.h"
 
 #include "vtkCamera.h"
-#include "vtkMatrix4x4.h"
+#include "vtkImageData.h"
+#include "vtkMath.h"
+#include "vtkMatrix3x3.h"
 
 #include <algorithm>
 #include <cstring>
@@ -49,10 +52,12 @@ namespace
 {
 struct IBLBlock
 {
-  float EnvRotation[3][4] = {};
-  float PrefilterLevels = 0.0f;
-  float Pad[3] = {};
+  float EnvironmentRotation[3][4] = {};
+  float PrefilterMaxLevel = 0.0f;
+  vtkTypeUInt32 UseSphericalHarmonics = 0;
+  vtkTypeUInt32 Pad[2] = {};
 };
+static_assert(sizeof(IBLBlock) == 64, "IBLBlock must match the WGSL IBLParameters layout");
 
 const char* backgroundShaderSource = R"(
     struct VertexOutput {
@@ -254,40 +259,75 @@ std::size_t vtkWebGPURenderer::WriteLightsBuffer(std::size_t offset /*=0*/)
 //------------------------------------------------------------------------------
 void vtkWebGPURenderer::WriteIBLUniformBuffer()
 {
-  if (!this->IBLUniformBuffer)
+  if (!this->IBLUniformBuffer || !this->ImageBasedLightingReady)
   {
     return;
   }
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
   auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
 
-  IBLBlock uniforms = {};
-
-  vtkMatrix4x4* viewMat = this->GetActiveCamera()->GetModelViewTransformMatrix();
-  const double* vd = viewMat->GetData();
-  uniforms.EnvRotation[0][0] = static_cast<float>(vd[0]);
-  uniforms.EnvRotation[0][1] = static_cast<float>(vd[1]);
-  uniforms.EnvRotation[0][2] = static_cast<float>(vd[2]);
-  uniforms.EnvRotation[0][3] = 0.0f;
-  uniforms.EnvRotation[1][0] = static_cast<float>(vd[4]);
-  uniforms.EnvRotation[1][1] = static_cast<float>(vd[5]);
-  uniforms.EnvRotation[1][2] = static_cast<float>(vd[6]);
-  uniforms.EnvRotation[1][3] = 0.0f;
-  uniforms.EnvRotation[2][0] = static_cast<float>(vd[8]);
-  uniforms.EnvRotation[2][1] = static_cast<float>(vd[9]);
-  uniforms.EnvRotation[2][2] = static_cast<float>(vd[10]);
-  uniforms.EnvRotation[2][3] = 0.0f;
-
-  if (auto* wgpuTex = vtkWebGPUTexture::SafeDownCast(this->GetEnvironmentTexture()))
+  IBLBlock uniforms;
+  vtkMatrix3x3* rotation = this->GetEnvironmentRotationMatrix();
+  for (int column = 0; column < 3; ++column)
   {
-    if (auto devRc = wgpuTex->GetDeviceResource())
+    for (int row = 0; row < 3; ++row)
     {
-      uniforms.PrefilterLevels = static_cast<float>(devRc->GetMipLevelCount() - 1);
+      uniforms.EnvironmentRotation[column][row] =
+        static_cast<float>(rotation->GetElement(column, row));
     }
   }
+  uniforms.PrefilterMaxLevel = static_cast<float>(this->EnvironmentMap->GetPrefilterLevels() - 1);
+  uniforms.UseSphericalHarmonics = this->GetUseSphericalHarmonics() ? 1 : 0;
+  wgpuConfiguration->WriteBuffer(
+    this->IBLUniformBuffer, 0, &uniforms, sizeof(IBLBlock), "IBLUniformUpdate");
+}
 
-  const auto iblSize = vtkWebGPUConfiguration::Align(sizeof(IBLBlock), 32);
-  wgpuConfiguration->WriteBuffer(this->IBLUniformBuffer, 0, &uniforms, iblSize, "IBLUniformUpdate");
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::UpdateEnvironmentMap()
+{
+  bool ready = false;
+  bool regenerated = false;
+  auto* texture = vtkWebGPUTexture::SafeDownCast(this->GetEnvironmentTexture());
+  if (this->GetUseImageBasedLighting() && texture && texture->GetInput())
+  {
+    texture->Render(this);
+    auto deviceResource = texture->GetDeviceResource();
+    if (deviceResource)
+    {
+      vtkWebGPUEnvironmentMap::Source source;
+      source.View = deviceResource->MakeTextureViewBindGroupEntry(0).textureView;
+      source.IsCubeMap = texture->GetCubeMap();
+      int dimensions[3] = { 0, 0, 0 };
+      texture->GetInput()->GetDimensions(dimensions);
+      source.Height = static_cast<std::uint32_t>(dimensions[1]);
+      source.ConvertToLinear = this->EnvironmentIsSRGB;
+      double up[3];
+      double right[3];
+      double front[3];
+      this->GetEnvironmentUp(up);
+      this->GetEnvironmentRight(right);
+      vtkMath::Cross(up, right, front);
+      for (int i = 0; i < 3; ++i)
+      {
+        source.Right[i] = static_cast<float>(right[i]);
+        source.Up[i] = static_cast<float>(up[i]);
+        source.Front[i] = static_cast<float>(front[i]);
+      }
+      source.ModifiedTime = std::max(texture->GetMTime(), texture->GetInput()->GetMTime());
+      if (!this->EnvironmentMap)
+      {
+        this->EnvironmentMap = std::make_unique<vtkWebGPUEnvironmentMap>();
+      }
+      auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+      regenerated = this->EnvironmentMap->Update(wgpuRenderWindow->GetWGPUConfiguration(), source);
+      ready = this->EnvironmentMap->IsReady();
+    }
+  }
+  if (regenerated && ready == this->ImageBasedLightingReady)
+  {
+    vtkWebGPU::ReleaseAndNull(this->SceneBindGroup, wgpuBindGroupRelease);
+  }
+  this->ImageBasedLightingReady = ready;
 }
 
 //------------------------------------------------------------------------------
@@ -340,23 +380,16 @@ void vtkWebGPURenderer::CreateBuffers()
     this->AllocatedLightsBufferSize = lightSizePadded;
   }
 
-  if (this->GetUseImageBasedLighting() && this->GetEnvironmentTexture())
+  if (this->ImageBasedLightingReady && this->IBLUniformBuffer == nullptr)
   {
-    const vtkMTimeType envMTime = this->GetEnvironmentTexture()->GetMTime();
-    if (this->IBLUniformBuffer == nullptr || envMTime != this->LastEnvTextureMTime)
-    {
-      this->LastEnvTextureMTime = envMTime;
-      vtkWebGPU::ReleaseAndNull(this->IBLUniformBuffer, wgpuBufferRelease);
-      const std::string label = "IBLUniforms-" + this->GetObjectDescription();
-      const auto iblSize = vtkWebGPUConfiguration::Align(sizeof(IBLBlock), 32);
-      this->IBLUniformBuffer = wgpuConfiguration->CreateBuffer(iblSize,
-        static_cast<WGPUBufferUsage>(WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst), false,
-        label.c_str());
-      createSceneBindGroup = true;
-    }
+    const std::string label = "IBLUniforms-" + this->GetObjectDescription();
+    this->IBLUniformBuffer = wgpuConfiguration->CreateBuffer(sizeof(IBLBlock),
+      static_cast<WGPUBufferUsage>(WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst), false,
+      label.c_str());
+    createSceneBindGroup = true;
   }
 
-  if (createSceneBindGroup)
+  if (createSceneBindGroup || this->SceneBindGroup == nullptr)
   {
     this->SetupSceneBindGroup();
   }
@@ -731,6 +764,7 @@ bool vtkWebGPURenderer::PropSupportsReusingRenderBundle(vtkProp* prop) const
 void vtkWebGPURenderer::UpdateBuffers()
 {
   this->RenderStage = RenderStageEnum::SyncDeviceResources;
+  this->UpdateEnvironmentMap();
   this->SetupBindGroupLayouts();
   this->DeepFramebufferPopulated = this->PrepareDeepFramebuffer();
   if (this->DeepFramebufferPopulated)
@@ -779,10 +813,7 @@ void vtkWebGPURenderer::UpdateBuffers()
   this->CreateBuffers();
   this->WriteSceneTransformsBuffer();
   this->WriteLightsBuffer();
-  if (this->GetUseImageBasedLighting() && this->GetEnvironmentTexture())
-  {
-    this->WriteIBLUniformBuffer();
-  }
+  this->WriteIBLUniformBuffer();
 }
 
 //------------------------------------------------------------------------------
@@ -1200,7 +1231,15 @@ int vtkWebGPURenderer::UpdateLights()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderer::SetEnvironmentTexture(vtkTexture*, bool vtkNotUsed(isSRGB) /*=false*/) {}
+void vtkWebGPURenderer::SetEnvironmentTexture(vtkTexture* texture, bool isSRGB /*=false*/)
+{
+  if (this->EnvironmentIsSRGB != isSRGB)
+  {
+    this->EnvironmentIsSRGB = isSRGB;
+    this->Modified();
+  }
+  this->Superclass::SetEnvironmentTexture(texture, isSRGB);
+}
 
 //------------------------------------------------------------------------------
 vtkWebGPUDeepFramebuffer* vtkWebGPURenderer::GetDeepFramebuffer()
@@ -1271,6 +1310,11 @@ void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
   vtkWebGPU::ReleaseAndNull(this->SceneTransformBuffer, wgpuBufferRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneLightsBuffer, wgpuBufferRelease);
   vtkWebGPU::ReleaseAndNull(this->IBLUniformBuffer, wgpuBufferRelease);
+  if (this->EnvironmentMap)
+  {
+    this->EnvironmentMap->ReleaseGraphicsResources();
+  }
+  this->ImageBasedLightingReady = false;
   vtkWebGPU::ReleaseAndNull(this->BackgroundGradientBuffer, wgpuBufferRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneBindGroup, wgpuBindGroupRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneBindGroupLayout, wgpuBindGroupLayoutRelease);
@@ -1394,36 +1438,40 @@ void vtkWebGPURenderer::SetupBindGroupLayouts()
 {
   auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
   WGPUDevice device = wgpuRenderWindow->GetDevice();
-  const bool useIBL = this->GetUseImageBasedLighting() && this->GetEnvironmentTexture() != nullptr;
+  const bool useIBL = this->ImageBasedLightingReady;
   if (this->SceneBindGroupLayout == nullptr || useIBL != this->LastUseIBL)
   {
     this->LastUseIBL = useIBL;
     vtkWebGPU::ReleaseAndNull(this->SceneBindGroupLayout, wgpuBindGroupLayoutRelease);
     vtkWebGPU::ReleaseAndNull(this->SceneBindGroup, wgpuBindGroupRelease);
-    vtkWebGPU::ReleaseAndNull(this->IBLUniformBuffer, wgpuBufferRelease);
+    using LayoutEntry = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper;
     std::vector<WGPUBindGroupLayoutEntry> entries;
     // SceneTransforms
-    entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+    entries.emplace_back(LayoutEntry{
       0, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform });
     // SceneLights
-    entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-      1, WGPUShaderStage_Fragment, WGPUBufferBindingType_ReadOnlyStorage });
+    entries.emplace_back(
+      LayoutEntry{ 1, WGPUShaderStage_Fragment, WGPUBufferBindingType_ReadOnlyStorage });
     // Deep framebuffer head pointers, fragment nodes and fragment counter
     for (std::uint32_t binding = 2; binding < 5; ++binding)
     {
-      entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-        binding, WGPUShaderStage_Fragment, WGPUBufferBindingType_Storage });
+      entries.emplace_back(
+        LayoutEntry{ binding, WGPUShaderStage_Fragment, WGPUBufferBindingType_Storage });
     }
-
     if (useIBL)
     {
-      entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-        5, WGPUShaderStage_Fragment, WGPUSamplerBindingType_Filtering });
-      entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ 6,
-        WGPUShaderStage_Fragment, WGPUTextureSampleType_Float, WGPUTextureViewDimension_Cube,
-        false });
-      entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-        7, WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform });
+      entries.emplace_back(
+        LayoutEntry{ 5, WGPUShaderStage_Fragment, WGPUSamplerBindingType_Filtering });
+      entries.emplace_back(LayoutEntry{
+        6, WGPUShaderStage_Fragment, WGPUTextureSampleType_Float, WGPUTextureViewDimension_Cube });
+      entries.emplace_back(LayoutEntry{
+        7, WGPUShaderStage_Fragment, WGPUTextureSampleType_Float, WGPUTextureViewDimension_Cube });
+      entries.emplace_back(LayoutEntry{
+        8, WGPUShaderStage_Fragment, WGPUTextureSampleType_Float, WGPUTextureViewDimension_2D });
+      entries.emplace_back(
+        LayoutEntry{ 9, WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform });
+      entries.emplace_back(
+        LayoutEntry{ 10, WGPUShaderStage_Fragment, WGPUBufferBindingType_ReadOnlyStorage });
     }
 
     this->SceneBindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
@@ -1495,20 +1543,18 @@ void vtkWebGPURenderer::SetupSceneBindGroup()
     abufferEntry.size = wgpuBufferGetSize(abuffers[abufferBinding]);
     entries.push_back(abufferEntry);
   }
-  if (this->GetUseImageBasedLighting() && this->GetEnvironmentTexture() && this->IBLUniformBuffer)
+  if (this->LastUseIBL && this->IBLUniformBuffer)
   {
-    if (auto* wgpuTex = vtkWebGPUTexture::SafeDownCast(this->GetEnvironmentTexture()))
-    {
-      if (auto devRc = wgpuTex->GetDeviceResource())
-      {
-        entries.emplace_back(devRc->MakeSamplerBindGroupEntry(5));
-        entries.emplace_back(devRc->MakeTextureViewBindGroupEntry(6));
-        const auto iblSize = vtkWebGPUConfiguration::Align(sizeof(IBLBlock), 32);
-        entries.emplace_back(vtkWebGPUBindGroupInternals::BindingInitializationHelper{
-          7, this->IBLUniformBuffer, 0, iblSize }
-                               .GetAsBinding());
-      }
-    }
+    using Binding = vtkWebGPUBindGroupInternals::BindingInitializationHelper;
+    auto& map = *this->EnvironmentMap;
+    entries.emplace_back(Binding{ 5, map.GetSampler() }.GetAsBinding());
+    entries.emplace_back(Binding{ 6, map.GetPrefilterView() }.GetAsBinding());
+    entries.emplace_back(Binding{ 7, map.GetIrradianceView() }.GetAsBinding());
+    entries.emplace_back(Binding{ 8, map.GetLookupTableView() }.GetAsBinding());
+    entries.emplace_back(Binding{ 9, this->IBLUniformBuffer, 0, sizeof(IBLBlock) }.GetAsBinding());
+    entries.emplace_back(
+      Binding{ 10, map.GetHarmonicsBuffer(), 0, vtkWebGPUEnvironmentMap::GetHarmonicsBufferSize() }
+        .GetAsBinding());
   }
 
   WGPUBindGroupDescriptor descriptor = WGPU_BIND_GROUP_DESCRIPTOR_INIT;

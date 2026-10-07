@@ -12,6 +12,7 @@
 #include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 #include "vtk_wgpu.h"                 // for webgpu C API
 
+#include <memory>        // for std::unique_ptr
 #include <unordered_set> // for the set of actors rendered last frame
 #include <vector>        // for the list of visible props
 
@@ -24,6 +25,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class vtkWebGPUComputeOcclusionCuller;
 class vtkWebGPUDeepFramebuffer;
+class vtkWebGPUEnvironmentMap;
 
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPURenderer : public vtkRenderer
 {
@@ -276,6 +278,13 @@ private:
   friend class vtkWebGPURenderWindow;
   // For the actor to access RenderBundleBuildTime
   friend class vtkWebGPUActor;
+  // For the mapper to query 'HasImageBasedLighting'
+  friend class vtkWebGPUPolyDataMapper;
+
+  /**
+   * Returns true when the image based lighting textures are ready to be bound.
+   */
+  bool HasImageBasedLighting() const { return this->ImageBasedLightingReady; }
 
   vtkWebGPURenderer(const vtkWebGPURenderer&) = delete;
   void operator=(const vtkWebGPURenderer&) = delete;
@@ -291,6 +300,7 @@ private:
   std::size_t WriteLightsBuffer(std::size_t offset = 0);
   std::size_t WriteSceneTransformsBuffer(std::size_t offset = 0);
   void WriteIBLUniformBuffer();
+  void UpdateEnvironmentMap();
 
   /**
    * Sets the device and adapter of the render window of this renderer to the given pipeline
@@ -379,7 +389,9 @@ private:
   WGPUBindGroup SceneBindGroup = nullptr;
   WGPUBindGroupLayout SceneBindGroupLayout = nullptr;
   bool LastUseIBL = false;
-  vtkMTimeType LastEnvTextureMTime = 0;
+  bool ImageBasedLightingReady = false;
+  bool EnvironmentIsSRGB = false;
+  std::unique_ptr<vtkWebGPUEnvironmentMap> EnvironmentMap;
 
   bool UseDeepFramebufferTransparency = true;
   bool DeepFramebufferPopulated = false;

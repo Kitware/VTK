@@ -433,8 +433,7 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
     state.LastSelectingPoints = this->SelectingPoints;
     if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
     {
-      state.LastRendererUseIBL = wgpuRenderer->GetUseImageBasedLighting() &&
-        wgpuRenderer->GetEnvironmentTexture() != nullptr;
+      state.LastRendererUseIBL = wgpuRenderer->HasImageBasedLighting();
     }
     this->CachedActorRendererProperties[key] = state;
     return true;
@@ -492,8 +491,7 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
     state.LastLineJoin = displayProperty->GetLineJoin();
     if (auto* webgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
     {
-      const bool rendererUseIBL = webgpuRenderer->GetUseImageBasedLighting() &&
-        webgpuRenderer->GetEnvironmentTexture() != nullptr;
+      const bool rendererUseIBL = webgpuRenderer->HasImageBasedLighting();
       if (state.LastRendererUseIBL != rendererUseIBL)
       {
         cacheChanged = true;
@@ -2371,7 +2369,7 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderCustomDef(GraphicsPipelineType vtkNot
   vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* vtkNotUsed(wgpuActor),
   std::string& vtkNotUsed(vss), std::string& fss)
 {
-  if (!wgpuRenderer->GetUseImageBasedLighting() || !wgpuRenderer->GetEnvironmentTexture())
+  if (!wgpuRenderer->HasImageBasedLighting())
   {
     return;
   }
@@ -2416,20 +2414,26 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderRendererBindings(
              << ") var<storage, read> scene_lights: SceneLights;\n";
   bindingId += 3;
 
-  if (wgpuRenderer->GetUseImageBasedLighting() && wgpuRenderer->GetEnvironmentTexture())
+  if (wgpuRenderer->HasImageBasedLighting())
   {
     codeStream << R"(
-struct IBLBlock {
-  env_rotation: mat3x3<f32>,
-  prefilter_levels: f32,
+struct IBLParameters
+{
+  environment_rotation: mat3x3<f32>,
+  prefilter_max_level: f32,
+  use_spherical_harmonics: u32,
 }
 )";
-    codeStream << "@group(" << GROUP_RENDERER << ") @binding(" << bindingId++
-               << ") var ibl_sampler: sampler;\n";
-    codeStream << "@group(" << GROUP_RENDERER << ") @binding(" << bindingId++
-               << ") var ibl_prefilter_texture: texture_cube<f32>;\n";
-    codeStream << "@group(" << GROUP_RENDERER << ") @binding(" << bindingId++
-               << ") var<uniform> ibl_uniforms: IBLBlock;\n";
+    const char* declarations[] = { "var ibl_sampler: sampler;",
+      "var ibl_prefilter_texture: texture_cube<f32>;",
+      "var ibl_irradiance_texture: texture_cube<f32>;", "var ibl_brdf_texture: texture_2d<f32>;",
+      "var<uniform> ibl_parameters: IBLParameters;",
+      "var<storage, read> ibl_spherical_harmonics: array<vec4<f32>, 9>;" };
+    for (const char* declaration : declarations)
+    {
+      codeStream << "@group(" << GROUP_RENDERER << ") @binding(" << bindingId++ << ") "
+                 << declaration << "\n";
+    }
   }
 
   vtkWebGPURenderPipelineCache::Substitute(
@@ -3871,8 +3875,7 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(GraphicsPipelineType p
       break;
   }
 
-  const bool useIBL = wgpuRenderer->GetUseImageBasedLighting() &&
-    wgpuRenderer->GetEnvironmentTexture() != nullptr &&
+  const bool useIBL = wgpuRenderer->HasImageBasedLighting() &&
     (pipelineType == GFX_PIPELINE_TRIANGLES ||
       pipelineType == GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE);
 
@@ -4005,16 +4008,19 @@ if actor.color_options.interpolation_type == VTK_PBR
   let roughness: f32 = actor.color_options.roughness;
   let F0: vec3<f32> = mix(vec3<f32>(0.04), diffuse_color, metallic);
   let fresnel: vec3<f32> = F0 + (1.0 - F0) * pow(clamp(1.0 - NdotV, 0.0, 1.0), 5.0);
-  let env_dir: vec3<f32> = ibl_uniforms.env_rotation * normal_for_ibl;
-  let mip: f32 = roughness * ibl_uniforms.prefilter_levels;
+  let model_view = scene_transform.view * actor.transform.world;
+  let env_matrix = ibl_parameters.environment_rotation *
+    transpose(mat3x3<f32>(model_view[0].xyz, model_view[1].xyz, model_view[2].xyz));
+  let env_dir: vec3<f32> = normalize(env_matrix * reflect(-v, normal_for_ibl));
+  let mip: f32 = roughness * ibl_parameters.prefilter_max_level;
   let prefiltered: vec3<f32> = textureSampleLevel(ibl_prefilter_texture, ibl_sampler, env_dir, mip).rgb;
-  let brdf: vec2<f32> = approxBRDF(NdotV, roughness);
+  let brdf: vec2<f32> = textureSampleLevel(ibl_brdf_texture, ibl_sampler, vec2<f32>(NdotV, roughness), 0.0).rg;
   let FssEss: vec3<f32> = fresnel * brdf.x + brdf.y;
   let Ems: f32 = 1.0 - (brdf.x + brdf.y);
   let Favg: vec3<f32> = F0 + (1.0 - F0) / 21.0;
   let FmsEms: vec3<f32> = Ems * fresnel * Favg / (1.0 - Favg * Ems);
   let k_D: vec3<f32> = diffuse_color * (1.0 - metallic) * (1.0 - fresnel);
-  let irradiance: vec3<f32> = textureSampleLevel(ibl_prefilter_texture, ibl_sampler, env_dir, ibl_uniforms.prefilter_levels).rgb;
+  let irradiance: vec3<f32> = textureSampleLevel(ibl_irradiance_texture, ibl_sampler, env_matrix * normal_for_ibl, 0.0).rgb;
   let ibl_color: vec3<f32> = FssEss * prefiltered + (FmsEms + k_D) * irradiance;
 
   output.color = vec4<f32>(actor.color_options.diffuse_intensity * ibl_color, actor.color_options.opacity * opacity);
@@ -4025,10 +4031,10 @@ if actor.color_options.interpolation_type == VTK_PBR
     let coat_NdotV: f32 = max(dot(normal_VC, v), 0.001);
     let coat_F0: f32 = 0.04;
     let coat_fresnel: f32 = coat_F0 + (1.0 - coat_F0) * pow(clamp(1.0 - coat_NdotV, 0.0, 1.0), 5.0);
-    let coat_env_dir: vec3<f32> = ibl_uniforms.env_rotation * normal_VC;
-    let coat_mip: f32 = coat_roughness * ibl_uniforms.prefilter_levels;
+    let coat_env_dir: vec3<f32> = normalize(env_matrix * reflect(-v, normal_VC));
+    let coat_mip: f32 = coat_roughness * ibl_parameters.prefilter_max_level;
     let coat_prefiltered: vec3<f32> = textureSampleLevel(ibl_prefilter_texture, ibl_sampler, coat_env_dir, coat_mip).rgb;
-    let coat_brdf: vec2<f32> = approxBRDF(coat_NdotV, coat_roughness);
+    let coat_brdf: vec2<f32> = textureSampleLevel(ibl_brdf_texture, ibl_sampler, vec2<f32>(coat_NdotV, coat_roughness), 0.0).rg;
     let coat_contribution: vec3<f32> = coat_fresnel * coat_brdf.x * coat_prefiltered;
     output.color += vec4<f32>(coat_contribution * actor.color_options.coat_strength, 0.0);
   }
@@ -4308,8 +4314,7 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
   }
   if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
   {
-    const bool rendererUseIBL =
-      wgpuRenderer->GetUseImageBasedLighting() && wgpuRenderer->GetEnvironmentTexture() != nullptr;
+    const bool rendererUseIBL = wgpuRenderer->HasImageBasedLighting();
     if (it->second.LastRendererUseIBL != rendererUseIBL)
     {
       return true;
