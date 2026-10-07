@@ -372,10 +372,7 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
 )";
   return code.str();
 }
-}
 
-namespace
-{
 std::map<vtkWebGPUPolyDataMapper::GraphicsPipelineType,
   std::vector<vtkWebGPUCellToPrimitiveConverter::TopologySourceType>>
   PipelineBindGroupCombos[VTK_SURFACE + 1] = { // VTK_POINTS
@@ -555,6 +552,28 @@ struct WriteTypedArrayWithScale
     this->NewWatermark = this->LastWatermark + sizeBytes;
   }
 };
+}
+
+//------------------------------------------------------------------------------
+vtkTypeUInt32 vtkWebGPUPolyDataMapper::GetShadingFeatures(vtkActor* actor, vtkRenderer* renderer)
+{
+  vtkProperty* property = actor->GetProperty();
+  vtkTypeUInt32 features = static_cast<vtkTypeUInt32>(property->GetInterpolation());
+  if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
+  {
+    features |= wgpuRenderer->HasImageBasedLighting() ? 0x4u : 0u;
+  }
+  if (property->GetInterpolation() == VTK_PBR)
+  {
+    features |= property->GetAnisotropy() != 0.0 ? 0x8u : 0u;
+    features |= property->GetCoatStrength() > 0.0 ? 0x10u : 0u;
+    const auto textures = vtkWebGPUActorInternals::GetPBRTextures(actor);
+    for (std::size_t i = 0; i < textures.size(); ++i)
+    {
+      features |= textures[i] ? (0x20u << i) : 0u;
+    }
+  }
+  return features;
 }
 
 //------------------------------------------------------------------------------
@@ -744,10 +763,7 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
     state.LastWideLines = displayProperty->GetLineWidth() > 1;
     state.LastLineJoin = displayProperty->GetLineJoin();
     state.LastSelectingPoints = this->SelectingPoints;
-    if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
-    {
-      state.LastRendererUseIBL = wgpuRenderer->HasImageBasedLighting();
-    }
+    state.LastShadingFeatures = GetShadingFeatures(actor, renderer);
     this->CachedActorRendererProperties[key] = state;
     return true;
   }
@@ -802,15 +818,12 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
       cacheChanged = true;
     }
     state.LastLineJoin = displayProperty->GetLineJoin();
-    if (auto* webgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
+    const vtkTypeUInt32 shadingFeatures = GetShadingFeatures(actor, renderer);
+    if (state.LastShadingFeatures != shadingFeatures)
     {
-      const bool rendererUseIBL = webgpuRenderer->HasImageBasedLighting();
-      if (state.LastRendererUseIBL != rendererUseIBL)
-      {
-        cacheChanged = true;
-      }
-      state.LastRendererUseIBL = rendererUseIBL;
+      cacheChanged = true;
     }
+    state.LastShadingFeatures = shadingFeatures;
     return cacheChanged;
   }
 }
@@ -2716,6 +2729,8 @@ struct IBLParameters
   use_spherical_harmonics: u32,
 }
 )";
+    // vtkWebGPUEnvironmentMap always generates these as rgba16float, so the sample type is
+    // f32 whatever the format of the environment texture they were built from.
     const char* declarations[] = { "var ibl_sampler: sampler;",
       "var ibl_prefilter_texture: texture_cube<f32>;",
       "var ibl_irradiance_texture: texture_cube<f32>;", "var ibl_brdf_texture: texture_2d<f32>;",
@@ -4567,15 +4582,7 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
   {
     return true;
   }
-  if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
-  {
-    const bool rendererUseIBL = wgpuRenderer->HasImageBasedLighting();
-    if (it->second.LastRendererUseIBL != rendererUseIBL)
-    {
-      return true;
-    }
-  }
-  return false;
+  return it->second.LastShadingFeatures != GetShadingFeatures(actor, renderer);
 }
 
 //------------------------------------------------------------------------------
