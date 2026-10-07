@@ -878,8 +878,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "webgpu")
     "^VTK::RenderingCoreCxx-WebGPU-TestMixedGeometryCellScalars$"
     "^VTK::RenderingCoreCxx-WebGPU-TestOffAxisStereo$"
     "^VTK::RenderingCoreCxx-WebGPU-TestOpacity$"
-    # Translucent faces are composited differently from the OpenGL depth peeling baseline.
-    "^VTK::RenderingCoreCxx-WebGPU-TestPBRColorMultiplier$"
     "^VTK::RenderingCoreCxx-WebGPU-TestPickTextActor$"
     "^VTK::RenderingCoreCxx-WebGPU-TestPointSelection$"
     "^VTK::RenderingCoreCxx-WebGPU-TestPointSelectionWithCellData$"
