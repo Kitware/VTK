@@ -997,6 +997,8 @@ WGPUTextureFormat vtkWebGPUComputePassTextureStorageInternals::ComputeTextureFor
       return WGPUTextureFormat_Depth24Plus;
     case vtkWebGPUComputeTexture::TextureFormat::DEPTH_24_PLUS_8_STENCIL:
       return WGPUTextureFormat_Depth24PlusStencil8;
+    case vtkWebGPUComputeTexture::TextureFormat::RGBA8_UNORM_SRGB:
+      return WGPUTextureFormat_RGBA8UnormSrgb;
     default:
       vtkLog(ERROR, "Unhandled texture format in ComputeTextureFormatToWebGPU: " << format);
       return WGPUTextureFormat_Undefined;
