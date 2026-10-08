@@ -3,6 +3,9 @@ vtk_module_test_data(
   Data/vtkHDF/mandelbrot.vti
   Data/can.vtu
   Data/can.pvtu
+  Data/can.ex2
+  Data/cow.vtp
+  Data/isofill_0.vtp
   Data/can/can_0.vtu
   Data/can/can_1.vtu
   Data/can/can_2.vtu
