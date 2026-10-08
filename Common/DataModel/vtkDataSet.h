@@ -218,14 +218,42 @@ public:
   virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds);
 
   /**
-   * Get the number of faces of a cell.
-   *
-   * Most of the times extracting the number of faces requires only extracting
-   * the cell type. However, for some cell types, the number of faces is not
-   * constant. For example, a convex point set cell can have a different number of
-   * faces for each cell. That's why this method requires the cell id and the dataset.
+   * Get the number of faces of a cell, and its type.
    */
-  virtual int GetCellNumberOfFaces(vtkIdType cellId, unsigned char& cellType, vtkGenericCell* cell);
+  virtual int GetCellNumberOfFaces(
+    vtkIdType cellId, unsigned char& cellType, vtkGenericCell* tempCell);
+
+  ///@{
+  /**
+   * Get the point ids of the face faceId of the cell cellId, and the type of the cell, in the order
+   * of vtkCell::GetFace(), but the faces of a voxel, in the order of a polygon, or none if faceId
+   * is out of range. GetCellFacePointsFromCellPoints() takes the type and points of the
+   * cell, and GetCellFacePoints() reads them, using tempCellPointIds.
+   */
+  virtual void GetCellFacePoints(vtkIdType cellId, int faceId, vtkIdList* facePtIds,
+    unsigned char& cellType, vtkIdList* tempCellPointIds, vtkGenericCell* tempCell);
+  virtual void GetCellFacePointsFromCellPoints(vtkIdType cellId, int faceId, vtkIdList* facePtIds,
+    unsigned char cellType, vtkIdType cellNpts, const vtkIdType* cellPts, vtkGenericCell* tempCell);
+  ///@}
+
+  /**
+   * Get the number of edges of a cell, and its type.
+   */
+  virtual int GetCellNumberOfEdges(
+    vtkIdType cellId, unsigned char& cellType, vtkGenericCell* tempCell);
+
+  ///@{
+  /**
+   * Get the point ids of the edge edgeId of the cell cellId, and the type of the cell, in the order
+   * of vtkCell::GetEdge(), or none if edgeId is out of range. GetCellEdgePointsFromCellPoints()
+   * takes the type and points of the cell, and GetCellEdgePoints() reads them, using
+   * tempCellPointIds.
+   */
+  virtual void GetCellEdgePoints(vtkIdType cellId, int edgeId, vtkIdList* edgePtIds,
+    unsigned char& cellType, vtkIdList* tempCellPointIds, vtkGenericCell* tempCell);
+  virtual void GetCellEdgePointsFromCellPoints(vtkIdType cellId, int edgeId, vtkIdList* edgePtIds,
+    unsigned char cellType, vtkIdType cellNpts, const vtkIdType* cellPts, vtkGenericCell* tempCell);
+  ///@}
 
   ///@{
   /**

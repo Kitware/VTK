@@ -11,6 +11,7 @@
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkCellLinks.h"
+#include "vtkCellTypeSides.h"
 #include "vtkCellTypeUtilities.h"
 #include "vtkCellTypes.h"
 #include "vtkConstantArray.h"
@@ -761,6 +762,66 @@ void vtkUnstructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
 }
 
 //------------------------------------------------------------------------------
+int vtkUnstructuredGrid::GetCellNumberOfFaces(
+  vtkIdType cellId, unsigned char& cellType, vtkGenericCell* tempCell)
+{
+  cellType = static_cast<unsigned char>(this->GetCellType(cellId));
+  return vtkCellTypeSides::GetCellNumberOfSides(this, cellId, cellType, 2, tempCell);
+}
+
+//------------------------------------------------------------------------------
+void vtkUnstructuredGrid::GetCellFacePoints(vtkIdType cellId, int faceId, vtkIdList* facePtIds,
+  unsigned char& cellType, vtkIdList* tempCellPointIds, vtkGenericCell* tempCell)
+{
+  vtkIdType cellNpts;
+  const vtkIdType* cellPts;
+  cellType = static_cast<unsigned char>(this->GetCellType(cellId));
+  this->Connectivity->GetCellAtId(cellId, cellNpts, cellPts, tempCellPointIds);
+
+  this->GetCellFacePointsFromCellPoints(
+    cellId, faceId, facePtIds, cellType, cellNpts, cellPts, tempCell);
+}
+
+//------------------------------------------------------------------------------
+void vtkUnstructuredGrid::GetCellFacePointsFromCellPoints(vtkIdType cellId, int faceId,
+  vtkIdList* facePtIds, unsigned char cellType, vtkIdType cellNpts, const vtkIdType* cellPts,
+  vtkGenericCell* tempCell)
+{
+  vtkCellTypeSides::GetCellSidePoints(
+    this, cellId, cellType, 2, faceId, cellNpts, cellPts, facePtIds, tempCell);
+}
+
+//------------------------------------------------------------------------------
+int vtkUnstructuredGrid::GetCellNumberOfEdges(
+  vtkIdType cellId, unsigned char& cellType, vtkGenericCell* tempCell)
+{
+  cellType = static_cast<unsigned char>(this->GetCellType(cellId));
+  return vtkCellTypeSides::GetCellNumberOfSides(this, cellId, cellType, 1, tempCell);
+}
+
+//------------------------------------------------------------------------------
+void vtkUnstructuredGrid::GetCellEdgePoints(vtkIdType cellId, int edgeId, vtkIdList* edgePtIds,
+  unsigned char& cellType, vtkIdList* tempCellPointIds, vtkGenericCell* tempCell)
+{
+  vtkIdType cellNpts;
+  const vtkIdType* cellPts;
+  cellType = static_cast<unsigned char>(this->GetCellType(cellId));
+  this->Connectivity->GetCellAtId(cellId, cellNpts, cellPts, tempCellPointIds);
+
+  this->GetCellEdgePointsFromCellPoints(
+    cellId, edgeId, edgePtIds, cellType, cellNpts, cellPts, tempCell);
+}
+
+//------------------------------------------------------------------------------
+void vtkUnstructuredGrid::GetCellEdgePointsFromCellPoints(vtkIdType cellId, int edgeId,
+  vtkIdList* edgePtIds, unsigned char cellType, vtkIdType cellNpts, const vtkIdType* cellPts,
+  vtkGenericCell* tempCell)
+{
+  vtkCellTypeSides::GetCellSidePoints(
+    this, cellId, cellType, 1, edgeId, cellNpts, cellPts, edgePtIds, tempCell);
+}
+
+//------------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetDistinctCellTypes(vtkCellTypes* types)
 {
   this->GetDistinctCellTypesArray();
@@ -1399,88 +1460,6 @@ void vtkUnstructuredGrid::GetCellNeighbors(
     using TGetCellNeighbors = GetCellNeighborsImpl<CellLinksType>;
     auto links = static_cast<CellLinksType*>(this->Links.Get());
     this->Connectivity->Dispatch(TGetCellNeighbors{}, links, cellId, npts, pts, cellIds);
-  }
-}
-
-//------------------------------------------------------------------------------
-int vtkUnstructuredGrid::GetCellNumberOfFaces(
-  vtkIdType cellId, unsigned char& cellType, vtkGenericCell* cell)
-{
-  cellType = static_cast<unsigned char>(this->GetCellType(cellId));
-  switch (cellType)
-  {
-    case VTK_EMPTY_CELL:
-    case VTK_VERTEX:
-    case VTK_POLY_VERTEX:
-    case VTK_LINE:
-    case VTK_POLY_LINE:
-    case VTK_TRIANGLE:
-    case VTK_TRIANGLE_STRIP:
-    case VTK_POLYGON:
-    case VTK_PIXEL:
-    case VTK_QUAD:
-    case VTK_QUADRATIC_EDGE:
-    case VTK_QUADRATIC_TRIANGLE:
-    case VTK_QUADRATIC_QUAD:
-    case VTK_QUADRATIC_POLYGON:
-    case VTK_BIQUADRATIC_QUAD:
-    case VTK_QUADRATIC_LINEAR_QUAD:
-    case VTK_BIQUADRATIC_TRIANGLE:
-    case VTK_CUBIC_LINE:
-    case VTK_HIGHER_ORDER_CURVE:
-    case VTK_HIGHER_ORDER_TRIANGLE:
-    case VTK_HIGHER_ORDER_QUADRILATERAL:
-    case VTK_LAGRANGE_CURVE:
-    case VTK_LAGRANGE_TRIANGLE:
-    case VTK_LAGRANGE_QUADRILATERAL:
-    case VTK_BEZIER_CURVE:
-    case VTK_BEZIER_TRIANGLE:
-    case VTK_BEZIER_QUADRILATERAL:
-      return 0;
-
-    case VTK_TETRA:
-    case VTK_QUADRATIC_TETRA:
-    case VTK_HIGHER_ORDER_TETRAHEDRON:
-    case VTK_LAGRANGE_TETRAHEDRON:
-    case VTK_BEZIER_TETRAHEDRON:
-      return 4;
-
-    case VTK_PYRAMID:
-    case VTK_QUADRATIC_PYRAMID:
-    case VTK_TRIQUADRATIC_PYRAMID:
-    case VTK_HIGHER_ORDER_PYRAMID:
-    case VTK_WEDGE:
-    case VTK_QUADRATIC_WEDGE:
-    case VTK_QUADRATIC_LINEAR_WEDGE:
-    case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
-    case VTK_HIGHER_ORDER_WEDGE:
-    case VTK_LAGRANGE_WEDGE:
-    case VTK_BEZIER_WEDGE:
-      return 5;
-
-    case VTK_VOXEL:
-    case VTK_HEXAHEDRON:
-    case VTK_QUADRATIC_HEXAHEDRON:
-    case VTK_TRIQUADRATIC_HEXAHEDRON:
-    case VTK_HIGHER_ORDER_HEXAHEDRON:
-    case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
-    case VTK_LAGRANGE_HEXAHEDRON:
-    case VTK_BEZIER_HEXAHEDRON:
-      return 6;
-
-    case VTK_PENTAGONAL_PRISM:
-      return 7;
-
-    case VTK_HEXAGONAL_PRISM:
-      return 8;
-
-    case VTK_POLYHEDRON:
-      return this->Polyhedra->GetCellNumberOfFaces(cellId);
-
-    case VTK_CONVEX_POINT_SET:
-    default:
-      this->GetCell(cellId, cell);
-      return cell->GetNumberOfFaces();
   }
 }
 
