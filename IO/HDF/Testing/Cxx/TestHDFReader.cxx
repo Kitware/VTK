@@ -29,6 +29,7 @@
 #include "vtkPolyData.h"
 #include "vtkRandomHyperTreeGridSource.h"
 #include "vtkSmartPointer.h"
+#include "vtkStructuredGrid.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
@@ -756,6 +757,38 @@ vtkSmartPointer<vtkPolyData> MakePolyData()
 }
 
 //----------------------------------------------------------------------------
+vtkSmartPointer<vtkImageData> MakeImageData(int block = 0)
+{
+  vtkNew<vtkImageData> image;
+  image->SetDimensions(3, 2, 2);
+  image->SetOrigin(10 * block, 0, 0);
+  AddTestScalars(image, 100 * (block + 1), 10 * (block + 1));
+  return image;
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkStructuredGrid> MakeStructuredGrid(int block = 0)
+{
+  vtkNew<vtkPoints> points;
+  for (int z = 0; z < 2; ++z)
+  {
+    for (int y = 0; y < 2; ++y)
+    {
+      for (int x = 0; x < 3; ++x)
+      {
+        points->InsertNextPoint(x + 10 * block, y, z);
+      }
+    }
+  }
+
+  vtkNew<vtkStructuredGrid> grid;
+  grid->SetDimensions(3, 2, 2);
+  grid->SetPoints(points);
+  AddTestScalars(grid, 100 * (block + 1), 10 * (block + 1));
+  return grid;
+}
+
+//----------------------------------------------------------------------------
 bool WriteTestData(vtkDataObject* data, const std::string& fileName)
 {
   std::cout << "Testing " << fileName << std::endl;
@@ -844,6 +877,388 @@ int TestPolyDataArraySelection(const std::string& tempDir)
   return vtkTestUtilities::CompareDataObjects(data, expected) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+//----------------------------------------------------------------------------
+int TestImageDataArraySelection(const std::string& tempDir)
+{
+  vtkSmartPointer<vtkImageData> expected = MakeImageData();
+  const std::string fileName = tempDir + "/HDFReaderImageDataArraySelection.vtkhdf";
+  if (!WriteTestData(expected, fileName))
+  {
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  auto* data = vtkImageData::SafeDownCast(reader->GetOutput());
+  if (!data || !vtkTestUtilities::CompareDataObjects(data, expected))
+  {
+    return EXIT_FAILURE;
+  }
+
+  reader->GetPointDataArraySelection()->DisableArray("temperature");
+  reader->GetCellDataArraySelection()->DisableArray("density");
+  reader->Update();
+  if (data->GetPointData()->GetArray("temperature") || data->GetCellData()->GetArray("density"))
+  {
+    std::cerr << "Disabled ImageData arrays are still present" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  reader->GetPointDataArraySelection()->EnableArray("temperature");
+  reader->GetCellDataArraySelection()->EnableArray("density");
+  reader->Update();
+  if (!data->GetPointData()->GetScalars() || !data->GetCellData()->GetScalars())
+  {
+    std::cerr << "Re-enabled ImageData scalars are missing" << std::endl;
+    return EXIT_FAILURE;
+  }
+  return vtkTestUtilities::CompareDataObjects(data, expected) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+//----------------------------------------------------------------------------
+int TestStructuredGridArraySelection(const std::string& tempDir)
+{
+  vtkSmartPointer<vtkStructuredGrid> expected = MakeStructuredGrid();
+  const std::string fileName = tempDir + "/HDFReaderStructuredGridArraySelection.vtkhdf";
+  if (!WriteTestData(expected, fileName))
+  {
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  auto* data = vtkStructuredGrid::SafeDownCast(reader->GetOutput());
+  if (!data || !vtkTestUtilities::CompareDataObjects(data, expected))
+  {
+    return EXIT_FAILURE;
+  }
+
+  reader->GetPointDataArraySelection()->DisableArray("temperature");
+  reader->GetCellDataArraySelection()->DisableArray("density");
+  reader->Update();
+  if (data->GetPointData()->GetArray("temperature") || data->GetCellData()->GetArray("density"))
+  {
+    std::cerr << "Disabled StructuredGrid arrays are still present" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  reader->GetPointDataArraySelection()->EnableArray("temperature");
+  reader->GetCellDataArraySelection()->EnableArray("density");
+  reader->Update();
+  if (!data->GetPointData()->GetScalars() || !data->GetCellData()->GetScalars())
+  {
+    std::cerr << "Re-enabled StructuredGrid scalars are missing" << std::endl;
+    return EXIT_FAILURE;
+  }
+  return vtkTestUtilities::CompareDataObjects(data, expected) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+//----------------------------------------------------------------------------
+int TestPartitionedImageDataCache(const std::string& tempDir)
+{
+  // Both leaves have the same extents and field names, but different values.
+  vtkNew<vtkPartitionedDataSetCollection> expected;
+  expected->SetPartition(0, 0, MakeImageData(0));
+  expected->SetPartition(1, 0, MakeImageData(1));
+  const std::string fileName = tempDir + "/HDFReaderPartitionedImageDataCache.vtkhdf";
+  if (!WriteTestData(expected, fileName))
+  {
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  auto* output = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutputDataObject(0));
+  if (!output || output->GetNumberOfPartitionedDataSets() != 2)
+  {
+    return EXIT_FAILURE;
+  }
+  for (unsigned int block = 0; block < 2; ++block)
+  {
+    if (!vtkTestUtilities::CompareDataObjects(
+          output->GetPartition(block, 0), expected->GetPartition(block, 0)))
+    {
+      return EXIT_FAILURE;
+    }
+  }
+
+  reader->GetPointDataArraySelection()->DisableArray("temperature");
+  reader->GetCellDataArraySelection()->DisableArray("density");
+  reader->Update();
+  for (unsigned int block = 0; block < 2; ++block)
+  {
+    auto* data = vtkImageData::SafeDownCast(output->GetPartition(block, 0));
+    if (!data || data->GetPointData()->GetArray("temperature") ||
+      data->GetCellData()->GetArray("density"))
+    {
+      std::cerr << "Disabled Partitioned ImageData arrays are still present" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  reader->GetPointDataArraySelection()->EnableArray("temperature");
+  reader->GetCellDataArraySelection()->EnableArray("density");
+  reader->Update();
+  for (unsigned int block = 0; block < 2; ++block)
+  {
+    auto* data = vtkImageData::SafeDownCast(output->GetPartition(block, 0));
+    if (!data || !data->GetPointData()->GetScalars() || !data->GetCellData()->GetScalars() ||
+      !vtkTestUtilities::CompareDataObjects(data, expected->GetPartition(block, 0)))
+    {
+      return EXIT_FAILURE;
+    }
+  }
+  return EXIT_SUCCESS;
+}
+
+//----------------------------------------------------------------------------
+int TestMultiBlockImageDataCache(const std::string& tempDir)
+{
+  // Both leaves have the same extents and field names, but different values.
+  vtkNew<vtkMultiBlockDataSet> expected;
+  expected->SetBlock(0, MakeImageData(0));
+  expected->SetBlock(1, MakeImageData(1));
+  const std::string fileName = tempDir + "/HDFReaderMultiBlockImageDataCache.vtkhdf";
+  if (!WriteTestData(expected, fileName))
+  {
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  auto* output = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+  if (!output || output->GetNumberOfBlocks() != 2)
+  {
+    return EXIT_FAILURE;
+  }
+  for (unsigned int block = 0; block < 2; ++block)
+  {
+    if (!vtkTestUtilities::CompareDataObjects(output->GetBlock(block), expected->GetBlock(block)))
+    {
+      return EXIT_FAILURE;
+    }
+  }
+
+  reader->GetPointDataArraySelection()->DisableArray("temperature");
+  reader->GetCellDataArraySelection()->DisableArray("density");
+  reader->Update();
+  for (unsigned int block = 0; block < 2; ++block)
+  {
+    auto* data = vtkImageData::SafeDownCast(output->GetBlock(block));
+    if (!data || data->GetPointData()->GetArray("temperature") ||
+      data->GetCellData()->GetArray("density"))
+    {
+      std::cerr << "Disabled MultiBlock ImageData arrays are still present" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  reader->GetPointDataArraySelection()->EnableArray("temperature");
+  reader->GetCellDataArraySelection()->EnableArray("density");
+  reader->Update();
+  for (unsigned int block = 0; block < 2; ++block)
+  {
+    auto* data = vtkImageData::SafeDownCast(output->GetBlock(block));
+    if (!data || !data->GetPointData()->GetScalars() || !data->GetCellData()->GetScalars() ||
+      !vtkTestUtilities::CompareDataObjects(data, expected->GetBlock(block)))
+    {
+      return EXIT_FAILURE;
+    }
+  }
+  return EXIT_SUCCESS;
+}
+
+//----------------------------------------------------------------------------
+int TestPartitionedStructuredGridCache(const std::string& tempDir)
+{
+  // Both leaves have the same extents and field names, but different values.
+  vtkNew<vtkPartitionedDataSetCollection> expected;
+  expected->SetPartition(0, 0, MakeStructuredGrid(0));
+  expected->SetPartition(1, 0, MakeStructuredGrid(1));
+  const std::string fileName = tempDir + "/HDFReaderPartitionedStructuredGridCache.vtkhdf";
+  if (!WriteTestData(expected, fileName))
+  {
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  auto* output = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutputDataObject(0));
+  if (!output || output->GetNumberOfPartitionedDataSets() != 2)
+  {
+    return EXIT_FAILURE;
+  }
+  for (unsigned int block = 0; block < 2; ++block)
+  {
+    if (!vtkTestUtilities::CompareDataObjects(
+          output->GetPartition(block, 0), expected->GetPartition(block, 0)))
+    {
+      return EXIT_FAILURE;
+    }
+  }
+
+  reader->GetPointDataArraySelection()->DisableArray("temperature");
+  reader->GetCellDataArraySelection()->DisableArray("density");
+  reader->Update();
+  for (unsigned int block = 0; block < 2; ++block)
+  {
+    auto* data = vtkStructuredGrid::SafeDownCast(output->GetPartition(block, 0));
+    if (!data || data->GetPointData()->GetArray("temperature") ||
+      data->GetCellData()->GetArray("density"))
+    {
+      std::cerr << "Disabled Partitioned StructuredGrid arrays are still present" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  reader->GetPointDataArraySelection()->EnableArray("temperature");
+  reader->GetCellDataArraySelection()->EnableArray("density");
+  reader->Update();
+  for (unsigned int block = 0; block < 2; ++block)
+  {
+    auto* data = vtkStructuredGrid::SafeDownCast(output->GetPartition(block, 0));
+    if (!data || !data->GetPointData()->GetScalars() || !data->GetCellData()->GetScalars() ||
+      !vtkTestUtilities::CompareDataObjects(data, expected->GetPartition(block, 0)))
+    {
+      return EXIT_FAILURE;
+    }
+  }
+  return EXIT_SUCCESS;
+}
+
+//----------------------------------------------------------------------------
+int TestMultiBlockStructuredGridCache(const std::string& tempDir)
+{
+  // Both leaves have the same extents and field names, but different values.
+  vtkNew<vtkMultiBlockDataSet> expected;
+  expected->SetBlock(0, MakeStructuredGrid(0));
+  expected->SetBlock(1, MakeStructuredGrid(1));
+  const std::string fileName = tempDir + "/HDFReaderMultiBlockStructuredGridCache.vtkhdf";
+  if (!WriteTestData(expected, fileName))
+  {
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  auto* output = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+  if (!output || output->GetNumberOfBlocks() != 2)
+  {
+    return EXIT_FAILURE;
+  }
+  for (unsigned int block = 0; block < 2; ++block)
+  {
+    if (!vtkTestUtilities::CompareDataObjects(output->GetBlock(block), expected->GetBlock(block)))
+    {
+      return EXIT_FAILURE;
+    }
+  }
+
+  reader->GetPointDataArraySelection()->DisableArray("temperature");
+  reader->GetCellDataArraySelection()->DisableArray("density");
+  reader->Update();
+  for (unsigned int block = 0; block < 2; ++block)
+  {
+    auto* data = vtkStructuredGrid::SafeDownCast(output->GetBlock(block));
+    if (!data || data->GetPointData()->GetArray("temperature") ||
+      data->GetCellData()->GetArray("density"))
+    {
+      std::cerr << "Disabled MultiBlock StructuredGrid arrays are still present" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  reader->GetPointDataArraySelection()->EnableArray("temperature");
+  reader->GetCellDataArraySelection()->EnableArray("density");
+  reader->Update();
+  for (unsigned int block = 0; block < 2; ++block)
+  {
+    auto* data = vtkStructuredGrid::SafeDownCast(output->GetBlock(block));
+    if (!data || !data->GetPointData()->GetScalars() || !data->GetCellData()->GetScalars() ||
+      !vtkTestUtilities::CompareDataObjects(data, expected->GetBlock(block)))
+    {
+      return EXIT_FAILURE;
+    }
+  }
+  return EXIT_SUCCESS;
+}
+
+//----------------------------------------------------------------------------
+int TestImageDataExtentCache(const std::string& tempDir)
+{
+  vtkSmartPointer<vtkImageData> expected = MakeImageData();
+  const std::string fileName = tempDir + "/HDFReaderImageDataExtentCache.vtkhdf";
+  if (!WriteTestData(expected, fileName))
+  {
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  if (!vtkTestUtilities::CompareDataObjects(reader->GetOutput(), expected))
+  {
+    return EXIT_FAILURE;
+  }
+
+  const int subExtent[] = { 1, 2, 0, 1, 0, 1 };
+  vtkSmartPointer<vtkImageData> cropped = MakeImageData();
+  cropped->Crop(subExtent);
+  // Force execution even though the previous output covers this smaller extent.
+  reader->Modified();
+  reader->UpdateExtent(subExtent);
+  if (!vtkTestUtilities::CompareDataObjects(reader->GetOutput(), cropped))
+  {
+    return EXIT_FAILURE;
+  }
+
+  const int wholeExtent[] = { 0, 2, 0, 1, 0, 1 };
+  reader->UpdateExtent(wholeExtent);
+  return vtkTestUtilities::CompareDataObjects(reader->GetOutput(), expected) ? EXIT_SUCCESS
+                                                                             : EXIT_FAILURE;
+}
+
+//----------------------------------------------------------------------------
+int TestStructuredGridExtentCache(const std::string& tempDir)
+{
+  vtkSmartPointer<vtkStructuredGrid> expected = MakeStructuredGrid();
+  const std::string fileName = tempDir + "/HDFReaderStructuredGridExtentCache.vtkhdf";
+  if (!WriteTestData(expected, fileName))
+  {
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  if (!vtkTestUtilities::CompareDataObjects(reader->GetOutput(), expected))
+  {
+    return EXIT_FAILURE;
+  }
+
+  const int subExtent[] = { 1, 2, 0, 1, 0, 1 };
+  vtkSmartPointer<vtkStructuredGrid> cropped = MakeStructuredGrid();
+  cropped->Crop(subExtent);
+  // Force execution even though the previous output covers this smaller extent.
+  reader->Modified();
+  reader->UpdateExtent(subExtent);
+  if (!vtkTestUtilities::CompareDataObjects(reader->GetOutput(), cropped))
+  {
+    return EXIT_FAILURE;
+  }
+
+  const int wholeExtent[] = { 0, 2, 0, 1, 0, 1 };
+  reader->UpdateExtent(wholeExtent);
+  return vtkTestUtilities::CompareDataObjects(reader->GetOutput(), expected) ? EXIT_SUCCESS
+                                                                             : EXIT_FAILURE;
+}
+
 } // namespace
 
 //------------------------------------------------------------------------------
@@ -884,6 +1299,14 @@ int TestHDFReader(int argc, char* argv[])
   failure |= TestHyperTreeGridWithInterfaces(dataRoot);
   failure |= TestUnstructuredGridArraySelection(tempDir);
   failure |= TestPolyDataArraySelection(tempDir);
+  failure |= TestImageDataArraySelection(tempDir);
+  failure |= TestStructuredGridArraySelection(tempDir);
+  failure |= TestPartitionedImageDataCache(tempDir);
+  failure |= TestMultiBlockImageDataCache(tempDir);
+  failure |= TestPartitionedStructuredGridCache(tempDir);
+  failure |= TestMultiBlockStructuredGridCache(tempDir);
+  failure |= TestImageDataExtentCache(tempDir);
+  failure |= TestStructuredGridExtentCache(tempDir);
 
   return failure;
 }
