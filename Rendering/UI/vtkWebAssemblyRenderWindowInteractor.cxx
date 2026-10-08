@@ -460,8 +460,6 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
       {
         keyCode = emEvent->key[0];
       }
-      // track repeated presses as long as the keydown event is sent
-      ++internals.RepeatCounter;
       this->SetAltKey(emEvent->altKey);
       this->SetKeyEventInformation(
         emEvent->ctrlKey, emEvent->shiftKey, keyCode, internals.RepeatCounter, emEvent->key);
@@ -469,6 +467,8 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
       // additionally invokes CharEvent to satisfy observers that listen to it.
       // this is similar to other interactors.
       this->InvokeEvent(vtkCommand::CharEvent, nullptr);
+      // track repeated presses as long as the keydown event is sent
+      ++internals.RepeatCounter;
       break;
     }
     case EMSCRIPTEN_EVENT_KEYUP:
