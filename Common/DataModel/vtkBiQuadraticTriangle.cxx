@@ -98,6 +98,12 @@ vtkCell* vtkBiQuadraticTriangle::GetEdge(int edgeId)
   return this->Edge;
 }
 
+//------------------------------------------------------------------------------
+const vtkIdType* vtkBiQuadraticTriangle::GetEdgeArray(vtkIdType edgeId)
+{
+  return Edges[edgeId];
+}
+
 int vtkBiQuadraticTriangle::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,
   double pcoords[3], double& minDist2, double weights[])
 {

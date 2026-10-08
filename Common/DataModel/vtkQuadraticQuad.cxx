@@ -103,6 +103,12 @@ vtkCell* vtkQuadraticQuad::GetEdge(int edgeId)
   return this->Edge;
 }
 
+//------------------------------------------------------------------------------
+const vtkIdType* vtkQuadraticQuad::GetEdgeArray(vtkIdType edgeId)
+{
+  return Edges[edgeId];
+}
+
 void vtkQuadraticQuad::Subdivide(double* weights)
 {
   int i, j;

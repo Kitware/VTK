@@ -103,6 +103,12 @@ public:
   }
   ///@}
 
+  /**
+   * Return the ids of the vertices defining edge (`edgeId`).
+   * Ids are related to the cell, not to the dataset.
+   */
+  static const vtkIdType* GetEdgeArray(vtkIdType edgeId);
+
 protected:
   vtkQuadraticQuad();
   ~vtkQuadraticQuad() override = default;

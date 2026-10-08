@@ -4,8 +4,6 @@
 
 #include "vtkCellType.h"
 #include "vtkCellTypeTraits.h"
-#include "vtkGenericCell.h"
-#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 
 #include <array>
@@ -111,15 +109,9 @@ int vtkCellTypeUtilities::GetDimension(unsigned char type)
   {
     return info->Dimension;
   }
-  // The other cell types of vtkCellType.h, e.g., the deprecated parametric ones, are 3D. A cell
-  // type out of it must be built and queried directly, which is slow.
-  if (type < VTK_NUMBER_OF_CELL_TYPES)
-  {
-    return 3;
-  }
-  vtkNew<vtkGenericCell> cell;
-  cell->SetCellType(type);
-  return cell->GetCellDimension();
+  // The other cell types of vtkCellType.h, e.g., the deprecated parametric ones, are 3D. The cell
+  // types out of it cannot be built, see vtkGenericCell::SetCellType(): they are empty cells.
+  return type < VTK_NUMBER_OF_CELL_TYPES ? 3 : 0;
 }
 
 //------------------------------------------------------------------------------

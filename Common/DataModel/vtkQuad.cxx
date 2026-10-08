@@ -44,8 +44,8 @@ double ParametricCoords[12] = {
 constexpr vtkIdType Edges[4][2] = {
   { 0, 1 },
   { 1, 2 },
-  { 3, 2 },
-  { 0, 3 },
+  { 2, 3 },
+  { 3, 0 },
 };
 
 constexpr double VTK_DIVERGED = 1.e6;
@@ -483,21 +483,15 @@ void vtkQuad::Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPoi
 vtkCell* vtkQuad::GetEdge(int edgeId)
 {
   edgeId = std::clamp(edgeId, 0, 3);
-
-  int edgeIdPlus1 = edgeId + 1;
-
-  if (edgeIdPlus1 > 3)
-  {
-    edgeIdPlus1 = 0;
-  }
+  const vtkIdType* verts = Edges[edgeId];
 
   // load point id's
-  this->Line->PointIds->SetId(0, this->PointIds->GetId(edgeId));
-  this->Line->PointIds->SetId(1, this->PointIds->GetId(edgeIdPlus1));
+  this->Line->PointIds->SetId(0, this->PointIds->GetId(verts[0]));
+  this->Line->PointIds->SetId(1, this->PointIds->GetId(verts[1]));
 
   // load coordinates
-  this->Line->Points->SetPoint(0, this->Points->GetPoint(edgeId));
-  this->Line->Points->SetPoint(1, this->Points->GetPoint(edgeIdPlus1));
+  this->Line->Points->SetPoint(0, this->Points->GetPoint(verts[0]));
+  this->Line->Points->SetPoint(1, this->Points->GetPoint(verts[1]));
 
   return this->Line;
 }

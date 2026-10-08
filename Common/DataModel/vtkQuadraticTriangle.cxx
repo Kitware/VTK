@@ -93,6 +93,12 @@ vtkCell* vtkQuadraticTriangle::GetEdge(int edgeId)
 }
 
 //------------------------------------------------------------------------------
+const vtkIdType* vtkQuadraticTriangle::GetEdgeArray(vtkIdType edgeId)
+{
+  return Edges[edgeId];
+}
+
+//------------------------------------------------------------------------------
 int vtkQuadraticTriangle::EvaluatePosition(const double* x, double closestPoint[3], int& subId,
   double pcoords[3], double& minDist2, double weights[])
 {

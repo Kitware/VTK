@@ -309,6 +309,7 @@ set(headers
   vtkVector.h)
 
 set(nowrap_headers
+  vtkCellTypeSides.h
   vtkCellTypeTraits.h
   vtkCompositeDataSetNodeReference.h
   vtkCompositeDataSetRange.h

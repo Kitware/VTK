@@ -215,6 +215,9 @@ protected:
 private:
   vtkConvexPointSet(const vtkConvexPointSet&) = delete;
   void operator=(const vtkConvexPointSet&) = delete;
+
+  // in the class (header)
+  bool FacesBuilt = false;
 };
 
 //----------------------------------------------------------------------------
