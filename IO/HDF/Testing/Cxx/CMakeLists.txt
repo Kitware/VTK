@@ -1,5 +1,5 @@
 vtk_add_test_cxx(vtkIOHDFCxxTests tests
-  TestHDFReader.cxx,NO_VALID,NO_OUTPUT
+  TestHDFReader.cxx,NO_VALID
   TestHDFReaderTemporal.cxx,NO_VALID,NO_OUTPUT
   TestHDFWriter.cxx,NO_VALID
   TestHDFWriterTemporal.cxx,NO_VALID

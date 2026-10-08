@@ -1371,10 +1371,11 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
           vtkErrorMacro("Cannot read the " << name << " array");
           return 0;
         }
-        if (!cacheArray)
+        vtkDataSetAttributes* attributes = pieceData->GetAttributes(attributeType);
+        // Restore cached arrays removed by the selection mechanism.
+        if (!cacheArray || attributes->GetAbstractArray(name.c_str()) != array.GetPointer())
         {
           array->SetName(name.c_str());
-          vtkDataSetAttributes* attributes = pieceData->GetAttributes(attributeType);
           this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
           attributes->AddArray(array);
         }
@@ -1711,10 +1712,11 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
             vtkErrorMacro("Error reading array " << name);
             return 0;
           }
-          if (!cacheArray)
+          vtkDataSetAttributes* attributes = pieceData->GetAttributes(attributeType);
+          // Restore cached arrays removed by the selection mechanism.
+          if (!cacheArray || attributes->GetAbstractArray(name.c_str()) != array.GetPointer())
           {
             array->SetName(name.c_str());
-            vtkDataSetAttributes* attributes = pieceData->GetAttributes(attributeType);
             this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
             attributes->AddArray(array);
           }

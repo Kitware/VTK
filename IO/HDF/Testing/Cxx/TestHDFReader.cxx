@@ -3,10 +3,17 @@
 
 #include "vtkAppendDataSets.h"
 #include "vtkAxisAlignedTransformFilter.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkCellType.h"
+#include "vtkDataArraySelection.h"
+#include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkFileResourceStream.h"
 #include "vtkGroupDataSetsFilter.h"
 #include "vtkHDFReader.h"
+#include "vtkHDFWriter.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridSource.h"
 #include "vtkImageData.h"
@@ -17,8 +24,11 @@
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkRandomHyperTreeGridSource.h"
+#include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
@@ -681,6 +691,161 @@ int TestUnstructuredGridPolyhedron(const std::string& dataRoot)
   return EXIT_SUCCESS;
 }
 
+namespace
+{
+//----------------------------------------------------------------------------
+void AddTestScalars(vtkDataSet* data, double temperature = 100, double density = 10)
+{
+  vtkNew<vtkDoubleArray> pointScalars;
+  pointScalars->SetName("temperature");
+  for (vtkIdType point = 0; point < data->GetNumberOfPoints(); ++point)
+  {
+    pointScalars->InsertNextValue(temperature + point);
+  }
+  data->GetPointData()->SetScalars(pointScalars);
+
+  vtkNew<vtkDoubleArray> cellScalars;
+  cellScalars->SetName("density");
+  for (vtkIdType cell = 0; cell < data->GetNumberOfCells(); ++cell)
+  {
+    cellScalars->InsertNextValue(density + cell);
+  }
+  data->GetCellData()->SetScalars(cellScalars);
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkUnstructuredGrid> MakeUnstructuredGrid()
+{
+  vtkNew<vtkPoints> points;
+  points->InsertNextPoint(0, 0, 0);
+  points->InsertNextPoint(1, 0, 0);
+  points->InsertNextPoint(0, 1, 0);
+  points->InsertNextPoint(0, 0, 1);
+  points->InsertNextPoint(1, 1, 1);
+
+  vtkNew<vtkUnstructuredGrid> grid;
+  grid->SetPoints(points);
+  const vtkIdType first[] = { 0, 1, 2, 3 };
+  const vtkIdType second[] = { 1, 2, 3, 4 };
+  grid->InsertNextCell(VTK_TETRA, 4, first);
+  grid->InsertNextCell(VTK_TETRA, 4, second);
+  AddTestScalars(grid);
+  return grid;
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkPolyData> MakePolyData()
+{
+  vtkNew<vtkPoints> points;
+  points->InsertNextPoint(0, 0, 0);
+  points->InsertNextPoint(1, 0, 0);
+  points->InsertNextPoint(0, 1, 0);
+  points->InsertNextPoint(0, 0, 1);
+  points->InsertNextPoint(1, 1, 1);
+
+  vtkNew<vtkCellArray> cells;
+  const vtkIdType first[] = { 0, 1, 2 };
+  const vtkIdType second[] = { 1, 2, 3 };
+  cells->InsertNextCell(3, first);
+  cells->InsertNextCell(3, second);
+  vtkNew<vtkPolyData> poly;
+  poly->SetPoints(points);
+  poly->SetPolys(cells);
+  AddTestScalars(poly);
+  return poly;
+}
+
+//----------------------------------------------------------------------------
+bool WriteTestData(vtkDataObject* data, const std::string& fileName)
+{
+  std::cout << "Testing " << fileName << std::endl;
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetFileName(fileName.c_str());
+  writer->SetUseExternalComposite(false);
+  writer->SetInputData(data);
+  return writer->Write() != 0;
+}
+
+//----------------------------------------------------------------------------
+int TestUnstructuredGridArraySelection(const std::string& tempDir)
+{
+  vtkSmartPointer<vtkUnstructuredGrid> expected = MakeUnstructuredGrid();
+  const std::string fileName = tempDir + "/HDFReaderUnstructuredGridArraySelection.vtkhdf";
+  if (!WriteTestData(expected, fileName))
+  {
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  auto* data = vtkUnstructuredGrid::SafeDownCast(reader->GetOutput());
+  if (!data || !vtkTestUtilities::CompareDataObjects(data, expected))
+  {
+    return EXIT_FAILURE;
+  }
+
+  reader->GetPointDataArraySelection()->DisableArray("temperature");
+  reader->GetCellDataArraySelection()->DisableArray("density");
+  reader->Update();
+  if (data->GetPointData()->GetArray("temperature") || data->GetCellData()->GetArray("density"))
+  {
+    std::cerr << "Disabled UnstructuredGrid arrays are still present" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  reader->GetPointDataArraySelection()->EnableArray("temperature");
+  reader->GetCellDataArraySelection()->EnableArray("density");
+  reader->Update();
+  if (!data->GetPointData()->GetScalars() || !data->GetCellData()->GetScalars())
+  {
+    std::cerr << "Re-enabled UnstructuredGrid scalars are missing" << std::endl;
+    return EXIT_FAILURE;
+  }
+  return vtkTestUtilities::CompareDataObjects(data, expected) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+//----------------------------------------------------------------------------
+int TestPolyDataArraySelection(const std::string& tempDir)
+{
+  vtkSmartPointer<vtkPolyData> expected = MakePolyData();
+  const std::string fileName = tempDir + "/HDFReaderPolyDataArraySelection.vtkhdf";
+  if (!WriteTestData(expected, fileName))
+  {
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(fileName.c_str());
+  reader->Update();
+  auto* data = vtkPolyData::SafeDownCast(reader->GetOutput());
+  if (!data || !vtkTestUtilities::CompareDataObjects(data, expected))
+  {
+    return EXIT_FAILURE;
+  }
+
+  reader->GetPointDataArraySelection()->DisableArray("temperature");
+  reader->GetCellDataArraySelection()->DisableArray("density");
+  reader->Update();
+  if (data->GetPointData()->GetArray("temperature") || data->GetCellData()->GetArray("density"))
+  {
+    std::cerr << "Disabled PolyData arrays are still present" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  reader->GetPointDataArraySelection()->EnableArray("temperature");
+  reader->GetCellDataArraySelection()->EnableArray("density");
+  reader->Update();
+  if (!data->GetPointData()->GetScalars() || !data->GetCellData()->GetScalars())
+  {
+    std::cerr << "Re-enabled PolyData scalars are missing" << std::endl;
+    return EXIT_FAILURE;
+  }
+  return vtkTestUtilities::CompareDataObjects(data, expected) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+} // namespace
+
 //------------------------------------------------------------------------------
 int TestHDFReader(int argc, char* argv[])
 {
@@ -693,6 +858,7 @@ int TestHDFReader(int argc, char* argv[])
   }
 
   std::string dataRoot = testHelper->GetDataRoot();
+  std::string tempDir = testHelper->GetTempDirectory();
 
   int failure = EXIT_SUCCESS;
   failure |= TestImageData(dataRoot);
@@ -716,6 +882,8 @@ int TestHDFReader(int argc, char* argv[])
   failure |= TestHyperTreeGridPartitionedCoords(dataRoot);
   failure |= TestPartitionedHyperTreeGrid(dataRoot);
   failure |= TestHyperTreeGridWithInterfaces(dataRoot);
+  failure |= TestUnstructuredGridArraySelection(tempDir);
+  failure |= TestPolyDataArraySelection(tempDir);
 
   return failure;
 }
