@@ -107,7 +107,7 @@ rep_states = {
 
 
 def on_view_selection(caller, event):
-    """Observer for SelectionChangedEvent on the view.
+    """Observer for SelectionChangedEvent on the view's selector.
 
     Queries each representation's AnnotationLink to get per-actor
     selection counts, which works for both surface and frustum modes.

@@ -4,6 +4,7 @@
 // A light the application added must survive the light kit being switched on
 // and off.  Only the headlight the view owns gives way to the kit.
 
+#include "ScivisTestUtilities.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkNew.h"
@@ -12,16 +13,6 @@
 #include "vtkScivisView.h"
 
 #include <iostream>
-
-#define CHECK(expr, msg)                                                                           \
-  do                                                                                               \
-  {                                                                                                \
-    if (!(expr))                                                                                   \
-    {                                                                                              \
-      std::cerr << "FAILED: " << msg << "\n";                                                      \
-      return EXIT_FAILURE;                                                                         \
-    }                                                                                              \
-  } while (false)
 
 namespace
 {

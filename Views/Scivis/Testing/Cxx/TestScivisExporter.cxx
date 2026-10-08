@@ -5,6 +5,7 @@
 // formats, what magnification and a transparent background do to a capture, and
 // that taking one leaves the view as it was.
 
+#include "ScivisTestUtilities.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkRenderer.h"
@@ -18,16 +19,6 @@
 
 #include <iostream>
 #include <string>
-
-#define CHECK(expr, msg)                                                                           \
-  do                                                                                               \
-  {                                                                                                \
-    if (!(expr))                                                                                   \
-    {                                                                                              \
-      std::cerr << "FAILED: " << (msg) << std::endl;                                               \
-      return EXIT_FAILURE;                                                                         \
-    }                                                                                              \
-  } while (false)
 
 namespace
 {

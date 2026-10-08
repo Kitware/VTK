@@ -28,12 +28,6 @@
  * grow the axes to fit the axes.  Being a representation with no data of its
  * own is what keeps it out of the measurement it depends on.
  *
- * @par Readable by default:
- * The labels and titles start at 16 and 20 points rather than the 12 that
- * vtkTextProperty defaults to and vtkGridAxesActor3D leaves alone, which is
- * small for numbers meant to be read off a scene.  Both are text properties on
- * the actor, so an application that wants otherwise says so through it.
- *
  * @par What is here and what is not:
  * Whether the axes are drawn, and how much room to leave around the data.
  * Everything about how they look -- which faces are drawn, titles, label
@@ -79,9 +73,40 @@ public:
   double GetPadding();
   ///@}
 
+  ///@{
   /**
-   * The actor the axes are drawn by: which faces are drawn, the titles, the
-   * label formats, the fonts and the grid lines.
+   * What the axes are called.  Empty by default, which draws no title.
+   */
+  void SetXTitle(const char* title);
+  const char* GetXTitle();
+  void SetYTitle(const char* title);
+  const char* GetYTitle();
+  void SetZTitle(const char* title);
+  const char* GetZTitle();
+  ///@}
+
+  ///@{
+  /**
+   * How the numbers along the axes and the titles are drawn.  Font sizes are in
+   * points and start at the 12 vtkTextProperty defaults to, which suits the
+   * space the axes leave for them; larger titles run into the labels.
+   *
+   * These apply to all three axes.  For per-axis settings, use
+   * GetGridAxesActor().
+   */
+  void SetLabelFontSize(int size);
+  int GetLabelFontSize();
+  void SetTitleFontSize(int size);
+  int GetTitleFontSize();
+  void SetLabelColor(double r, double g, double b);
+  double* GetLabelColor() VTK_SIZEHINT(3);
+  void SetTitleColor(double r, double g, double b);
+  double* GetTitleColor() VTK_SIZEHINT(3);
+  ///@}
+
+  /**
+   * The actor the axes are drawn by: which faces are drawn, the label formats,
+   * the fonts per axis and the grid lines.
    */
   vtkGridAxesActor3D* GetGridAxesActor();
 

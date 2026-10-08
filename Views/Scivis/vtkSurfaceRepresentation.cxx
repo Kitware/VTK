@@ -425,6 +425,12 @@ void vtkSurfaceRepresentation::GetEdgeColor(double rgb[3])
 }
 
 //------------------------------------------------------------------------------
+void vtkSurfaceRepresentation::ColorBySolidColor()
+{
+  this->SetScalarVisibility(false);
+}
+
+//------------------------------------------------------------------------------
 void vtkSurfaceRepresentation::SetScalarVisibility(bool val)
 {
   if (this->GetScalarVisibility() == val)

@@ -87,6 +87,36 @@ public:
   vtkBooleanMacro(Draggable, bool);
   ///@}
 
+  ///@{
+  /**
+   * How every bar is drawn: the size of its title and of the numbers beside it,
+   * their color, and how many numbers there are.
+   *
+   * These apply to every bar, including ones created later.
+   */
+  void SetTitleFontSize(int size);
+  int GetTitleFontSize();
+  void SetLabelFontSize(int size);
+  int GetLabelFontSize();
+  void SetTextColor(double r, double g, double b);
+  double* GetTextColor() VTK_SIZEHINT(3);
+  void SetNumberOfLabels(int count);
+  int GetNumberOfLabels();
+  ///@}
+
+  ///@{
+  /**
+   * How much of the viewport a bar takes up, as a fraction of it.  Bars are
+   * stacked down the right hand edge at BarWidth across and BarHeight tall,
+   * shrinking below BarHeight when there are more of them than there is room
+   * for.  Defaults are 0.08 and 0.5.
+   */
+  void SetBarWidth(double width);
+  double GetBarWidth();
+  void SetBarHeight(double height);
+  double GetBarHeight();
+  ///@}
+
   /**
    * How many bars there are, which is how many arrays the visible
    * representations are drawing between them.
@@ -154,9 +184,22 @@ private:
   vtkScivisScalarBars(const vtkScivisScalarBars&) = delete;
   void operator=(const vtkScivisScalarBars&) = delete;
 
+  /**
+   * Draw @a bar the way every bar in this set is drawn.  Called when a bar is
+   * made, and for all of them when any of the properties above changes.
+   */
+  void ApplyStyle(vtkScalarBarActor* bar);
+  void ApplyStyleToAll();
+
   vtkWeakPointer<vtkScivisView> View;
   bool AutoVisibility;
   bool Draggable;
+  int TitleFontSize;
+  int LabelFontSize;
+  double TextColor[3];
+  int NumberOfLabels;
+  double BarWidth;
+  double BarHeight;
 
   class Internals;
   Internals* Implementation;

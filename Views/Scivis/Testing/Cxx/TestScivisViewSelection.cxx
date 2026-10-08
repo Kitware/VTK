@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "ScivisTestUtilities.h"
 #include "vtkActor.h"
 #include "vtkDataObject.h"
 #include "vtkIdTypeArray.h"
@@ -17,16 +18,6 @@
 #include "vtkSurfaceRepresentation.h"
 
 #include <iostream>
-
-#define CHECK(expr, msg)                                                                           \
-  do                                                                                               \
-  {                                                                                                \
-    if (!(expr))                                                                                   \
-    {                                                                                              \
-      std::cerr << "FAILED: " << msg << "\n";                                                      \
-      return EXIT_FAILURE;                                                                         \
-    }                                                                                              \
-  } while (false)
 
 int TestScivisViewSelection(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {

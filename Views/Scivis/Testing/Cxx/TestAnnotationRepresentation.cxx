@@ -7,6 +7,7 @@
 // contract that requires those lives one level down, on
 // vtkScivisDataRepresentation.
 
+#include "ScivisTestUtilities.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
@@ -18,16 +19,6 @@
 #include "vtkTextActor.h"
 
 #include <iostream>
-
-#define CHECK(expr, msg)                                                                           \
-  do                                                                                               \
-  {                                                                                                \
-    if (!(expr))                                                                                   \
-    {                                                                                              \
-      std::cerr << "FAILED: " << msg << "\n";                                                      \
-      return EXIT_FAILURE;                                                                         \
-    }                                                                                              \
-  } while (false)
 
 namespace
 {

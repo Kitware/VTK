@@ -7,6 +7,7 @@ vtk_add_test_cxx(vtkViewsScivisCxxTests tests
   TestScivisViewCamera.cxx,NO_VALID
   TestScivisViewSelection.cxx,NO_VALID
   TestSurfaceRepresentation.cxx
+  TestSurfaceRepresentationColoring.cxx,NO_VALID
   TestScivisScalarBars.cxx,NO_VALID
   TestTextOverlayRepresentation.cxx,NO_VALID
   TestViewLighting.cxx,NO_VALID

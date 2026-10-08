@@ -27,6 +27,10 @@ imported.
 
 from vtkmodules.util import colors as _colors
 from vtkmodules.vtkViewsScivis import (
+    vtkBlockProperties,
+    vtkGridAxesRepresentation,
+    vtkLookupTableManager,
+    vtkScivisScalarBars,
     vtkScivisView,
     vtkSurfaceRepresentation,
     vtkTextOverlayRepresentation,
@@ -236,6 +240,174 @@ class SurfaceRepresentation(_Delegating, vtkSurfaceRepresentation):
         self.SetEdgeColor(*_resolve_color(value))
 
 
+@vtkScivisScalarBars.override
+class ScalarBars(vtkScivisScalarBars):
+    """``vtkScivisScalarBars`` as a sequence of the bars it is maintaining.
+
+    ``len(view.scalar_bars)`` and iterating over it read the bars the view has
+    made, which is what reporting on them looks like::
+
+        for bar in view.scalar_bars:
+            print(bar.title, bar.lookup_table.range)
+
+    A bar's title is the array it is labelled with.  Use ``GetActor(name,
+    association)`` to reach one for a particular array instead.
+    """
+
+    def __len__(self):
+        return self.GetNumberOfBars()
+
+    def __getitem__(self, key):
+        """The bar at a position, or the one labelled with an array.
+
+        A plain name finds the bar for that array whatever attributes it came
+        from; pass ``(name, association)`` to say which.
+        """
+        if isinstance(key, tuple):
+            name, association = key
+            bar = self.GetActor(name, association)
+            if bar is None:
+                raise KeyError(key)
+            return bar
+        if isinstance(key, str):
+            for i in range(self.GetNumberOfBars()):
+                if self.GetArrayName(i) == key:
+                    return self.GetActor(i)
+            raise KeyError(key)
+        if not 0 <= key < self.GetNumberOfBars():
+            raise IndexError(f"there is no scalar bar {key}")
+        return self.GetActor(key)
+
+    def __contains__(self, key):
+        if isinstance(key, tuple):
+            return self.GetActor(*key) is not None
+        return any(self.GetArrayName(i) == key for i in range(self.GetNumberOfBars()))
+
+
+@vtkLookupTableManager.override
+class LookupTableManager(vtkLookupTableManager):
+    """``vtkLookupTableManager`` as the mapping of array name to color map it is.
+
+    ::
+
+        view.lookup_table_manager["Temperature"] = my_map
+        "Temperature" in view.lookup_table_manager
+        for name in view.lookup_table_manager:
+            ...
+
+    Reading a name that has no map makes one, the way
+    :class:`collections.defaultdict` does, because that is what the manager is
+    for -- ``in`` is the way to ask without making one.
+    """
+
+    def __len__(self):
+        return self.GetNumberOfLookupTables()
+
+    def __iter__(self):
+        return (self.GetLookupTableName(i) for i in range(self.GetNumberOfLookupTables()))
+
+    def __contains__(self, name):
+        return self.HasLookupTable(name)
+
+    def __getitem__(self, name):
+        return self.GetLookupTable(name)
+
+    def __setitem__(self, name, lookup_table):
+        self.SetLookupTable(name, lookup_table)
+
+    def __delitem__(self, name):
+        if not self.HasLookupTable(name):
+            raise KeyError(name)
+        self.RemoveLookupTable(name)
+
+
+class _Block:
+    """One block of a composite dataset, as something to set properties on."""
+
+    __slots__ = ("_blocks", "_index")
+
+    def __init__(self, blocks, index):
+        self._blocks = blocks
+        self._index = index
+
+    @property
+    def visibility(self):
+        return self._blocks.GetVisibility(self._index)
+
+    @visibility.setter
+    def visibility(self, value):
+        self._blocks.SetVisibility(self._index, value)
+
+    @property
+    def color(self):
+        color = [0.0, 0.0, 0.0]
+        self._blocks.GetColor(self._index, color)
+        return tuple(color)
+
+    @color.setter
+    def color(self, value):
+        self._blocks.SetColor(self._index, *_resolve_color(value))
+
+    @property
+    def opacity(self):
+        return self._blocks.GetOpacity(self._index)
+
+    @opacity.setter
+    def opacity(self, value):
+        self._blocks.SetOpacity(self._index, value)
+
+    def __repr__(self):
+        return f"<block {self._index}>"
+
+
+@vtkBlockProperties.override
+class BlockProperties(vtkBlockProperties):
+    """``vtkBlockProperties`` indexed by block.
+
+    ``rep.blocks[3].color = "tomato"`` rather than three calls that each repeat
+    the block index.  The index is the flat index of the block in the composite
+    dataset, as vtkCompositeDataDisplayAttributes numbers them.
+    """
+
+    def __getitem__(self, index):
+        if index < 0:
+            raise IndexError("a block index is a flat index, which is never negative")
+        return _Block(self, index)
+
+    # Any index makes a block, so without this Python would iterate by calling
+    # __getitem__ with 0, 1, 2, ... until an IndexError that never comes.
+    def __iter__(self):
+        raise TypeError(
+            "block properties are not iterable; index them by the flat index "
+            "of a block in the input"
+        )
+
+
+@vtkGridAxesRepresentation.override
+class GridAxesRepresentation(_Delegating, vtkGridAxesRepresentation):
+    """``vtkGridAxesRepresentation`` with named colors and property delegation."""
+
+    # The axes carry the properties that get set -- font sizes, colors, titles --
+    # so delegation is only for the rest of what the actor offers.
+    _delegates = ("GetGridAxesActor",)
+
+    @property
+    def label_color(self):
+        return self.GetLabelColor()
+
+    @label_color.setter
+    def label_color(self, value):
+        self.SetLabelColor(*_resolve_color(value))
+
+    @property
+    def title_color(self):
+        return self.GetTitleColor()
+
+    @title_color.setter
+    def title_color(self, value):
+        self.SetTitleColor(*_resolve_color(value))
+
+
 @vtkTextOverlayRepresentation.override
 class TextOverlayRepresentation(_Delegating, vtkTextOverlayRepresentation):
     """``vtkTextOverlayRepresentation`` with named colors and property delegation."""
@@ -246,11 +418,11 @@ class TextOverlayRepresentation(_Delegating, vtkTextOverlayRepresentation):
 
     @property
     def color(self):
-        return self.GetTextProperty().GetColor()
+        return self.GetColor()
 
     @color.setter
     def color(self, value):
-        self.GetTextProperty().SetColor(*_resolve_color(value))
+        self.SetColor(*_resolve_color(value))
 
 
 @vtkScivisView.override
@@ -283,6 +455,14 @@ class ScivisView(_Delegating, vtkScivisView):
     @size.setter
     def size(self, value):
         self.SetWindowSize(*value)
+
+    def __len__(self):
+        return self.GetNumberOfRepresentations()
+
+    def __getitem__(self, index):
+        if not 0 <= index < self.GetNumberOfRepresentations():
+            raise IndexError(f"there is no representation {index}")
+        return self.GetRepresentation(index)
 
     def __iadd__(self, representation):
         self.AddRepresentation(representation)

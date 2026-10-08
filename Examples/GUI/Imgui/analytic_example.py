@@ -55,6 +55,7 @@ class GUIState:
     grid_axes = False
     grid_axes_titles = ["X", "Y", "Z"]
     grid_axes_padding = 0.0
+    grid_axes_font = 16
 
 
 state = GUIState()
@@ -168,15 +169,21 @@ def custom_gui():
 
         if state.grid_axes:
             for i, (label, setter) in enumerate(
-                [("X Title", axes.GetGridAxesActor().SetXTitle),
-                 ("Y Title", axes.GetGridAxesActor().SetYTitle),
-                 ("Z Title", axes.GetGridAxesActor().SetZTitle)]
+                [("X Title", axes.SetXTitle),
+                 ("Y Title", axes.SetYTitle),
+                 ("Z Title", axes.SetZTitle)]
             ):
                 changed, state.grid_axes_titles[i] = imgui.input_text(
                     label, state.grid_axes_titles[i]
                 )
                 if changed:
                     setter(state.grid_axes_titles[i])
+
+            changed, state.grid_axes_font = imgui.slider_int(
+                "Label Font", state.grid_axes_font, 8, 40
+            )
+            if changed:
+                axes.label_font_size = state.grid_axes_font
 
             changed, state.grid_axes_padding = imgui.slider_float(
                 "Padding", state.grid_axes_padding, 0.0, 0.2

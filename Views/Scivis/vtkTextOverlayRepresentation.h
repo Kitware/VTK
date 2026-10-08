@@ -84,6 +84,21 @@ public:
   double* GetPosition() VTK_SIZEHINT(2);
   ///@}
 
+  ///@{
+  /**
+   * How the text is drawn.
+   * For advanced style properties, use GetTextProperty() directly.
+   */
+  void SetFontSize(int size);
+  int GetFontSize();
+  void SetColor(double r, double g, double b);
+  double* GetColor() VTK_SIZEHINT(3);
+  void SetBold(bool bold);
+  bool GetBold();
+  void SetItalic(bool italic);
+  bool GetItalic();
+  ///@}
+
   /**
    * How the text is drawn: its font and size, color and opacity, bold and
    * italic, and its justification about the position above.

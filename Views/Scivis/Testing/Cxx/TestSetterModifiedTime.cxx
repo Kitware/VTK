@@ -5,6 +5,7 @@
 // like vtkSetMacro: setting a property to the value it already has must not
 // bump the object's modified time, while setting a different value must.
 
+#include "ScivisTestUtilities.h"
 #include "vtkActor.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkLightKit.h"
@@ -23,16 +24,6 @@
 #include "vtkVolumeRepresentation.h"
 
 #include <iostream>
-
-#define CHECK(expr, msg)                                                                           \
-  do                                                                                               \
-  {                                                                                                \
-    if (!(expr))                                                                                   \
-    {                                                                                              \
-      std::cerr << "FAILED: " << msg << "\n";                                                      \
-      return EXIT_FAILURE;                                                                         \
-    }                                                                                              \
-  } while (false)
 
 // Set a property to the value it already has; the modified time must not move.
 #define CHECK_NOOP(object, setter, getter)                                                         \

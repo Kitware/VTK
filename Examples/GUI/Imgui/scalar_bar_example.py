@@ -90,12 +90,10 @@ def custom_gui():
 
         # What the view is maintaining right now.  Uncheck both surfaces below
         # and the bar goes with them.
-        count = view.scalar_bars.GetNumberOfBars()
-        imgui.text(f"{count} bar(s)")
-        for i in range(count):
-            bar = view.scalar_bars.GetActor(i)
+        imgui.text(f"{len(view.scalar_bars)} bar(s)")
+        for bar in view.scalar_bars:
             lo, hi = bar.lookup_table.range
-            imgui.text(f"  {view.scalar_bars.GetArrayName(i)}: [{lo:.1f}, {hi:.1f}]")
+            imgui.text(f"  {bar.title}: [{lo:.1f}, {hi:.1f}]")
 
     imgui.spacing()
 
@@ -110,8 +108,8 @@ def custom_gui():
                 if state.color_by_scalar[i]:
                     rep.ColorByPointArray("RTData")
                 else:
-                    rep.scalar_visibility = False
                     rep.color = (0.8, 0.8, 0.8)
+                    rep.ColorBySolidColor()
 
             changed, state.opacity[i] = imgui.slider_float(
                 f"Opacity##{i}", state.opacity[i], 0.0, 1.0
