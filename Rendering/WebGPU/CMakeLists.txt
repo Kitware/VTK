@@ -53,7 +53,9 @@ set(classes
   vtkWebGPUTexture
   vtkWebGPUTextureDeviceResource
   vtkWebGPUTextureView
-  vtkWebGPUUniforms)
+  vtkWebGPUUniforms
+  vtkWebGPUContextDevice2D
+  vtkWebGPUContextActor)
 
 set(private_headers
   "Private/vtkWebGPUActorInternals.h"
@@ -78,7 +80,8 @@ set(private_headers
   "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
   "Private/vtkWebGPUShaderModuleInternals.h"
   "Private/vtkWebGPUTextureInternals.h"
-  "Private/vtkWebGPUBatchedLabeledDataMapperInternals.h")
+  "Private/vtkWebGPUBatchedLabeledDataMapperInternals.h"
+  "Private/vtkWebGPUContextDevice2DPrivate.h")
 
 set(private_sources
   "Private/vtkWebGPUProcDispatch.cxx"
@@ -112,6 +115,8 @@ set(webgpu_overrides
   CameraPass
   ClearRGBPass
   CompositePolyDataMapperDelegator
+  ContextActor
+  ContextDevice2D
   # NI: LabeledContourMapper
   HardwareSelector
   ImageMapper
@@ -141,6 +146,7 @@ set(private_shader_files
   wgsl/ActorColorOptions.wgsl
   wgsl/ActorRenderOptions.wgsl
   wgsl/ActorTransform.wgsl
+  wgsl/ContextDevice2D.wgsl
   wgsl/CopyDepthTextureToBuffer.wgsl
   wgsl/FrustumCullingShader.wgsl
   wgsl/IBLBRDFLookupTable.wgsl
