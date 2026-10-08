@@ -945,10 +945,24 @@ def mean(array, axis=None, controller=None, size=None):
             return _mean(array, axis)
 
 def var(array, axis=None, controller=None):
-    """Composite + MPI aware variance."""
+    """Composite + MPI aware variance.
+    Example:
+        >>> import numpy as np
+        >>> arr = np.array([[1.0, 2.0, 3.0],
+        ...                 [4.0, 5.0, 6.0],
+        ...                 [7.0, 8.0, 9.0]])
+        >>> var(arr, axis=0)
+        array([ 6, 6, 6])
+    """
     if axis is None or axis == 0:
         size = array_count(array, axis, controller)
-        tmp = array - mean(array, axis, controller, size)
+        center = mean(array, axis, controller, size)
+        if axis == 0 and center is not NoneArray:
+            # One mean per component, broadcast along the tuples. As a 1-D
+            # array it would be taken as one value per tuple by any block
+            # that happens to have as many tuples as components.
+            center = numpy.reshape(center, (1,) + numpy.shape(center))
+        tmp = array - center
         return sum(tmp * tmp, axis, controller) / size
     else:
         if isinstance(array, VTKPartitionedArray):

@@ -254,7 +254,20 @@ class VTKConstantArray(VTKDataArrayMixin):
                 return numpy.full(
                     first_const.shape, result[0], dtype=result.dtype)
 
-        # Mixed with real array -> wrap as VTKAOSArray
+        # Mixed with real array -> wrap as VTKAOSArray. The constant stood
+        # in as a one-element array, so the result has the other operands'
+        # shape only; numpy on the full arrays gives their broadcast shape.
+        # Every element of a constant is the same, so broadcasting the
+        # result to that shape gives the same values.
+        if isinstance(result, numpy.ndarray):
+            try:
+                shape = numpy.broadcast_shapes(
+                    *(numpy.shape(inp) for inp in inputs))
+            except ValueError:
+                shape = result.shape
+            if result.shape != shape:
+                result = numpy.ascontiguousarray(
+                    numpy.broadcast_to(result, shape))
         return self._wrap_result(result)
 
     def __array_function__(self, func, types, args, kwargs):

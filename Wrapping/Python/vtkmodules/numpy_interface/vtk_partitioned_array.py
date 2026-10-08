@@ -752,47 +752,72 @@ def bitwise_or(array1, array2):
         l = reshape_append_ones(array1, array2)
         return numpy.bitwise_or(l[0], l[1])
 
+def _as_numpy_would(result, func, array, axis):
+    """Give a reduction *result* the dtype numpy's *func* would give.
+
+    util.functions reduces in float64, a fixed type for its MPI path, but
+    numpy.sum() of a float32 array is float32. The dtype comes from calling
+    *func* on one tuple of *array*'s dtype, so numpy decides it, including
+    how it widens integers on this platform. Only plain numpy results are
+    converted; a per-block result along axis 1 is left as it is.
+    """
+    if not isinstance(result, (numpy.ndarray, numpy.generic)):
+        return result
+    sample = numpy.zeros((1,) + tuple(array.shape[1:]), dtype=array.dtype)
+    try:
+        dtype = numpy.asarray(func(sample, axis=axis)).dtype
+    except (ValueError, TypeError):  # numpy's AxisError is a ValueError
+        return result
+    return numpy.asarray(result).astype(dtype)[()]
+
 @_override_numpy(numpy.sum)
 def sum(array, axis=None, **kwargs):
     """Local (non-parallel) sum dispatched from numpy.sum()."""
     from ..util.functions import sum as _sum
-    return _sum(array, axis=axis, controller=False)
+    return _as_numpy_would(
+        _sum(array, axis=axis, controller=False), numpy.sum, array, axis)
 
 @_override_numpy(numpy.max)
 def max(array, axis=None, **kwargs):
     """Local (non-parallel) max dispatched from numpy.max()."""
     from ..util.functions import max as _max
-    return _max(array, axis=axis, controller=False)
+    return _as_numpy_would(
+        _max(array, axis=axis, controller=False), numpy.max, array, axis)
 
 @_override_numpy(numpy.min)
 def min(array, axis=None, **kwargs):
     """Local (non-parallel) min dispatched from numpy.min()."""
     from ..util.functions import min as _min
-    return _min(array, axis=axis, controller=False)
+    return _as_numpy_would(
+        _min(array, axis=axis, controller=False), numpy.min, array, axis)
 
 @_override_numpy(numpy.all)
 def all(array, axis=None, **kwargs):
     """Local (non-parallel) all dispatched from numpy.all()."""
     from ..util.functions import all as _all
-    return _all(array, axis=axis, controller=False)
+    return _as_numpy_would(
+        _all(array, axis=axis, controller=False), numpy.all, array, axis)
 
 @_override_numpy(numpy.mean)
 def mean(array, axis=None, **kwargs):
     """Local (non-parallel) mean dispatched from numpy.mean()."""
     from ..util.functions import mean as _mean
-    return _mean(array, axis=axis, controller=False)
+    return _as_numpy_would(
+        _mean(array, axis=axis, controller=False), numpy.mean, array, axis)
 
 @_override_numpy(numpy.var)
 def var(array, axis=None, **kwargs):
     """Local (non-parallel) var dispatched from numpy.var()."""
     from ..util.functions import var as _var
-    return _var(array, axis=axis, controller=False)
+    return _as_numpy_would(
+        _var(array, axis=axis, controller=False), numpy.var, array, axis)
 
 @_override_numpy(numpy.std)
 def std(array, axis=None, **kwargs):
     """Local (non-parallel) std dispatched from numpy.std()."""
     from ..util.functions import std as _std
-    return _std(array, axis=axis, controller=False)
+    return _as_numpy_would(
+        _std(array, axis=axis, controller=False), numpy.std, array, axis)
 
 @_override_numpy(numpy.shape)
 def shape(array):
@@ -1336,7 +1361,9 @@ def average(array, axis=None, weights=None, **kwargs):
             if weights is None:
                 # Unweighted: delegate to mean
                 from ..util.functions import mean as _mean
-                return _mean(array, axis=axis, controller=False)
+                return _as_numpy_would(
+                    _mean(array, axis=axis, controller=False),
+                    numpy.average, array, axis)
             # Weighted average: sum(a*w) / sum(w)
             w_arrays = weights
             if type(weights) == VTKPartitionedArray:

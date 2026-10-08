@@ -4,6 +4,7 @@ vtk_add_test_python(
   PythonSmoke.py
   TestArrayArguments.py
   TestArrayScalarPromotion.py
+  TestArrayNumpyConsistency.py
   TestBufferChangedEvent.py
   TestArrays.py
   TestBuffer.py
