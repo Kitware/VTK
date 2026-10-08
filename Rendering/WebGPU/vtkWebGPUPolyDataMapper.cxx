@@ -425,8 +425,9 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
     state.LastRepresentation = displayProperty->GetRepresentation();
     state.LastVertexVisibility = displayProperty->GetVertexVisibility();
     state.LastHasRenderingTranslucentGeometry = hasTranslucentPolygonalGeometry;
-    state.LastPointSize = displayProperty->GetPointSize();
-    state.LastLineWidth = displayProperty->GetLineWidth();
+    state.LastWidePoints = displayProperty->GetPointSize() > 1;
+    state.LastWideLines = displayProperty->GetLineWidth() > 1;
+    state.LastLineJoin = displayProperty->GetLineJoin();
     this->CachedActorRendererProperties[key] = state;
     return true;
   }
@@ -459,22 +460,23 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
       cacheChanged = true;
     }
     state.LastHasRenderingTranslucentGeometry = hasTranslucentPolygonalGeometry;
-    if (auto* webgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
+    const bool widePoints = displayProperty->GetPointSize() > 1;
+    if (state.LastWidePoints != widePoints)
     {
-      if (webgpuRenderer->GetUseRenderBundles())
-      {
-        if (state.LastPointSize != displayProperty->GetPointSize())
-        {
-          cacheChanged = true;
-        }
-        state.LastPointSize = displayProperty->GetPointSize();
-        if (state.LastLineWidth != displayProperty->GetLineWidth())
-        {
-          cacheChanged = true;
-        }
-        state.LastLineWidth = displayProperty->GetLineWidth();
-      }
+      cacheChanged = true;
     }
+    state.LastWidePoints = widePoints;
+    const bool wideLines = displayProperty->GetLineWidth() > 1;
+    if (state.LastWideLines != wideLines)
+    {
+      cacheChanged = true;
+    }
+    state.LastWideLines = wideLines;
+    if (state.LastLineJoin != displayProperty->GetLineJoin())
+    {
+      cacheChanged = true;
+    }
+    state.LastLineJoin = displayProperty->GetLineJoin();
     return cacheChanged;
   }
 }
@@ -4199,11 +4201,15 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
   {
     return true;
   }
-  if (it->second.LastPointSize != std::round(displayProperty->GetPointSize()))
+  if (it->second.LastWidePoints != (displayProperty->GetPointSize() > 1))
   {
     return true;
   }
-  if (it->second.LastLineWidth != std::round(displayProperty->GetLineWidth()))
+  if (it->second.LastWideLines != (displayProperty->GetLineWidth() > 1))
+  {
+    return true;
+  }
+  if (it->second.LastLineJoin != displayProperty->GetLineJoin())
   {
     return true;
   }

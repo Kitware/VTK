@@ -657,8 +657,9 @@ private:
     bool LastVertexVisibility = false;
     int LastRepresentation = VTK_SURFACE;
     bool LastHasRenderingTranslucentGeometry = false;
-    int LastPointSize = 1;
-    int LastLineWidth = 1;
+    bool LastWidePoints = false;
+    bool LastWideLines = false;
+    vtkProperty::LineJoinType LastLineJoin = vtkProperty::LineJoinType::NoJoin;
   };
   std::map<std::pair<vtkActor*, vtkRenderer*>, ActorState> CachedActorRendererProperties;
 };
