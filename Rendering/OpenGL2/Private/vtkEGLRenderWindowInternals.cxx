@@ -350,7 +350,7 @@ bool vtkEGLRenderWindowInternals::TryInitializeHardware(
         << " require "
            "EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions");
 
-    vtkLog(WARNING, "Attempting to use the default egl display for the current platform...");
+    vtkLog(TRACE, "Attempting to use the default egl display for the current platform...");
     this->Display =
       eglGetDisplay(reinterpret_cast<EGLNativeDisplayType>(this->Config->GetDisplay()));
 
