@@ -198,7 +198,7 @@ bool vtkEGLRenderWindowInternals::SetDeviceAsDisplay(int deviceIndex)
 
       if (vtkEGLDisplayInitializationHelper::Initialize(this->Display, &major, &minor) == EGL_FALSE)
       {
-        vtkLog(WARNING, "EGL device index: " << deviceIndex << " could not be initialized.");
+        vtkLog(TRACE, "EGL device index: " << deviceIndex << " could not be initialized.");
       }
 
       foundWorkingDisplay = true;
@@ -215,7 +215,7 @@ bool vtkEGLRenderWindowInternals::SetDeviceAsDisplay(int deviceIndex)
 
       if (vtkEGLDisplayInitializationHelper::Initialize(this->Display, &major, &minor) == EGL_FALSE)
       {
-        vtkLog(WARNING,
+        vtkLog(TRACE,
           "EGL device index: " << vtkEGLDisplayInitializationHelper::DefaultDeviceIndex
                                << " could not be initialized. Trying other devices...");
 
@@ -254,7 +254,7 @@ bool vtkEGLRenderWindowInternals::SetDeviceAsDisplay(int deviceIndex)
         << " require "
            "EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions");
 
-    vtkLog(WARNING, "Attempting to use the default egl display for the current platform...");
+    vtkLog(TRACE, "Attempting to use the default egl display for the current platform...");
     this->Display =
       eglGetDisplay(reinterpret_cast<EGLNativeDisplayType>(this->Config->GetDisplay()));
 
