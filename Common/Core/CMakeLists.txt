@@ -517,6 +517,7 @@ set(private_headers
 
 set(templates
   vtkArrayIteratorTemplateImplicit.txx
+  vtkKeys.txx
   vtkThreadedCallbackQueue.txx
   ${vtk_smp_templates})
 
@@ -623,6 +624,8 @@ set(nowrap_headers
   vtkHashCombiner.h
   vtkImplicitArrayTraits.h
   vtkInherits.h
+  vtkKeys.h
+  vtkKeysTraits.h
   vtkMathPrivate.hxx
   vtkTypeName.h
   ${vtk_smp_nowrap_headers}

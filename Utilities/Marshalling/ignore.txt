@@ -101,6 +101,8 @@ Common/Core/vtkInformationVariantKey.h
 Common/Core/vtkInformationVariantVectorKey.h
 Common/Core/vtkInherits.h
 Common/Core/vtkInvoker.h
+Common/Core/vtkKeys.h
+Common/Core/vtkKeysTraits.h
 Common/Core/vtkLargeInteger.h
 Common/Core/vtkLegacy.h
 Common/Core/vtkLogger.h
