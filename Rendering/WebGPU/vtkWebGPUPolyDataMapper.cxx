@@ -53,6 +53,7 @@
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 
 #include <array>
+#include <fstream>
 #include <iostream>
 #include <iterator>
 #include <sstream>
@@ -424,8 +425,9 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
     state.LastRepresentation = displayProperty->GetRepresentation();
     state.LastVertexVisibility = displayProperty->GetVertexVisibility();
     state.LastHasRenderingTranslucentGeometry = hasTranslucentPolygonalGeometry;
-    state.LastPointSize = displayProperty->GetPointSize();
-    state.LastLineWidth = displayProperty->GetLineWidth();
+    state.LastWidePoints = displayProperty->GetPointSize() > 1;
+    state.LastWideLines = displayProperty->GetLineWidth() > 1;
+    state.LastLineJoin = displayProperty->GetLineJoin();
     this->CachedActorRendererProperties[key] = state;
     return true;
   }
@@ -458,22 +460,23 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
       cacheChanged = true;
     }
     state.LastHasRenderingTranslucentGeometry = hasTranslucentPolygonalGeometry;
-    if (auto* webgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
+    const bool widePoints = displayProperty->GetPointSize() > 1;
+    if (state.LastWidePoints != widePoints)
     {
-      if (webgpuRenderer->GetUseRenderBundles())
-      {
-        if (state.LastPointSize != displayProperty->GetPointSize())
-        {
-          cacheChanged = true;
-        }
-        state.LastPointSize = displayProperty->GetPointSize();
-        if (state.LastLineWidth != displayProperty->GetLineWidth())
-        {
-          cacheChanged = true;
-        }
-        state.LastLineWidth = displayProperty->GetLineWidth();
-      }
+      cacheChanged = true;
     }
+    state.LastWidePoints = widePoints;
+    const bool wideLines = displayProperty->GetLineWidth() > 1;
+    if (state.LastWideLines != wideLines)
+    {
+      cacheChanged = true;
+    }
+    state.LastWideLines = wideLines;
+    if (state.LastLineJoin != displayProperty->GetLineJoin())
+    {
+      cacheChanged = true;
+    }
+    state.LastLineJoin = displayProperty->GetLineJoin();
     return cacheChanged;
   }
 }
@@ -2125,13 +2128,132 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   basicBGLayoutEntries.emplace_back(this->CreateMeshAttributeBindGroupLayout(
     device, this->GetObjectDescription() + "MeshAttributeBindGroupLayout"));
 
-  for (int i = 0; i < GFX_PIPELINE_NB_TYPES; ++i)
+  auto* displayProperty = actor->GetProperty();
+  const float pointSize = displayProperty->GetPointSize();
+  const float lineWidth = displayProperty->GetLineWidth();
+  const auto lineJoinType = displayProperty->GetLineJoin();
+  const int representation = displayProperty->GetRepresentation();
+  const bool showVertices = displayProperty->GetVertexVisibility();
+
+  std::vector<GraphicsPipelineType> pipelinesToBuild;
+
+  for (const auto& pipelineMapping : PipelineBindGroupCombos[representation])
   {
-    const auto pipelineType = static_cast<GraphicsPipelineType>(i);
+    const auto& pipelineType = pipelineMapping.first;
     if (!this->IsPipelineSupported(pipelineType))
     {
       continue;
     }
+    bool skip = false;
+    switch (pipelineType)
+    {
+      case GFX_PIPELINE_POINTS:
+        skip = (pointSize > 1) && this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED);
+        break;
+      case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+        skip = (pointSize > 1) &&
+          this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE);
+        break;
+      case GFX_PIPELINE_POINTS_SHAPED:
+      case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+        skip = pointSize <= 1;
+        break;
+      case GFX_PIPELINE_LINES:
+        if (lineWidth > 1)
+        {
+          skip = this->IsPipelineSupported(GFX_PIPELINE_LINES_THICK) ||
+            this->IsPipelineSupported(GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN) ||
+            this->IsPipelineSupported(GFX_PIPELINE_LINES_MITER_JOIN);
+        }
+        break;
+      case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+        if (lineWidth > 1)
+        {
+          skip = this->IsPipelineSupported(GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE) ||
+            this->IsPipelineSupported(
+              GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE) ||
+            this->IsPipelineSupported(GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE);
+        }
+        break;
+      case GFX_PIPELINE_LINES_THICK:
+      case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::NoJoin);
+        break;
+      case GFX_PIPELINE_LINES_MITER_JOIN:
+      case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::MiterJoin);
+        break;
+      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::RoundCapRoundJoin);
+        break;
+      case GFX_PIPELINE_TRIANGLES:
+      case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      case GFX_PIPELINE_NB_TYPES:
+        break;
+    }
+    if (skip)
+    {
+      continue;
+    }
+
+    // Now check if this pipeline actually has any topology data to render
+    bool hasData = false;
+    for (const auto& bindGroupType : pipelineMapping.second)
+    {
+      if (this->TopologyBindGroupInfos[bindGroupType].VertexCount > 0)
+      {
+        hasData = true;
+        break;
+      }
+    }
+    if (hasData)
+    {
+      pipelinesToBuild.push_back(pipelineType);
+    }
+  }
+
+  if (showVertices && (representation != VTK_POINTS))
+  {
+    bool hasHomogeneousData = false;
+    bool hasNonHomogeneousData = false;
+    for (const auto& bindGroupType : { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS,
+           vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS,
+           vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS })
+    {
+      const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
+      if (bgInfo.VertexCount == 0)
+        continue;
+      if (bgInfo.CellIdBuffer == nullptr)
+        hasHomogeneousData = true;
+      else
+        hasNonHomogeneousData = true;
+    }
+
+    if (hasHomogeneousData)
+    {
+      if (pointSize > 1 &&
+        this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE))
+        pipelinesToBuild.push_back(GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE);
+      else
+        pipelinesToBuild.push_back(GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE);
+    }
+    if (hasNonHomogeneousData)
+    {
+      if (pointSize > 1 && this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED))
+        pipelinesToBuild.push_back(GFX_PIPELINE_POINTS_SHAPED);
+      else
+        pipelinesToBuild.push_back(GFX_PIPELINE_POINTS);
+    }
+  }
+
+  std::sort(pipelinesToBuild.begin(), pipelinesToBuild.end());
+  pipelinesToBuild.erase(
+    std::unique(pipelinesToBuild.begin(), pipelinesToBuild.end()), pipelinesToBuild.end());
+
+  for (auto pipelineType : pipelinesToBuild)
+  {
+    int i = static_cast<int>(pipelineType);
     auto bgls = basicBGLayoutEntries;
     // add topology bind group layout.
     const bool homogeneousCellSize = IsPipelineForHomogeneousCellSize(pipelineType);
@@ -2160,6 +2282,7 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
     // generate a unique key for the pipeline descriptor and shader source pointer
     this->GraphicsPipelineKeys[i] = wgpuPipelineCache->GetPipelineKey(
       (&descriptor), vertexShaderSource.c_str(), fragmentShaderSource.c_str());
+
     // create a pipeline if it does not already exist
     if (wgpuPipelineCache->GetRenderPipeline(this->GraphicsPipelineKeys[i]) == nullptr)
     {
@@ -4067,6 +4190,26 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
     return true;
   }
   if (it->second.LastActorFrontfaceCulling != (displayProperty->GetFrontfaceCulling() != 0))
+  {
+    return true;
+  }
+  if (it->second.LastRepresentation != displayProperty->GetRepresentation())
+  {
+    return true;
+  }
+  if (it->second.LastVertexVisibility != (displayProperty->GetVertexVisibility() != 0))
+  {
+    return true;
+  }
+  if (it->second.LastWidePoints != (displayProperty->GetPointSize() > 1))
+  {
+    return true;
+  }
+  if (it->second.LastWideLines != (displayProperty->GetLineWidth() > 1))
+  {
+    return true;
+  }
+  if (it->second.LastLineJoin != displayProperty->GetLineJoin())
   {
     return true;
   }
