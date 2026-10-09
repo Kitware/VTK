@@ -107,6 +107,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   UnitTestMergeFilter.cxx,NO_VALID
   TestContourImplicitArrays.cxx,NO_VALID
   TestContourConstantScalarUG.cxx,NO_VALID
+  TestPolyDataToUnstructuredGrid.cxx,NO_VALID
   )
 
 # This test fails on vtk-m due to bug #804 (vtk/vtkm)
