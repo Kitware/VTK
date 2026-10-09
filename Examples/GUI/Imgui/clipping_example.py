@@ -1,13 +1,9 @@
 #!/usr/bin/env python
 """Clipping what a representation draws with a box the user drags.
 
-The original of this example reached through to the mapper to set its clipping
-planes.  A representation carries its own, so the box's six planes go there
-instead, and the mapper is never mentioned.
-
-The work is done in end_callback rather than callback: re-clipping is cheap
-here, but this is where an expensive filter belongs, so it runs once when the
-drag finishes rather than on every mouse move.
+The box's six planes become the representation's clipping planes.  The work
+is done in end_callback, so it runs once when the drag finishes rather than on
+every mouse move, which is where an expensive filter belongs.
 """
 from imgui_bundle import imgui
 from _widget_shell import run

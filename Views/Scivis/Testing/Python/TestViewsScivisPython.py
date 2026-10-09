@@ -347,10 +347,8 @@ class TestWidgetsReportValues(unittest.TestCase):
             "plane": widgets.AddPlane(callback=record("plane")),
             "box": widgets.AddBox(callback=record("box")),
             "spline": widgets.AddSpline(callback=record("spline")),
-            # AddCaption is left out on purpose: enabling a vtkCaptionWidget
-            # against an offscreen render window segfaults in VTK itself on
-            # macOS -- reproducible with no view in the picture -- so it cannot
-            # be exercised here.
+            # No AddCaption: enabling a vtkCaptionWidget offscreen segfaults
+            # in VTK on macOS, view or no view.
         }
         for widget in made.values():
             widget.InvokeEvent(vtkCommand.InteractionEvent)

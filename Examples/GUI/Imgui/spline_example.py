@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 """A tube that follows a spline the user drags into shape.
 
-The original of this example built an actor and a mapper by hand and pushed
-them into the renderer.  The tube is a representation here, so it is shown the
-same way any other data is and carries its own properties.
+The tube is shown with view.show() like any other data.
 """
 from imgui_bundle import imgui
 from _widget_shell import run

@@ -89,9 +89,8 @@ int TestWidgetsArePlacedOverTheScene()
   return EXIT_SUCCESS;
 }
 
-// A widget placed over the scene spans all of it.  The representations shrink
-// what they are placed over by half unless told otherwise, which put a box over
-// the middle half of the data.
+// A widget placed over the scene spans all of it, not the middle half that a
+// representation's default place factor of 0.5 would give.
 int TestWidgetsSpanTheScene()
 {
   auto view = MakeView(40.0);

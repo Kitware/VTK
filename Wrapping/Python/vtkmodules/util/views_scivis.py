@@ -309,7 +309,6 @@ def _observe(widget, extract, callback, end_callback):
         kept.append(_fire)
 
     if kept:
-        # Any attribute would do; this one says why it is here.
         widget._scivis_callbacks = getattr(widget, "_scivis_callbacks", []) + kept
     return widget
 

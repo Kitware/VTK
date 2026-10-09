@@ -1,7 +1,4 @@
 # Shared layout for the widget examples: a sidebar of readouts beside the view.
-#
-# The examples differ only in which widget they add and what they show, so the
-# window scaffolding lives here rather than being copied into each of them.
 from imgui_bundle import imgui
 from vtk_viewer import VtkViewer
 

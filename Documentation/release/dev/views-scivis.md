@@ -38,6 +38,12 @@ view.Start()
   `GetScalarBars()`. Bars come and go with the scene, and their style
   (`SetLabelFontSize()`, `SetNumberOfLabels()`, `SetBarWidth()`, ...) is set on
   the set of bars so that it applies to bars created later.
+- Interactive widgets are added through `GetWidgets()`: `AddDistance()`,
+  `AddAngle()`, `AddCaption()`, `AddLine()`, `AddPlane()`, `AddBox()` and
+  `AddSpline()` connect a VTK widget to the view, and the ones that occupy a
+  region are placed over the scene. `Add()` takes any `vtkAbstractWidget`. In
+  Python the adders take `callback` and `end_callback`, which are handed the
+  widget's value (a distance, a `vtkPlane`, a `vtkTransform`, ...).
 - Colors come from a `vtkLookupTableManager` keyed by array name, so every
   representation of an array shares one map and range. Register a map there to
   choose it, and share a manager between views to keep them in step.

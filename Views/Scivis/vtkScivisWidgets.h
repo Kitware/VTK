@@ -14,29 +14,16 @@
  * vtkImplicitPlaneWidget2* plane = view->GetWidgets()->AddPlane();
  * @endcode
  *
- * @par What adding one does:
- * A widget needs two things from the view and gets both here: the interactor
- * it listens to and the renderer it draws in.  It is then enabled
- * and kept alive until it is removed or the view goes away.  Add() takes any
- * vtkAbstractWidget, so a widget this class knows nothing about is wired up the
- * same way.
+ * Adding a widget connects it to the view's interactor and renderer, enables
+ * it, and keeps it alive until it is removed or the view goes away.  The
+ * adders for the ones that occupy a region -- a plane, a box, a line, a spline
+ * -- also place them over the scene.  What comes back is the VTK widget itself, configured through
+ * its own representation.
  *
- * The ones that occupy a region rather than being clicked into place -- a
- * plane, a box, a line, a spline -- are also sized to the scene, so they arrive
- * around the data rather than around a unit cube.
- *
- * @par These are VTK's widgets, not representations:
- * What comes back is the widget itself, configured through the objects it
- * already hands out -- vtkAbstractWidget::GetRepresentation() and the typed
- * accessors beside it.  They are deliberately not vtkScivisRepresentations: a
- * widget already has a representation in VTK's sense, and every type here has
- * one named for it in VTK::InteractionWidgets.
- *
- * @par Hearing what the user did:
- * In C++, observe the widget: it fires vtkCommand::InteractionEvent while it is
- * being dragged and vtkCommand::EndInteractionEvent when the drag finishes.
- * Python is given the value rather than the event -- see the callback arguments
- * on the same methods there.
+ * To hear what the user did, observe the widget: it fires
+ * vtkCommand::InteractionEvent while being dragged and
+ * vtkCommand::EndInteractionEvent when the drag finishes.  In Python, the
+ * adders take callbacks that are handed the widget's value instead.
  *
  * @sa vtkScivisView vtkAbstractWidget
  */
@@ -68,30 +55,25 @@ public:
 
   ///@{
   /**
-   * Measure the scene.  Both are placed by the user, who clicks the ends of a
-   * distance or the three points of an angle.
-   *
-   * The measurement is read from the widget's representation --
-   * GetDistanceRepresentation()->GetDistance(),
-   * GetAngleRepresentation()->GetAngle() -- while it is being dragged or once
-   * it is finished.
+   * Measure the scene.  The user clicks the ends of a distance or the three
+   * points of an angle; read the result with
+   * GetDistanceRepresentation()->GetDistance() or
+   * GetAngleRepresentation()->GetAngle().
    */
   vtkDistanceWidget* AddDistance();
   vtkAngleWidget* AddAngle();
   ///@}
 
   /**
-   * A label with a leader pointing at @a anchor, in world coordinates.
+   * A label with a leader pointing at (@a x, @a y, @a z), in world coordinates.
    */
   vtkCaptionWidget* AddCaption(const char* text, double x, double y, double z);
 
   ///@{
   /**
-   * Take hold of a region of the scene: a line between two points, a plane to
-   * cut with, a box to crop to, or a spline through @a handles points.
-   *
-   * These are placed over the scene as it stands when they are added, so they
-   * arrive around the data rather than around a unit cube.
+   * A line between two points, a plane to cut with, a box to crop to, or a
+   * spline through @a handles points.  Each is placed over the scene as it
+   * stands when it is added.
    */
   vtkLineWidget2* AddLine();
   vtkImplicitPlaneWidget2* AddPlane();
@@ -101,16 +83,9 @@ public:
 
   ///@{
   /**
-   * Add a widget of any kind, or take one away.
-   *
-   * Add() wires a widget to the view's interactor and renderer, enables it and
-   * keeps it alive.  Remove() disables it and lets it go.
-   *
-   * Placing is asked for rather than assumed: PlaceOverScene() sizes a widget
-   * that occupies a region -- a plane, a box -- to the data, which is what the
-   * methods above do for the kinds that want it.  It sets the representation's
-   * place factor to 1 so the widget spans the scene bounds exactly.  A widget the user clicks into
-   * place, or that points at somewhere it was given, has nothing to place.
+   * Add a widget of any kind, or take one away.  Add() connects it to the view
+   * and enables it; Remove() disables it and lets it go.  PlaceOverScene()
+   * sizes a widget to the scene bounds, which Add() does not do on its own.
    */
   void Add(vtkAbstractWidget* widget);
   void PlaceOverScene(vtkAbstractWidget* widget);
