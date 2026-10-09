@@ -281,6 +281,7 @@ set(template_classes
   vtkPeriodicDataArray
   vtkStaticCellLinksTemplate
   vtkStaticEdgeLocatorTemplate
+  vtkStaticElementLocator
   vtkStaticFaceHashLinksTemplate)
 
 set(nowrap_classes
