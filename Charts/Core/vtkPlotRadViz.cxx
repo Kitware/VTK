@@ -350,6 +350,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
       this->ComputeGBC->SetInputArrayToProcess(array->GetName(), association);
     }
     ComputeAutoLabels();
+    this->UpdateCenterAndRadius(painter);
 
     this->ComputeGBC->SetStoreGBC(true);
     this->ComputeGBC->SetStoreVertices(true);
@@ -648,25 +649,6 @@ void vtkPlotRadViz::SetDimensions(int arg1, int arg2, int arg3, int arg4)
     this->Dimensions[1] = arg2;
     this->Dimensions[2] = arg3;
     this->Dimensions[3] = arg4;
-    double oldCenter[2] = { this->Internals->Center[0], this->Internals->Center[1] };
-    double oldRadius = this->Internals->Radius;
-    this->Internals->SetCenterAndRadius(this->Dimensions);
-    if (oldRadius > 0)
-    {
-      // keep the lens position and size relative to the plot circle
-      double scale = this->Internals->Radius / oldRadius;
-      this->LensCenter[0] =
-        this->Internals->Center[0] + (this->LensCenter[0] - oldCenter[0]) * scale;
-      this->LensCenter[1] =
-        this->Internals->Center[1] + (this->LensCenter[1] - oldCenter[1]) * scale;
-      this->LensRadius *= scale;
-    }
-    else
-    {
-      std::copy(this->Internals->Center, this->Internals->Center + 2, this->LensCenter);
-      this->LensRadius = this->Internals->Radius;
-    }
-
     this->Modified();
   }
 }
@@ -674,6 +656,49 @@ void vtkPlotRadViz::SetDimensions(int arg1, int arg2, int arg3, int arg4)
 void vtkPlotRadViz::SetDimensions(const int arg[4])
 {
   this->SetDimensions(arg[0], arg[1], arg[2], arg[3]);
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::UpdateCenterAndRadius(vtkContext2D* painter)
+{
+  painter->ApplyTextProp(this->LabelsProperties);
+  double marginX = 0.0;
+  double marginY = 0.0;
+  vtkIdType numberOfLabels = this->GetNumberOfLabels();
+  for (vtkIdType i = 0; i < numberOfLabels; ++i)
+  {
+    float bounds[4];
+    painter->ComputeStringBounds(this->GetLabel(i), bounds);
+    marginX = std::max(marginX, static_cast<double>(bounds[2]));
+    marginY = std::max(marginY, static_cast<double>(bounds[3]));
+  }
+  double shift = (this->VerticesPen->GetWidth() / 2) * 1.2;
+  marginX += shift;
+  marginY += shift;
+
+  int marginXi = static_cast<int>(std::lround(marginX));
+  int marginYi = static_cast<int>(std::lround(marginY));
+
+  int dimensions[4] = { this->Dimensions[0] + marginXi, this->Dimensions[1] + marginYi,
+    std::max(this->Dimensions[2] - 2 * marginXi, 0),
+    std::max(this->Dimensions[3] - 2 * marginYi, 0) };
+
+  double oldCenter[2] = { this->Internals->Center[0], this->Internals->Center[1] };
+  double oldRadius = this->Internals->Radius;
+  this->Internals->SetCenterAndRadius(dimensions);
+  if (oldRadius > 0)
+  {
+    // keep the lens position and size relative to the plot circle
+    double scale = this->Internals->Radius / oldRadius;
+    this->LensCenter[0] = this->Internals->Center[0] + (this->LensCenter[0] - oldCenter[0]) * scale;
+    this->LensCenter[1] = this->Internals->Center[1] + (this->LensCenter[1] - oldCenter[1]) * scale;
+    this->LensRadius *= scale;
+  }
+  else
+  {
+    std::copy(this->Internals->Center, this->Internals->Center + 2, this->LensCenter);
+    this->LensRadius = this->Internals->Radius;
+  }
 }
 
 //------------------------------------------------------------------------------

@@ -154,6 +154,10 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
 vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestRadVizChartTableHideTwoColumns,TestRadVizChartTable.cxx 2
 )
+# narrow window
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartTableNarrow,TestRadVizChartTable.cxx 3
+)
 
 
 vtk_add_test_cxx(vtkChartsCoreCxxTests tests

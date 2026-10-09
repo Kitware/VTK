@@ -21,6 +21,7 @@ enum TestType
   ALL_COLUMNS,
   HIDE_COLUMN,
   HIDE_TWO_COLUMNS,
+  ALL_COLUMNS_NARROW,
 };
 
 //------------------------------------------------------------------------------
@@ -53,8 +54,12 @@ int TestRadVizChartTable(int argc, char* argv[])
   plot->SetInputData(table);
 
   chart->SetShowLegend(false);
-  if (testType == ALL_COLUMNS)
+  if (testType == ALL_COLUMNS || testType == ALL_COLUMNS_NARROW)
   {
+    if (testType == ALL_COLUMNS_NARROW)
+    {
+      view->GetRenderWindow()->SetSize(350, 600);
+    }
     plot->SetPartitionIndices({ 0, 1, 2, 3 });
     plot->SetPartitionOffsets({ 1, 3, 4 });
   }

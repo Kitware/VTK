@@ -334,6 +334,15 @@ protected:
   void DrawLabels(vtkContext2D* painter, vtkDataArray* vertices, vtkPen* pen);
   void DrawLens(vtkContext2D* painter);
   void ComputeAutoLabels();
+  /**
+   * Recomputes the plot circle's center and radius from Dimensions,
+   * shrinking the radius so that there is enough room around the circle
+   * for the vertex labels (measured using LabelsProperties and painter)
+   * to fit within Dimensions without being clipped. This keeps the lens
+   * position and size proportional to the plot circle when the radius
+   * changes.
+   */
+  void UpdateCenterAndRadius(vtkContext2D* painter);
   vtkSmartPointer<vtkPoints2D> TransformPoints(vtkDataArray* points);
   vtkSmartPointer<vtkUnsignedCharArray> TransformColors(vtkDataArray* rgba);
   /**

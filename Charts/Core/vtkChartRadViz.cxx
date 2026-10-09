@@ -99,11 +99,8 @@ bool vtkChartRadViz::Paint(vtkContext2D* painter)
     this->SetSize(vtkRectf(0.0, 0.0, geometry[0], geometry[1]));
   }
 
-  vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
-  const int BORDER_SIZE = 20;
   const int TITLE_SPACE = 5;
-  this->SetBorders(BORDER_SIZE * tileScale.GetX(), BORDER_SIZE * tileScale.GetY(),
-    BORDER_SIZE * tileScale.GetX(), BORDER_SIZE * tileScale.GetY());
+  this->SetBorders(0, 0, 0, 0);
 
   int titleSize = 0;
   if (!this->Title.empty())
@@ -111,19 +108,17 @@ bool vtkChartRadViz::Paint(vtkContext2D* painter)
     int fontSize = this->TitleProperties->GetFontSize();
     titleSize = fontSize + TITLE_SPACE;
     vtkPoints2D* rect = vtkPoints2D::New();
-    rect->InsertNextPoint(this->Point1[0], this->Point2[1]);
+    rect->InsertNextPoint(this->Point1[0], this->Point2[1] - titleSize);
     rect->InsertNextPoint(this->Point2[0] - this->Point1[0], fontSize);
     painter->ApplyTextProp(this->TitleProperties);
     painter->DrawStringRect(rect, this->Title);
     rect->Delete();
   }
 
-  // Set the dimensions of the Plot
   if (this->Internals->Plot)
   {
-    this->Internals->Plot->SetDimensions(this->Size.GetX() + BORDER_SIZE,
-      this->Size.GetY() + BORDER_SIZE, this->Geometry[0] - 2 * BORDER_SIZE,
-      this->Geometry[1] - 2 * BORDER_SIZE - titleSize);
+    this->Internals->Plot->SetDimensions(
+      this->Size.GetX(), this->Size.GetY(), this->Geometry[0], this->Geometry[1] - titleSize);
     this->Internals->Plot->Paint(painter);
   }
 
