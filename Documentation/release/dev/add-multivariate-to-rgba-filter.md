@@ -25,3 +25,13 @@ components. For example, in three-component data, both (0.1, 0.1,
 color but the second point will be 4 times more opaque.
 
 vtkChartRadViz handles the interaction for vtkPlotRadViz
+
+![RadViz chart of a vtkDataSet with four components: Ce, Co, Fe, Gd](RadVizChartDataSet.png)
+
+*RadViz chart of a vtkDataSet: the four-component (Ce, Co, Fe, Gd)
+point scalars of the MIEC dataset, drawn over the color wheel.*
+
+![RadViz chart of a vtkTable with four columns: sine, cosine, x, tangent](RadVizChartTable.png)
+
+*RadViz chart of a vtkTable: the columns sine, cosine, x and tangent
+are the vertices on the circle and each row is a point.*
