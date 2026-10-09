@@ -750,6 +750,7 @@ Rendering/OpenGL2/vtkOpenGLRenderPass.h
 Rendering/OpenGL2/vtkOpenGLRenderWindow.h
 Rendering/OpenGL2/vtkOpenGLShaderProperty.h
 Rendering/OpenGL2/vtkOpenGLSkybox.h
+Rendering/OpenGL2/vtkOpenGLSphereMapper.h
 Rendering/OpenGL2/vtkOpenGLTextActor.h
 Rendering/OpenGL2/vtkOpenGLTextActor3D.h
 Rendering/OpenGL2/vtkOpenGLTexture.h

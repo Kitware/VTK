@@ -200,31 +200,31 @@ protected:
   void DeleteTextureBuffers();
   virtual bool BindArraysToTextureBuffers(vtkRenderer* renderer, vtkActor* actor,
     vtkCellGraphicsPrimitiveMap::CellTypeMapperOffsets& offsets);
-  void InstallArrayTextureShaderDeclarations();
+  virtual void InstallArrayTextureShaderDeclarations();
   virtual void UpdateShaders(vtkRenderer* renderer, vtkActor* actor);
-  void ReplaceShaderValues(
+  virtual void ReplaceShaderValues(
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
-  void ReplaceShaderPosition(
+  virtual void ReplaceShaderPosition(
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
-  void ReplaceShaderNormal(
+  virtual void ReplaceShaderNormal(
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
   virtual void ReplaceShaderColor(
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
-  void ReplaceShaderImplementationCustomUniforms(
+  virtual void ReplaceShaderImplementationCustomUniforms(
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
-  void ReplaceShaderPointSize(
+  virtual void ReplaceShaderPointSize(
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
-  void ReplaceShaderWideLines(
+  virtual void ReplaceShaderWideLines(
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
-  void ReplaceShaderEdges(
+  virtual void ReplaceShaderEdges(
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
-  void ReplaceShaderSelection(
+  virtual void ReplaceShaderSelection(
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
-  void ReplaceShaderTCoord(
+  virtual void ReplaceShaderTCoord(
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
-  void ReplaceShaderClip(
+  virtual void ReplaceShaderClip(
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
-  void SetShaderParameters(vtkRenderer* renderer, vtkActor* actor);
+  virtual void SetShaderParameters(vtkRenderer* renderer, vtkActor* actor);
   // compute and set the maximum point and cell ID used in selection
   void UpdateMaximumPointCellIds(vtkRenderer* ren, vtkActor* actor);
 
@@ -325,6 +325,11 @@ protected:
 
   /// Hybrid surface/expansion dispatch switch. See the public accessors.
   bool UseIndexedRendering = true;
+  /// When true, the vertices agent draws each vertex as an instanced 4-vertex triangle strip
+  /// (a quad) instead of a GL point. The vertex shader exposes the corner of the quad as
+  /// `quadCoord` in [-1, 1]^2. A subclass that enables this must place the corners by
+  /// substituting `//VTK::PositionVC::Impl` before calling ReplaceShaderPosition.
+  bool DrawPointsAsQuads = false;
   bool DrawingVertices = false;
   bool HasColors = false;
   bool HasTangents = false;

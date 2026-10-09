@@ -1306,7 +1306,25 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderPosition(
   int primitiveId = 0;
   int cellId = 0;
   int vertexId = 0;
+  vec2 quadCoord = vec2(0.0);
   // compute primitive id and vertex id
+)";
+  if (this->DrawPointsAsQuads)
+  {
+    oss << R"(
+  if (cellType == 1) // VTK_VERTEX drawn as one instanced 4-vertex triangle strip per vertex.
+  {
+    // gl_InstanceID selects the vertex, (gl_VertexID - vertexIdOffset) selects the strip corner.
+    vertexId = gl_InstanceID;
+    primitiveId = vertexId;
+    pointId = texelFetchBuffer(vertexIdBuffer, vertexId + vertexIdOffset).x + pointIdOffset;
+    int quadCorner = gl_VertexID - vertexIdOffset;
+    // corners 0, 1, 2, 3 -> (-1, -1), (1, -1), (-1, 1), (1, 1). counter-clockwise triangles.
+    quadCoord = vec2(float(quadCorner & 1), float(quadCorner >> 1)) * 2.0 - 1.0;
+  }
+  else )";
+  }
+  oss << R"(
   if (cellType == 1) // VTK_VERTEX
   {
     vertexId = gl_VertexID - vertexIdOffset;

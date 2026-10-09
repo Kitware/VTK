@@ -45,6 +45,9 @@ protected:
   bool InVertexVisibilityPass = false;
   mutable int NumberOfPseudoPrimitivesPerElement =
     1; // Used to track how many pseudo primitives are used for each element type.
+  // When true, each element is drawn as one instance of a 4-vertex triangle strip (a quad).
+  // Set by PreDrawInternal.
+  mutable bool DrawElementsAsInstancedQuads = false;
 };
 
 VTK_ABI_NAMESPACE_END

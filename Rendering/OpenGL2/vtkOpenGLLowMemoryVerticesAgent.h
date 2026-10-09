@@ -3,6 +3,10 @@
 /**
  * @class   vtkOpenGLLowMemoryVerticesAgent
  * @brief   Maps VTK_VERTEX and VTK_POLY_VERTEX into GL_POINTS and draws GL_POINTS.
+ *
+ * When the mapper's DrawPointsAsQuads is true, each vertex is instead drawn as one
+ * instance of a 4-vertex GL_TRIANGLE_STRIP, i.e, a quad that the mapper's vertex shader
+ * places around the point.
  */
 
 #ifndef vtkOpenGLLowMemoryVerticesAgent_h
