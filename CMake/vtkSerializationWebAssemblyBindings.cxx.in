@@ -10,6 +10,11 @@
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
+#include <emscripten/val.h>
+#include <emscripten/heap.h>
+
+#include <malloc.h>
+#include <unistd.h>
 
 #include "vtkABINamespace.h"
 #include "vtkLogger.h"
@@ -124,11 +129,39 @@ vtkRemoteSession* makeRemoteSession()
   RemovePlatformUnsuitableConstructors(remoteSession->Session);
   return remoteSession;
 }
+
+val getMemoryUsageStatistics()
+{
+  struct mallinfo memInfo = mallinfo();
+  const std::size_t totalMemory = emscripten_get_heap_size();
+  const std::size_t maxMemory = emscripten_get_heap_max();
+  const std::size_t dynamicTop = (std::size_t)sbrk(0);
+  // freeMemory = unclaimed region above heap top + memory previously requested and freed in heap
+  const std::size_t freeMemory = totalMemory - dynamicTop + memInfo.fordblks;
+  // pack those values in a JS object.
+  val stats = val::object();
+  // cast to double to avoid bigint->number gymnastics under wasm64.
+  stats.set("free", static_cast<double>(freeMemory));
+  stats.set("max", static_cast<double>(maxMemory));
+  stats.set("total", static_cast<double>(totalMemory));
+  stats.set("used", static_cast<double>(totalMemory - freeMemory));
+  return stats;
+}
 }
 
 /// Javascript bindings to the webassembly sessions.
 EMSCRIPTEN_BINDINGS(bindings)
 {
+  /**
+   * Get the memory usage statistics object. All values are in bytes.
+   *
+   * - free  : available for future allocations
+   * - max   : the memory can grow to this size when -sALLOW_MEMORY_GROWTH=1 (VTK turns this on by default.)
+   * - total : free + used
+   * - used  : memory currently held by allocated objects, static data and stack.
+   *
+   */
+  function("getMemoryUsageStatistics", &getMemoryUsageStatistics);
   /**
    * Get the VTK version string.
    */
