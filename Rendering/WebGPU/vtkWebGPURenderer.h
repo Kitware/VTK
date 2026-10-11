@@ -34,6 +34,11 @@ public:
   vtkTypeMacro(vtkWebGPURenderer, vtkRenderer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  // get the complexity of the current lights as a int
+  // 0 = no lighting
+  // 1 = headlight
+  // 2 = directional lights
+  // 3 = positional lights
   enum LightingComplexityEnum
   {
     NoLighting = 0,
@@ -91,6 +96,7 @@ public:
    */
   void ConfigureComputePipelines();
 
+  /// @{
   /**
    * Returns the list of compute pipelines of this renderer that have been setup for execution
    * before/after the rendering pass
@@ -98,6 +104,7 @@ public:
   const std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>>& GetSetupPreRenderComputePipelines();
   const std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>>&
   GetSetupPostRenderComputePipelines();
+  /// @}
 
   int UpdateLights() override;
 
@@ -114,18 +121,21 @@ public:
     layouts.emplace_back(this->SceneBindGroupLayout);
   }
 
+  /// @{
   /**
    * Adds a compute pipeline to the renderer that will be executed each frame before/after the
    * rendering pass.
    */
   void AddPreRenderComputePipeline(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline);
   void AddPostRenderComputePipeline(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline);
+  /// @}
 
   /**
    * Returns the list of the actors that were rendered last frame
    */
   std::unordered_set<vtkProp*> GetPropsRendered() { return this->PropsRendered; }
 
+  ///@{
   /**
    * Set/Get the usage of render bundles. The default value is true.
    * Render bundles are a performance optimization that minimize CPU time when many
@@ -145,6 +155,7 @@ public:
   vtkSetMacro(UseRenderBundles, bool);
   vtkBooleanMacro(UseRenderBundles, bool);
   vtkGetMacro(UseRenderBundles, bool);
+  ///@}
 
   /**
    * Collect translucent fragments into a per-pixel deep framebuffer (an
@@ -259,12 +270,15 @@ protected:
 
 private:
   friend class vtkWebGPUComputeOcclusionCuller;
+  // For the mapper to access 'AddPostRasterizationActor'
   friend class vtkWebGPUComputePointCloudMapper;
+  // For render window accessing PostRenderComputePipelines()
   friend class vtkWebGPURenderWindow;
 
   vtkWebGPURenderer(const vtkWebGPURenderer&) = delete;
   void operator=(const vtkWebGPURenderer&) = delete;
 
+  // Setup scene and actor bindgroups. Actor has dynamic offsets.
   void SetupBindGroupLayouts();
   void CreateBuffers();
   void SetupSceneBindGroup();
@@ -280,6 +294,7 @@ private:
    */
   void InitComputePipeline(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline);
 
+  /// @{
   /**
    * Dispatches the compute pipelines attached to this renderer in the order they were added by
    * AddPreRenderComputePipeline() / AddPostRenderComputePipeline().
@@ -289,6 +304,7 @@ private:
    */
   void PreRenderComputePipelines();
   void PostRenderComputePipelines();
+  /// @}
 
   /**
    * Renders actors contained in the PostRasterizationActors vector after the pass that rasterizes
@@ -351,6 +367,9 @@ private:
   WGPURenderBundleEncoder WGPUBundleEncoder = nullptr;
   WGPUBuffer SceneTransformBuffer = nullptr;
   WGPUBuffer SceneLightsBuffer = nullptr;
+  // Holds the two gradient stop colors, the gradient mode and the dither flag
+  // for the background quad drawn by Clear(). Only allocated when a gradient
+  // background is requested.
   WGPUBuffer BackgroundGradientBuffer = nullptr;
 
   WGPUBindGroup SceneBindGroup = nullptr;
@@ -369,8 +388,10 @@ private:
 
   std::string DeepFramebufferResolveKey;
 
+  // Render bundles enable faster rendering.
   bool UseRenderBundles = true;
   bool RebuildRenderBundle = false;
+  // the commands in bundle get reused every frame.
   WGPURenderBundle Bundle = nullptr;
 
   int LightingComplexity = 0;
@@ -457,6 +478,7 @@ private:
    */
   void WarnIfCullingWithRenderBundles();
 
+  /// The vtkFrustumCoverageCuller that vtkRenderer's constructor installs. Not owned.
   vtkWeakPtr<vtkCuller> DefaultCuller;
   bool WarnedAboutCullingWithRenderBundles = false;
 };

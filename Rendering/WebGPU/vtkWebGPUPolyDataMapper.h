@@ -67,18 +67,26 @@ public:
    */
   enum GraphicsPipelineType : int
   {
+    // Pipeline that renders points, is best suitable for rendering 1-pixel wide points.
     GFX_PIPELINE_POINTS = 0,
     GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE,
+    // Pipeline that renders points using a square or circle shape.
     GFX_PIPELINE_POINTS_SHAPED,
     GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE,
+    // Pipeline that is best suitable for rendering 1-pixel thick line segments
     GFX_PIPELINE_LINES,
     GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE,
+    // Pipeline that can render lines thicker than 1-pixel. This pipeline does not
+    // create joining geometry between contiguous line segments in a polyline.
     GFX_PIPELINE_LINES_THICK,
     GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE,
+    // Pipeline that renders lines with rounded caps and rounded joins.
     GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN,
     GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE,
+    // Pipeline that renders lines with miter joins.
     GFX_PIPELINE_LINES_MITER_JOIN,
     GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE,
+    // Pipeline that renders triangles
     GFX_PIPELINE_TRIANGLES,
     GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE,
     GFX_PIPELINE_NB_TYPES
@@ -459,31 +467,52 @@ protected:
   } ClippingPlanesData;
   WGPUBuffer ClippingPlanesBuffer = nullptr;
 
+  ///@{ Timestamps help reuse previous resources as much as possible.
   vtkTimeStamp CellAttributesBuildTimestamp[CELL_NB_ATTRIBUTES];
   vtkTimeStamp PointAttributesBuildTimestamp[POINT_NB_ATTRIBUTES];
   vtkTimeStamp ClippingPlanesBuildTimestamp;
+  ///@}
 
   bool HasPointAttributes[POINT_NB_ATTRIBUTES];
   bool HasCellAttributes[CELL_NB_ATTRIBUTES];
   bool RebuildGraphicsPipelines = true;
   bool SelectingPoints = false;
   bool BuildingPointSelectionDepthPass = false;
+  // used by RenderPiece and functions it calls to reduce
+  // calls to get the input and allow for rendering of
+  // other polydata when this mapper is run in batch mode
   vtkPolyData* CurrentInput = nullptr;
+  // vtkRenderer culls props to frustum. At that point, it requests
+  // mappers for bounds of the geometry. We cache the vtkAlgorithm output
+  // so that `UpdateMeshGeometryBuffers` can reuse it without climbing up
+  // vtkAlgorithm pipeline.
   vtkPolyData* CachedInput = nullptr;
   vtkSmartPointer<vtkWebGPUTexture> ColorTextureHostResource;
 
+  // 1 bind group for this polydata's `vtkPoints`, `vtkPointData` and `vtkCellData`
   WGPUBindGroup MeshAttributeBindGroup = nullptr;
   std::vector<std::uint32_t> MeshAttributeDynamicOffsets;
 
   struct TopologyBindGroupInfo
   {
+    // buffer for point ids.
     WGPUBuffer ConnectivityBuffer = nullptr;
+    // buffer for the cell ids.
     WGPUBuffer CellIdBuffer = nullptr;
+    // buffer for edge array. this lets fragment shader hide internal edges of a polygon
+    // when edge visibility is turned on.
     WGPUBuffer EdgeArrayBuffer = nullptr;
+    // uniform buffer for cell id offset.
     WGPUBuffer CellIdOffsetUniformBuffer = nullptr;
+    // bind group for connectivity and cell_id_offset when the cell size is homogeneous,
+    // otherwise for connectivity, cell_ids and, when edges are drawn, edge_array.
     WGPUBindGroup BindGroup = nullptr;
+    // maximum number of vertices in a cell
     vtkTypeUInt32 MaxCellSize = 0;
+    // vertexCount for draw call.
     vtkTypeUInt32 VertexCount = 0;
+    // composite vertex offset and counts for drawing composite data, used instead of the
+    // `VertexCount` above
     std::vector<std::pair<vtkTypeUInt32, vtkTypeUInt32>> VertexOffsetAndCounts;
   };
 
@@ -493,6 +522,9 @@ protected:
     GROUP_ACTOR = 1,
     GROUP_TEXTURES = GROUP_ACTOR,
     GROUP_MESH = 2,
+    // Clipping planes are bound to the same group as the mesh attributes
+    // because they vary based on the mapper's shift/scale and the actor's
+    // transformation matrix.
     GROUP_CLIPPING_PLANES = GROUP_MESH,
     GROUP_TOPOLOGY = 3,
     GROUP_NB_BINDGROUPS = 4
@@ -649,6 +681,8 @@ private:
     CellDataAttributes::CELL_COLORS, CellDataAttributes::CELL_NORMALS
   };
 
+  // Cache these so that subsequent executions of UpdateMeshGeometryBuffers() do not unnecessarily
+  // invoke MapScalars().
   int LastScalarMode = -1;
   bool LastScalarVisibility = false;
   vtkTypeUInt32 LastNumClipPlanes = 0;
