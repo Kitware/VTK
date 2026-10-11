@@ -30,6 +30,8 @@
 #include "vtkUnstructuredGridCellIterator.h"
 
 #include <algorithm>
+#include <array>
+#include <cassert>
 #include <set>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -469,7 +471,8 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(int type, vtkIdList* ptIds
     this->Polyhedra->InsertEmptyCells(1);
   }
 
-  // insert cell type
+  // The distinct cell types are found again, see UpdateDistinctCellTypes().
+  this->DistinctCellTypesUpdateMTime = 0;
   double val = static_cast<double>(type);
   return this->Types->InsertNextTuple(&val);
 }
@@ -511,6 +514,8 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(
       this->Polyhedra->GetFaces(), this->Polyhedra->GetFaceLocations());
   }
 
+  // The distinct cell types are found again, see UpdateDistinctCellTypes().
+  this->DistinctCellTypesUpdateMTime = 0;
   double val = static_cast<double>(type);
   return this->Types->InsertNextTuple(&val);
 }
@@ -538,6 +543,8 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(
   }
   this->Polyhedra->InsertNextCell(nfaces, faces);
 
+  // The distinct cell types are found again, see UpdateDistinctCellTypes().
+  this->DistinctCellTypesUpdateMTime = 0;
   double val = static_cast<double>(type);
   return this->Types->InsertNextTuple(&val);
 }
@@ -565,6 +572,8 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(
   }
   this->Polyhedra->InsertNextCell(faces);
 
+  // The distinct cell types are found again, see UpdateDistinctCellTypes().
+  this->DistinctCellTypesUpdateMTime = 0;
   double val = static_cast<double>(type);
   return this->Types->InsertNextTuple(&val);
 }
@@ -822,50 +831,108 @@ void vtkUnstructuredGrid::GetCellEdgePointsFromCellPoints(vtkIdType cellId, int 
 }
 
 //------------------------------------------------------------------------------
+namespace
+{
+// Mark the distinct cell types of the cells in thread local arrays, reading the types through
+// their array rather than with one virtual GetCellType() call per cell, see
+// vtkDataSet::GetDistinctCellTypes().
+template <class TypesArrayT>
+struct DistinctCellTypesFunctor
+{
+  TypesArrayT* Types;
+  std::array<bool, VTK_NUMBER_OF_CELL_TYPES> DistinctCellTypes{};
+  vtkSMPThreadLocal<std::array<bool, VTK_NUMBER_OF_CELL_TYPES>> LocalDistinctCellTypes;
+
+  DistinctCellTypesFunctor(TypesArrayT* types)
+    : Types(types)
+  {
+  }
+
+  void Initialize() { this->LocalDistinctCellTypes.Local().fill(false); }
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    auto& localDistinctCellTypes = this->LocalDistinctCellTypes.Local();
+    for (const auto type : vtk::DataArrayValueRange<1>(this->Types, begin, end))
+    {
+      const auto cellType = static_cast<unsigned char>(type);
+      assert(cellType < VTK_NUMBER_OF_CELL_TYPES);
+      localDistinctCellTypes[cellType] = true;
+    }
+  }
+
+  void Reduce()
+  {
+    for (const auto& localDistinctCellTypes : this->LocalDistinctCellTypes)
+    {
+      for (int cellType = 0; cellType < VTK_NUMBER_OF_CELL_TYPES; ++cellType)
+      {
+        this->DistinctCellTypes[cellType] |= localDistinctCellTypes[cellType];
+      }
+    }
+  }
+};
+
+// Insert the distinct cell types of the cells into distinctTypes, in increasing order.
+struct DistinctCellTypesWorker
+{
+  template <class TypesArrayT>
+  void operator()(TypesArrayT* types, vtkCellTypes* distinctTypes) const
+  {
+    DistinctCellTypesFunctor<TypesArrayT> functor(types);
+    vtkSMPTools::For(0, types->GetNumberOfValues(), functor);
+    for (int cellType = 0; cellType < VTK_NUMBER_OF_CELL_TYPES; ++cellType)
+    {
+      if (functor.DistinctCellTypes[cellType])
+      {
+        distinctTypes->InsertNextType(static_cast<unsigned char>(cellType));
+      }
+    }
+  }
+};
+} // anonymous namespace
+
+//------------------------------------------------------------------------------
+void vtkUnstructuredGrid::UpdateDistinctCellTypes()
+{
+  const vtkMTimeType typesMTime = this->Types ? this->Types->GetMTime() : 0;
+  if (this->DistinctCellTypes && typesMTime <= this->DistinctCellTypesUpdateMTime)
+  {
+    return;
+  }
+
+  if (!this->DistinctCellTypes)
+  {
+    this->DistinctCellTypes = vtkSmartPointer<vtkCellTypes>::New();
+  }
+  this->DistinctCellTypes->Reset();
+  if (auto constantTypes = vtkConstantArray<unsigned char>::FastDownCast(this->Types))
+  {
+    this->DistinctCellTypes->InsertNextType(constantTypes->GetConstantValue());
+  }
+  else if (this->Types)
+  {
+    DistinctCellTypesWorker worker;
+    using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkTypeList::Create<unsigned char>>;
+    if (!Dispatcher::Execute(this->Types, worker, this->DistinctCellTypes))
+    {
+      worker(this->Types.Get(), this->DistinctCellTypes);
+    }
+  }
+  this->DistinctCellTypesUpdateMTime = typesMTime;
+}
+
+//------------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetDistinctCellTypes(vtkCellTypes* types)
 {
-  this->GetDistinctCellTypesArray();
+  this->UpdateDistinctCellTypes();
   types->DeepCopy(this->DistinctCellTypes);
 }
 
 //------------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkUnstructuredGrid::GetDistinctCellTypesArray()
 {
-  if (this->Types == nullptr)
-  {
-    if (this->DistinctCellTypes == nullptr)
-    {
-      this->DistinctCellTypes = vtkSmartPointer<vtkCellTypes>::New();
-    }
-    return this->DistinctCellTypes->GetCellTypesArray();
-  }
-
-  if (this->DistinctCellTypes == nullptr ||
-    this->Types->GetMTime() > this->DistinctCellTypesUpdateMTime)
-  {
-    if (this->DistinctCellTypes)
-    {
-      this->DistinctCellTypes->Reset();
-    }
-    else
-    {
-      this->DistinctCellTypes = vtkSmartPointer<vtkCellTypes>::New();
-      this->DistinctCellTypes->Register(this);
-      this->DistinctCellTypes->Delete();
-    }
-    if (auto constantTypes = vtkConstantArray<unsigned char>::FastDownCast(this->GetCellTypes()))
-    {
-      this->DistinctCellTypes->Reset();
-      this->DistinctCellTypes->InsertNextType(constantTypes->GetValue(0));
-    }
-    else
-    {
-      vtkDataSet::GetDistinctCellTypes(this->DistinctCellTypes);
-    }
-
-    this->DistinctCellTypesUpdateMTime = this->Types->GetMTime();
-  }
-
+  this->UpdateDistinctCellTypes();
   return this->DistinctCellTypes->GetCellTypesArray();
 }
 

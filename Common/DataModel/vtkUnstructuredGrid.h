@@ -590,6 +590,10 @@ protected:
   vtkSmartPointer<vtkAbstractCellLinks> Links;
   vtkSmartPointer<vtkDataArray> Types;
 
+  // Recompute DistinctCellTypes if the Types array was modified since the last time, see
+  // GetDistinctCellTypes() and GetDistinctCellTypesArray().
+  void UpdateDistinctCellTypes();
+
   // Set of all cell types present in the grid. All entries are unique.
   vtkSmartPointer<vtkCellTypes> DistinctCellTypes;
 
