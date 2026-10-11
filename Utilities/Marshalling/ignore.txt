@@ -451,6 +451,7 @@ Common/DataModel/vtkUniformGridAMR.h
 Common/DataModel/vtkUniformGridAMRIterator.h
 Common/DataModel/vtkUniformHyperTreeGrid.h
 Common/DataModel/vtkUnstructuredGridCellIterator.h
+Common/DataModel/vtkUnstructuredGridSides.h
 Common/DataModel/vtkVector.h
 Common/DataModel/vtkVertex.h
 Common/DataModel/vtkVertexListIterator.h
