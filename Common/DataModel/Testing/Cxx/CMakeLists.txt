@@ -137,6 +137,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestStaticCellLinks.cxx
   TestStaticElementLocator.cxx
   TestStructuredData.cxx
+  TestUnstructuredGridSides.cxx
   TestDataObjectTypes.cxx
   TestPolyDataRemoveDeletedCells.cxx
   UnitTestCells.cxx
