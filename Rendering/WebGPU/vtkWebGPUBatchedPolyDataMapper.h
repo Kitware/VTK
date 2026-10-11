@@ -174,6 +174,7 @@ private:
     vtkTypeUInt32 CellIdOffsetForLines = 0;
     vtkTypeUInt32 CellIdOffsetForPolys = 0;
     vtkTypeUInt32 CellIdOffsetForSelector = 0;
+    vtkTypeUInt32 PointIdOffsetForSelector = 0;
   };
   struct StorageBuffer
   {
@@ -183,6 +184,7 @@ private:
   };
   StorageBuffer CompositeDataPropertyStorage;
   vtkTimeStamp ResourcesSyncTimeStamp;
+  bool SyncedForPointSelection = false;
 
   std::size_t CurrentDrawMeshId = 0; // 0 <= CurrentDrawMeshId < BatchSize
   std::uint32_t MinStorageBufferOffsetAlignment = 0;

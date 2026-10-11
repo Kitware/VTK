@@ -227,6 +227,7 @@ void vtkWebGPUPolyDataMapper2DInternals::ReplaceShaderVertexOutputDef(
   @location(0) color: vec4<f32>,
   @location(1) uv: vec2<f32>,
   @location(2) @interpolate(flat) cell_id: u32,
+  @location(3) @interpolate(flat) prop_id: u32,
 })",
       true);
   }
@@ -301,6 +302,7 @@ void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderMapper2DStateDef(std
   point_size: f32,
   line_width: f32,
   flags: u32,
+  prop_id: u32,
 })",
     true);
 }
@@ -617,8 +619,8 @@ void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderPositionImpl(
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderPickingImpl(std::string& vss)
 {
-  vtkWebGPURenderPipelineCache::Substitute(
-    vss, "//VTK::Picking::Impl", "output.cell_id = cell_id;", true);
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Picking::Impl",
+    "output.cell_id = cell_id;\n  output.prop_id = state.prop_id;", true);
 }
 
 //------------------------------------------------------------------------------
@@ -668,8 +670,8 @@ fn main(input: VertexOutput) -> FragmentOutput
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper2DInternals::ReplaceFragmentShaderPickingImpl(std::string& fss)
 {
-  vtkWebGPURenderPipelineCache::Substitute(
-    fss, "//VTK::Picking::Impl", "output.ids = vec4<u32>(input.cell_id, 0u, 0u, 0u);", true);
+  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Picking::Impl",
+    "output.ids = vec4<u32>(input.cell_id + 1u, input.prop_id + 1u, 1u, 1u);", true);
 }
 
 //------------------------------------------------------------------------------
@@ -864,6 +866,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
 
     this->State.Flags = (this->UseCellScalarMapping ? 1 : 0) << BIT_POSITION_USE_CELL_COLOR;
     this->State.Flags |= ((this->UsePointScalarMapping ? 1 : 0) << BIT_POSITION_USE_POINT_COLOR);
+    this->State.PropId = this->PropId;
     wgpuConfiguration->WriteBuffer(this->Mapper2DStateData.Buffer.Get(), 0, &(this->State),
       sizeof(Mapper2DState), "Mapper2DState");
   }
@@ -897,6 +900,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     }
     this->State.Flags = (this->UseCellScalarMapping ? 1 : 0);
     this->State.Flags |= ((this->UsePointScalarMapping ? 1 : 0) << 1);
+    this->State.PropId = this->PropId;
     wgpuConfiguration->WriteBuffer(this->Mapper2DStateData.Buffer.Get(), 0, &(this->State),
       sizeof(Mapper2DState), "Mapper2DState");
     vtkDataArray* pointPositions = input->GetPoints()->GetData();
@@ -1313,6 +1317,14 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     }
     // Invalidate render bundle because pipeline was recreated.
     wgpuRenderer->InvalidateBundle();
+  }
+
+  if (this->WrittenPropId != this->PropId && this->Mapper2DStateData.Buffer != nullptr)
+  {
+    this->State.PropId = this->PropId;
+    this->WrittenPropId = this->PropId;
+    wgpuConfiguration->WriteBuffer(this->Mapper2DStateData.Buffer.Get(), 0, &(this->State),
+      sizeof(Mapper2DState), "Mapper2DState");
   }
 }
 

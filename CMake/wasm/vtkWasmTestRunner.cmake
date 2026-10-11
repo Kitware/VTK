@@ -196,7 +196,9 @@ if (IS_EXECUTABLE "${TESTING_WASM_ENGINE}")
 
   set(EXIT_CODE 1)
   if (ENGINE_ERROR_OUTPUT)
-    extract_vtk_wasm_test_exit_code(${ENGINE_ERROR_OUTPUT} EXIT_CODE)
+    # Quoted: an unquoted expansion splits the output on every semicolon, so a
+    # test that prints one loses the exit code and is reported as a failure.
+    extract_vtk_wasm_test_exit_code("${ENGINE_ERROR_OUTPUT}" EXIT_CODE)
   endif()
 else ()
   message(FATAL_ERROR "TESTING_WASM_ENGINE: ${TESTING_WASM_ENGINE} is not an executable!")

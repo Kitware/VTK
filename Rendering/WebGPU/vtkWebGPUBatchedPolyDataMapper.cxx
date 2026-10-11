@@ -153,6 +153,7 @@ void vtkWebGPUBatchedPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor
   }
 
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
+  this->SelectingPoints = vtkWebGPUPolyDataMapper::IsSelectingPoints(wgpuRenderer);
   vtkLog(TRACE,
     "RenderPiece for actor: " << actor << " in renderer: " << renderer
                               << " in stage: " << static_cast<int>(wgpuRenderer->GetRenderStage()));
@@ -160,18 +161,25 @@ void vtkWebGPUBatchedPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor
   {
     case vtkWebGPURenderer::RenderStageEnum::SyncDeviceResources:
     {
-      if (this->GetMTime() > this->ResourcesSyncTimeStamp)
+      if (this->GetMTime() > this->ResourcesSyncTimeStamp ||
+        this->SyncedForPointSelection != this->SelectingPoints)
       {
         vtkLogScopeF(TRACE, "SyncDeviceResources");
         // See the override methods - UpdateMeshGeometryBuffers and UpdateMeshTopologyBuffers
         this->Superclass::RenderPiece(renderer, actor);
         this->ResourcesSyncTimeStamp.Modified();
+        this->SyncedForPointSelection = this->SelectingPoints;
       }
       break;
     }
     case vtkWebGPURenderer::RenderStageEnum::RecordingCommands:
     {
       vtkLogScopeF(TRACE, "RecordingCommands");
+      if (!vtkWebGPUPolyDataMapper::ShouldRecordDrawCommands(
+            wgpuRenderer, vtkWebGPUActor::SafeDownCast(actor)))
+      {
+        break;
+      }
       this->MeshAttributeDynamicOffsets.resize(1);
       if (wgpuRenderer->GetUseRenderBundles())
       {
@@ -322,6 +330,7 @@ void vtkWebGPUBatchedPolyDataMapper::UpdateMeshGeometryBuffers(
   }
   std::uint64_t iMesh = 0;
   vtkTypeUInt32 cellIdOffsetForSelector = 0;
+  vtkTypeUInt32 pointIdOffsetForSelector = 0;
   vtkTypeUInt32 cellIdOffsetForVerts = 0, cellIdOffsetForLines = 0, cellIdOffsetForPolys = 0;
   for (auto& iter : this->VTKPolyDataToBatchElement)
   {
@@ -412,6 +421,8 @@ void vtkWebGPUBatchedPolyDataMapper::UpdateMeshGeometryBuffers(
     properties.CellIdOffsetForPolys = cellIdOffsetForPolys;
     properties.CellIdOffsetForSelector = cellIdOffsetForSelector;
     cellIdOffsetForSelector += this->CurrentInput->GetNumberOfCells();
+    properties.PointIdOffsetForSelector = pointIdOffsetForSelector;
+    pointIdOffsetForSelector += this->CurrentInput->GetNumberOfPoints();
     wgpuConfiguration->WriteBuffer(this->CompositeDataPropertyStorage.Buffer,
       iMesh * this->CompositeDataPropertyStorage.BindingSize, &properties, sizeof(properties),
       "Write composite properties");
@@ -457,7 +468,7 @@ void vtkWebGPUBatchedPolyDataMapper::UpdateMeshTopologyBuffers(
     wgpuConfiguration, meshes, displayProperty->GetRepresentation(), vertexOffsetsAndCounts,
     connectivityBuffers, cellIdBuffers, edgeArrayBuffers);
   // Handle vertex visibility.
-  if (displayProperty->GetVertexVisibility() &&
+  if ((displayProperty->GetVertexVisibility() || this->SelectingPoints) &&
     // avoids dispatching the cell-to-vertex pipeline again.
     displayProperty->GetRepresentation() != VTK_POINTS)
   {
@@ -714,7 +725,8 @@ void vtkWebGPUBatchedPolyDataMapper::ReplaceShaderCustomDef(
   diffuse: vec3<f32>,
   cell_id_offset_for_lines: u32,
   cell_id_offset_for_polys: u32,
-  cell_id_offset_for_selector: u32
+  cell_id_offset_for_selector: u32,
+  point_id_offset_for_selector: u32
 };)";
   vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Custom::Def", code,
     /*all=*/false);
@@ -844,13 +856,18 @@ void vtkWebGPUBatchedPolyDataMapper::ReplaceFragmentShaderColors(GraphicsPipelin
 
 //------------------------------------------------------------------------------
 void vtkWebGPUBatchedPolyDataMapper::ReplaceFragmentShaderPicking(
-  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* wgpuRenderer,
   vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& fss)
 {
+  const std::string attributeId = vtkWebGPUPolyDataMapper::IsSelectingPoints(wgpuRenderer)
+    ? std::string("vertex.point_id + 1 - composite_data_properties.point_id_offset_for_selector")
+    : std::string("vertex.cell_id + 1 - composite_data_properties.cell_id_offset_for_selector");
   vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Picking::Impl",
     R"(if (composite_data_properties.pickable == 1u)
   {
-    output.ids.x = vertex.cell_id + 1 - composite_data_properties.cell_id_offset_for_selector;
+    output.ids.x = )" +
+      attributeId +
+      R"(;
     output.ids.y = vertex.prop_id + 1;
     output.ids.z = vertex.composite_id + 1;
     output.ids.w = vertex.process_id + 1;
