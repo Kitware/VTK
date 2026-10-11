@@ -4,7 +4,6 @@
 #include "vtkWebGPURenderPipelineCache.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
-#include "vtkStringFormatter.h"
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPURenderWindow.h"
 
@@ -17,9 +16,11 @@
 #include "vtksys/SystemTools.hxx"
 
 #include <chrono>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -159,6 +160,81 @@ WGPURenderPipeline vtkWebGPURenderPipelineCache::GetRenderPipeline(const std::st
   }
 }
 
+namespace
+{
+/**
+ * Serialize the fixed-function state that, together with the shader sources,
+ * defines a render pipeline. Two descriptors that differ in any of this need
+ * distinct cache entries, so all of it has to reach the key.
+ */
+std::string DescribePipelineState(const WGPURenderPipelineDescriptor* descriptor)
+{
+  std::ostringstream os;
+  os << 'L' << reinterpret_cast<std::uintptr_t>(descriptor->layout);
+
+  const auto& primitive = descriptor->primitive;
+  os << "|P" << primitive.topology << ',' << primitive.stripIndexFormat << ','
+     << primitive.frontFace << ',' << primitive.cullMode << ',' << primitive.unclippedDepth;
+
+  const auto& multisample = descriptor->multisample;
+  os << "|M" << multisample.count << ',' << multisample.mask << ','
+     << multisample.alphaToCoverageEnabled;
+
+  os << "|V" << descriptor->vertex.bufferCount;
+  for (std::size_t i = 0; i < descriptor->vertex.bufferCount; ++i)
+  {
+    const auto& buffer = descriptor->vertex.buffers[i];
+    os << ';' << buffer.arrayStride << ',' << buffer.stepMode << ',' << buffer.attributeCount;
+    for (std::size_t j = 0; j < buffer.attributeCount; ++j)
+    {
+      const auto& attribute = buffer.attributes[j];
+      os << ':' << attribute.format << ',' << attribute.offset << ',' << attribute.shaderLocation;
+    }
+  }
+
+  if (const auto* depthStencil = descriptor->depthStencil)
+  {
+    os << "|D" << depthStencil->format << ',' << depthStencil->depthWriteEnabled << ','
+       << depthStencil->depthCompare << ',' << depthStencil->stencilReadMask << ','
+       << depthStencil->stencilWriteMask << ',' << depthStencil->depthBias << ','
+       << depthStencil->depthBiasSlopeScale << ',' << depthStencil->depthBiasClamp << ','
+       << depthStencil->stencilFront.compare << ',' << depthStencil->stencilFront.failOp << ','
+       << depthStencil->stencilFront.depthFailOp << ',' << depthStencil->stencilFront.passOp << ','
+       << depthStencil->stencilBack.compare << ',' << depthStencil->stencilBack.failOp << ','
+       << depthStencil->stencilBack.depthFailOp << ',' << depthStencil->stencilBack.passOp;
+  }
+  else
+  {
+    os << "|D-";
+  }
+
+  if (const auto* fragment = descriptor->fragment)
+  {
+    os << "|F" << fragment->targetCount;
+    for (std::size_t i = 0; i < fragment->targetCount; ++i)
+    {
+      const auto& target = fragment->targets[i];
+      os << ';' << target.format << ',' << target.writeMask;
+      if (const auto* blend = target.blend)
+      {
+        os << ':' << blend->color.operation << ',' << blend->color.srcFactor << ','
+           << blend->color.dstFactor << ',' << blend->alpha.operation << ','
+           << blend->alpha.srcFactor << ',' << blend->alpha.dstFactor;
+      }
+      else
+      {
+        os << ":-";
+      }
+    }
+  }
+  else
+  {
+    os << "|F-";
+  }
+  return os.str();
+}
+}
+
 //------------------------------------------------------------------------------
 std::string vtkWebGPURenderPipelineCache::GetPipelineKey(
   WGPURenderPipelineDescriptor* descriptor, const char* shaderSource)
@@ -195,14 +271,12 @@ std::string vtkWebGPURenderPipelineCache::GetPipelineKey(WGPURenderPipelineDescr
     vtkErrorMacro(<< "Invalid fragment shader source: nullptr");
     return {};
   }
-  const auto cullModeStr = vtk::to_string(
-    static_cast<std::underlying_type<WGPUCullMode>::type>(descriptor->primitive.cullMode));
-  const auto topologyStr = vtk::to_string(
-    static_cast<std::underlying_type<WGPUPrimitiveTopology>::type>(descriptor->primitive.topology));
+  const auto stateStr = DescribePipelineState(descriptor);
   std::string hash;
-  this->Internals->ComputeMD5({ vertexShaderSource, fragmentShaderSource, cullModeStr, topologyStr,
-                                vtkWebGPUStringViewToStdString(descriptor->vertex.entryPoint),
-                                vtkWebGPUStringViewToStdString(descriptor->fragment->entryPoint) },
+  this->Internals->ComputeMD5(
+    { vertexShaderSource, fragmentShaderSource,
+      vtkWebGPUStringViewToStdString(descriptor->vertex.entryPoint),
+      vtkWebGPUStringViewToStdString(descriptor->fragment->entryPoint), stateStr },
     hash);
   return hash;
 }
