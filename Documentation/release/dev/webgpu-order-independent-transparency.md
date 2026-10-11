@@ -49,7 +49,7 @@ layer, as depth peeling does, would have been the more expensive option for the
 kind of layered scientific data this backend is aimed at.
 
 The resolve currently keeps the sixteen nearest fragments of a pixel, and the
-node pool is sized for an average of four layers per pixel. A deeper pixel
+node pool is sized for an average of eight layers per pixel. A deeper pixel
 loses its farthest layers, which are the ones most attenuated by everything in
 front of them; fragments past the end of the pool are dropped rather than
 written. Both limits are chosen by the renderer and are not yet configurable.
