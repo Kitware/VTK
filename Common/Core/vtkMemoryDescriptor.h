@@ -64,7 +64,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkType.h" // For vtkTypeInt64
+#include "vtkType.h" // For vtkTypeInt64, vtkTypeUInt64
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -87,11 +87,15 @@ public:
 
   ///@{
   /**
-   * The memory address as a 64-bit integer.
-   * Cast from a raw pointer: reinterpret_cast<vtkTypeInt64>(ptr).
+   * The memory address as an unsigned 64-bit integer.
+   * Cast from a raw pointer: reinterpret_cast<vtkTypeUInt64>(ptr).
+   *
+   * Unsigned because addresses are: device allocators hand out addresses in
+   * the upper half of the range (Level Zero USM on Intel GPUs, for one), and
+   * a signed parameter makes a wrapped caller's plain integer overflow.
    */
-  vtkSetMacro(Pointer, vtkTypeInt64);
-  vtkGetMacro(Pointer, vtkTypeInt64);
+  vtkSetMacro(Pointer, vtkTypeUInt64);
+  vtkGetMacro(Pointer, vtkTypeUInt64);
   ///@}
 
   ///@{
@@ -125,7 +129,7 @@ public:
   /**
    * Convenience: set the description in one call. Does not touch the release.
    */
-  void Set(vtkTypeInt64 pointer, vtkTypeInt64 sizeInBytes, const char* memorySpace,
+  void Set(vtkTypeUInt64 pointer, vtkTypeInt64 sizeInBytes, const char* memorySpace,
     const char* role = "data");
 
   ///@{
@@ -165,7 +169,7 @@ public:
    * The callback must outlive the descriptor: a ctypes callback object that
    * goes out of scope leaves this holding a dangling pointer.
    */
-  void SetReleaseAddress(vtkTypeInt64 release, vtkTypeInt64 context);
+  void SetReleaseAddress(vtkTypeUInt64 release, vtkTypeUInt64 context);
 
   ///@{
   /**
@@ -180,10 +184,10 @@ public:
    * The release callback and its context as integers, for wrapped callers.
    * Zero when none is held.
    */
-  vtkTypeInt64 GetReleaseAddress() const { return reinterpret_cast<vtkTypeInt64>(this->Release); }
-  vtkTypeInt64 GetReleaseContextAddress() const
+  vtkTypeUInt64 GetReleaseAddress() const { return reinterpret_cast<vtkTypeUInt64>(this->Release); }
+  vtkTypeUInt64 GetReleaseContextAddress() const
   {
-    return reinterpret_cast<vtkTypeInt64>(this->ReleaseContext);
+    return reinterpret_cast<vtkTypeUInt64>(this->ReleaseContext);
   }
   ///@}
 
@@ -209,7 +213,7 @@ protected:
   vtkMemoryDescriptor();
   ~vtkMemoryDescriptor() override;
 
-  vtkTypeInt64 Pointer = 0;
+  vtkTypeUInt64 Pointer = 0;
   vtkTypeInt64 SizeInBytes = 0;
   char* MemorySpace = nullptr;
   char* Role = nullptr;

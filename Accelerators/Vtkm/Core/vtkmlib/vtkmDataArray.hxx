@@ -877,24 +877,24 @@ vtkDataArray::MemorySpace vtkmDataArray<T>::GetMemorySpace()
 /// and says nothing about what will be done to it, and handing out a const
 /// pointer that a consumer then writes through would be worse than useless.
 template <typename ComponentType>
-inline vtkTypeInt64 vtkmDescribeBufferAddress(
+inline vtkTypeUInt64 vtkmDescribeBufferAddress(
   const viskores::cont::ArrayHandleBasic<ComponentType>& array, const char*& space)
 {
   auto& tracker = viskores::cont::GetRuntimeDeviceTracker();
   if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagCuda{}))
   {
     space = "cuda";
-    return reinterpret_cast<vtkTypeInt64>(
+    return reinterpret_cast<vtkTypeUInt64>(
       array.GetWritePointer(viskores::cont::DeviceAdapterTagCuda{}));
   }
   if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagKokkos{}))
   {
     space = "hip";
-    return reinterpret_cast<vtkTypeInt64>(
+    return reinterpret_cast<vtkTypeUInt64>(
       array.GetWritePointer(viskores::cont::DeviceAdapterTagKokkos{}));
   }
   space = "host";
-  return reinterpret_cast<vtkTypeInt64>(array.GetWritePointer());
+  return reinterpret_cast<vtkTypeUInt64>(array.GetWritePointer());
 }
 
 //------------------------------------------------------------------------------
@@ -924,7 +924,7 @@ vtkCollection* vtkmDataArray<T>::NewMemoryDescriptors()
   const vtkIdType numTuples = this->GetNumberOfTuples();
   const char* space = "host";
 
-  auto describe = [&](vtkTypeInt64 address, vtkTypeInt64 bytes, const char* role)
+  auto describe = [&](vtkTypeUInt64 address, vtkTypeInt64 bytes, const char* role)
   {
     auto* descriptor = vtkMemoryDescriptor::New();
     descriptor->Set(address, bytes, space, role);
@@ -941,7 +941,8 @@ vtkCollection* vtkmDataArray<T>::NewMemoryDescriptors()
   if (unknown.template CanConvert<decltype(interleaved)>())
   {
     unknown.AsArrayHandle(interleaved);
-    const vtkTypeInt64 address = vtkmDescribeBufferAddress(interleaved.GetComponentsArray(), space);
+    const vtkTypeUInt64 address =
+      vtkmDescribeBufferAddress(interleaved.GetComponentsArray(), space);
     if (address)
     {
       describe(address,
@@ -964,7 +965,7 @@ vtkCollection* vtkmDataArray<T>::NewMemoryDescriptors()
     unknown.AsArrayHandle(soa);
     for (viskores::IdComponent comp = 0; comp < numComponents; ++comp)
     {
-      const vtkTypeInt64 address = vtkmDescribeBufferAddress(soa.GetArray(comp), space);
+      const vtkTypeUInt64 address = vtkmDescribeBufferAddress(soa.GetArray(comp), space);
       if (!address)
       {
         // A component with no buffer makes the set incomplete, and a partial
@@ -1024,7 +1025,7 @@ vtkCollection* vtkmDataArray<T>::NewMemoryDescriptors()
         collection->RemoveAllItems();
         return collection;
       }
-      const vtkTypeInt64 address = vtkmDescribeBufferAddress(component.GetBasicArray(), space);
+      const vtkTypeUInt64 address = vtkmDescribeBufferAddress(component.GetBasicArray(), space);
       if (!address)
       {
         collection->RemoveAllItems();

@@ -125,7 +125,7 @@ ExternalHold* TakeHold(vtkMemoryDescriptor* descriptor)
 //------------------------------------------------------------------------------
 // Wrap an external pointer as a Viskores buffer that does not own its memory
 // but does hold the producer open.
-viskores::cont::internal::Buffer WrapPointer(vtkTypeInt64 pointer, vtkTypeInt64 sizeInBytes,
+viskores::cont::internal::Buffer WrapPointer(vtkTypeUInt64 pointer, vtkTypeInt64 sizeInBytes,
   viskores::cont::DeviceAdapterId device, ExternalHold* hold)
 {
   void* ptr = reinterpret_cast<void*>(pointer);

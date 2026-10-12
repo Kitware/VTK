@@ -508,7 +508,7 @@ vtkCollection* vtkSOADataArrayTemplate<ValueTypeT>::NewMemoryDescriptors()
 
     const std::string role = "component_" + std::to_string(comp);
     vtkMemoryDescriptor* descriptor = vtkMemoryDescriptor::New();
-    descriptor->Set(reinterpret_cast<vtkTypeInt64>(pointer),
+    descriptor->Set(reinterpret_cast<vtkTypeUInt64>(pointer),
       numTuples * static_cast<vtkTypeInt64>(sizeof(ValueType)), "host", role.c_str());
     // Hold this array open for as long as the descriptor lives.
     descriptor->SetOwner(this);
