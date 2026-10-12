@@ -85,7 +85,7 @@ public:
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    this->CheckAbort();
+    this->CheckAbortAndInvoke();
   }
 };
 vtkStandardNewMacro(vtkCustomRTAnalyticSource);
@@ -168,10 +168,9 @@ bool AbortExecutePipeline()
 
   ::UpdateAbort(clip, wavelet);
 
-  if (wavelet->AbortEventCounts != 1)
+  if (wavelet->AbortEventCounts == 0)
   {
-    vtkLog(
-      ERROR, << "Wavelet did not invoke expected abort check event: " << wavelet->AbortEventCounts);
+    vtkLog(ERROR, << "Wavelet did not invoke expected abort check event");
     return false;
   }
   if (wavelet->CleanupEventCounts != 1)
