@@ -873,6 +873,12 @@ vtkDataArray::MemorySpace vtkmDataArray<T>::GetMemorySpace()
 //-----------------------------------------------------------------------------
 /// Address of an ArrayHandleBasic's buffer, in whichever space it lives.
 ///
+/// Where the data *is*, not where it could be put. Asking Viskores for a
+/// device pointer to host-only data makes it allocate on the device and copy,
+/// and the address of that copy describes memory the array did not have
+/// until it was asked -- a description that changes what it describes. So
+/// the buffer is asked first whether it already lives on the device.
+///
 /// The write pointer, not the read one: a descriptor says where the memory is
 /// and says nothing about what will be done to it, and handing out a const
 /// pointer that a consumer then writes through would be worse than useless.
@@ -881,13 +887,16 @@ inline vtkTypeUInt64 vtkmDescribeBufferAddress(
   const viskores::cont::ArrayHandleBasic<ComponentType>& array, const char*& space)
 {
   auto& tracker = viskores::cont::GetRuntimeDeviceTracker();
-  if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagCuda{}))
+  const viskores::cont::internal::Buffer& buffer = array.GetBuffers()[0];
+  if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagCuda{}) &&
+    buffer.IsAllocatedOnDevice(viskores::cont::DeviceAdapterTagCuda{}))
   {
     space = "cuda";
     return reinterpret_cast<vtkTypeUInt64>(
       array.GetWritePointer(viskores::cont::DeviceAdapterTagCuda{}));
   }
-  if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagKokkos{}))
+  if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagKokkos{}) &&
+    buffer.IsAllocatedOnDevice(viskores::cont::DeviceAdapterTagKokkos{}))
   {
     space = "hip";
     return reinterpret_cast<vtkTypeUInt64>(
