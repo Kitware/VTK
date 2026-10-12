@@ -92,6 +92,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestPolyhedron0.cxx
   TestPolyhedron1.cxx
   TestPolyhedron3.cxx
+  TestPolyhedronCellArray.cxx
   TestPolyhedronCombinatorialContouring.cxx
   TestPolyhedronConvexity.cxx
   TestPolyhedronConvexityMultipleCells.cxx
