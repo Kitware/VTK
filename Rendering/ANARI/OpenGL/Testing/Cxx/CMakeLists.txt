@@ -20,6 +20,16 @@ foreach(name IN LISTS test_names)
   )
 endforeach()
 
+# Switching ANARI libraries only has to avoid crashing, so there is no baseline.
+vtk_add_test_cxx(vtkRenderingAnariOpenGLCxxTests tests
+  TestAnariLibrarySwitch.cxx,NO_VALID,NO_SERDES)
+
+set_tests_properties(VTK::RenderingAnariOpenGLCxx-TestAnariLibrarySwitch
+  PROPERTIES
+  ENVIRONMENT "VTK_FACTORY_PREFER=SupportRenderPass=true"
+  TIMEOUT 300
+)
+
 vtk_test_cxx_executable(vtkRenderingAnariOpenGLCxxTests tests
   RENDERING_FACTORY
   DISABLE_FLOATING_POINT_EXCEPTIONS

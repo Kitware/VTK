@@ -33,6 +33,7 @@
 #include "vtkRenderer.h"
 #include "vtkStringFormatter.h"
 #include "vtkTexture.h"
+#include "vtkWeakPointer.h"
 
 #include <cmath>
 #include <vector>
@@ -88,6 +89,11 @@ public:
   std::vector<anari::Volume> AnariVolumes;
   std::vector<anari::Light> AnariLights;
 
+  // The renderer outlives this scene graph and the callback points back into
+  // it, so the observer has to come off again.
+  vtkWeakPointer<vtkRenderer> ObservedRenderer;
+  unsigned long RendererObserverTag{ 0 };
+
   int MaxPropId = 0;
 };
 
@@ -98,6 +104,12 @@ vtkAnariSceneGraphInternals::vtkAnariSceneGraphInternals(vtkAnariSceneGraph* own
 
 vtkAnariSceneGraphInternals::~vtkAnariSceneGraphInternals()
 {
+  if (this->RendererObserverTag != 0 && this->ObservedRenderer)
+  {
+    this->ObservedRenderer->RemoveObserver(this->RendererObserverTag);
+    this->RendererObserverTag = 0;
+  }
+
   if (this->AnariDevice)
   {
     anari::Device d = this->AnariDevice->GetHandle();
@@ -140,11 +152,13 @@ void vtkAnariSceneGraph::InitAnariFrame(vtkRenderer* ren)
   anari::setParameter(anariDevice, this->Internal->AnariFrame, "channel.depth", ANARI_FLOAT32);
   anari::commitParameters(anariDevice, this->Internal->AnariFrame);
 
-  if (!ren->HasObserver(vtkCommand::ModifiedEvent))
+  if (this->Internal->RendererObserverTag == 0)
   {
+    // Keyed on our own tag: HasObserver() would report anyone's observer.
     vtkNew<RendererChangeCallback> cc;
     cc->AnariRendererModifiedTime = &this->AnariRendererModifiedTime;
-    ren->AddObserver(vtkCommand::ModifiedEvent, cc);
+    this->Internal->ObservedRenderer = ren;
+    this->Internal->RendererObserverTag = ren->AddObserver(vtkCommand::ModifiedEvent, cc);
     cc->Execute(nullptr, vtkCommand::ModifiedEvent, nullptr);
   }
 }

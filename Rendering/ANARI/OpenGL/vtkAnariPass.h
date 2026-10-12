@@ -95,7 +95,7 @@ private:
   void operator=(const vtkAnariPass&) = delete;
 
   vtkAnariPass();
-  ~vtkAnariPass() override = default;
+  ~vtkAnariPass() override;
 
   /**
    * Tells the pass what it will render.
