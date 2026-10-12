@@ -912,18 +912,6 @@ public:
     }
   };
 
-private: // Helpers that allow Dispatch to return a value:
-  // All storage types must agree on the returned type; the 32-bit AOS
-  // instantiation is used to deduce it.
-  template <typename Functor, typename... Args>
-  using GetDispatchReturnType = decltype(std::declval<Functor>()(
-    std::declval<AOSArray32*>(), std::declval<AOSArray32*>(), std::declval<Args>()...));
-
-  template <typename Functor, typename... Args>
-  struct DispatchReturnsVoid : std::is_same<GetDispatchReturnType<Functor, Args...>, void>
-  {
-  };
-
 public:
   ///@{
   /**
@@ -991,68 +979,11 @@ public:
    * vtkIdType largest = cellArray->Dispatch(FindLargestCellInRange{}, 128, 1024);
    * ```
    *
-   * When the functor returns a non-void type, every storage type instantiation
-   * must return the same type; it is deduced from the 32-bit AOS instantiation.
+   * The returned type is deduced, so every storage type instantiation of the
+   * functor must return the same type.
    */
-  template <typename Functor, typename... Args,
-    typename = typename std::enable_if<DispatchReturnsVoid<Functor, Args...>::value>::type>
-  void Dispatch(Functor&& functor, Args&&... args)
-  {
-    switch (this->StorageType)
-    {
-      case StorageTypes::Int32:
-        functor(static_cast<AOSArray32*>(this->Offsets.Get()),
-          static_cast<AOSArray32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
-        break;
-      case StorageTypes::Int64:
-        functor(static_cast<AOSArray64*>(this->Offsets.Get()),
-          static_cast<AOSArray64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
-        break;
-      case StorageTypes::FixedSizeInt32:
-        functor(static_cast<AffineArray32*>(this->Offsets.Get()),
-          static_cast<AOSArray32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
-        break;
-      case StorageTypes::FixedSizeInt64:
-        functor(static_cast<AffineArray64*>(this->Offsets.Get()),
-          static_cast<AOSArray64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
-        break;
-      case StorageTypes::Generic:
-      default:
-        functor(this->Offsets.Get(), this->Connectivity.Get(), std::forward<Args>(args)...);
-        break;
-    }
-  }
-  template <typename Functor, typename... Args,
-    typename = typename std::enable_if<DispatchReturnsVoid<Functor, Args...>::value>::type>
-  void Dispatch(Functor&& functor, Args&&... args) const
-  {
-    switch (this->StorageType)
-    {
-      case StorageTypes::Int32:
-        functor(static_cast<AOSArray32*>(this->Offsets.Get()),
-          static_cast<AOSArray32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
-        break;
-      case StorageTypes::Int64:
-        functor(static_cast<AOSArray64*>(this->Offsets.Get()),
-          static_cast<AOSArray64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
-        break;
-      case StorageTypes::FixedSizeInt32:
-        functor(static_cast<AffineArray32*>(this->Offsets.Get()),
-          static_cast<AOSArray32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
-        break;
-      case StorageTypes::FixedSizeInt64:
-        functor(static_cast<AffineArray64*>(this->Offsets.Get()),
-          static_cast<AOSArray64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
-        break;
-      case StorageTypes::Generic:
-      default:
-        functor(this->Offsets.Get(), this->Connectivity.Get(), std::forward<Args>(args)...);
-        break;
-    }
-  }
-  template <typename Functor, typename... Args,
-    typename = typename std::enable_if<!DispatchReturnsVoid<Functor, Args...>::value>::type>
-  GetDispatchReturnType<Functor, Args...> Dispatch(Functor&& functor, Args&&... args)
+  template <typename Functor, typename... Args>
+  decltype(auto) Dispatch(Functor&& functor, Args&&... args)
   {
     switch (this->StorageType)
     {
@@ -1073,9 +1004,8 @@ public:
         return functor(this->Offsets.Get(), this->Connectivity.Get(), std::forward<Args>(args)...);
     }
   }
-  template <typename Functor, typename... Args,
-    typename = typename std::enable_if<!DispatchReturnsVoid<Functor, Args...>::value>::type>
-  GetDispatchReturnType<Functor, Args...> Dispatch(Functor&& functor, Args&&... args) const
+  template <typename Functor, typename... Args>
+  decltype(auto) Dispatch(Functor&& functor, Args&&... args) const
   {
     switch (this->StorageType)
     {
@@ -1112,8 +1042,8 @@ public:
     // is a signed integer the same size as vtkIdType.
     // If this value is true, ValueType pointers may be safely converted to
     // vtkIdType pointers via reinterpret cast.
-    static constexpr bool ValueTypeIsSameAsIdType = std::is_integral<ValueType>::value &&
-      std::is_signed<ValueType>::value && (sizeof(ValueType) == sizeof(vtkIdType));
+    static constexpr bool ValueTypeIsSameAsIdType = std::is_integral_v<ValueType> &&
+      std::is_signed_v<ValueType> && (sizeof(ValueType) == sizeof(vtkIdType));
 
     ArrayType* GetOffsets() { return this->Offsets; }
     const ArrayType* GetOffsets() const { return this->Offsets; }

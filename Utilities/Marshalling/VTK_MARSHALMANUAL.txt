@@ -9,6 +9,7 @@ Common/DataModel/vtkFieldData.h
 Common/DataModel/vtkMultiBlockDataSet.h
 Common/DataModel/vtkPartitionedDataSet.h
 Common/DataModel/vtkPartitionedDataSetCollection.h
+Common/DataModel/vtkPolyhedronCellArray.h
 Common/DataModel/vtkTable.h
 Common/DataModel/vtkUnstructuredGrid.h
 Common/ExecutionModel/vtkAlgorithm.h

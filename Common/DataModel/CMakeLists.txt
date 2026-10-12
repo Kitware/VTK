@@ -209,6 +209,7 @@ set(classes
   vtkPolyVertex
   vtkPolygon
   vtkPolyhedron
+  vtkPolyhedronCellArray
   vtkPolyhedronUtilities
   vtkPyramid
   vtkQuad
@@ -353,6 +354,7 @@ if (VTK_WRAP_SERIALIZATION)
     vtkMultiBlockDataSetSerDesHelper.cxx
     vtkPartitionedDataSetSerDesHelper.cxx
     vtkPartitionedDataSetCollectionSerDesHelper.cxx
+    vtkPolyhedronCellArraySerDesHelper.cxx
     vtkTableSerDesHelper.cxx
     vtkUnstructuredGridSerDesHelper.cxx)
 endif ()
