@@ -4,6 +4,7 @@ if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
 endif()
 if (VTK_USE_X)
   list(APPEND extra_opengl2_tests TestInteractorTimers.cxx,NO_VALID)
+  list(APPEND extra_opengl2_tests TestXInteractorQueuedEvents.cxx,NO_DATA,NO_VALID)
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
@@ -255,6 +256,7 @@ if (TARGET VTK::RenderingOpenGL2)
   # Below, we set some special properties on OpenGL tests
   if (VTK_USE_X)
     set_tests_properties(VTK::RenderingCoreCxx-OpenGL-TestInteractorTimers
+      VTK::RenderingCoreCxx-OpenGL-TestXInteractorQueuedEvents
       PROPERTIES RUN_SERIAL ON)
   endif ()
   # Extend the timeout because this test can take much longer on slow machines.

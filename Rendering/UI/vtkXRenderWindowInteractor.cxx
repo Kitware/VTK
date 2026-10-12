@@ -312,6 +312,17 @@ void vtkXRenderWindowInteractor::WaitForEvents()
     }
   }
 
+  // Events already read into the Xlib queue (for instance by a render done
+  // in a timer) do not wake up poll(), so don't wait if there are any.
+  for (auto rwi : XInteractorInstances())
+  {
+    if (!rwi->Done && rwi->RenderWindow->GetGenericDisplayId() != nullptr &&
+      vtkXPending(rwi->DisplayId) != 0)
+    {
+      return;
+    }
+  }
+
   // build the list of unique display connection fds to poll
   std::vector<pollfd> in_fds;
   for (auto rwi : XInteractorInstances())
