@@ -84,4 +84,16 @@ bool vtkmDataArrayUtilities::IsHipDevicePointer(const void* ptr)
 #endif
 }
 
+//----------------------------------------------------------------------------
+const char* vtkmDataArrayUtilities::GetDeviceMemorySpaceName()
+{
+#if defined(VISKORES_ENABLE_CUDA) || defined(VISKORES_KOKKOS_CUDA)
+  return "cuda";
+#elif defined(VISKORES_KOKKOS_HIP)
+  return "hip";
+#else
+  return nullptr;
+#endif
+}
+
 VTK_ABI_NAMESPACE_END

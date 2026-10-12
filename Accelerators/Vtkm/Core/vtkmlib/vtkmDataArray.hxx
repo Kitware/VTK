@@ -898,9 +898,15 @@ inline vtkTypeUInt64 vtkmDescribeBufferAddress(
   if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagKokkos{}) &&
     buffer.IsAllocatedOnDevice(viskores::cont::DeviceAdapterTagKokkos{}))
   {
-    space = "hip";
-    return reinterpret_cast<vtkTypeUInt64>(
-      array.GetWritePointer(viskores::cont::DeviceAdapterTagKokkos{}));
+    // Kokkos is one Viskores device over several kinds of memory; which one
+    // is a property of the build. A Kokkos backend with no device memory
+    // (serial, OpenMP) falls through and is described as host memory.
+    if (const char* kokkosSpace = vtkmDataArrayUtilities::GetDeviceMemorySpaceName())
+    {
+      space = kokkosSpace;
+      return reinterpret_cast<vtkTypeUInt64>(
+        array.GetWritePointer(viskores::cont::DeviceAdapterTagKokkos{}));
+    }
   }
   space = "host";
   return reinterpret_cast<vtkTypeUInt64>(array.GetWritePointer());

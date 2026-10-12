@@ -46,6 +46,13 @@ public:
    * Check if the pointer is a HIP device pointer.
    */
   static bool IsHipDevicePointer(const void* ptr);
+
+  /**
+   * The vtkMemoryDescriptor memory space of the Viskores device that holds
+   * device data in this build: "cuda" or "hip". Returns nullptr when there
+   * is none.
+   */
+  static const char* GetDeviceMemorySpaceName();
 };
 
 VTK_ABI_NAMESPACE_END

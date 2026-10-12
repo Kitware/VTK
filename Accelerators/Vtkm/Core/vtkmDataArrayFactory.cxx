@@ -4,6 +4,7 @@
 
 #include "vtkMemoryDescriptor.h"
 #include "vtkmDataArray.h"
+#include "vtkmDataArrayUtilities.h"
 
 #include "vtkDataArray.h"
 #include "vtkObjectFactory.h"
@@ -55,15 +56,19 @@ bool MemorySpaceToDevice(const char* space, viskores::cont::DeviceAdapterId& dev
   }
 #endif
 #ifdef VISKORES_ENABLE_KOKKOS
-  if (std::strcmp(space, "cuda") == 0 || std::strcmp(space, "hip") == 0)
+  // Kokkos is one device adapter over whichever memory it was built for, so
+  // the space has to match the build: a "hip" pointer handed to a SYCL build
+  // is no more readable than it would be on the host.
+  const char* deviceSpace = vtkmDataArrayUtilities::GetDeviceMemorySpaceName();
+  if (deviceSpace && std::strcmp(space, deviceSpace) == 0)
   {
     device = viskores::cont::DeviceAdapterTagKokkos{};
     return true;
   }
 #endif
 
-  // "level_zero", or "cuda"/"hip" on a build without the matching device
-  // adapter. Either way the memory is not readable from where we are.
+  // A space without a matching device adapter in this build. The memory is
+  // not readable from where we are.
   return false;
 }
 
