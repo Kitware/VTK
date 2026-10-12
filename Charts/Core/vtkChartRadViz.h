@@ -19,7 +19,10 @@
  * You can move the lens by dragging on the lens interior. User
  * feedback is provided by drawing the lens center using the active
  * color when the mouse pointer is over the lens interior or when the
- * lens is moved.
+ * lens is moved. The lens center is not drawn otherwise.
+ *
+ * The title is by default bold, black Arial with a font size of
+ * 18, one step larger than the vertex labels of vtkPlotRadViz.
  *
  * @sa vtkPlotRadViz
  */

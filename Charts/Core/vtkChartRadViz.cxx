@@ -64,6 +64,9 @@ vtkStandardNewMacro(vtkChartRadViz);
 vtkChartRadViz::vtkChartRadViz()
 {
   this->Internals = std::make_unique<vtkChartRadViz::vtkInternals>();
+  // same style as the vertex labels (see vtkPlotRadViz), one step larger
+  this->TitleProperties->SetFontSize(18);
+  this->TitleProperties->BoldOn();
   this->AddPlot(0 /*type*/);
 }
 
@@ -99,7 +102,7 @@ bool vtkChartRadViz::Paint(vtkContext2D* painter)
     this->SetSize(vtkRectf(0.0, 0.0, geometry[0], geometry[1]));
   }
 
-  const int TITLE_SPACE = 5;
+  const int TITLE_SPACE = 10;
   this->SetBorders(0, 0, 0, 0);
 
   int titleSize = 0;

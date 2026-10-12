@@ -6,7 +6,6 @@
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
 #include "vtkNew.h"
-#include "vtkPen.h"
 #include "vtkPlotRadViz.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -50,7 +49,6 @@ int TestRadVizChartTable(int argc, char* argv[])
   // Add a RadViz plot
   vtkPlotRadViz* plot = vtkPlotRadViz::SafeDownCast(chart->AddPlot(0));
 
-  plot->GetPen()->SetWidth(4);
   plot->SetInputData(table);
 
   chart->SetShowLegend(false);

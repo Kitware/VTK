@@ -128,11 +128,17 @@ public:
 vtkPlotRadViz::vtkPlotRadViz()
   : Internals(new vtkInternals(this))
 {
-  this->VerticesPen->SetWidth(8);
+  this->Pen->SetColor(255, 255, 255, 255);
+  this->Pen->SetWidth(6);
+  this->VerticesPen->SetColor(255, 255, 255, 255);
+  this->VerticesPen->SetWidth(10);
+  this->LensPen->SetColor(255, 0, 0, 128);
+  this->LensPen->SetWidth(8);
   this->LabelsProperties->SetJustificationToCentered();
   this->LabelsProperties->SetColor(0.0, 0.0, 0.0);
-  this->LabelsProperties->SetFontSize(12);
+  this->LabelsProperties->SetFontSize(16);
   this->LabelsProperties->SetFontFamilyToArial();
+  this->LabelsProperties->BoldOn();
   // by default process active point/cell scalars if the input is a dataset
   // otherwise we process all columns of a table
   this->GetData()->SetInputArrayToProcess(
@@ -391,13 +397,13 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
       auto colors = this->ApplyPenColor(this->Pen, rgba);
       this->DrawColoredMarkers(painter, gbc, this->Pen, colors);
     }
-    // draw the vertices
-    this->Vertices = this->DrawMarkers(painter, vertices, this->VerticesPen, ActiveVertexIndex);
-    this->DrawLabels(painter, vertices, this->VerticesPen);
     if (this->GetLensVisibility())
     {
       this->DrawLens(painter);
     }
+    // draw the vertices
+    this->Vertices = this->DrawMarkers(painter, vertices, this->VerticesPen, ActiveVertexIndex);
+    this->DrawLabels(painter, vertices, this->VerticesPen);
     this->PaintChildren(painter);
     return true;
   }
@@ -524,20 +530,17 @@ void vtkPlotRadViz::ShiftLabelByPenWidth(double width, double xy[2])
 
 void vtkPlotRadViz::DrawLens(vtkContext2D* painter)
 {
-  // draw the center of the lens. DrawMarkers expects points in the [-1, 1] space.
-  vtkNew<vtkFloatArray> center;
-  center->SetNumberOfComponents(3);
-  center->SetNumberOfTuples(1);
-  center->SetTypedTuple(0,
-    std::array<float, 3>{ static_cast<float>((this->LensCenter[0] - this->Internals->Center[0]) /
-                            this->Internals->Radius),
-      static_cast<float>(
-        (this->LensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius),
-      0 }
-      .data());
-  this->DrawMarkers(painter, center, this->VerticesPen, this->ActiveLensInterior ? 0 : -1);
-  // draw the lens circle
   painter->ApplyPen(this->LensPen);
+  if (this->ActiveLensInterior)
+  {
+    // the center dot shows that the lens can be dragged
+    float center[2] = { static_cast<float>(this->LensCenter[0]),
+      static_cast<float>(this->LensCenter[1]) };
+    painter->GetPen()->SetColor(this->GetActiveColor());
+    painter->DrawMarkers(VTK_MARKER_CIRCLE, false /*highlight*/, center, 1);
+    painter->ApplyPen(this->LensPen);
+  }
+  // draw the lens circle
   if (this->ActiveLensOutline)
   {
     painter->GetPen()->SetColor(this->GetActiveColor());
@@ -612,11 +615,20 @@ vtkSmartPointer<vtkPoints2D> vtkPlotRadViz::DrawMarkers(
 {
   const int markerStyle = VTK_MARKER_CIRCLE;
   auto transformedPoints = this->TransformPoints(points);
-  painter->ApplyPen(pen);
   vtkFloatArray* dataArray = vtkFloatArray::SafeDownCast(transformedPoints->GetData());
   float* data = dataArray->GetPointer(0);
-  painter->DrawMarkers(
-    markerStyle, false /*highlight*/, data, transformedPoints->GetNumberOfPoints());
+  int numberOfPoints = transformedPoints->GetNumberOfPoints();
+  painter->ApplyPen(pen);
+  float fillWidth = pen->GetWidth() - 2 * this->MarkerOutlineWidth;
+  if (this->MarkerOutlineWidth > 0 && fillWidth > 0)
+  {
+    // the outline is a black marker showing around the smaller fill marker
+    painter->GetPen()->SetColor(0, 0, 0);
+    painter->DrawMarkers(markerStyle, false /*highlight*/, data, numberOfPoints);
+    painter->ApplyPen(pen);
+    painter->GetPen()->SetWidth(fillWidth);
+  }
+  painter->DrawMarkers(markerStyle, false /*highlight*/, data, numberOfPoints);
   if (activeIndex >= 0)
   {
     painter->DrawMarkers(
@@ -631,8 +643,21 @@ vtkSmartPointer<vtkPoints2D> vtkPlotRadViz::DrawColoredMarkers(
 {
   const int markerStyle = VTK_MARKER_CIRCLE;
   auto transformedPoints = this->TransformPoints(points);
-  painter->ApplyPen(pen);
   auto transformedColors = this->TransformColors(colors);
+  painter->ApplyPen(pen);
+  float fillWidth = pen->GetWidth() - 2 * this->MarkerOutlineWidth;
+  if (this->MarkerOutlineWidth > 0 && fillWidth > 0)
+  {
+    // the outline is a black marker (same alpha) showing around the smaller fill marker
+    vtkNew<vtkUnsignedCharArray> outlineColors;
+    outlineColors->DeepCopy(transformedColors);
+    for (int c = 0; c < 3; ++c)
+    {
+      outlineColors->FillComponent(c, 0);
+    }
+    painter->DrawMarkers(markerStyle, false /*highlight*/, transformedPoints, outlineColors);
+    painter->GetPen()->SetWidth(fillWidth);
+  }
   painter->DrawMarkers(markerStyle, false /*highlight*/, transformedPoints, transformedColors);
   return transformedPoints;
 }

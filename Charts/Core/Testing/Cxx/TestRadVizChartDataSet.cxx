@@ -7,7 +7,6 @@
 #include "vtkContextView.h"
 #include "vtkDataSet.h"
 #include "vtkNew.h"
-#include "vtkPen.h"
 #include "vtkPlotRadViz.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -85,9 +84,7 @@ int TestRadVizChartDataSet(int argc, char* argv[])
 
   // Add a RadViz plot
   vtkPlotRadViz* plot = vtkPlotRadViz::SafeDownCast(chart->AddPlot(0));
-  plot->GetPen()->SetOpacity(20);
   plot->SetLensVisibility(true);
-  plot->GetPen()->SetWidth(6);
 
   // The input must be set before configuring column visibility, since
   // hiding a column needs to know the full column list of the current

@@ -179,7 +179,20 @@ public:
 
   ///@{
   /**
-   * Controls how the vertices are drawn.
+   * Width in pixels of the black outline drawn around the data points
+   * and the vertices. The outline is drawn inside the
+   * marker, so it does not change the marker size (the pen width).
+   * All outlines are drawn before all fills, so overlapping markers
+   * share one outline. Default is 1, use 0 for no outline.
+   */
+  vtkSetClampMacro(MarkerOutlineWidth, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(MarkerOutlineWidth, double);
+  ///@}
+
+  ///@{
+  /**
+   * Controls how the vertices are drawn. Default is white, with a
+   * width (marker diameter) of 10.
    */
   vtkSetSmartPointerMacro(VerticesPen, vtkPen);
   vtkGetSmartPointerMacro(VerticesPen, vtkPen);
@@ -209,7 +222,10 @@ public:
   virtual void SetLensRadius(double radius);
   vtkGetMacro(LensRadius, double);
   /**
-   * Controls how the lens circle outline is drawn.
+   * Controls how the lens circle outline is drawn. Its width is also the
+   * size of the lens center dot, which is shown only when
+   * ActiveLensInterior is true, using ActiveColor.
+   * Default is half-transparent red, with a width of 8.
    */
   vtkSetSmartPointerMacro(LensPen, vtkPen);
   vtkGetSmartPointerMacro(LensPen, vtkPen);
@@ -249,7 +265,8 @@ public:
   vtkGetMacro(ActiveLensOutline, bool);
   /**
    * Set to true when the mouse is over the lens interior or when the
-   * lens is dragged and set to false otherwise.
+   * lens is dragged and set to false otherwise. The lens center dot is
+   * shown only when this is true.
    */
   vtkSetMacro(ActiveLensInterior, bool);
   vtkGetMacro(ActiveLensInterior, bool);
@@ -267,6 +284,7 @@ public:
   ///@{
   /**
    * Get the vtkTextProperty that governs how the vertex labels are displayed.
+   * Default is bold, black Arial with a font size of 16.
    */
   vtkSetSmartPointerMacro(LabelsProperties, vtkTextProperty);
   vtkGetSmartPointerMacro(LabelsProperties, vtkTextProperty);
@@ -401,6 +419,10 @@ protected:
    * These are the markers on the circle for the variables.
    */
   vtkSmartPointer<vtkPen> VerticesPen = vtkSmartPointer<vtkPen>::New();
+  /**
+   * Width of the black outline of the markers.
+   */
+  double MarkerOutlineWidth = 1.0;
   /**
    * Controls how the lens circle outline is drawn.
    */
