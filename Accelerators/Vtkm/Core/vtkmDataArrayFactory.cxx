@@ -289,6 +289,30 @@ int vtkmDataArrayFactory::GetNumberOfBuffers() const
 }
 
 //------------------------------------------------------------------------------
+vtkTypeUInt64 vtkmDataArrayFactory::GetLevelZeroDriverHandle()
+{
+  void *driver, *device, *context;
+  vtkmDataArrayUtilities::GetLevelZeroHandles(driver, device, context);
+  return reinterpret_cast<vtkTypeUInt64>(driver);
+}
+
+//------------------------------------------------------------------------------
+vtkTypeUInt64 vtkmDataArrayFactory::GetLevelZeroDeviceHandle()
+{
+  void *driver, *device, *context;
+  vtkmDataArrayUtilities::GetLevelZeroHandles(driver, device, context);
+  return reinterpret_cast<vtkTypeUInt64>(device);
+}
+
+//------------------------------------------------------------------------------
+vtkTypeUInt64 vtkmDataArrayFactory::GetLevelZeroContextHandle()
+{
+  void *driver, *device, *context;
+  vtkmDataArrayUtilities::GetLevelZeroHandles(driver, device, context);
+  return reinterpret_cast<vtkTypeUInt64>(context);
+}
+
+//------------------------------------------------------------------------------
 vtkDataArray* vtkmDataArrayFactory::CreateArray()
 {
   const int numBuffers = this->GetNumberOfBuffers();
@@ -336,6 +360,21 @@ vtkDataArray* vtkmDataArrayFactory::CreateArray()
                                  "Viskores device adapter, or VTK was built without support "
                                  "for it. Refusing rather than treating it as host memory, "
                                  "which would hand out a pointer that cannot be dereferenced.");
+      return nullptr;
+    }
+    const char* bufferSpace = this->Buffers[i]->GetMemorySpace();
+    if (bufferSpace && std::strcmp(bufferSpace, "level_zero") == 0 &&
+      !vtkmDataArrayUtilities::IsLevelZeroDevicePointer(
+        reinterpret_cast<const void*>(this->Buffers[i]->GetPointer())))
+    {
+      // CUDA and HIP pointers identify themselves through a context the
+      // runtime shares process-wide. A USM pointer does not: it means
+      // something only in the context it was allocated from, so the least
+      // that can be asked is that the SYCL runtime recognises it at all.
+      vtkErrorMacro("Buffer " << i
+                              << " is labelled 'level_zero' but is not USM device memory in the "
+                                 "SYCL context Viskores uses. Allocate it in the context "
+                                 "reported by GetLevelZeroContextHandle().");
       return nullptr;
     }
     if (!this->Buffers[i]->HasOwnership())

@@ -209,9 +209,10 @@ class TestDLPack(Testing.vtkTest):
         self.assertEqual(dlpack_support._DEVICE_TO_SPACE[dlpack_support.kDLMetal], "host")
         self.assertNotIn("metal", dlpack_support._SPACE_TO_DEVICE)
 
-    def testOnlyVTKsThreeSpacesAreExportable(self):
-        """vtkDataArray::MemorySpace has exactly three values."""
-        self.assertEqual(set(dlpack_support._SPACE_TO_DEVICE), {"host", "cuda", "hip"})
+    def testOnlyVTKsFourSpacesAreExportable(self):
+        """vtkDataArray::MemorySpace has exactly four values."""
+        self.assertEqual(
+            set(dlpack_support._SPACE_TO_DEVICE), {"host", "cuda", "hip", "level_zero"})
 
     def testAddressesInTheUpperHalfAreAccepted(self):
         """Addresses are unsigned, and device allocators use the top half.

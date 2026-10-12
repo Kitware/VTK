@@ -48,9 +48,35 @@ public:
   static bool IsHipDevicePointer(const void* ptr);
 
   /**
+   * Check if the pointer is USM device or shared memory known to the SYCL
+   * context Viskores runs in, on a Level Zero device.
+   *
+   * This distinguishes device memory from host memory. It does not prove the
+   * pointer was allocated in that context: drivers are not required to tell
+   * contexts apart, and Intel's does not.
+   */
+  static bool IsLevelZeroDevicePointer(const void* ptr);
+
+  /**
+   * The Level Zero handles behind the SYCL queue Viskores runs on: the
+   * `ze_driver_handle_t`, `ze_device_handle_t` and `ze_context_handle_t`.
+   *
+   * A USM pointer is only meaningful inside the context it was allocated
+   * from, and nothing in DLPack or vtkMemoryDescriptor carries a context. So
+   * a producer that wants VTK to read its Level Zero memory allocates in
+   * *this* context, obtained here once, rather than sending a context along
+   * with every buffer.
+   *
+   * Returns false, with all three null, unless Viskores was built on Kokkos
+   * with its SYCL backend and that backend is running on Level Zero. The
+   * handles belong to the SYCL runtime: do not destroy them.
+   */
+  static bool GetLevelZeroHandles(void*& driver, void*& device, void*& context);
+
+  /**
    * The vtkMemoryDescriptor memory space of the Viskores device that holds
-   * device data in this build: "cuda" or "hip". Returns nullptr when there
-   * is none.
+   * device data in this build: "cuda", "hip" or "level_zero". Returns
+   * nullptr when there is none.
    */
   static const char* GetDeviceMemorySpaceName();
 };

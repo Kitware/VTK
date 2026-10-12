@@ -866,6 +866,10 @@ vtkDataArray::MemorySpace vtkmDataArray<T>::GetMemorySpace()
     {
       return vtkDataArray::MemorySpace::HipDeviceMemory;
     }
+    if (vtkmDataArrayUtilities::IsLevelZeroDevicePointer(pointer))
+    {
+      return vtkDataArray::MemorySpace::LevelZeroDeviceMemory;
+    }
   }
   return vtkDataArray::MemorySpace::HostMemory;
 }

@@ -180,9 +180,12 @@ class TestVtkmDataArrayFactory(Testing.vtkTest):
     def testUnreadableMemorySpaceIsRefused(self):
         """Treating an unreadable space as host hands out a bad pointer.
 
-        "level_zero" has no Viskores device adapter, and "cuda" has none on
-        a build without CUDA. Falling back to host in either case is how a
-        misconfigured build turns into a crash somewhere else entirely.
+        Host memory labelled "level_zero" is refused on every build: one
+        without Viskores on Kokkos/SYCL cannot read that space at all, and
+        one with it finds that the SYCL runtime does not know the pointer as
+        device memory. "cuda" is refused the same way on a build without
+        CUDA. Falling back to host in any of these is how a misconfigured
+        build turns into a crash somewhere else entirely.
         """
         source = numpy.arange(4, dtype=numpy.float32)
         descriptor = vtkMemoryDescriptor()
@@ -196,6 +199,23 @@ class TestVtkmDataArrayFactory(Testing.vtkTest):
 
         with refusal_is_expected():
             self.assertIsNone(factory.CreateArray())
+
+    def testLevelZeroHandlesAreAllOrNothing(self):
+        """A producer needs all three handles, or none of them is usable.
+
+        A context with no device, or a device from another driver, would
+        let a producer allocate somewhere this build still cannot read.
+        """
+        from vtkmodules.util.dlpack_support import level_zero_handles
+
+        handles = level_zero_handles()
+        if handles is None:
+            self.assertEqual(vtkmDataArrayFactory.GetLevelZeroDriverHandle(), 0)
+            self.assertEqual(vtkmDataArrayFactory.GetLevelZeroDeviceHandle(), 0)
+            self.assertEqual(vtkmDataArrayFactory.GetLevelZeroContextHandle(), 0)
+        else:
+            self.assertEqual(set(handles), {"driver", "device", "context"})
+            self.assertTrue(all(handles.values()))
 
     def testFailureLeavesTheHoldAlone(self):
         """A refused array must not have taken anything with it."""
