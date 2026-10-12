@@ -120,7 +120,6 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
   const TInputIdType NumberOfPoints;
 
   vtkSMPThreadLocalObject<vtkGenericCell> TLCell;
-  vtkSMPThreadLocalObject<vtkIdList> TLFaceIds;
   vtkSMPThreadLocalObject<vtkIdList> TLFacePointIds;
 
   CreateFacesInformation(vtkUnstructuredGrid* input, GeometryInformation& geometryInfo,
@@ -146,10 +145,11 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
       const auto cellTypesRange = vtk::DataArrayValueRange<1, unsigned char>(cellTypes);
 
       auto cell = This->TLCell.Local();
-      auto faceIdsList = This->TLFaceIds.Local();
       auto facePointIdsList = This->TLFacePointIds.Local();
-      const vtkIdType *faceVerts, *faceIds, *facePointIds;
-      vtkIdType faceId, numFaces, numFacePoints;
+      vtkPolyhedronCellArray* polyhedra = This->Input->GetPolyhedronCellArray();
+      const vtkIdType *faceVerts, *facePointIds;
+      int faceId, numFaces;
+      vtkIdType numFacePoints;
       static constexpr int MAX_FACE_POINTS = 32;
       vtkIdType ptIds[MAX_FACE_POINTS]; // cell face point ids
       static constexpr int pixelConvert[4] = { 0, 1, 3, 2 };
@@ -307,12 +307,11 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
               break;
             case VTK_POLYHEDRON:
               cellOffsets[cellId] = facesOffset;
-              This->Input->GetPolyhedronFaceLocations()->GetCellAtId(
-                cellId, numFaces, faceIds, faceIdsList);
+              numFaces = polyhedra->GetCellNumberOfFaces(cellId);
               for (faceId = 0; faceId < numFaces; faceId++)
               {
-                This->Input->GetPolyhedronFaces()->GetCellAtId(
-                  faceIds[faceId], numFacePoints, facePointIds, facePointIdsList);
+                polyhedra->GetFacePoints(
+                  cellId, faceId, numFacePoints, facePointIds, facePointIdsList);
                 faceHashValues[facesOffset++] =
                   *std::min_element(facePointIds, facePointIds + numFacePoints);
               }

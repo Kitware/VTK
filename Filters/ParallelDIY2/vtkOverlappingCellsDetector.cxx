@@ -201,16 +201,16 @@ std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ExtractOverlappingCellCandid
         vtkCellArray* blockFaceLocations = std::get<5>(cactptid);
         if (sourceUG && cell->GetCellType() == VTK_POLYHEDRON)
         {
-          vtkNew<vtkCellArray> cellFaces;
-          sourceUG->GetPolyhedronFaces(id, cellFaces);
-
+          vtkPolyhedronCellArray* polyhedra = sourceUG->GetPolyhedronCellArray();
+          vtkNew<vtkIdList> facePts; // scratch, for the faces not stored as vtkIdType
+          const int numberOfFaces = polyhedra->GetCellNumberOfFaces(id);
           std::vector<vtkIdType> faceIds;
-          faceIds.reserve(cellFaces->GetNumberOfCells());
-          for (vtkIdType f = 0; f < cellFaces->GetNumberOfCells(); ++f)
+          faceIds.reserve(numberOfFaces);
+          for (int f = 0; f < numberOfFaces; ++f)
           {
             vtkIdType numberOfFacePoints;
             const vtkIdType* facePoints;
-            cellFaces->GetCellAtId(f, numberOfFacePoints, facePoints);
+            polyhedra->GetFacePoints(id, f, numberOfFacePoints, facePoints, facePts);
             faceIds.push_back(
               blockFaces->InsertNextCell(static_cast<int>(numberOfFacePoints), facePoints));
           }

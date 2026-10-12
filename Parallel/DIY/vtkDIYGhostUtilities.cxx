@@ -1876,39 +1876,11 @@ struct ComputeConnectivitySizeWorker
   }
 };
 
-//----------------------------------------------------------------------------
-// Helper for ComputeFacesSizeWorker and UpdateCellBufferSize
-namespace
-{
-struct GetPolyhedronNPts : public vtkCellArray::DispatchUtilities
-{
-  // Insert full cell
-  template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType cellId,
-    const vtkCellArray* faces, vtkIdType& npts)
-  {
-    auto offsetsRange = GetRange(offsets);
-    const auto& beginOffset = offsetsRange[cellId];
-    const auto& endOffset = offsetsRange[cellId + 1];
-    const vtkIdType NumberOfFaces = static_cast<vtkIdType>(endOffset - beginOffset);
-    const auto cellFaces = GetRange(conn).begin() + beginOffset;
-
-    npts = 0;
-    for (vtkIdType faceNum = 0; faceNum < NumberOfFaces; ++faceNum)
-    {
-      npts += faces->GetCellSize(static_cast<vtkIdType>(cellFaces[faceNum]));
-    }
-  }
-};
-}
-
 //============================================================================
 struct ComputeFacesSizeWorker
 {
-  ComputeFacesSizeWorker(
-    vtkCellArray* faces, vtkCellArray* faceLocations, vtkUnsignedCharArray* ghostCells)
-    : Faces(faces)
-    , FaceLocations(faceLocations)
+  ComputeFacesSizeWorker(vtkPolyhedronCellArray* polyhedra, vtkUnsignedCharArray* ghostCells)
+    : Polyhedra(polyhedra)
     , GhostCells(ghostCells)
   {
   }
@@ -1922,13 +1894,11 @@ struct ComputeFacesSizeWorker
     {
       if (!(this->GhostCells->GetValue(cellId) & ::GHOST_CELL_TO_PEEL_IN_UNSTRUCTURED_DATA))
       {
-        vtkIdType id = this->FaceLocations->GetCellSize(cellId);
-        if (id != 0)
+        const int numFaces = this->Polyhedra->GetCellNumberOfFaces(cellId);
+        if (numFaces != 0)
         {
-          facenum += this->FaceLocations->GetCellSize(cellId);
-          vtkIdType npts;
-          this->FaceLocations->Dispatch(GetPolyhedronNPts{}, cellId, this->Faces, npts);
-          size += npts;
+          facenum += numFaces;
+          size += this->Polyhedra->GetCellNumberOfFacePoints(cellId);
         }
       }
     }
@@ -1952,8 +1922,7 @@ struct ComputeFacesSizeWorker
     }
   }
 
-  vtkCellArray* Faces;
-  vtkCellArray* FaceLocations;
+  vtkPolyhedronCellArray* Polyhedra;
   vtkUnsignedCharArray* GhostCells;
 
   vtkSMPThreadLocal<vtkIdType> Size;
@@ -2099,12 +2068,10 @@ void InitializeInformationIdsForUnstructuredData(
       worker(cells->GetOffsetsArray(), input->GetCellGhostArray(), 0, info.InputConnectivitySize);
     }
 
-    vtkCellArray* faceLocations = input->GetPolyhedronFaceLocations();
-    vtkCellArray* faces = input->GetPolyhedronFaces();
-
-    if (faceLocations && faceLocations->GetNumberOfCells() && faces && faces->GetNumberOfCells())
+    vtkPolyhedronCellArray* polyhedra = input->GetPolyhedronCellArray();
+    if (polyhedra && polyhedra->GetNumberOfCells() && polyhedra->GetNumberOfFaces())
     {
-      ::ComputeFacesSizeWorker faceWorker(faces, faceLocations, ghosts);
+      ::ComputeFacesSizeWorker faceWorker(polyhedra, ghosts);
       vtkSMPTools::For(0, numberOfCells, faceWorker);
 
       info.InputFacesSize = faceWorker.TotalSize;
@@ -2114,12 +2081,9 @@ void InitializeInformationIdsForUnstructuredData(
   else
   {
     info.InputConnectivitySize = cells->GetConnectivityArray()->GetNumberOfTuples();
-    info.InputFacesSize = input->GetPolyhedronFaces()
-      ? input->GetPolyhedronFaces()->GetConnectivityArray()->GetNumberOfTuples()
-      : 0;
-    info.InputNumberOfFaces = input->GetPolyhedronFaces()
-      ? input->GetPolyhedronFaces()->GetOffsetsArray()->GetNumberOfTuples() - 1
-      : 0;
+    vtkCellArray* faces = input->GetPolyhedronFaces();
+    info.InputFacesSize = faces ? faces->GetConnectivityArray()->GetNumberOfTuples() : 0;
+    info.InputNumberOfFaces = faces ? faces->GetOffsetsArray()->GetNumberOfTuples() - 1 : 0;
   }
 
   info.CurrentConnectivitySize = info.InputConnectivitySize;
@@ -2482,12 +2446,11 @@ struct FillUnstructuredDataTopologyBufferFunctor<vtkUnstructuredGrid>
     vtkCellArray* inputCellArray = input->GetCells();
     vtkIdType outputId = 0;
 
-    vtkCellArray* inputFaces = input->GetPolyhedronFaces();
-    vtkCellArray* inputFaceLocations = input->GetPolyhedronFaceLocations();
+    vtkPolyhedronCellArray* inputPolyhedra = input->GetPolyhedronCellArray();
 
     // faces and faceLocations deal with VTK_POLYHEDRON. If there are VTK_POLYHEDRON cells in the
     // input, we instantiate those arrays for our buffers.
-    if (inputFaces && inputFaces->GetNumberOfCells())
+    if (inputPolyhedra && inputPolyhedra->GetNumberOfFaces())
     {
       buffer.Faces = vtkSmartPointer<vtkCellArray>::New();
       buffer.Faces->AllocateExact(blockStructure.FacesNum, blockStructure.FacesSize);
@@ -2517,17 +2480,14 @@ struct FillUnstructuredDataTopologyBufferFunctor<vtkUnstructuredGrid>
 
       if (cellType == VTK_POLYHEDRON)
       {
-        vtkIdType numberOfFaces = 0;
-        vtkIdType const* faceIds;
-        vtkNew<vtkIdList> faceTmp;
+        const int numberOfFaces = inputPolyhedra->GetCellNumberOfFaces(cellId);
         vtkNew<vtkIdList> ptsTmp;
-        inputFaceLocations->GetCellAtId(cellId, numberOfFaces, faceIds, faceTmp);
         faceLocations->InsertNextCell(numberOfFaces);
-        for (vtkIdType faceId = 0; faceId < numberOfFaces; ++faceId)
+        for (int faceId = 0; faceId < numberOfFaces; ++faceId)
         {
           vtkIdType numberOfPoints;
           vtkIdType const* facePointIds;
-          inputFaces->GetCellAtId(faceIds[faceId], numberOfPoints, facePointIds, ptsTmp);
+          inputPolyhedra->GetFacePoints(cellId, faceId, numberOfPoints, facePointIds, ptsTmp);
           faceLocations->InsertCellPoint(currentFacesId++);
           faces->InsertNextCell(numberOfPoints);
           for (vtkIdType facePointId = 0; facePointId < numberOfPoints; ++facePointId)
@@ -2677,13 +2637,9 @@ void UpdateCellBufferSize<vtkUnstructuredGrid>(vtkIdType cellIdToSend,
   {
     vtkIdType& facesSize = blockStructure.FacesSize;
     vtkIdType& facesNum = blockStructure.FacesNum;
-    vtkIdType numberOfFaces = 0;
-    //
-    numberOfFaces = faceLocations->GetCellSize(cellIdToSend);
-    facesNum += numberOfFaces;
-    vtkIdType npts;
-    faceLocations->Dispatch(GetPolyhedronNPts{}, cellIdToSend, faces, npts);
-    facesSize += npts;
+    vtkPolyhedronCellArray* polyhedra = info.Input->GetPolyhedronCellArray();
+    facesNum += polyhedra->GetCellNumberOfFaces(cellIdToSend);
+    facesSize += polyhedra->GetCellNumberOfFacePoints(cellIdToSend);
   }
 }
 
@@ -3935,21 +3891,24 @@ void CloneUnstructuredGrid(vtkUnstructuredGrid* ug, vtkUnstructuredGrid* clone,
     ug->GetCellTypes()->GetTuples(0, ug->GetNumberOfCells() - 1, clone->GetCellTypes());
 
     vtkCellArray* ugFaces = ug->GetPolyhedronFaces();
+    vtkCellArray* cloneFaces = clone->GetPolyhedronFaces();
 
-    if (clone->GetPolyhedronFaces() && ugFaces && ugFaces->GetNumberOfCells())
+    if (cloneFaces && ugFaces && ugFaces->GetNumberOfCells())
     {
-      vtkDataArray* ugFaceConnectivity = ug->GetPolyhedronFaces()->GetConnectivityArray();
-      vtkDataArray* ugFaceOffsets = ug->GetPolyhedronFaces()->GetOffsetsArray();
-      vtkDataArray* ugPolyConnectivity = ug->GetPolyhedronFaceLocations()->GetConnectivityArray();
-      vtkDataArray* ugPolyOffsets = ug->GetPolyhedronFaceLocations()->GetOffsetsArray();
-      ugFaceConnectivity->GetTuples(0, ugFaceConnectivity->GetNumberOfTuples() - 1,
-        clone->GetPolyhedronFaces()->GetConnectivityArray());
+      vtkCellArray* ugFaceLocations = ug->GetPolyhedronFaceLocations();
+      vtkCellArray* cloneFaceLocations = clone->GetPolyhedronFaceLocations();
+      vtkDataArray* ugFaceConnectivity = ugFaces->GetConnectivityArray();
+      vtkDataArray* ugFaceOffsets = ugFaces->GetOffsetsArray();
+      vtkDataArray* ugPolyConnectivity = ugFaceLocations->GetConnectivityArray();
+      vtkDataArray* ugPolyOffsets = ugFaceLocations->GetOffsetsArray();
+      ugFaceConnectivity->GetTuples(
+        0, ugFaceConnectivity->GetNumberOfTuples() - 1, cloneFaces->GetConnectivityArray());
       ugFaceOffsets->GetTuples(
-        0, ugFaceOffsets->GetNumberOfTuples() - 1, clone->GetPolyhedronFaces()->GetOffsetsArray());
-      ugPolyConnectivity->GetTuples(0, ugPolyConnectivity->GetNumberOfTuples() - 1,
-        clone->GetPolyhedronFaceLocations()->GetConnectivityArray());
-      ugPolyOffsets->GetTuples(0, ugPolyOffsets->GetNumberOfTuples() - 1,
-        clone->GetPolyhedronFaceLocations()->GetOffsetsArray());
+        0, ugFaceOffsets->GetNumberOfTuples() - 1, cloneFaces->GetOffsetsArray());
+      ugPolyConnectivity->GetTuples(
+        0, ugPolyConnectivity->GetNumberOfTuples() - 1, cloneFaceLocations->GetConnectivityArray());
+      ugPolyOffsets->GetTuples(
+        0, ugPolyOffsets->GetNumberOfTuples() - 1, cloneFaceLocations->GetOffsetsArray());
     }
   }
 }

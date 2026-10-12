@@ -1227,11 +1227,10 @@ void ExtractCellGeometry(vtkUnstructuredGrid* input, vtkIdType cellId, int cellT
 
     case VTK_POLYHEDRON:
     {
-      auto globalFaceId = input->GetPolyhedronFaceLocations()->GetCellPointAtId(cellId, faceId);
       vtkIdType numFacePoints;
       const vtkIdType* facePointIds = nullptr;
-      input->GetPolyhedronFaces()->GetCellAtId(
-        globalFaceId, numFacePoints, facePointIds, localData->IPts);
+      input->GetPolyhedronCellArray()->GetFacePoints(
+        cellId, faceId, numFacePoints, facePointIds, localData->IPts);
       InsertAFace(localData->FaceList, cellId, numFacePoints, facePointIds, isGhost);
       break;
     }
@@ -3276,7 +3275,7 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
           dataSetInput->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
-    if (uGrid && !uGrid->GetPolyhedronFaces())
+    if (uGrid && !uGrid->GetPolyhedronCellArray())
     {
       using TFaceIdType = vtkTypeInt8;
       return ExecuteUnstructuredGrid<TInputIdType, TFaceIdType>(
@@ -3305,7 +3304,7 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
           dataSetInput->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
-    if (uGrid && !uGrid->GetPolyhedronFaces())
+    if (uGrid && !uGrid->GetPolyhedronCellArray())
     {
       using TFaceIdType = vtkTypeInt8;
       return ExecuteUnstructuredGrid<TInputIdType, TFaceIdType>(

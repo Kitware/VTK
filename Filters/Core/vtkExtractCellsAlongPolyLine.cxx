@@ -591,7 +591,8 @@ bool BuildOutputPolyhedronFaces(vtkUnstructuredGrid* input, vtkIdList* sortedCel
   outputFaces->Initialize();
   outputFaceLocations->Initialize();
 
-  vtkNew<vtkCellArray> cellFaces; // scratch, reused per polyhedron
+  vtkPolyhedronCellArray* polyhedra = input->GetPolyhedronCellArray();
+  vtkNew<vtkIdList> facePts; // scratch, for the faces not stored as vtkIdType
   std::vector<vtkIdType> remappedFace;
   std::vector<vtkIdType> faceIds; // global face ids for this cell's faceLocations entry
 
@@ -606,16 +607,14 @@ bool BuildOutputPolyhedronFaces(vtkUnstructuredGrid* input, vtkIdList* sortedCel
     }
 
     const vtkIdType inputCellId = sortedCellIds->GetId(outId);
-    cellFaces->Reset();
-    input->GetPolyhedronFaces(inputCellId, cellFaces);
-    const vtkIdType numberOfFaces = cellFaces->GetNumberOfCells();
+    const int numberOfFaces = polyhedra->GetCellNumberOfFaces(inputCellId);
 
     faceIds.clear();
-    for (vtkIdType f = 0; f < numberOfFaces; ++f)
+    for (int f = 0; f < numberOfFaces; ++f)
     {
       vtkIdType npts;
       const vtkIdType* pts;
-      cellFaces->GetCellAtId(f, npts, pts);
+      polyhedra->GetFacePoints(inputCellId, f, npts, pts, facePts);
       remappedFace.resize(npts);
       for (vtkIdType p = 0; p < npts; ++p)
       {

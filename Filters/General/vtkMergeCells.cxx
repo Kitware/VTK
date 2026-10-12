@@ -10,6 +10,7 @@
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkMergePoints.h"
 #include "vtkNew.h"
@@ -23,6 +24,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <map>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace
@@ -306,78 +308,6 @@ struct ProcessCellGIDsUG
   }
 };
 
-//----------------------------------------------------------------------------
-// AddNewCellsUnstructuredGrid helpers for polyhedron
-template <typename PointTypeIter>
-struct InsertMappedNextCellPoints : public vtkCellArray::DispatchUtilities
-{
-  // Insert full cell
-  template <class OffsetsT, class ConnectivityT>
-  vtkIdType operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType npts,
-    const PointTypeIter pts, vtkIdType NumberOfIds, vtkIdType* idMap)
-  {
-    using ValueType = GetAPIType<OffsetsT>;
-    using OffsetsAccessorType = vtkDataArrayAccessor<OffsetsT>;
-    using ConnectivityAccessorType = vtkDataArrayAccessor<ConnectivityT>;
-    ConnectivityAccessorType connAccessor(conn);
-    OffsetsAccessorType offsetsAccessor(offsets);
-
-    const vtkIdType cellId = offsets->GetNumberOfValues() - 1;
-
-    offsetsAccessor.InsertNext(static_cast<ValueType>(conn->GetNumberOfValues() + npts));
-
-    for (vtkIdType i = 0; i < npts; ++i)
-    {
-      vtkIdType oldPtId = static_cast<vtkIdType>(pts[i]);
-      vtkIdType finalPtId = idMap ? idMap[oldPtId] : NumberOfIds + oldPtId;
-      connAccessor.InsertNext(static_cast<ValueType>(finalPtId));
-    }
-
-    return cellId;
-  }
-};
-
-template <typename FaceIdIter>
-struct CopyMappedPolyhedronFaces : public vtkCellArray::DispatchUtilities
-{
-  // Insert full cell
-  template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType NumberOfFaces,
-    const FaceIdIter cellFaces, vtkCellArray* faces, vtkIdType NumberOfIds, vtkIdType* idMap)
-  {
-    auto offsetsRange = GetRange(offsets);
-    auto connRange = GetRange(conn);
-    for (vtkIdType faceNum = 0; faceNum < NumberOfFaces; ++faceNum)
-    {
-      const auto& beginOffset = offsetsRange[cellFaces[faceNum]];
-      const auto& endOffset = offsetsRange[cellFaces[faceNum] + 1];
-      const vtkIdType NumberOfPoints = static_cast<vtkIdType>(endOffset - beginOffset);
-      const auto cellPoints = connRange.begin() + beginOffset;
-      using TInsertNextCellPoints = InsertMappedNextCellPoints<decltype(cellPoints)>;
-
-      faces->Dispatch(TInsertNextCellPoints{}, NumberOfPoints, cellPoints, NumberOfIds, idMap);
-    }
-  }
-};
-
-struct CopyMappedPolyhedronCell : public vtkCellArray::DispatchUtilities
-{
-  // Insert full cell
-  template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType cellId, vtkCellArray* src,
-    vtkCellArray* tgt, vtkIdType NumberOfIds, vtkIdType* idMap, vtkIdType& NumberOfFaces)
-  {
-    auto offsetsRange = GetRange(offsets);
-    const auto& beginOffset = offsetsRange[cellId];
-    const auto& endOffset = offsetsRange[cellId + 1];
-    NumberOfFaces = static_cast<vtkIdType>(endOffset - beginOffset);
-    const auto cellFaces = GetRange(conn).begin() + beginOffset;
-    using TCopyPolyhedronFaces = CopyMappedPolyhedronFaces<decltype(cellFaces)>;
-
-    src->Dispatch(TCopyPolyhedronFaces{}, NumberOfFaces, cellFaces, tgt, NumberOfIds, idMap);
-  }
-};
-
 } // end anon namespace
 
 //------------------------------------------------------------------------------
@@ -417,26 +347,20 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
   // Connectivity for the merged grid so far
 
   vtkCellArray* cellArray = nullptr;
-  vtkCellArray* flocs = nullptr;
-  vtkCellArray* faces = nullptr;
+  vtkPolyhedronCellArray* gridPolyhedra = nullptr;
   unsigned char* types = nullptr;
 
   vtkIdType numCells = 0;
   vtkIdType numConnections = 0;
-  vtkIdType numFaces = 0;
-  vtkIdType numFacesConnections = 0;
 
   if (!firstSet)
   {
     cellArray = grid->GetCells();
     types = vtkUnsignedCharArray::FastDownCast(grid->GetCellTypes())->GetPointer(0);
-    flocs = grid->GetPolyhedronFaceLocations() ? grid->GetPolyhedronFaceLocations() : nullptr;
-    faces = grid->GetPolyhedronFaces() ? grid->GetPolyhedronFaces() : nullptr;
+    gridPolyhedra = grid->GetPolyhedronCellArray();
 
     numCells = cellArray->GetNumberOfCells();
     numConnections = cellArray->GetNumberOfConnectivityIds();
-    numFacesConnections = faces ? grid->GetPolyhedronFaces()->GetNumberOfConnectivityIds() : 0;
-    numFaces = faces ? grid->GetPolyhedronFaces()->GetNumberOfCells() : 0;
   }
 
   // New output grid: merging of existing and incoming grids
@@ -462,30 +386,18 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
     memcpy(cptr, types, numCells * sizeof(unsigned char));
   }
 
-  // FACES LOCATION ARRAY
-  vtkNew<vtkCellArray> facesLocationArray;
-  facesLocationArray->AllocateEstimate(totalNumCells, 4); // assume 4 faces/cell
-  facesLocationArray->GetOffsetsArray()->SetNumberOfValues(totalNumCells + 1);
-  if (!firstSet && flocs)
-  {
-    auto copycells = std::min(numCells, totalNumCells);
-    facesLocationArray->GetConnectivityArray()->DeepCopy(flocs->GetConnectivityArray());
-    flocs->GetOffsetsArray()->GetTuples(0, copycells, facesLocationArray->GetOffsetsArray());
-  }
-  else if (!firstSet)
-  {
-    facesLocationArray->GetOffsetsArray()->FillComponent(0, 0);
-  }
-
+  // POLYHEDRA: the faces of the cells of the merged grid so far, then of the new cells
+  vtkPolyhedronCellArray* newPolyhedra = newGrid->GetPolyhedronCellArray();
+  vtkNew<vtkPolyhedronCellArray> polyhedra;
   bool havePolyhedron = false;
-
-  // FACES ARRAY
-  vtkNew<vtkCellArray> facesArray;
-  facesArray->AllocateExact(numFaces, numFacesConnections);
-  if (!firstSet && faces)
+  if (gridPolyhedra)
   {
     havePolyhedron = true;
-    facesArray->DeepCopy(faces);
+    polyhedra->DeepCopy(gridPolyhedra);
+  }
+  else
+  {
+    polyhedra->InsertEmptyCells(numCells);
   }
 
   // set up new cell data
@@ -494,6 +406,8 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
   vtkCellData* cellArrays = set->GetCellData();
 
   vtkIdType oldPtId, finalPtId, nextDuplicateCellId = 0;
+  std::vector<vtkIdType> faceStream;
+  vtkNew<vtkIdList> facePtIds;
 
   for (vtkIdType oldCellId = 0; oldCellId < newNumCells; oldCellId++)
   {
@@ -524,32 +438,26 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
 
     if (cellType == VTK_POLYHEDRON)
     {
+      // The faces of the polyhedron, with their point ids mapped as the points of the cell.
       havePolyhedron = true;
-      auto newPolyFaces = newGrid->GetPolyhedronFaces();
-      auto newPolyFacesLoc = newGrid->GetPolyhedronFaceLocations();
-      vtkIdType nfaces;
-
-      newPolyFacesLoc->Dispatch(CopyMappedPolyhedronCell{}, oldCellId, newPolyFaces, facesArray,
-        this->NumberOfPoints, idMap, nfaces);
-
-      auto faceLocOff = facesLocationArray->GetOffsetsArray();
-      auto faceLocCon = facesLocationArray->GetConnectivityArray();
-
-      auto startFace = faceLocCon->GetNumberOfValues();
-      faceLocOff->SetTuple1(finalCellId, startFace);
-      faceLocOff->SetTuple1(finalCellId + 1, startFace + nfaces);
-      for (vtkIdType loc = startFace; loc < startFace + nfaces; ++loc)
+      faceStream.clear();
+      const int numFaces = newPolyhedra->GetCellNumberOfFaces(oldCellId);
+      for (int face = 0; face < numFaces; ++face)
       {
-        faceLocCon->InsertTuple1(loc, loc);
+        vtkIdType numFacePts;
+        const vtkIdType* facePts;
+        newPolyhedra->GetFacePoints(oldCellId, face, numFacePts, facePts, facePtIds);
+        faceStream.push_back(numFacePts);
+        for (vtkIdType i = 0; i < numFacePts; ++i)
+        {
+          faceStream.push_back(idMap ? idMap[facePts[i]] : this->NumberOfPoints + facePts[i]);
+        }
       }
+      polyhedra->InsertNextCell(numFaces, faceStream.data());
     }
     else
     {
-      // For non-polyhedron cells, set face location offset.
-      // When finalCellId is 0, there's no previous cell, so use 0.
-      vtkIdType tmp =
-        (finalCellId > 0) ? facesLocationArray->GetOffsetsArray()->GetTuple1(finalCellId - 1) : 0;
-      facesLocationArray->GetOffsetsArray()->SetTuple1(finalCellId, tmp);
+      polyhedra->InsertEmptyCells(1);
     }
 
     grid->GetCellData()->CopyData(
@@ -560,7 +468,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
 
   if (havePolyhedron)
   {
-    grid->SetPolyhedralCells(typeArray, finalCellArray, facesLocationArray, facesArray);
+    grid->SetPolyhedralCells(typeArray, finalCellArray, polyhedra);
   }
   else
   {

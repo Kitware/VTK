@@ -18,6 +18,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataToUnstructuredGrid.h"
+#include "vtkPolyhedronCellArray.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkTimeStamp.h"
@@ -25,6 +26,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
+#include <limits>
 #include <numeric>
 #include <vector>
 
@@ -36,8 +38,6 @@ struct ExtractedCellsT
 {
   vtkSmartPointer<vtkCellArray> Connectivity;
   vtkSmartPointer<vtkUnsignedCharArray> CellTypes;
-  vtkSmartPointer<vtkCellArray> PolyFaces;
-  vtkSmartPointer<vtkCellArray> PolyFaceLocations;
 };
 
 //=============================================================================
@@ -301,100 +301,125 @@ ExtractedCellsT ExtractCells(vtkDataSet* input, const CellWorkT& work, unsigned 
   return result;
 }
 
-//------------------------------------------------------------------------------
-/**
- * Extract polyhedral cell-face information form input. Adds `Faces` and
- * `FaceLocations` to `result`.
- */
-template <typename CellWorkT>
-void ExtractPolyhedralFaces(
-  ExtractedCellsT& result, vtkUnstructuredGrid* input, const CellWorkT& work)
+//----------------------------------------------------------------------------
+// The number of faces and of face points of the cells cellIds[begin, end) of the source.
+struct CountCellsImpl : public vtkPolyhedronCellArray::DispatchUtilities
 {
-  const auto numCells = work.GetNumberOfCells();
-  auto inFaceLocations = input->GetPolyhedronFaceLocations();
-  auto inFaces = input->GetPolyhedronFaces();
-
-  vtkNew<vtkIdTypeArray> connectivityPoly;
-  vtkNew<vtkIdTypeArray> offsetsPoly;
-  vtkNew<vtkIdTypeArray> connectivityPolyFaces;
-  vtkNew<vtkIdTypeArray> offsetsPolyFaces;
-
-  vtkIdType outFacesSize = 0;
-  vtkIdType outFaceLocSize = 0;
-
-  for (vtkIdType cc = 0; cc < numCells; ++cc)
+  template <class FaceOffsetsT, class FaceConnectivityT, class LocationOffsetsT,
+    class LocationConnectivityT>
+  void operator()(FaceOffsetsT* faceOffsets, FaceConnectivityT*, LocationOffsetsT* locationOffsets,
+    LocationConnectivityT* locationConnectivity, const vtkIdType* cellIds, vtkIdType begin,
+    vtkIdType end, vtkIdType* numFaces, vtkIdType* numPoints) const
   {
-    const auto size = inFaceLocations->GetCellSize(work.GetCellId(cc));
-    if (size != 0)
+    for (vtkIdType i = begin; i < end; ++i)
     {
-      outFaceLocSize += size;
+      const auto faceIds = GetCellRange(locationOffsets, locationConnectivity, cellIds[i]);
+      vtkIdType cellPoints = 0;
+      for (const vtkIdType faceId : faceIds)
+      {
+        cellPoints += GetCellSize(faceOffsets, faceId);
+      }
+      numFaces[i] = faceIds.size();
+      numPoints[i] = cellPoints;
     }
   }
-  offsetsPoly->SetNumberOfValues(numCells + 1);
-  connectivityPoly->SetNumberOfValues(outFaceLocSize);
-  offsetsPoly->SetValue(0, 0);
-  // Prepare polyhedron cells offsets
-  vtkIdType facePos = 0;
-  vtkNew<vtkIdList> faceIds;
-  for (vtkIdType cc = 0; cc < numCells; ++cc)
+};
+
+//----------------------------------------------------------------------------
+// Write the cells cellIds[begin, end) of the source into the arrays of the extracted cells,
+// whose faces and face points start at cellFaceOffsets and cellPointOffsets.
+template <typename ValueT>
+struct WriteCellsImpl : public vtkPolyhedronCellArray::DispatchUtilities
+{
+  template <class FaceOffsetsT, class FaceConnectivityT, class LocationOffsetsT,
+    class LocationConnectivityT>
+  void operator()(FaceOffsetsT* faceOffsets, FaceConnectivityT* faceConnectivity,
+    LocationOffsetsT* locationOffsets, LocationConnectivityT* locationConnectivity,
+    const vtkIdType* cellIds, vtkIdType begin, vtkIdType end, const vtkIdType* cellFaceOffsets,
+    const vtkIdType* cellPointOffsets, const vtkIdType* pointMap, ValueT* outFaceOffsets,
+    ValueT* outFaceConnectivity, ValueT* outLocationOffsets, ValueT* outLocationConnectivity) const
   {
-    const auto size = inFaceLocations->GetCellSize(work.GetCellId(cc));
-    if (size != 0)
+    for (vtkIdType i = begin; i < end; ++i)
     {
-      vtkIdType nfaces;
-      const vtkIdType* faces;
-      inFaceLocations->GetCellAtId(work.GetCellId(cc), nfaces, faces, faceIds);
-      for (vtkIdType face = 0; face < nfaces; ++face)
+      vtkIdType face = cellFaceOffsets[i];
+      vtkIdType point = cellPointOffsets[i];
+      outLocationOffsets[i] = static_cast<ValueT>(face);
+      for (const vtkIdType faceId : GetCellRange(locationOffsets, locationConnectivity, cellIds[i]))
       {
-        outFacesSize += inFaces->GetCellSize(faces[face]);
-        // Store local to global faceId for later reuse
-        connectivityPoly->SetValue(facePos, faces[face]);
-        facePos++;
+        outLocationConnectivity[face] = static_cast<ValueT>(face);
+        outFaceOffsets[face++] = static_cast<ValueT>(point);
+        for (const vtkIdType id : GetCellRange(faceOffsets, faceConnectivity, faceId))
+        {
+          outFaceConnectivity[point++] = static_cast<ValueT>(pointMap ? pointMap[id] : id);
+        }
       }
     }
-    offsetsPoly->SetValue(cc + 1, facePos);
   }
-  faceIds->Initialize();
-  offsetsPolyFaces->SetNumberOfValues(outFaceLocSize + 1);
-  connectivityPolyFaces->SetNumberOfValues(outFacesSize);
-  connectivityPolyFaces->FillValue(0);
-  offsetsPolyFaces->SetValue(0, 0);
-  // Prepare offsets needed for SMPTools
-  facePos = 0;
-  for (vtkIdType face = 0; face < outFaceLocSize; ++face)
-  {
-    const auto size = inFaces->GetCellSize(connectivityPoly->GetValue(face));
-    facePos += size;
-    offsetsPolyFaces->SetValue(face + 1, facePos);
-  }
-  // Now copy polyhedron Faces.
-  vtkSMPTools::For(0, outFaceLocSize,
-    [&](vtkIdType start, vtkIdType end)
+};
+
+//------------------------------------------------------------------------------
+// The polyhedra of the numCells cells cellIds of source, in this order, with their own faces,
+// numbered in this order, whose point id `id` becomes pointMap[id]. The faces are counted, then
+// written by threads, in 64-bit arrays if the faces of source are or if needed, otherwise 32-bit.
+vtkSmartPointer<vtkPolyhedronCellArray> ExtractPolyhedra(vtkPolyhedronCellArray* source,
+  const vtkIdType* cellIds, vtkIdType numCells, const vtkIdType* pointMap)
+{
+  std::vector<vtkIdType> cellFaceOffsets(numCells + 1, 0);
+  std::vector<vtkIdType> cellPointOffsets(numCells + 1, 0);
+  vtkSMPTools::For(0, numCells,
+    [&](vtkIdType begin, vtkIdType end)
     {
-      vtkNew<vtkIdList> facePts;
-      for (vtkIdType cc = start; cc < end; ++cc)
-      {
-        vtkIdType npts;
-        const vtkIdType* pts;
-        vtkIdType faceId = connectivityPoly->GetValue(cc);
-        inFaces->GetCellAtId(faceId, npts, pts, facePts);
-        const auto loc = offsetsPolyFaces->GetValue(cc);
-        auto optr = connectivityPolyFaces->GetPointer(loc);
-        std::transform(
-          pts, pts + npts, optr, [&work](vtkIdType id) { return work.GetPointId(id); });
-      }
+      source->Dispatch(
+        CountCellsImpl{}, cellIds, begin, end, cellFaceOffsets.data(), cellPointOffsets.data());
     });
-  // Finalize the mapping to local faces
-  facePos = 0;
-  for (vtkIdType face = 0; face < outFaceLocSize; ++face)
+  const vtkIdType numFaces = vtkSMPTools::ExclusiveScan(
+    cellFaceOffsets.data(), cellFaceOffsets.data() + numCells + 1, vtkIdType(0));
+  const vtkIdType numPoints = vtkSMPTools::ExclusiveScan(
+    cellPointOffsets.data(), cellPointOffsets.data() + numCells + 1, vtkIdType(0));
+
+  auto polyhedra = vtkSmartPointer<vtkPolyhedronCellArray>::New();
+  auto write = [&](auto zero)
   {
-    connectivityPoly->SetValue(face, face);
+    using ValueT = decltype(zero);
+    using ArrayT = vtkAOSDataArrayTemplate<ValueT>;
+    vtkNew<ArrayT> faceOffsets;
+    vtkNew<ArrayT> faceConnectivity;
+    vtkNew<ArrayT> locationOffsets;
+    vtkNew<ArrayT> locationConnectivity;
+    faceOffsets->SetNumberOfValues(numFaces + 1);
+    faceConnectivity->SetNumberOfValues(numPoints);
+    locationOffsets->SetNumberOfValues(numCells + 1);
+    locationConnectivity->SetNumberOfValues(numFaces);
+    ValueT* outFaceOffsets = faceOffsets->GetPointer(0);
+    ValueT* outFaceConnectivity = faceConnectivity->GetPointer(0);
+    ValueT* outLocationOffsets = locationOffsets->GetPointer(0);
+    ValueT* outLocationConnectivity = locationConnectivity->GetPointer(0);
+    vtkSMPTools::For(0, numCells,
+      [&](vtkIdType begin, vtkIdType end)
+      {
+        source->Dispatch(WriteCellsImpl<ValueT>{}, cellIds, begin, end, cellFaceOffsets.data(),
+          cellPointOffsets.data(), pointMap, outFaceOffsets, outFaceConnectivity,
+          outLocationOffsets, outLocationConnectivity);
+      });
+    outFaceOffsets[numFaces] = static_cast<ValueT>(numPoints);
+    outLocationOffsets[numCells] = static_cast<ValueT>(numFaces);
+    vtkNew<vtkCellArray> faces;
+    faces->SetData(faceOffsets, faceConnectivity);
+    vtkNew<vtkCellArray> locations;
+    locations->SetData(locationOffsets, locationConnectivity);
+    polyhedra->SetData(faces, locations);
+  };
+  // vtkIdType may be 32-bit
+  if (source->GetFaces()->IsStorage64Bit() ||
+    static_cast<vtkTypeInt64>(numPoints) > std::numeric_limits<vtkTypeInt32>::max())
+  {
+    write(vtkTypeInt64{});
   }
-  // Prepare return result
-  result.PolyFaceLocations.TakeReference(vtkCellArray::New());
-  result.PolyFaceLocations->SetData(offsetsPoly, connectivityPoly);
-  result.PolyFaces.TakeReference(vtkCellArray::New());
-  result.PolyFaces->SetData(offsetsPolyFaces, connectivityPolyFaces);
+  else
+  {
+    write(vtkTypeInt32{});
+  }
+  return polyhedra;
 }
 
 //------------------------------------------------------------------------------
@@ -455,7 +480,6 @@ vtkSmartPointer<vtkIdList> ConvertToPointIdsToExtract(vtkIdList* pointMap)
   srcIds->Squeeze();
   return srcIds;
 }
-
 } // end anonymous namespace
 
 //=============================================================================
@@ -696,13 +720,15 @@ int vtkExtractCells::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Handle polyhedral cells
   auto inputUG = vtkUnstructuredGrid::SafeDownCast(input);
-  if (inputUG && inputUG->GetPolyhedronFaces() && inputUG->GetPolyhedronFaceLocations() &&
-    inputUG->GetPolyhedronFaceLocations()->GetOffsetsArray()->GetRange(0)[1] != 0)
+  vtkPolyhedronCellArray* inputPolyhedra = inputUG ? inputUG->GetPolyhedronCellArray() : nullptr;
+  vtkSmartPointer<vtkPolyhedronCellArray> polyhedra;
+  if (inputPolyhedra && inputPolyhedra->GetFaceLocations()->GetOffsetsArray()->GetRange(0)[1] != 0)
   {
-    ::ExtractPolyhedralFaces(cells, inputUG, work);
+    // The faces of the extracted cells, in their order, with their point ids mapped.
+    polyhedra =
+      ::ExtractPolyhedra(inputPolyhedra, work.CellListPtr, work.NumberOfCells, work.PointMapPtr);
   }
-  output->SetPolyhedralCells(
-    cells.CellTypes, cells.Connectivity, cells.PolyFaceLocations, cells.PolyFaces);
+  output->SetPolyhedralCells(cells.CellTypes, cells.Connectivity, polyhedra);
   this->UpdateProgress(1.00);
 
   return 1;
