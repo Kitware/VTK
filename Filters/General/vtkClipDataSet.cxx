@@ -445,7 +445,7 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     if (!(cellId % updateTime))
     {
       this->UpdateProgress(0.4 + (static_cast<double>(cellId) / clippingCellIds.size()) * 0.45);
-      abort = this->CheckAbort();
+      abort = this->CheckAbortAndInvoke();
     }
 
     vtkIdType cid = clippingCellIds[cellId];
@@ -511,6 +511,8 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
 
   this->Locator->Initialize(); // release any extra memory
   output->Squeeze();
+
+  this->InvokeCleanupAbortCheck();
 
   return 1;
 }
