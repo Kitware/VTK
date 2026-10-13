@@ -146,18 +146,19 @@ public:
   ///@{
   /**
    * Angle in degrees at which the starting color (red) is placed on the
-   * color wheel. It is set to 90 to match colors computed by
-   * vtkMultiVariateToRGBA.
+   * color wheel. It is read from vtkMultiVariateToRGBA, so that the color
+   * wheel matches the colors computed for the points.
    */
-  vtkGetMacro(ColorWheelStartAngle, int);
+  int GetColorWheelStartAngle();
   ///@}
 
   ///@{
   /**
    * Colors are laid out in clockwise order if true, counter-clockwise otherwise.
-   * It is set to true to match colors computed by vtkMultiVariateToRGBA.
+   * It is read from vtkMultiVariateToRGBA, so that the color wheel matches
+   * the colors computed for the points.
    */
-  vtkGetMacro(ColorWheelClockwiseOrdering, bool);
+  bool GetColorWheelClockwiseOrdering();
   ///@}
 
   ///@{
@@ -474,8 +475,6 @@ protected:
   vtkSmartPointer<vtkTextProperty> LabelsProperties = vtkSmartPointer<vtkTextProperty>::New();
   int ColorWheelSegmentCount = 120;
   int ColorWheelRingCount = 16;
-  int ColorWheelStartAngle = 90;
-  bool ColorWheelClockwiseOrdering = true;
   bool ColorWheelVisibility = true;
   bool ScalarVisibility = false;
 

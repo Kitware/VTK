@@ -162,6 +162,19 @@ public:
 
   ///@{
   /**
+   * Orientation of a color wheel that matches the computed colors: the
+   * angle in degrees, counter-clockwise from the X axis, at which the
+   * starting color (red) is placed, and if the colors are laid out in
+   * clockwise order. These depend on FlipY: 90 and clockwise if FlipY is
+   * true, 270 and counter-clockwise otherwise.
+   * @sa vtkPlotRadViz
+   */
+  int GetColorWheelStartAngle() { return this->FlipY ? 90 : 270; }
+  bool GetColorWheelClockwiseOrdering() { return this->FlipY; }
+  ///@}
+
+  ///@{
+  /**
    * Set and get the controller.
    */
   virtual void SetController(vtkMultiProcessController*);

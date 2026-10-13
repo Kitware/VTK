@@ -549,8 +549,22 @@ void vtkPlotRadViz::DrawLens(vtkContext2D* painter)
   painter->DrawArc(this->LensCenter[0], this->LensCenter[1], this->LensRadius, 0, 360);
 }
 
+int vtkPlotRadViz::GetColorWheelStartAngle()
+{
+  return this->ComputeGBC->GetColorWheelStartAngle();
+}
+
+//------------------------------------------------------------------------------
+bool vtkPlotRadViz::GetColorWheelClockwiseOrdering()
+{
+  return this->ComputeGBC->GetColorWheelClockwiseOrdering();
+}
+
+//------------------------------------------------------------------------------
 void vtkPlotRadViz::DrawColorWheel(vtkContext2D* painter)
 {
+  const int startAngle = this->GetColorWheelStartAngle();
+  const bool clockwiseOrdering = this->GetColorWheelClockwiseOrdering();
   painter->GetBrush()->SetColor(0, 0, 0, 255); // opaque
   // The hue varies with the angle and the saturation with the radius, using
   // the same HSL conversion as vtkMultiVariateToRGBA, so the wheel matches
@@ -561,7 +575,7 @@ void vtkPlotRadViz::DrawColorWheel(vtkContext2D* painter)
     double shiftToCenterColor = 180.0 / this->ColorWheelSegmentCount;
     double start = 360.0 * i / this->ColorWheelSegmentCount - shiftToCenterColor;
     double end = 360.0 * (i + 1) / this->ColorWheelSegmentCount - shiftToCenterColor;
-    if (this->ColorWheelClockwiseOrdering)
+    if (clockwiseOrdering)
     {
       // DrawEllipseWedge wants start < end.
       double start_ = 360 - end;
@@ -569,8 +583,8 @@ void vtkPlotRadViz::DrawColorWheel(vtkContext2D* painter)
       start = start_;
       end = end_;
     }
-    start += this->ColorWheelStartAngle;
-    end += this->ColorWheelStartAngle;
+    start += startAngle;
+    end += startAngle;
     for (int j = 0; j < this->ColorWheelRingCount; ++j)
     {
       double saturation = (j + 0.5) / this->ColorWheelRingCount;
