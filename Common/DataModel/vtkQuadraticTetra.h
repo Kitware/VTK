@@ -41,14 +41,19 @@ public:
   vtkTypeMacro(vtkQuadraticTetra, vtkNonLinearCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_QUADRATIC_TETRA);
+
   ///@{
   /**
    * Implement the vtkCell API. See the vtkCell API for descriptions
    * of these methods.
    */
-  int GetCellType() override { return VTK_QUADRATIC_TETRA; }
-  int GetNumberOfEdges() override { return 6; }
-  int GetNumberOfFaces() override { return 4; }
+  int GetCellType() override { return Traits::CellType; }
+  int GetNumberOfEdges() override { return Traits::NumberOfEdges; }
+  int GetNumberOfFaces() override { return Traits::NumberOfFaces; }
   vtkCell* GetEdge(int) override;
   vtkCell* GetFace(int) override;
   ///@}

@@ -40,11 +40,16 @@ public:
   vtkTypeMacro(vtkHigherOrderTetra, vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  int GetCellType() override { return VTK_HIGHER_ORDER_TETRAHEDRON; }
-  int GetCellDimension() override { return 3; }
+  /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_HIGHER_ORDER_TETRAHEDRON);
+
+  int GetCellType() override { return Traits::CellType; }
+  int GetCellDimension() override { return Traits::Dimension; }
   int RequiresInitialization() override { return 1; }
-  int GetNumberOfEdges() override { return 6; }
-  int GetNumberOfFaces() override { return 4; }
+  int GetNumberOfEdges() override { return Traits::NumberOfEdges; }
+  int GetNumberOfFaces() override { return Traits::NumberOfFaces; }
   vtkCell* GetEdge(int edgeId) override = 0;
   vtkCell* GetFace(int faceId) override = 0;
   void SetEdgeIdsAndPoints(int edgeId,

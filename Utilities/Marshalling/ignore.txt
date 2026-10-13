@@ -238,6 +238,7 @@ Common/DataModel/vtkCellMetadata.h
 Common/DataModel/vtkCellStatus.h
 Common/DataModel/vtkCellTreeLocator.h
 Common/DataModel/vtkCellType.h
+Common/DataModel/vtkCellTypeTraits.h
 Common/DataModel/vtkCellTypeUtilities.h
 Common/DataModel/vtkCellTypes.h
 Common/DataModel/vtkClosestNPointsStrategy.h

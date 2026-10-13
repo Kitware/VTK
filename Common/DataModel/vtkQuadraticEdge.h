@@ -34,13 +34,18 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_QUADRATIC_EDGE);
+
+  /**
    * Implement the vtkCell API. See the vtkCell API for descriptions
    * of these methods.
    */
-  int GetCellType() override { return VTK_QUADRATIC_EDGE; }
-  int GetCellDimension() override { return 1; }
-  int GetNumberOfEdges() override { return 0; }
-  int GetNumberOfFaces() override { return 0; }
+  int GetCellType() override { return Traits::CellType; }
+  int GetCellDimension() override { return Traits::Dimension; }
+  int GetNumberOfEdges() override { return Traits::NumberOfEdges; }
+  int GetNumberOfFaces() override { return Traits::NumberOfFaces; }
   vtkCell* GetEdge(int) override { return nullptr; }
   vtkCell* GetFace(int) override { return nullptr; }
 

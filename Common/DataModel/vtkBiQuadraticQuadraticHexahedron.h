@@ -73,14 +73,19 @@ public:
   vtkTypeMacro(vtkBiQuadraticQuadraticHexahedron, vtkNonLinearCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON);
+
   ///@{
   /**
    * Implement the vtkCell API. See the vtkCell API for descriptions
    * of these methods.
    */
-  int GetCellType() override { return VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON; }
-  int GetNumberOfEdges() override { return 12; }
-  int GetNumberOfFaces() override { return 6; }
+  int GetCellType() override { return Traits::CellType; }
+  int GetNumberOfEdges() override { return Traits::NumberOfEdges; }
+  int GetNumberOfFaces() override { return Traits::NumberOfFaces; }
   vtkCell* GetEdge(int) override;
   vtkCell* GetFace(int) override;
   ///@}

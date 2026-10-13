@@ -35,7 +35,13 @@ public:
   static vtkLagrangeTriangle* New();
   vtkTypeMacro(vtkLagrangeTriangle, vtkHigherOrderTriangle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  int GetCellType() override { return VTK_LAGRANGE_TRIANGLE; }
+
+  /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_LAGRANGE_TRIANGLE);
+
+  int GetCellType() override { return Traits::CellType; }
 
   vtkCell* GetEdge(int edgeId) override;
   void InterpolateFunctions(const double pcoords[3], double* weights) override;

@@ -167,6 +167,17 @@ VTK_ABI_NAMESPACE_BEGIN
 template <typename... Ts>
 using Create = typename vtkTypeList::detail::CreateImpl<Ts...>::type;
 
+//------------------------------------------------------------------------------
+/**
+ * Call functor(T{}) for every type T of the TypeList TList, in order. It can be called at
+ * compile time.
+ */
+template <typename TList, typename Functor>
+constexpr void ForEach(Functor&& functor)
+{
+  vtkTypeList::detail::ForEachImpl<TList>::Call(functor);
+}
+
 VTK_ABI_NAMESPACE_END
 } // end namespace vtkTypeList
 

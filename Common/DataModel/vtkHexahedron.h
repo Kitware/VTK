@@ -49,40 +49,17 @@ public:
   ///@}
 
   /**
-   * static constexpr handle on the number of points.
+   * The traits of the cell type, see vtkCellTypeTraits.
    */
-  static constexpr vtkIdType NumberOfPoints = 8;
-
-  /**
-   * static contexpr handle on the number of faces.
-   */
-  static constexpr vtkIdType NumberOfEdges = 12;
-
-  /**
-   * static contexpr handle on the number of edges.
-   */
-  static constexpr vtkIdType NumberOfFaces = 6;
-
-  /**
-   * static contexpr handle on the maximum face size. It can also be used
-   * to know the number of faces adjacent to one face.
-   */
-  static constexpr vtkIdType MaximumFaceSize = 4;
-
-  /**
-   * static constexpr handle on the maximum valence of this cell.
-   * The valence of a vertex is the number of incident edges (or equivalently faces)
-   * to this vertex. It is also equal to the size of a one ring neighborhood of a vertex.
-   */
-  static constexpr vtkIdType MaximumValence = 3;
+  vtkCellTypeTraitsMembersMacro(VTK_HEXAHEDRON);
 
   ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() override { return VTK_HEXAHEDRON; }
-  int GetNumberOfEdges() override { return 12; }
-  int GetNumberOfFaces() override { return 6; }
+  int GetCellType() override { return Traits::CellType; }
+  int GetNumberOfEdges() override { return Traits::NumberOfEdges; }
+  int GetNumberOfFaces() override { return Traits::NumberOfFaces; }
   vtkCell* GetEdge(int edgeId) override;
   vtkCell* GetFace(int faceId) override;
   int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;

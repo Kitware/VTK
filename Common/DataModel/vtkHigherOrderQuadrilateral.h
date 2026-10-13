@@ -32,11 +32,16 @@ public:
   vtkTypeMacro(vtkHigherOrderQuadrilateral, vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  int GetCellType() override { return VTK_HIGHER_ORDER_QUADRILATERAL; }
-  int GetCellDimension() override { return 2; }
+  /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_HIGHER_ORDER_QUADRILATERAL);
+
+  int GetCellType() override { return Traits::CellType; }
+  int GetCellDimension() override { return Traits::Dimension; }
   int RequiresInitialization() override { return 0; }
-  int GetNumberOfEdges() override { return 4; }
-  int GetNumberOfFaces() override { return 0; }
+  int GetNumberOfEdges() override { return Traits::NumberOfEdges; }
+  int GetNumberOfFaces() override { return Traits::NumberOfFaces; }
   vtkCell* GetEdge(int edgeId) override = 0;
   vtkCell* GetFace(int vtkNotUsed(faceId)) override { return nullptr; }
   void SetEdgeIdsAndPoints(int edgeId,

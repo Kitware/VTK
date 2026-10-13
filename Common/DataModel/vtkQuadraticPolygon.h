@@ -39,11 +39,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_QUADRATIC_POLYGON);
+
+  /**
    * Implement the vtkCell API. See the vtkCell API for descriptions
    * of these methods.
    */
-  int GetCellType() override { return VTK_QUADRATIC_POLYGON; }
-  int GetCellDimension() override { return 2; }
+  int GetCellType() override { return Traits::CellType; }
+  int GetCellDimension() override { return Traits::Dimension; }
   int GetNumberOfEdges() override { return this->GetNumberOfPoints() / 2; }
   int GetNumberOfFaces() override { return 0; }
   vtkCell* GetEdge(int) override;
