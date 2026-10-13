@@ -31,7 +31,7 @@ static int vtkMapperGlobalResolveCoincidentTopology = VTK_RESOLVE_OFF;
 static double vtkMapperGlobalResolveCoincidentTopologyZShift = 0.01;
 static int vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFaces = 1;
 
-static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor = 0.0;
+static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor = 1.0;
 static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits = 0.0;
 static double vtkMapperGlobalResolveCoincidentTopologyLineOffsetFactor = 0.0;
 static double vtkMapperGlobalResolveCoincidentTopologyLineOffsetUnits = -4.0;
