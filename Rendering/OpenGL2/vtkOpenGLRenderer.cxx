@@ -908,12 +908,6 @@ void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow* w)
 
 vtkOpenGLRenderer::~vtkOpenGLRenderer()
 {
-  if (this->Pass != nullptr)
-  {
-    this->Pass->UnRegister(this);
-    this->Pass = nullptr;
-  }
-
   if (this->FXAAFilter)
   {
     this->FXAAFilter->Delete();

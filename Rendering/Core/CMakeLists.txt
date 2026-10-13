@@ -20,11 +20,13 @@ set(classes
   vtkBillboardTextActor3D
   vtkCamera
   vtkCameraActor
+  vtkCameraPass
   vtkCameraInterpolator
   vtkCellCenterDepthSort
   vtkCellGraphicsPrimitiveMap
   vtkCellGridMapper
   vtkCellGridRenderRequest
+  vtkClearRGBPass
   vtkColorTransferFunction
   vtkCompositeCellGridMapper
   vtkCompositeDataDisplayAttributes
@@ -67,6 +69,7 @@ set(classes
   vtkLightActor
   vtkLightCollection
   vtkLightKit
+  vtkLightingMapPass
   vtkLightsPass
   vtkLogLookupTable
   vtkLookupTableWithEnabling
@@ -92,6 +95,7 @@ set(classes
   vtkRenderPass
   vtkRenderPassCollection
   vtkRenderState
+  vtkRenderStepsPass
   vtkRenderTimerLog
   vtkRenderWindow
   vtkRenderWindowCollection

@@ -1,10 +1,14 @@
-Render passes that are not specific to OpenGL have been moved from `RenderingOpenGL2` to `RenderingCore`, so that they will be able to be used with WebGPU. The moved classes are as follows:
+Render passes that are not specific to OpenGL have been moved from `RenderingOpenGL2` to `RenderingCore`, so that they can be used with WebGPU. The moved classes are as follows:
 
+- `vtkCameraPass`
+- `vtkClearRGBPass`
 - `vtkDefaultPass`
+- `vtkLightingMapPass`
 - `vtkLightsPass`
 - `vtkOpaquePass`
 - `vtkOverlayPass`
 - `vtkRenderPassCollection`
+- `vtkRenderStepsPass`
 - `vtkSequencePass`
 - `vtkTranslucentPass`
 - `vtkVolumetricPass`

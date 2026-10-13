@@ -21,6 +21,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverrideAttribute.h"
+#include "vtkRenderPass.h"
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
@@ -573,16 +574,29 @@ void vtkWebGPURenderer::RecordRenderCommands()
     this->WGPURenderEncoder =
       wgpuRenderWindow->NewRenderPass(static_cast<WGPURenderPassDescriptor&>(renderPassDescriptor));
     this->BeginRecording();
-    // 1. Draw the background color/texture.
-    // updates viewport and scissor rectangles on the render pass encoder.
-    this->ActiveCamera->UpdateViewport(this);
-    // clear the viewport rectangle to background color.
-    if (this->RenderWindow->GetErase() && this->Erase)
+
+    // Geometry pass
+    if (this->Pass != nullptr)
     {
-      this->Clear();
+      vtkRenderState s(this);
+      s.SetPropArrayAndCount(this->PropArray.data(), static_cast<int>(this->PropArray.size()));
+      s.SetFrameBuffer(nullptr);
+      this->Pass->Render(&s);
     }
-    // 2. Now render all opaque and translucent props.
-    this->UpdateGeometry();
+    else
+    {
+
+      // 1. Draw the background color/texture.
+      // updates viewport and scissor rectangles on the render pass encoder.
+      this->ActiveCamera->UpdateViewport(this);
+      // clear the viewport rectangle to background color.
+      if (this->RenderWindow->GetErase() && this->Erase)
+      {
+        this->Clear();
+      }
+      // 2. Now render all opaque and translucent props.
+      this->UpdateGeometry();
+    }
     this->EndRecording();
   }
   else

@@ -20,13 +20,13 @@
 #define vtkLightingMapPass_h
 
 #include "vtkDefaultPass.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationIntegerKey;
 
-class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkLightingMapPass : public vtkDefaultPass
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkLightingMapPass : public vtkDefaultPass
 {
 public:
   static vtkLightingMapPass* New();
