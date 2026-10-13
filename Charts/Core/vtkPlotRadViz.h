@@ -29,8 +29,10 @@
  * (ColorWheelVisibility) that shows the color computed for a point at
  * that position using the same computation as for vtkMultiVariateToRGBA.
  *
- * Alternatively, you can use ScalarVisibility to show the color and
- * opacity on the points.
+ * Alternatively, you can use ScalarVisibility to show the color on
+ * the points. If ScalarVisibility is off, all points use the color of
+ * the pen. The opacity of the points is computed from the data in both
+ * cases, the opacity of the pen is not used.
  *
  * The components are shown as vertices on the outer circle outline of
  * the plot. The vertices can be rotated using VerticesRotation, which
@@ -171,6 +173,8 @@ public:
   /**
    * Turn on/off flag to control whether scalar data is used to color objects.
    * The RGBA colors are automatically computed by vtkMultiVariateToRGBA.
+   * If off, the points use the color of the pen. The opacity of the points
+   * is the computed one (A) in both cases. Default is off.
    */
   vtkSetMacro(ScalarVisibility, bool);
   vtkGetMacro(ScalarVisibility, bool);
