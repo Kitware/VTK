@@ -2200,12 +2200,26 @@ uniform highp int edgeVisibility;)");
     }
     pos[3] = pos[0];
     float ccw = sign(cross(vec3(pos[1] - pos[0], 0.0), vec3(pos[2] - pos[0], 0.0)).z);
+    edgeEqn[3] = vec4(0.0);
     for (int i = 0; i < 3; i++)
     {
-      vec2 tmp = normalize(pos[i+1] - pos[i]);
-      tmp = ccw*vec2(-tmp.y, tmp.x);
-      float d = dot(pos[i], tmp);
-      edgeEqn[i] = vec4(tmp.x, tmp.y, 0.0, -d);
+      vec2 a = pos[i];
+      vec2 b = pos[i+1];
+      if (a.x > b.x || (a.x == b.x && a.y > b.y))
+      {
+        a = pos[i+1];
+        b = pos[i];
+      }
+      vec2 tmp = normalize(b - a);
+      vec2 n = vec2(-tmp.y, tmp.x);
+      if (abs(n.x) > abs(n.y) ? n.x < 0.0 : n.y > 0.0)
+      {
+        n = -n;
+      }
+      float d = dot(a, n);
+      float s = ccw * sign(dot(n, vec2(pos[i].y - pos[i+1].y, pos[i+1].x - pos[i].x)));
+      edgeEqn[i] = vec4(s * n.x, s * n.y, 0.0, -s * d);
+      edgeEqn[3][i] = s;
     }
     if (usesEdgeValues == 1)
     {
@@ -2253,7 +2267,14 @@ uniform float edgeWidth;
     {
       // Threshold on the half width instead so each
       // triangle paints only its own half of the edge.
-      if (min(min(edist[0], edist[1]), edist[2]) > 0.5 * edgeWidth)
+      float halfWidth = 0.5 * edgeWidth;
+      bool onEdge = false;
+      for (int i = 0; i < 3; ++i)
+      {
+        onEdge = onEdge ||
+          (edgeEqn[3][i] > 0.0 ? edist[i] <= halfWidth : edist[i] < halfWidth);
+      }
+      if (!onEdge)
       {
         opacity = 0.0;
       }
