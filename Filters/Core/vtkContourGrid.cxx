@@ -212,6 +212,8 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
     const int numComps = cellScalars->GetNumberOfComponents();
     int cellType;
     int dimensionality;
+    vtkIdType minCheckAbort = 1000;
+    vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, minCheckAbort);
     // We skip 0d cells (points), because they cannot be cut (generate no data).
     for (dimensionality = 1; dimensionality <= 3; ++dimensionality)
     {
@@ -259,10 +261,11 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
           }
         }
 
-        if (dimensionality == 3 && !(cellIter->GetCellId() % 5000))
+        if (cellIter->GetCellId() % checkAbortInterval == 0)
         {
-          self->UpdateProgress(static_cast<double>(cellIter->GetCellId()) / numCells);
-          if (self->CheckAbort())
+          self->UpdateProgress((static_cast<double>(dimensionality) / 3.) *
+            static_cast<double>(cellIter->GetCellId()) / numCells);
+          if (self->CheckAbortAndInvoke())
           {
             abortExecute = true;
             break;
@@ -310,18 +313,27 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
     vtkIdList* dummyIdList = nullptr;
     vtkIdType cellId = cellIter->GetCellId();
     vtkIdType numCellsContoured = 0;
-    vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, (vtkIdType)1000);
+    vtkIdType minCheckAbort = 1000;
+    vtkIdType checkAbortInterval = std::min(numCells / 10 + 1, minCheckAbort);
     for (i = 0; i < numContours && !abortExecute; i++)
     {
       for (scalarTree->InitTraversal(values[i]);
            (tmpCell = scalarTree->GetNextCell(cellId, dummyIdList, cellScalars));)
       {
-        if (numCellsContoured % checkAbortInterval == 0 && self->CheckAbort())
+        if (numCellsContoured % checkAbortInterval == 0)
         {
-          abortExecute = true;
-          break;
+          // scalar tree doesn't provide a reliable progress information, so approximate by assuming
+          // each cell will be contoured
+          self->UpdateProgress((static_cast<double>(i) / numContours) *
+            static_cast<double>(numCellsContoured) / numCells);
+          if (self->CheckAbortAndInvoke())
+          {
+            abortExecute = true;
+            break;
+          }
         }
         helper.Contour(tmpCell, values[i], cellScalars, cellId);
+        numCellsContoured++;
         // don't want to call Contour any more than necessary
       } // for all cells
     } // for all contour values
@@ -423,6 +435,7 @@ int vtkContourGrid::RequestData(vtkInformation* vtkNotUsed(request),
     output->ShallowCopy(normalsFilter->GetOutput());
   }
 
+  this->InvokeCleanupAbortCheck();
   return 1;
 }
 
