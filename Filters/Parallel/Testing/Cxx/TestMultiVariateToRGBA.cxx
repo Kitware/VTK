@@ -49,12 +49,11 @@ namespace
  * position of the point on a color wheel with the orientation reported by
  * the filter (GetColorWheelStartAngle, GetColorWheelClockwiseOrdering).
  */
-bool ColorsMatchColorWheel(vtkAlgorithmOutput* input, bool flipY)
+bool ColorsMatchColorWheel(vtkAlgorithmOutput* input)
 {
   vtkNew<vtkMultiVariateToRGBA> filter;
   filter->SetInputConnection(input);
   filter->SetStoreGBC(true);
-  filter->SetFlipY(flipY);
   filter->Update();
   vtkPointData* pointData =
     vtkDataSet::SafeDownCast(filter->GetOutputDataObject(0))->GetPointData();
@@ -62,7 +61,7 @@ bool ColorsMatchColorWheel(vtkAlgorithmOutput* input, bool flipY)
   vtkDataArray* rgba = pointData->GetArray("rgba");
   if (!gbc || !rgba)
   {
-    std::cerr << "Missing gbc or rgba array for FlipY " << flipY << std::endl;
+    std::cerr << "Missing gbc or rgba array" << std::endl;
     return false;
   }
   const double startAngle = filter->GetColorWheelStartAngle();
@@ -92,8 +91,8 @@ bool ColorsMatchColorWheel(vtkAlgorithmOutput* input, bool flipY)
   }
   if (numberOfColors == 0 || maxDifference > 1e-6)
   {
-    std::cerr << "Colors do not match the color wheel for FlipY " << flipY << ": compared "
-              << numberOfColors << " colors, maximum difference " << maxDifference << std::endl;
+    std::cerr << "Colors do not match the color wheel: compared " << numberOfColors
+              << " colors, maximum difference " << maxDifference << std::endl;
     return false;
   }
   return true;
@@ -122,8 +121,7 @@ int TestMultiVariateToRGBA(int argc, char* argv[])
   reader->SetFileName(
     (dataRoot + "/Data/Ce_Co_Fe_Gd_small_10.1038_s43246-022-00259-x.vti").c_str());
 
-  if (!ColorsMatchColorWheel(reader->GetOutputPort(), true) ||
-    !ColorsMatchColorWheel(reader->GetOutputPort(), false))
+  if (!ColorsMatchColorWheel(reader->GetOutputPort()))
   {
     return EXIT_FAILURE;
   }

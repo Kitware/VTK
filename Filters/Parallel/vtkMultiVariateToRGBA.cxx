@@ -173,9 +173,8 @@ struct NormalizeWorker
  */
 struct ComputeGBCWorker
 {
-  ComputeGBCWorker(vtkMultiVariateToRGBA* filter, double verticesRotation)
-    : Filter(filter)
-    , VerticesRotationRad(vtkMath::RadiansFromDegrees(verticesRotation))
+  ComputeGBCWorker(double verticesRotation)
+    : VerticesRotationRad(vtkMath::RadiansFromDegrees(verticesRotation))
   {
   }
   void operator()(vtkDoubleArray* normalizedArray, vtkDoubleArray* gbcArray)
@@ -267,10 +266,8 @@ struct ComputeGBCWorker
           gbc[i][0] = lth * std::cos(tempangle);
           gbc[i][1] = lth * std::sin(tempangle);
 
-          if (this->Filter->GetFlipY())
-          {
-            gbc[i][1] = -gbc[i][1];
-          }
+          // Y grows up in VTK and down in the JavaScript reference implementation
+          gbc[i][1] = -gbc[i][1];
 
           // rotate the gbc points with VerticesRotation
           double result_gbc[2];
@@ -282,10 +279,7 @@ struct ComputeGBCWorker
       });
     for (int i = 0; i < nComponents; ++i)
     {
-      if (this->Filter->GetFlipY())
-      {
-        vertices[i][1] = -vertices[i][1];
-      }
+      vertices[i][1] = -vertices[i][1];
       // rotate the vertices
       double result_vertices[2];
       // vtkMath::MultiplyMatrixWithVector<2, 2>(m, vertices[i], result_vertices);
@@ -295,16 +289,14 @@ struct ComputeGBCWorker
       vertices[i][1] = result_vertices[1];
     }
   }
-  vtkMultiVariateToRGBA* Filter = nullptr;
   double VerticesRotationRad = 0;
   vtkSmartPointer<vtkDoubleArray> Vertices;
 };
 
 struct GBCToHSLWorker
 {
-  GBCToHSLWorker(vtkMultiVariateToRGBA* filter, double lightness)
-    : Filter(filter)
-    , Lightness(lightness)
+  GBCToHSLWorker(double lightness)
+    : Lightness(lightness)
   {
   }
 
@@ -319,11 +311,8 @@ struct GBCToHSLWorker
       {
         for (vtkIdType i = begin; i < end; ++i)
         {
-          double gbcValue[2] = { gbc[i][0], gbc[i][1] };
-          if (this->Filter->GetFlipY())
-          {
-            gbcValue[1] = -gbcValue[1];
-          }
+          // undo the Y flip of ComputeGBCWorker
+          double gbcValue[2] = { gbc[i][0], -gbc[i][1] };
           double radius = std::sqrt(std::pow(gbcValue[0], 2) + std::pow(gbcValue[1], 2));
           if (radius > 1)
           {
@@ -339,7 +328,6 @@ struct GBCToHSLWorker
         }
       });
   }
-  vtkMultiVariateToRGBA* Filter = nullptr;
   double Lightness = 0;
 };
 
@@ -1027,7 +1015,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   gbcScalars->SetNumberOfComponents(2);
   gbcScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
   {
-    ComputeGBCWorker worker(this, this->VerticesRotation);
+    ComputeGBCWorker worker(this->VerticesRotation);
     worker(normalizedScalars.GetPointer(), gbcScalars.GetPointer());
     if (this->StoreVertices)
     {
@@ -1051,7 +1039,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
       hslScalars->SetNumberOfComponents(3);
       hslScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
       {
-        GBCToHSLWorker worker(this, vtkMultiVariateToRGBA::ColorLightness);
+        GBCToHSLWorker worker(vtkMultiVariateToRGBA::ColorLightness);
         worker(gbcScalars.GetPointer(), hslScalars.GetPointer());
       }
       HSLToRGBWorker worker;

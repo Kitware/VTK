@@ -150,27 +150,15 @@ public:
 
   ///@{
   /**
-   * If true, negates the Y coordinate for points and vertices, and
-   * when computing colors. This is necessary to get the same RadViz graph
-   * in VTK (origin bottom-left, Y grows up) and JavaScript (origin
-   * top-left, Y grows down). Default is true.
+   * Describe the color wheel that matches the computed colors.
+   * GetColorWheelStartAngle returns the angle at which red, the first
+   * color, is placed: 90 degrees, measured counter-clockwise from the X
+   * axis. GetColorWheelClockwiseOrdering returns true, as the colors
+   * follow each other clockwise around the wheel.
    * @sa vtkPlotRadViz
    */
-  vtkSetMacro(FlipY, bool);
-  vtkGetMacro(FlipY, bool);
-  ///@}
-
-  ///@{
-  /**
-   * Orientation of a color wheel that matches the computed colors: the
-   * angle in degrees, counter-clockwise from the X axis, at which the
-   * starting color (red) is placed, and if the colors are laid out in
-   * clockwise order. These depend on FlipY: 90 and clockwise if FlipY is
-   * true, 270 and counter-clockwise otherwise.
-   * @sa vtkPlotRadViz
-   */
-  int GetColorWheelStartAngle() { return this->FlipY ? 90 : 270; }
-  bool GetColorWheelClockwiseOrdering() { return this->FlipY; }
+  int GetColorWheelStartAngle() { return 90; }
+  bool GetColorWheelClockwiseOrdering() { return true; }
   ///@}
 
   ///@{
@@ -297,7 +285,6 @@ protected:
   bool StoreVertices = false;
   bool StoreRGBA = true;
   bool StoreA = false;
-  bool FlipY = true;
   std::vector<int> PartitionIndices;
   std::vector<int> PartitionOffsets;
   /**
