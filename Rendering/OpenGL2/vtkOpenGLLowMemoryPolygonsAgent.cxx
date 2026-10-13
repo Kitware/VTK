@@ -24,9 +24,19 @@ vtkOpenGLLowMemoryPolygonsAgent::~vtkOpenGLLowMemoryPolygonsAgent() = default;
 
 //------------------------------------------------------------------------------
 void vtkOpenGLLowMemoryPolygonsAgent::PreDrawInternal(
-  vtkRenderer*, vtkActor*, vtkOpenGLLowMemoryPolyDataMapper* lmMapper) const
+  vtkRenderer*, vtkActor* actor, vtkOpenGLLowMemoryPolyDataMapper* lmMapper) const
 {
-  lmMapper->ElementType = vtkDrawTexturedElements::ElementShape::Triangle;
+  vtkProperty* property = actor->GetProperty();
+  if (property->GetRepresentation() == VTK_WIREFRAME && property->GetLineWidth() <= 1.0)
+  {
+    this->NumberOfPseudoPrimitivesPerElement = 3;
+    lmMapper->ElementType = vtkDrawTexturedElements::ElementShape::Line;
+  }
+  else
+  {
+    this->NumberOfPseudoPrimitivesPerElement = 1;
+    lmMapper->ElementType = vtkDrawTexturedElements::ElementShape::Triangle;
+  }
   lmMapper->ShaderProgram->SetUniformi(lmMapper->UniformLocs.CellType, VTK_TRIANGLE);
 }
 

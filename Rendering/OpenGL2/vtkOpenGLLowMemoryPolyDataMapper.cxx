@@ -1306,6 +1306,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderPosition(
   int primitiveId = 0;
   int cellId = 0;
   int vertexId = 0;
+  bool hideLine = false;
   vec2 quadCoord = vec2(0.0);
   // compute primitive id and vertex id
 )";
@@ -1374,6 +1375,19 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderPosition(
       primitiveId = vertexId >> 1;
     }
   }
+  else if (cellType == 5 && primitiveSize == 2) // VTK_TRIANGLE drawn as 3 GL_LINE (s)
+  {
+    int lineVertexId = gl_VertexID - vertexIdOffset;
+    primitiveId = lineVertexId / 6;
+    int edgeId = (lineVertexId % 6) >> 1;
+    vertexId = 3 * primitiveId + (edgeId + (lineVertexId & 1)) % 3;
+    pointId = texelFetchBuffer(vertexIdBuffer, vertexId + vertexIdOffset).x + pointIdOffset;
+    if (usesEdgeValues == 1)
+    {
+      int edgeValue = int(texelFetchBuffer(edgeValueBuffer, primitiveId + edgeValueBufferOffset).x);
+      hideLine = ((edgeValue >> edgeId) & 1) == 0;
+    }
+  }
   else if (cellType == 5) // VTK_TRIANGLE
   {
     vertexId = gl_VertexID - vertexIdOffset;
@@ -1407,7 +1421,9 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderPosition(
   // Assign position vector outputs.
   vtkShaderProgram::Substitute(vsSource, "//VTK::PositionVC::Impl",
     "vertexVCVSOutput = MCVCMatrix * vertexMC;\n"
-    "  gl_Position = MCDCMatrix * vertexMC;\n");
+    "  gl_Position = MCDCMatrix * vertexMC;\n"
+    "  // place both ends of a hidden segment outside the clip volume\n"
+    "  if (hideLine) { gl_Position = vec4(2.0, 2.0, 2.0, 1.0); }\n");
 }
 
 //------------------------------------------------------------------------------
@@ -1465,6 +1481,13 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderNormal(
   else if (primitiveSize == 1)
   {
     vertexNormalVCVS = vec3(0.0, 0.0, 1.0);
+  }
+  else if (cellType == 5 && primitiveSize == 2) // VTK_TRIANGLE drawn as 3 GL_LINE (s)
+  {
+    if (cameraParallel == 1 ? vertexNormalVCVS.z < 0.0 : dot(vertexNormalVCVS, vertexVC.xyz) > 0.0)
+    {
+      vertexNormalVCVS = -vertexNormalVCVS;
+    }
   }
   else if (cellType == 3 || primitiveSize == 2)
   {
@@ -1631,6 +1654,13 @@ else if (primitiveSize == 1)
 {
   vertexNormalVCVS = vec3(0.0, 0.0, 1.0);
 }
+else if (cellType == 5 && primitiveSize == 2) // VTK_TRIANGLE drawn as 3 GL_LINE (s)
+{
+  if (cameraParallel == 1 ? vertexNormalVCVS.z < 0.0 : dot(vertexNormalVCVS, vertexVC.xyz) > 0.0)
+  {
+    vertexNormalVCVS = -vertexNormalVCVS;
+  }
+}
 else if (primitiveSize == 2)
 {
   // Enforce non-negative components for line segments to avoid dark backfaces.
@@ -1789,6 +1819,13 @@ else
   if (primitiveSize == 1)
   {
     computedNormalVCVS = vec3(0.0, 0.0, 1.0);
+  }
+  else if (cellType == 5 && primitiveSize == 2) // VTK_TRIANGLE drawn as 3 GL_LINE (s)
+  {
+    if (cameraParallel == 1 ? computedNormalVCVS.z < 0.0 : dot(computedNormalVCVS, vertexVC.xyz) > 0.0)
+    {
+      computedNormalVCVS = -computedNormalVCVS;
+    }
   }
   else if (cellType == 3 || primitiveSize == 2)
   {
@@ -2144,7 +2181,8 @@ uniform highp int edgeVisibility;)");
   std::ostringstream vsImpl;
   vsImpl
     << R"(// only compute edge equation for provoking vertex i.e p3 in a triangle made of p1, p2, p3
-  if ((((edgeVisibility == 1) || (wireframe == 1)) && (cellType == 5)) && (vertexId % 3 == 2))
+  if ((((edgeVisibility == 1) || (wireframe == 1)) && (cellType == 5) && (primitiveSize == 3)) &&
+    (vertexId % 3 == 2))
   {
     int p0 = texelFetchBuffer(vertexIdBuffer, gl_VertexID - 2).x + pointIdOffset;
     int p1 = texelFetchBuffer(vertexIdBuffer, gl_VertexID - 1).x + pointIdOffset;
@@ -2195,7 +2233,7 @@ uniform float edgeWidth;
   std::ostringstream fsImpl;
   fsImpl << R"(
   if ((vertex_pass != 1) && ((edgeVisibility == 1) || (wireframe == 1)) &&
-    (cellType == 5)) // VTK_TRIANGLE
+    (cellType == 5) && (primitiveSize == 3)) // VTK_TRIANGLE drawn as a GL_TRIANGLE
   {
     // distance gets larger as you go inside the polygon
     float edist[3];
