@@ -98,7 +98,7 @@ int vtkShrinkFilter::RequestData(
     if (cellId % tenth == 0)
     {
       this->UpdateProgress((cellId + 1) * numCellsInv);
-      abort = this->CheckAbort();
+      abort = this->CheckAbortAndInvoke();
     }
 
     // Compute the center of mass of the cell points.
@@ -171,6 +171,8 @@ int vtkShrinkFilter::RequestData(
   output->Squeeze();
 
   delete[] pointMap;
+
+  this->InvokeCleanupAbortCheck();
 
   return 1;
 }
