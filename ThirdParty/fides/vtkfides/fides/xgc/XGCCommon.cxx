@@ -12,12 +12,28 @@
 #include <fides/internal/Value.h>
 #include <fides/xgc/XGCCommon.h>
 
+#include <viskores/Math.h>
+
+#include <cmath>
 #include <numeric>
 
 namespace fides
 {
 namespace datamodel
 {
+
+class XGCCommon::XGCConfig
+{
+public:
+  std::shared_ptr<Value> NumberOfPlanes;
+  viskores::Id PlanesPerUserBlock = 8;
+  viskores::Id NumberOfCoordinatePlanes = -1;
+  viskores::Float64 PlaneOffset = 0;
+  std::string PlaneSpacingDataSource = "mesh";
+  bool PlaneSpacingChecked = false;
+  bool CoversFullToroidalDomain = true;
+  bool IsPeriodic = true;
+};
 
 class XGCCommon::XGCCommonImpl
 {
@@ -131,9 +147,8 @@ public:
 
   // need to determine a plane to block mapping, then when the user does a block
   // selection, we use this mapping to determine which planes (adios blocks) to read
-  std::pair<std::vector<XGCBlockInfo>, fides::metadata::Set<size_t>> GetXGCBlockInfo(
-    const std::vector<size_t>& userBlocks,
-    bool getPlaneSelection)
+  std::pair<std::vector<XGCBlockInfo>, fides::metadata::Set<size_t>>
+  GetXGCBlockInfo(const std::vector<size_t>& userBlocks, bool getPlaneSelection, bool periodic)
   {
     std::vector<XGCBlockInfo> allBlocks;
     fides::metadata::Set<size_t> planesToRead;
@@ -146,6 +161,12 @@ public:
         blockInfo.BlockId = b;
         blockInfo.NumberOfPlanesOwned = block.second;
         blockInfo.PlaneStartId = block.first;
+        if (!periodic && this->NumberOfBlocks > 1 && b == this->NumberOfBlocks - 1)
+        {
+          // The last block only needs plane 0 as a ghost when the global
+          // XGC mesh is periodic.
+          --blockInfo.NumberOfPlanesOwned;
+        }
         if (getPlaneSelection)
         {
           for (viskores::Id i = blockInfo.PlaneStartId;
@@ -180,13 +201,15 @@ public:
 
 XGCCommon::XGCCommon()
   : Impl(new XGCCommonImpl())
+  , Config(CurrentConfig)
 {
+  if (!this->Config)
+    this->Config = std::make_shared<XGCConfig>();
 }
 
 XGCCommon::~XGCCommon() = default;
 
-std::shared_ptr<Value> XGCCommon::NumberOfPlanes = nullptr;
-viskores::Id XGCCommon::PlanesPerUserBlock = 8;
+thread_local std::shared_ptr<XGCCommon::XGCConfig> XGCCommon::CurrentConfig;
 
 void XGCCommon::ProcessNumberOfPlanes(const rapidjson::Value& nPlanes, DataSourcesType& sources)
 {
@@ -194,23 +217,75 @@ void XGCCommon::ProcessNumberOfPlanes(const rapidjson::Value& nPlanes, DataSourc
   {
     throw std::runtime_error("number_of_planes should be an object.");
   }
-  if (!NumberOfPlanes)
-  {
-    NumberOfPlanes.reset(new Value());
-    NumberOfPlanes->ProcessJSON(nPlanes, sources);
-  }
+  auto config = std::make_shared<XGCConfig>();
+  config->NumberOfPlanes = std::make_shared<Value>();
+  config->NumberOfPlanes->ProcessJSON(nPlanes, sources);
   if (nPlanes.HasMember("planes_per_block") && nPlanes["planes_per_block"].IsInt())
   {
-    PlanesPerUserBlock = nPlanes["planes_per_block"].GetInt();
+    config->PlanesPerUserBlock = nPlanes["planes_per_block"].GetInt();
   }
+  CurrentConfig = std::move(config);
 }
 
 viskores::Id XGCCommon::GetNumberOfPlanes(const std::unordered_map<std::string, std::string>& paths,
                                           DataSourcesType& sources)
 {
-  viskores::Id numberOfPlanes = this->Impl->GetNumberOfPlanes(paths, sources, NumberOfPlanes);
-  this->Impl->MapPlanesToBlocks(PlanesPerUserBlock);
+  if (!this->Config->NumberOfPlanes)
+  {
+    throw std::runtime_error("XGC number_of_planes has not been configured.");
+  }
+  viskores::Id numberOfPlanes =
+    this->Impl->GetNumberOfPlanes(paths, sources, this->Config->NumberOfPlanes);
+  if (!this->Config->PlaneSpacingChecked)
+  {
+    this->Config->NumberOfCoordinatePlanes = numberOfPlanes;
+    const auto& planeSpacingDataSource = this->Config->PlaneSpacingDataSource;
+    auto meshSource = sources.find(planeSpacingDataSource);
+    if (meshSource != sources.end())
+    {
+      meshSource->second->OpenSource(paths, planeSpacingDataSource);
+      std::string planeSpacingVariable = "delta_phi";
+      bool hasPlaneSpacing = true;
+      try
+      {
+        meshSource->second->GetVariableShape(planeSpacingVariable);
+      }
+      catch (const std::runtime_error&)
+      {
+        hasPlaneSpacing = false;
+      }
+      if (hasPlaneSpacing)
+      {
+        fides::metadata::MetaData selections;
+        auto values = meshSource->second->GetScalarVariable(planeSpacingVariable, selections);
+        if (values.size() != 1 || values[0].NumValues != 1)
+          throw std::runtime_error("XGC delta_phi should be a scalar value.");
+        const auto planeSpacing = GetRawArrayValueAs<viskores::Float64>(values[0], 0);
+        if (!(planeSpacing > 0))
+          throw std::runtime_error("XGC delta_phi must be positive.");
+        const auto coordinatePlanes = static_cast<viskores::Id>(
+          std::llround(static_cast<double>(viskores::TwoPi() / planeSpacing)));
+        const auto spacingError = std::abs(coordinatePlanes * planeSpacing - viskores::TwoPi());
+        if (coordinatePlanes < numberOfPlanes || spacingError > 1.e-6)
+        {
+          throw std::runtime_error(
+            "XGC delta_phi does not describe an integral number of planes in a full turn.");
+        }
+        this->Config->NumberOfCoordinatePlanes = coordinatePlanes;
+        this->Config->CoversFullToroidalDomain = coordinatePlanes == numberOfPlanes;
+      }
+    }
+    this->Config->PlaneSpacingChecked = true;
+  }
+  this->Impl->MapPlanesToBlocks(this->Config->PlanesPerUserBlock);
   return numberOfPlanes;
+}
+
+viskores::Id XGCCommon::GetNumberOfCoordinatePlanes() const
+{
+  if (this->Config->NumberOfCoordinatePlanes <= 0)
+    throw std::runtime_error("XGC number of coordinate planes has not been read.");
+  return this->Config->NumberOfCoordinatePlanes;
 }
 
 size_t XGCCommon::GetNumberOfBlocks()
@@ -218,7 +293,8 @@ size_t XGCCommon::GetNumberOfBlocks()
   return this->Impl->GetNumberOfBlocks();
 }
 
-std::vector<XGCBlockInfo> XGCCommon::GetXGCBlockInfo(const std::vector<size_t>& userBlocks)
+std::vector<XGCBlockInfo> XGCCommon::GetXGCBlockInfo(const std::vector<size_t>& userBlocks,
+                                                     bool periodic)
 {
   if (userBlocks.empty())
   {
@@ -226,13 +302,13 @@ std::vector<XGCBlockInfo> XGCCommon::GetXGCBlockInfo(const std::vector<size_t>& 
     std::vector<size_t> blocks;
     blocks.resize(this->Impl->GetNumberOfBlocks());
     std::iota(blocks.begin(), blocks.end(), 0);
-    return this->Impl->GetXGCBlockInfo(blocks, false).first;
+    return this->Impl->GetXGCBlockInfo(blocks, false, periodic).first;
   }
-  return this->Impl->GetXGCBlockInfo(userBlocks, false).first;
+  return this->Impl->GetXGCBlockInfo(userBlocks, false, periodic).first;
 }
 
 std::pair<std::vector<XGCBlockInfo>, fides::metadata::Set<size_t>>
-XGCCommon::GetXGCBlockInfoWithPlaneSelection(const std::vector<size_t>& userBlocks)
+XGCCommon::GetXGCBlockInfoWithPlaneSelection(const std::vector<size_t>& userBlocks, bool periodic)
 {
   if (userBlocks.empty())
   {
@@ -240,10 +316,39 @@ XGCCommon::GetXGCBlockInfoWithPlaneSelection(const std::vector<size_t>& userBloc
     std::vector<size_t> blocks;
     blocks.resize(this->Impl->GetNumberOfBlocks());
     std::iota(blocks.begin(), blocks.end(), 0);
-    return this->Impl->GetXGCBlockInfo(blocks, true);
+    return this->Impl->GetXGCBlockInfo(blocks, true, periodic);
   }
-  return this->Impl->GetXGCBlockInfo(userBlocks, true);
+  return this->Impl->GetXGCBlockInfo(userBlocks, true, periodic);
 }
 
+void XGCCommon::SetIsPeriodic(bool periodic)
+{
+  this->Config->IsPeriodic = periodic;
+}
+
+void XGCCommon::SetPlaneSpacingDataSource(const std::string& dataSourceName)
+{
+  this->Config->PlaneSpacingDataSource = dataSourceName;
+}
+
+bool XGCCommon::GetIsPeriodic(const fides::metadata::MetaData& selections) const
+{
+  if (selections.Has(fides::keys::fusion::FUSION_PERIODIC_CELLSET()))
+  {
+    return selections.Get<fides::metadata::Bool>(fides::keys::fusion::FUSION_PERIODIC_CELLSET())
+      .Value;
+  }
+  return this->Config->IsPeriodic && this->Config->CoversFullToroidalDomain;
+}
+
+void XGCCommon::SetPlaneOffset(viskores::Float64 planeOffset)
+{
+  this->Config->PlaneOffset = planeOffset;
+}
+
+viskores::Float64 XGCCommon::GetPlaneOffset() const
+{
+  return this->Config->PlaneOffset;
+}
 }
 }

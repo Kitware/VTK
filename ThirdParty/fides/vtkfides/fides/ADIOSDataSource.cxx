@@ -714,6 +714,78 @@ std::vector<fides::RawArray> GetDimensionsInternal(adios2::IO& adiosIO,
   return arrays;
 }
 
+template <typename VariableType>
+bool GetVariableBlockMinMaxInternal(adios2::IO& adiosIO,
+                                    std::shared_ptr<adios2::Engine> reader,
+                                    const std::string& varName,
+                                    const fides::metadata::MetaData& selections,
+                                    std::vector<std::pair<double, double>>& ranges)
+{
+  auto varADIOS2 = adiosIO.InquireVariable<VariableType>(varName);
+  if (!varADIOS2)
+  {
+    return false;
+  }
+
+  size_t step = reader->CurrentStep();
+  if (selections.Has(fides::keys::STEP_SELECTION()) && varADIOS2.Steps() > 1)
+  {
+    step = selections.Get<fides::metadata::Index>(fides::keys::STEP_SELECTION()).Data;
+  }
+
+  auto blocksInfo = reader->BlocksInfo(varADIOS2, step);
+  if (blocksInfo.empty())
+  {
+    ranges.clear();
+    return true;
+  }
+
+  std::vector<size_t> blocksToRead;
+  if (selections.Has(fides::keys::BLOCK_SELECTION()))
+  {
+    blocksToRead =
+      selections.Get<fides::metadata::Vector<size_t>>(fides::keys::BLOCK_SELECTION()).Data;
+  }
+  else
+  {
+    blocksToRead.resize(blocksInfo.size());
+    std::iota(blocksToRead.begin(), blocksToRead.end(), 0);
+  }
+
+  ranges.clear();
+  ranges.reserve(blocksToRead.size());
+  for (auto blockId : blocksToRead)
+  {
+    if (blockId >= blocksInfo.size())
+    {
+      std::stringstream ss;
+      ss << __FILE__ << ":" << __LINE__;
+      ss << " Cannot read block metadata " << blockId << " for variable " << varADIOS2.Name()
+         << "; there are only " << blocksInfo.size() << " blocks.";
+      throw std::invalid_argument(ss.str());
+    }
+    const auto& blockInfo = blocksInfo[blockId];
+    if (blockInfo.IsValue)
+    {
+      ranges.emplace_back(static_cast<double>(blockInfo.Value),
+                          static_cast<double>(blockInfo.Value));
+    }
+    else if (blockInfo.Min <= blockInfo.Max)
+    {
+      ranges.emplace_back(static_cast<double>(blockInfo.Min), static_cast<double>(blockInfo.Max));
+    }
+    else
+    {
+      // Min/max information seems to be missing from at least one block. It is unlikely the
+      // information will be provided for some blocks but not others, so just fail the entire
+      // operation for simplicity.
+      ranges.clear();
+      return false;
+    }
+  }
+  return true;
+}
+
 // Since this is grabbing a scalar variable, ADIOS should always be
 // able to return the actual value immediately
 template <typename VariableType>
@@ -912,6 +984,40 @@ std::vector<fides::RawArray> ADIOSDataSource::GetVariableDimensions(
     this->AdiosIO, this->Reader, itr->first, selections, createSharedPoints));
 
   throw std::runtime_error("Unsupported variable type " + type);
+}
+
+bool ADIOSDataSource::GetVariableBlockMinMax(const std::string& varName,
+                                             const fides::metadata::MetaData& selections,
+                                             std::vector<std::pair<double, double>>& ranges)
+{
+  ranges.clear();
+  if (!this->Reader || this->AdiosEngineType == EngineType::Inline)
+  {
+    return false;
+  }
+
+  auto itr = this->FindVariable(varName, selections);
+  if (itr == this->AvailVars.end())
+  {
+    return false;
+  }
+  const std::string& type = itr->second["Type"];
+  if (type.empty())
+  {
+    return false;
+  }
+  auto minItr = itr->second.find("Min");
+  auto maxItr = itr->second.find("Max");
+  if (minItr == itr->second.end() || maxItr == itr->second.end() || minItr->second.empty() ||
+      maxItr->second.empty())
+  {
+    return false;
+  }
+
+  fidesTemplateMacro(GetVariableBlockMinMaxInternal<fides_TT>(
+    this->AdiosIO, this->Reader, itr->first, selections, ranges));
+
+  return false;
 }
 
 std::vector<fides::RawArray> ADIOSDataSource::GetScalarVariable(

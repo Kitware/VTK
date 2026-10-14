@@ -341,11 +341,12 @@ protected:
                        const fides::metadata::MetaData& selections) override;
 
 private:
-  std::vector<viskores::cont::UnknownCellSet> CellSetCache;
   std::unique_ptr<Array> CellConnectivity = nullptr;
-  std::unique_ptr<Array> PlaneConnectivity = nullptr;
+  viskores::cont::ArrayHandle<viskores::Int32> StoredCellConnectivity;
+  std::vector<XGCBlockInfo> StoredBlocksInfo;
   viskores::Id NumberOfPlanes = -1;
-  bool IsPeriodic = true;
+  bool ConnectivityRead = false;
+  bool StoredIsPeriodic = true;
   std::unique_ptr<XGCCommon> CommonImpl;
 };
 

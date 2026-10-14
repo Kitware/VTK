@@ -19,6 +19,7 @@
 #include <viskores/cont/ArrayHandleCast.h>
 #include <viskores/cont/ArrayHandleXGCCoordinates.h>
 #include <viskores/cont/CellSetExtrude.h>
+#include <viskores/cont/CellSetSingleType.h>
 #include <viskores/cont/UnknownArrayHandle.h>
 #include <viskores/filter/clean_grid/CleanGrid.h>
 
@@ -59,9 +60,14 @@ public:
 class CalcPhi : public viskores::worklet::WorkletMapField
 {
 public:
-  CalcPhi(viskores::Id nPlanes, viskores::Id ptsPerPlane)
+  CalcPhi(viskores::Id nPlanes,
+          viskores::Id ptsPerPlane,
+          viskores::Id planeStartId = 0,
+          viskores::Float64 planeOffset = 0)
     : NumPlanes(nPlanes)
     , NumPtsPerPlane(ptsPerPlane)
+    , PlaneStartId(planeStartId)
+    , PlaneOffset(planeOffset)
   {
     this->Phi0 = 0;
     this->DeltaPhi = viskores::TwoPi() / static_cast<viskores::Float64>(this->NumPlanes);
@@ -74,8 +80,9 @@ public:
   template <typename T>
   VISKORES_EXEC void operator()(const viskores::Id& idx, T& out) const
   {
-    viskores::Id plane = idx / this->NumPtsPerPlane;
-    viskores::Float64 planePhi = static_cast<viskores::Float64>(plane * this->DeltaPhi);
+    viskores::Id plane = idx / this->NumPtsPerPlane + this->PlaneStartId;
+    viskores::Float64 planePhi =
+      static_cast<viskores::Float64>((plane + this->PlaneOffset) * this->DeltaPhi);
     out = static_cast<T>(this->Phi0 + planePhi);
 
     if (out < 0)
@@ -87,6 +94,8 @@ public:
 private:
   viskores::Id NumPlanes;
   viskores::Id NumPtsPerPlane;
+  viskores::Id PlaneStartId;
+  viskores::Float64 PlaneOffset;
   viskores::Float64 DeltaPhi;
   viskores::Float64 Phi0;
 };
@@ -905,21 +914,12 @@ void CellSetXGC::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sour
   if (json["cells"].HasMember("variable"))
     this->CellConnectivity->VariableName = json["cells"]["variable"].GetString();
 
-  if (!json.HasMember("plane_connectivity") || !json["plane_connectivity"].IsObject())
-  {
-    throw std::runtime_error("must provide a plane_connectivity object for XGC CellSet.");
-  }
-  this->PlaneConnectivity.reset(new Array());
-  this->PlaneConnectivity->ProcessJSON(json["plane_connectivity"], sources);
-  if (json["plane_connectivity"].HasMember("data_source"))
-    this->PlaneConnectivity->DataSourceName = json["plane_connectivity"]["data_source"].GetString();
-  if (json["plane_connectivity"].HasMember("variable"))
-    this->PlaneConnectivity->VariableName = json["plane_connectivity"]["variable"].GetString();
-
+  bool isPeriodic = true;
   if (json.HasMember("periodic") && json["periodic"].IsBool())
   {
-    this->IsPeriodic = json["periodic"].GetBool();
+    isPeriodic = json["periodic"].GetBool();
   }
+  this->CommonImpl->SetIsPeriodic(isPeriodic);
 }
 
 std::vector<size_t> CellSetXGC::Read(const std::unordered_map<std::string, std::string>& paths,
@@ -927,113 +927,68 @@ std::vector<size_t> CellSetXGC::Read(const std::unordered_map<std::string, std::
                                      const fides::metadata::MetaData& selections,
                                      OutputBuilder& fidesNotUsed(builder))
 {
-  if (this->IsStatic && !this->CellSetCache.empty())
-  {
-    return std::vector<size_t>(this->CellSetCache.size(), 0);
-  }
-  // Rebuild fresh; for non-static cell sets this runs every step.
-  this->CellSetCache.clear();
-
   if (this->NumberOfPlanes < 0)
   {
     this->NumberOfPlanes = this->CommonImpl->GetNumberOfPlanes(paths, sources);
   }
 
-  size_t numInsertPlanes = 0;
   if (selections.Has(fides::keys::fusion::PLANE_INSERTION()))
   {
-    numInsertPlanes =
+    const size_t numInsertPlanes =
       selections.Get<fides::metadata::Size>(fides::keys::fusion::PLANE_INSERTION()).NumberOfItems;
+    if (numInsertPlanes > 0)
+    {
+      throw std::runtime_error(
+        "XGC PLANE_INSERTION requires field-following interpolation and is not supported yet.");
+    }
   }
 
   fides::metadata::MetaData newSelections = selections;
   newSelections.Remove(fides::keys::BLOCK_SELECTION());
 
-  // Issue deferred reads for connectivity and plane connectivity, wrap each
-  // RawArray into an ArrayHandle that shares ownership of the deferred-read
-  // buffer, and build the CellSetExtrude objects from those handles here.
-  // Viskores does not touch buffer contents at construction; the ownership
-  // chain (cellset -> handle -> RawArray buffer) keeps the buffers alive
-  // until the flush (EndStep / DoAllReads) populates them, after which
-  // ProcessViskores() applies the cached cell sets to partitions.
-  // Pass IsVector::No so each connectivity is read as a flat 1D array.
-  using intType = viskores::cont::ArrayHandle<viskores::Int32>;
+  // Connectivity is static for normal XGC meshes. Keep the RawArray-backed
+  // handle alive across the deferred read and reuse it on later steps.
+  if (!this->ConnectivityRead)
   {
+    using intType = viskores::cont::ArrayHandle<viskores::Int32>;
     const auto& ds = sources[this->CellConnectivity->DataSourceName];
     ds->OpenSource(paths, this->CellConnectivity->DataSourceName);
+    auto connectivityRaw = ds->ReadVariable(
+      this->CellConnectivity->VariableName, newSelections, fides::io::IsVector::No);
+    if (connectivityRaw.size() != 1)
+    {
+      throw std::runtime_error("XGC CellConnectivity should have one Array");
+    }
+    auto connUnknown = fides::internal::RawArrayToUnknownArrayHandle(connectivityRaw[0]);
+    if (!connUnknown.IsType<intType>())
+    {
+      throw std::runtime_error("Only int arrays are supported for XGC cell connectivity.");
+    }
+    this->StoredCellConnectivity = connUnknown.AsArrayHandle<intType>();
+    this->ConnectivityRead = true;
   }
-  auto connectivityRaw = sources[this->CellConnectivity->DataSourceName]->ReadVariable(
-    this->CellConnectivity->VariableName, newSelections, fides::io::IsVector::No);
-  if (connectivityRaw.size() != 1)
-  {
-    throw std::runtime_error("XGC CellConnectivity should have one Array");
-  }
-  auto connUnknown = fides::internal::RawArrayToUnknownArrayHandle(connectivityRaw[0]);
-  if (!connUnknown.IsType<intType>())
-  {
-    throw std::runtime_error("Only int arrays are supported for XGC cell connectivity.");
-  }
-  auto connectivityAH = connUnknown.AsArrayHandle<intType>();
 
-  {
-    const auto& ds = sources[this->PlaneConnectivity->DataSourceName];
-    ds->OpenSource(paths, this->PlaneConnectivity->DataSourceName);
-  }
-  auto planeConnectivityRaw = sources[this->PlaneConnectivity->DataSourceName]->ReadVariable(
-    this->PlaneConnectivity->VariableName, newSelections, fides::io::IsVector::No);
-  if (planeConnectivityRaw.size() > 1)
-  {
-    throw std::runtime_error("xgc nextNode is supposed to be included in one array.");
-  }
-  auto planeConnUnknown = fides::internal::RawArrayToUnknownArrayHandle(planeConnectivityRaw[0]);
-  if (!planeConnUnknown.IsType<intType>())
-  {
-    throw std::runtime_error("Only int arrays are supported for XGC plane connectivity.");
-  }
-  auto planeConnectivityAH = planeConnUnknown.AsArrayHandle<intType>();
-
-  auto numPointsPerPlane = planeConnectivityAH.GetNumberOfValues();
-
-  // blocks info doesn't need to be added to the selection for CellSet, since
-  // it's not needed for reading the data
-  std::vector<XGCBlockInfo> blocksInfo;
+  this->StoredIsPeriodic = this->CommonImpl->GetIsPeriodic(selections);
   if (selections.Has(fides::keys::BLOCK_SELECTION()))
   {
-    blocksInfo = this->CommonImpl->GetXGCBlockInfo(
-      selections.Get<fides::metadata::Vector<size_t>>(fides::keys::BLOCK_SELECTION()).Data);
-    if (numInsertPlanes > 0)
-    {
-      std::cerr << "WARNING: PLANE_INSERTION not supported when using BLOCK_SELECTION. Ignoring."
-                << std::endl;
-      numInsertPlanes = 0;
-    }
+    this->StoredBlocksInfo = this->CommonImpl->GetXGCBlockInfo(
+      selections.Get<fides::metadata::Vector<size_t>>(fides::keys::BLOCK_SELECTION()).Data,
+      this->StoredIsPeriodic);
   }
   else
   {
-    blocksInfo = this->CommonImpl->GetXGCBlockInfo(std::vector<size_t>());
+    this->StoredBlocksInfo =
+      this->CommonImpl->GetXGCBlockInfo(std::vector<size_t>(), this->StoredIsPeriodic);
   }
-  if (blocksInfo.empty())
+  if (this->StoredBlocksInfo.empty())
   {
     throw std::runtime_error(
       "No XGC block info returned. May want to double check block selection.");
   }
 
-  this->CellSetCache.reserve(blocksInfo.size());
-  for (size_t i = 0; i < blocksInfo.size(); ++i)
-  {
-    const auto& block = blocksInfo[i];
-    viskores::Int32 numPlanes = block.NumberOfPlanesOwned * (1 + numInsertPlanes);
-    this->CellSetCache.push_back(
-      viskores::cont::CellSetExtrude(connectivityAH,
-                                     static_cast<viskores::Int32>(numPointsPerPlane),
-                                     static_cast<viskores::Int32>(numPlanes),
-                                     planeConnectivityAH,
-                                     this->IsPeriodic));
-  }
-
-  // Return placeholder tokens (one per block). The builder does not know
-  // about CellSetExtrude; the cached cell sets are applied in ProcessViskores().
-  return std::vector<size_t>(this->CellSetCache.size(), 0);
+  // Return placeholder tokens. CellSetExtrude is built in ProcessViskores,
+  // after deferred connectivity reads and coordinate construction complete.
+  return std::vector<size_t>(this->StoredBlocksInfo.size(), 0);
 }
 
 class CellSetXGC::CalcPsi : public viskores::worklet::WorkletMapField
@@ -1060,38 +1015,97 @@ private:
   viskores::Id PointsPerPlane;
 };
 
+struct AddXGCDerivedFields
+{
+  template <typename T, typename S>
+  VISKORES_CONT void operator()(const viskores::cont::ArrayHandle<T, S>& coordinates,
+                                viskores::cont::DataSet& dataSet,
+                                bool addR,
+                                bool addPhi,
+                                bool addPsi,
+                                viskores::Id numberOfCoordinatePlanes,
+                                viskores::Id numberOfPointsPerPlane,
+                                viskores::Id planeStartId,
+                                viskores::Float64 planeOffset) const
+  {
+    viskores::cont::Invoker invoke;
+    if (addR)
+    {
+      viskores::cont::ArrayHandle<viskores::Float64> var;
+      invoke(fusionutil::CalcRadius{}, coordinates, var);
+      dataSet.AddPointField("R", var);
+    }
+    if (addPhi)
+    {
+      fusionutil::CalcPhi calcPhi(
+        numberOfCoordinatePlanes, numberOfPointsPerPlane, planeStartId, planeOffset);
+      viskores::cont::ArrayHandle<viskores::Float64> var;
+      invoke(calcPhi, coordinates, var);
+      dataSet.AddPointField("Phi", var);
+    }
+    if (addPsi)
+    {
+      viskores::Float64 psiX = dataSet.GetField("psi_x")
+                                 .GetData()
+                                 .AsArrayHandle<viskores::cont::ArrayHandle<viskores::Float64>>()
+                                 .ReadPortal()
+                                 .Get(0);
+      auto psi = dataSet.GetField("PSI")
+                   .GetData()
+                   .AsArrayHandle<viskores::cont::ArrayHandle<viskores::Float64>>();
+
+      viskores::cont::ArrayHandle<viskores::Float64> var;
+      var.Allocate(coordinates.GetNumberOfValues());
+      CellSetXGC::CalcPsi calcPsi(psiX, numberOfPointsPerPlane);
+      invoke(calcPsi, psi, var);
+      dataSet.AddPointField("Psi", var);
+    }
+  }
+};
+
 void CellSetXGC::ProcessViskores(std::vector<viskores::cont::DataSet>& partitions,
                                  const fides::metadata::MetaData& selections)
 {
-  // Apply the cell sets built in Read(). The deferred ADIOS reads they wrap
-  // have been flushed by this point, so the connectivity buffers are filled.
-  // For non-static cell sets, clear the handoff slot after applying.
-  for (size_t i = 0; i < partitions.size() && i < this->CellSetCache.size(); i++)
+  if (partitions.size() != this->StoredBlocksInfo.size())
   {
-    partitions[i].SetCellSet(this->CellSetCache[i]);
-  }
-  if (!this->IsStatic)
-  {
-    this->CellSetCache.clear();
+    throw std::runtime_error("Wrong number of partitions for XGC cell sets.");
   }
 
-  //This is a hack until we decide with XGC how to cellset connectivity.
-  for (auto& ds : partitions)
+  viskores::cont::ArrayHandle<viskores::Int32> nextNode;
+  for (size_t i = 0; i < partitions.size(); ++i)
   {
-    auto cs = ds.GetCellSet().AsCellSet<viskores::cont::CellSetExtrude>();
-    viskores::cont::ArrayHandle<int> nextNode;
-    viskores::Id n = cs.GetNumberOfPointsPerPlane() * cs.GetNumberOfPlanes();
-    nextNode.Allocate(n);
-    auto portal = nextNode.WritePortal();
-    for (viskores::Id i = 0; i < n; i++)
-      portal.Set(i, i);
-    viskores::cont::CellSetExtrude newCS(cs.GetConnectivityArray(),
-                                         cs.GetNumberOfPointsPerPlane(),
-                                         cs.GetNumberOfPlanes(),
-                                         nextNode,
-                                         cs.GetIsPeriodic());
+    auto& ds = partitions[i];
+    const auto& block = this->StoredBlocksInfo[i];
+    const viskores::Id numberOfPlanes = block.NumberOfPlanesOwned;
+    const viskores::Id numberOfCoordinates = ds.GetCoordinateSystem().GetNumberOfPoints();
+    if (numberOfPlanes <= 0 || numberOfCoordinates % numberOfPlanes != 0)
+    {
+      throw std::runtime_error("XGC coordinates do not contain a whole number of planes.");
+    }
 
-    ds.SetCellSet(newCS);
+    const viskores::Id numberOfPointsPerPlane = numberOfCoordinates / numberOfPlanes;
+    if (nextNode.GetNumberOfValues() != 0 && nextNode.GetNumberOfValues() != numberOfPointsPerPlane)
+    {
+      throw std::runtime_error("XGC partitions have inconsistent numbers of points per plane.");
+    }
+    if (nextNode.GetNumberOfValues() == 0)
+    {
+      nextNode.Allocate(numberOfPointsPerPlane);
+      auto portal = nextNode.WritePortal();
+      for (viskores::Id pointId = 0; pointId < numberOfPointsPerPlane; ++pointId)
+        portal.Set(pointId, static_cast<viskores::Int32>(pointId));
+    }
+
+    // Partitioned XGC blocks include the first plane of the following block,
+    // so their local cell sets must not wrap. A single global block uses the
+    // requested global periodicity.
+    const bool localPeriodic = this->StoredIsPeriodic && this->CommonImpl->GetNumberOfBlocks() == 1;
+    ds.SetCellSet(
+      viskores::cont::CellSetExtrude(this->StoredCellConnectivity,
+                                     static_cast<viskores::Int32>(numberOfPointsPerPlane),
+                                     static_cast<viskores::Int32>(numberOfPlanes),
+                                     nextNode,
+                                     localPeriodic));
   }
 
   bool addR = false, addPhi = false, addPsi = false;
@@ -1105,45 +1119,27 @@ void CellSetXGC::ProcessViskores(std::vector<viskores::cont::DataSet>& partition
 
   if (addR || addPhi || addPsi)
   {
-    for (auto& ds : partitions)
+    using CoordinateTypes = viskores::List<viskores::Vec3f_32, viskores::Vec3f_64>;
+    using CoordinateStorage =
+      viskores::List<viskores::cont::StorageTagBasic, viskores::cont::StorageTagXGCCoordinates>;
+    for (size_t i = 0; i < partitions.size(); ++i)
     {
-      using CellSetType = viskores::cont::CellSetExtrude;
-      using CoordsType = viskores::cont::ArrayHandleXGCCoordinates<double>;
-
-      const auto& cs = ds.GetCellSet().AsCellSet<CellSetType>();
-      const auto& coords = ds.GetCoordinateSystem().GetData().AsArrayHandle<CoordsType>();
-
-      viskores::cont::Invoker invoke;
-      if (addR)
-      {
-        viskores::cont::ArrayHandle<viskores::Float64> var;
-        invoke(fusionutil::CalcRadius{}, coords, var);
-        ds.AddPointField("R", var);
-      }
-      if (addPhi)
-      {
-        fusionutil::CalcPhi calcPhi(cs.GetNumberOfPlanes(), cs.GetNumberOfPointsPerPlane());
-        viskores::cont::ArrayHandle<viskores::Float64> var;
-        invoke(calcPhi, coords, var);
-        ds.AddPointField("Phi", var);
-      }
-      if (addPsi)
-      {
-        viskores::Float64 psi_x = ds.GetField("psi_x")
-                                    .GetData()
-                                    .AsArrayHandle<viskores::cont::ArrayHandle<viskores::Float64>>()
-                                    .ReadPortal()
-                                    .Get(0);
-        auto psi = ds.GetField("PSI")
-                     .GetData()
-                     .AsArrayHandle<viskores::cont::ArrayHandle<viskores::Float64>>();
-
-        viskores::cont::ArrayHandle<viskores::Float64> var;
-        var.Allocate(coords.GetNumberOfValues());
-        CellSetXGC::CalcPsi calcPsi(psi_x, cs.GetNumberOfPointsPerPlane());
-        invoke(calcPsi, psi, var);
-        ds.AddPointField("Psi", var);
-      }
+      auto& dataSet = partitions[i];
+      const auto& block = this->StoredBlocksInfo[i];
+      const viskores::Id numberOfPointsPerPlane =
+        dataSet.GetNumberOfPoints() / block.NumberOfPlanesOwned;
+      dataSet.GetCoordinateSystem()
+        .GetData()
+        .CastAndCallForTypes<CoordinateTypes, CoordinateStorage>(
+          AddXGCDerivedFields{},
+          dataSet,
+          addR,
+          addPhi,
+          addPsi,
+          this->CommonImpl->GetNumberOfCoordinatePlanes(),
+          numberOfPointsPerPlane,
+          block.PlaneStartId,
+          this->CommonImpl->GetPlaneOffset());
     }
   }
 }

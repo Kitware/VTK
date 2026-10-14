@@ -49,6 +49,10 @@ struct XGCCommon
   viskores::Id GetNumberOfPlanes(const std::unordered_map<std::string, std::string>& paths,
                                  DataSourcesType& sources);
 
+  /// Returns the number of equal toroidal spacings in a full turn. This can
+  /// exceed the number of stored planes when XGC writes a simulation wedge.
+  viskores::Id GetNumberOfCoordinatePlanes() const;
+
   /// Gets the number of Fides blocks. Will throw an error if the
   /// planes have not been mapped to blocks yet.
   size_t GetNumberOfBlocks();
@@ -56,7 +60,8 @@ struct XGCCommon
   /// Gets the XGCBlock info for the blocks requested by the user.
   /// If userBlocks is not provided/empty, then it is assumed that all
   /// blocks are being requested.
-  std::vector<XGCBlockInfo> GetXGCBlockInfo(const std::vector<size_t>& userBlocks);
+  std::vector<XGCBlockInfo> GetXGCBlockInfo(const std::vector<size_t>& userBlocks,
+                                            bool periodic = true);
 
   /// Gets the XGCBlock info for the blocks requested by the user, but
   /// also returns a set of plane selections to be used for reading 3D
@@ -64,13 +69,32 @@ struct XGCCommon
   /// If userBlocks is not provided/empty, then it is assumed that all
   /// blocks are being requested.
   std::pair<std::vector<XGCBlockInfo>, fides::metadata::Set<size_t>>
-  GetXGCBlockInfoWithPlaneSelection(const std::vector<size_t>& userBlocks);
+  GetXGCBlockInfoWithPlaneSelection(const std::vector<size_t>& userBlocks, bool periodic = true);
+
+  /// Sets the default periodicity for the current XGC data model.
+  void SetIsPeriodic(bool periodic);
+
+  /// Sets the data source that may provide XGC's optional delta_phi scalar.
+  void SetPlaneSpacingDataSource(const std::string& dataSourceName);
+
+  /// Returns the XGC periodicity, honoring a run-time selection when present.
+  bool GetIsPeriodic(const fides::metadata::MetaData& selections) const;
+
+  /// Sets the offset, in toroidal plane spacings, used by XGC coordinates and
+  /// derived toroidal coordinate fields.
+  void SetPlaneOffset(viskores::Float64 planeOffset);
+
+  /// Returns the offset, in toroidal plane spacings, for this XGC data model.
+  viskores::Float64 GetPlaneOffset() const;
 
 private:
+  class XGCConfig;
   class XGCCommonImpl;
   std::unique_ptr<XGCCommonImpl> Impl;
-  static std::shared_ptr<Value> NumberOfPlanes;
-  static viskores::Id PlanesPerUserBlock;
+  std::shared_ptr<XGCConfig> Config;
+  // ProcessNumberOfPlanes runs before the XGC arrays and cell set are constructed.
+  // They capture this per-model configuration while parsing on the same thread.
+  static thread_local std::shared_ptr<XGCConfig> CurrentConfig;
 };
 
 }
