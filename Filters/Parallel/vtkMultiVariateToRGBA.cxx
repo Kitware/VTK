@@ -431,8 +431,8 @@ struct ComputeAlphaWorker
 };
 
 /**
- * Copies the RGBA computed before the lens into 'output', capping the
- * alpha of the points outside the lens.
+ * Copies the RGBA computed before the lens into 'output' (RGB is set to 0
+ * if CopyRGB is false), capping the alpha of the points outside the lens.
  */
 struct ApplyLensWorker
 {
@@ -450,7 +450,7 @@ struct ApplyLensWorker
         {
           for (int c = 0; c < 3; ++c)
           {
-            output[i][c] = static_cast<ValueType>(rgba[i][c]);
+            output[i][c] = this->CopyRGB ? static_cast<ValueType>(rgba[i][c]) : 0;
           }
           double alpha = rgba[i][3];
           double distance = std::sqrt(std::pow(gbc[i][0] - this->LensCenter[0], 2) +
@@ -466,6 +466,7 @@ struct ApplyLensWorker
   double LensCenter[2];
   double LensRadius;
   double OutsideLensAlpha;
+  bool CopyRGB;
 };
 
 /**
@@ -1110,13 +1111,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
       HSLToRGBWorker worker;
       worker(hslScalars.GetPointer(), rgbaScalars.GetPointer());
     }
-    else
-    {
-      // StoreA: only the alpha component is computed, RGB is left at 0.
-      rgbaScalars->FillComponent(0, 0.0);
-      rgbaScalars->FillComponent(1, 0.0);
-      rgbaScalars->FillComponent(2, 0.0);
-    }
+    // StoreA: only the alpha component is computed, ApplyLens sets RGB to 0.
     {
       ComputeAlphaWorker worker;
       worker(normalizedScalars.GetPointer(), rgbaScalars.GetPointer());
@@ -1138,7 +1133,7 @@ vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::ApplyLens()
   rgba->SetNumberOfComponents(4);
   rgba->SetNumberOfTuples(this->CachedRGBA->GetNumberOfTuples());
   ApplyLensWorker worker{ { this->LensCenter[0], this->LensCenter[1] }, this->LensRadius,
-    this->OutsideLensAlpha };
+    this->OutsideLensAlpha, this->StoreRGBA };
   vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
     rgba.GetPointer(), worker, this->CachedRGBA.GetPointer(), this->CachedGBC.GetPointer());
   return rgba;

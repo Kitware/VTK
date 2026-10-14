@@ -129,5 +129,18 @@ int TestMultiVariateToRGBALens(int, char*[])
   SetLens(cached, full, 0.2, 0.1, 0.5);
   CHECK(GetArray(cached, "rgba")->GetDataType() == VTK_FLOAT);
   CHECK(Equal(GetArray(cached, "rgba"), GetArray(full, "rgba"), 1e-6));
+
+  // StoreA: RGB is 0 and alpha is the same as with StoreRGBA
+  cached->SetStoreRGBA(false);
+  cached->SetStoreA(true);
+  cached->SetOutputScalarType(VTK_DOUBLE);
+  SetLens(cached, full, 0.2, 0.2, 0.5);
+  vtkDataArray* a = GetArray(cached, "rgba");
+  vtkDataArray* rgba = GetArray(full, "rgba");
+  for (vtkIdType i = 0; i < a->GetNumberOfTuples(); ++i)
+  {
+    CHECK(a->GetComponent(i, 0) == 0 && a->GetComponent(i, 1) == 0 && a->GetComponent(i, 2) == 0);
+    CHECK(a->GetComponent(i, 3) == rgba->GetComponent(i, 3));
+  }
   return EXIT_SUCCESS;
 }
