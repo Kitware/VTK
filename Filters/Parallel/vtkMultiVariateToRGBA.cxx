@@ -147,8 +147,13 @@ struct NormalizeWorker
         {
           for (size_t k = 0; k < this->GroupIndices.size(); ++k)
           {
-            normalized[i][this->GroupIndices[k]] =
-              scale * (scalars[i][this->GroupIndices[k]] - minValue) + this->NewMin;
+            double value = scale * (scalars[i][this->GroupIndices[k]] - minValue) + this->NewMin;
+            if (this->CustomRange)
+            {
+              // a custom range can be narrower than the data
+              value = std::min(std::max(value, this->NewMin), this->NewMax);
+            }
+            normalized[i][this->GroupIndices[k]] = value;
           }
         }
       });

@@ -196,7 +196,8 @@ public:
    * instead of the range computed from the data (see NormalizeWorker), one
    * [min, max] range per partition group (see SetPartitionIndices). Since
    * these ranges are meant to be the global ranges, when they are set no
-   * AllReduce is performed, even if the Controller is not null.
+   * AllReduce is performed, even if the Controller is not null. Values
+   * outside a custom range are clamped to it.
    *
    * CustomRange is a flat array, interleaved as [min0, max0, min1, max1,
    * ...]. An empty CustomRange (the default) means no custom range is set,

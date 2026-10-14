@@ -142,5 +142,18 @@ int TestMultiVariateToRGBALens(int, char*[])
     CHECK(a->GetComponent(i, 0) == 0 && a->GetComponent(i, 1) == 0 && a->GetComponent(i, 2) == 0);
     CHECK(a->GetComponent(i, 3) == rgba->GetComponent(i, 3));
   }
+
+  // values outside a custom range are clamped: alpha stays in [0, 1]
+  // and the GBC inside the unit circle
+  full->SetCustomRange({ 0.25, 0.5 });
+  SetLens(cached, full, 0, 0, 1);
+  double* alphaRange = GetArray(full, "rgba")->GetRange(3);
+  CHECK(alphaRange[0] >= 0 && alphaRange[1] <= 1);
+  vtkDataArray* gbcFull = GetArray(full, "gbc");
+  for (vtkIdType i = 0; i < gbcFull->GetNumberOfTuples(); ++i)
+  {
+    double* xy = gbcFull->GetTuple2(i);
+    CHECK(std::sqrt(xy[0] * xy[0] + xy[1] * xy[1]) <= 1 + 1e-9);
+  }
   return EXIT_SUCCESS;
 }
