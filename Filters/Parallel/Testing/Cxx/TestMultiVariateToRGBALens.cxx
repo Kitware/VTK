@@ -155,5 +155,14 @@ int TestMultiVariateToRGBALens(int, char*[])
     double* xy = gbcFull->GetTuple2(i);
     CHECK(std::sqrt(xy[0] * xy[0] + xy[1] * xy[1]) <= 1 + 1e-9);
   }
+
+  // the order of the lens setters does not matter
+  cached->SetLensRadius(0.3);
+  cached->SetLensCenter(1.5, 0.0);
+  cached->SetLensRadius(0.6);
+  full->SetLensRadius(0.3);
+  full->SetLensRadius(0.6);
+  full->SetLensCenter(1.5, 0.0);
+  CHECK(cached->GetLensCenter()[0] == 1.5 && full->GetLensCenter()[0] == 1.5);
   return EXIT_SUCCESS;
 }

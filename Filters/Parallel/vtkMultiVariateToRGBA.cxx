@@ -1137,8 +1137,11 @@ vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::ApplyLens()
   rgba->SetName("rgba");
   rgba->SetNumberOfComponents(4);
   rgba->SetNumberOfTuples(this->CachedRGBA->GetNumberOfTuples());
-  ApplyLensWorker worker{ { this->LensCenter[0], this->LensCenter[1] }, this->LensRadius,
-    this->OutsideLensAlpha, this->StoreRGBA };
+  // clamped here, not by the setters, so the order of the setters does not matter
+  std::array<double, 2> center = vtkMultiVariateToRGBA::GetLensCenter(
+    this->LensRadius, 1, this->LensCenter, std::array<double, 2>{ 0, 0 }.data());
+  ApplyLensWorker worker{ { center[0], center[1] }, this->LensRadius, this->OutsideLensAlpha,
+    this->StoreRGBA };
   vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
     rgba.GetPointer(), worker, this->CachedRGBA.GetPointer(), this->CachedGBC.GetPointer());
   return rgba;
@@ -1295,11 +1298,9 @@ double vtkMultiVariateToRGBA::GetLensRadius(
 
 void vtkMultiVariateToRGBA::SetLensRadius(double lensRadius)
 {
-  double newLensRadius = vtkMultiVariateToRGBA::GetLensRadius(
-    lensRadius, 1, this->LensCenter, std::array<double, 2>{ 0, 0 }.data());
-  if (newLensRadius != this->LensRadius)
+  if (lensRadius != this->LensRadius)
   {
-    this->LensRadius = newLensRadius;
+    this->LensRadius = lensRadius;
     this->LensModified();
   }
 }
@@ -1336,11 +1337,9 @@ void vtkMultiVariateToRGBA::SetLensCenter(double centerX, double centerY)
 
 void vtkMultiVariateToRGBA::SetLensCenter(const double* lensCenter)
 {
-  std::array<double, 2> newLensCenter = vtkMultiVariateToRGBA::GetLensCenter(
-    this->LensRadius, 1, lensCenter, std::array<double, 2>{ 0, 0 }.data());
-  if (this->LensCenter[0] != newLensCenter[0] || this->LensCenter[1] != newLensCenter[1])
+  if (this->LensCenter[0] != lensCenter[0] || this->LensCenter[1] != lensCenter[1])
   {
-    std::copy(newLensCenter.begin(), newLensCenter.end(), this->LensCenter);
+    std::copy(lensCenter, lensCenter + 2, this->LensCenter);
     this->LensModified();
   }
 }

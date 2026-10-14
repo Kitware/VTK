@@ -129,14 +129,15 @@ public:
   ///@{
   /**
    * Center of the lens in GBC space (unit circle centered at the origin).
-   * The lens must intersect the GBC circle.
+   * If the lens does not intersect the GBC circle, its center is moved
+   * toward the circle when the filter executes, so LensCenter and
+   * LensRadius can be set in any order.
    */
   void SetLensCenter(const double* center);
   virtual void SetLensCenter(double centerX, double centerY);
   vtkGetVector2Macro(LensCenter, double);
   /**
    * Radius of the lens in GBC space (unit circle centered at the origin).
-   * The lens must intersect the GBC circle.
    */
   virtual void SetLensRadius(double radius);
   vtkGetMacro(LensRadius, double);
