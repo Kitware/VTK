@@ -93,6 +93,7 @@ public:
   static vtkPlotRadViz* New();
 
   virtual void SetInputDataSet(vtkDataSet* dataset);
+  using vtkPlot::SetInputData;
   void SetInputData(vtkTable* table) override;
   /**
    * Paint event for the item.

@@ -332,7 +332,6 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
       return true;
     }
     auto* dataset = vtkDataSet::SafeDownCast(input);
-    auto* table = vtkTable::SafeDownCast(input);
     vtkDataArray* array = nullptr;
     int association = vtkDataObject::FIELD_ASSOCIATION_NONE;
     int numberOfVisibleColumns = this->GetVisibleColumns()->GetNumberOfTuples();
