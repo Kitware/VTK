@@ -446,6 +446,112 @@ int TestRadiusBoundary()
   return rval;
 }
 
+// FindPointsInShell() returns exactly the points of the shell, compared with
+// brute force, for every locator: also those at the outer radius, when they are
+// on the boundaries of the buckets of the static locators (points of an integer
+// grid, with buckets of size 1), or when the locator keeps the points in float
+// (vtkOctreePointLocator, with random points). The points of a plane are also
+// checked with vtkStaticPointLocator2D.
+int TestShellBoundaries()
+{
+  int rval = 0;
+  std::mt19937 rng(7);
+  std::uniform_real_distribution<double> dist(0.0, 8.0);
+
+  for (int planar = 0; planar < 2; ++planar)
+  {
+    vtkNew<vtkPoints> points;
+    points->SetDataTypeToDouble();
+    for (int k = 0; k <= (planar ? 0 : 8); ++k)
+    {
+      for (int j = 0; j <= 8; ++j)
+      {
+        for (int i = 0; i <= 8; ++i)
+        {
+          points->InsertNextPoint(i, j, planar ? 0.5 : k);
+        }
+      }
+    }
+    for (int i = 0; i < 500; ++i)
+    {
+      points->InsertNextPoint(dist(rng), dist(rng), planar ? 0.5 : dist(rng));
+    }
+    const vtkIdType numPoints = points->GetNumberOfPoints();
+    vtkNew<vtkPolyData> pd;
+    pd->SetPoints(points);
+
+    vtkNew<vtkStaticPointLocator> staticLocator;
+    staticLocator->AutomaticOff();
+    staticLocator->SetDivisions(8, 8, planar ? 1 : 8);
+    vtkNew<vtkStaticPointLocator2D> staticLocator2D;
+    staticLocator2D->AutomaticOff();
+    staticLocator2D->SetDivisions(8, 8);
+    vtkNew<vtkKdTreePointLocator> kdTreeLocator;
+    vtkNew<vtkPointLocator> uniformLocator;
+    vtkNew<vtkOctreePointLocator> octreeLocator;
+    std::vector<vtkAbstractPointLocator*> locators = { staticLocator, kdTreeLocator, uniformLocator,
+      octreeLocator };
+    if (planar)
+    {
+      locators.push_back(staticLocator2D);
+    }
+    for (vtkAbstractPointLocator* locator : locators)
+    {
+      locator->SetDataSet(pd);
+      locator->BuildLocator();
+    }
+
+    std::vector<double> allDist2(numPoints);
+    for (int trial = 0; trial < 100; ++trial)
+    {
+      // From a point of the grid, or from a random point, with radii that are
+      // distances of points, or integers for the outer one.
+      double x[3];
+      points->GetPoint(trial % 2 ? trial : numPoints - 1 - trial, x);
+      for (vtkIdType i = 0; i < numPoints; ++i)
+      {
+        double p[3];
+        points->GetPoint(i, p);
+        allDist2[i] = vtkMath::Distance2BetweenPoints(p, x);
+      }
+      const double minDist2 = trial % 3 == 0 ? -1.0 : allDist2[(7 * trial) % numPoints];
+      const double maxDist2 = trial % 4 < 2 ? 1.0 + trial % 9 : allDist2[(13 * trial) % numPoints];
+      if (maxDist2 <= minDist2)
+      {
+        continue;
+      }
+      std::set<vtkIdType> expectedIds;
+      for (vtkIdType i = 0; i < numPoints; ++i)
+      {
+        if (allDist2[i] > minDist2 && allDist2[i] <= maxDist2)
+        {
+          expectedIds.insert(i);
+        }
+      }
+
+      for (vtkAbstractPointLocator* locator : locators)
+      {
+        vtkDist2TupleArray results;
+        locator->FindPointsInShell(x, results, minDist2, maxDist2, false);
+        std::set<vtkIdType> resultIds;
+        for (const auto& t : results)
+        {
+          resultIds.insert(t.Id);
+        }
+        if (resultIds != expectedIds || results.size() != resultIds.size())
+        {
+          std::cerr << locator->GetClassName() << "::FindPointsInShell: got " << results.size()
+                    << " points, expected " << expectedIds.size() << " for trial " << trial
+                    << (planar ? " (planar)\n" : "\n");
+          rval++;
+        }
+      }
+    }
+  }
+
+  return rval;
+}
+
 int TestPointLocators(int, char*[])
 {
   vtkKdTreePointLocator* kdTreeLocator = vtkKdTreePointLocator::New();
@@ -466,6 +572,7 @@ int TestPointLocators(int, char*[])
   rval += TestKdTreePointLocator();
   rval += TestStaticPointLocator2DShells();
   rval += TestRadiusBoundary();
+  rval += TestShellBoundaries();
 
   return rval;
 }
