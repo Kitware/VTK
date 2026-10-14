@@ -30,7 +30,7 @@ vtkDataArray* GetArray(vtkMultiVariateToRGBA* filter, const char* name)
   return vtkImageData::SafeDownCast(filter->GetOutputDataObject(0))->GetPointData()->GetArray(name);
 }
 
-bool Equal(vtkDataArray* a, vtkDataArray* b)
+bool Equal(vtkDataArray* a, vtkDataArray* b, double tolerance = 0)
 {
   if (a->GetNumberOfValues() != b->GetNumberOfValues())
   {
@@ -38,7 +38,7 @@ bool Equal(vtkDataArray* a, vtkDataArray* b)
   }
   for (vtkIdType i = 0; i < a->GetNumberOfValues(); ++i)
   {
-    if (a->GetVariantValue(i).ToDouble() != b->GetVariantValue(i).ToDouble())
+    if (std::fabs(a->GetVariantValue(i).ToDouble() - b->GetVariantValue(i).ToDouble()) > tolerance)
     {
       return false;
     }
@@ -120,5 +120,14 @@ int TestMultiVariateToRGBALens(int, char*[])
   SetLens(cached, full, 0.2, 0.3, 0.6);
   CHECK(GetArray(cached, "gbc") != gbc);
   CHECK(Equal(GetArray(cached, "rgba"), GetArray(full, "rgba")));
+
+  // float output, for full and lens-only executions
+  cached->SetOutputScalarType(VTK_FLOAT);
+  SetLens(cached, full, 0.3, 0.3, 0.6);
+  CHECK(GetArray(cached, "rgba")->GetDataType() == VTK_FLOAT);
+  CHECK(Equal(GetArray(cached, "rgba"), GetArray(full, "rgba"), 1e-6));
+  SetLens(cached, full, 0.2, 0.1, 0.5);
+  CHECK(GetArray(cached, "rgba")->GetDataType() == VTK_FLOAT);
+  CHECK(Equal(GetArray(cached, "rgba"), GetArray(full, "rgba"), 1e-6));
   return EXIT_SUCCESS;
 }

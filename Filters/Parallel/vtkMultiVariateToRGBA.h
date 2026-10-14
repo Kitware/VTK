@@ -296,6 +296,16 @@ public:
   vtkSmartPointer<vtkStringArray> GetProcessedColumnNames();
   ///@}
 
+  ///@{
+  /**
+   * Data type of the 'rgba' array: VTK_DOUBLE (the default) or VTK_FLOAT.
+   * VTK_FLOAT uses half the memory and is faster to upload as a volume
+   * texture, which matters when the lens is dragged.
+   */
+  vtkSetClampMacro(OutputScalarType, int, VTK_FLOAT, VTK_DOUBLE);
+  vtkGetMacro(OutputScalarType, int);
+  ///@}
+
   /**
    * Overridden to tell lens-only changes apart from all other changes.
    */
@@ -323,6 +333,7 @@ protected:
    * Alpha cap for points outside the lens.
    */
   double OutsideLensAlpha = 0.0;
+  int OutputScalarType = VTK_DOUBLE;
   /**
    * Custom ranges used as the global min/max when normalizing scalars,
    * interleaved as [min0, max0, min1, max1, ...], one pair per partition

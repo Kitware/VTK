@@ -436,8 +436,10 @@ struct ComputeAlphaWorker
  */
 struct ApplyLensWorker
 {
-  void operator()(vtkDoubleArray* outputArray, vtkDoubleArray* rgbaArray, vtkDoubleArray* gbcArray)
+  template <typename OutputArray>
+  void operator()(OutputArray* outputArray, vtkDoubleArray* rgbaArray, vtkDoubleArray* gbcArray)
   {
+    using ValueType = vtk::GetAPIType<OutputArray>;
     auto output = vtk::DataArrayTupleRange<4>(outputArray);
     auto rgba = vtk::DataArrayTupleRange<4>(rgbaArray);
     auto gbc = vtk::DataArrayTupleRange<2>(gbcArray);
@@ -448,7 +450,7 @@ struct ApplyLensWorker
         {
           for (int c = 0; c < 3; ++c)
           {
-            output[i][c] = rgba[i][c];
+            output[i][c] = static_cast<ValueType>(rgba[i][c]);
           }
           double alpha = rgba[i][3];
           double distance = std::sqrt(std::pow(gbc[i][0] - this->LensCenter[0], 2) +
@@ -457,7 +459,7 @@ struct ApplyLensWorker
           {
             alpha = std::min(this->OutsideLensAlpha, alpha);
           }
-          output[i][3] = alpha;
+          output[i][3] = static_cast<ValueType>(alpha);
         }
       });
   }
@@ -1131,13 +1133,14 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::ApplyLens()
 {
-  vtkNew<vtkDoubleArray> rgba;
+  auto rgba = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(this->OutputScalarType));
   rgba->SetName("rgba");
   rgba->SetNumberOfComponents(4);
   rgba->SetNumberOfTuples(this->CachedRGBA->GetNumberOfTuples());
   ApplyLensWorker worker{ { this->LensCenter[0], this->LensCenter[1] }, this->LensRadius,
     this->OutsideLensAlpha };
-  worker(rgba.GetPointer(), this->CachedRGBA.GetPointer(), this->CachedGBC.GetPointer());
+  vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
+    rgba.GetPointer(), worker, this->CachedRGBA.GetPointer(), this->CachedGBC.GetPointer());
   return rgba;
 }
 
