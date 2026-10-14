@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "TestParallelCoordinatesUtilities.h"
+#include "vtkCallbackCommand.h"
 #include "vtkChartRadViz.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
@@ -15,6 +16,8 @@
 #include "vtkStringScanner.h"
 #include "vtkTesting.h"
 #include "vtkXMLImageDataReader.h"
+
+#include <iostream>
 
 static const char* eventLogVertices = "# StreamVersion 1.3\n"
                                       "ExposeEvent 0 349 0 0 0 0 0\n"
@@ -295,6 +298,13 @@ int TestRadVizChartInteraction(int argc, char* argv[])
   vtkNew<ResetLens> resetLens;
   resetLens->SetPlot(plot);
   resetLens->SetView(view);
+  // count the InteractionEvents invoked while the recorded drags play
+  int interactionCount = 0;
+  vtkNew<vtkCallbackCommand> countInteraction;
+  countInteraction->SetClientData(&interactionCount);
+  countInteraction->SetCallback(
+    [](vtkObject*, unsigned long, void* count, void*) { ++*static_cast<int*>(count); });
+  plot->AddObserver(vtkCommand::InteractionEvent, countInteraction);
   // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   vtkSmartPointer<vtkInteractorEventRecorder> recorder =
@@ -319,6 +329,11 @@ int TestRadVizChartInteraction(int argc, char* argv[])
     recorder->SetInputString(eventLogVertices);
   }
   recorder->Play();
+  if (interactionCount == 0)
+  {
+    std::cerr << "No InteractionEvent while dragging" << std::endl;
+    return EXIT_FAILURE;
+  }
 #endif
 
   view->GetInteractor()->AddObserver(vtkCommand::KeyPressEvent, resetLens);

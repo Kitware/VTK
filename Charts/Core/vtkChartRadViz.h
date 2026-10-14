@@ -21,6 +21,10 @@
  * color when the mouse pointer is over the lens interior or when the
  * lens is moved. The lens center is not drawn otherwise.
  *
+ * The plot invokes vtkCommand::StartInteractionEvent when a drag starts,
+ * vtkCommand::InteractionEvent on every mouse move during the drag and
+ * vtkCommand::EndInteractionEvent when the drag ends.
+ *
  * The title is by default bold, black Arial with a font size of
  * 18, one step larger than the vertex labels of vtkPlotRadViz.
  *
