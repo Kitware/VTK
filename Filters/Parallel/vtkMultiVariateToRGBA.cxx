@@ -173,8 +173,9 @@ struct NormalizeWorker
  */
 struct ComputeGBCWorker
 {
-  ComputeGBCWorker(double verticesRotation)
+  ComputeGBCWorker(double verticesRotation, bool verticesClockwiseOrdering)
     : VerticesRotationRad(vtkMath::RadiansFromDegrees(verticesRotation))
+    , VerticesClockwiseOrdering(verticesClockwiseOrdering)
   {
   }
   void operator()(vtkDoubleArray* normalizedArray, vtkDoubleArray* gbcArray)
@@ -190,13 +191,16 @@ struct ComputeGBCWorker
     this->Vertices->SetNumberOfTuples(nComponents);
     auto vertices = vtk::DataArrayTupleRange(this->Vertices);
     std::vector<double> angle(nComponents);
+    // the first vertex is at the top
     angle[0] = vtkMath::Pi() / 2;
+    const double angleStep =
+      (this->VerticesClockwiseOrdering ? -2 : 2) * vtkMath::Pi() / nComponents;
     constexpr double adjustment = 0.997;
     vertices[0][0] = std::cos(angle[0]) * adjustment;
     vertices[0][1] = std::sin(angle[0]) * adjustment;
     for (int i = 1; i < nComponents; ++i)
     {
-      angle[i] = angle[i - 1] - 2 * vtkMath::Pi() / nComponents;
+      angle[i] = angle[i - 1] + angleStep;
       vertices[i][0] = std::cos(angle[i]) * adjustment;
       vertices[i][1] = std::sin(angle[i]) * adjustment;
       // Wrap to the 0 to 2*pi range
@@ -266,9 +270,6 @@ struct ComputeGBCWorker
           gbc[i][0] = lth * std::cos(tempangle);
           gbc[i][1] = lth * std::sin(tempangle);
 
-          // Y grows up in VTK and down in the JavaScript reference implementation
-          gbc[i][1] = -gbc[i][1];
-
           // rotate the gbc points with VerticesRotation
           double result_gbc[2];
           result_gbc[0] = m[0][0] * gbc[i][0] + m[0][1] * gbc[i][1];
@@ -279,7 +280,6 @@ struct ComputeGBCWorker
       });
     for (int i = 0; i < nComponents; ++i)
     {
-      vertices[i][1] = -vertices[i][1];
       // rotate the vertices
       double result_vertices[2];
       // vtkMath::MultiplyMatrixWithVector<2, 2>(m, vertices[i], result_vertices);
@@ -290,6 +290,7 @@ struct ComputeGBCWorker
     }
   }
   double VerticesRotationRad = 0;
+  bool VerticesClockwiseOrdering = true;
   vtkSmartPointer<vtkDoubleArray> Vertices;
 };
 
@@ -311,7 +312,7 @@ struct GBCToHSLWorker
       {
         for (vtkIdType i = begin; i < end; ++i)
         {
-          // undo the Y flip of ComputeGBCWorker
+          // negate Y so that the hue increases clockwise, starting at the top
           double gbcValue[2] = { gbc[i][0], -gbc[i][1] };
           double radius = std::sqrt(std::pow(gbcValue[0], 2) + std::pow(gbcValue[1], 2));
           if (radius > 1)
@@ -1015,7 +1016,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   gbcScalars->SetNumberOfComponents(2);
   gbcScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
   {
-    ComputeGBCWorker worker(this->VerticesRotation);
+    ComputeGBCWorker worker(this->VerticesRotation, this->VerticesClockwiseOrdering);
     worker(normalizedScalars.GetPointer(), gbcScalars.GetPointer());
     if (this->StoreVertices)
     {

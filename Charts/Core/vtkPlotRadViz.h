@@ -35,8 +35,10 @@
  * cases, the opacity of the pen is not used.
  *
  * The components are shown as vertices on the outer circle outline of
- * the plot. The vertices can be rotated using VerticesRotation, which
- * changes the points' positions and colors.
+ * the plot. The first vertex is at the top and the following vertices
+ * are placed clockwise, in the same order as the colors of the color
+ * wheel (see VerticesClockwiseOrdering). The vertices can be rotated
+ * using VerticesRotation, which changes the points' positions and colors.
  *
  * Points' opacity can be further modified using a lens which modifies
  * the opacity of the points outside the lens (see
@@ -212,6 +214,19 @@ public:
    */
   virtual void SetVerticesRotation(double rotation);
   vtkGetMacro(VerticesRotation, double);
+  ///@}
+
+  ///@{
+  /**
+   * If true, the vertices are placed clockwise, otherwise counter-clockwise.
+   * The first vertex is at the top in both cases, before VerticesRotation is
+   * applied. Default is true: the vertices follow the colors of the color
+   * wheel.
+   * @sa vtkMultiVariateToRGBA
+   */
+  vtkSetMacro(VerticesClockwiseOrdering, bool);
+  vtkGetMacro(VerticesClockwiseOrdering, bool);
+  vtkBooleanMacro(VerticesClockwiseOrdering, bool);
   ///@}
 
   ///@{
@@ -468,6 +483,7 @@ protected:
 
   vtkSmartPointer<vtkPoints2D> Vertices;
   double VerticesRotation = 0.0;
+  bool VerticesClockwiseOrdering = true;
 
   /**
    * The text properties associated with the vertex labels.

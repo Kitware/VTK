@@ -16,8 +16,11 @@
  * to cover the circle) (see StoreRGBA, StoreVertices, StoreGBC).
  * The color and opacity can be used to volume render the dataset.
  *
- * Vertices can be rotated (VerticesRotation), which will change the GBC
- * positions and colors.
+ * The first vertex is at the top and the following vertices are placed
+ * clockwise, in the same order as the colors of the color wheel, so the
+ * first component is red (see VerticesClockwiseOrdering). Vertices can be
+ * rotated (VerticesRotation), which will change the GBC positions and
+ * colors.
  *
  * Points' opacity can be further modified using a lens (LensCenter,
  * LensRadius) which modifies the opacity of the points outside the
@@ -104,6 +107,19 @@ public:
    */
   virtual void SetVerticesRotation(double rotation);
   vtkGetMacro(VerticesRotation, double);
+
+  ///@{
+  /**
+   * If true, the vertices are placed clockwise, otherwise counter-clockwise.
+   * The first vertex is at the top in both cases, before VerticesRotation is
+   * applied. Default is true: the vertices follow the colors of the color
+   * wheel, so component i of n has the hue i / n and the first component is
+   * red.
+   */
+  vtkSetMacro(VerticesClockwiseOrdering, bool);
+  vtkGetMacro(VerticesClockwiseOrdering, bool);
+  vtkBooleanMacro(VerticesClockwiseOrdering, bool);
+  ///@}
 
   ///@{
   /**
@@ -281,6 +297,7 @@ protected:
 
   vtkMultiProcessController* Controller = nullptr;
   double VerticesRotation = 0;
+  bool VerticesClockwiseOrdering = true;
   bool StoreGBC = false;
   bool StoreVertices = false;
   bool StoreRGBA = true;

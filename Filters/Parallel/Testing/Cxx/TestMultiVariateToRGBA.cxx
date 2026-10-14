@@ -3,7 +3,8 @@
 /**
  * Volume render a four component dataset using the RGBA output of
  * vtkMultiVariateToRGBA. Also checks that the computed colors match a
- * color wheel with the orientation reported by the filter.
+ * color wheel with the orientation reported by the filter, and the
+ * position of the vertices for both vertex orderings.
  */
 
 #include <vtkAlgorithmOutput.h>
@@ -49,11 +50,12 @@ namespace
  * position of the point on a color wheel with the orientation reported by
  * the filter (GetColorWheelStartAngle, GetColorWheelClockwiseOrdering).
  */
-bool ColorsMatchColorWheel(vtkAlgorithmOutput* input)
+bool ColorsMatchColorWheel(vtkAlgorithmOutput* input, bool verticesClockwiseOrdering)
 {
   vtkNew<vtkMultiVariateToRGBA> filter;
   filter->SetInputConnection(input);
   filter->SetStoreGBC(true);
+  filter->SetVerticesClockwiseOrdering(verticesClockwiseOrdering);
   filter->Update();
   vtkPointData* pointData =
     vtkDataSet::SafeDownCast(filter->GetOutputDataObject(0))->GetPointData();
@@ -97,6 +99,44 @@ bool ColorsMatchColorWheel(vtkAlgorithmOutput* input)
   }
   return true;
 }
+
+/**
+ * Returns true if the first vertex is at the top and the following
+ * vertices are placed in the requested order, at equal angles.
+ */
+bool VerticesMatchOrdering(vtkAlgorithmOutput* input, bool verticesClockwiseOrdering)
+{
+  vtkNew<vtkMultiVariateToRGBA> filter;
+  filter->SetInputConnection(input);
+  filter->SetStoreVertices(true);
+  filter->SetVerticesClockwiseOrdering(verticesClockwiseOrdering);
+  filter->Update();
+  vtkDataArray* vertices = filter->GetOutputDataObject(0)->GetFieldData()->GetArray("vertices");
+  if (!vertices || vertices->GetNumberOfTuples() < 3)
+  {
+    std::cerr << "Missing vertices array" << std::endl;
+    return false;
+  }
+  vtkIdType numberOfVertices = vertices->GetNumberOfTuples();
+  const double direction = verticesClockwiseOrdering ? -1.0 : 1.0;
+  for (vtkIdType i = 0; i < numberOfVertices; ++i)
+  {
+    double expectedAngle =
+      vtkMath::RadiansFromDegrees(90.0 + direction * 360.0 * i / numberOfVertices);
+    double radius = std::hypot(vertices->GetComponent(i, 0), vertices->GetComponent(i, 1));
+    double expected[2] = { radius * std::cos(expectedAngle), radius * std::sin(expectedAngle) };
+    if (std::abs(expected[0] - vertices->GetComponent(i, 0)) > 1e-6 ||
+      std::abs(expected[1] - vertices->GetComponent(i, 1)) > 1e-6)
+    {
+      std::cerr << "Vertex " << i << " is at (" << vertices->GetComponent(i, 0) << ", "
+                << vertices->GetComponent(i, 1) << ") instead of (" << expected[0] << ", "
+                << expected[1] << ") for VerticesClockwiseOrdering " << verticesClockwiseOrdering
+                << std::endl;
+      return false;
+    }
+  }
+  return true;
+}
 }
 
 int TestMultiVariateToRGBA(int argc, char* argv[])
@@ -121,13 +161,19 @@ int TestMultiVariateToRGBA(int argc, char* argv[])
   reader->SetFileName(
     (dataRoot + "/Data/Ce_Co_Fe_Gd_small_10.1038_s43246-022-00259-x.vti").c_str());
 
-  if (!ColorsMatchColorWheel(reader->GetOutputPort()))
+  for (bool verticesClockwiseOrdering : { true, false })
   {
-    return EXIT_FAILURE;
+    if (!ColorsMatchColorWheel(reader->GetOutputPort(), verticesClockwiseOrdering) ||
+      !VerticesMatchOrdering(reader->GetOutputPort(), verticesClockwiseOrdering))
+    {
+      return EXIT_FAILURE;
+    }
   }
 
   vtkNew<vtkMultiVariateToRGBA> colorFilter;
   colorFilter->SetInputConnection(reader->GetOutputPort());
+  colorFilter->SetVerticesClockwiseOrdering(false);
+  colorFilter->SetVerticesRotation(180);
   colorFilter->Update();
 
   // find opacity range
