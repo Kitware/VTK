@@ -307,7 +307,6 @@ private:
   friend class vtkMemkindRAII;
   friend class vtkTDSCMemkindRAII;
   static void SetUsingMemkind(bool);
-  bool IsInMemkind;
   void SetIsInMemkind(bool);
 
   ///@{
@@ -325,9 +324,11 @@ private:
   };
   bool TryUpgradeRegister(vtkObjectBase* o);
   std::shared_ptr<WeakControlBlock> GetWeakControlBlock();
-  std::mutex WeakBlockMutex;
-  std::weak_ptr<WeakControlBlock> WeakBlock;
   ///@}
+
+  std::weak_ptr<WeakControlBlock> WeakBlock;
+  std::atomic<bool> WeakBlockMutex{ false };
+  bool IsInMemkind;
 
   ///@{
   /**
