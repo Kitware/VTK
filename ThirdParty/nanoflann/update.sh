@@ -8,7 +8,7 @@ readonly name="nanoflann"
 readonly ownership="nanoflann Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/nanoflann.git"
-readonly tag="for/vtk-20261006-1.14.0"
+readonly tag="for/vtk-20261014-2.0.1"
 readonly paths="
 .gitattributes
 include/nanoflann.hpp

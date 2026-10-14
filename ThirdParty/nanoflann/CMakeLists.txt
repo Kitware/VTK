@@ -26,7 +26,7 @@ vtk_module_third_party(
   EXTERNAL
     PACKAGE nanoflann
     TARGETS nanoflann::nanoflann
-    VERSION "1.14.0"
+    VERSION "2.0.1"
     STANDARD_INCLUDE_DIRS)
 
 configure_file(
