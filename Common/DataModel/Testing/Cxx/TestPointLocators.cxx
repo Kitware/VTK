@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include "vtkAbstractPointLocator.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkKdTree.h"
@@ -11,9 +12,11 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkStaticPointLocator.h"
 #include "vtkStaticPointLocator2D.h"
 #include "vtkStructuredGrid.h"
 
+#include <cmath>
 #include <iostream>
 #include <random>
 #include <set>
@@ -373,6 +376,76 @@ int TestStaticPointLocator2DShells()
   return rval;
 }
 
+// The points at the radius are within it, for every locator: those of
+// FindPointsWithinRadius(), of FindPointsInShell() and of
+// FindClosestPointWithinRadius(). The squared distances are exact.
+int TestRadiusBoundary()
+{
+  int rval = 0;
+
+  vtkNew<vtkPoints> points;
+  points->SetDataTypeToDouble();
+  points->InsertNextPoint(0, 0, 0);
+  points->InsertNextPoint(1, 0, 0);
+  points->InsertNextPoint(0, 2, 0);
+  points->InsertNextPoint(0, 0, 3);
+  points->InsertNextPoint(0, -2, 0);
+  vtkNew<vtkPolyData> pd;
+  pd->SetPoints(points);
+
+  const double origin[3] = { 0, 0, 0 };
+  const std::set<vtkIdType> withinTwo = { 0, 1, 2, 4 };
+  const double above[3] = { 0, 0, 6 }; // 3 away from point 3
+
+  vtkNew<vtkPointLocator> uniformLocator;
+  vtkNew<vtkStaticPointLocator> staticLocator;
+  vtkNew<vtkOctreePointLocator> octreeLocator;
+  vtkNew<vtkKdTreePointLocator> kdTreeLocator;
+  for (vtkAbstractPointLocator* locator : std::vector<vtkAbstractPointLocator*>{
+         uniformLocator, staticLocator, octreeLocator, kdTreeLocator })
+  {
+    locator->SetDataSet(pd);
+    locator->BuildLocator();
+    const char* name = locator->GetClassName();
+
+    vtkNew<vtkIdList> ids;
+    locator->FindPointsWithinRadius(2.0, origin, ids);
+    const std::set<vtkIdType> radiusIds(ids->begin(), ids->end());
+    if (radiusIds != withinTwo)
+    {
+      std::cerr << name << "::FindPointsWithinRadius: misses the points at the radius\n";
+      rval++;
+    }
+
+    vtkDist2TupleArray results;
+    locator->FindPointsInShell(origin, results, -0.1, 4.0);
+    std::set<vtkIdType> shellIds;
+    for (const auto& t : results)
+    {
+      shellIds.insert(t.Id);
+    }
+    if (shellIds != withinTwo)
+    {
+      std::cerr << name << "::FindPointsInShell: misses the points at the radius\n";
+      rval++;
+    }
+
+    double dist2 = -1.0;
+    if (locator->FindClosestPointWithinRadius(3.0, above, dist2) != 3 || dist2 != 9.0)
+    {
+      std::cerr << name << "::FindClosestPointWithinRadius: misses the point at the radius\n";
+      rval++;
+    }
+    if (locator->FindClosestPointWithinRadius(std::nextafter(3.0, 0.0), above, dist2) != -1)
+    {
+      std::cerr << name << "::FindClosestPointWithinRadius: finds a point beyond the radius\n";
+      rval++;
+    }
+  }
+
+  return rval;
+}
+
 int TestPointLocators(int, char*[])
 {
   vtkKdTreePointLocator* kdTreeLocator = vtkKdTreePointLocator::New();
@@ -392,6 +465,7 @@ int TestPointLocators(int, char*[])
 
   rval += TestKdTreePointLocator();
   rval += TestStaticPointLocator2DShells();
+  rval += TestRadiusBoundary();
 
   return rval;
 }
