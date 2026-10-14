@@ -8,7 +8,7 @@
  * of an unstructured grid. The faces are grouped by their hash value.
  * Their hash value is the minimum of the ids of the points defining the
  * face of a 3D cells, or the the number of points of the unstructured
- * grid if the cell is a 1D-2D.
+ * grid if the cell is a 0D-1D-2D.
  *
  * To use this class first you need to call BuildHashLinks() with the
  * vtkUnstructuredGrid as argument. Then you can use the methods
@@ -18,10 +18,9 @@
  * 5) GetCellIdOfFacesInHash() to get the cell id of the faces in a particular hash
  * 6) GetFaceIdOfFacesInHash() to get the face id of the faces in a particular hash
  *
- * In general, this class tries to minimize the memory usage as much as possible.
- * For that reason while to get a face you need to cell id and the face id, so they could
- * be a struct, it's more efficient to store them in two different arrays to minimize
- * the memory usage.
+ * The hash links are the keys of vtkUnstructuredGridSides::BuildScatteredSides(): the faces of the
+ * 3D cells, in the order of their cells, then, in the last hash, the 0D-1D-2D cells, in the order
+ * of their ids, with a face id of -1.
  *
  * Template parameters:
  * 1) TInputIdType: the type of the id of the cells and points of the input grid.
@@ -30,9 +29,7 @@
  * 2) TFaceIdType: the type of the id of the faces of the input grid. Most of the times
  *    a cell can have less than 2^7 faces, so use vtkTypeInt8. Otherwise, use vtkTypeInt32
  *    when the input grid has polyhedron cells.
- *
- * @warning
- * This class handles only linear cells.
+ * Only these 4 combinations, those of vtkUnstructuredGridSides, are supported.
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -40,20 +37,20 @@
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
- * vtkStaticElementLocator, vtkStaticCellLinksTemplate
+ * vtkUnstructuredGridSides, vtkStaticElementLocator, vtkStaticCellLinksTemplate
  */
+
 #ifndef vtkStaticFaceHashLinksTemplate_h
 #define vtkStaticFaceHashLinksTemplate_h
 
 #include "vtkABINamespace.h"
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 #include "vtkType.h"
+#include "vtkUnstructuredGrid.h"      // For GetNumberOfPoints()
+#include "vtkUnstructuredGridSides.h" // For the hash links
 
-#include <memory>
-#include <vector>
-
-VTK_ABI_NAMESPACE_BEGIN
-class vtkUnstructuredGrid;
-VTK_ABI_NAMESPACE_END
+#include <memory>      // For std::shared_ptr
+#include <type_traits> // For std::is_same_v
 
 VTK_ABI_NAMESPACE_BEGIN
 /**
@@ -68,12 +65,38 @@ public:
   /**
    * Build the hash links.
    */
-  void BuildHashLinks(vtkUnstructuredGrid* input);
+  void BuildHashLinks(vtkUnstructuredGrid* input)
+  {
+    static_assert(
+      std::is_same_v<TInputIdType, vtkTypeInt32> || std::is_same_v<TInputIdType, vtkTypeInt64>,
+      "TInputIdType must be vtkTypeInt32 or vtkTypeInt64, see vtkUnstructuredGridSides");
+    static_assert(
+      std::is_same_v<TFaceIdType, vtkTypeInt8> || std::is_same_v<TFaceIdType, vtkTypeInt32>,
+      "TFaceIdType must be vtkTypeInt8 or vtkTypeInt32, see vtkUnstructuredGridSides");
+    // The hashes: the faces of the 3D cells, scattered by their smallest point id, and the 0D-1D-2D
+    // cells, in the last key id.
+    using SidesType = vtkUnstructuredGridSides<TInputIdType, TFaceIdType>;
+    this->Sides = vtkSmartPointer<SidesType>::New();
+    this->Sides->SetDataSet(input);
+    this->Sides->SetOutputDimensionControl(SidesType::SideFlags::SurfacesOfVolumes);
+    this->Sides->SetPreserveRenderableInputs(true);
+    // The duplicate ghost cells are ordinary cells, so that the 0D-1D-2D ones are preserved: the
+    // ghost cells are masked by the user of the hash links, e.g., vtkGeometryFilter.
+    this->Sides->SetRemoveGhostInterfaces(false);
+    this->Sides->BuildScatteredSides();
+    this->NumberOfFaces = this->Sides->GetNumberOfSides();
+    this->NumberOfHashes = input->GetNumberOfPoints() + 1 /* for the 0D-1D-2D faces */;
+  }
 
   /**
    * Reset the hash links and free the memory.
    */
-  void Reset();
+  void Reset()
+  {
+    this->NumberOfFaces = 0;
+    this->NumberOfHashes = 0;
+    this->Sides = nullptr;
+  }
 
   /**
    * Get number of faces.
@@ -90,7 +113,8 @@ public:
    */
   vtkIdType GetNumberOfFacesInHash(vtkIdType hash) const
   {
-    return this->FaceOffsets.get()[hash + 1] - this->FaceOffsets.get()[hash];
+    const TInputIdType keyId = this->GetKeyId(hash);
+    return keyId >= 0 ? this->Sides->GetNumberOfSidesOfKey(keyId) : 0;
   }
 
   /**
@@ -98,7 +122,8 @@ public:
    */
   TInputIdType* GetCellIdOfFacesInHash(vtkIdType hash) const
   {
-    return this->CellIdOfFaceLinks.get() + this->FaceOffsets.get()[hash];
+    const TInputIdType keyId = this->GetKeyId(hash);
+    return keyId >= 0 ? const_cast<TInputIdType*>(this->Sides->GetCellIdsOfKey(keyId)) : nullptr;
   }
 
   /**
@@ -106,12 +131,14 @@ public:
    */
   TFaceIdType* GetFaceIdOfFacesInHash(vtkIdType hash) const
   {
-    return this->FaceIdOfFaceLinks.get() + this->FaceOffsets.get()[hash];
+    const TInputIdType keyId = this->GetKeyId(hash);
+    return keyId >= 0 ? const_cast<TFaceIdType*>(this->Sides->GetSideIdsOfKey(keyId)) : nullptr;
   }
 
 protected:
   vtkIdType NumberOfFaces = 0;
   vtkIdType NumberOfHashes = 0;
+  // Not used anymore: the hash links are the keys of vtkUnstructuredGridSides.
   std::shared_ptr<TInputIdType> CellIdOfFaceLinks;
   std::shared_ptr<TFaceIdType> FaceIdOfFaceLinks;
   std::shared_ptr<vtkIdType> FaceOffsets;
@@ -120,27 +147,21 @@ private:
   vtkStaticFaceHashLinksTemplate(const vtkStaticFaceHashLinksTemplate&) = delete;
   void operator=(const vtkStaticFaceHashLinksTemplate&) = delete;
 
-  struct GeometryInformation;
+  // The key id of the faces of a hash: the key of its point, the last key id for the last hash, or
+  // -1 for a point beyond the keys, which has no face.
+  TInputIdType GetKeyId(vtkIdType hash) const
+  {
+    const TInputIdType lastKeyId = this->Sides->GetNumberOfKeys() - 1;
+    if (hash == this->NumberOfHashes - 1)
+    {
+      return lastKeyId;
+    }
+    return hash < lastKeyId ? static_cast<TInputIdType>(hash) : -1;
+  }
 
-  struct CountFaces;
-
-  template <typename TCellOffSetIdType>
-  struct CreateFacesInformation;
-
-  template <typename TCellOffSetIdType>
-  struct CountHashes;
-
-  struct PrefixSum;
-
-  template <typename TCellOffSetIdType>
-  struct BuildFaceHashLinks;
-
-  template <typename TCellOffSetIdType>
-  void BuildHashLinksInternal(vtkUnstructuredGrid* input, GeometryInformation& geometryInformation);
+  vtkSmartPointer<vtkUnstructuredGridSides<TInputIdType, TFaceIdType>> Sides;
 };
-
 VTK_ABI_NAMESPACE_END
-#include "vtkStaticFaceHashLinksTemplate.txx"
 
 #endif // vtkStaticFaceHashLinksTemplate_h
 // VTK-HeaderTest-Exclude: vtkStaticFaceHashLinksTemplate.h
