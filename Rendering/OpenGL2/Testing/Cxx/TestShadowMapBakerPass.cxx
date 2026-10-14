@@ -80,7 +80,7 @@ int TestShadowMapBakerPass(int argc, char* argv[])
   std::cerr << "baking time: " << firstRender << std::endl;
 
   // get a shadow map
-  vtkTextureObject* to = (*bakerPass->GetShadowMaps())[2];
+  vtkTextureObject* to = bakerPass->GetShadowMaps()[2];
   // by default the textures have depth comparison on
   // but for simple display we need to turn it off
   to->SetDepthTextureCompare(false);

@@ -26,6 +26,8 @@ bool vtkOpenGLRenderPass::PreReplaceShaderValues(
 {
   return true;
 }
+
+//------------------------------------------------------------------------------
 bool vtkOpenGLRenderPass::PostReplaceShaderValues(
   std::string&, std::string&, std::string&, vtkAbstractMapper*, vtkProp*)
 {
