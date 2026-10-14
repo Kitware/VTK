@@ -44,7 +44,22 @@
  *  - NANOFLANN_FIRST_MATCH: If defined, in case of a tie in distances the item
  *    with the smallest index will be returned.
  *  - NANOFLANN_NODE_ALIGNMENT: The memory alignment, in bytes, for kd-tree
- *    nodes. Default: 16.
+ *    nodes. Must be a power of two and >= 8. Default: 16 (also good for AVX; use
+ *    32/64 for AVX/AVX-512 aligned loads). The pool allocator honors it.
+ *  - NANOFLANN_NO_MANIFOLDS: If defined, disables the C++17 product-manifold
+ *    topology support (Manifold_Adaptor, Product<>, SO2/SO3/SE2/SE3/Sn/Torus,
+ *    metric_Manifold<>). Auto-enabled under C++17; the C++11 Euclidean core is
+ *    unaffected.
+ *  - NANOFLANN_INCREMENTAL_NO_COORD_CACHE: If defined, the incremental index
+ *    does not keep a per-node contiguous copy of point coordinates (trades
+ *    query speed for memory).
+ *  - NANOFLANN_INCREMENTAL_INNODE_DISTANCE: If defined, the (Euclidean)
+ *    incremental index reuses the per-axis coordinate cache for the in-node
+ *    distance. No effect for manifold metrics, which always use evalMetric.
+ *  - NANOFLANN_INCREMENTAL_NO_FREELIST: If defined, nodes freed by a partial
+ *    rebuild are not recycled and every allocation bump-allocates from the
+ *    pool. Intended for ablation measurements only: steady-state memory then
+ *    grows with total inserts instead of staying bounded by the live set.
  *
  *  Macros defined internally by nanoflann (not meant to be set by the user):
  *  - NANOFLANN_RESTRICT: Expands to the compiler-specific `restrict` pointer
@@ -70,7 +85,7 @@
 #include <chrono>  // std::chrono (async incremental index polling)
 #include <cmath>  // for abs()
 #include <condition_variable>  // rebuild worker of the async incremental index
-#include <cstddef>  // std::ptrdiff_t
+#include <cstddef>  // std::ptrdiff_t, std::max_align_t
 #include <cstdint>
 #include <cstdio>  // snprintf
 #include <cstdlib>  // for abs()
@@ -91,9 +106,9 @@
 #include <vector>
 
 /** Library version as a decimal string "MAJOR.MINOR.PATCH" */
-#define NANOFLANN_VERSION_STRING "1.14.0"
+#define NANOFLANN_VERSION_STRING "2.0.1"
 /** Library version: 0xMMmmPP (MM=Major, mm=minor, PP=patch) */
-#define NANOFLANN_VERSION 0x010E00
+#define NANOFLANN_VERSION 0x020001
 
 // Avoid conflicting declaration of min/max macros in Windows headers
 #if !defined(NOMINMAX) && (defined(_WIN32) || defined(_WIN32_) || defined(WIN32) || defined(_WIN64))
@@ -135,6 +150,20 @@
 #ifndef NANOFLANN_NODE_ALIGNMENT
 #define NANOFLANN_NODE_ALIGNMENT 16
 #endif
+static_assert(
+    NANOFLANN_NODE_ALIGNMENT >= 8 &&
+        (NANOFLANN_NODE_ALIGNMENT & (NANOFLANN_NODE_ALIGNMENT - 1)) == 0,
+    "NANOFLANN_NODE_ALIGNMENT must be a power of two and >= 8");
+
+// Compile-time product-manifold topology support (nanoflann 2.0).
+// The variadic Product<>/metric_Manifold<> machinery requires C++17
+// (`if constexpr`, fold expressions). The legacy C++11 metrics and the whole
+// Euclidean code path are unaffected. Users can opt out with
+// NANOFLANN_NO_MANIFOLDS even under C++17.
+#if !defined(NANOFLANN_NO_MANIFOLDS) && defined(__cpp_if_constexpr) && \
+    (__cpp_if_constexpr >= 201606L)
+#define NANOFLANN_HAS_MANIFOLDS 1
+#endif
 
 /// xxx(kitware): mangle namespace
 #define nanoflann vtknanoflann
@@ -149,6 +178,17 @@ constexpr T pi_const()
 {
     return static_cast<T>(3.14159265358979323846);
 }
+
+/** Trait used by KDTreeBaseClass to decide, at compile time, whether a distance
+ *  functor implements the extended product-manifold interface (the per-coordinate
+ *  point-to-interval lower bound `pointToIntervalDist`). The primary template is
+ *  always available (also under C++11) and reports `false`, so the Euclidean
+ *  code path and codegen are completely unaffected. The Manifold_Adaptor
+ *  specializes it to `true` (see below, C++17 only). */
+template <class Distance>
+struct is_manifold_metric : std::false_type
+{
+};
 
 /**
  * Traits if object is resizable and assignable (typically has a resize | assign
@@ -411,7 +451,13 @@ class RKNNResultSet
         indices = indices_;
         dists   = dists_;
         count   = 0;
-        if (capacity) dists[capacity - 1] = maximumSearchDistanceSquared;
+        // Seed the last slot with the radius cap so worstDist() bounds the
+        // search before the buffer fills (shared addPointToSortedResultSet then
+        // maintains it). Kept distinct from KNNResultSet for this reason.
+        if (capacity)
+        {
+            dists[capacity - 1] = maximumSearchDistanceSquared;
+        }
     }
 
     NANOFLANN_NODISCARD CountType size() const noexcept { return count; }
@@ -443,6 +489,12 @@ class RKNNResultSet
 
 /**
  * A result-set class used when performing a radius based search.
+ *
+ * \note The boundary is **exclusive**: a candidate is accepted only when its
+ *       (squared) distance is *strictly less than* the search radius
+ *       (`dist < radius`). A point lying exactly at the radius is not returned.
+ *       This matches the long-standing FLANN/nanoflann 1.x behavior and is kept
+ *       for backwards compatibility.
  */
 template <typename _DistanceType, typename _IndexType = size_t>
 class RadiusResultSet
@@ -477,7 +529,11 @@ class RadiusResultSet
      */
     bool addPoint(DistanceType dist, IndexType index)
     {
-        if (dist < radius) m_indices_dists.emplace_back(index, dist);
+        // Exclusive boundary (dist < radius); see the class doc note.
+        if (dist < radius)
+        {
+            m_indices_dists.emplace_back(index, dist);
+        }
         return true;
     }
 
@@ -562,8 +618,29 @@ void load_value(std::istream& stream, T& value)
 template <typename T, typename A>
 void load_value(std::istream& stream, std::vector<T, A>& value)
 {
-    size_t size;
+    size_t size = 0;
     stream.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+    if (!stream.good())
+    {
+        throw std::runtime_error("[nanoflann] Corrupt stream: failed to read vector size.");
+    }
+    // Guard against a corrupt/truncated stream whose stored size would trigger
+    // an unbounded resize (multi-GB allocation / bad_alloc). If the stream is
+    // seekable, require that `size` elements actually fit in the bytes left.
+    const std::streampos cur = stream.tellg();
+    if (cur != std::streampos(-1))
+    {
+        stream.seekg(0, std::ios::end);
+        const std::streampos end = stream.tellg();
+        stream.seekg(cur, std::ios::beg);
+        const std::uintmax_t remaining = static_cast<std::uintmax_t>(end - cur);
+        if (size > remaining / sizeof(T))
+        {
+            throw std::runtime_error(
+                "[nanoflann] Corrupt stream: stored vector size exceeds the "
+                "number of bytes remaining.");
+        }
+    }
     value.resize(size);
     stream.read(reinterpret_cast<char*>(value.data()), sizeof(T) * size);
 }
@@ -748,7 +825,8 @@ struct L2_Simple_Adaptor
 
     L2_Simple_Adaptor(const DataSource& _data_source) : data_source(_data_source) {}
 
-    inline DistanceType evalMetric(const T* a, const IndexType b_idx, size_t size) const
+    inline DistanceType evalMetric(
+        const T* NANOFLANN_RESTRICT a, const IndexType b_idx, size_t size) const
     {
         DistanceType result = DistanceType();
         for (size_t i = 0; i < size; ++i)
@@ -765,81 +843,6 @@ struct L2_Simple_Adaptor
     {
         const DistanceType diff = detail::diff_as<DistanceType>(a, b);
         return diff * diff;
-    }
-};
-
-/** SO2 distance functor
- *  Corresponding distance traits: nanoflann::metric_SO2
- *
- * \tparam T Type of the elements (e.g. double, float, uint8_t)
- * \tparam DataSource Source of the data, i.e. where the vectors are stored
- * \tparam _DistanceType Type of distance variables (must be signed) (e.g.
- * float, double) orientation is constrained to be in [-pi, pi]
- * \tparam IndexType Type of the arguments with which the data can be
- * accessed (e.g. float, double, int64_t, T*)
- */
-template <class T, class DataSource, typename _DistanceType = T, typename IndexType = size_t>
-struct SO2_Adaptor
-{
-    using ElementType  = T;
-    using DistanceType = typename detail::checked_distance_type<_DistanceType>::type;
-
-    const DataSource& data_source;
-
-    SO2_Adaptor(const DataSource& _data_source) : data_source(_data_source) {}
-
-    inline DistanceType evalMetric(const T* a, const IndexType b_idx, size_t size) const
-    {
-        return accum_dist(a[size - 1], data_source.kdtree_get_pt(b_idx, size - 1), size - 1);
-    }
-
-    /** Returns the absolute shortest angular distance between a and b,
-     *  assuming both are in [-pi, pi].  The result is in [0, pi], which
-     *  satisfies the non-negativity requirement of a kd-tree metric and
-     *  gives correct nearest-neighbour pruning.
-     */
-    template <typename U, typename V>
-    inline DistanceType accum_dist(const U a, const V b, const size_t) const
-    {
-        DistanceType       diff = static_cast<DistanceType>(b) - static_cast<DistanceType>(a);
-        const DistanceType PI   = pi_const<DistanceType>();
-        if (diff > PI)
-            diff -= 2 * PI;
-        else if (diff < -PI)
-            diff += 2 * PI;
-        return diff < DistanceType(0) ? -diff : diff;  // abs without <cmath> dependency
-    }
-};
-
-/** SO3 distance functor (Uses L2_Simple)
- *  Corresponding distance traits: nanoflann::metric_SO3
- *
- * \tparam T Type of the elements (e.g. double, float, uint8_t)
- * \tparam DataSource Source of the data, i.e. where the vectors are stored
- * \tparam _DistanceType Type of distance variables (must be signed) (e.g.
- * float, double)
- * \tparam IndexType Type of the arguments with which the data can be
- * accessed (e.g. float, double, int64_t, T*)
- */
-template <class T, class DataSource, typename _DistanceType = T, typename IndexType = size_t>
-struct SO3_Adaptor
-{
-    using ElementType  = T;
-    using DistanceType = typename detail::checked_distance_type<_DistanceType>::type;
-
-    L2_Simple_Adaptor<T, DataSource, DistanceType, IndexType> distance_L2_Simple;
-
-    SO3_Adaptor(const DataSource& _data_source) : distance_L2_Simple(_data_source) {}
-
-    inline DistanceType evalMetric(const T* a, const IndexType b_idx, size_t size) const
-    {
-        return distance_L2_Simple.evalMetric(a, b_idx, size);
-    }
-
-    template <typename U, typename V>
-    inline DistanceType accum_dist(const U a, const V b, const size_t idx) const
-    {
-        return distance_L2_Simple.accum_dist(a, b, idx);
     }
 };
 
@@ -872,26 +875,427 @@ struct metric_L2_Simple : public Metric
         using distance_t = L2_Simple_Adaptor<T, DataSource, T, IndexType>;
     };
 };
-/** Metaprogramming helper traits class for the SO3_InnerProdQuat metric */
-struct metric_SO2 : public Metric
+
+/** @} */
+
+#if defined(NANOFLANN_HAS_MANIFOLDS)
+/** @addtogroup manifold_grp Compile-time product-manifold topology (C++17)
+ *
+ *  This block lets the user declare, at compile time, the topology of the search
+ *  space as a product manifold of base spaces (R^n, SO(2), SO(3), the unit
+ *  sphere S^N / S^2, and arbitrary products such as SE(2)=R^2 x SO(2),
+ *  SE(3)=R^3 x SO(3), or R^3 x S^2 for oriented points). The synthesized
+ *  metric (`metric_Manifold<Space>`) honors the correct geodesic distance and,
+ *  crucially, keeps the KD-tree pruning *exact* by supplying an admissible
+ *  per-coordinate point-to-interval lower bound (see the lemma in the companion
+ *  paper). Only available under C++17 and only for the fixed single-tree index
+ *  `KDTreeSingleIndexAdaptor`.
+ *  @{ */
+
+/** Per-scalar-coordinate topology tag. */
+enum class CoordTopology : uint8_t
 {
-    template <class T, class DataSource, typename IndexType = size_t>
-    struct traits
-    {
-        using distance_t = SO2_Adaptor<T, DataSource, T, IndexType>;
-    };
+    /** Real line R^1: ordinary Euclidean coordinate (no wrap). */
+    Linear = 0,
+    /** Circle S^1 / SO(2): angle in [-pi, pi], wraps at +/-pi. */
+    Circular = 1,
+    /** One scalar of a 4-coordinate unit-quaternion block (SO(3)); the metric is
+     *  the chordal distance min(||p-q||^2, ||p+q||^2) handling the double cover
+     *  q ~ -q. Quaternion coordinates always come in contiguous groups of four. */
+    QuaternionBlock = 2
 };
-/** Metaprogramming helper traits class for the SO3_InnerProdQuat metric */
-struct metric_SO3 : public Metric
+
+/** Shortest signed angular difference b-a, both assumed in [-pi, pi], result in
+ *  [-pi, pi]. Header-only, no <cmath> needed for the wrap. */
+template <typename Scalar>
+inline Scalar so2_signed_diff(const Scalar a, const Scalar b)
+{
+    const Scalar PI   = pi_const<Scalar>();
+    Scalar       diff = b - a;
+    if (diff > PI)
+        diff -= 2 * PI;
+    else if (diff < -PI)
+        diff += 2 * PI;
+    return diff;
+}
+
+/** Convert a chordal squared distance on the unit sphere S^N to the geodesic
+ *  arc angle in radians: theta = 2 asin(sqrt(d)/2), the inverse of
+ *  d = 4 sin^2(theta/2). The argument is clamped against rounding noise.
+ *
+ *  \note This is the angle *between the two unit vectors*. For an SO(3)
+ *  quaternion block the unit vectors live on S^3, so the value returned here is
+ *  the arc angle between the quaternions, which is **half** the rotation angle
+ *  they represent. Convert with:
+ *  \code
+ *    // d2 = min(|p-q|^2, |p+q|^2), the double-cover-aware chordal distance
+ *    const double rot_angle = 2 * nanoflann::chord_sq_to_angle(d2);  // = 4 asin(sqrt(d2)/2)
+ *  \endcode
+ *  since d = 2 - 2|<p,q>| = 4 sin^2(rot_angle/4) for unit quaternions. */
+template <typename Scalar>
+inline Scalar chord_sq_to_angle(const Scalar d_ch_sq)
+{
+    Scalar s = std::sqrt(d_ch_sq) / static_cast<Scalar>(2);
+    if (s < static_cast<Scalar>(0)) s = static_cast<Scalar>(0);
+    if (s > static_cast<Scalar>(1)) s = static_cast<Scalar>(1);
+    return static_cast<Scalar>(2) * std::asin(s);
+}
+
+/** Inverse of chord_sq_to_angle: convert an arc angle (radians) to the chordal
+ *  squared search radius d = 4 sin^2(theta/2), for use with radiusSearch on
+ *  S^N / S^2.
+ *
+ *  \note As in chord_sq_to_angle, \a theta is the angle between unit vectors.
+ *  To search an SO(3) quaternion block within a *rotation* angle, halve it
+ *  first: `angle_to_chord_sq(rot_angle / 2)`. */
+template <typename Scalar>
+inline Scalar angle_to_chord_sq(const Scalar theta)
+{
+    const Scalar s = std::sin(theta / static_cast<Scalar>(2));
+    return static_cast<Scalar>(4) * s * s;
+}
+
+/** @name Base-space traits
+ *  Each base space exposes a compile-time `ambient` (number of scalar
+ *  coordinates it occupies) and a `constexpr topology(i)` mapping a *local*
+ *  coordinate index to its CoordTopology tag.
+ *  @{ */
+
+/** Euclidean R^N base space (N linear coordinates). */
+template <unsigned N>
+struct Rn
+{
+    static constexpr unsigned      ambient = N;
+    static constexpr CoordTopology topology(unsigned /*i*/) { return CoordTopology::Linear; }
+};
+
+/** Circle S^1 / SO(2): a single circular coordinate (angle in [-pi, pi]). */
+struct SO2
+{
+    static constexpr unsigned      ambient = 1;
+    static constexpr CoordTopology topology(unsigned /*i*/) { return CoordTopology::Circular; }
+};
+
+/** 3D rotation SO(3) as a unit quaternion (4 coordinates, double cover). */
+struct SO3
+{
+    static constexpr unsigned      ambient = 4;
+    static constexpr CoordTopology topology(unsigned /*i*/)
+    {
+        return CoordTopology::QuaternionBlock;
+    }
+};
+
+/** Unit sphere S^N embedded in R^{N+1} (N+1 coordinates, must be unit-norm).
+ *
+ *  Metric: chordal squared distance ||p-q||^2 = 2 - 2<p,q> = 4 sin^2(theta/2),
+ *  a strictly increasing function of the geodesic angle theta in [0, pi], so the
+ *  NN / k-NN *ranking* is identical to the geodesic one. The chordal metric is
+ *  literally the ambient L2 metric, so every coordinate is a plain `Linear` tag:
+ *  no new switch cases are needed in Manifold_Adaptor, and pruning by raw
+ *  axis-aligned boxes (supersets of the sphere patch) stays admissible. Unlike
+ *  SO(3) = RP^3, antipodal unit vectors are *distinct* directions, so S^N needs
+ *  no double-cover handling (it is strictly simpler than the quaternion block).
+ *  Inputs (stored points and queries) must be normalized to unit length.
+ *
+ *  (S^1 is handled intrinsically by `SO2` because the circle admits a global
+ *  separable 1-coordinate chart; S^N for N>=2 has no such chart, hence the
+ *  embedding route here.) */
+template <unsigned N>
+struct Sn
+{
+    static constexpr unsigned      ambient = N + 1;
+    static constexpr CoordTopology topology(unsigned /*i*/) { return CoordTopology::Linear; }
+};
+/** Unit sphere S^2: 3D directions / bearings as unit vectors in R^3. */
+using S2 = Sn<2>;
+
+/** Product manifold M = M_1 x ... x M_b. Concatenates the coordinate layouts of
+ *  its base spaces; `ambient` is the total scalar-coordinate count and
+ *  `topology(i)` dispatches to the owning base space. */
+template <class... Bs>
+struct Product;
+
+template <>
+struct Product<>
+{
+    static constexpr unsigned      ambient = 0;
+    static constexpr CoordTopology topology(unsigned /*i*/) { return CoordTopology::Linear; }
+};
+
+template <class B, class... Rest>
+struct Product<B, Rest...>
+{
+    static constexpr unsigned      ambient = B::ambient + Product<Rest...>::ambient;
+    static constexpr CoordTopology topology(unsigned i)
+    {
+        return i < B::ambient ? B::topology(i) : Product<Rest...>::topology(i - B::ambient);
+    }
+};
+
+/** SE(2) = R^2 x SO(2) (3 coordinates: x, y, theta). */
+using SE2 = Product<Rn<2>, SO2>;
+/** SE(3) = R^3 x SO(3) (7 coordinates: x, y, z, qx, qy, qz, qw). */
+using SE3 = Product<Rn<3>, SO3>;
+/** N-torus = SO(2)^N. */
+template <unsigned N>
+struct Torus;
+template <>
+struct Torus<0> : Product<>
+{
+};
+template <unsigned N>
+struct Torus : Product<SO2, Torus<N - 1>>
+{
+};
+/** @} */
+
+/** Flatten a Space into a compile-time array of per-coordinate topology tags. */
+template <class Space>
+constexpr std::array<CoordTopology, Space::ambient> make_topology_table()
+{
+    std::array<CoordTopology, Space::ambient> arr{};
+    for (unsigned i = 0; i < Space::ambient; ++i) arr[i] = Space::topology(i);
+    return arr;
+}
+
+/** Distance functor synthesized from a compile-time product-manifold
+ *  description `Space`. Provides the standard nanoflann distance interface
+ *  (`evalMetric`, `accum_dist`) plus the extended interface used by the
+ *  topology-aware pruning in KDTreeBaseClass:
+ *   - `pointToIntervalDist(v, low, high, coord)`: admissible lower bound on the
+ *     squared distance from query coordinate `v` to the per-coordinate interval
+ *     [low, high] of a tree-node region, honoring wrap (circular) and the
+ *     antipodal double cover (quaternion).
+ *
+ *  The squared product metric is  d^2 = sum over base spaces of d_M^2, with
+ *  per-coordinate contributions:
+ *   - Linear:    (a-b)^2
+ *   - Circular:  so2_diff(a,b)^2
+ *   - SO(3) 4-block: min(||p-q||^2, ||p+q||^2)  (chordal, double cover)
+ */
+template <
+    class Space, class T, class DataSource, typename _DistanceType = T, typename IndexType = size_t>
+struct Manifold_Adaptor
+{
+    using ElementType  = T;
+    using DistanceType = _DistanceType;
+    using SpaceType    = Space;
+
+    static constexpr unsigned ambient_dim = Space::ambient;
+
+    /** Compile-time per-coordinate topology table (implicitly inline in C++17). */
+    static constexpr std::array<CoordTopology, Space::ambient> topo_ = make_topology_table<Space>();
+
+    /** True if the space contains at least one SO(3) quaternion block. Used to
+     *  gate the (slightly more expensive) block-level chordal pruning bound so
+     *  spaces without rotations pay nothing for it. */
+    static constexpr bool computeHasQuaternionBlock()
+    {
+        for (unsigned i = 0; i < Space::ambient; ++i)
+        {
+            if (topo_[i] == CoordTopology::QuaternionBlock) return true;
+        }
+        return false;
+    }
+    static constexpr bool hasQuaternionBlock = computeHasQuaternionBlock();
+
+    const DataSource& data_source;
+
+    Manifold_Adaptor(const DataSource& _data_source) : data_source(_data_source) {}
+
+    /** Full squared distance from query `a` to stored point `b_idx`. Walks the
+     *  topology table, treating each contiguous 4-coordinate quaternion block as
+     *  one chordal contribution with double-cover handling. */
+    inline DistanceType evalMetric(const T* a, const IndexType b_idx, size_t size) const
+    {
+        DistanceType result = DistanceType();
+        for (size_t i = 0; i < size;)
+        {
+            switch (topo_[i])
+            {
+                case CoordTopology::Linear:
+                {
+                    const DistanceType d = a[i] - data_source.kdtree_get_pt(b_idx, i);
+                    result += d * d;
+                    ++i;
+                    break;
+                }
+                case CoordTopology::Circular:
+                {
+                    const DistanceType d =
+                        so2_signed_diff<DistanceType>(a[i], data_source.kdtree_get_pt(b_idx, i));
+                    result += d * d;
+                    ++i;
+                    break;
+                }
+                case CoordTopology::QuaternionBlock:
+                {
+                    DistanceType s_minus = DistanceType();
+                    DistanceType s_plus  = DistanceType();
+                    for (size_t k = 0; k < 4; ++k)
+                    {
+                        const DistanceType bk = data_source.kdtree_get_pt(b_idx, i + k);
+                        const DistanceType dm = a[i + k] - bk;
+                        const DistanceType dp = a[i + k] + bk;
+                        s_minus += dm * dm;
+                        s_plus += dp * dp;
+                    }
+                    result += s_minus < s_plus ? s_minus : s_plus;
+                    i += 4;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    /** Per-coordinate squared point-to-point contribution. */
+    template <typename U, typename V>
+    inline DistanceType accum_dist(const U a, const V b, const size_t idx) const
+    {
+        if (topo_[idx] == CoordTopology::Circular)
+        {
+            const DistanceType d = so2_signed_diff<DistanceType>(
+                static_cast<DistanceType>(a), static_cast<DistanceType>(b));
+            return d * d;
+        }
+        const DistanceType d = static_cast<DistanceType>(a) - static_cast<DistanceType>(b);
+        return d * d;
+    }
+
+    /** Admissible lower bound on the squared distance from query coordinate `v`
+     *  to the per-coordinate interval [low, high] of a node region.
+     *
+     *  - Linear / QuaternionBlock: standard point-to-interval squared distance on
+     *    the real line. For a quaternion coordinate this is combined with the
+     *    antipodal cover by taking the smaller of the bounds for `v` and `-v`;
+     *    summing the per-coordinate minima over the 4-block stays a valid (looser)
+     *    lower bound of min(||p-q||^2, ||p+q||^2) because
+     *    sum_i min(a_i, b_i) <= min(sum a_i, sum b_i).
+     *  - Circular: wrap-aware distance from `v` to the direct arc [low, high]
+     *    (low <= high, both in [-pi, pi]); 0 inside, else the smaller wrapped
+     *    distance to either endpoint, squared. */
+    inline DistanceType pointToIntervalDist(
+        const T v, const T low, const T high, const size_t idx) const
+    {
+        switch (topo_[idx])
+        {
+            case CoordTopology::Linear:
+            {
+                return axisIntervalDist(v, low, high);
+            }
+            case CoordTopology::QuaternionBlock:
+            {
+                const DistanceType dp = axisIntervalDist(v, low, high);
+                const DistanceType dn = axisIntervalDist(-v, low, high);
+                return dp < dn ? dp : dn;
+            }
+            case CoordTopology::Circular:
+            {
+                if (v >= low && v <= high) return DistanceType();
+                const DistanceType d1 = so2_signed_diff<DistanceType>(v, low);
+                const DistanceType d2 = so2_signed_diff<DistanceType>(v, high);
+                const DistanceType a1 = d1 < 0 ? -d1 : d1;
+                const DistanceType a2 = d2 < 0 ? -d2 : d2;
+                const DistanceType m  = a1 < a2 ? a1 : a2;
+                return m * m;
+            }
+        }
+        return DistanceType();  // unreachable
+    }
+
+    /** Block-level tightening of the SO(3) chordal lower bound, for use by the
+     *  pruning gate. The per-coordinate `pointToIntervalDist` returns, for a
+     *  quaternion coordinate, min(d+, d-) of the two antipodal covers; summing
+     *  those per-coordinate minima gives the *loose* block bound
+     *  sum_i min(d+_i, d-_i). The *tight* block bound is
+     *  min(sum_i d+_i, sum_i d-_i) = min(dist(q, Box4), dist(-q, Box4)), which is
+     *  always >= the loose one (since sum min <= min sum) and still admissible
+     *  (Box4 is a superset of the subtree's quaternions). This returns, summed
+     *  over every quaternion block of the space,
+     *  (tight block bound) - (loose block bound stored in `dists`), i.e. the
+     *  amount by which the running `mindist` may be safely increased.
+     *
+     *  `dists[i]` must hold the loose per-coordinate contributions and `region`
+     *  the current per-coordinate node intervals (both as maintained by
+     *  searchLevelManifold). Cost is O(#quaternion coords); only called for
+     *  spaces with `hasQuaternionBlock`. */
+    template <class IntervalArray, class DistArray>
+    inline DistanceType quaternionBlockTightening(
+        const T* v, const IntervalArray& region, const DistArray& dists, const size_t dim) const
+    {
+        DistanceType delta = DistanceType();
+        for (size_t i = 0; i < dim;)
+        {
+            if (topo_[i] != CoordTopology::QuaternionBlock)
+            {
+                ++i;
+                continue;
+            }
+            DistanceType loose = DistanceType();
+            DistanceType s_pos = DistanceType();
+            DistanceType s_neg = DistanceType();
+            for (size_t k = 0; k < 4; ++k)
+            {
+                loose += static_cast<DistanceType>(dists[i + k]);
+                s_pos += axisIntervalDist(v[i + k], region[i + k].low, region[i + k].high);
+                s_neg += axisIntervalDist(-v[i + k], region[i + k].low, region[i + k].high);
+            }
+            const DistanceType tight = s_pos < s_neg ? s_pos : s_neg;
+            delta += tight - loose;
+            i += 4;
+        }
+        return delta;
+    }
+
+   private:
+    static inline DistanceType axisIntervalDist(const T v, const T low, const T high)
+    {
+        if (v < low)
+        {
+            const DistanceType d = static_cast<DistanceType>(low) - static_cast<DistanceType>(v);
+            return d * d;
+        }
+        if (v > high)
+        {
+            const DistanceType d = static_cast<DistanceType>(v) - static_cast<DistanceType>(high);
+            return d * d;
+        }
+        return DistanceType();
+    }
+};
+
+/** Mark Manifold_Adaptor as implementing the extended manifold interface so the
+ *  KD-tree base class selects the topology-aware (wrap- and cover-correct)
+ *  pruning path for it. */
+template <class Space, class T, class DataSource, typename DT, typename IndexType>
+struct is_manifold_metric<Manifold_Adaptor<Space, T, DataSource, DT, IndexType>> : std::true_type
+{
+};
+
+/** Metaprogramming helper traits class for a compile-time product manifold.
+ *  Usage:
+ *  \code
+ *    using StateSpace = nanoflann::SE3;  // R^3 x SO(3)
+ *    using kdtree_t = nanoflann::KDTreeSingleIndexAdaptor<
+ *        nanoflann::metric_Manifold<StateSpace>::traits<double, Dataset>::distance_t,
+ *        Dataset, StateSpace::ambient>;
+ *  \endcode
+ *  or, more conveniently, via the `metric_Manifold<Space>` tag passed directly to
+ *  KDTreeSingleIndexAdaptor's Distance slot. */
+template <class Space>
+struct metric_Manifold : public Metric
 {
     template <class T, class DataSource, typename IndexType = size_t>
     struct traits
     {
-        using distance_t = SO3_Adaptor<T, DataSource, T, IndexType>;
+        using distance_t = Manifold_Adaptor<Space, T, DataSource, T, IndexType>;
     };
 };
 
-/** @} */
+/** @} */  // end manifold_grp
+#endif  // NANOFLANN_HAS_MANIFOLDS
 
 /** @addtogroup param_grp Parameter structs
  * @{ */
@@ -962,7 +1366,12 @@ struct SearchParameters
  */
 class PooledAllocator
 {
-    static constexpr size_t WORDSIZE  = 16;  // WORDSIZE must >= 8
+    // Every allocation is aligned to WORDSIZE. It must be at least the node
+    // alignment so that nodes declared `alignas(NANOFLANN_NODE_ALIGNMENT)` are
+    // actually returned aligned (the default 16 also matches alignof(max_align_t)
+    // on common platforms; larger values, e.g. 32/64 for AVX, are honored too).
+    static constexpr size_t WORDSIZE =
+        (NANOFLANN_NODE_ALIGNMENT > 16) ? size_t(NANOFLANN_NODE_ALIGNMENT) : size_t(16);
     static constexpr size_t BLOCKSIZE = 8192;
 
     /* We maintain memory alignment to word boundaries by requiring that all
@@ -1031,8 +1440,13 @@ class PooledAllocator
         {
             wastedMemory += remaining_;
 
-            /* Allocate new storage. */
-            const Size blocksize = size > BLOCKSIZE ? size + WORDSIZE : BLOCKSIZE + WORDSIZE;
+            /* Allocate new storage. The first machine word holds a pointer to
+               the previous block (for free_all()); the usable region starts at
+               the first WORDSIZE-aligned address past it. We over-allocate by
+               2*WORDSIZE to guarantee room for that alignment padding even when
+               WORDSIZE > alignof(max_align_t) (e.g. AVX-512 node alignment). */
+            const Size payload   = size > BLOCKSIZE ? size : BLOCKSIZE;
+            const Size blocksize = payload + 2 * WORDSIZE;
 
             // use the standard C malloc to allocate memory
             void* m = ::malloc(blocksize);
@@ -1045,8 +1459,14 @@ class PooledAllocator
             static_cast<void**>(m)[0] = base_;
             base_                     = m;
 
-            remaining_ = blocksize - WORDSIZE;
-            loc_       = static_cast<char*>(m) + WORDSIZE;
+            /* Round the first usable byte (just past the prev-block pointer) up
+               to a WORDSIZE boundary so every returned chunk is WORDSIZE-aligned. */
+            const std::uintptr_t raw = reinterpret_cast<std::uintptr_t>(m) + sizeof(void*);
+            const std::uintptr_t aligned =
+                (raw + (WORDSIZE - 1)) & ~static_cast<std::uintptr_t>(WORDSIZE - 1);
+            loc_ = reinterpret_cast<void*>(aligned);
+            remaining_ =
+                blocksize - static_cast<Size>(aligned - reinterpret_cast<std::uintptr_t>(m));
         }
         void* rloc = loc_;
         loc_       = static_cast<char*>(loc_) + size;
@@ -1139,6 +1559,48 @@ class default_init_allocator : public A
     {
         std::allocator_traits<A>::construct(static_cast<A&>(*this), p, std::forward<Args>(args)...);
     }
+
+#if !defined(__cpp_aligned_new)
+    // Before C++17, std::allocator ignores alignments beyond that of
+    // max_align_t (e.g. NANOFLANN_NODE_ALIGNMENT=32/64), so over-aligned types
+    // are over-allocated and aligned by hand, keeping the malloc() pointer
+    // right before the returned block.
+    using value_type                     = typename std::allocator_traits<A>::value_type;
+    static constexpr size_t kAlign       = alignof(value_type);
+    static constexpr bool   kOverAligned = kAlign > alignof(std::max_align_t);
+
+    value_type* allocate(const size_t n)
+    {
+        if (!kOverAligned)
+        {
+            return std::allocator_traits<A>::allocate(static_cast<A&>(*this), n);
+        }
+        if (n > (std::numeric_limits<size_t>::max() - kAlign - sizeof(void*)) / sizeof(value_type))
+        {
+            throw std::bad_alloc();
+        }
+        void* raw = ::malloc(n * sizeof(value_type) + kAlign + sizeof(void*));
+        if (!raw)
+        {
+            throw std::bad_alloc();
+        }
+        const std::uintptr_t p =
+            (reinterpret_cast<std::uintptr_t>(raw) + sizeof(void*) + kAlign - 1) &
+            ~static_cast<std::uintptr_t>(kAlign - 1);
+        reinterpret_cast<void**>(p)[-1] = raw;
+        return reinterpret_cast<value_type*>(p);
+    }
+
+    void deallocate(value_type* p, const size_t n) noexcept
+    {
+        if (!kOverAligned)
+        {
+            std::allocator_traits<A>::deallocate(static_cast<A&>(*this), p, n);
+            return;
+        }
+        ::free(reinterpret_cast<void**>(p)[-1]);
+    }
+#endif
 };
 
 /** Used to declare fixed-size arrays when DIM>0, dynamically-allocated vectors
@@ -1456,15 +1918,118 @@ class KDTreeBaseClass
         return true;
     }
 
+#if defined(NANOFLANN_HAS_MANIFOLDS)
     /**
-     * Create a tree node that subdivides the list of vecs from vind[first]
-     * to vind[last].  The routine is called recursively on each sublist.
-     *
-     * @param left index of the first vector
-     * @param right index of the last vector
-     * @param bbox bounding box used as input for splitting and output for
-     * parent node
+     * Exact search variant for product-manifold metrics. Identical in structure
+     * to searchLevel(), but it carries the running per-coordinate node region
+     * `region` down the recursion so that the far-child contribution can be the
+     * topology-aware point-to-interval lower bound against the *full* child
+     * interval (both edges). This is required for correctness on a circle, where
+     * the single near-edge cut value used by the Euclidean path can overestimate
+     * the distance to a far child that wraps around +/-pi (over-pruning the true
+     * neighbor). For linear coordinates the bound coincides exactly with the
+     * Euclidean accum_dist(val, cutedge), so the descent behavior is unchanged.
      */
+    template <class RESULTSET>
+    bool searchLevelManifold(
+        RESULTSET& result_set, const ElementType* vec, const NodeConstPtr node,
+        DistanceType mindist, distance_vector_t& dists, BoundingBox& region,
+        const DistanceType epsError) const
+    {
+        const Derived& obj = static_cast<const Derived&>(*this);
+        if (node->isLeaf())
+        {
+            const Size dim = veclen(obj);
+            for (Offset i = node->node_type.lr.left; i < node->node_type.lr.right; ++i)
+            {
+                const IndexType accessor = vAcc_[i];
+                if (!obj.isActive(accessor)) continue;
+                DistanceType dist = obj.distance_.evalMetric(vec, accessor, dim);
+                if (dist < result_set.worstDist())
+                {
+                    if (!result_set.addPoint(
+                            static_cast<typename RESULTSET::DistanceType>(dist),
+                            static_cast<typename RESULTSET::IndexType>(accessor)))
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        const Dimension   idx     = node->node_type.sub.divfeat;
+        const ElementType val     = vec[idx];
+        const ElementType divlow  = node->node_type.sub.divlow;
+        const ElementType divhigh = node->node_type.sub.divhigh;
+
+        const NodeConstPtr child1 = node + 1;
+        const NodeConstPtr child2 = node + node->child2;
+#if defined(__GNUC__) || defined(__clang__)
+        // See searchLevel(): the right child is far away in the array.
+        __builtin_prefetch(child2);
+#endif
+
+        // Per-coordinate intervals of the two children (the parent interval split
+        // at the gap [divlow, divhigh]).
+        const Interval cur   = region[idx];
+        const Interval loReg = {cur.low, divlow};
+        const Interval hiReg = {divhigh, cur.high};
+
+        // Choose the child whose region is closer to the query coordinate.
+        const DistanceType dLo = obj.distance_.pointToIntervalDist(val, loReg.low, loReg.high, idx);
+        const DistanceType dHi = obj.distance_.pointToIntervalDist(val, hiReg.low, hiReg.high, idx);
+
+        NodeConstPtr bestChild;
+        NodeConstPtr otherChild;
+        Interval     nearReg;
+        Interval     farReg;
+        if (dLo <= dHi)
+        {
+            bestChild  = child1;
+            otherChild = child2;
+            nearReg    = loReg;
+            farReg     = hiReg;
+        }
+        else
+        {
+            bestChild  = child2;
+            otherChild = child1;
+            nearReg    = hiReg;
+            farReg     = loReg;
+        }
+
+        region[idx] = nearReg;
+        if (!searchLevelManifold(result_set, vec, bestChild, mindist, dists, region, epsError))
+            return false;
+
+        const DistanceType cut_dist =
+            obj.distance_.pointToIntervalDist(val, farReg.low, farReg.high, idx);
+        const DistanceType dst = dists[idx];
+        mindist                = mindist + cut_dist - dst;
+        dists[idx]             = cut_dist;
+        region[idx]            = farReg;
+
+        // For spaces with SO(3) blocks, tighten the prune test by replacing the
+        // (loose) sum of per-coordinate antipodal minima with the block-level
+        // chordal bound min(dist(q, Box4), dist(-q, Box4)). This is admissible
+        // and >= the loose bound, so it prunes more without ever missing a true
+        // neighbor. The recursion keeps carrying the loose `mindist`; each deeper
+        // node re-tightens its own gate.
+        DistanceType gateMindist = mindist;
+        if constexpr (std::decay_t<decltype(obj.distance_)>::hasQuaternionBlock)
+        {
+            gateMindist += obj.distance_.quaternionBlockTightening(vec, region, dists, veclen(obj));
+        }
+        if (gateMindist * epsError <= result_set.worstDist())
+        {
+            if (!searchLevelManifold(result_set, vec, otherChild, mindist, dists, region, epsError))
+                return false;
+        }
+        dists[idx]  = dst;
+        region[idx] = cur;
+        return true;
+    }
+#endif  // NANOFLANN_HAS_MANIFOLDS
+
     /**
      * Initialize a freshly-allocated node while building the tree: either turn
      * it into a leaf node (computing the leaf bounding-box) or compute the
@@ -1887,42 +2452,58 @@ class KDTreeBaseClass
         const Derived& obj, const Offset ind, const Size count, const Dimension cutfeat,
         const DistanceType& cutval, Offset& lim1, Offset& lim2)
     {
-        // Dutch National Flag algorithm for three-way partitioning, over the
-        // half-open range [0, count). Offset is unsigned, so a closed-range
-        // `[0, count-1]` variant underflows to SIZE_MAX if every element ends
-        // up above cutval.
+        // Two Hoare-style passes: [< cutval | >= cutval], then the upper part
+        // into [== cutval | > cutval]. Only misplaced pairs are swapped, which
+        // is much cheaper than a one-pass three-way partition that moves
+        // almost every element. Half-open ranges keep it safe for an unsigned
+        // Offset. Coordinates are compared in DistanceType, like every other
+        // coordinate-vs-cutval comparison, so that a wide unsigned ElementType
+        // is not converted the other way around.
+        const auto coord = [&](const Offset i)
+        { return static_cast<DistanceType>(dataset_get(obj, vAcc_[ind + i], cutfeat)); };
+
         Offset left  = 0;
-        Offset mid   = 0;
         Offset right = count;
-
-        while (mid < right)
+        for (;;)
         {
-            // Compared in DistanceType, like every other coordinate-vs-cutval
-            // comparison, so that a wide unsigned ElementType is not converted
-            // the other way around.
-            const DistanceType val =
-                static_cast<DistanceType>(dataset_get(obj, vAcc_[ind + mid], cutfeat));
-
-            if (val < cutval)
+            while (left < right && coord(left) < cutval)
             {
-                std::swap(vAcc_[ind + left], vAcc_[ind + mid]);
-                left++;
-                mid++;
+                ++left;
             }
-            else if (val > cutval)
+            while (left < right && coord(right - 1) >= cutval)
             {
-                // right > mid >= 0, so decrementing it cannot underflow
-                right--;
-                std::swap(vAcc_[ind + mid], vAcc_[ind + right]);
+                --right;
             }
-            else
+            if (left >= right)
             {
-                mid++;
+                break;
             }
+            std::swap(vAcc_[ind + left], vAcc_[ind + right - 1]);
+            ++left;
+            --right;
         }
-
         lim1 = left;
-        lim2 = mid;
+
+        right = count;
+        for (;;)
+        {
+            while (left < right && coord(left) <= cutval)
+            {
+                ++left;
+            }
+            while (left < right && coord(right - 1) > cutval)
+            {
+                --right;
+            }
+            if (left >= right)
+            {
+                break;
+            }
+            std::swap(vAcc_[ind + left], vAcc_[ind + right - 1]);
+            ++left;
+            --right;
+        }
+        lim2 = left;
     }
 
     DistanceType computeInitialDistances(
@@ -1932,6 +2513,21 @@ class KDTreeBaseClass
         DistanceType dist = DistanceType();
 
         const Dimension dims = static_cast<Dimension>(veclen(obj));
+#if defined(NANOFLANN_HAS_MANIFOLDS)
+        if constexpr (is_manifold_metric<Distance>::value)
+        {
+            // Topology-aware initial bound: each coordinate contributes its
+            // admissible point-to-interval lower bound (wrap-aware for circular
+            // coordinates, double-cover-aware for quaternion blocks).
+            for (Dimension i = 0; i < dims; ++i)
+            {
+                dists[i] = obj.distance_.pointToIntervalDist(
+                    vec[i], obj.root_bbox_[i].low, obj.root_bbox_[i].high, i);
+                dist += dists[i];
+            }
+            return dist;
+        }
+#endif
         for (Dimension i = 0; i < dims; ++i)
         {
             if (vec[i] < obj.root_bbox_[i].low)
@@ -2341,7 +2937,20 @@ class KDTreeSingleIndexAdaptor
         auto zero = static_cast<typename RESULTSET::DistanceType>(0);
         assign(dists, this->veclen(*this), zero);
         DistanceType dist = this->computeInitialDistances(*this, vec, dists);
-        this->searchLevel(result, vec, Base::nodes_.data(), dist, dists, epsError);
+#if defined(NANOFLANN_HAS_MANIFOLDS)
+        if constexpr (is_manifold_metric<Distance>::value)
+        {
+            // Carry a mutable copy of the root region down the recursion so the
+            // pruning bound is computed against full per-coordinate child arcs.
+            typename Base::BoundingBox region(Base::root_bbox_);
+            this->searchLevelManifold(
+                result, vec, Base::nodes_.data(), dist, dists, region, epsError);
+        }
+        else
+#endif
+        {
+            this->searchLevel(result, vec, Base::nodes_.data(), dist, dists, epsError);
+        }
 
         if (searchParams.sorted) result.sort();
 
@@ -2807,7 +3416,6 @@ class KDTreeSingleIndexDynamicAdaptor_
     /** @} */
 
    public:
-   public:
     /**  Stores the index in a binary file.
      *   IMPORTANT NOTE: The set of data points is NOT stored in the file, so
      * when loading the index object it must be constructed associated to the
@@ -3033,9 +3641,18 @@ class KDTreeSingleIndexDynamicAdaptor
     bool findNeighbors(
         RESULTSET& result, const ElementType* vec, const SearchParameters& searchParams = {}) const
     {
+        // The result set is shared (accumulated) across all sub-trees, so a
+        // radius search must be sorted only once, at the very end, rather than
+        // re-sorting the cumulative vector inside each sub-tree's findNeighbors.
+        SearchParameters unsortedParams = searchParams;
+        unsortedParams.sorted           = false;
         for (size_t i = 0; i < treeCount_; i++)
         {
-            index_[i].findNeighbors(result, &vec[0], searchParams);
+            index_[i].findNeighbors(result, &vec[0], unsortedParams);
+        }
+        if (searchParams.sorted)
+        {
+            result.sort();
         }
         return result.full();
     }
@@ -3092,6 +3709,15 @@ struct KDTreeIncrementalIndexParams
  * \note A compile-time fixed \a DIM (e.g. 3 for 3D LiDAR) is recommended: the
  *       per-node bounding box is then a stack std::array and no per-node heap
  *       allocation occurs. With DIM=-1 each node's box is a std::vector.
+ *
+ * \note Metrics: besides the Euclidean L1/L2/L2_Simple metrics, under C++17 this
+ *       index also accepts the compile-time product-manifold metrics
+ *       (Manifold_Adaptor / metric_Manifold<Space>) and returns *exact* nearest
+ *       neighbors on non-Euclidean state spaces (SO(2), SO(3), SE(2), SE(3),
+ *       S^2, tori, and products). The topology-aware pruning reuses the
+ *       per-subtree boxes this index already maintains as the region supersets
+ *       required by the admissibility lemma, so it is no costlier to obtain than
+ *       in the static tree (see the companion paper).
  *
  * \tparam Distance The distance metric (nanoflann::metric_L2_Simple, etc).
  * \tparam DatasetAdaptor The user-provided dataset adaptor.
@@ -3154,6 +3780,16 @@ class KDTreeSingleIndexIncrementalAdaptor
     static constexpr bool kCacheCoords = false;
 #else
     static constexpr bool kCacheCoords = (DIM > 0);
+#endif
+
+    /** Whether nodes freed by a partial rebuild are recycled through the
+     *  free-list. Always on except for ablation builds
+     *  (NANOFLANN_INCREMENTAL_NO_FREELIST), where memory is expected to grow
+     *  with total inserts rather than with the live set. */
+#if defined(NANOFLANN_INCREMENTAL_NO_FREELIST)
+    static constexpr bool kRecycleNodes = false;
+#else
+    static constexpr bool kRecycleNodes = true;
 #endif
 
    private:
@@ -3280,7 +3916,12 @@ class KDTreeSingleIndexIncrementalAdaptor
         syncRootBox();
     }
 
-    /** Remove every live point lying inside the axis-aligned box \a box. */
+    /** Remove every live point lying inside the axis-aligned box \a box.
+     *  \note For manifold metrics the box is interpreted in raw coordinates and
+     *        does *not* wrap: circular / quaternion coordinates are compared by
+     *        their stored scalar value. For an SE(3) sliding-window trim, bound
+     *        the translation dims and set the quaternion dims to [-1, 1] (and
+     *        circular dims to [-pi, pi]) to keep the whole rotation block. */
     void removeBox(const BoundingBox& box)
     {
         if (iroot_) removeBoxRec(iroot_, box);
@@ -3406,7 +4047,12 @@ class KDTreeSingleIndexIncrementalAdaptor
         distance_vector_t dists;
         assign(dists, this->veclen(*this), static_cast<typename distance_vector_t::value_type>(0));
         const DistanceType dist = this->computeInitialDistances(*this, vec, dists);
-        searchLevelInc(result, vec, iroot_, dist, dists, epsError, this->veclen(*this));
+#if defined(NANOFLANN_HAS_MANIFOLDS)
+        if constexpr (is_manifold_metric<Distance>::value)
+            searchLevelIncManifold(result, vec, iroot_, dist, dists, epsError, this->veclen(*this));
+        else
+#endif
+            searchLevelInc(result, vec, iroot_, dist, dists, epsError, this->veclen(*this));
         if (searchParams.sorted) result.sort();
         return result.full();
     }
@@ -3606,7 +4252,7 @@ class KDTreeSingleIndexIncrementalAdaptor
     // --------------------------------------------------------------------
     INode* allocNode()
     {
-        if (freeList_)
+        if (kRecycleNodes && freeList_)
         {
             INode* n  = freeList_;
             freeList_ = n->child1;
@@ -3646,6 +4292,7 @@ class KDTreeSingleIndexIncrementalAdaptor
 
     void recycleNode(INode* n)
     {
+        if (!kRecycleNodes) return;
         n->child1 = freeList_;
         freeList_ = n;
     }
@@ -3922,6 +4569,11 @@ class KDTreeSingleIndexIncrementalAdaptor
     INode* findDeletionScapegoat(INode* node) const
     {
         if (!node) return nullptr;
+        // `invalid_count` is cumulative over the subtree, so a subtree with no
+        // tombstones cannot contain any scapegoat: prune the whole descent.
+        // This collapses the post-removal walk to the dirty path only (O(N) ->
+        // O(touched)), the main win for high-rate removeBox/removeOutsideBox.
+        if (node->invalid_count == 0) return nullptr;
         if (isDeletionScapegoat(node)) return node;  // highest wins
         if (INode* l = findDeletionScapegoat(node->child1)) return l;
         return findDeletionScapegoat(node->child2);
@@ -4153,7 +4805,10 @@ class KDTreeSingleIndexIncrementalAdaptor
             // as a sum of per-axis accum_dist contributions. This avoids the
             // dataset_get() indirection and is ~12% faster on KNN, but is only
             // valid for *additive* (axis-decomposable) metrics — L1, L2,
-            // L2_Simple. Do NOT enable it for SO2/SO3.
+            // L2_Simple. Manifold metrics never reach here: findNeighbors
+            // dispatches them to searchLevelIncManifold (which always uses
+            // evalMetric), so the wrap / quaternion-block cases are safe even
+            // when this opt-in is defined.
             DistanceType d = DistanceType();
             if (kCacheCoords)
                 for (Size i = 0; i < dim; ++i)
@@ -4197,6 +4852,89 @@ class KDTreeSingleIndexIncrementalAdaptor
             searchLevelInc(rs, vec, farChild, newmin, dists, epsError, dim);
         dists[axis] = dst;
     }
+
+#if defined(NANOFLANN_HAS_MANIFOLDS)
+    /** Topology-aware twin of searchLevelInc for manifold metrics (C++17).
+     *
+     *  Same recursion, but (i) the in-node distance always uses evalMetric (the
+     *  per-axis cache is invalid for wrap / quaternion blocks, so this also makes
+     *  the NANOFLANN_INCREMENTAL_INNODE_DISTANCE opt-in safe for manifolds), and
+     *  (ii) the far-child lower bound is the admissible point-to-interval
+     *  distance against that child's *own* per-subtree AABB (`box`), which the
+     *  incremental tree already maintains. The box is a raw-coordinate superset
+     *  of every (live or tombstoned) point in the subtree, so the bound is
+     *  admissible (see Lemma 1 / the incremental-index remark in the paper); the
+     *  Euclidean hot path searchLevelInc is left byte-identical. */
+    template <typename RESULTSET>
+    void searchLevelIncManifold(
+        RESULTSET& rs, const ElementType* vec, const INode* node, DistanceType mindist,
+        distance_vector_t& dists, const DistanceType epsError, const Size dim) const
+    {
+        if (!node) return;
+        if (node->invalid_count == node->subtree_size) return;  // whole subtree dead
+
+        if (!node->deleted)
+        {
+            const DistanceType d = distance_.evalMetric(vec, node->ptIdx, dim);
+            if (d < rs.worstDist())
+                rs.addPoint(
+                    static_cast<typename RESULTSET::DistanceType>(d),
+                    static_cast<typename RESULTSET::IndexType>(node->ptIdx));
+        }
+
+        const Dimension   axis = node->divfeat;
+        const ElementType val  = vec[axis];
+
+        const INode* const c1 = node->child1;
+        const INode* const c2 = node->child2;
+
+        // Lower bound on the distance to each child's region (wrap- and
+        // cover-aware), using the child's per-subtree box on the split axis.
+        const DistanceType d1 =
+            c1 ? distance_.pointToIntervalDist(val, c1->box[axis].low, c1->box[axis].high, axis)
+               : DistanceType();
+        const DistanceType d2 =
+            c2 ? distance_.pointToIntervalDist(val, c2->box[axis].low, c2->box[axis].high, axis)
+               : DistanceType();
+
+        const INode* nearChild;
+        const INode* farChild;
+        DistanceType farCut;
+        if (d1 <= d2)
+        {
+            nearChild = c1;
+            farChild  = c2;
+            farCut    = d2;
+        }
+        else
+        {
+            nearChild = c2;
+            farChild  = c1;
+            farCut    = d1;
+        }
+
+        searchLevelIncManifold(rs, vec, nearChild, mindist, dists, epsError, dim);
+
+        if (farChild)
+        {
+            const DistanceType dst    = dists[axis];
+            const DistanceType newmin = mindist + farCut - dst;
+            dists[axis]               = farCut;
+
+            // SO(3): tighten the gate with the block-level chordal bound against
+            // the far child's per-subtree box (same idea as the static tree, but
+            // using the box the incremental index already maintains).
+            DistanceType gateMin = newmin;
+            if constexpr (std::decay_t<decltype(distance_)>::hasQuaternionBlock)
+            {
+                gateMin += distance_.quaternionBlockTightening(vec, farChild->box, dists, dim);
+            }
+            if (gateMin * epsError <= rs.worstDist())
+                searchLevelIncManifold(rs, vec, farChild, newmin, dists, epsError, dim);
+            dists[axis] = dst;
+        }
+    }
+#endif  // NANOFLANN_HAS_MANIFOLDS
 
     template <typename RESULTSET>
     void findWithinBoxRec(RESULTSET& result, const INode* node, const BoundingBox& bbox) const
@@ -4670,7 +5408,7 @@ class KDTreeSingleIndexIncrementalAdaptorMT
  *
  * const int max_leaf = 10;
  * my_kd_tree_t mat_index(mat, max_leaf);
- * mat_index.index->...
+ * mat_index.index_->...
  * \endcode
  *
  *  \tparam DIM If set to >0, it specifies a compile-time fixed dimensionality
@@ -4695,8 +5433,9 @@ struct KDTreeEigenMatrixAdaptor
         metric_t, self_t, row_major ? MatrixType::ColsAtCompileTime : MatrixType::RowsAtCompileTime,
         IndexType>;
 
-    index_t* index_;  //! The kd-tree index for the user to call its methods as
-                      //! usual with any other FLANN index.
+    std::unique_ptr<index_t> index_;  //! The kd-tree index for the user to call
+                                      //! its methods as usual with any other
+                                      //! FLANN index (e.g. `index_->...`).
 
     using Offset    = typename index_t::Offset;
     using Size      = typename index_t::Size;
@@ -4717,10 +5456,12 @@ struct KDTreeEigenMatrixAdaptor
             throw std::runtime_error(
                 "Data set dimensionality does not match the 'DIM' template "
                 "argument");
-        index_ = new index_t(
+        // Note: std::unique_ptr::reset(new ...) rather than std::make_unique to
+        // keep the header compilable under C++11 (make_unique is C++14).
+        index_.reset(new index_t(
             static_cast<Dimension>(dims), *this /* adaptor */,
             nanoflann::KDTreeSingleIndexAdaptorParams(
-                leaf_max_size, nanoflann::KDTreeSingleIndexAdaptorFlags::None, n_thread_build));
+                leaf_max_size, nanoflann::KDTreeSingleIndexAdaptorFlags::None, n_thread_build)));
     }
 
    public:
@@ -4730,12 +5471,12 @@ struct KDTreeEigenMatrixAdaptor
 
     /** Move operations are deleted: the owned index_ stores a reference back to
      * this adaptor object (passed as the dataset adaptor at construction), so
-     * moving would leave that reference dangling. Deleting them also prevents
-     * a double-free of the raw index_ pointer. */
+     * moving would leave that reference dangling. */
     KDTreeEigenMatrixAdaptor(self_t&&) = delete;
     self_t& operator=(self_t&&)        = delete;
 
-    ~KDTreeEigenMatrixAdaptor() { delete index_; }
+    // index_ is a std::unique_ptr, so the default destructor releases it.
+    ~KDTreeEigenMatrixAdaptor() = default;
 
     const std::reference_wrapper<const MatrixType> m_data_matrix;
 
