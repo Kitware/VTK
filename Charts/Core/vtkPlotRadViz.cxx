@@ -167,30 +167,54 @@ double vtkPlotRadViz::GetRadius() const
 }
 
 //------------------------------------------------------------------------------
+double* vtkPlotRadViz::GetLensCenter()
+{
+  // clamped like vtkMultiVariateToRGBA does, so the lens is drawn where it applies
+  const double origin[2] = { 0, 0 };
+  std::array<double, 2> center = vtkMultiVariateToRGBA::GetLensCenter(
+    this->NormalizedLensRadius, 1, this->NormalizedLensCenter, origin);
+  for (int i = 0; i < 2; ++i)
+  {
+    this->LensCenter[i] = this->Internals->Center[i] + center[i] * this->Internals->Radius;
+  }
+  return this->LensCenter;
+}
+
+//------------------------------------------------------------------------------
+double vtkPlotRadViz::GetLensRadius()
+{
+  return this->NormalizedLensRadius * this->Internals->Radius;
+}
+
+//------------------------------------------------------------------------------
 void vtkPlotRadViz::SetLensRadius(double lensRadius)
 {
   vtkDebugMacro(<< " setting LensRadius to " << lensRadius);
-  double newLensRadius = vtkMultiVariateToRGBA::GetLensRadius(
-    lensRadius, this->Internals->Radius, this->LensCenter, this->Internals->Center);
-
-  if (newLensRadius != this->LensRadius)
+  if (this->Internals->Radius <= 0)
   {
-    this->LensRadius = newLensRadius;
-    this->Modified();
+    vtkWarningMacro("Use SetNormalizedLensRadius before the plot is painted.");
+    return;
   }
+  const double origin[2] = { 0, 0 };
+  this->SetNormalizedLensRadius(vtkMultiVariateToRGBA::GetLensRadius(
+    lensRadius / this->Internals->Radius, 1, this->NormalizedLensCenter, origin));
 }
 
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::SetLensCenter(const double* lensCenter)
 {
-  vtkDebugMacro(<< " setting LensLensCenter to [" << lensCenter[0] << ", " << lensCenter[1] << ")");
-  std::array<double, 2> newLensCenter = vtkMultiVariateToRGBA::GetLensCenter(
-    this->LensRadius, this->Internals->Radius, lensCenter, this->Internals->Center);
-  if (this->LensCenter[0] != newLensCenter[0] || this->LensCenter[1] != newLensCenter[1])
+  vtkDebugMacro(<< " setting LensCenter to [" << lensCenter[0] << ", " << lensCenter[1] << ")");
+  if (this->Internals->Radius <= 0)
   {
-    std::copy(newLensCenter.begin(), newLensCenter.end(), this->LensCenter);
-    this->Modified();
+    vtkWarningMacro("Use SetNormalizedLensCenter before the plot is painted.");
+    return;
   }
+  const double origin[2] = { 0, 0 };
+  const double center[2] = { (lensCenter[0] - this->Internals->Center[0]) / this->Internals->Radius,
+    (lensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius };
+  std::array<double, 2> newCenter =
+    vtkMultiVariateToRGBA::GetLensCenter(this->NormalizedLensRadius, 1, center, origin);
+  this->SetNormalizedLensCenter(newCenter[0], newCenter[1]);
 }
 
 //------------------------------------------------------------------------------
@@ -368,15 +392,12 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     // instead of StoreRGBA to skip the RGB computation.
     this->ComputeGBC->SetStoreRGBA(this->ScalarVisibility);
     this->ComputeGBC->SetStoreA(!this->ScalarVisibility);
-    this->ComputeGBC->SetLensRadius(this->LensRadius / this->Internals->Radius);
+    this->ComputeGBC->SetLensRadius(this->NormalizedLensRadius);
     this->ComputeGBC->SetOutsideLensAlpha(this->OutsideLensAlpha);
     this->ComputeGBC->SetPartitionIndices(this->PartitionIndices);
     this->ComputeGBC->SetPartitionOffsets(this->PartitionOffsets);
     this->ComputeGBC->SetCustomRange(this->CustomRange);
-    std::array<double, 2> lensCenter = { (this->LensCenter[0] - this->Internals->Center[0]) /
-        this->Internals->Radius,
-      (this->LensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius };
-    this->ComputeGBC->SetLensCenter(lensCenter.data());
+    this->ComputeGBC->SetLensCenter(this->NormalizedLensCenter);
     this->ComputeGBC->Update();
     vtkDataObject* output = this->ComputeGBC->GetOutputDataObject(0);
     auto [vertices, gbc, rgba] = this->GetVerticesGbcRgba(output);
@@ -530,12 +551,12 @@ void vtkPlotRadViz::ShiftLabelByPenWidth(double width, double xy[2])
 
 void vtkPlotRadViz::DrawLens(vtkContext2D* painter)
 {
+  const double* lensCenter = this->GetLensCenter();
   painter->ApplyPen(this->LensPen);
   if (this->ActiveLensInterior)
   {
     // the center dot shows that the lens can be dragged
-    float center[2] = { static_cast<float>(this->LensCenter[0]),
-      static_cast<float>(this->LensCenter[1]) };
+    float center[2] = { static_cast<float>(lensCenter[0]), static_cast<float>(lensCenter[1]) };
     painter->GetPen()->SetColor(this->GetActiveColor());
     painter->DrawMarkers(VTK_MARKER_CIRCLE, false /*highlight*/, center, 1);
     painter->ApplyPen(this->LensPen);
@@ -546,7 +567,7 @@ void vtkPlotRadViz::DrawLens(vtkContext2D* painter)
     painter->GetPen()->SetColor(this->GetActiveColor());
   }
   painter->GetBrush()->SetColor(0, 0, 0, 0); // transparent brush (only outline)
-  painter->DrawArc(this->LensCenter[0], this->LensCenter[1], this->LensRadius, 0, 360);
+  painter->DrawArc(lensCenter[0], lensCenter[1], this->GetLensRadius(), 0, 360);
 }
 
 int vtkPlotRadViz::GetColorWheelStartAngle()
@@ -720,22 +741,8 @@ void vtkPlotRadViz::UpdateCenterAndRadius(vtkContext2D* painter)
     std::max(this->Dimensions[2] - 2 * marginXi, 0),
     std::max(this->Dimensions[3] - 2 * marginYi, 0) };
 
-  double oldCenter[2] = { this->Internals->Center[0], this->Internals->Center[1] };
-  double oldRadius = this->Internals->Radius;
+  // the lens is stored in GBC space, so it follows the plot circle
   this->Internals->SetCenterAndRadius(dimensions);
-  if (oldRadius > 0)
-  {
-    // keep the lens position and size relative to the plot circle
-    double scale = this->Internals->Radius / oldRadius;
-    this->LensCenter[0] = this->Internals->Center[0] + (this->LensCenter[0] - oldCenter[0]) * scale;
-    this->LensCenter[1] = this->Internals->Center[1] + (this->LensCenter[1] - oldCenter[1]) * scale;
-    this->LensRadius *= scale;
-  }
-  else
-  {
-    std::copy(this->Internals->Center, this->Internals->Center + 2, this->LensCenter);
-    this->LensRadius = this->Internals->Radius;
-  }
 }
 
 //------------------------------------------------------------------------------

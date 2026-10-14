@@ -232,16 +232,31 @@ public:
 
   ///@{
   /**
-   * Center of the lens in window space. The set function ensures that
-   * the lens intersects the GBC circle.
+   * Center and radius of the lens in GBC space (the unit circle centered at
+   * the origin, as in vtkMultiVariateToRGBA). This is how the lens is
+   * stored, so it can be set before the plot is rendered. The default,
+   * center (0, 0) and radius 1, covers the whole plot.
    */
-  virtual void SetLensCenter(const double* center);
-  vtkGetVector2Macro(LensCenter, double);
+  vtkSetVector2Macro(NormalizedLensCenter, double);
+  vtkGetVector2Macro(NormalizedLensCenter, double);
+  vtkSetMacro(NormalizedLensRadius, double);
+  vtkGetMacro(NormalizedLensRadius, double);
   /**
-   * Radius of the lens in window space.
+   * Center of the lens in window space. Only valid once the plot has been
+   * painted: before that, the set function is ignored with a warning. The
+   * set function ensures that the lens intersects the GBC circle.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
+  virtual void SetLensCenter(const double* center);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
+  double* GetLensCenter() VTK_SIZEHINT(2);
+  /**
+   * Radius of the lens in window space, see SetLensCenter.
+   */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetLensRadius(double radius);
-  vtkGetMacro(LensRadius, double);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
+  double GetLensRadius();
   /**
    * Controls how the lens circle outline is drawn. Its width is also the
    * size of the lens center dot, which is shown only when
@@ -477,10 +492,11 @@ protected:
    */
   bool LensVisibility = false;
   /**
-   * Where the lens is drawn and its radius in window coordinates.
+   * The lens in GBC space, and the storage for GetLensCenter().
    */
+  double NormalizedLensCenter[2] = { 0.0, 0.0 };
+  double NormalizedLensRadius = 1.0;
   double LensCenter[2] = { 0.0, 0.0 };
-  double LensRadius = 0.0;
 
   vtkSmartPointer<vtkPoints2D> Vertices;
   double VerticesRotation = 0.0;
