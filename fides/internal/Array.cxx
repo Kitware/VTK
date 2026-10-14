@@ -15,7 +15,9 @@
 #if FIDES_USE_VISKORES
 #include <viskores/Math.h>
 #include <viskores/cont/ArrayHandleCounting.h>
+#include <viskores/cont/ArrayHandleIndex.h>
 #include <viskores/cont/ArrayHandleSOA.h>
+#include <viskores/cont/ArrayHandleStride.h>
 #include <viskores/cont/ArrayHandleUniformPointCoordinates.h>
 #include <viskores/cont/ArrayHandleView.h>
 #include <viskores/cont/ArrayHandleXGCCoordinates.h>
@@ -389,6 +391,15 @@ std::vector<size_t> ArrayBase::EmitTokens(const std::unordered_map<std::string, 
   return this->Read(paths, sources, selections, builder);
 }
 
+bool ArrayBase::GetBlockMinMax(const std::unordered_map<std::string, std::string>&,
+                               DataSourcesType&,
+                               const fides::metadata::MetaData&,
+                               std::vector<std::pair<double, double>>& ranges)
+{
+  ranges.clear();
+  return false;
+}
+
 std::vector<size_t> Array::Read(const std::unordered_map<std::string, std::string>& paths,
                                 DataSourcesType& sources,
                                 const fides::metadata::MetaData& selections,
@@ -431,6 +442,14 @@ std::set<std::string> Array::GetGroupNames(
   DataSourcesType& sources)
 {
   return this->ArrayImpl->GetGroupNames(paths, sources);
+}
+
+bool Array::GetBlockMinMax(const std::unordered_map<std::string, std::string>& paths,
+                           DataSourcesType& sources,
+                           const fides::metadata::MetaData& selections,
+                           std::vector<std::pair<double, double>>& ranges)
+{
+  return this->ArrayImpl->GetBlockMinMax(paths, sources, selections, ranges);
 }
 
 void Array::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
@@ -618,6 +637,16 @@ std::set<std::string> ArrayBasic::GetGroupNames(
   const auto& ds = sources[this->DataSourceName];
   ds->OpenSource(paths, this->DataSourceName);
   return ds->GetGroupNames(this->VariableName);
+}
+
+bool ArrayBasic::GetBlockMinMax(const std::unordered_map<std::string, std::string>& paths,
+                                DataSourcesType& sources,
+                                const fides::metadata::MetaData& selections,
+                                std::vector<std::pair<double, double>>& ranges)
+{
+  const auto& ds = sources[this->DataSourceName];
+  ds->OpenSource(paths, this->DataSourceName);
+  return ds->GetVariableBlockMinMax(this->VariableName, selections, ranges);
 }
 
 void ArrayUniformPointCoordinates::ProcessJSON(const rapidjson::Value& json,
@@ -993,6 +1022,46 @@ std::vector<size_t> ArrayComposite::EmitTokens(
 namespace
 {
 
+class ShiftXGCCoordinates : public viskores::worklet::WorkletMapField
+{
+public:
+  ShiftXGCCoordinates(viskores::Float64 angle, bool cylindrical)
+    : CosAngle(viskores::Cos(angle))
+    , SinAngle(viskores::Sin(angle))
+    , Angle(angle)
+    , Cylindrical(cylindrical)
+  {
+  }
+
+  using ControlSignature = void(FieldIn inputCoordinate, FieldOut outputCoordinate);
+  using ExecutionSignature = void(_1 inputCoordinate, _2 outputCoordinate);
+  using InputDomain = _1;
+
+  template <typename T>
+  VISKORES_EXEC void operator()(const viskores::Vec<T, 3>& input, viskores::Vec<T, 3>& output) const
+  {
+    if (this->Cylindrical)
+    {
+      output = input;
+      output[1] += static_cast<T>(this->Angle);
+    }
+    else
+    {
+      const T cosAngle = static_cast<T>(this->CosAngle);
+      const T sinAngle = static_cast<T>(this->SinAngle);
+      output[0] = cosAngle * input[0] - sinAngle * input[1];
+      output[1] = sinAngle * input[0] + cosAngle * input[1];
+      output[2] = input[2];
+    }
+  }
+
+private:
+  viskores::Float64 CosAngle;
+  viskores::Float64 SinAngle;
+  viskores::Float64 Angle;
+  bool Cylindrical;
+};
+
 /// Helper to read a single variable from a data source and return as UnknownArrayHandle.
 /// Used by GTC/GX code that still operates on Viskores types directly in PostRead.
 viskores::cont::UnknownArrayHandle ReadVariableAsUnknownArrayHandle(
@@ -1028,6 +1097,7 @@ size_t ArrayXGC::GetNumberOfBlocks(const std::unordered_map<std::string, std::st
   {
     this->NumberOfPlanes = this->CommonImpl->GetNumberOfPlanes(paths, sources);
   }
+  this->NumberOfCoordinatePlanes = this->CommonImpl->GetNumberOfCoordinatePlanes();
   return this->CommonImpl->GetNumberOfBlocks();
 }
 
@@ -1070,7 +1140,8 @@ struct ArrayXGCCoordinates::AddToVectorFunctor
                                 viskores::Id,
                                 viskores::Id,
                                 viskores::Id,
-                                bool) const
+                                bool,
+                                viskores::Float64) const
   {
   }
 
@@ -1082,10 +1153,23 @@ struct ArrayXGCCoordinates::AddToVectorFunctor
     viskores::Id numberOfPlanes,
     viskores::Id numberOfPlanesOwned,
     viskores::Id planeStartId,
-    bool isCylindrical) const
+    bool isCylindrical,
+    viskores::Float64 planeOffset) const
   {
-    retVal.push_back(viskores::cont::make_ArrayHandleXGCCoordinates(
-      array, numberOfPlanesOwned, isCylindrical, numberOfPlanes, planeStartId));
+    auto coordinates = viskores::cont::make_ArrayHandleXGCCoordinates(
+      array, numberOfPlanesOwned, isCylindrical, numberOfPlanes, planeStartId);
+    if (planeOffset == 0)
+    {
+      retVal.push_back(coordinates);
+      return;
+    }
+
+    const viskores::Float64 angle =
+      planeOffset * viskores::TwoPi() / static_cast<viskores::Float64>(numberOfPlanes);
+    viskores::cont::ArrayHandle<viskores::Vec<T, 3>> shiftedCoordinates;
+    viskores::cont::Invoker invoke;
+    invoke(ShiftXGCCoordinates(angle, isCylindrical), coordinates, shiftedCoordinates);
+    retVal.push_back(shiftedCoordinates);
   }
 };
 
@@ -1097,6 +1181,7 @@ void ArrayXGCCoordinates::ProcessJSON(const rapidjson::Value& json, DataSourcesT
     throw std::runtime_error(this->ObjectName + " must provide a coordinates_type.");
   }
   this->IsCylindrical = json["is_cylindrical"].GetBool();
+  this->CommonImpl->SetPlaneSpacingDataSource(this->DataSourceName);
 }
 
 std::vector<size_t> ArrayXGCCoordinates::Read(
@@ -1114,12 +1199,17 @@ std::vector<size_t> ArrayXGCCoordinates::Read(
   {
     this->NumberOfPlanes = this->CommonImpl->GetNumberOfPlanes(paths, sources);
   }
+  this->NumberOfCoordinatePlanes = this->CommonImpl->GetNumberOfCoordinatePlanes();
 
-  size_t numInsertPlanes = 0;
   if (selections.Has(fides::keys::fusion::PLANE_INSERTION()))
   {
-    numInsertPlanes =
+    const size_t numInsertPlanes =
       selections.Get<fides::metadata::Size>(fides::keys::fusion::PLANE_INSERTION()).NumberOfItems;
+    if (numInsertPlanes > 0)
+    {
+      throw std::runtime_error(
+        "XGC PLANE_INSERTION requires field-following interpolation and is not supported yet.");
+    }
   }
 
   fides::metadata::MetaData newSelections = selections;
@@ -1137,21 +1227,18 @@ std::vector<size_t> ArrayXGCCoordinates::Read(
   // is read after the flush in ProcessViskores.
   this->StoredCoordsArrayHandle = fides::internal::RawArrayToUnknownArrayHandle(coordArrays[0]);
 
+  const bool isPeriodic = this->CommonImpl->GetIsPeriodic(selections);
   // Get block info (stored for PostRead)
   if (selections.Has(fides::keys::BLOCK_SELECTION()))
   {
     this->StoredBlocksInfo = this->CommonImpl->GetXGCBlockInfo(
-      selections.Get<fides::metadata::Vector<size_t>>(fides::keys::BLOCK_SELECTION()).Data);
-    if (numInsertPlanes > 0)
-    {
-      numInsertPlanes = 0;
-    }
+      selections.Get<fides::metadata::Vector<size_t>>(fides::keys::BLOCK_SELECTION()).Data,
+      isPeriodic);
   }
   else
   {
-    this->StoredBlocksInfo = this->CommonImpl->GetXGCBlockInfo(std::vector<size_t>());
+    this->StoredBlocksInfo = this->CommonImpl->GetXGCBlockInfo(std::vector<size_t>(), isPeriodic);
   }
-  this->StoredNumInsertPlanes = numInsertPlanes;
 
   // Return placeholder tokens (one per block). The actual coordinates
   // are created and applied during PostRead.
@@ -1162,20 +1249,22 @@ void ArrayXGCCoordinates::ProcessViskores(std::vector<viskores::cont::DataSet>& 
                                           const fides::metadata::MetaData&)
 {
   // Data is now filled (DoAllReads has been called).
-  // Create ArrayHandleXGCCoordinates for each block
+  // Create compact XGC coordinates for each block. Field-following output is
+  // shifted to half planes and materialized as basic coordinates so it works
+  // with Viskores versions that do not store a fractional XGC plane offset.
   this->StoredCoordArrays.clear();
   for (size_t i = 0; i < this->StoredBlocksInfo.size(); ++i)
   {
     const auto& block = this->StoredBlocksInfo[i];
-    viskores::Id numPlanes = block.NumberOfPlanesOwned * (1 + this->StoredNumInsertPlanes);
     this->StoredCoordsArrayHandle
       .CastAndCallForTypes<viskores::TypeListFieldScalar, viskores::cont::StorageListBasic>(
         AddToVectorFunctor{},
         this->StoredCoordArrays,
-        this->NumberOfPlanes,
-        numPlanes,
+        this->NumberOfCoordinatePlanes,
+        block.NumberOfPlanesOwned,
         block.PlaneStartId,
-        this->IsCylindrical);
+        this->IsCylindrical,
+        this->CommonImpl->GetPlaneOffset());
   }
 
   for (size_t i = 0; i < dataSets.size() && i < this->StoredCoordArrays.size(); i++)
@@ -1183,6 +1272,49 @@ void ArrayXGCCoordinates::ProcessViskores(std::vector<viskores::cont::DataSet>& 
     dataSets[i].AddCoordinateSystem(
       viskores::cont::CoordinateSystem("coords", this->StoredCoordArrays[i]));
   }
+}
+
+void ArrayXGCField::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
+{
+  this->ArrayXGC::ProcessJSON(json, sources);
+  if (!json.HasMember("field_following"))
+    return;
+
+  const auto& fieldFollowing = json["field_following"];
+  if (!fieldFollowing.IsObject())
+    throw std::runtime_error(this->ObjectName + " field_following must be an object.");
+
+  auto getDataSource = [&](const char* memberName) {
+    if (!fieldFollowing.HasMember(memberName) || !fieldFollowing[memberName].IsString())
+    {
+      throw std::runtime_error(this->ObjectName + " field_following must provide " + memberName +
+                               ".");
+    }
+    std::string dataSourceName = fieldFollowing[memberName].GetString();
+    if (sources.find(dataSourceName) == sources.end())
+      throw std::runtime_error("data_source." + dataSourceName + " was not found.");
+    return dataSourceName;
+  };
+
+  this->ForwardMappingDataSource = getDataSource("forward_data_source");
+  this->ReverseMappingDataSource = getDataSource("reverse_data_source");
+  if (fieldFollowing.HasMember("index_variable"))
+  {
+    if (!fieldFollowing["index_variable"].IsString())
+      throw std::runtime_error(this->ObjectName +
+                               " field_following index_variable must be a string.");
+    this->MappingIndexVariable = fieldFollowing["index_variable"].GetString();
+  }
+  if (fieldFollowing.HasMember("weight_variable"))
+  {
+    if (!fieldFollowing["weight_variable"].IsString())
+      throw std::runtime_error(this->ObjectName +
+                               " field_following weight_variable must be a string.");
+    this->MappingWeightVariable = fieldFollowing["weight_variable"].GetString();
+  }
+
+  this->UseFieldFollowingMapping = true;
+  this->CommonImpl->SetPlaneOffset(0.5);
 }
 
 std::vector<size_t> ArrayXGCField::Read(const std::unordered_map<std::string, std::string>& paths,
@@ -1198,6 +1330,17 @@ std::vector<size_t> ArrayXGCField::Read(const std::unordered_map<std::string, st
   if (this->NumberOfPlanes < 0)
   {
     this->NumberOfPlanes = this->CommonImpl->GetNumberOfPlanes(paths, sources);
+  }
+
+  if (selections.Has(fides::keys::fusion::PLANE_INSERTION()))
+  {
+    const size_t numInsertPlanes =
+      selections.Get<fides::metadata::Size>(fides::keys::fusion::PLANE_INSERTION()).NumberOfItems;
+    if (numInsertPlanes > 0)
+    {
+      throw std::runtime_error(
+        "XGC PLANE_INSERTION requires field-following interpolation and is not supported yet.");
+    }
   }
 
   if (!this->FieldDimsChecked)
@@ -1226,107 +1369,318 @@ std::vector<size_t> ArrayXGCField::Read(const std::unordered_map<std::string, st
     this->FieldDimsChecked = true;
   }
 
+  if (this->UseFieldFollowingMapping && this->Is2DField)
+  {
+    throw std::runtime_error("XGC field-following mapping requires a three-dimensional field.");
+  }
+  if (this->UseFieldFollowingMapping && this->NumberOfPlanes < 2)
+  {
+    throw std::runtime_error("XGC field-following mapping requires at least two toroidal planes.");
+  }
+
   // XGC block handling: remove ADIOS block selection (XGC uses its own)
   fides::metadata::MetaData newSelections = selections;
   newSelections.Remove(fides::keys::BLOCK_SELECTION());
 
+  if (this->UseFieldFollowingMapping && !this->MappingDataRequested)
+  {
+    fides::metadata::MetaData mappingSelections = newSelections;
+    mappingSelections.Remove(fides::keys::STEP_SELECTION());
+    mappingSelections.Remove(fides::keys::GROUP_SELECTION());
+    this->ForwardMappingIndices = ReadVariableAsUnknownArrayHandle(paths,
+                                                                   sources,
+                                                                   this->ForwardMappingDataSource,
+                                                                   this->MappingIndexVariable,
+                                                                   mappingSelections,
+                                                                   fides::io::IsVector::No);
+    this->ForwardMappingWeights = ReadVariableAsUnknownArrayHandle(paths,
+                                                                   sources,
+                                                                   this->ForwardMappingDataSource,
+                                                                   this->MappingWeightVariable,
+                                                                   mappingSelections,
+                                                                   fides::io::IsVector::No);
+    this->ReverseMappingIndices = ReadVariableAsUnknownArrayHandle(paths,
+                                                                   sources,
+                                                                   this->ReverseMappingDataSource,
+                                                                   this->MappingIndexVariable,
+                                                                   mappingSelections,
+                                                                   fides::io::IsVector::No);
+    this->ReverseMappingWeights = ReadVariableAsUnknownArrayHandle(paths,
+                                                                   sources,
+                                                                   this->ReverseMappingDataSource,
+                                                                   this->MappingWeightVariable,
+                                                                   mappingSelections,
+                                                                   fides::io::IsVector::No);
+    this->MappingDataRequested = true;
+  }
+
+  const bool isPeriodic = this->CommonImpl->GetIsPeriodic(selections);
   // Get XGC block info
   std::vector<XGCBlockInfo> blocksInfo;
   if (selections.Has(fides::keys::BLOCK_SELECTION()))
   {
     blocksInfo = this->CommonImpl->GetXGCBlockInfo(
-      selections.Get<fides::metadata::Vector<size_t>>(fides::keys::BLOCK_SELECTION()).Data);
+      selections.Get<fides::metadata::Vector<size_t>>(fides::keys::BLOCK_SELECTION()).Data,
+      isPeriodic);
   }
   else
   {
-    blocksInfo = this->CommonImpl->GetXGCBlockInfo(std::vector<size_t>());
+    blocksInfo = this->CommonImpl->GetXGCBlockInfo(std::vector<size_t>(), isPeriodic);
   }
+  this->StoredBlocksInfo = blocksInfo;
 
-  // Read the field data. The RawArray is stored in the builder (via CreateArray)
-  // which keeps the buffer alive for ADIOS2 deferred reads.
-  std::vector<fides::RawArray> rawArrays;
+  std::vector<size_t> tokens;
+  tokens.reserve(blocksInfo.size());
+  this->StoredFieldArrays.clear();
   if (this->Is2DField)
   {
-    rawArrays = this->ReadSelf(paths, sources, newSelections);
+    auto rawArrays = this->ReadSelf(paths, sources, newSelections);
+    if (rawArrays.empty())
+    {
+      return {};
+    }
+    const size_t token = builder.CreateArray(rawArrays[0]);
+    tokens.assign(blocksInfo.size(), token);
   }
   else
   {
-    // 3D field: read as multiblock
     fides::metadata::Bool flag(true);
     newSelections.Set(fides::keys::READ_AS_MULTIBLOCK(), flag);
     const auto& ds = sources[this->DataSourceName];
     ds->OpenSource(paths, this->DataSourceName);
-    rawArrays = ds->ReadMultiBlockVariable(this->VariableName, newSelections);
+    for (const auto& block : blocksInfo)
+    {
+      fides::metadata::Vector<size_t> planesToRead;
+      const viskores::Id numberOfSourcePlanes =
+        block.NumberOfPlanesOwned + (this->UseFieldFollowingMapping ? 1 : 0);
+      for (viskores::Id plane = block.PlaneStartId;
+           plane < block.PlaneStartId + numberOfSourcePlanes;
+           ++plane)
+      {
+        planesToRead.Data.push_back(static_cast<size_t>(plane % this->NumberOfPlanes));
+      }
+      newSelections.Set(fides::keys::BLOCK_SELECTION(), planesToRead);
+      auto rawArrays = ds->ReadMultiBlockVariable(this->VariableName, newSelections);
+      if (rawArrays.empty())
+      {
+        return {};
+      }
+      if (this->UseFieldFollowingMapping)
+      {
+        this->StoredFieldArrays.push_back(
+          fides::internal::RawArrayToUnknownArrayHandle(rawArrays[0]));
+        tokens.push_back(0);
+      }
+      else
+      {
+        tokens.push_back(builder.CreateArray(rawArrays[0]));
+      }
+    }
   }
 
-  if (rawArrays.empty())
-  {
-    return std::vector<size_t>();
-  }
-
-  // Create a builder token. Same token used for each block (the data is the same
-  // raw array — CellSetExtrude handles 2D→3D mapping for 2D fields).
-  size_t token = builder.CreateArray(rawArrays[0]);
-  return std::vector<size_t>(blocksInfo.size(), token);
+  return tokens;
 }
 
-void ArrayXGCField::ProcessViskores(std::vector<viskores::cont::DataSet>& dataSets,
-                                    const fides::metadata::MetaData& metaData)
+struct ArrayXGCField::SetPlaneFieldFunctor
 {
-  size_t numInsertPlanes = 0;
-  if (!this->Is2DField && metaData.Has(fides::keys::fusion::PLANE_INSERTION()))
+  template <typename T>
+  VISKORES_CONT void operator()(
+    const viskores::cont::ArrayHandle<T, viskores::cont::StorageTagBasic>& array,
+    viskores::cont::DataSet& dataSet,
+    const std::string& fieldName,
+    viskores::Id numberOfPlanes) const
   {
-    numInsertPlanes =
-      metaData.Get<fides::metadata::Size>(fides::keys::fusion::PLANE_INSERTION()).NumberOfItems;
+    dataSet.AddPointField(
+      fieldName,
+      viskores::cont::ArrayHandleStride<T>(
+        array, array.GetNumberOfValues() * numberOfPlanes, 1, 0, array.GetNumberOfValues()));
+  }
+};
+
+struct ArrayXGCField::MapFieldFollowingFunctor : public viskores::worklet::WorkletMapField
+{
+  MapFieldFollowingFunctor(viskores::Id numberOfPointsPerPlane, viskores::Id mappingWidth)
+    : NumberOfPointsPerPlane(numberOfPointsPerPlane)
+    , MappingWidth(mappingWidth)
+  {
   }
 
-  if (numInsertPlanes == 0)
+  using ControlSignature = void(FieldIn outputIndex,
+                                WholeArrayIn inputField,
+                                WholeArrayIn reverseIndices,
+                                WholeArrayIn reverseWeights,
+                                WholeArrayIn forwardIndices,
+                                WholeArrayIn forwardWeights,
+                                FieldOut outputField);
+  using ExecutionSignature = void(_1 outputIndex,
+                                  _2 inputField,
+                                  _3 reverseIndices,
+                                  _4 reverseWeights,
+                                  _5 forwardIndices,
+                                  _6 forwardWeights,
+                                  _7 outputField);
+  using InputDomain = _1;
+
+  template <typename InputPortal, typename IndexPortal, typename WeightPortal, typename OutputValue>
+  VISKORES_EXEC void operator()(viskores::Id outputIndex,
+                                const InputPortal& inputField,
+                                const IndexPortal& reverseIndices,
+                                const WeightPortal& reverseWeights,
+                                const IndexPortal& forwardIndices,
+                                const WeightPortal& forwardWeights,
+                                OutputValue& outputField) const
   {
+    const viskores::Id localPlane = outputIndex / this->NumberOfPointsPerPlane;
+    const viskores::Id pointId = outputIndex % this->NumberOfPointsPerPlane;
+    const viskores::Id mappingOffset = pointId * this->MappingWidth;
+    const viskores::Id leftPlaneOffset = localPlane * this->NumberOfPointsPerPlane;
+    const viskores::Id rightPlaneOffset = leftPlaneOffset + this->NumberOfPointsPerPlane;
+    viskores::Float64 leftValue = 0;
+    viskores::Float64 rightValue = 0;
+    for (viskores::Id entry = 0; entry < this->MappingWidth; ++entry)
+    {
+      const viskores::Id mapIndex = mappingOffset + entry;
+      const viskores::Id leftPointId = reverseIndices.Get(mapIndex) - 1;
+      const viskores::Id rightPointId = forwardIndices.Get(mapIndex) - 1;
+      leftValue += reverseWeights.Get(mapIndex) * inputField.Get(leftPlaneOffset + leftPointId);
+      rightValue += forwardWeights.Get(mapIndex) * inputField.Get(rightPlaneOffset + rightPointId);
+    }
+    outputField = static_cast<OutputValue>(0.5 * (leftValue + rightValue));
+  }
+
+private:
+  viskores::Id NumberOfPointsPerPlane;
+  viskores::Id MappingWidth;
+};
+
+struct ArrayXGCField::ApplyFieldFollowingFunctor
+{
+  template <typename T>
+  VISKORES_CONT void operator()(
+    const viskores::cont::ArrayHandle<T, viskores::cont::StorageTagBasic>& input,
+    viskores::cont::DataSet& dataSet,
+    const std::string& fieldName,
+    const viskores::cont::ArrayHandle<viskores::Int32>& reverseIndices,
+    const viskores::cont::ArrayHandle<viskores::Float64>& reverseWeights,
+    const viskores::cont::ArrayHandle<viskores::Int32>& forwardIndices,
+    const viskores::cont::ArrayHandle<viskores::Float64>& forwardWeights,
+    viskores::Id numberOfPointsPerPlane,
+    viskores::Id mappingWidth) const
+  {
+    viskores::cont::ArrayHandle<T> output;
+    viskores::cont::Invoker invoke;
+    invoke(MapFieldFollowingFunctor(numberOfPointsPerPlane, mappingWidth),
+           viskores::cont::ArrayHandleIndex(dataSet.GetNumberOfPoints()),
+           input,
+           reverseIndices,
+           reverseWeights,
+           forwardIndices,
+           forwardWeights,
+           output);
+    dataSet.AddPointField(fieldName, output);
+  }
+};
+
+void ArrayXGCField::ProcessViskores(std::vector<viskores::cont::DataSet>& dataSets,
+                                    const fides::metadata::MetaData&)
+{
+  if (!this->Is2DField && !this->UseFieldFollowingMapping)
     return;
-  }
 
-  if (dataSets.size() > 1)
-    throw std::runtime_error("Plane insert for XGC not supported for multiple datasets.");
-
-  const auto& cs = dataSets[0].GetCellSet();
-  if (!cs.IsType<viskores::cont::CellSetExtrude>())
-    throw std::runtime_error("Wrong type of cell set for XGC dataset.");
-
-  auto cellSet = cs.AsCellSet<viskores::cont::CellSetExtrude>();
-  viskores::Id ptsPerPlane = cellSet.GetNumberOfPointsPerPlane();
-  viskores::Id numPlanes = this->NumberOfPlanes;
-  viskores::Id totNumPlanes = numPlanes + (numPlanes * numInsertPlanes);
-
-  if (!dataSets[0].HasPointField(this->VariableName))
+  using IndexArray = viskores::cont::ArrayHandle<viskores::Int32>;
+  using WeightArray = viskores::cont::ArrayHandle<viskores::Float64>;
+  IndexArray forwardIndices;
+  IndexArray reverseIndices;
+  WeightArray forwardWeights;
+  WeightArray reverseWeights;
+  if (this->UseFieldFollowingMapping)
   {
-    return;
+    if (!this->ForwardMappingIndices.IsType<IndexArray>() ||
+        !this->ReverseMappingIndices.IsType<IndexArray>() ||
+        !this->ForwardMappingWeights.IsType<WeightArray>() ||
+        !this->ReverseMappingWeights.IsType<WeightArray>())
+    {
+      throw std::runtime_error(
+        "XGC field-following eindex must be int32 and value must be float64.");
+    }
+    forwardIndices = this->ForwardMappingIndices.AsArrayHandle<IndexArray>();
+    reverseIndices = this->ReverseMappingIndices.AsArrayHandle<IndexArray>();
+    forwardWeights = this->ForwardMappingWeights.AsArrayHandle<WeightArray>();
+    reverseWeights = this->ReverseMappingWeights.AsArrayHandle<WeightArray>();
   }
 
-  auto fieldArray = dataSets[0].GetField(this->VariableName).GetData();
-
-  viskores::cont::Invoker invoke;
-
-  using floatType = viskores::cont::ArrayHandle<float>;
-  using doubleType = viskores::cont::ArrayHandle<double>;
-  fusionutil::PlaneInserterField planeInserter(numPlanes, ptsPerPlane, numInsertPlanes);
-  if (fieldArray.IsType<floatType>())
+  for (size_t dataSetIndex = 0; dataSetIndex < dataSets.size(); ++dataSetIndex)
   {
-    auto inArr = fieldArray.AsArrayHandle<floatType>();
-    viskores::cont::ArrayHandle<float> outArr;
-    outArr.Allocate(totNumPlanes * ptsPerPlane);
-    invoke(planeInserter, inArr, outArr);
-    dataSets[0].AddPointField(this->VariableName, outArr);
+    auto& dataSet = dataSets[dataSetIndex];
+    viskores::cont::UnknownArrayHandle fieldArray;
+    if (this->UseFieldFollowingMapping)
+    {
+      if (dataSetIndex >= this->StoredFieldArrays.size())
+        throw std::runtime_error("Missing XGC input field for field-following mapping.");
+      fieldArray = this->StoredFieldArrays[dataSetIndex];
+      if (dataSetIndex >= this->StoredBlocksInfo.size())
+        throw std::runtime_error("Missing XGC block information for field-following mapping.");
+      const viskores::Id numberOfPlanes = this->StoredBlocksInfo[dataSetIndex].NumberOfPlanesOwned;
+      if (numberOfPlanes <= 0 || dataSet.GetNumberOfPoints() % numberOfPlanes != 0)
+        throw std::runtime_error("XGC field-following output dimensions do not match the mesh.");
+      const viskores::Id numberOfPointsPerPlane = dataSet.GetNumberOfPoints() / numberOfPlanes;
+      const viskores::Id expectedInputSize = (numberOfPlanes + 1) * numberOfPointsPerPlane;
+      if (fieldArray.GetNumberOfValues() != expectedInputSize)
+        throw std::runtime_error(
+          "XGC field-following input does not contain both bounding planes.");
+      if (forwardIndices.GetNumberOfValues() != forwardWeights.GetNumberOfValues() ||
+          reverseIndices.GetNumberOfValues() != reverseWeights.GetNumberOfValues() ||
+          forwardIndices.GetNumberOfValues() != reverseIndices.GetNumberOfValues() ||
+          forwardIndices.GetNumberOfValues() % numberOfPointsPerPlane != 0)
+      {
+        throw std::runtime_error(
+          "XGC field-following mapping arrays have inconsistent dimensions.");
+      }
+      const viskores::Id mappingWidth = forwardIndices.GetNumberOfValues() / numberOfPointsPerPlane;
+      if (mappingWidth <= 0)
+        throw std::runtime_error("XGC field-following mapping width must be positive.");
+
+      if (!this->MappingDataValidated)
+      {
+        const auto forwardPortal = forwardIndices.ReadPortal();
+        const auto reversePortal = reverseIndices.ReadPortal();
+        for (viskores::Id index = 0; index < forwardIndices.GetNumberOfValues(); ++index)
+        {
+          if (forwardPortal.Get(index) < 1 || forwardPortal.Get(index) > numberOfPointsPerPlane ||
+              reversePortal.Get(index) < 1 || reversePortal.Get(index) > numberOfPointsPerPlane)
+          {
+            throw std::runtime_error("XGC field-following eindex is outside the mesh.");
+          }
+        }
+        this->MappingDataValidated = true;
+      }
+
+      fieldArray.CastAndCallForTypes<viskores::TypeListScalarAll, viskores::cont::StorageListBasic>(
+        ApplyFieldFollowingFunctor{},
+        dataSet,
+        this->VariableName,
+        reverseIndices,
+        reverseWeights,
+        forwardIndices,
+        forwardWeights,
+        numberOfPointsPerPlane,
+        mappingWidth);
+      continue;
+    }
+
+    if (!dataSet.HasPointField(this->VariableName))
+      continue;
+    fieldArray = dataSet.GetField(this->VariableName).GetData();
+
+    const viskores::Id numberOfValuesPerPlane = fieldArray.GetNumberOfValues();
+    if (numberOfValuesPerPlane <= 0 || dataSet.GetNumberOfPoints() % numberOfValuesPerPlane != 0)
+    {
+      throw std::runtime_error("XGC 2D field size does not match the number of mesh points.");
+    }
+    const viskores::Id numberOfPlanes = dataSet.GetNumberOfPoints() / numberOfValuesPerPlane;
+    fieldArray.CastAndCallForTypes<viskores::TypeListScalarAll, viskores::cont::StorageListBasic>(
+      SetPlaneFieldFunctor{}, dataSet, this->VariableName, numberOfPlanes);
   }
-  else if (fieldArray.IsType<doubleType>())
-  {
-    auto inArr = fieldArray.AsArrayHandle<doubleType>();
-    viskores::cont::ArrayHandle<double> outArr;
-    outArr.Allocate(totNumPlanes * ptsPerPlane);
-    invoke(planeInserter, inArr, outArr);
-    dataSets[0].AddPointField(this->VariableName, outArr);
-  }
-  else
-    throw std::runtime_error("Unsupported field type for XGC.");
 }
 
 void ArrayGTCCoordinates::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)

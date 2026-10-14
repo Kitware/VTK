@@ -181,7 +181,6 @@ const std::string XGCMeshAttrName = "Fides_XGC_Mesh_Filename";
 const std::string XGC3dAttrName = "Fides_XGC_3d_Filename";
 const std::string XGCDiagAttrName = "Fides_XGC_Diag_Filename";
 const std::string XGCTriConnAttrName = "Fides_Triangle_Connectivity_Variable";
-const std::string XGCPlaneConnAttrName = "Fides_Plane_Connectivity_Variable";
 
 void createDimensionsJSON(std::shared_ptr<InternalMetadataSource> mdSource,
                           rapidjson::Document::AllocatorType& allocator,
@@ -835,6 +834,8 @@ void XGCDataModel::CreateDataSources(rapidjson::Value& parent)
   auto diagFilename =
     GetOptionalVariableName(this->MetadataSource, XGCDiagAttrName, "xgc.oneddiag.bp");
   this->CreateDataSource(allSources, "diag", "relative", diagFilename);
+  this->CreateDataSource(allSources, "ff_hdp_fwd", "relative", "xgc.ff_hdp_fwd.bp");
+  this->CreateDataSource(allSources, "ff_hdp_rev", "relative", "xgc.ff_hdp_rev.bp");
   parent.AddMember("data_sources", allSources, this->Doc.GetAllocator());
 }
 
@@ -868,13 +869,6 @@ void XGCDataModel::CreateCellSet(rapidjson::Value& parent)
   cells.AddMember("static", true, this->Doc.GetAllocator());
   cells.AddMember("is_vector", "false", this->Doc.GetAllocator());
   cellSet.AddMember("cells", cells, this->Doc.GetAllocator());
-
-  auto planeConn = GetOptionalVariableName(this->MetadataSource, XGCPlaneConnAttrName, "nextnode");
-  rapidjson::Value conn(rapidjson::kObjectType);
-  CreateArrayBasic(this->Doc.GetAllocator(), conn, "mesh", planeConn);
-  conn.AddMember("static", true, this->Doc.GetAllocator());
-  conn.AddMember("is_vector", "false", this->Doc.GetAllocator());
-  cellSet.AddMember("plane_connectivity", conn, this->Doc.GetAllocator());
 
   parent.AddMember("cell_set", cellSet, this->Doc.GetAllocator());
 }

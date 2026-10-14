@@ -23,6 +23,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <fides_rapidjson.h>
@@ -158,6 +159,19 @@ public:
     const std::string& varName,
     const fides::metadata::MetaData& selections,
     fides::FieldAssociation association = fides::FieldAssociation::Points) = 0;
+
+  /// Attempts to return one min/max range per selected block for the requested
+  /// variable using backend metadata only. Implementations return
+  /// false when that metadata is unavailable or insufficient; callers should
+  /// then fall back to reading the variable normally. When \c BLOCK_SELECTION
+  /// is present, ranges are returned in the same order as that selection.
+  virtual bool GetVariableBlockMinMax(const std::string& fidesNotUsed(varName),
+                                      const fides::metadata::MetaData& fidesNotUsed(selections),
+                                      std::vector<std::pair<double, double>>& ranges)
+  {
+    ranges.clear();
+    return false;
+  }
 
   /// Returns the total number of steps available to the data source.
   virtual size_t GetNumberOfSteps() { return 1; }
