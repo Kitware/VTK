@@ -4,6 +4,7 @@ vtk_add_test_cxx(vtkFiltersParallelCxxTests testsStd
   TestGaussianQuadratureIntegration.cxx,NO_VALID
   TestGeometryFilterDispatcher.cxx
   TestMultiVariateToRGBA.cxx
+  TestMultiVariateToRGBALens.cxx,NO_VALID
   TestPOutlineFilter.cxx,NO_VALID
   )
 vtk_test_cxx_executable(vtkFiltersParallelCxxTests testsStd)

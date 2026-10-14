@@ -430,31 +430,34 @@ struct ComputeAlphaWorker
   }
 };
 
-struct ComputeLensAlphaWorker
+/**
+ * Copies the RGBA computed before the lens into 'output', capping the
+ * alpha of the points outside the lens.
+ */
+struct ApplyLensWorker
 {
-  ComputeLensAlphaWorker(double* lensCenter, double lensRadius, double outsideLensAlpha)
-    : LensRadius(lensRadius)
-    , OutsideLensAlpha(outsideLensAlpha)
+  void operator()(vtkDoubleArray* outputArray, vtkDoubleArray* rgbaArray, vtkDoubleArray* gbcArray)
   {
-    std::copy(lensCenter, lensCenter + 2, this->LensCenter);
-  }
-  void operator()(vtkDoubleArray* gbcScalars, vtkDoubleArray* rgbaScalars)
-  {
-    auto gbc = vtk::DataArrayTupleRange(gbcScalars);
-    auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
-
-    vtkIdType nTuples = gbc.size();
-    vtkSMPTools::For(0, nTuples,
+    auto output = vtk::DataArrayTupleRange<4>(outputArray);
+    auto rgba = vtk::DataArrayTupleRange<4>(rgbaArray);
+    auto gbc = vtk::DataArrayTupleRange<2>(gbcArray);
+    vtkSMPTools::For(0, gbc.size(),
       [&](vtkIdType begin, vtkIdType end)
       {
         for (vtkIdType i = begin; i < end; ++i)
         {
+          for (int c = 0; c < 3; ++c)
+          {
+            output[i][c] = rgba[i][c];
+          }
+          double alpha = rgba[i][3];
           double distance = std::sqrt(std::pow(gbc[i][0] - this->LensCenter[0], 2) +
             std::pow(gbc[i][1] - this->LensCenter[1], 2));
           if (distance > this->LensRadius)
           {
-            rgba[i][3] = std::min(this->OutsideLensAlpha, static_cast<double>(rgba[i][3]));
+            alpha = std::min(this->OutsideLensAlpha, alpha);
           }
+          output[i][3] = alpha;
         }
       });
   }
@@ -573,6 +576,35 @@ vtkMultiVariateToRGBA::vtkMultiVariateToRGBA()
 vtkMultiVariateToRGBA::~vtkMultiVariateToRGBA()
 {
   this->SetController(nullptr);
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::Modified()
+{
+  if (!this->InLensModified)
+  {
+    this->NonLensModifiedTime.Modified();
+  }
+  // cleared before ModifiedEvent, in case an observer changes something else
+  this->InLensModified = false;
+  this->Superclass::Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::LensModified()
+{
+  this->InLensModified = true;
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::SetOutsideLensAlpha(double alpha)
+{
+  if (this->OutsideLensAlpha != alpha)
+  {
+    this->OutsideLensAlpha = alpha;
+    this->LensModified();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -941,6 +973,35 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   {
     return 0;
   }
+  // Only the lens changed since the last execution: reuse its results.
+  // (vtkTable::GetMTime does not include its columns.)
+  vtkMTimeType inputMTime = inData->GetMTime();
+  if (vtkTable* table = vtkTable::SafeDownCast(inData))
+  {
+    inputMTime = std::max(inputMTime, table->GetRowData()->GetMTime());
+  }
+  int useCache = (this->StoreRGBA || this->StoreA) && this->CachedRGBA &&
+    this->CachedInput == inData && this->NonLensModifiedTime < this->CacheTime &&
+    inputMTime < this->CacheTime.GetMTime();
+  if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
+  {
+    // every process must take the same path: the full one has collectives
+    int localUseCache = useCache;
+    this->Controller->AllReduce(&localUseCache, &useCache, 1, vtkCommunicator::MIN_OP);
+  }
+  if (useCache)
+  {
+    if (this->StoreVertices)
+    {
+      outData->GetFieldData()->AddArray(this->CachedVertices);
+    }
+    if (this->StoreGBC)
+    {
+      attributes->AddArray(this->CachedGBC);
+    }
+    attributes->AddArray(this->ApplyLens());
+    return 1;
+  }
   int numComponents = scalars->GetNumberOfComponents();
   // Use local copies: the default partition depends on the current number of
   // components and RequestData should not modify filter state.
@@ -1022,6 +1083,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     {
       outData->GetFieldData()->AddArray(worker.Vertices);
     }
+    this->CachedVertices = worker.Vertices;
   }
   if (this->StoreGBC)
   {
@@ -1057,13 +1119,26 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
       ComputeAlphaWorker worker;
       worker(normalizedScalars.GetPointer(), rgbaScalars.GetPointer());
     }
-    {
-      ComputeLensAlphaWorker worker(this->LensCenter, this->LensRadius, this->OutsideLensAlpha);
-      worker(gbcScalars.GetPointer(), rgbaScalars.GetPointer());
-    }
-    attributes->AddArray(rgbaScalars);
+    this->CachedGBC = gbcScalars.GetPointer();
+    this->CachedRGBA = rgbaScalars.GetPointer();
+    this->CachedInput = inData;
+    this->CacheTime.Modified();
+    attributes->AddArray(this->ApplyLens());
   }
   return 1;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::ApplyLens()
+{
+  vtkNew<vtkDoubleArray> rgba;
+  rgba->SetName("rgba");
+  rgba->SetNumberOfComponents(4);
+  rgba->SetNumberOfTuples(this->CachedRGBA->GetNumberOfTuples());
+  ApplyLensWorker worker{ { this->LensCenter[0], this->LensCenter[1] }, this->LensRadius,
+    this->OutsideLensAlpha };
+  worker(rgba.GetPointer(), this->CachedRGBA.GetPointer(), this->CachedGBC.GetPointer());
+  return rgba;
 }
 
 //------------------------------------------------------------------------------
@@ -1222,7 +1297,7 @@ void vtkMultiVariateToRGBA::SetLensRadius(double lensRadius)
   if (newLensRadius != this->LensRadius)
   {
     this->LensRadius = newLensRadius;
-    this->Modified();
+    this->LensModified();
   }
 }
 
@@ -1263,7 +1338,7 @@ void vtkMultiVariateToRGBA::SetLensCenter(const double* lensCenter)
   if (this->LensCenter[0] != newLensCenter[0] || this->LensCenter[1] != newLensCenter[1])
   {
     std::copy(newLensCenter.begin(), newLensCenter.end(), this->LensCenter);
-    this->Modified();
+    this->LensModified();
   }
 }
 

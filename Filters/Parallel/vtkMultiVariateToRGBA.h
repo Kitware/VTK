@@ -24,7 +24,9 @@
  *
  * Points' opacity can be further modified using a lens (LensCenter,
  * LensRadius) which modifies the opacity of the points outside the
- * lens (see OutsideLensAlpha).
+ * lens (see OutsideLensAlpha). When only the lens changes, the filter
+ * reuses the results of its last execution and only recomputes the
+ * opacity, so that the lens can be dragged interactively.
  *
  * You can specify a partition of the set of components in groups (subsets)
  * (see SetPartitionIndices) so that components in each group (subset) are
@@ -49,11 +51,14 @@
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkNew.h"                   // For vtkNew
 #include "vtkSmartPointer.h"          // For vtkSmartPointer
+#include "vtkTimeStamp.h"             // For vtkTimeStamp
+#include "vtkWeakPointer.h"           // For vtkWeakPointer
 #include <array>                      // For std::array
 #include <string>                     // For column names
 #include <vector>                     // For components partition
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDoubleArray;
 class vtkInformationVector;
 class vtkMultiProcessController;
 class vtkStringArray;
@@ -140,7 +145,7 @@ public:
    * clamped to min(its alpha, OutsideLensAlpha). Default is 0
    * (points outside the lens fully transparent).
    */
-  vtkSetMacro(OutsideLensAlpha, double);
+  virtual void SetOutsideLensAlpha(double alpha);
   vtkGetMacro(OutsideLensAlpha, double);
   /**
    * Clamp the lens circle (lensCenter, lensRadius) so that it intersects the
@@ -291,6 +296,11 @@ public:
   vtkSmartPointer<vtkStringArray> GetProcessedColumnNames();
   ///@}
 
+  /**
+   * Overridden to tell lens-only changes apart from all other changes.
+   */
+  void Modified() override;
+
 protected:
   vtkMultiVariateToRGBA();
   ~vtkMultiVariateToRGBA() override;
@@ -356,6 +366,25 @@ private:
    * Backing storage for the pointer returned by GetVisibleColumns().
    */
   vtkSmartPointer<vtkStringArray> VisibleColumnsCache;
+
+  ///@{
+  /**
+   * Lens-only changes call LensModified() instead of Modified(), which
+   * keeps the results of the last execution (Cached*) valid.
+   */
+  void LensModified();
+  bool InLensModified = false;
+  vtkTimeStamp NonLensModifiedTime;
+  vtkSmartPointer<vtkDoubleArray> CachedGBC;
+  vtkSmartPointer<vtkDoubleArray> CachedRGBA; // before the lens
+  vtkSmartPointer<vtkDoubleArray> CachedVertices;
+  vtkWeakPointer<vtkDataObject> CachedInput;
+  vtkTimeStamp CacheTime;
+  ///@}
+  /**
+   * Returns a new 'rgba' array: CachedRGBA with the lens applied.
+   */
+  vtkSmartPointer<vtkDataArray> ApplyLens();
 };
 
 VTK_ABI_NAMESPACE_END
