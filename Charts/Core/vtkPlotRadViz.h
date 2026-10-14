@@ -311,7 +311,7 @@ public:
   /**
    * Center of the plot in window space.
    */
-  const double* GetCenter() const;
+  const double* GetCenter() const VTK_SIZEHINT(2);
   /**
    * Radius of the plot in window space.
    */
