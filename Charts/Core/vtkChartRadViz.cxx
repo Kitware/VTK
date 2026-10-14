@@ -311,7 +311,7 @@ bool vtkChartRadViz::MouseLeaveEvent(const vtkContextMouseEvent&)
 bool vtkChartRadViz::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
 {
   vtkDebugMacro("vtkChartRadViz::MouseButtonPressEvent");
-  if (this->Internals->Plot)
+  if (this->Internals->Plot && mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
   {
     vtkVector2f pos{ mouse.GetScenePos() };
     this->GetActiveElement(pos, this->Internals->DragVertexIndex, this->Internals->ResizeLens,
@@ -385,8 +385,12 @@ void vtkChartRadViz::GetActiveElement(
 }
 
 //------------------------------------------------------------------------------
-bool vtkChartRadViz::MouseButtonReleaseEvent(const vtkContextMouseEvent& vtkNotUsed(mouse))
+bool vtkChartRadViz::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
 {
+  if (mouse.GetButton() != vtkContextMouseEvent::LEFT_BUTTON)
+  {
+    return false;
+  }
   if (this->Internals->Plot &&
     (this->Internals->DragVertexIndex >= 0 || this->Internals->ResizeLens ||
       this->Internals->DragLens))
