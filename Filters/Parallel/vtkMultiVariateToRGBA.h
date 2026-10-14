@@ -149,6 +149,13 @@ public:
   virtual void SetOutsideLensAlpha(double alpha);
   vtkGetMacro(OutsideLensAlpha, double);
   /**
+   * Swap inside and outside: cap the alpha of the points inside the lens
+   * instead. Default is false.
+   */
+  virtual void SetInvertLens(bool invert);
+  vtkGetMacro(InvertLens, bool);
+  vtkBooleanMacro(InvertLens, bool);
+  /**
    * Clamp the lens circle (lensCenter, lensRadius) so that it intersects the
    * reference circle (center, radius). GetLensRadius returns the adjusted
    * radius; GetLensCenter returns the adjusted center.
@@ -335,6 +342,7 @@ protected:
    * Alpha cap for points outside the lens.
    */
   double OutsideLensAlpha = 0.0;
+  bool InvertLens = false;
   int OutputScalarType = VTK_DOUBLE;
   /**
    * Custom ranges used as the global min/max when normalizing scalars,

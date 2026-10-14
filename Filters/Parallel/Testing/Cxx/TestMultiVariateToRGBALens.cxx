@@ -121,6 +121,22 @@ int TestMultiVariateToRGBALens(int, char*[])
   CHECK(GetArray(cached, "gbc") != gbc);
   CHECK(Equal(GetArray(cached, "rgba"), GetArray(full, "rgba")));
 
+  // inverting the lens is a lens-only change too: the points inside get the cap
+  gbc = GetArray(cached, "gbc");
+  cached->InvertLensOn();
+  full->InvertLensOn();
+  SetLens(cached, full, 0.2, 0.3, 0.6);
+  CHECK(GetArray(cached, "gbc") == gbc);
+  CHECK(Equal(GetArray(cached, "rgba"), GetArray(full, "rgba")));
+  vtkDataArray* inverted = GetArray(cached, "rgba");
+  for (vtkIdType i = 0; i < gbc->GetNumberOfTuples(); ++i)
+  {
+    double* xy = gbc->GetTuple2(i);
+    CHECK(std::hypot(xy[0] - 0.2, xy[1] - 0.3) > 0.6 || inverted->GetComponent(i, 3) <= 0.1);
+  }
+  cached->InvertLensOff();
+  full->InvertLensOff();
+
   // float output, for full and lens-only executions
   cached->SetOutputScalarType(VTK_FLOAT);
   SetLens(cached, full, 0.3, 0.3, 0.6);

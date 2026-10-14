@@ -437,7 +437,8 @@ struct ComputeAlphaWorker
 
 /**
  * Copies the RGBA computed before the lens into 'output' (RGB is set to 0
- * if CopyRGB is false), capping the alpha of the points outside the lens.
+ * if CopyRGB is false), capping the alpha of the points outside the lens
+ * (inside if InvertLens is true).
  */
 struct ApplyLensWorker
 {
@@ -460,7 +461,7 @@ struct ApplyLensWorker
           double alpha = rgba[i][3];
           double distance = std::sqrt(std::pow(gbc[i][0] - this->LensCenter[0], 2) +
             std::pow(gbc[i][1] - this->LensCenter[1], 2));
-          if (distance > this->LensRadius)
+          if ((distance > this->LensRadius) != this->InvertLens)
           {
             alpha = std::min(this->OutsideLensAlpha, alpha);
           }
@@ -471,6 +472,7 @@ struct ApplyLensWorker
   double LensCenter[2];
   double LensRadius;
   double OutsideLensAlpha;
+  bool InvertLens;
   bool CopyRGB;
 };
 
@@ -611,6 +613,16 @@ void vtkMultiVariateToRGBA::SetOutsideLensAlpha(double alpha)
   if (this->OutsideLensAlpha != alpha)
   {
     this->OutsideLensAlpha = alpha;
+    this->LensModified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::SetInvertLens(bool invert)
+{
+  if (this->InvertLens != invert)
+  {
+    this->InvertLens = invert;
     this->LensModified();
   }
 }
@@ -1141,7 +1153,7 @@ vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::ApplyLens()
   std::array<double, 2> center = vtkMultiVariateToRGBA::GetLensCenter(
     this->LensRadius, 1, this->LensCenter, std::array<double, 2>{ 0, 0 }.data());
   ApplyLensWorker worker{ { center[0], center[1] }, this->LensRadius, this->OutsideLensAlpha,
-    this->StoreRGBA };
+    this->InvertLens, this->StoreRGBA };
   vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
     rgba.GetPointer(), worker, this->CachedRGBA.GetPointer(), this->CachedGBC.GetPointer());
   return rgba;
