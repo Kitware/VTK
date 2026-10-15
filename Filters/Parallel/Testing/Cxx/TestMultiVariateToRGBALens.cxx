@@ -57,6 +57,7 @@ void SetLens(
     filter->SetLensRadius(r);
     filter->SetOutsideLensAlpha(0.1);
   }
+  // not lens-only: 'full' cannot reuse its results, unlike 'cached'
   full->Modified();
   cached->Update();
   full->Update();
@@ -79,7 +80,7 @@ int TestMultiVariateToRGBALens(int, char*[])
   other->DeepCopy(image);
   other->GetPointData()->GetScalars()->SetComponent(0, 0, 0.9);
 
-  // 'cached' only executes fully once, 'full' every time
+  // 'cached' reuses its results for lens-only changes, 'full' always executes fully
   vtkNew<vtkMultiVariateToRGBA> cached;
   vtkNew<vtkMultiVariateToRGBA> full;
   for (vtkMultiVariateToRGBA* filter : { cached.GetPointer(), full.GetPointer() })
