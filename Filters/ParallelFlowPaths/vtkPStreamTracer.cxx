@@ -34,11 +34,11 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <list>
 #include <numeric>
+#include <string>
 #include <vector>
-
-#include <iostream>
 
 #ifndef NDEBUG
 // #define DEBUGTRACE
@@ -543,13 +543,36 @@ public:
     this->Tracer->InitializeSeeds(seeds, seedIds, integrationDirections, source);
 
     int numSeeds = seedIds->GetNumberOfIds();
+    int globalIdOffset = 0;
+    int totalSeeds = numSeeds;
+
+    if (this->Tracer->UseLocalSeedSource == vtkStreamTracer::LocalSeedDistributed &&
+      this->Controller && this->NumProcs > 1)
+    {
+      std::vector<int> seedCounts(this->NumProcs, 0);
+      this->Controller->AllGather(&numSeeds, seedCounts.data(), 1);
+
+      globalIdOffset = 0;
+      for (int r = 0; r < this->Rank; ++r)
+      {
+        globalIdOffset += seedCounts[r];
+      }
+      totalSeeds = 0;
+      for (int r = 0; r < this->NumProcs; ++r)
+      {
+        totalSeeds += seedCounts[r];
+      }
+    }
+
     for (int i = 0; i < numSeeds; i++)
     {
       double seed[3];
       seeds->GetTuple(seedIds->GetId(i), seed);
+      int seedId = globalIdOffset + i;
       vtkSmartPointer<PStreamTracerPoint> point =
-        NewPoint(i, seed, integrationDirections->GetValue(i));
-      if (this->InBound(point))
+        NewPoint(seedId, seed, integrationDirections->GetValue(i));
+      if (this->Tracer->UseLocalSeedSource == vtkStreamTracer::LocalSeedDistributed ||
+        this->InBound(point))
       {
         out.push_back(point);
       }
@@ -563,7 +586,7 @@ public:
       integrationDirections->Delete();
     }
 
-    maxId = numSeeds - 1;
+    maxId = totalSeeds - 1;
     return vtkSmartPointer<vtkIdList>::Take(seedIds);
   }
 
@@ -1000,7 +1023,8 @@ public:
     this->ReceiveTime = 0;
   }
 
-  void Initialize(bool hasData, const PStreamTracerPointArray& seeds, int MaxId)
+  void Initialize(
+    bool hasData, const PStreamTracerPointArray& seeds, int MaxId, bool useLocalSeedSource = false)
   {
     AssertGe(MaxId, 0);
     int numSeeds = static_cast<int>(seeds.size());
@@ -1018,6 +1042,21 @@ public:
         this->Leader = i;
         break;
       }
+    }
+
+    if (useLocalSeedSource)
+    {
+      int totalNumTasks = 0;
+      this->Controller->AllReduce(&numSeeds, &totalNumTasks, 1, vtkCommunicator::SUM_OP);
+      this->TotalNumTasks = (this->Rank == this->Leader) ? totalNumTasks : INT_MAX;
+
+      for (int i = 0; i < numSeeds; i++)
+      {
+        vtkNew<Task> task;
+        task->Point = seeds[i];
+        NTasks.emplace_back(task);
+      }
+      return;
     }
 
     std::vector<int> processMap0(MaxId + 1, -1);
@@ -1423,9 +1462,22 @@ int vtkPStreamTracer::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
   if (sourceInfo)
   {
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
+    if (this->UseLocalSeedSource == vtkStreamTracer::LocalSeedDistributed)
+    {
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+    }
+    else
+    {
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+      sourceInfo->Set(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
+    }
   }
 
   return 1;
@@ -1465,7 +1517,7 @@ int vtkPStreamTracer::RequestData(
   vtkDataSet* source = nullptr;
   vtkNew<vtkAppendDataSets> distantAppender;
 
-  if (this->UseLocalSeedSource)
+  if (this->UseLocalSeedSource != vtkStreamTracer::AggregateSeeds)
   {
     source = localSource;
   }
@@ -1540,7 +1592,8 @@ int vtkPStreamTracer::RequestData(
 
   int maxId;
   auto originalSeedIds = this->Utils->ComputeSeeds(source, seedPoints, maxId);
-  taskManager.Initialize(this->EmptyData == 0, seedPoints, maxId);
+  taskManager.Initialize(this->EmptyData == 0, seedPoints, maxId,
+    this->UseLocalSeedSource == vtkStreamTracer::LocalSeedDistributed);
 
   Task* task(nullptr);
   std::vector<int> traceIds;
@@ -1630,18 +1683,21 @@ int vtkPStreamTracer::RequestData(
   // seed ids but seed indices. We need to restore original seed ids so that
   // a full streamline gets the same seed id for forward and backward
   // directions.
-  if (auto seedIds = vtkIntArray::SafeDownCast(output->GetCellData()->GetArray("SeedIds")))
+  if (this->UseLocalSeedSource != vtkStreamTracer::LocalSeedDistributed)
   {
-    vtkSMPTools::For(0, seedIds->GetNumberOfTuples(),
-      [&originalSeedIds, &seedIds](vtkIdType start, vtkIdType end)
-      {
-        for (vtkIdType cc = start; cc < end; ++cc)
+    if (auto seedIds = vtkIntArray::SafeDownCast(output->GetCellData()->GetArray("SeedIds")))
+    {
+      vtkSMPTools::For(0, seedIds->GetNumberOfTuples(),
+        [&originalSeedIds, &seedIds](vtkIdType start, vtkIdType end)
         {
-          const auto seedIdx = seedIds->GetTypedComponent(cc, 0);
-          assert(seedIdx < originalSeedIds->GetNumberOfIds());
-          seedIds->SetTypedComponent(cc, 0, originalSeedIds->GetId(seedIdx));
-        }
-      });
+          for (vtkIdType cc = start; cc < end; ++cc)
+          {
+            const auto seedIdx = seedIds->GetTypedComponent(cc, 0);
+            assert(seedIdx < originalSeedIds->GetNumberOfIds());
+            seedIds->SetTypedComponent(cc, 0, originalSeedIds->GetId(seedIdx));
+          }
+        });
+    }
   }
   if (func)
   {
