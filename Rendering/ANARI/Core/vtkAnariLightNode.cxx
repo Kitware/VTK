@@ -408,9 +408,11 @@ void vtkAnariLightNode::Synchronize(bool prepass)
       // main emission direction of the directional light
       anari::setParameter(anariDevice->GetHandle(), anariLight, "direction", lightDirection);
       // the amount of light arriving at a surface point, assuming the light is
-      // oriented towards to the surface, in W/m^2^
-      float irradiance =
-        static_cast<float>(vtkAnariLightNode::GetLightScale(light) * light->GetIntensity());
+      // oriented towards to the surface, in W/m^2^. The pi matches the
+      // convention used for point and spot lights above, and keeps a
+      // Lambertian surface as bright as it is under the OpenGL backend.
+      float irradiance = static_cast<float>(
+        vtkAnariLightNode::GetLightScale(light) * light->GetIntensity() * vtkMath::Pi());
       anari::setParameter(anariDevice->GetHandle(), anariLight, "irradiance", irradiance);
 
       float radius = static_cast<float>(vtkAnariLightNode::GetRadius(light));
