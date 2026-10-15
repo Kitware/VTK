@@ -74,6 +74,8 @@ include(CMakeDependentOption)
 option(VTK_ENABLE_WEBGPU "Enable the WebGPU experimental rendering backend." OFF)
 cmake_dependent_option(VTK_USE_DAWN_WEBGPU "Declare Dawn's WebGPU extensions. Requires Dawn." OFF
   "VTK_ENABLE_WEBGPU;NOT CMAKE_SYSTEM_NAME STREQUAL \"Emscripten\"" OFF)
+cmake_dependent_option(VTK_USE_SLANG "Compile WebGPU shaders from Slang. Requires SlangKit." OFF
+  "VTK_ENABLE_WEBGPU;NOT CMAKE_SYSTEM_NAME STREQUAL \"Emscripten\"" OFF)
 
 include(GNUInstallDirs)
 
@@ -416,12 +418,19 @@ set("_vtk_module_reason_VTK::catalyst"
 if (VTK_ENABLE_WEBGPU)
   list(APPEND vtk_requested_modules
     VTK::RenderingWebGPU)
+  if (VTK_USE_SLANG)
+    list(APPEND vtk_requested_modules
+      VTK::RenderingSlang)
+  endif ()
 else ()
   list(APPEND vtk_rejected_modules
-    VTK::RenderingWebGPU)
+    VTK::RenderingWebGPU
+    VTK::RenderingSlang)
 endif ()
 set("_vtk_module_reason_VTK::RenderingWebGPU"
   "via `VTK_ENABLE_WEBGPU`")
+set("_vtk_module_reason_VTK::RenderingSlang"
+  "via `VTK_ENABLE_WEBGPU` and `VTK_USE_SLANG`")
 
 if (VTK_BUILD_TESTING)
   list(APPEND vtk_requested_modules
