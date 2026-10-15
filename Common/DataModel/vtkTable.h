@@ -84,6 +84,12 @@ public:
    */
   unsigned long GetActualMemorySize() override;
 
+  /**
+   * The modified time of the table includes the modified time of its row
+   * data (and therefore of its columns).
+   */
+  vtkMTimeType GetMTime() override;
+
   ///@{
   /**
    * Get/Set the main data (columns) of the table.
