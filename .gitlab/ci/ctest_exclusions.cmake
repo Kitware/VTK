@@ -316,8 +316,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
     "^VTK::IOSegYCxx-TestSegY2DReader$"
     "^VTK::IOSegYCxx-TestSegY2DReaderZoom$"
     "^VTK::IOVPICCxx-TestVPICReader$"
+    "^VTK::InteractionStyleCxx-TestTrackballEnvironmentRotate$" # not-stdthread
     "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotationSerDes$"
-    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotationVectorsSerDes$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotationVectors(SerDes)?$"
     "^VTK::RenderingLICOpenGL2Cxx-TestSurfaceLICPlanarVectorNormalizeOff$"
     "^VTK::RenderingLICOpenGL2Cxx-TestSurfaceLICPlanarVectorNormalizeOffSerDes$"
     "^VTK::RenderingOpenGL2Cxx-TestPBRAnisotropy$"
@@ -341,7 +342,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlurWithRenderPasses$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxCubeRotation$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxCubeRotationSerDes$"
-    "^VTK::RenderingOpenGL2Cxx-TestSkyboxNoBlurSerDes$"
+    "^VTK::RenderingOpenGL2Cxx-TestSkyboxNoBlur(SerDes)?$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxWithRenderPassSerDes$"
     "^VTK::RenderingVolumeCxx-TestGPURayCastCameraInsideSmallSpacing$"
     "^VTK::RenderingVolumeCxx-TestGPURayCastCameraInsideTransformation$"
@@ -452,12 +453,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
 
       # https://gitlab.kitware.com/vtk/vtk/-/issues/20151
       # timeouts
-      "^VTK::InteractionStyleCxx-TestTrackballEnvironmentRotate$" # not-stdthread
       "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotation$" # stdthread
-      "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotationVectors$" # stdthread
       "^VTK::RenderingOpenGL2Cxx-TestPBRMultipleScatteringIBL$" # not-stdthread
       "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlur$"
-      "^VTK::RenderingOpenGL2Cxx-TestSkyboxNoBlur$"
       "^VTK::RenderingOpenGL2Cxx-TestSkyboxWithRenderPass$"
       "^VTK::RenderingVolumeCxx-TestGPURayCastMapperRectilinearGrid$"
       "^VTK::RenderingVolumeCxx-TestGPURayCastMultiVolumeCellData$"
