@@ -994,15 +994,9 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
   // Only the lens changed since the last execution: reuse its results.
-  // (vtkTable::GetMTime does not include its columns.)
-  vtkMTimeType inputMTime = inData->GetMTime();
-  if (vtkTable* table = vtkTable::SafeDownCast(inData))
-  {
-    inputMTime = std::max(inputMTime, table->GetRowData()->GetMTime());
-  }
   int useCache = (this->StoreRGBA || this->StoreA) && this->CachedRGBA &&
     this->CachedInput == inData && this->NonLensModifiedTime < this->CacheTime &&
-    inputMTime < this->CacheTime.GetMTime();
+    inData->GetMTime() < this->CacheTime.GetMTime();
   if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
   {
     // every process must take the same path: the full one has collectives
