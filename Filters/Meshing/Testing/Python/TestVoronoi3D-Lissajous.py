@@ -13,7 +13,7 @@ if len(sys.argv) > 1:
     except ValueError:
         NPts = NPts
 
-PointsPerBucket = 1
+PointsPerLeaf = 1
 
 # create some points on a Lissajous curve
 #
@@ -27,7 +27,7 @@ lissa.Update()
 voronoi = vtk.vtkVoronoiFlower3D()
 voronoi.SetInputConnection(lissa.GetOutputPort())
 voronoi.SetPadding(0.001)
-voronoi.GetLocator().SetNumberOfPointsPerBucket(PointsPerBucket)
+voronoi.GetPointLocator().SetNumberOfPointsPerLeaf(PointsPerLeaf)
 voronoi.SetGenerateCellScalarsToRandom()
 voronoi.SetOutputTypeToBoundary()
 voronoi.ValidateOn()

@@ -20,12 +20,30 @@
 
 ## 1. About
 
-*nanoflann* is a **C++11 [header-only](http://en.wikipedia.org/wiki/Header-only) library** for building KD-Trees of datasets with different topologies: R<sup>2</sup>, R<sup>3</sup> (point clouds), SO(2) and SO(3) (2D and 3D rotation groups). No support for approximate NN is provided. *nanoflann* does not require compiling or installing. You just need to `#include <nanoflann.hpp>` in your code.
+*nanoflann* is a **header-only [C++ library](http://en.wikipedia.org/wiki/Header-only)** for building KD-Trees of datasets with different topologies. The Euclidean core (R<sup>2</sup>, R<sup>3</sup>, R<sup>N</sup> point clouds) is **C++11**; the optional **compile-time product-manifold** metrics — SO(2), SO(3), SE(2), SE(3), the unit sphere S<sup>2</sup>/S<sup>N</sup>, tori, and arbitrary products — require **C++17** (see §1.5). It also provides **incremental / dynamic** KD-tree indices for point clouds that change over time (e.g. sliding-window LiDAR maps). *nanoflann* returns *exact* nearest neighbors by default (an optional `eps`-approximate mode is available via `SearchParameters::eps`). It does not require compiling or installing: you just need to `#include <nanoflann.hpp>` in your code.
 
 This library is a *fork* of the [flann library](https://github.com/flann-lib/flann) by Marius Muja and David G. Lowe, and born as a child project of [MRPT](https://www.mrpt.org/). Following the original license terms, *nanoflann* is distributed under the BSD license. Please, for bugs use the issues button or fork and open a pull request.
 
-Cite as:
+### Citing nanoflann
+
+If you use *nanoflann* in your research, please cite the following paper (accepted for publication in IEEE RA-L, 2026):
+
+> J.L. Blanco-Claraco, "nanoflann: A Header-Only KD-Tree Library for Exact Nearest-Neighbor Search on Compile-Time Product Manifolds," *IEEE Robotics and Automation Letters*, 2026 (accepted).
+
+```bibtex
+@article{blancoclaraco2026nanoflann,
+  title   = {nanoflann: A Header-Only {KD}-Tree Library for Exact Nearest-Neighbor Search on Compile-Time Product Manifolds},
+  author  = {Blanco-Claraco, Jose Luis},
+  journal = {IEEE Robotics and Automation Letters},
+  year    = {2026},
+  note    = {Accepted for publication}
+}
 ```
+
+<details>
+<summary>Citation for the original software release (2014)</summary>
+
+```bibtex
 @misc{blanco2014nanoflann,
   title        = {nanoflann: a {C}++ header-only fork of {FLANN}, a library for Nearest Neighbor ({NN}) with KD-trees},
   author       = {Blanco, Jose Luis and Rai, Pranjal Kumar},
@@ -33,6 +51,8 @@ Cite as:
   year         = {2014}
 }
 ```
+
+</details>
 
 See the release [CHANGELOG](CHANGELOG.rst) for a list of project changes.
 
@@ -57,7 +77,7 @@ See the release [CHANGELOG](CHANGELOG.rst) for a list of project changes.
   $ sudo port install nanoflann
   ```
 * Linux users can also install it with [Linuxbrew](https://docs.brew.sh/Homebrew-on-Linux) with: `brew install homebrew/science/nanoflann`
-* List of [**stable releases**](https://github.com/jlblancoc/nanoflann/releases). Check out the [CHANGELOG](https://github.com/jlblancoc/nanoflann/blob/master/CHANGELOG.md)
+* List of [**stable releases**](https://github.com/jlblancoc/nanoflann/releases). Check out the [CHANGELOG](https://github.com/jlblancoc/nanoflann/blob/master/CHANGELOG.rst)
 
 Although nanoflann itself doesn't have to be compiled, you can build some examples and tests with:
 
@@ -77,9 +97,15 @@ $ make && make test
 
   * KD-tree look-up with `knnSearch()` and `radiusSearch()`: [pointcloud_kdd_radius.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/pointcloud_kdd_radius.cpp)
   * KD-tree look-up on a point cloud dataset: [pointcloud_example.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/pointcloud_example.cpp)
-  * KD-tree look-up on a dynamic point cloud dataset: [dynamic_pointcloud_example.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/dynamic_pointcloud_example.cpp)
-  * KD-tree look-up on a rotation group (SO2): [SO2_example.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/SO2_adaptor_example.cpp)
-  * KD-tree look-up on a rotation group (SO3): [SO3_example.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/SO3_adaptor_example.cpp)
+  * KD-tree look-up on a dynamic point cloud dataset (Bentley–Saxe forest): [dynamic_pointcloud_example.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/dynamic_pointcloud_example.cpp)
+  * Incremental / sliding-window point cloud index (`addPoints` + box trimming): [pointcloud_incremental_example.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/pointcloud_incremental_example.cpp)
+  * Exact KD-tree look-up on a rotation group (SO2), C++17: [manifold_so2_example.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/manifold_so2_example.cpp)
+  * Exact KD-tree look-up on a rotation group (SO3), C++17: [manifold_so3_example.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/manifold_so3_example.cpp)
+  * Exact KD-tree look-up on SE(3) poses, C++17: [manifold_se3_example.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/manifold_se3_example.cpp)
+  * Exact KD-tree look-up on the unit sphere S<sup>2</sup> (3D directions), C++17: [manifold_s2_example.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/manifold_s2_example.cpp)
+  * Incremental KD-tree on SE(3) poses (manifold + churn), C++17: [manifold_se3_incremental_example.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/manifold_se3_incremental_example.cpp)
+  * Custom user-defined distance metric: [pointcloud_custom_metric.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/pointcloud_custom_metric.cpp)
+  * Custom user-defined result set (callback-style collection): [pointcloud_custom_resultset.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/pointcloud_custom_resultset.cpp)
   * KD-tree look-up on a point cloud dataset with an external adaptor class: [pointcloud_adaptor_example.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/pointcloud_adaptor_example.cpp)
   * KD-tree look-up directly on an `Eigen::Matrix<>`: [matrix_example.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/matrix_example.cpp)
   * KD-tree look-up directly on `std::vector<std::vector<T> >` or `std::vector<Eigen::VectorXd>`: [vector_of_vectors_example.cpp](https://github.com/jlblancoc/nanoflann/blob/master/examples/vector_of_vectors_example.cpp)
@@ -108,7 +134,7 @@ Refer to the examples below or to the C++ API of [nanoflann::KDTreeSingleIndexAd
 
 ### 1.5. What can *nanoflann* do?
 
-  * Building KD-trees with a single index (no randomized KD-trees, no approximate searches).
+  * Building KD-trees with a single index (no randomized KD-trees). Searches return *exact* nearest neighbors by default; an optional `eps`-approximate pruning mode is available via `SearchParameters::eps`.
   * Fast, thread-safe querying for closest neighbors on KD-trees. The entry points are:
     * [nanoflann::KDTreeSingleIndexAdaptor<>](https://jlblancoc.github.io/nanoflann/classnanoflann_1_1KDTreeSingleIndexAdaptor.html)`::knnSearch()`
       * Finds the `num_closest` nearest neighbors to `query_point[0:dim-1]`. Their indices are stored inside the result object. See an [example usage code](https://github.com/jlblancoc/nanoflann/blob/master/examples/pointcloud_kdd_radius.cpp#L119).
@@ -144,17 +170,31 @@ Refer to the examples below or to the C++ API of [nanoflann::KDTreeSingleIndexAd
       * `L1` (Manhattan)
       * `L2` (**squared** Euclidean norm, favoring SSE2 optimization).
       * `L2_Simple` (**squared** Euclidean norm, for low-dimensionality data sets like point clouds).
-    * `SO(2)`: 2D rotational group
-      * `metric_SO2`: Absolute angular diference.
-    * `SO(3)`: 3D rotational group (better suppport to be provided in future releases)
-      * `metric_SO3`: Inner product between quaternions.
+    * `SO(2)` / `SO(3)` rotational groups and other non-Euclidean spaces are now
+      handled exactly by the compile-time product-manifold metrics below. (The
+      legacy `metric_SO2` / `metric_SO3` adaptors were removed in 2.0: they kept
+      Euclidean pruning (wrong across the +/-pi seam) and ignored the quaternion
+      double cover. Use `metric_Manifold<SO2>` / `metric_Manifold<SO3>` instead.)
+    * **Compile-time product manifolds** [New, C++17]: declare the search space
+      as a product of base manifolds and get *exact* nearest neighbors honoring
+      the correct geodesic metric and pruning. Base spaces: `nanoflann::Rn<N>`,
+      `SO2`, `SO3`, `SE2`, `SE3`, `Torus<N>`, the unit sphere `Sn<N>` / `S2`
+      (3D directions / bearings), and arbitrary `Product<...>` (e.g.
+      `Product<Rn<3>, S2>` for oriented points). Use the synthesized
+      `nanoflann::Manifold_Adaptor<Space, T, Dataset>` (or `metric_Manifold<Space>`)
+      as the distance type. Supported by both the static `KDTreeSingleIndexAdaptor`
+      and the incremental `KDTreeSingleIndexIncrementalAdaptor` (and its MT
+      wrapper). See `examples/manifold_se3_example.cpp`,
+      `examples/manifold_s2_example.cpp`, and
+      `examples/manifold_se3_incremental_example.cpp`. Opt out with
+      `NANOFLANN_NO_MANIFOLDS`.
   * Saves and load the built indices to disk.
   * GUI based support for benchmarking multiple kd-tree libraries namely nanoflann, flann, fastann and libkdtree.
 
 ### 1.6. What can't *nanoflann* do?
 
-  * Use other distance metrics apart from L1, L2, SO2 and SO3.
-  * Support for SE(3) groups.
+  * Use other distance metrics apart from L1, L2, and the compile-time product
+    manifolds (R^n, SO(2), SO(3), SE(2), SE(3), S^N, tori, and products).
   * Only the C++ interface exists: there is no support for C, MATLAB or Python.
   * There is no automatic algorithm configuration (as described in the original Muja & Lowe's paper).
 
@@ -212,7 +252,10 @@ The nanoflann port in vcpkg is kept up to date by Microsoft team members and com
 
   * `NANOFLANN_FIRST_MATCH`: If defined and two points have the same distance, the one with the lowest-index will be returned first. Otherwise there is no particular order.
   * `NANOFLANN_NO_THREADS`: If defined, multithreading capabilities will be disabled, so that the library can be used without linking with pthreads. If one tries to use multiple threads, an exception will be thrown.
-  * `NANOFLANN_NODE_ALIGNMENT`: The memory alignment, in bytes, used for KD-tree nodes. Defaults to `16`.
+  * `NANOFLANN_NODE_ALIGNMENT`: The memory alignment, in bytes, used for KD-tree nodes. Must be a power of two and `>= 8`. Defaults to `16` (also a good value for AVX; use `32`/`64` for AVX/AVX-512 aligned loads). Every node honors this alignment, with any C++ standard.
+  * `NANOFLANN_NO_MANIFOLDS`: If defined, disables the C++17 product-manifold topology support (`Manifold_Adaptor`, `Product<>`, `SO2`/`SO3`/`SE2`/`SE3`/`Sn`/`Torus`, `metric_Manifold<>`). It is auto-enabled under C++17; define this to force it off (the C++11 Euclidean core is unaffected).
+  * `NANOFLANN_INCREMENTAL_NO_COORD_CACHE`: If defined, the incremental index does not keep a per-node contiguous copy of point coordinates (trades query speed for memory).
+  * `NANOFLANN_INCREMENTAL_INNODE_DISTANCE`: If defined, the (Euclidean) incremental index reuses the per-axis coordinate cache for the in-node distance. Has no effect for manifold metrics, which always use the full `evalMetric`.
 
 ### 1.10. Thread safety
 

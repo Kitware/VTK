@@ -19,12 +19,20 @@
 #ifndef vtkVoronoiCore_h
 #define vtkVoronoiCore_h
 
-#include "vtkAlgorithm.h" // check abort status if embedded in filter
-#include "vtkIntArray.h"  // for representing segmented region ids
-#include "vtkSMPTools.h"  // SMP parallel processing
+#include "vtkAbstractPointLocator.h" // for the neighbor iterator
+#include "vtkAlgorithm.h"            // check abort status if embedded in filter
+#include "vtkDoubleArray.h"          // for the petals of the neighbor iterator
+#include "vtkIntArray.h"             // for representing segmented region ids
+#include "vtkKdTreePointLocator.h"   // for the neighbor iterator
+#include "vtkLocatorInterface.h"     // for vtkDist2TupleArray
+#include "vtkSMPTools.h"             // SMP parallel processing
+#include "vtkSmartPointer.h"         // for the neighbor iterator
+#include "vtkStaticPointLocator.h"   // for the neighbor iterator
+#include "vtkStaticPointLocator2D.h" // for the neighbor iterator
 
 #include <algorithm> // for std::sort
 #include <iostream>
+#include <limits>
 #include <random> // random generation of colors
 #include <vector>
 
@@ -556,6 +564,154 @@ struct vtkVoronoiJoggle
     vtkMath::Normalize(vecOut);
   }
 }; // vtkVoronoiJoggle
+
+//------------------------------------------------------------------------------
+/**
+ * Iterate over the neighbors of a Voronoi generator in spherical shells (the
+ * annuli of a 2D tile), with any point locator, of dimension DIM (2 or 3).
+ * BuildHull() (or BuildTile()) requests batches of points around a generator,
+ * nearest first, until it can prove that no point not yet returned can modify
+ * the hull. The first batch is the shell of
+ * vtkAbstractPointLocator::FindNPointsInShell(), which holds the nearest
+ * points, and the next ones are the shells of FindPointsInShell(), which grow
+ * geometrically, up to the circumflower. Next() can cull the shells with the
+ * petals of the Voronoi flower, spheres (x, y, z, r^2) in 3D, or circles
+ * (x, y, r^2) in 2D: the points outside of all of them are skipped. Used by
+ * both vtkVoronoiCore3D (DIM = 3) and vtkVoronoiCore2D (DIM = 2).
+ *
+ * The petals have DIM + 1 components, which the locator expects when it is
+ * of dimension DIM: that of vtkStaticPointLocator is 3, that of
+ * vtkStaticPointLocator2D is 2, and that of vtkKdTreePointLocator is 2 if its
+ * points are in a plane of constant z and 3 otherwise. When the dimension of
+ * the locator is not DIM, the petals are not used (see IsLocatorSuited()).
+ */
+template <int DIM>
+struct vtkVoronoiNeighborIterator
+{
+  static_assert(DIM == 2 || DIM == 3, "The dimension of the Voronoi tessellation is 2 or 3.");
+
+  // The ratio of the squared radii of consecutive shells. Small shells let the
+  // circumflower and the petals shrink with the hull between two shells.
+  static constexpr double ShellGrowth2 = 2.0;
+
+  // The shells of at most this many points are sorted, nearest first, so that
+  // the nearest points clip the hull first. Larger shells, found around dense
+  // clusters of points, are left in the order of the locator: sorting them
+  // costs more than it saves.
+  static constexpr std::size_t MaxSortedShellSize = 128;
+
+  vtkAbstractPointLocator* Locator = nullptr;
+  int FirstShellSize = 16; // the number of nearest points of the first shell
+  vtkIdType PtId = -1;
+  double X[3] = { 0.0, 0.0, 0.0 };
+  double MinD2 = 0.0;
+  bool Done = false;
+  bool UsePetals = true;
+
+  // The dimension of the locator (2 or 3), or 0 for a locator that accepts the
+  // petals of any dimension.
+  static int GetLocatorDimension(vtkAbstractPointLocator* loc)
+  {
+    if (auto* kdLoc = vtkKdTreePointLocator::SafeDownCast(loc))
+    {
+      return kdLoc->GetDimension();
+    }
+    if (vtkStaticPointLocator2D::SafeDownCast(loc))
+    {
+      return 2;
+    }
+    if (vtkStaticPointLocator::SafeDownCast(loc))
+    {
+      return 3;
+    }
+    return 0;
+  }
+
+  // Return false if the locator is not of dimension DIM: for example, a
+  // vtkKdTreePointLocator of 3D points, for a 2D tessellation. It must be
+  // built. The petals can't be used then: the filters warn about it.
+  static bool IsLocatorSuited(vtkAbstractPointLocator* loc)
+  {
+    const int locDim = GetLocatorDimension(loc);
+    return locDim == 0 || locDim == DIM;
+  }
+
+  // A Voronoi cell has about 15.5 neighbors on average in 3D, and 6 in 2D: the
+  // first shell holds about that many by default (12 in 2D, 16 in 3D), which
+  // was measured to be the fastest with a vtkKdTreePointLocator.
+  void Initialize(vtkAbstractPointLocator* loc, int firstShellSize = 0)
+  {
+    this->Locator = loc;
+    constexpr int defaultShellSize = (DIM == 2 ? 12 : 16);
+    this->FirstShellSize = firstShellSize > 0 ? firstShellSize : defaultShellSize;
+    this->UsePetals = IsLocatorSuited(loc);
+  }
+
+  bool Begin(vtkIdType ptId, double x[3], vtkDist2TupleArray& results)
+  {
+    this->PtId = ptId;
+    std::copy_n(x, 3, this->X);
+
+    // The first shell holds the nearest points, and all the points as close
+    // as the farthest of them. It is the shell that FindPointsInShell() would
+    // return, so that the next shells, which start at its radius, return
+    // every point once. (A negative minimum distance keeps points coincident
+    // with the generator.)
+    const double firstD2 = this->Locator->FindNPointsInShell(
+      this->FirstShellSize, this->X, results, -1.0, /*sort=*/true, /*petals=*/nullptr);
+    if (static_cast<int>(results.size()) < this->FirstShellSize)
+    {
+      // Fewer points than requested: there are no more points, or the locator
+      // does not support FindNPointsInShell(). A single shell has them all.
+      this->Done = true;
+      this->FindShell(-1.0, std::numeric_limits<double>::max(), nullptr, results);
+      return true;
+    }
+    this->Done = false;
+    this->RemoveGenerator(results);
+    this->MinD2 = firstD2;
+    return true;
+  }
+
+  bool Next(double radius2, vtkDoubleArray* petals, vtkDist2TupleArray& results)
+  {
+    if (this->Done)
+    {
+      return false;
+    }
+    // The last shell reaches the circumflower: no point is left after it.
+    double maxD2 = this->MinD2 * ShellGrowth2;
+    if (!(maxD2 > this->MinD2) || maxD2 >= radius2)
+    {
+      maxD2 = radius2;
+      this->Done = true;
+    }
+    this->FindShell(this->MinD2, maxD2, this->UsePetals ? petals : nullptr, results);
+    return true;
+  }
+
+  // Every point not yet returned is farther than this (squared) distance.
+  double GetMinD2() const { return this->MinD2; }
+
+private:
+  void FindShell(double minD2, double maxD2, vtkDoubleArray* petals, vtkDist2TupleArray& results)
+  {
+    this->Locator->FindPointsInShell(this->X, results, minD2, maxD2, /*sort=*/false, petals);
+    if (results.size() <= MaxSortedShellSize)
+    {
+      std::sort(results.begin(), results.end());
+    }
+    this->RemoveGenerator(results);
+    this->MinD2 = this->Done ? std::numeric_limits<double>::max() : maxD2;
+  }
+
+  void RemoveGenerator(vtkDist2TupleArray& results)
+  {
+    results.erase(std::remove_if(results.begin(), results.end(),
+                    [this](const vtkDist2Tuple& t) { return t.Id == this->PtId; }),
+      results.end());
+  }
+}; // vtkVoronoiNeighborIterator
 
 VTK_ABI_NAMESPACE_END
 #include "vtkVoronoiCore.txx"

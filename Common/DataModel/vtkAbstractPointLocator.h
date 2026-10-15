@@ -11,6 +11,14 @@
  * and finding the closest point.  The points are provided from the specified
  * dataset input.
  *
+ * The locators also support the shell queries (FindPointsInShell() and
+ * FindNPointsInShell()), optionally restricted to the petals of a Voronoi
+ * flower, which drive the point insertion of the Voronoi filters. The Voronoi
+ * flower and its petals are described in:
+ * W. Schroeder, D. Thompson, S. Tsalikis. A Parallel Meshless Voronoi Method
+ * for Generalized SurfaceNets. IEEE Transactions on Visualization and Computer
+ * Graphics, vol. 32, no. 7, pp. 7118-7130, 2026. DOI: 10.1109/TVCG.2026.3694501.
+ *
  * @sa
  * vtkPointLocator vtkStaticPointLocator vtkMergePoints
  */
@@ -22,7 +30,9 @@
 #include "vtkLocator.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDoubleArray;
 class vtkIdList;
+struct vtkDist2TupleArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkAbstractPointLocator : public vtkLocator
 {
@@ -88,6 +98,46 @@ public:
   virtual void FindPointsWithinRadius(double R, const double x[3], vtkIdList* result) = 0;
   void FindPointsWithinRadius(double R, double x, double y, double z, vtkIdList* result);
   ///@}
+
+  /**
+   * Find the N nearest points which are strictly greater than minDist2 away
+   * from the query point x (minDist2 is the square of the distance; if
+   * minDist2==0.0, coincident points are excluded -- use a negative value to
+   * include them), optionally restricted to points inside (or on) at least one
+   * of the petals (see FindPointsInShell()), and return the squared radius
+   * maxDist2 of the shell holding them: the squared distance of the N-th
+   * nearest valid point, or of the farthest one if there are fewer than N. The
+   * points returned are exactly those of FindPointsInShell(x, results,
+   * minDist2, maxDist2, sort, petals): the N nearest valid points, and any
+   * other one tied with the N-th, so that a sequence of shells starting with
+   * this one returns every point once. Results are optionally sorted from
+   * closest to farthest. The default implementation gathers shells of
+   * FindPointsInShell() of growing radius until they hold N valid points;
+   * subclasses can find the points faster.
+   */
+  virtual double FindNPointsInShell(int N, const double x[3], vtkDist2TupleArray& results,
+    double minDist2 = -0.1, bool sort = true, vtkDoubleArray* petals = nullptr);
+
+  /**
+   * Find all the points which are strictly greater than minDist2 and at most
+   * maxDist2 away from the query point x (both are squares of distances; if
+   * minDist2==0.0, coincident points are excluded -- use a negative value to
+   * include them), optionally restricted to points that also lie inside (or
+   * on) at least one of the petals: spheres (x,y,z,r2) for a 3D locator, or
+   * circles (x,y,r2) in the x-y plane for a 2D one, so that a petal has as many
+   * components as the dimension of the locator plus one (the default
+   * implementation accepts both). The petals are the spheres (circles) of the Voronoi
+   * flower of a point, whose union bounds the region that can still change its Voronoi
+   * cell (see vtkVoronoiFlower3D, vtkVoronoiFlower2D and the class documentation). Results
+   * are optionally sorted from closest to farthest.
+   * Consecutive calls with adjacent shells (the maxDist2 of a call being the minDist2 of the next)
+   * return disjoint sets of points, and miss none. The default implementation filters the result of
+   * FindPointsWithinRadius(); subclasses can skip the regions outside of the shell or of the
+   * petals. This method is thread safe if BuildLocator() is directly or indirectly called from a
+   * single thread first.
+   */
+  virtual void FindPointsInShell(const double x[3], vtkDist2TupleArray& results, double minDist2,
+    double maxDist2, bool sort = true, vtkDoubleArray* petals = nullptr);
 
   ///@{
   /**

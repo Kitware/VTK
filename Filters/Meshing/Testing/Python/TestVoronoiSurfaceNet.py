@@ -5,7 +5,6 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Control problem size and set debugging parameters
 NPts = 50
-PointsPerBucket = 1
 
 # create some points along a diagonal line
 #

@@ -166,11 +166,9 @@
  * of the dual Delaunay triangulation. At the core of the algorithm is the
  * use of a spatial locator to determine points close to a specified position
  * (the Voronoi tile generating point). Points are requested in increasing,
- * disjoint annular rings.  Currently, a vtkStaticPointLocator2D is used
- * because it is both threaded (its construction) and supports thread-safe
- * queries. While other locators could be used in principal (and may be added
- * in the future), they must support thread-safe operations and annular point
- * requests.
+ * disjoint annular rings. By default, a vtkKdTreePointLocator is used (see
+ * SetPointLocator()): it is threaded (its construction), supports thread-safe
+ * queries, and adapts to the density of the points.
  *
  * @warning
  * If a surface net output is produced, the surface net is not smoothed
@@ -195,14 +193,15 @@
 #ifndef vtkVoronoiFlower2D_h
 #define vtkVoronoiFlower2D_h
 
+#include "vtkAbstractPointLocator.h" // For the point locator
 #include "vtkAbstractTransform.h"    // For transforming input points
+#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_8_0
 #include "vtkFiltersMeshingModule.h" // For export macro
 #include "vtkIdTypeArray.h"          // for PointsOfInterest
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkSmartPointer.h"         // For self-destructing data members
-#include "vtkSpheres.h"              // For Voronoi Flower
-#include "vtkStaticPointLocator2D.h" // For point locator
-#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
+#include "vtkSmartPointer.h"  // For self-destructing data members
+#include "vtkSpheres.h"       // For Voronoi Flower
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkStaticPointLocator2D;
@@ -490,12 +489,24 @@ public:
 
   ///@{
   /**
-   * Retrieve the internal locator to manually configure it, for example
-   * specifying the number of points per bucket. This method is generally
-   * used for debugging or testing purposes.
+   * Specify the point locator used to find the neighbors of the generating
+   * points. By default, a vtkKdTreePointLocator of 20 points per leaf, which
+   * adapts to the density of the points. A vtkStaticPointLocator2D can be used instead. The locator
+   * must support thread-safe queries once built, and should implement
+   * FindNPointsInShell() and FindPointsInShell() (the default implementations
+   * of vtkAbstractPointLocator are much slower). The filter builds the
+   * locator.
    */
-  vtkStaticPointLocator2D* GetLocator() { return this->Locator; }
+  vtkSetSmartPointerMacro(PointLocator, vtkAbstractPointLocator);
+  vtkGetSmartPointerMacro(PointLocator, vtkAbstractPointLocator);
   ///@}
+
+  /**
+   * Return the point locator if it is a vtkStaticPointLocator2D, nullptr
+   * otherwise.
+   */
+  VTK_DEPRECATED_IN_9_8_0("Use GetPointLocator() instead")
+  vtkStaticPointLocator2D* GetLocator();
 
   ///@{
   /**
@@ -587,7 +598,7 @@ private:
   int GenerateCellScalars;
   vtkTypeBool MergePoints; // merge near coincident points or not
   int ProjectionPlaneMode; // selects the plane in 3D where the tessellation will be computed
-  vtkSmartPointer<vtkStaticPointLocator2D> Locator;
+  vtkSmartPointer<vtkAbstractPointLocator> PointLocator;
   vtkSmartPointer<vtkAbstractTransform> Transform;
   vtkIdType PointOfInterest;
   vtkSmartPointer<vtkIdTypeArray> PointsOfInterest; // list of points of interest

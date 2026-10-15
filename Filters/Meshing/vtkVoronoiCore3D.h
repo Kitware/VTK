@@ -77,12 +77,11 @@
  * @warning
  * This approach implements an embarrassingly parallel, meshless
  * algorithm. At the core of the algorithm a locator is used to determine
- * points close to a specified position. Currently, a vtkStaticPointLocator
- * is used because it is both threaded (when constructed) and supports
- * thread-safe queries. While other locators could be used in principal, they
- * must support thread-safe operations. This is done by defining and
- * implementing an iterator that enables traversal of neighborhood points
- * surrounding each generating point.
+ * points close to a specified position: any vtkAbstractPointLocator
+ * (typically a vtkStaticPointLocator or a vtkKdTreePointLocator) that is
+ * threaded when constructed and supports thread-safe queries. The
+ * neighborhood points of each generating point are traversed in spherical
+ * shells (see vtkVoronoiNeighborIterator in vtkVoronoiCore.h).
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -98,13 +97,12 @@
 #ifndef vtkVoronoiCore3D_h
 #define vtkVoronoiCore3D_h
 
-#include "vtkLocatorInterface.h"   // Interface to spatial locators
-#include "vtkPoints.h"             // for input points
-#include "vtkSMPTools.h"           // SMP parallel processing
-#include "vtkShellBinIterator.h"   // Iteration over the bins of the locator
-#include "vtkStaticPointLocator.h" // for locating nearby points
-#include "vtkVoronoiCore.h"        // Core includes
-#include "vtkVoronoiHull.h"        // Generate Voronoi convex hulls
+#include "vtkAbstractPointLocator.h" // Abstract point locator
+#include "vtkLocatorInterface.h"     // Interface to spatial locators
+#include "vtkPoints.h"               // for input points
+#include "vtkSMPTools.h"             // SMP parallel processing
+#include "vtkVoronoiCore.h"          // Core includes
+#include "vtkVoronoiHull.h"          // Generate Voronoi convex hulls
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -200,7 +198,7 @@ struct vtkVoronoi3DLocalData
   int NumPrunes;                              // total number of pruning operations
   vtkBatchIdsType LocalBatches;               // list of batches processed by this thread
   vtkVoronoiSpokesType LocalSpokes;           // connecting edges/spokes for each hull
-  vtkShellBinIterator SIter;                  // iterator over static point locator bins
+  vtkVoronoiNeighborIterator<3> SIter;        // iterator over the neighbors of a generator
   vtkVoronoiHull Hull;                        // computational 3D Voronoi hull algorithm
   typename TCompositor::LocalData Compositor; // gather data from compositing operations
   TClassifier Classifier;                     // Used to classify spokes (based on regions)
@@ -256,7 +254,7 @@ public:
    * spoke pruning and tolerance) are provided.
    */
   static std::unique_ptr<vtkVoronoiCore3D<TCompositor, TClassifier>> Execute(vtkAlgorithm* filter,
-    unsigned int batchSize, vtkStaticPointLocator* loc, vtkPoints* inPts, double padding,
+    unsigned int batchSize, vtkAbstractPointLocator* loc, vtkPoints* inPts, double padding,
     vtkIdType maxClips, bool validate, double pruneTol, TCompositor* comp, TClassifier* cl);
 
   ///@{
@@ -295,8 +293,8 @@ public:
    * Execute() method is preferred.
    */
   vtkVoronoiCore3D(vtkAlgorithm* filter, vtkVoronoiBatchManager& batcher,
-    vtkStaticPointLocator* loc, vtkPoints* inPts, double padding, vtkIdType maxClips, bool validate,
-    double pruneTol, TCompositor* comp, TClassifier* c);
+    vtkAbstractPointLocator* loc, vtkPoints* inPts, double padding, vtkIdType maxClips,
+    bool validate, double pruneTol, TCompositor* comp, TClassifier* c);
 
   ///@{
   /**
@@ -355,14 +353,14 @@ public:
   vtkAlgorithm* Filter;
 
 private:
-  vtkIdType NPts;                 // The number of input points
-  vtkPoints* InPoints;            // Input points as data array
-  const double* Points;           // Input points as pointer to x-y-z AOS doubles
-  vtkStaticPointLocator* Locator; // Used to (quickly) find nearby points
-  double Padding;                 // The padding distance around the bounding box
-  double Bounds[6];               // locator bounds
-  double PaddedBounds[6];         // the domain over which Voronoi is calculated
-  vtkIdType MaxClips;             // Limit the number of half-space clips
+  vtkIdType NPts;                   // The number of input points
+  vtkPoints* InPoints;              // Input points as data array
+  const double* Points;             // Input points as pointer to x-y-z AOS doubles
+  vtkAbstractPointLocator* Locator; // Used to (quickly) find nearby points
+  double Padding;                   // The padding distance around the bounding box
+  double Bounds[6];                 // locator bounds
+  double PaddedBounds[6];           // the domain over which Voronoi is calculated
+  vtkIdType MaxClips;               // Limit the number of half-space clips
 
   // Enable pruning of spokes (equivalent to deletion of a degenerate hull face)
   bool Validate;            // Indicate whether to explicitly validate the mesh
@@ -384,7 +382,7 @@ private:
    * Driver method that coordinates the process of hull generation. It
    * integrates with the locator, and the vtkVoronoiHull class.
    */
-  using vtkBinIterator = vtkShellBinIterator;
+  using vtkBinIterator = vtkVoronoiNeighborIterator<3>;
   bool BuildHull(vtkVoronoiHull& hull, vtkBinIterator* siter, const double* pts, vtkIdType maxClips,
     vtkDist2TupleArray& results, int& numPrunes);
 

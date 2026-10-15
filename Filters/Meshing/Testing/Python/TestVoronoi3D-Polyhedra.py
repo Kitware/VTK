@@ -13,7 +13,7 @@ if len(sys.argv) > 1:
     except ValueError:
         NPts = NPts
 
-PointsPerBucket = 1
+PointsPerLeaf = 1
 
 # create some points and display them
 #
@@ -48,7 +48,7 @@ voronoi = vtk.vtkVoronoiFlower3D()
 voronoi.SetInputData(profile)
 voronoi.SetPadding(0.001)
 voronoi.SetGenerateCellScalarsToPointIds()
-voronoi.GetLocator().SetNumberOfPointsPerBucket(PointsPerBucket)
+voronoi.GetPointLocator().SetNumberOfPointsPerLeaf(PointsPerLeaf)
 voronoi.SetOutputTypeToVoronoi()
 voronoi.PassPointDataOn()
 voronoi.MergePointsOn()

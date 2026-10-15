@@ -15,7 +15,7 @@ if len(sys.argv) > 1:
     except ValueError:
         NPts = NPts
 
-PointsPerBucket = 1
+PointsPerLeaf = 1
 
 # Create the RenderWindow, Renderer and Actors
 #
@@ -71,7 +71,7 @@ voronoi = vtk.vtkVoronoiFlower3D()
 voronoi.SetInputData(profile)
 voronoi.SetPadding(0.001)
 voronoi.SetGenerateCellScalarsToPointIds()
-voronoi.GetLocator().SetNumberOfPointsPerBucket(PointsPerBucket)
+voronoi.GetPointLocator().SetNumberOfPointsPerLeaf(PointsPerLeaf)
 voronoi.SetOutputTypeToSurfaceNet()
 voronoi.BoundaryCappingOn()
 voronoi.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, "Region Ids")

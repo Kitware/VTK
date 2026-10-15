@@ -10,6 +10,11 @@
  * the surrounding bins in nested shells, akin to a "spherical" traversal
  * (i.e., in nested, hollow blocks of bins).
  *
+ * @warning
+ * This class is deprecated: the Voronoi filters no longer use it. Use
+ * vtkStaticPointLocator::FindNPointsInShell() and FindPointsInShell() instead, which return the
+ * points around a position in shells, culled with petals, for any vtkAbstractPointLocator.
+ *
  * @sa
  * Note that the vtkStaticPointLocator class is internally templated, but
  * provides a non-templated API - this is done to ensure that the class can
@@ -22,6 +27,7 @@
 #ifndef vtkShellBinIterator_h
 #define vtkShellBinIterator_h
 
+#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_8_0
 #include "vtkFiltersMeshingModule.h" // For export macro
 #include "vtkLocatorInterface.h"     // for array of (pt,d**2) tuples
 #include "vtkSystemIncludes.h"
@@ -53,7 +59,9 @@ VTK_WRAPEXCLUDE struct VTKFILTERSMESHING_EXPORT vtkShellBinIteratorDispatch
 }; // vtkShellBinIteratorDispatch
 
 // VTK class proper
-class VTKFILTERSMESHING_EXPORT vtkShellBinIterator
+class VTK_DEPRECATED_IN_9_8_0(
+  "Use vtkStaticPointLocator::FindNPointsInShell() and FindPointsInShell() instead.")
+  VTKFILTERSMESHING_EXPORT vtkShellBinIterator
 {
 public:
   /**

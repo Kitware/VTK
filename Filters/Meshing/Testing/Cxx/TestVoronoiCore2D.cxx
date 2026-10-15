@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkIntArray.h"
+#include "vtkKdTreePointLocator.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
-#include "vtkStaticPointLocator.h"
 #include "vtkTimerLog.h"
 #include "vtkVoronoiCore2D.h"
 
@@ -201,7 +201,7 @@ int TestVoronoiCore2D(int, char*[])
   double time = 0;
   vtkNew<vtkTimerLog> timer;
 
-  vtkNew<vtkStaticPointLocator2D> loc;
+  vtkNew<vtkKdTreePointLocator> loc;
   loc->SetDataSet(polyData);
   loc->BuildLocator();
   loc->UseExistingSearchStructureOn();

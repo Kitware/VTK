@@ -9,6 +9,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkKdTreePointLocator.h"
 #include "vtkLocatorInterface.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -16,11 +17,8 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPolyData.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkStaticPointLocator.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoronoiCore3D.h"
@@ -236,7 +234,7 @@ struct PtsOutput : public VOutput
 // vtkEmptyVoronoi3DCompositor and vtkEmptyVoronoi3DClassifier are used.
 // This is used to assess the raw speed of Voronoi tessellation. It does not
 // produce any output.
-void SpeedTestOutput(vtkVoronoiFlower3D* filter, int batchSize, vtkStaticPointLocator* loc,
+void SpeedTestOutput(vtkVoronoiFlower3D* filter, int batchSize, vtkAbstractPointLocator* loc,
   vtkPoints* tPoints, double padding, vtkIdType maxClips, bool validate, double pruneTol,
   const int* regions)
 {
@@ -434,7 +432,7 @@ struct AGOutput : public VOutput
 
   // Driver function to output the adjacency graph. It operates on the classified spokes
   // and outputs interior, forward spokes.
-  static void Execute(vtkVoronoiFlower3D* filter, int batchSize, vtkStaticPointLocator* loc,
+  static void Execute(vtkVoronoiFlower3D* filter, int batchSize, vtkAbstractPointLocator* loc,
     vtkPoints* tPoints, double padding, vtkIdType maxClips, bool validate, double pruneTol,
     vtkPointSet* input, const int* regions, vtkPolyData* output)
   {
@@ -715,7 +713,7 @@ struct DelOutput : public VOutput
   } // operator()
 
   // Driver function to output the Delaunay triangulation.
-  static void Execute(vtkVoronoiFlower3D* filter, int batchSize, vtkStaticPointLocator* loc,
+  static void Execute(vtkVoronoiFlower3D* filter, int batchSize, vtkAbstractPointLocator* loc,
     vtkPoints* tPoints, double padding, vtkIdType maxClips, bool validate, double pruneTol,
     vtkPointSet* input, const int* regions, vtkUnstructuredGrid* output)
   {
@@ -1100,7 +1098,7 @@ struct SurfaceOutput : public PtsOutput
 
   // Driver function for producing output surface primitives.
   static void Execute(int faceType, vtkVoronoiFlower3D* filter, int batchSize,
-    vtkStaticPointLocator* loc, vtkPoints* tPoints, double padding, vtkIdType maxClips,
+    vtkAbstractPointLocator* loc, vtkPoints* tPoints, double padding, vtkIdType maxClips,
     bool validate, double pruneTol, vtkPointSet* input, const int* regions, vtkPolyData* output)
   {
     SurfaceCompositor initializeCompositor(faceType, filter->GetBoundaryCapping());
@@ -1515,7 +1513,7 @@ struct PolyHOutput : public PtsOutput
   } // operator()
 
   // Driver function for polyhedral output.
-  static void Execute(vtkVoronoiFlower3D* filter, int batchSize, vtkStaticPointLocator* loc,
+  static void Execute(vtkVoronoiFlower3D* filter, int batchSize, vtkAbstractPointLocator* loc,
     vtkPoints* tPoints, double padding, vtkIdType maxClips, bool validate, double pruneTol,
     vtkPointSet* input, const int* regions, vtkUnstructuredGrid* output)
   {
@@ -1650,8 +1648,11 @@ vtkVoronoiFlower3D::vtkVoronoiFlower3D()
   this->OutputType = vtkVoronoiFlower3D::BOUNDARY;
   this->Padding = 0.001;
   this->Validate = false;
-  this->Locator = vtkSmartPointer<vtkStaticPointLocator>::New();
-  this->Locator->SetNumberOfPointsPerBucket(2);
+  // Larger leaves than the default of the locator are faster for the shells of
+  // points requested by the Voronoi tessellation.
+  auto locator = vtkSmartPointer<vtkKdTreePointLocator>::New();
+  locator->SetNumberOfPointsPerLeaf(20);
+  this->PointLocator = locator;
   this->PassPointData = true;
   this->GeneratePointScalars = NO_POINT_SCALARS;
   this->GenerateCellScalars = POINT_IDS;
@@ -1732,14 +1733,19 @@ int vtkVoronoiFlower3D::RequestData(vtkInformation* vtkNotUsed(request),
   tInput->SetPoints(tPoints);
 
   // A locator is used to locate closest points.
-  if (!this->Locator)
+  if (!this->PointLocator)
   {
     vtkErrorMacro(<< "Point locator required\n");
     return 0;
   }
-  this->Locator->SetDataSet(tInput);
-  this->Locator->BuildLocator();
-  this->Locator->UseExistingSearchStructureOn();
+  this->PointLocator->SetDataSet(tInput);
+  this->PointLocator->BuildLocator();
+  if (!vtkVoronoiNeighborIterator<3>::IsLocatorSuited(this->PointLocator))
+  {
+    vtkWarningMacro("The point locator is 2D (its points are in a plane of constant z): the "
+                    "points are not culled with the Voronoi flower, which is slower.");
+  }
+  this->PointLocator->UseExistingSearchStructureOn();
 
   // Computational bounds and the padded bounding box
   double length = input->GetLength();
@@ -1808,7 +1814,7 @@ int vtkVoronoiFlower3D::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Prepare to execute Voronoi
   int batchSize = this->BatchSize;
-  vtkStaticPointLocator* loc = this->Locator;
+  vtkAbstractPointLocator* loc = this->PointLocator;
   vtkIdType maxClips = this->MaximumNumberOfHullClips;
   bool validate = this->Validate;
   double pruneTol = this->PruneTolerance;
@@ -1851,8 +1857,8 @@ int vtkVoronoiFlower3D::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Return the locator to a normal processing mode.
-  this->Locator->UseExistingSearchStructureOff();
-  this->Locator->FreeSearchStructure();
+  this->PointLocator->UseExistingSearchStructureOff();
+  this->PointLocator->FreeSearchStructure();
 
   return 1;
 } // RequestData
@@ -1862,13 +1868,13 @@ vtkIdType vtkVoronoiFlower3D::FindHull(double x[3])
 {
   // Make sure the filter has executed (i.e., a locator is available), and the
   // request is within the bounding box of the input points.
-  if (this->Locator == nullptr)
+  if (this->PointLocator == nullptr)
   {
     return (-1);
   }
 
   double bounds[6];
-  this->Locator->GetBounds(bounds);
+  this->PointLocator->GetBounds(bounds);
   if (x[0] < bounds[0] || x[0] > bounds[1] || x[1] < bounds[2] || x[1] > bounds[3] ||
     x[2] < bounds[4] || x[2] > bounds[5])
   {
@@ -1876,7 +1882,7 @@ vtkIdType vtkVoronoiFlower3D::FindHull(double x[3])
   }
 
   // Now simply request the closest point.
-  return this->Locator->FindClosestPoint(x);
+  return this->PointLocator->FindClosestPoint(x);
 }
 
 //------------------------------------------------------------------------------
@@ -1908,8 +1914,14 @@ int vtkVoronoiFlower3D::FillOutputPortInformation(int vtkNotUsed(port), vtkInfor
 vtkMTimeType vtkVoronoiFlower3D::GetMTime()
 {
   vtkMTimeType mTime = this->vtkObject::GetMTime();
-  vtkMTimeType time = this->Locator->GetMTime();
+  vtkMTimeType time = this->PointLocator ? this->PointLocator->GetMTime() : 0;
   return (time > mTime ? time : mTime);
+}
+
+//------------------------------------------------------------------------------
+vtkStaticPointLocator* vtkVoronoiFlower3D::GetLocator()
+{
+  return vtkStaticPointLocator::SafeDownCast(this->PointLocator);
 }
 
 //------------------------------------------------------------------------------
@@ -1920,7 +1932,7 @@ void vtkVoronoiFlower3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Output Type: " << this->OutputType << "\n";
   os << indent << "Padding: " << this->Padding << "\n";
   os << indent << "Validate: " << (this->Validate ? "On\n" : "Off\n");
-  os << indent << "Locator: " << this->Locator << "\n";
+  os << indent << "Locator: " << this->PointLocator << "\n";
   os << indent << "Pass Point Data: " << (this->PassPointData ? "On\n" : "Off\n");
   os << indent << "Generate Cell Scalars: " << this->GenerateCellScalars << "\n";
   os << indent << "Merge Points: " << (this->MergePoints ? "On\n" : "Off\n");

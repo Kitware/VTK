@@ -5,7 +5,6 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 
 # Control problem size and set debugging parameters
 NPts = 1000
-PointsPerBucket = 2
 
 # create some points and display them
 #

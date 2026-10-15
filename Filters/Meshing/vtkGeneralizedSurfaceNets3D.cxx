@@ -11,6 +11,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkKdTreePointLocator.h"
 #include "vtkLabelMapLookup.h"
 #include "vtkLocatorInterface.h"
 #include "vtkMath.h"
@@ -999,9 +1000,9 @@ struct GenerateSurfaceNetWorker
     SNCompositor comp(self->GetBoundaryCapping());
     SNClassifier<TArray> classifier(regionsArray, labels, numLabels);
 
-    auto voro = VCType::Execute(self, self->GetBatchSize(), self->GetLocator(), tPoints, padding,
-      self->GetMaximumNumberOfHullClips(), self->GetValidate(), self->GetPruneTolerance(), &comp,
-      &classifier);
+    auto voro = VCType::Execute(self, self->GetBatchSize(), self->GetPointLocator(), tPoints,
+      padding, self->GetMaximumNumberOfHullClips(), self->GetValidate(), self->GetPruneTolerance(),
+      &comp, &classifier);
     *numThreadsOut = voro->GetNumberOfThreads();
     *numPrunesOut = voro->GetNumberOfPrunes();
 
@@ -1067,8 +1068,11 @@ vtkGeneralizedSurfaceNets3D::vtkGeneralizedSurfaceNets3D()
 
   this->Padding = 0.001;
   this->Validate = false;
-  this->Locator = vtkSmartPointer<vtkStaticPointLocator>::New();
-  this->Locator->SetNumberOfPointsPerBucket(2);
+  // Larger leaves than the default of the locator are faster for the shells of
+  // points requested by the Voronoi tessellation.
+  auto locator = vtkSmartPointer<vtkKdTreePointLocator>::New();
+  locator->SetNumberOfPointsPerLeaf(20);
+  this->PointLocator = locator;
   this->PointOfInterest = (-1);
   // this->PointsOfInterest empty on instantiation
   this->MaximumNumberOfHullClips = VTK_ID_MAX;
@@ -1126,14 +1130,19 @@ int vtkGeneralizedSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request)
   tInput->SetPoints(tPoints);
 
   // A locator is used to locate closest points.
-  if (!this->Locator)
+  if (!this->PointLocator)
   {
     vtkErrorMacro(<< "Point locator required\n");
     return 0;
   }
-  this->Locator->SetDataSet(tInput);
-  this->Locator->BuildLocator();
-  this->Locator->UseExistingSearchStructureOn();
+  this->PointLocator->SetDataSet(tInput);
+  this->PointLocator->BuildLocator();
+  if (!vtkVoronoiNeighborIterator<3>::IsLocatorSuited(this->PointLocator))
+  {
+    vtkWarningMacro("The point locator is 2D (its points are in a plane of constant z): the "
+                    "points are not culled with the Voronoi flower, which is slower.");
+  }
+  this->PointLocator->UseExistingSearchStructureOn();
 
   // Computational bounds and the padded bounding box
   double length = input->GetLength();
@@ -1223,8 +1232,8 @@ int vtkGeneralizedSurfaceNets3D::RequestData(vtkInformation* vtkNotUsed(request)
   }
 
   // Make sure the locator returns to a normal processing mode.
-  this->Locator->UseExistingSearchStructureOff();
-  this->Locator->FreeSearchStructure();
+  this->PointLocator->UseExistingSearchStructureOff();
+  this->PointLocator->FreeSearchStructure();
 
   return 1;
 } // RequestData
@@ -1244,7 +1253,7 @@ vtkMTimeType vtkGeneralizedSurfaceNets3D::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType labelsTime = this->Labels->GetMTime();
-  vtkMTimeType locatorTime = this->Locator->GetMTime();
+  vtkMTimeType locatorTime = this->PointLocator ? this->PointLocator->GetMTime() : 0;
   vtkMTimeType smootherTime = this->Smoother->GetMTime();
 
   mTime = (mTime > labelsTime ? mTime : labelsTime);
@@ -1252,6 +1261,12 @@ vtkMTimeType vtkGeneralizedSurfaceNets3D::GetMTime()
   mTime = (mTime > smootherTime ? mTime : smootherTime);
 
   return mTime;
+}
+
+//------------------------------------------------------------------------------
+vtkStaticPointLocator* vtkGeneralizedSurfaceNets3D::GetLocator()
+{
+  return vtkStaticPointLocator::SafeDownCast(this->PointLocator);
 }
 
 //------------------------------------------------------------------------------
@@ -1273,7 +1288,7 @@ void vtkGeneralizedSurfaceNets3D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Padding: " << this->Padding << "\n";
   os << indent << "Validate: " << (this->Validate ? "On\n" : "Off\n");
-  os << indent << "Locator: " << this->Locator << "\n";
+  os << indent << "Locator: " << this->PointLocator << "\n";
   os << indent << "Point Of Interest: " << this->PointOfInterest << "\n";
   os << indent << "Points Of Interest: " << this->PointsOfInterest << "\n";
   os << indent << "Maximum Number Of Hull Clips: " << this->MaximumNumberOfHullClips << "\n";

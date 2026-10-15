@@ -15,7 +15,7 @@ if len(sys.argv) > 1:
     except ValueError:
         NPts = NPts
 
-PointsPerBucket = 1
+PointsPerLeaf = 1
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -59,7 +59,7 @@ voronoi = vtk.vtkVoronoiFlower3D()
 voronoi.SetInputData(profile)
 voronoi.SetPadding(0.005)
 voronoi.SetGenerateCellScalarsToNone()
-voronoi.GetLocator().SetNumberOfPointsPerBucket(PointsPerBucket)
+voronoi.GetPointLocator().SetNumberOfPointsPerLeaf(PointsPerLeaf)
 voronoi.SetOutputTypeToAdjacencyGraph()
 voronoi.PassPointDataOn()
 

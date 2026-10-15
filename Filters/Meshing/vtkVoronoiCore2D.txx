@@ -13,7 +13,7 @@ VTK_ABI_NAMESPACE_BEGIN
 // Constructor
 template <class TCompositor, class TClassifier>
 vtkVoronoiCore2D<TCompositor, TClassifier>::vtkVoronoiCore2D(vtkAlgorithm* filter,
-  vtkVoronoiBatchManager& batcher, vtkStaticPointLocator2D* loc, vtkPoints* inPts, double padding,
+  vtkVoronoiBatchManager& batcher, vtkAbstractPointLocator* loc, vtkPoints* inPts, double padding,
   vtkIdType maxClips, bool validate, double pruneTol, TCompositor* comp, TClassifier* cl)
   : Batcher(batcher)
   , Filter(filter)
@@ -63,7 +63,7 @@ vtkVoronoiCore2D<TCompositor, TClassifier>::vtkVoronoiCore2D(vtkAlgorithm* filte
 template <class TCompositor, class TClassifier>
 std::unique_ptr<vtkVoronoiCore2D<TCompositor, TClassifier>>
 vtkVoronoiCore2D<TCompositor, TClassifier>::Execute(vtkAlgorithm* filter, unsigned int batchSize,
-  vtkStaticPointLocator2D* loc, vtkPoints* inPts, double padding, vtkIdType maxClips, bool validate,
+  vtkAbstractPointLocator* loc, vtkPoints* inPts, double padding, vtkIdType maxClips, bool validate,
   double pruneTol, TCompositor* comp, TClassifier* cl)
 {
   // Set up batch processing and process the data. This
@@ -112,7 +112,7 @@ void vtkVoronoiCore2D<TCompositor, TClassifier>::operator()(vtkIdType batchId, v
   const vtkVoronoiBatchManager& batcher = this->Batcher;
   vtkDist2TupleArray& d2Tuples = this->Dist2Tuples.Local();
   vtkVoronoi2DLocalData<TCompositor, TClassifier>& localData = this->LocalData.Local();
-  vtkAnnularBinIterator& biter = localData.BIter;
+  vtkVoronoiNeighborIterator<2>& biter = localData.BIter;
   vtkVoronoiTile& tile = localData.Tile;
   TClassifier& classifier = localData.Classifier;
   typename TCompositor::LocalData& compositor = localData.Compositor;
