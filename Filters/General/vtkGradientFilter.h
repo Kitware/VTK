@@ -120,6 +120,16 @@ public:
 
   ///@{
   /**
+   * Get/Set the name of the lambda2 array to create. This is only
+   * used if ComputeLambda2 is non-zero. If nullptr (the
+   * default) then the output array will be named "Lambda2".
+   */
+  vtkGetStringMacro(Lambda2ArrayName);
+  vtkSetStringMacro(Lambda2ArrayName);
+  ///@}
+
+  ///@{
+  /**
    * When this flag is on (default is off), the gradient filter will provide a
    * less accurate (but close) algorithm that performs fewer derivative
    * calculations (and is therefore faster).  The error contains some smoothing
@@ -179,6 +189,20 @@ public:
   vtkSetMacro(ComputeQCriterion, vtkTypeBool);
   vtkGetMacro(ComputeQCriterion, vtkTypeBool);
   vtkBooleanMacro(ComputeQCriterion, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Add the lambda2 vortex criterion of Jeong and Hussain to the output field
+   * data. lambda2 is the intermediate eigenvalue of S^2 + Omega^2, where S and
+   * Omega are the symmetric and antisymmetric parts of the velocity gradient;
+   * vortex regions have lambda2 < 0. The name of the array will be
+   * Lambda2ArrayName and will be the same type as the input array. The input
+   * array must have 3 components in order to compute this. The default is off.
+   */
+  vtkSetMacro(ComputeLambda2, vtkTypeBool);
+  vtkGetMacro(ComputeLambda2, vtkTypeBool);
+  vtkBooleanMacro(ComputeLambda2, vtkTypeBool);
   ///@}
 
   ///@{
@@ -258,6 +282,12 @@ protected:
   char* QCriterionArrayName;
 
   /**
+   * If non-null then it contains the name of the outputted lambda2 array.
+   * By default it is "Lambda2".
+   */
+  char* Lambda2ArrayName = nullptr;
+
+  /**
    * When this flag is on (default is off), the gradient filter will provide a
    * less accurate (but close) algorithm that performs fewer derivative
    * calculations (and is therefore faster).  The error contains some smoothing
@@ -287,6 +317,13 @@ protected:
    * 3 components.  By default ComputeQCriterion is off.
    */
   vtkTypeBool ComputeQCriterion;
+
+  /**
+   * Flag to indicate that the lambda2 criterion of the input vector is to
+   * be computed.  The input array to be processed must have
+   * 3 components.  By default ComputeLambda2 is off.
+   */
+  vtkTypeBool ComputeLambda2 = 0;
 
   /**
    * Flag to indicate that vorticity/curl of the input vector is to

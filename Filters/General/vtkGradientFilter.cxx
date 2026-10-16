@@ -32,6 +32,8 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
+#include <cmath>
 #include <limits>
 #include <vector>
 
@@ -77,6 +79,64 @@ void ComputeQCriterionFromGradient(double* gradients, Q qCriterion)
     (gradients[1] * gradients[3] + gradients[2] * gradients[6] + gradients[5] * gradients[7]);
 }
 
+// Intermediate eigenvalue of a symmetric 3x3 matrix, using the trigonometric
+// solution of the characteristic cubic.
+double MiddleEigenvalueOfSymmetric3x3(const double m[3][3])
+{
+  const double offDiagonal = m[0][1] * m[0][1] + m[0][2] * m[0][2] + m[1][2] * m[1][2];
+  const double mean = (m[0][0] + m[1][1] + m[2][2]) / 3.;
+  if (offDiagonal == 0.)
+  {
+    double d[3] = { m[0][0], m[1][1], m[2][2] };
+    std::sort(d, d + 3);
+    return d[1];
+  }
+
+  const double d0 = m[0][0] - mean;
+  const double d1 = m[1][1] - mean;
+  const double d2 = m[2][2] - mean;
+  const double p = std::sqrt((d0 * d0 + d1 * d1 + d2 * d2 + 2. * offDiagonal) / 6.);
+  const double p3 = p * p * p;
+  if (p3 == 0.)
+  {
+    return mean;
+  }
+
+  const double detShifted = d0 * (d1 * d2 - m[1][2] * m[1][2]) -
+    m[0][1] * (m[0][1] * d2 - m[1][2] * m[0][2]) + m[0][2] * (m[0][1] * m[1][2] - d1 * m[0][2]);
+  const double r = std::max(-1., std::min(1., detShifted / (2. * p3)));
+  const double phi = std::acos(r) / 3.;
+
+  const double largest = mean + 2. * p * std::cos(phi);
+  const double smallest = mean + 2. * p * std::cos(phi + 2. * vtkMath::Pi() / 3.);
+  return 3. * mean - largest - smallest;
+}
+
+// lambda2 of Jeong and Hussain: the intermediate eigenvalue of S^2 + Omega^2,
+// which equals (J^2 + (J^2)^T) / 2 for the velocity gradient J.
+template <typename L>
+void ComputeLambda2FromGradient(double* gradients, L lambda2)
+{
+  double jj[3][3];
+  for (int i = 0; i < 3; ++i)
+  {
+    for (int j = 0; j < 3; ++j)
+    {
+      jj[i][j] = gradients[3 * i] * gradients[j] + gradients[3 * i + 1] * gradients[3 + j] +
+        gradients[3 * i + 2] * gradients[6 + j];
+    }
+  }
+  double m[3][3];
+  for (int i = 0; i < 3; ++i)
+  {
+    for (int j = 0; j < 3; ++j)
+    {
+      m[i][j] = 0.5 * (jj[i][j] + jj[j][i]);
+    }
+  }
+  lambda2[0] = MiddleEigenvalueOfSymmetric3x3(m);
+}
+
 // Helper function to determine parametric coordinate of a point
 int GetCellParametricData(
   vtkIdType pointId, double pointCoord[3], vtkCell* cell, int& subId, double parametricCoord[3]);
@@ -85,7 +145,7 @@ int GetCellParametricData(
 template <class GridT, class DataT>
 void ComputeGradientsSG(GridT* output, int* dims, DataT* array, DataT* gradients,
   int numberOfInputComponents, int fieldAssociation, DataT* vorticity, DataT* qCriterion,
-  DataT* divergence, vtkUnsignedCharArray* ghosts, unsigned char hiddenGhost,
+  DataT* divergence, DataT* lambda2, vtkUnsignedCharArray* ghosts, unsigned char hiddenGhost,
   vtkGradientFilter* filter);
 
 bool vtkGradientFilterHasArray(vtkFieldData* fieldData, vtkDataArray* array)
@@ -177,6 +237,7 @@ vtkGradientFilter::~vtkGradientFilter()
   this->SetDivergenceArrayName(nullptr);
   this->SetVorticityArrayName(nullptr);
   this->SetQCriterionArrayName(nullptr);
+  this->SetLambda2ArrayName(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -193,11 +254,15 @@ void vtkGradientFilter::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   os << indent << "QCriterionArrayName:"
      << (this->QCriterionArrayName ? this->QCriterionArrayName : "Q-criterion") << endl;
+  os << indent
+     << "Lambda2ArrayName:" << (this->Lambda2ArrayName ? this->Lambda2ArrayName : "Lambda2")
+     << endl;
   os << indent << "FasterApproximation:" << this->FasterApproximation << endl;
   os << indent << "ComputeGradient:" << this->ComputeGradient << endl;
   os << indent << "ComputeDivergence:" << this->ComputeDivergence << endl;
   os << indent << "ComputeVorticity:" << this->ComputeVorticity << endl;
   os << indent << "ComputeQCriterion:" << this->ComputeQCriterion << endl;
+  os << indent << "ComputeLambda2:" << this->ComputeLambda2 << endl;
   os << indent << "ContributingCellOption:" << this->ContributingCellOption << endl;
   os << indent << "ReplacementValueOption:" << this->ReplacementValueOption << endl;
 }
@@ -306,12 +371,13 @@ int vtkGradientFilter::RequestData(vtkInformation* vtkNotUsed(request),
   bool computeVorticity = this->ComputeVorticity != 0;
   bool computeDivergence = this->ComputeDivergence != 0;
   bool computeQCriterion = this->ComputeQCriterion != 0;
-  if ((this->ComputeQCriterion || this->ComputeVorticity || this->ComputeDivergence) &&
+  if ((this->ComputeQCriterion || this->ComputeLambda2 || this->ComputeVorticity ||
+        this->ComputeDivergence) &&
     array->GetNumberOfComponents() != 3)
   {
     vtkWarningMacro("Input array must have exactly three components with "
-      << "ComputeDivergence, ComputeVorticity or ComputeQCriterion flag enabled."
-      << "Skipping divergence, vorticity and Q-criterion computation.");
+      << "ComputeDivergence, ComputeVorticity, ComputeQCriterion or ComputeLambda2 flag enabled."
+      << "Skipping divergence, vorticity, Q-criterion and lambda2 computation.");
     computeVorticity = false;
     computeQCriterion = false;
     computeDivergence = false;
@@ -392,6 +458,7 @@ struct GradientsBase
   TData* QCriterion;
   TData* Divergence;
   vtkGradientFilter* Filter;
+  TData* Lambda2 = nullptr;
 
   GradientsBase(
     TData* a, int numComp, TData* g, TData* v, TData* q, TData* d, vtkGradientFilter* filter)
@@ -548,6 +615,11 @@ struct PointGradients : public GradientsBase<TData>
           auto qCriterion = vtk::DataArrayTupleRange(this->QCriterion);
           ComputeQCriterionFromGradient(g.data(), qCriterion[ptId]);
         }
+        if (this->Lambda2)
+        {
+          auto lambda2 = vtk::DataArrayTupleRange(this->Lambda2);
+          ComputeLambda2FromGradient(g.data(), lambda2[ptId]);
+        }
         if (this->Divergence)
         {
           auto divergence = vtk::DataArrayTupleRange(this->Divergence);
@@ -575,13 +647,14 @@ struct PointGradientsWorker
   template <typename DataT>
   void operator()(DataT* array, vtkDataSet* input, vtkStaticCellLinks* links,
     vtkDataArray* gradients, vtkDataArray* vorticity, vtkDataArray* qCriterion,
-    vtkDataArray* divergence, int cellOption, vtkGradientFilter* filter)
+    vtkDataArray* divergence, vtkDataArray* lambda2, int cellOption, vtkGradientFilter* filter)
   {
     vtkIdType numPts = input->GetNumberOfPoints();
     int numComp = array->GetNumberOfComponents();
 
     PointGradients<DataT> pg(input, links, array, numComp, (DataT*)gradients, (DataT*)vorticity,
       (DataT*)qCriterion, (DataT*)divergence, cellOption, filter);
+    pg.Lambda2 = (DataT*)lambda2;
 
     vtkSMPTools::For(0, numPts, pg);
   }
@@ -668,6 +741,11 @@ struct CellGradients : public GradientsBase<TData>
         auto qCriterion = vtk::DataArrayTupleRange(this->QCriterion);
         ComputeQCriterionFromGradient(cellGrad.data(), qCriterion[cellId]);
       }
+      if (this->Lambda2)
+      {
+        auto lambda2 = vtk::DataArrayTupleRange(this->Lambda2);
+        ComputeLambda2FromGradient(cellGrad.data(), lambda2[cellId]);
+      }
       if (this->Divergence)
       {
         auto divergence = vtk::DataArrayTupleRange(this->Divergence);
@@ -683,13 +761,15 @@ struct CellGradientsWorker
 {
   template <typename DataT>
   void operator()(DataT* array, vtkDataSet* input, vtkDataArray* gradients, vtkDataArray* vorticity,
-    vtkDataArray* qCriterion, vtkDataArray* divergence, vtkGradientFilter* filter)
+    vtkDataArray* qCriterion, vtkDataArray* divergence, vtkDataArray* lambda2,
+    vtkGradientFilter* filter)
   {
     vtkIdType numCells = input->GetNumberOfCells();
     int numComp = array->GetNumberOfComponents();
 
     CellGradients<DataT> cg(input, array, numComp, (DataT*)gradients, (DataT*)vorticity,
       (DataT*)qCriterion, (DataT*)divergence, filter);
+    cg.Lambda2 = (DataT*)lambda2;
 
     vtkSMPTools::For(0, numCells, cg);
   }
@@ -702,25 +782,28 @@ struct StructuredGradientsWorker
   template <class DataT>
   void operator()(DataT* array, vtkDataSet* output, int* dims, vtkDataArray* gradients,
     vtkDataArray* vorticity, vtkDataArray* qCriterion, vtkDataArray* divergence,
-    int fieldAssociation, vtkUnsignedCharArray* ghosts, unsigned char hiddenGhost,
-    vtkGradientFilter* filter)
+    vtkDataArray* lambda2, int fieldAssociation, vtkUnsignedCharArray* ghosts,
+    unsigned char hiddenGhost, vtkGradientFilter* filter)
   {
     int numComp = array->GetNumberOfComponents();
 
     if (vtkStructuredGrid* sGrid = vtkStructuredGrid::SafeDownCast(output))
     {
       ComputeGradientsSG(sGrid, dims, array, (DataT*)gradients, numComp, fieldAssociation,
-        (DataT*)vorticity, (DataT*)qCriterion, (DataT*)divergence, ghosts, hiddenGhost, filter);
+        (DataT*)vorticity, (DataT*)qCriterion, (DataT*)divergence, (DataT*)lambda2, ghosts,
+        hiddenGhost, filter);
     }
     else if (vtkImageData* image = vtkImageData::SafeDownCast(output))
     {
       ComputeGradientsSG(image, dims, array, (DataT*)gradients, numComp, fieldAssociation,
-        (DataT*)vorticity, (DataT*)qCriterion, (DataT*)divergence, ghosts, hiddenGhost, filter);
+        (DataT*)vorticity, (DataT*)qCriterion, (DataT*)divergence, (DataT*)lambda2, ghosts,
+        hiddenGhost, filter);
     }
     else if (vtkRectilinearGrid* rgrid = vtkRectilinearGrid::SafeDownCast(output))
     {
       ComputeGradientsSG(rgrid, dims, array, (DataT*)gradients, numComp, fieldAssociation,
-        (DataT*)vorticity, (DataT*)qCriterion, (DataT*)divergence, ghosts, hiddenGhost, filter);
+        (DataT*)vorticity, (DataT*)qCriterion, (DataT*)divergence, (DataT*)lambda2, ghosts,
+        hiddenGhost, filter);
     }
   }
 };
@@ -813,6 +896,18 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
       qCriterion->SetName("Q-criterion");
     }
   }
+  vtkSmartPointer<vtkDataArray> lambda2;
+  if (this->ComputeLambda2 && numberOfInputComponents == 3)
+  {
+    lambda2.TakeReference(vtkDataArray::CreateDataArray(arrayType));
+    lambda2->SetNumberOfTuples(array->GetNumberOfTuples());
+    switch (arrayType)
+    {
+      vtkFloatingPointTemplateMacro(
+        Fill(lambda2, static_cast<VTK_TT>(0), this->ReplacementValueOption));
+    }
+    lambda2->SetName(this->Lambda2ArrayName ? this->Lambda2ArrayName : "Lambda2");
+  }
 
   if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
@@ -833,9 +928,9 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
       using PointGradientsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
       PointGradientsWorker pgWorker;
       if (!PointGradientsDispatch::Execute(array, pgWorker, input, cellLinks, gradients, vorticity,
-            qCriterion, divergence, this->ContributingCellOption, this))
+            qCriterion, divergence, lambda2, this->ContributingCellOption, this))
       {
-        pgWorker(array, input, cellLinks, gradients, vorticity, qCriterion, divergence,
+        pgWorker(array, input, cellLinks, gradients, vorticity, qCriterion, divergence, lambda2,
           this->ContributingCellOption, this);
       }
 
@@ -854,6 +949,10 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
       if (qCriterion)
       {
         output->GetPointData()->AddArray(qCriterion);
+      }
+      if (lambda2)
+      {
+        output->GetPointData()->AddArray(lambda2);
       }
     }
     else // this->FasterApproximation
@@ -891,14 +990,22 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
         cellQCriterion->SetName(qCriterion->GetName());
         cellQCriterion->SetNumberOfTuples(input->GetNumberOfCells());
       }
+      vtkSmartPointer<vtkDataArray> cellLambda2 = nullptr;
+      if (lambda2)
+      {
+        cellLambda2.TakeReference(vtkDataArray::CreateDataArray(arrayType));
+        cellLambda2->SetName(lambda2->GetName());
+        cellLambda2->SetNumberOfTuples(input->GetNumberOfCells());
+      }
 
       // Compute the gradients and any derived information
       using CellGradientsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
       CellGradientsWorker cgWorker;
       if (!CellGradientsDispatch::Execute(array, cgWorker, output, cellGradients, cellVorticity,
-            cellQCriterion, cellDivergence, this))
+            cellQCriterion, cellDivergence, cellLambda2, this))
       {
-        cgWorker(array, input, cellGradients, cellVorticity, cellQCriterion, cellDivergence, this);
+        cgWorker(array, input, cellGradients, cellVorticity, cellQCriterion, cellDivergence,
+          cellLambda2, this);
       }
 
       // We need to convert cell array to points array.
@@ -921,6 +1028,10 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
       {
         dummy->GetCellData()->AddArray(cellQCriterion);
       }
+      if (lambda2)
+      {
+        dummy->GetCellData()->AddArray(cellLambda2);
+      }
 
       vtkNew<vtkCellDataToPointData> cd2pd;
       cd2pd->SetInputData(dummy);
@@ -939,6 +1050,11 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
       {
         output->GetPointData()->AddArray(
           cd2pd->GetOutput()->GetPointData()->GetArray(qCriterion->GetName()));
+      }
+      if (lambda2)
+      {
+        output->GetPointData()->AddArray(
+          cd2pd->GetOutput()->GetPointData()->GetArray(lambda2->GetName()));
       }
       if (divergence)
       {
@@ -972,10 +1088,10 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
     // Compute the cell gradients
     using CellGradientsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
     CellGradientsWorker cgWorker;
-    if (!CellGradientsDispatch::Execute(
-          pointScalars, cgWorker, input, gradients, vorticity, qCriterion, divergence, this))
+    if (!CellGradientsDispatch::Execute(pointScalars, cgWorker, input, gradients, vorticity,
+          qCriterion, divergence, lambda2, this))
     {
-      cgWorker(pointScalars, input, gradients, vorticity, qCriterion, divergence, this);
+      cgWorker(pointScalars, input, gradients, vorticity, qCriterion, divergence, lambda2, this);
     }
 
     if (gradients)
@@ -993,6 +1109,10 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
     if (qCriterion)
     {
       output->GetCellData()->AddArray(qCriterion);
+    }
+    if (lambda2)
+    {
+      output->GetCellData()->AddArray(lambda2);
     }
     pointScalars->UnRegister(this);
   }
@@ -1065,16 +1185,23 @@ int vtkGradientFilter::ComputeRegularGridGradient(vtkDataArray* array, int* dims
       qCriterion->SetName("Q-criterion");
     }
   }
+  vtkSmartPointer<vtkDataArray> lambda2;
+  if (this->ComputeLambda2 && numberOfInputComponents == 3)
+  {
+    lambda2.TakeReference(vtkDataArray::CreateDataArray(arrayType));
+    lambda2->SetNumberOfTuples(array->GetNumberOfTuples());
+    lambda2->SetName(this->Lambda2ArrayName ? this->Lambda2ArrayName : "Lambda2");
+  }
 
   // Dispatch by gradient array type
   using StructuredGradientsDispatch =
     vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
   StructuredGradientsWorker sgWorker;
   if (!StructuredGradientsDispatch::Execute(array, sgWorker, output, dims, gradients, vorticity,
-        qCriterion, divergence, fieldAssociation, ghosts, hiddenGhost, this))
+        qCriterion, divergence, lambda2, fieldAssociation, ghosts, hiddenGhost, this))
   {
-    sgWorker(array, output, dims, gradients, vorticity, qCriterion, divergence, fieldAssociation,
-      ghosts, hiddenGhost, this);
+    sgWorker(array, output, dims, gradients, vorticity, qCriterion, divergence, lambda2,
+      fieldAssociation, ghosts, hiddenGhost, this);
   }
 
   if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
@@ -1090,6 +1217,10 @@ int vtkGradientFilter::ComputeRegularGridGradient(vtkDataArray* array, int* dims
     if (qCriterion)
     {
       output->GetPointData()->AddArray(qCriterion);
+    }
+    if (lambda2)
+    {
+      output->GetPointData()->AddArray(lambda2);
     }
     if (divergence)
     {
@@ -1109,6 +1240,10 @@ int vtkGradientFilter::ComputeRegularGridGradient(vtkDataArray* array, int* dims
     if (qCriterion)
     {
       output->GetCellData()->AddArray(qCriterion);
+    }
+    if (lambda2)
+    {
+      output->GetCellData()->AddArray(lambda2);
     }
     if (divergence)
     {
@@ -1535,6 +1670,11 @@ struct ComputeStructuredSlice : public GradientsBase<DataT>
             auto qCrit = vtk::DataArrayTupleRange(this->QCriterion);
             ComputeQCriterionFromGradient(localGradients.data(), qCrit[idx]);
           }
+          if (this->Lambda2)
+          {
+            auto lambda2 = vtk::DataArrayTupleRange(this->Lambda2);
+            ComputeLambda2FromGradient(localGradients.data(), lambda2[idx]);
+          }
           if (this->Divergence)
           {
             auto div = vtk::DataArrayTupleRange(this->Divergence);
@@ -1552,11 +1692,12 @@ struct ComputeStructuredSlice : public GradientsBase<DataT>
 // Process structured dataset types. Thread slice-by-slice.
 template <class GridT, class DataT>
 void ComputeGradientsSG(GridT* output, int* dims, DataT* array, DataT* gradients, int numComp,
-  int fieldAssociation, DataT* vorticity, DataT* qCriterion, DataT* divergence,
+  int fieldAssociation, DataT* vorticity, DataT* qCriterion, DataT* divergence, DataT* lambda2,
   vtkUnsignedCharArray* ghosts, unsigned char hiddenGhost, vtkGradientFilter* filter)
 {
   ComputeStructuredSlice<GridT, DataT> structuredSliceWorker(output, dims, array, gradients,
     numComp, fieldAssociation, vorticity, qCriterion, divergence, ghosts, hiddenGhost, filter);
+  structuredSliceWorker.Lambda2 = lambda2;
 
   vtkSMPTools::For(0, dims[2], structuredSliceWorker);
 }
