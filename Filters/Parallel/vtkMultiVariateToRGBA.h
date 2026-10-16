@@ -397,13 +397,16 @@ private:
   bool InLensModified = false;
   vtkTimeStamp NonLensModifiedTime;
   vtkSmartPointer<vtkDoubleArray> CachedGBC;
-  vtkSmartPointer<vtkDoubleArray> CachedRGBA; // before the lens
+  // before the lens; CachedRGB is null for StoreA
+  vtkSmartPointer<vtkDoubleArray> CachedRGB;
+  vtkSmartPointer<vtkDoubleArray> CachedAlpha;
   vtkSmartPointer<vtkDoubleArray> CachedVertices;
   vtkWeakPointer<vtkDataObject> CachedInput;
   vtkTimeStamp CacheTime;
   ///@}
   /**
-   * Returns a new 'rgba' array: CachedRGBA with the lens applied.
+   * Returns a new 'rgba' array: CachedRGB (or 0 for StoreA) and
+   * CachedAlpha with the lens applied.
    */
   vtkSmartPointer<vtkDataArray> ApplyLens();
 };

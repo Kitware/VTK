@@ -148,17 +148,24 @@ int TestMultiVariateToRGBALens(int, char*[])
   CHECK(GetArray(cached, "rgba")->GetDataType() == VTK_FLOAT);
   CHECK(Equal(GetArray(cached, "rgba"), GetArray(full, "rgba"), 1e-6));
 
-  // StoreA: RGB is 0 and alpha is the same as with StoreRGBA
+  // StoreA: RGB is 0 and alpha is the same as with StoreRGBA, after a full
+  // execution and after a lens-only change
   cached->SetStoreRGBA(false);
   cached->SetStoreA(true);
   cached->SetOutputScalarType(VTK_DOUBLE);
-  SetLens(cached, full, 0.2, 0.2, 0.5);
-  vtkDataArray* a = GetArray(cached, "rgba");
-  vtkDataArray* rgba = GetArray(full, "rgba");
-  for (vtkIdType i = 0; i < a->GetNumberOfTuples(); ++i)
+  for (bool lensOnly : { false, true })
   {
-    CHECK(a->GetComponent(i, 0) == 0 && a->GetComponent(i, 1) == 0 && a->GetComponent(i, 2) == 0);
-    CHECK(a->GetComponent(i, 3) == rgba->GetComponent(i, 3));
+    gbc = GetArray(cached, "gbc");
+    SetLens(cached, full, lensOnly ? -0.1 : 0.2, 0.2, 0.5);
+    // reused from the cache
+    CHECK(!lensOnly || GetArray(cached, "gbc") == gbc);
+    vtkDataArray* a = GetArray(cached, "rgba");
+    vtkDataArray* rgba = GetArray(full, "rgba");
+    for (vtkIdType i = 0; i < a->GetNumberOfTuples(); ++i)
+    {
+      CHECK(a->GetComponent(i, 0) == 0 && a->GetComponent(i, 1) == 0 && a->GetComponent(i, 2) == 0);
+      CHECK(a->GetComponent(i, 3) == rgba->GetComponent(i, 3));
+    }
   }
 
   // values outside a custom range are clamped: alpha stays in [0, 1]

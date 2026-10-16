@@ -380,10 +380,10 @@ void hslToRgb(double h, double s, double l, double* rgb)
 
 struct HSLToRGBWorker
 {
-  void operator()(vtkDoubleArray* hslScalars, vtkDoubleArray* rgbaScalars)
+  void operator()(vtkDoubleArray* hslScalars, vtkDoubleArray* rgbScalars)
   {
     auto hsl = vtk::DataArrayTupleRange(hslScalars);
-    auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
+    auto rgb = vtk::DataArrayTupleRange<3>(rgbScalars);
 
     vtkIdType nTuples = hsl.size();
     vtkSMPTools::For(0, nTuples,
@@ -391,11 +391,11 @@ struct HSLToRGBWorker
       {
         for (vtkIdType i = begin; i < end; ++i)
         {
-          double rgb[3];
-          hslToRgb(hsl[i][0], hsl[i][1], hsl[i][2], rgb);
-          rgba[i][0] = rgb[0];
-          rgba[i][1] = rgb[1];
-          rgba[i][2] = rgb[2];
+          double color[3];
+          hslToRgb(hsl[i][0], hsl[i][1], hsl[i][2], color);
+          rgb[i][0] = color[0];
+          rgb[i][1] = color[1];
+          rgb[i][2] = color[2];
         }
       });
   }
@@ -408,10 +408,10 @@ struct HSLToRGBWorker
 struct ComputeAlphaWorker
 {
   ComputeAlphaWorker() = default;
-  void operator()(vtkDoubleArray* normalizedScalars, vtkDoubleArray* rgbaScalars)
+  void operator()(vtkDoubleArray* normalizedScalars, vtkDoubleArray* alphaScalars)
   {
     auto normalized = vtk::DataArrayTupleRange(normalizedScalars);
-    auto rgba = vtk::DataArrayTupleRange(rgbaScalars);
+    auto alpha = vtk::DataArrayValueRange<1>(alphaScalars);
 
     vtkIdType nComponents = normalized.GetTupleSize();
 
@@ -429,25 +429,27 @@ struct ComputeAlphaWorker
           mean /= nComponents;
 
           // Make nonzero voxels have an alpha of the mean of the channels.
-          rgba[i][3] = mean;
+          alpha[i] = mean;
         }
       });
   }
 };
 
 /**
- * Copies the RGBA computed before the lens into 'output' (RGB is set to 0
- * if CopyRGB is false), capping the alpha of the points outside the lens
- * (inside if InvertLens is true).
+ * Copies the RGB and alpha computed before the lens into 'output' (RGB is
+ * set to 0 if 'rgbArray' is null), capping the alpha of the points outside
+ * the lens (inside if InvertLens is true).
  */
 struct ApplyLensWorker
 {
   template <typename OutputArray>
-  void operator()(OutputArray* outputArray, vtkDoubleArray* rgbaArray, vtkDoubleArray* gbcArray)
+  void operator()(OutputArray* outputArray, vtkDoubleArray* rgbArray, vtkDoubleArray* alphaArray,
+    vtkDoubleArray* gbcArray)
   {
     using ValueType = vtk::GetAPIType<OutputArray>;
     auto output = vtk::DataArrayTupleRange<4>(outputArray);
-    auto rgba = vtk::DataArrayTupleRange<4>(rgbaArray);
+    const double* rgb = rgbArray ? rgbArray->GetPointer(0) : nullptr;
+    auto alphaRange = vtk::DataArrayValueRange<1>(alphaArray);
     auto gbc = vtk::DataArrayTupleRange<2>(gbcArray);
     vtkSMPTools::For(0, gbc.size(),
       [&](vtkIdType begin, vtkIdType end)
@@ -456,9 +458,9 @@ struct ApplyLensWorker
         {
           for (int c = 0; c < 3; ++c)
           {
-            output[i][c] = this->CopyRGB ? static_cast<ValueType>(rgba[i][c]) : 0;
+            output[i][c] = rgb ? static_cast<ValueType>(rgb[3 * i + c]) : 0;
           }
-          double alpha = rgba[i][3];
+          double alpha = alphaRange[i];
           double distance = std::sqrt(std::pow(gbc[i][0] - this->LensCenter[0], 2) +
             std::pow(gbc[i][1] - this->LensCenter[1], 2));
           if ((distance > this->LensRadius) != this->InvertLens)
@@ -473,7 +475,6 @@ struct ApplyLensWorker
   double LensRadius;
   double OutsideLensAlpha;
   bool InvertLens;
-  bool CopyRGB;
 };
 
 /**
@@ -1066,7 +1067,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
   // Only the lens changed since the last execution: reuse its results.
-  int useCache = (this->StoreRGBA || this->StoreA) && this->CachedRGBA &&
+  int useCache = (this->StoreRGBA || this->StoreA) && this->CachedAlpha &&
     this->CachedInput == inData && this->NonLensModifiedTime < this->CacheTime &&
     inData->GetMTime() < this->CacheTime.GetMTime();
   if (parallel)
@@ -1177,10 +1178,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   }
   if (this->StoreRGBA || this->StoreA)
   {
-    vtkNew<vtkDoubleArray> rgbaScalars;
-    rgbaScalars->SetName("rgba");
-    rgbaScalars->SetNumberOfComponents(4);
-    rgbaScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
+    vtkSmartPointer<vtkDoubleArray> rgbScalars;
     if (this->StoreRGBA)
     {
       vtkNew<vtkDoubleArray> hslScalars;
@@ -1191,16 +1189,22 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
         GBCToHSLWorker worker(vtkMultiVariateToRGBA::ColorLightness);
         worker(gbcScalars.GetPointer(), hslScalars.GetPointer());
       }
+      rgbScalars = vtkSmartPointer<vtkDoubleArray>::New();
+      rgbScalars->SetNumberOfComponents(3);
+      rgbScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
       HSLToRGBWorker worker;
-      worker(hslScalars.GetPointer(), rgbaScalars.GetPointer());
+      worker(hslScalars.GetPointer(), rgbScalars);
     }
-    // StoreA: only the alpha component is computed, ApplyLens sets RGB to 0.
+    // StoreA: only alpha is computed, ApplyLens sets RGB to 0.
+    vtkNew<vtkDoubleArray> alphaScalars;
+    alphaScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
     {
       ComputeAlphaWorker worker;
-      worker(normalizedScalars.GetPointer(), rgbaScalars.GetPointer());
+      worker(normalizedScalars.GetPointer(), alphaScalars.GetPointer());
     }
     this->CachedGBC = gbcScalars.GetPointer();
-    this->CachedRGBA = rgbaScalars.GetPointer();
+    this->CachedRGB = rgbScalars;
+    this->CachedAlpha = alphaScalars.GetPointer();
     this->CachedInput = inData;
     this->CacheTime.Modified();
     attributes->AddArray(this->ApplyLens());
@@ -1214,14 +1218,14 @@ vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::ApplyLens()
   auto rgba = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(this->OutputScalarType));
   rgba->SetName("rgba");
   rgba->SetNumberOfComponents(4);
-  rgba->SetNumberOfTuples(this->CachedRGBA->GetNumberOfTuples());
+  rgba->SetNumberOfTuples(this->CachedAlpha->GetNumberOfTuples());
   // clamped here, not by the setters, so the order of the setters does not matter
   std::array<double, 2> center = vtkMultiVariateToRGBA::GetLensCenter(
     this->LensRadius, 1, this->LensCenter, std::array<double, 2>{ 0, 0 }.data());
   ApplyLensWorker worker{ { center[0], center[1] }, this->LensRadius, this->OutsideLensAlpha,
-    this->InvertLens, this->StoreRGBA };
-  vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
-    rgba.GetPointer(), worker, this->CachedRGBA.GetPointer(), this->CachedGBC.GetPointer());
+    this->InvertLens };
+  vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(rgba.GetPointer(), worker,
+    this->CachedRGB.GetPointer(), this->CachedAlpha.GetPointer(), this->CachedGBC.GetPointer());
   return rgba;
 }
 
