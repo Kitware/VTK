@@ -12,3 +12,6 @@ SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
+TEST_DEPENDS
+  VTK::TestingCore
+  VTK::TestingRendering
