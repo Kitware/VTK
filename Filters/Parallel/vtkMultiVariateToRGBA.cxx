@@ -34,6 +34,7 @@
 #include <cmath>
 #include <numeric>
 #include <set>
+#include <tuple>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMultiVariateToRGBA);
@@ -1019,13 +1020,20 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataObject* outData = outInfo->Get(vtkDataObject::DATA_OBJECT());
   outData->ShallowCopy(inData);
   bool parallel = this->Controller && this->Controller->GetNumberOfProcesses() > 1;
-  // an empty piece may have no arrays: its scalars come from the other processes
   bool emptyPiece = parallel && IsEmptyPiece(outData);
-  auto [attributes, scalars] = emptyPiece
-    ? std::make_pair(GetEmptyPieceAttributes(outData,
-                       this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_ASSOCIATION())),
-        vtkSmartPointer<vtkDataArray>())
-    : getAttributesAndScalars(outData, inputVector);
+  vtkDataSetAttributes* attributes = nullptr;
+  vtkSmartPointer<vtkDataArray> scalars;
+  if (emptyPiece)
+  {
+    attributes = GetEmptyPieceAttributes(
+      outData, this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_ASSOCIATION()));
+  }
+  // an empty piece uses its own scalars if it has arrays, so all pieces can be
+  // empty; without arrays (a serial reader) its scalars come from the others
+  if (!emptyPiece || attributes->GetNumberOfArrays() > 0)
+  {
+    std::tie(attributes, scalars) = getAttributesAndScalars(outData, inputVector);
+  }
   if (parallel)
   {
     // all processes return together, or all take part in the collectives below

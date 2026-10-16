@@ -3,8 +3,9 @@
 /**
  * Check that vtkMultiVariateToRGBA does not hang when only some processes
  * have data, as with a serial reader: the other processes get an empty
- * table or dataset without arrays. Also check that a process missing the
- * array, while not empty, makes all processes fail instead of hanging.
+ * table or dataset without arrays. Also check that all pieces can be empty,
+ * and that a process missing the array, while not empty, makes all processes
+ * fail instead of hanging.
  */
 
 #include <vtkCommand.h>
@@ -141,6 +142,27 @@ bool TestEmptyPieces(vtkMultiProcessController* controller, vtkDataObject* data)
 }
 
 /**
+ * All pieces are empty but have the array, as after a threshold that removes
+ * everything: every process gets an empty output, as in a serial run.
+ */
+bool TestAllEmpty(vtkMultiProcessController* controller)
+{
+  int rank = controller->GetLocalProcessId();
+  vtkNew<vtkDoubleArray> values;
+  values->SetName("values");
+  values->SetNumberOfComponents(NumberOfComponents);
+  vtkNew<vtkImageData> image;
+  image->GetPointData()->SetScalars(values);
+  vtkNew<vtkMultiVariateToRGBA> filter;
+  filter->SetController(controller);
+  filter->SetInputData(image);
+  filter->Update();
+  vtkDataArray* rgba = GetRGBA(filter);
+  CHECK(rgba && rgba->GetNumberOfTuples() == 0);
+  return true;
+}
+
+/**
  * A process that has data but not the array fails, so all processes fail.
  */
 bool TestMissingArray(vtkMultiProcessController* controller)
@@ -173,6 +195,7 @@ int TestMultiVariateToRGBAEmptyPiece(int argc, char* argv[])
   // every test runs on all processes, so a failure does not leave the others waiting
   bool success = TestEmptyPieces(controller, MakeTable(empty));
   success = TestEmptyPieces(controller, MakeImage(empty)) && success;
+  success = TestAllEmpty(controller) && success;
   success = TestMissingArray(controller) && success;
   int localSuccess = success;
   int globalSuccess = 0;
