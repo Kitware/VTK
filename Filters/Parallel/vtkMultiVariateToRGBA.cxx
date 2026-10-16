@@ -571,6 +571,35 @@ vtkSmartPointer<vtkDataArray> createFilteredSOAArray(
   }
   return result;
 }
+
+/**
+ * Returns true for a table without rows or a dataset without points and
+ * cells, such as the pieces of a serial reader on all processes but one.
+ */
+bool IsEmptyPiece(vtkDataObject* data)
+{
+  if (vtkTable* table = vtkTable::SafeDownCast(data))
+  {
+    return table->GetNumberOfRows() == 0;
+  }
+  vtkDataSet* dataset = vtkDataSet::SafeDownCast(data);
+  return dataset && dataset->GetNumberOfPoints() == 0 && dataset->GetNumberOfCells() == 0;
+}
+
+/**
+ * Returns the attributes that receive the output arrays of an empty piece.
+ */
+vtkDataSetAttributes* GetEmptyPieceAttributes(vtkDataObject* data, int association)
+{
+  if (vtkTable* table = vtkTable::SafeDownCast(data))
+  {
+    return table->GetRowData();
+  }
+  vtkDataSet* dataset = vtkDataSet::SafeDownCast(data);
+  return association == vtkDataObject::FIELD_ASSOCIATION_CELLS
+    ? static_cast<vtkDataSetAttributes*>(dataset->GetCellData())
+    : static_cast<vtkDataSetAttributes*>(dataset->GetPointData());
+}
 }
 
 //------------------------------------------------------------------------------
@@ -988,8 +1017,51 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataObject* inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* outData = outInfo->Get(vtkDataObject::DATA_OBJECT());
   outData->ShallowCopy(inData);
-  auto [attributes, scalars] = getAttributesAndScalars(outData, inputVector);
-  if (!scalars)
+  bool parallel = this->Controller && this->Controller->GetNumberOfProcesses() > 1;
+  // an empty piece may have no arrays: its scalars come from the other processes
+  bool emptyPiece = parallel && IsEmptyPiece(outData);
+  auto [attributes, scalars] = emptyPiece
+    ? std::make_pair(GetEmptyPieceAttributes(outData,
+                       this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_ASSOCIATION())),
+        vtkSmartPointer<vtkDataArray>())
+    : getAttributesAndScalars(outData, inputVector);
+  if (parallel)
+  {
+    // all processes return together, or all take part in the collectives below
+    int numComponents = scalars ? scalars->GetNumberOfComponents() : 0;
+    int canContinue = scalars || emptyPiece;
+    // empty pieces send the identity of each reduction
+    int minComponents = scalars ? numComponents : VTK_INT_MAX;
+    // one MIN reduction for both: for 0/1 flags, MIN is a logical AND
+    int localMin[2] = { canContinue, minComponents };
+    int globalMin[2];
+    this->Controller->AllReduce(localMin, globalMin, 2, vtkCommunicator::MIN_OP);
+    canContinue = globalMin[0];
+    minComponents = globalMin[1];
+    int maxComponents;
+    this->Controller->AllReduce(&numComponents, &maxComponents, 1, vtkCommunicator::MAX_OP);
+    if (!canContinue)
+    {
+      return 0;
+    }
+    if (maxComponents == 0)
+    {
+      vtkErrorMacro("No scalar data to process on any process");
+      return 0;
+    }
+    if (minComponents != maxComponents)
+    {
+      vtkErrorMacro("Processes have scalars with different numbers of components: "
+        << minComponents << " and " << maxComponents);
+      return 0;
+    }
+    if (!scalars)
+    {
+      scalars = vtkSmartPointer<vtkDoubleArray>::New();
+      scalars->SetNumberOfComponents(maxComponents);
+    }
+  }
+  else if (!scalars)
   {
     return 0;
   }
@@ -997,7 +1069,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   int useCache = (this->StoreRGBA || this->StoreA) && this->CachedRGBA &&
     this->CachedInput == inData && this->NonLensModifiedTime < this->CacheTime &&
     inData->GetMTime() < this->CacheTime.GetMTime();
-  if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
+  if (parallel)
   {
     // every process must take the same path: the full one has collectives
     int localUseCache = useCache;
