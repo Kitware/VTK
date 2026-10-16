@@ -111,14 +111,15 @@ bool computeVortexCriteria(const double s[9], const double omega[9], double vort
       const double& omega_ij = omega[3 * i + j];
       S(i, j) = s_ij;
       Omega(i, j) = omega_ij;
-      J(i, j) = (s_ij + omega_ij) / 2.;
+      J(i, j) = s_ij + omega_ij;
     }
   }
 
   // The Q-criterion is defined as
   // Q = \frac{1}{2} \left[ | \Omega |^2 - | S |^2 \right] > 0
+  // where | \cdot | is the Frobenius norm.
   double& Q = vortexCriteria[0];
-  Q = (Omega.operatorNorm() - S.operatorNorm()) / 2.;
+  Q = (Omega.squaredNorm() - S.squaredNorm()) / 2.;
   if (Q <= 0.)
   {
     return false;

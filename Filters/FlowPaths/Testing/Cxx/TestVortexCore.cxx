@@ -18,8 +18,11 @@
 #include "vtkXMLUnstructuredGridReader.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include <iostream>
+#include <vector>
 
 namespace
 {
@@ -237,6 +240,98 @@ void constructFloatVelocityProfile(vtkUnstructuredGrid* unstructuredGrid)
   unstructuredGrid->GetPointData()->AddArray(velocityArray);
   unstructuredGrid->GetPointData()->SetActiveVectors("velocity");
 }
+
+// A linear vortex with axial stretching, the core of a Burgers vortex:
+// u = (-s y' - a x' / 2, s x' - a y' / 2, a z) about the axis (x0, y0). The
+// gradient is exact on any grid, and the vortex core is the axis, placed away
+// from grid lines and cell diagonals.
+constexpr double StretchedSwirl = 2.;
+constexpr double StretchedStrain = 1.;
+
+void constructStretchedVortex(vtkUnstructuredGrid* unstructuredGrid)
+{
+  constexpr double x0 = 0.137, y0 = -0.071;
+  constexpr double s = StretchedSwirl, a = StretchedStrain;
+  vtkPoints* pointArray = unstructuredGrid->GetPoints();
+  vtkNew<vtkDoubleArray> velocityArray;
+  velocityArray->SetName("velocity");
+  velocityArray->SetNumberOfComponents(3);
+  velocityArray->SetNumberOfTuples(pointArray->GetNumberOfPoints());
+  for (vtkIdType i = 0; i < pointArray->GetNumberOfPoints(); ++i)
+  {
+    const double* p = pointArray->GetPoint(i);
+    const double x = p[0] - x0, y = p[1] - y0;
+    velocityArray->SetTuple3(i, -s * y - 0.5 * a * x, s * x - 0.5 * a * y, a * p[2]);
+  }
+  unstructuredGrid->GetPointData()->AddArray(velocityArray);
+  unstructuredGrid->GetPointData()->SetActiveVectors("velocity");
+}
+
+struct Expected
+{
+  const char* Name;
+  double Value;
+};
+
+// For constructVelocityProfile, J = [[0, -s, a], [s, 0, b], [0, 0, 0]] with a
+// and b depending only on z and s = 0.5. Its eigenvalues are 0 and +/- i s, the
+// a and b terms cancel in Q and lambda_2, and det J = 0:
+// Q = s^2, delta = (Q / 3)^3, lambda_ci = s, lambda_2 = -s^2.
+std::vector<Expected> SwirlCriteria()
+{
+  constexpr double s = 0.5;
+  const double q = s * s;
+  return { { "q-criterion", q }, { "delta-criterion", std::pow(q / 3., 3.) },
+    { "lambda_ci-criterion", s }, { "lambda_2-criterion", -s * s } };
+}
+
+// For constructStretchedVortex, J = [[-a/2, -s, 0], [s, -a/2, 0], [0, 0, a]]:
+// S = diag(-a/2, -a/2, a), so Q = s^2 - 3 a^2 / 4; det J = a (a^2 / 4 + s^2);
+// the eigenvalues are a and -a/2 +/- i s; S^2 + Omega^2 has eigenvalues
+// a^2 / 4 - s^2 (twice) and a^2. Computing J at half its value or Q from
+// spectral norms gives Q = (s - a) / 2, det J / 8 and lambda_ci = s / 2.
+std::vector<Expected> StretchedCriteria()
+{
+  constexpr double s = StretchedSwirl, a = StretchedStrain;
+  const double q = s * s - 0.75 * a * a;
+  const double determinant = a * (0.25 * a * a + s * s);
+  return { { "q-criterion", q },
+    { "delta-criterion", std::pow(q / 3., 3.) + 0.25 * determinant * determinant },
+    { "lambda_ci-criterion", s }, { "lambda_2-criterion", 0.25 * a * a - s * s } };
+}
+
+// Reports every criterion that differs from its closed form, not just the first.
+bool CheckCriteria(vtkPolyData* output, const char* label, const std::vector<Expected>& expected)
+{
+  if (output->GetNumberOfPoints() == 0)
+  {
+    std::cerr << label << ": no vortex core points" << std::endl;
+    return false;
+  }
+  bool ok = true;
+  for (const auto& e : expected)
+  {
+    vtkDataArray* array = output->GetPointData()->GetArray(e.Name);
+    if (!array || array->GetNumberOfTuples() == 0)
+    {
+      std::cerr << label << ": missing " << e.Name << std::endl;
+      ok = false;
+      continue;
+    }
+    for (vtkIdType i = 0; i < array->GetNumberOfTuples(); ++i)
+    {
+      const double value = array->GetComponent(i, 0);
+      if (std::abs(value - e.Value) > 1e-6 * std::max(1., std::abs(e.Value)))
+      {
+        std::cerr << label << ": " << e.Name << " is " << value << ", expected " << e.Value
+                  << std::endl;
+        ok = false;
+        break;
+      }
+    }
+  }
+  return ok;
+}
 }
 
 int TestVortexCore(int argc, char* argv[])
@@ -289,6 +384,29 @@ int TestVortexCore(int argc, char* argv[])
   if (output2->CheckAttributes())
   {
     std::cerr << "Output 2 attribute check failed" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  bool criteriaOk = CheckCriteria(output1, "Hexahedra", SwirlCriteria());
+  criteriaOk = CheckCriteria(output2, "Tetrahedra", SwirlCriteria()) && criteriaOk;
+  for (GridType gridType : { Hexahedra, Tetrahedra })
+  {
+    vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid = constructGrid(5, 5, 5, gridType);
+    constructStretchedVortex(unstructuredGrid);
+
+    vtkNew<vtkVortexCore> vortexCore;
+    vortexCore->SetInputArrayToProcess(
+      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "velocity");
+    vortexCore->SetInputData(unstructuredGrid);
+    vortexCore->Update();
+    criteriaOk =
+      CheckCriteria(vortexCore->GetOutput(),
+        gridType == Hexahedra ? "Stretched vortex, hexahedra" : "Stretched vortex, tetrahedra",
+        StretchedCriteria()) &&
+      criteriaOk;
+  }
+  if (!criteriaOk)
+  {
     return EXIT_FAILURE;
   }
 
