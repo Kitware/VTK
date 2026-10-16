@@ -264,9 +264,9 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvents()
   }
   while (!internals.Events.empty())
   {
-    auto& event = (*internals.Events.front());
-    this->ProcessEvent(event.type(), event.data());
+    auto event = std::move(internals.Events.front());
     internals.Events.pop_front();
+    this->ProcessEvent(event->type(), event->data());
   }
   if (!internals.ExpandedCanvasToContainerElement)
   {
