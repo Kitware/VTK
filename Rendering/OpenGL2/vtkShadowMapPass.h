@@ -79,12 +79,23 @@ public:
   ///@}
 
   ///@{
+  VTK_DEPRECATED_IN_9_8_0("Useless GetDelegatePass() instead.")
+  virtual vtkRenderPass* GetOpaqueSequence() { return this->GetDelegatePass(); }
+
+  VTK_DEPRECATED_IN_9_8_0("Useless SetDelegatePass() instead.")
+  virtual void SetOpaqueSequence(vtkRenderPass* opaqueSequence)
+  {
+    this->SetDelegatePass(opaqueSequence);
+  }
+  ///@}
+
+  ///@{
   /**
-   * Pass that render the lights and opaque geometry
+   * Pass that render the lights and geometry
    * Typically a sequence pass with a light pass and opaque pass.
    */
-  vtkGetObjectMacro(OpaqueSequence, vtkRenderPass);
-  virtual void SetOpaqueSequence(vtkRenderPass* opaqueSequence);
+  vtkGetObjectMacro(DelegatePass, vtkRenderPass);
+  virtual void SetDelegatePass(vtkRenderPass* delegatePass);
   ///@}
 
   /**
@@ -100,11 +111,15 @@ public:
    */
   std::vector<int> GetShadowMapTextureUnits() { return this->ShadowTextureUnits; }
 
-  /**
-   * this key will contain the shadow map pass
-   * \ingroup InformationKeys
-   */
+  VTK_DEPRECATED_IN_9_8_0("Useless key, do not use.")
   static vtkInformationObjectBaseKey* ShadowMapPass();
+
+  /**
+   * key that can be used on actors to define if they receive shadows.
+   * Value is 1 if the actor receives shadows, 0 otherwise.
+   * If the key is not set, the actor will receive shadows if opaque.
+   */
+  static vtkInformationIntegerKey* RECEIVER();
 
   /**
    * Get the shader code to compute light factors based
@@ -141,8 +156,6 @@ protected:
   vtkShadowMapBakerPass* ShadowMapBakerPass;
   vtkRenderPass* CompositeRGBAPass;
 
-  vtkRenderPass* OpaqueSequence;
-
   /**
    * Graphics resources.
    */
@@ -165,6 +178,10 @@ protected:
 private:
   vtkShadowMapPass(const vtkShadowMapPass&) = delete;
   void operator=(const vtkShadowMapPass&) = delete;
+
+  static bool IsReceiver(vtkProp* prop);
+
+  vtkRenderPass* DelegatePass;
 };
 
 VTK_ABI_NAMESPACE_END

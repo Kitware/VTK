@@ -9,6 +9,7 @@
 #include "vtkImageData.h"
 #include "vtkImplicitSum.h"
 #include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
@@ -23,6 +24,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkPerspectiveTransform.h"
+#include "vtkProperty.h"
 #include "vtkRenderPassCollection.h"
 #include "vtkRenderState.h"
 #include "vtkSequencePass.h"
@@ -47,9 +49,10 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkShadowMapPass);
 vtkCxxSetObjectMacro(vtkShadowMapPass, ShadowMapBakerPass, vtkShadowMapBakerPass);
-vtkCxxSetObjectMacro(vtkShadowMapPass, OpaqueSequence, vtkRenderPass);
+vtkCxxSetObjectMacro(vtkShadowMapPass, DelegatePass, vtkRenderPass);
 
 vtkInformationKeyMacro(vtkShadowMapPass, ShadowMapPass, ObjectBase);
+vtkInformationKeyMacro(vtkShadowMapPass, RECEIVER, Integer);
 
 //------------------------------------------------------------------------------
 vtkShadowMapPass::vtkShadowMapPass()
@@ -64,8 +67,8 @@ vtkShadowMapPass::vtkShadowMapPass()
   rpc->AddItem(opaqueP);
   seqP->SetPasses(rpc);
 
-  this->OpaqueSequence = nullptr;
-  this->SetOpaqueSequence(seqP);
+  this->DelegatePass = nullptr;
+  this->SetDelegatePass(seqP);
 
   vtkNew<vtkShadowMapBakerPass> bp;
   this->ShadowMapBakerPass = nullptr;
@@ -79,9 +82,9 @@ vtkShadowMapPass::~vtkShadowMapPass()
   {
     this->ShadowMapBakerPass->Delete();
   }
-  if (this->OpaqueSequence != nullptr)
+  if (this->DelegatePass != nullptr)
   {
-    this->OpaqueSequence->Delete();
+    this->DelegatePass->Delete();
   }
 }
 
@@ -90,7 +93,7 @@ void vtkShadowMapPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "ShadowMapBackerPass: ";
+  os << indent << "ShadowMapBakerPass: ";
   if (this->ShadowMapBakerPass != nullptr)
   {
     this->ShadowMapBakerPass->PrintSelf(os, indent);
@@ -99,10 +102,10 @@ void vtkShadowMapPass::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << "(none)" << endl;
   }
-  os << indent << "OpaqueSequence: ";
-  if (this->OpaqueSequence != nullptr)
+  os << indent << "DelegatePass: ";
+  if (this->DelegatePass != nullptr)
   {
-    this->OpaqueSequence->PrintSelf(os, indent);
+    this->DelegatePass->PrintSelf(os, indent);
   }
   else
   {
@@ -125,7 +128,7 @@ void vtkShadowMapPass::Render(const vtkRenderState* s)
   vtkOpenGLRenderer* r = static_cast<vtkOpenGLRenderer*>(s->GetRenderer());
   vtkOpenGLCamera* cam = static_cast<vtkOpenGLCamera*>(r->GetActiveCamera());
 
-  if (this->ShadowMapBakerPass != nullptr && this->OpaqueSequence != nullptr)
+  if (this->ShadowMapBakerPass != nullptr && this->DelegatePass != nullptr)
   {
     this->ShadowTextureUnits.clear();
     this->ShadowAttenuation.clear();
@@ -133,8 +136,8 @@ void vtkShadowMapPass::Render(const vtkRenderState* s)
 
     if (!this->ShadowMapBakerPass->GetHasShadows())
     {
-      this->OpaqueSequence->Render(s);
-      this->NumberOfRenderedProps += this->OpaqueSequence->GetNumberOfRenderedProps();
+      this->DelegatePass->Render(s);
+      this->NumberOfRenderedProps += this->DelegatePass->GetNumberOfRenderedProps();
       return;
     }
 
@@ -151,10 +154,10 @@ void vtkShadowMapPass::Render(const vtkRenderState* s)
          light = lights->GetNextItem(), lightIndex++)
     {
       this->ShadowTextureUnits[lightIndex] = -1;
-      if (light->GetSwitch() && this->ShadowMapBakerPass->LightCreatesShadow(light))
+      if (this->ShadowMapBakerPass->LightCreatesShadow(light))
       {
         vtkTextureObject* map =
-          (*this->ShadowMapBakerPass->GetShadowMaps())[static_cast<size_t>(shadowingLightIndex)];
+          this->ShadowMapBakerPass->GetShadowMaps()[static_cast<size_t>(shadowingLightIndex)];
         // activate the texture map
         map->Activate();
         this->ShadowTextureUnits[lightIndex] = map->GetTextureUnit();
@@ -164,9 +167,9 @@ void vtkShadowMapPass::Render(const vtkRenderState* s)
       }
     }
 
-    vtkMatrix4x4* tmp = vtkMatrix4x4::New();
-    vtkMatrix4x4* mat = vtkMatrix4x4::New();
-    vtkPerspectiveTransform* transform = vtkPerspectiveTransform::New();
+    vtkNew<vtkMatrix4x4> tmp;
+    vtkNew<vtkMatrix4x4> mat;
+    vtkNew<vtkPerspectiveTransform> transform;
 
     vtkMatrix4x4* wcdc;
     vtkMatrix4x4* wcvc;
@@ -178,9 +181,8 @@ void vtkShadowMapPass::Render(const vtkRenderState* s)
     mat->Transpose();
     mat->Invert();
 
-    vtkMatrixToLinearTransform* viewCamera_Inv = vtkMatrixToLinearTransform::New();
+    vtkNew<vtkMatrixToLinearTransform> viewCamera_Inv;
     viewCamera_Inv->SetInput(mat);
-    mat->Delete();
 
     // identity. pre-multiply mode
     transform->Translate(0.5, 0.5, 0.5); // bias
@@ -194,7 +196,7 @@ void vtkShadowMapPass::Render(const vtkRenderState* s)
       if (this->ShadowTextureUnits[lightIndex] >= 0)
       {
         vtkCamera* lightCamera =
-          (*this->ShadowMapBakerPass->GetLightCameras())[static_cast<size_t>(shadowingLightIndex)];
+          this->ShadowMapBakerPass->GetLightCameras()[static_cast<size_t>(shadowingLightIndex)];
         transform->Push();
         transform->Concatenate(lightCamera->GetProjectionTransformObject(1, -1, 1));
         transform->Concatenate(lightCamera->GetViewTransformObject());
@@ -219,24 +221,20 @@ void vtkShadowMapPass::Render(const vtkRenderState* s)
     // Setup property keys for actors:
     this->PreRender(s);
 
-    viewCamera_Inv->Delete();
-    transform->Delete();
-    tmp->Delete();
-
     // render with shadows
     // note this time we use the list of props after culling.
-    this->OpaqueSequence->Render(s);
-    this->NumberOfRenderedProps += this->OpaqueSequence->GetNumberOfRenderedProps();
+    this->DelegatePass->Render(s);
+    this->NumberOfRenderedProps += this->DelegatePass->GetNumberOfRenderedProps();
 
     // now deactivate the shadow maps
     shadowingLightIndex = 0;
     for (lights->InitTraversal(), light = lights->GetNextItem(), lightIndex = 0; light != nullptr;
          light = lights->GetNextItem(), lightIndex++)
     {
-      if (light->GetSwitch() && this->ShadowMapBakerPass->LightCreatesShadow(light))
+      if (this->ShadowMapBakerPass->LightCreatesShadow(light))
       {
         vtkTextureObject* map =
-          (*this->ShadowMapBakerPass->GetShadowMaps())[static_cast<size_t>(shadowingLightIndex)];
+          this->ShadowMapBakerPass->GetShadowMaps()[static_cast<size_t>(shadowingLightIndex)];
         // activate the texture map
         map->Deactivate();
         shadowingLightIndex++;
@@ -254,9 +252,14 @@ void vtkShadowMapPass::Render(const vtkRenderState* s)
 }
 
 //------------------------------------------------------------------------------
-bool vtkShadowMapPass::SetShaderParameters(vtkShaderProgram* program, vtkAbstractMapper*, vtkProp*,
-  vtkOpenGLVertexArrayObject* vtkNotUsed(VAO))
+bool vtkShadowMapPass::SetShaderParameters(vtkShaderProgram* program, vtkAbstractMapper*,
+  vtkProp* prop, vtkOpenGLVertexArrayObject* vtkNotUsed(VAO))
 {
+  if (!vtkShadowMapPass::IsReceiver(prop))
+  {
+    return true;
+  }
+
   size_t numLights = this->ShadowTextureUnits.size();
 
   // how many lights have shadow maps
@@ -288,7 +291,7 @@ bool vtkShadowMapPass::SetShaderParameters(vtkShaderProgram* program, vtkAbstrac
         std::string("shadowParallel" + toString.str()).c_str(), this->ShadowParallel[i]);
 
       vtkCamera* lightCamera =
-        (*this->ShadowMapBakerPass->GetLightCameras())[static_cast<size_t>(numSMT)];
+        this->ShadowMapBakerPass->GetLightCameras()[static_cast<size_t>(numSMT)];
       double* crange = lightCamera->GetClippingRange();
       program->SetUniformf(std::string("shadowNearZ" + toString.str()).c_str(), crange[0]);
       program->SetUniformf(std::string("shadowFarZ" + toString.str()).c_str(), crange[1]);
@@ -302,8 +305,13 @@ bool vtkShadowMapPass::SetShaderParameters(vtkShaderProgram* program, vtkAbstrac
 
 //------------------------------------------------------------------------------
 bool vtkShadowMapPass::PreReplaceShaderValues(
-  std::string&, std::string&, std::string& fragmentShader, vtkAbstractMapper*, vtkProp*)
+  std::string&, std::string&, std::string& fragmentShader, vtkAbstractMapper*, vtkProp* prop)
 {
+  if (!vtkShadowMapPass::IsReceiver(prop))
+  {
+    return true;
+  }
+
   // build the values
   this->BuildShaderCode();
 
@@ -315,9 +323,15 @@ bool vtkShadowMapPass::PreReplaceShaderValues(
   return true;
 }
 
+//------------------------------------------------------------------------------
 bool vtkShadowMapPass::PostReplaceShaderValues(
-  std::string&, std::string&, std::string& fragmentShader, vtkAbstractMapper*, vtkProp*)
+  std::string&, std::string&, std::string& fragmentShader, vtkAbstractMapper*, vtkProp* prop)
 {
+  if (!vtkShadowMapPass::IsReceiver(prop))
+  {
+    return true;
+  }
+
   size_t numLights = this->ShadowTextureUnits.size();
 
   for (size_t i = 0; i < numLights; ++i)
@@ -347,6 +361,7 @@ bool vtkShadowMapPass::PostReplaceShaderValues(
   return true;
 }
 
+//------------------------------------------------------------------------------
 void vtkShadowMapPass::BuildShaderCode()
 {
   size_t numLights = this->ShadowTextureUnits.size();
@@ -378,24 +393,32 @@ void vtkShadowMapPass::BuildShaderCode()
     "                  in float sNearZ, in float sFarZ)\n"
     "{\n"
     "  vec4 shadowCoord = shadowTransform*vert;\n"
-    "  float expFactor = 8.0;\n"
+    "  float expFactor = 1.0;\n"
     "  float thickness = 0.0;\n"
     "  if(shadowCoord.w > 0.0)\n"
-    "    {\n"
+    "  {\n"
     "    vec2 projected = shadowCoord.xy/shadowCoord.w;\n"
     "    if(projected.x >= 0.0 && projected.x <= 1.0\n"
     "       && projected.y >= 0.0 && projected.y <= 1.0)\n"
-    "      {\n"
+    "    {\n"
     "      float ldepth = shadowCoord.z;\n"
     "      if (shadowParallel == 0) { ldepth =  (shadowCoord.w - sNearZ)/(sFarZ - sNearZ); }\n"
     "      float depthCExpActual = exp(- depthC*ldepth);\n"
     "      float depthCExpBlured = texture2D(shadowMap,projected).r;\n"
-    "      expFactor = depthCExpBlured * depthCExpActual;\n"
-    "      float depth = log(depthCExpBlured)/depthC;\n"
-    "      thickness = clamp(ldepth - depth, 0.0, 1.0)*(sFarZ - sNearZ);\n"
-    "      if (expFactor > 1.0) { expFactor = 1.0; }\n"
+    "      if (depthCExpBlured <= 1.0)\n"
+    "      {\n"
+    "        // Baked values are exp(c*d) with d >= 0, so <= 1 means no occluder was written.\n"
+    "        expFactor = 1.0;\n"
+    "      }\n"
+    "      else\n"
+    "      {\n"
+    "        expFactor = depthCExpBlured * depthCExpActual;\n"
+    "        float depth = log(depthCExpBlured)/depthC;\n"
+    "        thickness = clamp(ldepth - depth, 0.0, 1.0)*(sFarZ - sNearZ);\n"
+    "        if (expFactor > 1.0) { expFactor = 1.0; }\n"
     "      }\n"
     "    }\n"
+    "  }\n"
     "  return vec2(1.0 - attenuation + attenuation*expFactor, thickness);\n"
     "}\n";
 
@@ -429,7 +452,7 @@ void vtkShadowMapPass::BuildShaderCode()
   for (size_t i = 0; i < numLights; i++)
   {
     //    toString << "float factor" << i << " = ";
-    toString << "vec2 factor" << i << " = ";
+    toString << "  vec2 factor" << i << " = ";
     if (i < numLights && this->ShadowTextureUnits[i] >= 0)
     {
       std::ostringstream toString2;
@@ -465,4 +488,28 @@ void vtkShadowMapPass::ReleaseGraphicsResources(vtkWindow* w)
     this->ShadowMapBakerPass->ReleaseGraphicsResources(w);
   }
 }
+
+//------------------------------------------------------------------------------
+bool vtkShadowMapPass::IsReceiver(vtkProp* prop)
+{
+  if (!prop->GetVisibility())
+  {
+    return false;
+  }
+
+  // only lit actors can be shadow receivers
+  vtkActor* actor = vtkActor::SafeDownCast(prop);
+  if (!actor || actor->GetProperty()->GetLighting() == 0)
+  {
+    return false;
+  }
+
+  vtkInformation* keys = prop->GetPropertyKeys();
+  if (keys && keys->Has(vtkShadowMapPass::RECEIVER()))
+  {
+    return keys->Get(vtkShadowMapPass::RECEIVER()) != 0;
+  }
+  return true;
+}
+
 VTK_ABI_NAMESPACE_END

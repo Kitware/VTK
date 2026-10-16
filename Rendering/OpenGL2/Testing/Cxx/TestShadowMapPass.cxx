@@ -10,6 +10,7 @@
 #include "vtkCamera.h"
 #include "vtkCameraPass.h"
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
 #include "vtkLight.h"
 #include "vtkNew.h"
 #include "vtkOpenGLRenderer.h"
@@ -58,6 +59,11 @@ int TestShadowMapPass(int argc, char* argv[])
   light2->SetIntensity(0.5);
   renderer->AddLight(light2);
 
+  // light2 will not cast shadows at all
+  vtkNew<vtkInformation> lightKeys;
+  lightKeys->Set(vtkShadowMapBakerPass::CAST_SHADOWS(), 0);
+  light2->SetInformation(lightKeys);
+
   vtkNew<vtkLight> light3;
   light3->SetFocalPoint(-0.1, -0.5, -0.5);
   light3->SetPosition(0.2, 0.5, 0.5);
@@ -87,7 +93,11 @@ int TestShadowMapPass(int argc, char* argv[])
   actor->GetProperty()->SetSpecularPower(30.0);
   actor->GetProperty()->SetOpacity(1.0);
   renderer->AddActor(actor);
-  // actor->GetProperty()->SetRepresentationToWireframe();
+
+  // the dragon actor will NOT receive shadows
+  vtkNew<vtkInformation> dragonKeys;
+  dragonKeys->Set(vtkShadowMapPass::RECEIVER(), 0);
+  actor->SetPropertyKeys(dragonKeys);
 
   // add a plane
   vtkNew<vtkPlaneSource> plane;
@@ -100,6 +110,11 @@ int TestShadowMapPass(int argc, char* argv[])
   vtkNew<vtkActor> planeActor;
   planeActor->SetMapper(planeMapper);
   renderer->AddActor(planeActor);
+
+  // the plane actor will NOT be part of shadow baking (tighter bounding box)
+  vtkNew<vtkInformation> planeKeys;
+  planeKeys->Set(vtkShadowMapBakerPass::OCCLUDER(), 0);
+  planeActor->SetPropertyKeys(planeKeys);
 
   renderWindow->SetMultiSamples(0);
 

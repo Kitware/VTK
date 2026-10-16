@@ -64,14 +64,25 @@ public:
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
   ///@{
+  VTK_DEPRECATED_IN_9_8_0("Useless GetDelegatePass() instead.")
+  virtual vtkRenderPass* GetOpaqueSequence() { return this->GetDelegatePass(); }
+
+  VTK_DEPRECATED_IN_9_8_0("Useless SetDelegatePass() instead.")
+  virtual void SetOpaqueSequence(vtkRenderPass* opaqueSequence)
+  {
+    this->SetDelegatePass(opaqueSequence);
+  }
+  ///@}
+
+  ///@{
   /**
-   * Delegate for rendering the camera, lights, and opaque geometry.
+   * Delegate for rendering the camera, lights, and geometry.
    * If it is NULL, nothing will be rendered and a warning will be emitted.
    * It defaults to a vtkCameraPass with a sequence of
    * vtkLightPass/vtkOpaquePass.
    */
-  vtkGetObjectMacro(OpaqueSequence, vtkRenderPass);
-  virtual void SetOpaqueSequence(vtkRenderPass* opaqueSequence);
+  vtkGetObjectMacro(DelegatePass, vtkRenderPass);
+  virtual void SetDelegatePass(vtkRenderPass* delegatePass);
   ///@}
 
   ///@{
@@ -133,37 +144,29 @@ public:
   bool LightCreatesShadow(vtkLight* l);
 
   /**
-   * INTERNAL USE ONLY
-   * Internally used by vtkShadowMapBakerPass and vtkShadowMapPass.
+   * key that can be used on actors to define if they create shadows.
+   * Value is 1 if the actor casts shadows, 0 otherwise.
+   * If the key is not set, the actor will cast shadows if opaque.
+   */
+  static vtkInformationIntegerKey* OCCLUDER();
 
+  /**
+   * key that can be used on lights to define if they cast shadows.
+   * Value is 1 if the light casts shadows, 0 otherwise.
+   * If the key is not set, the light will cast shadows if not headlight.
+   */
+  static vtkInformationIntegerKey* CAST_SHADOWS();
+
+  /**
    * Give access to the baked shadow maps.
+   * Textures contain exponential depth values.
    */
-  std::vector<vtkSmartPointer<vtkTextureObject>>* GetShadowMaps();
+  std::vector<vtkSmartPointer<vtkTextureObject>>& GetShadowMaps();
 
   /**
-   * INTERNAL USE ONLY.
-   * Internally used by vtkShadowMapBakerPass and vtkShadowMapPass.
-
-   * Give access the cameras builds from the lights.
+   * Give access to the cameras built from the lights.
    */
-  std::vector<vtkSmartPointer<vtkCamera>>* GetLightCameras();
-
-  /**
-   * INTERNAL USE ONLY.
-   * Internally used by vtkShadowMapBakerPass and vtkShadowMapPass.
-
-   * Do the shadows need to be updated?
-   * Value changed by vtkShadowMapBakerPass and used by vtkShadowMapPass.
-   * Initial value is true.
-   */
-  bool GetNeedUpdate();
-
-  // // Description:
-  // INTERNAL USE ONLY.
-  // Internally used by vtkShadowMapBakerPass and vtkShadowMapPass.
-  //
-  // Set NeedUpate to false. Called by vtkShadowMapPass.
-  void SetUpToDate();
+  std::vector<vtkSmartPointer<vtkCamera>>& GetLightCameras();
 
 protected:
   /**
@@ -213,22 +216,10 @@ protected:
    */
   void CheckSupport(vtkOpenGLRenderWindow* w);
 
-  vtkRenderPass* OpaqueSequence;
-
-  vtkRenderPass* CompositeZPass;
-
   unsigned int Resolution;
   float ExponentialConstant{ 11.0f };
 
   bool HasShadows;
-
-  /**
-   * Graphics resources.
-   */
-  vtkOpenGLFramebufferObject* FrameBufferObject;
-
-  std::vector<vtkSmartPointer<vtkTextureObject>>* ShadowMaps;
-  std::vector<vtkSmartPointer<vtkCamera>>* LightCameras;
 
   vtkTimeStamp LastRenderTime;
   bool NeedUpdate;
@@ -237,6 +228,17 @@ protected:
 private:
   vtkShadowMapBakerPass(const vtkShadowMapBakerPass&) = delete;
   void operator=(const vtkShadowMapBakerPass&) = delete;
+
+  static bool IsOccluder(vtkProp* prop);
+
+  bool GetNeedUpdate();
+  void SetUpToDate();
+
+  vtkSmartPointer<vtkRenderPass> DelegatePass;
+  vtkSmartPointer<vtkRenderPass> CompositeZPass;
+  vtkSmartPointer<vtkOpenGLFramebufferObject> FrameBufferObject;
+  std::vector<vtkSmartPointer<vtkTextureObject>> ShadowMaps;
+  std::vector<vtkSmartPointer<vtkCamera>> LightCameras;
 };
 
 VTK_ABI_NAMESPACE_END
