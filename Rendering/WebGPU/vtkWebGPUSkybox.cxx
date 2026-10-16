@@ -315,7 +315,7 @@ void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
   pipelineDescriptor.vertex.entryPoint = WGPUStringView{ "vertexMain", WGPU_STRLEN };
   pipelineDescriptor.vertex.bufferCount = 0;
   pipelineDescriptor.cFragment.entryPoint = WGPUStringView{ "fragmentMain", WGPU_STRLEN };
-  pipelineDescriptor.cTargets[0].format = renWin->GetPreferredSurfaceTextureFormat();
+  pipelineDescriptor.cTargets[0].format = renWin->GetOffscreenColorTextureFormat();
   // Prepare selection ids output.
   pipelineDescriptor.cTargets[1].format = renWin->GetPreferredSelectorIdsTextureFormat();
   pipelineDescriptor.cFragment.targetCount++;

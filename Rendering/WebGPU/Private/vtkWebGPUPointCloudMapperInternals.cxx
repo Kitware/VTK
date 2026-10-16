@@ -161,7 +161,7 @@ void vtkWebGPUPointCloudMapperInternals::CreateCopyDepthBufferRenderPipeline(
   pipelineDesc.cFragment.entryPoint = WGPUStringView{ "fragmentMain", WGPU_STRLEN };
   // We are not going to use the color target but Dawn needs it
   pipelineDesc.cFragment.targetCount = 1;
-  pipelineDesc.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+  pipelineDesc.cTargets[0].format = wgpuRenderWindow->GetOffscreenColorTextureFormat();
   // Not writing to the color attachment
   pipelineDesc.cTargets[0].writeMask = WGPUColorWriteMask_None;
 
@@ -379,7 +379,7 @@ void vtkWebGPUPointCloudMapperInternals::InitializePointRenderPass(vtkRenderer* 
     this->RenderPointsPass->CreateTextureView(framebufferIndex);
   framebufferTextureView->SetGroup(0);
   framebufferTextureView->SetBinding(3);
-  framebufferTextureView->SetFormat(vtkWebGPUComputeTexture::TextureFormat::BGRA8_UNORM);
+  framebufferTextureView->SetFormat(vtkWebGPUComputeTexture::TextureFormat::RGBA8_UNORM);
   framebufferTextureView->SetMode(vtkWebGPUComputeTextureView::TextureViewMode::WRITE_ONLY_STORAGE);
   framebufferTextureView->SetAspect(vtkWebGPUComputeTextureView::TextureViewAspect::ASPECT_ALL);
   framebufferTextureView->SetLabel("Point cloud mapper - point render pass - color framebuffer");
