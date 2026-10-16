@@ -630,12 +630,12 @@ private:
   template <bool Shell, bool HasMin, bool HasPetals>
   void Traverse(Query& q, std::size_t nodeIdx, std::size_t first, int numPetals)
   {
-    double near = 0.0;
+    double nearDist2 = 0.0;
     for (int i = 0; i < DIM; ++i)
     {
-      near += q.Gap[i] * q.Gap[i];
+      nearDist2 += q.Gap[i] * q.Gap[i];
     }
-    if (near * (1.0 - Slack) > q.MaxDist2)
+    if (nearDist2 * (1.0 - Slack) > q.MaxDist2)
     {
       return;
     }
