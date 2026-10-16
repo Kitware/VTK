@@ -68,6 +68,12 @@ private:
   void CreatePipeline(vtkWebGPURenderWindow* wgpuRenderWindow);
 
   /**
+   * Returns whether the environment texture can only be sampled by a non-filtering sampler,
+   * which is the case for float32 textures on a device without the `float32-filterable` feature.
+   */
+  bool GetUnfilterableTexture();
+
+  /**
    * Create or update the bind group for the skybox texture and uniforms.
    */
   void CreateBindGroup(vtkWebGPUConfiguration* wgpuConfiguration);
@@ -92,6 +98,7 @@ private:
 
   int LastProjection = -1;
   bool LastGammaCorrect = false;
+  bool LastUnfilterableTexture = false;
 
   WGPURenderPipeline Pipeline = nullptr;
   WGPUBindGroupLayout BindGroupLayout = nullptr;

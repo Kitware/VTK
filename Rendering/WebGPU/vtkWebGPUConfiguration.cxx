@@ -446,6 +446,17 @@ bool WaitForRequest(vtkWebGPUConfiguration* config, std::atomic<bool>& complete,
 }
 
 //------------------------------------------------------------------------------
+bool vtkWebGPUConfiguration::HasFeature(WGPUFeatureName feature)
+{
+  auto device = this->GetDevice();
+  if (device == nullptr)
+  {
+    return false;
+  }
+  return wgpuDeviceHasFeature(device, feature);
+}
+
+//------------------------------------------------------------------------------
 bool vtkWebGPUConfiguration::Initialize()
 {
   vtkDebugMacro(<< __func__);
@@ -582,7 +593,7 @@ bool vtkWebGPUConfiguration::Initialize()
   deviceDescriptor.requiredLimits = &internals.RequiredLimits;
 
   // Populating required features of the device
-  internals.PopulateRequiredFeatures();
+  internals.PopulateRequiredFeatures(internals.Adapter);
   deviceDescriptor.requiredFeatureCount = internals.RequiredFeatures.size();
   deviceDescriptor.requiredFeatures = internals.RequiredFeatures.data();
 

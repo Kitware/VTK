@@ -340,7 +340,38 @@ void vtkWebGPUTexture::Load(vtkRenderer* renderer)
     }
     auto format = this->GetTextureFormatFromImageData(numComponents, dataType);
     deviceResource->SetFormat(format);
-    if (this->Interpolate)
+    // float32 texture formats can only be sampled with a filtering sampler when the device
+    // supports `float32-filterable`, which is optional and absent on many devices. Without it,
+    // WebGPU only allows a non-filtering sampler for these formats, so fall back to
+    // nearest-neighbor sampling rather than producing an invalid bind group.
+    bool canFilter = true;
+    switch (format)
+    {
+      case vtkWebGPURenderTextureDeviceResource::R32_FLOAT:
+      case vtkWebGPURenderTextureDeviceResource::RG32_FLOAT:
+      case vtkWebGPURenderTextureDeviceResource::RGBA32_FLOAT:
+        canFilter =
+          wgpuRenderWindow->GetWGPUConfiguration()->HasFeature(WGPUFeatureName_Float32Filterable);
+        if (!canFilter)
+        {
+          // WebGPU reports these formats as unfilterable-float without the feature. Record it on
+          // the resource so that bind group layouts built from it agree with the texture, which
+          // is a validation error otherwise.
+          deviceResource->SetSampleType(
+            vtkWebGPURenderTextureDeviceResource::TextureSampleType::UNFILTERABLE_FLOAT);
+        }
+        if (!canFilter && this->Interpolate)
+        {
+          vtkWarningMacro(<< "This device does not support the WebGPU `float32-filterable` "
+                             "feature. Interpolation of this float32 texture is disabled and it "
+                             "will be sampled with nearest-neighbor filtering instead. Convert "
+                             "the texture to 8- or 16-bit scalars to get filtered sampling.");
+        }
+        break;
+      default:
+        break;
+    }
+    if (this->Interpolate && canFilter)
     {
       deviceResource->SetSamplerBindingType(
         vtkWebGPURenderTextureDeviceResource::SamplerMode::FILTERING);

@@ -135,6 +135,15 @@ public:
   ///@}
 
   /**
+   * Returns whether the device in use supports `feature`.
+   *
+   * VTK requests optional WebGPU features only when the adapter advertises them, so a feature
+   * VTK would like to use is not guaranteed to be present. Call this before relying on one and
+   * provide a fallback when it returns false. Returns false when no device is ready yet.
+   */
+  bool HasFeature(WGPUFeatureName feature);
+
+  /**
    * Initializes the class.
    * 1. This method creates a `WGPUInstance`.
    *    If a `WGPUInstance` was already created by a previous call to `Initialize`
