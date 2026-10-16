@@ -70,6 +70,7 @@
 #include "vtkPolyDataWideLineGS.h"
 
 #include <algorithm>
+#include <cmath>
 #include <sstream>
 
 //------------------------------------------------------------------------------
@@ -2601,6 +2602,24 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPrimID(
   shaders[vtkShader::Geometry]->SetSource(GSSource);
 }
 
+namespace
+{
+//------------------------------------------------------------------------------
+float getDepthResolution(vtkRenderer* ren)
+{
+  int bits = 0;
+  if (auto* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()))
+  {
+    bits = renWin->GetDepthBufferSize();
+  }
+  // near 1.0, a 32-bit depth attachment has 24-bits for significand
+  // and resolves the same as a 24-bit integer buffer. Fall back to 16 bits
+  // if renderWindow does not say anything about the depth buffer size.
+  bits = bits > 0 ? std::min(bits, 24) : 16;
+  return std::ldexp(1.0f, -bits);
+}
+}
+
 //------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
   std::map<vtkShader::Type, vtkShader*> shaders, vtkRenderer* ren, vtkActor* actor)
@@ -2610,16 +2629,15 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
   this->GetCoincidentParameters(ren, actor, factor, offset);
 
   // if we need an offset handle it here
-  // The value of .000016 (1/65000) is suitable for depth buffers
-  // of at least 16 bit depth. We do not query the depth
-  // right now because we would need some mechanism to
-  // cache the result taking into account FBO changes etc.
+  // cOffset is in units of the smallest resolvable depth difference,
+  // cDepthRes, which is set from the bound depth buffer at draw time.
   if (factor != 0.0 || offset != 0.0)
   {
     std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
     vtkShaderProgram::Substitute(FSSource, "//VTK::Coincident::Dec",
       "uniform float cOffset;\n"
-      "uniform float cFactor;\n");
+      "uniform float cFactor;\n"
+      "uniform float cDepthRes;\n");
     if (this->DrawingTubesOrSpheres(*this->LastBoundBO, actor))
     {
       vtkShaderProgram::Substitute(FSSource, "//VTK::UniformFlow::Impl",
@@ -2627,7 +2645,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
         "  //VTK::UniformFlow::Impl\n" // for other replacements
       );
       vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
-        "gl_FragDepth = gl_FragDepth + cFactor*cscale + 1.0*cOffset/65000.0;\n");
+        "gl_FragDepth = gl_FragDepth + cFactor*cscale + cOffset*cDepthRes;\n");
     }
     else
     {
@@ -2636,7 +2654,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
         "  //VTK::UniformFlow::Impl\n" // for other replacements
       );
       vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
-        "gl_FragDepth = gl_FragCoord.z + cFactor*cscale + 1.0*cOffset/65000.0;\n");
+        "gl_FragDepth = gl_FragCoord.z + cFactor*cscale + cOffset*cDepthRes;\n");
     }
     shaders[vtkShader::Fragment]->SetSource(FSSource);
   }
@@ -3220,6 +3238,7 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
   {
     cellBO.Program->SetUniformf("cOffset", offset);
     cellBO.Program->SetUniformf("cFactor", factor);
+    cellBO.Program->SetUniformf("cDepthRes", getDepthResolution(ren));
   }
 
   // If the VBO coordinates were shifted and scaled, apply the inverse transform

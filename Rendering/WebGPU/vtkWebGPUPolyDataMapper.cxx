@@ -4261,7 +4261,7 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderPicking(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderCoincidentOffset(
-  GraphicsPipelineType pipelineType, vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  GraphicsPipelineType pipelineType, vtkWebGPURenderer* wgpuRenderer,
   vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& fss)
 {
   // Select the coincident factor and offset fields from the actor uniform buffer based on the
@@ -4302,9 +4302,18 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderCoincidentOffset(
       return;
   }
 
-  // Inject the coincident offset computation before //VTK::FragmentMain::End, which will be
-  // replaced by ReplaceFragmentShaderMainEnd with the return statement. We keep the placeholder
-  // so that ReplaceFragmentShaderMainEnd can still find and replace it.
+  // c_offset is in units of the smallest resolvable depth difference. The depth
+  // format is part of the pipeline, so the resolution is a shader constant.
+  // Depth24Plus may be backed by a 32-bit float, whose 24-bit significand
+  // resolves the same as a 24-bit integer near 1.0.
+  int depthBits = 24;
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(wgpuRenderer->GetRenderWindow());
+  if (wgpuRenderWindow &&
+    wgpuRenderWindow->GetDepthStencilFormat() == WGPUTextureFormat_Depth16Unorm)
+  {
+    depthBits = 16;
+  }
+
   const std::string code = "  {\n"
                            "    let c_factor: f32 = " +
     factorExpr +
@@ -4313,7 +4322,9 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderCoincidentOffset(
     offsetExpr +
     ";\n"
     "    let cscale: f32 = length(vec2<f32>(dpdx(output.frag_depth), dpdy(output.frag_depth)));\n"
-    "    output.frag_depth = output.frag_depth + c_factor * cscale + c_offset / 65000.0;\n"
+    "    output.frag_depth = output.frag_depth + c_factor * cscale + c_offset * exp2(-" +
+    std::to_string(depthBits) +
+    ".0);\n"
     "  }\n"
     "//VTK::FragmentMain::End";
 

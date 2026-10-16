@@ -34,6 +34,7 @@ set(cxx_tests
   TestBlockVisibility.cxx
   TestCellScalarMappedColors.cxx,NO_DATA
   TestCoincident.cxx,LOOSE_VALID
+  TestCoincidentTopologyEdgeCases.cxx,LOOSE_VALID,NO_SERDES
   TestColorByCellDataStringArray.cxx
   TestColorByPointDataStringArray.cxx
   TestColorByStringArrayDefaultLookupTable.cxx

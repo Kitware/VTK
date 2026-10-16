@@ -10,13 +10,35 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkProperty.h"
 #include "vtkShaderProgram.h"
 
 #include "vtk_glad.h"
 
+#include <algorithm>
+#include <cmath>
+
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+//------------------------------------------------------------------------------
+float getDepthResolution(vtkRenderer* ren)
+{
+  int bits = 0;
+  if (auto* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()))
+  {
+    bits = renWin->GetDepthBufferSize();
+  }
+  // near 1.0, a 32-bit depth attachment has 24-bits for significand
+  // and resolves the same as a 24-bit integer buffer. Fall back to 16 bits
+  // if renderWindow does not say anything about the depth buffer size.
+  bits = bits > 0 ? std::min(bits, 24) : 16;
+  return std::ldexp(1.0f, -bits);
+}
+}
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLSLModCoincidentTopology);
@@ -49,21 +71,20 @@ bool vtkGLSLModCoincidentTopology::ReplaceShaderValues(vtkOpenGLRenderer* render
   this->GetCoincidentParameters(renderer, vtkMapper::SafeDownCast(mapper), actor, factor, offset);
 
   // if we need an offset handle it here
-  // The value of .000016 (1/65000) is suitable for depth buffers
-  // of at least 16 bit depth. We do not query the depth
-  // right now because we would need some mechanism to
-  // cache the result taking into account FBO changes etc.
+  // cOffset is in units of the smallest resolvable depth difference,
+  // cDepthRes, which is set from the bound depth buffer at draw time.
   if (factor != 0.0 || offset != 0.0)
   {
     vtkShaderProgram::Substitute(fragmentShader, "//VTK::Coincident::Dec",
       "uniform float cOffset;\n"
-      "uniform float cFactor;\n");
+      "uniform float cFactor;\n"
+      "uniform float cDepthRes;\n");
     vtkShaderProgram::Substitute(fragmentShader, "//VTK::UniformFlow::Impl",
       "float cscale = length(vec2(dFdx(gl_FragCoord.z), dFdy(gl_FragCoord.z)));\n"
       "  //VTK::UniformFlow::Impl\n" // for other replacements
     );
     vtkShaderProgram::Substitute(fragmentShader, "//VTK::Depth::Impl",
-      "gl_FragDepth = gl_FragCoord.z + cFactor*cscale + 1.0*cOffset/65000.0f;\n");
+      "gl_FragDepth = gl_FragCoord.z + cFactor*cscale + cOffset*cDepthRes;\n");
   }
   this->ReplacementsDone = true;
   return true;
@@ -86,6 +107,7 @@ bool vtkGLSLModCoincidentTopology::SetShaderParameters(vtkOpenGLRenderer* render
   {
     program->SetUniformf("cOffset", offset);
     program->SetUniformf("cFactor", factor);
+    program->SetUniformf("cDepthRes", getDepthResolution(renderer));
   }
 
   return true;
