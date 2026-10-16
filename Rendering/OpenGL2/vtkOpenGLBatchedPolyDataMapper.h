@@ -172,6 +172,11 @@ private:
    * shader generation.
    */
   vtkSmartPointer<vtkOpenGLTexture> BlockTexturePrototype;
+
+  /**
+   * Set to true when at least one block has a texture attached to it.
+   */
+  bool NeedsBlockTexturing = false;
 };
 
 VTK_ABI_NAMESPACE_END

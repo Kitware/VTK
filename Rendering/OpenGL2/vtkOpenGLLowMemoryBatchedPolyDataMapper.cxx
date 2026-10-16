@@ -281,7 +281,16 @@ void vtkOpenGLLowMemoryBatchedPolyDataMapper::DrawPrimitives(
 void vtkOpenGLLowMemoryBatchedPolyDataMapper::RenderPieceStart(
   vtkRenderer* renderer, vtkActor* actor)
 {
-  if (!this->BlockTexturePrototype->GetTextureObject())
+  this->NeedsBlockTexturing = false;
+  for (const auto& [_, batchElement] : this->VTKPolyDataToGLBatchElement)
+  {
+    if (batchElement->Parent.Texture)
+    {
+      this->NeedsBlockTexturing = true;
+      break;
+    }
+  }
+  if (!this->BlockTexturePrototype->GetTextureObject() && this->NeedsBlockTexturing)
   {
     this->BlockTexturePrototype->Load(renderer);
   }
@@ -827,12 +836,7 @@ vtkOpenGLLowMemoryBatchedPolyDataMapper::GetTextures(vtkActor* actor)
 {
   std::vector<TextureInfo> textures = this->Superclass::GetTextures(actor);
 
-  bool needBlockTextureSlot = false;
-  for (const auto& [_, batchElement] : this->VTKPolyDataToGLBatchElement)
-  {
-    needBlockTextureSlot |= batchElement->Parent.Texture != nullptr;
-  }
-  if (this->BlockTexturePrototype && needBlockTextureSlot)
+  if (this->BlockTexturePrototype && this->NeedsBlockTexturing)
   {
     textures.emplace_back(this->BlockTexturePrototype, "blocktexture");
   }
