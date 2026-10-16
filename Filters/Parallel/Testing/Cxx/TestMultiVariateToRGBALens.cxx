@@ -10,6 +10,7 @@
 #include <vtkMultiVariateToRGBA.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
+#include <vtkSmartPointer.h>
 #include <vtkTrivialProducer.h>
 #include <vtkVariant.h>
 
@@ -93,9 +94,11 @@ int TestMultiVariateToRGBALens(int, char*[])
   producer->SetOutput(image);
   cached->SetInputConnection(producer->GetOutputPort());
   cached->Update();
-  vtkDataArray* gbc = GetArray(cached, "gbc");
+  // holds a reference, as a full execution releases the cached array
+  vtkSmartPointer<vtkDataArray> gbc = GetArray(cached, "gbc");
 
   SetLens(cached, full, 0.4, -0.2, 0.5);
+  // the same array: the results were reused from the cache
   CHECK(GetArray(cached, "gbc") == gbc);
   CHECK(Equal(GetArray(cached, "rgba"), GetArray(full, "rgba")));
 
@@ -127,6 +130,7 @@ int TestMultiVariateToRGBALens(int, char*[])
   cached->InvertLensOn();
   full->InvertLensOn();
   SetLens(cached, full, 0.2, 0.3, 0.6);
+  // reused from the cache
   CHECK(GetArray(cached, "gbc") == gbc);
   CHECK(Equal(GetArray(cached, "rgba"), GetArray(full, "rgba")));
   vtkDataArray* inverted = GetArray(cached, "rgba");
