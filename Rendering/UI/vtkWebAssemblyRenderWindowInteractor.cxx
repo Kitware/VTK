@@ -222,6 +222,9 @@ vtkWebAssemblyRenderWindowInteractor::~vtkWebAssemblyRenderWindowInteractor()
     auto& platformTimerId = timerIds.second;
     vtkDestroyTimer(platformTimerId, this->IsOneShotTimer(tid));
   }
+  // Each TimerBridgeData is keeping the vtkInternals in a shared_ptr, so clear the map
+  // to drop all TimerBridgeData so that ~vtkInternals can run at the end of this method.
+  this->Internals->Timers.clear();
   this->SetCanvasSelector(nullptr);
 }
 
