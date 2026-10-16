@@ -5,6 +5,7 @@
  * results and gives the same output as a full execution.
  */
 
+#include <vtkDataArrayRange.h>
 #include <vtkDoubleArray.h>
 #include <vtkImageData.h>
 #include <vtkMultiVariateToRGBA.h>
@@ -12,8 +13,8 @@
 #include <vtkPointData.h>
 #include <vtkSmartPointer.h>
 #include <vtkTrivialProducer.h>
-#include <vtkVariant.h>
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 
@@ -26,25 +27,21 @@ namespace
     return EXIT_FAILURE;                                                                           \
   }
 
+// Returns the point data array 'name' of the output of 'filter'.
 vtkDataArray* GetArray(vtkMultiVariateToRGBA* filter, const char* name)
 {
   return vtkImageData::SafeDownCast(filter->GetOutputDataObject(0))->GetPointData()->GetArray(name);
 }
 
+// Returns true if 'a' and 'b' have the same number of values and the
+// values differ by at most 'tolerance'.
 bool Equal(vtkDataArray* a, vtkDataArray* b, double tolerance = 0)
 {
-  if (a->GetNumberOfValues() != b->GetNumberOfValues())
-  {
-    return false;
-  }
-  for (vtkIdType i = 0; i < a->GetNumberOfValues(); ++i)
-  {
-    if (std::fabs(a->GetVariantValue(i).ToDouble() - b->GetVariantValue(i).ToDouble()) > tolerance)
-    {
-      return false;
-    }
-  }
-  return true;
+  auto aValues = vtk::DataArrayValueRange(a);
+  auto bValues = vtk::DataArrayValueRange(b);
+  return aValues.size() == bValues.size() &&
+    std::equal(aValues.begin(), aValues.end(), bValues.begin(),
+      [tolerance](double x, double y) { return std::fabs(x - y) <= tolerance; });
 }
 
 // Sets the same lens on both filters and updates them, 'full' with a full
