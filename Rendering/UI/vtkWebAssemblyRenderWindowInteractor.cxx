@@ -577,10 +577,16 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
       this->SetEventInformationFlipY(emEvent->mouse.targetX * dpr, emEvent->mouse.targetY * dpr,
         emEvent->mouse.ctrlKey, emEvent->mouse.shiftKey);
       this->SetAltKey(emEvent->mouse.altKey);
-      this->InvokeEvent(emEvent->deltaY < 0 ? vtkCommand::MouseWheelForwardEvent
-                                            : vtkCommand::MouseWheelBackwardEvent);
-      this->InvokeEvent(
-        emEvent->deltaX > 0 ? vtkCommand::MouseWheelRightEvent : vtkCommand::MouseWheelLeftEvent);
+      if (emEvent->deltaX == 0 && emEvent->deltaY != 0)
+      {
+        this->InvokeEvent(emEvent->deltaY < 0 ? vtkCommand::MouseWheelForwardEvent
+                                              : vtkCommand::MouseWheelBackwardEvent);
+      }
+      if (emEvent->deltaX != 0 && emEvent->deltaY == 0)
+      {
+        this->InvokeEvent(
+          emEvent->deltaX > 0 ? vtkCommand::MouseWheelRightEvent : vtkCommand::MouseWheelLeftEvent);
+      }
       break;
     }
     case EMSCRIPTEN_EVENT_TOUCHSTART:
