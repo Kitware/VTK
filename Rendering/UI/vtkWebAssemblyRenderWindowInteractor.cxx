@@ -299,6 +299,8 @@ void vtkWebAssemblyRenderWindowInteractor::RegisterUICallbacks()
 
   emscripten_set_mousedown_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
     EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_dblclick_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
   // Listen on window so that a button pressed on the canvas and released outside of it
   // is caught by the this->ProcessEvent(). Otherwise the interactor thinks the button is
   // held down.
@@ -326,6 +328,10 @@ void vtkWebAssemblyRenderWindowInteractor::RegisterUICallbacks()
   emscripten_set_focus_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
     EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
   emscripten_set_blur_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_focusin_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_focusout_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
     EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
 
   emscripten_set_keydown_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
@@ -359,6 +365,8 @@ void vtkWebAssemblyRenderWindowInteractor::UnRegisterUICallbacks()
 
   emscripten_set_mousedown_callback_on_thread(
     canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_dblclick_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
   emscripten_set_mouseup_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 0, nullptr,
     EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
   internals.PressedButtons = 0;
@@ -384,6 +392,10 @@ void vtkWebAssemblyRenderWindowInteractor::UnRegisterUICallbacks()
   emscripten_set_focus_callback_on_thread(
     canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
   emscripten_set_blur_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_focusin_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_focusout_callback_on_thread(
     canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
 
   emscripten_set_keydown_callback_on_thread(
@@ -531,6 +543,10 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     case EMSCRIPTEN_EVENT_DBLCLICK:
     {
       auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
+      if (emEvent->button > 2)
+      {
+        break;
+      }
       this->SetEventInformationFlipY(
         emEvent->targetX * dpr, emEvent->targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey);
       this->SetAltKey(emEvent->altKey);
