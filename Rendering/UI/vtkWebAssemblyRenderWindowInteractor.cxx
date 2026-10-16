@@ -8,6 +8,7 @@
 #include "vtkWeakPointer.h"
 
 #include <cstdint>
+#include <cstring>
 #include <deque>
 #include <map>
 #include <pthread.h>
@@ -228,6 +229,12 @@ vtkWebAssemblyRenderWindowInteractor::~vtkWebAssemblyRenderWindowInteractor()
 //------------------------------------------------------------------------------
 void vtkWebAssemblyRenderWindowInteractor::SetCanvasSelector(const char* value)
 {
+  // nothing to do if the selector is unchanged.
+  if ((this->CanvasSelector == nullptr && value == nullptr) ||
+    (this->CanvasSelector && value && !strcmp(this->CanvasSelector, value)))
+  {
+    return;
+  }
   auto& internals = (*this->Internals);
   // remove callbacks from previous target
   const bool reInstallUICallbacks = internals.RegisteredUICallbacks;
