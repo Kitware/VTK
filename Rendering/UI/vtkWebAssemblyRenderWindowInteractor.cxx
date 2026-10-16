@@ -502,6 +502,10 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     case EMSCRIPTEN_EVENT_MOUSEDOWN:
     {
       auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
+      if (emEvent->button > 2)
+      {
+        break;
+      }
       internals.CanvasOffsetX = emEvent->clientX - emEvent->targetX;
       internals.CanvasOffsetY = emEvent->clientY - emEvent->targetY;
       internals.PressedButtons |= (1u << emEvent->button); // store button press bit.
@@ -514,6 +518,10 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     case EMSCRIPTEN_EVENT_MOUSEUP:
     {
       auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
+      if (emEvent->button > 2)
+      {
+        break;
+      }
       const unsigned int buttonBit = 1u << emEvent->button;
       if (!(internals.PressedButtons & buttonBit)) // check that the button was down on the canvas
       {
