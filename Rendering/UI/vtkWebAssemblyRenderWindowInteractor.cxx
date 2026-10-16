@@ -361,7 +361,7 @@ void vtkWebAssemblyRenderWindowInteractor::UnRegisterUICallbacks()
     return;
   }
   const char* canvas = this->CanvasSelector;
-  if (this->InstallHTMLResizeObserver && internals.ResizeObserverInstalled)
+  if (internals.ResizeObserverInstalled)
   {
     emscripten_set_resize_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 0, nullptr,
       EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
