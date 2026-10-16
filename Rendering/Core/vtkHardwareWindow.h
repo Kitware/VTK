@@ -38,6 +38,12 @@ public:
   // destroy the window (not the instance)
   virtual void Destroy() {}
 
+  /**
+   * Whether this is a handle on a view the host application owns rather than one
+   * VTK creates. Such a view exists whether or not VTK renders into it.
+   */
+  virtual bool IsExternallyOwned() { return false; }
+
   ///@{
   /**
    * Set/Get the interactor associated with this window

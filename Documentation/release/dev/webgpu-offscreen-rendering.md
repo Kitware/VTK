@@ -8,7 +8,9 @@ the WebGPU backend ignored the setting and showed a window anyway.
 `SetShowWindow(false)` together with `SetUseOffScreenBuffers(true)` goes further and creates no
 window and no surface at all, so rendering works on a machine with no display. Read the result back
 with `GetPixelData()` as usual: every frame is drawn into an offscreen color attachment either way,
-and only presenting it needs a surface.
+and only presenting it needs a surface. In a web browser the canvas belongs to the host page rather
+than to VTK, so it keeps being presented to regardless; clearing `vtkWebAssemblyHardwareWindow`'s
+canvas selector is how offscreen-only rendering is requested there.
 
 Both must be set before the first render. A window that has already been initialized keeps the
 surface it was created with.

@@ -84,6 +84,12 @@ public:
   vtkSetStringMacro(CanvasSelector);
 
   /**
+   * The canvas belongs to the host page. Clearing the selector leaves no view at
+   * all, which is how an application asks for offscreen-only rendering.
+   */
+  bool IsExternallyOwned() override { return this->CanvasSelector != nullptr; }
+
+  /**
    * Make the setter for ShowWindow no-op.
    * This property is meaningless in a web browser context.
    */

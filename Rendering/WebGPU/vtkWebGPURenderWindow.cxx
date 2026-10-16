@@ -275,13 +275,35 @@ WGPUSurface vtkWebGPURenderWindow::CreateSurfaceFromHardwareWindow(WGPUInstance 
 //------------------------------------------------------------------------------
 bool vtkWebGPURenderWindow::RendersOffScreenOnly()
 {
-  return !this->ShowWindow && this->UseOffScreenBuffers && this->CustomSurfaceDescriptor == nullptr;
+  // An external presentation target exists whether or not we render into it, so
+  // skipping the surface would only leave it blank.
+  if (this->CustomSurfaceDescriptor != nullptr)
+  {
+    return false;
+  }
+  if (this->HardwareWindow != nullptr && this->HardwareWindow->IsExternallyOwned())
+  {
+    return false;
+  }
+  return !this->ShowWindow && this->UseOffScreenBuffers;
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::Initialize()
 {
+  // Instantiating the hardware window acquires no OS resources and lets the
+  // decision below ask it what kind of view it is. Released again when it turns
+  // out nothing will be presented.
+  const bool hadHardwareWindow = this->HardwareWindow != nullptr;
+  if (this->CustomSurfaceDescriptor == nullptr && !hadHardwareWindow)
+  {
+    this->SetHardwareWindow(vtk::TakeSmartPointer(vtkHardwareWindow::New()));
+  }
   const bool offScreenOnly = this->RendersOffScreenOnly();
+  if (offScreenOnly && !hadHardwareWindow)
+  {
+    this->SetHardwareWindow(nullptr);
+  }
   if (this->CustomSurfaceDescriptor == nullptr && !offScreenOnly)
   {
     this->CreateAWindow();
@@ -2401,10 +2423,10 @@ void vtkWebGPURenderWindow::CreateAWindow()
   if (!this->HardwareWindow)
   {
     this->SetHardwareWindow(vtk::TakeSmartPointer(vtkHardwareWindow::New()));
-    if (this->Interactor)
-    {
-      this->HardwareWindow->SetInteractor(this->Interactor);
-    }
+  }
+  if (this->Interactor)
+  {
+    this->HardwareWindow->SetInteractor(this->Interactor);
   }
   this->SyncWithHardware();
   this->HardwareWindow->Create();
