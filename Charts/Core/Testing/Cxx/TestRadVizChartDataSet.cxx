@@ -39,8 +39,8 @@ public:
         std::string key = interactor->GetKeySym();
         if (key == "r" || key == "R")
         {
-          this->Plot->SetLensRadius(this->Plot->GetRadius());
-          this->Plot->SetLensCenter(this->Plot->GetCenter());
+          this->Plot->SetSceneLensRadius(this->Plot->GetSceneRadius());
+          this->Plot->SetSceneLensCenter(this->Plot->GetSceneCenter());
           this->View->GetScene()->SetDirty(true);
         }
       }

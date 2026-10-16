@@ -245,7 +245,7 @@ bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
     if (this->Internals->DragVertexIndex >= 0)
     {
       // rotate vertices by the angle swept by the mouse since the press
-      const double* center = this->Internals->Plot->GetCenter();
+      const double* center = this->Internals->Plot->GetSceneCenter();
       double mouseAngle =
         vtkMath::DegreesFromRadians(std::atan2(pos[1] - center[1], pos[0] - center[0]));
       this->Internals->Plot->SetVerticesRotation(
@@ -255,11 +255,11 @@ bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
     }
     else if (this->Internals->ResizeLens)
     {
-      double* lensCenter = this->Internals->Plot->GetLensCenter();
+      double* lensCenter = this->Internals->Plot->GetSceneLensCenter();
       // distance between the lensCenter and the mouse point
       double r =
         std::sqrt(std::pow(pos[0] - lensCenter[0], 2) + std::pow(pos[1] - lensCenter[1], 2));
-      this->Internals->Plot->SetLensRadius(r);
+      this->Internals->Plot->SetSceneLensRadius(r);
       this->Scene->SetDirty(true);
       this->Internals->Plot->InvokeEvent(vtkCommand::InteractionEvent);
     }
@@ -270,11 +270,11 @@ bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
       d[0] = pos[0] - this->Internals->DragLensStart[0];
       d[1] = pos[1] - this->Internals->DragLensStart[1];
       double newLensCenter[2];
-      double* lensCenter = this->Internals->Plot->GetLensCenter();
+      double* lensCenter = this->Internals->Plot->GetSceneLensCenter();
       newLensCenter[0] = lensCenter[0] + d[0];
       ;
       newLensCenter[1] = lensCenter[1] + d[1];
-      this->Internals->Plot->SetLensCenter(newLensCenter);
+      this->Internals->Plot->SetSceneLensCenter(newLensCenter);
       std::copy(pos.GetData(), pos.GetData() + 2, this->Internals->DragLensStart);
       this->Scene->SetDirty(true);
       this->Internals->Plot->InvokeEvent(vtkCommand::InteractionEvent);
@@ -318,7 +318,7 @@ bool vtkChartRadViz::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
       this->Internals->DragLens);
     if (this->Internals->DragVertexIndex >= 0)
     {
-      const double* center = this->Internals->Plot->GetCenter();
+      const double* center = this->Internals->Plot->GetSceneCenter();
       this->Internals->DragStartMouseAngle =
         vtkMath::DegreesFromRadians(std::atan2(pos[1] - center[1], pos[0] - center[0]));
       this->Internals->DragStartRotation = this->Internals->Plot->GetVerticesRotation();
@@ -367,8 +367,8 @@ void vtkChartRadViz::GetActiveElement(
   }
   if (activeVertexIndex < 0 && this->Internals->Plot->GetLensVisibility())
   {
-    double* lensCenter = this->Internals->Plot->GetLensCenter();
-    double lensRadius = this->Internals->Plot->GetLensRadius();
+    double* lensCenter = this->Internals->Plot->GetSceneLensCenter();
+    double lensRadius = this->Internals->Plot->GetSceneLensRadius();
     // distance between the lensCenter and the mouse point
     double r = std::sqrt(std::pow(pos[0] - lensCenter[0], 2) + std::pow(pos[1] - lensCenter[1], 2));
     if (std::abs(lensRadius - r) < SIZE)

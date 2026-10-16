@@ -237,26 +237,31 @@ public:
    * stored, so it can be set before the plot is rendered. The default,
    * center (0, 0) and radius 1, covers the whole plot.
    */
-  vtkSetVector2Macro(NormalizedLensCenter, double);
-  vtkGetVector2Macro(NormalizedLensCenter, double);
-  vtkSetMacro(NormalizedLensRadius, double);
-  vtkGetMacro(NormalizedLensRadius, double);
+  vtkSetVector2Macro(LensCenter, double);
+  vtkGetVector2Macro(LensCenter, double);
+  vtkSetMacro(LensRadius, double);
+  vtkGetMacro(LensRadius, double);
   /**
-   * Center of the lens in window space. Only valid once the plot has been
-   * painted: before that, the set function is ignored with a warning. The
-   * set function ensures that the lens intersects the GBC circle.
+   * Center of the lens in scene coordinates. Only valid once the plot has
+   * been painted: before that, the set function is ignored with a warning.
+   * The set function ensures that the lens intersects the GBC circle.
+   *
+   * These functions are excluded from serialization: the GBC values
+   * (LensCenter, LensRadius) are the state and the scene values are a view
+   * of it. Only the state should be serialized.
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
-  virtual void SetLensCenter(const double* center);
+  virtual void SetSceneLensCenter(const double* center);
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
-  double* GetLensCenter() VTK_SIZEHINT(2);
+  double* GetSceneLensCenter() VTK_SIZEHINT(2);
   /**
-   * Radius of the lens in window space, see SetLensCenter.
+   * Radius of the lens in scene coordinates, see SetSceneLensCenter,
+   * including why these functions are excluded from serialization.
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
-  virtual void SetLensRadius(double radius);
+  virtual void SetSceneLensRadius(double radius);
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
-  double GetLensRadius();
+  double GetSceneLensRadius();
   /**
    * Controls how the lens circle outline is drawn. Its width is also the
    * size of the lens center dot, which is shown only when
@@ -309,13 +314,13 @@ public:
   ///@}
 
   /**
-   * Center of the plot in window space.
+   * Center of the plot in scene coordinates.
    */
-  const double* GetCenter() const VTK_SIZEHINT(2);
+  const double* GetSceneCenter() const VTK_SIZEHINT(2);
   /**
-   * Radius of the plot in window space.
+   * Radius of the plot in scene coordinates.
    */
-  double GetRadius() const;
+  double GetSceneRadius() const;
 
   ///@{
   /**
@@ -379,7 +384,7 @@ public:
 
   /**
    * Returns the angle in degrees between vertex and mousePos, measured
-   * at the plot's center. All these positions are in window space.
+   * at the plot's center. All these positions are in scene coordinates.
    */
   double GetAngle(double vertex[2], double mousePos[2]);
 
@@ -492,11 +497,14 @@ protected:
    */
   bool LensVisibility = false;
   /**
-   * The lens in GBC space, and the storage for GetLensCenter().
+   * The lens in GBC space
    */
-  double NormalizedLensCenter[2] = { 0.0, 0.0 };
-  double NormalizedLensRadius = 1.0;
   double LensCenter[2] = { 0.0, 0.0 };
+  double LensRadius = 1.0;
+  /**
+   * Storage for GetSceneLensCenter().
+   */
+  double SceneLensCenter[2] = { 0.0, 0.0 };
 
   vtkSmartPointer<vtkPoints2D> Vertices;
   double VerticesRotation = 0.0;

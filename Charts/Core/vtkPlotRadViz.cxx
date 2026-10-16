@@ -67,13 +67,13 @@ public:
   vtkInternals(vtkObject* parent)
     : Parent(parent)
   {
-    this->Center[0] = this->Center[1] = 0;
-    this->Radius = 0;
+    this->SceneCenter[0] = this->SceneCenter[1] = 0;
+    this->SceneRadius = 0;
   }
   /**
    * Translates and scales GBC and vertex coordinates from the unit circle
-   * centered at (0,0) to the plot circle centered at (Center[0], Center[1])
-   * with radius Radius.
+   * centered at (0,0) to the plot circle centered at (SceneCenter[0], SceneCenter[1])
+   * with radius SceneRadius.
    */
   template <class TArray>
   void operator()(TArray* inputArray, vtkPoints2D* points)
@@ -83,17 +83,17 @@ public:
     auto output = vtkAOSDataArrayTemplate<float>::FastDownCast(points->GetData())->GetPointer(0);
     for (int i = 0; i < input.size(); ++i)
     {
-      output[2 * i] = this->Center[0] + input[i][0] * this->Radius;
-      output[2 * i + 1] = this->Center[1] + input[i][1] * this->Radius;
+      output[2 * i] = this->SceneCenter[0] + input[i][0] * this->SceneRadius;
+      output[2 * i + 1] = this->SceneCenter[1] + input[i][1] * this->SceneRadius;
     }
   }
 
   double GetAngle(double vertex[2], double mousePos[2])
   {
-    mousePos[0] -= this->Center[0];
-    mousePos[1] -= this->Center[1];
-    vertex[0] -= this->Center[0];
-    vertex[1] -= this->Center[1];
+    mousePos[0] -= this->SceneCenter[0];
+    mousePos[1] -= this->SceneCenter[1];
+    vertex[0] -= this->SceneCenter[0];
+    vertex[1] -= this->SceneCenter[1];
     double vertexRad = std::atan2(vertex[1], vertex[0]);
     double mousePosRad = std::atan2(mousePos[1], mousePos[0]);
     vtkDebugWithObjectMacro(this->Parent,
@@ -103,21 +103,21 @@ public:
     return angle;
   }
 
-  void SetCenterAndRadius(int dimensions[4])
+  void SetSceneCenterAndRadius(int dimensions[4])
   {
-    this->Center[0] = dimensions[0] + 0.5 * dimensions[2];
-    this->Center[1] = dimensions[1] + 0.5 * dimensions[3];
-    this->Radius = dimensions[2] < dimensions[3] ? 0.5 * dimensions[2] : 0.5 * dimensions[3];
+    this->SceneCenter[0] = dimensions[0] + 0.5 * dimensions[2];
+    this->SceneCenter[1] = dimensions[1] + 0.5 * dimensions[3];
+    this->SceneRadius = dimensions[2] < dimensions[3] ? 0.5 * dimensions[2] : 0.5 * dimensions[3];
   }
 
   /**
-   * The center of the GBC circle in window space
+   * The center of the GBC circle in scene coordinates
    */
-  double Center[2];
+  double SceneCenter[2];
   /**
-   * The radius of the GBC circle in window space
+   * The radius of the GBC circle in scene coordinates
    */
-  double Radius;
+  double SceneRadius;
   /**
    * PlotRadViz object, used for debug or error logging
    */
@@ -155,66 +155,69 @@ vtkPlotRadViz::~vtkPlotRadViz()
 }
 
 //------------------------------------------------------------------------------
-const double* vtkPlotRadViz::GetCenter() const
+const double* vtkPlotRadViz::GetSceneCenter() const
 {
-  return this->Internals->Center;
+  return this->Internals->SceneCenter;
 }
 
 //------------------------------------------------------------------------------
-double vtkPlotRadViz::GetRadius() const
+double vtkPlotRadViz::GetSceneRadius() const
 {
-  return this->Internals->Radius;
+  return this->Internals->SceneRadius;
 }
 
 //------------------------------------------------------------------------------
-double* vtkPlotRadViz::GetLensCenter()
+double* vtkPlotRadViz::GetSceneLensCenter()
 {
   // clamped like vtkMultiVariateToRGBA does, so the lens is drawn where it applies
   const double origin[2] = { 0, 0 };
-  std::array<double, 2> center = vtkMultiVariateToRGBA::GetLensCenter(
-    this->NormalizedLensRadius, 1, this->NormalizedLensCenter, origin);
+  std::array<double, 2> center =
+    vtkMultiVariateToRGBA::GetLensCenter(this->LensRadius, 1, this->LensCenter, origin);
   for (int i = 0; i < 2; ++i)
   {
-    this->LensCenter[i] = this->Internals->Center[i] + center[i] * this->Internals->Radius;
+    this->SceneLensCenter[i] =
+      this->Internals->SceneCenter[i] + center[i] * this->Internals->SceneRadius;
   }
-  return this->LensCenter;
+  return this->SceneLensCenter;
 }
 
 //------------------------------------------------------------------------------
-double vtkPlotRadViz::GetLensRadius()
+double vtkPlotRadViz::GetSceneLensRadius()
 {
-  return this->NormalizedLensRadius * this->Internals->Radius;
+  return this->LensRadius * this->Internals->SceneRadius;
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotRadViz::SetLensRadius(double lensRadius)
+void vtkPlotRadViz::SetSceneLensRadius(double lensRadius)
 {
-  vtkDebugMacro(<< " setting LensRadius to " << lensRadius);
-  if (this->Internals->Radius <= 0)
+  vtkDebugMacro(<< " setting SceneLensRadius to " << lensRadius);
+  if (this->Internals->SceneRadius <= 0)
   {
-    vtkWarningMacro("Use SetNormalizedLensRadius before the plot is painted.");
+    vtkWarningMacro("Use SetLensRadius before the plot is painted.");
     return;
   }
   const double origin[2] = { 0, 0 };
-  this->SetNormalizedLensRadius(vtkMultiVariateToRGBA::GetLensRadius(
-    lensRadius / this->Internals->Radius, 1, this->NormalizedLensCenter, origin));
+  this->SetLensRadius(vtkMultiVariateToRGBA::GetLensRadius(
+    lensRadius / this->Internals->SceneRadius, 1, this->LensCenter, origin));
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotRadViz::SetLensCenter(const double* lensCenter)
+void vtkPlotRadViz::SetSceneLensCenter(const double* lensCenter)
 {
-  vtkDebugMacro(<< " setting LensCenter to [" << lensCenter[0] << ", " << lensCenter[1] << ")");
-  if (this->Internals->Radius <= 0)
+  vtkDebugMacro(<< " setting SceneLensCenter to [" << lensCenter[0] << ", " << lensCenter[1]
+                << ")");
+  if (this->Internals->SceneRadius <= 0)
   {
-    vtkWarningMacro("Use SetNormalizedLensCenter before the plot is painted.");
+    vtkWarningMacro("Use SetLensCenter before the plot is painted.");
     return;
   }
   const double origin[2] = { 0, 0 };
-  const double center[2] = { (lensCenter[0] - this->Internals->Center[0]) / this->Internals->Radius,
-    (lensCenter[1] - this->Internals->Center[1]) / this->Internals->Radius };
+  const double center[2] = { (lensCenter[0] - this->Internals->SceneCenter[0]) /
+      this->Internals->SceneRadius,
+    (lensCenter[1] - this->Internals->SceneCenter[1]) / this->Internals->SceneRadius };
   std::array<double, 2> newCenter =
-    vtkMultiVariateToRGBA::GetLensCenter(this->NormalizedLensRadius, 1, center, origin);
-  this->SetNormalizedLensCenter(newCenter[0], newCenter[1]);
+    vtkMultiVariateToRGBA::GetLensCenter(this->LensRadius, 1, center, origin);
+  this->SetLensCenter(newCenter[0], newCenter[1]);
 }
 
 //------------------------------------------------------------------------------
@@ -392,12 +395,12 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     // instead of StoreRGBA to skip the RGB computation.
     this->ComputeGBC->SetStoreRGBA(this->ScalarVisibility);
     this->ComputeGBC->SetStoreA(!this->ScalarVisibility);
-    this->ComputeGBC->SetLensRadius(this->NormalizedLensRadius);
+    this->ComputeGBC->SetLensRadius(this->LensRadius);
     this->ComputeGBC->SetOutsideLensAlpha(this->OutsideLensAlpha);
     this->ComputeGBC->SetPartitionIndices(this->PartitionIndices);
     this->ComputeGBC->SetPartitionOffsets(this->PartitionOffsets);
     this->ComputeGBC->SetCustomRange(this->CustomRange);
-    this->ComputeGBC->SetLensCenter(this->NormalizedLensCenter);
+    this->ComputeGBC->SetLensCenter(this->LensCenter);
     this->ComputeGBC->Update();
     vtkDataObject* output = this->ComputeGBC->GetOutputDataObject(0);
     auto [vertices, gbc, rgba] = this->GetVerticesGbcRgba(output);
@@ -541,9 +544,9 @@ std::pair<int, int> vtkPlotRadViz::GetJustification(double xy[2])
 void vtkPlotRadViz::ShiftLabelByPenWidth(double width, double xy[2])
 {
   double radius = (width / 2) * 1.2;
-  double cos_a = (xy[0] - this->Internals->Center[0]) / this->Internals->Radius;
+  double cos_a = (xy[0] - this->Internals->SceneCenter[0]) / this->Internals->SceneRadius;
   double x = cos_a * radius;
-  double sin_a = (xy[1] - this->Internals->Center[1]) / this->Internals->Radius;
+  double sin_a = (xy[1] - this->Internals->SceneCenter[1]) / this->Internals->SceneRadius;
   double y = sin_a * radius;
   xy[0] += x;
   xy[1] += y;
@@ -551,7 +554,7 @@ void vtkPlotRadViz::ShiftLabelByPenWidth(double width, double xy[2])
 
 void vtkPlotRadViz::DrawLens(vtkContext2D* painter)
 {
-  const double* lensCenter = this->GetLensCenter();
+  const double* lensCenter = this->GetSceneLensCenter();
   painter->ApplyPen(this->LensPen);
   if (this->ActiveLensInterior)
   {
@@ -567,7 +570,7 @@ void vtkPlotRadViz::DrawLens(vtkContext2D* painter)
     painter->GetPen()->SetColor(this->GetActiveColor());
   }
   painter->GetBrush()->SetColor(0, 0, 0, 0); // transparent brush (only outline)
-  painter->DrawArc(lensCenter[0], lensCenter[1], this->GetLensRadius(), 0, 360);
+  painter->DrawArc(lensCenter[0], lensCenter[1], this->GetSceneLensRadius(), 0, 360);
 }
 
 int vtkPlotRadViz::GetColorWheelStartAngle()
@@ -616,10 +619,10 @@ void vtkPlotRadViz::DrawColorWheel(vtkContext2D* painter)
       std::transform(rgb.begin(), rgb.end(), rgbChar.begin(),
         [](double v) { return static_cast<unsigned char>(v * 255); });
       painter->GetBrush()->SetColor(rgbChar.data());
-      double outerRadius = this->Internals->Radius * (j + 1) / this->ColorWheelRingCount;
-      double innerRadius = this->Internals->Radius * j / this->ColorWheelRingCount;
-      painter->DrawEllipseWedge(this->Internals->Center[0], this->Internals->Center[1], outerRadius,
-        outerRadius, innerRadius, innerRadius, start, end);
+      double outerRadius = this->Internals->SceneRadius * (j + 1) / this->ColorWheelRingCount;
+      double innerRadius = this->Internals->SceneRadius * j / this->ColorWheelRingCount;
+      painter->DrawEllipseWedge(this->Internals->SceneCenter[0], this->Internals->SceneCenter[1],
+        outerRadius, outerRadius, innerRadius, innerRadius, start, end);
     }
   }
 }
@@ -742,7 +745,7 @@ void vtkPlotRadViz::UpdateCenterAndRadius(vtkContext2D* painter)
     std::max(this->Dimensions[3] - 2 * marginYi, 0) };
 
   // the lens is stored in GBC space, so it follows the plot circle
-  this->Internals->SetCenterAndRadius(dimensions);
+  this->Internals->SetSceneCenterAndRadius(dimensions);
 }
 
 //------------------------------------------------------------------------------
