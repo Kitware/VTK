@@ -73,7 +73,7 @@ public:
   class EventDataWrapper
   {
     int Type = -1; // Takes on values that are defined in emscripten/html5.h `EMSCRIPTEN_EVENT_NAME`
-    std::unique_ptr<std::uint8_t> Data = nullptr;
+    std::unique_ptr<std::uint8_t[]> Data = nullptr;
 
   public:
     explicit EventDataWrapper(int type, const void* data, std::size_t size)
