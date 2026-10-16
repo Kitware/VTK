@@ -8,6 +8,8 @@ set(classes
   vtkLagrangianParticle
   vtkLagrangianParticleTracker
   vtkLinearTransformCellLocator
+  vtkLiutex
+  vtkLiutexCoreLines
   vtkModifiedBSPTree
   vtkParallelVectors
   vtkParticlePathFilter
