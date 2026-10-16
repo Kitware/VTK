@@ -326,7 +326,13 @@ bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdTyp
   const vtkIdType* localPointIds;
   for (int face = 0; face < numberOfFaces; ++face)
   {
-    nTriangles += cell->GetFacePoints(face, localPointIds) - 2;
+    const vtkIdType nFacePoints = cell->GetFacePoints(face, localPointIds);
+    if (nFacePoints < 3)
+    {
+      // nTriangles is unsigned; a degenerate or unavailable face would wrap it.
+      return false;
+    }
+    nTriangles += nFacePoints - 2;
   }
   triangles.resize(nTriangles);
 
@@ -373,9 +379,15 @@ bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdTyp
           polygon->GetPointIds()->SetId(i, i);
         }
 
+        // A face whose vertices include collinear ones -- hanging nodes along an
+        // edge, which polyhedral meshes at refinement boundaries are full of --
+        // legitimately triangulates into fewer than nPoints - 2 triangles while
+        // still covering the face. Use the count ear-cut actually produced;
+        // assuming nPoints - 2 reads past the end of outTris.
         polygon->TriangulateLocalIds(0, outTris);
+        const vtkIdType nTris = outTris->GetNumberOfIds() / 3;
 
-        for (vtkIdType i = 0; i < nPoints - 2; ++i)
+        for (vtkIdType i = 0; i < nTris; ++i)
         {
           triangles[triId++] = { { pointIds[localPointIds[outTris->GetId(3 * i)]],
             pointIds[localPointIds[outTris->GetId(3 * i + 1)]],
@@ -384,6 +396,10 @@ bool surfaceTessellationForCell(vtkCell3D* cell, std::vector<std::array<vtkIdTyp
       }
     }
   }
+
+  // nTriangles was an upper bound (nPoints - 2 per face); collinear vertices
+  // mean fewer are produced.
+  triangles.resize(triId);
   return true;
 }
 }

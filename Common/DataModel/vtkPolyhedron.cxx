@@ -490,12 +490,12 @@ int vtkPolyhedron::GenerateEdges(std::map<vtkIdType, int>& unevenCoedges)
 //------------------------------------------------------------------------------
 int vtkPolyhedron::GetNumberOfFaces()
 {
-  // Make sure faces have been generated.
-  if (!this->FacesGenerated)
-  {
-    this->GenerateFaces();
-  }
-
+  // Deliberately does not call GenerateFaces(). The count comes from
+  // GlobalFaces, which needs no renumbering, so generating here only cost a
+  // DeepCopy and a PointIdMap lookup per connectivity id for every caller that
+  // merely wanted to know how many faces there are -- including the face loops
+  // in the streamline and probe filters. The accessors that actually need the
+  // renumbered Faces array generate it themselves.
   if (this->GlobalFaces->GetNumberOfCells() == 0)
   {
     return 0;
@@ -700,10 +700,29 @@ int vtkPolyhedron::IntersectWithLine(const double p1[3], const double p2[3], dou
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-vtkIdType vtkPolyhedron::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
+vtkIdType vtkPolyhedron::GetGlobalFacePoints(vtkIdType faceId, const vtkIdType*& pts)
 {
   vtkIdType npts;
   this->GlobalFaces->GetCellAtId(faceId, npts, pts);
+  return npts;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkPolyhedron::GetFacePoints(vtkIdType faceId, const vtkIdType*& pts)
+{
+  // vtkCell3D's contract is that face points are 0-offset ids into the cell's
+  // own point list, not point ids of the mesh. GenerateFaces() renumbers
+  // GlobalFaces through PointIdMap to produce exactly that.
+  this->GenerateFaces();
+
+  if (faceId < 0 || faceId >= this->Faces->GetNumberOfCells())
+  {
+    pts = nullptr;
+    return 0;
+  }
+
+  vtkIdType npts;
+  this->Faces->GetCellAtId(faceId, npts, pts);
   return npts;
 }
 
@@ -1114,6 +1133,12 @@ vtkPolyhedron::Status vtkPolyhedron::IsConvex(double planarThreshold)
 //------------------------------------------------------------------------------
 int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtkIdList* pts)
 {
+  // Faces is empty until GenerateFaces() renumbers GlobalFaces, and Initialize()
+  // resets it. This read used to happen to work only because GetNumberOfFaces()
+  // generated as a side effect somewhere earlier in the caller; on a freshly
+  // initialized cell it saw no faces at all.
+  this->GenerateFaces();
+
   double x[3], n[3], o[3], v[3];
   double minDist = VTK_DOUBLE_MAX;
   vtkIdType numFacePts = -1;
@@ -1228,6 +1253,13 @@ bool vtkPolyhedron::GetCentroid(double centroid[3]) const
   // of the tet centroids (v0 + v1 + v2) / 4.
   double totalVolume6 = 0.0; // 6 x volume (defer division)
   std::fill_n(centroid, 3, 0.0);
+
+  // Faces holds the cell-local renumbering and is empty until GenerateFaces()
+  // fills it. vtkCell3D::IsInsideOut calls GetCentroid before it touches any
+  // face accessor, so on a freshly initialized cell nothing had generated the
+  // array yet and this loop ran zero times. GenerateFaces only populates a
+  // cache, so const_cast is sound here; the observable state is unchanged.
+  const_cast<vtkPolyhedron*>(this)->GenerateFaces();
 
   const vtkIdType numFaces = this->Faces->GetNumberOfCells();
   const vtkIdType* facePts = nullptr;
