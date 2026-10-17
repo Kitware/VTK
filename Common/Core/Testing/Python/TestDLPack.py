@@ -301,15 +301,23 @@ class TestDLPack(Testing.vtkTest):
         the order right; see LATE_CONSUMER.
         """
         import os
+        import shutil
         import subprocess
         import sys
 
-        # Under vtkpython, sys.executable is the plain interpreter and VTK
-        # is on sys.path only because vtkpython put it there, so the child
-        # is handed the parent's path.
+        # vtkpython sets its program name to "vtkpython" next to libpython,
+        # so sys.executable usually names a file that does not exist (only
+        # a macOS framework Python resolves it to a real interpreter). Fall
+        # back to whatever launched this process, vtkpython included.
+        candidates = [sys.executable] + getattr(sys, "orig_argv", [])[:1]
+        interpreter = next(filter(None, map(shutil.which, candidates)), None)
+        if interpreter is None:
+            self.skipTest("cannot find an interpreter to run the child with")
+        # VTK may be on sys.path only because vtkpython put it there, so the
+        # child is handed the parent's path.
         env = dict(os.environ, PYTHONPATH=os.pathsep.join(sys.path))
         result = subprocess.run(
-            [sys.executable, "-c", LATE_CONSUMER],
+            [interpreter, "-c", LATE_CONSUMER],
             capture_output=True, text=True, timeout=300, env=env)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertNotIn("Exception ignored", result.stderr)
