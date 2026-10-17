@@ -12,6 +12,20 @@ When both the `RenderingOpenGL2` and `RenderingWebGPU` libraries are linked, the
 
 ## Building VTK with Dawn (Highly Experimental)
 
+Dawn is optional. `VTK_ENABLE_WEBGPU=ON` builds this module against the standard
+WebGPU C API and resolves the entry points at runtime, so Dawn does not have to
+be installed to configure or build VTK.
+
+Set `VTK_USE_DAWN_WEBGPU=ON` to declare Dawn's own WebGPU extensions, which go
+beyond the standard API (see [Standard WebGPU Headers](#standard-webgpu-headers)).
+That option makes Dawn a hard requirement: point `Dawn_DIR` at the installation,
+and configuration fails with an error if Dawn cannot be found there. The option
+is unavailable on Emscripten.
+
+Leaving it `OFF` does not stop a Dawn library from being loaded at runtime; it
+only means the extensions are not declared. The rest of this section builds a
+Dawn and configures with those extensions enabled.
+
 ### Prerequisites
 
 - Git
@@ -20,8 +34,10 @@ When both the `RenderingOpenGL2` and `RenderingWebGPU` libraries are linked, the
   *Not required if using pre-built dawn binaries*
 
 ### Desktop
-On desktop (Linux, macOS, and Windows), this module runs on Dawn's WebGPU
-implementation, through the C API. You can get Dawn with any of these two methods:
+On desktop (Linux, macOS, and Windows), this module is typically run against
+Dawn's WebGPU implementation, through the C API. Dawn is opened at runtime, so it
+is needed at configure time only for `VTK_USE_DAWN_WEBGPU`. You can get Dawn with
+any of these two methods:
 
 1. Build Dawn from source.
 2. Fetch pre-built Dawn binaries built in release mode.
@@ -98,6 +114,7 @@ cmake \
 -B "${VTK_BUILD_DIR}" \
 -GNinja \
 -DVTK_ENABLE_WEBGPU=ON \
+-DVTK_USE_DAWN_WEBGPU=ON \
 -DDawn_DIR="${DAWN_INSTALL_DIR}/lib/cmake/Dawn" \
 -DVTK_BUILD_TESTING=ON
 
@@ -113,6 +130,7 @@ cmake `
 -DCMAKE_BUILD_TYPE=Release `
 -GNinja `
 -DVTK_ENABLE_WEBGPU=ON `
+-DVTK_USE_DAWN_WEBGPU=ON `
 -DDawn_DIR="$env:DAWN_INSTALL_DIR/lib/cmake/Dawn" `
 -DVTK_BUILD_TESTING=ON
 
@@ -130,7 +148,7 @@ On Windows, ensure that you are using the same `CMAKE_BUILD_TYPE` for both build
 ```
 
 ### WebAssembly
-On WebAssembly, this module uses the WebGPU implementation provided by the browser. You do not need to build Dawn from source or fetch pre-built Dawn binaries. You just need to configure and build VTK with Emscripten. It takes care of linking the WebGPU implementation provided by the browser (with the `--use-port=emdawnwebgpu` flag).
+On WebAssembly, this module uses the WebGPU implementation provided by the browser. You do not need to build Dawn from source or fetch pre-built Dawn binaries. You just need to configure and build VTK with Emscripten. It takes care of linking the WebGPU implementation provided by the browser (with the `--use-port=emdawnwebgpu` flag). `VTK_USE_DAWN_WEBGPU` is unavailable here; emdawnwebgpu's own extensions are declared on this platform instead.
 
 #### Configure and build VTK
 
@@ -199,8 +217,8 @@ dependencies so that the same VTK build works with different native WebGPU
 runtimes (Dawn, wgpu-native) or browser WebGPU via Emscripten.
 
 ```{note}
-This decoupling is not complete. When Dawn is found at configure time the module
-links no implementation: the `wgpu*` names are redirected to a dispatch table
+This decoupling is not complete. No implementation is linked, not even with
+`VTK_USE_DAWN_WEBGPU=ON`: the `wgpu*` names are redirected to a dispatch table
 that the proc table fills in, so the only requirement is that an implementation
 can be found at runtime. `vtkWebGPUConfiguration::Initialize()` fails with a
 diagnostic if none can be.
