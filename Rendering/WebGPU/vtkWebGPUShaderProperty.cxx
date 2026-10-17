@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebGPUShaderProperty.h"
+#include "Private/vtkWebGPUSlangInternals.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverrideAttribute.h"
 #include "vtksys/FStream.hxx"
@@ -90,6 +91,18 @@ const char* vtkWebGPUShaderProperty::GetNthSlangSpecializationType(int n)
   return n >= 0 && n < this->GetNumberOfSlangSpecializations()
     ? this->SlangSpecializations[n].second.c_str()
     : nullptr;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUShaderProperty::SetGlobalUseSlang(bool use)
+{
+  vtkWebGPUSlangInternals::SetGlobalRequest(use);
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUShaderProperty::GetGlobalUseSlang()
+{
+  return vtkWebGPUSlangInternals::GetGlobalRequest();
 }
 
 //------------------------------------------------------------------------------

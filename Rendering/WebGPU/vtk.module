@@ -24,8 +24,10 @@ PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::fmt
   VTK::IOXML
+  VTK::RenderingSlang
 TEST_DEPENDS
   VTK::CommonColor
+  VTK::RenderingSlang
   VTK::CommonSystem
   VTK::RenderingAnnotation
   VTK::FiltersExtraction

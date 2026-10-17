@@ -43,6 +43,7 @@
 #include "vtkWebGPURenderTextureDeviceResource.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
+#include "vtkWebGPUShaderProperty.h"
 #include "vtkWebGPUTexture.h"
 
 #include "PBRFunctions.h"
@@ -54,9 +55,12 @@
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUPipelineLayoutInternals.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
+#include "Private/vtkWebGPUSlangInternals.h"
 
+#include <algorithm>
 #include <array>
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -844,6 +848,11 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
 }
 
 //------------------------------------------------------------------------------
+vtkMTimeType vtkWebGPUPolyDataMapper::GetShaderStateMTime(vtkActor* actor)
+{
+  return vtkWebGPUSlangInternals::GetRequestMTime(actor->GetShaderProperty());
+}
+
 bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkRenderer* renderer)
 {
   const auto key = std::make_pair(actor, renderer);
@@ -867,6 +876,7 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
     state.LastLineJoin = displayProperty->GetLineJoin();
     state.LastSelectingPoints = this->SelectingPoints;
     state.LastShadingFeatures = GetShadingFeatures(actor, renderer);
+    state.LastShaderPropertyMTime = GetShaderStateMTime(actor);
     this->CachedActorRendererProperties[key] = state;
     return true;
   }
@@ -899,6 +909,12 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
       cacheChanged = true;
     }
     state.LastHasRenderingTranslucentGeometry = hasTranslucentPolygonalGeometry;
+    const vtkMTimeType shaderPropertyMTime = GetShaderStateMTime(actor);
+    if (state.LastShaderPropertyMTime != shaderPropertyMTime)
+    {
+      cacheChanged = true;
+    }
+    state.LastShaderPropertyMTime = shaderPropertyMTime;
     if (state.LastSelectingPoints != this->SelectingPoints)
     {
       cacheChanged = true;
@@ -2436,6 +2452,8 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
     descriptor.primitive.cullMode = WGPUCullMode_Front;
   }
 
+  this->SlangShadersEnabled = this->PrepareSlangShaders(wgpuActor, renderer);
+
   std::vector<WGPUBindGroupLayout> basicBGLayoutEntries;
   wgpuRenderer->PopulateBindgroupLayouts(basicBGLayoutEntries);
   wgpuActor->Internals->PopulateBindgroupLayouts(basicBGLayoutEntries);
@@ -2522,6 +2540,15 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
     std::string fragmentShaderSource = vtkPolyDataFSWGSL;
     this->ApplyShaderReplacements(
       pipelineType, wgpuRenderer, wgpuActor, vertexShaderSource, fragmentShaderSource);
+    if (this->SlangShadersEnabled)
+    {
+      std::string slangShaders;
+      if (this->BuildSlangShaders(wgpuRenderer, wgpuActor, pipelineType, slangShaders))
+      {
+        vertexShaderSource = slangShaders;
+        fragmentShaderSource = std::move(slangShaders);
+      }
+    }
     // generate a unique key for the pipeline descriptor and shader source pointer
     this->GraphicsPipelineKeys[i] = wgpuPipelineCache->GetPipelineKey(
       (&descriptor), vertexShaderSource.c_str(), fragmentShaderSource.c_str());
@@ -2541,6 +2568,15 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
       this->BuildingPointSelectionDepthPass = true;
       this->ApplyShaderReplacements(
         pipelineType, wgpuRenderer, wgpuActor, depthVertexShaderSource, depthFragmentShaderSource);
+      if (this->SlangShadersEnabled)
+      {
+        std::string slangShaders;
+        if (this->BuildSlangShaders(wgpuRenderer, wgpuActor, pipelineType, slangShaders))
+        {
+          depthVertexShaderSource = slangShaders;
+          depthFragmentShaderSource = std::move(slangShaders);
+        }
+      }
       this->BuildingPointSelectionDepthPass = false;
       this->PointSelectionDepthKeys[i] = wgpuPipelineCache->GetPipelineKey(
         (&descriptor), depthVertexShaderSource.c_str(), depthFragmentShaderSource.c_str());
@@ -2554,6 +2590,209 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   // Rendering state is frozen after this point, so the pipelines have to be in the cache
   // before returning. Submitting them all first lets them be compiled concurrently.
   wgpuPipelineCache->WaitForPendingRenderPipelines();
+}
+
+//------------------------------------------------------------------------------
+std::vector<std::pair<std::string, std::string>> vtkWebGPUPolyDataMapper::GetSlangDefines(
+  vtkWebGPUActor* wgpuActor, GraphicsPipelineType pipelineType)
+{
+  vtkSlangShaderManager::StringPairs defines;
+  std::uint32_t binding = 0;
+  const char* pointDefines[POINT_NB_ATTRIBUTES] = { nullptr, "VTK_POINT_COLORS_BINDING",
+    "VTK_POINT_NORMALS_BINDING", "VTK_POINT_TANGENTS_BINDING", "VTK_POINT_UVS_BINDING",
+    "VTK_POINT_COLOR_UVS_BINDING" };
+  for (int i = 0; i < POINT_NB_ATTRIBUTES; ++i)
+  {
+    if (this->HasPointAttributes[i])
+    {
+      const std::uint32_t index = binding++;
+      if (pointDefines[i])
+      {
+        defines.emplace_back(pointDefines[i], std::to_string(index));
+      }
+    }
+  }
+  if (this->HasPointAttributes[POINT_COLOR_UVS] && this->ColorTextureHostResource &&
+    this->ColorTextureHostResource->GetDeviceResource())
+  {
+    defines.emplace_back("VTK_POINT_COLOR_SAMPLER_BINDING", std::to_string(binding++));
+    defines.emplace_back("VTK_POINT_COLOR_TEXTURE_BINDING", std::to_string(binding++));
+  }
+  const char* cellDefines[CELL_NB_ATTRIBUTES] = { "VTK_CELL_COLORS_BINDING",
+    "VTK_CELL_NORMALS_BINDING" };
+  for (int i = 0; i < CELL_NB_ATTRIBUTES; ++i)
+  {
+    if (this->HasCellAttributes[i])
+    {
+      defines.emplace_back(cellDefines[i], std::to_string(binding++));
+    }
+  }
+  if (this->GetNumberOfClippingPlanes() > 0)
+  {
+    defines.emplace_back("VTK_CLIPPING_PLANES_BINDING", std::to_string(binding++));
+  }
+
+  if (this->HasPointAttributes[POINT_COLORS] || this->HasCellAttributes[CELL_COLORS])
+  {
+    defines.emplace_back("VTK_HAS_VERTEX_COLORS", "1");
+  }
+  auto* texture = vtkWebGPUTexture::SafeDownCast(wgpuActor->GetTexture());
+  if (texture && texture->GetDeviceResource())
+  {
+    defines.emplace_back(
+      this->HasPointAttributes[POINT_UVS] ? "VTK_ACTOR_TEXTURE" : "VTK_ACTOR_TEXTURE_UNUSED", "1");
+  }
+  const char* pipeline = nullptr;
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_POINTS:
+    case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+      pipeline = "VTK_PIPELINE_POINTS";
+      break;
+    case GFX_PIPELINE_POINTS_SHAPED:
+    case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+      pipeline = "VTK_PIPELINE_POINTS_SHAPED";
+      break;
+    case GFX_PIPELINE_LINES:
+    case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+      pipeline = "VTK_PIPELINE_LINES";
+      break;
+    case GFX_PIPELINE_LINES_THICK:
+    case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+      pipeline = "VTK_PIPELINE_LINES_THICK";
+      break;
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+      pipeline = "VTK_PIPELINE_LINES_ROUND";
+      break;
+    case GFX_PIPELINE_LINES_MITER_JOIN:
+    case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+      pipeline = "VTK_PIPELINE_LINES_MITER";
+      break;
+    default:
+      break;
+  }
+  if (pipeline)
+  {
+    defines.emplace_back(pipeline, "1");
+  }
+  vtkProperty* property = wgpuActor->GetProperty();
+  const bool smoothNormals =
+    this->HasPointAttributes[POINT_NORMALS] && property->GetInterpolation() != VTK_FLAT;
+  const bool needLighting =
+    pipeline ? smoothNormals : (property->GetRepresentation() == VTK_SURFACE || smoothNormals);
+  if (!needLighting)
+  {
+    defines.emplace_back("VTK_UNLIT", "1");
+  }
+  if (IsPipelineForHomogeneousCellSize(pipelineType))
+  {
+    defines.emplace_back("VTK_HOMOGENEOUS_CELL_SIZE", "1");
+  }
+  return defines;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUPolyDataMapper::PrepareSlangShaders(
+  vtkWebGPUActor* wgpuActor, vtkRenderer* vtkNotUsed(renderer))
+{
+  vtkShaderProperty* shaderProperty = wgpuActor->GetShaderProperty();
+  const std::string unsupported =
+    vtkWebGPUSlangInternals::GetUnsupportedCustomizations(shaderProperty);
+  if (unsupported != this->SlangUnsupportedCustomizations)
+  {
+    if (!unsupported.empty())
+    {
+      vtkWarningMacro(<< "Shader code is not supported on WebGPU; customize the Slang shaders "
+                         "with typed hooks instead (IShaderHooks, see "
+                         "vtkWebGPUShaderProperty). Ignoring"
+                      << unsupported);
+    }
+    this->SlangUnsupportedCustomizations = unsupported;
+  }
+  vtkWebGPUSlangInternals::Parameters parameters;
+  bool enabled = false;
+  std::string error, customizationError;
+  if (vtkWebGPUSlangInternals::IsRequested(shaderProperty) &&
+    wgpuActor->GetProperty()->GetInterpolation() == VTK_PBR)
+  {
+    error = "PBR interpolation is not supported";
+    auto* wgpuProperty = vtkWebGPUShaderProperty::SafeDownCast(shaderProperty);
+    if (error != this->SlangCompileError && wgpuProperty && wgpuProperty->HasSlang())
+    {
+      vtkWarningMacro(<< "Slang shading: " << error << "; using the WGSL shaders.");
+    }
+  }
+  else if (vtkWebGPUSlangInternals::IsRequested(shaderProperty))
+  {
+    const auto& program = vtkWebGPUSlangInternals::GetSurfaceProgram();
+    vtkWebGPUSlangInternals::ReportIgnoredSpecializations(
+      this, program, shaderProperty, this->SlangIgnoredSpecializations);
+    std::string wgsl;
+    enabled = vtkWebGPUSlangInternals::Compile(program, shaderProperty,
+      this->GetSlangDefines(wgpuActor, GFX_PIPELINE_TRIANGLES), wgsl, parameters, error,
+      std::string(), &customizationError);
+    if (!enabled)
+    {
+      if (error != this->SlangCompileError)
+      {
+        vtkErrorMacro(<< "Slang shading: " << error << "; using the WGSL shaders.");
+      }
+      parameters = {};
+    }
+    else if (!customizationError.empty() && customizationError != this->SlangCompileError)
+    {
+      vtkErrorMacro(<< "Slang shading: " << customizationError
+                    << "; using the program's default types.");
+    }
+  }
+  this->SlangCompileError = enabled ? customizationError : error;
+  return enabled;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUPolyDataMapper::BuildSlangShaders(vtkWebGPURenderer* wgpuRenderer,
+  vtkWebGPUActor* wgpuActor, GraphicsPipelineType pipelineType, std::string& wgsl)
+{
+  auto defines = this->GetSlangDefines(wgpuActor, pipelineType);
+  if (vtkWebGPUPolyDataMapper::UsesDeepFramebuffer(wgpuRenderer, wgpuActor))
+  {
+    defines.emplace_back("VTK_DEEP_FRAMEBUFFER", "1");
+  }
+  if (vtkWebGPUPolyDataMapper::IsSelectingPoints(wgpuRenderer))
+  {
+    defines.emplace_back("VTK_SELECT_POINTS", "1");
+  }
+  if (this->BuildingPointSelectionDepthPass)
+  {
+    defines.emplace_back("VTK_POINT_SELECTION_DEPTH_PASS", "1");
+  }
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(wgpuRenderer->GetRenderWindow());
+  const bool depth16 =
+    wgpuRenderWindow && wgpuRenderWindow->GetDepthStencilFormat() == WGPUTextureFormat_Depth16Unorm;
+  defines.emplace_back("VTK_DEPTH_BITS", depth16 ? "16" : "24");
+  std::string compiled, error, customizationError;
+  vtkWebGPUSlangInternals::Parameters parameters;
+  if (!vtkWebGPUSlangInternals::Compile(vtkWebGPUSlangInternals::GetSurfaceProgram(),
+        wgpuActor->GetShaderProperty(), defines, compiled, parameters, error,
+        this->GetObjectDescription() + "-" + this->GetGraphicsPipelineTypeAsString(pipelineType),
+        &customizationError))
+  {
+    vtkErrorMacro(<< "Slang shading: " << error << "; using the WGSL shaders.");
+    return false;
+  }
+  if (!customizationError.empty() && customizationError != this->SlangCompileError)
+  {
+    vtkErrorMacro(<< "Slang shading for " << this->GetGraphicsPipelineTypeAsString(pipelineType)
+                  << ": " << customizationError << "; using the program's default types.");
+  }
+  wgsl = std::move(compiled);
+  if (wgpuRenderer->HasImageBasedLighting())
+  {
+    // The scene bind group layout gains the image based lighting entries; key the pipeline on it.
+    wgsl += "\n// SceneBindGroupLayout with image based lighting\n";
+  }
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -4718,6 +4957,10 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
   // The fragment shader writes to the deep framebuffer only for translucent actors.
   if (it->second.LastHasRenderingTranslucentGeometry !=
     static_cast<bool>(actor->HasTranslucentPolygonalGeometry()))
+  {
+    return true;
+  }
+  if (it->second.LastShaderPropertyMTime != GetShaderStateMTime(actor))
   {
     return true;
   }

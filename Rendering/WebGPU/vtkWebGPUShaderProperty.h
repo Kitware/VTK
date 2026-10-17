@@ -52,7 +52,8 @@
  * renders its program's default types instead. Types with fields are not
  * supported yet and are reported the same way. Selecting any type, or a
  * module, turns the Slang shaders on for all of the mapper's pipelines
- * (points, lines, triangles). UseSlang turns them on with the default types.
+ * (points, lines, triangles). UseSlang turns them on with the default types,
+ * and SetGlobalUseSlang (or VTK_WEBGPU_SLANG=1) turns them on for every prop.
  */
 
 #ifndef vtkWebGPUShaderProperty_h
@@ -105,9 +106,26 @@ public:
   void ClearAllShaderReplacements() override {};
   ///@}
 
+  /**
+   * Render this prop with the Slang programs and their default types. Actors with PBR
+   * interpolation keep their WGSL shaders.
+   */
   vtkSetMacro(UseSlang, bool);
   vtkGetMacro(UseSlang, bool);
   vtkBooleanMacro(UseSlang, bool);
+
+  ///@{
+  /**
+   * Render every WebGPU prop with the Slang shaders, as if each shader
+   * property had UseSlang on. Props rebuild their pipelines when this
+   * changes. The initial value is on when the environment variable
+   * VTK_WEBGPU_SLANG is 1, and off otherwise.
+   */
+  static void SetGlobalUseSlang(bool use);
+  static bool GetGlobalUseSlang();
+  static void GlobalUseSlangOn() { vtkWebGPUShaderProperty::SetGlobalUseSlang(true); }
+  static void GlobalUseSlangOff() { vtkWebGPUShaderProperty::SetGlobalUseSlang(false); }
+  ///@}
 
   vtkSetStdStringFromCharMacro(SlangModule);
   vtkGetCharFromStdStringMacro(SlangModule);

@@ -79,6 +79,7 @@ set(private_headers
   "Private/vtkWebGPURenderPassDescriptorInternals.h"
   "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
   "Private/vtkWebGPUShaderModuleInternals.h"
+  "Private/vtkWebGPUSlangInternals.h"
   "Private/vtkWebGPUTextureInternals.h"
   "Private/vtkWebGPUBatchedLabeledDataMapperInternals.h"
   "Private/vtkWebGPUContextDevice2DPrivate.h")
@@ -103,6 +104,7 @@ set(private_sources
   "Private/vtkWebGPURenderPassDescriptorInternals.cxx"
   "Private/vtkWebGPURenderPipelineDescriptorInternals.cxx"
   "Private/vtkWebGPUShaderModuleInternals.cxx"
+  "Private/vtkWebGPUSlangInternals.cxx"
   "Private/vtkWebGPUTextureInternals.cxx"
   "Private/vtkWebGPUBatchedLabeledDataMapperInternals.cxx")
 
