@@ -169,7 +169,8 @@ set(private_shader_files
   wgsl/vtkPolyData2DVSWGSL.wgsl
   wgsl/vtkPolyData2DFSWGSL.wgsl
   wgsl/vtkPolyDataVSWGSL.wgsl
-  wgsl/vtkPolyDataFSWGSL.wgsl)
+  wgsl/vtkPolyDataFSWGSL.wgsl
+  slang/vtkPolyDataSurfaceSlang.slang)
 
 set(public_shader_files
   Testing/Cxx/TestShaders/TestComputePassShader.wgsl
