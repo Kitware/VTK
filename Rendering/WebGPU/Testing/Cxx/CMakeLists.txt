@@ -49,7 +49,8 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
     TestWebGPUHiddenWindow.cxx,NO_DATA,NO_VALID
     TestWebGPUContextDevice2DImages.cxx
-    TestWebGPUOffScreenRendering.cxx,NO_DATA,NO_VALID)
+    TestWebGPUOffScreenRendering.cxx,NO_DATA,NO_VALID
+    TestSlangSurfaceShadingParity.cxx,NO_DATA,NO_VALID)
 endif ()
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
