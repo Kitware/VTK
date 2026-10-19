@@ -57,6 +57,7 @@ protected:
   vtkActor* GetVtkActor() const;
   vtkAnariActorNode* GetAnariActorNode() const;
   bool ActorWasModified() const;
+  bool MapperWasModified() const;
   void RenderSurfaceModels();
   void ClearSurfaces();
   void SetActorNodeName();
@@ -98,6 +99,7 @@ private:
     std::shared_ptr<vtkAnariPolyDataMapperInheritInterface> inheritInterface);
 
   vtkMTimeType PolyDataMTime = 0;
+  vtkMTimeType MapperMTime = 0;
 };
 
 VTK_ABI_NAMESPACE_END
