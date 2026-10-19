@@ -12,9 +12,12 @@
 #ifndef vtkMoleculeMapper_h
 #define vtkMoleculeMapper_h
 
+#include "vtkDataArray.h"              // For vtkDataArray
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMapper.h"
-#include "vtkNew.h" // For vtkNew
+#include "vtkNew.h"             // For vtkNew
+#include "vtkScalarsToColors.h" // For vtkScalarsToColors
+#include "vtkSmartPointer.h"    // For vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -173,7 +176,8 @@ public:
   enum
   {
     SingleColor = 0,
-    DiscreteByAtom
+    DiscreteByAtom,
+    DiscreteByBond
   };
 
   ///@{
@@ -186,18 +190,45 @@ public:
    * If 'DiscreteByAtom' is selected, each bond is colored using the
    * same lookup table as the atoms at each end, with a sharp color
    * boundary at the bond center.
+   *
+   * If 'DiscreteByBond' is selected, each bond is colored individually from
+   * the IndividualBondColors array: 3 or 4 components are used directly as
+   * RGB[A], 1 component is mapped through the lookup table set with
+   * SetBondLookupTable. If the array is missing or does not match the bonds,
+   * BondColor is used.
    */
   vtkGetMacro(BondColorMode, int);
-  vtkSetClampMacro(BondColorMode, int, SingleColor, DiscreteByAtom);
+  vtkSetClampMacro(BondColorMode, int, SingleColor, DiscreteByBond);
   void SetBondColorModeToSingleColor() { this->SetBondColorMode(SingleColor); }
   void SetBondColorModeToDiscreteByAtom() { this->SetBondColorMode(DiscreteByAtom); }
+  void SetBondColorModeToDiscreteByBond() { this->SetBondColorMode(DiscreteByBond); }
   const char* GetBondColorModeAsString();
   ///@}
 
   ///@{
   /**
+   * Get/Set the per-bond colors used in DiscreteByBond mode, one tuple per bond.
+   * 3 or 4 components are used directly as RGB[A], 1 component is mapped
+   * through the lookup table set with SetBondLookupTable.
+   */
+  void SetIndividualBondColors(vtkDataArray* scalars);
+  vtkGetSmartPointerMacro(IndividualBondColors, vtkDataArray);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set the lookup table that maps 1-component IndividualBondColors in
+   * DiscreteByBond mode. Its range is used as the scalar range. Without one,
+   * the bonds use a default lookup table spanning the range of the data.
+   */
+  void SetBondLookupTable(vtkScalarsToColors* lut);
+  vtkGetSmartPointerMacro(BondLookupTable, vtkScalarsToColors);
+  ///@}
+
+  ///@{
+  /**
    * Get/Set the method by which atoms are colored.
-   *
+   * atom
    * If 'SingleColor' is used, all atoms will have the same color. Use
    * SetAtomColor to set the rgb values to be used.
    *
@@ -361,6 +392,10 @@ protected:
 private:
   vtkMoleculeMapper(const vtkMoleculeMapper&) = delete;
   void operator=(const vtkMoleculeMapper&) = delete;
+
+  // DiscreteByBond inputs
+  vtkSmartPointer<vtkDataArray> IndividualBondColors;
+  vtkSmartPointer<vtkScalarsToColors> BondLookupTable;
 };
 
 VTK_ABI_NAMESPACE_END

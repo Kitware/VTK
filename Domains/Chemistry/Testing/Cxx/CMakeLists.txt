@@ -23,6 +23,8 @@ vtk_add_test_cxx(vtkDomainsChemistryCxxTests tests
   TestBallAndStick.cxx
   TestPDBBallAndStick.cxx
   TestBondColorModeDiscreteByAtom.cxx
+  TestBondColorModeDiscreteByBondScalars.cxx
+  TestBondColorModeDiscreteByBondColors.cxx
   TestBondColorModeSingleColor.cxx
   TestCompositeRender.cxx
   TestCustomArrayRadius.cxx

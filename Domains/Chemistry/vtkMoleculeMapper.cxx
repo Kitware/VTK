@@ -37,6 +37,8 @@
 // also check that class for impacts.
 VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkMoleculeMapper);
+vtkCxxSetSmartPointerMacro(vtkMoleculeMapper, IndividualBondColors, vtkDataArray);
+vtkCxxSetSmartPointerMacro(vtkMoleculeMapper, BondLookupTable, vtkScalarsToColors);
 
 //------------------------------------------------------------------------------
 vtkMoleculeMapper::vtkMoleculeMapper()
@@ -222,6 +224,8 @@ const char* vtkMoleculeMapper::GetBondColorModeAsString()
       return "SingleColor";
     case DiscreteByAtom:
       return "DiscreteByAtom";
+    case DiscreteByBond:
+      return "DiscreteByBond";
     default:
       return "Invalid";
   }
@@ -574,6 +578,21 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
 
   bool useColorArray = this->BondColorMode == DiscreteByAtom && atomColorArray != nullptr;
 
+  vtkDataArray* indBondColors = this->IndividualBondColors;
+  const int bondColorComps = indBondColors ? indBondColors->GetNumberOfComponents() : 0;
+  bool useIndBondColors = this->BondColorMode == DiscreteByBond && indBondColors &&
+    indBondColors->GetNumberOfTuples() == numBonds &&
+    (bondColorComps == 1 || bondColorComps == 3 || bondColorComps == 4);
+  if (this->BondColorMode == DiscreteByBond && !useIndBondColors)
+  {
+    vtkWarningMacro("DiscreteByBond needs IndividualBondColors with one tuple per bond and "
+                    "1, 3 or 4 components; using BondColor instead.");
+  }
+  // Only a user-supplied bond lookup table brings its own scalar range; all other cases set the
+  // range explicitly below. Set on every update so no mode inherits the flag from another.
+  this->BondGlyphMapper->SetUseLookupTableScalarRange(
+    useIndBondColors && bondColorComps == 1 && this->BondLookupTable != nullptr);
+
   // In DiscreteByAtom mode, coloring is done with the data used for atom
   // coloring. So we need an array of the same type, with data corresponding to begin and end atom
   // for each bond : { beginAtom0, endAtom0, beginAtom1, endAtom1, ... }
@@ -588,7 +607,27 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
     this->BondGlyphMapper->SetScalarModeToUsePointFieldData();
     this->BondGlyphMapper->SetLookupTable(this->LookupTable);
   }
-  // Otherwise an unique color will be used, so we fill a 3-components unsigned char array with
+  // In DiscreteByBond mode, RGB[A] tuples are used directly, scalars are mapped through a lookup
+  // table.
+  else if (useIndBondColors)
+  {
+    cylColors = indBondColors->NewInstance();
+    cylColors->SetNumberOfComponents(bondColorComps);
+    cylColors->ReserveTuples(numCylinders);
+    cylColors->SetName("BondColors");
+    if (bondColorComps == 1)
+    {
+      this->BondGlyphMapper->SetColorModeToMapScalars();
+      this->BondGlyphMapper->SetLookupTable(this->BondLookupTable);
+      this->BondGlyphMapper->SetScalarRange(indBondColors->GetRange());
+    }
+    else
+    {
+      this->BondGlyphMapper->SetColorModeToDirectScalars();
+    }
+    this->BondGlyphMapper->SetScalarModeToUsePointFieldData();
+  }
+  // Otherwise a unique color will be used, so we fill a 3-components unsigned char array with
   // BondColor value.
   else
   {
@@ -697,6 +736,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
     switch (this->BondColorMode)
     {
       case SingleColor:
+      case DiscreteByBond:
         scale.Set(bondLength, this->BondRadius, this->BondRadius);
         break;
       default:
@@ -718,15 +758,23 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
     // by delta, and repeat.
     for (unsigned short iter = 0; iter < bondOrder; ++iter)
     {
-      // Single color mode adds a single cylinder, while
+      // Single color mode and DiscreteByBond add a single cylinder, while
       // DiscreteByAtom adds two differently colored and positioned
       // cylinders.
       switch (this->BondColorMode)
       {
         case SingleColor:
+        case DiscreteByBond:
           cylCenters->InsertNextPoint(cylinderCenter.GetData());
           cylScales->InsertNextTuple(scale.GetData());
-          singleColorArray->InsertNextTypedTuple(this->BondColor);
+          if (useIndBondColors)
+          {
+            cylColors->InsertNextTuple(bondInd, indBondColors);
+          }
+          else
+          {
+            singleColorArray->InsertNextTypedTuple(this->BondColor);
+          }
           orientationVectors->InsertNextTuple(bondVec.GetData());
           selectionIds->InsertNextValue(selectionId);
           break;
@@ -791,7 +839,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
     }
   }
 
-  if (useColorArray)
+  if (useColorArray || useIndBondColors)
   {
     int colorArrayIdx = this->BondGlyphPolyData->GetPointData()->AddArray(cylColors);
     this->BondGlyphMapper->SelectColorArray(colorArrayIdx);
