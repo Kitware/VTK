@@ -74,16 +74,15 @@ vtkSmartPointer<vtkAlgorithm> SetupCompositePipeline(const vtkIdType compositeTy
   return group;
 }
 
+enum class ExternalDistributed
+{
+  Enabled,
+  Disabled,
+};
+
 //------------------------------------------------------------------------------
-/**
- * Pipeline used for this test:
- * Cow > Redistribute > (usePolyData ? SurfaceFilter ) > Generate Time steps > Harmonics >
- * (!staticMesh ? warp by scalar) > Pass arrays > VTKHDF Writer > Read whole/part
- *
- * No animals were harmed in the making of this test.
- */
-bool TestDistributedObject(
-  vtkMPIController* controller, const std::string& tempDir, bool usePolyData)
+bool TestDistributedObject(vtkMPIController* controller, const std::string& tempDir,
+  const vtkIdType datatype, ExternalDistributed external)
 {
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
@@ -103,14 +102,16 @@ bool TestDistributedObject(
   surface->SetInputConnection(redistribute->GetOutputPort());
 
   // Write it to disk
-  std::string prefix = tempDir + "/parallel_sphere_" + (usePolyData ? "PD" : "UG");
+  std::string prefix = tempDir + "/parallel_sphere_" + (datatype == VTK_POLY_DATA ? "PD" : "UG") +
+    (external == ExternalDistributed::Enabled ? "_external" : "");
   std::string filePath = prefix + ".vtkhdf";
   std::string filePathPart = prefix + "_part" + vtk::to_string(myRank) + ".vtkhdf";
 
   vtkNew<vtkHDFWriter> writer;
   writer->SetInputConnection(
-    usePolyData ? surface->GetOutputPort() : redistribute->GetOutputPort());
+    datatype == VTK_POLY_DATA ? surface->GetOutputPort() : redistribute->GetOutputPort());
   writer->SetFileName(filePath.c_str());
+  writer->SetUseExternalDistributed(external == ExternalDistributed::Enabled);
   writer->Write();
 
   // Wait for all processes to be done writing
@@ -121,25 +122,35 @@ bool TestDistributedObject(
   reader->SetFileName(filePath.c_str());
   reader->UpdatePiece(myRank, nbRanks, 0);
 
-  vtkNew<vtkHDFReader> readerPart;
-  readerPart->SetFileName(filePathPart.c_str());
-  readerPart->Update();
-
   vtkDataObject* readPiece = reader->GetOutputDataObject(0);
-  vtkDataObject* originalPiece =
-    usePolyData ? surface->GetOutputDataObject(0) : redistribute->GetOutputDataObject(0);
-  vtkDataObject* readPart = readerPart->GetOutputDataObject(0);
-
+  vtkDataObject* originalPiece = datatype == VTK_POLY_DATA ? surface->GetOutputDataObject(0)
+                                                           : redistribute->GetOutputDataObject(0);
   auto partitionedPiece = vtkPartitionedDataSet::SafeDownCast(readPiece);
-  if (!vtkTestUtilities::CompareDataObjects(originalPiece, partitionedPiece->GetPartition(myRank)))
+  if (!partitionedPiece ||
+    partitionedPiece->GetNumberOfPartitions() != static_cast<unsigned int>(nbRanks) ||
+    !partitionedPiece->GetPartition(myRank))
   {
-    vtkLog(ERROR, "Original and read piece do not match");
+    vtkLog(ERROR, "Unexpected number of distributed partitions");
     return false;
   }
-  if (!vtkTestUtilities::CompareDataObjects(partitionedPiece->GetPartition(myRank), readPart))
+
+  if (!vtkTestUtilities::CompareDataObjects(originalPiece, partitionedPiece->GetPartition(myRank)))
   {
     vtkLog(ERROR, "Read piece and read part do not match");
     return false;
+  }
+
+  if (external == ExternalDistributed::Enabled)
+  {
+    vtkNew<vtkHDFReader> readerPart;
+    readerPart->SetFileName(filePathPart.c_str());
+    readerPart->Update();
+    vtkDataObject* readPart = readerPart->GetOutputDataObject(0);
+    if (!vtkTestUtilities::CompareDataObjects(partitionedPiece->GetPartition(myRank), readPart))
+    {
+      vtkLog(ERROR, "Original and read piece do not match");
+      return false;
+    }
   }
 
   return true;
@@ -320,6 +331,8 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
     writer->SetInputDataObject(output);
   }
   writer->SetWriteAllTimeSteps(true);
+  writer->SetUseExternalDistributed(
+    true); // TODO: missing array not synchronized in single-file mode (vtk/vtk#20205)
   writer->SetFileName(filePath.c_str());
   writer->Write();
 
@@ -640,13 +653,15 @@ bool TestDistributedTemporalStaticMultiBlockMissingBlocks(
 //------------------------------------------------------------------------------
 bool TestDistributedPolyData(vtkMPIController* controller, const std::string& tempDir)
 {
-  return TestDistributedObject(controller, tempDir, true);
+  return TestDistributedObject(controller, tempDir, VTK_POLY_DATA, ExternalDistributed::Disabled);
 }
 
 //------------------------------------------------------------------------------
 bool TestDistributedUnstructuredGrid(vtkMPIController* controller, const std::string& tempDir)
 {
-  return TestDistributedObject(controller, tempDir, false);
+  return TestDistributedObject(
+           controller, tempDir, VTK_UNSTRUCTURED_GRID, ExternalDistributed::Disabled) &&
+    TestDistributedObject(controller, tempDir, VTK_UNSTRUCTURED_GRID, ExternalDistributed::Enabled);
 }
 
 //------------------------------------------------------------------------------
