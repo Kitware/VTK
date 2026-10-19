@@ -225,10 +225,8 @@ hsize_t vtkHDFWriter::Implementation::GetDataSetSize(hid_t group, const char* na
   }
 
   vtkHDF::ScopedH5DHandle ds = this->OpenDataset(group, name);
-  vtkHDF::ScopedH5SHandle currentDataspace = H5Dget_space(ds);
-  hsize_t currentSize = 0;
-  H5Sget_simple_extent_dims(currentDataspace, &currentSize, nullptr);
-  return currentSize;
+  const auto dimensions = vtkHDFUtilities::GetDimensions(ds);
+  return !dimensions.empty() ? dimensions[0] : 0;
 }
 
 //------------------------------------------------------------------------------
@@ -886,8 +884,11 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
                                         << (trim ? " with trimming" : ""));
 
   // Retrieve current dataspace dimensions
-  std::vector<hsize_t> currentDims(rank, 0);
-  H5Sget_simple_extent_dims(currentDataspace, currentDims.data(), nullptr);
+  const auto currentDims = vtkHDFUtilities::GetDimensions(dataset);
+  if (currentDims.size() != static_cast<std::size_t>(rank))
+  {
+    return false;
+  }
   for (int i = 1; i < rank; ++i)
   {
     const int j = isStructured ? (i - 1) : i;
@@ -1200,12 +1201,8 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
             this->Writer, << "Could not find source dataspace " << debugString);
           return false;
         }
-        std::array<hsize_t, 3> sourceDims{ 0, 0, 0 };
-        if (H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr) < 0)
-        {
-          vtkErrorWithObjectMacro(this->Writer, << "Could not get extent " << debugString);
-          return false;
-        }
+        auto sourceDims = vtkHDFUtilities::GetDimensions(sourceDataset);
+        sourceDims.resize(std::max<std::size_t>(3, sourceDims.size()), 0);
 
         vtkDebugWithObjectMacro(this->Writer,
           << "Extent source " << sourceDims[0] << " " << sourceDims[1] << " " << sourceDims[2]);
@@ -1671,9 +1668,8 @@ bool vtkHDFWriter::Implementation::GetSubFilesDatasetSize(
       continue;
     }
     vtkHDF::ScopedH5DHandle sourceDataset = H5Dopen(fileRoot, datasetPath.c_str(), H5P_DEFAULT);
-    vtkHDF::ScopedH5SHandle sourceDataSpace = H5Dget_space(sourceDataset);
-    std::vector<hsize_t> sourceDims(3);
-    if (H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr) < 0)
+    const auto sourceDims = vtkHDFUtilities::GetDimensions(sourceDataset);
+    if (sourceDims.empty())
     {
       return false;
     }

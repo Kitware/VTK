@@ -763,6 +763,28 @@ std::size_t vtkHDFUtilities::GetNumberOfSteps(hid_t groupID)
 }
 
 //------------------------------------------------------------------------------
+std::vector<hsize_t> vtkHDFUtilities::GetDimensions(hid_t dataset)
+{
+  vtkHDF::ScopedH5SHandle space = H5Dget_space(dataset);
+  if (space <= 0)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Cannot get space for dataset ");
+    return {};
+  }
+  const int rank = H5Sget_simple_extent_ndims(space);
+  if (rank < 0)
+  {
+    return {};
+  }
+  std::vector<hsize_t> dimensions(rank);
+  if (H5Sget_simple_extent_dims(space, dimensions.data(), nullptr) < 0)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Cannot find dimension of dataset");
+  }
+  return dimensions;
+}
+
+//------------------------------------------------------------------------------
 std::vector<hsize_t> vtkHDFUtilities::GetDimensions(hid_t fileID, const char* datasetName)
 {
   std::vector<hsize_t> dims;
@@ -774,33 +796,7 @@ std::vector<hsize_t> vtkHDFUtilities::GetDimensions(hid_t fileID, const char* da
     return dims;
   }
 
-  vtkHDF::ScopedH5SHandle dataspace = H5Dget_space(dataset);
-  if (dataspace < 0)
-  {
-    vtkErrorWithObjectMacro(nullptr, << std::string("Cannot get space for dataset ") + datasetName);
-    return dims;
-  }
-
-  int rank = H5Sget_simple_extent_ndims(dataspace);
-  if (rank < 0)
-  {
-    vtkErrorWithObjectMacro(
-      nullptr, << std::string(datasetName) + " dataset: get_simple_extent_ndims error");
-    return dims;
-  }
-
-  if (rank > 0)
-  {
-    dims.resize(rank, 0);
-    if (H5Sget_simple_extent_dims(dataspace, dims.data(), nullptr) < 0)
-    {
-      vtkErrorWithObjectMacro(nullptr, << std::string("Cannot find dimension for ") + datasetName);
-      dims.clear();
-      return dims;
-    }
-  }
-
-  return dims;
+  return vtkHDFUtilities::GetDimensions(dataset);
 }
 
 //------------------------------------------------------------------------------
@@ -1001,27 +997,13 @@ hid_t vtkHDFUtilities::OpenDataSet(
     return -1;
   }
 
-  vtkHDF::ScopedH5SHandle dataspace = H5Dget_space(dataset);
-  if (dataspace < 0)
-  {
-    vtkErrorWithObjectMacro(nullptr, << std::string("Cannot get space for dataset ") + name);
-    return -1;
-  }
-
   if ((*nativeType = H5Tget_native_type(datatype, H5T_DIR_ASCEND)) < 0)
   {
     vtkErrorWithObjectMacro(nullptr, << std::string("Cannot get type for dataset ") + name);
     return -1;
   }
-  int ndims = H5Sget_simple_extent_ndims(dataspace);
-  if (ndims <= 0)
-  {
-    vtkErrorWithObjectMacro(
-      nullptr, << std::string(name) + " dataset: get_simple_extent_ndims error");
-    return -1;
-  }
-  dims.resize(ndims);
-  if (H5Sget_simple_extent_dims(dataspace, dims.data(), nullptr) < 0)
+  dims = vtkHDFUtilities::GetDimensions(dataset);
+  if (dims.empty())
   {
     vtkErrorWithObjectMacro(nullptr, << std::string("Cannot find dimension for ") + name);
     return -1;
