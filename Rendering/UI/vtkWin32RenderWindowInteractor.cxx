@@ -1032,25 +1032,23 @@ int vtkWin32RenderWindowInteractor::OnDropFiles(HWND, WPARAM wParam)
 LRESULT CALLBACK vtkHandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   LRESULT res = 0;
-  vtkWin32RenderWindowInteractor* me = nullptr;
 
-  auto tmpptr = vtkGetWindowLong(hWnd, sizeof(vtkLONG));
-  vtkHardwareWindow* hwren = (vtkHardwareWindow*)tmpptr;
-  vtkRenderWindow* ren = (vtkRenderWindow*)tmpptr;
-  vtkRenderWindowInteractor* hwme = nullptr;
-  if (hwren != nullptr)
+  // The window data holds either a vtkHardwareWindow (set by Initialize) or a
+  // vtkRenderWindow (set by vtkWin32OpenGLRenderWindow). Both derive from
+  // vtkWindow, so recover the actual type instead of calling virtual methods
+  // through a pointer of the wrong type, which dispatches to the wrong vtable
+  // slot as soon as either class layout changes.
+  vtkWindow* win = reinterpret_cast<vtkWindow*>(vtkGetWindowLong(hWnd, sizeof(vtkLONG)));
+  vtkRenderWindowInteractor* iren = nullptr;
+  if (vtkHardwareWindow* hwren = vtkHardwareWindow::SafeDownCast(win))
   {
-    hwme = hwren->GetInteractor();
+    iren = hwren->GetInteractor();
   }
-
-  if (hwme != nullptr)
+  else if (vtkRenderWindow* ren = vtkRenderWindow::SafeDownCast(win))
   {
-    me = (vtkWin32RenderWindowInteractor*)hwme;
+    iren = ren->GetInteractor();
   }
-  else if (ren != nullptr)
-  {
-    me = (vtkWin32RenderWindowInteractor*)ren->GetInteractor();
-  }
+  vtkWin32RenderWindowInteractor* me = vtkWin32RenderWindowInteractor::SafeDownCast(iren);
 
   if (me && me->GetReferenceCount() > 0)
   {
