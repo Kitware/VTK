@@ -10,7 +10,6 @@
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLIndexBufferObject.h"
@@ -29,6 +28,7 @@
 #include "vtkProperty.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
+#include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
 #include "vtkFluidMapperDepthFilterBiGaussFS.h"
@@ -203,10 +203,9 @@ void vtkOpenGLFluidMapper::SetDepthThicknessColorShaderParameters(
   {
     if (!actor->GetIsIdentity())
     {
-      vtkMatrix4x4* mcwc;
-      vtkMatrix3x3* anorms;
-      ((vtkOpenGLActor*)actor)->GetKeyMatrices(mcwc, anorms);
-      vtkMatrix4x4::Multiply4x4(mcwc, this->CamWCVC, this->TempMatrix4);
+      actor->GetModelToWorldMatrix(this->TempMatrix4);
+      this->TempMatrix4->Transpose();
+      vtkMatrix4x4::Multiply4x4(this->TempMatrix4, this->CamWCVC, this->TempMatrix4);
       program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
     }
     else
@@ -816,10 +815,9 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
     {
       if (!vol->GetIsIdentity())
       {
-        vtkMatrix4x4* mcwc;
-        vtkMatrix3x3* anorms;
-        ((vtkOpenGLActor*)vol)->GetKeyMatrices(mcwc, anorms);
-        vtkMatrix4x4::Multiply4x4(mcwc, this->CamWCVC, this->TempMatrix4);
+        vol->GetModelToWorldMatrix(this->TempMatrix4);
+        this->TempMatrix4->Transpose();
+        vtkMatrix4x4::Multiply4x4(this->TempMatrix4, this->CamWCVC, this->TempMatrix4);
         this->QuadFinalBlend->Program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
       }
       else
