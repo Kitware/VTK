@@ -192,10 +192,10 @@ struct Spread
       std::vector<AccumulateT> sums(npoints * ncomps, AccumulateT(0));
       std::vector<double> totalWeights(npoints, 0.0);
       vtkNew<vtkIdList> pointIds;
-      checkAbortInterval = std::min(ncells / 10 + 1, (vtkIdType)1000);
+      checkAbortInterval = std::min(ncells / 10 + 1, static_cast<vtkIdType>(1000));
       for (vtkIdType cid = 0; cid < ncells; ++cid)
       {
-        if (cid % checkAbortInterval == 0 && filter->CheckAbort())
+        if (cid % checkAbortInterval == 0 && filter->CheckAbortAndInvoke())
         {
           break;
         }
@@ -218,10 +218,10 @@ struct Spread
       }
       // weighted average
 
-      checkAbortInterval = std::min(npoints / 10 + 1, (vtkIdType)1000);
+      checkAbortInterval = std::min(npoints / 10 + 1, static_cast<vtkIdType>(1000));
       for (vtkIdType pid = 0; pid < npoints; ++pid)
       {
-        if (pid % checkAbortInterval == 0 && filter->CheckAbort())
+        if (pid % checkAbortInterval == 0 && filter->CheckAbortAndInvoke())
         {
           break;
         }
@@ -242,10 +242,10 @@ struct Spread
     { // compute over cell patches
       vtkNew<vtkIdList> cellsOnPoint;
       std::vector<AccumulateT> data(4 * ncomps);
-      checkAbortInterval = std::min(npoints / 10 + 1, (vtkIdType)1000);
+      checkAbortInterval = std::min(npoints / 10 + 1, static_cast<vtkIdType>(1000));
       for (vtkIdType pid = 0; pid < npoints; ++pid)
       {
-        if (pid % checkAbortInterval == 0 && filter->CheckAbort())
+        if (pid % checkAbortInterval == 0 && filter->CheckAbortAndInvoke())
         {
           break;
         }
@@ -383,7 +383,7 @@ public:
       if (!(ptId % progressInterval))
       {
         filter->UpdateProgress(static_cast<double>(ptId) / numberOfPoints);
-        abort = filter->CheckAbort();
+        abort = filter->CheckAbortAndInvoke();
       }
       input->GetPointCells(ptId, allCellIds);
       cellIds->Reset();
@@ -501,7 +501,9 @@ int vtkCellDataToPointData::RequestData(
   // and vtkUnstructuredGrid.
   if (input->IsA("vtkUnstructuredGrid") || input->IsA("vtkPolyData"))
   {
-    return this->RequestDataForUnstructuredData(nullptr, inputVector, outputVector);
+    int result = this->RequestDataForUnstructuredData(nullptr, inputVector, outputVector);
+    this->InvokeCleanupAbortCheck();
+    return result;
   }
 
   // First, copy the input to the output as a starting point
@@ -543,6 +545,8 @@ int vtkCellDataToPointData::RequestData(
   {
     result = this->InterpolatePointData(input, output, weightArray);
   }
+
+  this->InvokeCleanupAbortCheck();
 
   if (result == 0)
   {
@@ -806,7 +810,7 @@ int vtkCellDataToPointData::InterpolatePointData(
     if (!(ptId % progressInterval))
     {
       this->UpdateProgress(static_cast<double>(ptId) / numberOfPoints);
-      abort = this->CheckAbort();
+      abort = this->CheckAbortAndInvoke();
     }
 
     input->GetPointCells(ptId, cellIds);
