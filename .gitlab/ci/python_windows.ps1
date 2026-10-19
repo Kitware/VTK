@@ -20,6 +20,10 @@ if ($env:PYTHON_VERSION_SUFFIX) {
     $python_request = "3.$($Matches[1])"
 } elseif ($env:PROCESSOR_ARCHITECTURE -like "arm64") {
     $python_request += "-aarch64"
+} elseif ("$env:CMAKE_CONFIGURATION" -match "_py3(\d+)_test") {
+    $python_request = "3.$($Matches[1])"
+} elseif ("$env:CMAKE_CONFIGURATION" -match "abi3") {
+    $python_request = "3.11"
 }
 
 & "$pwdpath\.gitlab\uv.exe" python install --no-bin "cpython-$python_request"

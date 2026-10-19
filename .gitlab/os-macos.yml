@@ -61,6 +61,35 @@
         CMAKE_CONFIGURATION: wheel_macos314t_arm64
         PYTHON_VERSION_SUFFIX: "3.14t"
 
+.wheel_macos_abi3_arm64:
+    extends: .wheel_macos_arm64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos_abi3_arm64
+        PYTHON_VERSION_SUFFIX: "3.11"
+        _PYTHON_HOST_PLATFORM: "macosx-11.0-arm64"
+
+.wheel_macos_abi3_arm64_py312_test:
+    extends: .wheel_macos_abi3_arm64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos_abi3_arm64_py312_test
+        PYTHON_VERSION_SUFFIX: "3.12"
+
+.wheel_macos_abi3_arm64_py313_test:
+    extends: .wheel_macos_abi3_arm64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos_abi3_arm64_py313_test
+        PYTHON_VERSION_SUFFIX: "3.13"
+
+.wheel_macos_abi3_arm64_py314_test:
+    extends: .wheel_macos_abi3_arm64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos_abi3_arm64_py314_test
+        PYTHON_VERSION_SUFFIX: "3.14"
+
 .wheel_macos_x86_64:
     extends: .macos
 
@@ -109,6 +138,35 @@
     variables:
         CMAKE_CONFIGURATION: wheel_macos314t_x86_64
         PYTHON_VERSION_SUFFIX: "3.14t"
+
+.wheel_macos_abi3_x86_64:
+    extends: .wheel_macos_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos_abi3_x86_64
+        PYTHON_VERSION_SUFFIX: "3.11"
+        _PYTHON_HOST_PLATFORM: "macosx-11.0-x86_64"
+
+.wheel_macos_abi3_x86_64_py312_test:
+    extends: .wheel_macos_abi3_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos_abi3_x86_64_py312_test
+        PYTHON_VERSION_SUFFIX: "3.12"
+
+.wheel_macos_abi3_x86_64_py313_test:
+    extends: .wheel_macos_abi3_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos_abi3_x86_64_py313_test
+        PYTHON_VERSION_SUFFIX: "3.13"
+
+.wheel_macos_abi3_x86_64_py314_test:
+    extends: .wheel_macos_abi3_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos_abi3_x86_64_py314_test
+        PYTHON_VERSION_SUFFIX: "3.14"
 
 ### Build and test
 
@@ -343,15 +401,14 @@
         - cd build
         - "$PYTHON_PREFIX/bin/python$PYTHON_VERSION_SUFFIX -m venv venv"
         - venv/bin/pip install setuptools
-        - venv/bin/pip install wheel
-        - venv/bin/python3 setup.py bdist_wheel
+        - venv/bin/pip install wheel packaging
+        - 'venv/bin/python3 setup.py bdist_wheel $( [[ "$CMAKE_CONFIGURATION" =~ abi3 ]] && echo --py-limited-api=cp311 )'
         - '[ -f dist/*_universal2.whl ] && exit 1 # universal2 wheels are not made; platform detection requires an override'
         - venv/bin/python3 $GIT_CLONE_PATH/.gitlab/ci/create_wheel_sdk_archive.py
-        # Grab the platform tag to apply to the vtk-sdk wheel from the vtk wheel.
-        - wheel_platform_tag=$(echo dist/vtk-*.whl | awk -F- '{ print $NF }' | sed 's/\.whl$//')
         - cd wheel_sdks
         - ../venv/bin/python3 -m pip wheel .
-        - ../venv/bin/python3 -m wheel tags --platform-tag "$wheel_platform_tag" --remove ./vtk_sdk-*.whl
+        # The vtk-sdk wheel must carry the same tags as the vtk wheel.
+        - ../venv/bin/python3 $GIT_CLONE_PATH/.gitlab/ci/retag_sdk_wheel.py ../dist/vtk-*.whl vtk_sdk-*.whl
         - cd ..
         # XXX: `delocate` can't handle `@loader_path` or do recursive
         # dependency scanning. Ignore it and just do it manually because
@@ -377,6 +434,8 @@
         # Python xarray deps not available yet for free threading.
         - '[[ "$CMAKE_CONFIGURATION" =~ macos[[:digit:]]{2,3}t ]] || pip install -r $PWD/.gitlab/ci/requirements-wheel$PYTHON_VERSION_SUFFIX-test.txt'
         - twine check build/dist/*.whl
+        - '[[ "$CMAKE_CONFIGURATION" =~ abi3 ]] && pip install abi3audit && (abi3audit -R -o abi3-report.json build/dist/*.whl || true)'
+        - '[[ "$CMAKE_CONFIGURATION" =~ abi3 ]] && python .gitlab/ci/check_abi3_report.py abi3-report.json'
         - pip install build/dist/*.whl
         - python -c "import vtk"
         - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi

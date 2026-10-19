@@ -173,6 +173,53 @@
     variables:
         CMAKE_CONFIGURATION: wheel_linux314t_x86_64_egl
 
+.wheel_linux_abi3_x86_64:
+    extends: .manylinux_2_28_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux_abi3_x86_64
+        PYTHON_PREFIX: /opt/python/cp311-cp311
+
+.wheel_linux_abi3_x86_64_osmesa:
+    extends:
+        - .wheel_linux_abi3_x86_64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux_abi3_x86_64_osmesa
+
+.wheel_linux_abi3_x86_64_egl:
+    extends:
+        - .wheel_linux_abi3_x86_64
+        - .manylinux_2_28_x86_64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux_abi3_x86_64_egl
+
+# Test the abi3 wheel (built once with the 3.11 floor) on each newer Python,
+# to exercise the "build once, run on any Python >= floor" abi3 promise.
+.wheel_linux_abi3_x86_64_py312_test:
+    extends: .wheel_linux_abi3_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux_abi3_x86_64_py312_test
+        PYTHON_PREFIX: /opt/python/cp312-cp312
+
+.wheel_linux_abi3_x86_64_py313_test:
+    extends: .wheel_linux_abi3_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux_abi3_x86_64_py313_test
+        PYTHON_PREFIX: /opt/python/cp313-cp313
+
+.wheel_linux_abi3_x86_64_py314_test:
+    extends: .wheel_linux_abi3_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux_abi3_x86_64_py314_test
+        PYTHON_PREFIX: /opt/python/cp314-cp314
+
 .wheel_linux310_aarch64:
     extends: .manylinux_2_28_aarch64
 
@@ -310,6 +357,50 @@
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux314t_aarch64_egl
+
+.wheel_linux_abi3_aarch64:
+    extends: .manylinux_2_28_aarch64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux_abi3_aarch64
+        PYTHON_PREFIX: /opt/python/cp311-cp311
+
+.wheel_linux_abi3_aarch64_osmesa:
+    extends:
+        - .wheel_linux_abi3_aarch64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux_abi3_aarch64_osmesa
+
+.wheel_linux_abi3_aarch64_egl:
+    extends:
+        - .wheel_linux_abi3_aarch64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux_abi3_aarch64_egl
+
+.wheel_linux_abi3_aarch64_py312_test:
+    extends: .wheel_linux_abi3_aarch64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux_abi3_aarch64_py312_test
+        PYTHON_PREFIX: /opt/python/cp312-cp312
+
+.wheel_linux_abi3_aarch64_py313_test:
+    extends: .wheel_linux_abi3_aarch64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux_abi3_aarch64_py313_test
+        PYTHON_PREFIX: /opt/python/cp313-cp313
+
+.wheel_linux_abi3_aarch64_py314_test:
+    extends: .wheel_linux_abi3_aarch64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux_abi3_aarch64_py314_test
+        PYTHON_PREFIX: /opt/python/cp314-cp314
 
 .fedora44:
     extends: .linux
@@ -811,8 +902,8 @@
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
         - sccache --show-stats
         - cd build
-        - "$PYTHON_PREFIX/bin/python -m pip install -U setuptools wheel"
-        - "$PYTHON_PREFIX/bin/python setup.py bdist_wheel"
+        - "$PYTHON_PREFIX/bin/python -m pip install -U setuptools wheel packaging"
+        - '$PYTHON_PREFIX/bin/python setup.py bdist_wheel $( [[ "$CMAKE_CONFIGURATION" =~ abi3 ]] && echo --py-limited-api=cp311 )'
         - auditwheel show dist/*.whl > $GIT_CLONE_PATH/wheel_output.log
         - auditwheel repair dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
         - mv -v dist/ dist-orig/
@@ -820,6 +911,8 @@
         - "$PYTHON_PREFIX/bin/python $GIT_CLONE_PATH/.gitlab/ci/create_wheel_sdk_archive.py"
         - cd wheel_sdks
         - "$PYTHON_PREFIX/bin/python -m pip wheel ."
+        # The vtk-sdk wheel must carry the same tags as the vtk wheel.
+        - $PYTHON_PREFIX/bin/python $GIT_CLONE_PATH/.gitlab/ci/retag_sdk_wheel.py ../dist/vtk-*.whl vtk_sdk-*.whl
         - cd ../..
         - exec .gitlab/ci/check_warnings.sh .
 
@@ -834,6 +927,8 @@
         - . venv/bin/activate
         - pip install twine
         - twine check build/dist/*.whl
+        - '[[ "$CMAKE_CONFIGURATION" =~ abi3 ]] && pip install abi3audit && (abi3audit -R -o abi3-report.json build/dist/*.whl || true)'
+        - '[[ "$CMAKE_CONFIGURATION" =~ abi3 ]] && python .gitlab/ci/check_abi3_report.py abi3-report.json'
         - pip install build/dist/*.whl
         - python -c "import vtk"
         - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
@@ -866,6 +961,8 @@
         - '[[ "$CMAKE_CONFIGURATION" =~ linux[[:digit:]]{2,3}t ]] || pip install -r $PWD/.gitlab/ci/requirements-wheel$PYTHON_VERSION_SUFFIX-test.txt'
         - pip install twine
         - twine check build/dist/*.whl
+        - '[[ "$CMAKE_CONFIGURATION" =~ abi3 ]] && pip install abi3audit && (abi3audit -R -o abi3-report.json build/dist/*.whl || true)'
+        - '[[ "$CMAKE_CONFIGURATION" =~ abi3 ]] && python .gitlab/ci/check_abi3_report.py abi3-report.json'
         - pip install build/dist/*.whl
         - python -c "import vtk"
         - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
