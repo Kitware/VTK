@@ -74,8 +74,8 @@ class vtkWindow;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkVolumeTexture : public vtkObject
 {
-  typedef vtkTuple<int, 6> Size6;
-  typedef vtkTuple<int, 3> Size3;
+  typedef vtkTuple<vtkIdType, 6> Size6;
+  typedef vtkTuple<vtkIdType, 3> Size3;
 
 public:
   static vtkVolumeTexture* New();
@@ -215,7 +215,7 @@ private:
   void CreateBlocks(unsigned int format, unsigned int internalFormat, int type);
 
   void AdjustExtentForCell(Size6& extent);
-  Size3 ComputeBlockSize(VTK_FUTURE_CONST int extent[6]);
+  Size3 ComputeBlockSize(VTK_FUTURE_CONST Size6& extent);
 
   /**
    * Defines OpenGL's texture type, format and internal format based on the
@@ -254,7 +254,7 @@ private:
    *              0,        0,  range.z,  min.z
    *              0,        0,        0,    1.0
    */
-  void ComputeCellToPointMatrix(int extents[6]);
+  void ComputeCellToPointMatrix(VTK_FUTURE_CONST Size6& extents);
 
   ///@{
   /**

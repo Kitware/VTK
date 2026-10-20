@@ -76,11 +76,13 @@ bool vtkVolumeTexture::LoadVolume(
   vtkRectilinearGrid* rGrid = vtkRectilinearGrid::SafeDownCast(data);
   if (imData)
   {
-    imData->GetExtent(this->FullExtent.GetData());
+    const int* extent = imData->GetExtent();
+    std::copy(extent, extent + 6, this->FullExtent.GetData());
   }
   else if (rGrid)
   {
-    rGrid->GetExtent(this->FullExtent.GetData());
+    const int* extent = rGrid->GetExtent();
+    std::copy(extent, extent + 6, this->FullExtent.GetData());
   }
 
   // Setup partition blocks
@@ -114,7 +116,9 @@ bool vtkVolumeTexture::LoadVolume(
         singleBlock = vtkImageData::New();
         singleBlock->ShallowCopy(imData);
       }
-      singleBlock->SetExtent(this->FullExtent.GetData());
+      const Size6& fullExt = this->FullExtent;
+      singleBlock->SetExtent(
+        fullExt[0], fullExt[1], fullExt[2], fullExt[3], fullExt[4], fullExt[5]);
       this->ImageDataBlocks.push_back(singleBlock);
     }
     else if (rGrid)
@@ -229,11 +233,13 @@ void vtkVolumeTexture::CreateBlocks(unsigned int format, unsigned int internalFo
     Size6 ext;
     if (imData)
     {
-      imData->GetExtent(ext.GetData());
+      const int* extent = imData->GetExtent();
+      std::copy(extent, extent + 6, ext.GetData());
     }
     else if (rGrid)
     {
-      rGrid->GetExtent(ext.GetData());
+      const int* extent = rGrid->GetExtent();
+      std::copy(extent, extent + 6, ext.GetData());
       if (this->IsCellData)
       {
         // The block extents for rectilinear grids were not overridden before. Hence, this
@@ -241,7 +247,7 @@ void vtkVolumeTexture::CreateBlocks(unsigned int format, unsigned int internalFo
         this->AdjustExtentForCell(ext);
       }
     }
-    Size3 const texSize = this->ComputeBlockSize(ext.GetData());
+    Size3 const texSize = this->ComputeBlockSize(ext);
     VolumeBlock* block = new VolumeBlock(dataset, this->Texture, texSize);
 
     // Compute tuple index (array aligned in x -> Y -> Z)
@@ -253,7 +259,7 @@ void vtkVolumeTexture::CreateBlocks(unsigned int format, unsigned int internalFo
     this->ComputeBounds(block);
     this->UpdateTextureToDataMatrix(block);
   }
-  this->ComputeCellToPointMatrix(this->FullExtent.GetData());
+  this->ComputeCellToPointMatrix(this->FullExtent);
 
   // Format texture
   this->Texture->SetFormat(format);
@@ -280,7 +286,7 @@ void vtkVolumeTexture::AdjustExtentForCell(Size6& extent)
 }
 
 //------------------------------------------------------------------------------
-vtkVolumeTexture::Size3 vtkVolumeTexture::ComputeBlockSize(VTK_FUTURE_CONST int extent[6])
+vtkVolumeTexture::Size3 vtkVolumeTexture::ComputeBlockSize(VTK_FUTURE_CONST Size6& extent)
 {
   int i = 0;
   Size3 texSize;
@@ -518,8 +524,8 @@ bool vtkVolumeTexture::LoadTexture(int interpolation, VolumeBlock* volBlock)
     if (blankPoints)
     {
       const auto blankPointsRange = vtk::DataArrayValueRange<1>(ugPointBlankArray);
-      int d0 = (blockSize[0] - this->IsCellData) * (blockSize[1] - this->IsCellData);
-      int ptId, cellId;
+      vtkIdType d0 = (blockSize[0] - this->IsCellData) * (blockSize[1] - this->IsCellData);
+      vtkIdType ptId, cellId;
       for (int k = 0; k < blockSize[2]; ++k)
       {
         for (int j = 0; j < blockSize[1]; ++j)
@@ -538,10 +544,10 @@ bool vtkVolumeTexture::LoadTexture(int interpolation, VolumeBlock* volBlock)
     {
       int isPointData = this->IsCellData ? 0 : 1;
       int comp = blankPoints ? 1 : 0;
-      int d0 = (blockSize[0] - isPointData) * (blockSize[1] - isPointData);
-      int d01 = (blockSize[0]) * (blockSize[1]);
+      vtkIdType d0 = (blockSize[0] - isPointData) * (blockSize[1] - isPointData);
+      vtkIdType d01 = (blockSize[0]) * (blockSize[1]);
       const auto blankCellsRange = vtk::DataArrayValueRange<1>(ugCellBlankArray);
-      int ptId, cellId;
+      vtkIdType ptId, cellId;
       for (int k = 0; k < blockSize[2] - isPointData; ++k)
       {
         for (int j = 0; j < blockSize[1] - isPointData; ++j)
@@ -1193,7 +1199,7 @@ void vtkVolumeTexture::UpdateTextureToDataMatrix(VolumeBlock* block)
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeTexture::ComputeCellToPointMatrix(int extents[6])
+void vtkVolumeTexture::ComputeCellToPointMatrix(VTK_FUTURE_CONST Size6& extents)
 {
   this->CellToPointMatrix->Identity();
   this->AdjustedTexMin[0] = this->AdjustedTexMin[1] = this->AdjustedTexMin[2] = 0.0f;
