@@ -38,8 +38,9 @@
  * MetaImage headers are expected to have extension: ".mha" or ".mhd"
  *
  * The optional Name header field, specified before ElementDataFile, is used as
- * the point-data scalar array name. If it is absent or empty, the scalar array
- * is named "MetaImage".
+ * the point-data scalar array name when UseArrayNameInFile is set to true.
+ * If it is absent or empty, or UseArrayNameInFile is false (its default value),
+ * the scalar array is named "MetaImage".
  *
  * Once you write this header text file, it should be possible to read the
  * image into your ITK based application using the itk::FileIOToImageFilter
@@ -100,6 +101,17 @@ public:
   vtkGetStringMacro(StudyID);
   vtkGetStringMacro(StudyUID);
   vtkGetStringMacro(TransferSyntaxUID);
+
+  ///@{
+  /**
+   * Set whether the name of the array read should be set to the name in the MetaImage file
+   * metadata, if any. Defaults to false to preserve backwards compatibility.
+   */
+  vtkBooleanMacro(UseArrayNameInFile, bool);
+  vtkSetMacro(UseArrayNameInFile, bool);
+  vtkGetMacro(UseArrayNameInFile, bool);
+
+  ///@}
 
   using Superclass::CanReadFile;
   /**
@@ -190,6 +202,8 @@ private:
   int BitsAllocated;
   char DistanceUnits[255];
   char AnatomicalOrientation[255];
+
+  bool UseArrayNameInFile = false;
 };
 
 VTK_ABI_NAMESPACE_END
