@@ -258,7 +258,7 @@ Here is a list of developers usernames sorted by their specific area of expertis
 A merge request without a developer tagged has very low chance to be merged in a
 reasonable timeframe.
 
- * CMake: @ben.boeckel, @alexy.pellegrini
+ * CMake: @ben.boeckel, @alexy.pellegrini, @mwestphal
  * CellGrid: @dcthomp
  * Cppcheck: @seanm
  * Clang: @seanm
