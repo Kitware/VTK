@@ -254,23 +254,42 @@ draw their attention and have the topic reviewed.  After typing `@` and
 some text, GitLab will offer completions for developers whose real names
 or user names match.
 
-Here is a list of developers usernames and their specific area of
-expertise. A merge request without a developer tagged has very low chance
-to be merged in a reasonable timeframe.
+Here is a list of developers usernames sorted by their specific area of expertise.
+A merge request without a developer tagged has very low chance to be merged in a
+reasonable timeframe.
 
- * @mwestphal: Qt, filters, data Model, widgets, parallel, anything else.
- * @charles.gueunet: filters, data model, SMP, events, pipeline, computational geometry, distributed algorithms.
- * @kmorel: General VTK Expertise, Viskores accelerators.
- * @will.schroeder: algorithms, computational geometry, filters, SPH, SMP, widgets,  point cloud, spatial locators.
- * @sebastien.jourdain: web, WebAssembly, Python, Java.
- * @sankhesh: volume rendering, Qt, OpenGL, widgets, vtkImageData, DICOM, VR, Raytracing, webgpu, QtQuick, QtQml, OpenXR
- * @ben.boeckel: CMake, module system, third-parties.
- * @cory.quammen: readers, filters, data modeling, general usage, documentation.
- * @seanm: macOS, Cocoa, cppcheck, clang.
- * @spiros.tsalikis: filters, SMP, computational geometry.
- * @louis.gombert: VTKHDF, HyperTreeGrid, Catalyst
- * @jaswant.panchumarti: Rendering, WASM, WebGPU, emscripten
- * @dcthomp: CellGrid
+ * CMake: @ben.boeckel
+ * CellGrid: @dcthomp
+ * Cppcheck: @seanm
+ * Clang: @seanm
+ * Computational Geometry: @charles.gueunet, @spiros.tsalikis, @will.schroeder
+ * Data Model: @mwestphal, @charles.gueunet, @cory.quammen, @will.schroeder, @sankhesh (vtkImageData)
+ * DICOM: @sankhesh
+ * Distributed Algorithms: @mwestphal, @charles.gueunet
+ * Documentation: @cory.quammen
+ * Emscripten: @jaswant.panchumarti
+ * Filters: @charles.gueunet, @cory.quammen, @mwestphal, @spiros.tsalikis, @kmorel, @will.schroeder
+ * HyperTreeGrid: @louis.gombert
+ * Java: @sebastien.jourdain
+ * MacOS: @seanm
+ * OpenXR: @sankhesh
+ * Python: @sebastien.jourdain
+ * Qt: @mwestphal, @sankhesh
+ * QtQuick/QtQml: @sankhesh
+ * Readers: @cory.quammen
+ * Rendering (OpenGL, WebGPU): @jaswant.panchumarti, @sankhesh
+ * Raytracing (OSPRay, ANARI): @sankhesh
+ * SMP: @charles.gueunet, @spiros.tsalikis, @will.schroeder
+ * SPH: @will.schroeder
+ * Third-Parties: @ben.boeckel
+ * Viskores: @kmorel
+ * VTKHDF: @louis.gombert
+ * Wasm: @jaswant.panchumarti
+ * WebAssembly: @sebastien.jourdain
+ * Web: @sebastien.jourdain
+ * Widgets: @mwestphal, @sankhesh, @will.schroeder
+ * Anything Else: @mwestphal
+
 
 If you would like to be included in this list, juste create a merge request.
 
