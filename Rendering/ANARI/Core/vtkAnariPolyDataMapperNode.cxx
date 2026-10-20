@@ -3126,7 +3126,7 @@ void vtkAnariPolyDataMapperNode::Synchronize(bool prepass)
     return;
   }
 
-  if (!this->ActorWasModified() && !this->MapperWasModified())
+  if (!this->ActorWasModified())
   {
     return;
   }
@@ -3165,7 +3165,7 @@ void vtkAnariPolyDataMapperNode::Synchronize(bool prepass)
 
   if (!this->ActorWasModified() || !(this->PolyDataMTime < poly->GetMTime()))
   {
-    this->RenderTime = this->GetVtkActor()->GetMTime();
+    this->RenderTime = this->GetVtkActor()->GetRedrawMTime();
     this->PolyDataMTime = poly->GetMTime();
     return;
   }
@@ -3211,13 +3211,7 @@ vtkAnariActorNode* vtkAnariPolyDataMapperNode::GetAnariActorNode() const
 //----------------------------------------------------------------------------
 bool vtkAnariPolyDataMapperNode::ActorWasModified() const
 {
-  return this->RenderTime < this->GetVtkActor()->GetMTime();
-}
-
-//----------------------------------------------------------------------------
-bool vtkAnariPolyDataMapperNode::MapperWasModified() const
-{
-  return this->MapperMTime < this->GetVtkActor()->GetMapper()->GetMTime();
+  return this->RenderTime < this->GetVtkActor()->GetRedrawMTime();
 }
 
 //----------------------------------------------------------------------------

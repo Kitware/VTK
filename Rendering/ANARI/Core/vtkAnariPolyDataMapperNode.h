@@ -57,7 +57,6 @@ protected:
   vtkActor* GetVtkActor() const;
   vtkAnariActorNode* GetAnariActorNode() const;
   bool ActorWasModified() const;
-  bool MapperWasModified() const;
   void RenderSurfaceModels();
   void ClearSurfaces();
   void SetActorNodeName();
