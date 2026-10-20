@@ -198,49 +198,75 @@ void vtkJumpAndWalkCellLocator::ShallowCopy(vtkAbstractCellLocator* locator)
   this->BuildTime.Modified();
 }
 
-//-----------------------------------------------------------------------------
-vtkIdType vtkJumpAndWalkCellLocator::FindCellWalk(vtkIdList* cellIds, double x[3], double tol2,
-  vtkGenericCell* genCell, int& subId, double pcoords[3], double* weights,
+//------------------------------------------------------------------------------
+vtkIdType vtkJumpAndWalkCellLocator::FindCellWalk(vtkCell* cell, vtkIdType cellId, double x[3],
+  double tol2, vtkGenericCell* genCell, int& subId, double pcoords[3], double* weights,
   std::unordered_set<vtkIdType>& visitedCellIds, vtkIdList* ptIds, vtkIdList* neighbors)
 {
   static constexpr int VTK_MAX_WALK = 12;
   const double tol = std::sqrt(tol2);
   double closestPoint[3];
   double dist2;
+  const bool startCellGiven = cell != nullptr;
+  for (int walk = 0; walk < VTK_MAX_WALK; walk++)
+  {
+    // Check to see if we already visited this cell.
+    const bool inserted = visitedCellIds.insert(cellId).second;
+    if (!inserted)
+    {
+      break;
+    }
+
+    // Skip the evaluation of cells whose bounds do not contain the point. The parametric
+    // coordinates are needed to select the next cell, so the walk cannot continue from them. The
+    // given starting cell is always evaluated, because the point most likely left it.
+    if ((walk > 0 || !startCellGiven) && !this->InsideCellBounds(x, cellId, tol))
+    {
+      break;
+    }
+
+    // Get information for the cell, unless the starting cell was given.
+    if (!cell)
+    {
+      this->DataSet->GetCell(cellId, genCell);
+      cell = genCell;
+    }
+
+    // Check to see if the current cell contains the point.
+    const int stat = cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
+    if (stat != -1 && dist2 <= tol2)
+    {
+      return cellId;
+    }
+
+    // This is not the right cell.  Find the next one.
+    cell->CellBoundary(subId, pcoords, ptIds);
+    this->DataSet->GetCellNeighbors(cellId, ptIds, neighbors);
+    // If there is no next one, exit.
+    if (neighbors->GetNumberOfIds() < 1)
+    {
+      break;
+    }
+    // Set the next cell as the current one and iterate.
+    cellId = neighbors->GetId(0);
+    cell = nullptr;
+  }
+  // Could not find a cell.
+  return -1;
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vtkJumpAndWalkCellLocator::FindCellWalk(vtkIdList* cellIds, double x[3], double tol2,
+  vtkGenericCell* genCell, int& subId, double pcoords[3], double* weights,
+  std::unordered_set<vtkIdType>& visitedCellIds, vtkIdList* ptIds, vtkIdList* neighbors)
+{
   for (vtkIdType i = 0; i < cellIds->GetNumberOfIds(); ++i)
   {
-    vtkIdType cellId = cellIds->GetId(i);
-    for (int walk = 0; walk < VTK_MAX_WALK; walk++)
+    const vtkIdType foundCellId = this->FindCellWalk(nullptr, cellIds->GetId(i), x, tol2, genCell,
+      subId, pcoords, weights, visitedCellIds, ptIds, neighbors);
+    if (foundCellId >= 0)
     {
-      // Check to see if we already visited this cell.
-      const bool inserted = visitedCellIds.insert(cellId).second;
-      if (!inserted)
-      {
-        break;
-      }
-
-      // Get information for the cell.
-      this->DataSet->GetCell(cellId, genCell);
-      if (this->InsideCellBounds(x, cellId, tol))
-      {
-        // Check to see if the current cell contains the point.
-        const int stat = genCell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
-        if (stat != -1 && dist2 <= tol2)
-        {
-          return cellId;
-        }
-      }
-
-      // This is not the right cell.  Find the next one.
-      genCell->CellBoundary(subId, pcoords, ptIds);
-      this->DataSet->GetCellNeighbors(cellId, ptIds, neighbors);
-      // If there is no next one, exit.
-      if (neighbors->GetNumberOfIds() < 1)
-      {
-        break;
-      }
-      // Set the next cell as the current one and iterate.
-      cellId = neighbors->GetId(0);
+      return foundCellId;
     }
   }
   // Could not find a cell.
@@ -248,8 +274,8 @@ vtkIdType vtkJumpAndWalkCellLocator::FindCellWalk(vtkIdList* cellIds, double x[3
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkJumpAndWalkCellLocator::FindCell(
-  double x[3], double tol2, vtkGenericCell* genCell, int& subId, double pcoords[3], double* weights)
+vtkIdType vtkJumpAndWalkCellLocator::FindCell(double x[3], vtkCell* cell, vtkGenericCell* genCell,
+  vtkIdType cellId, double tol2, int& subId, double pcoords[3], double* weights)
 {
   // Make sure locator has been built successfully
   this->BuildLocator();
@@ -275,6 +301,18 @@ vtkIdType vtkJumpAndWalkCellLocator::FindCell(
   // reset the visited cell ids
   visibleCellIds.clear();
 
+  // If we are given a starting cell, walk from it before jumping to the closest point.
+  vtkIdType foundCellId;
+  if (cell && cellId >= 0)
+  {
+    foundCellId = this->FindCellWalk(
+      cell, cellId, x, tol2, genCell, subId, pcoords, weights, visibleCellIds, pointIds, neighbors);
+    if (foundCellId >= 0)
+    {
+      return foundCellId;
+    }
+  }
+
   // find the point closest to the coordinates given and search the attached cells.
   vtkIdType ptId = this->PointLocator->FindClosestPoint(x);
   if (ptId < 0)
@@ -284,7 +322,7 @@ vtkIdType vtkJumpAndWalkCellLocator::FindCell(
   }
 
   this->DataSet->GetPointCells(ptId, cellIds);
-  vtkIdType foundCellId = this->FindCellWalk(
+  foundCellId = this->FindCellWalk(
     cellIds, x, tol2, genCell, subId, pcoords, weights, visibleCellIds, pointIds, neighbors);
   if (foundCellId >= 0)
   {
@@ -342,6 +380,13 @@ vtkIdType vtkJumpAndWalkCellLocator::FindCell(
   // points (if using a point locator approach). In this latter case, a cell
   // locator is necessary.
   return -1;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkJumpAndWalkCellLocator::FindCell(
+  double x[3], double tol2, vtkGenericCell* genCell, int& subId, double pcoords[3], double* weights)
+{
+  return this->FindCell(x, nullptr, genCell, -1, tol2, subId, pcoords, weights);
 }
 
 //------------------------------------------------------------------------------
