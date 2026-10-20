@@ -258,7 +258,7 @@ Here is a list of developers usernames sorted by their specific area of expertis
 A merge request without a developer tagged has very low chance to be merged in a
 reasonable timeframe.
 
- * CMake: @ben.boeckel
+ * CMake: @ben.boeckel, @alexy.pellegrini
  * CellGrid: @dcthomp
  * Cppcheck: @seanm
  * Clang: @seanm
@@ -271,15 +271,17 @@ reasonable timeframe.
  * Filters: @charles.gueunet, @cory.quammen, @mwestphal, @spiros.tsalikis, @kmorel, @will.schroeder
  * HyperTreeGrid: @louis.gombert
  * Java: @sebastien.jourdain
+ * Low-level code (optimization, compiler issues): @alexy.pellegrini
  * MacOS: @seanm
  * OpenXR: @sankhesh
  * Python: @sebastien.jourdain
+ * Python Packaging: @alexy.pellegrini
  * Qt: @mwestphal, @sankhesh
- * QtQuick/QtQml: @sankhesh
- * Readers: @cory.quammen
- * Rendering (OpenGL, WebGPU): @jaswant.panchumarti, @sankhesh
- * Raytracing (OSPRay, ANARI): @sankhesh
- * SMP: @charles.gueunet, @spiros.tsalikis, @will.schroeder
+ * QtQuick/QtQml: @sankhesh, @lucas.givord
+ * IO: @cory.quammen, @alexy.pellegrini
+ * Rendering (OpenGL, WebGPU): @jaswant.panchumarti, @sankhesh, @lucas.givord
+ * Raytracing (OSPRay, ANARI): @sankhesh, @lucas.givord
+ * SMP: @spiros.tsalikis, @alexy.pellegrini (stdthread), @will.schroeder, @charles.gueunet
  * SPH: @will.schroeder
  * Third-Parties: @ben.boeckel
  * Viskores: @kmorel
@@ -288,6 +290,7 @@ reasonable timeframe.
  * WebAssembly: @sebastien.jourdain
  * Web: @sebastien.jourdain
  * Widgets: @mwestphal, @sankhesh, @will.schroeder
+ * Windows: @alexy.pellegrini
  * Anything Else: @mwestphal
 
 
