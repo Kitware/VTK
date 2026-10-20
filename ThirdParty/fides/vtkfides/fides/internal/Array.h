@@ -75,6 +75,14 @@ struct ArrayBase : public DataModelBase
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources) = 0;
 
+  /// Returns one min/max range per selected block for this array when
+  /// available. When \c BLOCK_SELECTION is present, ranges are returned in
+  /// the same order as that selection. Unsupported arrays return false.
+  virtual bool GetBlockMinMax(const std::unordered_map<std::string, std::string>& paths,
+                              DataSourcesType& sources,
+                              const fides::metadata::MetaData& selections,
+                              std::vector<std::pair<double, double>>& ranges);
+
   /// This is called after all data is read from disk/buffers,
   /// enabling any work that needs to access array values and other
   /// dataset data.
@@ -191,6 +199,11 @@ struct Array : public DataModelBase
   std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
                                       DataSourcesType&);
 
+  bool GetBlockMinMax(const std::unordered_map<std::string, std::string>& paths,
+                      DataSourcesType& sources,
+                      const fides::metadata::MetaData& selections,
+                      std::vector<std::pair<double, double>>& ranges);
+
 private:
   std::unique_ptr<ArrayBase> ArrayImpl = nullptr;
   // only used when this array belongs to a wildcard field
@@ -234,6 +247,11 @@ struct ArrayBasic : public ArrayBase
   /// Used by the reader to provide group names
   std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
                                       DataSourcesType&) override;
+
+  bool GetBlockMinMax(const std::unordered_map<std::string, std::string>& paths,
+                      DataSourcesType& sources,
+                      const fides::metadata::MetaData& selections,
+                      std::vector<std::pair<double, double>>& ranges) override;
 
 private:
   /// Build the \c ReadRequest this ArrayBasic would issue for a given
@@ -386,6 +404,7 @@ struct ArrayXGC : public ArrayBase
 protected:
   std::unique_ptr<XGCCommon> CommonImpl;
   viskores::Id NumberOfPlanes = -1;
+  viskores::Id NumberOfCoordinatePlanes = -1;
   bool EngineChecked = false;
 
   /// Ensures that the inline engine isn't being used since it's not
@@ -424,12 +443,14 @@ private:
   /// Wrap of the deferred-read coordinates RawArray. Read in ProcessViskores.
   viskores::cont::UnknownArrayHandle StoredCoordsArrayHandle;
   std::vector<XGCBlockInfo> StoredBlocksInfo;
-  size_t StoredNumInsertPlanes = 0;
 };
 
 /// \brief Class to read \c ArrayXGCField objects.
 struct ArrayXGCField : public ArrayXGC
 {
+  /// Overridden to process optional XGC field-following interpolation data.
+  void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
+
   /// Reads and returns array tokens.
   std::vector<size_t> Read(const std::unordered_map<std::string, std::string>& paths,
                            DataSourcesType& sources,
@@ -440,10 +461,26 @@ struct ArrayXGCField : public ArrayXGC
                        const fides::metadata::MetaData& metaData) override;
 
 private:
+  struct SetPlaneFieldFunctor;
+  struct MapFieldFollowingFunctor;
+  struct ApplyFieldFollowingFunctor;
   /// If Is2DField, then that means the variable is duplicated for each plane
   /// If false, then each plane has its own set of values.
   bool Is2DField = true;
   bool FieldDimsChecked = false;
+  bool UseFieldFollowingMapping = false;
+  bool MappingDataRequested = false;
+  bool MappingDataValidated = false;
+  std::string ForwardMappingDataSource;
+  std::string ReverseMappingDataSource;
+  std::string MappingIndexVariable = "eindex";
+  std::string MappingWeightVariable = "value";
+  viskores::cont::UnknownArrayHandle ForwardMappingIndices;
+  viskores::cont::UnknownArrayHandle ForwardMappingWeights;
+  viskores::cont::UnknownArrayHandle ReverseMappingIndices;
+  viskores::cont::UnknownArrayHandle ReverseMappingWeights;
+  std::vector<viskores::cont::UnknownArrayHandle> StoredFieldArrays;
+  std::vector<XGCBlockInfo> StoredBlocksInfo;
 };
 
 /// \brief Class to read \c ArrayGTCCoordinates objects.

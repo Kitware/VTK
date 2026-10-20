@@ -93,6 +93,10 @@ public:
     const fides::metadata::MetaData& selections,
     fides::FieldAssociation association = fides::FieldAssociation::Points) override;
 
+  bool GetVariableBlockMinMax(const std::string& varName,
+                              const fides::metadata::MetaData& selections,
+                              std::vector<std::pair<double, double>>& ranges) override;
+
   size_t GetNumberOfSteps() override;
 
   std::vector<size_t> GetVariableShape(std::string& varName) override;

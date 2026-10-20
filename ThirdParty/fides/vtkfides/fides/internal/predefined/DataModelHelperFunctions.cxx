@@ -237,6 +237,13 @@ rapidjson::Document CreateFieldArrayDoc(const std::string& variable,
   d.SetObject();
   rapidjson::Value arrObj(rapidjson::kObjectType);
   CreateArrayBasic(d.GetAllocator(), arrObj, source, variable, false, arrayType, isVector);
+  if (arrayType == "xgc_field" && variable == "dpot")
+  {
+    rapidjson::Value fieldFollowing(rapidjson::kObjectType);
+    fieldFollowing.AddMember("forward_data_source", "ff_hdp_fwd", d.GetAllocator());
+    fieldFollowing.AddMember("reverse_data_source", "ff_hdp_rev", d.GetAllocator());
+    arrObj.AddMember("field_following", fieldFollowing, d.GetAllocator());
+  }
   d.AddMember("array", arrObj, d.GetAllocator());
 
   return d;

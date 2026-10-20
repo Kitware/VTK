@@ -10,8 +10,10 @@
 
 #include <fides/ConduitDataSource.h>
 #include <fides/ExternalDataRegistry.h>
+#include <fides/Keys.h>
 
 #include <algorithm>
+#include <cstring>
 #include <numeric>
 #include <type_traits>
 
@@ -28,6 +30,7 @@ enum class ConduitNodeType
   DataType,
   Dimensions,
   Attributes,
+  Blocks,
 };
 
 std::string GetConduitPath(ConduitNodeType nodeType,
@@ -59,6 +62,10 @@ std::string GetConduitPath(ConduitNodeType nodeType,
       key = "attributes_path";
       defaultPath = "variables/" + varName + "/attributes";
       break;
+    case ConduitNodeType::Blocks:
+      key = "blocks_path";
+      defaultPath = "variables/" + varName + "/blocks";
+      break;
     default:
       throw std::runtime_error("Unrecognized conduit node type");
       break;
@@ -82,6 +89,143 @@ std::string GetConduitPath(ConduitNodeType nodeType,
   }
 
   return defaultPath;
+}
+
+/// The nodes that make up one block of a variable. \c Start is only set for a
+/// block of a multi-block variable that provides one.
+struct ConduitBlock
+{
+  const conduit::Node* Shape = nullptr;
+  const conduit::Node* Data = nullptr;
+  const conduit::Node* Start = nullptr;
+};
+
+/// The blocks of a variable. \c Exists is false if the variable is not in
+/// the node at all. \c IsBlockList is true if the variable has a \c blocks
+/// child, in which case \c Blocks has one entry per child of it, possibly
+/// none (a rank that was handed no blocks of the variable).
+struct ConduitVariable
+{
+  bool Exists = false;
+  bool IsBlockList = false;
+  std::vector<ConduitBlock> Blocks;
+};
+
+/// Returns the blocks of a variable. A variable with a \c blocks child (a list
+/// or object whose children each hold \c shape and optionally \c data and
+/// \c start) has one block per child. Otherwise the variable is a single block
+/// at the (possibly schema-configured) shape and data paths. \c Data is null
+/// for a block without data.
+ConduitVariable GetVariable(const conduit::Node& root,
+                            const std::string& varName,
+                            const std::shared_ptr<rapidjson::Document> doc)
+{
+  ConduitVariable variable;
+  const std::string blocksPath = GetConduitPath(ConduitNodeType::Blocks, varName, doc);
+  if (root.has_path(blocksPath))
+  {
+    variable.Exists = true;
+    variable.IsBlockList = true;
+    const conduit::Node& blocksNode = root[blocksPath];
+    for (conduit::index_t i = 0; i < blocksNode.number_of_children(); ++i)
+    {
+      const conduit::Node& block = blocksNode.child(i);
+      if (!block.has_child("shape"))
+      {
+        throw std::runtime_error("Missing expected shape node in block " + std::to_string(i) +
+                                 " of variable " + varName);
+      }
+      variable.Blocks.push_back({ &block["shape"],
+                                  block.has_child("data") ? &block["data"] : nullptr,
+                                  block.has_child("start") ? &block["start"] : nullptr });
+    }
+    return variable;
+  }
+
+  const std::string shapePath = GetConduitPath(ConduitNodeType::Shape, varName, doc);
+  const std::string dataPath = GetConduitPath(ConduitNodeType::Data, varName, doc);
+  const bool hasData = root.has_path(dataPath);
+  if (!root.has_path(shapePath))
+  {
+    if (!hasData)
+    {
+      return variable;
+    }
+    throw std::runtime_error("Missing expected shape node " + shapePath + " for variable " +
+                             varName);
+  }
+  variable.Exists = true;
+  variable.Blocks.push_back({ &root[shapePath], hasData ? &root[dataPath] : nullptr, nullptr });
+  return variable;
+}
+
+/// Returns the blocks of a variable, throwing if the variable does not exist.
+ConduitVariable GetExistingVariable(const conduit::Node& root,
+                                    const std::string& varName,
+                                    const std::shared_ptr<rapidjson::Document> doc)
+{
+  ConduitVariable variable = GetVariable(root, varName, doc);
+  if (!variable.Exists)
+  {
+    throw std::runtime_error("Missing expected shape node " +
+                             GetConduitPath(ConduitNodeType::Shape, varName, doc) +
+                             " for variable " + varName);
+  }
+  return variable;
+}
+
+/// Returns the indices of the blocks to read: the block selection if there is
+/// one (possibly empty), otherwise all \c nBlocks blocks.
+std::vector<size_t> GetSelectedBlocks(size_t nBlocks,
+                                      const fides::metadata::MetaData& selections,
+                                      const std::string& varName)
+{
+  if (!selections.Has(fides::keys::BLOCK_SELECTION()))
+  {
+    std::vector<size_t> all(nBlocks);
+    std::iota(all.begin(), all.end(), 0);
+    return all;
+  }
+  const auto& selected =
+    selections.Get<fides::metadata::Vector<size_t>>(fides::keys::BLOCK_SELECTION()).Data;
+  for (size_t blockId : selected)
+  {
+    if (blockId >= nBlocks)
+    {
+      throw std::runtime_error("Block " + std::to_string(blockId) + " selected for variable " +
+                               varName + ", which has " + std::to_string(nBlocks) + " block(s)");
+    }
+  }
+  return selected;
+}
+
+/// Returns the values of a shape (or start) node, which may have any integer
+/// dtype.
+std::vector<size_t> GetShapeValues(const conduit::Node* node)
+{
+  std::vector<size_t> values;
+  if (!node || node->dtype().is_empty())
+  {
+    return values;
+  }
+  if (!node->dtype().is_integer())
+  {
+    throw std::runtime_error("Conduit shape and start nodes must have an integer dtype, not " +
+                             node->dtype().name());
+  }
+  conduit::Node asInt64;
+  node->to_int64_array(asInt64);
+  const conduit::int64* ptr = asInt64.value();
+  const auto n = asInt64.dtype().number_of_elements();
+  for (conduit::index_t i = 0; i < n; ++i)
+  {
+    if (ptr[i] < 0)
+    {
+      throw std::runtime_error("Conduit shape and start nodes must not have negative values");
+    }
+    values.push_back(static_cast<size_t>(ptr[i]));
+  }
+  return values;
 }
 }
 
@@ -145,54 +289,51 @@ void ConduitDataSource::OpenSource(const std::string& token, bool fidesNotUsed(u
 
 std::vector<fides::RawArray> ConduitDataSource::GetVariableDimensions(
   const std::string& varName,
-  const fides::metadata::MetaData& fidesNotUsed(selections),
+  const fides::metadata::MetaData& selections,
   fides::FieldAssociation fidesNotUsed(association))
 {
-  std::string shapePath = GetConduitPath(ConduitNodeType::Shape, varName, this->SchemaDocument);
-
   if (!this->Internals->Node)
   {
     throw std::runtime_error("Conduit node pointer is null for variable " + varName);
   }
 
-  const conduit::Node& n = *this->Internals->Node;
+  const ConduitVariable variable =
+    GetExistingVariable(*this->Internals->Node, varName, this->SchemaDocument);
+  const auto& blocks = variable.Blocks;
 
-  if (!n.has_path(shapePath))
+  std::vector<fides::RawArray> result;
+  for (size_t blockId : GetSelectedBlocks(blocks.size(), selections, varName))
   {
-    throw std::runtime_error("Missing expected shape node " + shapePath + " for variable " +
-                             varName);
+    const auto shape = GetShapeValues(blocks[blockId].Shape);
+    if (shape.empty())
+    {
+      if (!variable.IsBlockList)
+      {
+        // A single-block variable without shape data has no dimensions
+        return std::vector<fides::RawArray>();
+      }
+      throw std::runtime_error("Block " + std::to_string(blockId) + " of variable " + varName +
+                               " has an empty shape");
+    }
+    const auto start = GetShapeValues(blocks[blockId].Start);
+    if (!start.empty() && start.size() != shape.size())
+    {
+      throw std::runtime_error("start and shape of variable " + varName +
+                               " have different lengths");
+    }
+
+    // [dim0, dim1, ..., start0, start1, ...], with starts 0 unless given
+    const size_t numShapeElements = shape.size();
+    auto raw = fides::AllocateRawArray<size_t>(numShapeElements * 2, 1);
+    size_t* buffer = raw.template GetWritePointer<size_t>();
+    for (size_t i = 0; i < numShapeElements; ++i)
+    {
+      buffer[i] = shape[i];
+      buffer[numShapeElements + i] = start.empty() ? 0 : start[i];
+    }
+    result.push_back(std::move(raw));
   }
-
-  const conduit::Node& nodeShape = n[shapePath];
-  if (nodeShape.dtype().is_empty())
-  {
-    // Return an empty RawArray if there is no shape data
-    return std::vector<fides::RawArray>();
-  }
-
-  size_t numShapeElements = nodeShape.dtype().number_of_elements();
-  // expects [dim0, dim1, ..., start0, start1, ...]
-  size_t totalElements = numShapeElements * 2;
-
-  // Allocate a 1D RawArray of size_t to hold shapes and starts
-  auto raw = fides::AllocateRawArray<size_t>(totalElements, 1);
-  size_t* buffer = raw.template GetWritePointer<size_t>();
-
-  const conduit::int64* shape = nodeShape.value();
-
-  // Fill the first half with dimensions
-  for (size_t i = 0; i < numShapeElements; ++i)
-  {
-    buffer[i] = static_cast<size_t>(shape[i]);
-  }
-
-  // Fill the second half with starts (always 0 for Conduit)
-  for (size_t i = 0; i < numShapeElements; ++i)
-  {
-    buffer[numShapeElements + i] = 0;
-  }
-
-  return std::vector<fides::RawArray>{ std::move(raw) };
+  return result;
 }
 
 // Choose conduit_TT to match the *actual* width of the conduit buffer, so a
@@ -514,27 +655,18 @@ std::vector<fides::RawArray> ConduitDataSource::GetTimeArray(
 }
 
 template <typename ConduitType, typename VariableType>
-std::vector<fides::RawArray> ReadVariableInternal(std::shared_ptr<conduit::Node> rootNode,
-                                                  const std::string& shapePath,
-                                                  const std::string& dataPath,
-                                                  IsVector isit)
+fides::RawArray ReadVariableInternal(std::shared_ptr<conduit::Node> rootNode,
+                                     const conduit::Node& nodeShape,
+                                     const conduit::Node& nodeData,
+                                     const std::string& varName,
+                                     IsVector isit)
 {
   if (!rootNode)
   {
     throw std::runtime_error("Invalid Conduit node pointer provided to ReadVariableInternal.");
   }
 
-  const conduit::Node& root = *rootNode;
-
-  const conduit::Node& nodeShape = root[shapePath];
-  std::vector<size_t> shape;
-  if (!nodeShape.dtype().is_empty())
-  {
-    const conduit::int64* shapeVal = nodeShape.value();
-    shape.assign(shapeVal, shapeVal + nodeShape.dtype().number_of_elements());
-  }
-
-  const conduit::Node& nodeData = root[dataPath];
+  const std::vector<size_t> shape = GetShapeValues(&nodeShape);
   size_t totalElements = nodeData.dtype().number_of_elements();
 
   // Determine vector detection
@@ -572,8 +704,8 @@ std::vector<fides::RawArray> ReadVariableInternal(std::shared_ptr<conduit::Node>
       // as long as this RawArray does.
     });
 
-    return std::vector<fides::RawArray>{ fides::RawArray(
-      std::move(buf), numValues, numComponents, fides::GetDataType<VariableType>()) };
+    return fides::RawArray(
+      std::move(buf), numValues, numComponents, fides::GetDataType<VariableType>());
   }
   else
   {
@@ -598,30 +730,42 @@ std::vector<fides::RawArray> ReadVariableInternal(std::shared_ptr<conduit::Node>
     });
     if (truncated)
     {
-      std::cerr << "WARNING: Conduit variable '" << dataPath
+      std::cerr << "WARNING: Conduit variable '" << varName
                 << "' was read into a narrower integer dtype that truncated one or more values."
                 << std::endl;
     }
 
-    return std::vector<fides::RawArray>{ std::move(raw) };
+    return raw;
   }
 }
 
+// Reads one block of a variable. \c type is the requested output type: the
+// declared dtype if the variable has one, otherwise the block's own type.
+//
 // clang-tidy flags "readability-function-size" here, but it is due to macro-generated
 // numeric type dispatch (fidesTemplateMacro x conduitTemplateMacro), rather than logic
 // complexity.
 // NOLINTNEXTLINE(readability-function-size)
+fides::RawArray ReadBlock(std::shared_ptr<conduit::Node> rootNode,
+                          const conduit::Node& nodeShape,
+                          const conduit::Node& nodeData,
+                          const std::string& varName,
+                          const std::string& type,
+                          IsVector isit)
+{
+  const std::string& conduitType = nodeData.dtype().name();
+  fidesTemplateMacro(
+    (ReadVariableInternal<conduit_TT, fides_TT>(rootNode, nodeShape, nodeData, varName, isit)));
+
+  throw std::runtime_error("Unsupported variable type " + type);
+}
+
 std::vector<fides::RawArray> ConduitDataSource::ReadVariable(
   const std::string& varName,
-  const fides::metadata::MetaData& fidesNotUsed(selections),
+  const fides::metadata::MetaData& selections,
   IsVector isit,
   ReadMode fidesNotUsed(mode))
 {
-  std::string shapePath = GetConduitPath(ConduitNodeType::Shape, varName, this->SchemaDocument);
-  std::string dataPath = GetConduitPath(ConduitNodeType::Data, varName, this->SchemaDocument);
-  std::string dataTypePath =
-    GetConduitPath(ConduitNodeType::DataType, varName, this->SchemaDocument);
-
   // It's an error if the shared_ptr is empty
   if (!this->Internals->Node)
   {
@@ -629,36 +773,60 @@ std::vector<fides::RawArray> ConduitDataSource::ReadVariable(
   }
 
   const conduit::Node& n = (*this->Internals->Node);
-
-  if (!n.has_path(shapePath))
-  {
-    throw std::runtime_error("Missing expected shape node " + shapePath + " for variable " +
-                             varName);
-  }
-
-  if (!n.has_path(dataPath))
-  {
-    throw std::runtime_error("Missing expected data node " + dataPath + " for variable " + varName);
-  }
-
-  const conduit::Node& nodeData = n[dataPath];
-  const std::string& conduitType = nodeData.dtype().name();
+  const auto blocks = GetExistingVariable(n, varName, this->SchemaDocument).Blocks;
 
   // The declared dtype node is optional. When present it is an explicit request
   // for the output type, which may differ from the stored buffer (for example a
   // float64 buffer declared "float" narrows to float on output). When absent,
   // honor the buffer's own type: a Conduit node is self-describing, so no
   // separate type declaration is required.
-  std::string type = conduitType;
-  if (n.has_path(dataTypePath))
+  const std::string dataTypePath =
+    GetConduitPath(ConduitNodeType::DataType, varName, this->SchemaDocument);
+  const bool hasDeclaredType = n.has_path(dataTypePath);
+
+  // Without a declared dtype, every block must store the same type, as the
+  // blocks of an ADIOS2 variable do. All blocks are checked, not only the
+  // selected ones, so that whether a read succeeds and the type it returns do
+  // not depend on the block selection.
+  if (!hasDeclaredType)
   {
-    type = n[dataTypePath].as_string();
+    const conduit::Node* firstData = nullptr;
+    for (const ConduitBlock& block : blocks)
+    {
+      if (!block.Data)
+      {
+        continue;
+      }
+      if (!firstData)
+      {
+        firstData = block.Data;
+      }
+      else if (block.Data->dtype().id() != firstData->dtype().id())
+      {
+        throw std::runtime_error("Blocks of variable " + varName + " store different types (" +
+                                 firstData->dtype().name() + " and " + block.Data->dtype().name() +
+                                 "); declare the variable's dtype to convert them to one type");
+      }
+    }
   }
 
-  fidesTemplateMacro(
-    (ReadVariableInternal<conduit_TT, fides_TT>(this->Internals->Node, shapePath, dataPath, isit)));
-
-  throw std::runtime_error("Unsupported variable type " + type);
+  std::vector<fides::RawArray> arrays;
+  for (size_t blockId : GetSelectedBlocks(blocks.size(), selections, varName))
+  {
+    const ConduitBlock& block = blocks[blockId];
+    if (!block.Data)
+    {
+      throw std::runtime_error(
+        "Missing expected data node " +
+        GetConduitPath(ConduitNodeType::Data, varName, this->SchemaDocument) + " for variable " +
+        varName);
+    }
+    const std::string type =
+      hasDeclaredType ? n[dataTypePath].as_string() : block.Data->dtype().name();
+    arrays.push_back(
+      ReadBlock(this->Internals->Node, *block.Shape, *block.Data, varName, type, isit));
+  }
+  return arrays;
 }
 
 std::vector<fides::RawArray> ConduitDataSource::ReadMultiBlockVariable(
@@ -666,8 +834,52 @@ std::vector<fides::RawArray> ConduitDataSource::ReadMultiBlockVariable(
   const fides::metadata::MetaData& selections,
   ReadMode mode)
 {
-  // Conduit does not have blocks, so just ReadVariable
-  return ReadVariable(varName, selections, IsVector::Auto, mode);
+  // Read the selected blocks and, like the ADIOS data source, return them as a
+  // single contiguous array.
+  auto arrays = this->ReadVariable(varName, selections, IsVector::Auto, mode);
+  if (arrays.size() <= 1)
+  {
+    return arrays;
+  }
+
+  const fides::RawArray& first = arrays.front();
+  size_t numValues = 0;
+  size_t numBytes = 0;
+  for (const auto& array : arrays)
+  {
+    if (array.Type != first.Type || array.NumComponents != first.NumComponents)
+    {
+      throw std::runtime_error("Blocks of variable " + varName +
+                               " differ in type or number of components");
+    }
+    numValues += array.NumValues;
+    numBytes += array.GetNumberOfBytes();
+  }
+
+  std::shared_ptr<void> buffer(new char[numBytes], [](void* p) { delete[] static_cast<char*>(p); });
+  char* dest = static_cast<char*>(buffer.get());
+  for (const auto& array : arrays)
+  {
+    std::memcpy(dest, array.Data.get(), array.GetNumberOfBytes());
+    dest += array.GetNumberOfBytes();
+  }
+  return std::vector<fides::RawArray>{ fides::RawArray(
+    std::move(buffer), numValues, first.NumComponents, first.Type) };
+}
+
+size_t ConduitDataSource::GetNumberOfBlocks(const std::string& varName)
+{
+  return this->GetNumberOfBlocks(varName, "");
+}
+
+size_t ConduitDataSource::GetNumberOfBlocks(const std::string& varName,
+                                            const std::string& fidesNotUsed(group))
+{
+  if (!this->Internals->Node)
+  {
+    return 0;
+  }
+  return GetVariable(*this->Internals->Node, varName, this->SchemaDocument).Blocks.size();
 }
 
 std::vector<size_t> ConduitDataSource::GetVariableShape(std::string& varName)
@@ -678,26 +890,23 @@ std::vector<size_t> ConduitDataSource::GetVariableShape(std::string& varName)
 std::vector<size_t> ConduitDataSource::GetVariableShape(std::string& varName,
                                                         const std::string& fidesNotUsed(group))
 {
-  std::string shapePath = GetConduitPath(ConduitNodeType::Shape, varName, this->SchemaDocument);
+  // A variable-level shape takes precedence. Without one, a multi-block
+  // variable reports the shape of its first block.
   const conduit::Node& n = (*this->Internals->Node);
-
-  if (!n.has_path(shapePath))
+  const std::string shapePath =
+    GetConduitPath(ConduitNodeType::Shape, varName, this->SchemaDocument);
+  if (n.has_path(shapePath))
   {
-    throw std::runtime_error("Missing expected shape node " + shapePath + " for variable " +
-                             varName);
+    return GetShapeValues(&n[shapePath]);
   }
 
-  const conduit::Node& nodeShape = n[shapePath];
-
-  std::vector<size_t> shape;
-  if (nodeShape.dtype().is_empty())
+  const auto blocks = GetExistingVariable(n, varName, this->SchemaDocument).Blocks;
+  if (blocks.empty())
   {
-    return shape;
+    // A variable with no blocks on this rank
+    return std::vector<size_t>();
   }
-
-  const conduit::int64* shapeVal = nodeShape.value();
-  shape.assign(shapeVal, shapeVal + nodeShape.dtype().number_of_elements());
-  return shape;
+  return GetShapeValues(blocks.front().Shape);
 }
 
 std::vector<std::string> ConduitDataSource::ReadStringAttribute(const std::string& name)
