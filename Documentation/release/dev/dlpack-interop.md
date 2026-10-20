@@ -68,7 +68,8 @@ Host arrays work with plain VTK. Device arrays require VTK built with
 device memory; importing a device tensor without it raises `RuntimeError`
 rather than silently copying to the host.
 
-Metal tensors are imported as host arrays: a shared-storage `MTLBuffer` on
-Apple Silicon is unified memory, so its pointer is host-readable and the wrap
-is still zero-copy. Private-storage buffers have no host-readable pointer and
-are rejected. VTK never exports Metal memory, because no VTK array holds it.
+Metal tensors are rejected: their data pointer is the `MTLBuffer` object
+rather than memory the host can read (PyTorch's MPS tensors are
+private-storage buffers with no host-readable contents at all), so copy them
+to the CPU first. VTK never exports Metal memory, because no VTK array holds
+it.

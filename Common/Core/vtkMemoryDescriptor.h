@@ -17,10 +17,10 @@
  *
  * There is deliberately no "metal" space. Viskores has no Metal device
  * adapter and vtkDataArray::MemorySpace has no Metal value, so nothing in VTK
- * could branch on one. Metal memory arrives as "host": a shared-storage
- * MTLBuffer on Apple Silicon is unified memory, so its pointer really is a
- * host pointer, and a private-storage buffer has no host-readable pointer at
- * all and is rejected rather than described.
+ * could branch on one. Nor can Metal memory be described as "host": a Metal
+ * tensor's DLPack data pointer is the MTLBuffer object, not its contents, so
+ * vtkmodules.util.dlpack_support rejects Metal tensors rather than describe
+ * them.
  *
  * A space names *what kind* of memory this is, not *which* device or context
  * it belongs to. There is no device ordinal here and no context handle. That

@@ -56,6 +56,68 @@ def wrap(source):
     return numpy_support.numpy_to_vtk(source, deep=False)
 
 
+def fake_capsule(data, device_type):
+    """A legacy capsule for a 1-D float32 tensor of 4 values at *data*.
+
+    Returns the capsule and the ctypes objects it points into, which must
+    stay alive while the capsule is in use.
+    """
+    import ctypes
+
+    managed = dlpack_support._DLManagedTensor()
+    managed.dl_tensor.data = data
+    managed.dl_tensor.ndim = 1
+    shape = (ctypes.c_int64 * 1)(4)
+    managed.dl_tensor.shape = shape
+    managed.dl_tensor.dtype.code = dlpack_support.kDLFloat
+    managed.dl_tensor.dtype.bits = 32
+    managed.dl_tensor.dtype.lanes = 1
+    managed.dl_tensor.device.device_type = device_type
+    capsule = dlpack_support._PyCapsule_New(
+        ctypes.addressof(managed), b"dltensor", None)
+    return capsule, (managed, shape)
+
+
+# A consumer that keeps an export until interpreter shutdown, the way
+# PyTorch does. It holds only raw addresses and reads the deleter out of
+# the managed tensor when it is freed. Hung off sys, which is torn down
+# after every ordinary module, it is freed after dlpack_support's globals
+# are gone -- the order PyTorch produces for a tensor in __main__. The
+# leading underscore in sys._late_consumer matters: it is cleared early in
+# that teardown, while sys.stderr can still report an exception raised in
+# the callback. Without it, the failure happens but goes unreported.
+LATE_CONSUMER = """
+import ctypes
+import sys
+
+from vtkmodules.vtkCommonCore import vtkFloatArray
+from vtkmodules.util.dlpack_support import _DLManagedTensor, vtk_to_dlpack
+
+
+class Consumer:
+    def __init__(self, capsule):
+        get_pointer = ctypes.pythonapi.PyCapsule_GetPointer
+        get_pointer.restype = ctypes.c_void_p
+        get_pointer.argtypes = [ctypes.py_object, ctypes.c_char_p]
+        set_name = ctypes.pythonapi.PyCapsule_SetName
+        set_name.argtypes = [ctypes.py_object, ctypes.c_char_p]
+
+        self.managed = get_pointer(capsule, b"dltensor")
+        set_name(capsule, b"used_dltensor")
+        self.deleter_slot = self.managed + _DLManagedTensor.deleter.offset
+        self.read_pointer = ctypes.c_void_p.from_address
+        self.function = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
+
+    def __del__(self):
+        self.function(self.read_pointer(self.deleter_slot).value)(self.managed)
+
+
+array = vtkFloatArray()
+array.SetNumberOfValues(4)
+sys._late_consumer = Consumer(vtk_to_dlpack(array))
+"""
+
+
 def make_array(values, n_components=1, cls=vtkFloatArray):
     array = cls()
     array.SetNumberOfComponents(n_components)
@@ -197,16 +259,23 @@ class TestDLPack(Testing.vtkTest):
         self.assertIsNotNone(descriptor.GetOwner())
         self.assertTrue(descriptor.HasOwnership())
 
-    def testMetalImportsAsHost(self):
-        """A Metal tensor is imported as host memory, and never exported.
+    def testMetalIsRejected(self):
+        """A Metal tensor is refused, and never exported.
 
-        Viskores has no Metal device adapter and vtkDataArray::MemorySpace
-        has no Metal value, so no VTK array can hold Metal memory -- there is
-        nothing to export. Coming the other way, a shared-storage MTLBuffer on
-        Apple Silicon is unified memory, so the pointer is host-readable and
-        "host" is not an approximation, it is the truth.
+        Its data pointer is the MTLBuffer object rather than its contents,
+        so reading it as host memory would hand back the object's own bytes;
+        PyTorch's MPS tensors came back as garbage that way. Nothing on the
+        export side can hold Metal memory either. The pointer here is real
+        host memory, so the refusal cannot be the null-pointer check.
         """
-        self.assertEqual(dlpack_support._DEVICE_TO_SPACE[dlpack_support.kDLMetal], "host")
+        import ctypes
+
+        values = (ctypes.c_float * 4)(0, 1, 2, 3)
+        capsule, keep = fake_capsule(
+            ctypes.cast(values, ctypes.c_void_p), dlpack_support.kDLMetal)
+        with self.assertRaisesRegex(ValueError, "Metal"):
+            dlpack_to_vtk(capsule)
+        self.assertNotIn(dlpack_support.kDLMetal, dlpack_support.supported_device_types())
         self.assertNotIn("metal", dlpack_support._SPACE_TO_DEVICE)
 
     def testOnlyVTKsFourSpacesAreExportable(self):
@@ -227,24 +296,45 @@ class TestDLPack(Testing.vtkTest):
         self.assertEqual(descriptor.GetPointer(), address)
 
     def testNullPointerIsRejected(self):
-        """A private-storage Metal buffer reports a null pointer."""
+        """A tensor with a null data pointer is refused."""
         import ctypes
-        from vtkmodules.util.dlpack_support import _DLManagedTensor
 
-        managed = _DLManagedTensor()
-        managed.dl_tensor.data = ctypes.c_void_p(0)
-        managed.dl_tensor.ndim = 1
-        shape = (ctypes.c_int64 * 1)(4)
-        managed.dl_tensor.shape = shape
-        managed.dl_tensor.dtype.code = dlpack_support.kDLFloat
-        managed.dl_tensor.dtype.bits = 32
-        managed.dl_tensor.dtype.lanes = 1
-        managed.dl_tensor.device.device_type = dlpack_support.kDLMetal
-
-        capsule = dlpack_support._PyCapsule_New(
-            ctypes.addressof(managed), b"dltensor", None)
-        with self.assertRaises(ValueError):
+        capsule, keep = fake_capsule(ctypes.c_void_p(0), dlpack_support.kDLCPU)
+        with self.assertRaisesRegex(ValueError, "null data pointer"):
             dlpack_to_vtk(capsule)
+
+    def testConsumerMayReleaseDuringShutdown(self):
+        """A consumer may call the deleter after this module is torn down.
+
+        Importing torch is enough to have dlpack_support cleared before
+        __main__, so a tensor a script still holds is released after the
+        module's globals are gone. That used to segfault (the callback had
+        been freed) or raise inside the callback (its globals were None).
+        It runs in a child interpreter because only a real shutdown gets
+        the order right; see LATE_CONSUMER.
+        """
+        import os
+        import shutil
+        import subprocess
+        import sys
+
+        # vtkpython sets its program name to "vtkpython" next to libpython,
+        # so sys.executable usually names a file that does not exist (only
+        # a macOS framework Python resolves it to a real interpreter). Fall
+        # back to whatever launched this process, vtkpython included.
+        candidates = [sys.executable] + getattr(sys, "orig_argv", [])[:1]
+        interpreter = next(filter(None, map(shutil.which, candidates)), None)
+        if interpreter is None:
+            self.skipTest("cannot find an interpreter to run the child with")
+        # VTK may be on sys.path only because vtkpython put it there, so the
+        # child is handed the parent's path.
+        env = dict(os.environ, PYTHONPATH=os.pathsep.join(sys.path))
+        result = subprocess.run(
+            [interpreter, "-c", LATE_CONSUMER],
+            capture_output=True, text=True, timeout=300, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("Exception ignored", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
 
     def testDescriptorReleaseIsCalledOnce(self):
         """SetRelease is the hook a non-VTK producer hangs its lifetime on."""
