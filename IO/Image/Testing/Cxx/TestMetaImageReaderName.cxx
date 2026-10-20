@@ -95,19 +95,29 @@ int TestMetaImageReaderName(int argc, char* argv[])
 
   const struct
   {
+    bool UseArrayNameInFile;
     const char* Field;
     const char* Expected;
   } cases[] = {
-    { "Name = First volume\n", "First volume" },
-    { "", "MetaImage" },
-    { "Name = Second volume\n", "Second volume" },
-    { "Name =\n", "MetaImage" },
-    { "Name = Third volume\n", "Third volume" },
-    { "Name = \t  \n", "MetaImage" },
+    { true, "Name = First volume\n", "First volume" },
+    { true, "", "MetaImage" },
+    { true, "Name = Second volume\n", "Second volume" },
+    { true, "Name =\n", "MetaImage" },
+    { true, "Name = Third volume\n", "Third volume" },
+    { true, "Name = \t  \n", "MetaImage" },
+    { false, "Name = Fourth volume\n", "MetaImage" },
   };
 
   // Reuse one reader to catch stale names when switching files.
   vtkNew<vtkMetaImageReader> reader;
+
+  // Default value should be false
+  if (reader->GetUseArrayNameInFile())
+  {
+    std::cerr << "UserArrayNameInFile should default to false but is true" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   bool success = true;
   for (bool local : { true, false })
   {
@@ -124,6 +134,7 @@ int TestMetaImageReaderName(int argc, char* argv[])
       else
       {
         reader->SetFileName(fileName.c_str());
+        reader->SetUseArrayNameInFile(test.UseArrayNameInFile);
         reader->UpdateInformation();
         reader->Update();
         success = CheckImage(reader, test.Expected) && success;
