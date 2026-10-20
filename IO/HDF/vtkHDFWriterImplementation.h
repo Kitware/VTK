@@ -385,6 +385,11 @@ private:
   bool GetSubFilesDatasetSize(
     const std::string& datasetPath, const std::string& groupName, hsize_t& totalSize);
 
+  /**
+   * Copy the datatype from dataset in subfile
+   */
+  vtkHDF::ScopedH5THandle GetSubfileDataType(const std::string& datasetPath);
+
   //--------------- Distributed tools ---------------
   // Possible indexing mode of VTKHDF datasets. See `GetDatasetIndexationMode`
   enum class IndexingMode

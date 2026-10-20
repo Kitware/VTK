@@ -1182,6 +1182,25 @@ bool vtkHDFWriter::Implementation::AddOrCreateDataset(hid_t group, unsigned int 
 }
 
 //------------------------------------------------------------------------------
+vtkHDF::ScopedH5THandle vtkHDFWriter::Implementation::GetSubfileDataType(
+  const std::string& datasetPath)
+{
+  for (auto& subfile : this->Subfiles)
+  {
+    if (this->DatasetAndGroupExist(datasetPath, subfile))
+    {
+      vtkHDF::ScopedH5DHandle source = H5Dopen(subfile, datasetPath.c_str(), H5P_DEFAULT);
+      if (source == H5I_INVALID_HID)
+      {
+        return H5I_INVALID_HID;
+      }
+      return H5Dget_type(source);
+    }
+  }
+  return H5I_INVALID_HID;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::CreateVirtualDataset(
   hid_t group, const char* name, hid_t type, int numComp)
 {
@@ -1223,6 +1242,14 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
     }
     return false;
   }
+
+  // Copy stored data type
+  auto sourceType = this->GetSubfileDataType(datasetPath);
+  if (sourceType == H5I_INVALID_HID)
+  {
+    return false;
+  }
+  type = sourceType;
 
   hsize_t numberOfSteps = 1;
   if (this->Writer->IsTemporal && this->Writer->NbPieces != 1)
