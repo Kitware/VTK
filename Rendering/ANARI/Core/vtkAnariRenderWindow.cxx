@@ -198,9 +198,14 @@ int vtkAnariRenderWindow::SampleSourceColorBuffer(
     return VTK_ERROR;
   }
 
-  unsigned int pixelBufferWidth = std::abs(x2 - x1) + 1;
-  unsigned int pixelBufferHeight = std::abs(y2 - y1) + 1;
-  data->SetVoidArray(static_cast<void*>(pixelBuffer), pixelBufferWidth * pixelBufferHeight, 0,
+  const vtkIdType pixelBufferWidth = std::abs(x2 - x1) + 1;
+  const vtkIdType pixelBufferHeight = std::abs(y2 - y1) + 1;
+
+  // `SetVoidArray` counts values, not pixels, so the channels have to be
+  // accounted for in both the component count and the size.
+  data->SetNumberOfComponents(channelCount);
+  data->SetVoidArray(static_cast<void*>(pixelBuffer),
+    pixelBufferWidth * pixelBufferHeight * channelCount, 0,
     vtkUnsignedCharArray::VTK_DATA_ARRAY_DELETE);
 
   return VTK_OK;

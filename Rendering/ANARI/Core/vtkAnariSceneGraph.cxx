@@ -81,6 +81,7 @@ public:
 
   vtkSmartPointer<vtkAnariDevice> AnariDevice{ nullptr };
   vtkSmartPointer<vtkAnariRenderer> AnariRenderer{ nullptr };
+  anari::Renderer PublishedRenderer{ nullptr };
 
   anari::World AnariWorld{ nullptr };
   anari::Frame AnariFrame{ nullptr };
@@ -166,6 +167,12 @@ void vtkAnariSceneGraph::InitAnariFrame(vtkRenderer* ren)
 //----------------------------------------------------------------------------
 void vtkAnariSceneGraph::SetupAnariRendererParameters(vtkRenderer* ren)
 {
+  if (this->Internal->AnariRenderer &&
+    this->Internal->AnariRenderer->GetHandle() != this->Internal->PublishedRenderer)
+  {
+    this->SetAnariRenderer(this->Internal->AnariRenderer);
+  }
+
   if (this->AnariRendererModifiedTime <= this->AnariRendererUpdatedTime)
   {
     return;
@@ -807,6 +814,7 @@ void vtkAnariSceneGraph::SetAnariRenderer(vtkAnariRenderer* renderer)
   else
     anari::unsetParameter(device, frame, "renderer");
   anari::commitParameters(device, frame);
+  this->Internal->PublishedRenderer = renderer->GetHandle();
 
   this->AnariRendererModifiedTime.Modified();
 }

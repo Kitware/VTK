@@ -131,11 +131,14 @@ void vtkAnariRenderer::SetSubtype(const char* subtype)
   if (!renderer)
   {
     vtkDebugMacro(<< "[ANARI] unable to create '" << subtype << "' renderer.\n");
+    this->Modified();
     return;
   }
 
   this->Internal->AnariRenderer = renderer;
   this->Internal->AnariRendererSubtype = subtype;
+
+  this->Modified();
 }
 
 const char* vtkAnariRenderer::GetSubtype() const

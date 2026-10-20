@@ -1,6 +1,7 @@
 set(tests_with_baseline
   TestAnariActorVisibility
   TestAnariAmbient
+  TestAnariBackgroundAfterSubtype
   TestAnariCameraInside
   TestAnariCameraInsideSmallSpacing
   TestAnariCellData
