@@ -13,11 +13,16 @@ if (TARGET VTK::ParallelMPI)
   set(vtkIOHDFCxxTests-MPI_NUMPROCS 3)
   vtk_add_test_mpi(vtkIOHDFCxxTests-MPI mpi_test
     TestHDFWriterDistributed.cxx,TESTING_DATA,NO_VALID
+    TestHDFWriterDistributedUGConfigs.cxx,TESTING_DATA,NO_VALID
     TestHDFWriterHTGDistributed.cxx,TESTING_DATA,NO_VALID
     TestHDFReaderDistributed.cxx,TESTING_DATA,NO_VALID
   )
 
-  vtk_test_cxx_executable(vtkIOHDFCxxTests-MPI mpi_test)
+  vtk_test_cxx_executable(vtkIOHDFCxxTests-MPI mpi_test
+    HDFWriterDistributedTestConfigurations.cxx
+    HDFWriterDistributedTestSource.cxx
+    HDFWriterDistributedTestUtilities.cxx
+  )
 endif()
 
 vtk_test_cxx_executable(vtkIOHDFCxxTests tests)
