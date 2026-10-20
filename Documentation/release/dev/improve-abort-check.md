@@ -13,6 +13,9 @@ implement multi process communication in these cases.
 
 The following filters have been moved to the new API:
  - vtkRTAnalyticSource
+ - vtkShrinkFilter
+ - vtkContourGrid
+ - vtkClipDataSet
 
 The `CheckAbort` API is not planned for deprecation for now but ultimely should be once
 the new API usage appears more and more.
