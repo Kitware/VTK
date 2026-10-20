@@ -291,7 +291,7 @@ reasonable timeframe.
  * Anything Else: @mwestphal
 
 
-If you would like to be included in this list, juste create a merge request.
+If you would like to be included in this list, just create a merge request.
 
 ### Human Reviews ###
 
