@@ -41,7 +41,7 @@ void vtkMemoryDescriptor::ClearOwnership()
 
 //------------------------------------------------------------------------------
 void vtkMemoryDescriptor::Set(
-  vtkTypeInt64 pointer, vtkTypeInt64 sizeInBytes, const char* memorySpace, const char* role)
+  vtkTypeUInt64 pointer, vtkTypeInt64 sizeInBytes, const char* memorySpace, const char* role)
 {
   this->Pointer = pointer;
   this->SizeInBytes = sizeInBytes;
@@ -82,7 +82,7 @@ void vtkMemoryDescriptor::SetRelease(ReleaseFunction release, void* context)
 }
 
 //------------------------------------------------------------------------------
-void vtkMemoryDescriptor::SetReleaseAddress(vtkTypeInt64 release, vtkTypeInt64 context)
+void vtkMemoryDescriptor::SetReleaseAddress(vtkTypeUInt64 release, vtkTypeUInt64 context)
 {
   this->SetRelease(reinterpret_cast<ReleaseFunction>(release), reinterpret_cast<void*>(context));
 }

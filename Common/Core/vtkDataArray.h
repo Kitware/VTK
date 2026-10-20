@@ -594,9 +594,10 @@ public:
 
   enum MemorySpace
   {
-    HostMemory,       // CPU memory
-    CudaDeviceMemory, // NVIDIA GPU via CUDA
-    HipDeviceMemory,  // AMD GPU via HIP
+    HostMemory,            // CPU memory
+    CudaDeviceMemory,      // NVIDIA GPU via CUDA
+    HipDeviceMemory,       // AMD GPU via HIP
+    LevelZeroDeviceMemory, // Intel GPU, SYCL USM over Level Zero
   };
 
   /**

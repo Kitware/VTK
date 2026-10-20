@@ -209,9 +209,22 @@ class TestDLPack(Testing.vtkTest):
         self.assertEqual(dlpack_support._DEVICE_TO_SPACE[dlpack_support.kDLMetal], "host")
         self.assertNotIn("metal", dlpack_support._SPACE_TO_DEVICE)
 
-    def testOnlyVTKsThreeSpacesAreExportable(self):
-        """vtkDataArray::MemorySpace has exactly three values."""
-        self.assertEqual(set(dlpack_support._SPACE_TO_DEVICE), {"host", "cuda", "hip"})
+    def testOnlyVTKsFourSpacesAreExportable(self):
+        """vtkDataArray::MemorySpace has exactly four values."""
+        self.assertEqual(
+            set(dlpack_support._SPACE_TO_DEVICE), {"host", "cuda", "hip", "level_zero"})
+
+    def testAddressesInTheUpperHalfAreAccepted(self):
+        """Addresses are unsigned, and device allocators use the top half.
+
+        Level Zero USM on Intel GPUs hands out addresses such as
+        0xff00fffffffe0000. With a signed parameter the wrapped Set()
+        raised OverflowError on every one of them.
+        """
+        address = 0xFF00FFFFFFFE0000
+        descriptor = vtkMemoryDescriptor()
+        descriptor.Set(address, 64, "host", "data")
+        self.assertEqual(descriptor.GetPointer(), address)
 
     def testNullPointerIsRejected(self):
         """A private-storage Metal buffer reports a null pointer."""

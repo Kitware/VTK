@@ -56,11 +56,21 @@ HIP do not need one -- the runtime keeps an implicitly shared primary
 context per device, so a pointer identifies itself and every consumer lands
 in the same place. Level Zero does not work that way: a USM pointer is only
 meaningful inside the ``ze_context_handle_t`` it was allocated from, and
-recovering that requires a context you already hold. So ``kDLOneAPI`` maps
-to the ``"level_zero"`` space and ``vtkmDataArrayFactory`` refuses it,
-naming the space, rather than treating the pointer as something it is not.
-Supporting Level Zero means finding somewhere for the context to travel
-first; it is not a matter of adding a device adapter.
+recovering that requires a context you already hold.
+
+So for ``kDLOneAPI`` the context travels once, out of band, instead of with
+every tensor. ``level_zero_handles()`` reports the driver, device and
+context of the SYCL queue Viskores runs on, and a producer that wants VTK
+to read its memory allocates *there*. Kokkos builds that queue in the SYCL
+platform's default context, which is also where a SYCL program allocates
+unless it creates a context of its own. On import the
+pointer is checked against that context and refused if the SYCL runtime
+does not know it as USM device or shared memory. The check separates device
+memory from host memory; it cannot prove which context a pointer came from,
+because drivers are not required to tell contexts apart and Intel's does
+not. Exported Level Zero tensors are in that context too. All of this
+needs VTK built with Viskores on Kokkos' SYCL backend; without it
+``kDLOneAPI`` tensors are refused, naming the space.
 
 **Device ordinal.** ``DLPackArray(array, device_id=...)`` is taken from the
 caller and reported verbatim by ``__dlpack_device__``. It is not derived
@@ -99,6 +109,7 @@ __all__ = [
     "dlpack_to_vtk",
     "DLPackArray",
     "supported_device_types",
+    "level_zero_handles",
 ]
 
 # ---------------------------------------------------------------------
@@ -140,13 +151,13 @@ _DEVICE_TO_SPACE = {
     kDLOneAPI: "level_zero",
 }
 
-# The spaces VTK can report on export. vtkDataArray::MemorySpace has exactly
-# three values, and vtkmDataArray derives its space from the device the data
-# sits on, so these are the only ones that can appear.
+# The spaces VTK can report on export. vtkmDataArray derives its space from
+# the device the data sits on, so these are the only ones that can appear.
 _SPACE_TO_DEVICE = {
     "host": kDLCPU,
     "cuda": kDLCUDA,
     "hip": kDLROCM,
+    "level_zero": kDLOneAPI,
 }
 
 
@@ -319,6 +330,33 @@ def _capsule_destructor(capsule_ptr):
 def supported_device_types():
     """DLPack device types this module can import, as a set of ints."""
     return set(_DEVICE_TO_SPACE)
+
+
+def level_zero_handles():
+    """The Level Zero handles VTK's device memory lives under, or ``None``.
+
+    Returns ``{"driver": int, "device": int, "context": int}`` -- the
+    ``ze_driver_handle_t``, ``ze_device_handle_t`` and ``ze_context_handle_t``
+    of the SYCL queue Viskores runs on -- when VTK was built with Viskores on
+    Kokkos' SYCL backend and that backend is running on a Level Zero device.
+    Otherwise ``None``.
+
+    A producer allocates in this context so that its ``kDLOneAPI`` tensors
+    are meaningful to VTK; see "Context" in the module documentation. The
+    handles belong to the SYCL runtime: use them, do not destroy them.
+    """
+    try:
+        from vtkmodules.vtkAcceleratorsVTKmCore import vtkmDataArrayFactory
+    except ImportError:
+        return None
+    context = vtkmDataArrayFactory.GetLevelZeroContextHandle()
+    if not context:
+        return None
+    return {
+        "driver": vtkmDataArrayFactory.GetLevelZeroDriverHandle(),
+        "device": vtkmDataArrayFactory.GetLevelZeroDeviceHandle(),
+        "context": context,
+    }
 
 
 # ---------------------------------------------------------------------

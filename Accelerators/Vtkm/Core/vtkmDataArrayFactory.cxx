@@ -4,6 +4,7 @@
 
 #include "vtkMemoryDescriptor.h"
 #include "vtkmDataArray.h"
+#include "vtkmDataArrayUtilities.h"
 
 #include "vtkDataArray.h"
 #include "vtkObjectFactory.h"
@@ -55,15 +56,19 @@ bool MemorySpaceToDevice(const char* space, viskores::cont::DeviceAdapterId& dev
   }
 #endif
 #ifdef VISKORES_ENABLE_KOKKOS
-  if (std::strcmp(space, "cuda") == 0 || std::strcmp(space, "hip") == 0)
+  // Kokkos is one device adapter over whichever memory it was built for, so
+  // the space has to match the build: a "hip" pointer handed to a SYCL build
+  // is no more readable than it would be on the host.
+  const char* deviceSpace = vtkmDataArrayUtilities::GetDeviceMemorySpaceName();
+  if (deviceSpace && std::strcmp(space, deviceSpace) == 0)
   {
     device = viskores::cont::DeviceAdapterTagKokkos{};
     return true;
   }
 #endif
 
-  // "level_zero", or "cuda"/"hip" on a build without the matching device
-  // adapter. Either way the memory is not readable from where we are.
+  // A space without a matching device adapter in this build. The memory is
+  // not readable from where we are.
   return false;
 }
 
@@ -125,7 +130,7 @@ ExternalHold* TakeHold(vtkMemoryDescriptor* descriptor)
 //------------------------------------------------------------------------------
 // Wrap an external pointer as a Viskores buffer that does not own its memory
 // but does hold the producer open.
-viskores::cont::internal::Buffer WrapPointer(vtkTypeInt64 pointer, vtkTypeInt64 sizeInBytes,
+viskores::cont::internal::Buffer WrapPointer(vtkTypeUInt64 pointer, vtkTypeInt64 sizeInBytes,
   viskores::cont::DeviceAdapterId device, ExternalHold* hold)
 {
   void* ptr = reinterpret_cast<void*>(pointer);
@@ -284,6 +289,30 @@ int vtkmDataArrayFactory::GetNumberOfBuffers() const
 }
 
 //------------------------------------------------------------------------------
+vtkTypeUInt64 vtkmDataArrayFactory::GetLevelZeroDriverHandle()
+{
+  void *driver, *device, *context;
+  vtkmDataArrayUtilities::GetLevelZeroHandles(driver, device, context);
+  return reinterpret_cast<vtkTypeUInt64>(driver);
+}
+
+//------------------------------------------------------------------------------
+vtkTypeUInt64 vtkmDataArrayFactory::GetLevelZeroDeviceHandle()
+{
+  void *driver, *device, *context;
+  vtkmDataArrayUtilities::GetLevelZeroHandles(driver, device, context);
+  return reinterpret_cast<vtkTypeUInt64>(device);
+}
+
+//------------------------------------------------------------------------------
+vtkTypeUInt64 vtkmDataArrayFactory::GetLevelZeroContextHandle()
+{
+  void *driver, *device, *context;
+  vtkmDataArrayUtilities::GetLevelZeroHandles(driver, device, context);
+  return reinterpret_cast<vtkTypeUInt64>(context);
+}
+
+//------------------------------------------------------------------------------
 vtkDataArray* vtkmDataArrayFactory::CreateArray()
 {
   const int numBuffers = this->GetNumberOfBuffers();
@@ -331,6 +360,21 @@ vtkDataArray* vtkmDataArrayFactory::CreateArray()
                                  "Viskores device adapter, or VTK was built without support "
                                  "for it. Refusing rather than treating it as host memory, "
                                  "which would hand out a pointer that cannot be dereferenced.");
+      return nullptr;
+    }
+    const char* bufferSpace = this->Buffers[i]->GetMemorySpace();
+    if (bufferSpace && std::strcmp(bufferSpace, "level_zero") == 0 &&
+      !vtkmDataArrayUtilities::IsLevelZeroDevicePointer(
+        reinterpret_cast<const void*>(this->Buffers[i]->GetPointer())))
+    {
+      // CUDA and HIP pointers identify themselves through a context the
+      // runtime shares process-wide. A USM pointer does not: it means
+      // something only in the context it was allocated from, so the least
+      // that can be asked is that the SYCL runtime recognises it at all.
+      vtkErrorMacro("Buffer " << i
+                              << " is labelled 'level_zero' but is not USM device memory in the "
+                                 "SYCL context Viskores uses. Allocate it in the context "
+                                 "reported by GetLevelZeroContextHandle().");
       return nullptr;
     }
     if (!this->Buffers[i]->HasOwnership())

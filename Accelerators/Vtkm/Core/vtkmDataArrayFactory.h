@@ -136,6 +136,24 @@ public:
   VTK_NEWINSTANCE
   vtkDataArray* CreateArray();
 
+  ///@{
+  /**
+   * The Level Zero handles of the SYCL queue Viskores runs on, as integers:
+   * `ze_driver_handle_t`, `ze_device_handle_t` and `ze_context_handle_t`.
+   * Zero unless Viskores was built on Kokkos/SYCL and is running on a Level
+   * Zero device.
+   *
+   * Level Zero memory is only meaningful inside the context it was allocated
+   * from, and a buffer description has nowhere to carry one. A producer that
+   * wants its "level_zero" buffers accepted by `CreateArray()` allocates
+   * them in this context. The handles belong to the SYCL runtime and must
+   * not be destroyed.
+   */
+  static vtkTypeUInt64 GetLevelZeroDriverHandle();
+  static vtkTypeUInt64 GetLevelZeroDeviceHandle();
+  static vtkTypeUInt64 GetLevelZeroContextHandle();
+  ///@}
+
 protected:
   vtkmDataArrayFactory();
   ~vtkmDataArrayFactory() override;

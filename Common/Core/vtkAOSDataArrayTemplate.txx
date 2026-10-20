@@ -545,7 +545,7 @@ vtkCollection* vtkAOSDataArrayTemplate<ValueTypeT>::NewMemoryDescriptors()
   }
 
   vtkMemoryDescriptor* descriptor = vtkMemoryDescriptor::New();
-  descriptor->Set(reinterpret_cast<vtkTypeInt64>(pointer),
+  descriptor->Set(reinterpret_cast<vtkTypeUInt64>(pointer),
     this->GetNumberOfValues() * static_cast<vtkTypeInt64>(sizeof(ValueType)), "host", "data");
   // Hold this array open for as long as the descriptor lives; whoever takes
   // the pointer may outlive every other reference to the array.
