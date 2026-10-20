@@ -56,8 +56,6 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
   this->NumberOfLabels = 0;
   this->NumberOfLabelsAllocated = 0;
 
-  this->AllocateLabels(50);
-
   this->ComponentSeparator = ' ';
 
   auto prop = vtkSmartPointer<vtkTextProperty>::New();
