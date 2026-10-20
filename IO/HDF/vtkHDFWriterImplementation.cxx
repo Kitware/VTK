@@ -1657,7 +1657,7 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
             mappingSize[0] = partNbCells;
 
             // For N cells, store N+1 cell offsets
-            if (name == PATH::OFFSETS && partNbCells != 0)
+            if (name == PATH::OFFSETS)
             {
               mappingSize[0]++;
             }

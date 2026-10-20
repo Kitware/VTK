@@ -131,36 +131,31 @@ std::vector<::PolyDataTopos> GetCellArraysForTopos(vtkPolyData* polydata)
  */
 bool IsDistributedSingleFileSupported(vtkDataObject* input, vtkMultiProcessController* controller)
 {
-  if (vtkUnstructuredGrid::SafeDownCast(input))
+  int supported = !input || vtkUnstructuredGrid::SafeDownCast(input);
+  int hasInput = input != nullptr;
+  if (auto* tree = vtkDataObjectTree::SafeDownCast(input))
   {
-    return true;
-  }
-
-  // Only works if the PDS is composed of UG
-  if (auto* pds = vtkPartitionedDataSet::SafeDownCast(input))
-  {
-    std::vector<vtkDataObject*> nonNullParts;
-    for (unsigned int i = 0; i < pds->GetNumberOfPartitions(); i++)
+    supported = 1;
+    hasInput = 0;
+    vtkSmartPointer<vtkDataObjectTreeIterator> iterator;
+    iterator.TakeReference(tree->NewTreeIterator());
+    iterator->VisitOnlyLeavesOn();
+    iterator->SkipEmptyNodesOn();
+    for (iterator->InitTraversal(); !iterator->IsDoneWithTraversal(); iterator->GoToNextItem())
     {
-      if (auto obj = vtkDataObject::SafeDownCast(pds->GetPartition(i)))
+      hasInput = 1;
+      if (!vtkUnstructuredGrid::SafeDownCast(iterator->GetCurrentDataObject()))
       {
-        nonNullParts.emplace_back(obj);
+        supported = 0;
+        break;
       }
     }
-
-    // All ranks may not have a non-null partition, collect the actual data type if any
-    int data_type = -1;
-    if (!nonNullParts.empty())
-    {
-      data_type = nonNullParts[0]->GetDataObjectType();
-    }
-    int max_dt = -1;
-    controller->AllReduce(&data_type, &max_dt, 1, vtkCommunicator::MAX_OP);
-
-    return max_dt == VTK_UNSTRUCTURED_GRID;
   }
-
-  return false;
+  int allSupported = 0;
+  int anyInput = 0;
+  controller->AllReduce(&supported, &allSupported, 1, vtkCommunicator::MIN_OP);
+  controller->AllReduce(&hasInput, &anyInput, 1, vtkCommunicator::MAX_OP);
+  return allSupported && anyInput;
 }
 }
 
@@ -2199,6 +2194,11 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
     }
     else
     {
+      if (!this->UseExternalDistributed && !this->Impl->GetSubFilesReady())
+      {
+        this->Impl->CollectPartitionOffsets(currentBlock);
+      }
+
       datasetGroup = this->Impl->CreateHdfGroup(group, currentName.c_str());
       this->PreviousStepMeshMTime = this->CompositeMeshMTime[datasetId];
       ret &= this->DispatchDataObject(datasetGroup, currentBlock);
@@ -2366,7 +2366,10 @@ bool vtkHDFWriter::AppendIterDataObject(
   vtkDataObjectTreeIterator* treeIter, const int& leafIndex, const std::string& uniqueSubTreeName)
 {
   this->PreviousStepMeshMTime = this->CompositeMeshMTime[leafIndex];
-
+  if (!this->UseExternalDistributed && !this->Impl->GetSubFilesReady())
+  {
+    this->Impl->CollectPartitionOffsets(treeIter->GetCurrentDataObject());
+  }
   if (!this->DispatchDataObject(
         this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()),
         treeIter->GetCurrentDataObject()))
