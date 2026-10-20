@@ -3,13 +3,18 @@
 #include "vtkHDFWriterImplementation.h"
 
 #include "H5public.h"
+#include "vtkBitArray.h"
+#include "vtkCellData.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFieldData.h"
 #include "vtkHDF5ScopedHandle.h"
 #include "vtkHDFUtilities.h"
 #include "vtkHDFVersion.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkMultiProcessController.h"
 #include "vtkPartitionedDataSet.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkType.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -135,6 +140,44 @@ std::string GetBasePath(const std::string& fullPath)
 namespace
 {
 constexpr int SMALL_CHUNK = 100;
+
+bool IsPolyhedronCountOrOffset(std::string_view name)
+{
+  return name == PATH::NUMBER_OF_FACES || name == PATH::NUMBER_OF_FACE_CONNECTIVITY_IDS ||
+    name == PATH::NUMBER_OF_POLYHEDRON_TO_FACE_IDS || name == PATH::FACE_OFFSETS ||
+    name == PATH::POLYHEDRON_OFFSETS;
+}
+
+/**
+ * Copy field array attributes from source to destination
+ */
+void CopyAttributeSchema(vtkFieldData* source, vtkFieldData* destination)
+{
+  for (int index = 0; index < source->GetNumberOfArrays(); ++index)
+  {
+    auto* array = source->GetAbstractArray(index);
+    auto schema = vtk::TakeSmartPointer(array->NewInstance());
+    schema->SetName(array->GetName());
+    schema->SetNumberOfComponents(array->GetNumberOfComponents());
+    // A tuple ensures the schema survives the communicator's serialization.
+    schema->SetNumberOfTuples(1);
+    destination->AddArray(schema);
+  }
+  auto* sourceAttributes = vtkDataSetAttributes::SafeDownCast(source);
+  auto* destinationAttributes = vtkDataSetAttributes::SafeDownCast(destination);
+  if (sourceAttributes && destinationAttributes)
+  {
+    int indices[vtkDataSetAttributes::NUM_ATTRIBUTES];
+    sourceAttributes->GetAttributeIndices(indices);
+    for (int attribute = 0; attribute < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attribute)
+    {
+      if (indices[attribute] >= 0)
+      {
+        destinationAttributes->SetActiveAttribute(indices[attribute], attribute);
+      }
+    }
+  }
+}
 }
 
 //------------------------------------------------------------------------------
@@ -277,6 +320,143 @@ void vtkHDFWriter::Implementation::PrintOffsetInformation(PartitionedOffsets& of
                                 << " Polyhedron=" << o.PolyhedronOffset
                                 << " PolyhedronToFace=" << o.PolyhedronToFaceOffset);
   }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkDataObject> vtkHDFWriter::Implementation::CreateEmptyPartition(
+  vtkSmartPointer<vtkDataObject> input)
+{
+  auto* controller = this->Writer->GetController();
+  const int numParts = controller ? controller->GetNumberOfProcesses() : 1;
+  const int localPart = controller ? controller->GetLocalProcessId() : 0;
+
+  // Find the rank with the first non null part
+  auto* pointSet = vtkPointSet::SafeDownCast(input);
+  const bool emptyInput = pointSet && pointSet->GetNumberOfPoints() == 0;
+  const int nonNullPart = input && !emptyInput ? localPart : numParts;
+  int referenceRank = 0;
+  controller->AllReduce(&nonNullPart, &referenceRank, 1, vtkCommunicator::MAX_OP);
+  if (referenceRank < numParts)
+  {
+    // All parts are non null, exit early
+    return input;
+  }
+  controller->AllReduce(&nonNullPart, &referenceRank, 1, vtkCommunicator::MIN_OP);
+  if (referenceRank == numParts)
+  {
+    // No non-null part
+    return input;
+  }
+
+  auto clearGeometry = [](vtkPointSet* empty)
+  {
+    empty->GetPoints()->SetNumberOfPoints(0);
+    if (auto* grid = vtkUnstructuredGrid::SafeDownCast(empty))
+    {
+      vtkNew<vtkCellArray> cells;
+      vtkNew<vtkUnsignedCharArray> types;
+      grid->SetCells(types, cells);
+    }
+    else if (auto* polyData = vtkPolyData::SafeDownCast(empty))
+    {
+      vtkNew<vtkCellArray> cells;
+      polyData->SetVerts(cells);
+      polyData->SetLines(cells);
+      polyData->SetPolys(cells);
+      polyData->SetStrips(cells);
+    }
+    for (int association : { vtkDataObject::POINT, vtkDataObject::CELL })
+    {
+      auto* attributes = empty->GetAttributes(association);
+      for (int array = 0; array < attributes->GetNumberOfArrays(); ++array)
+      {
+        attributes->GetAbstractArray(array)->SetNumberOfTuples(0);
+      }
+    }
+  };
+
+  // Share data type
+  int dataType = 0;
+  if (localPart == referenceRank)
+  {
+    dataType = input->GetDataObjectType();
+  }
+  controller->GetCommunicator()->Broadcast(&dataType, 1, referenceRank);
+
+  // Create an empty data object from the non empty rank
+  if (dataType == VTK_UNSTRUCTURED_GRID)
+  {
+    auto empty = vtkSmartPointer<vtkUnstructuredGrid>::New();
+
+    if (localPart == referenceRank)
+    {
+      // Copy UnstructuredGrid properties and arrays
+      auto* inputUG = vtkUnstructuredGrid::SafeDownCast(input);
+      vtkNew<vtkPoints> points;
+      if (inputUG->GetPoints())
+      {
+        points->SetDataType(inputUG->GetPoints()->GetDataType());
+      }
+      empty->SetPoints(points);
+      points->InsertNextPoint(0, 0, 0);
+      vtkNew<vtkCellArray> cells;
+      vtkNew<vtkUnsignedCharArray> types;
+      const vtkIdType pointId = 0;
+      cells->InsertNextCell(1, &pointId);
+      types->InsertNextValue(VTK_VERTEX);
+      empty->SetCells(types, cells);
+
+      ::CopyAttributeSchema(inputUG->GetPointData(), empty->GetPointData());
+      ::CopyAttributeSchema(inputUG->GetCellData(), empty->GetCellData());
+      ::CopyAttributeSchema(inputUG->GetFieldData(), empty->GetFieldData());
+    }
+    controller->GetCommunicator()->Broadcast(empty, referenceRank);
+    if (input && !emptyInput)
+    {
+      return input;
+    }
+    if (emptyInput)
+    {
+      clearGeometry(empty);
+    }
+    return empty;
+  }
+  if (dataType == VTK_POLY_DATA)
+  {
+    auto empty = vtkSmartPointer<vtkPolyData>::New();
+    if (localPart == referenceRank)
+    {
+      auto* source = vtkPolyData::SafeDownCast(input);
+      vtkNew<vtkPoints> points;
+      if (source->GetPoints())
+      {
+        points->SetDataType(source->GetPoints()->GetDataType());
+      }
+      points->InsertNextPoint(0, 0, 0);
+      empty->SetPoints(points);
+      vtkNew<vtkCellArray> vertices;
+      const vtkIdType point = 0;
+      vertices->InsertNextCell(1, &point);
+      empty->SetVerts(vertices);
+      for (int association : { vtkDataObject::POINT, vtkDataObject::CELL })
+      {
+        ::CopyAttributeSchema(
+          source->GetAttributes(association), empty->GetAttributes(association));
+      }
+    }
+    controller->GetCommunicator()->Broadcast(empty, referenceRank);
+    if (input && !emptyInput)
+    {
+      return input;
+    }
+    if (emptyInput)
+    {
+      clearGeometry(empty);
+    }
+    return empty;
+  }
+
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -853,12 +1033,27 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateAndAllocateDataSet(h
   {
     return H5I_INVALID_HID;
   }
-  rowOffset = this->GetDatasetWriteOffset(dataset, partId, dimensions[0], trim);
+  rowOffset = this->IsMissingPartition(partId)
+    ? 0
+    : this->GetDatasetWriteOffset(dataset, partId, dimensions[0], trim);
   if (rowOffset == H5S_UNLIMITED)
   {
     return H5I_INVALID_HID;
   }
   return dataset;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::IsMissingPartition(unsigned int partId) const
+{
+  if (!this->GetUseDistributedWriting())
+  {
+    return false;
+  }
+  const int rank = this->Writer->CurrentPiece;
+  const vtkIdType currentRankNumParts =
+    this->UgOffsets.PartOffsets[rank + 1] - this->UgOffsets.PartOffsets[rank];
+  return static_cast<vtkIdType>(partId) >= currentRankNumParts;
 }
 
 //------------------------------------------------------------------------------
@@ -1005,6 +1200,13 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleRowDataset(hid_t group, unsi
   if (dataset == H5I_INVALID_HID)
   {
     return false;
+  }
+  if (this->IsMissingPartition(partId))
+  {
+    // Participate in collective write without actually writing data
+    dimensions[0] = 0;
+    return this->WriteDataset(
+      dataset, H5T_STD_I64LE, std::vector<hsize_t>(dimensions.size(), 0), dimensions, nullptr);
   }
   return this->WriteOneRowDataset(dataset, values, rowOffset, offset, trim);
 }
@@ -1177,6 +1379,13 @@ bool vtkHDFWriter::Implementation::AddOrCreateDataset(hid_t group, unsigned int 
   if (prepared == H5I_INVALID_HID)
   {
     return false;
+  }
+  if (this->IsMissingPartition(partId))
+  {
+    // Participate in collective write without actually writing data
+    dimensions[0] = 0;
+    return this->WriteDataset(
+      prepared, type, std::vector<hsize_t>(dimensions.size(), 0), dimensions, nullptr);
   }
   return this->AddArrayToDataset(prepared, dataArray, rowOffset, dims);
 }
@@ -1716,6 +1925,93 @@ bool vtkHDFWriter::Implementation::WriteSumStepsPolyData(hid_t group, const char
 }
 
 //------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::CreateRepresentativeFromSubfile(
+  const std::string& blockPath, vtkSmartPointer<vtkDataObject>& representative)
+{
+  representative = nullptr;
+  int type = -1;
+  vtkHDF::ScopedH5GHandle part = this->GetSubfileNonNullPart(blockPath, type);
+  if (part == H5I_INVALID_HID)
+  {
+    return true;
+  }
+  if (type == VTK_UNSTRUCTURED_GRID)
+  {
+    vtkNew<vtkUnstructuredGrid> ug;
+    vtkNew<vtkCellArray> cells;
+    vtkNew<vtkUnsignedCharArray> types;
+    if (H5Lexists(part, "FaceConnectivity", H5P_DEFAULT) > 0)
+    {
+      // Init polyhedron-related arrays for dispatch
+      vtkNew<vtkCellArray> faces;
+      vtkNew<vtkCellArray> faceLocations;
+      const vtkIdType point = 0;
+      faces->InsertNextCell(1, &point);
+      ug->SetPolyhedralCells(types, cells, faceLocations, faces);
+    }
+    else
+    {
+      ug->SetCells(types, cells);
+    }
+    representative = ug;
+  }
+  else if (type == VTK_POLY_DATA)
+  {
+    representative = vtkSmartPointer<vtkPolyData>::New();
+  }
+  else if (type == VTK_HYPER_TREE_GRID)
+  {
+    vtkNew<vtkHyperTreeGrid> htg;
+    htg->Initialize();
+    if (H5Lexists(part, "Mask", H5P_DEFAULT) > 0)
+    {
+      vtkNew<vtkBitArray> mask;
+      mask->SetNumberOfTuples(1);
+      htg->SetMask(mask);
+    }
+    int branchFactor = 0;
+    vtkHDFUtilities::GetAttribute(part, "BranchFactor", 1, &branchFactor);
+    htg->SetBranchFactor(branchFactor);
+    int transposedRoot = 0;
+    vtkHDFUtilities::GetAttribute(part, "TransposedRootIndexing", 1, &transposedRoot);
+    htg->SetTransposedRootIndexing(transposedRoot);
+    std::array<int, 3> dimensions;
+    vtkHDFUtilities::GetAttribute(part, "Dimensions", 3, dimensions.data());
+    htg->SetDimensions(dimensions.data());
+    if (H5Aexists(part, "InterfaceNormalsName") > 0)
+    {
+      std::string name;
+      vtkHDFUtilities::GetStringAttribute(part, "InterfaceInterceptsName", name);
+      htg->SetInterfaceInterceptsName(name.c_str());
+      vtkHDFUtilities::GetStringAttribute(part, "InterfaceNormalsName", name);
+      htg->SetInterfaceNormalsName(name.c_str());
+      htg->SetHasInterface(true);
+    }
+    representative = htg;
+  }
+  else
+  {
+    vtkErrorWithObjectMacro(this->Writer, "Unsupported subfile type " << type);
+    return false;
+  }
+  if (auto* pointSet = vtkPointSet::SafeDownCast(representative))
+  {
+    std::vector<hsize_t> extent{ 0, 0 };
+    auto coordinates =
+      vtk::TakeSmartPointer(vtkHDFUtilities::NewArrayForGroup(part, "Points", extent));
+    if (!coordinates)
+    {
+      return false;
+    }
+    vtkNew<vtkPoints> points;
+    points->SetData(coordinates);
+    pointSet->SetPoints(points);
+  }
+  this->CreateArraysFromNonNullPart(part, representative);
+  return true;
+}
+
+//------------------------------------------------------------------------------
 hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(const std::string& base,
   const std::string_view& qualifier, std::size_t subfileId, hsize_t part, char primitive)
 {
@@ -1840,11 +2136,11 @@ vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::GetSubfileNonNullPart(
     vtkHDF::ScopedH5GHandle blockG = this->OpenExistingGroup(fileRoot, blockPath.c_str());
     if (blockG == H5I_INVALID_HID)
     {
-      vtkWarningWithObjectMacro(
-        this->Writer, "Could not find group " << blockPath << " in subfile " << blockG);
+      continue;
     }
 
-    if (H5Aexists(blockG, "Type") >= 0 && vtkHDFUtilities::ReadDataSetType(blockG, type))
+    // Look for a non-empty Type, and for vtkPointSet types, a non empty Points dataset if possible
+    if (H5Aexists(blockG, "Type") > 0 && vtkHDFUtilities::ReadDataSetType(blockG, type))
     {
       return blockG;
     }

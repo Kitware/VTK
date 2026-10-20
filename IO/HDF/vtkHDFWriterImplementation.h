@@ -81,6 +81,14 @@ public:
    */
   bool CollectPartitionOffsets(vtkDataObject* input);
 
+  /**
+   * Create an empty dataobject on all ranks with an empty input,
+   * of the same type and with the same arrays that the first rank with non-null input.
+   * This is used to make sure that all ranks share the same structure before collective writes.
+   * At least 1 rank should have a non null partition.
+   */
+  vtkSmartPointer<vtkDataObject> CreateEmptyPartition(vtkSmartPointer<vtkDataObject> input);
+
   ///@{
   /**
    * Open subfile where data has already been written, and needs to be referenced by the main file
@@ -227,6 +235,13 @@ public:
    * Find the first non null part for the given path in all subfiles.
    */
   vtkHDF::ScopedH5GHandle GetSubfileNonNullPart(const std::string& blockPath, int& type);
+
+  /**
+   * Recover a block type, attributes, and field arrays from subfiles.
+   * Null when no subfiles have the dataset.
+   */
+  bool CreateRepresentativeFromSubfile(
+    const std::string& blockPath, vtkSmartPointer<vtkDataObject>& representative);
 
   /**
    * Initialize empty data object array structures from a base group.
@@ -416,6 +431,15 @@ private:
    */
   vtkHDF::ScopedH5DHandle AllocateDataset(
     hid_t group, const char* name, std::vector<hsize_t> dimensions);
+
+  /**
+   * Return true if the current partition in the current rank is a placeholder used only for
+   * collective writing.
+   * This happens when a rank has more non-null partitions than others, but all write must be
+   * collective Ranks with a "missing partition" participate in collective operations but don't
+   * write anything.
+   */
+  bool IsMissingPartition(unsigned int partId) const;
 
   /**
    * Create a dataset and allocate it

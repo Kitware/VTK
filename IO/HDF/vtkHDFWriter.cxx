@@ -5,6 +5,8 @@
 #include "vtkAbstractArray.h"
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
+#include "vtkCellType.h"
+#include "vtkCommunicator.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataAssemblyUtilities.h"
 #include "vtkDataObjectTree.h"
@@ -121,6 +123,44 @@ std::vector<::PolyDataTopos> GetCellArraysForTopos(vtkPolyData* polydata)
     { "Polygons", polydata->GetPolys() },
     { "Strips", polydata->GetStrips() },
   };
+}
+
+/**
+ * Determine if the distributed single file mode works for the given input.
+ * Fallback on distributed multi-file.
+ */
+bool IsDistributedSingleFileSupported(vtkDataObject* input, vtkMultiProcessController* controller)
+{
+  if (vtkUnstructuredGrid::SafeDownCast(input))
+  {
+    return true;
+  }
+
+  // Only works if the PDS is composed of UG
+  if (auto* pds = vtkPartitionedDataSet::SafeDownCast(input))
+  {
+    std::vector<vtkDataObject*> nonNullParts;
+    for (unsigned int i = 0; i < pds->GetNumberOfPartitions(); i++)
+    {
+      if (auto obj = vtkDataObject::SafeDownCast(pds->GetPartition(i)))
+      {
+        nonNullParts.emplace_back(obj);
+      }
+    }
+
+    // All ranks may not have a non-null partition, collect the actual data type if any
+    int data_type = -1;
+    if (!nonNullParts.empty())
+    {
+      data_type = nonNullParts[0]->GetDataObjectType();
+    }
+    int max_dt = -1;
+    controller->AllReduce(&data_type, &max_dt, 1, vtkCommunicator::MAX_OP);
+
+    return max_dt == VTK_UNSTRUCTURED_GRID;
+  }
+
+  return false;
 }
 }
 
@@ -293,10 +333,10 @@ bool vtkHDFWriter::WriteDataAndReturn()
   this->Impl->SetCompressionLevel(this->CompressionLevel);
   this->Impl->SetChunkSize(this->ChunkSize);
 
-  // For now, distributed writing is only available for non-partitioned, non-temporal
-  // UnstructuredGrid. Other distributed inputs use external files.
+  // For now, distributed writing is only available for non-temporal
+  // (partitioned) UnstructuredGrid. Other distributed inputs use external files.
   this->Impl->SetUseDistributedWriting(!this->UseExternalDistributed && this->NbPieces > 1 &&
-    !this->IsTemporal && vtkUnstructuredGrid::SafeDownCast(input));
+    !this->IsTemporal && ::IsDistributedSingleFileSupported(input, this->Controller));
 
   // Root file group only needs to be opened for the first timestep
   if (this->CurrentTimeIndex == 0)
@@ -372,6 +412,11 @@ bool vtkHDFWriter::WriteDataAndReturn()
       // Subfiles. This can only be done once we know the size of all sub-datasets.
       this->Impl->SetSubFilesReady(true);
     }
+  }
+
+  if (!this->UseExternalDistributed && !this->Impl->GetSubFilesReady())
+  {
+    this->Impl->CollectPartitionOffsets(input);
   }
 
   if (!this->DispatchDataObject(this->Impl->GetRoot(), input))
@@ -694,11 +739,6 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPolyData* input, unsigned 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, unsigned int partId)
 {
-  if (this->Impl->GetUseDistributedWriting() && !this->Impl->GetSubFilesReady())
-  {
-    this->Impl->CollectPartitionOffsets(input);
-  }
-
   if (this->CurrentTimeIndex == 0 && partId == 0)
   {
     if (!this->InitializeTemporalUnstructuredGrid(group))
@@ -903,19 +943,63 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsi
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
 {
-  bool ret = true;
-  int nonNullPartCount = 0;
-  vtkDataObject* partition = nullptr;
-  for (unsigned int partIndex = 0; partIndex < input->GetNumberOfPartitions(); partIndex++)
+  // For distributed writing all MPI ranks need to write synchronously,
+  // So they need to write an equal number of partitions.
+  // Find the maximum number of partitions a rank holds to loop
+  std::vector<vtkDataObject*> nonNullParts;
+  for (unsigned int i = 0; i < input->GetNumberOfPartitions(); i++)
   {
-    if (!input->GetPartitionAsDataObject(partIndex))
+    if (auto obj = vtkDataObject::SafeDownCast(input->GetPartition(i)))
     {
-      continue;
+      nonNullParts.emplace_back(obj);
+    }
+  }
+  vtkIdType numNonNullParts = static_cast<vtkIdType>(nonNullParts.size());
+  if (numNonNullParts == 0 && this->Impl->GetSubFilesReady())
+  {
+    // No local non-null partitions but we need to write the meta-file,
+    // build one using data from subfiles
+    vtkSmartPointer<vtkDataObject> representative;
+    if (!this->Impl->CreateRepresentativeFromSubfile(
+          this->Impl->GetGroupName(group), representative))
+    {
+      return false;
+    }
+    return !representative || this->DispatchDataObject(group, representative);
+  }
+  vtkIdType maxNonNullParts = numNonNullParts;
+  if (this->Impl->GetUseDistributedWriting())
+  {
+    this->Controller->AllReduce(&numNonNullParts, &maxNonNullParts, 1, vtkCommunicator::MAX_OP);
+  }
+  vtkDebugMacro(<< "Partitioned input has " << numNonNullParts
+                << " maximum non null parts across ranks");
+
+  bool success = true;
+  int nonNullPartCount = 0;
+  vtkSmartPointer<vtkDataObject> partition;
+  for (vtkIdType partIndex = 0; partIndex < maxNonNullParts; partIndex++)
+  {
+    vtkDebugMacro(<< "Processing partition #" << partIndex << " at time step "
+                  << this->CurrentTimeIndex);
+
+    // Create empty placeholder partition with the same arrays as the non null part when null
+    if (this->Impl->GetUseDistributedWriting())
+    {
+      partition = this->Impl->CreateEmptyPartition(
+        partIndex < numNonNullParts ? nonNullParts[partIndex] : nullptr);
+    }
+    else
+    {
+      partition = nonNullParts[partIndex];
     }
 
-    partition = input->GetPartitionAsDataObject(partIndex);
-    vtkDebugMacro(<< "Processing partition #" << nonNullPartCount + 1 << " at time step "
-                  << this->CurrentTimeIndex);
+    if (partition == nullptr)
+    {
+      vtkErrorMacro(
+        "Unexpected null partition: at least one partition across all ranks should be non null");
+      return false;
+    }
 
     // Write individual partitions in different files
     if (this->UseExternalPartitions)
@@ -940,7 +1024,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
     }
     else if (!this->Impl->GetSubFilesReady())
     {
-      ret &= this->DispatchDataObject(group, partition, nonNullPartCount);
+      success &= this->DispatchDataObject(group, partition, nonNullPartCount);
     }
 
     nonNullPartCount++;
@@ -955,10 +1039,10 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
     // Use partId = 0 so datasets are initialized properly before (virtual) content is added,
     // Only when no steps are added, because temporal already initializes datasets properly.
     unsigned int partId = this->IsTemporal && this->NbPieces <= 1 ? nonNullPartCount - 1 : 0;
-    ret &= this->DispatchDataObject(group, partition, partId);
+    success &= this->DispatchDataObject(group, partition, partId);
     this->Impl->SetSubFilesReady(save);
   }
-  return ret;
+  return success;
 }
 
 //------------------------------------------------------------------------------
@@ -2330,67 +2414,15 @@ bool vtkHDFWriter::AppendCompositeSubfilesDataObject(const std::string& uniqueSu
   const std::string blockPath = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" +
     uniqueSubTreeName; // All blocks are located on root group and have the same name
                        // for all subfiles
-  int type = -1;
-
-  vtkHDF::ScopedH5GHandle nonNullPart = this->Impl->GetSubfileNonNullPart(blockPath, type);
-  if (nonNullPart == H5I_INVALID_HID)
+  vtkSmartPointer<vtkDataObject> representative;
+  if (!this->Impl->CreateRepresentativeFromSubfile(blockPath, representative))
   {
-    return true; // Leaf is null for every subfile
+    return false;
   }
-
-  bool ret = false;
-  if (type == VTK_UNSTRUCTURED_GRID)
-  {
-    // Get all arrays from the non null part
-    vtkNew<vtkUnstructuredGrid> ug;
-    this->Impl->CreateArraysFromNonNullPart(nonNullPart, ug);
-    ret = this->DispatchDataObject(
-      this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()), ug);
-  }
-  else if (type == VTK_POLY_DATA)
-  {
-    vtkNew<vtkPolyData> pd;
-    this->Impl->CreateArraysFromNonNullPart(nonNullPart, pd);
-    ret = this->DispatchDataObject(
-      this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()), pd);
-  }
-  else if (type == VTK_HYPER_TREE_GRID)
-  {
-    vtkNew<vtkHyperTreeGrid> htg;
-    htg->Initialize();
-    if (H5Lexists(nonNullPart, "Mask", H5P_DEFAULT) > 0)
-    {
-      vtkNew<vtkBitArray> mask;
-      mask->SetNumberOfTuples(1); // Required for the mask to be detected
-      htg->SetMask(mask);
-    }
-
-    // Copy attributes, because we have no way to know the HTG dimensions only present in other
-    // parts
-    int branchFactor = 0;
-    vtkHDFUtilities::GetAttribute(nonNullPart, "BranchFactor", 1, &branchFactor);
-    htg->SetBranchFactor(branchFactor);
-    int transposedRoot = 0;
-    vtkHDFUtilities::GetAttribute(nonNullPart, "TransposedRootIndexing", 1, &transposedRoot);
-    htg->SetTransposedRootIndexing(transposedRoot);
-    std::array<int, 3> dimensions;
-    vtkHDFUtilities::GetAttribute(nonNullPart, "Dimensions", 3, dimensions.data());
-    htg->SetDimensions(dimensions.data());
-    if (H5Aexists(nonNullPart, "InterfaceNormalsName") > 0)
-    {
-      std::string tmp;
-      vtkHDFUtilities::GetStringAttribute(nonNullPart, "InterfaceInterceptsName", tmp);
-      htg->SetInterfaceInterceptsName(tmp.c_str());
-      vtkHDFUtilities::GetStringAttribute(nonNullPart, "InterfaceNormalsName", tmp);
-      htg->SetInterfaceNormalsName(tmp.c_str());
-      htg->SetHasInterface(true);
-    }
-
-    this->Impl->CreateArraysFromNonNullPart(nonNullPart, htg);
-    ret = this->DispatchDataObject(
-      this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()), htg);
-  }
-  return ret;
+  return !representative ||
+    this->DispatchDataObject(
+      this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()),
+      representative);
 }
 
 //------------------------------------------------------------------------------
