@@ -1441,6 +1441,10 @@ wheel-linux-python314t-aarch64-egl:test-x11:
 #
 # Each wheel build gets its own upload jobs so that a failure or delay in one
 # platform's build/test does not block uploads for the other platforms.
+#
+# The weekly `:upload` jobs (GitLab package registry) only depend on the
+# build so that test failures do not hold back the weekly `.dev0` wheels.
+# The release `:pypi:upload` jobs still require all tests to pass.
 
 wheel-linux-python310-x86_64:pypi:upload:
     extends:
@@ -1472,18 +1476,6 @@ wheel-linux-python310-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python310-x86_64:build
-        - job: wheel-linux-python310-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python310-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python310-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python310-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python310-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python310-x86_64-egl:test-x11
-          artifacts: false
 
 wheel-linux-python311-x86_64:pypi:upload:
     extends:
@@ -1515,18 +1507,6 @@ wheel-linux-python311-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python311-x86_64:build
-        - job: wheel-linux-python311-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python311-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python311-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python311-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python311-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python311-x86_64-egl:test-x11
-          artifacts: false
 
 wheel-linux-python312-x86_64:pypi:upload:
     extends:
@@ -1558,18 +1538,6 @@ wheel-linux-python312-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python312-x86_64:build
-        - job: wheel-linux-python312-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python312-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python312-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python312-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python312-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python312-x86_64-egl:test-x11
-          artifacts: false
 
 wheel-linux-python313-x86_64:pypi:upload:
     extends:
@@ -1601,18 +1569,6 @@ wheel-linux-python313-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python313-x86_64:build
-        - job: wheel-linux-python313-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python313-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python313-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python313-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python313-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python313-x86_64-egl:test-x11
-          artifacts: false
 
 wheel-linux-python314-x86_64:pypi:upload:
     extends:
@@ -1644,18 +1600,6 @@ wheel-linux-python314-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python314-x86_64:build
-        - job: wheel-linux-python314-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python314-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python314-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python314-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python314-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python314-x86_64-egl:test-x11
-          artifacts: false
 
 wheel-linux-python314t-x86_64:pypi:upload:
     extends:
@@ -1687,18 +1631,6 @@ wheel-linux-python314t-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python314t-x86_64:build
-        - job: wheel-linux-python314t-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python314t-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python314t-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python314t-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python314t-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python314t-x86_64-egl:test-x11
-          artifacts: false
 
 wheel-linux-python310-aarch64:pypi:upload:
     extends:
@@ -1722,10 +1654,6 @@ wheel-linux-python310-aarch64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python310-aarch64:build
-        - job: wheel-linux-python310-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python310-aarch64:test-x11
-          artifacts: false
 
 wheel-linux-python311-aarch64:pypi:upload:
     extends:
@@ -1749,10 +1677,6 @@ wheel-linux-python311-aarch64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python311-aarch64:build
-        - job: wheel-linux-python311-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python311-aarch64:test-x11
-          artifacts: false
 
 wheel-linux-python312-aarch64:pypi:upload:
     extends:
@@ -1776,10 +1700,6 @@ wheel-linux-python312-aarch64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python312-aarch64:build
-        - job: wheel-linux-python312-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python312-aarch64:test-x11
-          artifacts: false
 
 wheel-linux-python313-aarch64:pypi:upload:
     extends:
@@ -1803,10 +1723,6 @@ wheel-linux-python313-aarch64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python313-aarch64:build
-        - job: wheel-linux-python313-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python313-aarch64:test-x11
-          artifacts: false
 
 wheel-linux-python314-aarch64:pypi:upload:
     extends:
@@ -1830,10 +1746,6 @@ wheel-linux-python314-aarch64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python314-aarch64:build
-        - job: wheel-linux-python314-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python314-aarch64:test-x11
-          artifacts: false
 
 wheel-linux-python314t-aarch64:pypi:upload:
     extends:
@@ -1857,10 +1769,6 @@ wheel-linux-python314t-aarch64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python314t-aarch64:build
-        - job: wheel-linux-python314t-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python314t-aarch64:test-x11
-          artifacts: false
 
 wheel-macos-python310-arm64:pypi:upload:
     extends:
@@ -1883,8 +1791,6 @@ wheel-macos-python310-arm64:upload:
         VTK_CI_WHEEL_SDK_TARBALL: "false"
     needs:
         - wheel-macos-python310-arm64:build
-        - job: wheel-macos-python310-arm64:test
-          artifacts: false
 
 wheel-macos-python310-x86_64:pypi:upload:
     extends:
@@ -1906,8 +1812,6 @@ wheel-macos-python310-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-macos-python310-x86_64:build
-        - job: wheel-macos-python310-x86_64:test
-          artifacts: false
 
 wheel-macos-python311-arm64:pypi:upload:
     extends:
@@ -1930,8 +1834,6 @@ wheel-macos-python311-arm64:upload:
         VTK_CI_WHEEL_SDK_TARBALL: "false"
     needs:
         - wheel-macos-python311-arm64:build
-        - job: wheel-macos-python311-arm64:test
-          artifacts: false
 
 wheel-macos-python311-x86_64:pypi:upload:
     extends:
@@ -1953,8 +1855,6 @@ wheel-macos-python311-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-macos-python311-x86_64:build
-        - job: wheel-macos-python311-x86_64:test
-          artifacts: false
 
 wheel-macos-python312-arm64:pypi:upload:
     extends:
@@ -1977,8 +1877,6 @@ wheel-macos-python312-arm64:upload:
         VTK_CI_WHEEL_SDK_TARBALL: "false"
     needs:
         - wheel-macos-python312-arm64:build
-        - job: wheel-macos-python312-arm64:test
-          artifacts: false
 
 wheel-macos-python312-x86_64:pypi:upload:
     extends:
@@ -2000,8 +1898,6 @@ wheel-macos-python312-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-macos-python312-x86_64:build
-        - job: wheel-macos-python312-x86_64:test
-          artifacts: false
 
 wheel-macos-python313-arm64:pypi:upload:
     extends:
@@ -2024,8 +1920,6 @@ wheel-macos-python313-arm64:upload:
         VTK_CI_WHEEL_SDK_TARBALL: "false"
     needs:
         - wheel-macos-python313-arm64:build
-        - job: wheel-macos-python313-arm64:test
-          artifacts: false
 
 wheel-macos-python313-x86_64:pypi:upload:
     extends:
@@ -2047,8 +1941,6 @@ wheel-macos-python313-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-macos-python313-x86_64:build
-        - job: wheel-macos-python313-x86_64:test
-          artifacts: false
 
 wheel-macos-python314-arm64:pypi:upload:
     extends:
@@ -2071,8 +1963,6 @@ wheel-macos-python314-arm64:upload:
         VTK_CI_WHEEL_SDK_TARBALL: "false"
     needs:
         - wheel-macos-python314-arm64:build
-        - job: wheel-macos-python314-arm64:test
-          artifacts: false
 
 wheel-macos-python314-x86_64:pypi:upload:
     extends:
@@ -2094,8 +1984,6 @@ wheel-macos-python314-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-macos-python314-x86_64:build
-        - job: wheel-macos-python314-x86_64:test
-          artifacts: false
 
 wheel-macos-python314t-x86_64:pypi:upload:
     extends:
@@ -2117,8 +2005,6 @@ wheel-macos-python314t-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-macos-python314t-x86_64:build
-        - job: wheel-macos-python314t-x86_64:test
-          artifacts: false
 
 wheel-windows-python310-x86_64:pypi:upload:
     extends:
@@ -2142,10 +2028,6 @@ wheel-windows-python310-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-windows-python310-x86_64:build
-        - job: wheel-windows-python310-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python310-x86_64-osmesa:test
-          artifacts: false
 
 wheel-windows-python311-x86_64:pypi:upload:
     extends:
@@ -2169,10 +2051,6 @@ wheel-windows-python311-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-windows-python311-x86_64:build
-        - job: wheel-windows-python311-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python311-x86_64-osmesa:test
-          artifacts: false
 
 wheel-windows-python312-x86_64:pypi:upload:
     extends:
@@ -2196,10 +2074,6 @@ wheel-windows-python312-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-windows-python312-x86_64:build
-        - job: wheel-windows-python312-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python312-x86_64-osmesa:test
-          artifacts: false
 
 wheel-windows-python313-x86_64:pypi:upload:
     extends:
@@ -2223,10 +2097,6 @@ wheel-windows-python313-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-windows-python313-x86_64:build
-        - job: wheel-windows-python313-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python313-x86_64-osmesa:test
-          artifacts: false
 
 wheel-windows-python314-x86_64:pypi:upload:
     extends:
@@ -2250,10 +2120,6 @@ wheel-windows-python314-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-windows-python314-x86_64:build
-        - job: wheel-windows-python314-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python314-x86_64-osmesa:test
-          artifacts: false
 
 wheel-windows-python314t-x86_64:pypi:upload:
     extends:
@@ -2277,10 +2143,6 @@ wheel-windows-python314t-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-windows-python314t-x86_64:build
-        - job: wheel-windows-python314t-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python314t-x86_64-osmesa:test
-          artifacts: false
 
 ## Static analysis builds
 
