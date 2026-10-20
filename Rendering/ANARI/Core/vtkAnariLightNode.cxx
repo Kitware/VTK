@@ -14,6 +14,7 @@
 #include "vtkLight.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
@@ -21,6 +22,8 @@
 #include <anari/anari_cpp.hpp>
 #include <anari/anari_cpp/ext/std.h>
 
+#include <algorithm>
+#include <cmath>
 #include <type_traits>
 #include <vector>
 
@@ -64,6 +67,9 @@ struct vtkAnariLightNodeInternals
 {
   vtkAnariSceneGraph* RendererNode{ nullptr };
   anari::Light AnariLight{ nullptr };
+  vtkTexture* EnvironmentTexture{ nullptr };
+  vtkMTimeType EnvironmentTextureTime{ 0 };
+  bool UseImageBasedLighting{ false };
 };
 
 //============================================================================
@@ -291,6 +297,19 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   anari::Light anariLight = nullptr;
   vtkTexture* envTexture = vtkRenderer->GetEnvironmentTexture();
   bool useHDRI = vtkRenderer->GetUseImageBasedLighting() && envTexture;
+  this->Internals->EnvironmentTexture = envTexture;
+  this->Internals->UseImageBasedLighting = vtkRenderer->GetUseImageBasedLighting();
+  this->Internals->EnvironmentTextureTime = 0;
+  if (useHDRI)
+  {
+    envTexture->Update();
+    this->Internals->EnvironmentTextureTime = envTexture->GetMTime();
+    if (auto* image = envTexture->GetInput())
+    {
+      this->Internals->EnvironmentTextureTime =
+        std::max(this->Internals->EnvironmentTextureTime, image->GetMTime());
+    }
+  }
 
   if (useHDRI)
   {
@@ -303,16 +322,31 @@ void vtkAnariLightNode::Synchronize(bool prepass)
 
       // Environment map
       vtkImageData* imageData = envTexture->GetInput();
+      if (!imageData || !imageData->GetPointData()->GetScalars())
+      {
+        vtkWarningMacro(<< "Cannot create an HDRI light from an empty environment texture.");
+        anari::release(anariDevice->GetHandle(), anariLight);
+        return;
+      }
 
       int comps = imageData->GetNumberOfScalarComponents();
       comps = comps > 3 ? 3 : comps;
       std::vector<vec3> floatData;
+      const float colorScale = imageData->GetScalarType() == VTK_UNSIGNED_CHAR ? 1.f / 255.f : 1.f;
+      const bool isSRGB = envTexture->GetUseSRGBColorSpace();
 
       // Get the needed image data attributes
       int extent[6];
       imageData->GetExtent(extent);
       int xsize = (extent[1] - extent[0]) + 1;
       int ysize = (extent[3] - extent[2]) + 1;
+      if (xsize <= 0 || ysize <= 0)
+      {
+        vtkWarningMacro(<< "Cannot create an HDRI light from an empty environment texture.");
+        anari::release(anariDevice->GetHandle(), anariLight);
+        return;
+      }
+      floatData.reserve(static_cast<size_t>(xsize) * ysize);
 
       for (int i = 0; i < ysize; i++)
       {
@@ -322,7 +356,15 @@ void vtkAnariLightNode::Synchronize(bool prepass)
 
           for (int k = 0; k < comps; k++)
           {
-            value[k] = imageData->GetScalarComponentAsFloat(j, i, 0, k);
+            // HDRI radiance is linear; byte colors must first be normalized.
+            value[k] =
+              imageData->GetScalarComponentAsFloat(j + extent[0], i + extent[2], extent[4], k) *
+              colorScale;
+            if (isSRGB)
+            {
+              value[k] = value[k] <= 0.04045f ? value[k] / 12.92f
+                                              : std::pow((value[k] + 0.055f) / 1.055f, 2.4f);
+            }
           }
 
           for (int k = comps; k < 3; k++)
@@ -485,7 +527,30 @@ vtkLight* vtkAnariLightNode::GetVtkLight() const
 
 bool vtkAnariLightNode::LightWasModified() const
 {
-  return this->RenderTime < GetVtkLight()->GetMTime();
+  if (this->RenderTime < GetVtkLight()->GetMTime())
+  {
+    return true;
+  }
+
+  auto* renderer = this->Internals->RendererNode->GetRenderer();
+  auto* texture = renderer->GetEnvironmentTexture();
+  if (this->Internals->UseImageBasedLighting != renderer->GetUseImageBasedLighting() ||
+    this->Internals->EnvironmentTexture != texture)
+  {
+    return true;
+  }
+  if (!renderer->GetUseImageBasedLighting() || !texture)
+  {
+    return false;
+  }
+
+  texture->Update();
+  auto mtime = texture->GetMTime();
+  if (auto* image = texture->GetInput())
+  {
+    mtime = std::max(mtime, image->GetMTime());
+  }
+  return this->Internals->EnvironmentTextureTime < mtime;
 }
 
 VTK_ABI_NAMESPACE_END

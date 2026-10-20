@@ -11,10 +11,12 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
+#include "vtkPropCollection.h"
 #include "vtkRenderState.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
+#include "vtkSkybox.h"
 #include "vtkTextureObject.h"
 
 #include "vtkAnariProfiling.h"
@@ -62,6 +64,22 @@ void vtkAnariPass::Render(const vtkRenderState* states)
 
   this->RenderAnariFrame(renderer, frameInfo);
   this->BlitAnariFrameToOpenGLFrame(renderer, frameInfo);
+
+  vtkCollectionSimpleIterator iter;
+  auto* props = renderer->GetViewProps();
+  for (props->InitTraversal(iter); auto* prop = props->GetNextProp(iter);)
+  {
+    if (auto* skybox = vtkSkybox::SafeDownCast(prop); skybox && skybox->GetVisibility())
+    {
+      auto* window = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+      auto* state = window->GetState();
+      vtkOpenGLState::ScopedglEnableDisable depthTestSaver(state, GL_DEPTH_TEST);
+      vtkOpenGLState::ScopedglDepthFunc depthFunctionSaver(state);
+      vtkOpenGLState::ScopedglDepthMask depthMaskSaver(state);
+      state->vtkglEnable(GL_DEPTH_TEST);
+      this->NumberOfRenderedProps += skybox->RenderOpaqueGeometry(renderer);
+    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -85,6 +103,7 @@ vtkViewNodeFactory* vtkAnariPass::GetViewNodeFactory()
 // ----------------------------------------------------------------------------
 vtkAnariPass::vtkAnariPass()
 {
+  this->Factory->RegisterOverride("vtkSkybox", nullptr);
   this->GetAnariDevice()->SetOnNewDeviceCallback(
     [&]() { this->GetAnariRenderer()->SetAnariDevice(this->GetAnariDevice()); });
 }

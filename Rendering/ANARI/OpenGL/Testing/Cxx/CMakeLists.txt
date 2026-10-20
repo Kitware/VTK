@@ -2,6 +2,7 @@ set(test_names
   TestAnariLayers
   TestAnariPass
   TestAnariScalarBar
+  TestAnariSkybox
   TestAnariSmartVolumeMapper
   TestAnariStereo
   TestAnariWindowResize
