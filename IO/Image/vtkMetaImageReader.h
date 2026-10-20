@@ -37,6 +37,10 @@
  *
  * MetaImage headers are expected to have extension: ".mha" or ".mhd"
  *
+ * The optional Name header field, specified before ElementDataFile, is used as
+ * the point-data scalar array name. If it is absent or empty, the scalar array
+ * is named "MetaImage".
+ *
  * Once you write this header text file, it should be possible to read the
  * image into your ITK based application using the itk::FileIOToImageFilter
  * class.

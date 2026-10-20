@@ -215,8 +215,6 @@ void vtkMetaImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkIn
     return;
   }
 
-  data->GetPointData()->GetScalars()->SetName("MetaImage");
-
   this->ComputeDataIncrements();
 
   if (!this->MetaImagePtr->Read(this->FileName, true, data->GetScalarPointer()))
@@ -226,6 +224,9 @@ void vtkMetaImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkIn
   }
 
   this->MetaImagePtr->ElementByteOrderFix();
+
+  const char* name = this->MetaImagePtr->Name();
+  data->GetPointData()->GetScalars()->SetName(name && name[0] ? name : "MetaImage");
 }
 
 int vtkMetaImageReader::RequestInformation(
