@@ -82,6 +82,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestResampleWithDataSet2.cxx,NO_SERDES
   TestResampleWithDataSet3.cxx
   TestRemoveDuplicatePolys.cxx,NO_VALID
+  TestResolveHangingNodes2DPDC.cxx,NO_VALID
   TestResolveHangingNodes2DUG.cxx,NO_VALID
   TestResolveHangingNodes3DUG.cxx,NO_VALID
   TestSmoothPolyDataFilter.cxx,NO_VALID
