@@ -96,7 +96,9 @@ public:
    * are held by objects in the original component.  These removed
    * references are handled as any other and their corresponding
    * checks may be deferred.  This method keeps collecting until no
-   * deferred collection checks remain.
+   * deferred collection checks remain.  Collection is deferred only in
+   * the main thread, the thread that loaded VTK: in other threads, this
+   * method does nothing.
    */
   static void Collect();
 
@@ -118,7 +120,10 @@ public:
    * Push/Pop whether to do deferred collection.  Whenever the total
    * number of pushes exceeds the total number of pops collection will
    * be deferred.  Code can call the Collect method directly to force
-   * collection.
+   * collection.  Collection is deferred only in the main thread, the
+   * thread that loaded VTK: in other threads, objects are collected
+   * immediately and these methods do nothing, so code using VTK in
+   * another thread, e.g. a worker thread, does not need to know about it.
    */
   static void DeferredCollectionPush();
   static void DeferredCollectionPop();

@@ -873,8 +873,13 @@ void vtkGarbageCollector::Report(vtkObjectBase*, void*, const char*)
 //------------------------------------------------------------------------------
 void vtkGarbageCollector::Collect()
 {
-  // This must be called only from the main thread.
-  assert(vtkGarbageCollectorIsMainThread());
+  // Collection is deferred only in the main thread, and other threads cannot
+  // take its references from the singleton: collecting them there would never
+  // end.
+  if (!vtkGarbageCollectorIsMainThread())
+  {
+    return;
+  }
 
   // Keep collecting until no deferred checks exist.
   while (vtkGarbageCollectorSingletonInstance &&
@@ -933,8 +938,12 @@ void vtkGarbageCollector::Collect(vtkObjectBase* root)
 //------------------------------------------------------------------------------
 void vtkGarbageCollector::DeferredCollectionPush()
 {
-  // This must be called only from the main thread.
-  assert(vtkGarbageCollectorIsMainThread());
+  // Collection is deferred only in the main thread; other threads must not
+  // change whether the main thread defers.
+  if (!vtkGarbageCollectorIsMainThread())
+  {
+    return;
+  }
 
   // Forward the call to the singleton.
   if (vtkGarbageCollectorSingletonInstance)
@@ -946,8 +955,12 @@ void vtkGarbageCollector::DeferredCollectionPush()
 //------------------------------------------------------------------------------
 void vtkGarbageCollector::DeferredCollectionPop()
 {
-  // This must be called only from the main thread.
-  assert(vtkGarbageCollectorIsMainThread());
+  // Collection is deferred only in the main thread; other threads must not
+  // change whether the main thread defers.
+  if (!vtkGarbageCollectorIsMainThread())
+  {
+    return;
+  }
 
   // Forward the call to the singleton.
   if (vtkGarbageCollectorSingletonInstance)
