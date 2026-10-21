@@ -181,7 +181,7 @@ set(SOURCE_DIRECTORIES
 
 macro(step n desc)
   message(STATUS "")
-  message(STATUS "Building VTK docs: step ${n} of 13, (${desc})")
+  message(STATUS "Building VTK docs: step ${n} of 12, (${desc})")
   message(STATUS "----------------------------------------------------------------------------")
 endmacro()
 
@@ -297,23 +297,9 @@ execute_process(COMMAND ${PERL}
 )
 
 # ----------------------------------------------------------------------------
-# Build the full-text index.
-
-step(3 "build full text index")
-execute_process(COMMAND ${PERL}
-  "${PATH_TO_VTK_DOX_SCRIPTS}/doc_index.pl"
-  --project "${PROJECT_NAME}"
-  --stop  "${PATH_TO_VTK_DOX_SCRIPTS}/doc_index.stop"
-  --store "doc_${PROJECT_NAME}_index.dox"
-  --to "${INTERMEDIATE_DOX_DIR}"
-  ${SOURCE_DIRECTORIES}
-  RESULT_VARIABLE rv
-)
-
-# ----------------------------------------------------------------------------
 # Extract the VTK version and create the main page.
 
-step(4 "extract VTK version")
+step(3 "extract VTK version")
 execute_process(COMMAND ${PERL}
   "${PATH_TO_VTK_DOX_SCRIPTS}/doc_version.pl"
   --version_file "${SOURCE_DIR}/${REL_PATH_TO_TOP}/CMake/vtkVersion.cmake"
@@ -327,7 +313,7 @@ execute_process(COMMAND ${PERL}
 # Generate the 'Class to Examples' page cross-linking each class to these
 # examples that use that class.
 
-step(5 "cross-reference classes with Examples")
+step(4 "cross-reference classes with Examples")
 execute_process(COMMAND ${PERL}
   "${PATH_TO_VTK_DOX_SCRIPTS}/doc_class2example.pl"
   --baselinedir "${DATA_ROOT}/Baseline"
@@ -353,7 +339,7 @@ execute_process(COMMAND ${PERL}
 # ----------------------------------------------------------------------------
 # Cross-reference against vtk-examples
 
-step (5a "cross-reference classes with online examples")
+step (4a "cross-reference classes with online examples")
 execute_process(COMMAND ${PYTHON_EXECUTABLE}
   "${PATH_TO_VTK_DOX_SCRIPTS}/doc_class2onlineexamples.py"
   --label "Online Examples"
@@ -367,7 +353,7 @@ execute_process(COMMAND ${PYTHON_EXECUTABLE}
 # Generate the 'Class to Tests' page cross-linking each class to these
 # tests that use that class.
 
-step(6 "cross-reference classes with Testing")
+step(5 "cross-reference classes with Testing")
 execute_process(COMMAND ${PERL}
   "${PATH_TO_VTK_DOX_SCRIPTS}/doc_class2example.pl"
   --baselinedir "${DATA_ROOT}/Baseline"
@@ -393,7 +379,7 @@ execute_process(COMMAND ${PERL}
 # ----------------------------------------------------------------------------
 # Retrieve the remote VTK tag file.
 
-step(7 "download VTK tag file")
+step(6 "download VTK tag file")
 if(DOWNLOAD_VTK_TAGFILE)
   if(NOT VTK_TAGFILE STREQUAL "")
     file(DOWNLOAD
@@ -410,7 +396,7 @@ endif()
 # ----------------------------------------------------------------------------
 # Create the Doxygen doc.
 
-step(8 "run doxygen")
+step(7 "run doxygen")
 file(REMOVE_RECURSE "${OUTPUT_DIRECTORY}")
 file(MAKE_DIRECTORY "${OUTPUT_DIRECTORY}")
 execute_process(COMMAND ${DOXYGEN} ${DOXYFILE}
@@ -420,7 +406,7 @@ execute_process(COMMAND ${DOXYGEN} ${DOXYFILE}
 # ----------------------------------------------------------------------------
 # Clean the HTML pages to remove the path to the intermediate Doxygen dir.
 
-step(9 "remove intermediate path from html")
+step(8 "remove intermediate path from html")
 execute_process(COMMAND ${PERL}
   "${PATH_TO_VTK_DOX_SCRIPTS}/doc_rmpath.pl"
   --to "${INTERMEDIATE_DOX_DIR}"
@@ -431,7 +417,7 @@ execute_process(COMMAND ${PERL}
 # ----------------------------------------------------------------------------
 # clean the HTML pages to remove layout problems
 
-step(10 "clean html to remove layout problems")
+step(9 "clean html to remove layout problems")
 execute_process(COMMAND ${PERL}
   "${PATH_TO_VTK_DOX_SCRIPTS}/doc_cleanhtml.pl"
   --html "${OUTPUT_DIRECTORY}/html"
@@ -441,7 +427,7 @@ execute_process(COMMAND ${PERL}
 # ----------------------------------------------------------------------------
 # Create the *.chm file
 
-step(11 "build *.chm file")
+step(10 "build *.chm file")
 if(COMPILE_HTML_HELP AND HTML_HELP_COMPILER)
   if(NOT "${RESULTING_HTML_HELP_FILE}" STREQUAL "")
     if(EXISTS "${OUTPUT_DIRECTORY}/html/index.hhp")
@@ -473,7 +459,7 @@ endif()
 # ----------------------------------------------------------------------------
 # Create the *.tar.gz file
 
-step(12 "build *.tar.gz file")
+step(11 "build *.tar.gz file")
 if(CREATE_HTML_TARZ_ARCHIVE)
   if(NOT RESULTING_HTML_TARZ_ARCHIVE_FILE STREQUAL "")
     execute_process(COMMAND ${CMAKE_COMMAND} -E tar cfz ${RESULTING_HTML_TARZ_ARCHIVE_FILE} html
@@ -487,9 +473,9 @@ endif()
 # Clean-up.
 
 if(DOXYGEN_KEEP_TEMP)
-  message("Skipping step 13: clean up.")
+  message("Skipping step 12: clean up.")
 else()
-  step(13 "clean up")
+  step(12 "clean up")
   file(REMOVE_RECURSE "${INTERMEDIATE_DOX_DIR}")
 
   if(DOWNLOAD_VTK_TAGFILE)
