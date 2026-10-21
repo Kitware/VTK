@@ -267,15 +267,14 @@ reasonable timeframe.
  * DICOM: @sankhesh
  * Distributed Algorithms: @mwestphal, @charles.gueunet
  * Documentation: @cory.quammen
- * Emscripten: @jaswant.panchumarti
  * Filters: @charles.gueunet, @cory.quammen, @mwestphal, @spiros.tsalikis, @kmorel, @will.schroeder
  * HyperTreeGrid: @louis.gombert
- * Java: @sebastien.jourdain
- * Low-level code (optimization, compiler issues): @alexy.pellegrini
+ * Java: @sebastien.jourdain, @vbolea
+ * Low-level code (optimization, compiler issues): @alexy.pellegrini, @ben.boeckel
  * MacOS: @seanm
- * OpenXR: @sankhesh
- * Python: @sebastien.jourdain
- * Python Packaging: @alexy.pellegrini
+ * OpenXR: @sankhesh, @scott.wittenburg
+ * Python: @berkgeveci, @sebastien.jourdain
+ * Python Packaging: @alexy.pellegrini, @vbolea, @ben.boeckel
  * Qt: @mwestphal, @sankhesh
  * QtQuick/QtQml: @sankhesh, @lucas.givord
  * IO: @cory.quammen, @alexy.pellegrini
@@ -283,14 +282,13 @@ reasonable timeframe.
  * Raytracing (OSPRay, ANARI): @sankhesh, @lucas.givord
  * SMP: @spiros.tsalikis, @alexy.pellegrini (stdthread), @will.schroeder, @charles.gueunet
  * SPH: @will.schroeder
- * Third-Parties: @ben.boeckel
+ * Third-Parties: @ben.boeckel, @cory.quammen
  * Viskores: @kmorel
  * VTKHDF: @louis.gombert
- * Wasm: @jaswant.panchumarti
- * WebAssembly: @sebastien.jourdain
+ * Wasm: @jaswant.panchumarti, @sebastien.jourdain
  * Web: @sebastien.jourdain
  * Widgets: @mwestphal, @sankhesh, @will.schroeder
- * Windows: @alexy.pellegrini
+ * Windows: @alexy.pellegrini, @jaswant.panchumarti
  * Anything Else: @mwestphal
 
 
