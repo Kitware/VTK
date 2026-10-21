@@ -33,6 +33,18 @@ namespace
 {
 constexpr double EPSILON = 1e-6;
 
+inline vtkIdType FindPoint(vtkDataSet* ds, const std::array<double, 3>& p)
+{
+  for (vtkIdType i = 0; i < ds->GetNumberOfPoints(); ++i)
+  {
+    if (vtkMath::Distance2BetweenPoints(p.data(), ds->GetPoint(i)) < EPSILON)
+    {
+      return i;
+    }
+  }
+  return -1;
+}
+
 // Total length (2D) or area (3D) of the edges or faces used by a single cell. It is the boundary
 // measure of the domain if and only if the mesh is conforming: a remaining hanging node leaves both
 // sides of an interface unmatched.
