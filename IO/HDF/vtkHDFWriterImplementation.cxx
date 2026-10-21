@@ -15,6 +15,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkSetGet.h"
 #include "vtkType.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -54,6 +55,15 @@ constexpr std::string_view CONNECTIVITY = "Connectivity";
 constexpr std::string_view NUMBER_OF_POINTS = "NumberOfPoints";
 constexpr std::string_view NUMBER_OF_CELLS = "NumberOfCells";
 constexpr std::string_view NUMBER_OF_CONNECTIVITY_IDS = "NumberOfConnectivityIds";
+
+// Polyhedron topology
+constexpr std::string_view NUMBER_OF_FACES = "NumberOfFaces";
+constexpr std::string_view NUMBER_OF_FACE_CONNECTIVITY_IDS = "NumberOfFaceConnectivityIds";
+constexpr std::string_view NUMBER_OF_POLYHEDRON_TO_FACE_IDS = "NumberOfPolyhedronToFaceIds";
+constexpr std::string_view FACE_OFFSETS = "FaceOffsets";
+constexpr std::string_view FACE_CONNECTIVITY = "FaceConnectivity";
+constexpr std::string_view POLYHEDRON_OFFSETS = "PolyhedronOffsets";
+constexpr std::string_view POLYHEDRON_TO_FACES = "PolyhedronToFaces";
 
 // vtkHyperTreeGrid
 constexpr std::string_view DEPTH_PER_TREE = "DepthPerTree";
@@ -167,8 +177,8 @@ void CopyAttributeSchema(vtkFieldData* source, vtkFieldData* destination)
   auto* destinationAttributes = vtkDataSetAttributes::SafeDownCast(destination);
   if (sourceAttributes && destinationAttributes)
   {
-    int indices[vtkDataSetAttributes::NUM_ATTRIBUTES];
-    sourceAttributes->GetAttributeIndices(indices);
+    std::array<int, vtkDataSetAttributes::NUM_ATTRIBUTES> indices;
+    sourceAttributes->GetAttributeIndices(indices.data());
     for (int attribute = 0; attribute < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attribute)
     {
       if (indices[attribute] >= 0)
@@ -181,14 +191,94 @@ void CopyAttributeSchema(vtkFieldData* source, vtkFieldData* destination)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::CollectPartitionOffsets(vtkDataObject* input)
+bool vtkHDFWriter::Implementation::CollectOffsets(hid_t group, vtkDataObject* input)
 {
-  UnstructuredGridOffset temporalOffsets{}; // TODO: temporal collection
-  return this->CollectPartitionOffsets(input, temporalOffsets);
+  if (!this->GetUseDistributedWriting())
+  {
+    this->UgOffsets = {};
+    return true;
+  }
+  UnstructuredGridOffset temporalOffsets{};
+  if (!this->CollectTemporalOffsets(group, temporalOffsets))
+  {
+    return false;
+  }
+  this->CollectPartitionOffsets(input, temporalOffsets);
+  return true;
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::CollectPartitionOffsets(
+bool vtkHDFWriter::Implementation::CollectTemporalOffsets(
+  hid_t group, UnstructuredGridOffset& offsets)
+{
+  offsets = {};
+  auto readRows = [](hid_t dataGroup, std::string_view name, vtkIdType& offset)
+  {
+    offset = 0;
+    if (H5Lexists(dataGroup, std::string(name).c_str(), H5P_DEFAULT) > 0)
+    {
+      const auto dimensions = vtkHDFUtilities::GetDimensions(dataGroup, std::string(name).c_str());
+      if (dimensions.empty())
+      {
+        return false;
+      }
+      offset = static_cast<vtkIdType>(dimensions[0]);
+    }
+    return true;
+  };
+
+  // Fill offsets based on the number of existing entries in the current file
+  if (!readRows(group, PATH::NUMBER_OF_POINTS, offsets.PartOffset) ||
+    !readRows(group, PATH::POINTS, offsets.PointOffset) ||
+    !readRows(group, PATH::TYPES, offsets.CellOffset) ||
+    !readRows(group, PATH::CONNECTIVITY, offsets.ConnectivityOffset) ||
+    !readRows(group, PATH::FACE_CONNECTIVITY, offsets.FaceConnectivityOffset) ||
+    !readRows(group, PATH::FACE_OFFSETS, offsets.FaceOffset) ||
+    !readRows(group, PATH::POLYHEDRON_TO_FACES, offsets.PolyhedronToFaceOffset))
+  {
+    vtkErrorWithObjectMacro(this->Writer,
+      "Could not find existing partitions in file while collecting temporal offsets.");
+    return false;
+  }
+
+  // Offset arrays have one more entry per part
+  // NOLINTNEXTLINE(bugprone-suspicious-stringview-data-usage): NUL-terminated
+  if (H5Lexists(group, PATH::FACE_OFFSETS.data(), H5P_DEFAULT) > 0)
+  {
+    offsets.FaceOffset -= offsets.PartOffset;
+  }
+
+  // Field arrays: offsets should be identical, use the first array (if any) to get the offset
+  for (int association : { vtkDataObject::POINT, vtkDataObject::CELL })
+  {
+    const char* name = association == vtkDataObject::POINT ? "PointData" : "CellData";
+    if (H5Lexists(group, name, H5P_DEFAULT) > 0)
+    {
+      auto dataGroup = this->OpenExistingGroup(group, name);
+      if (dataGroup == H5I_INVALID_HID)
+      {
+        vtkErrorWithObjectMacro(this->Writer,
+          "Could not find existing field data group " << name << " in existing file.");
+        return false;
+      }
+      const std::map<int, hid_t> groups{ { association, dataGroup } };
+      const auto arrays = vtkHDFUtilities::GetArrayNames(groups, association);
+      if (!arrays.empty())
+      {
+        if (!readRows(dataGroup, arrays.front(),
+              association == vtkDataObject::POINT ? offsets.PointDataOffset
+                                                  : offsets.CellDataOffset))
+        {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+void vtkHDFWriter::Implementation::CollectPartitionOffsets(
   vtkDataObject* input, const UnstructuredGridOffset& temporalOffsets)
 {
   this->UgOffsets = {};
@@ -288,8 +378,6 @@ bool vtkHDFWriter::Implementation::CollectPartitionOffsets(
   this->UgOffsets = std::move(result);
 
   this->PrintOffsetInformation(this->UgOffsets);
-
-  return true;
 }
 
 void vtkHDFWriter::Implementation::PrintOffsetInformation(PartitionedOffsets& offsets)
@@ -1040,7 +1128,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateAndAllocateDataSet(h
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::IsMissingPartition(unsigned int partId) const
 {
-  if (!this->GetUseDistributedWriting())
+  if (!this->GetUseDistributedWriting() || this->UgOffsets.PartOffsets.empty())
   {
     return false;
   }
@@ -1116,6 +1204,17 @@ bool vtkHDFWriter::Implementation::WriteDataset(hid_t dataset, hid_t memoryType,
   {
     return false;
   }
+  // Copy type for empty ranks, to not trigger conversion in collective writes.
+  vtkHDF::ScopedH5THandle emptyType;
+  if (empty)
+  {
+    emptyType = H5Dget_type(dataset);
+    if (emptyType == H5I_INVALID_HID)
+    {
+      return false;
+    }
+    memoryType = emptyType;
+  }
   return H5Dwrite(dataset, memoryType, memorySpace, fileSpace, this->GetTransferPropertyList(),
            empty ? nullptr : data) >= 0;
 }
@@ -1168,10 +1267,49 @@ bool vtkHDFWriter::Implementation::WriteOneRowDataset(
 }
 
 //------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::AddStepsRow(hid_t group, unsigned int partId, const char* name,
+  const std::vector<vtkIdType>& values, bool offset, bool trim)
+{
+  // Each timestep has one global row, not one row per rank.
+  // Collect values from all ranks, and add to the current value.
+  std::vector<vtkIdType> globalValues(values);
+  std::vector<vtkIdType> localValues(values);
+  if (this->IsMissingPartition(partId))
+  {
+    // Placeholder partition does not contribute anything
+    std::fill(localValues.begin(), localValues.end(), 0);
+  }
+  this->Writer->Controller->AllReduce(localValues.data(), globalValues.data(),
+    static_cast<vtkIdType>(values.size()), vtkCommunicator::SUM_OP);
+  if (std::string(name) == "NumberOfParts")
+  {
+    // Special case for NumberOfParts: use the part count from collected offsets
+    globalValues[0] = this->UgOffsets.PartOffsets.back() - this->UgOffsets.PartOffsets.front();
+  }
+
+  if (!this->InitDynamicDataset(group, name, H5T_STD_I64LE, 0, { SMALL_CHUNK }))
+  {
+    return false;
+  }
+  auto dataset = this->OpenDataset(group, name);
+  const hsize_t current = this->GetDataSetSize(group, name);
+  const hsize_t rows = current + (trim ? 0 : 1);
+  if (rows != current && H5Dset_extent(dataset, &rows) < 0)
+  {
+    return false;
+  }
+  return this->WriteOneRowDataset(dataset, globalValues, rows - 1, offset, trim);
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::AddOrCreateSingleRowDataset(hid_t group, unsigned int partId,
   const char* name, const std::vector<vtkIdType>& values, bool offset, bool trim)
 {
   vtkDebugWithObjectMacro(this->Writer, "Preparing " << name << " for partition " << partId);
+  if (this->GetUseDistributedWriting() && group == this->StepsGroup)
+  {
+    return this->AddStepsRow(group, partId, name, values, offset, trim);
+  }
   // Assume that when subfiles are set, we don't need to write data unless
   // SubFilesReady is set, which means all subfiles have been written.
   if (!this->Subfiles.empty() && (group != this->StepsGroup || this->Writer->NbPieces > 1))
@@ -1435,8 +1573,21 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
   // Collect total dataset size
   const std::string groupPath = this->GetGroupName(group);
   const std::string datasetPath = groupPath + "/" + name;
+  const bool isAttribute =
+    PATH::ContainsAny(groupPath, { PATH::POINT_DATA, PATH::CELL_DATA, PATH::FIELD_DATA });
+
+  // Empty subfiles may not have polyhedron-related datasets, check if any do.
+  const bool hasPolyhedra = std::any_of(this->Subfiles.begin(), this->Subfiles.end(),
+    [&](const auto& fileRoot)
+    {
+      return this->DatasetAndGroupExist(
+        groupPath + "/" + std::string(PATH::NUMBER_OF_FACES), fileRoot);
+    });
+  const bool padEmptyPolyhedronParts = hasPolyhedra && ::IsPolyhedronCountOrOffset(name);
+  const std::string fallbackPath =
+    padEmptyPolyhedronParts ? groupPath + "/" + std::string(PATH::NUMBER_OF_CELLS) : "";
   hsize_t totalSize = 0;
-  if (!this->GetSubFilesDatasetSize(datasetPath, groupPath, totalSize))
+  if (!this->GetSubFilesDatasetSize(datasetPath, groupPath, totalSize, fallbackPath))
   {
     vtkDebugWithObjectMacro(
       this->Writer, << "Ignoring dataset " << datasetPath << " not present in every sub-file.");
@@ -1562,13 +1713,22 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
         // Skip datasets not present everywhere
         if (!this->DatasetAndGroupExist(datasetPath, this->Subfiles[file]))
         {
-          if (name == PATH::OFFSETS)
+          if (name == PATH::OFFSETS || (padEmptyPolyhedronParts && !isStaticMesh))
           {
             mappingOffset++; // Offset by 1 the next offset, because even for 0 cells, we need 1
                              // offset value.
             vtkDebugWithObjectMacro(
               this->Writer, "Adding 1 to mapping offset for Offsets : " << mappingOffset);
           }
+          continue;
+        }
+
+        // Static geometry is already mapped by the previous time step.
+        // Attribute arrays still need a mapping for every step.
+        if (isStaticMesh && !isAttribute)
+        {
+          vtkDebugWithObjectMacro(
+            this->Writer, << "Static mesh, not mapping geometry again" << debugString);
           continue;
         }
 
@@ -1593,24 +1753,15 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
         vtkDebugWithObjectMacro(this->Writer,
           << "Extent source " << sourceDims[0] << " " << sourceDims[1] << " " << sourceDims[2]);
 
-        std::vector<hsize_t> mappingSize{
-          sourceDims[0]
-        }; // By default, select the whole source dataset
+        // By default, select the whole source dataset
+        std::vector<hsize_t> mappingSize{ sourceDims[0] };
 
-        // Correctly set mappingSize given the type of dataset&
+        // Correctly set mappingSize given the type of dataset
         switch (indexMode)
         {
           case IndexingMode::MetaData:
           {
             vtkDebugWithObjectMacro(this->Writer, << "Is Indexed on metadata");
-
-            // Handle static mesh
-            if (isStaticMesh)
-            {
-              vtkDebugWithObjectMacro(
-                this->Writer, << "Static mesh, not writing count value again");
-              continue;
-            }
 
             // Select only one value in the source dataspace
             mappingSize[0] = 1;
@@ -1624,14 +1775,6 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
             hsize_t nbPointsPart =
               this->GetSubfileNumberOf(basePath, PATH::NUMBER_OF_POINTS, file, part + partOffset);
 
-            // Handle static mesh
-            if (name == PATH::POINTS && isStaticMesh)
-            {
-              vtkDebugWithObjectMacro(
-                this->Writer, << "Static mesh, not writing points virtual dataset again");
-              continue;
-            }
-
             mappingSize[0] = nbPointsPart;
 
             break;
@@ -1641,14 +1784,6 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
             vtkDebugWithObjectMacro(this->Writer, << "Is Indexed on cells");
             hsize_t partNbCells = this->GetNumberOfCellsSubfile(
               basePath, file, part + partOffset, isPolyData, this->GetGroupName(group));
-
-            // Handle static mesh: don't write offsets if cells have not changed
-            if ((name == PATH::OFFSETS || name == PATH::TYPES) && isStaticMesh)
-            {
-              vtkDebugWithObjectMacro(
-                this->Writer, << "Static mesh, not writing virtual offsets/types again");
-              continue;
-            }
 
             mappingSize[0] = partNbCells;
 
@@ -1674,47 +1809,23 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
             hsize_t nbConnectivityIdPart = this->GetSubfileNumberOf(
               groupPath, PATH::NUMBER_OF_CONNECTIVITY_IDS, file, part + partOffset);
 
-            // Handle static mesh
-            if (name == PATH::CONNECTIVITY && isStaticMesh)
-            {
-              vtkDebugWithObjectMacro(
-                this->Writer, << "Static mesh, not writing virtual connectivity Ids again");
-              continue;
-            }
-
             mappingSize[0] = nbConnectivityIdPart;
             break;
           }
           case IndexingMode::FaceConnectivity:
-            if (isStaticMesh)
-            {
-              continue;
-            }
             mappingSize[0] = this->GetSubfileNumberOf(
-              groupPath, "NumberOfFaceConnectivityIds", file, part + partOffset);
+              groupPath, PATH::NUMBER_OF_FACE_CONNECTIVITY_IDS, file, part + partOffset);
             break;
           case IndexingMode::FaceOffsets:
-            if (isStaticMesh)
-            {
-              continue;
-            }
             mappingSize[0] =
-              this->GetSubfileNumberOf(groupPath, "NumberOfFaces", file, part + partOffset);
+              this->GetSubfileNumberOf(groupPath, PATH::NUMBER_OF_FACES, file, part + partOffset);
             ++mappingSize[0];
             break;
           case IndexingMode::PolyhedronToFaces:
-            if (isStaticMesh)
-            {
-              continue;
-            }
             mappingSize[0] = this->GetSubfileNumberOf(
-              groupPath, "NumberOfPolyhedronToFaceIds", file, part + partOffset);
+              groupPath, PATH::NUMBER_OF_POLYHEDRON_TO_FACE_IDS, file, part + partOffset);
             break;
           case IndexingMode::PolyhedronOffsets:
-            if (isStaticMesh)
-            {
-              continue;
-            }
             mappingSize[0] = this->GetNumberOfCellsSubfile(
               basePath, file, part + partOffset, false, this->GetGroupName(group));
             if (mappingSize[0] > 0)
@@ -1868,7 +1979,7 @@ bool vtkHDFWriter::Implementation::WriteSumSteps(hid_t group, const char* name)
     "Creating steps sum " << name << " in " << this->GetGroupName(group) << "with base "
                           << PATH::GetBasePath(this->GetGroupName(group)));
 
-  if (!this->InitDynamicDataset(group, name, H5T_STD_I64LE, 1, { SMALL_CHUNK }))
+  if (!this->InitDynamicDataset(group, name, H5T_STD_I64LE, 0, { SMALL_CHUNK }))
   {
     return false;
   }
@@ -1880,8 +1991,7 @@ bool vtkHDFWriter::Implementation::WriteSumSteps(hid_t group, const char* name)
 
   // For each timestep, collect the sum of values in subfiles,
   // and append it to the meta-file array.
-  const hsize_t firstRow = this->GetDataSetSize(group, name);
-  const hsize_t rows = firstRow + this->Writer->NumberOfTimeSteps;
+  const hsize_t rows = this->Writer->NumberOfTimeSteps;
   if (H5Dset_extent(dataset, &rows) < 0)
   {
     return false;
@@ -1895,7 +2005,7 @@ bool vtkHDFWriter::Implementation::WriteSumSteps(hid_t group, const char* name)
         std::string(PATH::STEPS) + "/" + name, file, step);
     }
 
-    if (!this->WriteOneRowDataset(dataset, { totalForTimeStep }, firstRow + step, false, false))
+    if (!this->WriteOneRowDataset(dataset, { totalForTimeStep }, step, false, false))
     {
       return false;
     }
@@ -1973,7 +2083,8 @@ bool vtkHDFWriter::Implementation::CreateRepresentativeFromSubfile(
     vtkNew<vtkUnstructuredGrid> ug;
     vtkNew<vtkCellArray> cells;
     vtkNew<vtkUnsignedCharArray> types;
-    if (H5Lexists(part, "FaceConnectivity", H5P_DEFAULT) > 0)
+    // NOLINTNEXTLINE(bugprone-suspicious-stringview-data-usage): NUL-terminated
+    if (H5Lexists(part, PATH::FACE_CONNECTIVITY.data(), H5P_DEFAULT) > 0)
     {
       // Init polyhedron-related arrays for dispatch
       vtkNew<vtkCellArray> faces;
@@ -2134,8 +2245,8 @@ bool vtkHDFWriter::Implementation::DatasetAndGroupExist(const std::string& datas
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::GetSubFilesDatasetSize(
-  const std::string& datasetPath, const std::string& groupName, hsize_t& totalSize)
+bool vtkHDFWriter::Implementation::GetSubFilesDatasetSize(const std::string& datasetPath,
+  const std::string& groupName, hsize_t& totalSize, const std::string& fallbackPath)
 {
   totalSize = 0;
   for (auto& fileRoot : this->Subfiles)
@@ -2143,6 +2254,16 @@ bool vtkHDFWriter::Implementation::GetSubFilesDatasetSize(
     if (H5Lexists(fileRoot, groupName.c_str(), H5P_DEFAULT) <= 0 ||
       H5Lexists(fileRoot, datasetPath.c_str(), H5P_DEFAULT) <= 0)
     {
+      if (!fallbackPath.empty() && this->DatasetAndGroupExist(fallbackPath, fileRoot))
+      {
+        const auto dimensions = vtkHDFUtilities::GetDimensions(fileRoot, fallbackPath.c_str());
+        if (dimensions.empty())
+        {
+          return false;
+        }
+        totalSize += dimensions[0];
+        continue;
+      }
       if (PATH::ContainsAny(datasetPath, { PATH::OFFSETS }))
       {
         totalSize++; // For 0 cells, Offset is still [0]
@@ -2164,6 +2285,8 @@ bool vtkHDFWriter::Implementation::GetSubFilesDatasetSize(
 vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::GetSubfileNonNullPart(
   const std::string& blockPath, int& type)
 {
+  vtkHDF::ScopedH5GHandle emptyPart;
+  int emptyType = -1;
   for (auto& fileRoot : this->Subfiles)
   {
     vtkHDF::ScopedH5GHandle blockG = this->OpenExistingGroup(fileRoot, blockPath.c_str());
@@ -2175,12 +2298,25 @@ vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::GetSubfileNonNullPart(
     // Look for a non-empty Type, and for vtkPointSet types, a non empty Points dataset if possible
     if (H5Aexists(blockG, "Type") > 0 && vtkHDFUtilities::ReadDataSetType(blockG, type))
     {
+      if (H5Lexists(blockG, "Points", H5P_DEFAULT) > 0)
+      {
+        const auto dimensions = vtkHDFUtilities::GetDimensions(blockG, "Points");
+        if (!dimensions.empty() && dimensions[0] == 0)
+        {
+          if (emptyPart == H5I_INVALID_HID)
+          {
+            emptyPart = std::move(blockG);
+            emptyType = type;
+          }
+          continue;
+        }
+      }
       return blockG;
     }
   }
 
-  // Not found
-  return H5I_INVALID_HID;
+  type = emptyType;
+  return emptyPart;
 }
 
 //------------------------------------------------------------------------------
@@ -2191,16 +2327,20 @@ hsize_t vtkHDFWriter::Implementation::GetDatasetValueOffset(
   switch (mode)
   {
     case IndexingMode::Points:
-      offset = this->UgOffsets.UgOffsets[partition].PointOffset;
+      offset = PATH::ContainsAny(datasetPath, { PATH::POINT_DATA })
+        ? this->UgOffsets.UgOffsets[partition].PointDataOffset
+        : this->UgOffsets.UgOffsets[partition].PointOffset;
       break;
     case IndexingMode::Cells:
     {
-      offset = this->UgOffsets.UgOffsets[partition].CellOffset;
+      offset = PATH::ContainsAny(datasetPath, { PATH::CELL_DATA })
+        ? this->UgOffsets.UgOffsets[partition].CellDataOffset
+        : this->UgOffsets.UgOffsets[partition].CellOffset;
       // 'Offset' dataset has size (nCells + nPart)
       const std::size_t lastSlash = datasetPath.find_last_of('/');
       if (lastSlash != std::string::npos && datasetPath.substr(lastSlash + 1) == PATH::OFFSETS)
       {
-        offset += partition;
+        offset += this->UgOffsets.UgOffsets[partition].PartOffset;
       }
       break;
     }
@@ -2222,7 +2362,7 @@ hsize_t vtkHDFWriter::Implementation::GetDatasetValueOffset(
         this->UgOffsets.UgOffsets[partition].PartOffset;
       break;
     case IndexingMode::MetaData:
-      offset = partition;
+      offset = this->UgOffsets.UgOffsets[partition].PartOffset;
       break;
     default:
       vtkErrorWithObjectMacro(this->Writer,
@@ -2252,24 +2392,25 @@ hsize_t vtkHDFWriter::Implementation::GetDistributedDatasetSize(const std::strin
 vtkHDFWriter::Implementation::IndexingMode vtkHDFWriter::Implementation::GetDatasetIndexationMode(
   const std::string& path)
 {
-  if (PATH::ContainsAny(
-        path, { "NumberOfFaces", "NumberOfFaceConnectivityIds", "NumberOfPolyhedronToFaceIds" }))
+  if (PATH::ContainsAny(path,
+        { PATH::NUMBER_OF_FACES, PATH::NUMBER_OF_FACE_CONNECTIVITY_IDS,
+          PATH::NUMBER_OF_POLYHEDRON_TO_FACE_IDS }))
   {
     return IndexingMode::MetaData;
   }
-  if (PATH::ContainsAny(path, { "FaceConnectivity" }))
+  if (PATH::ContainsAny(path, { PATH::FACE_CONNECTIVITY }))
   {
     return IndexingMode::FaceConnectivity;
   }
-  if (PATH::ContainsAny(path, { "FaceOffsets" }))
+  if (PATH::ContainsAny(path, { PATH::FACE_OFFSETS }))
   {
     return IndexingMode::FaceOffsets;
   }
-  if (PATH::ContainsAny(path, { "PolyhedronToFaces" }))
+  if (PATH::ContainsAny(path, { PATH::POLYHEDRON_TO_FACES }))
   {
     return IndexingMode::PolyhedronToFaces;
   }
-  if (PATH::ContainsAny(path, { "PolyhedronOffsets" }))
+  if (PATH::ContainsAny(path, { PATH::POLYHEDRON_OFFSETS }))
   {
     return IndexingMode::PolyhedronOffsets;
   }

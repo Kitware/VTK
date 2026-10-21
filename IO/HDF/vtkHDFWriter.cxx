@@ -79,7 +79,7 @@ std::string getBlockName(vtkPartitionedDataSetCollection* pdc, unsigned int data
  * Return the filename for an external file containing <blockname>, made from
  * the original <filename>.
  */
-std::string GetExternalBlockFileName(const std::string&& filename, const std::string& blockname)
+std::string GetExternalBlockFileName(const std::string& filename, const std::string& blockname)
 {
   size_t lastDotPos = filename.find_last_of('.');
   if (lastDotPos != std::string::npos)
@@ -191,7 +191,7 @@ bool IsDistributedSingleFileSupported(vtkDataObject* input, vtkMultiProcessContr
     vtkSmartPointer<vtkDataObjectTreeIterator> iterator;
     iterator.TakeReference(tree->NewTreeIterator());
     iterator->VisitOnlyLeavesOn();
-    iterator->SkipEmptyNodesOn();
+    iterator->SetSkipEmptyNodes(false);
     for (iterator->InitTraversal(); !iterator->IsDoneWithTraversal(); iterator->GoToNextItem())
     {
       hasInput = 1;
@@ -214,29 +214,23 @@ bool IsDistributedSingleFileSupported(vtkDataObject* input, vtkMultiProcessContr
 vtkHDFWriter::vtkHDFWriter()
   : Impl(new Implementation(this))
 {
-  this->Controller = vtkMultiProcessController::GetGlobalController();
+  this->SetController(vtkMultiProcessController::GetGlobalController());
   if (this->Controller == nullptr)
   {
     // No multi-process controller has been set, use a dummy one.
     // Mark that it has been created by this process so we can destroy it
     // After the filter execution.
     this->UsesDummyController = true;
-    this->SetController(vtkDummyController::New());
+    vtkNew<vtkDummyController> controller;
+    this->SetController(controller);
   }
-
-  this->NbPieces = this->Controller->GetNumberOfProcesses();
-  this->CurrentPiece = this->Controller->GetLocalProcessId();
 }
 
 //------------------------------------------------------------------------------
 vtkHDFWriter::~vtkHDFWriter()
 {
   this->SetFileName(nullptr);
-  if (this->UsesDummyController)
-  {
-    this->Controller->Delete();
-    this->SetController(nullptr);
-  }
+  this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -263,6 +257,9 @@ vtkTypeBool vtkHDFWriter::ProcessRequest(
 int vtkHDFWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
+  this->NbPieces = this->Controller ? this->Controller->GetNumberOfProcesses() : 1;
+  this->CurrentPiece = this->Controller ? this->Controller->GetLocalProcessId() : 0;
+
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
@@ -379,10 +376,30 @@ bool vtkHDFWriter::WriteDataAndReturn()
   this->Impl->SetCompressionLevel(this->CompressionLevel);
   this->Impl->SetChunkSize(this->ChunkSize);
 
-  // For now, distributed writing is only available for non-temporal
-  // (partitioned) UnstructuredGrid. Other distributed inputs use external files.
-  this->Impl->SetUseDistributedWriting(!this->UseExternalDistributed && this->NbPieces > 1 &&
-    !this->IsTemporal && ::IsDistributedSingleFileSupported(input, this->Controller));
+  if (this->IsTemporal)
+  {
+    // Temporal + composite writing can currently only be done in a single file.
+    // The current writer implementation makes External<X> difficult when time is involved,
+    // because we rely on writers outside of the current pipeline that simply write a data object.
+    // Supporting these cases would require to give the writer the ability to add timesteps to an
+    // existing file.
+    if (this->UseExternalPartitions || this->UseExternalComposite)
+    {
+      vtkWarningMacro("Writing composite blocks/partitions as external VTKHDF files is "
+                      "currently not supported for time-dependant datasets, disabling "
+                      "UseExternal[Composite/Partitions]");
+    }
+    this->SetUseExternalComposite(false);
+    this->SetUseExternalPartitions(false);
+  }
+
+  // For now, distributed writing is only available for (partitioned) UnstructuredGrid.
+  // And is not compatible with other external files options.
+  // Other distributed inputs use external files.
+  bool singleFileEnabled = !this->UseExternalDistributed && !this->UseExternalPartitions &&
+    !this->UseExternalComposite && !this->UseExternalTimeSteps && this->NbPieces > 1;
+  this->Impl->SetUseDistributedWriting(
+    singleFileEnabled && ::IsDistributedSingleFileSupported(input, this->Controller));
 
   // Root file group only needs to be opened for the first timestep
   if (this->CurrentTimeIndex == 0)
@@ -411,23 +428,6 @@ bool vtkHDFWriter::WriteDataAndReturn()
 
   // Wait for the file to be created
   this->Controller->Barrier();
-
-  if (this->IsTemporal)
-  {
-    // Temporal + composite writing can currently only be done in a single file.
-    // The current writer implementation makes External<X> difficult when time is involved,
-    // because we rely on writers outside of the current pipeline that simply write a data object.
-    // Supporting these cases would require to give the writer the ability to add timesteps to an
-    // existing file.
-    if (this->UseExternalPartitions || this->UseExternalComposite)
-    {
-      vtkWarningMacro("Writing composite blocks/partitions as external VTKHDF files is "
-                      "currently not supported for time-dependant datasets, disabling "
-                      "UseExternal[Composite/Partitions]");
-    }
-    this->SetUseExternalComposite(false);
-    this->SetUseExternalPartitions(false);
-  }
 
   // Write the time step data in an external file
   if (this->NbPieces == 1 && this->IsTemporal && this->UseExternalTimeSteps)
@@ -462,7 +462,10 @@ bool vtkHDFWriter::WriteDataAndReturn()
 
   if (!this->UseExternalDistributed && !this->Impl->GetSubFilesReady())
   {
-    this->Impl->CollectPartitionOffsets(input);
+    if (!this->Impl->CollectOffsets(this->Impl->GetRoot(), input))
+    {
+      return false;
+    }
   }
 
   if (!this->DispatchDataObject(this->Impl->GetRoot(), input))
@@ -522,7 +525,17 @@ bool vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
     instead of writing the data actually associated to the input data object,
     write commands will instead gather information from all previously written distributed
     pieces, and create virtual datasets referencing them. */
-    if (!this->DispatchDataObject(this->Impl->GetRoot(), input))
+    vtkSmartPointer<vtkDataObject> representative = input;
+    auto* pointSet = vtkPointSet::SafeDownCast(input);
+    if (pointSet && pointSet->GetNumberOfPoints() == 0)
+    {
+      if (!this->Impl->CreateRepresentativeFromSubfile(
+            vtkHDFUtilities::VTKHDF_ROOT_PATH, representative))
+      {
+        return false;
+      }
+    }
+    if (!this->DispatchDataObject(this->Impl->GetRoot(), representative))
     {
       vtkErrorMacro("Failed to write meta data object");
       return false;
@@ -788,6 +801,13 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, u
   const bool hasPolyhedra = ::AnyPartHasPolyhedra(
     { input }, this->Impl->GetUseDistributedWriting() ? this->Controller : nullptr);
 
+  std::vector<vtkSmartPointer<vtkDataObject>> normalized{ input };
+  if (hasPolyhedra)
+  {
+    ::AddEmptyPolyhedrons(normalized);
+    input = vtkUnstructuredGrid::SafeDownCast(normalized.front());
+  }
+
   if (this->CurrentTimeIndex == 0 && partId == 0)
   {
     if (!this->InitializeTemporalUnstructuredGrid(group))
@@ -998,7 +1018,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
   std::vector<vtkSmartPointer<vtkDataObject>> nonNullParts;
   for (unsigned int i = 0; i < input->GetNumberOfPartitions(); i++)
   {
-    if (auto obj = vtkDataObject::SafeDownCast(input->GetPartition(i)))
+    if (auto* obj = input->GetPartitionAsDataObject(i))
     {
       nonNullParts.emplace_back(obj);
     }
@@ -1059,12 +1079,17 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
     }
 
     // Write individual partitions in different files
-    if (this->UseExternalPartitions)
+    if (this->UseExternalPartitions && !this->Impl->GetSubFilesReady())
     {
       const std::string partitionSuffix = "part" + vtk::to_string(nonNullPartCount);
-      const std::string subFilePath =
-        ::GetExternalBlockFileName(std::string(this->FileName), partitionSuffix);
+      const std::string container = this->NbPieces > 1 && !this->Impl->GetUseDistributedWriting()
+        ? ::GetExternalBlockFileName(this->FileName, "part" + vtk::to_string(this->CurrentPiece))
+        : std::string(this->FileName);
+      const std::string subFilePath = ::GetExternalBlockFileName(container, partitionSuffix);
       vtkNew<vtkHDFWriter> writer;
+      // We don't want collective writes on partition files, set another controller
+      vtkNew<vtkDummyController> controller;
+      writer->SetController(controller);
       writer->SetInputData(partition);
       writer->SetFileName(subFilePath.c_str());
       writer->SetCompressionLevel(this->CompressionLevel);
@@ -2256,12 +2281,15 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
     }
     else
     {
+      datasetGroup = this->Impl->CreateHdfGroup(group, currentName.c_str());
       if (!this->UseExternalDistributed && !this->Impl->GetSubFilesReady())
       {
-        this->Impl->CollectPartitionOffsets(currentBlock);
+        if (!this->Impl->CollectOffsets(this->Impl->GetRoot(), currentBlock))
+        {
+          return false;
+        }
       }
 
-      datasetGroup = this->Impl->CreateHdfGroup(group, currentName.c_str());
       this->PreviousStepMeshMTime = this->CompositeMeshMTime[datasetId];
       ret &= this->DispatchDataObject(datasetGroup, currentBlock);
       if (auto ds = vtkDataSet::SafeDownCast(currentBlock->GetPartition(0)))
@@ -2428,13 +2456,15 @@ bool vtkHDFWriter::AppendIterDataObject(
   vtkDataObjectTreeIterator* treeIter, const int& leafIndex, const std::string& uniqueSubTreeName)
 {
   this->PreviousStepMeshMTime = this->CompositeMeshMTime[leafIndex];
+  auto group = this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str());
   if (!this->UseExternalDistributed && !this->Impl->GetSubFilesReady())
   {
-    this->Impl->CollectPartitionOffsets(treeIter->GetCurrentDataObject());
+    if (!this->Impl->CollectOffsets(group, treeIter->GetCurrentDataObject()))
+    {
+      return false;
+    }
   }
-  if (!this->DispatchDataObject(
-        this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()),
-        treeIter->GetCurrentDataObject()))
+  if (!this->DispatchDataObject(group, treeIter->GetCurrentDataObject()))
   {
     return false;
   }

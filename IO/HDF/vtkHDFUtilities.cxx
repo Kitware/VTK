@@ -780,6 +780,7 @@ std::vector<hsize_t> vtkHDFUtilities::GetDimensions(hid_t dataset)
   if (H5Sget_simple_extent_dims(space, dimensions.data(), nullptr) < 0)
   {
     vtkErrorWithObjectMacro(nullptr, << "Cannot find dimension of dataset");
+    return {};
   }
   return dimensions;
 }

@@ -77,9 +77,10 @@ public:
 
   //--------------- Distributed ---------------
   /**
-   * Collect offsets from all distributed partitions in the object using collective operartions.
+   * Collect temporal file extents, then add the current partition offsets.
+   * Return false on failure.
    */
-  bool CollectPartitionOffsets(vtkDataObject* input);
+  bool CollectOffsets(hid_t group, vtkDataObject* input);
 
   /**
    * Create an empty dataobject on all ranks with an empty input,
@@ -255,7 +256,7 @@ public:
 
 private:
   /**
-   * Store write offsets for a partition in the current time step.
+   * Store absolute file offsets for a partition in the current time step.
    * This is used to allocate HDF5 dataset sizes and collective writes.
    */
   struct UnstructuredGridOffset
@@ -275,13 +276,20 @@ private:
   };
   struct PartitionedOffsets
   {
-    std::vector<vtkIdType> PartOffsets;            // size = nRanks + 1
-    std::vector<UnstructuredGridOffset> UgOffsets; // size = nParts + 1
+    std::vector<vtkIdType> PartOffsets;            // offset per rank,       size = nRanks + 1
+    std::vector<UnstructuredGridOffset> UgOffsets; // absolute file offsets, size = nParts + 1
   };
+
+  /**
+   * Collect temporal offsets from the file currently open.
+   * Return false on failure.
+   */
+  bool CollectTemporalOffsets(hid_t group, UnstructuredGridOffset& offsets);
+
   /**
    * Collect partitioned information for the current time step, append to existing temporal data
    */
-  bool CollectPartitionOffsets(vtkDataObject* input, const UnstructuredGridOffset& temporalOffsets);
+  void CollectPartitionOffsets(vtkDataObject* input, const UnstructuredGridOffset& temporalOffsets);
 
   /**
    * Print offsets as debug info.
@@ -334,6 +342,12 @@ private:
    */
   vtkHDF::ScopedH5SHandle CreateDataspaceFromArray(
     vtkAbstractArray* dataArray, const std::vector<hsize_t>& dims = {});
+
+  /**
+   * Append a single value in a Steps dataset using values from all ranks.
+   */
+  bool AddStepsRow(hid_t group, unsigned int partId, const char* name,
+    const std::vector<vtkIdType>& values, bool offset, bool trim);
 
   /**
    * Set a single row of the dataset
@@ -392,11 +406,12 @@ private:
   bool CreateVirtualDataset(hid_t group, const char* name, hid_t type, int numComp);
   /**
    * Set `totalSize` as the the sum of the subfiles dataset's size given a path to the dataset.
+   * If provided, use fallbackPath's row count for missing datasets.
    * Return false on failure (dataset does not exist on every subfile). `totalSize` value should not
    * be used in this case.
    */
-  bool GetSubFilesDatasetSize(
-    const std::string& datasetPath, const std::string& groupName, hsize_t& totalSize);
+  bool GetSubFilesDatasetSize(const std::string& datasetPath, const std::string& groupName,
+    hsize_t& totalSize, const std::string& fallbackPath = "");
 
   /**
    * Copy the datatype from dataset in subfile
@@ -438,7 +453,7 @@ private:
    * Return true if the current partition in the current rank is a placeholder used only for
    * collective writing.
    * This happens when a rank has more non-null partitions than others, but all write must be
-   * collective Ranks with a "missing partition" participate in collective operations but don't
+   * collective. Ranks with a "missing partition" participate in collective operations but don't
    * write anything.
    */
   bool IsMissingPartition(unsigned int partId) const;
