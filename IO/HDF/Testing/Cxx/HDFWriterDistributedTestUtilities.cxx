@@ -288,6 +288,11 @@ std::size_t RunAllConfigs(vtkMPIController* controller, const std::string& tmpDi
     {
       continue;
     }
+    if (controller->GetLocalProcessId() == 0)
+    {
+      vtkLog(INFO, << i + 1 << "/" << configs.size() << " " << configs[i].Name << ": running");
+    }
+
     const int localResult = RunTestConfig(configs[i], i, controller, tmpDir) ? 1 : 0;
     int result = 0;
     controller->AllReduce(&localResult, &result, 1, vtkCommunicator::MIN_OP);

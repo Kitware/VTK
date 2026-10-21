@@ -15,6 +15,7 @@ if (TARGET VTK::ParallelMPI)
     TestHDFConfigurationSource.cxx,NO_VALID,NO_OUTPUT
     TestHDFWriterDistributed.cxx,TESTING_DATA,NO_VALID
     TestHDFWriterDistributedUGConfigs.cxx,TESTING_DATA,NO_VALID
+    TestHDFWriterDistributedCompositeConfigs.cxx,TESTING_DATA,NO_VALID
     TestHDFWriterHTGDistributed.cxx,TESTING_DATA,NO_VALID
     TestHDFReaderDistributed.cxx,TESTING_DATA,NO_VALID
   )

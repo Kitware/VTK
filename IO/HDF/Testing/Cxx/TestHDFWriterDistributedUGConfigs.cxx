@@ -9,9 +9,16 @@ using namespace HDFWriterDistributedTestUtilities;
 
 int TestHDFWriterDistributedUGConfigs(int argc, char* argv[])
 {
-  std::vector<Configuration> configs(2);
-  configs[0].Name = "ug";
-  configs[1].Name = "ug";
-  configs[1].External = ExternalType::Distributed;
-  return RunDistributedConfigurations(argc, argv, std::move(configs)) ? EXIT_SUCCESS : EXIT_FAILURE;
+  std::vector<Configuration> allConfigs;
+  // Test all configs with and without a polyhedron part
+  for (auto config : GenerateConfigurations(MakeBaseConfigurations(DataType::UnstructuredGrid)))
+  {
+    allConfigs.push_back(config);
+    config.Polyhedrons = PolyhedronsType::Polyhedrons;
+    config.Name += "_polyhedrons";
+    allConfigs.push_back(std::move(config));
+  }
+
+  return RunDistributedConfigurations(argc, argv, std::move(allConfigs)) ? EXIT_SUCCESS
+                                                                         : EXIT_FAILURE;
 }

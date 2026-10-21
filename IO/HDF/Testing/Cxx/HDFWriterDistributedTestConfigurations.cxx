@@ -22,7 +22,7 @@ std::vector<Configuration> MakeBaseConfigurations(DataType type)
   partitioned.PartitionCounts = { 0, 5, 1 };
   configs.emplace_back(std::move(partitioned));
 
-  // Make one rank without any point and cells, the first of the last
+  // Make one rank without any point and cells, the first or the last
   for (int emptyRank : { 0, 2 })
   {
     auto empty = base;

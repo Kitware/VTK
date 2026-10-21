@@ -76,6 +76,7 @@ protected:
     if (static_cast<int>(rank) == this->Config.EmptyRank)
     {
       ug->SetPoints(points);
+      this->AddAttributes(ug, rank, part, step);
       return ug;
     }
     const uint32_t geometryStep = this->Config.StaticMesh == StaticMeshType::Static ? 0 : step;
