@@ -13,6 +13,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkType.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -145,20 +146,21 @@ struct vtkThreshold::EvaluateCellsFunctor
     auto cellIds = this->TLCellIds.Local();
     vtkIdType numCellPts;
     const vtkIdType* cellPts;
-    vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
-
+    constexpr vtkIdType minCheckAbortInterval = 1'000'000;
+    vtkIdType checkAbortInterval = std::min(this->NumberOfCells / 10 + 1, minCheckAbortInterval);
     for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
-      if (cellId % checkAbortInterval == 0)
+      if (isFirst && cellId % checkAbortInterval == 0)
       {
-        if (isFirst)
-        {
-          this->Self->CheckAbort();
-        }
-        if (this->Self->GetAbortOutput())
+        this->Self->UpdateProgress(cellId * 1.0 / this->NumberOfCells);
+        if (this->Self->CheckAbortAndInvoke())
         {
           break;
         }
+      }
+      else if (this->Self->GetAbortOutput())
+      {
+        break;
       }
 
       if (this->GhostArray && this->GhostArray->GetValue(cellId) & vtkDataSetAttributes::HIDDENCELL)
@@ -208,10 +210,6 @@ struct vtkThreshold::EvaluateCellsFunctor
       // Invert the keep flag if the Invert option is enabled.
       keepCell = this->Self->GetInvert() ? (1 - keepCell) : keepCell;
       insideness[cellId] = numCellPts > 0 && keepCell ? 1 : 0;
-    }
-    if (isFirst)
-    {
-      this->Self->UpdateProgress(end * 1.0 / this->NumberOfCells);
     }
   }
 
@@ -277,8 +275,9 @@ int vtkThreshold::RequestData(
   {
     worker(inScalars, this, input, ghostsArray, usePointScalars, keptCellsList);
   }
-  if (this->CheckAbort())
+  if (this->CheckAbortAndInvoke())
   {
+    this->InvokeCleanupAbortCheck();
     return 1;
   }
   // call vtkExtractCells
@@ -301,7 +300,9 @@ int vtkThreshold::RequestData(
   extractCells->SetProgressShiftScale(0.5, 0.5);
   this->SetProgressShiftScale(0.5, 0.5);
 
-  return extractCells->ProcessRequest(request, inputVector, outputVector);
+  auto result = extractCells->ProcessRequest(request, inputVector, outputVector);
+  this->InvokeCleanupAbortCheck();
+  return result;
 }
 
 //------------------------------------------------------------------------------
