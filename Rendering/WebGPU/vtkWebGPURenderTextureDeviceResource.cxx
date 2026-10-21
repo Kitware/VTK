@@ -368,11 +368,31 @@ const char* vtkWebGPURenderTextureDeviceResource::GetTextureSampleTypeString(Tex
     case vtkWebGPUTextureDeviceResource::DEPTH:
       return "depth";
     case vtkWebGPUTextureDeviceResource::SIGNED_INT:
-      return "sint";
+      return "i32";
     case vtkWebGPUTextureDeviceResource::UNSIGNED_INT:
-      return "uint";
+      return "u32";
   }
   return "f32";
+}
+
+//------------------------------------------------------------------------------
+const char* vtkWebGPURenderTextureDeviceResource::GetWGSLTexture2DTypeString(TextureSampleType type)
+{
+  switch (type)
+  {
+    case vtkWebGPUTextureDeviceResource::FLOAT:
+    case vtkWebGPUTextureDeviceResource::UNFILTERABLE_FLOAT:
+      // WGSL has no unfilterable-float sampled type; filterability is carried by the bind group
+      // layout and the sampler instead.
+      return "texture_2d<f32>";
+    case vtkWebGPUTextureDeviceResource::DEPTH:
+      return "texture_depth_2d";
+    case vtkWebGPUTextureDeviceResource::SIGNED_INT:
+      return "texture_2d<i32>";
+    case vtkWebGPUTextureDeviceResource::UNSIGNED_INT:
+      return "texture_2d<u32>";
+  }
+  return "texture_2d<f32>";
 }
 
 //------------------------------------------------------------------------------

@@ -346,16 +346,16 @@ void vtkWebGPUPolyDataMapper2DInternals::ReplaceShaderMapperBindings(
         const int textureUnit = propertyKeys->Get(vtkProp::GENERAL_TEXTURE_UNIT());
         if (auto devRc = wgpuRenderWindow->GetWGPUTextureCache()->GetRenderTexture(textureUnit))
         {
-          const auto textureSampleTypeStr =
-            vtkWebGPURenderTextureDeviceResource::GetTextureSampleTypeString(
+          const auto textureTypeStr =
+            vtkWebGPURenderTextureDeviceResource::GetWGSLTexture2DTypeString(
               devRc->GetSampleType());
           std::ostringstream codeStream;
           // It is okay to not place the other bindings 0, 1, and 2 here again, as they are not used
           // in the fragment shader. However, we need to declare bindings 3 and 4 for the texture
           // sampler and texture data.
           codeStream << R"(@group(0) @binding(3) var texture_sampler: sampler;
-@group(0) @binding(4) var texture_data: texture_2d<)"
-                     << textureSampleTypeStr << ">;";
+@group(0) @binding(4) var texture_data: )"
+                     << textureTypeStr << ";";
           vtkWebGPURenderPipelineCache::Substitute(
             fss, "//VTK::Mapper::Bindings", codeStream.str(), true);
         }

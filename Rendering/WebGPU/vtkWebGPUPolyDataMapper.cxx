@@ -2767,12 +2767,12 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderActorBindings(
   {
     if (auto devRc = wgpuTexture->GetDeviceResource())
     {
-      const char* textureSampleTypeStr =
-        vtkWebGPURenderTextureDeviceResource::GetTextureSampleTypeString(devRc->GetSampleType());
+      const char* textureTypeStr =
+        vtkWebGPURenderTextureDeviceResource::GetWGSLTexture2DTypeString(devRc->GetSampleType());
       codeStream << "\n@group(" << GROUP_ACTOR << ") @binding(" << bindingId++
                  << ") var actor_texture_sampler: sampler;\n";
       codeStream << "@group(" << GROUP_ACTOR << ") @binding(" << bindingId++
-                 << ") var actor_texture: texture_2d<" << textureSampleTypeStr << ">;\n";
+                 << ") var actor_texture: " << textureTypeStr << ";\n";
     }
   }
   static constexpr const char* pbrTextureNames[] = { "albedo", "material", "emissive", "normal",
@@ -2784,13 +2784,12 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderActorBindings(
     {
       // The bind group layout takes its sample type from the device resource, so the shader
       // has to agree with it or the bind group fails validation.
-      const char* textureSampleTypeStr =
-        vtkWebGPURenderTextureDeviceResource::GetTextureSampleTypeString(
-          pbrTextures[i]->GetDeviceResource()->GetSampleType());
+      const char* textureTypeStr = vtkWebGPURenderTextureDeviceResource::GetWGSLTexture2DTypeString(
+        pbrTextures[i]->GetDeviceResource()->GetSampleType());
       codeStream << "@group(" << GROUP_ACTOR << ") @binding(" << bindingId++ << ") var pbr_"
                  << pbrTextureNames[i] << "_sampler: sampler;\n";
       codeStream << "@group(" << GROUP_ACTOR << ") @binding(" << bindingId++ << ") var pbr_"
-                 << pbrTextureNames[i] << "_texture: texture_2d<" << textureSampleTypeStr << ">;\n";
+                 << pbrTextureNames[i] << "_texture: " << textureTypeStr << ";\n";
     }
   }
 
@@ -2846,11 +2845,10 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderMeshAttributeBindings(
     {
       codeStream << "@group(" << GROUP_MESH << ") @binding(" << bindingId++
                  << ") var point_color_sampler: sampler;\n ";
-      const char* textureSampleTypeStr =
-        vtkWebGPURenderTextureDeviceResource::GetTextureSampleTypeString(
-          deviceResource->GetSampleType());
+      const char* textureTypeStr = vtkWebGPURenderTextureDeviceResource::GetWGSLTexture2DTypeString(
+        deviceResource->GetSampleType());
       codeStream << "@group(" << GROUP_MESH << ") @binding(" << bindingId++
-                 << ") var point_color_texture: texture_2d<" << textureSampleTypeStr << ">;\n";
+                 << ") var point_color_texture: " << textureTypeStr << ";\n";
     }
   }
   const char* cellAttributeLabels[CELL_NB_ATTRIBUTES] = { "cell_colors", "cell_normals" };
