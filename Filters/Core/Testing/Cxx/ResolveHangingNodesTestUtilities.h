@@ -553,6 +553,41 @@ protected:
   }
 };
 
+// Mock subclass recording the partitionedDataSetIds of the blocks of a vtkNonOverlappingAMR, their
+// levels, and checking that a block only receives the points of the blocks of the other levels,
+// whose point data "Levels" holds their level.
+class vtkLevelsTestFilter : public vtkResolveHangingNodes
+{
+public:
+  static vtkLevelsTestFilter* New() { VTK_STANDARD_NEW_BODY(vtkLevelsTestFilter); }
+  vtkTypeMacro(vtkLevelsTestFilter, vtkResolveHangingNodes);
+
+  std::vector<int> PartitionedDataSetIds;
+  bool ReceivedOnlyOtherLevels = true;
+
+protected:
+  std::vector<vtkSmartPointer<vtkPolyData>> GetRemotePoints(
+    const std::vector<vtkPolyData*>& boundaries,
+    const std::vector<int>& partitionedDataSetIds) override
+  {
+    this->PartitionedDataSetIds = partitionedDataSetIds;
+    std::vector<vtkSmartPointer<vtkPolyData>> remotePoints =
+      this->Superclass::GetRemotePoints(boundaries, partitionedDataSetIds);
+    for (std::size_t p = 0; p < remotePoints.size(); ++p)
+    {
+      vtkDataArray* levels =
+        remotePoints[p] ? remotePoints[p]->GetPointData()->GetArray("Levels") : nullptr;
+      for (vtkIdType i = 0; levels && i < levels->GetNumberOfTuples(); ++i)
+      {
+        if (levels->GetTuple1(i) == partitionedDataSetIds[p])
+        {
+          this->ReceivedOnlyOtherLevels = false;
+        }
+      }
+    }
+    return remotePoints;
+  }
+};
 } // namespace
 
 #endif
