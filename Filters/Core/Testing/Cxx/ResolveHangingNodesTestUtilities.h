@@ -36,6 +36,7 @@
 #include <cmath>
 #include <iostream>
 #include <map>
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -179,10 +180,11 @@ inline double BoundaryMeasure(vtkDataSet* ds)
   return measure;
 }
 
-// The cells [begin, end) of `mesh`, with the points they use and the point and cell data, global
-// ids included, in a dataset of the type of `mesh`, whose cells are polygons if it is a
-// vtkPolyData.
-inline vtkSmartPointer<vtkPointSet> ExtractCells(vtkPointSet* mesh, vtkIdType begin, vtkIdType end)
+// The cells `cellIds` of `mesh`, in this order, with the points they use and the point and cell
+// data, global ids included, in a dataset of the type of `mesh`, whose cells are polygons if it is
+// a vtkPolyData.
+inline vtkSmartPointer<vtkPointSet> ExtractCells(
+  vtkPointSet* mesh, const std::vector<vtkIdType>& cellIds)
 {
   vtkNew<vtkPoints> points;
   points->SetDataType(mesh->GetPoints()->GetDataType());
@@ -196,8 +198,9 @@ inline vtkSmartPointer<vtkPointSet> ExtractCells(vtkPointSet* mesh, vtkIdType be
   std::vector<int> types;
   std::map<vtkIdType, vtkIdType> pointIds;
   vtkNew<vtkIdList> ids;
-  for (vtkIdType c = begin; c < end; ++c)
+  for (vtkIdType i = 0; i < static_cast<vtkIdType>(cellIds.size()); ++i)
   {
+    const vtkIdType c = cellIds[i];
     mesh->GetCellPoints(c, ids);
     for (vtkIdType j = 0; j < ids->GetNumberOfIds(); ++j)
     {
@@ -211,7 +214,7 @@ inline vtkSmartPointer<vtkPointSet> ExtractCells(vtkPointSet* mesh, vtkIdType be
     }
     cells->InsertNextCell(ids);
     types.push_back(mesh->GetCellType(c));
-    cellData->CopyData(mesh->GetCellData(), c, c - begin);
+    cellData->CopyData(mesh->GetCellData(), c, i);
   }
   part->SetPoints(points);
   if (auto polyData = vtkPolyData::SafeDownCast(part))
@@ -223,6 +226,14 @@ inline vtkSmartPointer<vtkPointSet> ExtractCells(vtkPointSet* mesh, vtkIdType be
     vtkUnstructuredGrid::SafeDownCast(part)->SetCells(types.data(), cells);
   }
   return part;
+}
+
+// The cells [begin, end) of `mesh`, see above.
+inline vtkSmartPointer<vtkPointSet> ExtractCells(vtkPointSet* mesh, vtkIdType begin, vtkIdType end)
+{
+  std::vector<vtkIdType> cellIds(end - begin);
+  std::iota(cellIds.begin(), cellIds.end(), begin);
+  return ExtractCells(mesh, cellIds);
 }
 
 // `mesh` in 2 partitions, its first `numCellsOfFirst` cells and the others, of the single
