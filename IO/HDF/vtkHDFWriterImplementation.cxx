@@ -250,9 +250,7 @@ bool vtkHDFWriter::Implementation::CollectPartitionOffsets(
     auto* faces = grid->GetOrientedPolyhedronFaces();
     auto* polyhedra = grid->GetOrientedPolyhedronFaceLocations();
     localSizes[partition].FaceOffset = faces ? faces->GetNumberOfCells() : 0;
-    localSizes[partition].FacePartOffset = 1;
     localSizes[partition].FaceConnectivityOffset = faces ? faces->GetNumberOfConnectivityIds() : 0;
-    localSizes[partition].PolyhedronOffset = localSizes[partition].CellOffset;
     localSizes[partition].PolyhedronToFaceOffset =
       polyhedra ? polyhedra->GetNumberOfConnectivityIds() : 0;
   }
@@ -283,9 +281,7 @@ bool vtkHDFWriter::Implementation::CollectPartitionOffsets(
     current.CellDataOffset += sizes.CellDataOffset;
     current.ConnectivityOffset += sizes.ConnectivityOffset;
     current.FaceOffset += sizes.FaceOffset;
-    current.FacePartOffset += sizes.FacePartOffset;
     current.FaceConnectivityOffset += sizes.FaceConnectivityOffset;
-    current.PolyhedronOffset += sizes.PolyhedronOffset;
     current.PolyhedronToFaceOffset += sizes.PolyhedronToFaceOffset;
   }
   result.UgOffsets.back() = current;
@@ -313,11 +309,9 @@ void vtkHDFWriter::Implementation::PrintOffsetInformation(PartitionedOffsets& of
     vtkDebugWithObjectMacro(this->Writer,
       "UnstructuredGridOffset[" << i << "]"
                                 << " Part=" << o.PartOffset << " Point=" << o.PointOffset
-                                << " Cell=" << o.CellOffset
-                                << " Connectivity=" << o.ConnectivityOffset
-                                << " Face=" << o.FaceOffset << " FacePart=" << o.FacePartOffset
+                                << " Cell=" << o.CellOffset << " Connectivity="
+                                << o.ConnectivityOffset << " Face=" << o.FaceOffset
                                 << " FaceConnectivity=" << o.FaceConnectivityOffset
-                                << " Polyhedron=" << o.PolyhedronOffset
                                 << " PolyhedronToFace=" << o.PolyhedronToFaceOffset);
   }
 }
@@ -1067,7 +1061,9 @@ bool vtkHDFWriter::Implementation::UsesDistributedOffsets(const std::string& pat
   }
   const auto mode = this->GetDatasetIndexationMode(path);
   return mode == IndexingMode::Points || mode == IndexingMode::Cells ||
-    mode == IndexingMode::Connectivity || mode == IndexingMode::MetaData;
+    mode == IndexingMode::Connectivity || mode == IndexingMode::MetaData ||
+    mode == IndexingMode::FaceConnectivity || mode == IndexingMode::FaceOffsets ||
+    mode == IndexingMode::PolyhedronToFaces || mode == IndexingMode::PolyhedronOffsets;
 }
 
 //------------------------------------------------------------------------------
@@ -1689,6 +1685,43 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
             mappingSize[0] = nbConnectivityIdPart;
             break;
           }
+          case IndexingMode::FaceConnectivity:
+            if (isStaticMesh)
+            {
+              continue;
+            }
+            mappingSize[0] = this->GetSubfileNumberOf(
+              groupPath, "NumberOfFaceConnectivityIds", file, part + partOffset);
+            break;
+          case IndexingMode::FaceOffsets:
+            if (isStaticMesh)
+            {
+              continue;
+            }
+            mappingSize[0] =
+              this->GetSubfileNumberOf(groupPath, "NumberOfFaces", file, part + partOffset);
+            ++mappingSize[0];
+            break;
+          case IndexingMode::PolyhedronToFaces:
+            if (isStaticMesh)
+            {
+              continue;
+            }
+            mappingSize[0] = this->GetSubfileNumberOf(
+              groupPath, "NumberOfPolyhedronToFaceIds", file, part + partOffset);
+            break;
+          case IndexingMode::PolyhedronOffsets:
+            if (isStaticMesh)
+            {
+              continue;
+            }
+            mappingSize[0] = this->GetNumberOfCellsSubfile(
+              basePath, file, part + partOffset, false, this->GetGroupName(group));
+            if (mappingSize[0] > 0)
+            {
+              ++mappingSize[0];
+            }
+            break;
           case IndexingMode::Trees:
           {
             vtkDebugWithObjectMacro(this->Writer, << "Is Indexed on trees");
@@ -2174,6 +2207,20 @@ hsize_t vtkHDFWriter::Implementation::GetDatasetValueOffset(
     case IndexingMode::Connectivity:
       offset = this->UgOffsets.UgOffsets[partition].ConnectivityOffset;
       break;
+    case IndexingMode::FaceConnectivity:
+      offset = this->UgOffsets.UgOffsets[partition].FaceConnectivityOffset;
+      break;
+    case IndexingMode::FaceOffsets:
+      offset = this->UgOffsets.UgOffsets[partition].FaceOffset +
+        this->UgOffsets.UgOffsets[partition].PartOffset;
+      break;
+    case IndexingMode::PolyhedronToFaces:
+      offset = this->UgOffsets.UgOffsets[partition].PolyhedronToFaceOffset;
+      break;
+    case IndexingMode::PolyhedronOffsets:
+      offset = this->UgOffsets.UgOffsets[partition].CellOffset +
+        this->UgOffsets.UgOffsets[partition].PartOffset;
+      break;
     case IndexingMode::MetaData:
       offset = partition;
       break;
@@ -2205,6 +2252,27 @@ hsize_t vtkHDFWriter::Implementation::GetDistributedDatasetSize(const std::strin
 vtkHDFWriter::Implementation::IndexingMode vtkHDFWriter::Implementation::GetDatasetIndexationMode(
   const std::string& path)
 {
+  if (PATH::ContainsAny(
+        path, { "NumberOfFaces", "NumberOfFaceConnectivityIds", "NumberOfPolyhedronToFaceIds" }))
+  {
+    return IndexingMode::MetaData;
+  }
+  if (PATH::ContainsAny(path, { "FaceConnectivity" }))
+  {
+    return IndexingMode::FaceConnectivity;
+  }
+  if (PATH::ContainsAny(path, { "FaceOffsets" }))
+  {
+    return IndexingMode::FaceOffsets;
+  }
+  if (PATH::ContainsAny(path, { "PolyhedronToFaces" }))
+  {
+    return IndexingMode::PolyhedronToFaces;
+  }
+  if (PATH::ContainsAny(path, { "PolyhedronOffsets" }))
+  {
+    return IndexingMode::PolyhedronOffsets;
+  }
   if (PATH::ContainsAny(path, { PATH::NUMBER_OF_CELLS_PER_TREE_DEPTH }))
   {
     return IndexingMode::TreeDepths;

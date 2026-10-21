@@ -270,9 +270,7 @@ private:
 
     // Polyhedron support (to be completed)
     vtkIdType FaceOffset;
-    vtkIdType FacePartOffset;
     vtkIdType FaceConnectivityOffset;
-    vtkIdType PolyhedronOffset;
     vtkIdType PolyhedronToFaceOffset;
   };
   struct PartitionedOffsets
@@ -412,6 +410,10 @@ private:
     Points,
     Cells,
     Connectivity,
+    FaceConnectivity,
+    FaceOffsets,
+    PolyhedronToFaces,
+    PolyhedronOffsets,
     TreeDepths,
     Trees,
     Descriptor,

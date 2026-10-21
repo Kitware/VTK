@@ -22,6 +22,7 @@
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -40,6 +41,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTable.h"
 #include "vtkType.h"
+#include "vtkTypeInt64Array.h"
 #include "vtkTypeUInt32Array.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -92,12 +94,61 @@ std::string GetExternalBlockFileName(const std::string&& filename, const std::st
 }
 
 /**
- * Check if the given unstructured grid has polyhedra cells.
+ * Check if the given unstructured grid has polyhedron topology, including
+ * empty topology added to keep partition datasets aligned.
  */
 bool HasPolyhedra(vtkUnstructuredGrid* input)
 {
   return input && input->GetOrientedPolyhedronFaces() != nullptr &&
     input->GetOrientedPolyhedronFaces()->GetNumberOfCells() > 0;
+}
+
+/**
+ * Return true if any of the input data objects are UG and have polyhedrons.
+ */
+bool AnyPartHasPolyhedra(
+  const std::vector<vtkSmartPointer<vtkDataObject>> parts, vtkMultiProcessController* controller)
+{
+  int hasPolyhedra = 0;
+  for (const auto& part : parts)
+  {
+    hasPolyhedra |= HasPolyhedra(vtkUnstructuredGrid::SafeDownCast(part)) ? 1 : 0;
+  }
+  if (controller)
+  {
+    int globalHasPolyhedra = 0;
+    controller->AllReduce(&hasPolyhedra, &globalHasPolyhedra, 1, vtkCommunicator::MAX_OP);
+    hasPolyhedra = globalHasPolyhedra;
+  }
+  return hasPolyhedra != 0;
+}
+
+/**
+ * Add empty polyhedron topology when needed without modifying the input grids.
+ * This is used as a normalization step to make sure all parts are coherent polyhedron-wise
+ */
+void AddEmptyPolyhedrons(std::vector<vtkSmartPointer<vtkDataObject>>& grids)
+{
+  for (size_t i = 0; i < grids.size(); i++)
+  {
+    auto* grid = vtkUnstructuredGrid::SafeDownCast(grids[i]);
+    if (grid && !::HasPolyhedra(grid))
+    {
+      vtkNew<vtkUnstructuredGrid> normalized;
+      normalized->ShallowCopy(grid);
+      vtkNew<vtkCellArray> faces;
+      vtkNew<vtkCellArray> locations;
+
+      // Input does not actually has faces, so just allocate an empty offset array
+      vtkNew<vtkIdTypeArray> offsets;
+      offsets->SetNumberOfValues(grid->GetNumberOfCells() + 1);
+      offsets->FillValue(0);
+      vtkNew<vtkIdTypeArray> connectivity;
+      locations->SetData(offsets, connectivity);
+      normalized->SetPolyhedralCells(grid->GetCellTypes(), grid->GetCells(), locations, faces);
+      grids[i] = normalized;
+    }
+  }
 }
 
 /**
@@ -734,6 +785,9 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPolyData* input, unsigned 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, unsigned int partId)
 {
+  const bool hasPolyhedra = ::AnyPartHasPolyhedra(
+    { input }, this->Impl->GetUseDistributedWriting() ? this->Controller : nullptr);
+
   if (this->CurrentTimeIndex == 0 && partId == 0)
   {
     if (!this->InitializeTemporalUnstructuredGrid(group))
@@ -742,7 +796,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, u
       return false;
     }
 
-    if (::HasPolyhedra(input) && !this->InitializeTemporalPolyhedra(group))
+    if (hasPolyhedra && !this->InitializeTemporalPolyhedra(group))
     {
       vtkErrorMacro(<< "Temporal initialization failed for polyhedra in Unstructured grid "
                     << this->FileName);
@@ -763,7 +817,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, u
     writeSuccess &= this->AppendCellTypes(group, partId, input);
     writeSuccess &= this->AppendConnectivity(group, partId, cells);
 
-    if (::HasPolyhedra(input))
+    if (hasPolyhedra)
     {
       writeSuccess &=
         this->AppendNumberOfFaceConnectivityIds(group, partId, input->GetOrientedPolyhedronFaces());
@@ -941,7 +995,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
   // For distributed writing all MPI ranks need to write synchronously,
   // So they need to write an equal number of partitions.
   // Find the maximum number of partitions a rank holds to loop
-  std::vector<vtkDataObject*> nonNullParts;
+  std::vector<vtkSmartPointer<vtkDataObject>> nonNullParts;
   for (unsigned int i = 0; i < input->GetNumberOfPartitions(); i++)
   {
     if (auto obj = vtkDataObject::SafeDownCast(input->GetPartition(i)))
@@ -950,6 +1004,14 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
     }
   }
   vtkIdType numNonNullParts = static_cast<vtkIdType>(nonNullParts.size());
+  const bool hasPolyhedra = ::AnyPartHasPolyhedra(nonNullParts,
+    this->NbPieces > 1 && !this->Impl->GetSubFilesReady() ? this->Controller : nullptr);
+  if (hasPolyhedra)
+  {
+    // In case at least 1 part in any rank has polyhedron, all parts must also have polyhedrons.
+    ::AddEmptyPolyhedrons(nonNullParts);
+  }
+
   if (numNonNullParts == 0 && this->Impl->GetSubFilesReady())
   {
     // No local non-null partitions but we need to write the meta-file,
