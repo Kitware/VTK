@@ -35,6 +35,7 @@ if (TARGET VTK::mpi)
     TestPResolveHangingNodes2DPDC.cxx,NO_VALID
     TestPResolveHangingNodes2DUG.cxx,NO_VALID
     TestPResolveHangingNodes3DGlobalIds.cxx,NO_VALID
+    TestPResolveHangingNodes3DNOAMR.cxx,NO_VALID
     TestPResolveHangingNodes3DPDC.cxx,NO_VALID
     TestPResolveHangingNodes3DUG.cxx,NO_VALID
     TestReducePartitions.cxx
