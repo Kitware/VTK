@@ -12,10 +12,19 @@ wanting to implement distributed abort can rely on these event to
 implement multi process communication in these cases.
 
 The following filters have been moved to the new API:
+ - vtkArrayCalculator
+ - vtkCellDataToPointData
+ - vtkClipDataSet
+ - vtkContourGrid
+ - vtkExtractBlockUsingDataAssembly
+ - vtkExtractGeometry
+ - vtkGroupDataSetsFilter
  - vtkRTAnalyticSource
  - vtkShrinkFilter
- - vtkContourGrid
- - vtkClipDataSet
+ - vtkStreamTracer
+ - vtkThreshold
+ - vtkWarpScalar
+ - vtkWarpVector
 
 The `CheckAbort` API is not planned for deprecation for now but ultimely should be once
 the new API usage appears more and more.
