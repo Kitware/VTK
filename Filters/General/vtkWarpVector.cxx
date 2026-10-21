@@ -89,6 +89,9 @@ struct WarpWorker
     auto opts = vtk::DataArrayTupleRange<3>(outPts);
     const auto vecs = vtk::DataArrayTupleRange<3>(vectors);
 
+    constexpr vtkIdType minCheckAbortInterval = 1'000'000;
+    vtkIdType checkAbortInterval = std::min(numPts / 10 + 1, minCheckAbortInterval);
+
     // We use THRESHOLD to test if the data size is small enough
     // to execute the functor serially.
     vtkSMPTools::For(0, numPts, vtkSMPTools::THRESHOLD,
@@ -97,9 +100,10 @@ struct WarpWorker
         bool isFirst = vtkSMPTools::GetSingleThread();
         for (; ptId < endPtId; ++ptId)
         {
-          if (isFirst)
+          if (isFirst && ptId % checkAbortInterval == 0)
           {
-            self->CheckAbort();
+            self->UpdateProgress(static_cast<double>(ptId) / numPts);
+            self->CheckAbortAndInvoke();
           }
           if (self->GetAbortOutput())
           {
@@ -217,6 +221,8 @@ int vtkWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
   output->GetPointData()->CopyNormalsOff(); // distorted geometry
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
+
+  this->InvokeCleanupAbortCheck();
 
   return 1;
 }
