@@ -28,15 +28,11 @@
 #include <cmath>
 #include <iostream>
 #include <map>
-#include <numeric>
 #include <string>
 #include <vector>
 
 namespace
 {
-// The domain of the 2-level mesh: [0,4] x [0,4] x [0,2].
-constexpr Domain TWO_LEVEL_DOMAIN = { 32.0, 64.0, 11 };
-
 // The domain of the L-shaped mesh: [0,4] x [0,2] x [0,2] and [0,2] x [2,4] x [0,2].
 constexpr Domain L_SHAPED_DOMAIN = { 24.0, 56.0, 17 };
 
@@ -45,109 +41,6 @@ constexpr Domain STACKED_L_SHAPED_DOMAIN = { 48.0, 88.0, 34 };
 
 // The domain of the stacked T-shaped mesh: [0,6] x [0,2] x [0,4] and [2,4] x [2,4] x [0,4].
 constexpr Domain STACKED_T_SHAPED_DOMAIN = { 64.0, 112.0, 50 };
-
-// The 2-level mesh is split in 2 partitions (see Split): the coarse cells A, B and C, and the fine
-// cells D, so that all the hanging points are in the other partition.
-constexpr vtkIdType TWO_LEVEL_SPLIT = 3;
-
-// Builds an unstructured grid of axis-aligned hexahedra given by their min corner and size. Cell
-// data "CellIds" holds the cell id, and point data "Values" holds x + 10 y + 100 z, after the point
-// global ids "GlobalIds" if they are requested.
-class HexMeshBuilder
-{
-public:
-  HexMeshBuilder()
-  {
-    this->Points->SetDataType(VTK_DOUBLE);
-    this->Values->SetName("Values");
-  }
-
-  void AddHex(int x, int y, int z, int size)
-  {
-    const vtkIdType ids[8] = {
-      this->Point(x, y, z),
-      this->Point(x + size, y, z),
-      this->Point(x + size, y + size, z),
-      this->Point(x, y + size, z),
-      this->Point(x, y, z + size),
-      this->Point(x + size, y, z + size),
-      this->Point(x + size, y + size, z + size),
-      this->Point(x, y + size, z + size),
-    };
-    this->Hexes.emplace_back(ids, ids + 8);
-  }
-
-  vtkIdType Point(int x, int y, int z)
-  {
-    auto it = this->PointIds.find({ x, y, z });
-    if (it != this->PointIds.end())
-    {
-      return it->second;
-    }
-    this->Values->InsertNextValue(x + 10.0 * y + 100.0 * z);
-    const vtkIdType id = this->Points->InsertNextPoint(x, y, z);
-    this->PointIds[{ x, y, z }] = id;
-    return id;
-  }
-
-  vtkSmartPointer<vtkUnstructuredGrid> Build(bool withGlobalIds = false)
-  {
-    auto ug = vtkSmartPointer<vtkUnstructuredGrid>::New();
-    ug->AllocateExact(static_cast<vtkIdType>(this->Hexes.size()), 8);
-    vtkNew<vtkIdTypeArray> cellIds;
-    cellIds->SetName("CellIds");
-    for (const auto& hex : this->Hexes)
-    {
-      cellIds->InsertNextValue(ug->InsertNextCell(VTK_HEXAHEDRON, 8, hex.data()));
-    }
-    ug->SetPoints(this->Points);
-    if (withGlobalIds)
-    {
-      vtkNew<vtkIdTypeArray> globalIds;
-      globalIds->SetName("GlobalIds");
-      globalIds->SetNumberOfValues(this->Points->GetNumberOfPoints());
-      std::iota(globalIds->GetPointer(0), globalIds->GetPointer(0) + globalIds->GetNumberOfValues(),
-        static_cast<vtkIdType>(0));
-      ug->GetPointData()->SetGlobalIds(globalIds);
-    }
-    ug->GetPointData()->AddArray(this->Values);
-    ug->GetCellData()->AddArray(cellIds);
-    return ug;
-  }
-
-private:
-  vtkNew<vtkPoints> Points;
-  vtkNew<vtkDoubleArray> Values;
-  std::map<std::array<int, 3>, vtkIdType> PointIds;
-  std::vector<std::vector<vtkIdType>> Hexes;
-};
-
-// 2-level mesh over the domain [0,4] x [0,4] x [0,2]:
-// - Cell 0 (A), level 0: [0,2] x [0,2] x [0,2]. Its face x = 2 borders the fine block D.
-// - Cell 1 (B), level 0: [0,2] x [2,4] x [0,2]. It touches D only along the edge x = 2, y = 2:
-//   its faces are all shared with A and C or on the boundary of the domain, so the hanging point
-//   (2,2,1) on that edge is only found through A and C.
-// - Cell 2 (C), level 0: [2,4] x [2,4] x [0,2]. Its face y = 2 borders D.
-// - Cells 3-10 (D), level 1: [2,4] x [0,2] x [0,2] subdivided 2 x 2 x 2, cell 3 + i + 2 j + 4 k
-//   being [2+i,3+i] x [j,j+1] x [k,k+1].
-vtkSmartPointer<vtkUnstructuredGrid> CreateTwoLevelMesh()
-{
-  HexMeshBuilder builder;
-  builder.AddHex(0, 0, 0, 2);
-  builder.AddHex(0, 2, 0, 2);
-  builder.AddHex(2, 2, 0, 2);
-  for (int k = 0; k < 2; ++k)
-  {
-    for (int j = 0; j < 2; ++j)
-    {
-      for (int i = 0; i < 2; ++i)
-      {
-        builder.AddHex(2 + i, j, k, 1);
-      }
-    }
-  }
-  return builder.Build();
-}
 
 // L-shaped mesh, whose coarse cell borders finer cells across 2 faces, so that its decomposition
 // needs a point at its center (Category B):
