@@ -7,7 +7,6 @@
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
@@ -15,8 +14,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkUniformGridAMR.h"
 
-#include <algorithm>
 #include <cassert>
+#include <cstddef>
 #include <iterator>
 #include <set>
 #include <vector>
@@ -63,11 +62,20 @@ bool vtkExtractBlockUsingDataAssembly::vtkInternals::Execute(vtkPartitionedDataS
   const std::vector<std::string> selectors(this->Selectors.begin(), this->Selectors.end());
   const auto selected_nodes = assembly->SelectNodes(selectors);
 
+  const unsigned int numberOfSteps = 3;
+  double progressIncrement = 1.0 / numberOfSteps;
+  double currentProgress = 0.0;
+
   // build the set of dataset (or partitioned dataset indices) to pass
   std::set<unsigned int> datasets_to_copy;
+  self->SetProgressShiftScale(currentProgress, progressIncrement);
+  currentProgress += progressIncrement;
+  std::size_t currentIdx = 0;
   for (auto nodeid : selected_nodes)
   {
-    if (self->CheckAbort())
+    self->UpdateProgress(static_cast<double>(currentIdx) / selected_nodes.size());
+    currentIdx += 1;
+    if (self->CheckAbortAndInvoke())
     {
       break;
     }
@@ -78,9 +86,14 @@ bool vtkExtractBlockUsingDataAssembly::vtkInternals::Execute(vtkPartitionedDataS
 
   // pass the chosen datasets and build mapping from old index to new.
   std::map<unsigned int, unsigned int> output_indices;
+  self->SetProgressShiftScale(currentProgress, progressIncrement);
+  currentProgress += progressIncrement;
+  currentIdx = 0;
   for (const auto& in_idx : datasets_to_copy)
   {
-    if (self->CheckAbort())
+    self->UpdateProgress(static_cast<double>(currentIdx) / datasets_to_copy.size());
+    currentIdx += 1;
+    if (self->CheckAbortAndInvoke())
     {
       break;
     }
@@ -106,9 +119,14 @@ bool vtkExtractBlockUsingDataAssembly::vtkInternals::Execute(vtkPartitionedDataS
   output->SetDataAssembly(outAssembly);
 
   // now map each of the other input assemblies.
+  self->SetProgressShiftScale(currentProgress, progressIncrement);
+  currentProgress += progressIncrement;
+  currentIdx = 0;
   for (auto& iAssembly : assemblies_to_map)
   {
-    if (self->CheckAbort())
+    self->UpdateProgress(static_cast<double>(currentIdx) / assemblies_to_map.size());
+    currentIdx += 1;
+    if (self->CheckAbortAndInvoke())
     {
       break;
     }
@@ -117,6 +135,9 @@ bool vtkExtractBlockUsingDataAssembly::vtkInternals::Execute(vtkPartitionedDataS
     oAssembly->RemapDataSetIndices(output_indices, /*remove_unmapped=*/true);
     mapped_assemblies.emplace_back(oAssembly);
   }
+
+  self->InvokeCleanupAbortCheck();
+
   return true;
 }
 
