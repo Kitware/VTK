@@ -349,7 +349,7 @@ const char* vtkWebGPURenderTextureDeviceResource::GetTextureSampleTypeString(Tex
     case vtkWebGPUTextureDeviceResource::FLOAT:
       return "f32";
     case vtkWebGPUTextureDeviceResource::UNFILTERABLE_FLOAT:
-      return "unfilterable-float";
+      return "f32";
     case vtkWebGPUTextureDeviceResource::DEPTH:
       return "depth";
     case vtkWebGPUTextureDeviceResource::SIGNED_INT:
