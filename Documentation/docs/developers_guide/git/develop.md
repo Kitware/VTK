@@ -267,7 +267,6 @@ reasonable timeframe.
  * DICOM: @sankhesh
  * Distributed Algorithms: @mwestphal, @charles.gueunet
  * Documentation: @cory.quammen
- * Emscripten: @jaswant.panchumarti
  * Filters: @charles.gueunet, @cory.quammen, @mwestphal, @spiros.tsalikis, @kmorel, @will.schroeder
  * HyperTreeGrid: @louis.gombert
  * Java: @sebastien.jourdain, @vbolea
@@ -286,8 +285,7 @@ reasonable timeframe.
  * Third-Parties: @ben.boeckel, @cory.quammen
  * Viskores: @kmorel
  * VTKHDF: @louis.gombert
- * Wasm: @jaswant.panchumarti
- * WebAssembly: @sebastien.jourdain
+ * Wasm: @jaswant.panchumarti, @sebastien.jourdain
  * Web: @sebastien.jourdain
  * Widgets: @mwestphal, @sankhesh, @will.schroeder
  * Windows: @alexy.pellegrini, @jaswant.panchumarti
