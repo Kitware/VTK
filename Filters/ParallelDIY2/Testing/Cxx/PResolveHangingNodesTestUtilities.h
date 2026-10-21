@@ -1,15 +1,18 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// Helpers of the tests of vtkPResolveHangingNodes: the check of the output gathered from all the
-// processes.
+// Helpers of the tests of vtkPResolveHangingNodes: the partitions of the 2D and 3D meshes, and the
+// check of the output gathered from all the processes.
 #ifndef PResolveHangingNodesTestUtilities_h
 #define PResolveHangingNodesTestUtilities_h
 
 #include "vtkAppendFilter.h"
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellType.h"
 #include "vtkCellValidator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
 #include "vtkFeatureEdges.h"
 #include "vtkGeometryFilter.h"
 #include "vtkIdList.h"
@@ -17,6 +20,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkSmartPointer.h"
@@ -25,6 +29,7 @@
 #include <array>
 #include <cmath>
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -32,6 +37,126 @@
 namespace
 {
 constexpr double EPSILON = 1e-6;
+
+// 2D 3-level mesh over the domain [0,8] x [0,4], with a quad in each of the 8 partitions, the
+// partitions 2 rank and 2 rank + 1 being on the process rank:
+// - Partition 0: level 0 quad [0,4] x [0,4] (area 16). Its edge x = 4 has the hanging point (4,2)
+//   of the partitions 1, on the same process, and 3.
+// - Partitions 1, 2 and 3: level 1 quads [4,6] x [0,2], [6,8] x [0,2] and [4,6] x [2,4] (area 4).
+//   The edge y = 2 of partition 2 has the hanging point (7,2) of the partitions 4 and 5, and the
+//   edge x = 6 of partition 3 has the hanging point (6,3) of the partitions 4 and 6.
+// - Partitions 4 to 7: level 2 quads [6,8] x [2,4] subdivided 2 x 2 (area 1), by rows.
+// Each quad [x0,x1] x [y0,y1] is { x0, y0, x1, y1 }.
+const std::array<std::array<double, 4>, 8> QUADS = { {
+  { 0, 0, 4, 4 },
+  { 4, 0, 6, 2 },
+  { 6, 0, 8, 2 },
+  { 4, 2, 6, 4 },
+  { 6, 2, 7, 3 },
+  { 7, 2, 8, 3 },
+  { 6, 3, 7, 4 },
+  { 7, 3, 8, 4 },
+} };
+
+// The quad of a partition. Point data "Values" holds x + 10 y + 100 partition, to check where a
+// point comes from: of the copies of a point received from several partitions, the one of the
+// first partition is used.
+inline vtkSmartPointer<vtkPolyData> CreateQuadPartition(int partition)
+{
+  vtkNew<vtkPoints> points;
+  points->SetDataType(VTK_DOUBLE);
+  vtkNew<vtkDoubleArray> values;
+  values->SetName("Values");
+  auto add = [&](double x, double y)
+  {
+    values->InsertNextValue(x + 10.0 * y + 100.0 * partition);
+    return points->InsertNextPoint(x, y, 0.0);
+  };
+  const auto& [x0, y0, x1, y1] = QUADS[partition];
+  vtkNew<vtkCellArray> polys;
+  const vtkIdType quad[4] = { add(x0, y0), add(x1, y0), add(x1, y1), add(x0, y1) };
+  polys->InsertNextCell(4, quad);
+
+  auto pd = vtkSmartPointer<vtkPolyData>::New();
+  pd->SetPoints(points);
+  pd->SetPolys(polys);
+  pd->GetPointData()->AddArray(values);
+  return pd;
+}
+
+// 3D 2-level mesh over the domain [0,4] x [0,4] x [0,2], in 8 partitions, the partitions 2 rank and
+// 2 rank + 1 being on the process rank:
+// - Partition 0 (A): level 0 hexahedron [0,2] x [0,2] x [0,2]. Its face x = 2 borders D.
+// - Partition 2 (B): level 0 hexahedron [0,2] x [2,4] x [0,2]. It touches D only along the edge
+//   x = 2, y = 2, so it only gets the hanging point (2,2,1) from the partitions 4 and 6.
+// - Partition 3 (C): level 0 hexahedron [2,4] x [2,4] x [0,2], on the process of B. Its face
+//   y = 2 borders D.
+// - The other partitions (D): level 1 hexahedra [2,4] x [0,2] x [0,2] subdivided 2 x 2 x 2. The
+//   partitions 1, 4 and 5 have the rows of 2 hexahedra [2,4] x [j,j+1] x [k,k+1] for (j, k) =
+//   (0, 0), (1, 0) and (0, 1), and the partitions 6 and 7 the hexahedra [2,3] x [1,2] x [1,2] and
+//   [3,4] x [1,2] x [1,2].
+// Point data "Values" holds x + 10 y + 100 z + 1000 partition, to check where a point comes from:
+// of the copies of a point received from several partitions, the one of the first partition is
+// used.
+inline vtkSmartPointer<vtkUnstructuredGrid> CreateHexPartition(int partition)
+{
+  vtkNew<vtkPoints> points;
+  points->SetDataType(VTK_DOUBLE);
+  vtkNew<vtkDoubleArray> values;
+  values->SetName("Values");
+  std::map<std::array<int, 3>, vtkIdType> pointIds;
+  auto point = [&](int x, int y, int z)
+  {
+    auto it = pointIds.find({ x, y, z });
+    if (it != pointIds.end())
+    {
+      return it->second;
+    }
+    values->InsertNextValue(x + 10.0 * y + 100.0 * z + 1000.0 * partition);
+    const vtkIdType id = points->InsertNextPoint(x, y, z);
+    pointIds[{ x, y, z }] = id;
+    return id;
+  };
+
+  auto ug = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  ug->AllocateExact(8, 64);
+  auto hex = [&](int x, int y, int z, int size)
+  {
+    const vtkIdType ids[8] = { point(x, y, z), point(x + size, y, z), point(x + size, y + size, z),
+      point(x, y + size, z), point(x, y, z + size), point(x + size, y, z + size),
+      point(x + size, y + size, z + size), point(x, y + size, z + size) };
+    ug->InsertNextCell(VTK_HEXAHEDRON, 8, ids);
+  };
+
+  if (partition == 0)
+  {
+    hex(0, 0, 0, 2);
+  }
+  else if (partition == 2)
+  {
+    hex(0, 2, 0, 2);
+  }
+  else if (partition == 3)
+  {
+    hex(2, 2, 0, 2);
+  }
+  else if (partition >= 6)
+  {
+    hex(partition - 4, 1, 1, 1);
+  }
+  else
+  {
+    const int j = partition == 4 ? 1 : 0;
+    const int k = partition == 5 ? 1 : 0;
+    for (int i = 0; i < 2; ++i)
+    {
+      hex(2 + i, j, k, 1);
+    }
+  }
+  ug->SetPoints(points);
+  ug->GetPointData()->AddArray(values);
+  return ug;
+}
 
 inline vtkIdType FindPoint(vtkDataSet* ds, const std::array<double, 3>& p)
 {

@@ -14,11 +14,9 @@
 
 #include "PResolveHangingNodesTestUtilities.h"
 
-#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkDataSet.h"
-#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
 #include "vtkMultiProcessController.h"
@@ -26,7 +24,6 @@
 #include "vtkPResolveHangingNodes.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
-#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringFormatter.h"
@@ -44,52 +41,6 @@ namespace
 constexpr double DOMAIN_AREA = 32.0;
 constexpr double DOMAIN_PERIMETER = 24.0;
 
-// 3-level mesh over the domain [0,8] x [0,4], with a quad in each of the 8 partitions, the
-// partitions 2 rank and 2 rank + 1 being on the process rank:
-// - Partition 0: level 0 quad [0,4] x [0,4] (area 16). Its edge x = 4 has the hanging point (4,2)
-//   of the partitions 1, on the same process, and 3.
-// - Partitions 1, 2 and 3: level 1 quads [4,6] x [0,2], [6,8] x [0,2] and [4,6] x [2,4] (area 4).
-//   The edge y = 2 of partition 2 has the hanging point (7,2) of the partitions 4 and 5, and the
-//   edge x = 6 of partition 3 has the hanging point (6,3) of the partitions 4 and 6.
-// - Partitions 4 to 7: level 2 quads [6,8] x [2,4] subdivided 2 x 2 (area 1), by rows.
-// Each quad [x0,x1] x [y0,y1] is { x0, y0, x1, y1 }.
-const std::array<std::array<double, 4>, 8> QUADS = { {
-  { 0, 0, 4, 4 },
-  { 4, 0, 6, 2 },
-  { 6, 0, 8, 2 },
-  { 4, 2, 6, 4 },
-  { 6, 2, 7, 3 },
-  { 7, 2, 8, 3 },
-  { 6, 3, 7, 4 },
-  { 7, 3, 8, 4 },
-} };
-
-// The quad of a partition. Point data "Values" holds x + 10 y + 100 partition, to check where a
-// point comes from: of the copies of a point received from several partitions, the one of the
-// first partition is used.
-vtkSmartPointer<vtkPolyData> CreatePartition(int partition)
-{
-  vtkNew<vtkPoints> points;
-  points->SetDataType(VTK_DOUBLE);
-  vtkNew<vtkDoubleArray> values;
-  values->SetName("Values");
-  auto add = [&](double x, double y)
-  {
-    values->InsertNextValue(x + 10.0 * y + 100.0 * partition);
-    return points->InsertNextPoint(x, y, 0.0);
-  };
-  const auto& [x0, y0, x1, y1] = QUADS[partition];
-  vtkNew<vtkCellArray> polys;
-  const vtkIdType quad[4] = { add(x0, y0), add(x1, y0), add(x1, y1), add(x0, y1) };
-  polys->InsertNextCell(4, quad);
-
-  auto pd = vtkSmartPointer<vtkPolyData>::New();
-  pd->SetPoints(points);
-  pd->SetPolys(polys);
-  pd->GetPointData()->AddArray(values);
-  return pd;
-}
-
 // The partitions of the process `rank`, in the single vtkPartitionedDataSet of a
 // vtkPartitionedDataSetCollection.
 vtkSmartPointer<vtkPartitionedDataSetCollection> CreatePartitions(int rank)
@@ -97,7 +48,7 @@ vtkSmartPointer<vtkPartitionedDataSetCollection> CreatePartitions(int rank)
   auto partitions = vtkSmartPointer<vtkPartitionedDataSetCollection>::New();
   for (unsigned int i = 0; i < 2; ++i)
   {
-    partitions->SetPartition(0, i, CreatePartition(2 * rank + static_cast<int>(i)));
+    partitions->SetPartition(0, i, CreateQuadPartition(2 * rank + static_cast<int>(i)));
   }
   return partitions;
 }

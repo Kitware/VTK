@@ -17,13 +17,11 @@
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkDataSet.h"
-#include "vtkDoubleArray.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkPResolveHangingNodes.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
-#include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringFormatter.h"
 #include "vtkUnstructuredGrid.h"
@@ -31,7 +29,6 @@
 #include <array>
 #include <cmath>
 #include <iostream>
-#include <map>
 #include <string>
 #include <vector>
 
@@ -41,80 +38,6 @@ namespace
 constexpr double DOMAIN_VOLUME = 32.0;
 constexpr double DOMAIN_SURFACE = 64.0;
 
-// 2-level mesh over the domain [0,4] x [0,4] x [0,2], in 8 partitions, the partitions 2 rank and
-// 2 rank + 1 being on the process rank:
-// - Partition 0 (A): level 0 hexahedron [0,2] x [0,2] x [0,2]. Its face x = 2 borders D.
-// - Partition 2 (B): level 0 hexahedron [0,2] x [2,4] x [0,2]. It touches D only along the edge
-//   x = 2, y = 2, so it only gets the hanging point (2,2,1) from the partitions 4 and 6.
-// - Partition 3 (C): level 0 hexahedron [2,4] x [2,4] x [0,2], on the process of B. Its face
-//   y = 2 borders D.
-// - The other partitions (D): level 1 hexahedra [2,4] x [0,2] x [0,2] subdivided 2 x 2 x 2. The
-//   partitions 1, 4 and 5 have the rows of 2 hexahedra [2,4] x [j,j+1] x [k,k+1] for (j, k) =
-//   (0, 0), (1, 0) and (0, 1), and the partitions 6 and 7 the hexahedra [2,3] x [1,2] x [1,2] and
-//   [3,4] x [1,2] x [1,2].
-// Point data "Values" holds x + 10 y + 100 z + 1000 partition, to check where a point comes from:
-// of the copies of a point received from several partitions, the one of the first partition is
-// used.
-vtkSmartPointer<vtkUnstructuredGrid> CreatePartition(int partition)
-{
-  vtkNew<vtkPoints> points;
-  points->SetDataType(VTK_DOUBLE);
-  vtkNew<vtkDoubleArray> values;
-  values->SetName("Values");
-  std::map<std::array<int, 3>, vtkIdType> pointIds;
-  auto point = [&](int x, int y, int z)
-  {
-    auto it = pointIds.find({ x, y, z });
-    if (it != pointIds.end())
-    {
-      return it->second;
-    }
-    values->InsertNextValue(x + 10.0 * y + 100.0 * z + 1000.0 * partition);
-    const vtkIdType id = points->InsertNextPoint(x, y, z);
-    pointIds[{ x, y, z }] = id;
-    return id;
-  };
-
-  auto ug = vtkSmartPointer<vtkUnstructuredGrid>::New();
-  ug->AllocateExact(8, 64);
-  auto hex = [&](int x, int y, int z, int size)
-  {
-    const vtkIdType ids[8] = { point(x, y, z), point(x + size, y, z), point(x + size, y + size, z),
-      point(x, y + size, z), point(x, y, z + size), point(x + size, y, z + size),
-      point(x + size, y + size, z + size), point(x, y + size, z + size) };
-    ug->InsertNextCell(VTK_HEXAHEDRON, 8, ids);
-  };
-
-  if (partition == 0)
-  {
-    hex(0, 0, 0, 2);
-  }
-  else if (partition == 2)
-  {
-    hex(0, 2, 0, 2);
-  }
-  else if (partition == 3)
-  {
-    hex(2, 2, 0, 2);
-  }
-  else if (partition >= 6)
-  {
-    hex(partition - 4, 1, 1, 1);
-  }
-  else
-  {
-    const int j = partition == 4 ? 1 : 0;
-    const int k = partition == 5 ? 1 : 0;
-    for (int i = 0; i < 2; ++i)
-    {
-      hex(2 + i, j, k, 1);
-    }
-  }
-  ug->SetPoints(points);
-  ug->GetPointData()->AddArray(values);
-  return ug;
-}
-
 // The partitions of the process `rank`, in the single vtkPartitionedDataSet of a
 // vtkPartitionedDataSetCollection.
 vtkSmartPointer<vtkPartitionedDataSetCollection> CreatePartitions(int rank)
@@ -122,7 +45,7 @@ vtkSmartPointer<vtkPartitionedDataSetCollection> CreatePartitions(int rank)
   auto partitions = vtkSmartPointer<vtkPartitionedDataSetCollection>::New();
   for (unsigned int i = 0; i < 2; ++i)
   {
-    partitions->SetPartition(0, i, CreatePartition(2 * rank + static_cast<int>(i)));
+    partitions->SetPartition(0, i, CreateHexPartition(2 * rank + static_cast<int>(i)));
   }
   return partitions;
 }

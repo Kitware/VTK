@@ -31,6 +31,7 @@ if (TARGET VTK::mpi)
     DIYAggregateDataSet.cxx
     TestAdaptiveResampleToImage.cxx
     TestGenerateGlobalIds.cxx
+    TestPResolveHangingNodes2DPDC.cxx,NO_VALID
     TestPResolveHangingNodes2DUG.cxx,NO_VALID
     TestPResolveHangingNodes3DGlobalIds.cxx,NO_VALID
     TestPResolveHangingNodes3DUG.cxx,NO_VALID
