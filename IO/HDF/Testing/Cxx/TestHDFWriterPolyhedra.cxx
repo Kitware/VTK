@@ -4,7 +4,7 @@
 // This is a regression test that ensures polyhedra cells in vtkUnstructuredGrids
 // survive HDF write/read using vtkHDFWriter and vtkHDFReader.
 //
-// Two types of tests are performed:
+// The following tests are performed:
 //
 // * TestHDFWriterPolyhedraTemporal: tests that all timesteps are written and reread correctly when
 // the
@@ -16,6 +16,9 @@
 //
 // * TestHDFWriterMixedCells: tests that polyhedra are written and reread
 //   correctly when mixed with other cell types.
+//
+// * TestHDFWriterPartitionedPolyhedra: tests writing a single polyhedra part mixed with
+// non-polyhedron parts
 
 #include "vtkCellArray.h"
 #include "vtkCellType.h"
@@ -24,8 +27,10 @@
 #include "vtkIdList.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
+#include "vtkPartitionedDataSet.h"
 #include "vtkPoints.h"
 #include "vtkPolyhedronCellArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkUnsignedCharArray.h"
@@ -459,9 +464,102 @@ bool TestHDFWriterSharedFaces(int argc, char* argv[])
 }
 
 //------------------------------------------------------------------------------
+bool TestHDFWriterPartitionedPolyhedra(int argc, char* argv[])
+{
+  vtkNew<vtkTesting> testing;
+  testing->AddArguments(argc, argv);
+  for (unsigned int polyPart : { 0u, 1u, 2u })
+  {
+    vtkNew<vtkPartitionedDataSet> input;
+    for (unsigned int part = 0; part < 3; ++part)
+    {
+      vtkNew<vtkUnstructuredGrid> grid;
+      vtkNew<vtkPoints> points;
+      points->SetDataTypeToDouble();
+      points->InsertNextPoint(2 * part, 0, 0);
+      points->InsertNextPoint(2 * part + 1, 0, 0);
+      points->InsertNextPoint(2 * part, 1, 0);
+      points->InsertNextPoint(2 * part, 0, 1);
+      grid->SetPoints(points);
+      grid->Allocate(1);
+      const vtkIdType ids[] = { 0, 1, 2, 3 };
+
+      // Depending on the part, use either a built-in tetra or an explicit polyhedron.
+      if (part == polyPart)
+      {
+        const vtkIdType faces[] = { 3, 0, 2, 1, 3, 0, 1, 3, 3, 1, 2, 3, 3, 2, 0, 3 };
+        grid->InsertNextCell(VTK_POLYHEDRON, 4, ids, 4, faces);
+      }
+      else
+      {
+        grid->InsertNextCell(VTK_TETRA, 4, ids);
+      }
+      input->SetPartition(part, grid);
+    }
+    for (bool external : { false, true })
+    {
+      const std::string filename = std::string(testing->GetTempDirectory()) +
+        "/TestHDFWriterPartitionedPolyhedra_" + vtk::to_string(polyPart) +
+        (external ? "_external.vtkhdf" : ".vtkhdf");
+      {
+        vtkNew<vtkHDFWriter> writer;
+        writer->SetFileName(filename.c_str());
+        writer->SetInputData(input);
+        writer->SetUseExternalPartitions(external);
+        if (!writer->Write())
+        {
+          return false;
+        }
+      }
+      vtkNew<vtkHDFReader> reader;
+      reader->SetFileName(filename.c_str());
+      reader->Update();
+      auto* output = vtkPartitionedDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+      if (!output || output->GetNumberOfPartitions() != 3)
+      {
+        vtkLog(ERROR, "Missing mixed polyhedron partitions in " << filename);
+        return false;
+      }
+      for (unsigned int part = 0; part < 3; ++part)
+      {
+        if (!output->GetPartition(part) ||
+          !vtkTestUtilities::CompareDataObjects(
+            input->GetPartition(part), output->GetPartition(part)))
+        {
+          vtkLog(ERROR, "Mixed polyhedron partition " << part << " mismatch in " << filename);
+          return false;
+        }
+      }
+
+      // Explicit face comparison, CompareDataObject only compares cell center positions
+      vtkNew<vtkIdList> expectedFaces;
+      vtkNew<vtkIdList> actualFaces;
+      auto* original = vtkUnstructuredGrid::SafeDownCast(input->GetPartition(polyPart));
+      auto* result = vtkUnstructuredGrid::SafeDownCast(output->GetPartition(polyPart));
+      original->GetFaceStream(0, expectedFaces);
+      result->GetFaceStream(0, actualFaces);
+      if (actualFaces->GetNumberOfIds() != expectedFaces->GetNumberOfIds())
+      {
+        vtkLog(ERROR, "Polyhedron face stream size mismatch in " << filename);
+        return false;
+      }
+      for (vtkIdType id = 0; id < expectedFaces->GetNumberOfIds(); ++id)
+      {
+        if (actualFaces->GetId(id) != expectedFaces->GetId(id))
+        {
+          vtkLog(ERROR, "Polyhedron face stream mismatch in " << filename);
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
 int TestHDFWriterPolyhedra(int argc, char* argv[])
 {
   bool success = true;
+  success &= TestHDFWriterPartitionedPolyhedra(argc, argv);
   success &= TestHDFWriterPolyhedraTemporal(argc, argv);
   success &= TestHDFWriterPolyhedraStaticTemporal(argc, argv);
   success &= TestHDFWriterMixedCells(argc, argv);
