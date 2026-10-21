@@ -57,6 +57,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestResampleHyperTreeGridWithDataSet.cxx,NO_SERDES
   TestImageDataToExplicitStructuredGrid.cxx
   TestImplicitPolyDataDistance.cxx
+  TestImplicitPolyDataDistanceCollapsedTriangles.cxx,NO_VALID
   TestImplicitPolyDataDistanceCube.cxx,NO_VALID
   TestImplicitProjectOnPlaneDistance.cxx
   TestMaskPoints.cxx,NO_VALID
@@ -95,6 +96,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestThreshold.cxx,NO_VALID
   TestThresholdPoints.cxx,NO_VALID
   TestTransposeTable.cxx,NO_VALID
+  TestTriangleFilterPassVertsLines.cxx,NO_VALID
   TestTriangleMeshPointNormals.cxx
   TestTriangulateNonPlanarQuad.cxx,NO_VALID
   TestTubeBender.cxx

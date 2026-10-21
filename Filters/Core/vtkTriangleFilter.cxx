@@ -59,6 +59,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
       }
       else if (inVerts->GetMaxCellSize() == 1)
       {
+        const vtkIdType dstStart = output->GetNumberOfCells();
         output->SetVerts(inVerts);
         if (numInVerts == numInCells)
         {
@@ -66,7 +67,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
         }
         else
         {
-          outCD->CopyData(inCD, output->GetNumberOfCells(), numInVerts, inCellId);
+          outCD->CopyData(inCD, dstStart, numInVerts, inCellId);
         }
         inCellId += numInVerts;
       }
@@ -120,6 +121,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
       }
       else if (inLines->GetMaxCellSize() == 2)
       {
+        const vtkIdType dstStart = output->GetNumberOfCells();
         output->SetLines(inLines);
         if (numInLines == numInCells)
         {
@@ -127,7 +129,7 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
         }
         else
         {
-          outCD->CopyData(inCD, output->GetNumberOfCells(), numInLines, inCellId);
+          outCD->CopyData(inCD, dstStart, numInLines, inCellId);
         }
         inCellId += numInLines;
       }
@@ -198,15 +200,15 @@ int vtkTriangleFilter::RequestData(vtkInformation* vtkNotUsed(request),
       {
         newPolys->DeepCopy(inPolys);
       }
+      const vtkIdType dstStart = output->GetNumberOfCells();
       output->SetPolys(newPolys);
-      output->SetLines(inLines);
       if (numInPolys == numInCells)
       {
         outCD->PassData(inCD);
       }
       else
       {
-        outCD->CopyData(inCD, output->GetNumberOfCells(), numInPolys, inCellId);
+        outCD->CopyData(inCD, dstStart, numInPolys, inCellId);
       }
       inCellId += numInPolys;
     }
