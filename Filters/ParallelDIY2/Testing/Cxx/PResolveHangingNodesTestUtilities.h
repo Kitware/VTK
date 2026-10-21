@@ -1,7 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// Helpers of the tests of vtkPResolveHangingNodes: the partitions of the 2D and 3D meshes, and the
-// check of the output gathered from all the processes.
+// Helpers of the tests of vtkPResolveHangingNodes: the partitions of the 2D and 3D meshes, the
+// blocks of a vtkNonOverlappingAMR, the check of the output gathered from all the processes, and a
+// mock filter.
 #ifndef PResolveHangingNodesTestUtilities_h
 #define PResolveHangingNodesTestUtilities_h
 
@@ -16,9 +17,13 @@
 #include "vtkFeatureEdges.h"
 #include "vtkGeometryFilter.h"
 #include "vtkIdList.h"
+#include "vtkImageData.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPResolveHangingNodes.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -37,6 +42,31 @@
 namespace
 {
 constexpr double EPSILON = 1e-6;
+
+// A block of level `level` of a vtkNonOverlappingAMR: a vtkImageData of `numCells` cells (0 along z
+// in 2D) of size `spacing`, from `origin`. Point data "Values" holds x + 10 y + 100 z, and "Levels"
+// the level.
+inline vtkSmartPointer<vtkImageData> CreateBlock(int level, const std::array<double, 3>& origin,
+  const std::array<int, 3>& numCells, double spacing)
+{
+  auto block = vtkSmartPointer<vtkImageData>::New();
+  block->SetOrigin(origin.data());
+  block->SetSpacing(spacing, spacing, spacing);
+  block->SetDimensions(numCells[0] + 1, numCells[1] + 1, numCells[2] + 1);
+  vtkNew<vtkDoubleArray> values;
+  values->SetName("Values");
+  vtkNew<vtkIntArray> levels;
+  levels->SetName("Levels");
+  for (vtkIdType i = 0; i < block->GetNumberOfPoints(); ++i)
+  {
+    const double* p = block->GetPoint(i);
+    values->InsertNextValue(p[0] + 10.0 * p[1] + 100.0 * p[2]);
+    levels->InsertNextValue(level);
+  }
+  block->GetPointData()->AddArray(values);
+  block->GetPointData()->AddArray(levels);
+  return block;
+}
 
 // 2D 3-level mesh over the domain [0,8] x [0,4], with a quad in each of the 8 partitions, the
 // partitions 2 rank and 2 rank + 1 being on the process rank:
@@ -292,6 +322,41 @@ inline bool CheckGlobalOutput(const std::string& name, vtkMultiProcessController
   return true;
 }
 
+// Mock subclass recording the partitionedDataSetIds of the local blocks of a vtkNonOverlappingAMR,
+// their levels, and checking that a block only receives the points of the blocks of the other
+// levels, here or on other processes, whose point data "Levels" holds their level.
+class vtkPLevelsTestFilter : public vtkPResolveHangingNodes
+{
+public:
+  static vtkPLevelsTestFilter* New() { VTK_STANDARD_NEW_BODY(vtkPLevelsTestFilter); }
+  vtkTypeMacro(vtkPLevelsTestFilter, vtkPResolveHangingNodes);
+
+  std::vector<int> PartitionedDataSetIds;
+  bool ReceivedOnlyOtherLevels = true;
+
+protected:
+  std::vector<vtkSmartPointer<vtkPolyData>> GetRemotePoints(
+    const std::vector<vtkPolyData*>& boundaries,
+    const std::vector<int>& partitionedDataSetIds) override
+  {
+    this->PartitionedDataSetIds = partitionedDataSetIds;
+    std::vector<vtkSmartPointer<vtkPolyData>> remotePoints =
+      this->Superclass::GetRemotePoints(boundaries, partitionedDataSetIds);
+    for (std::size_t p = 0; p < remotePoints.size(); ++p)
+    {
+      vtkDataArray* levels =
+        remotePoints[p] ? remotePoints[p]->GetPointData()->GetArray("Levels") : nullptr;
+      for (vtkIdType i = 0; levels && i < levels->GetNumberOfTuples(); ++i)
+      {
+        if (levels->GetTuple1(i) == partitionedDataSetIds[p])
+        {
+          this->ReceivedOnlyOtherLevels = false;
+        }
+      }
+    }
+    return remotePoints;
+  }
+};
 } // namespace
 
 #endif
