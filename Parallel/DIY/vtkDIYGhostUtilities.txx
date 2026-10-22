@@ -477,7 +477,7 @@ vtkDIYGhostUtilities::LinkMap vtkDIYGhostUtilities::ComputeLinkMapUsingBoundingB
 template <class DataSetT>
 void vtkDIYGhostUtilities::CopyInputsAndAllocateGhosts(diy::Master& master, diy::Assigner& assigner,
   diy::RegularAllReducePartners& partners, std::vector<DataSetT*>& inputs,
-  std::vector<DataSetT*>& outputs, int outputGhostLevels, bool useImplicitArrays)
+  std::vector<DataSetT*>& outputs, int outputGhostLevels, bool useImplicitArrays, double tolerance)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
 
@@ -515,7 +515,7 @@ void vtkDIYGhostUtilities::CopyInputsAndAllocateGhosts(diy::Master& master, diy:
     {
       // If we use implicitArray, we don't want to deep copy the arrays
       vtkDIYGhostUtilities::DeepCopyInputAndAllocateGhosts(
-        block, cleanedInput, output, !useImplicitArrays);
+        block, cleanedInput, output, !useImplicitArrays, tolerance);
     }
   }
 }
@@ -612,7 +612,7 @@ void vtkDIYGhostUtilities::InitializeGhostPointArray(
 template <class DataSetT>
 int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   std::vector<DataSetT*>& outputs, int outputGhostLevels, vtkMultiProcessController* controller,
-  bool useImplicitArrays)
+  bool useImplicitArrays, double tolerance)
 {
   static_assert((std::is_base_of<vtkImageData, DataSetT>::value ||
                   std::is_base_of<vtkRectilinearGrid, DataSetT>::value ||
@@ -697,7 +697,8 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   // The structural information that has been exchanged is used to compute
   // the final link map, mapping blocks that will actually exchange ghosts.
   vtkLogStartScope(TRACE, "Creating link map between connected blocks");
-  LinkMap linkMap = vtkDIYGhostUtilities::ComputeLinkMap(master, inputs, outputGhostLevels);
+  LinkMap linkMap =
+    vtkDIYGhostUtilities::ComputeLinkMap(master, inputs, outputGhostLevels, tolerance);
   vtkLogEndScope("Creating link map between connected blocks");
   // this is empty if there was an error in the usage of given global IDs.
   // The error message will be printed internally
@@ -722,7 +723,7 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
 
   vtkLogStartScope(TRACE, "Allocating ghosts in outputs");
   vtkDIYGhostUtilities::CopyInputsAndAllocateGhosts(
-    master, assigner, partners, inputs, outputs, outputGhostLevels, useImplicitArrays);
+    master, assigner, partners, inputs, outputs, outputGhostLevels, useImplicitArrays, tolerance);
   vtkLogEndScope("Allocating ghosts in outputs");
 
   vtkLogStartScope(TRACE, "Initializing ghost arrays in outputs");

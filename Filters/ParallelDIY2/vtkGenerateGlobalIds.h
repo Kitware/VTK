@@ -57,7 +57,7 @@ private:
   void operator=(const vtkGenerateGlobalIds&) = delete;
 
   vtkMultiProcessController* Controller;
-  double Tolerance;
+  double Tolerance = 0;
 };
 
 VTK_ABI_NAMESPACE_END
