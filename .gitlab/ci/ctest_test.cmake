@@ -58,6 +58,21 @@ ctest_test(APPEND
   ${maybe_include_java_tests}
   OUTPUT_JUNIT "${CTEST_BINARY_DIRECTORY}/junit.xml"
   REPEAT UNTIL_PASS:3)
+
+# Run tests known to be slow on some runners with a longer timeout.
+if (test_slow)
+  set(CTEST_TEST_TIMEOUT "${test_slow_timeout}")
+  ctest_test(APPEND
+    PARALLEL_LEVEL "${nproc}"
+    TEST_LOAD "${nproc}"
+    RETURN_VALUE test_slow_result
+    INCLUDE "${test_slow}"
+    OUTPUT_JUNIT "${CTEST_BINARY_DIRECTORY}/junit-slow.xml"
+    REPEAT UNTIL_PASS:3)
+  if (test_slow_result)
+    set(test_result "${test_slow_result}")
+  endif ()
+endif ()
 ctest_submit(PARTS Test)
 
 include("${CMAKE_CURRENT_LIST_DIR}/ctest_annotation.cmake")

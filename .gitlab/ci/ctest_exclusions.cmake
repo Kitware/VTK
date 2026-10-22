@@ -4,6 +4,9 @@ set(test_exclusions
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
   "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability(SerDes)?$")
 
+set(test_slow_timeout 200)
+set(test_slow)
+
 if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   list(APPEND test_exclusions
     # Flaky; timesout sometimes on macOS and Linux
@@ -278,7 +281,53 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines(SerDes)?$"
 
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19578
-    "^VTK::FiltersGeneralCxx-TestContourTriangulatorHoles(SerDes)?$")
+    "^VTK::FiltersGeneralCxx-TestContourTriangulatorHoles(SerDes)?$"
+
+    # TEMPORARY: the Tart paravirtual GPU intermittently stalls OpenGL
+    # initialization (CGLChoosePixelFormat blocks on CVMServer) for several
+    # minutes, so any render test that starts in that window times out.
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/20151
+    "^VTK::IOImportCxx-3DSImport-Stream$"
+    "^VTK::IOImportCxx-OBJImport-MTLwithoutTextureFile$"
+    "^VTK::IOImportCxx-OBJImport-MixedOrder1$"
+    "^VTK::IOImportCxx-OBJImport-NoMTL$"
+    "^VTK::IOImportCxx-OBJImport-Stream$"
+    "^VTK::IOImportCxx-OBJImport-mtllib-texturepath$"
+    "^VTK::IOImportCxx-TestOBJImporter-DuplicateMaps$"
+    "^VTK::IOImportCxx-TestOBJImporter-GroupFirstLine$"
+    "^VTK::IOImportCxx-TestOBJImporter-ScalarsDuplication$"
+    "^VTK::IOImportCxx-TestOBJImporter-SharedMtl$"
+    "^VTK::IOImportCxx-TestOBJImporter-VtNoIndices$"
+    "^VTK::IOImportCxx-TestVRMLNodesPlayground$"
+    "^VTK::IOImportCxx-TestVRMLNormals$"
+    "^VTK::IOOMFCxx-TestOMFReader$"
+    "^VTK::IOPLYCxx-TestPLYReaderFaceTexturedWithReusedTCoord$"
+    "^VTK::IOPLYCxx-TestPLYReaderTextureUVFaces$"
+    "^VTK::IOPLYCxx-TestPLYReaderTextureUVPointsWithST$"
+    "^VTK::IOPLYPython-TestPLYReadWrite$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastChangedArray$"
+
+    # TEMPORARY: always time out on the Tart paravirtual GPU (never passed).
+    "^VTK::RenderingCellGridPython-TestCellGridQuadGaussBasis$"
+    "^VTK::RenderingCellGridPython-TestCellGridTriGaussBasis$"
+    "^VTK::RenderingCellGridPython-TestCellGridTetGaussBasis$"
+    "^VTK::RenderingCellGridPython-TestCellGridHexGaussBasis$"
+    "^VTK::RenderingCellGridPython-TestCellGridWdgGaussBasis$"
+    "^VTK::RenderingCellGridPython-TestCellGridPyrGaussBasis$"
+    "^VTK::RenderingCellGridPython-TestCellGridHardwarePicker$"
+    "^VTK::RenderingCellGridPython-TestCellGridRenderedAreaPicker$"
+    "^VTK::RenderingCellGridPython-TestCellGridRenderedAreaPickerWithPolyData$"
+    "^VTK::RenderingCellGridPython-TestCellGridRendering$")
+
+  # Slow on the Tart paravirtual GPU: run with a longer timeout instead.
+  list(APPEND test_slow
+    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotation$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeeling$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingBlendModes$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingClip$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingMultiViewport$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastModelTransformMatrix$"
+    "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastSSAO$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
@@ -903,7 +952,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "helide")
     "^VTK::RenderingAnariCoreCxx-TestAnariRenderMesh$")
 endif ()
 
+list(APPEND test_exclusions ${test_slow})
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")
+endif ()
+string(REPLACE ";" "|" test_slow "${test_slow}")
+if (test_slow)
+  set(test_slow "(${test_slow})")
 endif ()
