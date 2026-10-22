@@ -310,6 +310,14 @@ public:
    */
   WGPUTextureFormat GetPreferredSelectorIdsTextureFormat();
 
+  /**
+   * Get the texture format of the offscreen color attachment that renderers draw into.
+   *
+   * Render pipelines that target the offscreen attachment must use this format. Only the
+   * final color-copy pipeline, which targets the surface texture, uses the surface format.
+   */
+  WGPUTextureFormat GetOffscreenColorTextureFormat();
+
   ///@{
   /**
    * Returns a vtkWebGPUComputeRenderTexture ready to be added to a compute pipeline using
@@ -613,6 +621,7 @@ private:
   int SurfaceConfiguredSize[2];
   WGPUTextureFormat PreferredSurfaceTextureFormat = WGPUTextureFormat_BGRA8Unorm;
   WGPUTextureFormat PreferredSelectorIdsTextureFormat = WGPUTextureFormat_RGBA32Uint;
+  WGPUTextureFormat OffscreenColorTextureFormat = WGPUTextureFormat_RGBA8Unorm;
   struct vtkWGPUDepthStencil
   {
     WGPUTexture Texture = nullptr;

@@ -6,7 +6,7 @@
 // The color of a point is encoded as RGBA representation, 8 bits per channel, packed in a single u32.
 // R, G, B and A can then be individually unpacked by getting each 8 bits individually
 @group(0) @binding(2) var<storage, read> pointColorBuffer: array<u32>;
-@group(0) @binding(3) var currentFrameBuffer: texture_storage_2d<bgra8unorm, write>;
+@group(0) @binding(3) var currentFrameBuffer: texture_storage_2d<rgba8unorm, write>;
 @group(0) @binding(4) var<uniform> mvpMatrix: mat4x4f;
 
 /**

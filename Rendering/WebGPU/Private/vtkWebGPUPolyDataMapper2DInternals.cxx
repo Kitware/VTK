@@ -1255,7 +1255,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     descriptor.vertex.entryPoint = WGPUStringView{ "main", WGPU_STRLEN };
     descriptor.cFragment.entryPoint = WGPUStringView{ "main", WGPU_STRLEN };
     descriptor.EnableBlending(0);
-    descriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+    descriptor.cTargets[0].format = wgpuRenderWindow->GetOffscreenColorTextureFormat();
     ///@{ TODO: Only for valid depth stencil formats
     auto depthState = descriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
     // Overlay geometry is painter-ordered: it is drawn in the order the props

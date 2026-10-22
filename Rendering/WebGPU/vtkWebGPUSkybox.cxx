@@ -238,31 +238,54 @@ fn fragmentMain(@builtin(position) frag_position: vec4<f32>, @location(0) tex_co
 }
 
 //------------------------------------------------------------------------------
+bool vtkWebGPUSkybox::GetUnfilterableTexture()
+{
+  if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(this->GetTexture()))
+  {
+    if (auto devRc = wgpuTexture->GetDeviceResource())
+    {
+      return devRc->GetSampleType() ==
+        vtkWebGPURenderTextureDeviceResource::TextureSampleType::UNFILTERABLE_FLOAT;
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
 {
   auto* wgpuPipelineCache = renWin->GetWGPUPipelineCache();
   auto* wgpuConfiguration = renWin->GetWGPUConfiguration();
   const auto& device = wgpuConfiguration->GetDevice();
 
+  // The environment texture is unfilterable when it holds float32 scalars and the device lacks
+  // the `float32-filterable` feature. The layout then has to declare it as unfilterable-float and
+  // pair it with a non-filtering sampler, otherwise the bind group fails validation.
+  auto textureSampleType = WGPUTextureSampleType_Float;
+  auto samplerBindingType = WGPUSamplerBindingType_Filtering;
+  if (this->GetUnfilterableTexture())
+  {
+    textureSampleType = WGPUTextureSampleType_UnfilterableFloat;
+    samplerBindingType = WGPUSamplerBindingType_NonFiltering;
+  }
+
   // Group 0: skybox uniforms + sampler + texture
   std::vector<WGPUBindGroupLayoutEntry> skyboxBGLEntries;
   skyboxBGLEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
     0, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_Uniform });
   skyboxBGLEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
-    1, WGPUShaderStage_Fragment, WGPUSamplerBindingType_Filtering });
+    1, WGPUShaderStage_Fragment, samplerBindingType });
   if (this->Projection == vtkSkybox::Cube)
   {
     skyboxBGLEntries.emplace_back(
-      vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ 2,
-        WGPUShaderStage_Fragment, WGPUTextureSampleType_Float, WGPUTextureViewDimension_Cube,
-        false });
+      vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+        2, WGPUShaderStage_Fragment, textureSampleType, WGPUTextureViewDimension_Cube, false });
   }
   else
   {
     skyboxBGLEntries.emplace_back(
-      vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ 2,
-        WGPUShaderStage_Fragment, WGPUTextureSampleType_Float, WGPUTextureViewDimension_2D,
-        false });
+      vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+        2, WGPUShaderStage_Fragment, textureSampleType, WGPUTextureViewDimension_2D, false });
   }
   vtkWebGPU::ReleaseAndNull(this->BindGroupLayout, wgpuBindGroupLayoutRelease);
   this->BindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
@@ -292,7 +315,7 @@ void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
   pipelineDescriptor.vertex.entryPoint = WGPUStringView{ "vertexMain", WGPU_STRLEN };
   pipelineDescriptor.vertex.bufferCount = 0;
   pipelineDescriptor.cFragment.entryPoint = WGPUStringView{ "fragmentMain", WGPU_STRLEN };
-  pipelineDescriptor.cTargets[0].format = renWin->GetPreferredSurfaceTextureFormat();
+  pipelineDescriptor.cTargets[0].format = renWin->GetOffscreenColorTextureFormat();
   // Prepare selection ids output.
   pipelineDescriptor.cTargets[1].format = renWin->GetPreferredSelectorIdsTextureFormat();
   pipelineDescriptor.cFragment.targetCount++;
@@ -322,6 +345,7 @@ void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
 
   this->LastProjection = this->Projection;
   this->LastGammaCorrect = this->GammaCorrect;
+  this->LastUnfilterableTexture = this->GetUnfilterableTexture();
 }
 
 //------------------------------------------------------------------------------
@@ -482,7 +506,7 @@ void vtkWebGPUSkybox::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(mapper))
 
     // Recreate pipeline if projection/gamma changed
     if (this->LastProjection != this->Projection || this->LastGammaCorrect != this->GammaCorrect ||
-      !this->Pipeline)
+      this->LastUnfilterableTexture != this->GetUnfilterableTexture() || !this->Pipeline)
     {
       this->CreatePipeline(renWin);
       // Force bind group recreation since pipeline layout changed

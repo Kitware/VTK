@@ -23,8 +23,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * RGBA8_UNORM: Uses RGB + alpha. Default.
-   * BGRA8_UNORM: Uses BGR + alpha. Used by the framebuffer of WebGPU render windows
+   * RGBA8_UNORM: Uses RGB + alpha. Default. Used by the framebuffer of WebGPU render windows
+   * BGRA8_UNORM: Uses BGR + alpha. Typically the format of a presentable surface
    * R32_FLOAT: Only a 32 bit float red channel
    * DEPTH_24_PLUS: 24 bit depth format
    * DEPTH_24_PLUS_8_STENCIL: 24 bit depth format + 8 bit stencil

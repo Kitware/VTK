@@ -315,7 +315,7 @@ void vtkWebGPURenderer::Clear()
   bkgPipelineDescriptor.vertex.entryPoint = WGPUStringView{ "vertexMain", WGPU_STRLEN };
   bkgPipelineDescriptor.vertex.bufferCount = 0;
   bkgPipelineDescriptor.cFragment.entryPoint = WGPUStringView{ "fragmentMain", WGPU_STRLEN };
-  bkgPipelineDescriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+  bkgPipelineDescriptor.cTargets[0].format = wgpuRenderWindow->GetOffscreenColorTextureFormat();
 
   auto depthState =
     bkgPipelineDescriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
@@ -472,7 +472,7 @@ void vtkWebGPURenderer::ClearGradientBackground()
   bkgPipelineDescriptor.vertex.entryPoint = WGPUStringView{ "vertexMain", WGPU_STRLEN };
   bkgPipelineDescriptor.vertex.bufferCount = 0;
   bkgPipelineDescriptor.cFragment.entryPoint = WGPUStringView{ "fragmentMain", WGPU_STRLEN };
-  bkgPipelineDescriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+  bkgPipelineDescriptor.cTargets[0].format = wgpuRenderWindow->GetOffscreenColorTextureFormat();
 
   auto depthState =
     bkgPipelineDescriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
@@ -1288,7 +1288,7 @@ void vtkWebGPURenderer::BeginRecording()
     const std::string label = this->GetObjectDescription();
     auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
     const std::vector<WGPUTextureFormat> colorFormats = {
-      wgpuRenderWindow->GetPreferredSurfaceTextureFormat(),
+      wgpuRenderWindow->GetOffscreenColorTextureFormat(),
       wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat()
     };
     WGPURenderBundleEncoderDescriptor bundleEncDesc = WGPU_RENDER_BUNDLE_ENCODER_DESCRIPTOR_INIT;
@@ -1441,7 +1441,7 @@ void vtkWebGPURenderer::ResolveDeepFramebuffer(WGPURenderPassEncoder encoder)
   depthState->depthCompare = WGPUCompareFunction_Always;
 
   pipelineDesc.cFragment.targetCount = 2;
-  pipelineDesc.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+  pipelineDesc.cTargets[0].format = wgpuRenderWindow->GetOffscreenColorTextureFormat();
   pipelineDesc.cTargets[1].format = wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat();
   pipelineDesc.cTargets[1].writeMask = WGPUColorWriteMask_All;
   auto* blend = pipelineDesc.EnableBlending(0);

@@ -58,9 +58,11 @@ public:
 
   /**
    * Stores the required features for querying the device in the RequiredFeatures vector of this
-   * ConfigurationInternals
+   * ConfigurationInternals.
+   *
+   * Optional features are requested only when `adapter` reports support for them.
    */
-  void PopulateRequiredFeatures();
+  void PopulateRequiredFeatures(WGPUAdapter adapter);
 };
 VTK_ABI_NAMESPACE_END
 

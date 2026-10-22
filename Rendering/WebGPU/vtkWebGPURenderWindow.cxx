@@ -540,6 +540,12 @@ WGPUTextureFormat vtkWebGPURenderWindow::GetPreferredSelectorIdsTextureFormat()
 }
 
 //------------------------------------------------------------------------------
+WGPUTextureFormat vtkWebGPURenderWindow::GetOffscreenColorTextureFormat()
+{
+  return this->OffscreenColorTextureFormat;
+}
+
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkWebGPUComputeRenderTexture>
 vtkWebGPURenderWindow::AcquireDepthBufferRenderTexture()
 {
@@ -580,7 +586,7 @@ vtkWebGPURenderWindow::AcquireFramebufferRenderTexture()
   int* dims = this->GetSize();
 
   texture->SetSize(dims[0], dims[1]);
-  texture->SetFormat(vtkWebGPUTextureDeviceResource::TextureFormat::BGRA8_UNORM);
+  texture->SetFormat(vtkWebGPUTextureDeviceResource::TextureFormat::RGBA8_UNORM);
   texture->SetSampleType(vtkWebGPUComputeTexture::TextureSampleType::FLOAT);
   texture->SetLabel("Framebuffer render texture");
   texture->SetType(vtkWebGPUComputeRenderTexture::RenderTextureType::COLOR_BUFFER);
@@ -790,7 +796,7 @@ void vtkWebGPURenderWindow::CreateOffscreenColorAttachment()
   textureDesc.mipLevelCount = 1;
   textureDesc.sampleCount = 1;
   textureDesc.dimension = WGPUTextureDimension_2D;
-  textureDesc.format = this->GetPreferredSurfaceTextureFormat();
+  textureDesc.format = this->GetOffscreenColorTextureFormat();
   textureDesc.usage = WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_TextureBinding |
     WGPUTextureUsage_CopySrc | WGPUTextureUsage_CopyDst | WGPUTextureUsage_StorageBinding;
   textureDesc.viewFormatCount = 0;
