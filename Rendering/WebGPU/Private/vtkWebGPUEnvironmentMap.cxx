@@ -5,6 +5,7 @@
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUShaderModuleInternals.h"
 #include "vtkLogger.h"
+#include "vtkMath.h"
 #include "vtkWebGPUConfiguration.h"
 
 #include "IBLBRDFLookupTable.h"
@@ -377,7 +378,8 @@ void vtkWebGPUEnvironmentMap::ComputeEnvironment(
       DispatchCount(levelSize), 6, "IBLDownsample");
   }
 
-  const float texelSolidAngle = 3.14159265359f / (6.0f * static_cast<float>(size * size));
+  const float texelSolidAngle =
+    static_cast<float>(vtkMath::Pi()) / (6.0f * static_cast<float>(size * size));
   for (std::uint32_t level = 0; level < this->PrefilterLevels; ++level)
   {
     const std::uint32_t levelSize = std::max(1u, size >> level);
