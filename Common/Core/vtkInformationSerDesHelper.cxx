@@ -271,7 +271,7 @@ static bool Deserialize_vtkInformation(
       {
         ptr[i] = keyState["Value"][i];
       }
-      arr->SetArray(ptr, size, 0);
+      arr->SetArray(ptr, size, 0, vtkIntArray::VTK_DATA_ARRAY_DELETE);
 
       // Add observer to delete arr/free ptr when information is deleted
       arr->Register(information);
