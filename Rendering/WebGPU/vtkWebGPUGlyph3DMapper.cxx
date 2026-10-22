@@ -789,7 +789,7 @@ const TRIANGLE_VERTS = array(
       // use vertex color instead of point scalar colors when drawing vertices.
       ambient_color = actor.color_options.vertex_color;
       diffuse_color = actor.color_options.vertex_color;
-      opacity = actor.color_options.opacity;
+      opacity = 1.0;
     })",
           /*all=*/true);
         break;
