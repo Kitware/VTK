@@ -105,6 +105,16 @@ public:
     double pcoords[3], double* weights) override;
 
   /**
+   * Same as above, but if cell is non-nullptr and cellId is valid, a walk through the neighbors
+   * of that cell is tried first, before jumping to the closest point. This is efficient for
+   * follow-up queries that are close to the last one (e.g. streamlines).
+   *
+   * cell must be the cell with id cellId. It may be the representative cell of genCell.
+   */
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* genCell, vtkIdType cellId,
+    double tol2, int& subId, double pcoords[3], double* weights) override;
+
+  /**
    * Return the closest point within a specified radius and the cell which is
    * closest to the point x. The closest point is somewhere on a cell, it
    * need not be one of the vertices of the cell. This method returns 1 if a
@@ -157,6 +167,9 @@ private:
   vtkJumpAndWalkCellLocator(const vtkJumpAndWalkCellLocator&) = delete;
   void operator=(const vtkJumpAndWalkCellLocator&) = delete;
 
+  vtkIdType FindCellWalk(vtkCell* cell, vtkIdType cellId, double x[3], double tol2,
+    vtkGenericCell* genCell, int& subId, double pcoords[3], double* weights,
+    std::unordered_set<vtkIdType>& visitedCellIds, vtkIdList* ptIds, vtkIdList* neighbors);
   vtkIdType FindCellWalk(vtkIdList* cellIds, double x[3], double tol2, vtkGenericCell* genCell,
     int& subId, double pcoords[3], double* weights, std::unordered_set<vtkIdType>& visitedCellIds,
     vtkIdList* ptIds, vtkIdList* neighbors);
