@@ -855,11 +855,11 @@ if (HDF5_ENABLE_PARALLEL)
       message (FATAL_ERROR "HDF5 requires MPI standard 3.0 or greater")
     endif ()
 
-    if (FALSE) # XXX(kitware): VTK doesn't need Fortran support.
     # MPI checks, only do these if MPI_C_FOUND is true, otherwise they always fail
     # and once set, they are cached as false and not regenerated
     set (CMAKE_REQUIRED_LIBRARIES "${MPI_C_LIBRARIES}")
     set (CMAKE_REQUIRED_INCLUDES "${MPI_C_INCLUDE_DIRS}")
+    if (FALSE) # XXX(kitware): VTK doesn't need Fortran support.
     # Used by Fortran + MPI
     CHECK_SYMBOL_EXISTS (MPI_Comm_c2f "mpi.h"  H5_HAVE_MPI_MULTI_LANG_Comm)
     CHECK_SYMBOL_EXISTS (MPI_Info_c2f "mpi.h"  H5_HAVE_MPI_MULTI_LANG_Info)
