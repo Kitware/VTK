@@ -1,6 +1,4 @@
 set(test_exclusions
-  # Flaky failures https://gitlab.kitware.com/vtk/vtk/-/issues/19896
-  "^VTK::RenderingOpenGL2Cxx-TestFluidMapper(SerDes)?$"
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
   "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability(SerDes)?$")
 
@@ -756,7 +754,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussian$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussianSelection$"
     "^VTK::RenderingOpenGL2Cxx-TestFlipRenderFramebuffer$"
-    "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
     "^VTK::RenderingOpenGL2Cxx-TestFramebufferHDR$" # flaky
     "^VTK::RenderingOpenGL2Cxx-TestGaussianBlurPass$"
     "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperEdges$"
