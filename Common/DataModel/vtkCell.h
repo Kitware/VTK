@@ -150,6 +150,11 @@ public:
   }
 
   /**
+   * Get the cell id of this cell from its originating vtkDataSet.
+   */
+  vtkIdType GetCellId() { return this->CellId; }
+
+  /**
    * Return the edge cell from the edgeId of the cell.
    */
   virtual vtkCell* GetEdge(int edgeId) = 0;
@@ -407,6 +412,7 @@ public:
   // left public for quick computational access
   vtkPoints* Points;
   vtkIdList* PointIds;
+  vtkIdType CellId;
 
 protected:
   vtkCell();

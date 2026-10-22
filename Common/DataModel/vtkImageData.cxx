@@ -201,12 +201,15 @@ void vtkImageData::BuildPoints()
 //------------------------------------------------------------------------------
 void vtkImageData::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 {
+  // set cell id
+  cell->CellId = cellId;
   // see whether the cell is blanked
   if (!this->IsCellVisible(cellId))
   {
     cell->SetCellTypeToEmptyCell();
     return;
   }
+
   // set cell type
   cell->SetCellType(this->GetCellTypes()->GetValue(cellId));
 

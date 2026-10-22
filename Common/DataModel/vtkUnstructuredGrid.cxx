@@ -337,9 +337,14 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
 //------------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 {
+  // set cell id
+  cell->CellId = cellId;
+
+  // set cell type
   const int cellType = static_cast<int>(this->Types->GetComponent(cellId, 0));
   cell->SetCellType(cellType);
 
+  // set points ids and their points
   this->Connectivity->GetCellAtId(cellId, cell->PointIds);
   this->Points->GetPoints(cell->PointIds, cell->Points);
 

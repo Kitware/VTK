@@ -115,6 +115,8 @@ vtkCell* vtkExplicitStructuredGrid::GetCell(vtkIdType cellId)
 //------------------------------------------------------------------------------
 void vtkExplicitStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 {
+  // set cell id
+  cell->CellId = cellId;
   if (!this->IsCellVisible(cellId))
   {
     cell->SetCellTypeToEmptyCell();

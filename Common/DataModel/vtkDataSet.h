@@ -130,6 +130,7 @@ public:
 
   /**
    * Get cell with cellId such that: 0 <= cellId < NumberOfCells.
+   * The returned cell also includes the cell id of the queried cell.
    * This is a thread-safe alternative to the previous GetCell()
    * method.
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND

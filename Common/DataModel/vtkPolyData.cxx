@@ -158,6 +158,7 @@ void vtkPolyData::GetCell(vtkIdType cellId, vtkGenericCell* cell)
     this->BuildCells();
   }
 
+  cell->CellId = cellId;
   const TaggedCellId tag = this->Cells->GetTag(cellId);
   switch (tag.GetCellType())
   {

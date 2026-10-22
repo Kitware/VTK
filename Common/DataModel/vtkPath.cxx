@@ -40,8 +40,9 @@ void vtkPath::Allocate(vtkIdType size, int extSize)
 }
 
 //------------------------------------------------------------------------------
-void vtkPath::GetCell(vtkIdType, vtkGenericCell* cell)
+void vtkPath::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 {
+  cell->CellId = cellId;
   cell->SetCellTypeToEmptyCell();
 }
 
