@@ -83,10 +83,9 @@ static void vtkGridSynchronizedTemplates3DInitializeOutput(int* ext, int precisi
   vtkStructuredGrid* input, vtkPolyData* o, vtkFloatArray* scalars, vtkFloatArray* normals,
   vtkFloatArray* gradients, vtkDataArray* inScalars)
 {
-  long estimatedSize = static_cast<int>(
-    pow(static_cast<double>((ext[1] - ext[0] + 1) * (ext[3] - ext[2] + 1) * (ext[5] - ext[4] + 1)),
-      .75));
-  estimatedSize = std::max<long>(estimatedSize, 1024);
+  vtkIdType estimatedSize = static_cast<vtkIdType>(pow(
+    static_cast<double>(ext[1] - ext[0] + 1) * (ext[3] - ext[2] + 1) * (ext[5] - ext[4] + 1), .75));
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
   vtkPoints* newPts = vtkPoints::New();
 
@@ -161,8 +160,8 @@ static void vtkGridSynchronizedTemplates3DInitializeOutput(int* ext, int precisi
 // Given a linear gradient assumption find gradient that minimizes
 // error squared for + and - (*3) neighbors).
 template <class TScalarIter, class TPointIter>
-void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6], int incY,
-  int incZ, TScalarIter& sc, TPointIter& pt, double g[3])
+void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6], vtkIdType incY,
+  vtkIdType incZ, TScalarIter& sc, TPointIter& pt, double g[3])
 {
   int count = 0;
 
@@ -435,17 +434,17 @@ struct ContourGridFunctor
     int ZMax = exExt[5];
     VTK_FUTURE_CONST int* inExt = input->GetExtent();
     // to skip over an x row of the input.
-    int incY = inExt[1] - inExt[0] + 1;
+    vtkIdType incY = inExt[1] - inExt[0] + 1;
     // to skip over an xy slice of the input.
-    int incZ = (inExt[3] - inExt[2] + 1) * incY;
+    vtkIdType incZ = (inExt[3] - inExt[2] + 1) * incY;
 
-    int xdim = exExt[1] - exExt[0] + 1;
-    int ydim = exExt[3] - exExt[2] + 1;
+    vtkIdType xdim = exExt[1] - exExt[0] + 1;
+    vtkIdType ydim = exExt[3] - exExt[2] + 1;
     // Kens increments, probably to do with edge array
-    int zstep = xdim * ydim;
-    int yisectstep = xdim * 3;
+    vtkIdType zstep = xdim * ydim;
+    vtkIdType yisectstep = xdim * 3;
     // compute offsets probably how to get to the edges in the edge array.
-    int offsets[12];
+    vtkIdType offsets[12];
     offsets[0] = -xdim * 3;
     offsets[1] = -xdim * 3 + 1;
     offsets[2] = -xdim * 3 + 2;
@@ -460,7 +459,7 @@ struct ContourGridFunctor
     offsets[11] = zstep * 3;
 
     // allocate storage array
-    std::vector<int> isect1(xdim * ydim * 3 * 2);
+    std::vector<vtkIdType> isect1(xdim * ydim * 3 * 2);
     // set impossible edges to -1
     for (int i = 0; i < ydim; i++)
     {
@@ -500,8 +499,8 @@ struct ContourGridFunctor
       //==================================================================
       for (int k = ZMin; k <= ZMax && !abort; k++)
       {
-        int* isect1Ptr;
-        int* isect2Ptr;
+        vtkIdType* isect1Ptr;
+        vtkIdType* isect2Ptr;
         // swap the buffers
         if (k % 2)
         {
@@ -533,8 +532,9 @@ struct ContourGridFunctor
           // Since the cells are not contoured until the second row of templates,
           // subtract 1 from i,j,and k.  Note: first cube is formed when i=0, j=1, and k=1.
           vtkIdType inCellId = (XMin - inExt[0]) +
-            (inExt[1] - inExt[0]) *
-              ((j - inExt[2] - 1) + (k - inExt[4] - 1) * (inExt[3] - inExt[2]));
+            static_cast<vtkIdType>(inExt[1] - inExt[0]) *
+              ((j - inExt[2] - 1) +
+                static_cast<vtkIdType>(k - inExt[4] - 1) * (inExt[3] - inExt[2]));
 
           auto p1 = inPtPtrY;
           auto s1 = inPtrY;
@@ -846,7 +846,8 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(
   //
   // Check dimensionality of data and get appropriate form
   //
-  long dataSize = (exExt[1] - exExt[0] + 1) * (exExt[3] - exExt[2] + 1) * (exExt[5] - exExt[4] + 1);
+  vtkIdType dataSize = static_cast<vtkIdType>(exExt[1] - exExt[0] + 1) * (exExt[3] - exExt[2] + 1) *
+    (exExt[5] - exExt[4] + 1);
 
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
