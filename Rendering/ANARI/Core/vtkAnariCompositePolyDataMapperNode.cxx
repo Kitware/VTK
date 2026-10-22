@@ -44,12 +44,12 @@ void vtkAnariCompositePolyDataMapperNode::Synchronize(bool prepass)
     return;
   }
 
-  if (!this->ActorWasModified() && !this->MapperWasModified())
+  if (!this->ActorWasModified())
   {
     return;
   }
 
-  this->RenderTime = this->GetVtkActor()->GetMTime();
+  this->RenderTime = this->GetVtkActor()->GetRedrawMTime();
   this->ClearSurfaces();
 
   vtkActor* act = this->GetVtkActor();

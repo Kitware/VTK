@@ -25,6 +25,7 @@ TEST_DEPENDS
   VTK::InteractionStyle
   VTK::IOLegacy
   VTK::IOGeometry
+  VTK::IOIOSS
   VTK::IOPLY
   VTK::IOXML
   VTK::IOImage
