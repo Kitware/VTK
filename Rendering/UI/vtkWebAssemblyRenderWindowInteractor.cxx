@@ -739,6 +739,10 @@ int vtkWebAssemblyRenderWindowInteractor::InternalDestroyTimer(int platformTimer
 {
   auto& internals = (*this->Internals);
   int tid = this->GetVTKTimerId(platformTimerId);
+  if (internals.Timers.find(tid) == internals.Timers.end())
+  {
+    return 0;
+  }
   vtkDestroyTimer(platformTimerId, this->IsOneShotTimer(tid));
   internals.Timers.erase(tid);
   auto i = internals.VTKToPlatformTimerMap.find(tid);
