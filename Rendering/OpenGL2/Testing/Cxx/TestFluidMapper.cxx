@@ -169,14 +169,17 @@ int TestFluidMapper(int argc, char* argv[])
 #else
   renderWindow->SetSize(400, 400);
   constexpr float spacing = 0.1f;
+  // Exercise a volume transform without changing the world-space particle positions.
+  constexpr double fluidPosition[3] = { 1.0, -2.0, 3.0 };
   for (int z = 0; z < 50; ++z)
   {
     for (int y = 0; y < 15; ++y)
     {
       for (int x = 0; x < 50; ++x)
       {
-        g_Points->InsertNextPoint(static_cast<double>(x * spacing),
-          static_cast<double>(y * spacing), static_cast<double>(z * spacing));
+        g_Points->InsertNextPoint(static_cast<double>(x * spacing) - fluidPosition[0],
+          static_cast<double>(y * spacing) - fluidPosition[1],
+          static_cast<double>(z * spacing) - fluidPosition[2]);
       }
     }
   }
@@ -253,6 +256,9 @@ int TestFluidMapper(int argc, char* argv[])
 
   vtkNew<vtkVolume> vol;
   vol->SetMapper(fluidMapper);
+#ifndef INTERACTIVE_DEMO
+  vol->SetPosition(fluidPosition[0], fluidPosition[1], fluidPosition[2]);
+#endif
   renderer->AddVolume(vol);
   //------------------------------------------------------------
   vtkNew<vtkTimerLog> timer;
