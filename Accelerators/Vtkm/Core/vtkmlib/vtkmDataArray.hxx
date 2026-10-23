@@ -7,9 +7,13 @@
 #ifndef vtkmDataArray_hxx
 #define vtkmDataArray_hxx
 
+#include "vtkAOSDataArrayTemplate.h"
+#include "vtkAffineArray.h"
 #include "vtkCollection.h"
+#include "vtkConstantArray.h"
 #include "vtkMemoryDescriptor.h"
 #include "vtkObjectFactory.h"
+#include "vtkSOADataArrayTemplate.h"
 #include "vtkStringFormatter.h"
 #include "vtkmDataArrayUtilities.h"
 
@@ -25,8 +29,10 @@
 #include <viskores/cont/RuntimeDeviceTracker.h>
 #include <viskores/cont/UnknownArrayHandle.h>
 
+#include <algorithm>
 #include <cassert>
 #include <string>
+#include <type_traits>
 
 #ifndef vtkmDataArray_h
 #error "vtkmDataArray.hxx should only be included from vtkmDataArray.h."
@@ -1058,6 +1064,107 @@ vtkCollection* vtkmDataArray<T>::NewMemoryDescriptors()
   // Anything left undescribed is implicit, computed, or a layout this does not
   // know. The empty collection says so.
   return collection;
+}
+
+//-----------------------------------------------------------------------------
+/// Copy a basic handle's values to @a destination on the host.
+///
+/// Reading through the host read pointer brings the handle's own host copy up
+/// to date, so the vtkmDataArray this came from can be read on the host later
+/// without another transfer.
+template <typename T>
+inline void vtkmCopyToHost(const viskores::cont::ArrayHandleBasic<T>& source, T* destination)
+{
+  const T* values = source.GetReadPointer();
+  std::copy(values, values + source.GetNumberOfValues(), destination);
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+vtkDataArray* vtkmDataArray<T>::NewVTKArray()
+{
+  const viskores::cont::UnknownArrayHandle handle = this->GetVtkmUnknownArrayHandle();
+  if (!handle.IsValid())
+  {
+    return nullptr;
+  }
+  const int numComponents = this->GetNumberOfComponents();
+  const vtkIdType numTuples = this->GetNumberOfTuples();
+
+  // Handles that compute their values become the VTK arrays that do the same.
+  if (handle.template CanConvert<viskores::cont::ArrayHandleConstant<T>>())
+  {
+    auto* output = vtkConstantArray<T>::New();
+    output->ConstructBackend(
+      handle.template AsArrayHandle<viskores::cont::ArrayHandleConstant<T>>().GetValue());
+    output->SetNumberOfTuples(numTuples);
+    return output;
+  }
+  if (handle.template CanConvert<viskores::cont::ArrayHandleCounting<T>>())
+  {
+    auto counting = handle.template AsArrayHandle<viskores::cont::ArrayHandleCounting<T>>();
+    auto* output = vtkAffineArray<T>::New();
+    output->ConstructBackend(counting.GetStep(), counting.GetStart());
+    output->SetNumberOfTuples(numTuples);
+    return output;
+  }
+  if constexpr (std::is_same_v<T, viskores::Id>)
+  {
+    if (handle.template CanConvert<viskores::cont::ArrayHandleIndex>())
+    {
+      auto* output = vtkAffineArray<T>::New();
+      output->ConstructBackend(1, 0);
+      output->SetNumberOfTuples(numTuples);
+      return output;
+    }
+  }
+
+  // A buffer per component. Reading a vtkmDataArray through the vtkDataArray
+  // API replaces an SoA handle with the recombined components it extracted,
+  // so the layout can arrive under either storage.
+  if (numComponents > 1 &&
+    (handle.template IsStorageType<viskores::cont::StorageTagSOA>() ||
+      handle.template IsStorageType<viskores::cont::internal::StorageTagRecombineVec>()))
+  {
+    auto* output = vtkSOADataArrayTemplate<T>::New();
+    output->SetNumberOfComponents(numComponents);
+    output->SetNumberOfTuples(numTuples);
+    bool copied = true;
+    for (int c = 0; copied && c < numComponents; ++c)
+    {
+      auto component = handle.template ExtractComponent<T>(c);
+      copied = component.GetStride() == 1 && component.GetOffset() == 0 &&
+        component.GetModulo() == 0 && component.GetDivisor() == 1 &&
+        component.GetBasicArray().GetNumberOfValues() == numTuples;
+      if (copied)
+      {
+        vtkmCopyToHost(component.GetBasicArray(), output->GetComponentArrayPointer(c));
+      }
+    }
+    if (copied)
+    {
+      return output;
+    }
+    // An SoA of a nested Vec: only the outer Vec is split. Fall back to an
+    // interleaved copy below.
+    output->Delete();
+  }
+
+  viskores::cont::ArrayHandleRuntimeVec<T> interleaved{ numComponents };
+  if (handle.template CanConvert<decltype(interleaved)>())
+  {
+    handle.AsArrayHandle(interleaved);
+  }
+  else
+  {
+    // A cast, a transform, a permutation...: evaluate it where the data are.
+    viskores::cont::ArrayCopy(handle, interleaved);
+  }
+  auto* output = vtkAOSDataArrayTemplate<T>::New();
+  output->SetNumberOfComponents(numComponents);
+  output->SetNumberOfTuples(numTuples);
+  vtkmCopyToHost(interleaved.GetComponentsArray(), output->GetPointer(0));
+  return output;
 }
 
 VTK_ABI_NAMESPACE_END

@@ -118,6 +118,22 @@ public:
   vtkCollection* NewMemoryDescriptors() override;
   ///@}
 
+  /// Make an ordinary VTK array holding this array's values.
+  ///
+  /// For code that needs more than the vtkDataArray API offers -- a host
+  /// pointer, or a down-cast to a concrete array type. The result is a copy
+  /// the caller owns, and stays valid after this array is gone: a constant,
+  /// counting or index handle becomes the vtkConstantArray or vtkAffineArray
+  /// that computes the same values, a struct-of-arrays handle becomes a
+  /// vtkSOADataArrayTemplate, and anything else an interleaved
+  /// vtkAOSDataArrayTemplate. Data on a device are copied to the host once,
+  /// and the host copy is kept in the handle, so reading this array on the
+  /// host afterwards does not transfer it again.
+  ///
+  /// Returns null if no handle is set.
+  VTK_NEWINSTANCE
+  vtkDataArray* NewVTKArray();
+
   /// Support methods for \c vtkGenericDataArray.
   ValueType GetValue(vtkIdType valueIdx) const;
   void SetValue(vtkIdType valueIdx, ValueType value);

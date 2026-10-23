@@ -9,6 +9,7 @@ set(classes
   vtkmCleanGrid
   vtkmClip
   vtkmContour
+  vtkmConvertToVTKArrays
   vtkmCoordinateSystemTransform
   vtkmExternalFaces
   vtkmExtractVOI

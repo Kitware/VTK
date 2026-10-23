@@ -4,6 +4,7 @@
 vtk_add_test_cxx(vtkAcceleratorsVTKmCoreCxxTests tests
   TestVTKMDataArray.cxx,NO_VALID
   TestVTKMImplicitDataArray.cxx,NO_VALID
+  TestVTKMNewVTKArray.cxx,NO_VALID
   )
 
 vtk_test_cxx_executable(vtkAcceleratorsVTKmCoreCxxTests tests)

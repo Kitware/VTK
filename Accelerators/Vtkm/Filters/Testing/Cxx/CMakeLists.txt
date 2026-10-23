@@ -2,6 +2,7 @@
 vtk_add_test_cxx(vtkAcceleratorsVTKmFiltersCxxTests tests
   TestVTKMAbort.cxx,NO_VALID
   TestVTKMCleanGrid.cxx
+  TestVTKMConvertToVTKArrays.cxx,NO_VALID
   TestVTKMCoordinateSystemTransform.cxx,NO_VALID
   TestVTKMClip.cxx
   TestVTKMClipWithImplicitFunction.cxx,NO_SERDES
