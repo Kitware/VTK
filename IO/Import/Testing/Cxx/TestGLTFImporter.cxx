@@ -95,7 +95,7 @@ int TestGLTFImporter(int argc, char* argv[])
   if (importer->GetImportedLights()->GetNumberOfItems() != numberOfImportedLights)
   {
     std::cerr << "ERROR: Unexpected number of imported lights: "
-              << importer->GetImportedActors()->GetNumberOfItems() << "\n";
+              << importer->GetImportedLights()->GetNumberOfItems() << "\n";
     return EXIT_FAILURE;
   }
   int numberOfImportedCameras;

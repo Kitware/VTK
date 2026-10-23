@@ -51,7 +51,7 @@ vtkStandardNewMacro(vtkGLTFImporter);
 namespace
 {
 // Desired attenuation value when distanceToLight == lightRange
-constexpr float MIN_LIGHT_ATTENUATION = 0.01;
+constexpr float MIN_LIGHT_ATTENUATION = 0.5;
 
 /**
  * Builds a new vtkCamera object with properties from a glTF Camera struct
@@ -1042,6 +1042,8 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
       // Add light
       vtkNew<vtkLight> light;
       light->SetColor(glTFLight.Color.data());
+      light->SetPosition(0.0, 0.0, 0.0);
+      light->SetFocalPoint(0.0, 0.0, -1.0);
       light->SetTransformMatrix(node.GlobalTransform);
       // Handle range
       if (glTFLight.Range > 0)

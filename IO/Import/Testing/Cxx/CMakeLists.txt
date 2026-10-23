@@ -273,6 +273,10 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterPointLightIntensity,TestGLTFImporter.cxx DATA{../Data/glTF/PointLightIntensityTest.glb} 0 -1 13 8 0 0
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
   NO_VALID
   TestImportGLFTExportOBJ,TestImportExportOBJ.cxx
   DATA{../Data/glTF/Avocado/Avocado.glb}
