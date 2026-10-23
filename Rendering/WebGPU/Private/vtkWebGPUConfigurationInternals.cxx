@@ -121,16 +121,17 @@ WGPUPowerPreference vtkWebGPUConfigurationInternals::ToWGPUPowerPreferenceType(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUConfigurationInternals::PopulateRequiredLimits(WGPUAdapter adapter)
+bool vtkWebGPUConfigurationInternals::PopulateRequiredLimits(WGPUAdapter adapter)
 {
-  RequiredLimits.nextInChain = nullptr;
-
   WGPULimits supportedLimits = WGPU_LIMITS_INIT;
-  wgpuAdapterGetLimits(adapter, &supportedLimits);
-
-  RequiredLimits.maxStorageBufferBindingSize = supportedLimits.maxStorageBufferBindingSize;
-  RequiredLimits.maxBufferSize = supportedLimits.maxBufferSize;
-  RequiredLimits.maxStorageBuffersPerShaderStage = supportedLimits.maxStorageBuffersPerShaderStage;
+  if (wgpuAdapterGetLimits(adapter, &supportedLimits) != WGPUStatus_Success)
+  {
+    return false;
+  }
+  RequiredLimits = supportedLimits;
+  // VTK does not use WGSL's optional immediate address space.
+  RequiredLimits.maxImmediateSize = WGPU_LIMIT_U32_UNDEFINED;
+  return true;
 }
 
 //------------------------------------------------------------------------------
