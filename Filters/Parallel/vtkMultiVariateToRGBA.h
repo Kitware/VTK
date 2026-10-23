@@ -218,6 +218,16 @@ public:
   std::vector<double> GetCustomRange() VTK_FUTURE_CONST;
   ///@}
 
+  ///@{
+  /**
+   * Element-wise, ClientServer-wrappable equivalents of SetCustomRange().
+   * ClearCustomRange() empties CustomRange and AddCustomRange() appends
+   * one [min, max] pair, for the next partition group.
+   */
+  void ClearCustomRange();
+  void AddCustomRange(double min, double max);
+  ///@}
+
   /**
    * The global [min, max] range actually used to normalize each partition
    * group during the last RequestData, in the same flat, interleaved

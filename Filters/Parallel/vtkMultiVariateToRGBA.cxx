@@ -688,6 +688,24 @@ std::vector<double> vtkMultiVariateToRGBA::GetCustomRange() VTK_FUTURE_CONST
 }
 
 //------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::ClearCustomRange()
+{
+  if (!this->CustomRange.empty())
+  {
+    this->CustomRange.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::AddCustomRange(double min, double max)
+{
+  this->CustomRange.push_back(min);
+  this->CustomRange.push_back(max);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 std::vector<double> vtkMultiVariateToRGBA::GetRange() VTK_FUTURE_CONST
 {
   return this->Range;
