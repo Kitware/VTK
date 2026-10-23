@@ -328,7 +328,7 @@ int vtkIOSSWriter::RequestData(vtkInformation* request,
   bool ret = this->WriteDataAndReturn();
 
   ++internals.CurrentTimeStepIndex;
-  if (static_cast<size_t>(internals.CurrentTimeStepIndex) < internals.TimeSteps.size())
+  if (ret && static_cast<size_t>(internals.CurrentTimeStepIndex) < internals.TimeSteps.size())
   {
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
   }
@@ -369,6 +369,10 @@ bool vtkIOSSWriter::WriteDataAndReturn()
   auto* controller = this->GetController();
 
   const vtkIOSSModel model(inputPDC, this);
+  if (!model.IsValid())
+  {
+    return false;
+  }
   const auto md5 = model.MD5();
   vtkLogF(TRACE, "MD5: %s", md5.c_str());
 
