@@ -7,6 +7,7 @@
 #include "vtkWebGPUProcTable.h"
 
 #include <cstdlib> // for std::getenv
+#include <mutex>   // for std::call_once
 #include <sstream>
 
 static vtkWebGPUProcLoader* g_Instance = nullptr;
@@ -110,25 +111,24 @@ bool vtkWebGPUProcLoader::IsLoaded() const
 //------------------------------------------------------------------------------
 vtkWebGPUProcLoader* vtkWebGPUProcLoader::GetInstance()
 {
-  if (!g_Instance)
-  {
-    g_Instance = new vtkWebGPUProcLoader();
-    // VTK_WEBGPU_LIBRARY names the implementation to load. Without it the loader
-    // tries the names implementations are known by, then the one this build was
-    // configured against.
-    const char* configured = std::getenv("VTK_WEBGPU_LIBRARY");
-    bool loaded = g_Instance->Load(configured ? configured : "");
+  static std::once_flag loadOnce;
+  std::call_once(loadOnce,
+    []()
+    {
+      g_Instance = new vtkWebGPUProcLoader();
+      const char* configured = std::getenv("VTK_WEBGPU_LIBRARY");
+      bool loaded = g_Instance->Load(configured ? configured : "");
 #if defined(VTK_WEBGPU_CONFIGURED_LIBRARY)
-    if (!loaded && !configured)
-    {
-      loaded = g_Instance->Load(VTK_WEBGPU_CONFIGURED_LIBRARY);
-    }
+      if (!loaded && !configured)
+      {
+        loaded = g_Instance->Load(VTK_WEBGPU_CONFIGURED_LIBRARY);
+      }
 #endif
-    if (!loaded)
-    {
-      delete g_Instance;
-      g_Instance = nullptr;
-    }
-  }
+      if (!loaded)
+      {
+        delete g_Instance;
+        g_Instance = nullptr;
+      }
+    });
   return g_Instance;
 }

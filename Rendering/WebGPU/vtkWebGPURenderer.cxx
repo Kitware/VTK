@@ -352,8 +352,11 @@ void vtkWebGPURenderer::Clear()
   bkgPipelineDescriptor.DisableBlending(1);
   const auto pipelineKey =
     wgpuPipelineCache->GetPipelineKey((&bkgPipelineDescriptor), backgroundShaderSource);
-  wgpuPipelineCache->CreateRenderPipeline(
-    (&bkgPipelineDescriptor), wgpuRenderWindow, backgroundShaderSource);
+  if (wgpuPipelineCache->GetRenderPipeline(pipelineKey) == nullptr)
+  {
+    wgpuPipelineCache->CreateRenderPipeline(
+      (&bkgPipelineDescriptor), wgpuRenderWindow, backgroundShaderSource);
+  }
   auto pipeline = wgpuPipelineCache->GetRenderPipeline(pipelineKey);
 
   WGPURenderPassEncoder encoder(this->WGPURenderEncoder);

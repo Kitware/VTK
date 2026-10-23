@@ -46,6 +46,7 @@
 
 #include "CopyDepthTextureToBuffer.h"
 
+#include <future> // for std::async
 #include <sstream>
 
 #if defined(__EMSCRIPTEN__)
@@ -304,10 +305,27 @@ void vtkWebGPURenderWindow::Initialize()
   {
     this->SetHardwareWindow(nullptr);
   }
-  if (this->CustomSurfaceDescriptor == nullptr && !offScreenOnly)
+  const bool createWindow = this->CustomSurfaceDescriptor == nullptr && !offScreenOnly;
+#if !defined(__EMSCRIPTEN__)
+  // The library load does not need the window, so overlap the two. WGPUInit() joins
+  // this before its first call into the implementation.
+  std::future<void> implementationLoad;
+  if (createWindow)
+  {
+    implementationLoad = std::async(
+      std::launch::async, []() { static_cast<void>(vtkWebGPUProcLoader::GetInstance()); });
+  }
+#endif
+  if (createWindow)
   {
     this->CreateAWindow();
   }
+#if !defined(__EMSCRIPTEN__)
+  if (implementationLoad.valid())
+  {
+    implementationLoad.wait();
+  }
+#endif
   if (this->WGPUInit() && !offScreenOnly)
   {
     this->CreateSurface();
