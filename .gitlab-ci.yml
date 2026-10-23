@@ -469,7 +469,7 @@ fedora44-x86_64-webgpu:test:
     extends:
         - .fedora44_x86_64_webgpu
         - .cmake_test_linux
-        - .linux_x86_64_tester_tags
+        - .linux_x86_64_webgpu_tester_tags
         - .cmake_test_artifacts
         - .rules
     timeout: 90 minutes
