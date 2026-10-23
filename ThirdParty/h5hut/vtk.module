@@ -8,6 +8,8 @@ SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::hdf5
+OPTIONAL_DEPENDS
+  VTK::mpi
 TEST_DEPENDS
   VTK::TestingCore
 THIRD_PARTY
