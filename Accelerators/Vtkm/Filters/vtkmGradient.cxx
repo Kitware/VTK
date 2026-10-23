@@ -145,6 +145,11 @@ int vtkmGradient::RequestData(
     return 0;
   }
 
+  if (this->ComputeLambda2)
+  {
+    return this->Superclass::RequestData(request, inputVector, outputVector);
+  }
+
   output->ShallowCopy(input);
 
   try

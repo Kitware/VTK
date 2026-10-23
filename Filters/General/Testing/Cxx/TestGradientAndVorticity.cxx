@@ -17,6 +17,7 @@
 #include "vtkHigherOrderWedge.h"
 #include "vtkIOSSReader.h"
 #include "vtkImageData.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
@@ -32,6 +33,8 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
+#include <algorithm>
+#include <cmath>
 #include <limits>
 #include <vector>
 
@@ -225,6 +228,64 @@ int IsQCriterionCorrect(vtkDataArray* gradients, vtkDataArray* qCriterion)
 
 //------------------------------------------------------------------------------
 // we assume that the gradients are correct and so we can compute the "real"
+// lambda2 from it, as the intermediate eigenvalue of S^2 + Omega^2
+int IsLambda2Correct(vtkDataArray* gradients, vtkDataArray* lambda2)
+{
+  if (gradients->GetNumberOfComponents() != 9 || lambda2->GetNumberOfComponents() != 1)
+  {
+    vtkGenericWarningMacro("Bad number of components.");
+    return 0;
+  }
+  for (vtkIdType i = 0; i < gradients->GetNumberOfTuples(); i++)
+  {
+    double* g = gradients->GetTuple(i);
+    double s[3][3], w[3][3];
+    for (int r = 0; r < 3; ++r)
+    {
+      for (int c = 0; c < 3; ++c)
+      {
+        s[r][c] = 0.5 * (g[3 * r + c] + g[3 * c + r]);
+        w[r][c] = 0.5 * (g[3 * r + c] - g[3 * c + r]);
+      }
+    }
+    double s2[3][3], w2[3][3], m[3][3];
+    vtkMath::Multiply3x3(s, s, s2);
+    vtkMath::Multiply3x3(w, w, w2);
+    for (int r = 0; r < 3; ++r)
+    {
+      for (int c = 0; c < 3; ++c)
+      {
+        m[r][c] = s2[r][c] + w2[r][c];
+      }
+    }
+    double eigenvalues[3], eigenvectors[3][3];
+    vtkMath::Diagonalize3x3(m, eigenvalues, eigenvectors);
+    std::sort(eigenvalues, eigenvalues + 3);
+
+    // An eigenvalue is only as accurate as the matrix it comes from, so the
+    // tolerance scales with the size of S^2 + Omega^2 and not with lambda2.
+    double normM = 0.;
+    for (int r = 0; r < 3; ++r)
+    {
+      for (int c = 0; c < 3; ++c)
+      {
+        normM += m[r][c] * m[r][c];
+      }
+    }
+    double l2 = lambda2->GetTuple1(i);
+    if (std::abs(l2 - eigenvalues[1]) > 1e-5 * std::max(1., std::sqrt(normM)))
+    {
+      vtkGenericWarningMacro("Bad lambda2 value " << l2 << " " << eigenvalues[1]
+                                                  << " difference is " << (l2 - eigenvalues[1]));
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+// we assume that the gradients are correct and so we can compute the "real"
 // divergence from it
 int IsDivergenceCorrect(vtkDataArray* gradients, vtkDataArray* divergence)
 {
@@ -311,6 +372,7 @@ int PerformTest(vtkDataSet* grid)
     cellVorticity->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
     cellVorticity->SetResultArrayName(resultName);
     cellVorticity->SetComputeVorticity(1);
+    cellVorticity->SetComputeLambda2(1);
     cellVorticity->SetContributingCellOption(option);
     cellVorticity->Update();
 
@@ -320,6 +382,7 @@ int PerformTest(vtkDataSet* grid)
     pointVorticity->SetResultArrayName(resultName);
     pointVorticity->SetComputeVorticity(1);
     pointVorticity->SetComputeQCriterion(1);
+    pointVorticity->SetComputeLambda2(1);
     pointVorticity->SetComputeDivergence(1);
     pointVorticity->SetContributingCellOption(option);
     pointVorticity->Update();
@@ -353,6 +416,49 @@ int PerformTest(vtkDataSet* grid)
     if (!IsQCriterionCorrect(gradPointArray, qCriterionPointArray))
     {
       return EXIT_FAILURE;
+    }
+    // Compare lambda2 with the gradient of the same filter: with an accelerated
+    // override, a filter that does not request lambda2 may compute the gradient
+    // differently.
+    vtkDataArray* lambda2PointArray =
+      pointVorticity->GetOutput()->GetPointData()->GetArray("Lambda2");
+    if (!IsLambda2Correct(
+          pointVorticity->GetOutput()->GetPointData()->GetArray(resultName), lambda2PointArray))
+    {
+      return EXIT_FAILURE;
+    }
+    vtkDataArray* lambda2CellArray = cellVorticity->GetOutput()->GetCellData()->GetArray("Lambda2");
+    if (!IsLambda2Correct(
+          cellVorticity->GetOutput()->GetCellData()->GetArray(resultName), lambda2CellArray))
+    {
+      return EXIT_FAILURE;
+    }
+
+    // For the linear field (y, z, x), S^2 + Omega^2 has eigenvalues 1, -1/2, -1/2,
+    // so lambda2 is -1/2 everywhere. This also covers the cell-to-point path.
+    VTK_CREATE(vtkGradientFilter, fastLambda2);
+    fastLambda2->SetInputData(grid);
+    fastLambda2->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
+    fastLambda2->SetComputeGradient(0);
+    fastLambda2->SetComputeLambda2(1);
+    fastLambda2->SetLambda2ArrayName("L2");
+    fastLambda2->SetFasterApproximation(1);
+    fastLambda2->SetContributingCellOption(option);
+    fastLambda2->Update();
+    vtkDataArray* fastLambda2Array = fastLambda2->GetOutput()->GetPointData()->GetArray("L2");
+    if (!fastLambda2Array)
+    {
+      vtkGenericWarningMacro("Missing lambda2 array with FasterApproximation.");
+      return EXIT_FAILURE;
+    }
+    for (vtkIdType i = 0; i < fastLambda2Array->GetNumberOfTuples(); ++i)
+    {
+      if (!ArePointsWithinTolerance(fastLambda2Array->GetTuple1(i), -0.5))
+      {
+        vtkGenericWarningMacro(
+          "Bad lambda2 value " << fastLambda2Array->GetTuple1(i) << ", expected -0.5");
+        return EXIT_FAILURE;
+      }
     }
   }
 

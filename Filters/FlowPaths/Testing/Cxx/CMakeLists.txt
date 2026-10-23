@@ -13,6 +13,8 @@ vtk_add_test_cxx(vtkFiltersFlowPathsCxxTests tests
   TestLagrangianParticle.cxx,NO_VALID
   TestLagrangianParticleTracker.cxx
   TestLagrangianParticleTrackerWithGravity.cxx,NO_VALID
+  TestLiutex.cxx,NO_DATA,NO_VALID,NO_OUTPUT
+  TestLiutexCoreLines.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestStreamTracerImplicitArray.cxx,NO_VALID
   TestVortexCore.cxx,NO_VALID
   TestVortexCorePolyhedra.cxx,NO_DATA,NO_VALID,NO_OUTPUT
