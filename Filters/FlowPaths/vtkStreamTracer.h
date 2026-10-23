@@ -487,18 +487,20 @@ public:
   {
     AggregateSeeds = 0,
     LocalSeedPartition0,
-    LocalSeedDistributed
+    LocalSeedDistributed,
   };
 
-  void SetUseLocalSeedSource(int);
-  vtkGetMacro(UseLocalSeedSource, int);
+  vtkGetMacro(UseLocalSeedSource, UseLocalSeed);
+  vtkSetMacro(UseLocalSeedSource, UseLocalSeed);
+
+  VTK_DEPRECATED_IN_9_8_0("Use: SetUseLocalSeed(vtkStreamTracer::LocalSeedDistributed)")
   void UseLocalSeedSourceOn() { this->SetUseLocalSeedSource(LocalSeedDistributed); }
+  VTK_DEPRECATED_IN_9_8_0("Use: SetUseLocalSeed(vtkStreamTracer::AggregateSeeds)")
   void UseLocalSeedSourceOff() { this->SetUseLocalSeedSource(AggregateSeeds); }
+
   void SetUseLocalSeedSourceToOFF() { this->SetUseLocalSeedSource(AggregateSeeds); }
   void SetUseLocalSeedSourceToLocal0() { this->SetUseLocalSeedSource(LocalSeedPartition0); }
-  void SetUseLocalSeedSourceToON() { this->SetUseLocalSeedSource(LocalSeedDistributed); }
-  void SetUseLocalSeed(UseLocalSeed val) { this->SetUseLocalSeedSource(val); }
-  int GetUseLocalSeed() { return this->GetUseLocalSeedSource(); }
+  void SetUseLocalSeedSourceToDistributed() { this->SetUseLocalSeedSource(LocalSeedDistributed); }
   ///@}
 
 protected:
@@ -582,16 +584,16 @@ protected:
   std::vector<void*> CustomTerminationClientData;
   std::vector<int> CustomReasonForTermination;
 
-  // Only relevant for this derived parallel version of vtkStreamTracer,
-  // but needs to be defined in this class to have a uniform interface
-  // between this class and the parallel override vtkPStreamTracer
-  UseLocalSeed UseLocalSeedSource;
-
   friend class PStreamTracerUtils;
 
 private:
   vtkStreamTracer(const vtkStreamTracer&) = delete;
   void operator=(const vtkStreamTracer&) = delete;
+
+  // Only relevant for this derived parallel version of vtkStreamTracer,
+  // but needs to be defined in this class to have a uniform interface
+  // between this class and the parallel override vtkPStreamTracer
+  UseLocalSeed UseLocalSeedSource;
 };
 
 VTK_ABI_NAMESPACE_END

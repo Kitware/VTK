@@ -225,23 +225,6 @@ void vtkStreamTracer::SetIntegratorType(int type)
 }
 
 //------------------------------------------------------------------------------
-void vtkStreamTracer::SetUseLocalSeedSource(int seedSource)
-{
-  switch (seedSource)
-  {
-    case AggregateSeeds:
-      this->UseLocalSeedSource = AggregateSeeds;
-      break;
-    case LocalSeedPartition0:
-      this->UseLocalSeedSource = LocalSeedPartition0;
-      break;
-    case LocalSeedDistributed:
-      this->UseLocalSeedSource = LocalSeedDistributed;
-      break;
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkStreamTracer::SetIntegrationStepUnit(int unit)
 {
   if (unit != LENGTH_UNIT && unit != CELL_LENGTH_UNIT)

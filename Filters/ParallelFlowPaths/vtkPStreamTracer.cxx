@@ -12,6 +12,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkGenerateGlobalIds.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -30,7 +31,6 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
-#include "vtkUniformGrid.h"
 
 #include <algorithm>
 #include <cassert>
@@ -546,7 +546,7 @@ public:
     int globalIdOffset = 0;
     int totalSeeds = numSeeds;
 
-    if (this->Tracer->UseLocalSeedSource == vtkStreamTracer::LocalSeedDistributed &&
+    if (this->Tracer->GetUseLocalSeedSource() == vtkStreamTracer::LocalSeedDistributed &&
       this->Controller && this->NumProcs > 1)
     {
       std::vector<int> seedCounts(this->NumProcs, 0);
@@ -571,7 +571,7 @@ public:
       int seedId = globalIdOffset + i;
       vtkSmartPointer<PStreamTracerPoint> point =
         NewPoint(seedId, seed, integrationDirections->GetValue(i));
-      if (this->Tracer->UseLocalSeedSource == vtkStreamTracer::LocalSeedDistributed ||
+      if (this->Tracer->GetUseLocalSeedSource() == vtkStreamTracer::LocalSeedDistributed ||
         this->InBound(point))
       {
         out.push_back(point);
@@ -1046,16 +1046,33 @@ public:
 
     if (useLocalSeedSource)
     {
-      int totalNumTasks = 0;
-      this->Controller->AllReduce(&numSeeds, &totalNumTasks, 1, vtkCommunicator::SUM_OP);
-      this->TotalNumTasks = (this->Rank == this->Leader) ? totalNumTasks : INT_MAX;
-
-      for (int i = 0; i < numSeeds; i++)
+      if (this->HasData[this->Rank])
       {
-        vtkNew<Task> task;
-        task->Point = seeds[i];
-        NTasks.emplace_back(task);
+        for (int i = 0; i < numSeeds; i++)
+        {
+          int rank = seeds[i]->GetRank();
+          if (this->NumProcs == 1)
+          {
+            rank = this->Rank;
+          }
+          else if (rank < 0 && this->Locator->InCurrentProcess(seeds[i]->GetSeed()))
+          {
+            rank = this->Rank;
+          }
+
+          if (rank == this->Rank)
+          {
+            vtkNew<Task> task;
+            task->Point = seeds[i];
+            NTasks.emplace_back(task);
+          }
+        }
       }
+
+      int numLocalTasks = static_cast<int>(NTasks.size());
+      int totalNumTasks = 0;
+      this->Controller->AllReduce(&numLocalTasks, &totalNumTasks, 1, vtkCommunicator::SUM_OP);
+      this->TotalNumTasks = (this->Rank == this->Leader) ? totalNumTasks : INT_MAX;
       return;
     }
 
@@ -1462,7 +1479,7 @@ int vtkPStreamTracer::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
   if (sourceInfo)
   {
-    if (this->UseLocalSeedSource == vtkStreamTracer::LocalSeedDistributed)
+    if (this->GetUseLocalSeedSource() == vtkStreamTracer::LocalSeedDistributed)
     {
       sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
         outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
@@ -1517,7 +1534,7 @@ int vtkPStreamTracer::RequestData(
   vtkDataSet* source = nullptr;
   vtkNew<vtkAppendDataSets> distantAppender;
 
-  if (this->UseLocalSeedSource != vtkStreamTracer::AggregateSeeds)
+  if (this->GetUseLocalSeedSource() != vtkStreamTracer::AggregateSeeds)
   {
     source = localSource;
   }
@@ -1590,10 +1607,28 @@ int vtkPStreamTracer::RequestData(
   TaskManager taskManager(this->Utils->GetProcessLocator(), this->Utils->GetProto());
   PStreamTracerPointArray seedPoints;
 
-  int maxId;
+  if (this->GetUseLocalSeedSource() == vtkStreamTracer::LocalSeedDistributed)
+  {
+    vtkNew<vtkGenerateGlobalIds> generateGlobalIds;
+    generateGlobalIds->SetInputData(source);
+    if (this->Controller)
+    {
+      generateGlobalIds->SetController(this->Controller);
+    }
+    generateGlobalIds->Update();
+    source->ShallowCopy(generateGlobalIds->GetOutput());
+  }
+
+  int maxId = -1;
   auto originalSeedIds = this->Utils->ComputeSeeds(source, seedPoints, maxId);
+  if (this->Controller)
+  {
+    int localMaxId = maxId;
+    this->Controller->AllReduce(&localMaxId, &maxId, 1, vtkCommunicator::MAX_OP);
+  }
+  maxId = std::max(maxId, 0);
   taskManager.Initialize(this->EmptyData == 0, seedPoints, maxId,
-    this->UseLocalSeedSource == vtkStreamTracer::LocalSeedDistributed);
+    this->GetUseLocalSeedSource() == vtkStreamTracer::LocalSeedDistributed);
 
   Task* task(nullptr);
   std::vector<int> traceIds;
@@ -1683,7 +1718,7 @@ int vtkPStreamTracer::RequestData(
   // seed ids but seed indices. We need to restore original seed ids so that
   // a full streamline gets the same seed id for forward and backward
   // directions.
-  if (this->UseLocalSeedSource != vtkStreamTracer::LocalSeedDistributed)
+  if (this->GetUseLocalSeedSource() != vtkStreamTracer::LocalSeedDistributed)
   {
     if (auto seedIds = vtkIntArray::SafeDownCast(output->GetCellData()->GetArray("SeedIds")))
     {

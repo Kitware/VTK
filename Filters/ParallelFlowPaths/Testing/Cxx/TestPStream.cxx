@@ -20,6 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkStreamTracer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridOutlineFilter.h"
 #include "vtkTestUtilities.h"
@@ -107,7 +108,7 @@ void MyMain(vtkMultiProcessController* controller, void* arg)
   ren->AddActor(Actor5);
 
   // Make the seed source not available on every ranks on purpose :
-  // tests the `UseLocalSeedSource = false` property of the stream tracer
+  // tests the `UseLocalSeedSource = AggregateSeeds` property of the stream tracer
   vtkNew<vtkPolyData> lineSource;
   constexpr int LINE_SOURCE_RESOLUTION = 20;
   if (myId == 0)
@@ -122,7 +123,7 @@ void MyMain(vtkMultiProcessController* controller, void* arg)
   }
 
   vtkPStreamTracer* Stream0 = vtkPStreamTracer::New();
-  Stream0->UseLocalSeedSourceOff();
+  Stream0->SetUseLocalSeedSource(vtkStreamTracer::AggregateSeeds);
   Stream0->SetInputConnection(tv->GetOutputPort());
   Stream0->SetSourceData(lineSource);
   Stream0->SetIntegrationStepUnit(2);

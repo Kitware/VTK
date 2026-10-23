@@ -84,19 +84,20 @@ int TestPStreamGeometry(int argc, char* argv[])
   tracer->SetMaximumIntegrationStep(stepSize);
   tracer->SetInitialIntegrationStep(stepSize);
   double start[2] = { radius * cos(angle), radius * sin(angle) };
-  vtkNew<vtkPolyData> seeds;
+  vtkNew<vtkPolyData> localSeeds;
   {
     vtkNew<vtkPoints> seedPoints;
     double dt = numTraces == 1 ? 0 : 1.8 / (numTraces - 1);
     for (int i = 0; i < numTraces; i++)
       seedPoints->InsertNextPoint(start[0], numTraces == 1 ? 0 : -0.9 + dt * i, start[1]);
     seedPoints->InsertNextPoint(-2, -2, -2); // out of bound point
-    seeds->SetPoints(seedPoints);
+    localSeeds->SetPoints(seedPoints);
   }
-  tracer->SetInputData(1, seeds);
+  tracer->SetInputData(1, localSeeds);
+  tracer->SetUseLocalSeedSource(vtkStreamTracer::LocalSeedPartition0);
   tracer->SetMaximumPropagation(maximumPropagation);
 
-  vtkSmartPointer<vtkPolyDataMapper> traceMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkNew<vtkPolyDataMapper> traceMapper;
   traceMapper->SetInputConnection(tracer->GetOutputPort());
   traceMapper->SetPiece(myRank);
   traceMapper->SetNumberOfPieces(numProcs);
@@ -124,6 +125,25 @@ int TestPStreamGeometry(int argc, char* argv[])
     PRINT("Error in length is: " << err)
     res = err < 0.02;
   }
+
+  // Test SetUseLocalSeedDistributed
+  numTraces = numProcs; // one per proc
+  tracer->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Velocity");
+  vtkNew<vtkPolyData> distributedSeed;
+  {
+    vtkNew<vtkPoints> seedPoints;
+    double dt = numTraces == 1 ? 0 : 1.8 / (numTraces - 1);
+    float section = float(myRank + 1) / numProcs;
+    for (int i = 0; i < numTraces; i++)
+    {
+      seedPoints->InsertNextPoint(
+        start[0], numTraces == 1 ? 0 : -0.9 + section * dt * i, section * start[1]);
+    }
+    distributedSeed->SetPoints(seedPoints);
+  }
+  tracer->SetInputData(1, distributedSeed);
+  tracer->SetUseLocalSeedSource(vtkStreamTracer::LocalSeedDistributed);
+  traceMapper->Update();
 
   // Test IntegrationTime
   tracer->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Velocity");
