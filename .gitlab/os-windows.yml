@@ -4,9 +4,13 @@
 
 .windows:
     variables:
-        GIT_CLONE_PATH: "$CI_BUILDS_DIR\\vtk-ci-ext\\$CI_CONCURRENT_ID"
         # Turn off direct mode until we test it.
         BUILDCACHE_DIRECT_MODE: "false"
+        FF_ENABLE_JOB_CLEANUP: "true"
+        GIT_CLONE_EXTRA_FLAGS: "--depth 1 --tags"
+        GIT_CLONE_PATH: "$CI_BUILDS_DIR\\vtk-ci-ext\\$CI_CONCURRENT_ID"
+        GIT_STRATEGY: clone
+
 
 .wheel_windows_x86_64:
     extends: .windows
@@ -292,10 +296,12 @@
     # This may be necessary when running manually.
     # Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
     - . .\build\ci-venv\Scripts\Activate.ps1
+    # Packages without a wheel (e.g. numpy) are built here, so use the same
+    # compiler as the rest of the build.
+    - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
     - pip install -qq -r $pwdpath\.gitlab\ci\requirements.txt
     - Invoke-Expression -Command .gitlab/ci/buildcache.ps1
     - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"
-    - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
     - buildcache --show-stats
     - ctest -VV -S .gitlab/ci/ctest_configure.cmake
     - ctest -VV -S .gitlab/ci/ctest_build.cmake | Out-File -FilePath compile_output.log
