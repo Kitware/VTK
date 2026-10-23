@@ -1,26 +1,13 @@
 # Dawn is found only to decide whether its extensions may be declared. No
 # implementation is linked; the wgpu* entry points resolve at runtime.
-if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  set(VTK_USE_DAWN_WEBGPU OFF)
-else()
+#
+# VTK_USE_DAWN_WEBGPU comes from the top-level CMakeLists and says what the user
+# asked for. Discovery must not decide it: a Dawn that merely happens to be
+# installed would otherwise change what this module declares, so the same source
+# would build differently on two machines. Asking for Dawn and not having it is
+# an error rather than a quietly reduced feature set.
+if(VTK_USE_DAWN_WEBGPU)
   vtk_module_find_package(PACKAGE Dawn PRIVATE)
-  if(Dawn_FOUND)
-    set(VTK_USE_DAWN_WEBGPU ON)
-    # The loader's last-resort candidate, after VTK_WEBGPU_LIBRARY and the usual
-    # library search.
-    get_target_property(_vtk_webgpu_impl_location dawn::webgpu_dawn IMPORTED_LOCATION)
-    if(NOT _vtk_webgpu_impl_location)
-      get_target_property(_vtk_webgpu_impl_configs dawn::webgpu_dawn IMPORTED_CONFIGURATIONS)
-      if(_vtk_webgpu_impl_configs)
-        list(GET _vtk_webgpu_impl_configs 0 _vtk_webgpu_impl_config)
-        get_target_property(_vtk_webgpu_impl_location dawn::webgpu_dawn
-          "IMPORTED_LOCATION_${_vtk_webgpu_impl_config}")
-      endif()
-    endif()
-  else()
-    set(VTK_USE_DAWN_WEBGPU OFF)
-    message(STATUS "WebGPU: Dawn not found; its extensions will not be declared")
-  endif()
 endif()
 
 set(classes
@@ -320,7 +307,9 @@ else()
   find_package(Threads REQUIRED)
 endif()
 
-if(_vtk_webgpu_impl_location)
+# Only non-relocatable builds may embed the configured library as a fallback,
+# after VTK_WEBGPU_LIBRARY and the usual library search.
+if(VTK_USE_DAWN_WEBGPU AND NOT VTK_RELOCATABLE_INSTALL)
   set_property(SOURCE "Private/vtkWebGPUProcLoader.cxx" APPEND PROPERTY COMPILE_DEFINITIONS
-    "VTK_WEBGPU_CONFIGURED_LIBRARY=\"${_vtk_webgpu_impl_location}\"")
+    "VTK_WEBGPU_CONFIGURED_LIBRARY=\"$<TARGET_FILE:dawn::webgpu_dawn>\"")
 endif()

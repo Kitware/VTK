@@ -7,7 +7,7 @@
 // Public API uses only C API to maintain C++17 compatibility.
 #include "webgpu/webgpu.h"
 
-// Whether Dawn was found and linked as the WebGPU implementation.
+// Whether Dawn's WebGPU extensions were requested via VTK_USE_DAWN_WEBGPU.
 // dawn::native API is intentionally NOT included here — it is private to VTK's
 // implementation and must not leak into the public interface.
 #cmakedefine01 VTK_USE_DAWN_WEBGPU
