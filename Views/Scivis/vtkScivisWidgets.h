@@ -34,6 +34,7 @@
 #include "vtkObject.h"
 #include "vtkViewsScivisModule.h" // For export macro
 #include "vtkWeakPointer.h"       // For ivar
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractWidget;
@@ -46,7 +47,7 @@ class vtkLineWidget2;
 class vtkScivisView;
 class vtkSplineWidget2;
 
-class VTKVIEWSSCIVIS_EXPORT vtkScivisWidgets : public vtkObject
+class VTKVIEWSSCIVIS_EXPORT VTK_MARSHALAUTO vtkScivisWidgets : public vtkObject
 {
 public:
   static vtkScivisWidgets* New();
