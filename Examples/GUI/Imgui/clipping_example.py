@@ -1,4 +1,12 @@
 #!/usr/bin/env python
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "imgui-bundle",
+#     # VTK::ViewsScivis is not part of a released wheel yet.
+#     "vtk>=9.7",
+# ]
+# ///
 """Clipping what a representation draws with a box the user drags.
 
 The box's six planes become the representation's clipping planes.  The work
@@ -14,7 +22,7 @@ from vtkmodules.vtkViewsScivis import vtkScivisView
 
 import vtkmodules.vtkRenderingOpenGL2  # noqa: F401
 
-view = vtkScivisView(use_light_kit=True, background="slate_grey", gradient_background=True)
+view = vtkScivisView(use_light_kit=True, background="slate_grey")
 representation = view.show(vtkSphereSource(theta_resolution=64, phi_resolution=64),
                            color="tomato", specular=0.4, specular_power=30)
 view.ResetCamera()

@@ -1,4 +1,12 @@
 #!/usr/bin/env python
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "imgui-bundle",
+#     # VTK::ViewsScivis is not part of a released wheel yet.
+#     "vtk>=9.7",
+# ]
+# ///
 """A line the user drags about, reporting both of its ends.
 
 The line widget is one of the kinds that occupies a region, so it arrives
@@ -12,7 +20,7 @@ from vtkmodules.vtkViewsScivis import vtkScivisView
 
 import vtkmodules.vtkRenderingOpenGL2  # noqa: F401
 
-view = vtkScivisView(use_light_kit=True, background="slate_grey", gradient_background=True)
+view = vtkScivisView(use_light_kit=True, background="slate_grey")
 view.show(vtkSphereSource(radius=2.0, theta_resolution=64, phi_resolution=64),
           color="tomato", specular=0.4, specular_power=30)
 view.ResetCamera()

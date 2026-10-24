@@ -360,6 +360,7 @@ class TestWidgetsReportValues(unittest.TestCase):
         self.assertIsInstance(seen["spline"], vtkPolyData)
         self.assertEqual(len(seen["line"]), 2, "a line reports both of its ends")
         self.assertEqual(len(seen["line"][0]), 3)
+        self.assertEqual(len(seen["line"][1]), 3)
 
     def test_the_callback_outlives_the_call_that_made_it(self):
         # VTK's AddObserver does not keep the Python callable alive, so the

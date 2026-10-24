@@ -1,4 +1,12 @@
 #!/usr/bin/env python
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "imgui-bundle",
+#     # VTK::ViewsScivis is not part of a released wheel yet.
+#     "vtk>=9.7",
+# ]
+# ///
 """A tube that follows a spline the user drags into shape.
 
 The tube is shown with view.show() like any other data.
@@ -17,7 +25,7 @@ curve = vtkPolyData()
 tube = vtkTubeFilter(radius=0.05, number_of_sides=16)
 tube.SetInputData(curve)
 
-view = vtkScivisView(use_light_kit=True, background="slate_grey", gradient_background=True)
+view = vtkScivisView(use_light_kit=True, background="slate_grey")
 representation = view.show(tube, color="steel_blue", specular=0.4, specular_power=30)
 
 state = {"radius": 0.05, "sides": 16, "closed": False, "handles": 5}
