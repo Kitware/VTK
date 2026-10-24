@@ -437,25 +437,22 @@ int vtkVortexCore::RequestData(
 
   if (this->HigherOrderMethod)
   {
-    // Compute the gradient of the Jacobian
-    // Not vtkDoubleArray: vtkGradientFilter's output follows the input type, so
-    // a float velocity field yields a float jacobian_prime. A strict downcast
-    // silently produced null here, which then reached the worker unchecked.
-    vtkSmartPointer<vtkDataArray> jacobianPrime;
+    // The jerk of a steady flow is the acceleration's rate of change along the
+    // velocity, (grad a) v.
+    vtkSmartPointer<vtkDataArray> accelerationGradient;
     {
       vtkNew<vtkGradientFilter> gradientPrime;
       gradientPrime->SetInputData(dataset);
       gradientPrime->SetFasterApproximation(this->FasterApproximation);
-      gradientPrime->SetResultArrayName("jacobian_prime");
+      gradientPrime->SetResultArrayName("acceleration_gradient");
       gradientPrime->SetInputArrayToProcess(
-        0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "jacobian");
+        0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, acceleration->GetName());
       gradientPrime->SetContainerAlgorithm(this);
       gradientPrime->Update();
-      jacobianPrime = vtkDataArray::SafeDownCast(
-        gradientPrime->GetOutput()->GetPointData()->GetAbstractArray("jacobian_prime"));
+      accelerationGradient = vtkDataArray::SafeDownCast(
+        gradientPrime->GetOutput()->GetPointData()->GetAbstractArray("acceleration_gradient"));
     }
 
-    // Next, compute the jerk field: j = J' * v
     vtkSmartPointer<vtkDoubleArray> jerk;
     {
       jerk = vtkSmartPointer<vtkDoubleArray>::New();
@@ -463,9 +460,9 @@ int vtkVortexCore::RequestData(
       jerk->SetNumberOfComponents(3);
       jerk->SetNumberOfTuples(velocity->GetNumberOfTuples());
 
-      if (!jacobianPrime)
+      if (!accelerationGradient || accelerationGradient->GetNumberOfComponents() != 9)
       {
-        vtkErrorMacro("Could not compute the gradient of the Jacobian; the "
+        vtkErrorMacro("Could not compute the gradient of the acceleration; the "
                       "higher order method cannot proceed.");
         return 0;
       }
@@ -475,11 +472,9 @@ int vtkVortexCore::RequestData(
       using Dispatcher = vtkArrayDispatch::Dispatch3ByValueType<vtkArrayDispatch::Reals,
         vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
 
-      // Generate optimized workers when mags/vecs are both float|double
-      if (!Dispatcher::Execute(jacobianPrime, velocity, jerk, worker, this))
+      if (!Dispatcher::Execute(accelerationGradient, velocity, jerk, worker, this))
       {
-        // Otherwise, fallback to using the vtkDataArray API.
-        worker(jacobianPrime.Get(), velocity, jerk.Get(), this);
+        worker(accelerationGradient.Get(), velocity, jerk.Get(), this);
       }
     }
 
