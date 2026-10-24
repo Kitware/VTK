@@ -19,6 +19,7 @@ vtk_add_test_cxx(vtkIOIOSSCxxTests tests
   TestIOSSTri6.cxx
   TestIOSSUnsupported.cxx,NO_VALID
   TestIOSSWedge21.cxx
+  TestIOSSWriterMultipleEntityTypes.cxx,NO_VALID
   TestIOSSGhostArray.cxx,NO_VALID
 )
 

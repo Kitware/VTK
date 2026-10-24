@@ -2028,6 +2028,7 @@ public:
   ErrorHandleInformation PointInfo;
   ErrorHandleInformation CellInfo;
   ErrorHandleInformation ElementSideInfo;
+  bool Valid = true;
 };
 
 //----------------------------------------------------------------------------
@@ -2060,6 +2061,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
     if (!vtkDataAssemblyUtilities::GenerateHierarchy(dataset, assembly))
     {
       vtkErrorWithObjectMacro(writer, "Failed to generate hierarchy.");
+      internals.Valid = false;
       return;
     }
   }
@@ -2069,6 +2071,65 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
   {
     const auto entityType = static_cast<EntityType>(i);
     entityIndices[entityType] = ::GetDatasetIndices(assembly, writer->GetSelectors(entityType));
+  }
+  // extract the names and ids of the blocks.
+  std::vector<std::string> blockNames(dataset->GetNumberOfPartitionedDataSets());
+  std::vector<int> blockIds(dataset->GetNumberOfPartitionedDataSets());
+  for (unsigned int pidx = 0; pidx < dataset->GetNumberOfPartitionedDataSets(); ++pidx)
+  {
+    blockIds[pidx] = pidx + 1;
+    blockNames[pidx] = "block_" + vtk::to_string(blockIds[pidx]);
+    if (auto info = dataset->GetMetaData(pidx))
+    {
+      if (info->Has(vtkCompositeDataSet::NAME()))
+      {
+        blockNames[pidx] = info->Get(vtkCompositeDataSet::NAME());
+      }
+      // this is true only if the dataset is coming from IOSS reader.
+      if (info->Has(vtkIOSSReader::ENTITY_ID()))
+      {
+        blockIds[pidx] = info->Get(vtkIOSSReader::ENTITY_ID());
+      }
+    }
+  }
+  // ensure that each block is selected as only one entity type.
+  std::map<unsigned int, std::vector<EntityType>> entityTypesOfIndex;
+  for (const auto& indices : entityIndices)
+  {
+    for (const auto& idx : indices.second)
+    {
+      entityTypesOfIndex[idx].push_back(indices.first);
+    }
+  }
+  int multipleEntityTypes = 0;
+  for (const auto& entityTypes : entityTypesOfIndex)
+  {
+    if (entityTypes.second.size() > 1)
+    {
+      std::string entityTypeNames;
+      for (const auto& entityType : entityTypes.second)
+      {
+        entityTypeNames += (entityTypeNames.empty() ? "" : ", ");
+        entityTypeNames += vtkIOSSReader::GetDataAssemblyNodeNameForEntityType(entityType);
+      }
+      vtkErrorWithObjectMacro(writer,
+        "Block '" << blockNames[entityTypes.first] << "' is selected as more than one entity type ("
+                  << entityTypeNames << "). Each block can be written as only one entity type.");
+      multipleEntityTypes = 1;
+    }
+  }
+  // ensure that all processes agree on whether the model is valid.
+  if (controller && controller->GetNumberOfProcesses() > 1)
+  {
+    int globalMultipleEntityTypes;
+    controller->AllReduce(
+      &multipleEntityTypes, &globalMultipleEntityTypes, 1, vtkCommunicator::MAX_OP);
+    multipleEntityTypes = globalMultipleEntityTypes;
+  }
+  if (multipleEntityTypes)
+  {
+    internals.Valid = false;
+    return;
   }
   // write the above for loop with one line
   const bool indicesEmpty = std::all_of(entityIndices.begin(), entityIndices.end(),
@@ -2131,26 +2192,6 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
       dataset, internals.CellInfo, setIndicesWithElementSide, blockIndices, controller, writer);
   }
 
-  // extract the names and ids of the blocks.
-  std::vector<std::string> blockNames(dataset->GetNumberOfPartitionedDataSets());
-  std::vector<int> blockIds(dataset->GetNumberOfPartitionedDataSets());
-  for (unsigned int pidx = 0; pidx < dataset->GetNumberOfPartitionedDataSets(); ++pidx)
-  {
-    blockIds[pidx] = pidx + 1;
-    blockNames[pidx] = "block_" + vtk::to_string(blockIds[pidx]);
-    if (auto info = dataset->GetMetaData(pidx))
-    {
-      if (info->Has(vtkCompositeDataSet::NAME()))
-      {
-        blockNames[pidx] = info->Get(vtkCompositeDataSet::NAME());
-      }
-      // this is true only if the dataset is coming from IOSS reader.
-      if (info->Has(vtkIOSSReader::ENTITY_ID()))
-      {
-        blockIds[pidx] = info->Get(vtkIOSSReader::ENTITY_ID());
-      }
-    }
-  }
   // this will be used as a start id for split blocks to ensure uniqueness.
   int startSplitEBlockId = *std::max_element(blockIds.begin(), blockIds.end()) + 1;
   // ensure that all processes have the same startSplitEBlockId.
@@ -2344,6 +2385,12 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
 
 //----------------------------------------------------------------------------
 vtkIOSSModel::~vtkIOSSModel() = default;
+
+//----------------------------------------------------------------------------
+bool vtkIOSSModel::IsValid() const
+{
+  return this->Internals->Valid;
+}
 
 //----------------------------------------------------------------------------
 void vtkIOSSModel::DefineModel(Ioss::Region& region) const
