@@ -42,6 +42,9 @@ vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
   this->BoxTrans[0][1] = this->BoxTrans[1][1] = 1.0;
   this->WindowLimits[0][0] = this->WindowLimits[1][0] = 0.0;
   this->WindowLimits[0][1] = this->WindowLimits[1][1] = 1.0;
+  // This class manages the TextMappers array: it stores nullptr values until they are needed.
+  this->NumberOfLabelsAllocated = 50;
+  this->TextMappers.resize(this->NumberOfLabelsAllocated, nullptr);
   this->VCoord = vtkCoordinate::New();
   this->VertexList = vtkIdList::New();
   this->VertexList->SetNumberOfIds(this->NumberOfLabelsAllocated);
@@ -66,17 +69,6 @@ vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
   this->LabelMasks = new float[this->MaxTreeLevels + 1][4];
   this->SetRectanglesArrayName("area");
   this->SetLabelFormat("{:s}");
-
-  // Take control of the TextMappers array.
-  // The superclass just created new TextMapper instances
-  // up to the currently allocated amount (default 50).
-  // Instead, we will store nullptr values until we need them.
-  // This class will manage the maintenance and deletion of
-  // this array.
-  for (int i = 0; i < this->NumberOfLabelsAllocated; i++)
-  {
-    this->TextMappers[i] = nullptr;
-  }
 }
 
 vtkLabeledTreeMapDataMapper::~vtkLabeledTreeMapDataMapper()
