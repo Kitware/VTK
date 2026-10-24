@@ -28,7 +28,6 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <limits>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -103,7 +102,7 @@ int vtkGhostCellsGenerator::Execute(vtkDataObject* inputDO, vtkInformationVector
     vtkNew<vtkGenerateGlobalIds> gidGenerator;
     gidGenerator->SetInputData(modifInputDO);
     gidGenerator->SetController(this->Controller);
-    gidGenerator->SetTolerance(std::numeric_limits<double>::epsilon());
+    gidGenerator->SetTolerance(this->Tolerance);
     gidGenerator->Update();
     modifInputDO->ShallowCopy(gidGenerator->GetOutputDataObject(0));
   }
@@ -267,15 +266,19 @@ int vtkGhostCellsGenerator::GenerateGhostCells(
       }
 
       retVal &= vtkDIYGhostUtilities::GenerateGhostCellsImageData(inputsID, outputsID,
-                  numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays) &&
+                  numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays,
+                  this->Tolerance) &&
         vtkDIYGhostUtilities::GenerateGhostCellsRectilinearGrid(inputsRG, outputsRG,
-          numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays) &&
+          numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays,
+          this->Tolerance) &&
         vtkDIYGhostUtilities::GenerateGhostCellsStructuredGrid(inputsSG, outputsSG,
-          numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays) &&
+          numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays,
+          this->Tolerance) &&
         vtkDIYGhostUtilities::GenerateGhostCellsUnstructuredGrid(inputsUG, outputsUG,
-          numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays) &&
+          numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays,
+          this->Tolerance) &&
         vtkDIYGhostUtilities::GenerateGhostCellsPolyData(inputsPD, outputsPD,
-          numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays);
+          numberOfGhostLayersToCompute, this->Controller, this->UseImplicitArrays, this->Tolerance);
     }
   }
 

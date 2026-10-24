@@ -108,12 +108,21 @@ public:
   vtkMultiProcessController* GetController();
   ///@}
 
-  ///@{
   /**
    * Resets parameter.
    */
-  ///@}
   virtual void Initialize();
+
+  ///@{
+  /**
+   * Get/Set the tolerance to use to identify coincident points. 0 means the
+   * points should be exactly identical.
+   *
+   * Default is std::numeric_limits<double>::epsilon().
+   */
+  vtkSetClampMacro(Tolerance, double, 0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Tolerance, double);
+  ///@}
 
   ///@{
   /**
@@ -237,6 +246,7 @@ private:
   void UpdateCache(vtkDataObject* updatedOutput);
   bool UseCacheIfPossible(vtkDataObject* input, vtkDataObject* output);
 
+  double Tolerance = std::numeric_limits<double>::epsilon();
   bool GenerateGlobalIds = false;
   bool GenerateProcessIds = false;
   bool SynchronizeOnly = false;

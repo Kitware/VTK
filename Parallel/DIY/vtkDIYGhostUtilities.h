@@ -105,7 +105,6 @@ class VTKPARALLELDIY_EXPORT vtkDIYGhostUtilities : public vtkObject
 {
 public:
   vtkTypeMacro(vtkDIYGhostUtilities, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
   /**
@@ -364,7 +363,7 @@ protected:
 
     /**
      * Grid interfacing with block's grid.
-     * This grid is a 2D grid and can be arbritrarely oriented depending on how grids connect.
+     * This grid is a 2D grid and can be arbitrarily oriented depending on how grids connect.
      */
     struct Grid2D
     {
@@ -810,7 +809,8 @@ public:
    */
   template <class DataSetT>
   static int GenerateGhostCells(std::vector<DataSetT*>& inputsDS, std::vector<DataSetT*>& outputsDS,
-    int outputGhostLevels, vtkMultiProcessController* controller, bool useImplicitArrays);
+    int outputGhostLevels, vtkMultiProcessController* controller, bool useImplicitArrays,
+    double tolerance = 0);
 
   ///@{
   /**
@@ -820,24 +820,24 @@ public:
    */
   static int GenerateGhostCellsImageData(std::vector<vtkImageData*>& inputs,
     std::vector<vtkImageData*>& outputs, int outputGhostLevels,
-    vtkMultiProcessController* controller, bool useImplicitArrays = false);
+    vtkMultiProcessController* controller, bool useImplicitArrays = false, double tolerance = 0);
   static int GenerateGhostCellsRectilinearGrid(std::vector<vtkRectilinearGrid*>& inputs,
     std::vector<vtkRectilinearGrid*>& outputs, int outputGhostLevels,
-    vtkMultiProcessController* controller, bool useImplicitArrays = false);
+    vtkMultiProcessController* controller, bool useImplicitArrays = false, double tolerance = 0);
   static int GenerateGhostCellsStructuredGrid(std::vector<vtkStructuredGrid*>& inputs,
     std::vector<vtkStructuredGrid*>& outputs, int outputGhostLevels,
-    vtkMultiProcessController* controller, bool useImplicitArrays = false);
+    vtkMultiProcessController* controller, bool useImplicitArrays = false, double tolerance = 0);
   static int GenerateGhostCellsPolyData(std::vector<vtkPolyData*>& inputs,
     std::vector<vtkPolyData*>& outputs, int outputGhostLevels,
-    vtkMultiProcessController* controller, bool useImplicitArrays = false);
+    vtkMultiProcessController* controller, bool useImplicitArrays = false, double tolerance = 0);
   static int GenerateGhostCellsUnstructuredGrid(std::vector<vtkUnstructuredGrid*>& inputs,
     std::vector<vtkUnstructuredGrid*>& outputs, int outputGhostLevels,
-    vtkMultiProcessController* controller, bool useImplicitArrays = false);
+    vtkMultiProcessController* controller, bool useImplicitArrays = false, double tolerance = 0);
   ///@}
 
 protected:
-  vtkDIYGhostUtilities();
-  ~vtkDIYGhostUtilities() override;
+  vtkDIYGhostUtilities() = default;
+  ~vtkDIYGhostUtilities() override = default;
 
   ///@{
   /**
@@ -974,16 +974,16 @@ protected:
    * that computes the minimal link map being necessary to exchange ghosts.
    * This method is called after `master` has been relinked.
    */
-  static LinkMap ComputeLinkMap(
-    const diy::Master& master, std::vector<vtkImageData*>& inputs, int outputGhostLevels);
-  static LinkMap ComputeLinkMap(
-    const diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs, int outputGhostLevels);
-  static LinkMap ComputeLinkMap(
-    const diy::Master& master, std::vector<vtkStructuredGrid*>& inputs, int outputGhostLevels);
-  static LinkMap ComputeLinkMap(
-    const diy::Master& master, std::vector<vtkUnstructuredGrid*>& inputs, int outputGhostLevels);
-  static LinkMap ComputeLinkMap(
-    const diy::Master& master, std::vector<vtkPolyData*>& inputs, int outputGhostLevels);
+  static LinkMap ComputeLinkMap(const diy::Master& master, std::vector<vtkImageData*>& inputs,
+    int outputGhostLevels, double tolerance = 0);
+  static LinkMap ComputeLinkMap(const diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs,
+    int outputGhostLevels, double tolerance = 0);
+  static LinkMap ComputeLinkMap(const diy::Master& master, std::vector<vtkStructuredGrid*>& inputs,
+    int outputGhostLevels, double tolerance = 0);
+  static LinkMap ComputeLinkMap(const diy::Master& master,
+    std::vector<vtkUnstructuredGrid*>& inputs, int outputGhostLevels, double tolerance = 0);
+  static LinkMap ComputeLinkMap(const diy::Master& master, std::vector<vtkPolyData*>& inputs,
+    int outputGhostLevels, double tolerance = 0);
   ///@}
 
   ///@{
@@ -1028,7 +1028,8 @@ protected:
   template <class DataSetT>
   static void CopyInputsAndAllocateGhosts(diy::Master& master, diy::Assigner& assigner,
     diy::RegularAllReducePartners& partners, std::vector<DataSetT*>& inputs,
-    std::vector<DataSetT*>& outputs, int outputGhostLevels, bool useImplicitArrays);
+    std::vector<DataSetT*>& outputs, int outputGhostLevels, bool useImplicitArrays,
+    double tolerance = 0);
 
   ///@{
   /**
@@ -1038,16 +1039,17 @@ protected:
    * By using cloneArrays, we also make a deep copy of the arrays from the input in the
    * output.
    */
-  static void DeepCopyInputAndAllocateGhosts(
-    ImageDataBlock* block, vtkImageData* input, vtkImageData* outputs, bool cloneArrays);
+  static void DeepCopyInputAndAllocateGhosts(ImageDataBlock* block, vtkImageData* input,
+    vtkImageData* outputs, bool cloneArrays, double tolerance = 0);
   static void DeepCopyInputAndAllocateGhosts(RectilinearGridBlock* block, vtkRectilinearGrid* input,
-    vtkRectilinearGrid* outputs, bool cloneArrays);
+    vtkRectilinearGrid* outputs, bool cloneArrays, double tolerance = 0);
   static void DeepCopyInputAndAllocateGhosts(StructuredGridBlock* block, vtkStructuredGrid* input,
-    vtkStructuredGrid* outputs, bool cloneArrays);
+    vtkStructuredGrid* outputs, bool cloneArrays, double tolerance = 0);
   static void DeepCopyInputAndAllocateGhosts(UnstructuredGridBlock* block,
-    vtkUnstructuredGrid* input, vtkUnstructuredGrid* outputs, bool cloneArrays);
-  static void DeepCopyInputAndAllocateGhosts(
-    PolyDataBlock* block, vtkPolyData* input, vtkPolyData* outputs, bool cloneArrays);
+    vtkUnstructuredGrid* input, vtkUnstructuredGrid* outputs, bool cloneArrays,
+    double tolerance = 0);
+  static void DeepCopyInputAndAllocateGhosts(PolyDataBlock* block, vtkPolyData* input,
+    vtkPolyData* outputs, bool cloneArrays, double tolerance = 0);
   ///@}
 
   /**
