@@ -13,8 +13,8 @@
     variables:
         PYTHON_VERSION: 3.11.6
 
-.manylinux2014_x86_64:
-    image: "quay.io/pypa/manylinux2014_x86_64"
+.manylinux_2_28_x86_64:
+    image: "quay.io/pypa/manylinux_2_28_x86_64"
 
     variables:
         GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
@@ -27,10 +27,6 @@
         GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
         VTK_INSTALL: 1
 
-.manylinux_2_28_x86_64:
-    extends: .manylinux2014_x86_64
-    image: "quay.io/pypa/manylinux_2_28_x86_64"
-
 .wheel_linux_egl_addon:
     variables:
         VTK_DEFAULT_OPENGL_WINDOW: vtkEGLRenderWindow
@@ -40,7 +36,7 @@
         VTK_DEFAULT_OPENGL_WINDOW: vtkOSOpenGLRenderWindow
 
 .wheel_linux310_x86_64:
-    extends: .manylinux2014_x86_64
+    extends: .manylinux_2_28_x86_64
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux310_x86_64
@@ -57,14 +53,13 @@
 .wheel_linux310_x86_64_egl:
     extends:
         - .wheel_linux310_x86_64
-        - .manylinux_2_28_x86_64
         - .wheel_linux_egl_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux310_x86_64_egl
 
 .wheel_linux311_x86_64:
-    extends: .manylinux2014_x86_64
+    extends: .manylinux_2_28_x86_64
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux311_x86_64
@@ -81,14 +76,13 @@
 .wheel_linux311_x86_64_egl:
     extends:
         - .wheel_linux311_x86_64
-        - .manylinux_2_28_x86_64
         - .wheel_linux_egl_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux311_x86_64_egl
 
 .wheel_linux312_x86_64:
-    extends: .manylinux2014_x86_64
+    extends: .manylinux_2_28_x86_64
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux312_x86_64
@@ -105,14 +99,13 @@
 .wheel_linux312_x86_64_egl:
     extends:
         - .wheel_linux312_x86_64
-        - .manylinux_2_28_x86_64
         - .wheel_linux_egl_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux312_x86_64_egl
 
 .wheel_linux313_x86_64:
-    extends: .manylinux2014_x86_64
+    extends: .manylinux_2_28_x86_64
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux313_x86_64
@@ -129,14 +122,13 @@
 .wheel_linux313_x86_64_egl:
     extends:
         - .wheel_linux313_x86_64
-        - .manylinux_2_28_x86_64
         - .wheel_linux_egl_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux313_x86_64_egl
 
 .wheel_linux314_x86_64:
-    extends: .manylinux2014_x86_64
+    extends: .manylinux_2_28_x86_64
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux314_x86_64
@@ -153,14 +145,13 @@
 .wheel_linux314_x86_64_egl:
     extends:
         - .wheel_linux314_x86_64
-        - .manylinux_2_28_x86_64
         - .wheel_linux_egl_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux314_x86_64_egl
 
 .wheel_linux314t_x86_64:
-    extends: .manylinux2014_x86_64
+    extends: .manylinux_2_28_x86_64
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux314t_x86_64
@@ -177,7 +168,6 @@
 .wheel_linux314t_x86_64_egl:
     extends:
         - .wheel_linux314t_x86_64
-        - .manylinux_2_28_x86_64
         - .wheel_linux_egl_addon
 
     variables:
