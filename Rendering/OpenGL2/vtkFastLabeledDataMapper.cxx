@@ -382,7 +382,6 @@ vtkStandardNewMacro(vtkFastLabeledDataMapper);
 vtkFastLabeledDataMapper::vtkFastLabeledDataMapper()
 {
   this->Implementation = std::unique_ptr<vtkInternals>(new vtkInternals());
-  this->AllocateLabels(50);
 
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "type");
 
