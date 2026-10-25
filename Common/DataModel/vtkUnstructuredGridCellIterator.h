@@ -17,6 +17,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkIdTypeArray;
+class vtkPolyhedronCellArray;
 class vtkUnsignedCharArray;
 class vtkUnstructuredGrid;
 class vtkPoints;
@@ -65,8 +66,7 @@ protected:
 
   vtkSmartPointer<vtkCellArrayIterator> Cells;
   vtkSmartPointer<vtkDataArray> Types;
-  vtkSmartPointer<vtkCellArray> PolyFaceConn;
-  vtkSmartPointer<vtkCellArray> PolyFaceLocs;
+  vtkSmartPointer<vtkPolyhedronCellArray> Polyhedra;
   vtkSmartPointer<vtkPoints> Coords;
 
 private:

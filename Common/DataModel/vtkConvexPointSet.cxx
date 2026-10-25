@@ -47,19 +47,28 @@ void vtkConvexPointSet::Initialize()
     return;
   }
   this->Triangulate(0, this->TetraIds, this->TetraPoints);
+  this->FacesBuilt = false;
 }
 
 //------------------------------------------------------------------------------
 int vtkConvexPointSet::GetNumberOfFaces()
 {
-  this->BoundaryTris->Reset();
-  this->Triangulator->AddTriangles(this->BoundaryTris);
+  if (!this->FacesBuilt)
+  {
+    this->BoundaryTris->Reset();
+    this->Triangulator->AddTriangles(this->BoundaryTris);
+    this->FacesBuilt = true;
+  }
   return this->BoundaryTris->GetNumberOfCells();
 }
 
 //------------------------------------------------------------------------------
 vtkCell* vtkConvexPointSet::GetFace(int faceId)
 {
+  // Ensure the cache is populated (cheap after the first call).
+  // This also makes GetFace safe even if the caller never called GetNumberOfFaces.
+  this->GetNumberOfFaces();
+
   int numCells = this->BoundaryTris->GetNumberOfCells();
   if (faceId < 0 || faceId >= numCells)
   {

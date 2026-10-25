@@ -41,7 +41,13 @@ public:
   vtkTypeMacro(vtkBezierHexahedron, vtkHigherOrderHexahedron);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  int GetCellType() override { return VTK_BEZIER_HEXAHEDRON; }
+
+  /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_BEZIER_HEXAHEDRON);
+
+  int GetCellType() override { return Traits::CellType; }
   vtkCell* GetEdge(int edgeId) override;
   vtkCell* GetFace(int faceId) override;
   void InterpolateFunctions(const double pcoords[3], double* weights) override;

@@ -322,31 +322,28 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
     if (!this->FindDataArrayWithName(eCells, "faces") ||
       !this->FindDataArrayWithName(eCells, "faceoffsets"))
     {
-      if (output->GetPolyhedronFaces())
+      if (vtkPolyhedronCellArray* polyhedra = output->GetPolyhedronCellArray())
       {
         // This piece doesn't have any polyhedron but other pieces that
-        // we've already processed do so we need to add in face information
-        // for cells that don't have that by marking -1.
-        for (vtkIdType c = 0; c < numberOfCells; c++)
-        {
-          output->GetPolyhedronFaceLocations()->InsertNextCell(0);
-        }
+        // we've already processed do, so its cells are added without face.
+        polyhedra->InsertEmptyCells(numberOfCells);
       }
       return 1;
     }
 
     // By default vtkUnstructuredGrid does not contain face information, which is
     // only used by polyhedron cells. If so far no polyhedron cells have been
-    // added, the pointers to the arrays will be nullptr. In this case, we need to
-    // initialize the arrays and assign values to the previous non-polyhedron cells.
-    if (!output->GetPolyhedronFaces() || !output->GetPolyhedronFaceLocations())
+    // added, its polyhedron cell array is nullptr. In this case, we need to
+    // initialize it, with the previous non-polyhedron cells without face.
+    if (!output->GetPolyhedronCellArray())
     {
       output->InitializeFacesRepresentation(this->StartCell);
     }
 
     // Read face arrays.
-    if (!this->ReadFaceCellArray(this->NumberOfCells[this->Piece], eCells,
-          output->GetPolyhedronFaces(), output->GetPolyhedronFaceLocations()))
+    vtkPolyhedronCellArray* polyhedra = output->GetPolyhedronCellArray();
+    if (!this->ReadFaceCellArray(this->NumberOfCells[this->Piece], eCells, polyhedra->GetFaces(),
+          polyhedra->GetFaceLocations()))
     {
       return 0;
     }
@@ -362,31 +359,28 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
       !this->FindDataArrayWithName(eCells, "polyhedron_to_faces") ||
       !this->FindDataArrayWithName(eCells, "polyhedron_offsets"))
     {
-      if (output->GetPolyhedronFaces())
+      if (vtkPolyhedronCellArray* polyhedra = output->GetPolyhedronCellArray())
       {
         // This piece doesn't have any polyhedron but other pieces that
-        // we've already processed do so we need to add in face information
-        // for cells that don't have that by marking -1.
-        for (vtkIdType c = 0; c < numberOfCells; c++)
-        {
-          output->GetPolyhedronFaceLocations()->InsertNextCell(0);
-        }
+        // we've already processed do, so its cells are added without face.
+        polyhedra->InsertEmptyCells(numberOfCells);
       }
       return 1;
     }
 
     // By default vtkUnstructuredGrid does not contain face information, which is
     // only used by polyhedron cells. If so far no polyhedron cells have been
-    // added, the pointers to the arrays will be nullptr. In this case, we need to
-    // initialize the arrays and assign values to the previous non-polyhedron cells.
-    if (!output->GetPolyhedronFaces() || !output->GetPolyhedronFaceLocations())
+    // added, its polyhedron cell array is nullptr. In this case, we need to
+    // initialize it, with the previous non-polyhedron cells without face.
+    if (!output->GetPolyhedronCellArray())
     {
       output->InitializeFacesRepresentation(this->StartCell);
     }
 
     // Read face arrays.
+    vtkPolyhedronCellArray* polyhedra = output->GetPolyhedronCellArray();
     if (!this->ReadPolyhedronCellArray(this->NumberOfCells[this->Piece], eCells,
-          output->GetPolyhedronFaces(), output->GetPolyhedronFaceLocations()))
+          polyhedra->GetFaces(), polyhedra->GetFaceLocations()))
     {
       return 0;
     }

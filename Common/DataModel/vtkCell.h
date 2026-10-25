@@ -31,10 +31,11 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkBoundingBox.h"  // Needed for IntersectWithCell
-#include "vtkCellType.h"     // Needed to define cell types
-#include "vtkIdList.h"       // Needed for inline methods
-#include "vtkSmartPointer.h" // Needed for vtkSmartPointer
+#include "vtkBoundingBox.h"    // Needed for IntersectWithCell
+#include "vtkCellType.h"       // Needed to define cell types
+#include "vtkCellTypeTraits.h" // For the traits of the cell types of the subclasses
+#include "vtkIdList.h"         // Needed for inline methods
+#include "vtkSmartPointer.h"   // Needed for vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
@@ -147,6 +148,11 @@ public:
   {
     return this->PointIds->GetId(ptId);
   }
+
+  /**
+   * Get the cell id of this cell from its originating vtkDataSet.
+   */
+  vtkIdType GetCellId() { return this->CellId; }
 
   /**
    * Return the edge cell from the edgeId of the cell.
@@ -406,6 +412,7 @@ public:
   // left public for quick computational access
   vtkPoints* Points;
   vtkIdList* PointIds;
+  vtkIdType CellId;
 
 protected:
   vtkCell();

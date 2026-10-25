@@ -41,15 +41,20 @@ public:
   vtkTypeMacro(vtkBiQuadraticTriangle, vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_BIQUADRATIC_TRIANGLE);
+
   ///@{
   /**
    * Implement the vtkCell API. See the vtkCell API for descriptions
    * of these methods.
    */
-  int GetCellType() override { return VTK_BIQUADRATIC_TRIANGLE; }
-  int GetCellDimension() override { return 2; }
-  int GetNumberOfEdges() override { return 3; }
-  int GetNumberOfFaces() override { return 0; }
+  int GetCellType() override { return Traits::CellType; }
+  int GetCellDimension() override { return Traits::Dimension; }
+  int GetNumberOfEdges() override { return Traits::NumberOfEdges; }
+  int GetNumberOfFaces() override { return Traits::NumberOfFaces; }
   vtkCell* GetEdge(int edgeId) override;
   vtkCell* GetFace(int) override { return nullptr; }
   ///@}
@@ -109,6 +114,12 @@ public:
     vtkBiQuadraticTriangle::InterpolationDerivs(pcoords, derivs);
   }
   ///@}
+
+  /**
+   * Return the ids of the vertices defining edge (`edgeId`).
+   * Ids are related to the cell, not to the dataset.
+   */
+  static const vtkIdType* GetEdgeArray(vtkIdType edgeId);
 
 protected:
   vtkBiQuadraticTriangle();

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCellArray.h"
 #include "vtkDeserializer.h"
+#include "vtkPolyhedronCellArray.h"
 #include "vtkSerializer.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
@@ -37,15 +38,11 @@ static nlohmann::json Serialize_vtkUnstructuredGrid(
   state["Cells"] = serializer->SerializeJSON(object->GetCells());
   state["CellTypes"] = serializer->SerializeJSON(object->GetCellTypes());
   // A polyhedron's faces are not described by its point list. They live in
-  // these two arrays, so they must travel alongside the connectivity or the
-  // cell's topology is lost.
-  if (auto* faces = object->GetPolyhedronFaces())
+  // the polyhedron cell array, so it must travel alongside the connectivity or
+  // the cell's topology is lost.
+  if (auto* polyhedra = object->GetPolyhedronCellArray())
   {
-    state["PolyhedronFaces"] = serializer->SerializeJSON(faces);
-  }
-  if (auto* faceLocations = object->GetPolyhedronFaceLocations())
-  {
-    state["PolyhedronFaceLocations"] = serializer->SerializeJSON(faceLocations);
+    state["PolyhedronCellArray"] = serializer->SerializeJSON(polyhedra);
   }
   state["MeshMTime"] = object->GetMeshMTime();
   return state;
@@ -89,31 +86,26 @@ static bool Deserialize_vtkUnstructuredGrid(
       connectivity = vtkCellArray::SafeDownCast(subObject);
     }
   }
-  const auto readOptionalCellArray = [&](const char* key, vtkSmartPointer<vtkCellArray>& target)
+  vtkSmartPointer<vtkPolyhedronCellArray> polyhedra;
   {
-    auto iter = state.find(key);
+    auto iter = state.find("PolyhedronCellArray");
     if ((iter != state.end()) && !iter->is_null())
     {
       const auto* context = deserializer->GetContext();
       const auto identifier = iter->at("Id").get<vtkTypeUInt32>();
       auto subObject = context->GetObjectAtId(identifier);
       success &= deserializer->DeserializeJSON(identifier, subObject);
-      target = vtkCellArray::SafeDownCast(subObject);
+      polyhedra = vtkPolyhedronCellArray::SafeDownCast(subObject);
     }
-  };
-
-  vtkSmartPointer<vtkCellArray> faces;
-  vtkSmartPointer<vtkCellArray> faceLocations;
-  readOptionalCellArray("PolyhedronFaces", faces);
-  readOptionalCellArray("PolyhedronFaceLocations", faceLocations);
+  }
   if (cellTypes && connectivity)
   {
-    if (faces && faceLocations)
+    if (polyhedra)
     {
       // The connectivity holds point lists. SetCells() would reinterpret it as
       // a legacy face stream as soon as a VTK_POLYHEDRON is present, so the
       // faces have to be handed over explicitly.
-      object->SetPolyhedralCells(cellTypes, connectivity, faceLocations, faces);
+      object->SetPolyhedralCells(cellTypes, connectivity, polyhedra);
     }
     else
     {

@@ -11,6 +11,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
+#include "vtkCellTypeSides.h"
 #include "vtkCellTypeUtilities.h"
 #include "vtkCellTypes.h"
 #include "vtkDataSetCellIterator.h"
@@ -26,8 +27,10 @@
 #include "vtkSmartPointer.h"
 #include "vtkStructuredData.h"
 
+#include <algorithm>
+#include <array>
+#include <cassert>
 #include <cmath>
-#include <set>
 
 //------------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -390,40 +393,60 @@ void vtkDataSet::GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList*
 
 //------------------------------------------------------------------------------
 int vtkDataSet::GetCellNumberOfFaces(
-  vtkIdType cellId, unsigned char& cellType, vtkGenericCell* cell)
+  vtkIdType cellId, unsigned char& cellType, vtkGenericCell* tempCell)
 {
-  // Handles only the most common cell types, otherwise calls GetCell to get the number of faces.
-  // See vtkUnstructuredGrid::GetCellNumberOfFaces for the complete list of cell types.
   cellType = static_cast<unsigned char>(this->GetCellType(cellId));
-  switch (cellType)
-  {
-    case VTK_EMPTY_CELL:
-    case VTK_VERTEX:
-    case VTK_POLY_VERTEX:
-    case VTK_LINE:
-    case VTK_POLY_LINE:
-    case VTK_TRIANGLE:
-    case VTK_TRIANGLE_STRIP:
-    case VTK_POLYGON:
-    case VTK_PIXEL:
-    case VTK_QUAD:
-      return 0;
-    case VTK_TETRA:
-      return 4;
-    case VTK_PYRAMID:
-    case VTK_WEDGE:
-      return 5;
-    case VTK_VOXEL:
-    case VTK_HEXAHEDRON:
-      return 6;
-    case VTK_PENTAGONAL_PRISM:
-      return 7;
-    case VTK_HEXAGONAL_PRISM:
-      return 8;
-    default:
-      this->GetCell(cellId, cell);
-      return cell->GetNumberOfFaces();
-  }
+  return vtkCellTypeSides::GetCellNumberOfSides(this, cellId, cellType, 2, tempCell);
+}
+
+//------------------------------------------------------------------------------
+void vtkDataSet::GetCellFacePoints(vtkIdType cellId, int faceId, vtkIdList* facePtIds,
+  unsigned char& cellType, vtkIdList* tempCellPointIds, vtkGenericCell* tempCell)
+{
+  vtkIdType cellNpts;
+  const vtkIdType* cellPts;
+  cellType = static_cast<unsigned char>(this->GetCellType(cellId));
+  this->GetCellPoints(cellId, cellNpts, cellPts, tempCellPointIds);
+
+  this->GetCellFacePointsFromCellPoints(
+    cellId, faceId, facePtIds, cellType, cellNpts, cellPts, tempCell);
+}
+
+//------------------------------------------------------------------------------
+void vtkDataSet::GetCellFacePointsFromCellPoints(vtkIdType cellId, int faceId, vtkIdList* facePtIds,
+  unsigned char cellType, vtkIdType cellNpts, const vtkIdType* cellPts, vtkGenericCell* tempCell)
+{
+  vtkCellTypeSides::GetCellSidePoints(
+    this, cellId, cellType, 2, faceId, cellNpts, cellPts, facePtIds, tempCell);
+}
+
+//------------------------------------------------------------------------------
+int vtkDataSet::GetCellNumberOfEdges(
+  vtkIdType cellId, unsigned char& cellType, vtkGenericCell* tempCell)
+{
+  cellType = static_cast<unsigned char>(this->GetCellType(cellId));
+  return vtkCellTypeSides::GetCellNumberOfSides(this, cellId, cellType, 1, tempCell);
+}
+
+//------------------------------------------------------------------------------
+void vtkDataSet::GetCellEdgePoints(vtkIdType cellId, int edgeId, vtkIdList* edgePtIds,
+  unsigned char& cellType, vtkIdList* tempCellPointIds, vtkGenericCell* tempCell)
+{
+  vtkIdType cellNpts;
+  const vtkIdType* cellPts;
+  cellType = static_cast<unsigned char>(this->GetCellType(cellId));
+  this->GetCellPoints(cellId, cellNpts, cellPts, tempCellPointIds);
+
+  this->GetCellEdgePointsFromCellPoints(
+    cellId, edgeId, edgePtIds, cellType, cellNpts, cellPts, tempCell);
+}
+
+//------------------------------------------------------------------------------
+void vtkDataSet::GetCellEdgePointsFromCellPoints(vtkIdType cellId, int edgeId, vtkIdList* edgePtIds,
+  unsigned char cellType, vtkIdType cellNpts, const vtkIdType* cellPts, vtkGenericCell* tempCell)
+{
+  vtkCellTypeSides::GetCellSidePoints(
+    this, cellId, cellType, 1, edgeId, cellNpts, cellPts, edgePtIds, tempCell);
 }
 
 namespace
@@ -434,7 +457,7 @@ public:
   DistinctCellTypesWorker(vtkDataSet* ds)
     : DS(ds)
   {
-    if (ds && ds->GetNumberOfCells() > 0)
+    if (ds->GetNumberOfCells() > 0)
     {
       // initialize internal data structures
       vtkNew<vtkGenericCell> cell;
@@ -443,34 +466,33 @@ public:
   }
 
   vtkDataSet* DS;
-  std::set<unsigned char> DistinctCellTypes;
+  std::array<bool, VTK_NUMBER_OF_CELL_TYPES> DistinctCellTypes{};
 
   // Thread-local storage
-  vtkSMPThreadLocal<std::set<unsigned char>> LocalDistinctCellTypes;
+  vtkSMPThreadLocal<std::array<bool, VTK_NUMBER_OF_CELL_TYPES>> LocalDistinctCellTypes;
 
-  void Initialize() {}
+  void Initialize() { this->LocalDistinctCellTypes.Local().fill(false); }
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    if (!this->DS)
-    {
-      return;
-    }
     auto& localDistinctCellTypes = this->LocalDistinctCellTypes.Local();
 
     for (vtkIdType idx = begin; idx < end; ++idx)
     {
-      unsigned char cellType = static_cast<unsigned char>(this->DS->GetCellType(idx));
-      localDistinctCellTypes.insert(cellType);
+      const int cellType = this->DS->GetCellType(idx);
+      assert(cellType >= 0 && cellType < VTK_NUMBER_OF_CELL_TYPES);
+      localDistinctCellTypes[cellType] = true;
     }
   }
 
   void Reduce()
   {
-    this->DistinctCellTypes.clear();
     for (const auto& distinctCellTypes : this->LocalDistinctCellTypes)
     {
-      this->DistinctCellTypes.insert(distinctCellTypes.begin(), distinctCellTypes.end());
+      for (int cellType = 0; cellType < VTK_NUMBER_OF_CELL_TYPES; ++cellType)
+      {
+        this->DistinctCellTypes[cellType] |= distinctCellTypes[cellType];
+      }
     }
   }
 };
@@ -484,10 +506,14 @@ void vtkDataSet::GetDistinctCellTypes(vtkCellTypes* types)
   if (types)
   {
     types->Reset();
-    types->Allocate(static_cast<vtkIdType>(worker.DistinctCellTypes.size()));
-    for (const auto& distinctCellType : worker.DistinctCellTypes)
+    types->Allocate(static_cast<vtkIdType>(
+      std::count(worker.DistinctCellTypes.begin(), worker.DistinctCellTypes.end(), true)));
+    for (int cellType = 0; cellType < VTK_NUMBER_OF_CELL_TYPES; ++cellType)
     {
-      types->InsertNextType(distinctCellType);
+      if (worker.DistinctCellTypes[cellType])
+      {
+        types->InsertNextType(static_cast<unsigned char>(cellType));
+      }
     }
   }
 }

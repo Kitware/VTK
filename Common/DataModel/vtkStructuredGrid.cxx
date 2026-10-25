@@ -115,6 +115,8 @@ void vtkStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
     return;
   }
 
+  // set cell id
+  cell->CellId = cellId;
   // see whether the cell is blanked
   if (!this->IsCellVisible(cellId))
   {

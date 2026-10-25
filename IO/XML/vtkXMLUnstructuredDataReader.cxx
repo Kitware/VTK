@@ -14,6 +14,7 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
+#include "vtkPolyhedronCellArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
@@ -23,6 +24,7 @@
 #include <cassert>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace
@@ -1801,76 +1803,35 @@ int vtkXMLUnstructuredDataReader::ReadFaceCellArray(vtkIdType numberOfCells,
     return 0;
   }
 
-  // Copy the contents of the faceoffsets array.
-  // Note that faceOffsets[i] points to the end of the i-th cell + 1. While
-  // vtkUnstructuredGrid::FaceLocations[i] points to the beginning of the
-  // i-th cell. Need to convert. Also note that for both arrays, a
-  // non-polyhedron cell has a offset of -1.
-  vtkIdType* facesPtr = faces->GetPointer(0);
-
+  // Append the cells to the output faces and face locations, from the legacy layout of
+  // vtkPolyhedronCellArray, with their point ids offset by StartPoint (Paraview-BUG-13892).
+  // faceoffsets gives the end of the face stream of every polyhedron, which starts at the end of
+  // the previous one, and -1 for the other cells.
+  std::vector<vtkIdType> faceLocations(numberOfCells);
   vtkIdType currLoc = 0;
-  vtkIdType currFaceNum = outFaces->GetNumberOfCells();
   for (vtkIdType i = 0; i < numberOfCells; ++i)
   {
     if (faceoffsetPtr[i] < 0)
     {
-      outFaceOffsets->InsertNextCell(0);
+      faceLocations[i] = -1;
     }
     else
     {
-      // find next offset
-      // read numberOfFaces in a cell
-      vtkIdType numberOfCellFaces = facesPtr[currLoc];
-      currLoc += 1;
-      outFaceOffsets->InsertNextCell(static_cast<int>(numberOfCellFaces));
-      for (vtkIdType j = 0; j < numberOfCellFaces; j++)
-      {
-        // read numberOfPoints in a face
-        vtkIdType numberOfFacePoints = facesPtr[currLoc];
-        // update the point ids with StartPoint (Paraview-BUG-13892)
-        if (this->StartPoint > 0)
-        {
-          for (vtkIdType pidx = currLoc + 1; pidx < currLoc + 1 + numberOfFacePoints; pidx++)
-          {
-            facesPtr[pidx] += this->StartPoint;
-          }
-        }
-        currLoc += numberOfFacePoints + 1;
-        outFaceOffsets->InsertCellPoint(currFaceNum++);
-      }
+      faceLocations[i] = currLoc;
+      currLoc = faceoffsetPtr[i];
     }
   }
-
-  // sanity check
-  if (currLoc != facesArrayLength)
+  vtkNew<vtkPolyhedronCellArray> polyhedra;
+  polyhedra->SetData(outFaces, outFaceOffsets);
+  if (!polyhedra->AppendLegacyFormat(faces->GetPointer(0), facesArrayLength, faceLocations.data(),
+        numberOfCells, this->StartPoint))
   {
     vtkErrorMacro("Cannot read faces from " << eCells->GetName() << " in piece " << this->Piece
                                             << " because the \"faces\" and"
                                             << " \"faceoffsets\" arrays don't match.");
+    faces->Delete();
     faceOffsets->Delete();
     return 0;
-  }
-
-  // Copy the contents of the faces array.
-  currLoc = 0;
-  for (vtkIdType i = 0; i < numberOfCells; ++i)
-  {
-    if (faceoffsetPtr[i] < 0)
-    {
-      continue;
-    }
-    // read numberOfFaces in a cell
-    vtkIdType numberOfCellFaces = facesPtr[currLoc++];
-    for (vtkIdType j = 0; j < numberOfCellFaces; j++)
-    {
-      // read numberOfPoints in a face
-      vtkIdType numberOfFacePoints = facesPtr[currLoc++];
-      outFaces->InsertNextCell(static_cast<int>(numberOfFacePoints));
-      for (vtkIdType ptidx = 0; ptidx < numberOfFacePoints; ptidx++)
-      {
-        outFaces->InsertCellPoint(facesPtr[currLoc++]);
-      }
-    }
   }
 
   faces->Delete();

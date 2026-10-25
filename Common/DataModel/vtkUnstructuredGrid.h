@@ -19,6 +19,8 @@
 #include "vtkAbstractCellLinks.h"     // For vtkAbstractCellLinks
 #include "vtkCellArray.h"             // inline GetCellPoints()
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_8_0
+#include "vtkPolyhedronCellArray.h"   // inline GetPolyhedronFaces()
 #include "vtkSmartPointer.h"          // for smart pointer
 #include "vtkUnstructuredGridBase.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
@@ -194,6 +196,48 @@ public:
   ///@}
 
   /**
+   * Get the number of faces of a cell, and its type.
+   */
+  int GetCellNumberOfFaces(
+    vtkIdType cellId, unsigned char& cellType, vtkGenericCell* tempCell) override;
+
+  ///@{
+  /**
+   * Get the point ids of the face faceId of the cell cellId, and the type of the cell, in the order
+   * of vtkCell::GetFace(), but the faces of a voxel, in the order of a polygon, or none if faceId
+   * is out of range. GetCellFacePointsFromCellPoints() takes the type and points of the
+   * cell, and GetCellFacePoints() reads them, using tempCellPointIds.
+   */
+  void GetCellFacePoints(vtkIdType cellId, int faceId, vtkIdList* facePtIds,
+    unsigned char& cellType, vtkIdList* tempCellPointIds, vtkGenericCell* tempCell) override;
+  void GetCellFacePointsFromCellPoints(vtkIdType cellId, int faceId, vtkIdList* facePtIds,
+    unsigned char cellType, vtkIdType cellNpts, const vtkIdType* cellPts,
+    vtkGenericCell* tempCell) override;
+  ///@}
+
+  /**
+   * Get the number of edges of a cell, and its type.
+   */
+  int GetCellNumberOfEdges(
+    vtkIdType cellId, unsigned char& cellType, vtkGenericCell* tempCell) override;
+
+  ///@{
+  /**
+   * Get the point ids of the edge edgeId of the cell cellId, and the type of the cell, in the order
+   * of vtkCell::GetEdge(), or none if edgeId is out of range. They are read from the points of the
+   * cell if its class has a static table of edges, or for a polygon, see vtkCellTypeSides, and from
+   * the cell built in tempCell otherwise, e.g., for a polyhedron. GetCellEdgePointsFromCellPoints()
+   * takes the type and points of the cell, and GetCellEdgePoints() reads them, using
+   * tempCellPointIds.
+   */
+  void GetCellEdgePoints(vtkIdType cellId, int edgeId, vtkIdList* edgePtIds,
+    unsigned char& cellType, vtkIdList* tempCellPointIds, vtkGenericCell* tempCell) override;
+  void GetCellEdgePointsFromCellPoints(vtkIdType cellId, int edgeId, vtkIdList* edgePtIds,
+    unsigned char cellType, vtkIdType cellNpts, const vtkIdType* cellPts,
+    vtkGenericCell* tempCell) override;
+  ///@}
+
+  /**
    * Get the array of all cell types in the grid. Each single-component
    * tuple in the array at an index that corresponds to the type of the cell
    * with the same index. To get an array of only the distinct cell types in
@@ -267,11 +311,14 @@ public:
    * the faces use by the polyhedral cells.
    * SetPolyhedralCells also requires a faceLocations vtkCellArray to fully describe a polyhedron
    * cell The faceLocations is a collection of face ids pointing to the faces vtkCellArray.
+   * They may also be given as a vtkPolyhedronCellArray, which is referenced.
    */
   void SetCells(int* types, vtkCellArray* cells);
   void SetCells(vtkDataArray* cellTypes, vtkCellArray* cells);
   void SetPolyhedralCells(
     vtkDataArray* cellTypes, vtkCellArray* cells, vtkCellArray* faceLocations, vtkCellArray* faces);
+  void SetPolyhedralCells(
+    vtkDataArray* cellTypes, vtkCellArray* cells, vtkPolyhedronCellArray* polyhedra);
   ///@}
 
   /**
@@ -293,17 +340,6 @@ public:
   void GetCellNeighbors(
     vtkIdType cellId, vtkIdType npts, const vtkIdType* ptIds, vtkIdList* cellIds);
   ///@}
-
-  /**
-   * Get the number of faces of a cell.
-   *
-   * Most of the times extracting the number of faces requires only extracting
-   * the cell type. However, for some cell types, the number of faces is not
-   * constant. For example, a convex point set cell can have a different number of
-   * faces for each cell. That's why this method requires the cell id and the dataset.
-   */
-  int GetCellNumberOfFaces(
-    vtkIdType cellId, unsigned char& cellType, vtkGenericCell* cell) override;
 
   ///@{
   /**
@@ -396,23 +432,73 @@ public:
 
   /**
    * Special support for polyhedron. Do not handle all other cell types.
+   *
+   * @note This method copies the polyhedron faces into the provided @a faces array.
+   * Prefer using GetPolyhedronCellArray() for direct, zero-copy per-cell face queries.
+   *
+   * @sa GetPolyhedronCellArray()
    */
-  void GetPolyhedronFaces(vtkIdType cellId, vtkCellArray* faces);
+  void GetPolyhedronFaces(vtkIdType cellId, vtkCellArray* faces)
+  {
+    if (faces == nullptr)
+    {
+      return;
+    }
+    faces->Reset();
+    if (this->Polyhedra && cellId >= 0 && cellId < this->Polyhedra->GetNumberOfCells())
+    {
+      this->Polyhedra->GetCellFaces(cellId, faces);
+    }
+  }
 
   ///@{
   /**
    * Get pointer to faces and facelocations for polyhedron cells.
-   * This is a direct access to internal vtkCellArray structures without any copy.
+   *
+   * This provides direct, zero-copy access to internal vtkCellArray structures:
+   * the faces and face locations of GetPolyhedronCellArray(), or nullptr if no
+   * polyhedron cell has been added.
+   *
+   * @note Use GetPolyhedronFaces() and GetPolyhedronFaceLocations() only for whole-array
+   * operations such as I/O, serialization, or copying between datasets. To query faces
+   * per cell, use GetPolyhedronCellArray() instead.
+   *
+   * @sa GetPolyhedronCellArray()
    */
-  vtkCellArray* GetPolyhedronFaces();
-  vtkCellArray* GetPolyhedronFaceLocations();
+  vtkCellArray* GetPolyhedronFaces()
+  {
+    return this->Polyhedra ? this->Polyhedra->GetFaces() : nullptr;
+  }
+  vtkCellArray* GetPolyhedronFaceLocations()
+  {
+    return this->Polyhedra ? this->Polyhedra->GetFaceLocations() : nullptr;
+  }
   ///@}
+
+  /**
+   * Get the faces of the polyhedron cells, one cell per cell of the dataset,
+   * without faces for cells that are not polyhedra (see vtkPolyhedronCellArray).
+   * This is direct, zero-copy access to the internal structure (nullptr if no
+   * polyhedron cells exist).
+   *
+   * Guidelines for accessing polyhedron faces:
+   * - **Per-cell face queries:** Use GetPolyhedronCellArray() to inspect faces per cell
+   *   (e.g., using `GetCellNumberOfFaces`, `GetFacePoints`, or via `Dispatch` in tight loops).
+   * - **Whole-array workflows:** Use GetPolyhedronFaces() and GetPolyhedronFaceLocations()
+   *   only for dataset-level operations such as file I/O, pipeline serialization, or copying.
+   * - **Convenience extractions:** Methods such as GetPolyhedronFaces(vtkIdType, vtkCellArray*)
+   *   and GetFaceStream() allocate and copy data; use them only when an explicit vtkCellArray
+   *   or serialized face stream is strictly required.
+   *
+   * @sa GetPolyhedronFaces(), GetPolyhedronFaceLocations(), GetFaceStream()
+   */
+  vtkPolyhedronCellArray* GetPolyhedronCellArray() { return this->Polyhedra; }
 
   /**
    * Special function used by vtkUnstructuredGridReader.
    * By default vtkUnstructuredGrid does not contain face information, which is
    * only used by polyhedron cells. If so far no polyhedron cells have been
-   * added, Faces and FaceLocations pointers will be nullptr. In this case, need to
+   * added, GetPolyhedronCellArray() is nullptr. In this case, need to
    * initialize the arrays and assign values to the previous non-polyhedron cells.
    */
   int InitializeFacesRepresentation(vtkIdType numPrevCells);
@@ -438,9 +524,11 @@ public:
    * cellArray and faces. The original data in the input will not
    * be touched.
    */
+  VTK_DEPRECATED_IN_9_8_0("Use vtkPolyhedronCellArray::InsertNextCell() instead")
   static void DecomposeAPolyhedronCell(vtkCellArray* polyhedronCellArray, vtkIdType& nCellpts,
     vtkIdType& nCellfaces, vtkCellArray* cellArray, vtkIdTypeArray* faces);
 
+  VTK_DEPRECATED_IN_9_8_0("Use vtkPolyhedronCellArray::InsertNextCell() instead")
   static void DecomposeAPolyhedronCell(const vtkIdType* polyhedronCellStream, vtkIdType& nCellpts,
     vtkIdType& nCellfaces, vtkCellArray* cellArray, vtkIdTypeArray* faces);
 
@@ -456,6 +544,7 @@ public:
    * cellArray and faces. The original data in the input will not
    * be touched.
    */
+  VTK_DEPRECATED_IN_9_8_0("Use vtkPolyhedronCellArray::InsertNextCell() instead")
   static void DecomposeAPolyhedronCell(vtkIdType nCellFaces, const vtkIdType* inFaceStream,
     vtkIdType& nCellpts, vtkCellArray* cellArray, vtkIdTypeArray* faces);
 
@@ -501,6 +590,10 @@ protected:
   vtkSmartPointer<vtkAbstractCellLinks> Links;
   vtkSmartPointer<vtkDataArray> Types;
 
+  // Recompute DistinctCellTypes if the Types array was modified since the last time, see
+  // GetDistinctCellTypes() and GetDistinctCellTypesArray().
+  void UpdateDistinctCellTypes();
+
   // Set of all cell types present in the grid. All entries are unique.
   vtkSmartPointer<vtkCellTypes> DistinctCellTypes;
 
@@ -514,8 +607,14 @@ protected:
    * The FaceLocations store a polyhedron as a list of faces defined in Faces using a vtkCellArray
    * structure.
    */
-  vtkSmartPointer<vtkCellArray> Faces;
-  vtkSmartPointer<vtkCellArray> FaceLocations;
+  vtkSmartPointer<vtkCellArray> Faces VTK_DEPRECATED_IN_9_8_0("Use Polyhedra instead");
+  vtkSmartPointer<vtkCellArray> FaceLocations VTK_DEPRECATED_IN_9_8_0("Use Polyhedra instead");
+
+  /**
+   * Special support for polyhedra/cells with explicit face representations,
+   * see vtkPolyhedronCellArray, nullptr if no polyhedron cell has been added.
+   */
+  vtkSmartPointer<vtkPolyhedronCellArray> Polyhedra;
 
   vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]) override;
   vtkIdType InternalInsertNextCell(int type, vtkIdList* ptIds) override;

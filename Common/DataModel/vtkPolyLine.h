@@ -30,6 +30,11 @@ public:
   vtkTypeMacro(vtkPolyLine, vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_POLY_LINE);
+
   ///@{
   /**
    * Given points and lines, compute normals to the lines. These are not true
@@ -51,8 +56,8 @@ public:
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() override { return VTK_POLY_LINE; }
-  int GetCellDimension() override { return 1; }
+  int GetCellType() override { return Traits::CellType; }
+  int GetCellDimension() override { return Traits::Dimension; }
   int GetNumberOfEdges() override { return 0; }
   int GetNumberOfFaces() override { return 0; }
   vtkCell* GetEdge(int vtkNotUsed(edgeId)) override { return nullptr; }

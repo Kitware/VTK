@@ -29,6 +29,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_TRIANGLE);
+
+  /**
    * Get the edge specified by edgeId (range 0 to 2) and return that edge's
    * coordinates.
    */
@@ -38,10 +43,10 @@ public:
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() override { return VTK_TRIANGLE; }
-  int GetCellDimension() override { return 2; }
-  int GetNumberOfEdges() override { return 3; }
-  int GetNumberOfFaces() override { return 0; }
+  int GetCellType() override { return Traits::CellType; }
+  int GetCellDimension() override { return Traits::Dimension; }
+  int GetNumberOfEdges() override { return Traits::NumberOfEdges; }
+  int GetNumberOfFaces() override { return Traits::NumberOfFaces; }
   vtkCell* GetFace(int) override { return nullptr; }
   int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
   void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,

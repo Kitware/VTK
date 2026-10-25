@@ -27,14 +27,19 @@ public:
   vtkTypeMacro(vtkPixel, vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_PIXEL);
+
   ///@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() override { return VTK_PIXEL; }
-  int GetCellDimension() override { return 2; }
-  int GetNumberOfEdges() override { return 4; }
-  int GetNumberOfFaces() override { return 0; }
+  int GetCellType() override { return Traits::CellType; }
+  int GetCellDimension() override { return Traits::Dimension; }
+  int GetNumberOfEdges() override { return Traits::NumberOfEdges; }
+  int GetNumberOfFaces() override { return Traits::NumberOfFaces; }
   vtkCell* GetEdge(int edgeId) override;
   vtkCell* GetFace(int) override { return nullptr; }
   int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;

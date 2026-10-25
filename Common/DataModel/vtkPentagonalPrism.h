@@ -46,6 +46,11 @@ public:
   vtkTypeMacro(vtkPentagonalPrism, vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_PENTAGONAL_PRISM);
+
   ///@{
   /**
    * See vtkCell3D API for description of these methods.
@@ -61,42 +66,14 @@ public:
   bool IsInsideOut() override;
   ///@}
 
-  /**
-   * static constexpr handle on the number of points.
-   */
-  static constexpr vtkIdType NumberOfPoints = 10;
-
-  /**
-   * static contexpr handle on the number of faces.
-   */
-  static constexpr vtkIdType NumberOfEdges = 15;
-
-  /**
-   * static contexpr handle on the number of edges.
-   */
-  static constexpr vtkIdType NumberOfFaces = 7;
-
-  /**
-   * static contexpr handle on the maximum face size. It can also be used
-   * to know the number of faces adjacent to one face.
-   */
-  static constexpr vtkIdType MaximumFaceSize = 5;
-
-  /**
-   * static constexpr handle on the maximum valence of this cell.
-   * The valence of a vertex is the number of incident edges (or equivalently faces)
-   * to this vertex. It is also equal to the size of a one ring neighborhood of a vertex.
-   */
-  static constexpr vtkIdType MaximumValence = 3;
-
   ///@{
   /**
    * See the vtkCell3D API for descriptions of these methods.
    */
-  int GetCellType() override { return VTK_PENTAGONAL_PRISM; }
-  int GetCellDimension() override { return 3; }
-  int GetNumberOfEdges() override { return 15; }
-  int GetNumberOfFaces() override { return 7; }
+  int GetCellType() override { return Traits::CellType; }
+  int GetCellDimension() override { return Traits::Dimension; }
+  int GetNumberOfEdges() override { return Traits::NumberOfEdges; }
+  int GetNumberOfFaces() override { return Traits::NumberOfFaces; }
   vtkCell* GetEdge(int edgeId) override;
   vtkCell* GetFace(int faceId) override;
   int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;

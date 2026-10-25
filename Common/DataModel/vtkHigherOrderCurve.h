@@ -29,11 +29,16 @@ public:
   vtkTypeMacro(vtkHigherOrderCurve, vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  int GetCellType() override { return VTK_HIGHER_ORDER_CURVE; }
-  int GetCellDimension() override { return 1; }
+  /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_HIGHER_ORDER_CURVE);
+
+  int GetCellType() override { return Traits::CellType; }
+  int GetCellDimension() override { return Traits::Dimension; }
   int RequiresInitialization() override { return 1; }
-  int GetNumberOfEdges() override { return 0; }
-  int GetNumberOfFaces() override { return 0; }
+  int GetNumberOfEdges() override { return Traits::NumberOfEdges; }
+  int GetNumberOfFaces() override { return Traits::NumberOfFaces; }
   vtkCell* GetEdge(int) override { return nullptr; }
   vtkCell* GetFace(int) override { return nullptr; }
 

@@ -14,6 +14,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestBezier.cxx
   TestArrayListTemplate.cxx
   TestCellInflation.cxx
+  TestCellTypeTraits.cxx
   TestColor.cxx
   TestCoordinateFrame.cxx
   TestVector.cxx
@@ -92,6 +93,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestPolyhedron0.cxx
   TestPolyhedron1.cxx
   TestPolyhedron3.cxx
+  TestPolyhedronCellArray.cxx
   TestPolyhedronCombinatorialContouring.cxx
   TestPolyhedronConvexity.cxx
   TestPolyhedronConvexityMultipleCells.cxx

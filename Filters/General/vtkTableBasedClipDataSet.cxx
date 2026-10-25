@@ -686,16 +686,9 @@ struct EvaluateCells
               batchNumberOfCells++;
               batchCellsConnectivity += numberOfPoints;
 
-              vtkIdType numberOfFaces;
-              const vtkIdType* faceIndices = nullptr;
-              this->Input->GetPolyhedronFaceLocations()->GetCellAtId(
-                cellId, numberOfFaces, faceIndices, idList);
-              batchNumberOfFaces += numberOfFaces;
-              for (vtkIdType faceId = 0; faceId < numberOfFaces; ++faceId)
-              {
-                batchFacesConnectivity +=
-                  this->Input->GetPolyhedronFaces()->GetCellSize(faceIndices[faceId]);
-              }
+              vtkPolyhedronCellArray* polyhedra = this->Input->GetPolyhedronCellArray();
+              batchNumberOfFaces += polyhedra->GetCellNumberOfFaces(cellId);
+              batchFacesConnectivity += polyhedra->GetCellNumberOfFacePoints(cellId);
             }
             // Discard the cell (Fast path)
             else if (!TInsideOut ? insidePoints == 0 : insidePoints == numberOfPoints)
@@ -1115,14 +1108,14 @@ struct ExtractCells
                   static_cast<TOutputIdType>(pointsMap[pointIndices[pointId]]);
               }
               types[cellsOffset] = cellType;
-              this->Input->GetPolyhedronFaces(cellId, polyhedronFaces);
-              const vtkIdType numberOfFaces = polyhedronFaces->GetNumberOfCells();
-              for (vtkIdType faceId = 0; faceId < numberOfFaces; ++faceId)
+              vtkPolyhedronCellArray* polyhedra = this->Input->GetPolyhedronCellArray();
+              const int numberOfFaces = polyhedra->GetCellNumberOfFaces(cellId);
+              for (int faceId = 0; faceId < numberOfFaces; ++faceId)
               {
                 const vtkIdType globalFaceId = facesOffset++;
                 faceOffsets[globalFaceId] = facesConnectivityOffset;
                 faceLocationsConnectivity[globalFaceId] = globalFaceId;
-                polyhedronFaces->GetCellAtId(faceId, numberOfPoints, pointIndices, idList);
+                polyhedra->GetFacePoints(cellId, faceId, numberOfPoints, pointIndices, idList);
                 for (pointId = 0; pointId < numberOfPoints; ++pointId)
                 {
                   faceConnectivity[facesConnectivityOffset++] =
@@ -1149,7 +1142,7 @@ struct ExtractCells
                 types[cellsOffset] = VTK_POLYHEDRON;
 
                 const vtkIdType numberOfFaces = outputPolyhedronFaces->GetNumberOfCells();
-                for (vtkIdType faceId = 0; faceId < numberOfFaces; ++faceId)
+                for (int faceId = 0; faceId < numberOfFaces; ++faceId)
                 {
                   const vtkIdType globalFaceId = facesOffset++;
                   faceOffsets[globalFaceId] = facesConnectivityOffset;

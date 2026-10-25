@@ -58,6 +58,31 @@ struct CreateImpl<T1, T2, T3, T4, Tail...>
         vtkTypeList::TypeList<T4, typename vtkTypeList::detail::CreateImpl<Tail...>::type>>>>;
 };
 
+//------------------------------------------------------------------------------
+// Implementation of ForEach: functor(Head{}), then the rest of the TypeList.
+template <typename TList>
+struct ForEachImpl;
+
+template <>
+struct ForEachImpl<vtkTypeList::NullType>
+{
+  template <typename Functor>
+  static constexpr void Call(Functor&)
+  {
+  }
+};
+
+template <typename Head, typename Tail>
+struct ForEachImpl<vtkTypeList::TypeList<Head, Tail>>
+{
+  template <typename Functor>
+  static constexpr void Call(Functor& functor)
+  {
+    functor(Head{});
+    ForEachImpl<Tail>::Call(functor);
+  }
+};
+
 VTK_ABI_NAMESPACE_END
 }
 

@@ -162,6 +162,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
+  /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_POLYHEDRON);
+
   ///@{
   /**
    * See vtkCell3D API for description of these methods.
@@ -209,7 +214,7 @@ public:
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() override { return VTK_POLYHEDRON; }
+  int GetCellType() override { return Traits::CellType; }
 
   /**
    * This cell requires that it be initialized prior to access.

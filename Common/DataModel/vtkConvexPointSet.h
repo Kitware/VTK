@@ -35,6 +35,11 @@ public:
   vtkTypeMacro(vtkConvexPointSet, vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_CONVEX_POINT_SET);
+
   ///@{
   /**
    * See vtkCell3D API for description of these methods.
@@ -93,7 +98,7 @@ public:
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() override { return VTK_CONVEX_POINT_SET; }
+  int GetCellType() override { return Traits::CellType; }
 
   /**
    * This cell requires that it be initialized prior to access.
@@ -210,6 +215,9 @@ protected:
 private:
   vtkConvexPointSet(const vtkConvexPointSet&) = delete;
   void operator=(const vtkConvexPointSet&) = delete;
+
+  // in the class (header)
+  bool FacesBuilt = false;
 };
 
 //----------------------------------------------------------------------------

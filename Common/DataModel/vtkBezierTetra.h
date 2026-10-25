@@ -36,7 +36,13 @@ public:
   vtkTypeMacro(vtkBezierTetra, vtkHigherOrderTetra);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  int GetCellType() override { return VTK_BEZIER_TETRAHEDRON; }
+
+  /**
+   * The traits of the cell type, see vtkCellTypeTraits.
+   */
+  vtkCellTypeTraitsMembersMacro(VTK_BEZIER_TETRAHEDRON);
+
+  int GetCellType() override { return Traits::CellType; }
   vtkCell* GetEdge(int edgeId) override;
   vtkCell* GetFace(int faceId) override;
   void SetRationalWeightsFromPointData(vtkPointData* point_data, vtkIdType numPts);
