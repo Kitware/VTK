@@ -208,10 +208,6 @@
 .macos_arm64_wheel_tags:
     tags:
         - vtk
-        # There is an odd situation where older machines end up timing out 7-8
-        # tests 8-10 minutes into the job. Keep the test jobs on machines where
-        # this has not been observed.
-        - vtk-wheel
         - macos-arm64
         - tart
 
