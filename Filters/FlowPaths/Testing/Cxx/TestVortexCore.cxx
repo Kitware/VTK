@@ -410,16 +410,14 @@ int TestVortexCore(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  // Higher order method on a float velocity field. vtkGradientFilter follows
-  // its input type, so jacobian_prime is float here; downcasting it to
-  // vtkDoubleArray gave null and crashed in the dispatch worker.
+  // Higher order method on a float velocity field.
   {
     vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid = constructGrid(5, 5, 5, Hexahedra);
     constructFloatVelocityProfile(unstructuredGrid);
 
     if (!vtkFloatArray::SafeDownCast(unstructuredGrid->GetPointData()->GetArray("velocity")))
     {
-      std::cerr << "Velocity must be float to cover the jacobian_prime downcast" << std::endl;
+      std::cerr << "Velocity must be float for this case" << std::endl;
       return EXIT_FAILURE;
     }
 
@@ -439,6 +437,41 @@ int TestVortexCore(int argc, char* argv[])
     if (!output3->GetNumberOfCells())
     {
       std::cerr << "Float higher order method produced no cells" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  // On the stretched vortex, velocity, acceleration and jerk are all parallel
+  // only on the axis, so both methods must return the axis.
+  for (const bool higherOrder : { false, true })
+  {
+    vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid = constructGrid(10, 10, 10, Hexahedra);
+    constructStretchedVortex(unstructuredGrid);
+
+    vtkNew<vtkVortexCore> vortexCore;
+    vortexCore->SetHigherOrderMethod(higherOrder);
+    vortexCore->SetInputArrayToProcess(
+      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "velocity");
+    vortexCore->SetInputData(unstructuredGrid);
+    vortexCore->Update();
+
+    vtkPolyData* lines = vortexCore->GetOutput();
+    const char* label = higherOrder ? "higher order" : "Sujudi-Haimes";
+    if (lines->GetNumberOfPoints() == 0)
+    {
+      std::cerr << "Stretched vortex, " << label << ": no core line" << std::endl;
+      return EXIT_FAILURE;
+    }
+    double worst = 0.;
+    for (vtkIdType i = 0; i < lines->GetNumberOfPoints(); ++i)
+    {
+      const double* p = lines->GetPoint(i);
+      worst = std::max(worst, std::hypot(p[0] - 0.137, p[1] + 0.071));
+    }
+    if (worst > 0.05)
+    {
+      std::cerr << "Stretched vortex, " << label << ": core line point " << worst
+                << " from the axis" << std::endl;
       return EXIT_FAILURE;
     }
   }
