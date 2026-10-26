@@ -24,7 +24,7 @@
  * This test verifies that we can hot swap ANARI Volume rendering and
  * GL volume rendering for float volume data.
  */
-int TestAnariGPUVolumeRayCastMapper(int argc, char* argv[])
+int TestAnariVolumeMapper(int argc, char* argv[])
 {
   bool useDebugDevice = false;
 

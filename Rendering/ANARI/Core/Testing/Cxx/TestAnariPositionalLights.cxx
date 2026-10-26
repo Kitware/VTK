@@ -5,7 +5,6 @@
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkContourFilter.h"
-#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkLight.h"
 #include "vtkLightActor.h"
 #include "vtkNew.h"
@@ -21,6 +20,7 @@
 
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
+#include "vtkAnariVolumeMapper.h"
 
 /**
  * This test volume renders a synthetic dataset with four different
@@ -42,7 +42,7 @@ int TestAnariPositionalLights(int argc, char* argv[])
     }
   }
 
-  vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
+  vtkNew<vtkAnariVolumeMapper> volumeMapper;
   vtkNew<vtkXMLImageDataReader> reader;
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
@@ -51,8 +51,6 @@ int TestAnariPositionalLights(int argc, char* argv[])
 
   volumeMapper->SetInputConnection(reader->GetOutputPort());
   volumeMapper->SetBlendModeToComposite();
-  volumeMapper->SetAutoAdjustSampleDistances(0);
-  volumeMapper->SetSampleDistance(0.1);
 
   vtkNew<vtkRenderer> ren;
   ren->SetBackground(0.0, 0.0, 0.4);

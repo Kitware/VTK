@@ -4,7 +4,6 @@
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkDataSet.h"
-#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkLightKit.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
@@ -20,6 +19,7 @@
 
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
+#include "vtkAnariVolumeMapper.h"
 
 /**
  * This test covers using VTK light kit to add general purpose lighting
@@ -41,7 +41,7 @@ int TestAnariVolumeLightKit(int argc, char* argv[])
 
   double scalarRange[2];
 
-  vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
+  vtkNew<vtkAnariVolumeMapper> volumeMapper;
   vtkNew<vtkXMLImageDataReader> reader;
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
@@ -52,8 +52,6 @@ int TestAnariVolumeLightKit(int argc, char* argv[])
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
-  volumeMapper->SetAutoAdjustSampleDistances(1);
-  volumeMapper->SetSampleDistance(0.01);
 
   vtkNew<vtkLightKit> lightKit;
   vtkNew<vtkRenderWindow> renWin;

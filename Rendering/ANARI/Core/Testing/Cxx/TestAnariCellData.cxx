@@ -6,7 +6,6 @@
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 #include "vtkColorTransferFunction.h"
-#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
@@ -22,6 +21,8 @@
 #include "vtkTesting.h"
 #include "vtkVolumeProperty.h"
 #include "vtkXMLImageDataReader.h"
+
+#include "vtkAnariVolumeMapper.h"
 
 /**
  * This tests whether ANARI properly handles cell data
@@ -42,7 +43,7 @@ int TestAnariCellData(int argc, char* argv[])
 
   vtkNew<vtkActor> outlineActor;
   vtkNew<vtkPolyDataMapper> outlineMapper;
-  vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
+  vtkNew<vtkAnariVolumeMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
   char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
@@ -62,8 +63,6 @@ int TestAnariCellData(int argc, char* argv[])
   outlineActor->SetMapper(outlineMapper);
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
-  volumeMapper->SetSampleDistance(0.1); // TODO: ignored
-  volumeMapper->SetAutoAdjustSampleDistances(0);
   volumeMapper->SetBlendModeToComposite(); // TODO: ignored
 
   vtkNew<vtkRenderWindow> renWin;

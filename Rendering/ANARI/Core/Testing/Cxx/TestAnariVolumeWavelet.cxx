@@ -3,7 +3,6 @@
 
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
-#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
@@ -19,6 +18,7 @@
 
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
+#include "vtkAnariVolumeMapper.h"
 
 static const char* TestAnariVolumeWaveletLog = "# StreamVersion 1\n"
                                                "EnterEvent 299 0 0 0 0 0 0\n"
@@ -55,9 +55,7 @@ int TestAnariVolumeWavelet(int argc, char* argv[])
 
   vtkNew<vtkTest::ErrorObserver> errorObserver;
 
-  vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
-  volumeMapper->SetAutoAdjustSampleDistances(0);
-  volumeMapper->SetSampleDistance(0.5);
+  vtkNew<vtkAnariVolumeMapper> volumeMapper;
   volumeMapper->SetInputConnection(wavelet->GetOutputPort());
   volumeMapper->AddObserver(vtkCommand::ErrorEvent, errorObserver);
 
