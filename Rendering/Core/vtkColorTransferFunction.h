@@ -363,7 +363,7 @@ public:
    * and logarithmic beyond.
    * Default is 1.0.
    */
-  vtkSetClampMacro(SymlogLinearThreshold, double, 1e-10, VTK_DOUBLE_MAX);
+  vtkSetClampMacro(SymlogLinearThreshold, double, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX);
   vtkGetMacro(SymlogLinearThreshold, double);
   ///@}
 

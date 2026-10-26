@@ -46,6 +46,31 @@ bool TestSymlogScale()
     return false;
   }
 
+  // High-dynamic-range test ([-1e6, 1e6] with linthresh = 1e-7 and < 1e-10)
+  ctf->RemoveAllPoints();
+  ctf->AddRGBPoint(-1e6, 0.0, 0.0, 1.0);
+  ctf->AddRGBPoint(1e6, 1.0, 0.0, 0.0);
+  ctf->SetSymlogLinearThreshold(1e-7);
+
+  double rgbNegLow[3], rgbZero[3], rgbPosLow[3], rgbPosHigh[3];
+  ctf->GetColor(-1e-6, rgbNegLow);
+  ctf->GetColor(0.0, rgbZero);
+  ctf->GetColor(1e-6, rgbPosLow);
+  ctf->GetColor(1e6, rgbPosHigh);
+  if (!(rgbNegLow[0] < rgbZero[0] && rgbZero[0] < rgbPosLow[0] && rgbPosLow[0] < rgbPosHigh[0]))
+  {
+    std::cerr << "ERROR: Symlog CTF failed to distinguish +/-1e-6 from 0 and 1e6 at linthresh=1e-7!"
+              << std::endl;
+    return false;
+  }
+
+  ctf->SetSymlogLinearThreshold(1e-16);
+  if (ctf->GetSymlogLinearThreshold() != 1e-16)
+  {
+    std::cerr << "ERROR: SymlogLinearThreshold failed to accept 1e-16!" << std::endl;
+    return false;
+  }
+
   return true;
 }
 
