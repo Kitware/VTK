@@ -182,6 +182,47 @@ def add_ghost_cells(data, ghost_flag):
 
 
 # -----------------------------------------------------------------------------
+# Duplicate 2D ghost cells
+# -----------------------------------------------------------------------------
+
+def check_duplicate_quad():
+    """A hexahedron and 2 quads, one of them a duplicate ghost cell, which is kept unless the
+    ghost interfaces are removed."""
+    points = vtk.vtkPoints()
+    for z in (0, 1):
+        for y in (0, 1):
+            for x in (0, 1):
+                points.InsertNextPoint(x, y, z)
+    for x in (2, 3, 4):
+        for y in (0, 1):
+            points.InsertNextPoint(x, y, 0)
+
+    grid = vtk.vtkUnstructuredGrid()
+    grid.SetPoints(points)
+    grid.InsertNextCell(vtk.VTK_HEXAHEDRON, 8, [0, 1, 3, 2, 4, 5, 7, 6])
+    grid.InsertNextCell(vtk.VTK_QUAD, 4, [8, 10, 11, 9])
+    grid.InsertNextCell(vtk.VTK_QUAD, 4, [10, 12, 13, 11])
+
+    ghost = vtk.vtkUnsignedCharArray()
+    ghost.SetName(vtk.vtkDataSetAttributes.GhostArrayName())
+    for value in (0, 0, vtk.vtkDataSetAttributes.DUPLICATECELL):
+        ghost.InsertNextValue(value)
+    grid.GetCellData().AddArray(ghost)
+
+    for remove_interfaces, expected in ((False, 6 + 2), (True, 6 + 1)):
+        geom = vtk.vtkGeometryFilter()
+        geom.SetInputData(grid)
+        geom.SetRemoveGhostInterfaces(remove_interfaces)
+        geom.Update()
+        num_cells = geom.GetOutput().GetNumberOfCells()
+        if num_cells != expected:
+            raise RuntimeError(
+                f"RemoveInterfaces={remove_interfaces}: expected {expected} cells, got {num_cells}")
+
+
+check_duplicate_quad()
+
+# -----------------------------------------------------------------------------
 # Test matrix
 # -----------------------------------------------------------------------------
 
