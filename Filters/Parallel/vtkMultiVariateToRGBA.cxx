@@ -589,9 +589,11 @@ bool IsEmptyPiece(vtkDataObject* data)
 }
 
 /**
- * Returns the attributes that receive the output arrays of an empty piece.
+ * Returns the row data of a table, or the cell or point data of a dataset
+ * for 'association'. Any association other than cells, including
+ * POINTS_THEN_CELLS, gives the point data.
  */
-vtkDataSetAttributes* GetEmptyPieceAttributes(vtkDataObject* data, int association)
+vtkDataSetAttributes* GetAttributesForAssociation(vtkDataObject* data, int association)
 {
   if (vtkTable* table = vtkTable::SafeDownCast(data))
   {
@@ -1043,7 +1045,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   vtkSmartPointer<vtkDataArray> scalars;
   if (emptyPiece)
   {
-    attributes = GetEmptyPieceAttributes(
+    attributes = GetAttributesForAssociation(
       outData, this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_ASSOCIATION()));
   }
   // an empty piece uses its own scalars if it has arrays, so all pieces can be
