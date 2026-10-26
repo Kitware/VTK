@@ -1344,25 +1344,14 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
     vtkDataArray* array = this->GetInputArrayToProcess(0, inputVector, association);
     if (array)
     {
-      switch (association)
+      // the array was found, so POINTS_THEN_CELLS is resolved to one of these
+      if (association != vtkDataObject::FIELD_ASSOCIATION_POINTS &&
+        association != vtkDataObject::FIELD_ASSOCIATION_CELLS)
       {
-        case vtkDataObject::FIELD_ASSOCIATION_CELLS:
-          attributes = dataset->GetCellData();
-          break;
-        case vtkDataObject::FIELD_ASSOCIATION_POINTS:
-          attributes = dataset->GetPointData();
-          break;
-        case vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS:
-          attributes = dataset->GetPointData();
-          if (!attributes)
-          {
-            attributes = dataset->GetCellData();
-          }
-          break;
-        default:
-          vtkErrorWithObjectMacro(input, "Invalid association: " << association);
-          return { nullptr, nullptr };
+        vtkErrorWithObjectMacro(input, "Invalid association: " << association);
+        return { nullptr, nullptr };
       }
+      attributes = GetAttributesForAssociation(dataset, association);
       // Only keep the components marked visible (or every component, if
       // none has been explicitly configured), using a read-only implicit
       // array view so the underlying data is not copied.
