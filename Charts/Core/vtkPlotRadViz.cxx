@@ -667,7 +667,8 @@ vtkSmartPointer<vtkPoints2D> vtkPlotRadViz::DrawMarkers(
     painter->GetPen()->SetWidth(fillWidth);
   }
   painter->DrawMarkers(markerStyle, false /*highlight*/, data, numberOfPoints);
-  if (activeIndex >= 0)
+  // hiding a column can leave a stale active index
+  if (activeIndex >= 0 && activeIndex < numberOfPoints)
   {
     painter->DrawMarkers(
       markerStyle, false /*highlight*/, data + 2 * activeIndex, 1, this->ActiveColor.GetData(), 4);

@@ -304,6 +304,21 @@ bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 //------------------------------------------------------------------------------
 bool vtkChartRadViz::MouseLeaveEvent(const vtkContextMouseEvent&)
 {
+  vtkPlotRadViz* plot = this->Internals->Plot;
+  bool dragging = this->Internals->DragVertexIndex >= 0 || this->Internals->ResizeLens ||
+    this->Internals->DragLens;
+  if (plot && !dragging)
+  {
+    // clear the hover highlight, so it does not go stale
+    if (plot->GetActiveVertexIndex() >= 0 || plot->GetActiveLensOutline() ||
+      plot->GetActiveLensInterior())
+    {
+      this->Scene->SetDirty(true);
+    }
+    plot->SetActiveVertexIndex(-1);
+    plot->SetActiveLensOutline(false);
+    plot->SetActiveLensInterior(false);
+  }
   return true;
 }
 
