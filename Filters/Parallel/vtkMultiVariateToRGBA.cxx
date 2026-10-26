@@ -1056,7 +1056,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
                                      : this->GetInputArrayToProcess(0, inputVector) != nullptr);
   if (ownScalars)
   {
-    std::tie(attributes, scalars) = getAttributesAndScalars(outData, inputVector);
+    std::tie(attributes, scalars) = GetAttributesAndScalars(outData, inputVector);
   }
   if (parallel)
   {
@@ -1263,7 +1263,7 @@ vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::ApplyLens()
 
 //------------------------------------------------------------------------------
 std::pair<vtkDataSetAttributes*, vtkSmartPointer<vtkDataArray>>
-vtkMultiVariateToRGBA::getAttributesAndScalars(
+vtkMultiVariateToRGBA::GetAttributesAndScalars(
   vtkDataObject* input, vtkInformationVector** inputVector)
 {
   vtkTable* table = vtkTable::SafeDownCast(input);
