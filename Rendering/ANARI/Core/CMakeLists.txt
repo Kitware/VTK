@@ -23,7 +23,6 @@ set(classes
   vtkAnariDevice
   vtkAnariGlyph3DMapperNode
   vtkAnariGPUInfoList
-  vtkAnariGPUVolumeRayCastMapper
   vtkAnariLightNode
   vtkAnariPolyDataMapperNode
   vtkAnariRenderer
@@ -33,6 +32,7 @@ set(classes
   vtkAnariFollowerNode
   vtkAnariProfiling
   vtkAnariVolumeNode
+  vtkAnariVolumeMapper
   vtkAnariVolumeMapperNode
 )
 
@@ -43,8 +43,7 @@ set(nowrap_classes
 
 set(class_overrides
   RenderWindow
-  GPUInfoList
-  GPUVolumeRayCastMapper)
+  VolumeMapper)
 
 foreach(class_name IN LISTS class_overrides)
   vtk_object_factory_declare(

@@ -103,7 +103,6 @@ vtkAnariViewNodeFactory::vtkAnariViewNodeFactory()
   this->RegisterOverride("vtkAnariVolumeMapper", vm_maker);
   this->RegisterOverride("vtkMultiBlockVolumeMapper", vm_maker);
   this->RegisterOverride("vtkGlyph3DMapper", gm_maker);
-  this->RegisterOverride("vtkAnariGPUVolumeRayCastMapper", vm_maker);
 }
 
 //----------------------------------------------------------------------------
