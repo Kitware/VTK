@@ -8,6 +8,7 @@
 #include "vtkWeakPointer.h"
 
 #include <cstdint>
+#include <cstring>
 #include <deque>
 #include <map>
 #include <pthread.h>
@@ -73,7 +74,7 @@ public:
   class EventDataWrapper
   {
     int Type = -1; // Takes on values that are defined in emscripten/html5.h `EMSCRIPTEN_EVENT_NAME`
-    std::unique_ptr<std::uint8_t> Data = nullptr;
+    std::unique_ptr<std::uint8_t[]> Data = nullptr;
 
   public:
     explicit EventDataWrapper(int type, const void* data, std::size_t size)
@@ -222,12 +223,21 @@ vtkWebAssemblyRenderWindowInteractor::~vtkWebAssemblyRenderWindowInteractor()
     auto& platformTimerId = timerIds.second;
     vtkDestroyTimer(platformTimerId, this->IsOneShotTimer(tid));
   }
+  // Each TimerBridgeData is keeping the vtkInternals in a shared_ptr, so clear the map
+  // to drop all TimerBridgeData so that ~vtkInternals can run at the end of this method.
+  this->Internals->Timers.clear();
   this->SetCanvasSelector(nullptr);
 }
 
 //------------------------------------------------------------------------------
 void vtkWebAssemblyRenderWindowInteractor::SetCanvasSelector(const char* value)
 {
+  // nothing to do if the selector is unchanged.
+  if ((this->CanvasSelector == nullptr && value == nullptr) ||
+    (this->CanvasSelector && value && !strcmp(this->CanvasSelector, value)))
+  {
+    return;
+  }
   auto& internals = (*this->Internals);
   // remove callbacks from previous target
   const bool reInstallUICallbacks = internals.RegisteredUICallbacks;
@@ -264,9 +274,9 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvents()
   }
   while (!internals.Events.empty())
   {
-    auto& event = (*internals.Events.front());
-    this->ProcessEvent(event.type(), event.data());
+    auto event = std::move(internals.Events.front());
     internals.Events.pop_front();
+    this->ProcessEvent(event->type(), event->data());
   }
   if (!internals.ExpandedCanvasToContainerElement)
   {
@@ -299,6 +309,8 @@ void vtkWebAssemblyRenderWindowInteractor::RegisterUICallbacks()
 
   emscripten_set_mousedown_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
     EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_dblclick_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
   // Listen on window so that a button pressed on the canvas and released outside of it
   // is caught by the this->ProcessEvent(). Otherwise the interactor thinks the button is
   // held down.
@@ -327,6 +339,10 @@ void vtkWebAssemblyRenderWindowInteractor::RegisterUICallbacks()
     EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
   emscripten_set_blur_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
     EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_focusin_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_focusout_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
 
   emscripten_set_keydown_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
     EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
@@ -348,7 +364,7 @@ void vtkWebAssemblyRenderWindowInteractor::UnRegisterUICallbacks()
     return;
   }
   const char* canvas = this->CanvasSelector;
-  if (this->InstallHTMLResizeObserver && internals.ResizeObserverInstalled)
+  if (internals.ResizeObserverInstalled)
   {
     emscripten_set_resize_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 0, nullptr,
       EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
@@ -358,6 +374,8 @@ void vtkWebAssemblyRenderWindowInteractor::UnRegisterUICallbacks()
     canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
 
   emscripten_set_mousedown_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_dblclick_callback_on_thread(
     canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
   emscripten_set_mouseup_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 0, nullptr,
     EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
@@ -384,6 +402,10 @@ void vtkWebAssemblyRenderWindowInteractor::UnRegisterUICallbacks()
   emscripten_set_focus_callback_on_thread(
     canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
   emscripten_set_blur_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_focusin_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_focusout_callback_on_thread(
     canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
 
   emscripten_set_keydown_callback_on_thread(
@@ -460,8 +482,6 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
       {
         keyCode = emEvent->key[0];
       }
-      // track repeated presses as long as the keydown event is sent
-      ++internals.RepeatCounter;
       this->SetAltKey(emEvent->altKey);
       this->SetKeyEventInformation(
         emEvent->ctrlKey, emEvent->shiftKey, keyCode, internals.RepeatCounter, emEvent->key);
@@ -469,6 +489,8 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
       // additionally invokes CharEvent to satisfy observers that listen to it.
       // this is similar to other interactors.
       this->InvokeEvent(vtkCommand::CharEvent, nullptr);
+      // track repeated presses as long as the keydown event is sent
+      ++internals.RepeatCounter;
       break;
     }
     case EMSCRIPTEN_EVENT_KEYUP:
@@ -502,6 +524,10 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     case EMSCRIPTEN_EVENT_MOUSEDOWN:
     {
       auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
+      if (emEvent->button > 2)
+      {
+        break;
+      }
       internals.CanvasOffsetX = emEvent->clientX - emEvent->targetX;
       internals.CanvasOffsetY = emEvent->clientY - emEvent->targetY;
       internals.PressedButtons |= (1u << emEvent->button); // store button press bit.
@@ -514,6 +540,10 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     case EMSCRIPTEN_EVENT_MOUSEUP:
     {
       auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
+      if (emEvent->button > 2)
+      {
+        break;
+      }
       const unsigned int buttonBit = 1u << emEvent->button;
       if (!(internals.PressedButtons & buttonBit)) // check that the button was down on the canvas
       {
@@ -531,6 +561,10 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     case EMSCRIPTEN_EVENT_DBLCLICK:
     {
       auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
+      if (emEvent->button > 2)
+      {
+        break;
+      }
       this->SetEventInformationFlipY(
         emEvent->targetX * dpr, emEvent->targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey);
       this->SetAltKey(emEvent->altKey);
@@ -543,10 +577,16 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
       this->SetEventInformationFlipY(emEvent->mouse.targetX * dpr, emEvent->mouse.targetY * dpr,
         emEvent->mouse.ctrlKey, emEvent->mouse.shiftKey);
       this->SetAltKey(emEvent->mouse.altKey);
-      this->InvokeEvent(emEvent->deltaY < 0 ? vtkCommand::MouseWheelForwardEvent
-                                            : vtkCommand::MouseWheelBackwardEvent);
-      this->InvokeEvent(
-        emEvent->deltaX > 0 ? vtkCommand::MouseWheelRightEvent : vtkCommand::MouseWheelLeftEvent);
+      if (emEvent->deltaX == 0 && emEvent->deltaY != 0)
+      {
+        this->InvokeEvent(emEvent->deltaY < 0 ? vtkCommand::MouseWheelForwardEvent
+                                              : vtkCommand::MouseWheelBackwardEvent);
+      }
+      if (emEvent->deltaX != 0 && emEvent->deltaY == 0)
+      {
+        this->InvokeEvent(
+          emEvent->deltaX > 0 ? vtkCommand::MouseWheelRightEvent : vtkCommand::MouseWheelLeftEvent);
+      }
       break;
     }
     case EMSCRIPTEN_EVENT_TOUCHSTART:
@@ -705,6 +745,10 @@ int vtkWebAssemblyRenderWindowInteractor::InternalDestroyTimer(int platformTimer
 {
   auto& internals = (*this->Internals);
   int tid = this->GetVTKTimerId(platformTimerId);
+  if (internals.Timers.find(tid) == internals.Timers.end())
+  {
+    return 0;
+  }
   vtkDestroyTimer(platformTimerId, this->IsOneShotTimer(tid));
   internals.Timers.erase(tid);
   auto i = internals.VTKToPlatformTimerMap.find(tid);

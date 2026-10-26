@@ -79,7 +79,7 @@ void vtkPBRLUTTexture::Load(vtkRenderer* ren)
 
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl",
       "const float PI = 3.14159265359;\n"
-      "float RadicalInverse_VdC(uint bits)\n"
+      "float RadicalInverse_VdC(highp uint bits)\n"
       "{\n"
       "  bits = (bits << 16u) | (bits >> 16u);\n"
       "  bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);\n"

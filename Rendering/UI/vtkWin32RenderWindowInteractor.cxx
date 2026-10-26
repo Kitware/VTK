@@ -17,6 +17,7 @@
 #include "vtkWin32RenderWindowInteractor.h"
 #include "vtksys/Encoding.hxx"
 
+#include <array>
 #include <shellapi.h> // for drag and drop
 #include <winuser.h>  // for touch support
 
@@ -210,6 +211,7 @@ public:
   };
   std::map<int, std::unique_ptr<TimerContext>> TimerContextMap;
   bool IsRunning = false;
+  std::array<int, 256> RepeatCount = {};
 
   static void CALLBACK OnTimerFired(PVOID lpParameter, BOOLEAN)
   {
@@ -803,7 +805,8 @@ int vtkWin32RenderWindowInteractor::OnTimer(HWND, UINT timerId)
 }
 
 //------------------------------------------------------------------------------
-int vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, UINT nFlags)
+int vtkWin32RenderWindowInteractor::OnKeyDown(
+  HWND, UINT vCode, UINT vtkNotUsed(nRepCnt), UINT nFlags)
 {
   if (!this->Enabled)
   {
@@ -813,7 +816,23 @@ int vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, UI
   char keyCode;
   const char* keySym;
   ::RecoverKeyEventInformation(vCode, nFlags, ctrl, shift, alt, keyCode, keySym);
-  this->SetKeyEventInformation(ctrl, shift, keyCode, nRepCnt, keySym);
+
+  // https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-syskeydown
+  // The previous key state. The value is 1 if the key is down before the message is sent, or it is
+  // 0 if the key is up.
+  bool repeatFlag = (nFlags & (1 << 14)) != 0;
+  // char may be signed, so convert before using it as an index
+  int& repeatCount = this->Internals->RepeatCount[static_cast<unsigned char>(keyCode)];
+  if (!repeatFlag)
+  {
+    repeatCount = 0;
+  }
+  else
+  {
+    repeatCount++;
+  }
+
+  this->SetKeyEventInformation(ctrl, shift, keyCode, repeatCount, keySym);
   this->SetAltKey(alt);
   return this->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
 }
