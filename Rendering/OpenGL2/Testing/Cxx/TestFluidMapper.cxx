@@ -146,6 +146,8 @@ int TestFluidMapper(int argc, char* argv[])
   texture->UseSRGBColorSpaceOn();
 
   vtkNew<vtkPlaneSource> plane;
+  // Avoid clipping artifacts from large triangles in Apple's software renderer.
+  plane->SetResolution(10, 10);
   plane->SetNormal(0.0, -1.0, 0.0);
   plane->SetOrigin(-15.0, 0.0, -15.0);
   plane->SetPoint1(15, 0, -15);
