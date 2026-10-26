@@ -8,6 +8,7 @@
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkImageData.h"
 #include "vtkMapper.h"
 #include "vtkMatrix3x3.h"
@@ -184,63 +185,50 @@ void vtkWebGPUActor::SetId(vtkTypeUInt32 id)
 //------------------------------------------------------------------------------
 vtkTypeBool vtkWebGPUActor::HasOpaqueGeometry()
 {
+  if (!this->Mapper)
+  {
+    return this->Superclass::HasOpaqueGeometry();
+  }
   auto& internals = (*this->Internals);
-  bool isOpaque = false;
-  if (this->Mapper)
+  if (internals.MapperHasOpaqueGeometry.IsOutdated(this->Mapper))
   {
-    if (internals.MapperHasOpaqueGeometry.IsOutdated(this->Mapper))
-    {
-      isOpaque = this->Superclass::HasOpaqueGeometry();
-      internals.MapperHasOpaqueGeometry.SetValue(isOpaque);
-    }
-    else
-    {
-      // nullify mapper so that superclass doesn't run the expensive
-      // code path in vtkMapper::HasOpaqueGeometry.
-      vtkMapper* tmpMapper = this->Mapper;
-      this->Mapper = nullptr;
-      isOpaque = this->Superclass::HasOpaqueGeometry();
-      // restore
-      this->Mapper = tmpMapper;
-      isOpaque &= internals.MapperHasOpaqueGeometry.GetValue();
-    }
+    internals.MapperHasOpaqueGeometry.SetValue(this->Mapper->HasOpaqueGeometry());
   }
-  else
-  {
-    isOpaque = this->Superclass::HasOpaqueGeometry();
-  }
-  return isOpaque;
+  const bool mapperIsOpaque = internals.MapperHasOpaqueGeometry.GetValue();
+  // nullify mapper so that the superclass only checks the actor's own state.
+  vtkMapper* tmpMapper = this->Mapper;
+  this->Mapper = nullptr;
+  const bool actorIsOpaque = this->Superclass::HasOpaqueGeometry();
+  // restore
+  this->Mapper = tmpMapper;
+  // Like vtkActor, a composite mapper's opaque blocks are drawn even when the actor
+  // itself is translucent, since blocks may override the opacity.
+  const bool isComposite = vtkCompositePolyDataMapper::SafeDownCast(this->Mapper) != nullptr;
+  return (actorIsOpaque || isComposite) && mapperIsOpaque;
 }
 
 //------------------------------------------------------------------------------
 vtkTypeBool vtkWebGPUActor::HasTranslucentPolygonalGeometry()
 {
+  if (!this->Mapper)
+  {
+    return this->Superclass::HasTranslucentPolygonalGeometry();
+  }
   auto& internals = (*this->Internals);
-  bool isTranslucent = false;
-  if (this->Mapper)
+  if (internals.MapperHasTranslucentPolygonalGeometry.IsOutdated(this->Mapper))
   {
-    if (internals.MapperHasTranslucentPolygonalGeometry.IsOutdated(this->Mapper))
-    {
-      isTranslucent = this->Superclass::HasTranslucentPolygonalGeometry();
-      internals.MapperHasTranslucentPolygonalGeometry.SetValue(isTranslucent);
-    }
-    else
-    {
-      // nullify mapper so that superclass doesn't run the expensive
-      // code path in vtkMapper::HasTranslucentPolygonalGeometry.
-      vtkMapper* tmpMapper = this->Mapper;
-      this->Mapper = nullptr;
-      isTranslucent = this->Superclass::HasTranslucentPolygonalGeometry();
-      // restore
-      this->Mapper = tmpMapper;
-      isTranslucent &= internals.MapperHasTranslucentPolygonalGeometry.GetValue();
-    }
+    internals.MapperHasTranslucentPolygonalGeometry.SetValue(
+      this->Mapper->HasTranslucentPolygonalGeometry());
   }
-  else
-  {
-    isTranslucent = this->Superclass::HasTranslucentPolygonalGeometry();
-  }
-  return isTranslucent;
+  const bool mapperIsTranslucent = internals.MapperHasTranslucentPolygonalGeometry.GetValue();
+  // nullify mapper so that the superclass only checks the actor's own state.
+  vtkMapper* tmpMapper = this->Mapper;
+  this->Mapper = nullptr;
+  const bool actorIsTranslucent = this->Superclass::HasTranslucentPolygonalGeometry();
+  // restore
+  this->Mapper = tmpMapper;
+  // Either one being translucent makes the actor translucent.
+  return actorIsTranslucent || mapperIsTranslucent;
 }
 
 //------------------------------------------------------------------------------

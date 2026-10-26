@@ -72,6 +72,7 @@ set(cxx_tests
   TestEdgeFlags.cxx
   TestEdgeOpacity.cxx
   TestEdgeThickness.cxx
+  TestEnableOpacityMapping.cxx,NO_VALID
   TestFollowerPicking.cxx
   TestGlyph3DMapper.cxx
   TestGlyph3DMapperPointSize.cxx
