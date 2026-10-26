@@ -1041,19 +1041,15 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   outData->ShallowCopy(inData);
   bool parallel = this->Controller && this->Controller->GetNumberOfProcesses() > 1;
   bool emptyPiece = parallel && IsEmptyPiece(outData);
-  vtkDataSetAttributes* attributes = nullptr;
-  vtkSmartPointer<vtkDataArray> scalars;
-  if (emptyPiece)
-  {
-    attributes = GetAttributesForAssociation(
-      outData, this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_ASSOCIATION()));
-  }
+  vtkTable* table = vtkTable::SafeDownCast(outData);
   // an empty piece looks up its own scalars if it has them, so all pieces can
   // be empty; otherwise (e.g. a serial reader) the others decide the number
-  // of components
+  // of components and the association
   bool ownScalars = !emptyPiece ||
-    (vtkTable::SafeDownCast(outData) ? attributes->GetNumberOfArrays() > 0
-                                     : this->GetInputArrayToProcess(0, inputVector) != nullptr);
+    (table ? table->GetNumberOfColumns() > 0
+           : this->GetInputArrayToProcess(0, inputVector) != nullptr);
+  vtkDataSetAttributes* attributes = nullptr;
+  vtkSmartPointer<vtkDataArray> scalars;
   if (ownScalars)
   {
     std::tie(attributes, scalars) = GetAttributesAndScalars(outData, inputVector);
@@ -1071,8 +1067,14 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     this->Controller->AllReduce(localMin, globalMin, 2, vtkCommunicator::MIN_OP);
     canContinue = globalMin[0];
     minComponents = globalMin[1];
-    int maxComponents;
-    this->Controller->AllReduce(&numComponents, &maxComponents, 1, vtkCommunicator::MAX_OP);
+    vtkDataSet* dataset = vtkDataSet::SafeDownCast(outData);
+    int cellScalars = scalars && dataset && attributes == dataset->GetCellData();
+    // one MAX reduction for both: for 0/1 flags, MAX is a logical OR
+    int localMax[2] = { numComponents, cellScalars };
+    int globalMax[2];
+    this->Controller->AllReduce(localMax, globalMax, 2, vtkCommunicator::MAX_OP);
+    int maxComponents = globalMax[0];
+    cellScalars = globalMax[1];
     if (!canContinue)
     {
       return 0;
@@ -1092,6 +1094,10 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     {
       scalars = vtkSmartPointer<vtkDoubleArray>::New();
       scalars->SetNumberOfComponents(maxComponents);
+      // put the output arrays where the other processes do
+      attributes = GetAttributesForAssociation(outData,
+        cellScalars ? vtkDataObject::FIELD_ASSOCIATION_CELLS
+                    : vtkDataObject::FIELD_ASSOCIATION_POINTS);
     }
   }
   else if (!scalars)

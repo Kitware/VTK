@@ -4,11 +4,12 @@
  * Check that vtkMultiVariateToRGBA does not hang when only some processes
  * have data, as with a serial reader: the other processes get an empty
  * table or dataset without arrays, or with unrelated arrays. Also check that
- * all pieces can be empty,
- * and that a process missing the array, while not empty, makes all processes
- * fail instead of hanging.
+ * the empty pieces use the association of the others, that all pieces can
+ * be empty, and that a process missing the array, while not empty, makes all
+ * processes fail instead of hanging.
  */
 
+#include <vtkCellData.h>
 #include <vtkCommand.h>
 #include <vtkDataArray.h>
 #include <vtkDataArrayRange.h>
@@ -181,6 +182,31 @@ bool TestEmptyPiecesOtherArray(vtkMultiProcessController* controller)
 }
 
 /**
+ * Only rank 0 has data, with cell scalars: the empty pieces put their output
+ * in cell data too, although the default association is POINTS_THEN_CELLS.
+ */
+bool TestEmptyPiecesCellScalars(vtkMultiProcessController* controller)
+{
+  int rank = controller->GetLocalProcessId();
+  vtkNew<vtkImageData> image;
+  if (rank == 0)
+  {
+    image->SetDimensions(5, 5, 2);
+    vtkSmartPointer<vtkDoubleArray> values = MakeValues();
+    values->SetNumberOfTuples(image->GetNumberOfCells());
+    image->GetCellData()->SetScalars(values);
+  }
+  vtkNew<vtkMultiVariateToRGBA> filter;
+  filter->SetController(controller);
+  filter->SetInputData(image);
+  filter->Update();
+  vtkImageData* output = vtkImageData::SafeDownCast(filter->GetOutputDataObject(0));
+  CHECK(output->GetCellData()->GetArray("rgba"));
+  CHECK(!output->GetPointData()->GetArray("rgba"));
+  return true;
+}
+
+/**
  * A process that has data but not the array fails, so all processes fail.
  */
 bool TestMissingArray(vtkMultiProcessController* controller)
@@ -215,6 +241,7 @@ int TestMultiVariateToRGBAEmptyPiece(int argc, char* argv[])
   success = TestEmptyPieces(controller, MakeImage(empty)) && success;
   success = TestAllEmpty(controller) && success;
   success = TestEmptyPiecesOtherArray(controller) && success;
+  success = TestEmptyPiecesCellScalars(controller) && success;
   success = TestMissingArray(controller) && success;
   int localSuccess = success;
   int globalSuccess = 0;
