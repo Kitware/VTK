@@ -479,7 +479,7 @@ struct ApplyLensWorker
 };
 
 /**
- * Creats a SOA array from a list of column arrays.
+ * Creates a SOA array from a list of one component column arrays.
  */
 template <typename DataType>
 vtkSmartPointer<vtkDataArray> createSOAArray(const std::vector<vtkAbstractArray*>& columns)
@@ -499,9 +499,9 @@ vtkSmartPointer<vtkDataArray> createSOAArray(const std::vector<vtkAbstractArray*
   {
     vtkAOSDataArrayTemplate<DataType>* a =
       vtkAOSDataArrayTemplate<DataType>::FastDownCast(columns[i]);
-    if (!a)
+    if (!a || a->GetNumberOfComponents() != 1)
     {
-      // arrays in columns are of different type
+      // arrays in columns are of different type or have several components
       return nullptr;
     }
     soaArray->SetArray(
@@ -1321,7 +1321,7 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
       if (!Dispatcher::Execute(array0, worker) || !worker.SOAArray)
       {
         vtkErrorWithObjectMacro(input,
-          "Columns have to be AOS arrays of the same float or double type: "
+          "Columns have to be one component AOS arrays of the same float or double type: "
             << array0->GetDataType());
         return { attributes, nullptr };
       }
