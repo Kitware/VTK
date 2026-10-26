@@ -184,6 +184,23 @@ int TestLookupTable(int, char*[])
   TestAssert(table->GetIndex(10.0) == expectedPosIdx);
   TestAssert(table->GetIndex(vtkMath::Nan()) == -1);
 
+  // high-dynamic-range symlog test ([-1e6, 1e6] with linthresh = 1e-7)
+  table->SetTableRange(-1e6, 1e6);
+  table->SetSymlogLinearThreshold(1e-7);
+  table->Build();
+  TestAssert(table->GetIndex(-1e6) == 0);
+  TestAssert(table->GetIndex(1e6) == 255);
+  TestAssert(table->GetIndex(0.0) == 128);
+  TestAssert(table->GetIndex(-1e-6) < table->GetIndex(-1e-7));
+  TestAssert(table->GetIndex(-1e-7) < table->GetIndex(0.0));
+  TestAssert(table->GetIndex(0.0) < table->GetIndex(1e-7));
+  TestAssert(table->GetIndex(1e-7) < table->GetIndex(1e-6));
+  TestAssert(table->GetIndex(1e-6) < table->GetIndex(1e6));
+
+  // trace-concentration symlog threshold below 1e-10
+  table->SetSymlogLinearThreshold(1e-16);
+  TestAssert(table->GetSymlogLinearThreshold() == 1e-16);
+
   // negative log range
   double tmp = hi;
   hi = -lo;

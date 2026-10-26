@@ -560,30 +560,13 @@ double vtkApplySymlogScaleMain(
 {
   if (v < range[0])
   {
-    if (range[0] <= range[1])
-    {
-      return symlogRange[0] - 1.0;
-    }
-    else
-    {
-      return symlogRange[1] + 1.0;
-    }
+    return (range[0] <= range[1]) ? (symlogRange[0] - 1.0) : (symlogRange[1] + 1.0);
   }
-  else if (v > range[1])
+  if (v > range[1])
   {
-    if (range[0] <= range[1])
-    {
-      return symlogRange[1] + 1.0;
-    }
-    else
-    {
-      return symlogRange[0] - 1.0;
-    }
+    return (range[0] <= range[1]) ? (symlogRange[1] + 1.0) : (symlogRange[0] - 1.0);
   }
-  else
-  {
-    return vtkSymlog(v, linthresh);
-  }
+  return vtkSymlog(v, linthresh);
 }
 
 template <class T>
