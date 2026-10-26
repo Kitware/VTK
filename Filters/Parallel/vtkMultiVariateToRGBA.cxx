@@ -1048,9 +1048,13 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     attributes = GetAttributesForAssociation(
       outData, this->GetInputArrayInformation(0)->Get(vtkDataObject::FIELD_ASSOCIATION()));
   }
-  // an empty piece uses its own scalars if it has arrays, so all pieces can be
-  // empty; without arrays (a serial reader) its scalars come from the others
-  if (!emptyPiece || attributes->GetNumberOfArrays() > 0)
+  // an empty piece looks up its own scalars if it has them, so all pieces can
+  // be empty; otherwise (e.g. a serial reader) the others decide the number
+  // of components
+  bool ownScalars = !emptyPiece ||
+    (vtkTable::SafeDownCast(outData) ? attributes->GetNumberOfArrays() > 0
+                                     : this->GetInputArrayToProcess(0, inputVector) != nullptr);
+  if (ownScalars)
   {
     std::tie(attributes, scalars) = getAttributesAndScalars(outData, inputVector);
   }
