@@ -1281,7 +1281,7 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
     attributes = table->GetRowData();
     if (attributes->GetNumberOfArrays() == 0)
     {
-      vtkErrorWithObjectMacro(input, "No arrays found: ");
+      vtkErrorMacro("No arrays found");
       return { attributes, nullptr };
     }
 
@@ -1297,14 +1297,14 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
     }
     if (columns.empty())
     {
-      vtkErrorWithObjectMacro(input, "No visible columns found: ");
+      vtkErrorMacro("No visible columns found");
       return { attributes, nullptr };
     }
 
     auto* array0 = vtkDataArray::FastDownCast(columns[0]);
     if (!array0)
     {
-      vtkErrorWithObjectMacro(input, "Column is not a numeric array: " << columns[0]->GetName());
+      vtkErrorMacro("Column is not a numeric array: " << columns[0]->GetName());
       return { attributes, nullptr };
     }
     // for a table, convert the columns into a SOA array with multiple components
@@ -1312,17 +1312,16 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
     {
       if (columns.size() < 3)
       {
-        vtkErrorWithObjectMacro(
-          input, "Number of visible columns is less than 3: " << columns.size());
+        vtkErrorMacro("Number of visible columns is less than 3: " << columns.size());
         return { attributes, nullptr };
       }
       typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals> Dispatcher;
       CreateSOAWorker worker(columns);
       if (!Dispatcher::Execute(array0, worker) || !worker.SOAArray)
       {
-        vtkErrorWithObjectMacro(input,
+        vtkErrorMacro(
           "Columns have to be one component AOS arrays of the same float or double type: "
-            << array0->GetDataType());
+          << array0->GetDataType());
         return { attributes, nullptr };
       }
       else
@@ -1339,7 +1338,7 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
       }
       else
       {
-        vtkErrorWithObjectMacro(input, "Array has less than 3 components: " << array0->GetName());
+        vtkErrorMacro("Array has less than 3 components: " << array0->GetName());
         return { attributes, nullptr };
       }
     }
@@ -1354,7 +1353,7 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
       if (association != vtkDataObject::FIELD_ASSOCIATION_POINTS &&
         association != vtkDataObject::FIELD_ASSOCIATION_CELLS)
       {
-        vtkErrorWithObjectMacro(input, "Invalid association: " << association);
+        vtkErrorMacro("Invalid association: " << association);
         return { nullptr, nullptr };
       }
       attributes = GetAttributesForAssociation(dataset, association);
@@ -1364,12 +1363,12 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
       vtkSmartPointer<vtkDataArray> visibleArray = this->GetVisibleComponentsArray(array);
       if (!visibleArray)
       {
-        vtkErrorWithObjectMacro(input, "No visible components found: ");
+        vtkErrorMacro("No visible components found");
         return { attributes, nullptr };
       }
       if (visibleArray->GetNumberOfComponents() < 3)
       {
-        vtkErrorWithObjectMacro(input,
+        vtkErrorMacro(
           "Number of visible components is less than 3: " << visibleArray->GetNumberOfComponents());
         return { attributes, nullptr };
       }
@@ -1377,11 +1376,11 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
     }
     else
     {
-      vtkErrorWithObjectMacro(input, "No scalar data to process");
+      vtkErrorMacro("No scalar data to process");
       return { nullptr, nullptr };
     }
   }
-  vtkErrorWithObjectMacro(input, "Invalid input type: " << input->GetClassName());
+  vtkErrorMacro("Invalid input type: " << input->GetClassName());
   return { nullptr, nullptr };
 }
 

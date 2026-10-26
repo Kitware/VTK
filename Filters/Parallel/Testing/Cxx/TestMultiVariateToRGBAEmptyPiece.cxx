@@ -217,14 +217,10 @@ bool TestMissingArray(vtkMultiProcessController* controller)
   vtkNew<vtkTest::ErrorObserver> errorObserver;
   filter->SetController(controller);
   filter->SetInputData(image);
-  // The errors are expected. Each observer catches the errors reported by
-  // its object: the output reports the missing array, the executive the
-  // failed request, and the filter its own errors (none in this case, but
-  // a change in RequestData should not fail the test on its output).
-  filter->UpdateDataObject();
+  // The errors are expected: the filter reports the missing array and the
+  // executive the failed request.
   filter->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   filter->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver);
-  filter->GetOutputDataObject(0)->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   filter->Update();
   CHECK(!GetRGBA(filter));
   return true;
