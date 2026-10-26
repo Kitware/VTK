@@ -185,6 +185,14 @@ void vtkWebGPUActor::SetId(vtkTypeUInt32 id)
 //------------------------------------------------------------------------------
 vtkTypeBool vtkWebGPUActor::HasOpaqueGeometry()
 {
+  if (this->ForceOpaque)
+  {
+    return true;
+  }
+  if (this->ForceTranslucent)
+  {
+    return false;
+  }
   if (!this->Mapper)
   {
     return this->Superclass::HasOpaqueGeometry();
@@ -210,6 +218,14 @@ vtkTypeBool vtkWebGPUActor::HasOpaqueGeometry()
 //------------------------------------------------------------------------------
 vtkTypeBool vtkWebGPUActor::HasTranslucentPolygonalGeometry()
 {
+  if (this->ForceOpaque)
+  {
+    return false;
+  }
+  if (this->ForceTranslucent)
+  {
+    return true;
+  }
   if (!this->Mapper)
   {
     return this->Superclass::HasTranslucentPolygonalGeometry();
