@@ -22,7 +22,10 @@ set(cxx_tests
   TestActor2D.cxx
   TestActor2DTextures.cxx
   TestActorFaceCullingProperty.cxx,NO_DATA
+  TestActorForceOpaqueTranslucent.cxx,NO_VALID
   TestActorLightingFlag.cxx
+  TestActorOpacityDataObjectTreeMTime.cxx,NO_VALID
+  TestActorOpacityDataSetMTime.cxx,NO_VALID
   TestAnimationScene.cxx
   TestAreaSelections.cxx
   TestAssemblyBounds.cxx,NO_VALID
