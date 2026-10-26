@@ -161,14 +161,17 @@ void vtkWebGPUBatchedPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor
   {
     case vtkWebGPURenderer::RenderStageEnum::SyncDeviceResources:
     {
+      const bool translucent = actor->HasTranslucentPolygonalGeometry();
       if (this->GetMTime() > this->ResourcesSyncTimeStamp ||
-        this->SyncedForPointSelection != this->SelectingPoints)
+        this->SyncedForPointSelection != this->SelectingPoints ||
+        this->SyncedForTranslucentGeometry != translucent)
       {
         vtkLogScopeF(TRACE, "SyncDeviceResources");
         // See the override methods - UpdateMeshGeometryBuffers and UpdateMeshTopologyBuffers
         this->Superclass::RenderPiece(renderer, actor);
         this->ResourcesSyncTimeStamp.Modified();
         this->SyncedForPointSelection = this->SelectingPoints;
+        this->SyncedForTranslucentGeometry = translucent;
       }
       break;
     }

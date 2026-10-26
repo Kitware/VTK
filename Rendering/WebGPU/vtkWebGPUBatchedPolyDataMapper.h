@@ -185,6 +185,7 @@ private:
   StorageBuffer CompositeDataPropertyStorage;
   vtkTimeStamp ResourcesSyncTimeStamp;
   bool SyncedForPointSelection = false;
+  bool SyncedForTranslucentGeometry = false;
 
   std::size_t CurrentDrawMeshId = 0; // 0 <= CurrentDrawMeshId < BatchSize
   std::uint32_t MinStorageBufferOffsetAlignment = 0;

@@ -4157,6 +4157,12 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
   {
     return true;
   }
+  // The fragment shader writes to the deep framebuffer only for translucent actors.
+  if (it->second.LastHasRenderingTranslucentGeometry !=
+    static_cast<bool>(actor->HasTranslucentPolygonalGeometry()))
+  {
+    return true;
+  }
   return false;
 }
 
