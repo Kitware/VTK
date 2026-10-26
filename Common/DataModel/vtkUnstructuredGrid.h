@@ -225,10 +225,11 @@ public:
   /**
    * Get the point ids of the edge edgeId of the cell cellId, and the type of the cell, in the order
    * of vtkCell::GetEdge(), or none if edgeId is out of range. They are read from the points of the
-   * cell if its class has a static table of edges, or for a polygon, see vtkCellTypeSides, and from
-   * the cell built in tempCell otherwise, e.g., for a polyhedron. GetCellEdgePointsFromCellPoints()
-   * takes the type and points of the cell, and GetCellEdgePoints() reads them, using
-   * tempCellPointIds.
+   * cell if its class has a static table of edges, or for a polygon, see vtkCellTypeSides, from the
+   * faces of a polyhedron, whose edges are those of vtkPolyhedron in another order, and from the
+   * cell built in tempCell otherwise, e.g., for a higher order cell.
+   * GetCellEdgePointsFromCellPoints() takes the type and points of the cell, and
+   * GetCellEdgePoints() reads them, using tempCellPointIds.
    */
   void GetCellEdgePoints(vtkIdType cellId, int edgeId, vtkIdList* edgePtIds,
     unsigned char& cellType, vtkIdList* tempCellPointIds, vtkGenericCell* tempCell) override;

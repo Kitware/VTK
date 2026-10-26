@@ -49,9 +49,8 @@
  *
  * The vertices of a cell are its points, mid-edge and mid-face points included. The functions take
  * the dataset of the cell and the scratch objects of the caller: `cell`, to build the cells whose
- * sides are not read from static tables, e.g., the higher order cells and the edges of the
- * polyhedra, and `sidePts`, for the points of the sides of the built cells and of the faces of the
- * polyhedra.
+ * sides are not read from static tables, e.g., the higher order cells, and `sidePts`, for the
+ * points of the sides of the built cells and of the faces of the polyhedra.
  *
  * @sa vtkCellTypeTraits
  */
@@ -710,7 +709,10 @@ VTK_NEVER_INLINE vtkIdType GetGenericSidePoints(DataSetT* input, vtkIdType cellI
     ids = sidePts->GetPointer(0);
     return numCorners = 0;
   }
-  sidePts->DeepCopy(side->GetPointIds());
+  // Not DeepCopy(), which squeezes the list: its memory is kept from side to side.
+  vtkIdList* sideIds = side->GetPointIds();
+  sidePts->SetNumberOfIds(sideIds->GetNumberOfIds());
+  std::copy_n(sideIds->GetPointer(0), sideIds->GetNumberOfIds(), sidePts->GetPointer(0));
   ids = sidePts->GetPointer(0);
   const vtkIdType numSidePts = sidePts->GetNumberOfIds();
   numCorners = std::min(numSidePts, GetNumberOfSideCorners(side->GetCellType(), numSidePts));
@@ -799,12 +801,50 @@ struct ConvexPointSetSides
 };
 
 //------------------------------------------------------------------------------
+// The points of the edge edgeId of the polyhedron cellId, in `ptIds`, read from its faces without
+// building the vtkPolyhedron. The faces of a polyhedron are consistently wound and each of its
+// edges is shared by two of them, see vtkPolyhedron, so that an edge is once a pair of consecutive
+// points (a, b) of a face with a < b: the edge edgeId is the edgeId-th such pair, in the order of
+// the faces. An edge beyond them, of a polyhedron that is not closed, has no points.
+inline vtkIdType GetPolyhedronEdgePoints(vtkPolyhedronCellArray* polyhedra, vtkIdType cellId,
+  int edgeId, vtkIdType* ptIds, const vtkIdType*& ids, vtkIdType& numCorners)
+{
+  ids = ptIds;
+  vtkCellArray* faces = polyhedra->GetFaces();
+  int numEdges = 0;
+  const int numFaces = polyhedra->GetCellNumberOfFaces(cellId);
+  for (int face = 0; face < numFaces; ++face)
+  {
+    const vtkIdType faceId = polyhedra->GetFaceId(cellId, face);
+    const vtkIdType numFacePts = faces->GetCellSize(faceId);
+    if (numFacePts == 0)
+    {
+      continue;
+    }
+    const vtkIdType firstPt = faces->GetCellPointAtId(faceId, 0);
+    vtkIdType a = firstPt;
+    for (vtkIdType i = 0; i < numFacePts; ++i)
+    {
+      const vtkIdType b = i + 1 < numFacePts ? faces->GetCellPointAtId(faceId, i + 1) : firstPt;
+      if (a < b && numEdges++ == edgeId)
+      {
+        ptIds[0] = a;
+        ptIds[1] = b;
+        return numCorners = 2;
+      }
+      a = b;
+    }
+  }
+  return numCorners = 0;
+}
+
+//------------------------------------------------------------------------------
 // The polyhedra of a vtkUnstructuredGrid, whose faces are given by its vtkPolyhedronCellArray. The
 // other datasets have no polyhedron. A polyhedron is assumed to be closed and of genus 0, as by
 // vtkPolyhedron, so that its number of edges is given by Euler's formula, V - E + F = 2, from its
-// number of points and of faces. Its edges are those of the vtkPolyhedron built in `cell`, see
-// GetGenericSidePoints(), and an edge beyond them, of a polyhedron that is not closed, has no
-// points.
+// number of points and of faces. Its edges are those of vtkPolyhedron, in another order, read from
+// its faces, see GetPolyhedronEdgePoints(), and an edge beyond them, of a polyhedron that is not
+// closed, has no points.
 struct PolyhedronCellSides
 {
   static constexpr bool UsesNumberOfPoints = true;
@@ -877,7 +917,7 @@ struct PolyhedronCellSides
   template <class DataSetT, class PointsIterator>
   static vtkIdType GetSidePoints(DataSetT* input, vtkIdType cellId, unsigned char, int sideDim,
     int sideId, vtkIdType, PointsIterator pts, vtkIdType* ptIds, vtkIdList* sidePts,
-    const vtkIdType*& ids, vtkIdType& numCorners, vtkGenericCell* cell)
+    const vtkIdType*& ids, vtkIdType& numCorners, vtkGenericCell*)
   {
     if constexpr (!std::is_same_v<DataSetT, vtkUnstructuredGrid>)
     {
@@ -892,9 +932,8 @@ struct PolyhedronCellSides
           ptIds[0] = static_cast<vtkIdType>(pts[sideId]);
           return numCorners = 1;
         case 1:
-          // The edges of a polyhedron are found by vtkPolyhedron from its faces.
-          return GetGenericSidePoints(
-            input, cellId, sideDim, sideId, sidePts, ids, numCorners, cell);
+          return GetPolyhedronEdgePoints(
+            input->GetPolyhedronCellArray(), cellId, sideId, ptIds, ids, numCorners);
         case 2:
         default:
         {
