@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * Check that a lens-only change of vtkMultiVariateToRGBA reuses the last
- * results and gives the same output as a full execution.
+ * results and output object, and gives the same output as a full execution,
+ * and that the output object follows the input type.
  */
 
 #include <vtkDataArrayRange.h>
@@ -12,11 +13,13 @@
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkSmartPointer.h>
+#include <vtkTable.h>
 #include <vtkTrivialProducer.h>
 
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <string>
 
 namespace
 {
@@ -93,10 +96,12 @@ int TestMultiVariateToRGBALens(int, char*[])
   cached->Update();
   // holds a reference, as a full execution releases the cached array
   vtkSmartPointer<vtkDataArray> gbc = GetArray(cached, "gbc");
+  vtkDataObject* output = cached->GetOutputDataObject(0);
 
   SetLens(cached, full, 0.4, -0.2, 0.5);
   // the same array: the results were reused from the cache
   CHECK(GetArray(cached, "gbc") == gbc);
+  CHECK(cached->GetOutputDataObject(0) == output);
   CHECK(Equal(GetArray(cached, "rgba"), GetArray(full, "rgba")));
 
   // a change that is not lens-only executes fully
@@ -189,5 +194,26 @@ int TestMultiVariateToRGBALens(int, char*[])
   full->SetLensRadius(0.6);
   full->SetLensCenter(1.5, 0.0);
   CHECK(cached->GetLensCenter()[0] == 1.5 && full->GetLensCenter()[0] == 1.5);
+
+  // the output follows a switch to a table input and back
+  vtkNew<vtkTable> table;
+  for (int c = 0; c < 3; ++c)
+  {
+    vtkNew<vtkDoubleArray> column;
+    column->SetName(std::to_string(c).c_str());
+    column->SetNumberOfTuples(10);
+    for (vtkIdType i = 0; i < 10; ++i)
+    {
+      column->SetValue(i, std::fabs(std::sin(0.37 * (i + 10 * c))));
+    }
+    table->AddColumn(column);
+  }
+  full->SetCustomRange({});
+  full->SetInputData(table);
+  full->Update();
+  CHECK(vtkTable::SafeDownCast(full->GetOutputDataObject(0)));
+  full->SetInputData(image);
+  full->Update();
+  CHECK(vtkImageData::SafeDownCast(full->GetOutputDataObject(0)));
   return EXIT_SUCCESS;
 }
