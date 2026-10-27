@@ -2368,9 +2368,10 @@ void vtkTecplotReader::ReadFile(vtkInformation* outInfo)
       if (!(std::istringstream(tok) >> val))
       {
         // UNKNOWN RECORD TYPE
-        vtkErrorMacro(<< this->FileName << ": The record type " << tok
-                      << " found in the file is unknown.");
-        return;
+        vtkWarningMacro(<< this->FileName << ": The record type " << tok
+                        << " found in the file is unknown.");
+        tok = this->Internal->GetNextToken();
+        continue;
       }
     }
 
