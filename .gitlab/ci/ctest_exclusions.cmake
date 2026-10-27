@@ -181,7 +181,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora42_x86_64" AND "$ENV{CMAKE_CONFIG
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleToImageCompositeDataSet$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleWithDataSet$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleWithDataSet2$"
-    "^VTK::FiltersParallelDIY2Cxx-MPI-TestProbeLineFilter$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestPUniformGridGhostDataGenerator$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestPUnstructuredGridGhostCellsGenerator$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilter$"
@@ -373,8 +372,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_aarch64")
 
     # Numerical issue?
     "^VTK::ImagingColorCxx-TestRGBToLAB$"
-    # "incoherent result" from HTG line intersection. numerical?
-    "^VTK::FiltersParallelDIY2Cxx-MPI-TestProbeLineFilter$"
     "^VTK::IOHDFCxx-TestHDFWriter$"
 
     # Baseline failures.
