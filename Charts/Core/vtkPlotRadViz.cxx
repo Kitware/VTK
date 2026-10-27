@@ -359,27 +359,24 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
       return true;
     }
     auto* dataset = vtkDataSet::SafeDownCast(input);
-    vtkDataArray* array = nullptr;
-    int association = vtkDataObject::FIELD_ASSOCIATION_NONE;
-    int numberOfVisibleColumns = this->GetVisibleColumns()->GetNumberOfTuples();
-    if (dataset)
-    {
-      // get the array to process and association from vtkContextMapper2D
-      array = this->GetData()->GetInputArrayToProcess(0, input, association);
-    }
-    if (numberOfVisibleColumns < 3)
-    {
-      // RadViz does not work for < 3 components, so we don't render anything
-      return true;
-    }
-
     // vtkMultiVariateToRGBA does the column/component visibility filtering
     // itself (see SetColumnVisibility), so the raw input is passed as-is.
     this->ComputeGBC->SetInputDataObject(0, input);
-    if (array)
+    if (dataset)
     {
-      // set the array to process and association to vtkMultiVariateToRGBA
-      this->ComputeGBC->SetInputArrayToProcess(array->GetName(), association);
+      // forward the array to process and association from vtkContextMapper2D
+      int association = vtkDataObject::FIELD_ASSOCIATION_NONE;
+      vtkDataArray* array = this->GetData()->GetInputArrayToProcess(0, input, association);
+      if (array)
+      {
+        this->ComputeGBC->SetInputArrayToProcess(array->GetName(), association);
+      }
+    }
+    // counts the columns of the input and array set above
+    if (this->GetVisibleColumns()->GetNumberOfTuples() < 3)
+    {
+      // RadViz does not work for < 3 components, so we don't render anything
+      return true;
     }
     ComputeAutoLabels();
     this->UpdateCenterAndRadius(painter);
