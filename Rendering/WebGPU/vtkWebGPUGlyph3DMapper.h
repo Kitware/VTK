@@ -37,6 +37,11 @@ public:
   bool HasTranslucentPolygonalGeometry() override;
 
   /**
+   * Overridden to include the block attributes' MTime.
+   */
+  vtkMTimeType GetMTime() override;
+
+  /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release.

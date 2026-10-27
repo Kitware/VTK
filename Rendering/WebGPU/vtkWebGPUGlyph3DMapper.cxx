@@ -31,6 +31,7 @@
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 
+#include <algorithm>
 #include <sstream>
 #include <stack>
 
@@ -1807,6 +1808,16 @@ void vtkWebGPUGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
 void vtkWebGPUGlyph3DMapper::ReleaseGraphicsResources(vtkWindow* window)
 {
   this->Internals->ReleaseGraphicsResources(window);
+}
+
+//------------------------------------------------------------------------------
+vtkMTimeType vtkWebGPUGlyph3DMapper::GetMTime()
+{
+  if (this->BlockAttributes)
+  {
+    return std::max(this->Superclass::GetMTime(), this->BlockAttributes->GetMTime());
+  }
+  return this->Superclass::GetMTime();
 }
 
 //------------------------------------------------------------------------------
