@@ -142,7 +142,7 @@ static int vtkWrapPython_IsWrappable(
 
 /* print out all properties in the getset table. */
 void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo* classInfo,
-  const HierarchyInfo* hinfo, ClassProperties* properties, int is_vtkobject)
+  const HierarchyInfo* hinfo, ClassProperties* properties)
 {
   int i, j;
   int propCount = 0;
@@ -324,15 +324,6 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
 
   /* start the PyGetSetDef for this class */
   fprintf(fp, "static PyGetSetDef Py%s_GetSets[] = {\n", classname);
-
-  /* these properties are available to all vtk object types. */
-  if (is_vtkobject)
-  {
-    for (i = 0; i < 2; ++i)
-    {
-      fprintf(fp, "  PyVTKObject_GetSet[%d],\n", i);
-    }
-  }
 
   for (j = 0; j < propCount; ++j)
   {

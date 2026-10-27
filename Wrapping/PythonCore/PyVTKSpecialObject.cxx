@@ -300,27 +300,35 @@ PyObject* PyVTKSpecialObject_CopyNew(const char* classname, const void* ptr)
 //------------------------------------------------------------------------------
 // Add a special type, add methods and members to its type object.
 // A return value of nullptr signifies that it was already added.
-PyTypeObject* PyVTKSpecialType_Add(PyTypeObject* pytype, PyMethodDef* methods, PyGetSetDef* getsets,
-  PyMethodDef* constructors, vtkcopyfunc copyfunc)
+PyTypeObject* PyVTKSpecialType_AddHeapType(PyType_Spec* spec, PyObject* base, PyMethodDef* methods,
+  PyGetSetDef* getsets, PyMethodDef* constructors, vtkcopyfunc copyfunc)
 {
-  // Check whether the type is already in the map (use classname as key),
-  // and return it if so.  If not, then add it to the map.
+  PyObject* bases = nullptr;
+  if (base)
+  {
+    bases = PyTuple_Pack(1, base);
+    if (!bases)
+    {
+      return nullptr;
+    }
+  }
+  PyObject* o = PyType_FromSpecWithBases(spec, bases);
+  Py_XDECREF(bases);
+  if (o == nullptr)
+  {
+    return nullptr;
+  }
+  PyTypeObject* pytype = (PyTypeObject*)o;
+
+  // Register in the special-type map (use classname as key).
   pytype = vtkPythonUtil::AddSpecialTypeToMap(pytype, methods, constructors, copyfunc);
 
-  // If type object already has a dict, we're done
-  if (pytype->tp_dict)
-  {
-    return pytype;
-  }
-
-  // Create the dict
-  pytype->tp_dict = PyDict_New();
-
-  // Add all of the methods
+  // Add all of the methods.  Setting attributes on the (heap) type is the
+  // Limited-API-safe equivalent of writing tp_dict directly.
   for (PyMethodDef* meth = methods; meth && meth->ml_name; meth++)
   {
     PyObject* func = PyVTKMethodDescriptor_New(pytype, meth);
-    PyDict_SetItemString(pytype->tp_dict, meth->ml_name, func);
+    PyObject_SetAttrString((PyObject*)pytype, meth->ml_name, func);
     Py_DECREF(func);
   }
 
@@ -328,7 +336,7 @@ PyTypeObject* PyVTKSpecialType_Add(PyTypeObject* pytype, PyMethodDef* methods, P
   for (PyGetSetDef* getset = getsets; getset && getset->name; getset++)
   {
     PyObject* descr = PyDescr_NewGetSet(pytype, getset);
-    PyDict_SetItemString(pytype->tp_dict, getset->name, descr);
+    PyObject_SetAttrString((PyObject*)pytype, getset->name, descr);
     Py_DECREF(descr);
   }
 

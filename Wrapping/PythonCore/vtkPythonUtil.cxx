@@ -657,6 +657,7 @@ const char* vtkPythonUtil::StripModuleFromObject(PyObject* ob)
 
 //------------------------------------------------------------------------------
 #ifdef Py_LIMITED_API
+// Only needed for the Limited API: the regular build reads tp_name directly.
 // Cache of type names for wrapped VTK types.  Under the Limited API tp_name is
 // not accessible, and PyType_GetName returns a str whose UTF-8 buffer would
 // dangle once released, so names are cached here and the stable c_str() is

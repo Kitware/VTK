@@ -71,17 +71,37 @@ struct PyVTKGetSet
 VTK_ABI_NAMESPACE_END
 
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyGetSetDef PyVTKObject_GetSet[];
-extern VTKWRAPPINGPYTHONCORE_EXPORT PyBufferProcs PyVTKObject_AsBuffer;
-extern VTKWRAPPINGPYTHONCORE_EXPORT PySequenceMethods PyVTKObject_AsSequence;
+// Member table carrying __dictoffset__/__weaklistoffset__ to PyType_FromSpec.
+extern VTKWRAPPINGPYTHONCORE_EXPORT PyMemberDef PyVTKObject_Members[];
 
 extern "C"
 {
   VTKWRAPPINGPYTHONCORE_EXPORT
-  PyTypeObject* PyVTKClass_Add(
-    PyTypeObject* pytype, PyMethodDef* methods, const char* classname, vtknewfunc constructor);
+  void PyVTKClass_AddCombinedGetSetDefinitions(PyTypeObject* pytype, PyGetSetDef* getsets);
+
+  // Create a wrapped vtkObjectBase-derived class as a heap type from a spec and
+  // populate it with the VTK methods.  The PyType_FromSpec analog of
+  // PyVTKClass_Add.  The caller must cache the returned type.
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  PyTypeObject* PyVTKClass_AddHeapType(PyType_Spec* spec, PyObject* base, PyMethodDef* methods,
+    const char* classname, vtknewfunc constructor);
+
+  // Buffer protocol, exposed as functions for PyType_FromSpec slot tables.
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  int PyVTKObject_GetBuffer(PyObject* obj, Py_buffer* view, int flags);
 
   VTKWRAPPINGPYTHONCORE_EXPORT
-  void PyVTKClass_AddCombinedGetSetDefinitions(PyTypeObject* pytype, PyGetSetDef* getsets);
+  void PyVTKObject_ReleaseBuffer(PyObject* obj, Py_buffer* view);
+
+  // Sequence protocol for vtkCollection, exposed as functions for slot tables.
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  Py_ssize_t PyVTKObject_AsSequence_Length(PyObject* self);
+
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  PyObject* PyVTKObject_AsSequence_GetItem(PyObject* self, Py_ssize_t index);
+
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  int PyVTKObject_AsSequence_Contains(PyObject* self, PyObject* value);
 
   VTKWRAPPINGPYTHONCORE_EXPORT
   int PyVTKObject_Check(PyObject* obj);

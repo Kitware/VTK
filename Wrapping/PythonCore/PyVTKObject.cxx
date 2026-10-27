@@ -32,6 +32,7 @@
 #include <cstdlib>
 #include <dictobject.h>
 #include <sstream>
+#include <structmember.h>
 #include <unordered_map>
 
 // This will be set to the python type struct for vtkObjectBase
@@ -39,7 +40,9 @@ static PyTypeObject* PyVTKObject_Type = nullptr;
 
 // Map from type to original tp_doc, used to restore docstrings when overrides are cancelled.
 // If a type is in this map, its current tp_doc was allocated with strdup and must be freed.
-static std::unordered_map<PyTypeObject*, const char*> OriginalDocStrings;
+// Saves each type's original __doc__ object so it can be restored when an
+// override is cancelled.  Values are owned (strong) references.
+static std::unordered_map<PyTypeObject*, PyObject*> OriginalDocStrings;
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
@@ -99,8 +102,10 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
         return nullptr;
       }
       thecls->py_type = newtypeobj;
-      // Store override in dict of old type, to keep a reference to it
-      PyDict_SetItemString(typeobj->tp_dict, "__override__", type);
+      // Store override as an attribute of the old type, to keep a reference to
+      // it.  Setting attributes on the (heap) type is the Limited-API-safe
+      // equivalent of writing tp_dict directly.
+      PyObject_SetAttrString((PyObject*)typeobj, "__override__", type);
 
       // Copy the override's __doc__ to the base type so that
       // help(BaseType) shows the Python documentation at the top
@@ -108,21 +113,12 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
       PyObject* overrideDoc = PyObject_GetAttrString(type, "__doc__");
       if (overrideDoc && PyUnicode_Check(overrideDoc))
       {
-        const char* docStr = PyUnicode_AsUTF8(overrideDoc);
-        if (docStr)
+        // Save the original __doc__ on first override for this type
+        if (OriginalDocStrings.find(typeobj) == OriginalDocStrings.end())
         {
-          // Save the original tp_doc on first override for this type
-          if (OriginalDocStrings.find(typeobj) == OriginalDocStrings.end())
-          {
-            OriginalDocStrings[typeobj] = typeobj->tp_doc;
-          }
-          else
-          {
-            // Free the previously strdup'd override doc
-            free(const_cast<char*>(typeobj->tp_doc));
-          }
-          typeobj->tp_doc = strdup(docStr);
+          OriginalDocStrings[typeobj] = PyObject_GetAttrString((PyObject*)typeobj, "__doc__");
         }
+        PyObject_SetAttrString((PyObject*)typeobj, "__doc__", overrideDoc);
       }
       Py_XDECREF(overrideDoc);
     }
@@ -146,14 +142,17 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
     auto it = OriginalDocStrings.find(typeobj);
     if (it != OriginalDocStrings.end())
     {
-      free(const_cast<char*>(typeobj->tp_doc));
-      typeobj->tp_doc = it->second;
+      if (it->second)
+      {
+        PyObject_SetAttrString((PyObject*)typeobj, "__doc__", it->second);
+        Py_DECREF(it->second);
+      }
       OriginalDocStrings.erase(it);
     }
     // Delete the __override__ attribute if it exists
-    if (PyDict_DelItemString(typeobj->tp_dict, "__override__") == -1)
+    if (PyObject_DelAttrString((PyObject*)typeobj, "__override__") == -1)
     {
-      // Clear the KeyError that occurs if __override__ doesn't exist
+      // Clear the AttributeError that occurs if __override__ doesn't exist
       PyErr_Clear();
     }
   }
@@ -301,14 +300,43 @@ static PyMethodDef PyVTKCollection_Methods[] = {
 };
 
 //------------------------------------------------------------------------------
-// Add a class, add methods and members to its type object.  A return
-// value of nullptr signifies that the class was already added.
-PyTypeObject* PyVTKClass_Add(
-  PyTypeObject* pytype, PyMethodDef* methods, const char* classname, vtknewfunc constructor)
+// Member table that conveys the dict and weakref offsets to PyType_FromSpec.
+// tp_dictoffset and tp_weaklistoffset cannot be set as PyType_Slot entries,
+// but a heap type picks them up from members named __dictoffset__ and
+// __weaklistoffset__.
+PyMemberDef PyVTKObject_Members[] = { { const_cast<char*>("__dictoffset__"), T_PYSSIZET,
+                                        offsetof(PyVTKObject, vtk_dict), READONLY, nullptr },
+  { const_cast<char*>("__weaklistoffset__"), T_PYSSIZET, offsetof(PyVTKObject, vtk_weakreflist),
+    READONLY, nullptr },
+  { nullptr, 0, 0, 0, nullptr } };
+
+//------------------------------------------------------------------------------
+PyTypeObject* PyVTKClass_AddHeapType(PyType_Spec* spec, PyObject* base, PyMethodDef* methods,
+  const char* classname, vtknewfunc constructor)
 {
-  // Check whether the type is already in the map (use classname as key),
-  // and return it if so.  If not, then add it to the map.
+  PyObject* bases = nullptr;
+  if (base)
+  {
+    bases = PyTuple_Pack(1, base);
+    if (!bases)
+    {
+      return nullptr;
+    }
+  }
+  PyObject* o = PyType_FromSpecWithBases(spec, bases);
+  Py_XDECREF(bases);
+  if (o == nullptr)
+  {
+    return nullptr;
+  }
+  PyTypeObject* pytype = (PyTypeObject*)o;
+
+  // Register in the class map (associates methods and the C++ constructor).
   pytype = vtkPythonUtil::AddClassToMap(pytype, methods, classname, constructor);
+
+  // Pre-register the full type name so GetTypeName can return it under the
+  // Limited API without touching tp_name (no-op in the normal build).
+  vtkPythonUtil::AddTypeNameToMap(pytype, spec->name);
 
   // Cache the type object for vtkObjectBase for quick access
   if (PyVTKObject_Type == nullptr && strcmp(classname, "vtkObjectBase") == 0)
@@ -316,25 +344,18 @@ PyTypeObject* PyVTKClass_Add(
     PyVTKObject_Type = pytype;
   }
 
-  // If type object already has a dict, we're done
-  if (pytype->tp_dict)
-  {
-    return pytype;
-  }
-
-  // Create the dict
-  pytype->tp_dict = PyDict_New();
-
-  // Add special attribute __vtkname__
+  // Add special attribute __vtkname__.  Setting attributes on a heap type goes
+  // through the type's dict, which is the Limited-API-safe equivalent of the
+  // direct tp_dict writes used by PyVTKClass_Add.
   PyObject* s = PyUnicode_FromString(classname);
-  PyDict_SetItemString(pytype->tp_dict, "__vtkname__", s);
+  PyObject_SetAttrString((PyObject*)pytype, "__vtkname__", s);
   Py_DECREF(s);
 
   // Add all of the methods
   for (PyMethodDef* meth = methods; meth && meth->ml_name; meth++)
   {
     PyObject* func = PyVTKMethodDescriptor_New(pytype, meth);
-    PyDict_SetItemString(pytype->tp_dict, meth->ml_name, func);
+    PyObject_SetAttrString((PyObject*)pytype, meth->ml_name, func);
     Py_DECREF(func);
   }
 
@@ -342,7 +363,7 @@ PyTypeObject* PyVTKClass_Add(
   if (strcmp(classname, "vtkObjectBase") == 0)
   {
     PyObject* func = PyDescr_NewClassMethod(pytype, &PyVTKClass_override_def);
-    PyDict_SetItemString(pytype->tp_dict, PyVTKClass_override_def.ml_name, func);
+    PyObject_SetAttrString((PyObject*)pytype, PyVTKClass_override_def.ml_name, func);
     Py_DECREF(func);
   }
 
@@ -352,25 +373,28 @@ PyTypeObject* PyVTKClass_Add(
     for (PyMethodDef* meth = PyVTKCollection_Methods; meth->ml_name; meth++)
     {
       PyObject* func = PyVTKMethodDescriptor_New(pytype, meth);
-      PyDict_SetItemString(pytype->tp_dict, meth->ml_name, func);
+      PyObject_SetAttrString((PyObject*)pytype, meth->ml_name, func);
       Py_DECREF(func);
     }
   }
+
   return pytype;
 }
 
 void PyVTKClass_AddCombinedGetSetDefinitions(PyTypeObject* pytype, PyGetSetDef* getsets)
 {
+  PyTypeObject* basetype = (PyTypeObject*)PyType_GetSlot(pytype, Py_tp_base);
+
   // Add all of the getsets
   for (PyGetSetDef* getset = getsets; getset && getset->name; getset++)
   {
     if (getset->get == nullptr)
     {
       // find a getter in superclass
-      if (pytype->tp_base != nullptr)
+      if (basetype != nullptr)
       {
         auto key = PyUnicode_FromString(getset->name);
-        if (auto superGetSet = vtkPythonUtil::FindGetSetDescriptor(pytype->tp_base, key))
+        if (auto superGetSet = vtkPythonUtil::FindGetSetDescriptor(basetype, key))
         {
           getset->get = superGetSet->get;
           if (getset->closure)
@@ -385,10 +409,10 @@ void PyVTKClass_AddCombinedGetSetDefinitions(PyTypeObject* pytype, PyGetSetDef* 
     else if (getset->set == nullptr)
     {
       // find a setter in superclass
-      if (pytype->tp_base != nullptr)
+      if (basetype != nullptr)
       {
         auto key = PyUnicode_FromString(getset->name);
-        if (auto superGetSet = vtkPythonUtil::FindGetSetDescriptor(pytype->tp_base, key))
+        if (auto superGetSet = vtkPythonUtil::FindGetSetDescriptor(basetype, key))
         {
           getset->set = superGetSet->set;
           if (getset->closure && superGetSet->closure)
@@ -405,8 +429,10 @@ void PyVTKClass_AddCombinedGetSetDefinitions(PyTypeObject* pytype, PyGetSetDef* 
       }
     }
     PyObject* descr = PyDescr_NewGetSet(pytype, getset);
-    PyDict_SetItemString(pytype->tp_dict, getset->name, descr);
+    PyObject_SetAttrString((PyObject*)pytype, getset->name, descr);
     Py_DECREF(descr);
+    // Register so inherited get/set halves can be found by FindGetSetDescriptor.
+    vtkPythonUtil::AddGetSetToMap(pytype, getset);
   }
 }
 
@@ -442,6 +468,10 @@ int PyVTKObject_Traverse(PyObject* o, visitproc visit, void* arg)
 {
   PyVTKObject* self = (PyVTKObject*)o;
   int err = 0;
+
+  // Instances own a reference to their heap type, so the collector must see it
+  // to free a type that is only referenced from its own instances.
+  Py_VISIT(Py_TYPE(o));
 
   // Visit the instance dictionary.  Without this, the collector cannot see
   // cycles that pass through an attribute of a wrapped object, and neither
@@ -483,19 +513,37 @@ int PyVTKObject_Traverse(PyObject* o, visitproc visit, void* arg)
 }
 
 //------------------------------------------------------------------------------
+// All wrapped VTK types are heap types, so Py_TPFLAGS_HEAPTYPE cannot tell a
+// wrapped type from a Python-defined subclass. A wrapped type carries
+// __vtkname__ in its own __dict__, whereas a subclass only inherits it.
+// PyType_GetDict is not in the 3.12 Limited API, so use the __dict__ attribute.
+static bool PyVTKObject_IsWrappedType(PyTypeObject* pytype)
+{
+  PyObject* typeDict = PyObject_GetAttrString((PyObject*)pytype, "__dict__");
+  const bool isWrappedType = (typeDict && PyMapping_HasKeyString(typeDict, "__vtkname__") == 1);
+  Py_XDECREF(typeDict);
+  return isWrappedType;
+}
+
+//------------------------------------------------------------------------------
 PyObject* PyVTKObject_New(PyTypeObject* tp, PyObject* args, PyObject* /*kwds*/)
 {
-  // XXX(python3-abi3): all types will be heap types in abi3
   // Handle SWIG pointer reconstruction: exactly one string argument
   // containing an encoded pointer address.  All other arguments are
   // passed through to tp_init (__init__) by type_call, allowing
   // Python override classes to define rich constructors.
-  if ((PyType_GetFlags(tp) & Py_TPFLAGS_HEAPTYPE) == 0)
+  //
+  // This applies only to wrapped VTK types, not to Python-defined subclasses
+  // (whose string argument should reach their own __init__).  Since all
+  // wrapped types are heap types, Py_TPFLAGS_HEAPTYPE cannot make that
+  // distinction; instead a wrapped type is recognized by __vtkname__ in its
+  // own dict (a Python subclass merely inherits it).
+  if (PyTuple_Size(args) == 1)
   {
-    if (PyTuple_GET_SIZE(args) == 1)
+    PyObject* o = PyTuple_GetItem(args, 0);
+    if (PyUnicode_Check(o))
     {
-      PyObject* o = PyTuple_GET_ITEM(args, 0);
-      if (PyUnicode_Check(o))
+      if (PyVTKObject_IsWrappedType(tp))
       {
         return vtkPythonUtil::GetObjectFromObject(o, vtkPythonUtil::StripModuleFromType(tp));
       }
@@ -552,6 +600,8 @@ int PyVTKObject_Init(PyObject* obj, PyObject* /*args*/, PyObject* kwds)
 void PyVTKObject_Delete(PyObject* op)
 {
   PyVTKObject* self = (PyVTKObject*)op;
+  // Instances hold a reference to their (heap) type, taken by PyObject_GC_New.
+  PyTypeObject* tp = Py_TYPE(op);
 
   PyObject_GC_UnTrack(op);
 
@@ -569,6 +619,8 @@ void PyVTKObject_Delete(PyObject* op)
   delete[] self->vtk_buffer;
 
   PyObject_GC_Del(op);
+  // Release the reference to the heap type that PyObject_GC_New took.
+  Py_DECREF((PyObject*)tp);
 }
 
 //------------------------------------------------------------------------------
@@ -649,11 +701,12 @@ int PyVTKObject_SetPropertySequence(PyObject* op, PyObject* value, void* methods
     return -1;
   }
 
-  Py_ssize_t n = PySequence_Fast_GET_SIZE(seq);
+  Py_ssize_t n = PySequence_Size(seq);
   for (Py_ssize_t i = 0; i < n; i++)
   {
-    PyObject* item = PySequence_Fast_GET_ITEM(seq, i);
+    PyObject* item = PySequence_GetItem(seq, i); // new reference
     PyObject* args = PyTuple_Pack(1, item);
+    Py_XDECREF(item);
     result = getset->add(op, args);
     Py_DECREF(args);
     if (result == nullptr)
@@ -677,7 +730,7 @@ int PyVTKObject_SetPropertyEnum(PyObject* op, PyObject* value, void* methods)
 
   if (PyUnicode_Check(value) && getset->enumNames != nullptr)
   {
-    const char* strValue = PyUnicode_AsUTF8(value);
+    const char* strValue = PyUnicode_AsUTF8AndSize(value, nullptr);
     if (strValue == nullptr)
     {
       return -1;
@@ -852,7 +905,7 @@ static const char* pythonTypeFormat(int t)
 }
 
 //------------------------------------------------------------------------------
-static int PyVTKObject_AsBuffer_GetBuffer(PyObject* obj, Py_buffer* view, int flags)
+int PyVTKObject_GetBuffer(PyObject* obj, Py_buffer* view, int flags)
 {
   PyVTKObject* self = (PyVTKObject*)obj;
   vtkDataArray* da = vtkDataArray::SafeDownCast(self->vtk_ptr);
@@ -977,7 +1030,7 @@ static int PyVTKObject_AsBuffer_GetBuffer(PyObject* obj, Py_buffer* view, int fl
 }
 
 //------------------------------------------------------------------------------
-static void PyVTKObject_AsBuffer_ReleaseBuffer(PyObject* obj, Py_buffer* view)
+void PyVTKObject_ReleaseBuffer(PyObject* obj, Py_buffer* view)
 {
   // nothing to do, the caller will decref the obj
   (void)obj;
@@ -985,16 +1038,10 @@ static void PyVTKObject_AsBuffer_ReleaseBuffer(PyObject* obj, Py_buffer* view)
 }
 
 //------------------------------------------------------------------------------
-PyBufferProcs PyVTKObject_AsBuffer = {
-  PyVTKObject_AsBuffer_GetBuffer,    // bf_getbuffer
-  PyVTKObject_AsBuffer_ReleaseBuffer // bf_releasebuffer
-};
-
-//------------------------------------------------------------------------------
 // Sequence protocol for vtkCollection (inherited by all subclasses)
 //------------------------------------------------------------------------------
 
-static Py_ssize_t PyVTKObject_AsSequence_Length(PyObject* self)
+Py_ssize_t PyVTKObject_AsSequence_Length(PyObject* self)
 {
   vtkObjectBase* ob = ((PyVTKObject*)self)->vtk_ptr;
   vtkCollection* coll = vtkCollection::SafeDownCast(ob);
@@ -1006,7 +1053,7 @@ static Py_ssize_t PyVTKObject_AsSequence_Length(PyObject* self)
   return -1;
 }
 
-static PyObject* PyVTKObject_AsSequence_GetItem(PyObject* self, Py_ssize_t index)
+PyObject* PyVTKObject_AsSequence_GetItem(PyObject* self, Py_ssize_t index)
 {
   vtkObjectBase* ob = ((PyVTKObject*)self)->vtk_ptr;
   vtkCollection* coll = vtkCollection::SafeDownCast(ob);
@@ -1029,7 +1076,7 @@ static PyObject* PyVTKObject_AsSequence_GetItem(PyObject* self, Py_ssize_t index
   return vtkPythonUtil::GetObjectFromPointer(item);
 }
 
-static int PyVTKObject_AsSequence_Contains(PyObject* self, PyObject* value)
+int PyVTKObject_AsSequence_Contains(PyObject* self, PyObject* value)
 {
   vtkObjectBase* ob = ((PyVTKObject*)self)->vtk_ptr;
   vtkCollection* coll = vtkCollection::SafeDownCast(ob);
@@ -1053,19 +1100,6 @@ static int PyVTKObject_AsSequence_Contains(PyObject* self, PyObject* value)
 
   return coll->IsItemPresent(vtkObj) ? 1 : 0;
 }
-
-PySequenceMethods PyVTKObject_AsSequence = {
-  PyVTKObject_AsSequence_Length,   // sq_length
-  nullptr,                         // sq_concat
-  nullptr,                         // sq_repeat
-  PyVTKObject_AsSequence_GetItem,  // sq_item
-  nullptr,                         // sq_slice (deprecated)
-  nullptr,                         // sq_ass_item
-  nullptr,                         // sq_ass_slice (deprecated)
-  PyVTKObject_AsSequence_Contains, // sq_contains
-  nullptr,                         // sq_inplace_concat
-  nullptr,                         // sq_inplace_repeat
-};
 
 //------------------------------------------------------------------------------
 PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* ghostdict, vtkObjectBase* ptr)
@@ -1158,16 +1192,15 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* ghostdict, vtk
     }
   }
 
-  if ((PyType_GetFlags(pytype) & Py_TPFLAGS_HEAPTYPE) != 0)
-  {
-    // Incref if class was declared in python (see PyType_GenericAlloc).
-    Py_INCREF(pytype);
-  }
-  else
+  // Honor factory/override registration for wrapped types, but keep the exact
+  // type the caller asked for when it is a Python subclass.
+  if (PyVTKObject_IsWrappedType(pytype))
   {
     // To support factory New methods, use the object's actual class
     pytype = cls->py_type;
   }
+  // PyObject_GC_New below takes a reference to the (heap) type on behalf of the
+  // instance; PyVTKObject_Delete releases it.
 
   // Create a new dict unless object is being resurrected from a ghost
   PyObject* pydict = ghostdict;
@@ -1201,8 +1234,9 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* ghostdict, vtk
   {
     ptr->Delete();
   }
-  else if (ghostdict == nullptr && pytype->tp_init != nullptr)
+  else if (ghostdict == nullptr && (initproc)PyType_GetSlot(pytype, Py_tp_init) != nullptr)
   {
+    initproc tp_init = (initproc)PyType_GetSlot(pytype, Py_tp_init);
     // For checking if Python __init__ call modifies the C++ object
     vtkObject* checkptr = vtkObject::SafeDownCast(ptr);
     vtkMTimeType checktime = 0;
@@ -1212,7 +1246,7 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* ghostdict, vtk
     }
     // Call __init__(self)
     PyObject* arglist = Py_BuildValue("()");
-    int res = pytype->tp_init((PyObject*)self, arglist, nullptr);
+    int res = tp_init((PyObject*)self, arglist, nullptr);
     Py_DECREF(arglist);
     if (res < 0)
     {
@@ -1229,7 +1263,7 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* ghostdict, vtk
       // the dataset to change when the Python part of the dataset object is
       // created and initialized.
       std::string message = "Python method ";
-      message += pytype->tp_name;
+      message += vtkPythonUtil::GetTypeName(pytype);
       message += ".__init__() ";
       message += "unexpectedly modified pre-existing C++ base object ";
       message += checkptr->GetObjectDescription();

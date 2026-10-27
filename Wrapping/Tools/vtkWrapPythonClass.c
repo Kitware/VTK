@@ -342,9 +342,46 @@ static void vtkWrapPython_GenerateObjectNew(FILE* fp, const char* classname, Cla
   fprintf(fp,
     "PyObject *Py%s_ClassNew()\n"
     "{\n"
-    "  PyTypeObject *pytype = PyVTKClass_Add(\n"
-    "    &Py%s_Type, Py%s_Methods,\n",
-    classname, classname, classname);
+    "  static PyTypeObject *pytype = nullptr;\n"
+    "  if (pytype != nullptr)\n"
+    "  {\n"
+    "    return (PyObject *)pytype;\n"
+    "  }\n"
+    "\n"
+    "  PyObject *base = nullptr;\n",
+    classname);
+
+  /* find the first superclass that is a VTK class, create it first; it becomes
+   * the base of this heap type (the whole hierarchy must be heap types) */
+  name = vtkWrapPython_GetSuperClass(data, file_info, hinfo, &supermodule);
+  if (name)
+  {
+    vtkWrapText_PythonName(name, superclassname);
+    if (!supermodule) /* superclass is in the same module */
+    {
+      fprintf(fp, "  base = Py%s_ClassNew();\n", superclassname);
+    }
+    else /* superclass is in a different module */
+    {
+      if (strcmp(name, superclassname) == 0)
+      {
+        fprintf(
+          fp, "  base = (PyObject *)vtkPythonUtil::FindBaseTypeObject(\"%s\");\n", superclassname);
+      }
+      else /* this occurs if superclass is templated */
+      {
+        /* use of typeid() matches vtkSetGet ClassName for templated types */
+        fprintf(
+          fp, "  base = (PyObject *)vtkPythonUtil::FindBaseTypeObject(typeid(%s).name());\n", name);
+      }
+    }
+  }
+
+  fprintf(fp,
+    "\n"
+    "  pytype = PyVTKClass_AddHeapType(\n"
+    "    &Py%s_Spec, base, Py%s_Methods,\n",
+    classname, classname);
 
   if (strcmp(data->Name, classname) == 0)
   {
@@ -358,44 +395,18 @@ static void vtkWrapPython_GenerateObjectNew(FILE* fp, const char* classname, Cla
 
   if (class_has_new)
   {
-    fprintf(fp, " &Py%s_StaticNew);\n\n", classname);
+    fprintf(fp, "    &Py%s_StaticNew);\n", classname);
   }
   else
   {
-    fprintf(fp, " nullptr);\n\n");
+    fprintf(fp, "    nullptr);\n");
   }
 
-  /* if type is already ready, then return */
   fprintf(fp,
-    "  if ((PyType_GetFlags(pytype) & Py_TPFLAGS_READY) != 0)\n"
+    "  if (pytype == nullptr)\n"
     "  {\n"
-    "    return (PyObject *)pytype;\n"
+    "    return nullptr;\n"
     "  }\n\n");
-
-  /* find the first superclass that is a VTK class, create it first */
-  name = vtkWrapPython_GetSuperClass(data, file_info, hinfo, &supermodule);
-  if (name)
-  {
-    vtkWrapText_PythonName(name, superclassname);
-    if (!supermodule) /* superclass is in the same module */
-    {
-      fprintf(fp, "  pytype->tp_base = (PyTypeObject *)Py%s_ClassNew();\n\n", superclassname);
-    }
-    else /* superclass is in a different module */
-    {
-      if (strcmp(name, superclassname) == 0)
-      {
-        fprintf(
-          fp, "  pytype->tp_base = vtkPythonUtil::FindBaseTypeObject(\"%s\");\n\n", superclassname);
-      }
-      else /* this occurs if superclass is templated */
-      {
-        /* use of typeid() matches vtkSetGet ClassName for templated types */
-        fprintf(fp, "  pytype->tp_base = vtkPythonUtil::FindBaseTypeObject(typeid(%s).name());\n\n",
-          name);
-      }
-    }
-  }
 
   /* check if any constants need to be added to the class dict */
   for (i = 0; i < data->NumberOfConstants; i++)
@@ -420,7 +431,7 @@ static void vtkWrapPython_GenerateObjectNew(FILE* fp, const char* classname, Cla
   if (has_constants || has_enums)
   {
     fprintf(fp,
-      "  PyObject *d = pytype->tp_dict;\n"
+      "  PyObject *d = (PyObject *)pytype;\n"
       "  PyObject *o;\n"
       "\n");
   }
@@ -439,7 +450,7 @@ static void vtkWrapPython_GenerateObjectNew(FILE* fp, const char* classname, Cla
 
   fprintf(fp,
     "  PyVTKClass_AddCombinedGetSetDefinitions(pytype, Py%s_GetSets);\n"
-    "  PyType_Ready(pytype);\n"
+    "  PyType_Modified(pytype);\n"
     "  return (PyObject *)pytype;\n"
     "}\n\n",
     classname);
@@ -450,114 +461,61 @@ static void vtkWrapPython_GenerateObjectNew(FILE* fp, const char* classname, Cla
 void vtkWrapPython_GenerateObjectType(
   FILE* fp, const char* module, const char* classname, const int hasNumberProtocol)
 {
-  /* Generate the TypeObject */
+  /* Generate a PyType_Spec and slot table, used by PyVTKClass_AddHeapType. */
   fprintf(fp,
-    "#ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION\n"
-    "#pragma GCC diagnostic ignored \"-Wdeprecated-declarations\"\n"
-    "#endif\n"
-    "\n"
-    "static PyTypeObject Py%s_Type = {\n"
-    "  PyVarObject_HEAD_INIT(&PyType_Type, 0)\n"
-    "  PYTHON_PACKAGE_SCOPE \"%s.%s\", // tp_name\n"
-    "  sizeof(PyVTKObject), // tp_basicsize\n"
-    "  0, // tp_itemsize\n"
-    "  PyVTKObject_Delete, // tp_dealloc\n"
-    "#if PY_VERSION_HEX >= 0x03080000\n"
-    "  0, // tp_vectorcall_offset\n"
-    "#else\n"
-    "  nullptr, // tp_print\n"
-    "#endif\n"
-    "  nullptr, // tp_getattr\n"
-    "  nullptr, // tp_setattr\n"
-    "  nullptr, // tp_compare\n"
-    "  PyVTKObject_Repr, // tp_repr\n",
-    classname, module, classname);
+    "static PyType_Slot Py%s_Slots[] = {\n"
+    "  { Py_tp_dealloc, (void *)PyVTKObject_Delete },\n"
+    "  { Py_tp_repr, (void *)PyVTKObject_Repr },\n"
+    "  { Py_tp_str, (void *)PyVTKObject_String },\n"
+    "  { Py_tp_getattro, (void *)PyObject_GenericGetAttr },\n"
+    "  { Py_tp_setattro, (void *)PyObject_GenericSetAttr },\n"
+    "  { Py_tp_doc, (void *)Py%s_Doc },\n"
+    "  { Py_tp_traverse, (void *)PyVTKObject_Traverse },\n"
+    "  { Py_tp_getset, (void *)PyVTKObject_GetSet },\n"
+    "  { Py_tp_members, (void *)PyVTKObject_Members },\n"
+    "  { Py_tp_init, (void *)PyVTKObject_Init },\n"
+    "  { Py_tp_new, (void *)PyVTKObject_New },\n"
+    "  { Py_bf_getbuffer, (void *)PyVTKObject_GetBuffer },\n"
+    "  { Py_bf_releasebuffer, (void *)PyVTKObject_ReleaseBuffer },\n",
+    classname, classname);
 
   if (hasNumberProtocol)
   {
-    fprintf(fp, "  &Py%s_AsNumber, // tp_as_number\n", classname);
+    /* only nb_rshift (the ">>" pipeline operator) is implemented */
+    fprintf(fp, "  { Py_nb_rshift, (void *)Py%s_RShift },\n", classname);
   }
-  else
+  if (strcmp(classname, "vtkAlgorithm") == 0)
   {
-    fprintf(fp, "  nullptr, // tp_as_number\n");
+    fprintf(fp, "  { Py_tp_call, (void *)PyvtkAlgorithm_Call },\n");
   }
-  if (strcmp(classname, "vtkCollection") == 0)
-  {
-    fprintf(fp, "  &PyVTKObject_AsSequence, // tp_as_sequence\n");
-  }
-  else
-  {
-    fprintf(fp, "  nullptr, // tp_as_sequence\n");
-  }
-  fprintf(fp,
-    "  nullptr, // tp_as_mapping\n"
-    "  nullptr, // tp_hash\n"
-    "  %s, // tp_call\n"
-    "  PyVTKObject_String, // tp_str\n",
-    (strcmp(classname, "vtkAlgorithm") == 0 ? "PyvtkAlgorithm_Call" : "nullptr"));
-
-  fprintf(fp,
-    "  PyObject_GenericGetAttr, // tp_getattro\n"
-    "  PyObject_GenericSetAttr, // tp_setattro\n"
-    "  &PyVTKObject_AsBuffer, // tp_as_buffer\n"
-    "  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_GC|Py_TPFLAGS_BASETYPE,"
-    " // tp_flags\n"
-    "  Py%s_Doc, // tp_doc\n"
-    "  PyVTKObject_Traverse, // tp_traverse\n"
-    "  nullptr, // tp_clear\n"
-    "  nullptr, // tp_richcompare\n"
-    "  offsetof(PyVTKObject, vtk_weakreflist), // tp_weaklistoffset\n",
-    classname);
-
   if (strcmp(classname, "vtkCollection") == 0)
   {
     fprintf(fp,
-      "  PyvtkCollection_Iter, // tp_iter\n"
-      "  nullptr, // tp_iternext\n");
+      "  { Py_sq_length, (void *)PyVTKObject_AsSequence_Length },\n"
+      "  { Py_sq_item, (void *)PyVTKObject_AsSequence_GetItem },\n"
+      "  { Py_sq_contains, (void *)PyVTKObject_AsSequence_Contains },\n"
+      "  { Py_tp_iter, (void *)PyvtkCollection_Iter },\n");
   }
-  else
+  else if (strcmp(classname, "vtkCollectionIterator") == 0)
   {
-    if (strcmp(classname, "vtkCollectionIterator") == 0)
-    {
-      fprintf(fp,
-        "  PyvtkCollectionIterator_Iter, // tp_iter\n"
-        "  PyvtkCollectionIterator_Next, // tp_iternext\n");
-    }
-    else
-    {
-      fprintf(fp,
-        "  nullptr, // tp_iter\n"
-        "  nullptr, // tp_iternext\n");
-    }
+    fprintf(fp,
+      "  { Py_tp_iter, (void *)PyvtkCollectionIterator_Iter },\n"
+      "  { Py_tp_iternext, (void *)PyvtkCollectionIterator_Next },\n");
   }
-  fprintf(fp,
-    "  nullptr, // tp_methods\n"
-    "  nullptr, // tp_members\n"
-    "  PyVTKObject_GetSet, // tp_getset\n"
-    "  nullptr, // tp_base\n"
-    "  nullptr, // tp_dict\n"
-    "  nullptr, // tp_descr_get\n"
-    "  nullptr, // tp_descr_set\n"
-    "  offsetof(PyVTKObject, vtk_dict), // tp_dictoffset\n"
-    "  PyVTKObject_Init, // tp_init\n"
-    "  nullptr, // tp_alloc\n"
-    "  PyVTKObject_New, // tp_new\n"
-    "  PyObject_GC_Del, // tp_free\n"
-    "  nullptr, // tp_is_gc\n");
 
-  /* fields set by python itself */
   fprintf(fp,
-    "  nullptr, // tp_bases\n"
-    "  nullptr, // tp_mro\n"
-    "  nullptr, // tp_cache\n"
-    "  nullptr, // tp_subclasses\n"
-    "  nullptr, // tp_weaklist\n");
-
-  /* internal struct members */
-  fprintf(fp,
-    "  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED\n"
+    "  { 0, nullptr }\n"
     "};\n"
-    "\n");
+    "\n"
+    "static PyType_Spec Py%s_Spec = {\n"
+    "  PYTHON_PACKAGE_SCOPE \"%s.%s\", // tp_name\n"
+    "  sizeof(PyVTKObject), // tp_basicsize\n"
+    "  0, // tp_itemsize\n"
+    "  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE, // tp_flags\n"
+    "  Py%s_Slots\n"
+    "};\n"
+    "\n",
+    classname, module, classname, classname);
 }
 
 /* -------------------------------------------------------------------- */
@@ -619,7 +577,7 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
   int hasNumberProtocol = vtkWrapPython_GenerateNumberProtocolDefintions(fp, data);
 
   /* now output all the property getters and setters */
-  vtkWrapPython_GenerateProperties(fp, classname, data, hinfo, properties, is_vtkobject);
+  vtkWrapPython_GenerateProperties(fp, classname, data, hinfo, properties);
 
   /* Free properties */
   vtkParseProperties_Free(properties);

@@ -28,9 +28,20 @@ typedef struct
   int has_print;    /* there is "<<" stream operator */
   int has_compare;  /* there are comparison operators e.g. "<" */
   int has_sequence; /* the [] operator takes a single integer */
+  int has_setitem;  /* the [] operator can also be assigned to */
   int has_number;   /* there are arithmetic operators e.g. "+" */
-  int number_ops;   /* bitmask: 1=add, 2=sub, 4=mul, 8=div, 16=neg */
+  int number_ops;   /* bitmask of the VTK_PYTHON_OP_* flags */
 } SpecialTypeInfo;
+
+/* bit flags for SpecialTypeInfo::number_ops */
+enum
+{
+  VTK_PYTHON_OP_ADD = 1,
+  VTK_PYTHON_OP_SUBTRACT = 2,
+  VTK_PYTHON_OP_MULTIPLY = 4,
+  VTK_PYTHON_OP_DIVIDE = 8,
+  VTK_PYTHON_OP_NEGATIVE = 16
+};
 
 /* -------------------------------------------------------------------- */
 /* The following functions are for generating code for special types,
@@ -131,9 +142,13 @@ static void vtkWrapPython_NewDeleteProtocol(
     fprintf(fp,
       "static void Py%s_Delete(PyObject *self)\n"
       "{\n"
+      "  // Instances of a heap type hold a reference to their type (taken by\n"
+      "  // PyObject_GC_New); release it after the instance is freed.\n"
+      "  PyTypeObject *tp = Py_TYPE(self);\n"
       "  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;\n"
       "  delete static_cast<%s *>(obj->vtk_ptr);\n"
       "  PyObject_Del(self);\n"
+      "  Py_DECREF((PyObject *)tp);\n"
       "}\n"
       "\n",
       classname, data->Name);
@@ -143,7 +158,9 @@ static void vtkWrapPython_NewDeleteProtocol(
     fprintf(fp,
       "static void Py%s_Delete(PyObject *self)\n"
       "{\n"
+      "  PyTypeObject *tp = Py_TYPE(self);\n"
       "  PyObject_Del(self);\n"
+      "  Py_DECREF((PyObject *)tp);\n"
       "}\n"
       "\n",
       classname);
@@ -490,6 +507,7 @@ static void vtkWrapPython_SequenceProtocol(FILE* fp, const char* classname, Clas
   if (getItemFunc && getItemFunc->SizeHint)
   {
     info->has_sequence = 1;
+    info->has_setitem = (setItemFunc != 0);
 
     fprintf(fp,
       "static Py_ssize_t Py%s_SequenceSize(PyObject *self)\n"
@@ -587,31 +605,6 @@ static void vtkWrapPython_SequenceProtocol(FILE* fp, const char* classname, Clas
         "}\n\n");
     }
 
-    fprintf(fp,
-      "static PySequenceMethods Py%s_AsSequence = {\n"
-      "  Py%s_SequenceSize, // sq_length\n"
-      "  nullptr, // sq_concat\n"
-      "  nullptr, // sq_repeat\n"
-      "  Py%s_SequenceItem, // sq_item\n"
-      "  nullptr, // sq_slice\n",
-      classname, classname, classname);
-
-    if (setItemFunc)
-    {
-      fprintf(fp, "  Py%s_SequenceSetItem, // sq_ass_item\n", classname);
-    }
-    else
-    {
-      fprintf(fp, "  nullptr, // sq_ass_item\n");
-    }
-
-    fprintf(fp,
-      "  nullptr, // sq_ass_slice\n"
-      "  nullptr, // sq_contains\n"
-      "  nullptr, // sq_inplace_concat\n"
-      "  nullptr, // sq_inplace_repeat\n"
-      "};\n\n");
-
     /* generate mp_subscript to support slice indexing */
     fprintf(fp,
       "static PyObject *Py%s_MappingSubscript(PyObject *self, PyObject *key)\n"
@@ -649,21 +642,15 @@ static void vtkWrapPython_SequenceProtocol(FILE* fp, const char* classname, Clas
       "        Py_DECREF(result);\n"
       "        return nullptr;\n"
       "      }\n"
-      "      PyTuple_SET_ITEM(result, j, item);\n"
+      "      PyTuple_SetItem(result, j, item);\n"
       "    }\n"
       "    return result;\n"
       "  }\n"
       "  PyErr_SetString(PyExc_TypeError, \"indices must be integers or slices\");\n"
       "  return nullptr;\n"
       "}\n"
-      "\n"
-      "static PyMappingMethods Py%s_AsMapping = {\n"
-      "  Py%s_SequenceSize, // mp_length\n"
-      "  Py%s_MappingSubscript, // mp_subscript\n"
-      "  nullptr, // mp_ass_subscript\n"
-      "};\n\n",
-      classname, data->Name, data->Name, getItemFunc->SizeHint, classname, classname, classname,
-      classname, classname);
+      "\n",
+      classname, data->Name, data->Name, getItemFunc->SizeHint, classname, classname);
   }
 }
 
@@ -725,19 +712,19 @@ static void vtkWrapPython_NumberProtocol(FILE* fp, const char* classname, ClassI
       {
         if (strcmp(func->Name, "operator+") == 0)
         {
-          number_ops |= 1;
+          number_ops |= VTK_PYTHON_OP_ADD;
         }
         else if (strcmp(func->Name, "operator-") == 0)
         {
-          number_ops |= 2;
+          number_ops |= VTK_PYTHON_OP_SUBTRACT;
         }
         else if (strcmp(func->Name, "operator*") == 0)
         {
-          number_ops |= 4;
+          number_ops |= VTK_PYTHON_OP_MULTIPLY;
         }
         else if (strcmp(func->Name, "operator/") == 0)
         {
-          number_ops |= 8;
+          number_ops |= VTK_PYTHON_OP_DIVIDE;
         }
       }
     }
@@ -748,14 +735,14 @@ static void vtkWrapPython_NumberProtocol(FILE* fp, const char* classname, ClassI
       if (is_member && func->NumberOfParameters == 0)
       {
         /* member unary: no parameters */
-        number_ops |= 16;
+        number_ops |= VTK_PYTHON_OP_NEGATIVE;
       }
       else if (!is_member && func->NumberOfParameters == 1 &&
         vtkWrap_IsSpecialObject(func->Parameters[0]) &&
         strcmp(func->Parameters[0]->Class, data->Name) == 0)
       {
         /* non-member unary: one parameter of our type */
-        number_ops |= 16;
+        number_ops |= VTK_PYTHON_OP_NEGATIVE;
       }
     }
   }
@@ -769,7 +756,8 @@ static void vtkWrapPython_NumberProtocol(FILE* fp, const char* classname, ClassI
   {
     if (vtkWrapPython_IsTupleType(data, hinfo))
     {
-      number_ops = 1 | 2 | 4 | 8 | 16; /* add, sub, mul, div, neg */
+      number_ops = VTK_PYTHON_OP_ADD | VTK_PYTHON_OP_SUBTRACT | VTK_PYTHON_OP_MULTIPLY |
+        VTK_PYTHON_OP_DIVIDE | VTK_PYTHON_OP_NEGATIVE;
       use_sequence = 1;
     }
     else
@@ -822,11 +810,11 @@ static void vtkWrapPython_NumberProtocol(FILE* fp, const char* classname, ClassI
       "      PyErr_Clear();\n"
       "      Py_RETURN_NOTIMPLEMENTED;\n"
       "    }\n"
-      "    PyTuple_SET_ITEM(elems, i, r);\n"
+      "    PyTuple_SetItem(elems, i, r);\n"
       "  }\n"
       "  PyObject *args = PyTuple_Pack(1, elems);\n"
       "  Py_DECREF(elems);\n"
-      "  PyObject *result = Py_TYPE(vec)->tp_new(Py_TYPE(vec), args, nullptr);\n"
+      "  PyObject *result = PyObject_CallObject((PyObject *)Py_TYPE(vec), args);\n"
       "  Py_DECREF(args);\n"
       "  return result;\n"
       "}\n\n",
@@ -841,10 +829,10 @@ static void vtkWrapPython_NumberProtocol(FILE* fp, const char* classname, ClassI
     const char* op_token; /* C++ operator */
     const char* py_func;  /* PyNumber_* helper for sequence path */
   } binops[] = {
-    { 1, "Add", "+", "PyNumber_Add" },
-    { 2, "Subtract", "-", "PyNumber_Subtract" },
-    { 4, "Multiply", "*", "PyNumber_Multiply" },
-    { 8, "Divide", "/", "PyNumber_TrueDivide" },
+    { VTK_PYTHON_OP_ADD, "Add", "+", "PyNumber_Add" },
+    { VTK_PYTHON_OP_SUBTRACT, "Subtract", "-", "PyNumber_Subtract" },
+    { VTK_PYTHON_OP_MULTIPLY, "Multiply", "*", "PyNumber_Multiply" },
+    { VTK_PYTHON_OP_DIVIDE, "Divide", "/", "PyNumber_TrueDivide" },
   };
 
   for (size_t k = 0; k < sizeof(binops) / sizeof(binops[0]); k++)
@@ -897,7 +885,7 @@ static void vtkWrapPython_NumberProtocol(FILE* fp, const char* classname, ClassI
     }
   }
 
-  if (number_ops & 16)
+  if (number_ops & VTK_PYTHON_OP_NEGATIVE)
   {
     if (use_sequence)
     {
@@ -914,11 +902,11 @@ static void vtkWrapPython_NumberProtocol(FILE* fp, const char* classname, ClassI
         "    PyObject *r = PyNumber_Negative(v);\n"
         "    Py_DECREF(v);\n"
         "    if (!r) { Py_DECREF(elems); return nullptr; }\n"
-        "    PyTuple_SET_ITEM(elems, i, r);\n"
+        "    PyTuple_SetItem(elems, i, r);\n"
         "  }\n"
         "  PyObject *args = PyTuple_Pack(1, elems);\n"
         "  Py_DECREF(elems);\n"
-        "  PyObject *result = Py_TYPE(o1)->tp_new(Py_TYPE(o1), args, nullptr);\n"
+        "  PyObject *result = PyObject_CallObject((PyObject *)Py_TYPE(o1), args);\n"
         "  Py_DECREF(args);\n"
         "  return result;\n"
         "}\n\n",
@@ -938,92 +926,6 @@ static void vtkWrapPython_NumberProtocol(FILE* fp, const char* classname, ClassI
         classname, data->Name, data->Name, data->Name, classname);
     }
   }
-
-  /* generate the PyNumberMethods struct */
-  fprintf(fp, "static PyNumberMethods Py%s_AsNumber = {\n", classname);
-
-  if (number_ops & 1)
-  {
-    fprintf(fp, "  Py%s_Add, // nb_add\n", classname);
-  }
-  else
-  {
-    fprintf(fp, "  nullptr, // nb_add\n");
-  }
-
-  if (number_ops & 2)
-  {
-    fprintf(fp, "  Py%s_Subtract, // nb_subtract\n", classname);
-  }
-  else
-  {
-    fprintf(fp, "  nullptr, // nb_subtract\n");
-  }
-
-  if (number_ops & 4)
-  {
-    fprintf(fp, "  Py%s_Multiply, // nb_multiply\n", classname);
-  }
-  else
-  {
-    fprintf(fp, "  nullptr, // nb_multiply\n");
-  }
-
-  fprintf(fp,
-    "  nullptr, // nb_remainder\n"
-    "  nullptr, // nb_divmod\n"
-    "  nullptr, // nb_power\n");
-
-  if (number_ops & 16)
-  {
-    fprintf(fp, "  Py%s_Negative, // nb_negative\n", classname);
-  }
-  else
-  {
-    fprintf(fp, "  nullptr, // nb_negative\n");
-  }
-
-  fprintf(fp,
-    "  nullptr, // nb_positive\n"
-    "  nullptr, // nb_absolute\n"
-    "  nullptr, // nb_bool\n"
-    "  nullptr, // nb_invert\n"
-    "  nullptr, // nb_lshift\n"
-    "  nullptr, // nb_rshift\n"
-    "  nullptr, // nb_and\n"
-    "  nullptr, // nb_xor\n"
-    "  nullptr, // nb_or\n"
-    "  nullptr, // nb_int\n"
-    "  nullptr, // nb_reserved\n"
-    "  nullptr, // nb_float\n"
-    "  nullptr, // nb_inplace_add\n"
-    "  nullptr, // nb_inplace_subtract\n"
-    "  nullptr, // nb_inplace_multiply\n"
-    "  nullptr, // nb_inplace_remainder\n"
-    "  nullptr, // nb_inplace_power\n"
-    "  nullptr, // nb_inplace_lshift\n"
-    "  nullptr, // nb_inplace_rshift\n"
-    "  nullptr, // nb_inplace_and\n"
-    "  nullptr, // nb_inplace_xor\n"
-    "  nullptr, // nb_inplace_or\n"
-    "  nullptr, // nb_floor_divide\n");
-
-  if (number_ops & 8)
-  {
-    fprintf(fp, "  Py%s_Divide, // nb_true_divide\n", classname);
-  }
-  else
-  {
-    fprintf(fp, "  nullptr, // nb_true_divide\n");
-  }
-
-  fprintf(fp,
-    "  nullptr, // nb_inplace_floor_divide\n"
-    "  nullptr, // nb_inplace_true_divide\n"
-    "  nullptr, // nb_index\n"
-    "  nullptr, // nb_matrix_multiply\n"
-    "  nullptr, // nb_inplace_matrix_multiply\n"
-    "};\n\n");
 }
 
 /* -------------------------------------------------------------------- */
@@ -1087,6 +989,7 @@ static void vtkWrapPython_SpecialTypeProtocols(FILE* fp, const char* classname, 
   info->has_print = 0;
   info->has_compare = 0;
   info->has_sequence = 0;
+  info->has_setitem = 0;
   info->has_number = 0;
   info->number_ops = 0;
 
@@ -1169,125 +1072,84 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
   /* generate all functions and protocols needed for the type */
   vtkWrapPython_SpecialTypeProtocols(fp, classname, data, finfo, hinfo, &info);
 
-  /* Generate the TypeObject */
-  fprintf(fp,
-    "#ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION\n"
-    "#pragma GCC diagnostic ignored \"-Wdeprecated-declarations\"\n"
-    "#endif\n"
-    "\n"
-    "static PyTypeObject Py%s_Type = {\n"
-    "  PyVarObject_HEAD_INIT(&PyType_Type, 0)\n"
-    "  PYTHON_PACKAGE_SCOPE \"%s.%s\", // tp_name\n"
-    "  sizeof(PyVTKSpecialObject), // tp_basicsize\n"
-    "  0, // tp_itemsize\n"
-    "  Py%s_Delete, // tp_dealloc\n"
-    "#if PY_VERSION_HEX >= 0x03080000\n"
-    "  0, // tp_vectorcall_offset\n"
-    "#else\n"
-    "  nullptr, // tp_print\n"
-    "#endif\n"
-    "  nullptr, // tp_getattr\n"
-    "  nullptr, // tp_setattr\n"
-    "  nullptr, // tp_compare\n"
-    "  PyVTKSpecialObject_Repr, // tp_repr\n",
-    classname, module, classname, classname);
-
-  if (info.has_number)
-  {
-    fprintf(fp, "  &Py%s_AsNumber, // tp_as_number\n", classname);
-  }
-  else
-  {
-    fprintf(fp, "  nullptr, // tp_as_number\n");
-  }
-
-  if (info.has_sequence)
-  {
-    fprintf(fp, "  &Py%s_AsSequence, // tp_as_sequence\n", classname);
-  }
-  else
-  {
-    fprintf(fp, "  nullptr, // tp_as_sequence\n");
-  }
-
-  if (info.has_sequence)
-  {
-    fprintf(fp, "  &Py%s_AsMapping, // tp_as_mapping\n", classname);
-  }
-  else
-  {
-    fprintf(fp, "  nullptr, // tp_as_mapping\n");
-  }
+  /* Generate the type's slot table and spec, used by PyVTKSpecialType_AddHeapType. */
+  fprintf(fp, "static PyTypeObject *Py%s_Type = nullptr;\n\n", classname);
 
   fprintf(fp,
-    "  Py%s_Hash, // tp_hash\n"
-    "  nullptr, // tp_call\n",
-    classname);
+    "static PyType_Slot Py%s_Slots[] = {\n"
+    "  { Py_tp_dealloc, (void *)Py%s_Delete },\n"
+    "  { Py_tp_repr, (void *)PyVTKSpecialObject_Repr },\n"
+    "  { Py_tp_hash, (void *)Py%s_Hash },\n"
+    "  { Py_tp_getattro, (void *)PyObject_GenericGetAttr },\n"
+    "  { Py_tp_doc, (void *)Py%s_Doc },\n"
+    "  { Py_tp_new, (void *)Py%s_New },\n",
+    classname, classname, classname, classname, classname);
 
   if (info.has_print)
   {
-    fprintf(fp, "  Py%s_String, // tp_str\n", classname);
+    fprintf(fp, "  { Py_tp_str, (void *)Py%s_String },\n", classname);
   }
   else if (info.has_sequence)
   {
-    fprintf(fp, "  PyVTKSpecialObject_SequenceString, // tp_str\n");
+    fprintf(fp, "  { Py_tp_str, (void *)PyVTKSpecialObject_SequenceString },\n");
   }
-  else
-  {
-    fprintf(fp, "  nullptr, // tp_str\n");
-  }
-
-  fprintf(fp,
-    "  PyObject_GenericGetAttr, // tp_getattro\n"
-    "  nullptr, // tp_setattro\n"
-    "  nullptr, // tp_as_buffer\n"
-    "  Py_TPFLAGS_DEFAULT, // tp_flags\n"
-    "  Py%s_Doc, // tp_doc\n"
-    "  nullptr, // tp_traverse\n"
-    "  nullptr, // tp_clear\n",
-    classname);
 
   if (info.has_compare)
   {
-    fprintf(fp, "  Py%s_RichCompare, // tp_richcompare\n", classname);
+    fprintf(fp, "  { Py_tp_richcompare, (void *)Py%s_RichCompare },\n", classname);
   }
-  else
+
+  if (info.has_sequence)
   {
-    fprintf(fp, "  nullptr, // tp_richcompare\n");
+    fprintf(fp,
+      "  { Py_sq_length, (void *)Py%s_SequenceSize },\n"
+      "  { Py_sq_item, (void *)Py%s_SequenceItem },\n"
+      "  { Py_mp_length, (void *)Py%s_SequenceSize },\n"
+      "  { Py_mp_subscript, (void *)Py%s_MappingSubscript },\n",
+      classname, classname, classname, classname);
+    if (info.has_setitem)
+    {
+      fprintf(fp, "  { Py_sq_ass_item, (void *)Py%s_SequenceSetItem },\n", classname);
+    }
+  }
+
+  if (info.has_number)
+  {
+    if (info.number_ops & VTK_PYTHON_OP_ADD)
+    {
+      fprintf(fp, "  { Py_nb_add, (void *)Py%s_Add },\n", classname);
+    }
+    if (info.number_ops & VTK_PYTHON_OP_SUBTRACT)
+    {
+      fprintf(fp, "  { Py_nb_subtract, (void *)Py%s_Subtract },\n", classname);
+    }
+    if (info.number_ops & VTK_PYTHON_OP_MULTIPLY)
+    {
+      fprintf(fp, "  { Py_nb_multiply, (void *)Py%s_Multiply },\n", classname);
+    }
+    if (info.number_ops & VTK_PYTHON_OP_DIVIDE)
+    {
+      fprintf(fp, "  { Py_nb_true_divide, (void *)Py%s_Divide },\n", classname);
+    }
+    if (info.number_ops & VTK_PYTHON_OP_NEGATIVE)
+    {
+      fprintf(fp, "  { Py_nb_negative, (void *)Py%s_Negative },\n", classname);
+    }
   }
 
   fprintf(fp,
-    "  0, // tp_weaklistoffset\n"
-    "  nullptr, // tp_iter\n"
-    "  nullptr, // tp_iternext\n"
-    "  nullptr, // tp_methods\n"
-    "  nullptr, // tp_members\n"
-    "  nullptr, // tp_getset\n"
-    "  nullptr, // tp_base\n"
-    "  nullptr, // tp_dict\n"
-    "  nullptr, // tp_descr_get\n"
-    "  nullptr, // tp_descr_set\n"
-    "  0, // tp_dictoffset\n"
-    "  nullptr, // tp_init\n"
-    "  nullptr, // tp_alloc\n"
-    "  Py%s_New, // tp_new\n"
-    "  PyObject_Del, // tp_free\n"
-    "  nullptr, // tp_is_gc\n",
-    classname);
-
-  /* fields set by python itself */
-  fprintf(fp,
-    "  nullptr, // tp_bases\n"
-    "  nullptr, // tp_mro\n"
-    "  nullptr, // tp_cache\n"
-    "  nullptr, // tp_subclasses\n"
-    "  nullptr, // tp_weaklist\n");
-
-  /* internal struct members */
-  fprintf(fp,
-    "  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED\n"
+    "  { 0, nullptr }\n"
     "};\n"
-    "\n");
+    "\n"
+    "static PyType_Spec Py%s_Spec = {\n"
+    "  PYTHON_PACKAGE_SCOPE \"%s.%s\", // tp_name\n"
+    "  sizeof(PyVTKSpecialObject), // tp_basicsize\n"
+    "  0, // tp_itemsize\n"
+    "  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, // tp_flags\n"
+    "  Py%s_Slots\n"
+    "};\n"
+    "\n",
+    classname, module, classname, classname);
 
   /* need a check function for some protocols */
   if (info.has_compare || info.has_number)
@@ -1295,9 +1157,9 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
     fprintf(fp,
       "static int Py%s_Check(PyObject *ob)\n"
       "{\n"
-      "  return PyObject_TypeCheck(ob, &Py%s_Type);\n"
+      "  return (Py_TYPE(ob) == Py%s_Type || PyType_IsSubtype(Py_TYPE(ob), Py%s_Type));\n"
       "}\n\n",
-      classname, classname);
+      classname, classname, classname);
   }
 
   /* generate the copy constructor helper function */
@@ -1341,68 +1203,64 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
    * the unused "const char *" arg is the module name */
   fprintf(fp,
     "PyObject *Py%s_TypeNew()\n"
-    "{\n",
-    classname);
-
-  if (has_copycons)
-  {
-    fprintf(fp,
-      "  PyTypeObject *pytype = PyVTKSpecialType_Add(\n"
-      "    &Py%s_Type,\n"
-      "    Py%s_Methods,\n"
-      "    Py%s_GetSets,\n"
-      "    Py%s_%*.*s_Methods,\n"
-      "    &Py%s_CCopy);\n"
-      "\n",
-      classname, classname, classname, classname, (int)n, (int)n, constructor, classname);
-  }
-  else if (constructor)
-  {
-    fprintf(fp,
-      "  PyTypeObject *pytype = PyVTKSpecialType_Add(\n"
-      "    &Py%s_Type,\n"
-      "    Py%s_Methods,\n"
-      "    Py%s_GetSets,\n"
-      "    Py%s_%*.*s_Methods,\n"
-      "    nullptr);\n"
-      "\n",
-      classname, classname, classname, classname, (int)n, (int)n, constructor);
-  }
-  else
-  {
-    fprintf(fp,
-      "  PyTypeObject *pytype = PyVTKSpecialType_Add(\n"
-      "    &Py%s_Type,\n"
-      "    Py%s_Methods,\n"
-      "    Py%s_GetSets,\n"
-      "    nullptr,\n"
-      "    nullptr);\n"
-      "\n",
-      classname, classname, classname);
-  }
-
-  /* if type is already ready, then return */
-  fprintf(fp,
-    "  if ((PyType_GetFlags(pytype) & Py_TPFLAGS_READY) != 0)\n"
+    "{\n"
+    "  if (Py%s_Type != nullptr)\n"
     "  {\n"
-    "    return (PyObject *)pytype;\n"
-    "  }\n\n");
+    "    return (PyObject *)Py%s_Type;\n"
+    "  }\n"
+    "\n"
+    "  PyObject *base = nullptr;\n",
+    classname, classname, classname);
 
-  /* call the superclass New (initialize in dependency order) */
+  /* create the superclass first; it becomes the base of this heap type */
   if (has_superclass)
   {
     if (!supermodule) /* superclass is in the same module */
     {
-      fprintf(fp, "  pytype->tp_base = (PyTypeObject *)Py%s_TypeNew();\n\n", supername);
+      fprintf(fp, "  base = Py%s_TypeNew();\n", supername);
     }
     else /* superclass is in a different module */
     {
-      fprintf(fp,
-        "  pytype->tp_base = vtkPythonUtil::FindSpecialTypeObject("
-        "\"%s\");\n\n",
-        supername);
+      fprintf(
+        fp, "  base = (PyObject *)vtkPythonUtil::FindSpecialTypeObject(\"%s\");\n", supername);
     }
   }
+
+  fprintf(fp,
+    "\n"
+    "  Py%s_Type = PyVTKSpecialType_AddHeapType(\n"
+    "    &Py%s_Spec, base,\n"
+    "    Py%s_Methods,\n"
+    "    Py%s_GetSets,\n",
+    classname, classname, classname, classname);
+
+  if (has_copycons)
+  {
+    fprintf(fp,
+      "    Py%s_%*.*s_Methods,\n"
+      "    &Py%s_CCopy);\n",
+      classname, (int)n, (int)n, constructor, classname);
+  }
+  else if (constructor)
+  {
+    fprintf(fp,
+      "    Py%s_%*.*s_Methods,\n"
+      "    nullptr);\n",
+      classname, (int)n, (int)n, constructor);
+  }
+  else
+  {
+    fprintf(fp,
+      "    nullptr,\n"
+      "    nullptr);\n");
+  }
+
+  fprintf(fp,
+    "  if (Py%s_Type == nullptr)\n"
+    "  {\n"
+    "    return nullptr;\n"
+    "  }\n\n",
+    classname);
 
   /* check whether the class has any constants as members */
   for (i = 0; i < data->NumberOfConstants; i++)
@@ -1416,8 +1274,9 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
   if (has_constants)
   {
     fprintf(fp,
-      "  PyObject *d = pytype->tp_dict;\n"
-      "  PyObject *o;\n\n");
+      "  PyObject *d = (PyObject *)Py%s_Type;\n"
+      "  PyObject *o;\n\n",
+      classname);
 
     /* add any enum types defined in the class to its dict */
     vtkWrapPython_AddPublicEnumTypes(fp, "  ", "d", "o", data);
@@ -1427,9 +1286,10 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
   }
 
   fprintf(fp,
-    "  PyType_Ready(pytype);\n"
-    "  return (PyObject *)pytype;\n"
-    "}\n\n");
+    "  PyType_Modified(Py%s_Type);\n"
+    "  return (PyObject *)Py%s_Type;\n"
+    "}\n\n",
+    classname, classname);
 }
 
 // NOLINTEND(bugprone-unsafe-functions)

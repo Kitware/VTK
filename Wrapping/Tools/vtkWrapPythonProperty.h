@@ -12,7 +12,7 @@
 
 /* print out all properties in the getset table. */
 void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo* data,
-  const HierarchyInfo* hinfo, ClassProperties* properties, int is_vtkobject);
+  const HierarchyInfo* hinfo, ClassProperties* properties);
 
 #endif /* vtkWrapPythonProperty_h */
 /* VTK-HeaderTest-Exclude: vtkWrapPythonProperty.h */
