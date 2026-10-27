@@ -5,9 +5,9 @@
  *
  * @brief Maps multivariate data to color and opacity.
  *
- * Maps multivariate data (multi-component point or cell scalars (AOS
- * array) in a vtkDataSet or multiple columns in a table (an SOA
- * array)) to color and opacity (RGBA). The filter can also generate
+ * Maps multivariate data (multi-component point or cell scalars in a
+ * vtkDataSet or one component numeric columns, of any types, in a table)
+ * to color and opacity (RGBA). The filter can also generate
  * two additional set of point coordinates. First, point coordinates
  * for vertices associated with the components on the outline of a
  * circle centered at (0, 0) with radius 1 (these points form a

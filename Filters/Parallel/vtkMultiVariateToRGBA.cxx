@@ -509,6 +509,28 @@ vtkSmartPointer<vtkDataArray> createSOAArray(const std::vector<vtkAbstractArray*
   return soaArray;
 }
 
+/**
+ * Copies a list of one component numeric column arrays, of any types, into a
+ * double array with a component per column. Returns nullptr if a column is
+ * not a one component numeric array.
+ */
+vtkSmartPointer<vtkDataArray> copyColumns(const std::vector<vtkAbstractArray*>& columns)
+{
+  auto result = vtkSmartPointer<vtkDoubleArray>::New();
+  result->SetNumberOfComponents(static_cast<int>(columns.size()));
+  result->SetNumberOfTuples(columns[0]->GetNumberOfTuples());
+  for (size_t i = 0; i < columns.size(); ++i)
+  {
+    auto* column = vtkDataArray::FastDownCast(columns[i]);
+    if (!column || column->GetNumberOfComponents() != 1 ||
+      !result->CopyComponent(static_cast<int>(i), column, 0))
+    {
+      return nullptr;
+    }
+  }
+  return result;
+}
+
 struct CreateSOAWorker
 {
   CreateSOAWorker(const std::vector<vtkAbstractArray*>& columns)
@@ -1258,19 +1280,19 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
         vtkErrorMacro("Number of visible columns is less than 3: " << columns.size());
         return { attributes, nullptr };
       }
-      typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals> Dispatcher;
+      typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes> Dispatcher;
       CreateSOAWorker worker(columns);
-      if (!Dispatcher::Execute(array0, worker) || !worker.SOAArray)
-      {
-        vtkErrorMacro(
-          "Columns have to be one component AOS arrays of the same float or double type: "
-          << array0->GetDataType());
-        return { attributes, nullptr };
-      }
-      else
+      if (Dispatcher::Execute(array0, worker) && worker.SOAArray)
       {
         return { attributes, worker.SOAArray };
       }
+      // columns of different types, or not AOS: copy them
+      vtkSmartPointer<vtkDataArray> copy = copyColumns(columns);
+      if (!copy)
+      {
+        vtkErrorMacro("Columns have to be one component numeric arrays");
+      }
+      return { attributes, copy };
     }
     else
     {

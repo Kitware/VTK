@@ -5,6 +5,7 @@ vtk_add_test_cxx(vtkFiltersParallelCxxTests testsStd
   TestGeometryFilterDispatcher.cxx
   TestMultiVariateToRGBA.cxx
   TestMultiVariateToRGBALens.cxx,NO_VALID
+  TestMultiVariateToRGBATableTypes.cxx,NO_VALID
   TestPOutlineFilter.cxx,NO_VALID
   )
 vtk_test_cxx_executable(vtkFiltersParallelCxxTests testsStd)
