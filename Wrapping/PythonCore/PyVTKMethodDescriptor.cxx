@@ -7,29 +7,25 @@
 
 #include <structmember.h> // a python header
 
-// Silence warning like
-// "dereferencing type-punned pointer will break strict-aliasing rules"
-// it happens because this kind of expression: (long *)&ptr
-#if defined(__GNUC__)
-#pragma GCC diagnostic ignored "-Wstrict-aliasing"
-#endif
+//------------------------------------------------------------------------------
+PyTypeObject* PyVTKMethodDescriptor_Type = nullptr;
 
 //------------------------------------------------------------------------------
 // C API
 
 PyObject* PyVTKMethodDescriptor_New(PyTypeObject* pytype, PyMethodDef* meth)
 {
-  PyMethodDescrObject* descr =
-    (PyMethodDescrObject*)PyType_GenericAlloc(&PyVTKMethodDescriptor_Type, 0);
+  PyVTKMethodDescriptor* descr =
+    (PyVTKMethodDescriptor*)PyType_GenericAlloc(PyVTKMethodDescriptor_Type, 0);
 
   if (descr)
   {
-    Py_XINCREF(pytype);
-    PyDescr_TYPE(descr) = pytype;
-    PyDescr_NAME(descr) = PyUnicode_InternFromString(meth->ml_name);
-    descr->d_method = meth;
+    Py_XINCREF((PyObject*)pytype);
+    descr->meth_class = pytype;
+    descr->meth_name = PyUnicode_InternFromString(meth->ml_name);
+    descr->meth_def = meth;
 
-    if (!PyDescr_NAME(descr))
+    if (!descr->meth_name)
     {
       Py_DECREF(descr);
       descr = nullptr;
@@ -44,32 +40,36 @@ PyObject* PyVTKMethodDescriptor_New(PyTypeObject* pytype, PyMethodDef* meth)
 
 static void PyVTKMethodDescriptor_Delete(PyObject* ob)
 {
-  PyMethodDescrObject* descr = (PyMethodDescrObject*)ob;
+  PyVTKMethodDescriptor* descr = (PyVTKMethodDescriptor*)ob;
+  // Instances hold a reference to their (heap) type, taken by PyType_GenericAlloc.
+  PyTypeObject* tp = Py_TYPE(ob);
   PyObject_GC_UnTrack(descr);
-  Py_XDECREF(PyDescr_TYPE(descr));
-  Py_XDECREF(PyDescr_NAME(descr));
+  Py_XDECREF((PyObject*)descr->meth_class);
+  Py_XDECREF(descr->meth_name);
   PyObject_GC_Del(descr);
+  Py_DECREF((PyObject*)tp);
 }
 
 static PyObject* PyVTKMethodDescriptor_Repr(PyObject* ob)
 {
-  PyMethodDescrObject* descr = (PyMethodDescrObject*)ob;
-  return PyUnicode_FromFormat("<method \'%U\' of \'%s\' objects>", PyDescr_NAME(descr),
-    vtkPythonUtil::GetTypeName(PyDescr_TYPE(descr)));
+  PyVTKMethodDescriptor* descr = (PyVTKMethodDescriptor*)ob;
+  return PyUnicode_FromFormat("<method \'%U\' of \'%s\' objects>", descr->meth_name,
+    vtkPythonUtil::GetTypeName(descr->meth_class));
 }
 
 static int PyVTKMethodDescriptor_Traverse(PyObject* ob, visitproc visit, void* arg)
 {
-  PyMethodDescrObject* descr = (PyMethodDescrObject*)ob;
-  Py_VISIT(PyDescr_TYPE(descr));
+  PyVTKMethodDescriptor* descr = (PyVTKMethodDescriptor*)ob;
+  Py_VISIT(Py_TYPE(ob));
+  Py_VISIT((PyObject*)descr->meth_class);
   return 0;
 }
 
 static PyObject* PyVTKMethodDescriptor_Call(PyObject* ob, PyObject* args, PyObject* kwds)
 {
-  PyMethodDescrObject* descr = (PyMethodDescrObject*)ob;
+  PyVTKMethodDescriptor* descr = (PyVTKMethodDescriptor*)ob;
   PyObject* result = nullptr;
-  PyObject* func = PyCFunction_New(descr->d_method, (PyObject*)PyDescr_TYPE(descr));
+  PyObject* func = PyCFunction_New(descr->meth_def, (PyObject*)descr->meth_class);
 
   if (func)
   {
@@ -82,7 +82,7 @@ static PyObject* PyVTKMethodDescriptor_Call(PyObject* ob, PyObject* args, PyObje
 
 static PyObject* PyVTKMethodDescriptor_Get(PyObject* self, PyObject* obj, PyObject*)
 {
-  PyMethodDescrObject* descr = (PyMethodDescrObject*)self;
+  PyVTKMethodDescriptor* descr = (PyVTKMethodDescriptor*)self;
 
   if (obj == nullptr)
   {
@@ -91,14 +91,14 @@ static PyObject* PyVTKMethodDescriptor_Get(PyObject* self, PyObject* obj, PyObje
     return self;
   }
 
-  if (PyObject_TypeCheck(obj, PyDescr_TYPE(descr)))
+  if (PyObject_TypeCheck(obj, descr->meth_class))
   {
     // Bind the method to the object
-    return PyCFunction_New(descr->d_method, obj);
+    return PyCFunction_New(descr->meth_def, obj);
   }
 
   PyErr_Format(PyExc_TypeError, "descriptor '%U' for '%s' objects doesn't apply to '%s' object",
-    PyDescr_NAME(descr), vtkPythonUtil::GetTypeName(PyDescr_TYPE(descr)),
+    descr->meth_name, vtkPythonUtil::GetTypeName(descr->meth_class),
     vtkPythonUtil::GetTypeNameForObject(obj));
 
   return nullptr;
@@ -106,15 +106,15 @@ static PyObject* PyVTKMethodDescriptor_Get(PyObject* self, PyObject* obj, PyObje
 
 static PyObject* PyVTKMethodDescriptor_GetDoc(PyObject* ob, void*)
 {
-  PyMethodDescrObject* descr = (PyMethodDescrObject*)ob;
+  PyVTKMethodDescriptor* descr = (PyVTKMethodDescriptor*)ob;
 
-  if (descr->d_method->ml_doc == nullptr)
+  if (descr->meth_def->ml_doc == nullptr)
   {
     Py_INCREF(Py_None);
     return Py_None;
   }
 
-  return PyUnicode_FromString(descr->d_method->ml_doc);
+  return PyUnicode_FromString(descr->meth_def->ml_doc);
 }
 
 #if PY_VERSION_HEX >= 0x03070000
@@ -129,69 +129,45 @@ static PyGetSetDef PyVTKMethodDescriptor_GetSet[] = {
 };
 
 static PyMemberDef PyVTKMethodDescriptor_Members[] = {
-  { pystr("__objclass__"), T_OBJECT, offsetof(PyDescrObject, d_type), READONLY, nullptr },
-  { pystr("__name__"), T_OBJECT, offsetof(PyDescrObject, d_name), READONLY, nullptr },
+  // T_OBJECT_EX (not T_OBJECT) is the member type that is part of the stable
+  // ABI; both fields are always set after a successful PyVTKMethodDescriptor_New
+  // so the only difference (raising AttributeError vs returning None when null)
+  // never applies here.
+  { pystr("__objclass__"), T_OBJECT_EX, offsetof(PyVTKMethodDescriptor, meth_class), READONLY,
+    nullptr },
+  { pystr("__name__"), T_OBJECT_EX, offsetof(PyVTKMethodDescriptor, meth_name), READONLY, nullptr },
   { nullptr, 0, 0, 0, nullptr }
 };
 
-#ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+//------------------------------------------------------------------------------
+// Type definition
+
+static PyType_Slot PyVTKMethodDescriptor_Slots[] = {
+  { Py_tp_dealloc, (void*)PyVTKMethodDescriptor_Delete },
+  { Py_tp_repr, (void*)PyVTKMethodDescriptor_Repr },
+  { Py_tp_call, (void*)PyVTKMethodDescriptor_Call },
+  { Py_tp_getattro, (void*)PyObject_GenericGetAttr },
+  { Py_tp_traverse, (void*)PyVTKMethodDescriptor_Traverse },
+  { Py_tp_members, (void*)PyVTKMethodDescriptor_Members },
+  { Py_tp_getset, (void*)PyVTKMethodDescriptor_GetSet },
+  { Py_tp_descr_get, (void*)PyVTKMethodDescriptor_Get },
+  { 0, nullptr },
+};
+
+static PyType_Spec PyVTKMethodDescriptor_Spec = {
+  "vtkmodules.vtkCommonCore.method_descriptor", // tp_name
+  sizeof(PyVTKMethodDescriptor),                // tp_basicsize
+  0,                                            // tp_itemsize
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, PyVTKMethodDescriptor_Slots
+};
 
 //------------------------------------------------------------------------------
-// clang-format off
-PyTypeObject PyVTKMethodDescriptor_Type = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "vtkmodules.vtkCommonCore.method_descriptor", // tp_name
-  sizeof(PyMethodDescrObject),             // tp_basicsize
-  0,                                       // tp_itemsize
-  PyVTKMethodDescriptor_Delete,            // tp_dealloc
-#if PY_VERSION_HEX >= 0x03080000
-  //Prior to Py3.8, this member was a function pointer,
-  //but as of Py3.8 it is an integer
-  //(and therefore incompatible with nullptr).
-  0,                                       // tp_vectorcall_offset
-#else
-  nullptr,                                 // tp_print
-#endif
-  nullptr,                                 // tp_getattr
-  nullptr,                                 // tp_setattr
-  nullptr,                                 // tp_compare
-  PyVTKMethodDescriptor_Repr,              // tp_repr
-  nullptr,                                 // tp_as_number
-  nullptr,                                 // tp_as_sequence
-  nullptr,                                 // tp_as_mapping
-  nullptr,                                 // tp_hash
-  PyVTKMethodDescriptor_Call,              // tp_call
-  nullptr,                                 // tp_string
-  PyObject_GenericGetAttr,                 // tp_getattro
-  nullptr,                                 // tp_setattro
-  nullptr,                                 // tp_as_buffer
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, // tp_flags
-  nullptr,                                 // tp_doc
-  PyVTKMethodDescriptor_Traverse,          // tp_traverse
-  nullptr,                                 // tp_clear
-  nullptr,                                 // tp_richcompare
-  0,                                       // tp_weaklistoffset
-  nullptr,                                 // tp_iter
-  nullptr,                                 // tp_iternext
-  nullptr,                                 // tp_methods
-  PyVTKMethodDescriptor_Members,           // tp_members
-  PyVTKMethodDescriptor_GetSet,            // tp_getset
-  nullptr,                                 // tp_base
-  nullptr,                                 // tp_dict
-  PyVTKMethodDescriptor_Get,               // tp_descr_get
-  nullptr,                                 // tp_descr_set
-  0,                                       // tp_dictoffset
-  nullptr,                                 // tp_init
-  nullptr,                                 // tp_alloc
-  nullptr,                                 // tp_new
-  nullptr,                                 // tp_free
-  nullptr,                                 // tp_is_gc
-  nullptr,                                 // tp_bases
-  nullptr,                                 // tp_mro
-  nullptr,                                 // tp_cache
-  nullptr,                                 // tp_subclasses
-  nullptr,                                 // tp_weaklist
-  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED };
-// clang-format on
+bool PyVTKMethodDescriptor_ClassNew()
+{
+  if (PyVTKMethodDescriptor_Type != nullptr)
+  {
+    return true;
+  }
+  PyVTKMethodDescriptor_Type = (PyTypeObject*)PyType_FromSpec(&PyVTKMethodDescriptor_Spec);
+  return PyVTKMethodDescriptor_Type != nullptr;
+}
