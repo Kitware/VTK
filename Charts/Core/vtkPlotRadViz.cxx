@@ -14,6 +14,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMultiVariateToRGBA.h"
 #include "vtkObjectFactory.h"
@@ -389,12 +390,18 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     this->ComputeGBC->SetInputDataObject(0, input);
     if (dataset)
     {
-      // forward the array to process and association from vtkContextMapper2D
-      int association = vtkDataObject::FIELD_ASSOCIATION_NONE;
-      vtkDataArray* array = this->GetData()->GetInputArrayToProcess(0, input, association);
-      if (array)
+      // forward the array selection of vtkContextMapper2D, which may be unnamed
+      vtkInformation* arrayInfo = this->GetData()->GetInputArrayInformation(0);
+      int association = arrayInfo->Get(vtkDataObject::FIELD_ASSOCIATION());
+      if (const char* name = arrayInfo->Get(vtkDataObject::FIELD_NAME()))
       {
-        this->ComputeGBC->SetInputArrayToProcess(array->GetName(), association);
+        this->ComputeGBC->SetInputArrayToProcess(0, 0, 0, association, name);
+      }
+      else
+      {
+        // e.g. active scalars: the filter finds the same, possibly unnamed, array
+        this->ComputeGBC->SetInputArrayToProcess(
+          0, 0, 0, association, arrayInfo->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE()));
       }
     }
     // counts the columns of the input and array set above

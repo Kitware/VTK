@@ -3,7 +3,8 @@
 /**
  * Check that vtkPlotRadViz draws its input when it is set with
  * SetInputConnection, for a table and for a dataset, and when the array to
- * process is not the active scalars, that column visibility set before the
+ * process is not the active scalars, when the active scalars become
+ * unnamed, that column visibility set before the
  * first paint is kept, that labels set with SetLabels follow the visible
  * columns, and that it draws nothing when hidden.
  */
@@ -122,6 +123,29 @@ vtkIdType PaintVertices(const std::function<void(vtkPlotRadViz*)>& setInput)
 }
 
 /**
+ * Renders a RadViz chart of an image whose active scalars are named, then of
+ * an image whose active scalars are unnamed with 4 components, and returns
+ * the number of vertices the plot drew for the second image.
+ */
+vtkIdType PaintUnnamedScalars()
+{
+  vtkNew<vtkContextView> view;
+  view->GetRenderWindow()->SetSize(300, 300);
+  vtkNew<vtkChartRadViz> chart;
+  view->GetScene()->AddItem(chart);
+  vtkPlotRadViz* plot = vtkPlotRadViz::SafeDownCast(chart->AddPlot(0));
+  plot->SetInputDataSet(MakeImage(false));
+  view->GetRenderWindow()->Render();
+  auto image = vtkSmartPointer<vtkImageData>::New();
+  image->SetDimensions(5, 5, 2);
+  image->GetPointData()->SetScalars(MakeArray(nullptr, 4));
+  plot->SetInputDataSet(image);
+  view->GetRenderWindow()->Render();
+  vtkPoints2D* vertices = plot->GetVertices();
+  return vertices ? vertices->GetNumberOfPoints() : 0;
+}
+
+/**
  * Renders a RadViz chart of a 4 column table, with 'labels' set and column
  * "b" hidden, and returns whether the plot drew 'expected' as vertex labels.
  */
@@ -186,6 +210,8 @@ int TestRadVizChartInput(int, char*[])
             plot->GetData()->SetInputArrayToProcess(
               0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "values");
           }) == 3);
+  // the unnamed active scalars, not the array processed before
+  CHECK(PaintUnnamedScalars() == 4);
   // visibility set before the first paint
   CHECK(PaintVertices(
           [](vtkPlotRadViz* plot)
