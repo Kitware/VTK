@@ -10,7 +10,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObject.h"
 #include "vtkPythonCommand.h"
-#ifdef PY_LIMITED_API
+#ifdef Py_LIMITED_API
 #include "vtkSmartPyObject.h"
 #endif
 #include "vtkStringFormatter.h"
@@ -24,6 +24,7 @@
 #include <cstring>
 #include <iostream>
 #include <map>
+#include <mutex>
 #include <set>
 #include <sstream>
 #include <string>
@@ -36,11 +37,28 @@
 #include <cstdint>
 #endif
 
-// Py_HashPointer added in 3.13 and _Py_HashPointer deprecated in 3.14.
-#if PY_VERSION_HEX >= 0x030D0000
+// Py_HashPointer became public in 3.13; _Py_HashPointer is the older private
+// spelling.  Neither is reliably part of the Limited API (in practice the
+// headers keep Py_HashPointer in the CPython-only section), so under the
+// Limited API always use a local replica of CPython's pointer hash.
+#if defined(Py_LIMITED_API)
+#define VTK_PYTHON_NEED_HASHPOINTER
+#elif PY_VERSION_HEX >= 0x030D0000
 #define PY_HASHPOINTER Py_HashPointer
 #else
 #define PY_HASHPOINTER _Py_HashPointer
+#endif
+
+#ifdef VTK_PYTHON_NEED_HASHPOINTER
+static inline Py_hash_t vtkPythonHashPointer(const void* p)
+{
+  size_t y = (size_t)p;
+  // bottom bits of a pointer are usually zero; rotate them up
+  y = (y >> 4) | (y << (8 * sizeof(void*) - 4));
+  Py_hash_t x = (Py_hash_t)y;
+  return (x == -1) ? -2 : x;
+}
+#define PY_HASHPOINTER vtkPythonHashPointer
 #endif
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -253,8 +271,8 @@ void vtkPythonUtil::Initialize()
 {
   // create the singleton
   vtkPythonUtilCreateIfNeeded();
-  // finalize our custom MethodDescriptor type
-  PyType_Ready(&PyVTKMethodDescriptor_Type);
+  // create our custom MethodDescriptor type
+  PyVTKMethodDescriptor_ClassNew();
 }
 
 //------------------------------------------------------------------------------
@@ -399,7 +417,7 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject* obj)
     vtkWeakPointerBase wptr;
 
     // check for customized class or dict
-    if (pobj->vtk_class->py_type != Py_TYPE(pobj) || PyDict_Size(pobj->vtk_dict))
+    if (pobj->vtk_class->py_type != Py_TYPE((PyObject*)pobj) || PyDict_Size(pobj->vtk_dict))
     {
       wptr = pobj->vtk_ptr;
     }
@@ -448,9 +466,9 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject* obj)
       // Add this new ghost to the map
       PyVTKObjectGhost& g = (*ghosts)[pobj->vtk_ptr];
       g.vtk_ptr = wptr;
-      g.vtk_class = Py_TYPE(pobj);
+      g.vtk_class = Py_TYPE((PyObject*)pobj);
       g.vtk_dict = pobj->vtk_dict;
-      Py_INCREF(g.vtk_class);
+      Py_INCREF((PyObject*)g.vtk_class);
       Py_INCREF(g.vtk_dict);
 
       // AddObserver only exists on vtkObject, so non-vtkObject vtkObjectBase
@@ -638,11 +656,95 @@ const char* vtkPythonUtil::StripModuleFromObject(PyObject* ob)
 }
 
 //------------------------------------------------------------------------------
+#ifdef Py_LIMITED_API
+// Cache of type names for wrapped VTK types.  Under the Limited API tp_name is
+// not accessible, and PyType_GetName returns a str whose UTF-8 buffer would
+// dangle once released, so names are cached here and the stable c_str() is
+// returned.  Wrapped types are pre-registered with their full
+// (module-qualified) name by AddTypeNameToMap at type-creation time and, being
+// static per-module type objects, are never destroyed, so their entries and
+// the pointers returned for them stay valid for the lifetime of the process.
+//
+// Other types (e.g. Python subclasses) are not entered into this map: unlike
+// wrapped types they are ordinary heap types that user code can create and
+// destroy at any time, and a freed type's address can be reused by a later,
+// unrelated type, which would make a cached entry keyed by that address wrong.
+// GetTypeName instead derives their name fresh on every call (see below).
+//
+// Unlike the other static maps in this file (ObjectMap, GhostMap, ...), which
+// rely on the GIL and are not safe for a free-threaded (no-GIL) build, access
+// to this map is additionally guarded by its own mutex.  Each entry is written
+// at most once (at type-creation), and std::map never relocates or erases an
+// existing entry on insertion of another, so a c_str() returned after
+// releasing the lock stays valid for the lifetime of the process.
+static std::map<PyTypeObject*, std::string>* vtkPythonTypeNameMap = nullptr;
+static std::mutex& vtkPythonTypeNameMapMutex()
+{
+  static std::mutex mutex;
+  return mutex;
+}
+#endif
+
+int vtkPythonUtil::AddToScope(PyObject* scope, const char* name, PyObject* value)
+{
+  // A module/namespace scope is a dict; a class scope is a type object whose
+  // tp_dict cannot be written directly under the Limited API, so use attribute
+  // assignment (which goes through the type's dict) instead.
+  if (PyDict_Check(scope))
+  {
+    return PyDict_SetItemString(scope, name, value);
+  }
+  return PyObject_SetAttrString(scope, name, value);
+}
+
+void vtkPythonUtil::AddTypeNameToMap(PyTypeObject* pytype, const char* name)
+{
+#ifdef Py_LIMITED_API
+  std::scoped_lock<std::mutex> lock(vtkPythonTypeNameMapMutex());
+  if (vtkPythonTypeNameMap == nullptr)
+  {
+    vtkPythonTypeNameMap = new std::map<PyTypeObject*, std::string>();
+  }
+  vtkPythonTypeNameMap->emplace(pytype, name ? name : "");
+#else
+  (void)pytype;
+  (void)name;
+#endif
+}
+
 const char* vtkPythonUtil::GetTypeName(PyTypeObject* pytype)
 {
-#ifdef PY_LIMITED_API
+#ifdef Py_LIMITED_API
+  {
+    std::scoped_lock<std::mutex> lock(vtkPythonTypeNameMapMutex());
+    if (vtkPythonTypeNameMap != nullptr)
+    {
+      auto it = vtkPythonTypeNameMap->find(pytype);
+      if (it != vtkPythonTypeNameMap->end())
+      {
+        return it->second.c_str();
+      }
+    }
+  }
+
+  // Not a pre-registered wrapped type (e.g. a Python subclass): derive the
+  // name from PyType_GetName on every call rather than caching it, since such
+  // a type can be destroyed at any time (see vtkPythonTypeNameMap above).
+  // This is the bare __name__, which matches what tp_name holds for such
+  // types in the normal build.  All callers consume the returned pointer
+  // immediately, so a thread_local buffer is sufficient to keep it alive.
+  static thread_local std::string name;
+  name.clear();
   vtkSmartPyObject tname = PyType_GetName(pytype);
-  return PyUnicode_AsUTF8AndSize(tname, nullptr);
+  if (tname)
+  {
+    const char* s = PyUnicode_AsUTF8AndSize(tname, nullptr);
+    if (s)
+    {
+      name = s;
+    }
+  }
+  return name.c_str();
 #else
   return pytype->tp_name;
 #endif
@@ -1349,32 +1451,63 @@ void vtkPythonVoidFuncArgDelete(void* arg)
 }
 
 //------------------------------------------------------------------------------
+// Registry of VTK property getsets, keyed by (type, name).  This lets the
+// get and set halves of a property that are defined on different classes in the
+// hierarchy be combined without reaching into private CPython descriptor
+// internals (PyGetSetDescrObject), which are not available under the Limited
+// API.  The map is populated by AddGetSetToMap as each class is wrapped.
+//
+// Unlike the other static maps in this file (ObjectMap, GhostMap, ...), which
+// rely on the GIL and are not safe for a free-threaded (no-GIL) build, access
+// to this map is additionally guarded by its own mutex.  The values stored are
+// plain PyGetSetDef* (pointers into static, permanently-allocated arrays
+// generated at wrap time), so it's safe to copy one out and return it after
+// releasing the lock.
+static std::map<std::pair<PyTypeObject*, std::string>, PyGetSetDef*>* vtkPythonGetSetMap = nullptr;
+static std::mutex& vtkPythonGetSetMapMutex()
+{
+  static std::mutex mutex;
+  return mutex;
+}
+
+void vtkPythonUtil::AddGetSetToMap(PyTypeObject* pytype, PyGetSetDef* getset)
+{
+  std::scoped_lock<std::mutex> lock(vtkPythonGetSetMapMutex());
+  if (vtkPythonGetSetMap == nullptr)
+  {
+    vtkPythonGetSetMap = new std::map<std::pair<PyTypeObject*, std::string>, PyGetSetDef*>();
+  }
+  std::pair<PyTypeObject*, std::string> key(pytype, getset->name);
+  vtkPythonGetSetMap->emplace(key, getset);
+}
+
 PyGetSetDef* vtkPythonUtil::FindGetSetDescriptor(PyTypeObject* pytype, PyObject* key)
 {
-  // Check if tp_dict is present
-  if (pytype->tp_dict != nullptr && PyDict_Check(pytype->tp_dict))
+  const char* name = PyUnicode_AsUTF8AndSize(key, nullptr);
+  if (name == nullptr)
   {
-    // Check if the attribute is in the dictionary
-    PyObject* attr = PyDict_GetItem(pytype->tp_dict, key);
-    if (attr != nullptr)
+    PyErr_Clear();
+    return nullptr;
+  }
+  std::string nameStr(name);
+
+  std::scoped_lock<std::mutex> lock(vtkPythonGetSetMapMutex());
+  if (vtkPythonGetSetMap == nullptr)
+  {
+    return nullptr;
+  }
+  // Walk the type hierarchy; a property half may be defined on a base class.
+  PyTypeObject* tp = pytype;
+  while (tp != nullptr)
+  {
+    std::pair<PyTypeObject*, std::string> tpKey(tp, nameStr);
+    auto it = vtkPythonGetSetMap->find(tpKey);
+    if (it != vtkPythonGetSetMap->end())
     {
-      PyDescrObject* descr = (PyDescrObject*)attr;
-      if (pytype == descr->d_type || PyType_IsSubtype(pytype, descr->d_type))
-      {
-        PyGetSetDescrObject* getsetDescr = (PyGetSetDescrObject*)descr;
-        if (getsetDescr->d_getset != nullptr)
-        {
-          return getsetDescr->d_getset;
-        }
-      }
+      return it->second;
     }
+    tp = (PyTypeObject*)PyType_GetSlot(tp, Py_tp_base);
   }
-  // Recursively check in base types
-  if (pytype->tp_base != nullptr)
-  {
-    return vtkPythonUtil::FindGetSetDescriptor(pytype->tp_base, key);
-  }
-  // No matching getset descriptor found
   return nullptr;
 }
 VTK_ABI_NAMESPACE_END
