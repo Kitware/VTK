@@ -46,28 +46,109 @@ bool TestSymlogScale()
     return false;
   }
 
-  // High-dynamic-range test ([-1e6, 1e6] with linthresh = 1e-7 and < 1e-10)
+  // High-dynamic-range test with multiple control points across decades (1e-7, 1e-5, 1e6)
   ctf->RemoveAllPoints();
+  const double linthresh = 1e-7;
+  ctf->SetSymlogLinearThreshold(linthresh);
   ctf->AddRGBPoint(-1e6, 0.0, 0.0, 1.0);
+  ctf->AddRGBPoint(-1e-5, 0.0, 1.0, 1.0);
+  ctf->AddRGBPoint(-1e-7, 0.0, 1.0, 0.5);
+  ctf->AddRGBPoint(0.0, 0.0, 1.0, 0.0);
+  ctf->AddRGBPoint(1e-7, 0.5, 1.0, 0.0);
+  ctf->AddRGBPoint(1e-5, 1.0, 0.5, 0.0);
   ctf->AddRGBPoint(1e6, 1.0, 0.0, 0.0);
-  ctf->SetSymlogLinearThreshold(1e-7);
 
-  double rgbNegLow[3], rgbZero[3], rgbPosLow[3], rgbPosHigh[3];
-  ctf->GetColor(-1e-6, rgbNegLow);
-  ctf->GetColor(0.0, rgbZero);
-  ctf->GetColor(1e-6, rgbPosLow);
-  ctf->GetColor(1e6, rgbPosHigh);
-  if (!(rgbNegLow[0] < rgbZero[0] && rgbZero[0] < rgbPosLow[0] && rgbPosLow[0] < rgbPosHigh[0]))
+  // Verify colors at control points
+  double rgb[3];
+  ctf->GetColor(0.0, rgb);
+  if (std::abs(rgb[0] - 0.0) > 1e-5 || std::abs(rgb[1] - 1.0) > 1e-5 ||
+    std::abs(rgb[2] - 0.0) > 1e-5)
   {
-    std::cerr << "ERROR: Symlog CTF failed to distinguish +/-1e-6 from 0 and 1e6 at linthresh=1e-7!"
+    std::cerr << "ERROR: Symlog CTF at control point 0.0 failed!" << std::endl;
+    return false;
+  }
+
+  ctf->GetColor(1e-7, rgb);
+  if (std::abs(rgb[0] - 0.5) > 1e-5 || std::abs(rgb[1] - 1.0) > 1e-5 ||
+    std::abs(rgb[2] - 0.0) > 1e-5)
+  {
+    std::cerr << "ERROR: Symlog CTF at control point 1e-7 failed!" << std::endl;
+    return false;
+  }
+
+  ctf->GetColor(1e-5, rgb);
+  if (std::abs(rgb[0] - 1.0) > 1e-5 || std::abs(rgb[1] - 0.5) > 1e-5 ||
+    std::abs(rgb[2] - 0.0) > 1e-5)
+  {
+    std::cerr << "ERROR: Symlog CTF at control point 1e-5 failed!" << std::endl;
+    return false;
+  }
+
+  // Verify interpolated color at intermediate decades:
+  // At 1e-6 (between 1e-7 and 1e-5 in symlog space)
+  const double s1e7 = std::log10(2.0);
+  const double s1e6 = std::log10(11.0);
+  const double s1e5 = std::log10(101.0);
+  const double tPos = (s1e6 - s1e7) / (s1e5 - s1e7);
+  const double expectedPosR = 0.5 + tPos * 0.5;
+  const double expectedPosG = 1.0 - tPos * 0.5;
+
+  ctf->GetColor(1e-6, rgb);
+  if (std::abs(rgb[0] - expectedPosR) > 1e-5 || std::abs(rgb[1] - expectedPosG) > 1e-5 ||
+    std::abs(rgb[2] - 0.0) > 1e-5)
+  {
+    std::cerr << "ERROR: Symlog CTF interpolation at 1e-6 failed! Expected (" << expectedPosR
+              << ", " << expectedPosG << ", 0.0) got (" << rgb[0] << ", " << rgb[1] << ", "
+              << rgb[2] << ")" << std::endl;
+    return false;
+  }
+
+  // At -1e-6 (between -1e-7 and -1e-5 in symlog space)
+  const double expectedNegB = 0.5 + tPos * 0.5;
+  ctf->GetColor(-1e-6, rgb);
+  if (std::abs(rgb[0] - 0.0) > 1e-5 || std::abs(rgb[1] - 1.0) > 1e-5 ||
+    std::abs(rgb[2] - expectedNegB) > 1e-5)
+  {
+    std::cerr << "ERROR: Symlog CTF interpolation at -1e-6 failed! Expected (0.0, 1.0, "
+              << expectedNegB << ") got (" << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << ")"
               << std::endl;
     return false;
   }
 
+  // At 5e-8 (inside linear region between 0.0 and 1e-7)
+  const double s5e8 = std::log10(1.5);
+  const double tLinear = s5e8 / s1e7;
+  const double expectedLinR = 0.5 * tLinear;
+
+  ctf->GetColor(5e-8, rgb);
+  if (std::abs(rgb[0] - expectedLinR) > 1e-5 || std::abs(rgb[1] - 1.0) > 1e-5 ||
+    std::abs(rgb[2] - 0.0) > 1e-5)
+  {
+    std::cerr << "ERROR: Symlog CTF linear region interpolation at 5e-8 failed! Expected ("
+              << expectedLinR << ", 1.0, 0.0) got (" << rgb[0] << ", " << rgb[1] << ", " << rgb[2]
+              << ")" << std::endl;
+    return false;
+  }
+
+  // Verify threshold clamping to VTK_DBL_MIN for non-positive values
   ctf->SetSymlogLinearThreshold(1e-16);
   if (ctf->GetSymlogLinearThreshold() != 1e-16)
   {
     std::cerr << "ERROR: SymlogLinearThreshold failed to accept 1e-16!" << std::endl;
+    return false;
+  }
+
+  ctf->SetSymlogLinearThreshold(0.0);
+  if (ctf->GetSymlogLinearThreshold() != VTK_DBL_MIN)
+  {
+    std::cerr << "ERROR: SymlogLinearThreshold failed to clamp 0.0 to VTK_DBL_MIN!" << std::endl;
+    return false;
+  }
+
+  ctf->SetSymlogLinearThreshold(-1.0);
+  if (ctf->GetSymlogLinearThreshold() != VTK_DBL_MIN)
+  {
+    std::cerr << "ERROR: SymlogLinearThreshold failed to clamp -1.0 to VTK_DBL_MIN!" << std::endl;
     return false;
   }
 
