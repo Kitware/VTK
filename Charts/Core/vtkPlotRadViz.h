@@ -76,6 +76,7 @@ class vtkContext2D;
 class vtkColorSeries;
 class vtkDataObject;
 class vtkDataSet;
+class vtkDataSetAttributes;
 class vtkDataArray;
 class vtkDoubleArray;
 class vtkMultiVariateToRGBA;
@@ -439,17 +440,15 @@ protected:
   ///@{
   /**
    * Returns the arrays named 'vertices', 'gbc' and 'rgba' from a table or dataset, or throws
-   * std::runtime_error if not found.
+   * std::runtime_error if not found. For a dataset, 'gbc' and 'rgba' are taken from the
+   * point or cell data of the array processed, not from the other one.
    */
   std::tuple<vtkDataArray*, vtkDataArray*, vtkDataArray*> GetVerticesGbcRgba(vtkDataObject* output);
   /**
-   * Returns the column array 'name' or throws std::runtime_error if the array is not found.
+   * Returns the array 'name' of 'attributes' or throws std::runtime_error if the array is
+   * not found.
    */
-  static vtkDataArray* GetArray(vtkTable* output, const char* name);
-  /**
-   * Returns the point or cell array 'name' or throws std::runtime_error if the array is not found.
-   */
-  static vtkDataArray* GetArray(vtkDataSet* dataset, const char* name);
+  static vtkDataArray* GetArray(vtkDataSetAttributes* attributes, const char* name);
   ///@}
 
   std::vector<int> PartitionIndices;

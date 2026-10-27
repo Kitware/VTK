@@ -2,21 +2,23 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * Check that vtkPlotRadViz draws its input when it is set with
- * SetInputConnection, for a table and for a dataset, and when the array to
- * process is not the active scalars, when the active scalars become
- * unnamed, that column visibility set before the
- * first paint is kept, that labels set with SetLabels follow the visible
- * columns, that SetPlot(nullptr) removes the plot, and that it draws nothing,
- * leaving no vertices to interact with, when hidden or when too few columns
- * remain after a paint.
+ * SetInputConnection, for a table and for a dataset, when the array to
+ * process is not the active scalars, and when the active scalars become
+ * unnamed. Check that it draws the arrays computed for cell scalars, that
+ * column visibility set before the first paint is kept, that labels set with
+ * SetLabels follow the visible columns, that SetPlot(nullptr) removes the
+ * plot, and that it draws nothing, leaving no vertices to interact with, when
+ * hidden or when too few columns remain after a paint.
  */
 
+#include "vtkCellData.h"
 #include "vtkChartRadViz.h"
 #include "vtkContextMapper2D.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
+#include "vtkMultiVariateToRGBA.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPassThrough.h"
@@ -32,6 +34,7 @@
 #include <functional>
 #include <iostream>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace
@@ -46,26 +49,32 @@ namespace
 constexpr vtkIdType NumberOfValues = 50;
 
 /**
- * Exposes the labels drawn at the vertices.
+ * Exposes the labels drawn at the vertices, and the arrays drawn.
  */
-class LabelsPlot : public vtkPlotRadViz
+class InternalsPlot : public vtkPlotRadViz
 {
 public:
-  static LabelsPlot* New();
-  vtkTypeMacro(LabelsPlot, vtkPlotRadViz);
+  static InternalsPlot* New();
+  vtkTypeMacro(InternalsPlot, vtkPlotRadViz);
   vtkStringArray* GetVisibleLabels() { return this->VisibleLabels; }
+  std::tuple<vtkDataArray*, vtkDataArray*, vtkDataArray*> GetDrawnArrays()
+  {
+    return this->GetVerticesGbcRgba(this->ComputeGBC->GetOutputDataObject(0));
+  }
 };
-vtkStandardNewMacro(LabelsPlot);
+vtkStandardNewMacro(InternalsPlot);
 
 /**
- * Returns an array named 'name' with 'numberOfComponents' components.
+ * Returns an array named 'name' with 'numberOfComponents' components and
+ * 'numberOfTuples' tuples.
  */
-vtkSmartPointer<vtkDoubleArray> MakeArray(const char* name, int numberOfComponents)
+vtkSmartPointer<vtkDoubleArray> MakeArray(
+  const char* name, int numberOfComponents, vtkIdType numberOfTuples = NumberOfValues)
 {
   auto array = vtkSmartPointer<vtkDoubleArray>::New();
   array->SetName(name);
   array->SetNumberOfComponents(numberOfComponents);
-  array->SetNumberOfTuples(NumberOfValues);
+  array->SetNumberOfTuples(numberOfTuples);
   for (vtkIdType i = 0; i < array->GetNumberOfValues(); ++i)
   {
     array->SetValue(i, std::fabs(std::sin(0.37 * i)));
@@ -157,7 +166,7 @@ bool PaintLabels(const std::vector<std::string>& labels, const std::vector<std::
   view->GetRenderWindow()->SetSize(300, 300);
   vtkNew<vtkChartRadViz> chart;
   view->GetScene()->AddItem(chart);
-  vtkNew<LabelsPlot> plot;
+  vtkNew<InternalsPlot> plot;
   chart->SetPlot(plot);
   plot->SetInputData(MakeTable());
   vtkNew<vtkStringArray> labelsArray;
@@ -182,6 +191,32 @@ bool PaintLabels(const std::vector<std::string>& labels, const std::vector<std::
     }
   }
   return true;
+}
+
+/**
+ * Renders a RadViz chart of an image with 3 component cell scalars, and point
+ * arrays named "gbc" and "rgba", and returns whether the plot drew the arrays
+ * computed for the cells.
+ */
+bool PaintCellScalars()
+{
+  vtkNew<vtkContextView> view;
+  view->GetRenderWindow()->SetSize(300, 300);
+  vtkNew<vtkChartRadViz> chart;
+  view->GetScene()->AddItem(chart);
+  vtkNew<InternalsPlot> plot;
+  chart->SetPlot(plot);
+  vtkNew<vtkImageData> image;
+  image->SetDimensions(5, 5, 2);
+  image->GetCellData()->SetScalars(MakeArray("values", 3, image->GetNumberOfCells()));
+  image->GetPointData()->AddArray(MakeArray("gbc", 2));
+  image->GetPointData()->AddArray(MakeArray("rgba", 4));
+  plot->SetInputDataSet(image);
+  view->GetRenderWindow()->Render();
+  auto [vertices, gbc, rgba] = plot->GetDrawnArrays();
+  return vertices->GetNumberOfTuples() == 3 &&
+    gbc->GetNumberOfTuples() == image->GetNumberOfCells() &&
+    rgba->GetNumberOfTuples() == image->GetNumberOfCells();
 }
 
 /**
@@ -269,6 +304,8 @@ int TestRadVizChartInput(int, char*[])
     CHECK(chart->GetNumberOfPlots() == 0 && chart->GetNumberOfItems() == 0);
     view->GetRenderWindow()->Render();
   }
+  // the arrays computed for cell scalars, not point arrays of the same name
+  CHECK(PaintCellScalars());
   // no vertices left after a plot draws nothing
   CHECK(RepaintVertices(
           [](vtkPlotRadViz* plot)

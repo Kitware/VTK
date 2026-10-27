@@ -306,26 +306,9 @@ void vtkPlotRadViz::ComputeVisibleLabels()
 }
 
 //------------------------------------------------------------------------------
-vtkDataArray* vtkPlotRadViz::GetArray(vtkTable* table, const char* name)
+vtkDataArray* vtkPlotRadViz::GetArray(vtkDataSetAttributes* attributes, const char* name)
 {
-  auto a = vtkDataArray::FastDownCast(table->GetColumnByName(name));
-  if (!a)
-  {
-    throw std::runtime_error("Cannot find " + std::string(name) + " array");
-  }
-  return a;
-}
-
-//------------------------------------------------------------------------------
-vtkDataArray* vtkPlotRadViz::GetArray(vtkDataSet* dataset, const char* name)
-{
-  vtkDataSetAttributes* pd = dataset->GetPointData();
-  vtkDataSetAttributes* cd = dataset->GetCellData();
-  auto a = vtkDataArray::FastDownCast(pd->GetArray(name));
-  if (!a)
-  {
-    a = vtkDataArray::FastDownCast(cd->GetArray(name));
-  }
+  auto a = vtkDataArray::FastDownCast(attributes->GetAbstractArray(name));
   if (!a)
   {
     throw std::runtime_error("Cannot find " + std::string(name) + " array");
@@ -337,24 +320,26 @@ vtkDataArray* vtkPlotRadViz::GetArray(vtkDataSet* dataset, const char* name)
 std::tuple<vtkDataArray*, vtkDataArray*, vtkDataArray*> vtkPlotRadViz::GetVerticesGbcRgba(
   vtkDataObject* output)
 {
-  auto table = vtkTable::SafeDownCast(output);
-  auto dataset = vtkDataSet::SafeDownCast(output);
-  vtkDataArray* gbc = nullptr;
-  vtkDataArray* rgba = nullptr;
-  if (table)
+  vtkDataSetAttributes* attributes = nullptr;
+  if (auto* table = vtkTable::SafeDownCast(output))
   {
-    gbc = this->GetArray(table, "gbc");
-    rgba = this->GetArray(table, "rgba");
+    attributes = table->GetRowData();
   }
-  else if (dataset)
+  else if (auto* dataset = vtkDataSet::SafeDownCast(output))
   {
-    gbc = this->GetArray(dataset, "gbc");
-    rgba = this->GetArray(dataset, "rgba");
+    // the filter adds them next to the array it processes, which is the mapper's array
+    int association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
+    this->GetData()->GetInputArrayToProcess(0, dataset, association);
+    attributes = association == vtkDataObject::FIELD_ASSOCIATION_CELLS
+      ? static_cast<vtkDataSetAttributes*>(dataset->GetCellData())
+      : static_cast<vtkDataSetAttributes*>(dataset->GetPointData());
   }
   else
   {
     throw std::runtime_error("vtkMultiVariateToRGBA output is not a table or a dataset");
   }
+  vtkDataArray* gbc = this->GetArray(attributes, "gbc");
+  vtkDataArray* rgba = this->GetArray(attributes, "rgba");
   vtkDataArray* vertices = vtkDataArray::FastDownCast(output->GetFieldData()->GetArray("vertices"));
   if (!vertices)
   {
