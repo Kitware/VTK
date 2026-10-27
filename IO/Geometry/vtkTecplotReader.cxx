@@ -1915,6 +1915,20 @@ void vtkTecplotReader::ReadFile(vtkInformation* outInfo)
         (this->Internal->YIdInList < 0) ? guessedYid : this->Internal->YIdInList;
       this->Internal->ZIdInList =
         (this->Internal->ZIdInList < 0) ? guessedZid : this->Internal->ZIdInList;
+
+      // Based on how many spatial coords we got, guess the spatial dim
+      if (this->Internal->XIdInList >= 0)
+      {
+        this->Internal->GeometryDim = 1;
+        if (this->Internal->YIdInList >= 0)
+        {
+          this->Internal->GeometryDim = 2;
+          if (this->Internal->ZIdInList >= 0)
+          {
+            this->Internal->GeometryDim = 3;
+          }
+        }
+      }
     }
     else if (tok == "ZONE")
     {
