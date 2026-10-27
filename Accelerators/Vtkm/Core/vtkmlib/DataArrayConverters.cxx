@@ -38,7 +38,7 @@ namespace
 // Which memory the Kokkos device has is a property of the build, so it is
 // asked rather than assumed from the backend macros, which say nothing about
 // SYCL.
-bool IsOnlyOnDevice(const viskores::cont::internal::Buffer& buffer)
+bool IsInGpuMemoryOnly(const viskores::cont::internal::Buffer& buffer)
 {
   if (buffer.IsAllocatedOnHost())
   {
@@ -106,7 +106,7 @@ private:
     // if that is later needed. Note that it is possible for the data to be on both host
     // and device. In this case, the device data may get removed, but that seems like
     // a reasonable compromise.
-    if (IsOnlyOnDevice(buffer))
+    if (IsInGpuMemoryOnly(buffer))
     {
       return this->MakeVtkmData<T>(input);
     }
@@ -177,7 +177,7 @@ private:
       // if that is later needed. Note that it is possible for the data to be on both host
       // and device. In this case, the device data may get removed, but that seems like
       // a reasonable compromise.
-      if ((cIndex == 0) && IsOnlyOnDevice(buffer))
+      if ((cIndex == 0) && IsInGpuMemoryOnly(buffer))
       {
         return this->MakeVtkmData<T>(input);
       }
