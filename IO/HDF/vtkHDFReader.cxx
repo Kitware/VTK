@@ -325,11 +325,13 @@ bool vtkHDFReader::ReadStructuredData(
         fileExtent.insert(fileExtent.begin(), offset >= 0 ? offset : this->Step);
       }
 
+      // Array names and extents may be identical in different composite leaves.
+      const std::string cacheName = this->CompositeCachePath + "/" + name;
       bool cacheHit = false;
       // VTK_DEPRECATED_IN_9_7_0 Remove this->UseCache
-      if (this->UseCache && this->Cache->CheckExistsAndEqual(attributeType, name, fileExtent))
+      if (this->UseCache && this->Cache->CheckExistsAndEqual(attributeType, cacheName, fileExtent))
       {
-        array = vtkDataArray::SafeDownCast(this->Cache->Get(attributeType, name));
+        array = vtkDataArray::SafeDownCast(this->Cache->Get(attributeType, cacheName));
         if (!array)
         {
           vtkErrorMacro("Error retrieving array " + name + " from cache.");
@@ -348,17 +350,18 @@ bool vtkHDFReader::ReadStructuredData(
         array->SetName(name.c_str());
       }
 
-      if (!cacheHit)
+      vtkDataSetAttributes* attributes = data->GetAttributes(attributeType);
+      // Restore cached arrays removed by selections or replaced by a different extent.
+      if (!cacheHit || attributes->GetAbstractArray(name.c_str()) != array.GetPointer())
       {
-        vtkDataSetAttributes* attributes = data->GetAttributes(attributeType);
         this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
         attributes->AddArray(array);
+      }
 
-        // VTK_DEPRECATED_IN_9_7_0 Remove this->UseCache
-        if (this->UseCache)
-        {
-          this->Cache->Set(attributeType, name, fileExtent, array);
-        }
+      // VTK_DEPRECATED_IN_9_7_0 Remove this->UseCache
+      if (!cacheHit && this->UseCache)
+      {
+        this->Cache->Set(attributeType, cacheName, fileExtent, array);
       }
     }
   }
@@ -1385,10 +1388,11 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
           vtkErrorMacro("Cannot read the " << name << " array");
           return 0;
         }
-        if (!cacheArray)
+        vtkDataSetAttributes* attributes = pieceData->GetAttributes(attributeType);
+        // Restore cached arrays removed by the selection mechanism.
+        if (!cacheArray || attributes->GetAbstractArray(name.c_str()) != array.GetPointer())
         {
           array->SetName(name.c_str());
-          vtkDataSetAttributes* attributes = pieceData->GetAttributes(attributeType);
           this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
           attributes->AddArray(array);
         }
@@ -1725,10 +1729,11 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
             vtkErrorMacro("Error reading array " << name);
             return 0;
           }
-          if (!cacheArray)
+          vtkDataSetAttributes* attributes = pieceData->GetAttributes(attributeType);
+          // Restore cached arrays removed by the selection mechanism.
+          if (!cacheArray || attributes->GetAbstractArray(name.c_str()) != array.GetPointer())
           {
             array->SetName(name.c_str());
-            vtkDataSetAttributes* attributes = pieceData->GetAttributes(attributeType);
             this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
             attributes->AddArray(array);
           }

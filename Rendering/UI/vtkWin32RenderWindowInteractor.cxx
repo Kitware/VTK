@@ -17,6 +17,7 @@
 #include "vtkWin32RenderWindowInteractor.h"
 #include "vtksys/Encoding.hxx"
 
+#include <array>
 #include <shellapi.h> // for drag and drop
 #include <winuser.h>  // for touch support
 
@@ -210,6 +211,7 @@ public:
   };
   std::map<int, std::unique_ptr<TimerContext>> TimerContextMap;
   bool IsRunning = false;
+  std::array<int, 256> RepeatCount = {};
 
   static void CALLBACK OnTimerFired(PVOID lpParameter, BOOLEAN)
   {
@@ -803,7 +805,8 @@ int vtkWin32RenderWindowInteractor::OnTimer(HWND, UINT timerId)
 }
 
 //------------------------------------------------------------------------------
-int vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, UINT nFlags)
+int vtkWin32RenderWindowInteractor::OnKeyDown(
+  HWND, UINT vCode, UINT vtkNotUsed(nRepCnt), UINT nFlags)
 {
   if (!this->Enabled)
   {
@@ -813,7 +816,23 @@ int vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, UI
   char keyCode;
   const char* keySym;
   ::RecoverKeyEventInformation(vCode, nFlags, ctrl, shift, alt, keyCode, keySym);
-  this->SetKeyEventInformation(ctrl, shift, keyCode, nRepCnt, keySym);
+
+  // https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-syskeydown
+  // The previous key state. The value is 1 if the key is down before the message is sent, or it is
+  // 0 if the key is up.
+  bool repeatFlag = (nFlags & (1 << 14)) != 0;
+  // char may be signed, so convert before using it as an index
+  int& repeatCount = this->Internals->RepeatCount[static_cast<unsigned char>(keyCode)];
+  if (!repeatFlag)
+  {
+    repeatCount = 0;
+  }
+  else
+  {
+    repeatCount++;
+  }
+
+  this->SetKeyEventInformation(ctrl, shift, keyCode, repeatCount, keySym);
   this->SetAltKey(alt);
   return this->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
 }
@@ -1013,25 +1032,23 @@ int vtkWin32RenderWindowInteractor::OnDropFiles(HWND, WPARAM wParam)
 LRESULT CALLBACK vtkHandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   LRESULT res = 0;
-  vtkWin32RenderWindowInteractor* me = nullptr;
 
-  auto tmpptr = vtkGetWindowLong(hWnd, sizeof(vtkLONG));
-  vtkHardwareWindow* hwren = (vtkHardwareWindow*)tmpptr;
-  vtkRenderWindow* ren = (vtkRenderWindow*)tmpptr;
-  vtkRenderWindowInteractor* hwme = nullptr;
-  if (hwren != nullptr)
+  // The window data holds either a vtkHardwareWindow (set by Initialize) or a
+  // vtkRenderWindow (set by vtkWin32OpenGLRenderWindow). Both derive from
+  // vtkWindow, so recover the actual type instead of calling virtual methods
+  // through a pointer of the wrong type, which dispatches to the wrong vtable
+  // slot as soon as either class layout changes.
+  vtkWindow* win = reinterpret_cast<vtkWindow*>(vtkGetWindowLong(hWnd, sizeof(vtkLONG)));
+  vtkRenderWindowInteractor* iren = nullptr;
+  if (vtkHardwareWindow* hwren = vtkHardwareWindow::SafeDownCast(win))
   {
-    hwme = hwren->GetInteractor();
+    iren = hwren->GetInteractor();
   }
-
-  if (hwme != nullptr)
+  else if (vtkRenderWindow* ren = vtkRenderWindow::SafeDownCast(win))
   {
-    me = (vtkWin32RenderWindowInteractor*)hwme;
+    iren = ren->GetInteractor();
   }
-  else if (ren != nullptr)
-  {
-    me = (vtkWin32RenderWindowInteractor*)ren->GetInteractor();
-  }
+  vtkWin32RenderWindowInteractor* me = vtkWin32RenderWindowInteractor::SafeDownCast(iren);
 
   if (me && me->GetReferenceCount() > 0)
   {

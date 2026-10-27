@@ -31,6 +31,12 @@ public:
   vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* self);
   ~vtkIOSSModel();
 
+  /**
+   * Returns false if the model could not be built, e.g. because a block
+   * was selected as more than one entity type.
+   */
+  bool IsValid() const;
+
   void DefineModel(Ioss::Region& region) const;
   void DefineTransient(Ioss::Region& region) const;
   void Model(Ioss::Region& region) const;

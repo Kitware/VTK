@@ -262,7 +262,6 @@ vtkObjectFactoryNewMacro(vtkBatchedLabeledDataMapper);
 vtkBatchedLabeledDataMapper::vtkBatchedLabeledDataMapper()
 {
   this->Impl = std::unique_ptr<vtkInternals>(new vtkInternals());
-  this->AllocateLabels(50);
 
   auto prop = vtkSmartPointer<vtkTextProperty>::New();
   prop->SetFontFamilyAsString("Arial");

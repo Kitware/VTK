@@ -14,6 +14,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
@@ -487,11 +488,14 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
   outCells->Dispatch(UpdateCellArrayConnectivity{}, pmap);
 
   // If the unstructured grid contains polyhedra, the face connectivity needs
-  // to be updated as well.
+  // to be updated as well. The faces are copied first: remapping them in place
+  // would modify the input, and share the buffer between input and output.
   vtkCellArray* faceLocations = input->GetPolyhedronFaceLocations();
-  vtkCellArray* faces = input->GetPolyhedronFaces();
-  if (faces != nullptr)
+  vtkSmartPointer<vtkCellArray> faces;
+  if (vtkCellArray* inFaces = input->GetPolyhedronFaces())
   {
+    faces = vtkSmartPointer<vtkCellArray>::New();
+    faces->DeepCopy(inFaces);
     faces->Dispatch(UpdateCellArrayConnectivity{}, pmap);
   }
 
