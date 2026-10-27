@@ -468,6 +468,11 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     }
   }
 
+  // The light handle just replaced the one the world is holding, so the scene
+  // has to be re-collected; otherwise the world keeps pointing at the released
+  // light and the scene is lit by whatever the camera first saw.
+  this->Internals->RendererNode->InvalidateSceneStructure();
+
   if (anariLight != nullptr)
   {
     // All light sources accept the following parameters
