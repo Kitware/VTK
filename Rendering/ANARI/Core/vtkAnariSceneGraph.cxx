@@ -26,6 +26,7 @@
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkLight.h"
+#include "vtkLightCollection.h"
 #include "vtkMapper.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderMaterialLibrary.h"
@@ -571,6 +572,24 @@ void vtkAnariSceneGraph::Build(bool prepass)
     if (!(aren->IsActiveCameraCreated()))
     {
       aren->ResetCamera();
+    }
+
+    // Nothing else sets the renderer's lights up on an ANARI render:
+    // vtkOpenGLRenderer::DeviceRender() does that work only when it draws the
+    // scene itself, vtkAnariPass takes the place of that code, and
+    // vtkAnariRenderWindow replaces the render entirely. Without this a scene
+    // that relies on the automatically created headlight reaches ANARI with no
+    // light at all, and headlights and camera lights keep the geometry they
+    // had when the first frame was drawn, so the scene goes dark as soon as
+    // the camera is rotated away from where it started.
+    if (aren->GetLights()->GetNumberOfItems() == 0)
+    {
+      aren->CreateLight();
+    }
+
+    if (aren->GetLightFollowCamera())
+    {
+      aren->UpdateLightsGeometryToFollowCamera();
     }
   }
 
