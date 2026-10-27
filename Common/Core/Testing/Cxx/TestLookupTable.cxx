@@ -197,9 +197,13 @@ int TestLookupTable(int, char*[])
   TestAssert(table->GetIndex(1e-7) < table->GetIndex(1e-6));
   TestAssert(table->GetIndex(1e-6) < table->GetIndex(1e6));
 
-  // trace-concentration symlog threshold below 1e-10
+  // trace-concentration symlog threshold below 1e-10 and non-positive clamping
   table->SetSymlogLinearThreshold(1e-16);
   TestAssert(table->GetSymlogLinearThreshold() == 1e-16);
+  table->SetSymlogLinearThreshold(0.0);
+  TestAssert(table->GetSymlogLinearThreshold() == VTK_DBL_MIN);
+  table->SetSymlogLinearThreshold(-1.0);
+  TestAssert(table->GetSymlogLinearThreshold() == VTK_DBL_MIN);
 
   // negative log range
   double tmp = hi;

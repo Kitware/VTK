@@ -43,6 +43,7 @@
 #define vtkLookupTable_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkMath.h"
 #include "vtkScalarsToColors.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
@@ -430,7 +431,7 @@ public:
    * and logarithmic beyond.
    * Default is 1.0.
    */
-  vtkSetClampMacro(SymlogLinearThreshold, double, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX);
+  vtkSetClampMacro(SymlogLinearThreshold, double, VTK_DBL_MIN, VTK_DOUBLE_MAX);
   vtkGetMacro(SymlogLinearThreshold, double);
   ///@}
 
