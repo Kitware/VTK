@@ -6,6 +6,12 @@
 #include "vtkABI.h"
 #include "vtkPythonConfigure.h"
 
+/* When building for the CPython Limited API (abi3), define Py_LIMITED_API before
+   <Python.h>. Code needing the full API defines VTK_PYTHON_NO_LIMITED_API. */
+#if VTK_PYTHON_LIMITED_API && !defined(VTK_PYTHON_NO_LIMITED_API) && !defined(Py_LIMITED_API)
+#define Py_LIMITED_API VTK_PYTHON_LIMITED_API_VERSION
+#endif
+
 /*
    Use the real python debugging library if it is provided.
    Otherwise use the "documented" trick involving checking for _DEBUG

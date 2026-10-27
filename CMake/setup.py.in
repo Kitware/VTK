@@ -190,6 +190,8 @@ setup(
             '*-darwin.so',
             # macOS shared libraries.
             '.dylibs',
+            # Limited API (abi3) modules on Linux and macOS.
+            '*.abi3.so',
             # Windows modules.
             '*.pyd',
             # Type information stubs
