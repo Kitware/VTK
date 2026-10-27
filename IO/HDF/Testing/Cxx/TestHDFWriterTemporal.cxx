@@ -496,8 +496,9 @@ int TestHDFWriterTemporal(int argc, char* argv[])
   }
 
   // Only test single file writes for structured data
-  for (const auto& baseName : { "temporal_image.vtkhdf", "temporal_rectilinear.vtkhdf",
-         "temporal_structured.vtkhdf", "structured_coords.vtkhdf" })
+  for (const auto& baseName :
+    { "temporal_image.vtkhdf", "temporal_2Dimage.vtkhdf", "temporal_1Dimage.vtkhdf",
+      "temporal_rectilinear.vtkhdf", "temporal_structured.vtkhdf", "structured_coords.vtkhdf" })
   {
     result &= TestTemporalData(tempDir, dataRoot, baseName, configs[0], -1);
   }
