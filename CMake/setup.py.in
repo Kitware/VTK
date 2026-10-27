@@ -66,7 +66,7 @@ with io_open(vtk_readme_path, encoding='utf-8') as fin:
 
 python_code_features = {
     'gtk': [],
-    'numpy': ['numpy>=1.9'],
+    'numpy': ['numpy>=2.0'],
     'qt': [],
     'tk': [],
     'wx': [],
