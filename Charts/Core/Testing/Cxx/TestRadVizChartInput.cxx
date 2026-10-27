@@ -3,7 +3,8 @@
 /**
  * Check that vtkPlotRadViz draws its input when it is set with
  * SetInputConnection, for a table and for a dataset, and when the array to
- * process is not the active scalars, and that it draws nothing when hidden.
+ * process is not the active scalars, that column visibility set before the
+ * first paint is kept, and that it draws nothing when hidden.
  */
 
 #include "vtkChartRadViz.h"
@@ -18,6 +19,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
 #include "vtkRenderWindow.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTrivialProducer.h"
 
@@ -131,6 +133,28 @@ int TestRadVizChartInput(int, char*[])
             plot->SetInputDataSet(MakeImage(true));
             plot->GetData()->SetInputArrayToProcess(
               0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "values");
+          }) == 3);
+  // visibility set before the first paint
+  CHECK(PaintVertices(
+          [](vtkPlotRadViz* plot)
+          {
+            SetInputConnection(plot, MakeTable());
+            plot->SetColumnVisibilityAll(false);
+            for (const char* name : { "a", "b", "d" })
+            {
+              plot->SetColumnVisibility(name, true);
+            }
+          }) == 3);
+  CHECK(PaintVertices(
+          [](vtkPlotRadViz* plot)
+          {
+            SetInputConnection(plot, MakeTable());
+            vtkNew<vtkStringArray> visible;
+            for (const char* name : { "a", "c", "d" })
+            {
+              visible->InsertNextValue(name);
+            }
+            plot->SetVisibleColumns(visible);
           }) == 3);
   // nothing for a hidden plot
   CHECK(PaintVertices(

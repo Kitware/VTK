@@ -54,6 +54,7 @@
 #include "vtkTimeStamp.h"             // For vtkTimeStamp
 #include "vtkWeakPointer.h"           // For vtkWeakPointer
 #include <array>                      // For std::array
+#include <set>                        // For column visibility
 #include <string>                     // For column names
 #include <vector>                     // For components partition
 
@@ -279,20 +280,19 @@ public:
    * column name, or a component name of the dataset array being
    * processed). Only visible (i.e. not hidden) columns/components are used
    * to compute the RGBA/GBC values, letting a subset of a multivariate
-   * dataset be visualized. By default (an empty HiddenColumns list), every
-   * column/component is visible.
+   * dataset be visualized. By default, every column/component is visible.
+   * The visibility is stored by name and does not depend on the current
+   * input, so it can be set before the input is connected or updated.
    */
   void SetColumnVisibility(const std::string& name, bool visible);
   /**
-   * Set the visibility of all columns/components. Passing true clears the
-   * hidden list, so every column/component of the current input is
-   * visible. Passing false marks every column/component of the current
-   * input as hidden, so the filter has nothing to process.
+   * Set the visibility of all columns/components, including the ones of
+   * inputs set later. Passing false leaves the filter with nothing to
+   * process until columns/components are made visible again.
    */
   void SetColumnVisibilityAll(bool visible);
   /**
-   * Get the visibility of the specified column/component. Returns true
-   * unless the column/component has been explicitly marked hidden.
+   * Get the visibility of the specified column/component.
    */
   bool GetColumnVisibility(const std::string& name);
   /**
@@ -302,9 +302,9 @@ public:
    */
   virtual vtkStringArray* GetVisibleColumns();
   /**
-   * Set the list of visible columns/components: every column/component of
-   * the current input not in this list is marked hidden. Passing a null or
-   * empty array marks every column/component of the current input hidden.
+   * Set the list of visible columns/components: every column/component
+   * not in this list is hidden. Passing a null or empty array hides every
+   * column/component.
    */
   virtual void SetVisibleColumns(vtkStringArray* visColumns);
   /**
@@ -367,11 +367,15 @@ protected:
    */
   std::vector<double> Range;
   /**
-   * Strongly owned internal data for the column/component visibility,
-   * storing the names of the columns/components that are hidden. An empty
-   * array (the default) means every column/component is visible.
+   * Column/component visibility: a column/component is visible when
+   * ColumnsVisibleByDefault is true, unless its name is in
+   * ColumnVisibilityExceptions, which flips it. For example, for columns
+   * a, b, c: SetColumnVisibility("b", false) gives {true, {b}}, so a and c
+   * are visible; SetVisibleColumns({a, c}) gives {false, {a, c}}, the same
+   * visible columns.
    */
-  vtkNew<vtkStringArray> HiddenColumns;
+  bool ColumnsVisibleByDefault = true;
+  std::set<std::string> ColumnVisibilityExceptions;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

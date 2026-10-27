@@ -33,7 +33,6 @@
 #include <array>
 #include <cmath>
 #include <numeric>
-#include <set>
 #include <tuple>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -818,39 +817,11 @@ vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetAllColumnNames()
 //------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetColumnVisibility(const std::string& name, bool visible)
 {
-  vtkIdType foundIndex = -1;
-  for (vtkIdType i = 0; i < this->HiddenColumns->GetNumberOfTuples(); ++i)
+  bool changed = visible == this->ColumnsVisibleByDefault
+    ? this->ColumnVisibilityExceptions.erase(name) > 0
+    : this->ColumnVisibilityExceptions.insert(name).second;
+  if (changed)
   {
-    if (this->HiddenColumns->GetValue(i) == name)
-    {
-      foundIndex = i;
-      break;
-    }
-  }
-  if (!visible)
-  {
-    if (foundIndex >= 0)
-    {
-      // Already hidden, nothing more needs to be done
-      return;
-    }
-    // Add the column to the end of the list
-    this->HiddenColumns->InsertNextValue(name);
-    this->Modified();
-  }
-  else
-  {
-    if (foundIndex < 0)
-    {
-      // Already visible, nothing more needs to be done
-      return;
-    }
-    // Move all the later elements down by one, and reduce the size
-    for (vtkIdType i = foundIndex; i < this->HiddenColumns->GetNumberOfTuples() - 1; ++i)
-    {
-      this->HiddenColumns->SetValue(i, this->HiddenColumns->GetValue(i + 1));
-    }
-    this->HiddenColumns->SetNumberOfTuples(this->HiddenColumns->GetNumberOfTuples() - 1);
     this->Modified();
   }
 }
@@ -858,28 +829,16 @@ void vtkMultiVariateToRGBA::SetColumnVisibility(const std::string& name, bool vi
 //------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetColumnVisibilityAll(bool visible)
 {
-  if (visible)
-  {
-    this->HiddenColumns->Initialize();
-  }
-  else
-  {
-    this->HiddenColumns->DeepCopy(this->GetAllColumnNames());
-  }
+  this->ColumnsVisibleByDefault = visible;
+  this->ColumnVisibilityExceptions.clear();
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
 bool vtkMultiVariateToRGBA::GetColumnVisibility(const std::string& name)
 {
-  for (vtkIdType i = 0; i < this->HiddenColumns->GetNumberOfTuples(); ++i)
-  {
-    if (this->HiddenColumns->GetValue(i) == name)
-    {
-      return false;
-    }
-  }
-  return true;
+  return this->ColumnsVisibleByDefault !=
+    (this->ColumnVisibilityExceptions.find(name) != this->ColumnVisibilityExceptions.end());
 }
 
 //------------------------------------------------------------------------------
@@ -892,22 +851,13 @@ vtkStringArray* vtkMultiVariateToRGBA::GetVisibleColumns()
 //------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetVisibleColumns(vtkStringArray* visColumns)
 {
-  std::set<std::string> visibleNames;
+  this->ColumnsVisibleByDefault = false;
+  this->ColumnVisibilityExceptions.clear();
   if (visColumns)
   {
     for (vtkIdType i = 0; i < visColumns->GetNumberOfTuples(); ++i)
     {
-      visibleNames.insert(visColumns->GetValue(i));
-    }
-  }
-  vtkSmartPointer<vtkStringArray> all = this->GetAllColumnNames();
-  this->HiddenColumns->Initialize();
-  for (vtkIdType i = 0; i < all->GetNumberOfTuples(); ++i)
-  {
-    const vtkStdString& name = all->GetValue(i);
-    if (visibleNames.find(name) == visibleNames.end())
-    {
-      this->HiddenColumns->InsertNextValue(name);
+      this->ColumnVisibilityExceptions.insert(visColumns->GetValue(i));
     }
   }
   this->Modified();
