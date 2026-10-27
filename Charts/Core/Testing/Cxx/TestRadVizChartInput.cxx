@@ -3,7 +3,7 @@
 /**
  * Check that vtkPlotRadViz draws its input when it is set with
  * SetInputConnection, for a table and for a dataset, and when the array to
- * process is not the active scalars.
+ * process is not the active scalars, and that it draws nothing when hidden.
  */
 
 #include "vtkChartRadViz.h"
@@ -132,5 +132,12 @@ int TestRadVizChartInput(int, char*[])
             plot->GetData()->SetInputArrayToProcess(
               0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "values");
           }) == 3);
+  // nothing for a hidden plot
+  CHECK(PaintVertices(
+          [](vtkPlotRadViz* plot)
+          {
+            plot->SetInputData(MakeTable());
+            plot->SetVisible(false);
+          }) == 0);
   return EXIT_SUCCESS;
 }

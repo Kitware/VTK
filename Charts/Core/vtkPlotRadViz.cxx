@@ -350,6 +350,10 @@ std::tuple<vtkDataArray*, vtkDataArray*, vtkDataArray*> vtkPlotRadViz::GetVertic
 //------------------------------------------------------------------------------
 bool vtkPlotRadViz::Paint(vtkContext2D* painter)
 {
+  if (!this->Visible)
+  {
+    return false;
+  }
   try
   {
     // vtkPlot::Update only updates a table input, so update a dataset's producer here
