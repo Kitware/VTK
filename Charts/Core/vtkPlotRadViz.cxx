@@ -366,6 +366,8 @@ std::tuple<vtkDataArray*, vtkDataArray*, vtkDataArray*> vtkPlotRadViz::GetVertic
 //------------------------------------------------------------------------------
 bool vtkPlotRadViz::Paint(vtkContext2D* painter)
 {
+  // no vertices to interact with unless they are drawn below
+  this->Vertices = nullptr;
   if (!this->Visible)
   {
     return false;

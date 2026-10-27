@@ -6,8 +6,9 @@
  * process is not the active scalars, when the active scalars become
  * unnamed, that column visibility set before the
  * first paint is kept, that labels set with SetLabels follow the visible
- * columns, that SetPlot(nullptr) removes the plot, and that it draws nothing
- * when hidden.
+ * columns, that SetPlot(nullptr) removes the plot, and that it draws nothing,
+ * leaving no vertices to interact with, when hidden or when too few columns
+ * remain after a paint.
  */
 
 #include "vtkChartRadViz.h"
@@ -184,6 +185,25 @@ bool PaintLabels(const std::vector<std::string>& labels, const std::vector<std::
 }
 
 /**
+ * Renders a RadViz chart of a 4 column table, then changes the plot with
+ * 'change' and renders it again, and returns the number of vertices left.
+ */
+vtkIdType RepaintVertices(const std::function<void(vtkPlotRadViz*)>& change)
+{
+  vtkNew<vtkContextView> view;
+  view->GetRenderWindow()->SetSize(300, 300);
+  vtkNew<vtkChartRadViz> chart;
+  view->GetScene()->AddItem(chart);
+  vtkPlotRadViz* plot = vtkPlotRadViz::SafeDownCast(chart->AddPlot(0));
+  plot->SetInputData(MakeTable());
+  view->GetRenderWindow()->Render();
+  change(plot);
+  view->GetRenderWindow()->Render();
+  vtkPoints2D* vertices = plot->GetVertices();
+  return vertices ? vertices->GetNumberOfPoints() : 0;
+}
+
+/**
  * Connects the plot to a pipeline that has not been updated, with 'data'
  * at its start.
  */
@@ -249,6 +269,14 @@ int TestRadVizChartInput(int, char*[])
     CHECK(chart->GetNumberOfPlots() == 0 && chart->GetNumberOfItems() == 0);
     view->GetRenderWindow()->Render();
   }
+  // no vertices left after a plot draws nothing
+  CHECK(RepaintVertices(
+          [](vtkPlotRadViz* plot)
+          {
+            plot->SetColumnVisibility("a", false);
+            plot->SetColumnVisibility("b", false);
+          }) == 0);
+  CHECK(RepaintVertices([](vtkPlotRadViz* plot) { plot->SetVisible(false); }) == 0);
   // nothing for a hidden plot
   CHECK(PaintVertices(
           [](vtkPlotRadViz* plot)
