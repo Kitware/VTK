@@ -22,6 +22,7 @@
 #include "vtkImplicitFunction.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -1626,8 +1627,11 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkTableBasedClipDataSet::ClipTDataSet(
     outputClippedCells->GetPointData()->ShallowCopy(outputPointData);
     if (!unsupportedCells.empty())
     {
-      vtkWarningMacro("Output points used by cells not supported by vtkTableBasedClipDataSet will "
-                      "appear twice. To avoid this, consider using vtkClipDataSet directly");
+      vtkLog(TRACE,
+        "The input has cells that cannot be clipped by this filter. "
+        "Output points from these by cells will be added to the output twice. "
+        "To avoid this duplication, consider using vtkClipDataSet instead of "
+        "vtkTableBasedClipDataSet.");
     }
   }
   outputClippedCells->SetPolyhedralCells(
