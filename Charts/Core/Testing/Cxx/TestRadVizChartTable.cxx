@@ -7,13 +7,17 @@
 #include "vtkContextView.h"
 #include "vtkNew.h"
 #include "vtkPlotRadViz.h"
+#include "vtkPoints2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkStringScanner.h"
 #include "vtkTesting.h"
 #include "vtkXMLTableWriter.h"
+
+#include <iostream>
 
 enum TestType
 {
@@ -71,6 +75,16 @@ int TestRadVizChartTable(int argc, char* argv[])
   {
     chart->SetColumnVisibility("tangent", false);
     chart->SetColumnVisibility("x", false);
+    // RadViz needs 3 columns, so the plot draws nothing
+    view->GetRenderWindow()->Render();
+    vtkPoints2D* vertices = plot->GetVertices();
+    if (chart->GetVisibleColumns()->GetNumberOfTuples() != 2 ||
+      (vertices && vertices->GetNumberOfPoints() != 0))
+    {
+      std::cerr << "Expected no vertices with 2 visible columns" << std::endl;
+      return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
   }
   else
   {

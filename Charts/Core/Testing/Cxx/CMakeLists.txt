@@ -151,9 +151,9 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
 vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestRadVizChartTableHideColumn,TestRadVizChartTable.cxx 1
 )
-# hide two columns, render an empty plot, do not print any errors
+# hide two columns, check that the plot is empty and no errors are printed
 vtk_add_test_cxx(vtkChartsCoreCxxTests tests
-  TestRadVizChartTableHideTwoColumns,TestRadVizChartTable.cxx 2
+  TestRadVizChartTableHideTwoColumns,TestRadVizChartTable.cxx,NO_VALID 2
 )
 # narrow window
 vtk_add_test_cxx(vtkChartsCoreCxxTests tests
