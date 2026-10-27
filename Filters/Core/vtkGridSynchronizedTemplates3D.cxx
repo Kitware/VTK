@@ -87,7 +87,7 @@ static void vtkGridSynchronizedTemplates3DInitializeOutput(int* ext, int precisi
     static_cast<double>(ext[1] - ext[0] + 1) * (ext[3] - ext[2] + 1) * (ext[5] - ext[4] + 1), .75));
   estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
-  vtkPoints* newPts = vtkPoints::New();
+  vtkNew<vtkPoints> newPts;
 
   // set precision for the points in the output
   if (precision == vtkAlgorithm::DEFAULT_PRECISION)
@@ -112,12 +112,10 @@ static void vtkGridSynchronizedTemplates3DInitializeOutput(int* ext, int precisi
   }
 
   newPts->Reserve(estimatedSize);
-  vtkCellArray* newPolys = vtkCellArray::New();
+  vtkNew<vtkCellArray> newPolys;
   newPolys->AllocateEstimate(estimatedSize, 3);
   o->SetPoints(newPts);
-  newPts->Delete();
   o->SetPolys(newPolys);
-  newPolys->Delete();
 
   o->GetPointData()->CopyAllOn();
 
@@ -402,22 +400,22 @@ struct ContourGridFunctor
     bool outputTriangles)
   {
     vtkTypeBool ComputeScalars = self->GetComputeScalars();
-    vtkFloatArray* newScalars = nullptr;
+    vtkSmartPointer<vtkFloatArray> newScalars;
     if (ComputeScalars)
     {
-      newScalars = vtkFloatArray::New();
+      newScalars = vtkSmartPointer<vtkFloatArray>::New();
     }
     vtkTypeBool ComputeNormals = self->GetComputeNormals();
-    vtkFloatArray* newNormals = nullptr;
+    vtkSmartPointer<vtkFloatArray> newNormals;
     if (ComputeNormals)
     {
-      newNormals = vtkFloatArray::New();
+      newNormals = vtkSmartPointer<vtkFloatArray>::New();
     }
     vtkTypeBool ComputeGradients = self->GetComputeGradients();
-    vtkFloatArray* newGradients = nullptr;
+    vtkSmartPointer<vtkFloatArray> newGradients;
     if (ComputeGradients)
     {
-      newGradients = vtkFloatArray::New();
+      newGradients = vtkSmartPointer<vtkFloatArray>::New();
     }
     vtkGridSynchronizedTemplates3DInitializeOutput(exExt, self->GetOutputPointsPrecision(), input,
       output, newScalars, newNormals, newGradients, inScalars);
@@ -485,8 +483,9 @@ struct ContourGridFunctor
     vtkPolygonBuilder polyBuilder;
     vtkCellData* outCD = output->GetCellData();
     vtkCellData* inCD = input->GetCellData();
-    vtkSmartPointer<vtkIdListCollection> polys = vtkSmartPointer<vtkIdListCollection>::New();
+    vtkNew<vtkIdListCollection> polys;
     // for each contour
+
     for (int vidx = 0; vidx < numContours && !abort; vidx++)
     {
       double value = values[vidx];
@@ -794,20 +793,14 @@ struct ContourGridFunctor
       newScalars->SetName(inScalars->GetName());
       int idx = output->GetPointData()->AddArray(newScalars);
       output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
-      newScalars->Delete();
-      newScalars = nullptr;
     }
     if (newGradients)
     {
       output->GetPointData()->SetVectors(newGradients);
-      newGradients->Delete();
-      newGradients = nullptr;
     }
     if (newNormals)
     {
       output->GetPointData()->SetNormals(newNormals);
-      newNormals->Delete();
-      newNormals = nullptr;
     }
   }
 };
