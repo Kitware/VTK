@@ -23,12 +23,15 @@ struct PyVTKReference
   PyObject* value;
 };
 
-extern PyTypeObject PyVTKReference_Type;
-extern PyTypeObject PyVTKNumberReference_Type;
-extern PyTypeObject PyVTKStringReference_Type;
-extern PyTypeObject PyVTKTupleReference_Type;
+// The reference type is a heap type (created via PyType_FromSpec), so this is
+// a pointer that is null until PyVTKReference_ClassNew() has been called.
+extern PyTypeObject* PyVTKReference_Type;
 
-#define PyVTKReference_Check(obj) PyObject_TypeCheck(obj, &PyVTKReference_Type)
+// Create the four reference type objects.  Returns false (with a Python
+// exception set) on failure.  Safe to call more than once.
+bool PyVTKReference_ClassNew();
+
+#define PyVTKReference_Check(obj) PyObject_TypeCheck(obj, PyVTKReference_Type)
 
 extern "C"
 {
