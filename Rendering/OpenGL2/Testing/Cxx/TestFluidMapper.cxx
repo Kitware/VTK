@@ -61,7 +61,6 @@ int TestFluidMapper(int argc, char* argv[])
   renderer->SetBackground(0.0, 0.0, 0.0);
 
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->UseSRGBColorSpaceOn();
   renderWindow->SetMultiSamples(0);
   renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> iren;
@@ -91,10 +90,17 @@ int TestFluidMapper(int argc, char* argv[])
   //------------------------------------------------------------
   vtkSmartPointer<vtkPBRIrradianceTexture> irradiance = renderer->GetEnvMapIrradiance();
   irradiance->SetIrradianceStep(0.3);
+  // Keep environment lighting inexpensive on software renderers.
+  irradiance->SetIrradianceSize(32);
+  renderer->GetEnvMapLookupTable()->SetLUTSize(128);
+  renderer->GetEnvMapLookupTable()->SetLUTSamples(256);
+  renderer->GetEnvMapPrefiltered()->SetPrefilterMaxSamples(128);
 
   vtkNew<vtkOpenGLTexture> textureCubemap;
   textureCubemap->CubeMapOn();
   textureCubemap->UseSRGBColorSpaceOn();
+  textureCubemap->InterpolateOn();
+  textureCubemap->MipmapOn();
 
   std::string pathSkybox[6] = { "Data/skybox/posx.jpg", "Data/skybox/negx.jpg",
     "Data/skybox/posy.jpg", "Data/skybox/negy.jpg", "Data/skybox/posz.jpg",
@@ -140,6 +146,8 @@ int TestFluidMapper(int argc, char* argv[])
   texture->UseSRGBColorSpaceOn();
 
   vtkNew<vtkPlaneSource> plane;
+  // Avoid clipping artifacts from large triangles in Apple's software renderer.
+  plane->SetResolution(10, 10);
   plane->SetNormal(0.0, -1.0, 0.0);
   plane->SetOrigin(-15.0, 0.0, -15.0);
   plane->SetPoint1(15, 0, -15);
