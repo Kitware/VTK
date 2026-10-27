@@ -88,7 +88,9 @@
             console.error(text);
             // Some VTK tests write to stderr when they should in fact write to stdout.
             // This block only posts exit code when the message has the word "Error" in all it's case avatars.
-            if (text.includes('ERROR') || text.includes("Error") || text.includes("error")) {
+            const isInformational = text.includes("INFO|");
+            if (!isInformational &&
+              (text.includes('ERROR') || text.includes("Error") || text.includes("error"))) {
               // catch some more of those "ERROR" messages to give some context before finalizing.
               setTimeout(finalize, 10, 1);
             }
