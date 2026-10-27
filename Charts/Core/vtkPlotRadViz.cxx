@@ -286,7 +286,7 @@ void vtkPlotRadViz::SetVisibleColumns(vtkStringArray* visColumns)
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::ComputeAutoLabels()
 {
-  this->AutoLabels = this->ComputeGBC->GetProcessedColumnNames();
+  this->AutoLabels = this->ComputeGBC->GetVisibleColumns();
 }
 
 //------------------------------------------------------------------------------

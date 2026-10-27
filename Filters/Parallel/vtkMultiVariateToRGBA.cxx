@@ -844,7 +844,18 @@ bool vtkMultiVariateToRGBA::GetColumnVisibility(const std::string& name)
 //------------------------------------------------------------------------------
 vtkStringArray* vtkMultiVariateToRGBA::GetVisibleColumns()
 {
-  this->VisibleColumnsCache = this->GetProcessedColumnNames();
+  // keep only the names of the current input that are not hidden,
+  // preserving their natural order.
+  vtkSmartPointer<vtkStringArray> all = this->GetAllColumnNames();
+  this->VisibleColumnsCache = vtkSmartPointer<vtkStringArray>::New();
+  for (vtkIdType i = 0; i < all->GetNumberOfTuples(); ++i)
+  {
+    const vtkStdString& name = all->GetValue(i);
+    if (this->GetColumnVisibility(name))
+    {
+      this->VisibleColumnsCache->InsertNextValue(name);
+    }
+  }
   return this->VisibleColumnsCache;
 }
 
@@ -861,24 +872,6 @@ void vtkMultiVariateToRGBA::SetVisibleColumns(vtkStringArray* visColumns)
     }
   }
   this->Modified();
-}
-
-//------------------------------------------------------------------------------
-vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetProcessedColumnNames()
-{
-  // keep only the names of the current input that are not hidden,
-  // preserving their natural order.
-  vtkSmartPointer<vtkStringArray> all = this->GetAllColumnNames();
-  vtkSmartPointer<vtkStringArray> result = vtkSmartPointer<vtkStringArray>::New();
-  for (vtkIdType i = 0; i < all->GetNumberOfTuples(); ++i)
-  {
-    const vtkStdString& name = all->GetValue(i);
-    if (this->GetColumnVisibility(name))
-    {
-      result->InsertNextValue(name);
-    }
-  }
-  return result;
 }
 
 //------------------------------------------------------------------------------

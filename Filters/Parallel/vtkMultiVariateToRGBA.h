@@ -307,12 +307,6 @@ public:
    * column/component.
    */
   virtual void SetVisibleColumns(vtkStringArray* visColumns);
-  /**
-   * Returns the names of the columns/components that will actually be used
-   * to compute the RGBA/GBC values: the columns/components of the current
-   * input that are visible (i.e. not hidden), in their natural order.
-   */
-  vtkSmartPointer<vtkStringArray> GetProcessedColumnNames();
   ///@}
 
   ///@{
