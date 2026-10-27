@@ -284,9 +284,24 @@ void vtkPlotRadViz::SetVisibleColumns(vtkStringArray* visColumns)
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotRadViz::ComputeAutoLabels()
+void vtkPlotRadViz::ComputeVisibleLabels()
 {
   this->AutoLabels = this->ComputeGBC->GetVisibleColumns();
+  this->VisibleLabels = this->AutoLabels;
+  vtkSmartPointer<vtkStringArray> allNames = this->ComputeGBC->GetAllColumnNames();
+  if (!this->Labels || this->Labels->GetNumberOfValues() != allNames->GetNumberOfValues())
+  {
+    return;
+  }
+  // user labels are one per input column, keep the visible ones
+  this->VisibleLabels = vtkSmartPointer<vtkStringArray>::New();
+  for (vtkIdType i = 0; i < allNames->GetNumberOfValues(); ++i)
+  {
+    if (this->ComputeGBC->GetColumnVisibility(allNames->GetValue(i)))
+    {
+      this->VisibleLabels->InsertNextValue(this->Labels->GetValue(i));
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -388,7 +403,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
       // RadViz does not work for < 3 components, so we don't render anything
       return true;
     }
-    ComputeAutoLabels();
+    this->ComputeVisibleLabels();
     this->UpdateCenterAndRadius(painter);
 
     this->ComputeGBC->SetStoreGBC(true);
@@ -636,7 +651,7 @@ void vtkPlotRadViz::DrawColorWheel(vtkContext2D* painter)
 
 void vtkPlotRadViz::DrawLabels(vtkContext2D* painter, vtkDataArray* points, vtkPen* pen)
 {
-  assert(this->GetNumberOfLabels() == points->GetNumberOfTuples());
+  assert(this->VisibleLabels->GetNumberOfValues() == points->GetNumberOfTuples());
   auto transformedPoints = this->TransformPoints(points);
   for (int i = 0; i < points->GetNumberOfTuples(); ++i)
   {
@@ -648,7 +663,7 @@ void vtkPlotRadViz::DrawLabels(vtkContext2D* painter, vtkDataArray* points, vtkP
     painter->ApplyTextProp(this->LabelsProperties);
     double transformedXy[2];
     transformedPoints->GetPoint(i, transformedXy);
-    std::string label = this->GetLabel(i);
+    const std::string& label = this->VisibleLabels->GetValue(i);
     this->ShiftLabelByPenWidth(pen->GetWidth(), transformedXy);
     painter->DrawString(transformedXy[0], transformedXy[1], label.c_str());
   }
@@ -733,11 +748,10 @@ void vtkPlotRadViz::UpdateCenterAndRadius(vtkContext2D* painter)
   painter->ApplyTextProp(this->LabelsProperties);
   double marginX = 0.0;
   double marginY = 0.0;
-  vtkIdType numberOfLabels = this->GetNumberOfLabels();
-  for (vtkIdType i = 0; i < numberOfLabels; ++i)
+  for (vtkIdType i = 0; i < this->VisibleLabels->GetNumberOfValues(); ++i)
   {
     float bounds[4];
-    painter->ComputeStringBounds(this->GetLabel(i), bounds);
+    painter->ComputeStringBounds(this->VisibleLabels->GetValue(i), bounds);
     marginX = std::max(marginX, static_cast<double>(bounds[2]));
     marginY = std::max(marginY, static_cast<double>(bounds[3]));
   }

@@ -107,7 +107,10 @@ public:
    * passthrough to the underlying vtkMultiVariateToRGBA; see
    * vtkMultiVariateToRGBA::SetColumnVisibility for details. Every
    * column/component of the input set with SetInputDataSet/SetInputData is
-   * visible by default.
+   * visible by default. Labels set with SetLabels are one per
+   * column/component of the input, in order, and only the ones of visible
+   * columns/components are drawn. If their number does not match, the
+   * column/component names are drawn instead.
    */
   void SetColumnVisibility(const std::string& name, bool visible);
   void SetColumnVisibilityAll(bool visible);
@@ -406,7 +409,10 @@ protected:
     vtkContext2D* painter, vtkDataArray* points, vtkPen* pen, int activeIndex = -1);
   void DrawLabels(vtkContext2D* painter, vtkDataArray* vertices, vtkPen* pen);
   void DrawLens(vtkContext2D* painter);
-  void ComputeAutoLabels();
+  /**
+   * Computes VisibleLabels, and AutoLabels from the visible columns/components.
+   */
+  void ComputeVisibleLabels();
   /**
    * Recomputes the plot circle's center and radius from Dimensions,
    * shrinking the radius so that there is enough room around the circle
@@ -514,6 +520,15 @@ protected:
    * The text properties associated with the vertex labels.
    */
   vtkSmartPointer<vtkTextProperty> LabelsProperties = vtkSmartPointer<vtkTextProperty>::New();
+  /**
+   * The label of each vertex: the labels set with SetLabels for the visible
+   * columns/components, or their names if SetLabels was not given one label
+   * per column/component of the input. AutoLabels always holds the names.
+   * For example, for columns a, b, c, d with b hidden, AutoLabels is
+   * {a, c, d}, and VisibleLabels is {A, C, D} after SetLabels({A, B, C, D}),
+   * or {a, c, d} without SetLabels or after SetLabels({A, B}).
+   */
+  vtkSmartPointer<vtkStringArray> VisibleLabels;
   int ColorWheelSegmentCount = 120;
   int ColorWheelRingCount = 16;
   bool ColorWheelVisibility = true;

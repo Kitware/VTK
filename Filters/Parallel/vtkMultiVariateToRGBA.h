@@ -307,6 +307,11 @@ public:
    * column/component.
    */
   virtual void SetVisibleColumns(vtkStringArray* visColumns);
+  /**
+   * Returns the names of every column (table) or component (dataset array)
+   * found in the current input, visible or not, in their natural order.
+   */
+  vtkSmartPointer<vtkStringArray> GetAllColumnNames();
   ///@}
 
   ///@{
@@ -391,11 +396,6 @@ private:
    */
   std::pair<vtkDataSetAttributes*, vtkSmartPointer<vtkDataArray>> GetAttributesAndScalars(
     vtkDataObject* input, vtkInformationVector** inputVector);
-  /**
-   * Returns the names of every column (table) or component (dataset array)
-   * found in the current input, in their natural order.
-   */
-  vtkSmartPointer<vtkStringArray> GetAllColumnNames();
   /**
    * Returns a read-only view exposing only the visible (i.e. not hidden)
    * named components of 'array' (or 'array' itself, unmodified, if every

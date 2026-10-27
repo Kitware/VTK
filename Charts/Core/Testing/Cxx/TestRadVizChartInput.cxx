@@ -4,7 +4,8 @@
  * Check that vtkPlotRadViz draws its input when it is set with
  * SetInputConnection, for a table and for a dataset, and when the array to
  * process is not the active scalars, that column visibility set before the
- * first paint is kept, and that it draws nothing when hidden.
+ * first paint is kept, that labels set with SetLabels follow the visible
+ * columns, and that it draws nothing when hidden.
  */
 
 #include "vtkChartRadViz.h"
@@ -14,6 +15,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkPassThrough.h"
 #include "vtkPlotRadViz.h"
 #include "vtkPointData.h"
@@ -27,6 +29,7 @@
 #include <functional>
 #include <iostream>
 #include <string>
+#include <vector>
 
 namespace
 {
@@ -38,6 +41,18 @@ namespace
   }
 
 constexpr vtkIdType NumberOfValues = 50;
+
+/**
+ * Exposes the labels drawn at the vertices.
+ */
+class LabelsPlot : public vtkPlotRadViz
+{
+public:
+  static LabelsPlot* New();
+  vtkTypeMacro(LabelsPlot, vtkPlotRadViz);
+  vtkStringArray* GetVisibleLabels() { return this->VisibleLabels; }
+};
+vtkStandardNewMacro(LabelsPlot);
 
 /**
  * Returns an array named 'name' with 'numberOfComponents' components.
@@ -107,6 +122,43 @@ vtkIdType PaintVertices(const std::function<void(vtkPlotRadViz*)>& setInput)
 }
 
 /**
+ * Renders a RadViz chart of a 4 column table, with 'labels' set and column
+ * "b" hidden, and returns whether the plot drew 'expected' as vertex labels.
+ */
+bool PaintLabels(const std::vector<std::string>& labels, const std::vector<std::string>& expected)
+{
+  vtkNew<vtkContextView> view;
+  view->GetRenderWindow()->SetSize(300, 300);
+  vtkNew<vtkChartRadViz> chart;
+  view->GetScene()->AddItem(chart);
+  vtkNew<LabelsPlot> plot;
+  chart->SetPlot(plot);
+  plot->SetInputData(MakeTable());
+  vtkNew<vtkStringArray> labelsArray;
+  for (const std::string& label : labels)
+  {
+    labelsArray->InsertNextValue(label);
+  }
+  plot->SetLabels(labelsArray);
+  plot->SetColumnVisibility("b", false);
+  view->GetRenderWindow()->Render();
+  vtkStringArray* visibleLabels = plot->GetVisibleLabels();
+  if (!visibleLabels ||
+    visibleLabels->GetNumberOfValues() != static_cast<vtkIdType>(expected.size()))
+  {
+    return false;
+  }
+  for (size_t i = 0; i < expected.size(); ++i)
+  {
+    if (visibleLabels->GetValue(i) != expected[i])
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
  * Connects the plot to a pipeline that has not been updated, with 'data'
  * at its start.
  */
@@ -156,6 +208,10 @@ int TestRadVizChartInput(int, char*[])
             }
             plot->SetVisibleColumns(visible);
           }) == 3);
+  // labels of the visible columns, or the column names for a label count
+  // that does not match the columns
+  CHECK(PaintLabels({ "A", "B", "C", "D" }, { "A", "C", "D" }));
+  CHECK(PaintLabels({ "A", "B" }, { "a", "c", "d" }));
   // nothing for a hidden plot
   CHECK(PaintVertices(
           [](vtkPlotRadViz* plot)
