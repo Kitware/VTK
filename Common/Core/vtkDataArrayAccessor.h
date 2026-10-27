@@ -179,7 +179,7 @@ struct vtkDataArrayAccessor<vtkDataArray>
   APIType Get(vtkIdType valueIdx) const
   {
     auto div = std::div(valueIdx, static_cast<vtkIdType>(this->Array->GetNumberOfComponents()));
-    return this->Array->GetComponent(div.quot, div.rem);
+    return this->Array->GetComponent(div.quot, static_cast<int>(div.rem));
   }
 
   VTK_ALWAYS_INLINE
@@ -192,7 +192,7 @@ struct vtkDataArrayAccessor<vtkDataArray>
   void Set(vtkIdType valueIdx, APIType val) const
   {
     auto div = std::div(valueIdx, static_cast<vtkIdType>(this->Array->GetNumberOfComponents()));
-    this->Array->SetComponent(div.quot, div.rem, val);
+    this->Array->SetComponent(div.quot, static_cast<int>(div.rem), val);
   }
 
   VTK_ALWAYS_INLINE
@@ -205,7 +205,7 @@ struct vtkDataArrayAccessor<vtkDataArray>
   void Insert(vtkIdType valueIdx, APIType val) const
   {
     auto div = std::div(valueIdx, static_cast<vtkIdType>(this->Array->GetNumberOfComponents()));
-    this->Array->InsertComponent(div.quot, div.rem, val);
+    this->Array->InsertComponent(div.quot, static_cast<int>(div.rem), val);
   }
 
   VTK_ALWAYS_INLINE
