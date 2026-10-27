@@ -78,7 +78,8 @@ public:
 
   /**
    * Set the plot to use for the chart. Since this type of chart can
-   * only contain one plot, this will replace the previous plot.
+   * only contain one plot, this will replace the previous plot. Passing
+   * nullptr removes the plot.
    */
   virtual void SetPlot(vtkPlotRadViz* plot);
 

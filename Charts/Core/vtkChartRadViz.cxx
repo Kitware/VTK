@@ -154,8 +154,11 @@ void vtkChartRadViz::SetPlot(vtkPlotRadViz* plot)
     this->RemoveItem(this->Internals->Plot);
   }
   this->Internals->Plot = plot;
-  this->Internals->Plot->SetParent(this);
-  this->AddItem(this->Internals->Plot);
+  if (plot)
+  {
+    plot->SetParent(this);
+    this->AddItem(plot);
+  }
   this->Modified();
 }
 

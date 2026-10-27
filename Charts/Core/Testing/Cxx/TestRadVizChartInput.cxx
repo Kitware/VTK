@@ -6,7 +6,8 @@
  * process is not the active scalars, when the active scalars become
  * unnamed, that column visibility set before the
  * first paint is kept, that labels set with SetLabels follow the visible
- * columns, and that it draws nothing when hidden.
+ * columns, that SetPlot(nullptr) removes the plot, and that it draws nothing
+ * when hidden.
  */
 
 #include "vtkChartRadViz.h"
@@ -238,6 +239,16 @@ int TestRadVizChartInput(int, char*[])
   // that does not match the columns
   CHECK(PaintLabels({ "A", "B", "C", "D" }, { "A", "C", "D" }));
   CHECK(PaintLabels({ "A", "B" }, { "a", "c", "d" }));
+  // no plot after SetPlot(nullptr)
+  {
+    vtkNew<vtkContextView> view;
+    vtkNew<vtkChartRadViz> chart;
+    view->GetScene()->AddItem(chart);
+    chart->AddPlot(0);
+    chart->SetPlot(nullptr);
+    CHECK(chart->GetNumberOfPlots() == 0 && chart->GetNumberOfItems() == 0);
+    view->GetRenderWindow()->Render();
+  }
   // nothing for a hidden plot
   CHECK(PaintVertices(
           [](vtkPlotRadViz* plot)
