@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * Check that vtkPlotRadViz draws its input when it is set with
- * SetInputConnection, and when the array to process is not the active scalars.
+ * SetInputConnection, for a table and for a dataset, and when the array to
+ * process is not the active scalars.
  */
 
 #include "vtkChartRadViz.h"
@@ -122,6 +123,8 @@ int TestRadVizChartInput(int, char*[])
   // a column per vertex
   CHECK(PaintVertices([](vtkPlotRadViz* plot) { SetInputConnection(plot, MakeTable()); }) == 4);
   // a component per vertex
+  CHECK(
+    PaintVertices([](vtkPlotRadViz* plot) { SetInputConnection(plot, MakeImage(false)); }) == 3);
   CHECK(PaintVertices(
           [](vtkPlotRadViz* plot)
           {

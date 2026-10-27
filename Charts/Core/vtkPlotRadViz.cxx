@@ -352,6 +352,12 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
 {
   try
   {
+    // vtkPlot::Update only updates a table input, so update a dataset's producer here
+    int producerPort = 0;
+    if (vtkAlgorithm* producer = this->Data->GetInputAlgorithm(0, 0, producerPort))
+    {
+      producer->Update(producerPort);
+    }
     vtkDataObject* input = this->Data->GetInputDataObject(0, 0);
     if (!input)
     {
