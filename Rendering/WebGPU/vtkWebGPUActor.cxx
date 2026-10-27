@@ -77,6 +77,7 @@ void vtkWebGPUActor::ReleaseGraphicsResources(vtkWindow* window)
 void vtkWebGPUActor::ShallowCopy(vtkProp* other)
 {
   auto& internals = (*this->Internals);
+  this->Superclass::ShallowCopy(other);
   if (auto* wgpuActor = vtkWebGPUActor::SafeDownCast(other))
   {
     const auto& otherInternals = (*wgpuActor->Internals);
@@ -95,7 +96,6 @@ void vtkWebGPUActor::ShallowCopy(vtkProp* other)
     internals.NormalMatrix->DeepCopy(otherInternals.NormalMatrix);
     internals.NormalTransform->DeepCopy(otherInternals.NormalTransform);
   }
-  this->Superclass::ShallowCopy(other);
 }
 
 //------------------------------------------------------------------------------
@@ -119,6 +119,10 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
         if (this->NeedToRecreateBindGroups())
         {
           this->CreateBindGroups(wgpuConfiguration);
+        }
+        if (internals.MapperSwappedTime > wgpuRenderer->RenderBundleBuildTime)
+        {
+          wgpuRenderer->InvalidateBundle();
         }
         mapper->Render(renderer, this);
         bool updateBuffers = this->CacheActorRenderOptions();
@@ -245,6 +249,19 @@ vtkTypeBool vtkWebGPUActor::HasTranslucentPolygonalGeometry()
   this->Mapper = tmpMapper;
   // Either one being translucent makes the actor translucent.
   return actorIsTranslucent || mapperIsTranslucent;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUActor::SetMapper(vtkMapper* mapper)
+{
+  if (this->Mapper != mapper)
+  {
+    auto& internals = (*this->Internals);
+    internals.MapperHasOpaqueGeometry = {};
+    internals.MapperHasTranslucentPolygonalGeometry = {};
+    internals.MapperSwappedTime.Modified();
+  }
+  this->Superclass::SetMapper(mapper);
 }
 
 //------------------------------------------------------------------------------

@@ -9,6 +9,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkStringFormatter.h"
 #include "vtkUnsignedCharArray.h"
@@ -56,7 +57,7 @@ bool CheckState(vtkActor* actor, vtkRenderWindow* window, const char* label, boo
   return CheckSphereDrawn(window, label) && ok;
 }
 
-bool RunScenario(unsigned char alpha)
+vtkSmartPointer<vtkPolyDataMapper> MakeMapper(unsigned char alpha)
 {
   vtkNew<vtkSphereSource> sphere;
   sphere->SetThetaResolution(32);
@@ -81,6 +82,16 @@ bool RunScenario(unsigned char alpha)
   mapper->SetInputData(poly);
   mapper->SetColorModeToDefault();
   mapper->ScalarVisibilityOn();
+  return mapper;
+}
+
+bool RunScenario(unsigned char alpha)
+{
+  auto mapper = MakeMapper(alpha);
+  // A mapper with the opposite translucency, created before anything is rendered so
+  // that neither it nor its input is modified after the actor caches its answers.
+  const unsigned char otherAlpha = alpha == 255 ? 128 : 255;
+  auto otherMapper = MakeMapper(otherAlpha);
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
@@ -133,6 +144,16 @@ bool RunScenario(unsigned char alpha)
 
   actor->GetProperty()->SetOpacity(1.0);
   ok &= CheckState(actor, window, (prefix + ", property opacity 1.0 after mapper modified").c_str(),
+    /*expectOpaque=*/mapperOpaque, /*expectTranslucent=*/!mapperOpaque);
+
+  // Swap to the other mapper, whose MTime and input MTime are older than the actor's
+  // cached answers, then swap back.
+  actor->SetMapper(otherMapper);
+  ok &= CheckState(actor, window, (prefix + ", swapped to other mapper").c_str(),
+    /*expectOpaque=*/!mapperOpaque, /*expectTranslucent=*/mapperOpaque);
+
+  actor->SetMapper(mapper);
+  ok &= CheckState(actor, window, (prefix + ", swapped back").c_str(),
     /*expectOpaque=*/mapperOpaque, /*expectTranslucent=*/!mapperOpaque);
 
   return ok;

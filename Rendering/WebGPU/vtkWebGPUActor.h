@@ -53,6 +53,8 @@ public:
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   ///@}
 
+  void SetMapper(vtkMapper* mapper) override;
+
 protected:
   vtkWebGPUActor();
   ~vtkWebGPUActor() override;

@@ -132,6 +132,7 @@ public:
 
   MapperBooleanCache MapperHasOpaqueGeometry;
   MapperBooleanCache MapperHasTranslucentPolygonalGeometry;
+  vtkTimeStamp MapperSwappedTime;
 
   vtkNew<vtkMatrix4x4> MCWCMatrix;
   vtkNew<vtkMatrix3x3> NormalMatrix;

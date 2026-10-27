@@ -1308,6 +1308,7 @@ void vtkWebGPURenderer::BeginRecording()
     this->WGPUBundleEncoder = wgpuRenderWindow->NewRenderBundleEncoder(bundleEncDesc);
     wgpuRenderBundleEncoderSetBindGroup(
       this->WGPUBundleEncoder, 0, this->SceneBindGroup, 0, nullptr);
+    this->RenderBundleBuildTime.Modified();
   }
   else
   {

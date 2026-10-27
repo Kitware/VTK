@@ -274,6 +274,8 @@ private:
   friend class vtkWebGPUComputePointCloudMapper;
   // For render window accessing PostRenderComputePipelines()
   friend class vtkWebGPURenderWindow;
+  // For the actor to access RenderBundleBuildTime
+  friend class vtkWebGPUActor;
 
   vtkWebGPURenderer(const vtkWebGPURenderer&) = delete;
   void operator=(const vtkWebGPURenderer&) = delete;
@@ -477,6 +479,9 @@ private:
    * SetUseRenderBundles().
    */
   void WarnIfCullingWithRenderBundles();
+
+  /// Records the last time the render bundle began recording commands.
+  vtkTimeStamp RenderBundleBuildTime;
 
   /// The vtkFrustumCoverageCuller that vtkRenderer's constructor installs. Not owned.
   vtkWeakPtr<vtkCuller> DefaultCuller;
