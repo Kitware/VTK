@@ -3,17 +3,29 @@
 #include "vtkColorTransferFunction.h"
 
 #include <cmath>
+#include <limits>
 
 namespace
 {
 inline double vtkSymlog(double x, double linthresh)
 {
-  return std::copysign(log10(1.0 + std::abs(x) / linthresh), x);
+  const double magnitude = std::abs(x);
+  if (linthresh < 1.0 && magnitude >= std::numeric_limits<double>::max() * linthresh)
+  {
+    return std::copysign(std::log10(magnitude) - std::log10(linthresh), x);
+  }
+  return std::copysign(std::log1p(magnitude / linthresh) / std::log(10.0), x);
 }
 
 inline double vtkSymlogInv(double x, double linthresh)
 {
-  return std::copysign(linthresh * (pow(10.0, std::abs(x)) - 1.0), x);
+  const double exponent = std::abs(x) * std::log(10.0);
+  if (exponent <= std::log(std::numeric_limits<double>::max()))
+  {
+    return std::copysign(linthresh * std::expm1(exponent), x);
+  }
+  const double half = std::exp(0.5 * exponent);
+  return std::copysign((linthresh * half) * half, x);
 }
 }
 
@@ -28,7 +40,6 @@ inline double vtkSymlogInv(double x, double linthresh)
 #include <algorithm>
 #include <cmath>
 #include <iterator>
-#include <limits>
 #include <set>
 #include <vector>
 
@@ -900,7 +911,6 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
       {
         logX =
           logStart + (static_cast<double>(i) / static_cast<double>(size - 1)) * (logEnd - logStart);
-        x = vtkSymlogInv(logX, this->SymlogLinearThreshold);
       }
       else
       {
@@ -917,11 +927,28 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
       else if (usingSymlogScale)
       {
         logX = 0.5 * (logStart + logEnd);
-        x = vtkSymlogInv(logX, this->SymlogLinearThreshold);
       }
       else
       {
         x = 0.5 * (xStart + xEnd);
+      }
+    }
+
+    if (usingSymlogScale)
+    {
+      if (xStart == xEnd || (size > 1 && i == 0))
+      {
+        logX = logStart;
+        x = xStart;
+      }
+      else if (size > 1 && i == size - 1)
+      {
+        logX = logEnd;
+        x = xEnd;
+      }
+      else
+      {
+        x = vtkSymlogInv(logX, this->SymlogLinearThreshold);
       }
     }
 

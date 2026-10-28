@@ -14,6 +14,8 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <limits>
 #include <type_traits>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -543,7 +545,12 @@ inline double vtkApplyLogScale(double v, const double range[2], const double log
 //------------------------------------------------------------------------------
 inline double vtkSymlog(double v, double linthresh)
 {
-  return std::copysign(log10(1.0 + std::abs(v) / linthresh), v);
+  const double magnitude = std::abs(v);
+  if (linthresh < 1.0 && magnitude >= std::numeric_limits<double>::max() * linthresh)
+  {
+    return std::copysign(std::log10(magnitude) - std::log10(linthresh), v);
+  }
+  return std::copysign(std::log1p(magnitude / linthresh) / std::log(10.0), v);
 }
 
 //------------------------------------------------------------------------------

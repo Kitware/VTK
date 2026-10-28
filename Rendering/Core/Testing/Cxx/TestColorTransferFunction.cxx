@@ -5,7 +5,9 @@
 #include <vtkNew.h>
 #include <vtkSmartPointer.h>
 
+#include <cmath>
 #include <iostream>
+#include <limits>
 
 bool TestSymlogScale()
 {
@@ -152,6 +154,82 @@ bool TestSymlogScale()
     return false;
   }
 
+  return true;
+}
+
+bool TestSymlogExtremeThresholds()
+{
+  const double max = std::numeric_limits<double>::max();
+  const double ranges[][2] = { { -100.0, 100.0 }, { 10.0, 100.0 }, { -100.0, -10.0 }, { -1.0, 1.0 },
+    { -max, max }, { max / 100.0, max }, { -max, -max / 100.0 } };
+  vtkNew<vtkColorTransferFunction> ctf;
+  ctf->SetColorSpaceToRGB();
+  ctf->SetScaleToSymlog();
+  ctf->SetBelowRangeColor(0.0, 1.0, 0.0);
+  ctf->SetUseBelowRangeColor(true);
+  ctf->SetAboveRangeColor(1.0, 1.0, 0.0);
+  ctf->SetUseAboveRangeColor(true);
+
+  for (double threshold : { 0.0, -1.0, VTK_DBL_MIN, 1e-16, 1.0, 1e20, VTK_DOUBLE_MAX })
+  {
+    ctf->SetSymlogLinearThreshold(threshold);
+    for (const auto& range : ranges)
+    {
+      ctf->RemoveAllPoints();
+      ctf->AddRGBPoint(range[0], 0.0, 0.0, 1.0);
+      ctf->AddRGBPoint(range[1], 1.0, 0.0, 0.0);
+      auto checkColor = [&](const double rgb[3], double fraction)
+      {
+        const double expected[] = { fraction, 0.0, 1.0 - fraction };
+        for (int component = 0; component < 3; ++component)
+        {
+          if (!std::isfinite(rgb[component]) ||
+            std::abs(rgb[component] - expected[component]) > 1e-10)
+          {
+            std::cerr << "ERROR: Symlog CTF at threshold " << threshold << " and range ["
+                      << range[0] << ", " << range[1] << "], component " << component
+                      << ": expected " << expected[component] << ", got " << rgb[component]
+                      << std::endl;
+            return false;
+          }
+        }
+        return true;
+      };
+
+      double table[3 * 9];
+      ctf->GetTable(range[0], range[1], 9, table);
+      for (int i = 0; i < 9; ++i)
+      {
+        if (!checkColor(table + 3 * i, i / 8.0))
+        {
+          return false;
+        }
+      }
+
+      double rgb[3];
+      for (int i = 0; i < 2; ++i)
+      {
+        ctf->GetColor(range[i], rgb);
+        if (!checkColor(rgb, i))
+        {
+          return false;
+        }
+        ctf->GetTable(range[i], range[i], 3, table);
+        for (int j = 0; j < 3; ++j)
+        {
+          if (!checkColor(table + 3 * j, i))
+          {
+            return false;
+          }
+        }
+      }
+      ctf->GetTable(range[0], range[1], 1, rgb);
+      if (!checkColor(rgb, 0.5))
+      {
+        return false;
+      }
+    }
+  }
   return true;
 }
 
@@ -329,6 +407,11 @@ int TestColorTransferFunction(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   if (!TestSymlogScale())
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!TestSymlogExtremeThresholds())
   {
     return EXIT_FAILURE;
   }
