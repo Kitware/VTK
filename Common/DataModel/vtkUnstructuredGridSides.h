@@ -53,11 +53,12 @@
  * the faces of DP-Hash-Count (see below): only their cell and local index are stored, and their
  * points are computed again from the cell arrays of the dataset. The sides of a key are in the
  * order of their cells and of their local index, whatever the threads, so that the scattered,
- * reduced and grouped sides are the same from one run to the next. Two sides of a key match if they
- * have the same corners in the same cyclic order, in either direction, and, for the nonlinear
- * sides, the same other points, e.g., the mid-edge points of the faces of the quadratic cells,
- * unless SetMatchSidePoints() is off. A degenerate side whose smallest corner is repeated, e.g., a
- * face of a collapsed hexahedron, is compared in a canonical form of its corners.
+ * reduced and grouped sides are the same from one run to the next, unless
+ * SetDeterministicSideOrder() is off. Two sides of a key match if they have the same corners in the
+ * same cyclic order, in either direction, and, for the nonlinear sides, the same other points,
+ * e.g., the mid-edge points of the faces of the quadratic cells, unless SetMatchSidePoints() is
+ * off. A degenerate side whose smallest corner is repeated, e.g., a face of a collapsed
+ * hexahedron, is compared in a canonical form of its corners.
  *
  * Cells can be masked, as in vtkGeometryFilter: the cells clipped by their ids, by their point ids
  * or by an extent (see SetCellClipping(), SetPointClipping() and SetExtentClipping()), and the
@@ -278,6 +279,19 @@ public:
   vtkSetMacro(MatchSidePoints, bool);
   vtkGetMacro(MatchSidePoints, bool);
   vtkBooleanMacro(MatchSidePoints, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Whether the sides of a key are in the order of their cells and of their local index, whatever
+   * the threads, so that the scattered, reduced and grouped sides, e.g., the first side of a
+   * group, are the same from one run to the next. On by default. Off, the sides of a key keep the
+   * order in which the threads scattered them, which can change from one run to the next: the
+   * consumers that do not depend on that order can turn it off, to skip the cost of sorting them.
+   */
+  vtkSetMacro(DeterministicSideOrder, bool);
+  vtkGetMacro(DeterministicSideOrder, bool);
+  vtkBooleanMacro(DeterministicSideOrder, bool);
   ///@}
 
   /**
@@ -523,6 +537,7 @@ private:
   unsigned char MaskedGhostTypes =
     vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL;
   bool MatchSidePoints = true;
+  bool DeterministicSideOrder = true;
 
   // The sides, scattered by their key, their smallest point id (ScatteredKeys), the number of kept
   // sides at the front of the sides of every key once reduced (ReducedKeys), and the groups of

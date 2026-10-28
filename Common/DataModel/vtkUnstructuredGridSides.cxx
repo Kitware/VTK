@@ -1642,8 +1642,11 @@ struct vtkUnstructuredGridSides<TId, TSideId>::BuildSidesWorker
       const SideMapper<InputCellsT> mapper(cells);
       self->ScatteredKeys =
         vtk::keys::ScatterDense(mapper, static_cast<TId>(0), numPoints - 1, output);
-      SortSidesByCell sortSides;
-      vtk::keys::ForEachKeyRange(self->ScatteredKeys, output, sortSides);
+      if (self->DeterministicSideOrder)
+      {
+        SortSidesByCell sortSides;
+        vtk::keys::ForEachKeyRange(self->ScatteredKeys, output, sortSides);
+      }
     }
     else
     {
@@ -2017,6 +2020,7 @@ void vtkUnstructuredGridSides<TId, TSideId>::PrintSelf(ostream& os, vtkIndent in
   os << indent << "RemoveGhostInterfaces: " << this->RemoveGhostInterfaces << "\n";
   os << indent << "MaskedGhostTypes: " << static_cast<int>(this->MaskedGhostTypes) << "\n";
   os << indent << "MatchSidePoints: " << this->MatchSidePoints << "\n";
+  os << indent << "DeterministicSideOrder: " << this->DeterministicSideOrder << "\n";
   os << indent << "BuildMode: " << static_cast<int>(this->Mode) << "\n";
   os << indent << "NumberOfSides: " << this->GetNumberOfSides() << "\n";
   os << indent << "NumberOfKeys: " << this->GetNumberOfKeys() << "\n";
