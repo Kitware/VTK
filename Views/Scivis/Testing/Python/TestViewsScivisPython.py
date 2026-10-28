@@ -294,6 +294,99 @@ class TestBlocksAreIndexedByBlock(unittest.TestCase):
             blocks[0] in blocks
 
 
+class TestWidgetsReportValues(unittest.TestCase):
+    """The adders hand back the value the widget stands for, not the event."""
+
+    def setUp(self):
+        self.view = offscreen_view()
+        self.sphere = vtkSphereSource(radius=3.0)
+        self.view.show(self.sphere)
+        self.view.ResetCamera()
+        self.view.Render()
+
+    def test_container(self):
+        widgets = self.view.widgets
+        self.assertEqual(len(widgets), 0)
+        plane = widgets.AddPlane()
+        self.assertEqual(len(widgets), 1)
+        self.assertIs(widgets[0], plane)
+        self.assertEqual([type(w).__name__ for w in widgets], [type(plane).__name__])
+        with self.assertRaises(IndexError):
+            widgets[3]
+
+    def test_live_and_end_callbacks(self):
+        from vtkmodules.vtkCommonCore import vtkCommand
+
+        live, done = [], []
+        plane = self.view.widgets.AddPlane(
+            callback=lambda p: live.append(p), end_callback=lambda p: done.append(p))
+
+        plane.InvokeEvent(vtkCommand.InteractionEvent)
+        self.assertEqual(len(live), 1)
+        self.assertEqual(len(done), 0, "the end callback fired while dragging")
+
+        plane.InvokeEvent(vtkCommand.EndInteractionEvent)
+        self.assertEqual(len(live), 1, "the live callback fired again at the end")
+        self.assertEqual(len(done), 1)
+
+    def test_the_value_each_kind_reports(self):
+        from vtkmodules.vtkCommonCore import vtkCommand
+        from vtkmodules.vtkCommonDataModel import vtkPlane, vtkPolyData
+        from vtkmodules.vtkCommonTransforms import vtkTransform
+
+        seen = {}
+
+        def record(name):
+            return lambda value: seen.__setitem__(name, value)
+
+        widgets = self.view.widgets
+        made = {
+            "distance": widgets.AddDistance(callback=record("distance")),
+            "angle": widgets.AddAngle(callback=record("angle")),
+            "line": widgets.AddLine(callback=record("line")),
+            "plane": widgets.AddPlane(callback=record("plane")),
+            "box": widgets.AddBox(callback=record("box")),
+            "spline": widgets.AddSpline(callback=record("spline")),
+            # No AddCaption: enabling a vtkCaptionWidget offscreen segfaults
+            # in VTK on macOS, view or no view.
+        }
+        for widget in made.values():
+            widget.InvokeEvent(vtkCommand.InteractionEvent)
+
+        self.assertIsInstance(seen["distance"], float)
+        self.assertIsInstance(seen["angle"], float)
+        self.assertIsInstance(seen["plane"], vtkPlane)
+        self.assertIsInstance(seen["box"], vtkTransform)
+        self.assertIsInstance(seen["spline"], vtkPolyData)
+        self.assertEqual(len(seen["line"]), 2, "a line reports both of its ends")
+        self.assertEqual(len(seen["line"][0]), 3)
+        self.assertEqual(len(seen["line"][1]), 3)
+
+    def test_the_callback_outlives_the_call_that_made_it(self):
+        # VTK's AddObserver does not keep the Python callable alive, so the
+        # layer has to.  Without that this fires zero times after a collection.
+        import gc
+        from vtkmodules.vtkCommonCore import vtkCommand
+
+        fired = []
+        plane = self.view.widgets.AddPlane(callback=lambda p: fired.append(p))
+        gc.collect()
+        plane.InvokeEvent(vtkCommand.InteractionEvent)
+        self.assertEqual(len(fired), 1, "the callback was collected")
+
+    def test_a_widget_of_any_kind_can_be_added(self):
+        from vtkmodules.vtkInteractionWidgets import vtkBoxWidget2
+
+        box = vtkBoxWidget2()
+        self.view.widgets.Add(box)
+        self.assertEqual(len(self.view.widgets), 1)
+        self.assertTrue(box.GetEnabled())
+
+        self.view.widgets.Remove(box)
+        self.assertEqual(len(self.view.widgets), 0)
+        self.assertFalse(box.GetEnabled())
+
+
 class TestShow(unittest.TestCase):
     def test_builds_configures_and_adds(self):
         view = offscreen_view()

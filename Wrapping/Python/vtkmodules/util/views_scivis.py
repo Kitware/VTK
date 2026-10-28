@@ -32,6 +32,7 @@ from vtkmodules.vtkViewsScivis import (
     vtkLookupTableManager,
     vtkScivisScalarBars,
     vtkScivisView,
+    vtkScivisWidgets,
     vtkSurfaceRepresentation,
     vtkTextOverlayRepresentation,
     vtkVolumeRepresentation,
@@ -282,6 +283,127 @@ class ScalarBars(vtkScivisScalarBars):
         if isinstance(key, tuple):
             return self.GetActor(*key) is not None
         return any(self.GetArrayName(i) == key for i in range(self.GetNumberOfBars()))
+
+
+def _observe(widget, extract, callback, end_callback):
+    """Report what a widget is worth, rather than that it was interacted with.
+
+    VTK's AddObserver does not keep the Python callable alive, so the closures
+    are stashed on the widget; dropping them makes the callback stop firing with
+    nothing to show why.
+    """
+    from vtkmodules.vtkCommonCore import vtkCommand
+
+    kept = []
+    for event, function in (
+        (vtkCommand.InteractionEvent, callback),
+        (vtkCommand.EndInteractionEvent, end_callback),
+    ):
+        if function is None:
+            continue
+
+        def _fire(obj, _event, _function=function):
+            _function(extract(obj))
+
+        widget.AddObserver(event, _fire)
+        kept.append(_fire)
+
+    if kept:
+        widget._scivis_callbacks = getattr(widget, "_scivis_callbacks", []) + kept
+    return widget
+
+
+@vtkScivisWidgets.override
+class Widgets(vtkScivisWidgets):
+    """``vtkScivisWidgets`` as a sequence, whose adders take callbacks.
+
+    Each adder accepts ``callback`` and ``end_callback``.  The first is called
+    while the widget is being dragged, the second when the drag finishes --
+    which is the one to use when the work is expensive, such as re-executing a
+    filter.  Both are handed the value the widget stands for rather than the
+    event::
+
+        view.widgets.AddDistance(callback=lambda d: print(f"{d:.3f}"))
+        view.widgets.AddPlane(end_callback=clip.SetClipFunction)
+    """
+
+    def __len__(self):
+        return self.GetNumberOfWidgets()
+
+    def __getitem__(self, index):
+        if not 0 <= index < self.GetNumberOfWidgets():
+            raise IndexError(f"there is no widget {index}")
+        return self.GetWidget(index)
+
+    def AddDistance(self, callback=None, end_callback=None):
+        """A ruler the user clicks the ends of; reports the distance."""
+        widget = vtkScivisWidgets.AddDistance(self)
+        return _observe(widget, lambda w: w.GetDistanceRepresentation().GetDistance(),
+                        callback, end_callback)
+
+    def AddAngle(self, callback=None, end_callback=None):
+        """Three points the user clicks; reports the angle between them."""
+        widget = vtkScivisWidgets.AddAngle(self)
+        return _observe(widget, lambda w: w.GetAngleRepresentation().GetAngle(),
+                        callback, end_callback)
+
+    def AddCaption(self, text, x, y, z, callback=None, end_callback=None):
+        """A label pointing at a place; reports where it now points."""
+        widget = vtkScivisWidgets.AddCaption(self, text, x, y, z)
+        return _observe(
+            widget,
+            lambda w: tuple(w.GetRepresentation().GetCaptionActor2D().GetAttachmentPoint()),
+            callback, end_callback)
+
+    def AddLine(self, callback=None, end_callback=None):
+        """A line between two points; reports both, in world coordinates."""
+        widget = vtkScivisWidgets.AddLine(self)
+
+        def _ends(w):
+            representation = w.GetLineRepresentation()
+            return (tuple(representation.GetPoint1WorldPosition()),
+                    tuple(representation.GetPoint2WorldPosition()))
+
+        return _observe(widget, _ends, callback, end_callback)
+
+    def AddPlane(self, callback=None, end_callback=None):
+        """A plane to cut with; reports it as a vtkPlane, ready to clip by."""
+        widget = vtkScivisWidgets.AddPlane(self)
+
+        def _plane(w):
+            from vtkmodules.vtkCommonDataModel import vtkPlane
+
+            plane = vtkPlane()
+            w.GetImplicitPlaneRepresentation().GetPlane(plane)
+            return plane
+
+        return _observe(widget, _plane, callback, end_callback)
+
+    def AddBox(self, callback=None, end_callback=None):
+        """A box to crop to; reports the transform it has been dragged into."""
+        widget = vtkScivisWidgets.AddBox(self)
+
+        def _transform(w):
+            from vtkmodules.vtkCommonTransforms import vtkTransform
+
+            transform = vtkTransform()
+            w.GetRepresentation().GetTransform(transform)
+            return transform
+
+        return _observe(widget, _transform, callback, end_callback)
+
+    def AddSpline(self, handles=5, callback=None, end_callback=None):
+        """A spline through draggable handles; reports it as polydata."""
+        widget = vtkScivisWidgets.AddSpline(self, handles)
+
+        def _curve(w):
+            from vtkmodules.vtkCommonDataModel import vtkPolyData
+
+            curve = vtkPolyData()
+            w.GetRepresentation().GetPolyData(curve)
+            return curve
+
+        return _observe(widget, _curve, callback, end_callback)
 
 
 @vtkLookupTableManager.override

@@ -7,6 +7,7 @@ set(classes
   vtkScivisRepresentation
   vtkScivisScalarBars
   vtkScivisView
+  vtkScivisWidgets
   vtkScivisSelector
   vtkSurfaceRepresentation
   vtkTextOverlayRepresentation

@@ -14,13 +14,13 @@ The classes covered:
 * `vtkScivisRepresentation`, `vtkScivisDataRepresentation`, and their concrete
   forms, `vtkSurfaceRepresentation`, `vtkVolumeRepresentation`, and
   `vtkTextOverlayRepresentation`
-* `vtkScivisSelector`, `vtkScivisScalarBars`, `vtkScivisExporter`,
-  `vtkLookupTableManager`, and `vtkBlockProperties`
+* `vtkScivisSelector`, `vtkScivisScalarBars`, `vtkScivisWidgets`,
+  `vtkScivisExporter`, `vtkLookupTableManager`, and `vtkBlockProperties`
 
 Two notes on what serializes and deserializes with a view:
 
-* The scalar bars and the exporter are reached through the view but have no
-  setter, so they are excluded from the view's state. Serialize them directly
+* The scalar bars, the widgets and the exporter are reached through the view
+  but have no setter, so they are excluded from the view's state. Serialize them directly
   when their settings need to travel with a scene; their own methods remain
   callable through their invokers either way.
 * `vtkLookupTableManager` serializes its color scheme and table size. The
