@@ -22,6 +22,7 @@
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTable.h"
 #include <vtk_fmt.h>
 // clang-format off
@@ -829,7 +830,7 @@ vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetAllColumnNames()
       for (int i = 0; i < array->GetNumberOfComponents(); ++i)
       {
         const char* name = array->GetComponentName(i);
-        names->InsertNextValue(name ? name : std::to_string(i));
+        names->InsertNextValue(name ? name : vtk::to_string(i));
       }
     }
   }
@@ -904,7 +905,7 @@ vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::GetVisibleComponentsArray(v
   {
     // unnamed components get their index as name, same as GetAllColumnNames
     const char* compName = array->GetComponentName(c);
-    if (this->GetColumnVisibility(compName ? compName : std::to_string(c)))
+    if (this->GetColumnVisibility(compName ? compName : vtk::to_string(c)))
     {
       componentIndices.push_back(c);
     }

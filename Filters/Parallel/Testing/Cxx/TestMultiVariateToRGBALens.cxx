@@ -13,6 +13,7 @@
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkSmartPointer.h>
+#include <vtkStringFormatter.h>
 #include <vtkTable.h>
 #include <vtkTrivialProducer.h>
 
@@ -200,7 +201,7 @@ int TestMultiVariateToRGBALens(int, char*[])
   for (int c = 0; c < 3; ++c)
   {
     vtkNew<vtkDoubleArray> column;
-    column->SetName(std::to_string(c).c_str());
+    column->SetName(vtk::to_string(c).c_str());
     column->SetNumberOfTuples(10);
     for (vtkIdType i = 0; i < 10; ++i)
     {
