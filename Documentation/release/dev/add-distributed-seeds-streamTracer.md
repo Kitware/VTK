@@ -1,3 +1,5 @@
+## StreamTracer: add a distributed mode for the seed source.
+
 The vtkStreamTracer now support distributed seeds to be dispatched among ranks in a more VTK compatible scheme.
 Before, UseLocalSeed expected points only in piece 0 for each rank. Now using vtkStreamTracer::LocalSeedDistributed allow for seeds to be distributed among pieces. The previous behavior is still available (and used by default for compatibility) using vtkSTreamTracer::LocalSeedPartition0.
 

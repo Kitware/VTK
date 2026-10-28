@@ -491,7 +491,7 @@ public:
   };
 
   vtkGetMacro(UseLocalSeedSource, UseLocalSeed);
-  vtkSetMacro(UseLocalSeedSource, UseLocalSeed);
+  void SetUseLocalSeedSource(int);
 
   VTK_DEPRECATED_IN_9_8_0("Use: SetUseLocalSeed(vtkStreamTracer::LocalSeedDistributed)")
   void UseLocalSeedSourceOn() { this->SetUseLocalSeedSource(LocalSeedDistributed); }
