@@ -19,6 +19,7 @@ set(all_tests
   TestXMLHyperTreeGridReaderV2Bounds.cxx,NO_VALID
   TestXMLLargeUnstructuredGrid.cxx,NO_VALID
   TestXMLMappedUnstructuredGridIO.cxx,NO_DATA,NO_VALID
+  TestXMLMultiBlockDataReaderIndex.cxx,NO_DATA,NO_VALID
   TestXMLMultiBlockDataWriterWithEmptyLeaf.cxx,NO_DATA,NO_VALID
   TestXMLPieceDistribution.cxx
   TestXMLPolyhedronUnstructuredGrid.cxx,NO_DATA,NO_VALID
