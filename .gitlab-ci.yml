@@ -2943,7 +2943,6 @@ windows-vs2022-webgpu:test:
         - .windows_tester_tags
         - .cmake_test_artifacts
         - .rules
-        - .cdash_annotations_artifacts
     needs:
         - windows-vs2022-webgpu:build
 
@@ -2966,7 +2965,6 @@ windows-vs2022-kits-mpi-python-qt:test:
         - .windows_tester_tags
         - .cmake_test_artifacts
         - .rules
-        - .cdash_annotations_artifacts
     needs:
         - windows-vs2022-kits-mpi-python-qt:build
 
