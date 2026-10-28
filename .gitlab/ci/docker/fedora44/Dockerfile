@@ -1,6 +1,10 @@
 FROM fedora:44
 MAINTAINER Ben Boeckel <ben.boeckel@kitware.com>
 
+# Expose host NVIDIA drivers for CUDA, Vulkan, and X11 through the container runtime.
+ENV NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics,display
+
 COPY install_deps.sh /root/install_deps.sh
 RUN sh /root/install_deps.sh
 
@@ -36,6 +40,10 @@ RUN sh /root/install_openusd.sh
 
 COPY install_openvdb.sh /root/install_openvdb.sh
 RUN sh /root/install_openvdb.sh
+
+# The NVIDIA runtime mounts driver libraries but may omit Vulkan's ICD manifest.
+# The loader queries the mounted driver's actual API version at runtime.
+COPY nvidia_icd.json /etc/vulkan/icd.d/nvidia_icd.json
 
 # XXX(vpn): no stable URL for use in OptiX and MDL SDKs
 # COPY install_visrtx.sh /root/install_visrtx.sh

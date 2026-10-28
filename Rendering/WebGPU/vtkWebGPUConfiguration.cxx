@@ -589,7 +589,11 @@ bool vtkWebGPUConfiguration::Initialize()
   };
 
   // Populating limits of the device
-  internals.PopulateRequiredLimits(internals.Adapter);
+  if (!internals.PopulateRequiredLimits(internals.Adapter))
+  {
+    vtkErrorMacro(<< "Failed to query WebGPU adapter limits.");
+    return false;
+  }
   deviceDescriptor.requiredLimits = &internals.RequiredLimits;
 
   // Populating required features of the device

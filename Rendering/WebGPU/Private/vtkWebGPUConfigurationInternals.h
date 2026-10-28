@@ -51,10 +51,9 @@ public:
     vtkWebGPUConfiguration::PowerPreferenceType powerPreference);
 
   /**
-   * Stores the required limits needed for querying the device in the RequiredLimits attribute of
-   * this ConfigurationInternals
+   * Stores the adapter limits for device creation. Returns false if the query fails.
    */
-  void PopulateRequiredLimits(WGPUAdapter adapter);
+  bool PopulateRequiredLimits(WGPUAdapter adapter);
 
   /**
    * Stores the required features for querying the device in the RequiredFeatures vector of this
