@@ -116,6 +116,8 @@ int TestGlyph3DMapperCompositeDisplayAttributeInheritance(int argc, char* argv[]
     keyCommand->SetCallback(&::HideNextBlock);
     keyCommand->SetClientData(&bridge);
     iren->AddObserver(vtkCommand::KeyPressEvent, keyCommand);
+    renderer->ResetCamera();
+    renWin->Render();
     iren->Start();
   }
 

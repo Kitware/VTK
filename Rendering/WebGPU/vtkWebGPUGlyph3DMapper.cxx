@@ -20,6 +20,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkQuaternion.h"
 #include "vtkRenderer.h"
+#include "vtkStateStorage.h"
 #include "vtkTimeStamp.h"
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCellToPrimitiveConverter.h"
@@ -30,10 +31,43 @@
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 
+#include <algorithm>
 #include <sstream>
 #include <stack>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+//------------------------------------------------------------------------------
+// Returns true if any visible leaf below `dobj` has an opacity less than 1. Opacity
+// and visibility overrides are inherited by children, like in RenderChildren().
+bool HasTranslucentBlock(
+  vtkCompositeDataDisplayAttributes* cda, vtkDataObject* dobj, double opacity, bool visible)
+{
+  if (cda->HasBlockOpacity(dobj))
+  {
+    opacity = cda->GetBlockOpacity(dobj);
+  }
+  if (cda->HasBlockVisibility(dobj))
+  {
+    visible = cda->GetBlockVisibility(dobj);
+  }
+  if (auto* dObjTree = vtkDataObjectTree::SafeDownCast(dobj))
+  {
+    using Opts = vtk::DataObjectTreeOptions;
+    for (vtkDataObject* child : vtk::Range(dObjTree, Opts::None))
+    {
+      if (child && ::HasTranslucentBlock(cda, child, opacity, visible))
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+  return visible && opacity < 1.0;
+}
+}
 
 class vtkWebGPUGlyph3DMapperHelper : public vtkWebGPUPolyDataMapper
 {
@@ -992,6 +1026,11 @@ class vtkWebGPUGlyph3DMapper::vtkInternals
   RenderBlockState BlockState;
 
 public:
+  // Cached result of the block attributes translucency check, and the state it was computed for.
+  vtkStateStorage TranslucentState;
+  vtkStateStorage TempState;
+  bool HasTranslucentBlocks = false;
+
   vtkInternals(vtkWebGPUGlyph3DMapper* self)
     : Self(self)
   {
@@ -1769,6 +1808,44 @@ void vtkWebGPUGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
 void vtkWebGPUGlyph3DMapper::ReleaseGraphicsResources(vtkWindow* window)
 {
   this->Internals->ReleaseGraphicsResources(window);
+}
+
+//------------------------------------------------------------------------------
+vtkMTimeType vtkWebGPUGlyph3DMapper::GetMTime()
+{
+  if (this->BlockAttributes)
+  {
+    return std::max(this->Superclass::GetMTime(), this->BlockAttributes->GetMTime());
+  }
+  return this->Superclass::GetMTime();
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUGlyph3DMapper::HasTranslucentPolygonalGeometry()
+{
+  if (this->Superclass::HasTranslucentPolygonalGeometry())
+  {
+    return true;
+  }
+  vtkCompositeDataDisplayAttributes* cda = this->BlockAttributes;
+  auto* tree = vtkDataObjectTree::SafeDownCast(this->GetInputDataObject(0, 0));
+  if (cda == nullptr || tree == nullptr)
+  {
+    return false;
+  }
+  // Like vtkCompositePolyDataMapper, walk the blocks only when the block attributes
+  // or the input have changed.
+  auto& internals = (*this->Internals);
+  internals.TempState.Clear();
+  internals.TempState.Append(cda->GetMTime(), "cda mtime");
+  internals.TempState.Append(tree->GetMTime(), "input mtime");
+  if (internals.TranslucentState != internals.TempState)
+  {
+    internals.TranslucentState = internals.TempState;
+    internals.HasTranslucentBlocks =
+      ::HasTranslucentBlock(cda, tree, /*opacity=*/1.0, /*visible=*/true);
+  }
+  return internals.HasTranslucentBlocks;
 }
 
 //------------------------------------------------------------------------------

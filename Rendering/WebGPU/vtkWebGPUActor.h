@@ -41,9 +41,9 @@ public:
    * These methods are overridden to skip redundant checks
    * in different rendering stages.
    *
-   * If the mapper has already been checked for opaque geometry and the mapper
-   * has not been modified since the last check, this method uses the last result,
-   * instead of asking the mapper to check for opaque geometry again. The
+   * If the mapper has already been checked for opaque geometry and neither the mapper
+   * nor its input has been modified since the last check, this method uses the last
+   * result, instead of asking the mapper to check for opaque geometry again. The
    * HasTranslucentPolygonalGeometry() similarly checks and caches the result of
    * vtkMapper::HasTranslucentPolygonalGeometry()
    *
@@ -52,6 +52,8 @@ public:
   vtkTypeBool HasOpaqueGeometry() override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   ///@}
+
+  void SetMapper(vtkMapper* mapper) override;
 
 protected:
   vtkWebGPUActor();

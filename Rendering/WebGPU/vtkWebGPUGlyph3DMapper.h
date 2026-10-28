@@ -30,6 +30,18 @@ public:
   void Render(vtkRenderer* renderer, vtkActor* actor) override;
 
   /**
+   * Returns true if the superclass reports translucent geometry, or if any visible
+   * block of a composite input has an opacity less than 1 in the block attributes.
+   * The block attributes are checked only when they or the input was modified.
+   */
+  bool HasTranslucentPolygonalGeometry() override;
+
+  /**
+   * Overridden to include the block attributes' MTime.
+   */
+  vtkMTimeType GetMTime() override;
+
+  /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release.

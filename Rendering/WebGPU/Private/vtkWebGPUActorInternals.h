@@ -5,6 +5,7 @@
 #define vtkWebGPUActorInternals_h
 
 #include "Private/vtkWebGPUHandle.h"
+#include "vtkDataObject.h"
 #include "vtkMapper.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
@@ -110,15 +111,28 @@ public:
     bool GetValue() const { return Value; }
 
     /**
-     * Returns true if the timestamp of the cached value is older than the mapper's MTime.
+     * Returns true if the timestamp of the cached value is older than the mapper's MTime
+     * or the MTime of it's input data object.
      */
-    bool IsOutdated(vtkMapper* mapper) const { return mapper->GetMTime() > this->TimeStamp; }
+    bool IsOutdated(vtkMapper* mapper) const
+    {
+      if (mapper->GetMTime() > this->TimeStamp)
+      {
+        return true;
+      }
+      if (auto* inputDataObject = mapper->GetInputDataObject(0, 0))
+      {
+        return inputDataObject->GetMTime() > this->TimeStamp;
+      }
+      return false;
+    }
   };
 
   ActorBlock CachedActorInfo;
 
   MapperBooleanCache MapperHasOpaqueGeometry;
   MapperBooleanCache MapperHasTranslucentPolygonalGeometry;
+  vtkTimeStamp MapperSwappedTime;
 
   vtkNew<vtkMatrix4x4> MCWCMatrix;
   vtkNew<vtkMatrix3x3> NormalMatrix;
