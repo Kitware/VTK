@@ -1830,9 +1830,7 @@ double vtkImagePlaneWidget::GetSlicePosition()
   double planeNormal[3];
   this->PlaneSource->GetNormal(planeNormal);
 
-  double movement[3] = { planeOrigin[0] * planeNormal[0], planeOrigin[1] * planeNormal[1],
-    planeOrigin[2] * planeNormal[2] };
-  return vtkMath::Norm(movement);
+  return vtkMath::Dot(planeOrigin, planeNormal);
 }
 
 //------------------------------------------------------------------------------
