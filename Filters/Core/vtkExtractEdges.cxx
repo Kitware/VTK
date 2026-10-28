@@ -16,7 +16,7 @@
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPTools.h"
 #include "vtkStaticCleanUnstructuredGrid.h"
-#include "vtkStaticEdgeLocatorTemplate.h"
+#include "vtkStaticElementLocator.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -36,9 +36,8 @@ VTK_ABI_NAMESPACE_END
 // thread extracts all the edges from the cells it processes, and then
 // eventually composites / reduces them (including repeats) into a list which
 // is then sorted.  After sorting, duplicate edges are easily found, and only
-// one edge from the set of duplicate edges is output. This approach is
-// codified in the classes defined by vtkStaticEdgeLocatorTemplate, with
-// MergeEdges() being the essential method.
+// one edge from the set of duplicate edges is output. This approach is codified
+// in vtkStaticEdgeLocator, with GroupElements() being the essential method.
 //
 namespace
 { // anonymous
@@ -210,10 +209,10 @@ struct ExtractEdges
 
     // Now sort the edges with an edge locator. This will gather all duplicate
     // edges together and indicate the number of unique edges.
-    vtkStaticEdgeLocatorTemplate<vtkIdType, vtkIdType> edgeLoc;
-    vtkIdType totalEdges = 0;
-    const vtkIdType* edgeOffsets =
-      edgeLoc.MergeEdges(static_cast<vtkIdType>(edges.size()), edges.data(), totalEdges);
+    vtkStaticEdgeLocator<vtkIdType, vtkIdType> edgeLoc;
+    const auto& edgeGroups =
+      edgeLoc.GroupElements(static_cast<vtkIdType>(edges.size()), edges.data());
+    const vtkIdType totalEdges = edgeGroups.GetNumberOfGroups();
 
     // Allocate output VTK structures and construct the output lines.
     vtkNew<vtkIdTypeArray> conn;
@@ -222,12 +221,12 @@ struct ExtractEdges
 
     // In place lambda to do the threaded copying of edges
     vtkSMPTools::For(0, totalEdges,
-      [&edgeOffsets, &edges, connPtr](vtkIdType edgeId, vtkIdType endEdgeId)
+      [&edgeGroups, &edges, connPtr](vtkIdType edgeId, vtkIdType endEdgeId)
       {
         for (; edgeId < endEdgeId; ++edgeId)
         {
           vtkIdType* c = connPtr + 2 * edgeId;
-          const EdgeTupleType& edge = edges[edgeOffsets[edgeId]];
+          const EdgeTupleType& edge = edges[edgeGroups.GetGroupOffset(edgeId)];
           c[0] = edge.V0;
           c[1] = edge.V1;
         }
@@ -247,15 +246,16 @@ struct ExtractEdges
         totalEdges, this->InCD, this->OutCD, /*nullValue*/ 0.0, /*promote*/ false);
 
       vtkSMPTools::For(0, totalEdges,
-        [&edgeOffsets, &edges, &cellArrays](vtkIdType edgeId, vtkIdType endEdgeId)
+        [&edgeGroups, &edges, &cellArrays](vtkIdType edgeId, vtkIdType endEdgeId)
         {
           for (; edgeId < endEdgeId; ++edgeId)
           {
-            vtkIdType numEdges = edgeOffsets[edgeId + 1] - edgeOffsets[edgeId];
+            const vtkIdType numEdges = edgeGroups.GetGroupSize(edgeId);
+            const vtkIdType firstEdge = edgeGroups.GetGroupOffset(edgeId);
             vtkIdType cellId, minCellId = VTK_ID_MAX;
-            for (auto i = 0; i < numEdges; ++i)
+            for (vtkIdType i = 0; i < numEdges; ++i)
             {
-              const EdgeTupleType& edge = edges[edgeOffsets[edgeId] + i];
+              const EdgeTupleType& edge = edges[firstEdge + i];
               cellId = edge.Data;
               minCellId = (cellId < minCellId ? cellId : minCellId);
             }

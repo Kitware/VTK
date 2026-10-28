@@ -10,20 +10,40 @@
 #include "vtkHexahedron.h"
 #include "vtkIdList.h"
 #include "vtkLogger.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
+#include "vtkPentagonalPrism.h"
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
+#include <cmath>
 #include <utility>
 #include <vector>
 
 namespace
 {
+// The points of the edge of the built polyhedron `cell` with the 2 points `pts`, in the order of
+// `pts`, or none if it has no such edge: the edges of a polyhedron are those of vtkPolyhedron in
+// another order, see vtkCellTypeSides::PolyhedronCellSides.
+std::vector<vtkIdType> FindPolyhedronEdge(vtkGenericCell* cell, const std::vector<vtkIdType>& pts)
+{
+  for (int e = 0; pts.size() == 2 && e < cell->GetNumberOfEdges(); ++e)
+  {
+    vtkIdList* ids = cell->GetEdge(e)->GetPointIds();
+    if (std::minmax(ids->GetId(0), ids->GetId(1)) == std::minmax(pts[0], pts[1]))
+    {
+      return pts;
+    }
+  }
+  return {};
+}
+
 // Compare GetCellNumberOfEdges(), GetCellNumberOfFaces(), GetCellEdgePoints() and
 // GetCellFacePoints() with the edges and faces of the cells built by GetCell(), the faces of a
-// voxel, which are in the order of a polygon, in any order.
+// voxel, which are in the order of a polygon, in any order, and the edges of a polyhedron, which
+// are those of vtkPolyhedron in any order, see FindPolyhedronEdge().
 bool CompareSides(vtkUnstructuredGrid* ug)
 {
   vtkNew<vtkIdList> sidePts;
@@ -46,6 +66,8 @@ bool CompareSides(vtkUnstructuredGrid* ug)
     // side id of GetEdge() and GetFace().
     auto compare = [&](int sideDim, int numSides)
     {
+      const bool polyhedronEdges = cellType == VTK_POLYHEDRON && sideDim == 1;
+      std::vector<std::pair<vtkIdType, vtkIdType>> edges;
       for (int sideId = 0; sideId <= numSides; ++sideId)
       {
         if (sideDim == 1)
@@ -69,6 +91,14 @@ bool CompareSides(vtkUnstructuredGrid* ug)
           std::sort(pts.begin(), pts.end());
           std::sort(expected.begin(), expected.end());
         }
+        if (polyhedronEdges && sideId < numSides)
+        {
+          expected = FindPolyhedronEdge(cell, pts);
+          if (!expected.empty())
+          {
+            edges.emplace_back(std::minmax(pts[0], pts[1]));
+          }
+        }
         if (pts != expected)
         {
           vtkLog(ERROR,
@@ -76,6 +106,13 @@ bool CompareSides(vtkUnstructuredGrid* ug)
                                     << cellId);
           return false;
         }
+      }
+      // The edges of a polyhedron are distinct, so that they are all those of vtkPolyhedron.
+      std::sort(edges.begin(), edges.end());
+      if (std::unique(edges.begin(), edges.end()) != edges.end())
+      {
+        vtkLog(ERROR, "Repeated edges of polyhedron " << cellId);
+        return false;
       }
       return true;
     };
@@ -143,6 +180,35 @@ bool TestCubeCells()
   return true;
 }
 
+// A pentagonal prism as a polyhedron, whose faces are pentagons and quads, wound as those of
+// vtkPentagonalPrism.
+bool TestPolyhedron()
+{
+  vtkNew<vtkPoints> points;
+  for (int k = 0; k < 2; ++k)
+  {
+    for (int i = 0; i < 5; ++i)
+    {
+      points->InsertNextPoint(
+        std::cos(0.4 * vtkMath::Pi() * i), std::sin(0.4 * vtkMath::Pi() * i), k);
+    }
+  }
+  std::vector<vtkIdType> faces;
+  for (int f = 0; f < vtkPentagonalPrism::NumberOfFaces; ++f)
+  {
+    const vtkIdType* face = vtkPentagonalPrism::GetFaceArray(f);
+    const vtkIdType numFacePts =
+      std::find(face, face + vtkPentagonalPrism::MaximumFaceSize, -1) - face;
+    faces.push_back(numFacePts);
+    faces.insert(faces.end(), face, face + numFacePts);
+  }
+  const vtkIdType prism[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+  vtkNew<vtkUnstructuredGrid> ug;
+  ug->SetPoints(points);
+  ug->InsertNextCell(VTK_POLYHEDRON, 10, prism, vtkPentagonalPrism::NumberOfFaces, faces.data());
+  return CompareSides(ug);
+}
+
 // One cell of every cell type of a fixed size, of a polygon, and of cells built as a fallback,
 // with distinct points: point k of cell t is (t + 7 * k) % numPoints.
 // Exercises FixedSizeCellSides, PointListCellSides, TriangleStripCellSides,
@@ -190,7 +256,7 @@ int otherUnstructuredGrid(int, char*[])
 {
   int retVal = EXIT_SUCCESS;
 
-  if (!TestCubeCells() || !TestCellTypes())
+  if (!TestCubeCells() || !TestPolyhedron() || !TestCellTypes())
   {
     retVal = EXIT_FAILURE;
   }

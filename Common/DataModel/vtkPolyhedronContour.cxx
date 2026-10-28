@@ -1192,7 +1192,7 @@ void vtkPolyhedronContour::CountClip(vtkIdType numPointIds, const vtkIdType* poi
 void vtkPolyhedronContour::EmitClip(vtkIdType numPointIds, const vtkIdType* pointIds,
   vtkCellArray* polyhedronFaces, vtkDataArray* scalars, double isoValue, bool insideOut,
   vtkDataArray* pointMap, vtkIdType numberOfKeptPoints,
-  const vtkStaticEdgeLocatorTemplate<vtkIdType, double>& edgeLocator, vtkCellArray* outputCells,
+  const vtkStaticEdgeLocator<vtkIdType, double>& edgeLocator, vtkCellArray* outputCells,
   vtkCellArray* outputFaces)
 {
   outputCells->Reset();
@@ -1288,7 +1288,7 @@ void vtkPolyhedronContour::EmitClip(vtkIdType numPointIds, const vtkIdType* poin
     {
       vtkIdType g0 = pointIds[iv.OutsideVertex];
       vtkIdType g1 = pointIds[iv.InsideVertex];
-      vtkIdType edgeId = edgeLocator.IsInsertedEdge(g0, g1);
+      vtkIdType edgeId = edgeLocator.IsInsertedElement(g0, g1);
       if (edgeId >= 0)
       {
         isoToOutputId[i] = numberOfKeptPoints + edgeId;

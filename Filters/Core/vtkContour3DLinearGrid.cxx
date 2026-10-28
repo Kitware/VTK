@@ -31,7 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSpanSpace.h"
 #include "vtkStaticCellLinksTemplate.h"
-#include "vtkStaticEdgeLocatorTemplate.h"
+#include "vtkStaticElementLocator.h"
 #include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -87,7 +87,7 @@ vtkCxxSetObjectMacro(vtkContour3DLinearGrid, ScalarTree, vtkScalarTree);
 namespace
 {
 //========================= GENERAL PATH (POINT MERGING) =======================
-// Use vtkStaticEdgeLocatorTemplate for edge-based point merging. Processing is
+// Use vtkStaticElementLocator for edge-based point merging. Processing is
 // available with and without a scalar tree.
 
 //-----------------------------------------------------------------------------
@@ -103,14 +103,17 @@ struct EdgeDataType
 };
 
 //-----------------------------------------------------------------------------
-// An Edge with its two, a percentage value, and EdgeId
-template <typename IDType>
-using EdgeType = EdgeTuple<IDType, EdgeDataType<IDType>>;
-
-//-----------------------------------------------------------------------------
 // Edge Locator to store and search edges
 template <typename IDType>
-using EdgeLocatorType = vtkStaticEdgeLocatorTemplate<IDType, EdgeDataType<IDType>>;
+using EdgeLocatorType = vtkStaticEdgeLocator<IDType, EdgeDataType<IDType>>;
+
+template <typename IDType>
+using EdgeType = typename EdgeLocatorType<IDType>::ElementType;
+
+// The groups of equal edges, each giving one merged point. They are counted and located with
+// vtkIdType, since there can be more edges than IDType holds.
+template <typename IDType>
+using EdgeGroupsType = typename EdgeLocatorType<IDType>::GroupedElements;
 
 // Cell Max Case based on the number of points
 constexpr uint8_t CellMaxCase[9] = { 0, 1, 3, 7, 15, 31, 63, 127, 255 };
@@ -769,17 +772,18 @@ struct ProducePolys
   using MergeTupleType = EdgeType<IDType>;
 
   const MergeTupleType* MergeArray;
-  const IDType* Offsets;
+  const EdgeGroupsType<IDType>& Groups;
   vtkCellArray* Polys;
   vtkIdType TotalPts;
   vtkIdType TotalConnectivitySize;
   int NumThreadsUsed; // placeholder
   vtkContour3DLinearGrid* Filter;
 
-  ProducePolys(const MergeTupleType* merge, const IDType* offsets, vtkCellArray* polys,
-    vtkIdType totalPts, vtkIdType totalConnectivitySize, vtkContour3DLinearGrid* filter)
+  ProducePolys(const MergeTupleType* merge, const EdgeGroupsType<IDType>& groups,
+    vtkCellArray* polys, vtkIdType totalPts, vtkIdType totalConnectivitySize,
+    vtkContour3DLinearGrid* filter)
     : MergeArray(merge)
-    , Offsets(offsets)
+    , Groups(groups)
     , Polys(polys)
     , TotalPts(totalPts)
     , TotalConnectivitySize(totalConnectivitySize)
@@ -793,7 +797,8 @@ struct ProducePolys
     template <class OffsetsT, class ConnectivityT>
     void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType ptId,
       const vtkIdType endPtId, const vtkIdType ptOffset, const vtkIdType connOffset,
-      const IDType* offsets, const MergeTupleType* mergeArray, vtkContour3DLinearGrid* filter)
+      const EdgeGroupsType<IDType>& groups, const MergeTupleType* mergeArray,
+      vtkContour3DLinearGrid* filter)
     {
       using ValueType = GetAPIType<OffsetsT>;
       auto connRange = GetRange(conn);
@@ -813,10 +818,11 @@ struct ProducePolys
             break;
           }
         }
-        const IDType numPtsInGroup = offsets[ptId + 1] - offsets[ptId];
-        for (IDType i = 0; i < numPtsInGroup; ++i)
+        const vtkIdType numPtsInGroup = groups.GetGroupSize(ptId);
+        const vtkIdType firstEdge = groups.GetGroupOffset(ptId);
+        for (vtkIdType i = 0; i < numPtsInGroup; ++i)
         {
-          const IDType connIdx = mergeArray[offsets[ptId] + i].Data.EId + connOffset;
+          const IDType connIdx = mergeArray[firstEdge + i].Data.EId + connOffset;
           connRange[connIdx] = static_cast<ValueType>(ptId + ptOffset);
         } // for this group of coincident edges
       } // for all merged points
@@ -824,12 +830,12 @@ struct ProducePolys
   };
 
   // Loop over all merged points and update the ids of the triangle
-  // connectivity.  Offsets point to the beginning of a group of equal edges:
+  // connectivity.  The groups are the groups of equal edges:
   // all edges in the group are updated to the current merged point id.
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     this->Polys->Dispatch(Impl{}, ptId, endPtId, this->TotalPts, this->TotalConnectivitySize,
-      this->Offsets, this->MergeArray, this->Filter);
+      this->Groups, this->MergeArray, this->Filter);
   }
 };
 
@@ -844,18 +850,18 @@ struct ProducePoints
   TInputPointsArray* InPts;
   TOutputPointsArray* OutPts;
   const MergeTupleType* MergeArray;
-  const IDType* Offsets;
+  const EdgeGroupsType<IDType>& Groups;
   const vtkIdType TotalPrevPoints;
   const vtkIdType TotalOutputPoints;
 
   ProducePoints(vtkContour3DLinearGrid* filter, TInputPointsArray* inPts,
-    TOutputPointsArray* outPts, const MergeTupleType* merge, const IDType* offsets,
+    TOutputPointsArray* outPts, const MergeTupleType* merge, const EdgeGroupsType<IDType>& groups,
     vtkIdType totalPts)
     : Filter(filter)
     , InPts(inPts)
     , OutPts(outPts)
     , MergeArray(merge)
-    , Offsets(offsets)
+    , Groups(groups)
     , TotalPrevPoints(totalPts)
     , TotalOutputPoints(this->OutPts->GetNumberOfTuples())
   {
@@ -885,7 +891,7 @@ struct ProducePoints
           break;
         }
       }
-      mergeTuple = this->MergeArray + this->Offsets[ptId];
+      mergeTuple = this->MergeArray + this->Groups.GetGroupOffset(ptId);
       v0 = mergeTuple->V0;
       v1 = mergeTuple->V1;
       t = mergeTuple->Data.T;
@@ -910,10 +916,10 @@ struct ProducePointsWorker
   template <typename TInputPointsArray, typename TOutputPointsArray>
   void operator()(TInputPointsArray* inputPointsArray, TOutputPointsArray* outputPointsArray,
     vtkContour3DLinearGrid* filter, const EdgeTuple<TIds, EdgeDataType<TIds>>* mergeArray,
-    const TIds* offsets, vtkIdType totalPoints, vtkIdType numPts)
+    const EdgeGroupsType<TIds>& groups, vtkIdType totalPoints, vtkIdType numPts)
   {
     ProducePoints<TInputPointsArray, TOutputPointsArray, TIds> producePoints(
-      filter, inputPointsArray, outputPointsArray, mergeArray, offsets, totalPoints);
+      filter, inputPointsArray, outputPointsArray, mergeArray, groups, totalPoints);
     EXECUTE_SMPFOR(filter->GetSequentialProcessing(), numPts, producePoints);
   }
 };
@@ -924,15 +930,16 @@ template <typename TIds>
 struct ProducePointAttributes
 {
   const EdgeTuple<TIds, EdgeDataType<TIds>>* Edges; // all edges, sorted into groups of merged edges
-  const TIds* Offsets;                              // refer to single, unique, merged edge
-  ArrayList* Arrays;                                // carry list of attributes to interpolate
-  vtkIdType TotalPts; // total points / multiple contours computed previously
+  const EdgeGroupsType<TIds>& Groups; // the groups of equal edges, one per merged edge
+  ArrayList* Arrays;                  // carry list of attributes to interpolate
+  vtkIdType TotalPts;                 // total points / multiple contours computed previously
   vtkContour3DLinearGrid* Filter;
 
-  ProducePointAttributes(const EdgeTuple<TIds, EdgeDataType<TIds>>* mt, const TIds* offsets,
-    ArrayList* arrays, vtkIdType totalPts, vtkContour3DLinearGrid* filter)
+  ProducePointAttributes(const EdgeTuple<TIds, EdgeDataType<TIds>>* mt,
+    const EdgeGroupsType<TIds>& groups, ArrayList* arrays, vtkIdType totalPts,
+    vtkContour3DLinearGrid* filter)
     : Edges(mt)
-    , Offsets(offsets)
+    , Groups(groups)
     , Arrays(arrays)
     , TotalPts(totalPts)
     , Filter(filter)
@@ -960,7 +967,7 @@ struct ProducePointAttributes
           break;
         }
       }
-      mergeTuple = this->Edges + this->Offsets[ptId];
+      mergeTuple = this->Edges + this->Groups.GetGroupOffset(ptId);
       v0 = mergeTuple->V0;
       v1 = mergeTuple->V1;
       t = mergeTuple->Data.T;
@@ -1049,15 +1056,14 @@ void Process(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* outPts
     return;
   }
 
-  // Merge coincident edges. The Offsets refer to the single unique edge
-  // from the sorted group of duplicate edges.
-  vtkIdType numPts;
+  // Merge coincident edges. Every group of duplicate edges gives one point.
   EdgeLocatorType<TIds> loc;
-  const TIds* offsets = loc.MergeEdges(connectivitySize, mergeEdges, numPts);
+  const EdgeGroupsType<TIds>& groups = loc.GroupElements(connectivitySize, mergeEdges);
+  const vtkIdType numPts = groups.GetNumberOfGroups();
 
   // Generate polys.
   ProducePolys<TIds> producePolys(
-    mergeEdges, offsets, newPolys, totalPts, totalConnectivitySize, filter);
+    mergeEdges, groups, newPolys, totalPts, totalConnectivitySize, filter);
   EXECUTE_SMPFOR(filter->GetSequentialProcessing(), numPts, producePolys);
   numThreads = nt;
 
@@ -1068,10 +1074,10 @@ void Process(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* outPts
   using DispatcherProducePoints = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays,
     vtkArrayDispatch::AOSPointArrays>;
   if (!DispatcherProducePoints::Execute(inPts->GetData(), outPts->GetData(), producePointsWorker,
-        filter, mergeEdges, offsets, totalPts, numPts))
+        filter, mergeEdges, groups, totalPts, numPts))
   {
     producePointsWorker(
-      inPts->GetData(), outPts->GetData(), filter, mergeEdges, offsets, totalPts, numPts);
+      inPts->GetData(), outPts->GetData(), filter, mergeEdges, groups, totalPts, numPts);
   }
 
   // Now process point data attributes if requested
@@ -1095,7 +1101,7 @@ void Process(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* outPts
     {
       pointArrays->Realloc(totalPts + numPts);
     }
-    ProducePointAttributes<TIds> interpolate(mergeEdges, offsets, pointArrays, totalPts, filter);
+    ProducePointAttributes<TIds> interpolate(mergeEdges, groups, pointArrays, totalPts, filter);
     EXECUTE_SMPFOR(filter->GetSequentialProcessing(), numPts, interpolate);
 
     // interpolate cell data

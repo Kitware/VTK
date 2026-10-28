@@ -23,7 +23,7 @@
 #include "vtkSMPTools.h"
 #include "vtkSignedCharArray.h"
 #include "vtkStaticCellLocator.h"
-#include "vtkStaticEdgeLocatorTemplate.h"
+#include "vtkStaticElementLocator.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
@@ -161,7 +161,7 @@ enum PointClassification : int8_t
   OnEdge = 3,   // imprint pt is on an edge of a target cell
 };
 
-// EdgeTuple is defined in vtkStaticEdgeLocatorTemplate. It represented an
+// EdgeTuple is defined in vtkStaticElementLocator. It represents an
 // edge (V0,V1) with parametric coordinate T (i.e., Data) along the
 // edge. Note that V0 < V1.
 using vtkCellEdgeType = EdgeTuple<vtkIdType, double>;
@@ -294,13 +294,10 @@ struct vtkEdgeIntersectionList : public std::vector<vtkEdgeIntersection>
 };
 
 // Used to track imprint edges during the process of cell edge
-// intersection.
-struct vtkEmptyEdgeData
-{
-};
-using vtkTargetEdgeType = EdgeTuple<vtkIdType, vtkEmptyEdgeData>;
+// intersection. The edges have no data.
+using vtkTargetEdgeLocatorType = vtkStaticEdgeLocator<vtkIdType>;
+using vtkTargetEdgeType = vtkTargetEdgeLocatorType::ElementType;
 using vtkTargetEdgeList = std::vector<vtkTargetEdgeType>;
-using vtkTargetEdgeLocatorType = vtkStaticEdgeLocatorTemplate<vtkIdType, vtkEmptyEdgeData>;
 
 // An edge fragment is defined by two imprint points. These points may reside
 // in either global or local imprint point lists.
@@ -2040,15 +2037,15 @@ struct ProduceIntersectionPoints
             { // process each edge of this target cell
               vtkIdType vtStart = tPts[k];
               vtkIdType vtEnd = tPts[(k + 1) % tNPts];
-              tEdges.emplace_back(vtkTargetEdgeType(vtStart, vtEnd, {}));
+              tEdges.emplace_back(vtStart, vtEnd);
             }
           } // for all target cell candidates
 
           // To remove repeat target edges: Sort the target edges (i.e.,
           // group them together). Then process each target edge only once.
-          vtkIdType numTargetEdges;
-          const vtkIdType* tOffsets =
-            tLoc.MergeEdges(static_cast<vtkIdType>(tEdges.size()), tEdges.data(), numTargetEdges);
+          const auto& tGroups =
+            tLoc.GroupElements(static_cast<vtkIdType>(tEdges.size()), tEdges.data());
+          const vtkIdType numTargetEdges = tGroups.GetNumberOfGroups();
 
           // Finally intersect the current imprint edge with the candidate
           // target edges.  This has the side affect of adding new
@@ -2060,9 +2057,9 @@ struct ProduceIntersectionPoints
           edgeIntList.emplace_back(vtkEdgeIntersection(1.0, viEnd, this->PointList));
           const vtkTargetEdgeType* tEdge;
           int produceFragments = 0;
-          for (auto teNum = 0; teNum < numTargetEdges; ++teNum)
+          for (vtkIdType teNum = 0; teNum < numTargetEdges; ++teNum)
           {
-            tEdge = tEdges.data() + tOffsets[teNum];
+            tEdge = tEdges.data() + tGroups.GetGroupOffset(teNum);
             produceFragments |= this->IntersectEdge(pStart, pEnd, viStart, viEnd, xStart, xEnd,
               tEdge->V0, tEdge->V1, edgeNeighbors, edgeIntList, newPoints);
           } // for potential intersecting target edges

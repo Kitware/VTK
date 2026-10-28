@@ -30,8 +30,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkType.h"                  // For vtkIdType
 
-#include "vtkSmartPointer.h"              // For vtkSmartPointer
-#include "vtkStaticEdgeLocatorTemplate.h" // For vtkStaticEdgeLocatorTemplate
+#include "vtkSmartPointer.h"         // For vtkSmartPointer
+#include "vtkStaticElementLocator.h" // For vtkStaticElementLocator
 
 #include <array>         // For array
 #include <cstdint>       // For int64_t
@@ -125,7 +125,7 @@ public:
   //
   // - Contour: single-call ContourCell helper below.
   // - Clip: two-pass CountClip / EmitClip, where CountClip produces the edge
-  //   intersection list fed into a shared vtkStaticEdgeLocatorTemplate before
+  //   intersection list fed into a shared vtkStaticElementLocator before
   //   EmitClip writes final geometry with deduplicated iso-vertex IDs.
   //============================================================================
 
@@ -197,7 +197,7 @@ public:
   static void EmitClip(vtkIdType numPointIds, const vtkIdType* pointIds,
     vtkCellArray* polyhedronFaces, vtkDataArray* scalars, double isoValue, bool insideOut,
     vtkDataArray* pointMap, vtkIdType numberOfKeptPoints,
-    const vtkStaticEdgeLocatorTemplate<vtkIdType, double>& edgeLocator, vtkCellArray* outputCells,
+    const vtkStaticEdgeLocator<vtkIdType, double>& edgeLocator, vtkCellArray* outputCells,
     vtkCellArray* outputFaces);
 
 private:

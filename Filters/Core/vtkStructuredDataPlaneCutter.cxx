@@ -22,7 +22,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkSMPTools.h"
 #include "vtkSphereTree.h"
-#include "vtkStaticEdgeLocatorTemplate.h"
+#include "vtkStaticElementLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredCellArray.h"
 #include "vtkStructuredGrid.h"
@@ -245,14 +245,14 @@ using SliceBatch = vtkBatch<SliceBatchData>;
 using SliceBatches = vtkBatches<SliceBatchData>;
 
 //-----------------------------------------------------------------------------
-// An Edge with its two points and a percentage value
-template <typename TInputIdType>
-using EdgeType = EdgeTuple<TInputIdType, double>;
-
-//-----------------------------------------------------------------------------
 // Edge Locator to store and search edges
 template <typename TInputIdType>
-using EdgeLocatorType = vtkStaticEdgeLocatorTemplate<TInputIdType, double>;
+using EdgeLocatorType = vtkStaticEdgeLocator<TInputIdType, double>;
+
+//-----------------------------------------------------------------------------
+// An Edge with its two points and a percentage value
+template <typename TInputIdType>
+using EdgeType = typename EdgeLocatorType<TInputIdType>::ElementType;
 
 //-----------------------------------------------------------------------------
 constexpr int CASE_MASK[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
@@ -695,7 +695,7 @@ struct ExtractCellsStructuredFunctor
               pointIndex1 = static_cast<TInputIdType>(cellIds[point1Index]);
               pointIndex2 = static_cast<TInputIdType>(cellIds[point2Index]);
 
-              newCellIds[i] = this->EdgeLocator.IsInsertedEdge(pointIndex1, pointIndex2);
+              newCellIds[i] = this->EdgeLocator.IsInsertedElement(pointIndex1, pointIndex2);
               connectivity[cellsConnectivityOffset++] = static_cast<TOutputIdType>(newCellIds[i]);
             } // for all edges of polygon/triangle
             if (this->Interpolate)
@@ -829,7 +829,7 @@ vtkSmartPointer<vtkPolyData> SliceStructuredData(TGrid* inputGrid, vtkDataArray*
   {
     edgeLocator.BuildLocator(static_cast<vtkIdType>(edges.size()), edges.data());
   }
-  const TInputIdType numberOfEdges = edgeLocator.GetNumberOfEdges();
+  const TInputIdType numberOfEdges = edgeLocator.GetNumberOfElements();
 
   // Calculate total number of output points
   const vtkIdType numberOfOutputPoints = numberOfEdges;

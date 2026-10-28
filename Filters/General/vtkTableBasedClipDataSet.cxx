@@ -32,7 +32,7 @@
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
-#include "vtkStaticEdgeLocatorTemplate.h"
+#include "vtkStaticElementLocator.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -567,8 +567,8 @@ using TableBasedCellBatches = vtkBatches<TableBasedCellBatchData>;
 
 //-----------------------------------------------------------------------------
 // Edge Locator to store and search edges that stores two points and a percentage value
-using EdgeLocatorType = vtkStaticEdgeLocatorTemplate<vtkIdType, double>;
-using EdgeType = EdgeLocatorType::EdgeTupleType;
+using EdgeLocatorType = vtkStaticEdgeLocator<vtkIdType, double>;
+using EdgeType = EdgeLocatorType::ElementType;
 
 //-----------------------------------------------------------------------------
 // Evaluate unstructured cells and calculate connectivitySize, numberOfOutputCells,
@@ -1228,7 +1228,7 @@ struct ExtractCells
               pointIndex2 = static_cast<TInputIdType>(pointIndices[edgePoints[1]]);
 
               shapeIds[p] = static_cast<TOutputIdType>(this->NumberOfKeptPoints +
-                this->EdgeLocator.IsInsertedEdge(pointIndex1, pointIndex2));
+                this->EdgeLocator.IsInsertedElement(pointIndex1, pointIndex2));
             }
             else // pointIndex == MCCases::N0 // Centroid Point
             {
@@ -1481,7 +1481,7 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkTableBasedClipDataSet::ClipTDataSet(
   {
     edgeLocator.BuildLocator(static_cast<vtkIdType>(edges.size()), edges.data());
   }
-  const vtkIdType numberOfEdges = edgeLocator.GetNumberOfEdges();
+  const vtkIdType numberOfEdges = edgeLocator.GetNumberOfElements();
 
   // Calculate total number of output points
   const vtkIdType numberOfOutputPoints = numberOfKeptPoints + numberOfEdges + numberOfCentroids;

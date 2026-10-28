@@ -136,6 +136,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestGlobalStaticvtkObject.cxx
   TestInformationKeyLookup.cxx
   TestInherits.cxx
+  TestKeys.cxx
   TestLogger.cxx
   TestLoggerThreadName.cxx
   TestLookupTable.cxx

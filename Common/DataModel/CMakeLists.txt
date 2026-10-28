@@ -280,8 +280,7 @@ set(template_classes
   vtkMappedUnstructuredGridCellIterator
   vtkPeriodicDataArray
   vtkStaticCellLinksTemplate
-  vtkStaticEdgeLocatorTemplate
-  vtkStaticFaceHashLinksTemplate)
+  vtkStaticElementLocator)
 
 set(nowrap_classes
   vtkHyperTreeGridEntry
@@ -290,7 +289,8 @@ set(nowrap_classes
   vtkHyperTreeGridGeometryLevelEntry
   vtkHyperTreeGridGeometryUnlimitedLevelEntry
   vtkHyperTreeGridLevelEntry
-  vtkPolyhedronContour)
+  vtkPolyhedronContour
+  vtkUnstructuredGridSides)
 
 set(headers
   vtkCellGridResponder.h
@@ -306,6 +306,8 @@ set(headers
   vtkLabelMapLookup.h
   vtkLocatorInterface.h
   vtkRect.h
+  vtkStaticEdgeLocatorTemplate.h
+  vtkStaticFaceHashLinksTemplate.h
   vtkVector.h)
 
 set(nowrap_headers

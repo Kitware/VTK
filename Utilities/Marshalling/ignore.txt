@@ -101,6 +101,8 @@ Common/Core/vtkInformationVariantKey.h
 Common/Core/vtkInformationVariantVectorKey.h
 Common/Core/vtkInherits.h
 Common/Core/vtkInvoker.h
+Common/Core/vtkKeys.h
+Common/Core/vtkKeysTraits.h
 Common/Core/vtkLargeInteger.h
 Common/Core/vtkLegacy.h
 Common/Core/vtkLogger.h
@@ -425,6 +427,7 @@ Common/DataModel/vtkSphericalPointIterator.h
 Common/DataModel/vtkStaticCellLinksTemplate.h
 Common/DataModel/vtkStaticCellLocator.h
 Common/DataModel/vtkStaticEdgeLocatorTemplate.h
+Common/DataModel/vtkStaticElementLocator.h
 Common/DataModel/vtkStaticFaceHashLinksTemplate.h
 Common/DataModel/vtkStaticPointLocator.h
 Common/DataModel/vtkStaticPointLocator2D.h
@@ -448,6 +451,7 @@ Common/DataModel/vtkUniformGridAMR.h
 Common/DataModel/vtkUniformGridAMRIterator.h
 Common/DataModel/vtkUniformHyperTreeGrid.h
 Common/DataModel/vtkUnstructuredGridCellIterator.h
+Common/DataModel/vtkUnstructuredGridSides.h
 Common/DataModel/vtkVector.h
 Common/DataModel/vtkVertex.h
 Common/DataModel/vtkVertexListIterator.h
