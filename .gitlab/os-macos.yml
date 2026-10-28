@@ -54,12 +54,27 @@
         CMAKE_CONFIGURATION: wheel_macos314_arm64
         PYTHON_VERSION_SUFFIX: "3.14"
 
+.wheel_macos315_arm64:
+    extends: .wheel_macos_arm64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos315_arm64
+        PYTHON_VERSION_SUFFIX: "3.15"
+        _PYTHON_HOST_PLATFORM: "macosx-11.0-arm64"
+
 .wheel_macos314t_arm64:
     extends: .wheel_macos_arm64
 
     variables:
         CMAKE_CONFIGURATION: wheel_macos314t_arm64
         PYTHON_VERSION_SUFFIX: "3.14t"
+
+.wheel_macos315t_arm64:
+    extends: .wheel_macos_arm64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos315t_arm64
+        PYTHON_VERSION_SUFFIX: "3.15t"
 
 .wheel_macos_x86_64:
     extends: .macos
@@ -103,12 +118,27 @@
         CMAKE_CONFIGURATION: wheel_macos314_x86_64
         PYTHON_VERSION_SUFFIX: "3.14"
 
+.wheel_macos315_x86_64:
+    extends: .wheel_macos_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos315_x86_64
+        PYTHON_VERSION_SUFFIX: "3.15"
+        _PYTHON_HOST_PLATFORM: "macosx-10.10-x86_64"
+
 .wheel_macos314t_x86_64:
     extends: .wheel_macos_x86_64
 
     variables:
         CMAKE_CONFIGURATION: wheel_macos314t_x86_64
         PYTHON_VERSION_SUFFIX: "3.14t"
+
+.wheel_macos315t_x86_64:
+    extends: .wheel_macos_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_macos315t_x86_64
+        PYTHON_VERSION_SUFFIX: "3.15t"
 
 ### Build and test
 
