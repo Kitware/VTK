@@ -413,13 +413,19 @@ to the `External` stage of the CI pipeline by `@kwrobot`. Developers and
 reviewers should start jobs which make sense for the change using the following
 methods:
 
-- The first thing to check is that CI is enabled in your fork of VTK.
+- Before triggering CI, make sure your fork of VTK is public and CI/CD is
+  accessible to users who are not members of your fork. When processing
+  `Do: test`, `@kwrobot` queries pipelines in both your fork and the main VTK
+  project to find jobs to start. Restricting access to your fork's pipelines
+  can prevent the robot from processing this command.
 
- 1. Navigate to your fork (change the username in the URL): (https://gitlab.kitware.com/username/vtk/)
- 2. Click on `Settings > General`, then expand "Visibility, project features, permissions"
- 3. Make sure `Project Visibility` is `Public` and `CI/CD` is enabled for `Everyone With Access`
- 4. Click on `Settings > CI/CD`, then expand `General`
- 5. Make sure `Public Pipelines` is enabled
+  Project visibility and pipeline visibility are separate settings in GitLab.
+  Enable `Project-based pipeline visibility` and set CI/CD access to
+  `Everyone With Access` so the robot can query your fork's pipelines and
+  jobs. See
+  [GitLab's pipeline visibility documentation](https://gitlab.kitware.com/help/ci/pipelines/settings.md#change-which-users-can-view-your-pipelines)
+  for the current configuration instructions, including access for users
+  who are not project members.
 
 - The simplest way to trigger CI on a merge request is by adding a comment
   with a command among the [trailing lines](#trailing-lines):
