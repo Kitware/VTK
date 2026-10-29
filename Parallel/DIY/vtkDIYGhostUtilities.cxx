@@ -2467,7 +2467,8 @@ struct MatchingPointExtractor
     }
     else
     {
-      // We only use the locator if global point ids are not present.
+      // We only use the locator if global point ids are not present. It is built here, from a
+      // single thread, so that it can be queried from several threads.
       this->Locator->SetDataSet(surface);
       this->Locator->BuildLocator();
     }
@@ -2476,74 +2477,79 @@ struct MatchingPointExtractor
   template <class PointArrayT>
   void operator()(PointArrayT* points, vtkIdTypeArray* globalPointIds)
   {
-    std::vector<vtkIdType> inverseMap;
     auto sourcePointIdsRange = vtk::DataArrayValueRange<1>(this->SourcePointIds);
 
+    // The matching source point of every received point, -1 if there is none, found in parallel,
+    // by global id or within the tolerance, then listed in the order of the received points.
+    std::vector<vtkIdType> matchingPointIds;
     if (globalPointIds)
     {
       auto gidRange = vtk::DataArrayValueRange<1>(globalPointIds);
-
-      inverseMap.reserve(gidRange.size());
-      this->MatchingSourcePointIds->Reserve(gidRange.size());
-
-      using ConstRef = decltype(gidRange)::ConstReferenceType;
-
-      for (ConstRef gid : gidRange)
-      {
-        auto it = this->SourceGlobalPointIds.find(gid);
-        if (it != this->SourceGlobalPointIds.end())
+      matchingPointIds.resize(gidRange.size());
+      vtkSMPTools::For(0, gidRange.size(),
+        [&](vtkIdType begin, vtkIdType end)
         {
-          vtkIdType& matchingPointId = it->second;
-          this->MatchingSourcePointIds->InsertNextId(sourcePointIdsRange[matchingPointId]);
-          inverseMap.push_back(matchingPointId);
-        }
-      }
+          for (vtkIdType id = begin; id < end; ++id)
+          {
+            auto it = this->SourceGlobalPointIds.find(gidRange[id]);
+            matchingPointIds[id] = it != this->SourceGlobalPointIds.end() ? it->second : -1;
+          }
+        });
     }
     else
     {
       auto pointsRange = vtk::DataArrayTupleRange<3>(points);
-
-      inverseMap.reserve(pointsRange.size());
-      this->MatchingSourcePointIds->Reserve(pointsRange.size());
-
-      double p[3];
-      double dist2;
-
-      for (const auto point : pointsRange)
-      {
-        vtkMath::Assign(point, p);
-        vtkIdType closestPointId =
-          this->Locator->FindClosestPointWithinRadius(this->Tolerance, p, dist2);
-
-        if (closestPointId == -1)
+      matchingPointIds.resize(pointsRange.size());
+      vtkSMPTools::For(0, pointsRange.size(),
+        [&](vtkIdType begin, vtkIdType end)
         {
-          continue;
+          double p[3];
+          double dist2;
+          for (vtkIdType id = begin; id < end; ++id)
+          {
+            vtkMath::Assign(pointsRange[id], p);
+            matchingPointIds[id] =
+              this->Locator->FindClosestPointWithinRadius(this->Tolerance, p, dist2);
+          }
+        });
+    }
+
+    // The received points that match
+    vtkSmartPointer<vtkIdList> matchedIds =
+      ::SelectIds(static_cast<vtkIdType>(matchingPointIds.size()),
+        [&matchingPointIds](vtkIdType id) { return matchingPointIds[id] != -1; });
+    const vtkIdType numberOfMatchingPoints = matchedIds->GetNumberOfIds();
+
+    std::vector<vtkIdType> inverseMap(numberOfMatchingPoints);
+    this->MatchingSourcePointIds->SetNumberOfIds(numberOfMatchingPoints);
+    vtkSMPTools::For(0, numberOfMatchingPoints,
+      [&](vtkIdType begin, vtkIdType end)
+      {
+        for (vtkIdType id = begin; id < end; ++id)
+        {
+          const vtkIdType matchingPointId = matchingPointIds[matchedIds->GetId(id)];
+          this->MatchingSourcePointIds->SetId(id, sourcePointIdsRange[matchingPointId]);
+          inverseMap[id] = matchingPointId;
         }
+      });
+    std::vector<vtkIdType>().swap(matchingPointIds); // No longer needed
+    matchedIds = nullptr;                            // No longer needed
 
-        this->MatchingSourcePointIds->InsertNextId(sourcePointIdsRange[closestPointId]);
-        inverseMap.push_back(closestPointId);
-      }
-    }
+    vtkSMPTools::Sort(inverseMap.begin(), inverseMap.end());
 
-    this->RemappedMatchingReceivedPointIdsSortedLikeTarget->Reserve(inverseMap.size());
-    std::sort(inverseMap.begin(), inverseMap.end());
-
-    if (this->InputToOutputPointIdMap)
-    {
-      for (const vtkIdType& id : inverseMap)
+    vtkIdList* remappedIds = this->RemappedMatchingReceivedPointIdsSortedLikeTarget;
+    remappedIds->SetNumberOfIds(numberOfMatchingPoints);
+    vtkSMPTools::For(0, numberOfMatchingPoints,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        this->RemappedMatchingReceivedPointIdsSortedLikeTarget->InsertNextId(
-          this->InputToOutputPointIdMap->GetId(sourcePointIdsRange[id]));
-      }
-    }
-    else
-    {
-      for (const vtkIdType& id : inverseMap)
-      {
-        this->RemappedMatchingReceivedPointIdsSortedLikeTarget->InsertNextId(
-          sourcePointIdsRange[id]);
-      }
-    }
+        for (vtkIdType id = begin; id < end; ++id)
+        {
+          const vtkIdType sourcePointId = sourcePointIdsRange[inverseMap[id]];
+          remappedIds->SetId(id,
+            this->InputToOutputPointIdMap ? this->InputToOutputPointIdMap->GetId(sourcePointId)
+                                          : sourcePointId);
+        }
+      });
   }
 
   // Inputs
