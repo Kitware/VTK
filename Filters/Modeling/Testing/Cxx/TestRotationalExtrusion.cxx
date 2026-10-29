@@ -1,7 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// .SECTION Thanks
-// This test was written by Philippe Pebay, Kitware SAS 2011
 
 #include "vtkCamera.h"
 #include "vtkLineSource.h"
@@ -105,5 +103,5 @@ int TestRotationalExtrusion(int argc, char* argv[])
     iren->Start();
   }
 
-  return !retVal;
+  return retVal ? EXIT_SUCCESS : EXIT_FAILURE;
 }
