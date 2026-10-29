@@ -159,6 +159,23 @@ bool vtkXMLMultiBlockDataReader::IsBlockSelected(unsigned int compositeIndex)
            compositeIndex) != this->SelectedCompositeIds.end();
 }
 
+namespace
+{
+//------------------------------------------------------------------------------
+// Returns the value of the "index" attribute on `childXML`. When the attribute
+// is absent, the child is placed right after the highest index seen so far
+// among its siblings. `nextIndex` is updated accordingly. This depends only on
+// the XML, so every pass over the file assigns the same index to a child
+// regardless of the state of the composite dataset being filled.
+int GetChildIndex(vtkXMLDataElement* childXML, int& nextIndex)
+{
+  int index = nextIndex;
+  childXML->GetScalarAttribute("index", index);
+  nextIndex = std::max(nextIndex, index + 1);
+  return index;
+}
+}
+
 //------------------------------------------------------------------------------
 void vtkXMLMultiBlockDataReader::ReadCompositeInternal(vtkXMLDataElement* element,
   vtkCompositeDataSet* composite, const char* filePath, unsigned int& dataSetIndex,
@@ -182,6 +199,7 @@ void vtkXMLMultiBlockDataReader::ReadCompositeInternal(vtkXMLDataElement* elemen
     ? vtkXMLCompositeDataReader::CountNestedElements(element, "DataSet")
     : 0;
 
+  int nextIndex = 0;
   const unsigned int maxElems = element->GetNumberOfNestedElements();
   for (unsigned int cc = 0; cc < maxElems; ++cc)
   {
@@ -192,19 +210,7 @@ void vtkXMLMultiBlockDataReader::ReadCompositeInternal(vtkXMLDataElement* elemen
     }
     const char* tagName = childXML->GetName();
 
-    int index = 0;
-    if (!childXML->GetScalarAttribute("index", index))
-    {
-      // if index not in the structure file, then set up to add at the end
-      if (mb)
-      {
-        index = mb->GetNumberOfBlocks();
-      }
-      else if (mp)
-      {
-        index = mp->GetNumberOfPieces();
-      }
-    }
+    const int index = GetChildIndex(childXML, nextIndex);
     // child is a leaf node, read and insert.
     if (strcmp(tagName, "DataSet") == 0)
     {
@@ -232,7 +238,7 @@ void vtkXMLMultiBlockDataReader::ReadCompositeInternal(vtkXMLDataElement* elemen
     // Child is a multiblock dataset itself.
     else if (mb && strcmp(tagName, "Block") == 0)
     {
-      auto childDS = vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(cc));
+      auto childDS = vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(index));
       this->ReadCompositeInternal(childXML, childDS, filePath, dataSetIndex, compositeIndex);
     }
     // Child is a multipiece dataset.
@@ -240,7 +246,7 @@ void vtkXMLMultiBlockDataReader::ReadCompositeInternal(vtkXMLDataElement* elemen
     {
       // child can either be a vtkMultiBlockDataSet or vtkMultiPieceDataSet
       // see in FillMetaData why this can happen
-      auto childDS = vtkCompositeDataSet::SafeDownCast(mb->GetBlock(cc));
+      auto childDS = vtkCompositeDataSet::SafeDownCast(mb->GetBlock(index));
       this->ReadCompositeInternal(childXML, childDS, filePath, dataSetIndex, compositeIndex);
     }
     else
@@ -284,6 +290,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(metadata);
   vtkMultiPieceDataSet* mp = vtkMultiPieceDataSet::SafeDownCast(metadata);
 
+  int nextIndex = 0;
   const unsigned int maxElems = element->GetNumberOfNestedElements();
   for (unsigned int cc = 0; cc < maxElems; ++cc)
   {
@@ -294,19 +301,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(
     }
     const char* tagName = childXML->GetName();
 
-    int index = 0;
-    if (!childXML->GetScalarAttribute("index", index))
-    {
-      // if index not in the structure file, then set up to add at the end
-      if (mb)
-      {
-        index = mb->GetNumberOfBlocks();
-      }
-      else if (mp)
-      {
-        index = mp->GetNumberOfPieces();
-      }
-    }
+    const int index = GetChildIndex(childXML, nextIndex);
     // child is a leaf node, read and insert.
     if (strcmp(tagName, "DataSet") == 0)
     {
@@ -444,6 +439,7 @@ void vtkXMLMultiBlockDataReader::SyncCompositeDataArraySelections(
   auto mb = vtkMultiBlockDataSet::SafeDownCast(composite);
   auto mp = vtkMultiPieceDataSet::SafeDownCast(composite);
 
+  int nextIndex = 0;
   for (int cc = 0; cc < element->GetNumberOfNestedElements(); ++cc)
   {
     vtkXMLDataElement* childXML = element->GetNestedElement(cc);
@@ -453,19 +449,7 @@ void vtkXMLMultiBlockDataReader::SyncCompositeDataArraySelections(
     }
     const char* tagName = childXML->GetName();
 
-    int index = 0;
-    if (!childXML->GetScalarAttribute("index", index))
-    {
-      // if index not in the structure file, then set up to add at the end
-      if (mb)
-      {
-        index = mb->GetNumberOfBlocks();
-      }
-      else if (mp)
-      {
-        index = mp->GetNumberOfPieces();
-      }
-    }
+    const int index = GetChildIndex(childXML, nextIndex);
     if (strcmp(tagName, "DataSet") == 0)
     {
       if (mp && index > 0)
@@ -480,7 +464,7 @@ void vtkXMLMultiBlockDataReader::SyncCompositeDataArraySelections(
     }
     else
     {
-      auto childComposite = mb ? vtkCompositeDataSet::SafeDownCast(mb->GetBlock(cc)) : nullptr;
+      auto childComposite = mb ? vtkCompositeDataSet::SafeDownCast(mb->GetBlock(index)) : nullptr;
       if (childComposite)
       {
         this->SyncCompositeDataArraySelections(childComposite, childXML, filePath);
