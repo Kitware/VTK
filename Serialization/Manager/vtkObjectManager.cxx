@@ -762,14 +762,24 @@ void vtkObjectManager::UpdateStatesFromObjects(const std::vector<vtkTypeUInt32>&
   const auto invokerOwnershipKey = this->Invoker->GetObjectDescription();
   const auto invokerStrongObjectsIter = this->Context->StrongObjects().find(invokerOwnershipKey);
 
+  std::vector<vtkTypeUInt32> unionOfAllDeps;
+  for (const auto& identifier : identifiers)
+  {
+    const auto deps = this->GetAllDependencies(identifier);
+    std::copy(deps.begin(), deps.end(), std::back_inserter(unionOfAllDeps));
+  }
+  // Reset dependency cache as it will be rebuilt.
+  for (const auto& dep : unionOfAllDeps)
+  {
+    this->Context->ResetDirectDependenciesForNode(dep);
+  }
+  std::unordered_set<vtkTypeUInt32> covered;
   // for each identifier, serialize the object and mark it as kept alive where necessary.
   for (const auto& identifier : identifiers)
   {
-    const auto dependencies = this->GetAllDependencies(identifier);
-    for (const auto& depId : dependencies)
+    if (covered.find(identifier) != covered.end())
     {
-      // Reset dependency cache as it will be rebuilt.
-      this->Context->ResetDirectDependenciesForNode(depId);
+      continue;
     }
     // The concered strong objects go under the top level root node
     vtkMarshalContext::ScopedParentTracker rootNodeTracker(this->Context, vtkObjectManager::ROOT());
@@ -781,6 +791,7 @@ void vtkObjectManager::UpdateStatesFromObjects(const std::vector<vtkTypeUInt32>&
         if (this->Context->GetId(object) == identifier)
         {
           this->Serializer->SerializeJSON(object);
+          break;
         }
       }
     }
@@ -791,6 +802,7 @@ void vtkObjectManager::UpdateStatesFromObjects(const std::vector<vtkTypeUInt32>&
         if (this->Context->GetId(object) == identifier)
         {
           this->Serializer->SerializeJSON(object);
+          break;
         }
       }
     }
@@ -801,9 +813,12 @@ void vtkObjectManager::UpdateStatesFromObjects(const std::vector<vtkTypeUInt32>&
         if (this->Context->GetId(object) == identifier)
         {
           this->Serializer->SerializeJSON(object);
+          break;
         }
       }
     }
+    const auto deps = this->GetAllDependencies(identifier);
+    covered.insert(deps.begin(), deps.end());
   }
   // Remove unused states
   this->PruneUnusedStates();
