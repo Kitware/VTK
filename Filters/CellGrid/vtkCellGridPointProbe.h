@@ -7,9 +7,10 @@
  * Given the following
  * + an input polydata, P;
  * + an input cell-grid, C; and
- * + optionally, a cell-attribute, A, of input C
+ * + a selection of cell-attributes, A, of input C
  * produce an output polydata containing the
  * points from P that lie inside C and have values of A interpolated to them.
+ * The shape attribute of C is never interpolated.
  *
  * Each output point reports the index of the point of P it copies
  * ("InputPointIndex"), the cell containing it ("CellType" and
@@ -24,6 +25,7 @@
 #ifndef vtkCellGridPointProbe_h
 #define vtkCellGridPointProbe_h
 
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_8_0
 #include "vtkFiltersCellGridModule.h" // For export macro
 #include "vtkNew.h"                   // for ivar
 #include "vtkPolyDataAlgorithm.h"
@@ -31,6 +33,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkCellGridEvaluator;
+class vtkDataArraySelection;
 
 class VTKFILTERSCELLGRID_EXPORT vtkCellGridPointProbe : public vtkPolyDataAlgorithm
 {
@@ -46,11 +49,22 @@ public:
   /// the same result.
   void SetSourceConnection(vtkAlgorithmOutput* source);
 
-  /// Set/get the name of the generated vtkCellAttribute to interpolate.
+  /// Get the selection of the cell-attributes to interpolate.
   ///
-  /// If no value is provided, then no interpolation will be performed.
-  vtkSetStringMacro(AttributeName);
-  vtkGetStringMacro(AttributeName);
+  /// Enable none, one or several of the cell-attributes by name. If none is
+  /// enabled, the points are only classified.
+  vtkDataArraySelection* GetAttributeSelection() { return this->AttributeSelection; }
+
+  ///@{
+  /// Set/get the name of the vtkCellAttribute to interpolate.
+  ///
+  /// If no value is provided, then all cell-attributes except the shape
+  /// attribute are interpolated.
+  VTK_DEPRECATED_IN_9_8_0("Use GetAttributeSelection() instead")
+  void SetAttributeName(const char* name);
+  VTK_DEPRECATED_IN_9_8_0("Use GetAttributeSelection() instead")
+  const char* GetAttributeName();
+  ///@}
 
 protected:
   vtkCellGridPointProbe();
@@ -61,7 +75,7 @@ protected:
     vtkInformation* request, vtkInformationVector** inInfo, vtkInformationVector* ouInfo) override;
 
   vtkNew<vtkCellGridEvaluator> Request;
-  char* AttributeName{ nullptr };
+  vtkNew<vtkDataArraySelection> AttributeSelection;
 
 private:
   vtkCellGridPointProbe(const vtkCellGridPointProbe&) = delete;

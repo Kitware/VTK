@@ -1,19 +1,29 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+// Hide VTK_DEPRECATED_IN_9_8_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkCellGridPointProbe.h"
 
 #include "vtkCellArray.h"
 #include "vtkCellAttribute.h"
 #include "vtkCellGrid.h"
 #include "vtkCellGridEvaluator.h"
+#include "vtkCommand.h"
+#include "vtkDataArraySelection.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
 #include "vtkTypeUInt32Array.h"
+#include "vtkTypeUInt64Array.h"
 
 #include <numeric>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -22,12 +32,11 @@ vtkStandardNewMacro(vtkCellGridPointProbe);
 vtkCellGridPointProbe::vtkCellGridPointProbe()
 {
   this->SetNumberOfInputPorts(2);
+  this->AttributeSelection->AddObserver(
+    vtkCommand::ModifiedEvent, this, &vtkCellGridPointProbe::Modified);
 }
 
-vtkCellGridPointProbe::~vtkCellGridPointProbe()
-{
-  this->SetAttributeName(nullptr);
-}
+vtkCellGridPointProbe::~vtkCellGridPointProbe() = default;
 
 void vtkCellGridPointProbe::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -35,13 +44,34 @@ void vtkCellGridPointProbe::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Request:\n";
   auto i2 = indent.GetNextIndent();
   this->Request->PrintSelf(os, i2);
-  os << indent << "AttributeName: "
-     << (this->AttributeName && this->AttributeName[0] ? this->AttributeName : "(null)") << "\n";
+  os << indent << "AttributeSelection:\n";
+  this->AttributeSelection->PrintSelf(os, indent.GetNextIndent());
 }
 
 void vtkCellGridPointProbe::SetSourceConnection(vtkAlgorithmOutput* source)
 {
   this->SetInputConnection(1, source);
+}
+
+void vtkCellGridPointProbe::SetAttributeName(const char* name)
+{
+  this->AttributeSelection->DisableAllArrays();
+  if (name && name[0])
+  {
+    this->AttributeSelection->EnableArray(name);
+  }
+}
+
+const char* vtkCellGridPointProbe::GetAttributeName()
+{
+  for (int ii = 0; ii < this->AttributeSelection->GetNumberOfArrays(); ++ii)
+  {
+    if (this->AttributeSelection->GetArraySetting(ii))
+    {
+      return this->AttributeSelection->GetArrayName(ii);
+    }
+  }
+  return nullptr;
 }
 
 int vtkCellGridPointProbe::FillInputPortInformation(int port, vtkInformation* info)
@@ -72,29 +102,24 @@ int vtkCellGridPointProbe::RequestData(
     vtkErrorMacro("Output not allocated.");
     return 0;
   }
-  bool interpolate = true;
-  if (!this->AttributeName || !this->AttributeName[0])
+  std::vector<vtkCellAttribute*> attributes;
+  auto* shape = cellgrid->GetShapeAttribute();
+  for (const auto& attribute : cellgrid->GetCellAttributeList())
   {
-    interpolate = false;
-    vtkDebugMacro("No attribute name specified. Skipping interpolation.");
-  }
-  else
-  {
-    auto* attribute = cellgrid->GetCellAttributeByName(this->AttributeName);
-    if (attribute)
+    if (attribute != shape &&
+      this->AttributeSelection->ArrayIsEnabled(attribute->GetName().Data().c_str()))
     {
-      this->Request->SetCellAttribute(attribute);
-    }
-    else
-    {
-      vtkErrorMacro("No cell-attribute \"" << this->AttributeName << "\" exists.\n");
-      interpolate = false;
+      attributes.push_back(attribute);
     }
   }
 
+  // Without attributes, the points are only classified. A single attribute is
+  // interpolated along with the classification. Several are each interpolated
+  // afterwards from one classification.
   auto* inputPoints = polydata->GetPoints()->GetData();
-  if (interpolate)
+  if (attributes.size() == 1)
   {
+    this->Request->SetCellAttribute(attributes.front());
     this->Request->InterpolatePoints(inputPoints);
   }
   else
@@ -107,12 +132,12 @@ int vtkCellGridPointProbe::RequestData(
     vtkErrorMacro("Some input cells could not be probed.");
   }
 
+  // Hold the classification, as interpolating releases some of it.
   auto* summaryCellType = this->Request->GetClassifierCellTypes();
   auto* summaryCellOffsets = this->Request->GetClassifierCellOffsets();
   auto* inputPointIds = this->Request->GetClassifierPointIDs();
   auto* outputCellIds = this->Request->GetClassifierCellIndices();
   auto* outputCellParams = this->Request->GetClassifierPointParameters();
-  auto* outputValues = this->Request->GetInterpolatedValues();
 
   vtkIdType numCells = outputCellIds->GetNumberOfTuples();
   // create points
@@ -163,10 +188,32 @@ int vtkCellGridPointProbe::RequestData(
   pd->AddArray(inputPointIds);
   pd->AddArray(outputCellIds);
   pd->AddArray(outputCellParams);
-  if (interpolate)
+  if (attributes.empty())
   {
-    pd->AddArray(outputValues);
+    return 1;
+  }
+  if (attributes.size() == 1)
+  {
+    auto* outputValues = this->Request->GetInterpolatedValues();
     pd->SetScalars(outputValues);
+    return 1;
+  }
+  for (auto* attribute : attributes)
+  {
+    // A new array per attribute, as the evaluator would otherwise overwrite
+    // the values of the previous one.
+    vtkNew<vtkDoubleArray> outputValues;
+    this->Request->SetInterpolatedValues(outputValues);
+    this->Request->SetCellAttribute(attribute);
+    this->Request->InterpolateCellParameters(
+      summaryCellType, summaryCellOffsets, outputCellIds, outputCellParams);
+    if (!cellgrid->Query(this->Request))
+    {
+      vtkErrorMacro(
+        "Cell-attribute \"" << attribute->GetName().Data() << "\" could not be interpolated.");
+      continue;
+    }
+    pd->AddArray(outputValues);
   }
 
   return 1;
