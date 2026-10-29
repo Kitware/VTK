@@ -1106,8 +1106,16 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineAtEachCell(
   vtkSmartPointer<vtkPolyData> output;
   if (procid != 0)
   {
-    // Satellite nodes send their local polyline
-    this->Controller->Send(localMerger->GetOutput(), 0, MPI_COMMUNICATION_TAG);
+    // Satellite nodes send their local polyline. Empty polylines are not sent:
+    // they would be ignored by the merger anyway, and unmarshaling a dataset
+    // without points emits a spurious "No points read!" warning in
+    // vtkPolyDataReader.
+    vtkIdType numberOfPoints = localMerger->GetOutput()->GetNumberOfPoints();
+    this->Controller->Send(&numberOfPoints, 1, 0, MPI_COMMUNICATION_TAG);
+    if (numberOfPoints > 0)
+    {
+      this->Controller->Send(localMerger->GetOutput(), 0, MPI_COMMUNICATION_TAG);
+    }
 
     // Even though we don't need to merge the intersections on satellite nodes
     // we still want valid data attributes information on output of each nodes
@@ -1125,6 +1133,12 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::SampleLineAtEachCell(
 
     for (int distId = 1; distId < numProcs; ++distId)
     {
+      vtkIdType numberOfPoints = 0;
+      this->Controller->Receive(&numberOfPoints, 1, distId, MPI_COMMUNICATION_TAG);
+      if (numberOfPoints == 0)
+      {
+        continue;
+      }
       auto remotePolyline = vtkSmartPointer<vtkPolyData>::New();
       this->Controller->Receive(remotePolyline, distId, MPI_COMMUNICATION_TAG);
       merger->AddInputData(0, remotePolyline);
