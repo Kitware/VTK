@@ -275,6 +275,7 @@ set(classes
   vtkDebugLeaks
   vtkDebugLeaksManager
   vtkDeserializer
+  vtkDeviceArrayFactory
   vtkDoubleArray
   vtkDynamicLoader
   vtkEventForwarderCommand
@@ -432,6 +433,8 @@ set(sources
   vtkDataArray_ScalarRange.cxx
   vtkDataArray_SetTuple_array.cxx
   vtkDataArray_VectorRange.cxx
+  vtkDeviceDataArray.cxx
+  vtkDeviceMemory.cxx
 
   ${serialization_helper_sources}
   ${instantiation_sources}
@@ -513,7 +516,8 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h")
 
 set(private_headers
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h")
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h"
+  vtkDeviceMemory.h)
 
 set(templates
   vtkArrayIteratorTemplateImplicit.txx
@@ -523,6 +527,7 @@ set(templates
 
 set(private_templates
   vtkAffineImplicitBackend.txx
+  vtkDeviceDataArray.txx
   vtkDataArrayPrivate.txx)
 
 set(vtk_include_dirs)
@@ -614,6 +619,7 @@ endif ()
 set(nowrap_headers
   vtkAffineImplicitBackend.h
   vtkCollectionRange.h
+  vtkDeviceDataArray.h
   vtkConstantImplicitBackend.h
   vtkDataArrayAccessor.h
   vtkDataArrayTupleRange_AOS.h

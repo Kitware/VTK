@@ -669,6 +669,8 @@ const char* vtkAbstractArray::GetArrayTypeAsString(int arrayType)
       return "VTK_STRIDED_ARRAY";
     case vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY:
       return "VTK_STRUCTURED_POINT_ARRAY";
+    case vtkArrayTypes::VTK_DEVICE_DATA_ARRAY:
+      return "VTK_DEVICE_DATA_ARRAY";
   }
   return "Unknown";
 }

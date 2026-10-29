@@ -96,6 +96,9 @@ enum vtkArrayTypes
   VTK_STRIDED_ARRAY,
   VTK_STRUCTURED_POINT_ARRAY,
 
+  // GenericDataArray subclasses added later, kept here for ABI stability
+  VTK_DEVICE_DATA_ARRAY,
+
   VTK_NUM_ARRAY_TYPES,
 };
 
