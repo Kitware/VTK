@@ -497,7 +497,8 @@ public:
 
   //------------------------------------------------------------------------------
   void GetUnstructuredGridCells(std::size_t numberOfVariables, std::size_t numberCells,
-    const char* cellTypeStr, vtkUnstructuredGrid* unstrctGrid, const ZoneData& zd)
+    const char* cellTypeStr, vtkUnstructuredGrid* unstrctGrid, const ZoneData& zd,
+    const std::vector<int>& cellBased)
   {
     if (!cellTypeStr || !unstrctGrid)
     {
@@ -525,9 +526,10 @@ public:
       // fast read all the array variables to get to the position of the connectivity data
       // it can be optimized by storing this position in the ZoneData struct during the reading in
       // RequestInformation
-      for (int n = 0; n < connectivityZd.numNodes; n++)
+      for (std::size_t v = 0; v < numberOfVariables; v++)
       {
-        for (std::size_t v = 0; v < numberOfVariables; v++)
+        for (int n = 0;
+             n < (cellBased[v] == 0 ? connectivityZd.numNodes : connectivityZd.numElements); n++)
         {
           this->GetNextToken();
         }
@@ -1430,7 +1432,7 @@ void vtkTecplotReader::GetUnstructuredGridFromBlockPackingZone(
       numNodes, numCells, gridPnts, unstruct->GetPointData(), unstruct->GetCellData(), varToRead);
   }
   this->Internal->GetUnstructuredGridCells(
-    this->NumberOfVariables, numCells, cellType, unstruct, zd);
+    this->NumberOfVariables, numCells, cellType, unstruct, zd, this->CellBased);
 
   unstruct->SetPoints(gridPnts);
 
@@ -1475,7 +1477,7 @@ void vtkTecplotReader::GetUnstructuredGridFromPointPackingZone(
     this->GetArraysFromPointPackingZone(numNodes, gridPnts, unstruct->GetPointData(), varToRead);
   }
   this->Internal->GetUnstructuredGridCells(
-    this->NumberOfVariables, numCells, cellType, unstruct, zd);
+    this->NumberOfVariables, numCells, cellType, unstruct, zd, this->CellBased);
 
   unstruct->SetPoints(gridPnts);
 
@@ -1915,6 +1917,20 @@ void vtkTecplotReader::ReadFile(vtkInformation* outInfo)
         (this->Internal->YIdInList < 0) ? guessedYid : this->Internal->YIdInList;
       this->Internal->ZIdInList =
         (this->Internal->ZIdInList < 0) ? guessedZid : this->Internal->ZIdInList;
+
+      // Based on how many spatial coords we got, guess the spatial dim
+      if (this->Internal->XIdInList >= 0)
+      {
+        this->Internal->GeometryDim = 1;
+        if (this->Internal->YIdInList >= 0)
+        {
+          this->Internal->GeometryDim = 2;
+          if (this->Internal->ZIdInList >= 0)
+          {
+            this->Internal->GeometryDim = 3;
+          }
+        }
+      }
     }
     else if (tok == "ZONE")
     {
@@ -2062,7 +2078,7 @@ void vtkTecplotReader::ReadFile(vtkInformation* outInfo)
                 tok = this->Internal->GetNextToken();
                 if (tok == "CELLCENTERED")
                 {
-                  this->CellBased[singleVar->value()] = 1;
+                  this->CellBased[singleVar->value() - 1] = 1;
                 }
               }
               else
@@ -2352,9 +2368,10 @@ void vtkTecplotReader::ReadFile(vtkInformation* outInfo)
       if (!(std::istringstream(tok) >> val))
       {
         // UNKNOWN RECORD TYPE
-        vtkErrorMacro(<< this->FileName << ": The record type " << tok
-                      << " found in the file is unknown.");
-        return;
+        vtkWarningMacro(<< this->FileName << ": The record type " << tok
+                        << " found in the file is unknown.");
+        tok = this->Internal->GetNextToken();
+        continue;
       }
     }
 
