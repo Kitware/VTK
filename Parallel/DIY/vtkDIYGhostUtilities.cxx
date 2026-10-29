@@ -4882,57 +4882,36 @@ void DeepCopyInputAndAllocateGhostsForStructuredData(
  * - ConnectivityOffset: This is the current size of the connectivity array, before adding ghosts
  *   from their neighboring block.
  */
-template <class OffsetsT, class ConnectivityT>
+template <class SourceOffsetsT, class SourceConnectivityT, class TargetOffsetsT,
+  class TargetConnectivityT>
 struct CellArrayInserter
 {
-  CellArrayInserter(OffsetsT* srcOffsets, ConnectivityT* srcConnectivity, OffsetsT* dstOffsets,
-    ConnectivityT* dstConnectivity, vtkIdList* matchingReceivedPointIds,
-    const std::map<vtkIdType, vtkIdType>& redirectionMapForDuplicatePointIds,
-    const std::map<vtkIdType, vtkIdType>& pointIdOffsetIntervals, vtkIdType numberOfPointsInDest,
-    vtkIdType numberOfCellsInDest, vtkIdType connectivitySizeInDest)
-    : SourceOffsets(srcOffsets)
-    , SourceConnectivity(srcConnectivity)
-    , DestOffsets(dstOffsets)
-    , DestConnectivity(dstConnectivity)
-    , MatchingReceivedPointIds(matchingReceivedPointIds)
-    , RedirectionMapForDuplicatePointIds(redirectionMapForDuplicatePointIds)
-    , PointIdOffsetIntervals(pointIdOffsetIntervals)
-    , PointIdOffset(numberOfPointsInDest)
-    , CellIdOffset(numberOfCellsInDest)
-    , ConnectivityOffset(connectivitySizeInDest)
+  void operator()(vtkIdType startId, vtkIdType endId) const
   {
-    auto offsetsSource = vtk::DataArrayValueRange<1, vtkIdType>(this->SourceOffsets);
-    auto offsetsDest = vtk::DataArrayValueRange<1, vtkIdType>(this->DestOffsets);
-    auto numCells = srcOffsets->GetNumberOfValues() - 1;
-
-    // Last location of offsets will never be set in the loop, as it has
-    // numberOfCells + 1 values.
-    offsetsDest[this->CellIdOffset + numCells] =
-      offsetsDest[this->CellIdOffset] + offsetsSource[numCells];
-  }
-
-  void operator()(vtkIdType startId, vtkIdType endId)
-  {
-    auto offsetsSource = vtk::DataArrayValueRange<1, vtkIdType>(this->SourceOffsets);
-    auto connectivitySource = vtk::DataArrayValueRange<1, vtkIdType>(this->SourceConnectivity);
-    auto offsetsDest = vtk::DataArrayValueRange<1, vtkIdType>(this->DestOffsets);
-    auto connectivityDest = vtk::DataArrayValueRange<1, vtkIdType>(this->DestConnectivity);
+    using TargetOffsetT = vtk::GetAPIType<TargetOffsetsT>;
+    using TargetPointIdT = vtk::GetAPIType<TargetConnectivityT>;
+    auto sourceOffsets = vtk::DataArrayValueRange<1>(this->SourceOffsets);
+    auto sourceConnectivity = vtk::DataArrayValueRange<1>(this->SourceConnectivity);
+    auto targetOffsets = vtk::DataArrayValueRange<1>(this->TargetOffsets);
+    auto targetConnectivity = vtk::DataArrayValueRange<1>(this->TargetConnectivity);
 
     for (vtkIdType cellId = startId; cellId < endId; ++cellId)
     {
-      const auto& offset = offsetsSource[cellId];
-      const auto& nextOffset = offsetsSource[cellId + 1];
-      offsetsDest[this->CellIdOffset + cellId] = this->ConnectivityOffset + offset;
+      const vtkIdType offset = static_cast<vtkIdType>(sourceOffsets[cellId]);
+      const vtkIdType nextOffset = static_cast<vtkIdType>(sourceOffsets[cellId + 1]);
+      targetOffsets[this->CellIdOffset + cellId] =
+        static_cast<TargetOffsetT>(this->ConnectivityOffset + offset);
 
       for (vtkIdType id = offset; id < nextOffset; ++id)
       {
-        const auto& pointId = connectivitySource[id];
+        const vtkIdType pointId = static_cast<vtkIdType>(sourceConnectivity[id]);
         if (pointId >= 0)
         {
           if (this->RedirectionMapForDuplicatePointIds.empty())
           {
             // If we do not have duplicate points, we just add the received point naively.
-            connectivityDest[this->ConnectivityOffset + id] = this->PointIdOffset + pointId;
+            targetConnectivity[this->ConnectivityOffset + id] =
+              static_cast<TargetPointIdT>(this->PointIdOffset + pointId);
           }
           else
           {
@@ -4943,14 +4922,16 @@ struct CellArrayInserter
               // Here, pointId is not a duplicate, so we can add the received point almost
               // normally. We just have to watch out for the induced offset that previous duplicate
               // points might have caused.
-              connectivityDest[this->ConnectivityOffset + id] = this->PointIdOffset + pointId -
-                this->PointIdOffsetIntervals.lower_bound(pointId)->second;
+              targetConnectivity[this->ConnectivityOffset + id] =
+                static_cast<TargetPointIdT>(this->PointIdOffset + pointId -
+                  this->PointIdOffsetIntervals.lower_bound(pointId)->second);
             }
             else
             {
               // If pointId is a duplicate, we already own a copy of this point, and its index
               // is stored in the iterator we just fetched.
-              connectivityDest[this->ConnectivityOffset + id] = it->second;
+              targetConnectivity[this->ConnectivityOffset + id] =
+                static_cast<TargetPointIdT>(it->second);
             }
           }
         }
@@ -4960,24 +4941,24 @@ struct CellArrayInserter
           // between us and the block who sent us those ids. We have to retrieve where this point
           // is located.
           // We tagged those points by giving them a negative id.
-          connectivityDest[this->ConnectivityOffset + id] =
-            this->MatchingReceivedPointIds->GetId(-pointId - 1);
+          targetConnectivity[this->ConnectivityOffset + id] =
+            static_cast<TargetPointIdT>(this->MatchingReceivedPointIds->GetId(-pointId - 1));
         }
         else
         {
           vtkLog(ERROR,
             "Wrong output geometry... Ghosts should not be trusted."
               << " This is likely due to asymmetry between data shared between the partitions.");
-          connectivityDest[this->ConnectivityOffset + id] = 0;
+          targetConnectivity[this->ConnectivityOffset + id] = 0;
         }
       }
     }
   }
 
-  OffsetsT* SourceOffsets;
-  ConnectivityT* SourceConnectivity;
-  OffsetsT* DestOffsets;
-  ConnectivityT* DestConnectivity;
+  SourceOffsetsT* SourceOffsets;
+  SourceConnectivityT* SourceConnectivity;
+  TargetOffsetsT* TargetOffsets;
+  TargetConnectivityT* TargetConnectivity;
   vtkIdList* MatchingReceivedPointIds;
   const std::map<vtkIdType, vtkIdType>& RedirectionMapForDuplicatePointIds;
   const std::map<vtkIdType, vtkIdType>& PointIdOffsetIntervals;
@@ -4987,20 +4968,55 @@ struct CellArrayInserter
 };
 
 //----------------------------------------------------------------------------
+// The functor of vtkCellArray::Dispatch() for the received cells of InsertCells.
+template <class TargetOffsetsT, class TargetConnectivityT>
 struct InsertCellsWorker
 {
-  template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* srcOffsets, vtkDataArray* srcConnectivity, vtkDataArray* dstOffsets,
-    ConnectivityT* dstConnectivity, vtkIdList* matchingReceivedPointIds,
+  template <class SourceOffsetsT, class SourceConnectivityT>
+  void operator()(SourceOffsetsT* srcOffsets, SourceConnectivityT* srcConnectivity) const
+  {
+    using TargetOffsetT = vtk::GetAPIType<TargetOffsetsT>;
+    const vtkIdType numberOfCells = srcOffsets->GetNumberOfValues() - 1;
+
+    // Last location of offsets will never be set in the inserter, as it has
+    // numberOfCells + 1 values.
+    vtk::DataArrayValueRange<1>(this->TargetOffsets)[this->CellIdOffset + numberOfCells] =
+      static_cast<TargetOffsetT>(this->ConnectivityOffset +
+        static_cast<vtkIdType>(vtk::DataArrayValueRange<1>(srcOffsets)[numberOfCells]));
+
+    const ::CellArrayInserter<SourceOffsetsT, SourceConnectivityT, TargetOffsetsT,
+      TargetConnectivityT>
+      inserter{ srcOffsets, srcConnectivity, this->TargetOffsets, this->TargetConnectivity,
+        this->MatchingReceivedPointIds, this->RedirectionMapForDuplicatePointIds,
+        this->PointIdOffsetIntervals, this->PointIdOffset, this->CellIdOffset,
+        this->ConnectivityOffset };
+    vtkSMPTools::For(0, numberOfCells, inserter);
+  }
+
+  TargetOffsetsT* TargetOffsets;
+  TargetConnectivityT* TargetConnectivity;
+  vtkIdList* MatchingReceivedPointIds;
+  const std::map<vtkIdType, vtkIdType>& RedirectionMapForDuplicatePointIds;
+  const std::map<vtkIdType, vtkIdType>& PointIdOffsetIntervals;
+  vtkIdType PointIdOffset;
+  vtkIdType CellIdOffset;
+  vtkIdType ConnectivityOffset;
+};
+
+//----------------------------------------------------------------------------
+// The worker dispatched on the output offsets and connectivity of InsertCells.
+struct InsertCellsTargetWorker
+{
+  template <class TargetOffsetsT, class TargetConnectivityT>
+  void operator()(TargetOffsetsT* dstOffsets, TargetConnectivityT* dstConnectivity,
+    vtkCellArray* srcCells, vtkIdList* matchingReceivedPointIds,
     const std::map<vtkIdType, vtkIdType>& redirectionMapForDuplicatePointIds,
     const std::map<vtkIdType, vtkIdType>& pointIdOffsetIntervals, vtkIdType numberOfPointsInDest,
-    vtkIdType numberOfCellsInDest, vtkIdType connectivitySizeInDest)
+    vtkIdType numberOfCellsInDest, vtkIdType connectivitySizeInDest) const
   {
-    ::CellArrayInserter<OffsetsT, ConnectivityT> inserter(srcOffsets, srcConnectivity,
-      vtkArrayDownCast<OffsetsT>(dstOffsets), vtkArrayDownCast<ConnectivityT>(dstConnectivity),
-      matchingReceivedPointIds, redirectionMapForDuplicatePointIds, pointIdOffsetIntervals,
-      numberOfPointsInDest, numberOfCellsInDest, connectivitySizeInDest);
-    vtkSMPTools::For(0, srcOffsets->GetNumberOfValues() - 1, inserter);
+    srcCells->Dispatch(::InsertCellsWorker<TargetOffsetsT, TargetConnectivityT>{ dstOffsets,
+      dstConnectivity, matchingReceivedPointIds, redirectionMapForDuplicatePointIds,
+      pointIdOffsetIntervals, numberOfPointsInDest, numberOfCellsInDest, connectivitySizeInDest });
   }
 };
 
@@ -5016,18 +5032,17 @@ void InsertCells(vtkCellArray* srcCells, vtkCellArray* dstCells,
     return;
   }
 
-  InsertCellsWorker worker;
-  if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::OffsetsArrays,
-        vtkArrayDispatch::ConnectivityArrays>::Execute(srcCells->GetOffsetsArray(),
-        srcCells->GetConnectivityArray(), worker, dstCells->GetOffsetsArray(),
-        dstCells->GetConnectivityArray(), matchingReceivedPointIds,
+  // The output arrays are written, so they cannot be the implicit offsets of fixed size cells.
+  ::InsertCellsTargetWorker worker;
+  if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::ConnectivityArrays,
+        vtkArrayDispatch::ConnectivityArrays>::Execute(dstCells->GetOffsetsArray(),
+        dstCells->GetConnectivityArray(), worker, srcCells, matchingReceivedPointIds,
         redirectionMapForDuplicatePointIds, pointIdOffsetIntervals, numberOfPointsInDest,
         numberOfCellsInDest, connectivitySizeInDest))
   {
-    worker(srcCells->GetOffsetsArray(), srcCells->GetConnectivityArray(),
-      dstCells->GetOffsetsArray(), dstCells->GetConnectivityArray(), matchingReceivedPointIds,
-      redirectionMapForDuplicatePointIds, pointIdOffsetIntervals, numberOfPointsInDest,
-      numberOfCellsInDest, connectivitySizeInDest);
+    worker(dstCells->GetOffsetsArray(), dstCells->GetConnectivityArray(), srcCells,
+      matchingReceivedPointIds, redirectionMapForDuplicatePointIds, pointIdOffsetIntervals,
+      numberOfPointsInDest, numberOfCellsInDest, connectivitySizeInDest);
   }
 }
 
