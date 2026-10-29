@@ -35,3 +35,5 @@ TEST_DEPENDS
   VTK::TestingRendering
   VTK::RenderingCore
   VTK::RenderingOpenGL2
+TEST_OPTIONAL_DEPENDS
+  VTK::ParallelMPI

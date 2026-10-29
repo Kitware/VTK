@@ -12,3 +12,10 @@ vtk_add_test_cxx(vtkFiltersAMRCxxTests tests
   )
 
 vtk_test_cxx_executable(vtkFiltersAMRCxxTests tests)
+
+if (TARGET VTK::ParallelMPI)
+  set(vtkFiltersAMRCxxTests-MPI_NUMPROCS 2)
+  vtk_add_test_mpi(vtkFiltersAMRCxxTests-MPI mpi_tests
+    TestAMRInterfaceDistributed.cxx,NO_VALID)
+  vtk_test_cxx_executable(vtkFiltersAMRCxxTests-MPI mpi_tests)
+endif ()
