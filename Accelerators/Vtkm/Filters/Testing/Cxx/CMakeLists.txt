@@ -5,6 +5,7 @@ vtk_add_test_cxx(vtkAcceleratorsVTKmFiltersCxxTests tests
   TestVTKMCoordinateSystemTransform.cxx,NO_VALID
   TestVTKMClip.cxx
   TestVTKMClipWithImplicitFunction.cxx,NO_SERDES
+  TestVTKMDeviceResidentOutput.cxx,NO_VALID
   TestVTKMExternalFaces.cxx,NO_SERDES
   TestVTKMExtractVOI.cxx,NO_SERDES
   TestVTKMGradient.cxx,NO_VALID

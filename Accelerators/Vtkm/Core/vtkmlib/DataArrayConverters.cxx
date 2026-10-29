@@ -5,9 +5,11 @@
 #include "DataArrayConverters.hxx"
 
 #include "vtkmDataArray.h"
+#include "vtkmDataArrayUtilities.h"
 
 #include <viskores/cont/ArrayHandle.h>
 #include <viskores/cont/DataSet.h>
+#include <viskores/cont/DeviceAdapterList.h>
 
 #include "vtkDataArray.h"
 #include "vtkPoints.h"
@@ -17,20 +19,38 @@
 
 #include <iostream>
 
-// If the Viskores devices share memory with the host, then we can provide VTK with efficient
-// memory structures without unnecessary copies.
-// TODO: Provide a better way for Viskores to declare whether device arrays are unified.
-// TODO: Can we use unified memory with Kokkos?
-#if !defined(VISKORES_KOKKOS_CUDA) && !defined(VISKORES_KOKKOS_HIP)
-#define VISKORES_UNIFIED_MEMORY 1
-#endif
-
 namespace fromvtkm
 {
 VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
+
+// Whether the newest contents of a buffer exist only in GPU memory.
+//
+// Taking host ownership of such a buffer moves the whole array to the host:
+// a copy for device memory, a prefetch for CUDA managed memory. The next
+// Viskores filter then moves it straight back. Wrapping it in a vtkmDataArray
+// instead leaves it where it is until something reads it on the host.
+//
+// Data written by a host device -- serial, TBB, OpenMP, or Kokkos on a host
+// backend -- already lives in host memory, and taking ownership of it is free.
+// Which memory the Kokkos device has is a property of the build, so it is
+// asked rather than assumed from the backend macros, which say nothing about
+// SYCL.
+bool IsInGpuMemoryOnly(const viskores::cont::internal::Buffer& buffer)
+{
+  if (buffer.IsAllocatedOnHost())
+  {
+    return false;
+  }
+  if (buffer.IsAllocatedOnDevice(viskores::cont::DeviceAdapterTagCuda{}))
+  {
+    return true;
+  }
+  return buffer.IsAllocatedOnDevice(viskores::cont::DeviceAdapterTagKokkos{}) &&
+    vtkmDataArrayUtilities::GetDeviceMemorySpaceName() != nullptr;
+}
 
 struct ArrayConverter
 {
@@ -81,20 +101,15 @@ private:
     // Basic arrays have a single buffer containing the unadulterated data.
     viskores::cont::internal::Buffer buffer = componentsArray.GetBuffers()[0];
 
-    // If the Viskores device supports unified memory, then it is OK if the data are on the
-    // device. Getting the host pointer will just get the same pointer on the device, and the
-    // data will be paged in as requested (if ever requested). However, if the Viskores device
-    // does not support unified memory, then this will require a perhaps unnecessary memory
-    // copy. Instead, wrap the Viskores array in a vtkmDataArray. This may slow down VTK access
+    // Data that only exist on a GPU stay there, wrapped in a vtkmDataArray, so a pipeline
+    // of Viskores filters never round-trips through the host. This may slow down VTK access
     // if that is later needed. Note that it is possible for the data to be on both host
     // and device. In this case, the device data may get removed, but that seems like
     // a reasonable compromise.
-#ifndef VISKORES_UNIFIED_MEMORY
-    if (!buffer.IsAllocatedOnHost())
+    if (IsInGpuMemoryOnly(buffer))
     {
       return this->MakeVtkmData<T>(input);
     }
-#endif //! VISKORES_UNIFIED_MEMORY
 
     viskores::cont::internal::TransferredBuffer transfer = buffer.TakeHostBufferOwnership();
     auto srcMemory = reinterpret_cast<T*>(transfer.Memory);
@@ -157,20 +172,15 @@ private:
       // Basic arrays have a single buffer containing the unadulterated data.
       viskores::cont::internal::Buffer buffer = componentArray.GetBuffers()[0];
 
-      // If the Viskores device supports unified memory, then it is OK if the data are on the
-      // device. Getting the host pointer will just get the same pointer on the device, and the
-      // data will be paged in as requested (if ever requested). However, if the Viskores device
-      // does not support unified memory, then this will require a perhaps unnecessary memory
-      // copy. Instead, wrap the Viskores array in a vtkmDataArray. This may slow down VTK access
+      // Data that only exist on a GPU stay there, wrapped in a vtkmDataArray, so a pipeline
+      // of Viskores filters never round-trips through the host. This may slow down VTK access
       // if that is later needed. Note that it is possible for the data to be on both host
       // and device. In this case, the device data may get removed, but that seems like
       // a reasonable compromise.
-#ifndef VISKORES_UNIFIED_MEMORY
-      if ((cIndex == 0) && !buffer.IsAllocatedOnHost())
+      if ((cIndex == 0) && IsInGpuMemoryOnly(buffer))
       {
         return this->MakeVtkmData<T>(input);
       }
-#endif //! VISKORES_UNIFIED_MEMORY
 
       viskores::cont::internal::TransferredBuffer transfer = buffer.TakeHostBufferOwnership();
       auto srcMemory = reinterpret_cast<T*>(transfer.Memory);
