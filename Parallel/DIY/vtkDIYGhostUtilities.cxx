@@ -3909,7 +3909,7 @@ void DeepCopyPolyhedrons(
   vtkCellArray* cloneFaces = clone->GetPolyhedronFaces();
 
   vtkIdList* cellRedirectionMap = info.OutputToInputCellIdRedirectionMap;
-  vtkIdList* pointRedirectionMap = info.OutputToInputPointIdRedirectionMap;
+  vtkIdList* pointRedirectionMap = info.InputToOutputPointIdRedirectionMap;
 
   // Protection against mismatch storage
   if (ugFaceLocations->IsStorage64Bit() != ugFaces->IsStorage64Bit())
