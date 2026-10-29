@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDIYGhostUtilities.h"
 
-#include "vtkAlgorithm.h"
 #include "vtkArrayDispatch.h"
 #include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellData.h"
@@ -11,8 +10,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
-#include "vtkDataSetSurfaceFilter.h"
-#include "vtkFeatureEdges.h"
+#include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
@@ -26,15 +24,20 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataToUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkUnstructuredGridSides.h"
 
 #include <algorithm>
+#include <atomic>
+#include <memory>
 #include <numeric>
 #include <set>
 #include <tuple>
@@ -294,8 +297,7 @@ void ExchangeBlockStructuresForUnstructuredData(diy::Master& master)
     [](BlockType* block, const diy::Master::ProxyWithLink& cp)
     {
       BlockInformationType& info = block->Information;
-      vtkPointSet* interfacePoints =
-        vtkPointSet::SafeDownCast(info.InterfaceExtractor->GetOutputDataObject(0));
+      vtkPointSet* interfacePoints = info.Interface;
       vtkIdTypeArray* interfaceGlobalPointIds = info.InterfaceGlobalPointIds;
 
       for (int id = 0; id < cp.link()->size(); ++id)
@@ -1781,127 +1783,254 @@ template <class GridDataSetT>
   return linkMap;
 }
 
-//============================================================================
-struct ReplaceDuplicateByHiddenWorker
-{
-  ReplaceDuplicateByHiddenWorker(
-    vtkUnsignedCharArray* inputGhosts, vtkUnsignedCharArray* outputGhosts)
-    : InputGhosts(inputGhosts)
-    , OutputGhosts(outputGhosts)
-  {
-  }
-
-  void operator()(vtkIdType startId, vtkIdType endId)
-  {
-    auto inputGhostsRange = vtk::DataArrayValueRange<1>(this->InputGhosts);
-    auto outputGhostsRange = vtk::DataArrayValueRange<1>(this->OutputGhosts);
-
-    using ConstRef = decltype(inputGhostsRange)::ConstReferenceType;
-    using Ref = decltype(outputGhostsRange)::ReferenceType;
-
-    for (vtkIdType cellId = startId; cellId < endId; ++cellId)
-    {
-      ConstRef inputGhost = inputGhostsRange[cellId];
-      Ref outputGhost = outputGhostsRange[cellId];
-
-      if (inputGhost & vtkDataSetAttributes::CellGhostTypes::DUPLICATECELL)
-      {
-        outputGhost = vtkDataSetAttributes::CellGhostTypes::HIDDENCELL;
-      }
-      else
-      {
-        outputGhost = inputGhost;
-      }
-    }
-  }
-
-  vtkUnsignedCharArray* InputGhosts;
-  vtkUnsignedCharArray* OutputGhosts;
-};
-
 //----------------------------------------------------------------------------
-template <class PointSetT>
-vtkAlgorithm* InstantiateInterfaceExtractor(PointSetT* input);
-
-//----------------------------------------------------------------------------
-template <>
-vtkAlgorithm* InstantiateInterfaceExtractor<vtkUnstructuredGrid>(vtkUnstructuredGrid* input)
+// Flag in `onBoundary` the points of the sides `sideFlags` of the cells of `input` that no other
+// cell has, ignoring the ghost cells to peel, and all the points of its cells of dimension 2 or
+// less if preserveRenderableInputs is true. The sides are matched with vtkUnstructuredGridSides,
+// without cell links.
+template <typename TId, typename TSideId>
+void FlagBoundaryPoints(vtkUnstructuredGrid* input, int sideFlags, bool preserveRenderableInputs,
+  std::atomic<unsigned char>* onBoundary)
 {
-  vtkDataSetSurfaceFilter* extractor = vtkDataSetSurfaceFilter::New();
-  extractor->SetAllowInterpolation(false);
+  using Sides = vtkUnstructuredGridSides<TId, TSideId>;
+  vtkNew<Sides> sides;
+  sides->SetDataSet(input);
+  sides->SetOutputDimensionControl(sideFlags);
+  sides->SetPreserveRenderableInputs(preserveRenderableInputs);
+  sides->SetStrategy(Sides::SummaryStrategy::Boundary);
+  sides->SetMaskedGhostTypes(::GHOST_CELL_TO_PEEL_IN_UNSTRUCTURED_DATA);
+  sides->DeterministicSideOrderOff();
+  sides->RemoveGhostInterfacesOff();
+  sides->BuildReducedSides();
 
-  // This part is a hack to keep global point ids on the output of the surface filter.
-  // It would be too messy to change its behavior, so what we do is we untag the global id
-  // array so it gets copied in the output.
-  vtkNew<vtkUnstructuredGrid> untaggedGIDInput;
-  untaggedGIDInput->ShallowCopy(input);
-  auto globalIds = vtkArrayDownCast<vtkIdTypeArray>(input->GetPointData()->GetGlobalIds());
-  vtkPointData* untaggedGIDInputPD = untaggedGIDInput->GetPointData();
-  untaggedGIDInputPD->SetGlobalIds(nullptr);
-  untaggedGIDInputPD->AddArray(globalIds);
-
-  if (vtkUnsignedCharArray* inputGhosts = input->GetCellGhostArray())
-  {
-    // We create a temporary unstructured grid in which we replace the ghost cell array.
-    // Every ghost marked as duplicate is replaced by a ghost marked as hidden.
-    vtkNew<vtkUnstructuredGrid> tmp;
-    tmp->CopyStructure(untaggedGIDInput);
-
-    vtkIdType numberOfCells = input->GetNumberOfCells();
-
-    vtkCellData* cd = tmp->GetCellData();
-    vtkPointData* pd = tmp->GetPointData();
-    vtkFieldData* fd = tmp->GetFieldData();
-
-    vtkCellData* inputCD = untaggedGIDInput->GetCellData();
-
-    pd->CopyAllOn();
-    pd->ShallowCopy(untaggedGIDInputPD);
-    fd->ShallowCopy(untaggedGIDInput->GetFieldData());
-    cd->CopyStructure(inputCD);
-
-    for (int arrayId = 0; arrayId < cd->GetNumberOfArrays(); ++arrayId)
+  vtkSMPThreadLocalObject<vtkIdList> tlSidePoints;
+  vtkSMPThreadLocalObject<vtkIdList> tlCellPoints;
+  vtkSMPThreadLocalObject<vtkGenericCell> tlCell;
+  vtkSMPTools::For(0, static_cast<vtkIdType>(sides->GetNumberOfKeys()),
+    [&](vtkIdType begin, vtkIdType end)
     {
-      vtkDataArray* inputArray = inputCD->GetArray(arrayId);
-      vtkDataArray* outputArray = cd->GetArray(arrayId);
-      if (inputGhosts != inputArray)
+      vtkIdList* sidePoints = tlSidePoints.Local();
+      vtkIdList* cellPoints = tlCellPoints.Local();
+      vtkGenericCell* cell = tlCell.Local();
+      unsigned char cellType;
+      for (vtkIdType id = begin; id < end; ++id)
       {
-        outputArray->ShallowCopy(inputArray);
+        const auto keyId = static_cast<TId>(id);
+        for (vtkIdType k = 0; k < sides->GetNumberOfSidesOfKey(keyId); ++k)
+        {
+          sides->GetSidePoints(keyId, k, sidePoints, cellType, cellPoints, cell);
+          for (vtkIdType pointId : *sidePoints)
+          {
+            // memory_order_relaxed is safe, the flags are not used for synchronization.
+            onBoundary[pointId].store(1, std::memory_order_relaxed);
+          }
+        }
       }
-      else
-      {
-        outputArray->SetNumberOfTuples(numberOfCells);
-      }
-    }
-
-    ::ReplaceDuplicateByHiddenWorker worker(inputGhosts, tmp->GetCellGhostArray());
-
-    vtkSMPTools::For(0, numberOfCells, worker);
-
-    extractor->SetInputData(tmp);
-  }
-  else
-  {
-    extractor->SetInputData(untaggedGIDInput);
-  }
-
-  return extractor;
+    });
 }
 
 //----------------------------------------------------------------------------
-template <>
-vtkAlgorithm* InstantiateInterfaceExtractor<vtkPolyData>(vtkPolyData* input)
+// See FlagBoundaryPoints above. The sides are matched with 32-bit ids when they fit, and with
+// 32-bit local side ids only for the faces of polyhedra, which may be more than 127.
+void FlagBoundaryPoints(vtkUnstructuredGrid* input, int sideFlags, bool preserveRenderableInputs,
+  std::atomic<unsigned char>* onBoundary)
 {
-  vtkFeatureEdges* extractor = vtkFeatureEdges::New();
-  extractor->BoundaryEdgesOn();
-  extractor->FeatureEdgesOff();
-  extractor->NonManifoldEdgesOff();
-  extractor->PassLinesOn();
-  extractor->ColoringOff();
-  extractor->RemoveGhostInterfacesOff();
-  extractor->SetInputData(input);
+  vtkPolyhedronCellArray* polyhedra = input->GetPolyhedronCellArray();
+  const bool hasPolyhedra = polyhedra && polyhedra->GetNumberOfFaces() > 0;
+  const bool fitsInt32 = input->GetNumberOfPoints() <= VTK_TYPE_INT32_MAX &&
+    input->GetNumberOfCells() <= VTK_TYPE_INT32_MAX;
+  if (fitsInt32 && !hasPolyhedra)
+  {
+    ::FlagBoundaryPoints<vtkTypeInt32, vtkTypeInt8>(
+      input, sideFlags, preserveRenderableInputs, onBoundary);
+  }
+  else if (fitsInt32)
+  {
+    ::FlagBoundaryPoints<vtkTypeInt32, vtkTypeInt32>(
+      input, sideFlags, preserveRenderableInputs, onBoundary);
+  }
+  else if (!hasPolyhedra)
+  {
+    ::FlagBoundaryPoints<vtkTypeInt64, vtkTypeInt8>(
+      input, sideFlags, preserveRenderableInputs, onBoundary);
+  }
+  else
+  {
+    ::FlagBoundaryPoints<vtkTypeInt64, vtkTypeInt32>(
+      input, sideFlags, preserveRenderableInputs, onBoundary);
+  }
+}
 
-  return extractor;
+//----------------------------------------------------------------------------
+// The ids in [0, num) for which isSelected(id) is true, in increasing order. The selected ids are
+// counted per block, then every block writes its ids, so that no array of num offsets is needed
+// (see SelectIds in vtkResolveHangingNodes). isSelected is called twice per id, from several
+// threads, so it must be cheap and give the same result both times.
+template <typename PredicateT>
+vtkSmartPointer<vtkIdList> SelectIds(vtkIdType num, PredicateT isSelected)
+{
+  constexpr vtkIdType blockSize = 8192;
+  const vtkIdType numBlocks = (num + blockSize - 1) / blockSize;
+  // The last entry is 0, so that the scan sets it to the number of selected ids.
+  std::vector<vtkIdType> blockOffsets(numBlocks + 1, 0);
+  vtkSMPTools::For(0, numBlocks,
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      for (vtkIdType b = begin; b < end; ++b)
+      {
+        const vtkIdType last = std::min((b + 1) * blockSize, num);
+        vtkIdType count = 0;
+        for (vtkIdType id = b * blockSize; id < last; ++id)
+        {
+          count += isSelected(id) ? 1 : 0;
+        }
+        blockOffsets[b] = count;
+      }
+    });
+  const vtkIdType numSelected =
+    vtkSMPTools::ExclusiveScan(blockOffsets.begin(), blockOffsets.end(), static_cast<vtkIdType>(0));
+
+  auto ids = vtkSmartPointer<vtkIdList>::New();
+  ids->SetNumberOfIds(numSelected);
+  vtkIdType* idsPtr = ids->GetPointer(0);
+  vtkSMPTools::For(0, numBlocks,
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      for (vtkIdType b = begin; b < end; ++b)
+      {
+        const vtkIdType last = std::min((b + 1) * blockSize, num);
+        vtkIdType next = blockOffsets[b];
+        for (vtkIdType id = b * blockSize; id < last; ++id)
+        {
+          if (isSelected(id))
+          {
+            idsPtr[next++] = id;
+          }
+        }
+      }
+    });
+  return ids;
+}
+
+//----------------------------------------------------------------------------
+// The ids of the `num` flags that are set, in increasing order. memory_order_relaxed is safe, the
+// flags are set before and are not used for synchronization.
+vtkSmartPointer<vtkIdList> SelectFlaggedIds(const std::atomic<unsigned char>* flags, vtkIdType num)
+{
+  return ::SelectIds(
+    num, [flags](vtkIdType id) { return flags[id].load(std::memory_order_relaxed) != 0; });
+}
+
+//----------------------------------------------------------------------------
+// The points `pointIds` of `input`, with their ids in LOCAL_POINT_IDS_ARRAY_NAME and their global
+// ids, if any, as a vtkPolyData without cells. The ids of `pointIds` are moved to the output, which
+// leaves it empty.
+vtkSmartPointer<vtkPointSet> ExtractInterfacePoints(vtkPointSet* input, vtkIdList* pointIds)
+{
+  auto interfacePoints = vtkSmartPointer<vtkPolyData>::New();
+  const vtkIdType numberOfInterfacePoints = pointIds->GetNumberOfIds();
+
+  vtkNew<vtkPoints> points;
+  points->SetDataType(input->GetPoints()->GetDataType());
+  points->SetNumberOfPoints(numberOfInterfacePoints);
+  input->GetPoints()->GetData()->GetTuples(pointIds, points->GetData());
+  interfacePoints->SetPoints(points);
+
+  // The global ids are a plain array, found by the name of the global ids of the input.
+  if (vtkDataArray* globalIds = input->GetPointData()->GetGlobalIds())
+  {
+    auto interfaceGlobalIds = vtk::TakeSmartPointer(globalIds->NewInstance());
+    interfaceGlobalIds->SetName(globalIds->GetName());
+    interfaceGlobalIds->SetNumberOfTuples(numberOfInterfacePoints);
+    globalIds->GetTuples(pointIds, interfaceGlobalIds);
+    interfacePoints->GetPointData()->AddArray(interfaceGlobalIds);
+  }
+
+  // The local ids, without copy: pointIds is no longer needed.
+  vtkNew<vtkIdTypeArray> localPointIds;
+  localPointIds->SetName(LOCAL_POINT_IDS_ARRAY_NAME);
+  localPointIds->SetArray(pointIds->Release(), numberOfInterfacePoints, /*save*/ 0,
+    vtkIdTypeArray::VTK_DATA_ARRAY_DELETE);
+  interfacePoints->GetPointData()->AddArray(localPointIds);
+  return interfacePoints;
+}
+
+//----------------------------------------------------------------------------
+// The interface of `input`, the points that may be shared with its neighbors: the points of its
+// boundary, as the surface of vtkGeometryFilter, i.e., the points of the faces of its 3D cells
+// that no other cell has, and all the points of its other cells (see FlagBoundaryPoints and
+// ExtractInterfacePoints).
+vtkSmartPointer<vtkPointSet> ExtractInterface(vtkUnstructuredGrid* input)
+{
+  const vtkIdType numberOfPoints = input->GetNumberOfPoints();
+  if (!input->GetPoints() || input->GetNumberOfCells() == 0)
+  {
+    return vtkSmartPointer<vtkPolyData>::New();
+  }
+  std::unique_ptr<std::atomic<unsigned char>[]> onBoundary(
+    new std::atomic<unsigned char>[numberOfPoints]());
+  ::FlagBoundaryPoints(
+    input, vtkCellGridSidesQuery::SideFlags::SurfacesOfVolumes, true, onBoundary.get());
+  return ::ExtractInterfacePoints(input, ::SelectFlaggedIds(onBoundary.get(), numberOfPoints));
+}
+
+//----------------------------------------------------------------------------
+// Flag in `onBoundary` the points of the lines of `input`, ignoring the ghost cells to peel.
+void FlagLinePoints(vtkPolyData* input, std::atomic<unsigned char>* onBoundary)
+{
+  vtkCellArray* lines = input->GetLines();
+  vtkUnsignedCharArray* ghosts = input->GetCellGhostArray();
+  // The lines follow the vertices in the cells of `input`.
+  const vtkIdType firstCellId = input->GetNumberOfVerts();
+  vtkSMPThreadLocalObject<vtkIdList> tlLine;
+  vtkSMPTools::For(0, lines->GetNumberOfCells(),
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      vtkIdList* tmpLine = tlLine.Local();
+      vtkIdType npts;
+      const vtkIdType* pts;
+      for (vtkIdType lineId = begin; lineId < end; ++lineId)
+      {
+        if (ghosts &&
+          (ghosts->GetValue(firstCellId + lineId) & ::GHOST_CELL_TO_PEEL_IN_UNSTRUCTURED_DATA))
+        {
+          continue;
+        }
+        lines->GetCellAtId(lineId, npts, pts, tmpLine);
+        for (vtkIdType i = 0; i < npts; ++i)
+        {
+          // memory_order_relaxed is safe, the flags are not used for synchronization.
+          onBoundary[pts[i]].store(1, std::memory_order_relaxed);
+        }
+      }
+    });
+}
+
+//----------------------------------------------------------------------------
+// The interface of `input`, see ExtractInterface for vtkUnstructuredGrid: the points of the edges
+// of its polygons and triangle strips that no other one has, and of its lines, as vtkFeatureEdges
+// with BoundaryEdgesOn and PassLinesOn.
+vtkSmartPointer<vtkPointSet> ExtractInterface(vtkPolyData* input)
+{
+  const vtkIdType numberOfPoints = input->GetNumberOfPoints();
+  if (!input->GetPoints() || input->GetNumberOfCells() == 0)
+  {
+    return vtkSmartPointer<vtkPolyData>::New();
+  }
+  std::unique_ptr<std::atomic<unsigned char>[]> onBoundary(
+    new std::atomic<unsigned char>[numberOfPoints]());
+  if (input->GetNumberOfPolys() || input->GetNumberOfStrips())
+  {
+    // The cells as a vtkUnstructuredGrid, with the same points and ghost types. The vertices and
+    // the lines have no edge side.
+    vtkNew<vtkPolyDataToUnstructuredGrid> converter;
+    converter->SetInputData(input);
+    converter->Update();
+    ::FlagBoundaryPoints(converter->GetOutput(), vtkCellGridSidesQuery::SideFlags::EdgesOfSurfaces,
+      false, onBoundary.get());
+  }
+  ::FlagLinePoints(input, onBoundary.get());
+  return ::ExtractInterfacePoints(input, ::SelectFlaggedIds(onBoundary.get(), numberOfPoints));
 }
 
 //============================================================================
@@ -2267,24 +2396,9 @@ void InitializeBlocksForUnstructuredData(diy::Master& master, std::vector<PointS
       information.NumberOfInputCells = input->GetNumberOfCells();
     }
 
-    // We tag points with a local id, then we extract the crust of the input.
-    vtkNew<vtkAffineArray<vtkIdType>> pointIds;
-    pointIds->ConstructBackend(1, 0);
-    pointIds->SetName(LOCAL_POINT_IDS_ARRAY_NAME);
-    pointIds->SetNumberOfComponents(1);
-    pointIds->SetNumberOfTuples(input->GetNumberOfPoints());
-
-    vtkNew<PointSetT> inputWithLocalPointIds;
-    inputWithLocalPointIds->ShallowCopy(input);
-    inputWithLocalPointIds->GetPointData()->AddArray(pointIds);
-
-    information.InterfaceExtractor = vtkSmartPointer<vtkAlgorithm>::Take(
-      ::InstantiateInterfaceExtractor<PointSetT>(inputWithLocalPointIds));
-
-    vtkAlgorithm* interfaceFilter = information.InterfaceExtractor;
-    interfaceFilter->Update();
-
-    vtkPointSet* surface = vtkPointSet::SafeDownCast(interfaceFilter->GetOutputDataObject(0));
+    // The points that may be shared with the neighbors, with their local ids.
+    information.Interface = ::ExtractInterface(input);
+    vtkPointSet* surface = information.Interface;
 
     information.InterfacePoints =
       surface->GetNumberOfPoints() ? surface->GetPoints()->GetData() : nullptr;
@@ -3010,8 +3124,7 @@ template <class PointSetT>
     vtkIdTypeArray* globalPointIds = info.InterfaceGlobalPointIds;
     ::Links& localLinks = linkMap[localId];
 
-    ::MatchingPointExtractor matchingPointExtractor(info.InterfacePointIds,
-      vtkPointSet::SafeDownCast(info.InterfaceExtractor->GetOutputDataObject(0)),
+    ::MatchingPointExtractor matchingPointExtractor(info.InterfacePointIds, info.Interface,
       info.InterfacePoints, globalPointIds, info.InputToOutputPointIdRedirectionMap, tolerance);
 
     for (auto it = blockStructures.begin(); it != blockStructures.end();)

@@ -83,7 +83,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
-class vtkAlgorithm;
 class vtkCellArray;
 class vtkDataArray;
 class vtkDataSet;
@@ -445,11 +444,11 @@ protected:
     ///@}
 
     /**
-     * Filter that is being used to extract the surface of the input.
-     * The surface is used to check how the interface of the input matches the ones of its
-     * neighboring blocks.
+     * The interface of the input: the points of its surface, which may be shared with its
+     * neighboring blocks, with their local ids. It is used to check how the interface of the input
+     * matches the ones of its neighboring blocks.
      */
-    vtkSmartPointer<vtkAlgorithm> InterfaceExtractor;
+    vtkSmartPointer<vtkPointSet> Interface;
 
     /**
      * Handle to the local point ids of the surface of the input.

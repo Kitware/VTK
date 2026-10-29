@@ -13,7 +13,6 @@
 #include "vtkDIYUtilities.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkDataSetSurfaceFilter.h"
 #include "vtkFieldData.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
