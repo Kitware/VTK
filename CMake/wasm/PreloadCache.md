@@ -32,25 +32,8 @@ git checkout .gitlab/ci/configure_wasm_common.cmake
 ```
 
 ```bash
-SCRATCH=$HOME/vtk-wasm-cacheprobe
-mkdir -p "$SCRATCH"
-docker run --rm \
-  -v /path/to/vtk:/work:Z \
-  -v "$SCRATCH":/output:Z \
-  -w /work \
-  kitware/vtk:ci-fedora44-<tag> \
-  bash -c '
-    set -e
-    export CMAKE_CONFIGURATION=wasm64_emscripten_linux   # or wasm32_emscripten_linux
-    # ... bootstrap cmake/ninja/node/emsdk as needed (installs into /work/.gitlab)
-    export PATH="/tmp/shim:$PATH"                        # sccache passthrough shim
-    export CMAKE_BUILD_TYPE=Release
-    BUILD=/output/build-${CMAKE_CONFIGURATION}-cacheprobe
-    emcmake cmake -G Ninja -S /work -B "$BUILD" \
-      -C /work/.gitlab/ci/configure_${CMAKE_CONFIGURATION}.cmake \
-      -DVTK_BUILD_TESTING=OFF
-    python3 /work/CMake/wasm/generate_emscripten_cache.py --build-dir "$BUILD"
-  '
+./CMake/wasm/run_harvest.sh 32 # generates cache for 32-bit wasm
+./CMake/wasm/run_harvest.sh 64 # generates cache for 64-bit wasm
 ```
 
 ## 2. What `generate_emscripten_cache.py` does
