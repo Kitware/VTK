@@ -95,6 +95,7 @@ class vtkMultiProcessController;
 class vtkPoints;
 class vtkPointSet;
 class vtkPolyData;
+class vtkPolyhedronCellArray;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
 class vtkUnsignedCharArray;
@@ -578,8 +579,10 @@ protected:
      */
     vtkIdType CurrentConnectivitySize = 0;
 
-    vtkCellArray* Faces = nullptr;
-    vtkCellArray* FaceLocations = nullptr;
+    /**
+     * The polyhedra of the input, nullptr if it has none.
+     */
+    vtkPolyhedronCellArray* Polyhedra = nullptr;
 
     vtkUnstructuredGrid* Input;
 
@@ -607,8 +610,7 @@ protected:
     struct TopologyBufferType
     {
       vtkSmartPointer<vtkUnsignedCharArray> Types = nullptr;
-      vtkSmartPointer<vtkCellArray> Faces = nullptr;
-      vtkSmartPointer<vtkCellArray> FaceLocations = nullptr;
+      vtkSmartPointer<vtkPolyhedronCellArray> Polyhedra = nullptr;
       vtkNew<vtkCellArray> CellArray;
     };
 
