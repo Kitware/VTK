@@ -430,7 +430,6 @@ protected:
   oidn::BufferRef DenoiserColor;
   oidn::BufferRef DenoiserNormal;
   oidn::BufferRef DenoiserAlbedo;
-  oidn::BufferRef DenoiserOutput;
 #endif
 #endif
   bool DenoiserDirty{ true };
