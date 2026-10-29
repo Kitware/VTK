@@ -20,6 +20,7 @@ vtk_add_test_python(
   TestTexture.py,NO_DATA,NO_VALID
   TestUpdateObjectFromState.py,NO_DATA,NO_VALID
   TestUpdateStateFromObject.py,NO_DATA,NO_VALID
+  TestUpdateStatesFromObjects.py,NO_DATA,NO_VALID
 )
 
 # vtkFixedPointVolumeRayCastMapper needs inspection before using either of VTK_MARSHAL(AUTO|MANUAL).
