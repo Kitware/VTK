@@ -2345,9 +2345,6 @@ void InitializeBlocksForUnstructuredData(diy::Master& master, std::vector<PointS
 
       // We start by remapping ghost points.
       vtkSmartPointer<vtkIdList>& pointIdMap = information.OutputToInputPointIdRedirectionMap;
-      pointIdMap = vtkSmartPointer<vtkIdList>::New();
-      pointIdMap->Reserve(numberOfInputPoints);
-
       vtkSmartPointer<vtkIdList>& pointIdInverseMap =
         information.InputToOutputPointIdRedirectionMap;
       pointIdInverseMap = vtkSmartPointer<vtkIdList>::New();
@@ -2356,37 +2353,57 @@ void InitializeBlocksForUnstructuredData(diy::Master& master, std::vector<PointS
       // for points that are only belonging exclusively to ghost cells.
       pointIdInverseMap->Fill(-1);
 
-      vtkNew<vtkIdList> ids;
       auto ghosts = vtk::DataArrayValueRange<1>(ghostCells);
 
-      for (vtkIdType pointId = 0; pointId < numberOfInputPoints; ++pointId)
+      // The points of the cells that are not peeled off are kept, in the order of their ids. The
+      // cells are read once, without cell links, so the cells of polydata are built first for
+      // GetCellPoints().
+      if (auto inputPolyData = vtkPolyData::SafeDownCast(input))
       {
-        input->GetPointCells(pointId, ids);
-        for (vtkIdType id = 0; id < ids->GetNumberOfIds(); ++id)
+        if (inputPolyData->NeedToBuildCells())
         {
-          // We are adjacent to a non-ghost cell: keep this point
-          if (!(ghosts[ids->GetId(id)] & ::GHOST_CELL_TO_PEEL_IN_UNSTRUCTURED_DATA))
-          {
-            pointIdInverseMap->SetId(pointId, pointIdMap->GetNumberOfIds());
-            pointIdMap->InsertNextId(pointId);
-            break;
-          }
+          inputPolyData->BuildCells();
         }
       }
+      std::unique_ptr<std::atomic<unsigned char>[]> isKept(
+        new std::atomic<unsigned char>[numberOfInputPoints]());
+      vtkSMPThreadLocalObject<vtkIdList> tlCellPoints;
+      vtkSMPTools::For(0, numberOfInputCells,
+        [&](vtkIdType begin, vtkIdType end)
+        {
+          vtkIdList* cellPoints = tlCellPoints.Local();
+          vtkIdType npts;
+          const vtkIdType* pts;
+          for (vtkIdType cellId = begin; cellId < end; ++cellId)
+          {
+            // The points of a non-ghost cell are adjacent to it: keep them.
+            if (!(ghosts[cellId] & ::GHOST_CELL_TO_PEEL_IN_UNSTRUCTURED_DATA))
+            {
+              input->GetCellPoints(cellId, npts, pts, cellPoints);
+              for (vtkIdType i = 0; i < npts; ++i)
+              {
+                // memory_order_relaxed is safe, the flags are not used for synchronization.
+                isKept[pts[i]].store(1, std::memory_order_relaxed);
+              }
+            }
+          }
+        });
+      pointIdMap = ::SelectFlaggedIds(isKept.get(), numberOfInputPoints);
+      isKept.reset(); // No longer needed
+      vtkSMPTools::For(0, pointIdMap->GetNumberOfIds(),
+        [&](vtkIdType begin, vtkIdType end)
+        {
+          for (vtkIdType id = begin; id < end; ++id)
+          {
+            pointIdInverseMap->SetId(pointIdMap->GetId(id), id);
+          }
+        });
 
       information.NumberOfInputPoints = pointIdMap->GetNumberOfIds();
 
       vtkSmartPointer<vtkIdList>& cellIdMap = information.OutputToInputCellIdRedirectionMap;
-      cellIdMap = vtkSmartPointer<vtkIdList>::New();
-      cellIdMap->Reserve(numberOfInputCells);
-
-      for (vtkIdType cellId = 0; cellId < numberOfInputCells; ++cellId)
-      {
-        if (!(ghosts[cellId] & ::GHOST_CELL_TO_PEEL_IN_UNSTRUCTURED_DATA))
-        {
-          cellIdMap->InsertNextId(cellId);
-        }
-      }
+      cellIdMap = ::SelectIds(numberOfInputCells, [&ghosts](vtkIdType cellId)
+        { return !(ghosts[cellId] & ::GHOST_CELL_TO_PEEL_IN_UNSTRUCTURED_DATA); });
 
       information.NumberOfInputCells = cellIdMap->GetNumberOfIds();
     }
