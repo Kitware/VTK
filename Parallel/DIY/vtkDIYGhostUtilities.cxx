@@ -37,9 +37,9 @@
 
 #include <algorithm>
 #include <atomic>
+#include <limits>
 #include <memory>
 #include <numeric>
-#include <set>
 #include <tuple>
 #include <type_traits>
 #include <unordered_map>
@@ -2566,14 +2566,290 @@ struct MatchingPointExtractor
 };
 
 //----------------------------------------------------------------------------
+/**
+ * The points and cells of a block sent to one of its connected blocks (see
+ * BuildTopologyBufferToSend), marked in arrays of all the points and cells of the block, which are
+ * reused from one connected block to the next: they are unmarked once the buffers are filled.
+ * A marked point then gets its index in the buffers sent: for a point of the interface between
+ * the 2 blocks, which the connected block already has, minus one plus its position among the
+ * interface points the connected block matched; for the other points, its position among the
+ * points sent. The index is read by the threads that fill the buffers.
+ * The threads that look for the points and the cells to send claim them atomically, and a claim
+ * records its owner (the cell that found a point, the point that found a cell), so that each
+ * owner can then list the ones it claimed.
+ */
+class SentPointIndices
+{
+public:
+  template <class PointSetT>
+  explicit SentPointIndices(PointSetT* input)
+    : Indices(new std::atomic<vtkIdType>[input->GetNumberOfPoints()])
+    , CellOwners(new std::atomic<vtkIdType>[input->GetNumberOfCells()]())
+  {
+    vtkSMPTools::For(0, input->GetNumberOfPoints(),
+      [&](vtkIdType begin, vtkIdType end)
+      {
+        for (vtkIdType pointId = begin; pointId < end; ++pointId)
+        {
+          this->Indices[pointId].store(Unmarked, std::memory_order_relaxed);
+        }
+      });
+  }
+
+  // Mark a point, returning whether it was not marked yet.
+  bool MarkPoint(vtkIdType pointId)
+  {
+    vtkIdType expected = Unmarked;
+    return this->Indices[pointId].compare_exchange_strong(expected, Marked);
+  }
+
+  // Claim a cell for an owner, returning whether it was not claimed yet. The owners are numbered
+  // from 0, and each one must be different from the owners of the previous claims.
+  bool ClaimCell(vtkIdType cellId, vtkIdType owner)
+  {
+    vtkIdType expected = Unclaimed;
+    return this->CellOwners[cellId].compare_exchange_strong(expected, owner + 1);
+  }
+  bool IsCellClaimedBy(vtkIdType cellId, vtkIdType owner) const
+  {
+    return this->CellOwners[cellId].load(std::memory_order_relaxed) == owner + 1;
+  }
+
+  // Claim a point for an owner, like ClaimCell.
+  bool ClaimPoint(vtkIdType pointId, vtkIdType owner)
+  {
+    vtkIdType expected = Unmarked;
+    return this->Indices[pointId].compare_exchange_strong(expected, FirstOwner + owner);
+  }
+  bool IsPointClaimedBy(vtkIdType pointId, vtkIdType owner) const
+  {
+    return this->Indices[pointId].load(std::memory_order_relaxed) == FirstOwner + owner;
+  }
+
+  // Set the indices of the marked points: the interface points `seedPointIds` and the others
+  // `pointIds`.
+  void SetIndices(vtkIdList* seedPointIds, vtkIdList* pointIds)
+  {
+    for (vtkIdType id = 0; id < seedPointIds->GetNumberOfIds(); ++id)
+    {
+      this->Indices[seedPointIds->GetId(id)] = -id - 1;
+    }
+    for (vtkIdType id = 0; id < pointIds->GetNumberOfIds(); ++id)
+    {
+      this->Indices[pointIds->GetId(id)] = id;
+    }
+  }
+
+  vtkIdType operator()(vtkIdType pointId) const
+  {
+    const vtkIdType index = this->Indices[pointId].load(std::memory_order_relaxed);
+    if (index == Unmarked || index == Marked)
+    {
+      vtkLog(ERROR,
+        "Point " << pointId << " of a cell to send is not indexed. Ghosts should not be trusted.");
+      return 0;
+    }
+    return index;
+  }
+
+  // Unmark the points `seedPointIds` and `pointIds`, and the cells `cellIds`.
+  void Unmark(vtkIdList* seedPointIds, vtkIdList* pointIds, vtkIdList* cellIds)
+  {
+    for (vtkIdType pointId : *seedPointIds)
+    {
+      this->Indices[pointId] = Unmarked;
+    }
+    for (vtkIdType pointId : *pointIds)
+    {
+      this->Indices[pointId] = Unmarked;
+    }
+    for (vtkIdType cellId : *cellIds)
+    {
+      this->CellOwners[cellId] = Unclaimed;
+    }
+  }
+
+private:
+  // Out of the range of the indices, which are larger than minus the number of points.
+  static constexpr vtkIdType Unmarked = std::numeric_limits<vtkIdType>::min();
+  static constexpr vtkIdType Marked = Unmarked + 1;
+  // A claimed point holds its owner, until it gets its index.
+  static constexpr vtkIdType FirstOwner = Marked + 1;
+  static constexpr vtkIdType Unclaimed = 0;
+
+  std::unique_ptr<std::atomic<vtkIdType>[]> Indices;
+  std::unique_ptr<std::atomic<vtkIdType>[]> CellOwners;
+};
+
+//----------------------------------------------------------------------------
+/**
+ * The cells of the points `PointIds` of `Input` that are not peeled off, for ClaimAndListNeighbors:
+ * a point claims the ones that are not claimed yet.
+ */
+template <class PointSetT>
+struct CellsOfPoints
+{
+  bool IsPeeledOff(vtkIdType cellId) const
+  {
+    return this->GhostCellArray &&
+      (this->GhostCellArray->GetValue(cellId) & ::GHOST_CELL_TO_PEEL_IN_UNSTRUCTURED_DATA);
+  }
+
+  // Claim the cells of the point i for `owner`, returning how many were claimed.
+  vtkIdType Claim(vtkIdType i, vtkIdType owner) const
+  {
+    vtkIdType numberOfCells;
+    vtkIdType* cells;
+    this->Input->GetPointCells(this->PointIds[i], numberOfCells, cells);
+    vtkIdType numberOfClaimedCells = 0;
+    for (vtkIdType c = 0; c < numberOfCells; ++c)
+    {
+      if (!this->IsPeeledOff(cells[c]) && this->SentPointIndices.ClaimCell(cells[c], owner))
+      {
+        ++numberOfClaimedCells;
+      }
+    }
+    return numberOfClaimedCells;
+  }
+
+  // List in `output` the cells of the point i that `owner` claimed.
+  void List(vtkIdType i, vtkIdType owner, vtkIdType* output) const
+  {
+    vtkIdType numberOfCells;
+    vtkIdType* cells;
+    this->Input->GetPointCells(this->PointIds[i], numberOfCells, cells);
+    for (vtkIdType c = 0; c < numberOfCells; ++c)
+    {
+      if (this->SentPointIndices.IsCellClaimedBy(cells[c], owner))
+      {
+        *output++ = cells[c];
+      }
+    }
+  }
+
+  PointSetT* Input;
+  vtkUnsignedCharArray* GhostCellArray;
+  const std::vector<vtkIdType>& PointIds;
+  ::SentPointIndices& SentPointIndices;
+};
+
+//----------------------------------------------------------------------------
+// Count the neighbors claimed by each item, see ClaimAndListNeighbors.
+template <class NeighborsT>
+struct NeighborClaimer
+{
+  void operator()(vtkIdType begin, vtkIdType end) const
+  {
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      this->Offsets[i] = this->Neighbors.Claim(i, this->FirstOwner + i);
+    }
+  }
+
+  NeighborsT& Neighbors;
+  vtkIdType FirstOwner;
+  std::vector<vtkIdType>& Offsets;
+};
+
+//----------------------------------------------------------------------------
+// List the neighbors claimed by each item at its offset, see ClaimAndListNeighbors.
+template <class NeighborsT>
+struct NeighborLister
+{
+  void operator()(vtkIdType begin, vtkIdType end) const
+  {
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      this->Neighbors.List(i, this->FirstOwner + i, this->Output + this->Offsets[i]);
+    }
+  }
+
+  NeighborsT& Neighbors;
+  vtkIdType FirstOwner;
+  const std::vector<vtkIdType>& Offsets;
+  vtkIdType* Output;
+};
+
+//----------------------------------------------------------------------------
+/**
+ * Append to `output` the neighbors of the numberOfItems items of `neighbors` (the cells of points
+ * or the points of cells) that no item claimed before. The item i claims them for the owner
+ * firstOwner + i, in parallel, and counts them, then lists them at the position given by the scan
+ * of the counts.
+ */
+template <class NeighborsT>
+void ClaimAndListNeighbors(
+  NeighborsT& neighbors, vtkIdType numberOfItems, vtkIdType firstOwner, vtkIdList* output)
+{
+  std::vector<vtkIdType> offsets(numberOfItems + 1, 0);
+  vtkSMPTools::For(
+    0, numberOfItems, ::NeighborClaimer<NeighborsT>{ neighbors, firstOwner, offsets });
+  const vtkIdType numberOfClaimed =
+    vtkSMPTools::ExclusiveScan(offsets.begin(), offsets.end(), static_cast<vtkIdType>(0));
+  const vtkIdType firstId = output->GetNumberOfIds();
+  output->SetNumberOfIds(firstId + numberOfClaimed);
+  vtkSMPTools::For(0, numberOfItems,
+    ::NeighborLister<NeighborsT>{ neighbors, firstOwner, offsets, output->GetPointer(firstId) });
+}
+
+//----------------------------------------------------------------------------
+// The points of the cells `CellIds` of `Input`, for ClaimAndListNeighbors: a cell claims the ones
+// that are not marked or claimed yet.
+template <class PointSetT>
+struct PointsOfCells
+{
+  PointsOfCells(PointSetT* input, const vtkIdType* cellIds, ::SentPointIndices& sentPointIndices)
+    : Input(input)
+    , CellIds(cellIds)
+    , SentPointIndices(sentPointIndices)
+  {
+  }
+
+  // Claim the points of the cell i for `owner`, returning how many were claimed.
+  vtkIdType Claim(vtkIdType i, vtkIdType owner)
+  {
+    vtkIdList* cellPoints = this->CellPoints.Local();
+    this->Input->GetCellPoints(this->CellIds[i], cellPoints);
+    vtkIdType numberOfClaimedPoints = 0;
+    for (vtkIdType pointId : *cellPoints)
+    {
+      if (this->SentPointIndices.ClaimPoint(pointId, owner))
+      {
+        ++numberOfClaimedPoints;
+      }
+    }
+    return numberOfClaimedPoints;
+  }
+
+  // List in `output` the points of the cell i that `owner` claimed.
+  void List(vtkIdType i, vtkIdType owner, vtkIdType* output)
+  {
+    vtkIdList* cellPoints = this->CellPoints.Local();
+    this->Input->GetCellPoints(this->CellIds[i], cellPoints);
+    for (vtkIdType pointId : *cellPoints)
+    {
+      if (this->SentPointIndices.IsPointClaimedBy(pointId, owner))
+      {
+        *output++ = pointId;
+      }
+    }
+  }
+
+private:
+  PointSetT* Input;
+  const vtkIdType* CellIds;
+  ::SentPointIndices& SentPointIndices;
+  vtkSMPThreadLocalObject<vtkIdList> CellPoints;
+};
+
+//----------------------------------------------------------------------------
 struct FillConnectivityAndOffsetsArrays
 {
   template <class InputOffsetsT, class InputConnectivityT, class OutputOffsetsT,
     class OutputConnectivityT>
   void operator()(InputOffsetsT* inputOffsets, InputConnectivityT* inputConnectivity,
     OutputOffsetsT* outputOffsets, OutputConnectivityT* outputConnectivity,
-    const std::map<vtkIdType, vtkIdType>& seedPointIdsToSendWithIndex,
-    const std::map<vtkIdType, vtkIdType>& pointIdsToSendWithIndex, vtkIdList* cellIdsToSend)
+    const ::SentPointIndices& sentPointIndices, vtkIdList* cellIdsToSend)
   {
     vtkIdType currentConnectivitySize = 0;
 
@@ -2596,21 +2872,11 @@ struct FillConnectivityAndOffsetsArrays
       for (vtkIdType offset = outputOffsetsRange[outputId]; offset < nextOffset;
            ++offset, ++counter)
       {
-        const auto& pointId = inputConnectivityRange[inputOffset + counter];
-        auto it = pointIdsToSendWithIndex.find(pointId);
-        // We will find a valid it of the point of id pointId is not on the interface between us
-        // and the current connected block
-        if (it != pointIdsToSendWithIndex.end())
-        {
-          outputConnectivityRange[offset] = it->second;
-        }
-        else
-        {
-          // We put a negative id here to tell the block who will receive this
-          // that this point is part of the interfacing points: the neighboring block already owns a
-          // copy of this point.
-          outputConnectivityRange[offset] = -seedPointIdsToSendWithIndex.at(pointId);
-        }
+        // A point of the interface between us and the current connected block gets a negative
+        // id, to tell the block who will receive this that this point is part of the interfacing
+        // points: the neighboring block already owns a copy of this point (see SentPointIndices).
+        outputConnectivityRange[offset] =
+          sentPointIndices(inputConnectivityRange[inputOffset + counter]);
       }
 
       currentConnectivitySize = nextOffset;
@@ -2639,21 +2905,20 @@ struct FillUnstructuredDataTopologyBufferFunctor<vtkUnstructuredGrid>
   /**
    * This function will fill the buffers describing the geometry to send to a connected block.
    * Inputs:
-   * - seedPointIdsToSendWithIndex: Points interfacing the neighboring block. These are being used
-   * to tell the neighboring block which points in the geometry buffer being sent are already
-   * present there (the block already has a copy because those are the points that interface the 2
-   * blocks). We tag them with a negative sign and the position of this point in the buffer we
-   * already sent to the block when exchanging interfaces to see who's connected to who. The
-   * neighboring block will use this index to retrieve which point we are talking about (this is
-   * retrieved with RemappedMatchingReceivedPointIdsSortedLikeTarget in MatchingPointExtractor).
-   * - pointIdsToSendWithIndex: Every point ids, besides the one interfacing the current connected
-   *   block, that we need to send, with their index in the point buffer we will send.
+   * - sentPointIndices: The index of every point in the geometry buffer being sent (see
+   *   SentPointIndices). The points interfacing the neighboring block are being used to tell the
+   *   neighboring block which points in the geometry buffer being sent are already present there
+   *   (the block already has a copy because those are the points that interface the 2 blocks). We
+   *   tag them with a negative sign and the position of this point in the buffer we already sent to
+   *   the block when exchanging interfaces to see who's connected to who. The neighboring block
+   *   will use this index to retrieve which point we are talking about (this is retrieved with
+   *   RemappedMatchingReceivedPointIdsSortedLikeTarget in MatchingPointExtractor). Every other
+   *   point that we need to send gets its index in the point buffer we will send.
    */
   template <class OutputOffsetsT, class OutputConnectivityT>
   void operator()(OutputOffsetsT* offsets, OutputConnectivityT connectivity,
-    const std::map<vtkIdType, vtkIdType>& seedPointIdsToSendWithIndex,
-    const std::map<vtkIdType, vtkIdType>& pointIdsToSendWithIndex,
-    BlockStructureType& blockStructure, vtkUnstructuredGrid* input)
+    const ::SentPointIndices& sentPointIndices, BlockStructureType& blockStructure,
+    vtkUnstructuredGrid* input)
   {
     auto& buffer = blockStructure.SendBuffer;
 
@@ -2690,11 +2955,11 @@ struct FillUnstructuredDataTopologyBufferFunctor<vtkUnstructuredGrid>
     FillConnectivityAndOffsetsArrays worker;
     if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::OffsetsArrays,
           vtkArrayDispatch::ConnectivityArrays>::Execute(inputCellArray->GetOffsetsArray(),
-          inputCellArray->GetConnectivityArray(), worker, offsets, connectivity,
-          seedPointIdsToSendWithIndex, pointIdsToSendWithIndex, cellIdsToSend))
+          inputCellArray->GetConnectivityArray(), worker, offsets, connectivity, sentPointIndices,
+          cellIdsToSend))
     {
       worker(inputCellArray->GetOffsetsArray(), inputCellArray->GetConnectivityArray(), offsets,
-        connectivity, seedPointIdsToSendWithIndex, pointIdsToSendWithIndex, cellIdsToSend);
+        connectivity, sentPointIndices, cellIdsToSend);
     }
 
     for (vtkIdType i = 0; i < numberOfCellsToSend; ++i)
@@ -2716,21 +2981,9 @@ struct FillUnstructuredDataTopologyBufferFunctor<vtkUnstructuredGrid>
           faces->InsertNextCell(numberOfPoints);
           for (vtkIdType facePointId = 0; facePointId < numberOfPoints; ++facePointId)
           {
-            vtkIdType pointId = facePointIds[facePointId];
-            auto it = pointIdsToSendWithIndex.find(pointId);
-            // We will find a valid it of the point of id pointId is not on the interface between us
-            // and the current connected block
-            if (it != pointIdsToSendWithIndex.end())
-            {
-              faces->InsertCellPoint(it->second);
-            }
-            else
-            {
-              // We put a negative id here to tell the block who will receive this
-              // that this point is part of the interfacing points: the neighboring block already
-              // owns a copy of this point.
-              faces->InsertCellPoint(-seedPointIdsToSendWithIndex.at(pointId));
-            }
+            // A point of the interface between us and the current connected block gets a
+            // negative id, see FillConnectivityAndOffsetsArrays.
+            faces->InsertCellPoint(sentPointIndices(facePointIds[facePointId]));
           }
         }
       }
@@ -2752,9 +3005,8 @@ struct FillUnstructuredDataTopologyBufferFunctor<vtkPolyData>
    */
   template <class OutputOffsetsT, class OutputConnectivityT>
   void operator()(OutputOffsetsT* offsets, OutputConnectivityT* connectivity,
-    const std::map<vtkIdType, vtkIdType>& seedPointIdsToSendWithIndex,
-    const std::map<vtkIdType, vtkIdType>& pointIdsToSendWithIndex, vtkCellArray* inputCells,
-    vtkIdList* cellIdsToSend, vtkIdType connectivitySize)
+    const ::SentPointIndices& sentPointIndices, vtkCellArray* inputCells, vtkIdList* cellIdsToSend,
+    vtkIdType connectivitySize)
   {
     connectivity->SetNumberOfValues(connectivitySize);
 
@@ -2764,45 +3016,34 @@ struct FillUnstructuredDataTopologyBufferFunctor<vtkPolyData>
     ::FillConnectivityAndOffsetsArrays worker;
     if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::OffsetsArrays,
           vtkArrayDispatch::ConnectivityArrays>::Execute(inputCells->GetOffsetsArray(),
-          inputCells->GetConnectivityArray(), worker, offsets, connectivity,
-          seedPointIdsToSendWithIndex, pointIdsToSendWithIndex, cellIdsToSend))
+          inputCells->GetConnectivityArray(), worker, offsets, connectivity, sentPointIndices,
+          cellIdsToSend))
     {
       worker(inputCells->GetOffsetsArray(), inputCells->GetConnectivityArray(), offsets,
-        connectivity, seedPointIdsToSendWithIndex, pointIdsToSendWithIndex, cellIdsToSend);
+        connectivity, sentPointIndices, cellIdsToSend);
     }
   }
 };
 
 //----------------------------------------------------------------------------
-void CopyCellIdsToSendIntoBlockStructure(
-  const std::set<vtkIdType>& cellIdsToSend, ::UnstructuredDataBlockStructure& blockStructure)
-{
-  blockStructure.CellIdsToSend->SetNumberOfIds(cellIdsToSend.size());
-  vtkSMPTools::Transform(cellIdsToSend.cbegin(), cellIdsToSend.cend(),
-    blockStructure.CellIdsToSend->begin(), [](vtkIdType cellId) -> vtkIdType { return cellId; });
-}
-
-//----------------------------------------------------------------------------
+// Set the ids of the cells to send blockStructure.CellIdsToSend relative to their cell array. Only
+// a vtkPolyData has several cell arrays (lines, polygons and strips).
 template <class PointSetT>
-void CopyCellIdsToSendIntoBlockStructure(PointSetT* input, const std::set<vtkIdType>& cellIdsToSend,
+void FillCellArrayIdsToSend(PointSetT* input,
   typename ::DataSetTypeToBlockTypeConverter<PointSetT>::BlockType::BlockStructureType&
     blockStructure);
 
 //----------------------------------------------------------------------------
 template <>
-void CopyCellIdsToSendIntoBlockStructure(vtkUnstructuredGrid* vtkNotUsed(input),
-  const std::set<vtkIdType>& cellIdsToSend, ::UnstructuredGridBlockStructure& blockStructure)
+void FillCellArrayIdsToSend(vtkUnstructuredGrid* vtkNotUsed(input),
+  ::UnstructuredGridBlockStructure& vtkNotUsed(blockStructure))
 {
-  ::CopyCellIdsToSendIntoBlockStructure(cellIdsToSend, blockStructure);
 }
 
 //----------------------------------------------------------------------------
 template <>
-void CopyCellIdsToSendIntoBlockStructure(vtkPolyData* input,
-  const std::set<vtkIdType>& cellIdsToSend, ::PolyDataBlockStructure& blockStructure)
+void FillCellArrayIdsToSend(vtkPolyData* input, ::PolyDataBlockStructure& blockStructure)
 {
-  ::CopyCellIdsToSendIntoBlockStructure(cellIdsToSend, blockStructure);
-
   vtkIdList* polyIdsToSend = blockStructure.PolyIdsToSend;
   vtkIdList* stripIdsToSend = blockStructure.StripIdsToSend;
   vtkIdList* lineIdsToSend = blockStructure.LineIdsToSend;
@@ -2813,7 +3054,7 @@ void CopyCellIdsToSendIntoBlockStructure(vtkPolyData* input,
 
   vtkIdType polyId = -1, stripId = -1, lineId = -1;
 
-  for (const vtkIdType& cellId : cellIdsToSend)
+  for (vtkIdType cellId : *blockStructure.CellIdsToSend)
   {
     switch (input->GetCellType(cellId))
     {
@@ -2913,8 +3154,7 @@ void UpdateCellBufferSize<vtkPolyData>(
 }
 
 //----------------------------------------------------------------------------
-void FillUnstructuredDataTopologyBuffer(const std::map<vtkIdType, vtkIdType>& seedPointIdsWithIndex,
-  const std::map<vtkIdType, vtkIdType>& pointIdsToSendWithIndex,
+void FillUnstructuredDataTopologyBuffer(const ::SentPointIndices& sentPointIndices,
   ::UnstructuredGridBlockStructure& blockStructure, vtkUnstructuredGrid* input,
   vtkIdType maxPointId)
 {
@@ -2935,17 +3175,15 @@ void FillUnstructuredDataTopologyBuffer(const std::map<vtkIdType, vtkIdType>& se
   FillUnstructuredDataTopologyBufferFunctor<vtkUnstructuredGrid> functor;
   if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::OffsetsArrays,
         vtkArrayDispatch::ConnectivityArrays>::Execute(cellArray->GetOffsetsArray(),
-        cellArray->GetConnectivityArray(), functor, seedPointIdsWithIndex, pointIdsToSendWithIndex,
-        blockStructure, input))
+        cellArray->GetConnectivityArray(), functor, sentPointIndices, blockStructure, input))
   {
-    functor(cellArray->GetOffsetsArray(), cellArray->GetConnectivityArray(), seedPointIdsWithIndex,
-      pointIdsToSendWithIndex, blockStructure, input);
+    functor(cellArray->GetOffsetsArray(), cellArray->GetConnectivityArray(), sentPointIndices,
+      blockStructure, input);
   }
 }
 
 //----------------------------------------------------------------------------
-void FillUnstructuredDataTopologyBuffer(const std::map<vtkIdType, vtkIdType>& seedPointIdsWithIndex,
-  const std::map<vtkIdType, vtkIdType>& pointIdsToSendWithIndex,
+void FillUnstructuredDataTopologyBuffer(const ::SentPointIndices& sentPointIndices,
   ::PolyDataBlockStructure& blockStructure, vtkPolyData* input, vtkIdType maxPointId)
 {
   auto& buffer = blockStructure.SendBuffer;
@@ -2980,11 +3218,11 @@ void FillUnstructuredDataTopologyBuffer(const std::map<vtkIdType, vtkIdType>& se
     FillUnstructuredDataTopologyBufferFunctor<vtkPolyData> functor;
     if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::OffsetsArrays,
           vtkArrayDispatch::ConnectivityArrays>::Execute(cells->GetOffsetsArray(),
-          cells->GetConnectivityArray(), functor, seedPointIdsWithIndex, pointIdsToSendWithIndex,
-          inputCells, cellIdsToSend[i], connectivitySize[i]))
+          cells->GetConnectivityArray(), functor, sentPointIndices, inputCells, cellIdsToSend[i],
+          connectivitySize[i]))
     {
-      functor(cells->GetOffsetsArray(), cells->GetConnectivityArray(), seedPointIdsWithIndex,
-        pointIdsToSendWithIndex, inputCells, cellIdsToSend[i], connectivitySize[i]);
+      functor(cells->GetOffsetsArray(), cells->GetConnectivityArray(), sentPointIndices, inputCells,
+        cellIdsToSend[i], connectivitySize[i]);
     }
   }
 }
@@ -2998,120 +3236,78 @@ void FillUnstructuredDataTopologyBuffer(const std::map<vtkIdType, vtkIdType>& se
  * need to send.
  */
 template <class PointSetT>
-void BuildTopologyBufferToSend(vtkIdList* seedPointIds,
+void BuildTopologyBufferToSend(vtkIdList* seedPointIds, ::SentPointIndices& sentPointIndices,
   typename ::DataSetTypeToBlockTypeConverter<PointSetT>::BlockType::InformationType& info,
   typename ::DataSetTypeToBlockTypeConverter<PointSetT>::BlockType::BlockStructureType&
     blockStructure,
   int outputGhostLevels)
 {
-  vtkIdType maxPointId = 0;
-
   PointSetT* input = info.Input;
-
-  std::set<vtkIdType> pointIdsToSend;
-  std::set<vtkIdType> cellIdsToSend;
-  vtkNew<vtkIdList> ids;
-
-  for (vtkIdType pointId = 0; pointId < seedPointIds->GetNumberOfIds(); ++pointId)
-  {
-    pointIdsToSend.insert(seedPointIds->GetId(pointId));
-  }
-
-  std::set<vtkIdType> cellIdsToSendAtLastLevel;
-  std::set<vtkIdType> pointIdsToSendAtLastLevel;
-
-  pointIdsToSendAtLastLevel.insert(pointIdsToSend.cbegin(), pointIdsToSend.cend());
-
   vtkUnsignedCharArray* ghostCellArray = input->GetCellGhostArray();
 
-  // At each level, we look at the last chunk of point its that we added (starting with
-  // seed points that are on the interface between us and the neighboring block).
-  for (int ghostLevel = 0; ghostLevel < outputGhostLevels; ++ghostLevel)
+  // At each level, we look at the last chunk of point ids that we added (starting with seed points
+  // that are on the interface between us and the neighboring block). The cells to send and the
+  // points to send besides the seed points are marked as they are added, to skip the ones already
+  // added. They are listed directly in the buffers of the block structure, the points to send
+  // skipping those on the interface.
+  vtkIdList* cellIdsToSend = blockStructure.CellIdsToSend;
+  vtkIdList* pointIdsToSend = blockStructure.PointIdsToSend;
+  cellIdsToSend->Reset();
+  pointIdsToSend->Reset();
+  std::vector<vtkIdType> pointIdsOfLastLevel(seedPointIds->begin(), seedPointIds->end());
+  for (vtkIdType pointId : pointIdsOfLastLevel)
   {
-    std::set<vtkIdType> cellIdsToSendAtThisLevel;
-    std::set<vtkIdType> pointIdsToSendAtThisLevel;
-
-    // For each point in this chunk of points, we look at every cells that use this point.
-    // If the found cell has already been added as a cell to send, we skip. If not, we add it as a
-    // cell to send.
-    for (const vtkIdType& pointId : pointIdsToSendAtLastLevel)
-    {
-      input->GetPointCells(pointId, ids);
-      for (vtkIdType id = 0; id < ids->GetNumberOfIds(); ++id)
-      {
-        vtkIdType cellIdToSend = ids->GetId(id);
-        if ((!ghostCellArray ||
-              !(ghostCellArray->GetValue(cellIdToSend) &
-                ::GHOST_CELL_TO_PEEL_IN_UNSTRUCTURED_DATA)) &&
-          !cellIdsToSend.count(cellIdToSend))
-        {
-          cellIdsToSendAtThisLevel.insert(cellIdToSend);
-          cellIdsToSend.insert(cellIdToSend);
-
-          ::UpdateCellBufferSize<PointSetT>(cellIdToSend, info, blockStructure);
-        }
-      }
-    }
+    sentPointIndices.MarkPoint(pointId);
+  }
+  // The owner of a cell is the position of the point that found it among the points of all the
+  // levels, the seed points first. The owner of a point is the position of the cell that found it
+  // in the cells to send.
+  vtkIdType firstPointOwner = 0;
+  for (int ghostLevel = 0; ghostLevel < outputGhostLevels && !pointIdsOfLastLevel.empty();
+       ++ghostLevel)
+  {
+    // For each point in this chunk of points, we look at every cells that use this point. If the
+    // found cell has already been added as a cell to send, or is peeled off, we skip. If not, we
+    // add it as a cell to send. The cell links of the input are already built.
+    const vtkIdType numberOfLastLevelPoints = static_cast<vtkIdType>(pointIdsOfLastLevel.size());
+    const vtkIdType firstCellOfLevel = cellIdsToSend->GetNumberOfIds();
+    ::CellsOfPoints<PointSetT> cellsOfPoints{ input, ghostCellArray, pointIdsOfLastLevel,
+      sentPointIndices };
+    ::ClaimAndListNeighbors(cellsOfPoints, numberOfLastLevelPoints, firstPointOwner, cellIdsToSend);
+    firstPointOwner += numberOfLastLevelPoints;
 
     // For each cells that we want to send at this level, we look at all points composing them, and
-    // we add any point that has never been processed in the previous scope into the new chunk of
-    // points.
-    for (const vtkIdType& cellId : cellIdsToSendAtThisLevel)
-    {
-      input->GetCellPoints(cellId, ids);
-      for (vtkIdType id = 0; id < ids->GetNumberOfIds(); ++id)
-      {
-        vtkIdType pointIdToSend = ids->GetId(id);
-        if (!pointIdsToSend.count(pointIdToSend))
-        {
-          maxPointId = std::max(pointIdToSend, maxPointId);
-          pointIdsToSendAtThisLevel.insert(pointIdToSend);
-          pointIdsToSend.insert(pointIdToSend);
-        }
-      }
-    }
-
-    std::swap(cellIdsToSendAtThisLevel, cellIdsToSendAtLastLevel);
-    std::swap(pointIdsToSendAtThisLevel, pointIdsToSendAtLastLevel);
+    // we add any point that has never been processed into the new chunk of points.
+    const vtkIdType numberOfLevelCells = cellIdsToSend->GetNumberOfIds() - firstCellOfLevel;
+    const vtkIdType firstPointOfLevel = pointIdsToSend->GetNumberOfIds();
+    ::PointsOfCells<PointSetT> pointsOfCells(
+      input, cellIdsToSend->GetPointer(firstCellOfLevel), sentPointIndices);
+    ::ClaimAndListNeighbors(pointsOfCells, numberOfLevelCells, firstCellOfLevel, pointIdsToSend);
+    pointIdsOfLastLevel.assign(pointIdsToSend->begin() + firstPointOfLevel, pointIdsToSend->end());
   }
 
-  // FIXME
-  // We want to create an index for each point we want to send.
-  // This will help up locate those points in the sending buffer. We do that because we are not
-  // going to send again the interfacing points. Our neighbor is already aware of those points.
-  // We index the interfacing points, we get rid of them in the buffer that we constructed in the
-  // last scope, which owns a copy of them. At the end, the union of the 2 std::map we are
-  // constructed has no overlaps, and describes every points that play a role in ghost exchanging.
-  std::map<vtkIdType, vtkIdType> seedPointIdsWithIndex;
+  // The sizes of the buffers are the sums over the cells to send, whatever their order.
+  for (vtkIdType cellId : *cellIdsToSend)
   {
-    vtkIdType tag = 0;
-    // We remove those seed points from the union of all point ids to send.
-    for (auto it = seedPointIds->begin(); it != seedPointIds->end(); ++it)
-    {
-      pointIdsToSend.erase(*it);
-      seedPointIdsWithIndex[*it] = ++tag;
-    }
+    ::UpdateCellBufferSize<PointSetT>(cellId, info, blockStructure);
   }
 
-  std::map<vtkIdType, vtkIdType> pointIdsToSendWithIndex;
-  {
-    vtkIdType id = 0;
-    for (const vtkIdType& pointId : pointIdsToSend)
-    {
-      pointIdsToSendWithIndex[pointId] = id++;
-    }
-  }
+  // We want to create an index for each point we want to send. This will help us locate those
+  // points in the sending buffer. We do that because we are not going to send again the
+  // interfacing points: our neighbor is already aware of those points (see SentPointIndices). The
+  // cells and the other points are sent in the order of their ids.
+  vtkSMPTools::Sort(cellIdsToSend->begin(), cellIdsToSend->end());
+  vtkSMPTools::Sort(pointIdsToSend->begin(), pointIdsToSend->end());
+  sentPointIndices.SetIndices(seedPointIds, pointIdsToSend);
+  const vtkIdType numberOfPointsToSend = pointIdsToSend->GetNumberOfIds();
+  const vtkIdType maxPointId =
+    numberOfPointsToSend == 0 ? 0 : pointIdsToSend->GetId(numberOfPointsToSend - 1);
 
-  blockStructure.PointIdsToSend->SetNumberOfIds(pointIdsToSend.size());
+  ::FillCellArrayIdsToSend(input, blockStructure);
 
-  // We fill our internal buffer of point ids to send (skipping those on the interface)
-  vtkSMPTools::Transform(pointIdsToSend.cbegin(), pointIdsToSend.cend(),
-    blockStructure.PointIdsToSend->begin(), [](vtkIdType pointId) -> vtkIdType { return pointId; });
+  ::FillUnstructuredDataTopologyBuffer(sentPointIndices, blockStructure, input, maxPointId);
 
-  ::CopyCellIdsToSendIntoBlockStructure(input, cellIdsToSend, blockStructure);
-
-  ::FillUnstructuredDataTopologyBuffer(
-    seedPointIdsWithIndex, pointIdsToSendWithIndex, blockStructure, input, maxPointId);
+  sentPointIndices.Unmark(seedPointIds, pointIdsToSend, cellIdsToSend);
 }
 
 //----------------------------------------------------------------------------
@@ -3143,12 +3339,20 @@ template <class PointSetT>
       blockStructures.clear();
       continue;
     }
+    if (blockStructures.empty())
+    {
+      continue;
+    }
 
     vtkIdTypeArray* globalPointIds = info.InterfaceGlobalPointIds;
     ::Links& localLinks = linkMap[localId];
 
     ::MatchingPointExtractor matchingPointExtractor(info.InterfacePointIds, info.Interface,
       info.InterfacePoints, globalPointIds, info.InputToOutputPointIdRedirectionMap, tolerance);
+    ::SentPointIndices sentPointIndices(info.Input);
+
+    // The threads that look for the cells to send read the links, which cannot be built lazily.
+    info.Input->BuildLinks();
 
     for (auto it = blockStructures.begin(); it != blockStructures.end();)
     {
@@ -3182,7 +3386,7 @@ template <class PointSetT>
         localLinks.emplace(it->first);
 
         ::BuildTopologyBufferToSend<PointSetT>(
-          matchingReceivedPointIds, info, blockStructure, outputGhostLevels);
+          matchingReceivedPointIds, sentPointIndices, info, blockStructure, outputGhostLevels);
 
         vtkIdList* pointIdsToSend = blockStructure.PointIdsToSend;
         for (vtkIdType id = 0; id < pointIdsToSend->GetNumberOfIds(); ++id)
