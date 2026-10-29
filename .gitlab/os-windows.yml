@@ -263,9 +263,9 @@
 .before_script_windows_deps: &before_script_windows_deps
     - cmake -P .gitlab/ci/download_qt6.cmake
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\qt6\bin;$env:PATH"
-    - cmake -P .gitlab/ci/download_python.cmake
-    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\python;$env:PATH"
-    - Set-Item -Force -Path "env:PYTHONHOME" -Value "$pwdpath\.gitlab\python"
+    - . .gitlab/ci/python_windows.ps1
+    - Set-Item -Force -Path "env:PATH" -Value "$env:PYTHON_PREFIX;$env:PATH"
+    - Set-Item -Force -Path "env:PYTHONHOME" -Value "$env:PYTHON_PREFIX"
     - cmake -P .gitlab/ci/download_tbb.cmake
     - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\tbb;$env:CMAKE_PREFIX_PATH"
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\tbb\redist\$env:TBB_REDIST_DIR;$env:PATH"
@@ -366,8 +366,7 @@
         - *before_script_windows
         - *before_script_windows_jpeg_simd_deps
         - *before_script_windows_openxr_deps
-        - cmake -P .gitlab/ci/download_wheel_python.cmake
-        - Set-Item -Force -Path "env:PYTHON_PREFIX" -Value "$pwdpath\.gitlab\python"
+        - . .gitlab/ci/python_windows.ps1
         - Invoke-Expression -Command .gitlab/ci/buildcache.ps1
         - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"
         - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
@@ -405,8 +404,7 @@
         - *before_script_windows_openxr_deps
         - cmake -P .gitlab/ci/download_osmesa_windows.cmake
         - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\osmesa\bin;$env:PATH"
-        - cmake -P .gitlab/ci/download_wheel_python.cmake
-        - Set-Item -Force -Path "env:PYTHON_PREFIX" -Value "$pwdpath\.gitlab\python"
+        - . .gitlab/ci/python_windows.ps1
         - Set-Item -Force -Path "env:PATH" -Value "$env:PYTHON_PREFIX;$env:PATH"
         - '& "python$env:PYTHON_VERSION_SUFFIX" -m venv venv'
         - . .\venv\Scripts\Activate.ps1
