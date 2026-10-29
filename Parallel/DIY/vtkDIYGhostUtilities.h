@@ -959,15 +959,19 @@ protected:
    * Method to be overloaded for each supported type of input data set.
    * This method is called in the pipeline right after diy environment
    * has been set up. It exchanges between every information needed for the data set type `DataSetT`
-   * in order to be able to set link connections.
+   * in order to be able to set link connections. `tolerance` is the tolerance of the matching of
+   * the points of unstructured data, see ComputeLinkMap.
    */
-  static void ExchangeBlockStructures(diy::Master& master, std::vector<vtkImageData*>& inputs);
   static void ExchangeBlockStructures(
-    diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs);
-  static void ExchangeBlockStructures(diy::Master& master, std::vector<vtkStructuredGrid*>& inputs);
+    diy::Master& master, std::vector<vtkImageData*>& inputs, double tolerance = 0);
   static void ExchangeBlockStructures(
-    diy::Master& master, std::vector<vtkUnstructuredGrid*>& inputs);
-  static void ExchangeBlockStructures(diy::Master& master, std::vector<vtkPolyData*>& inputs);
+    diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs, double tolerance = 0);
+  static void ExchangeBlockStructures(
+    diy::Master& master, std::vector<vtkStructuredGrid*>& inputs, double tolerance = 0);
+  static void ExchangeBlockStructures(
+    diy::Master& master, std::vector<vtkUnstructuredGrid*>& inputs, double tolerance = 0);
+  static void ExchangeBlockStructures(
+    diy::Master& master, std::vector<vtkPolyData*>& inputs, double tolerance = 0);
   ///@}
 
   ///@{

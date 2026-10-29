@@ -38,7 +38,10 @@
 
 #include <algorithm>
 #include <atomic>
+#include <bitset>
+#include <cmath>
 #include <limits>
+#include <map>
 #include <memory>
 #include <numeric>
 #include <tuple>
@@ -260,53 +263,294 @@ void TreatVirginGhostPointsForStructuredData(vtkUnsignedCharArray* array, GridDa
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkIdList> ExtractPointIdsInsideBoundingBox(
-  vtkPoints* inputPoints, const vtkBoundingBox& bb)
+/**
+ * The bins of the bounding box of a block, laid out as in vtkStaticCellLocator, with one bit per
+ * bin telling whether an interface point of the block is near the bin, as
+ * vtkResolveHangingNodes::BoundaryBins. The bounding box covers the whole block, so most of the
+ * interface points of a neighbor inside it are far from the interface points of the block, e.g.,
+ * when the blocks are not boxes; the occupied bins keep only the points near them. The bins only
+ * depend on the bounding box, which the neighbors already have (see ExchangeBoundingBoxes), so
+ * only the occupied bits are exchanged.
+ */
+class InterfaceBins
 {
-  vtkNew<vtkIdList> pointIds;
+public:
+  // Target number of bins (see vtkBoundingBox::ComputeDivisions).
+  static constexpr vtkIdType TargetNumberOfBins = 32 * 32 * 32;
+  using OccupiedBits = std::bitset<TargetNumberOfBins>;
 
-  if (!inputPoints)
+  explicit InterfaceBins(const vtkBoundingBox& bounds)
   {
-    return pointIds;
+    double binBounds[6];
+    bounds.ComputeDivisions(TargetNumberOfBins, binBounds, this->Divisions);
+    this->Bounds.SetBounds(binBounds);
   }
 
-  pointIds->Reserve(inputPoints->GetNumberOfPoints());
-
-  double p[3];
-
-  for (vtkIdType pointId = 0; pointId < inputPoints->GetNumberOfPoints(); ++pointId)
+  // The bin indices ijk of the point `x`, clamped to the bins.
+  void GetBinIndices(const double x[3], int ijk[3]) const
   {
-    inputPoints->GetPoint(pointId, p);
-
-    if (bb.ContainsPoint(p))
+    const double* minPoint = this->Bounds.GetMinPoint();
+    for (int axis = 0; axis < 3; ++axis)
     {
-      pointIds->InsertNextId(pointId);
+      const double length = this->Bounds.GetLength(axis);
+      ijk[axis] = length > 0.0
+        ? static_cast<int>(std::floor((x[axis] - minPoint[axis]) / length * this->Divisions[axis]))
+        : 0;
+      ijk[axis] = std::min(std::max(ijk[axis], 0), this->Divisions[axis] - 1);
     }
   }
 
-  return pointIds;
+  vtkIdType GetBinIndex(const int ijk[3]) const
+  {
+    return ijk[0] +
+      static_cast<vtkIdType>(this->Divisions[0]) *
+      (ijk[1] + static_cast<vtkIdType>(this->Divisions[1]) * ijk[2]);
+  }
+
+  // Whether the bins from lowIjk to highIjk are all the bins.
+  bool CoversAllBins(const int lowIjk[3], const int highIjk[3]) const
+  {
+    for (int axis = 0; axis < 3; ++axis)
+    {
+      if (lowIjk[axis] > 0 || highIjk[axis] < this->Divisions[axis] - 1)
+      {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Occupy the bins within `radius` of the points `points`.
+  void OccupyBinsNearPoints(vtkDataArray* points, double radius)
+  {
+    double p[3], low[3], high[3];
+    int lowIjk[3], highIjk[3], ijk[3];
+    for (vtkIdType pointId = 0; pointId < points->GetNumberOfTuples(); ++pointId)
+    {
+      points->GetTuple(pointId, p);
+      for (int axis = 0; axis < 3; ++axis)
+      {
+        low[axis] = p[axis] - radius;
+        high[axis] = p[axis] + radius;
+      }
+      this->GetBinIndices(low, lowIjk);
+      this->GetBinIndices(high, highIjk);
+      if (this->CoversAllBins(lowIjk, highIjk))
+      {
+        // With a radius as large as the bounds, there is no need to look at the other points.
+        const vtkIdType numberOfBins =
+          static_cast<vtkIdType>(this->Divisions[0]) * this->Divisions[1] * this->Divisions[2];
+        for (vtkIdType binIndex = 0; binIndex < numberOfBins; ++binIndex)
+        {
+          this->Occupied.set(binIndex);
+        }
+        return;
+      }
+      for (ijk[2] = lowIjk[2]; ijk[2] <= highIjk[2]; ++ijk[2])
+      {
+        for (ijk[1] = lowIjk[1]; ijk[1] <= highIjk[1]; ++ijk[1])
+        {
+          for (ijk[0] = lowIjk[0]; ijk[0] <= highIjk[0]; ++ijk[0])
+          {
+            this->Occupied.set(this->GetBinIndex(ijk));
+          }
+        }
+      }
+    }
+  }
+
+  // One bit per bin, by bin index, sent by diy as raw bytes. ComputeDivisions never makes more
+  // bins than the target.
+  OccupiedBits& GetOccupied() { return this->Occupied; }
+
+  // Whether `x` is within the bounds, in an occupied bin.
+  bool IsInOccupiedBin(const double x[3]) const
+  {
+    if (!this->Bounds.ContainsPoint(x))
+    {
+      return false;
+    }
+    int ijk[3];
+    this->GetBinIndices(x, ijk);
+    return this->Occupied[this->GetBinIndex(ijk)];
+  }
+
+private:
+  // Bounds of the bins, which may be larger than the bounds they were made with along an axis
+  // where these are flat (see vtkBoundingBox::ComputeDivisions).
+  vtkBoundingBox Bounds;
+  int Divisions[3] = { 1, 1, 1 };
+  OccupiedBits Occupied;
+};
+
+//----------------------------------------------------------------------------
+// The inflation of the bounding box `bb` of a vtkPointSet for imprecise points, see
+// vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary.
+double ComputePointSetBoundingBoxInflation(const vtkBoundingBox& bb)
+{
+  return 1e-3 * bb.GetMaxLength();
+}
+
+//----------------------------------------------------------------------------
+/**
+ * Send the occupied bins of every block (see InterfaceBins) to its neighbors, and return theirs,
+ * by local block id and neighbor block id. The bins are occupied within a radius of the interface
+ * points, so that no point that may be matched with them is filtered out: the inflation of the
+ * bounding boxes (see vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary), which lets points
+ * with global ids match despite imprecise coordinates, or `tolerance`, the tolerance of the
+ * matching of the coordinates (see MatchingPointExtractor), if it is larger. The inflation is
+ * computed from the inflated bounding box, so it is a bit larger than the one of the bounding box.
+ */
+template <class BlockType>
+std::vector<std::map<int, ::InterfaceBins>> ExchangeInterfaceBins(
+  diy::Master& master, double tolerance)
+{
+  master.foreach (
+    [tolerance](BlockType* block, const diy::Master::ProxyWithLink& cp)
+    {
+      ::InterfaceBins bins(block->BoundingBox);
+      if (vtkDataArray* interfacePoints = block->Information.InterfacePoints)
+      {
+        const double radius =
+          std::max(tolerance, ::ComputePointSetBoundingBoxInflation(block->BoundingBox));
+        bins.OccupyBinsNearPoints(interfacePoints, radius);
+      }
+      for (int id = 0; id < cp.link()->size(); ++id)
+      {
+        cp.enqueue(cp.link()->target(id), bins.GetOccupied());
+      }
+    });
+
+  master.exchange();
+
+  std::vector<std::map<int, ::InterfaceBins>> neighborBins(master.size());
+  master.foreach (
+    [&master, &neighborBins](BlockType* block, const diy::Master::ProxyWithLink& cp)
+    {
+      auto& bins = neighborBins[master.lid(cp.gid())];
+      for (int id = 0; id < cp.link()->size(); ++id)
+      {
+        const int gid = cp.link()->target(id).gid;
+        auto it = bins.emplace(gid, ::InterfaceBins(block->NeighborBoundingBoxes.at(gid))).first;
+        cp.dequeue(gid, it->second.GetOccupied());
+      }
+    });
+  return neighborBins;
+}
+
+//----------------------------------------------------------------------------
+// The ids in [0, num) for which isSelected(id) is true, in increasing order. The selected ids are
+// counted per block, then every block writes its ids, so that no array of num offsets is needed
+// (see SelectIds in vtkResolveHangingNodes). isSelected is called twice per id, from several
+// threads, so it must be cheap and give the same result both times.
+template <typename PredicateT>
+vtkSmartPointer<vtkIdList> SelectIds(vtkIdType num, PredicateT isSelected)
+{
+  constexpr vtkIdType blockSize = 8192;
+  const vtkIdType numBlocks = (num + blockSize - 1) / blockSize;
+  // The last entry is 0, so that the scan sets it to the number of selected ids.
+  std::vector<vtkIdType> blockOffsets(numBlocks + 1, 0);
+  vtkSMPTools::For(0, numBlocks,
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      for (vtkIdType b = begin; b < end; ++b)
+      {
+        const vtkIdType last = std::min((b + 1) * blockSize, num);
+        vtkIdType count = 0;
+        for (vtkIdType id = b * blockSize; id < last; ++id)
+        {
+          count += isSelected(id) ? 1 : 0;
+        }
+        blockOffsets[b] = count;
+      }
+    });
+  const vtkIdType numSelected =
+    vtkSMPTools::ExclusiveScan(blockOffsets.begin(), blockOffsets.end(), static_cast<vtkIdType>(0));
+
+  auto ids = vtkSmartPointer<vtkIdList>::New();
+  ids->SetNumberOfIds(numSelected);
+  vtkIdType* idsPtr = ids->GetPointer(0);
+  vtkSMPTools::For(0, numBlocks,
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      for (vtkIdType b = begin; b < end; ++b)
+      {
+        const vtkIdType last = std::min((b + 1) * blockSize, num);
+        vtkIdType next = blockOffsets[b];
+        for (vtkIdType id = b * blockSize; id < last; ++id)
+        {
+          if (isSelected(id))
+          {
+            idsPtr[next++] = id;
+          }
+        }
+      }
+    });
+  return ids;
+}
+
+//----------------------------------------------------------------------------
+// The ids of the `num` flags that are set, in increasing order. memory_order_relaxed is safe, the
+// flags are set before and are not used for synchronization.
+vtkSmartPointer<vtkIdList> SelectFlaggedIds(const std::atomic<unsigned char>* flags, vtkIdType num)
+{
+  return ::SelectIds(
+    num, [flags](vtkIdType id) { return flags[id].load(std::memory_order_relaxed) != 0; });
+}
+
+//----------------------------------------------------------------------------
+// The ids of the points `inputPoints` inside the bounding box `bb` of a neighbor, in its occupied
+// bins `bins`.
+vtkSmartPointer<vtkIdList> ExtractPointIdsToSend(
+  vtkPoints* inputPoints, const vtkBoundingBox& bb, const ::InterfaceBins& bins)
+{
+  if (!inputPoints)
+  {
+    return vtkSmartPointer<vtkIdList>::New();
+  }
+
+  // The points are flagged first, so that the test runs once per point.
+  const vtkIdType numberOfPoints = inputPoints->GetNumberOfPoints();
+  std::unique_ptr<std::atomic<unsigned char>[]> isSent(
+    new std::atomic<unsigned char>[numberOfPoints]());
+  vtkSMPTools::For(0, numberOfPoints,
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      double p[3];
+      for (vtkIdType pointId = begin; pointId < end; ++pointId)
+      {
+        inputPoints->GetPoint(pointId, p);
+        isSent[pointId].store(
+          bb.ContainsPoint(p) && bins.IsInOccupiedBin(p) ? 1 : 0, std::memory_order_relaxed);
+      }
+    });
+  return ::SelectFlaggedIds(isSent.get(), numberOfPoints);
 }
 
 //----------------------------------------------------------------------------
 template <class PointSetT>
-void ExchangeBlockStructuresForUnstructuredData(diy::Master& master)
+void ExchangeBlockStructuresForUnstructuredData(diy::Master& master, double tolerance)
 {
   using BlockType = typename ::DataSetTypeToBlockTypeConverter<PointSetT>::BlockType;
   using BlockInformationType = typename BlockType::InformationType;
 
+  const std::vector<std::map<int, ::InterfaceBins>> neighborBins =
+    ::ExchangeInterfaceBins<BlockType>(master, tolerance);
+
   master.foreach (
-    [](BlockType* block, const diy::Master::ProxyWithLink& cp)
+    [&master, &neighborBins](BlockType* block, const diy::Master::ProxyWithLink& cp)
     {
       BlockInformationType& info = block->Information;
       vtkPointSet* interfacePoints = info.Interface;
       vtkIdTypeArray* interfaceGlobalPointIds = info.InterfaceGlobalPointIds;
+      const auto& bins = neighborBins[master.lid(cp.gid())];
 
       for (int id = 0; id < cp.link()->size(); ++id)
       {
         const diy::BlockID& blockId = cp.link()->target(id);
 
-        vtkSmartPointer<vtkIdList> ids = ::ExtractPointIdsInsideBoundingBox(
-          interfacePoints->GetPoints(), block->NeighborBoundingBoxes.at(blockId.gid));
+        vtkSmartPointer<vtkIdList> ids = ::ExtractPointIdsToSend(interfacePoints->GetPoints(),
+          block->NeighborBoundingBoxes.at(blockId.gid), bins.at(blockId.gid));
 
         if (!interfacePoints->GetNumberOfPoints())
         {
@@ -1860,66 +2104,6 @@ void FlagBoundaryPoints(vtkUnstructuredGrid* input, int sideFlags, bool preserve
     ::FlagBoundaryPoints<vtkTypeInt64, vtkTypeInt32>(
       input, sideFlags, preserveRenderableInputs, onBoundary);
   }
-}
-
-//----------------------------------------------------------------------------
-// The ids in [0, num) for which isSelected(id) is true, in increasing order. The selected ids are
-// counted per block, then every block writes its ids, so that no array of num offsets is needed
-// (see SelectIds in vtkResolveHangingNodes). isSelected is called twice per id, from several
-// threads, so it must be cheap and give the same result both times.
-template <typename PredicateT>
-vtkSmartPointer<vtkIdList> SelectIds(vtkIdType num, PredicateT isSelected)
-{
-  constexpr vtkIdType blockSize = 8192;
-  const vtkIdType numBlocks = (num + blockSize - 1) / blockSize;
-  // The last entry is 0, so that the scan sets it to the number of selected ids.
-  std::vector<vtkIdType> blockOffsets(numBlocks + 1, 0);
-  vtkSMPTools::For(0, numBlocks,
-    [&](vtkIdType begin, vtkIdType end)
-    {
-      for (vtkIdType b = begin; b < end; ++b)
-      {
-        const vtkIdType last = std::min((b + 1) * blockSize, num);
-        vtkIdType count = 0;
-        for (vtkIdType id = b * blockSize; id < last; ++id)
-        {
-          count += isSelected(id) ? 1 : 0;
-        }
-        blockOffsets[b] = count;
-      }
-    });
-  const vtkIdType numSelected =
-    vtkSMPTools::ExclusiveScan(blockOffsets.begin(), blockOffsets.end(), static_cast<vtkIdType>(0));
-
-  auto ids = vtkSmartPointer<vtkIdList>::New();
-  ids->SetNumberOfIds(numSelected);
-  vtkIdType* idsPtr = ids->GetPointer(0);
-  vtkSMPTools::For(0, numBlocks,
-    [&](vtkIdType begin, vtkIdType end)
-    {
-      for (vtkIdType b = begin; b < end; ++b)
-      {
-        const vtkIdType last = std::min((b + 1) * blockSize, num);
-        vtkIdType next = blockOffsets[b];
-        for (vtkIdType id = b * blockSize; id < last; ++id)
-        {
-          if (isSelected(id))
-          {
-            idsPtr[next++] = id;
-          }
-        }
-      }
-    });
-  return ids;
-}
-
-//----------------------------------------------------------------------------
-// The ids of the `num` flags that are set, in increasing order. memory_order_relaxed is safe, the
-// flags are set before and are not used for synchronization.
-vtkSmartPointer<vtkIdList> SelectFlaggedIds(const std::atomic<unsigned char>* flags, vtkIdType num)
-{
-  return ::SelectIds(
-    num, [flags](vtkIdType id) { return flags[id].load(std::memory_order_relaxed) != 0; });
 }
 
 //----------------------------------------------------------------------------
@@ -6662,7 +6846,7 @@ void vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(
   // This addresses paraview/paraview#21228
   // It is at least the tolerance of the matching of the points, so that no point within the
   // tolerance of a point of a neighbor is outside its bounding box.
-  bb.Inflate(std::max(1e-3 * bb.GetMaxLength(), tolerance));
+  bb.Inflate(std::max(::ComputePointSetBoundingBoxInflation(bb), tolerance));
 }
 
 //----------------------------------------------------------------------------
@@ -7197,7 +7381,7 @@ void vtkDIYGhostUtilities::InitializeBlocks(diy::Master& master, std::vector<vtk
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::ExchangeBlockStructures(
-  diy::Master& master, std::vector<vtkImageData*>& inputs)
+  diy::Master& master, std::vector<vtkImageData*>& inputs, double vtkNotUsed(tolerance))
 {
   using BlockType = ImageDataBlock;
 
@@ -7266,7 +7450,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::ExchangeBlockStructures(
-  diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs)
+  diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs, double vtkNotUsed(tolerance))
 {
   using BlockType = RectilinearGridBlock;
   for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
@@ -7360,7 +7544,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::ExchangeBlockStructures(
-  diy::Master& master, std::vector<vtkStructuredGrid*>& inputs)
+  diy::Master& master, std::vector<vtkStructuredGrid*>& inputs, double vtkNotUsed(tolerance))
 {
   using BlockType = StructuredGridBlock;
 
@@ -7480,16 +7664,16 @@ void vtkDIYGhostUtilities::CloneGeometricStructures(
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::ExchangeBlockStructures(
-  diy::Master& master, std::vector<vtkUnstructuredGrid*>& vtkNotUsed(inputs))
+  diy::Master& master, std::vector<vtkUnstructuredGrid*>& vtkNotUsed(inputs), double tolerance)
 {
-  ::ExchangeBlockStructuresForUnstructuredData<vtkUnstructuredGrid>(master);
+  ::ExchangeBlockStructuresForUnstructuredData<vtkUnstructuredGrid>(master, tolerance);
 }
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::ExchangeBlockStructures(
-  diy::Master& master, std::vector<vtkPolyData*>& vtkNotUsed(inputs))
+  diy::Master& master, std::vector<vtkPolyData*>& vtkNotUsed(inputs), double tolerance)
 {
-  ::ExchangeBlockStructuresForUnstructuredData<vtkPolyData>(master);
+  ::ExchangeBlockStructuresForUnstructuredData<vtkPolyData>(master, tolerance);
 }
 
 //----------------------------------------------------------------------------

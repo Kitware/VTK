@@ -700,7 +700,7 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   // Here, we exchange structural information between blocks that will be used to
   // determine if blocks are actually adjacent or not.
   vtkLogStartScope(TRACE, "Exchanging block structures");
-  vtkDIYGhostUtilities::ExchangeBlockStructures(master, inputs);
+  vtkDIYGhostUtilities::ExchangeBlockStructures(master, inputs, tolerance);
   vtkLogEndScope("Exchanging block structures");
 
   // The structural information that has been exchanged is used to compute
