@@ -33,9 +33,12 @@ is one that will be got wrong.
 
 Device support
 --------------
-Host arrays work with plain VTK. Device arrays require VTK built with
-``VTK_ENABLE_VISKORES`` so that ``vtkmDataArrayFactory`` is available to
-wrap device memory; importing a device tensor without it raises
+Host arrays work with plain VTK. Device memory is held by VTK's own
+``vtkDeviceDataArray`` wherever the vendor's driver loads -- VTK needs no GPU
+toolkit for it, only the driver at run time (CUDA so far). Other device
+memory needs VTK built with Viskores (``vtkmDataArrayFactory``), and
+``VTK_DLPACK_DEVICE_ARRAYS=viskores`` in the environment prefers Viskores
+where both could. Without either, importing a device tensor raises
 ``RuntimeError`` rather than silently copying to the host.
 
 Metal tensors are rejected. The data pointer a Metal tensor carries is the
@@ -87,6 +90,7 @@ anything asynchronous produced the data.
 
 import ctypes
 import functools
+import os
 import sys
 
 from vtkmodules.vtkCommonCore import (
@@ -776,19 +780,32 @@ def _wrap_host(key, vtk_type, n_tuples, n_components, pointer, ndim):
     return numpy_support.numpy_to_vtk(view, deep=False, array_type=vtk_type)
 
 
-def _wrap_descriptor(descriptor, vtk_type, n_tuples, n_components, space):
-    """Build the array from a device pointer, via Viskores."""
+def _device_array_factory(space):
+    """The factory that can hold *space*'s memory: VTK's own where the
+    vendor's driver loads, else Viskores' where VTK has it."""
+    from vtkmodules.vtkCommonCore import vtkDeviceArrayFactory
 
+    own = vtkDeviceArrayFactory.IsMemorySpaceAvailable(space)
+    if own and os.environ.get("VTK_DLPACK_DEVICE_ARRAYS") != "viskores":
+        return vtkDeviceArrayFactory()
     try:
         from vtkmodules.vtkAcceleratorsVTKmCore import vtkmDataArrayFactory
     except ImportError as exc:
+        if own:
+            return vtkDeviceArrayFactory()
         raise RuntimeError(
-            f"importing {space!r} memory needs VTK built with the Viskores "
-            f"accelerators (-DVTK_MODULE_ENABLE_VTK_AcceleratorsVTKmCore=YES); "
-            f"only host tensors can be wrapped otherwise"
+            f"importing {space!r} memory needs its driver (VTK holds CUDA memory "
+            f"itself) or VTK built with the Viskores accelerators "
+            f"(-DVTK_MODULE_ENABLE_VTK_AcceleratorsVTKmCore=YES); only host "
+            f"tensors can be wrapped otherwise"
         ) from exc
+    return vtkmDataArrayFactory()
 
-    factory = vtkmDataArrayFactory()
+
+def _wrap_descriptor(descriptor, vtk_type, n_tuples, n_components, space):
+    """Build the array from a device pointer."""
+
+    factory = _device_array_factory(space)
     factory.SetNumberOfTuples(n_tuples)
     factory.SetNumberOfComponents(n_components)
     factory.SetDataType(vtk_type)
@@ -796,7 +813,7 @@ def _wrap_descriptor(descriptor, vtk_type, n_tuples, n_components, space):
     array = factory.CreateArray()
     if array is None:
         raise RuntimeError(
-            f"could not wrap {space!r} memory as a vtkmDataArray "
+            f"could not wrap {space!r} memory as a {factory.GetClassName()} array "
             f"({n_tuples} tuples x {n_components} components, VTK type {vtk_type})"
         )
     return array
