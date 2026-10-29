@@ -143,7 +143,10 @@ bool vtkCellGridEvaluator::Initialize()
 
   // Reset our state.
   this->Allocations.clear();
-  this->InterpolatedValues->Initialize();
+  if (this->InterpolatedValues)
+  {
+    this->InterpolatedValues->Initialize();
+  }
 
   // Classification normally assigns each cell type its slice of the output;
   // when it is skipped, the caller's arrays already describe those slices.

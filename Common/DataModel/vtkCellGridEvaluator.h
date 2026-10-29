@@ -204,8 +204,15 @@ public:
   /// Get the array holding (r, s, t)-coordinates where each input point is located.
   vtkGetObjectMacro(ClassifierPointParameters, vtkDataArray);
 
-  /// Get the array holding cell-attribute values interpolated to each input point.
+  ///@{
+  /// Set/get the array holding cell-attribute values interpolated to each input point.
+  ///
+  /// The same array is reused (and overwritten) by every evaluation. To keep
+  /// the values of several evaluations, set a new array before each one.
+  /// If unset (nullptr), a vtkDoubleArray is created during interpolation.
+  vtkSetObjectMacro(InterpolatedValues, vtkDataArray);
   vtkGetObjectMacro(InterpolatedValues, vtkDataArray);
+  ///@}
 
   /// Configure the query to run the classifier but not the interpolator.
   void ClassifyPoints(vtkDataArray* points);
@@ -263,9 +270,6 @@ protected:
 
   /// Set the array holding (r, s, t)-coordinates where each input point is located.
   vtkSetObjectMacro(ClassifierPointParameters, vtkDataArray);
-
-  /// Set the array holding cell-attribute values interpolated to each input point.
-  vtkSetObjectMacro(InterpolatedValues, vtkDataArray);
 
   void AllocateClassificationOutput();
   void AllocatePositionOutput();
