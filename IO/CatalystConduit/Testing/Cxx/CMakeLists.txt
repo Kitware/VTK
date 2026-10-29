@@ -3,7 +3,8 @@ vtk_add_test_cxx(vtkConduitCxxTests tests
   TestDataObjectToConduit.cxx
   TestDataObjectToConduitToDataObject.cxx
   TestConduitSource.cxx
-  TestConduitSourceSameAttributeTypes.cxx)
+  TestConduitSourceSameAttributeTypes.cxx
+  TestConduitSourceAMRGhosts.cxx)
 
 if (TARGET VTK::AcceleratorsVTKmDataModel)
   vtk_add_test_cxx(vtkConduitCxxTests tests
