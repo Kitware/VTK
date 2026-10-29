@@ -2851,44 +2851,46 @@ struct FillConnectivityAndOffsetsArrays
     OutputOffsetsT* outputOffsets, OutputConnectivityT* outputConnectivity,
     const ::SentPointIndices& sentPointIndices, vtkIdList* cellIdsToSend)
   {
-    vtkIdType currentConnectivitySize = 0;
-
     auto inputOffsetsRange = vtk::DataArrayValueRange<1, vtkIdType>(inputOffsets);
     auto inputConnectivityRange = vtk::DataArrayValueRange<1, vtkIdType>(inputConnectivity);
     auto outputConnectivityRange = vtk::DataArrayValueRange<1, vtkIdType>(outputConnectivity);
     auto outputOffsetsRange = vtk::DataArrayValueRange<1, vtkIdType>(outputOffsets);
+    const vtkIdType numberOfCellsToSend = cellIdsToSend->GetNumberOfIds();
 
-    vtkIdType outputId = 0;
-
-    for (vtkIdType id = 0; id < cellIdsToSend->GetNumberOfIds(); ++id)
+    // The offsets, then the connectivity of the cells in parallel. If no cells are to send, we
+    // should not add the last theoretical offset either.
+    if (numberOfCellsToSend == 0)
     {
-      vtkIdType cellId = cellIdsToSend->GetId(id);
-      const auto& inputOffset = inputOffsetsRange[cellId];
-      outputOffsetsRange[outputId] = currentConnectivitySize;
+      return;
+    }
+    vtkIdType connectivitySize = 0;
+    for (vtkIdType id = 0; id < numberOfCellsToSend; ++id)
+    {
+      const vtkIdType cellId = cellIdsToSend->GetId(id);
+      outputOffsetsRange[id] = connectivitySize;
+      connectivitySize += inputOffsetsRange[cellId + 1] - inputOffsetsRange[cellId];
+    }
+    outputOffsetsRange[numberOfCellsToSend] = connectivitySize;
 
-      vtkIdType nextOffset = currentConnectivitySize + inputOffsetsRange[cellId + 1] - inputOffset;
-
-      vtkIdType counter = 0;
-      for (vtkIdType offset = outputOffsetsRange[outputId]; offset < nextOffset;
-           ++offset, ++counter)
+    vtkSMPTools::For(0, numberOfCellsToSend,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        // A point of the interface between us and the current connected block gets a negative
-        // id, to tell the block who will receive this that this point is part of the interfacing
-        // points: the neighboring block already owns a copy of this point (see SentPointIndices).
-        outputConnectivityRange[offset] =
-          sentPointIndices(inputConnectivityRange[inputOffset + counter]);
-      }
-
-      currentConnectivitySize = nextOffset;
-      ++outputId;
-    }
-
-    // If there has been no offset added, it means that no cells are to send, so we should not
-    // add the last theoretical offset.
-    if (cellIdsToSend->GetNumberOfIds())
-    {
-      outputOffsetsRange[cellIdsToSend->GetNumberOfIds()] = outputConnectivityRange.size();
-    }
+        for (vtkIdType id = begin; id < end; ++id)
+        {
+          const vtkIdType cellId = cellIdsToSend->GetId(id);
+          vtkIdType outputOffset = outputOffsetsRange[id];
+          for (vtkIdType inputOffset = inputOffsetsRange[cellId];
+               inputOffset < inputOffsetsRange[cellId + 1]; ++inputOffset, ++outputOffset)
+          {
+            // A point of the interface between us and the current connected block gets a negative
+            // id, to tell the block who will receive this that this point is part of the
+            // interfacing points: the neighboring block already owns a copy of this point (see
+            // SentPointIndices).
+            outputConnectivityRange[outputOffset] =
+              sentPointIndices(inputConnectivityRange[inputOffset]);
+          }
+        }
+      });
   }
 };
 
