@@ -531,7 +531,8 @@ void AddGhostLayerOfGridPoints(int extentIdx, ::RectilinearGridInformation& bloc
     else
     {
       coordinateGhosts->InsertTuples(coordinateGhosts->GetNumberOfTuples(),
-        layerThickness - coordinateGhosts->GetNumberOfTuples(), 1, coords);
+        layerThickness - coordinateGhosts->GetNumberOfTuples(),
+        1 + coordinateGhosts->GetNumberOfTuples(), coords);
     }
   }
 }
@@ -543,6 +544,68 @@ void AddGhostLayerOfGridPoints(int vtkNotUsed(extentIdx),
 {
   // Do nothing, we only have grid interfaces at this point. We will allocate the points
   // after the accumulated extent is computed.
+}
+
+//----------------------------------------------------------------------------
+void AddTransverseGhostLayerOfGridPoints(int vtkNotUsed(extentIdx),
+  ::ImageDataInformation& vtkNotUsed(blockInformation),
+  const ::ImageDataBlockStructure& vtkNotUsed(blockStructure))
+{
+}
+
+//----------------------------------------------------------------------------
+/**
+ * Fills the ghost coordinates on side `extentIdx` from a neighbor that overhangs the local block
+ * in that direction, so the coordinates come from the middle of the neighbor's array rather than
+ * from its end.
+ */
+void AddTransverseGhostLayerOfGridPoints(int extentIdx,
+  ::RectilinearGridInformation& blockInformation,
+  const ::RectilinearGridBlockStructure& blockStructure)
+{
+  const int dim = extentIdx / 2;
+  vtkDataArray* coordinates[3] = { blockStructure.XCoordinates, blockStructure.YCoordinates,
+    blockStructure.ZCoordinates };
+  vtkDataArray* coords = coordinates[dim];
+  const int neighborStart = blockStructure.ShiftedExtent[2 * dim];
+  const int neighborEnd = blockStructure.ShiftedExtent[2 * dim + 1];
+  const int localBound = blockInformation.Extent[extentIdx];
+  const bool upperBound = extentIdx % 2;
+  const int reach = upperBound ? neighborEnd - localBound : localBound - neighborStart;
+  const int layerThickness = std::min(blockInformation.ExtentGhostThickness[extentIdx], reach);
+
+  vtkSmartPointer<vtkDataArray>& coordinateGhosts = blockInformation.CoordinateGhosts[extentIdx];
+  if (!coordinateGhosts)
+  {
+    coordinateGhosts = vtk::TakeSmartPointer(coords->NewInstance());
+  }
+  const int present = static_cast<int>(coordinateGhosts->GetNumberOfTuples());
+  if (present >= layerThickness)
+  {
+    return;
+  }
+  if (upperBound)
+  {
+    coordinateGhosts->InsertTuples(
+      present, layerThickness - present, localBound + present + 1 - neighborStart, coords);
+  }
+  else
+  {
+    auto tmp = vtk::TakeSmartPointer(coords->NewInstance());
+    tmp->SetNumberOfComponents(coords->GetNumberOfComponents());
+    tmp->SetNumberOfTuples(layerThickness);
+    tmp->InsertTuples(
+      0, layerThickness - present, localBound - layerThickness - neighborStart, coords);
+    tmp->InsertTuples(layerThickness - present, present, 0, coordinateGhosts);
+    std::swap(tmp, coordinateGhosts);
+  }
+}
+
+//----------------------------------------------------------------------------
+void AddTransverseGhostLayerOfGridPoints(int vtkNotUsed(extentIdx),
+  ::StructuredGridInformation& vtkNotUsed(blockInformation),
+  const ::StructuredGridBlockStructure& vtkNotUsed(blockStructure))
+{
 }
 
 //----------------------------------------------------------------------------
@@ -559,18 +622,23 @@ void AddGhostLayerToGrid(int idx, int outputGhostLevels,
   typename BlockT::InformationType& blockInformation)
 {
   const ::ExtentType& extent = blockStructure.ShiftedExtent;
+  const ::ExtentType& localExtent = blockInformation.Extent;
   ::ExtentType& shiftedExtentWithNewGhosts = blockStructure.ShiftedExtentWithNewGhosts;
   ::ExtentType& receivedGhostExtent = blockStructure.ReceivedGhostExtent;
 
   bool upperBound = idx % 2;
   int oppositeIdx = upperBound ? idx - 1 : idx + 1;
+  // We receive at most as many layers as the neighbor is wide, and the neighbor receives at most
+  // as many layers as we are wide.
   int localOutputGhostLevels =
     std::min(outputGhostLevels, std::abs(extent[idx] - extent[oppositeIdx]));
+  int neighborOutputGhostLevels =
+    std::min(outputGhostLevels, std::abs(localExtent[idx] - localExtent[oppositeIdx]));
   blockInformation.ExtentGhostThickness[idx] =
     std::max(blockInformation.ExtentGhostThickness[idx], localOutputGhostLevels);
 
   receivedGhostExtent[oppositeIdx] = shiftedExtentWithNewGhosts[oppositeIdx];
-  shiftedExtentWithNewGhosts[oppositeIdx] += (upperBound ? -1.0 : 1.0) * localOutputGhostLevels;
+  shiftedExtentWithNewGhosts[oppositeIdx] += (upperBound ? -1.0 : 1.0) * neighborOutputGhostLevels;
   receivedGhostExtent[idx] =
     receivedGhostExtent[oppositeIdx] + (upperBound ? 1.0 : -1.0) * localOutputGhostLevels;
 
@@ -603,6 +671,23 @@ void ExtendSharedInterfaceIfNeeded(int idx, int outputGhostLevels,
     shiftedExtentWithNewGhosts[idx + 1] += outputGhostLevels;
     shiftedExtentWithNewGhosts[idx + 1] =
       std::min(shiftedExtentWithNewGhosts[idx + 1], localExtent[idx + 1]);
+  }
+
+  // Conversely, where the neighbor overhangs us, it sends us the cells it holds in that direction,
+  // so our output needs layers to receive them.
+  if (extent[idx] < localExtent[idx])
+  {
+    blockInformation.ExtentGhostThickness[idx] =
+      std::max(blockInformation.ExtentGhostThickness[idx],
+        std::min(outputGhostLevels, localExtent[idx] - extent[idx]));
+    ::AddTransverseGhostLayerOfGridPoints(idx, blockInformation, blockStructure);
+  }
+  if (extent[idx + 1] > localExtent[idx + 1])
+  {
+    blockInformation.ExtentGhostThickness[idx + 1] =
+      std::max(blockInformation.ExtentGhostThickness[idx + 1],
+        std::min(outputGhostLevels, extent[idx + 1] - localExtent[idx + 1]));
+    ::AddTransverseGhostLayerOfGridPoints(idx + 1, blockInformation, blockStructure);
   }
 }
 
@@ -1038,53 +1123,59 @@ struct RectilinearGridFittingWorker
     }
   }
 
+  /**
+   * Finds where the coordinates `lowerMaxArray` and `upperMaxArray` coincide, `lowerMaxArray`
+   * being the one whose last coordinate is the lowest. On return, `MinId` and `MaxId` index the
+   * coinciding coordinates in `lowerMaxArray`, and `LocalMinId` and `LocalMaxId` in
+   * `upperMaxArray`. Either array may contain the other.
+   */
   template <class RangeT>
   void FitArrays(const RangeT& lowerMaxArray, const RangeT& upperMaxArray)
   {
     using ValueType = typename RangeT::ValueType;
     constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
 
-    const auto& lowerMinArray = lowerMaxArray[0] > upperMaxArray[0] ? upperMaxArray : lowerMaxArray;
-    const auto& upperMinArray = lowerMaxArray[0] < upperMaxArray[0] ? upperMaxArray : lowerMaxArray;
-    vtkIdType id = 0;
+    // The array starting at the lowest coordinate, in which the other one starts.
+    const bool lowerMaxStartsFirst = !(lowerMaxArray[0] > upperMaxArray[0]);
+    const auto& lowerMinArray = lowerMaxStartsFirst ? lowerMaxArray : upperMaxArray;
+    const auto& upperMinArray = lowerMaxStartsFirst ? upperMaxArray : lowerMaxArray;
 
+    vtkIdType id = 0;
     while (id < lowerMinArray.size() &&
       (lowerMinArray[id] < upperMinArray[0] &&
         !Comparator<IsInteger>::Equals(lowerMinArray[id], upperMinArray[0])))
     {
       ++id;
     }
-    if (this->SubArraysAreEqual(lowerMinArray, upperMinArray, id))
-    {
-      this->LocalMinId = 0;
-      this->MinId = id;
-      if (lowerMaxArray[0] > upperMaxArray[0])
-      {
-        std::swap(this->MaxId, this->LocalMaxId);
-      }
-    }
-  }
 
-  template <class RangeT>
-  bool SubArraysAreEqual(const RangeT& lowerArray, const RangeT& upperArray, vtkIdType lowerId)
-  {
-    vtkIdType upperId = 0;
-    using ValueType = typename RangeT::ValueType;
-    constexpr bool IsInteger = std::numeric_limits<ValueType>::is_integer;
-    while (lowerId < lowerArray.size() && upperId < upperArray.size() &&
-      Comparator<IsInteger>::Equals(lowerArray[lowerId], upperArray[upperId]))
+    // The coordinates must coincide from there until one of the arrays ends.
+    vtkIdType lowerId = id, upperId = 0;
+    while (lowerId < lowerMinArray.size() && upperId < upperMinArray.size() &&
+      Comparator<IsInteger>::Equals(lowerMinArray[lowerId], upperMinArray[upperId]))
     {
       ++lowerId;
       ++upperId;
     }
-    if (lowerId == lowerArray.size())
+    if (upperId == 0 || (lowerId != lowerMinArray.size() && upperId != upperMinArray.size()))
     {
-      this->MaxId = lowerId - 1;
-      this->LocalMaxId = upperId - 1;
-      this->Overlaps = true;
-      return true;
+      return;
     }
-    return false;
+
+    this->Overlaps = true;
+    if (lowerMaxStartsFirst)
+    {
+      this->MinId = static_cast<int>(id);
+      this->MaxId = static_cast<int>(lowerId - 1);
+      this->LocalMinId = 0;
+      this->LocalMaxId = static_cast<int>(upperId - 1);
+    }
+    else
+    {
+      this->MinId = 0;
+      this->MaxId = static_cast<int>(upperId - 1);
+      this->LocalMinId = static_cast<int>(id);
+      this->LocalMaxId = static_cast<int>(lowerId - 1);
+    }
   }
 
   vtkDataArray* Array;
@@ -3124,10 +3215,13 @@ vtkSmartPointer<vtkIdList> ComputeOutputInterfaceCellIdsForStructuredData(
 /**
  * Given 2 input extents `localExtent` and `extent`, this function returns the list of ids in `grid`
  * such that the points lie in the intersection of the 2 input extents.
+ * `receiverExtent` is the extent of the receiving block before ghosts are added. When cropping,
+ * only interface points that the receiver already owns are removed.
  */
 template <class GridDataSetT>
 vtkSmartPointer<vtkIdList> ComputeInterfacePointIdsForStructuredData(unsigned char adjacencyMask,
-  const ::ExtentType& localExtent, const ::ExtentType& extent, GridDataSetT* grid, bool crop)
+  const ::ExtentType& localExtent, const ::ExtentType& extent, const ::ExtentType& receiverExtent,
+  GridDataSetT* grid, bool crop)
 {
   int imin, imax, jmin, jmax, kmin, kmax;
   imin = std::max(extent[0], localExtent[0]);
@@ -3221,13 +3315,25 @@ vtkSmartPointer<vtkIdList> ComputeInterfacePointIdsForStructuredData(unsigned ch
     {
       cropkmin = cropkmax = kmin;
     }
+
+    // Where the sending block overhangs the receiver transversely, the interface points lie outside
+    // the receiver and it has no copy of them, so they must be sent.
+    cropimin = std::max(cropimin, receiverExtent[0]);
+    cropimax = std::min(cropimax, receiverExtent[1]);
+    cropjmin = std::max(cropjmin, receiverExtent[2]);
+    cropjmax = std::min(cropjmax, receiverExtent[3]);
+    cropkmin = std::max(cropkmin, receiverExtent[4]);
+    cropkmax = std::min(cropkmax, receiverExtent[5]);
   }
 
   const int* gridExtent = grid->GetExtent();
   vtkNew<vtkIdList> ids;
 
+  const bool cropIsEmpty = cropimin > cropimax || cropjmin > cropjmax || cropkmin > cropkmax;
   ids->SetNumberOfIds((imax - imin + 1) * (jmax - jmin + 1) * (kmax - kmin + 1) -
-    (crop ? (cropimax - cropimin + 1) * (cropjmax - cropjmin + 1) * (cropkmax - cropkmin + 1) : 0));
+    (crop && !cropIsEmpty
+        ? (cropimax - cropimin + 1) * (cropjmax - cropjmin + 1) * (cropkmax - cropkmin + 1)
+        : 0));
   vtkIdType count = -1;
   int ijk[3];
   for (ijk[2] = kmin; ijk[2] <= kmax; ++ijk[2])
@@ -3268,7 +3374,7 @@ vtkSmartPointer<vtkIdList> ComputeInputInterfacePointIdsForStructuredData(
   const ::ExtentType& localExtent = block->Information.Extent;
 
   return ::ComputeInterfacePointIdsForStructuredData(
-    adjacencyMask, localExtent, extent, grid, crop);
+    adjacencyMask, localExtent, extent, blockStructure.ShiftedExtent, grid, crop);
 }
 
 //----------------------------------------------------------------------------
@@ -3280,7 +3386,7 @@ template <class GridDataSetT>
 vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIdsForStructuredData(
   typename ::DataSetTypeToBlockTypeConverter<GridDataSetT>::BlockType::BlockStructureType&
     blockStructure,
-  GridDataSetT* grid, bool crop)
+  const ::ExtentType& receiverExtent, GridDataSetT* grid, bool crop)
 {
   const unsigned char& adjacencyMask = blockStructure.AdjacencyMask;
   const ::ExtentType& extent = blockStructure.ShiftedExtent;
@@ -3292,7 +3398,7 @@ vtkSmartPointer<vtkIdList> ComputeOutputInterfacePointIdsForStructuredData(
   // in the Input version of this function. It produces an axial symmetry on each dimension
   // having an adjacency.
   return ::ComputeInterfacePointIdsForStructuredData(
-    ~adjacencyMask, localExtent, extent, grid, crop);
+    ~adjacencyMask, localExtent, extent, receiverExtent, grid, crop);
 }
 
 //----------------------------------------------------------------------------
@@ -5451,7 +5557,7 @@ void FillReceivedGhostsForStructuredData(
   BlockStructureType& blockStructure = block->BlockStructures.at(gid);
 
   vtkSmartPointer<vtkIdList> pointIds = ::ComputeOutputInterfacePointIdsForStructuredData(
-    blockStructure, output, myGid < gid /* crop */);
+    blockStructure, block->Information.Extent, output, myGid < gid /* crop */);
 
   // We're skipping points that were already set by another block. This ensures that the block of
   // lowest id stays the owner of any point that exists in multiple blocks.

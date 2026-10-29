@@ -54,9 +54,11 @@
 #include "vtkXMLPartitionedDataSetCollectionReader.h"
 #endif
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <set>
+#include <type_traits>
 #include <vector>
 
 namespace
@@ -3664,6 +3666,247 @@ bool TestGenerateGlobalIdsOnCFDPolyhedralMesh(
   return ::TestGenerateGlobalIds(partitions);
 }
 #endif
+
+//----------------------------------------------------------------------------
+template <class GridDataSetT>
+vtkSmartPointer<GridDataSetT> MakeMisalignedBlock(const int extent[6])
+{
+  auto grid = vtkSmartPointer<GridDataSetT>::New();
+  grid->SetExtent(extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);
+  if constexpr (std::is_same<GridDataSetT, vtkRectilinearGrid>::value)
+  {
+    vtkNew<vtkDoubleArray> x, y, z;
+    SetCoordinates(x, extent[0], extent[1], XCoordinates);
+    SetCoordinates(y, extent[2], extent[3], YCoordinates);
+    SetCoordinates(z, extent[4], extent[5], ZCoordinates);
+    grid->SetXCoordinates(x);
+    grid->SetYCoordinates(y);
+    grid->SetZCoordinates(z);
+  }
+  else if constexpr (std::is_same<GridDataSetT, vtkStructuredGrid>::value)
+  {
+    vtkNew<vtkPoints> points;
+    points->SetNumberOfPoints(vtkStructuredData::GetNumberOfPoints(extent));
+    int ijk[3];
+    for (ijk[2] = extent[4]; ijk[2] <= extent[5]; ++ijk[2])
+    {
+      for (ijk[1] = extent[2]; ijk[1] <= extent[3]; ++ijk[1])
+      {
+        for (ijk[0] = extent[0]; ijk[0] <= extent[1]; ++ijk[0])
+        {
+          points->SetPoint(vtkStructuredData::ComputePointIdForExtent(extent, ijk),
+            XCoordinates[MaxExtent + ijk[0]], YCoordinates[MaxExtent + ijk[1]],
+            ZCoordinates[MaxExtent + ijk[2]]);
+        }
+      }
+    }
+    grid->SetPoints(points);
+  }
+
+  vtkNew<vtkDoubleArray> values;
+  values->SetName(GridArrayName);
+  values->SetNumberOfTuples(grid->GetNumberOfPoints());
+  int ijk[3];
+  for (ijk[2] = extent[4]; ijk[2] <= extent[5]; ++ijk[2])
+  {
+    for (ijk[1] = extent[2]; ijk[1] <= extent[3]; ++ijk[1])
+    {
+      for (ijk[0] = extent[0]; ijk[0] <= extent[1]; ++ijk[0])
+      {
+        values->SetValue(vtkStructuredData::ComputePointIdForExtent(extent, ijk),
+          GetGridValue(ijk[0], ijk[1], ijk[2]));
+      }
+    }
+  }
+  grid->GetPointData()->AddArray(values);
+  return grid;
+}
+
+//----------------------------------------------------------------------------
+// Compares every cell of every partition, ghosts included, with the cell at the same ijk in
+// `refCells`. The comparison is fuzzy because the cell values of a vtkStructuredGrid are averaged
+// in a different order than the ones of the reference vtkImageData.
+template <class GridDataSetT>
+bool TestAllCellValues(vtkPartitionedDataSet* pds, vtkImageData* refCells)
+{
+  const int* refExtent = refCells->GetExtent();
+  vtkDataArray* refArray = refCells->GetCellData()->GetArray(GridArrayName);
+  for (unsigned int partitionId = 0; partitionId < pds->GetNumberOfPartitions(); ++partitionId)
+  {
+    auto part = GridDataSetT::SafeDownCast(pds->GetPartition(partitionId));
+    vtkDataArray* array = part ? part->GetCellData()->GetArray(GridArrayName) : nullptr;
+    if (!array)
+    {
+      return false;
+    }
+    const int* extent = part->GetExtent();
+    int ijk[3];
+    for (ijk[2] = extent[4]; ijk[2] <= std::max(extent[4], extent[5] - 1); ++ijk[2])
+    {
+      for (ijk[1] = extent[2]; ijk[1] <= std::max(extent[2], extent[3] - 1); ++ijk[1])
+      {
+        for (ijk[0] = extent[0]; ijk[0] <= std::max(extent[0], extent[1] - 1); ++ijk[0])
+        {
+          const vtkIdType cellId = vtkStructuredData::ComputeCellIdForExtent(extent, ijk);
+          const vtkIdType refCellId = vtkStructuredData::ComputeCellIdForExtent(refExtent, ijk);
+          if (!vtkMathUtilities::FuzzyCompare(
+                array->GetTuple1(cellId), refArray->GetTuple1(refCellId)))
+          {
+            return false;
+          }
+        }
+      }
+    }
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+// Blocks whose faces do not line up, as on a level of an AMR hierarchy: block 0 spans the whole
+// height of the domain on the left, and its right face is shared with blocks 1, 2 and 3, which
+// split the height at j = -2 and j = 2. Block 0 overhangs each of them transversely, so each
+// exchanges with it through only part of its face, and block 2 is within it at both ends.
+template <class GridDataSetT>
+bool TestMisalignedBlocks(
+  vtkMultiProcessController* controller, int myrank, int numberOfGhostLayers, const char* typeName)
+{
+  const int n = numberOfGhostLayers;
+  const int blockExtents[4][6] = { { -MaxExtent, 0, -MaxExtent, MaxExtent, 0, 0 },
+    { 0, MaxExtent, -MaxExtent, -2, 0, 0 }, { 0, MaxExtent, -2, 2, 0, 0 },
+    { 0, MaxExtent, 2, MaxExtent, 0, 0 } };
+  const int expectedExtents[4][6] = { { -MaxExtent, n, -MaxExtent, MaxExtent, 0, 0 },
+    { -n, MaxExtent, -MaxExtent, -2 + n, 0, 0 }, { -n, MaxExtent, -2 - n, 2 + n, 0, 0 },
+    { -n, MaxExtent, 2 - n, MaxExtent, 0, 0 } };
+
+  std::vector<int> localBlocks;
+  if (controller->GetNumberOfProcesses() == 1)
+  {
+    localBlocks = { 0, 1, 2, 3 };
+  }
+  else if (myrank == 0)
+  {
+    localBlocks = { 0 };
+  }
+  else if (myrank == 1)
+  {
+    localBlocks = { 1, 2, 3 };
+  }
+
+  bool retVal = true;
+
+  vtkNew<vtkImageData> refImage;
+  refImage->SetExtent(-MaxExtent, MaxExtent, -MaxExtent, MaxExtent, 0, 0);
+  FillImage(refImage);
+  vtkNew<vtkPointDataToCellData> refPointToCell;
+  refPointToCell->SetInputData(refImage);
+  refPointToCell->Update();
+  vtkImageData* refCells = vtkImageData::SafeDownCast(refPointToCell->GetOutputDataObject(0));
+
+  vtkSmartPointer<vtkRectilinearGrid> refGrid;
+  if constexpr (!std::is_same<GridDataSetT, vtkImageData>::value)
+  {
+    const int domain[6] = { -MaxExtent, MaxExtent, -MaxExtent, MaxExtent, 0, 0 };
+    refGrid = ::MakeMisalignedBlock<vtkRectilinearGrid>(domain);
+  }
+
+  for (bool cellData : { false, true })
+  {
+    vtkNew<vtkPartitionedDataSet> pds;
+    pds->SetNumberOfPartitions(static_cast<unsigned int>(localBlocks.size()));
+    for (std::size_t id = 0; id < localBlocks.size(); ++id)
+    {
+      vtkSmartPointer<GridDataSetT> block =
+        ::MakeMisalignedBlock<GridDataSetT>(blockExtents[localBlocks[id]]);
+      if (cellData)
+      {
+        vtkNew<vtkPointDataToCellData> pointToCell;
+        pointToCell->SetInputData(block);
+        pointToCell->Update();
+        block = GridDataSetT::SafeDownCast(pointToCell->GetOutputDataObject(0));
+
+        // Information other than ghost bits, such as AMR blanking, must survive ghost generation.
+        if (localBlocks[id] == 0)
+        {
+          vtkNew<vtkUnsignedCharArray> ghosts;
+          ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+          ghosts->SetNumberOfValues(block->GetNumberOfCells());
+          ghosts->Fill(0);
+          ghosts->SetValue(0, vtkDataSetAttributes::REFINEDCELL);
+          block->GetCellData()->AddArray(ghosts);
+        }
+      }
+      pds->SetPartition(static_cast<unsigned int>(id), block);
+    }
+
+    vtkNew<vtkGhostCellsGenerator> generator;
+    generator->BuildIfRequiredOff();
+    generator->SetInputDataObject(pds);
+    generator->SetNumberOfGhostLayers(numberOfGhostLayers);
+    generator->Update();
+    vtkPartitionedDataSet* outPDS =
+      vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0));
+
+    for (std::size_t id = 0; id < localBlocks.size(); ++id)
+    {
+      auto part = GridDataSetT::SafeDownCast(outPDS->GetPartition(static_cast<unsigned int>(id)));
+      if (!part || !TestExtent(expectedExtents[localBlocks[id]], part->GetExtent()))
+      {
+        vtkLog(ERROR,
+          "Wrong extent of misaligned " << typeName << " block " << localBlocks[id] << " in rank "
+                                        << myrank);
+        retVal = false;
+        continue;
+      }
+      if (cellData && localBlocks[id] == 0)
+      {
+        vtkUnsignedCharArray* ghosts = part->GetCellData()->GetGhostArray();
+        int ijk[3] = { -MaxExtent, -MaxExtent, 0 };
+        const vtkIdType cellId = vtkStructuredData::ComputeCellIdForExtent(part->GetExtent(), ijk);
+        if (!ghosts || !(ghosts->GetValue(cellId) & vtkDataSetAttributes::REFINEDCELL))
+        {
+          vtkLog(ERROR,
+            "REFINEDCELL was lost by ghost generation on " << typeName << " in rank " << myrank);
+          retVal = false;
+        }
+      }
+    }
+
+    if (cellData)
+    {
+      if (!::TestAllCellValues<GridDataSetT>(outPDS, refCells))
+      {
+        vtkLog(
+          ERROR, "Wrong ghost cells on misaligned " << typeName << " blocks in rank " << myrank);
+        retVal = false;
+      }
+      if (!TestGhostCellsTagging(controller, outPDS, 4 * MaxExtent * MaxExtent))
+      {
+        retVal = false;
+      }
+    }
+    else
+    {
+      if (!TestImagePointData<GridDataSetT>(outPDS, refImage))
+      {
+        vtkLog(
+          ERROR, "Wrong ghost points on misaligned " << typeName << " blocks in rank " << myrank);
+        retVal = false;
+      }
+      if (!TestGhostPointsTagging(controller, outPDS, (2 * MaxExtent + 1) * (2 * MaxExtent + 1)))
+      {
+        retVal = false;
+      }
+      if (refGrid && !TestGridPoints<GridDataSetT>(outPDS, refGrid))
+      {
+        vtkLog(ERROR,
+          "Wrong ghost coordinates on misaligned " << typeName << " blocks in rank " << myrank);
+        retVal = false;
+      }
+    }
+  }
+
+  return retVal;
+}
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
@@ -3760,6 +4003,19 @@ int TestGhostCellsGenerator(int argc, char* argv[])
 
     if (!Test3DGrids(contr, myrank, numberOfGhostLayers, false) ||
       !Test3DGrids(contr, myrank, numberOfGhostLayers, true))
+    {
+      retVal = EXIT_FAILURE;
+    }
+
+    // Both are run on every rank, so that a failure on one rank does not desynchronize the
+    // collective calls of the others.
+    const bool misalignedImages =
+      TestMisalignedBlocks<vtkImageData>(contr, myrank, numberOfGhostLayers, "vtkImageData");
+    const bool misalignedRectilinearGrids = TestMisalignedBlocks<vtkRectilinearGrid>(
+      contr, myrank, numberOfGhostLayers, "vtkRectilinearGrid");
+    const bool misalignedStructuredGrids = TestMisalignedBlocks<vtkStructuredGrid>(
+      contr, myrank, numberOfGhostLayers, "vtkStructuredGrid");
+    if (!misalignedImages || !misalignedRectilinearGrids || !misalignedStructuredGrids)
     {
       retVal = EXIT_FAILURE;
     }

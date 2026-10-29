@@ -202,6 +202,11 @@ struct GhostFinder
 
 static constexpr unsigned char GHOST_CELL_BIT = 1;
 static constexpr unsigned char GHOST_POINT_BIT = 2;
+// Set when the cell ghost array carries cell types that must survive ghost generation.
+static constexpr unsigned char KEPT_CELL_TYPES_BIT = 4;
+static constexpr int KEPT_CELL_TYPES = vtkDataSetAttributes::REFINEDCELL |
+  vtkDataSetAttributes::HIGHCONNECTIVITYCELL | vtkDataSetAttributes::LOWCONNECTIVITYCELL |
+  vtkDataSetAttributes::EXTERIORCELL;
 
 //----------------------------------------------------------------------------
 template <class StructuredDataSetT>
@@ -241,6 +246,10 @@ unsigned char CleanGhostsReduceAllForStructuredData(
         vtkSMPTools::For(0, numberOfCells, worker);
 
         foundGhost |= GHOST_CELL_BIT * worker.FoundGhost;
+        if (ds->GetCellData()->HasAnyGhostBitSet(KEPT_CELL_TYPES))
+        {
+          foundGhost |= KEPT_CELL_TYPES_BIT;
+        }
       }
       if (vtkUnsignedCharArray* ghostPoints = ds->GetPointGhostArray())
       {
@@ -316,7 +325,7 @@ vtkSmartPointer<DataSetT> RemoveGhostArraysIfNeeded(
 {
   vtkSmartPointer<DataSetT> ds = vtkSmartPointer<DataSetT>::New();
   ds->ShallowCopy(input);
-  if (!(ghostCleaningMask & GHOST_CELL_BIT))
+  if (!(ghostCleaningMask & (GHOST_CELL_BIT | KEPT_CELL_TYPES_BIT)))
   {
     ds->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
   }
