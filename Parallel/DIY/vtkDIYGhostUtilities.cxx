@@ -6647,20 +6647,22 @@ void vtkDIYGhostUtilities::ReinitializeSelectedBits(
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(
-  vtkDataSet* vtkNotUsed(input), vtkBoundingBox& vtkNotUsed(bb))
+  vtkDataSet* vtkNotUsed(input), vtkBoundingBox& vtkNotUsed(bb), double vtkNotUsed(tolerance))
 {
 }
 
 //----------------------------------------------------------------------------
 void vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(
-  vtkPointSet* vtkNotUsed(input), vtkBoundingBox& bb)
+  vtkPointSet* vtkNotUsed(input), vtkBoundingBox& bb, double tolerance)
 {
   // We inflate the bounding box by quite a lot (0.1% of the bounding box's largest width).
   // It is not that problematic. It might include a few extra points to be shared across partitions.
   // This loose inflation allows data sets that have very imprecise point positions and global ids
   // attached to them to succeed at generating ghosts.
   // This addresses paraview/paraview#21228
-  bb.Inflate(1e-3 * bb.GetMaxLength());
+  // It is at least the tolerance of the matching of the points, so that no point within the
+  // tolerance of a point of a neighbor is outside its bounding box.
+  bb.Inflate(std::max(1e-3 * bb.GetMaxLength(), tolerance));
 }
 
 //----------------------------------------------------------------------------

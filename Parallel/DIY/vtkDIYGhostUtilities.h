@@ -944,11 +944,12 @@ protected:
   ///@}
 
   /**
-   * This method exchanges the bounding boxes among blocks.
+   * This method exchanges the bounding boxes among blocks, inflated with `tolerance`, the tolerance
+   * of the matching of the points (see InflateBoundingBoxIfNecessary).
    */
   template <class DataSetT>
-  static void ExchangeBoundingBoxes(
-    diy::Master& master, const vtkDIYExplicitAssigner& assigner, std::vector<DataSetT*>& inputs);
+  static void ExchangeBoundingBoxes(diy::Master& master, const vtkDIYExplicitAssigner& assigner,
+    std::vector<DataSetT*>& inputs, double tolerance = 0);
 
   template <class BlockT>
   static LinkMap ComputeLinkMapUsingBoundingBoxes(const diy::Master& master);
@@ -1117,14 +1118,15 @@ private:
   ///@{
   /**
    * Internal method that inflates exchanged bounding boxes to better treat floating point precision
-   * for points that are on the boundary of the bounding box.
+   * for points that are on the boundary of the bounding box, and at least by `tolerance`, the
+   * tolerance of the matching of the points.
    *
-   * @note This method only does something for vtkUnstructuredGrid and vtkPolyData. The vtkDataSet
-   * version is empty;
+   * @note This method only does something for vtkPointSet. The vtkDataSet version is empty;
    */
   static void InflateBoundingBoxIfNecessary(
-    vtkDataSet* vtkNotUsed(input), vtkBoundingBox& vtkNotUsed(bb));
-  static void InflateBoundingBoxIfNecessary(vtkPointSet* input, vtkBoundingBox& bb);
+    vtkDataSet* vtkNotUsed(input), vtkBoundingBox& vtkNotUsed(bb), double vtkNotUsed(tolerance));
+  static void InflateBoundingBoxIfNecessary(
+    vtkPointSet* input, vtkBoundingBox& bb, double tolerance);
   ///@}
 };
 
