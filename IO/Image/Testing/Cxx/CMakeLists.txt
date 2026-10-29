@@ -10,6 +10,7 @@ vtk_add_test_cxx(vtkIOImageCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
   TestDataObjectIO.cxx
   TestMetaIO.cxx
+  TestMetaImageReaderName.cxx
   TestImportExport.cxx
   TestHDRReaderInvalidFileHandling.cxx
   TestBMPReaderInvalidFileHandling.cxx

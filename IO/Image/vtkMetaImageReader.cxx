@@ -215,8 +215,6 @@ void vtkMetaImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkIn
     return;
   }
 
-  data->GetPointData()->GetScalars()->SetName("MetaImage");
-
   this->ComputeDataIncrements();
 
   if (!this->MetaImagePtr->Read(this->FileName, true, data->GetScalarPointer()))
@@ -226,6 +224,13 @@ void vtkMetaImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkIn
   }
 
   this->MetaImagePtr->ElementByteOrderFix();
+
+  const char* name = nullptr;
+  if (this->UseArrayNameInFile)
+  {
+    name = this->MetaImagePtr->Name();
+  }
+  data->GetPointData()->GetScalars()->SetName(name && name[0] ? name : "MetaImage");
 }
 
 int vtkMetaImageReader::RequestInformation(
@@ -389,5 +394,6 @@ void vtkMetaImageReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BitsAllocated: " << this->BitsAllocated << endl;
   os << indent << "DistanceUnits: " << this->DistanceUnits << endl;
   os << indent << "AnatomicalOrientation: " << this->AnatomicalOrientation << endl;
+  os << indent << "UseArrayNameInFile: " << (this->UseArrayNameInFile ? "On" : "Off") << endl;
 }
 VTK_ABI_NAMESPACE_END
