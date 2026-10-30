@@ -27,7 +27,8 @@
 /openxrremoting*
 # ci/download_osmesa_windows.cmake
 /osmesa*
-# ci/download_python.cmake
+# ci/python_{macos.sh,windows.ps1}, ci/uv.{sh,ps1}
+/uv*
 /python*
 # ci/download_qt6.cmake
 /*d3dcompiler*

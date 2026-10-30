@@ -4,9 +4,13 @@
 
 .windows:
     variables:
-        GIT_CLONE_PATH: "$CI_BUILDS_DIR\\vtk-ci-ext\\$CI_CONCURRENT_ID"
         # Turn off direct mode until we test it.
         BUILDCACHE_DIRECT_MODE: "false"
+        FF_ENABLE_JOB_CLEANUP: "true"
+        GIT_CLONE_EXTRA_FLAGS: "--depth 1 --tags"
+        GIT_CLONE_PATH: "$CI_BUILDS_DIR\\vtk-ci-ext\\$CI_CONCURRENT_ID"
+        GIT_STRATEGY: clone
+
 
 .wheel_windows_x86_64:
     extends: .windows
@@ -96,6 +100,7 @@
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows314t_x86_64
+        PYTHON_VERSION_SUFFIX: "3.14t"
 
 .wheel_windows314t_x86_64_osmesa:
     extends:
@@ -267,9 +272,9 @@
 .before_script_windows_deps: &before_script_windows_deps
     - cmake -P .gitlab/ci/download_qt6.cmake
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\qt6\bin;$env:PATH"
-    - cmake -P .gitlab/ci/download_python.cmake
-    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\python;$env:PATH"
-    - Set-Item -Force -Path "env:PYTHONHOME" -Value "$pwdpath\.gitlab\python"
+    - . .gitlab/ci/python_windows.ps1
+    - Set-Item -Force -Path "env:PATH" -Value "$env:PYTHON_PREFIX;$env:PATH"
+    - Set-Item -Force -Path "env:PYTHONHOME" -Value "$env:PYTHON_PREFIX"
     - cmake -P .gitlab/ci/download_tbb.cmake
     - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\tbb;$env:CMAKE_PREFIX_PATH"
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\tbb\redist\$env:TBB_REDIST_DIR;$env:PATH"
@@ -294,10 +299,12 @@
     # This may be necessary when running manually.
     # Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
     - . .\build\ci-venv\Scripts\Activate.ps1
+    # Packages without a wheel (e.g. numpy) are built here, so use the same
+    # compiler as the rest of the build.
+    - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
     - pip install -qq -r $pwdpath\.gitlab\ci\requirements.txt
     - Invoke-Expression -Command .gitlab/ci/buildcache.ps1
     - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"
-    - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
     - buildcache --show-stats
     - ctest -VV -S .gitlab/ci/ctest_configure.cmake
     - ctest -VV -S .gitlab/ci/ctest_build.cmake | Out-File -FilePath compile_output.log
@@ -360,8 +367,7 @@
         - *before_script_windows
         - *before_script_windows_jpeg_simd_deps
         - *before_script_windows_openxr_deps
-        - cmake -P .gitlab/ci/download_wheel_python.cmake
-        - Set-Item -Force -Path "env:PYTHON_PREFIX" -Value "$pwdpath\.gitlab\python"
+        - . .gitlab/ci/python_windows.ps1
         - Invoke-Expression -Command .gitlab/ci/buildcache.ps1
         - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"
         - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
@@ -372,7 +378,7 @@
         - buildcache --show-stats
         - cd build
         - Set-Item -Force -Path "env:PATH" -Value "$env:PYTHON_PREFIX;$env:PATH"
-        - python -m venv venv
+        - '& "python$env:PYTHON_VERSION_SUFFIX" -m venv venv'
         - . .\venv\Scripts\Activate.ps1
         - pip install setuptools
         - pip install wheel
@@ -399,17 +405,17 @@
         - *before_script_windows_openxr_deps
         - cmake -P .gitlab/ci/download_osmesa_windows.cmake
         - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\osmesa\bin;$env:PATH"
-        - cmake -P .gitlab/ci/download_wheel_python.cmake
-        - Set-Item -Force -Path "env:PYTHON_PREFIX" -Value "$pwdpath\.gitlab\python"
+        - . .gitlab/ci/python_windows.ps1
         - Set-Item -Force -Path "env:PATH" -Value "$env:PYTHON_PREFIX;$env:PATH"
-        - python -m venv venv
+        - '& "python$env:PYTHON_VERSION_SUFFIX" -m venv venv'
         - . .\venv\Scripts\Activate.ps1
         - pip install twine
         - twine check (Get-ChildItem build\dist\*.whl | % FullName)
         - pip install (Get-ChildItem build\dist\*.whl | % FullName)
-        - $PYTHON_VERSION_SUFFIX=python -c "import sys;print(f'{sys.version_info[0]}.{sys.version_info[1]}')"
-        - pip install -r $pwdpath\.gitlab\ci\requirements-wheel$PYTHON_VERSION_SUFFIX-test.txt
-        - python -c "import xarray"
+        - $PYTHON_REQUIREMENTS_VERSION=python -c "import sys;print(f'{sys.version_info[0]}.{sys.version_info[1]}')"
+        # Python xarray deps not available yet for free threading.
+        - if ("$env:CMAKE_CONFIGURATION" -notmatch "windows\d+t") { pip install -r $pwdpath\.gitlab\ci\requirements-wheel$PYTHON_REQUIREMENTS_VERSION-test.txt }
+        - if ("$env:CMAKE_CONFIGURATION" -notmatch "windows\d+t") { python -c "import xarray" }
         - python -c "import vtk"
         - if ( "$env:VTK_DISABLE_PYI_TESTING" -ne "1" ) { python -m vtkmodules.generate_pyi --test -p vtkmodules } else { echo "pyi test is disabled." }
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
