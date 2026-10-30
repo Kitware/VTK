@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAnariLightNode.h"
 
-#include "vtkAnariCameraNode.h"
 #include "vtkAnariDevice.h"
 #include "vtkAnariProfiling.h"
 #include "vtkAnariSceneGraph.h"
@@ -13,6 +12,7 @@
 #include "vtkInformationDoubleKey.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRenderer.h"
@@ -261,34 +261,21 @@ void vtkAnariLightNode::Synchronize(bool prepass)
       { this->RenderTime, this->Internals->CameraTime, this->Internals->UserLightTransformTime });
   }
 
-  vtkNew<vtkMatrix4x4> cameraTransform;
-  vtkNew<vtkMatrix4x4> invCameraTransform;
-
-  if (userLightTransform)
-  {
-    vtkAnariCameraNode* anariCameraNode = static_cast<vtkAnariCameraNode*>(
-      this->Internals->RendererNode->GetFirstChildOfType("vtkAnariCameraNode"));
-    vtkCamera* vtkCamera = vtkCamera::SafeDownCast(anariCameraNode->GetRenderable());
-    vtkCamera->GetModelViewTransformObject()->GetMatrix(cameraTransform);
-    vtkMatrix4x4::Invert(cameraTransform, invCameraTransform);
-  }
-
   // Light Position
-  double position[3];
-  light->GetPosition(position);
+  double position[4] = { 0.0, 0.0, 0.0, 1.0 };
+  light->GetTransformedPosition(position);
 
   // Light Direction
-  double focalPoint[3];
-  light->GetFocalPoint(focalPoint);
-
-  if (light->LightTypeIsCameraLight())
-  {
-    light->GetTransformedPosition(position);
-    light->GetTransformedFocalPoint(focalPoint);
-  }
+  double focalPoint[4] = { 0.0, 0.0, 0.0, 1.0 };
+  light->GetTransformedFocalPoint(focalPoint);
 
   if (!light->LightTypeIsSceneLight() && userLightTransform)
   {
+    vtkNew<vtkMatrix4x4> cameraTransform;
+    vtkNew<vtkMatrix4x4> invCameraTransform;
+    vtkRenderer->GetActiveCamera()->GetModelViewTransformObject()->GetMatrix(cameraTransform);
+    vtkMatrix4x4::Invert(cameraTransform, invCameraTransform);
+
     cameraTransform->MultiplyPoint(position, position);
     userLightTransform->TransformPoint(position, position);
     invCameraTransform->MultiplyPoint(position, position);
