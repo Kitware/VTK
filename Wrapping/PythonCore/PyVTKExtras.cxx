@@ -95,17 +95,13 @@ static PyObject* PyVTKExtras_buffer_shared(PyObject*, PyObject* args)
 // ones still alive at exit from a Py_AtExit hook), and a ctypes callback then
 // enters a dead interpreter. This checks first, and leaks the hold instead,
 // which at exit is harmless.
+//
+// Py_IsInitialized() is false from the moment finalization starts (CPython
+// clears the flag as it marks the runtime finalizing), so it is the whole
+// check, and it is in the Limited API, unlike Py_IsFinalizing().
 static void PyVTKExtras_ReleaseCallable(void* context)
 {
   if (!context || !Py_IsInitialized())
-  {
-    return;
-  }
-#if PY_VERSION_HEX >= 0x030D0000
-  if (Py_IsFinalizing())
-#else
-  if (_Py_IsFinalizing())
-#endif
   {
     return;
   }
