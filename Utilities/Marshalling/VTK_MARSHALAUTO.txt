@@ -119,6 +119,7 @@ Common/DataModel/vtkPointData.h
 Common/DataModel/vtkPointSet.h
 Common/DataModel/vtkPolyData.h
 Common/DataModel/vtkRectilinearGrid.h
+Common/DataModel/vtkSideData.h
 Common/DataModel/vtkSpline.h
 Common/DataModel/vtkStaticCellLinks.h
 Common/DataModel/vtkStructuredGrid.h

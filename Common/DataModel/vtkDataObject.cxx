@@ -35,6 +35,7 @@ vtkInformationKeyMacro(vtkDataObject, POINT_DATA_VECTOR, InformationVector);
 vtkInformationKeyMacro(vtkDataObject, CELL_DATA_VECTOR, InformationVector);
 vtkInformationKeyMacro(vtkDataObject, VERTEX_DATA_VECTOR, InformationVector);
 vtkInformationKeyMacro(vtkDataObject, EDGE_DATA_VECTOR, InformationVector);
+vtkInformationKeyMacro(vtkDataObject, SIDE_DATA_VECTOR, InformationVector);
 vtkInformationKeyMacro(vtkDataObject, FIELD_ARRAY_TYPE, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_ASSOCIATION, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_ATTRIBUTE_COMPONENT, Integer);
@@ -62,12 +63,13 @@ static vtkTypeBool vtkDataObjectGlobalReleaseDataFlag = 0;
 static const char* FieldAssociationsNames[] = { "vtkDataObject::FIELD_ASSOCIATION_POINTS",
   "vtkDataObject::FIELD_ASSOCIATION_CELLS", "vtkDataObject::FIELD_ASSOCIATION_NONE",
   "vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS", "vtkDataObject::FIELD_ASSOCIATION_VERTICES",
-  "vtkDataObject::FIELD_ASSOCIATION_EDGES", "vtkDataObject::FIELD_ASSOCIATION_ROWS" };
+  "vtkDataObject::FIELD_ASSOCIATION_EDGES", "vtkDataObject::FIELD_ASSOCIATION_ROWS",
+  "vtkDataObject::FIELD_ASSOCIATION_SIDES" };
 
 // this list must be kept in-sync with the AttributeTypes enum
 static const char* AttributeTypesNames[] = { "vtkDataObject::POINT", "vtkDataObject::CELL",
   "vtkDataObject::FIELD", "vtkDataObject::POINT_THEN_CELL", "vtkDataObject::VERTEX",
-  "vtkDataObject::EDGE", "vtkDataObject::ROW" };
+  "vtkDataObject::EDGE", "vtkDataObject::ROW", "vtkDataObject::SIDE" };
 
 //------------------------------------------------------------------------------
 vtkDataObject::vtkDataObject()
@@ -186,6 +188,10 @@ vtkInformation* vtkDataObject::GetActiveFieldInformation(
   {
     fieldDataInfoVector = info->Get(EDGE_DATA_VECTOR());
   }
+  else if (fieldAssociation == FIELD_ASSOCIATION_SIDES)
+  {
+    fieldDataInfoVector = info->Get(SIDE_DATA_VECTOR());
+  }
   else
   {
     vtkGenericWarningMacro("Unrecognized field association!");
@@ -233,6 +239,10 @@ vtkInformation* vtkDataObject::GetNamedFieldInformation(
   {
     fieldDataInfoVector = info->Get(EDGE_DATA_VECTOR());
   }
+  else if (fieldAssociation == FIELD_ASSOCIATION_SIDES)
+  {
+    fieldDataInfoVector = info->Get(SIDE_DATA_VECTOR());
+  }
   else
   {
     vtkGenericWarningMacro("Unrecognized field association!");
@@ -278,6 +288,10 @@ void vtkDataObject::RemoveNamedFieldInformation(
   else if (fieldAssociation == FIELD_ASSOCIATION_EDGES)
   {
     fieldDataInfoVector = info->Get(EDGE_DATA_VECTOR());
+  }
+  else if (fieldAssociation == FIELD_ASSOCIATION_SIDES)
+  {
+    fieldDataInfoVector = info->Get(SIDE_DATA_VECTOR());
   }
   else
   {
@@ -325,6 +339,10 @@ vtkInformation* vtkDataObject::SetActiveAttribute(
   {
     fieldDataInfoVector = info->Get(EDGE_DATA_VECTOR());
   }
+  else if (fieldAssociation == FIELD_ASSOCIATION_SIDES)
+  {
+    fieldDataInfoVector = info->Get(SIDE_DATA_VECTOR());
+  }
   else
   {
     vtkGenericWarningMacro("Unrecognized field association!");
@@ -345,9 +363,13 @@ vtkInformation* vtkDataObject::SetActiveAttribute(
     {
       info->Set(VERTEX_DATA_VECTOR(), fieldDataInfoVector);
     }
-    else // if (fieldAssociation == FIELD_ASSOCIATION_EDGES)
+    else if (fieldAssociation == FIELD_ASSOCIATION_EDGES)
     {
       info->Set(EDGE_DATA_VECTOR(), fieldDataInfoVector);
+    }
+    else // if (fieldAssociation == FIELD_ASSOCIATION_SIDES)
+    {
+      info->Set(SIDE_DATA_VECTOR(), fieldDataInfoVector);
     }
     fieldDataInfoVector->FastDelete();
   }

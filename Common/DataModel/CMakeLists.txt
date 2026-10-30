@@ -230,6 +230,7 @@ set(classes
   vtkReebGraphSimplificationMetric
   vtkSelection
   vtkSelectionNode
+  vtkSideData
   vtkSimpleCellTessellator
   vtkSmoothErrorMetric
   vtkSortFieldData

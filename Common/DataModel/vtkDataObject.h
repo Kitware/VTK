@@ -252,12 +252,15 @@ public:
     FIELD_ASSOCIATION_VERTICES,
     FIELD_ASSOCIATION_EDGES,
     FIELD_ASSOCIATION_ROWS,
+    FIELD_ASSOCIATION_SIDES,
     NUMBER_OF_ASSOCIATIONS
   };
 
   /**
    * Possible attribute types.
    * POINT_THEN_CELL is provided for consistency with FieldAssociations.
+   * SIDE is data on the sides shared between cells: the faces of 3D cells and
+   * the edges of 2D cells.
    */
   enum AttributeTypes
   {
@@ -268,6 +271,7 @@ public:
     VERTEX,
     EDGE,
     ROW,
+    SIDE,
     NUMBER_OF_ATTRIBUTE_TYPES
   };
 
@@ -280,6 +284,7 @@ public:
    * <li>VERTEX - Defined in vtkGraph subclasses.
    * <li>EDGE   - Defined in vtkGraph subclasses.
    * <li>ROW    - Defined in vtkTable.
+   * <li>SIDE   - Defined in vtkUnstructuredGrid.
    * </ul>
    * The other attribute type, FIELD, will return nullptr since
    * field data is stored as a vtkFieldData instance, not a
@@ -429,6 +434,7 @@ public:
   static vtkInformationInformationVectorKey* CELL_DATA_VECTOR();
   static vtkInformationInformationVectorKey* VERTEX_DATA_VECTOR();
   static vtkInformationInformationVectorKey* EDGE_DATA_VECTOR();
+  static vtkInformationInformationVectorKey* SIDE_DATA_VECTOR();
   static vtkInformationIntegerKey* FIELD_ARRAY_TYPE();
   static vtkInformationIntegerKey* FIELD_ASSOCIATION();
   /**
