@@ -31,6 +31,15 @@ set_tests_properties(VTK::RenderingAnariOpenGLCxx-TestAnariLibrarySwitch
   TIMEOUT 300
 )
 
+vtk_add_test_cxx(vtkRenderingAnariOpenGLCxxTests tests
+  TestAnariLightUpdates.cxx,NO_VALID,NO_SERDES)
+
+set_tests_properties(VTK::RenderingAnariOpenGLCxx-TestAnariLightUpdates
+  PROPERTIES
+  ENVIRONMENT "VTK_FACTORY_PREFER=SupportRenderPass=true"
+  TIMEOUT 150
+)
+
 vtk_test_cxx_executable(vtkRenderingAnariOpenGLCxxTests tests
   RENDERING_FACTORY
   DISABLE_FLOATING_POINT_EXCEPTIONS
