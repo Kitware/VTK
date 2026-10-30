@@ -1660,9 +1660,29 @@ void vtkOSPRayRendererNode::Denoise()
 {
 #ifdef VTKOSPRAY_ENABLE_DENOISER
   RTW::Backend* backend = this->Internal->Backend;
+  const auto size = this->ImageX * this->ImageY;
   this->DenoisedBuffer = this->ColorBuffer;
   if (this->DenoiserDirty)
   {
+#if OIDN_VERSION_MAJOR >= 2
+    // OpenImageDenoise 2 only reads images that live in memory it owns; handing
+    // it a plain host pointer fails the filter and leaves the frame untouched.
+    this->DenoiserColor = this->DenoiserDevice.newBuffer(size * sizeof(osp::vec4f));
+    this->DenoiserNormal = this->DenoiserDevice.newBuffer(size * sizeof(osp::vec3f));
+    this->DenoiserAlbedo = this->DenoiserDevice.newBuffer(size * sizeof(osp::vec3f));
+
+    this->DenoiserFilter.setImage("color", this->DenoiserColor, oidn::Format::Float3, this->ImageX,
+      this->ImageY, 0, sizeof(osp::vec4f));
+
+    this->DenoiserFilter.setImage("normal", this->DenoiserNormal, oidn::Format::Float3,
+      this->ImageX, this->ImageY, 0, sizeof(osp::vec3f));
+
+    this->DenoiserFilter.setImage("albedo", this->DenoiserAlbedo, oidn::Format::Float3,
+      this->ImageX, this->ImageY, 0, sizeof(osp::vec3f));
+
+    this->DenoiserFilter.setImage("output", this->DenoiserColor, oidn::Format::Float3, this->ImageX,
+      this->ImageY, 0, sizeof(osp::vec4f));
+#else
     this->DenoiserFilter.setImage("color", (void*)this->ColorBuffer.data(), oidn::Format::Float3,
       this->ImageX, this->ImageY, 0, sizeof(osp::vec4f));
 
@@ -1674,12 +1694,12 @@ void vtkOSPRayRendererNode::Denoise()
 
     this->DenoiserFilter.setImage("output", (void*)this->DenoisedBuffer.data(),
       oidn::Format::Float3, this->ImageX, this->ImageY, 0, sizeof(osp::vec4f));
+#endif
 
     this->DenoiserFilter.commit();
     this->DenoiserDirty = false;
   }
 
-  const auto size = this->ImageX * this->ImageY;
   const osp::vec4f* rgba =
     static_cast<const osp::vec4f*>(ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR));
   std::copy(rgba, rgba + size, this->ColorBuffer.begin());
@@ -1693,7 +1713,27 @@ void vtkOSPRayRendererNode::Denoise()
   std::copy(albedo, albedo + size, this->AlbedoBuffer.begin());
   ospUnmapFrameBuffer(albedo, this->OFrameBuffer);
 
+#if OIDN_VERSION_MAJOR >= 2
+  this->DenoiserColor.write(0, size * sizeof(osp::vec4f), this->ColorBuffer.data());
+  this->DenoiserNormal.write(0, size * sizeof(osp::vec3f), this->NormalBuffer.data());
+  this->DenoiserAlbedo.write(0, size * sizeof(osp::vec3f), this->AlbedoBuffer.data());
+#endif
+
   this->DenoiserFilter.execute();
+
+  const char* denoiserError = nullptr;
+  if (this->DenoiserDevice.getError(denoiserError) != oidn::Error::None)
+  {
+    // Without this the denoiser fails silently and the frame simply stays noisy.
+    vtkWarningMacro(<< "OpenImageDenoise failed, showing the frame as rendered: "
+                    << (denoiserError ? denoiserError : "unknown error"));
+    return;
+  }
+
+#if OIDN_VERSION_MAJOR >= 2
+  this->DenoiserColor.read(0, size * sizeof(osp::vec4f), this->DenoisedBuffer.data());
+#endif
+
   // Carson: not sure we need two buffers
   this->ColorBuffer = this->DenoisedBuffer;
 #endif

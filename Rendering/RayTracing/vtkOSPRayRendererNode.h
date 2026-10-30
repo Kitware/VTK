@@ -426,6 +426,11 @@ protected:
 #ifdef VTKOSPRAY_ENABLE_DENOISER
   oidn::DeviceRef DenoiserDevice;
   oidn::FilterRef DenoiserFilter;
+#if OIDN_VERSION_MAJOR >= 2
+  oidn::BufferRef DenoiserColor;
+  oidn::BufferRef DenoiserNormal;
+  oidn::BufferRef DenoiserAlbedo;
+#endif
 #endif
   bool DenoiserDirty{ true };
   std::vector<osp::vec4f> ColorBuffer;
