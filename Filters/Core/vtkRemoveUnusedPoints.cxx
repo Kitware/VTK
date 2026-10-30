@@ -98,8 +98,8 @@ bool CopyConnectivity(vtkUnstructuredGrid* input, vtkUnstructuredGrid* output,
   auto inCellArray = input->GetCells();
   auto inConnectivity = inCellArray->GetConnectivityArray();
   auto inOffsets = inCellArray->GetOffsetsArray();
-  auto inFaces = input->GetPolyhedronFaces();
-  auto inFaceLocations = input->GetPolyhedronFaceLocations();
+  auto inFaces = input->GetOrientedPolyhedronFaces();
+  auto inFaceLocations = input->GetOrientedPolyhedronFaceLocations();
 
   vtkSmartPointer<vtkDataArray> outConnectivity;
   outConnectivity.TakeReference(inConnectivity->NewInstance());

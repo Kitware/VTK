@@ -19,7 +19,7 @@ namespace
 {
 std::vector<vtkIdType> GetFaceIds(vtkUnstructuredGrid* grid)
 {
-  vtkDataArray* conn = grid->GetPolyhedronFaces()->GetConnectivityArray();
+  vtkDataArray* conn = grid->GetOrientedPolyhedronFaces()->GetConnectivityArray();
   std::vector<vtkIdType> ids(conn->GetNumberOfTuples());
   for (vtkIdType i = 0; i < conn->GetNumberOfTuples(); ++i)
   {

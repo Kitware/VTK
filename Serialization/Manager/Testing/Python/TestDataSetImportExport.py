@@ -160,8 +160,8 @@ class TestDataSetImportExport(vtkTesting.vtkTest):
         self.assertEqual(original.GetNumberOfCells(),
                          deserialized.GetNumberOfCells())
 
-        original_faces = original.GetPolyhedronFaces()
-        deserialized_faces = deserialized.GetPolyhedronFaces()
+        original_faces = original.GetOrientedPolyhedronFaces()
+        deserialized_faces = deserialized.GetOrientedPolyhedronFaces()
         self.assertIsNotNone(deserialized_faces,
                              "polyhedron faces were lost in serialization")
         self.assertEqual(original_faces.GetNumberOfCells(),

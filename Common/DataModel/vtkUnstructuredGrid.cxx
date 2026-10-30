@@ -1232,6 +1232,10 @@ unsigned long vtkUnstructuredGrid::GetActualMemorySize()
   if (this->Polyhedra)
   {
     size += this->Polyhedra->GetActualMemorySize();
+    if (this->PerCellPolyhedra)
+    {
+      size += this->PerCellPolyhedra->GetActualMemorySize();
+    }
   }
 
   if (this->SideMap)
@@ -1712,6 +1716,42 @@ void vtkUnstructuredGrid::GetIdsOfCellsOfType(int type, vtkIdTypeArray* array)
 }
 
 //------------------------------------------------------------------------------
+vtkPolyhedronCellArray* vtkUnstructuredGrid::GetPerCellPolyhedra()
+{
+  if (!this->Polyhedra)
+  {
+    return nullptr;
+  }
+  if (this->PerCellPolyhedraSource.Get() != this->Polyhedra.Get() ||
+    this->PerCellPolyhedraTime < this->Polyhedra->GetMTime())
+  {
+    this->PerCellPolyhedraSource = this->Polyhedra;
+    this->PerCellPolyhedra = nullptr;
+    if (this->Polyhedra->HasSharedFaces())
+    {
+      this->PerCellPolyhedra = vtkSmartPointer<vtkPolyhedronCellArray>::New();
+      this->PerCellPolyhedra->DuplicateSharedFaces(this->Polyhedra);
+    }
+    this->PerCellPolyhedraTime.Modified();
+  }
+  return this->PerCellPolyhedra ? this->PerCellPolyhedra.Get() : this->Polyhedra.Get();
+}
+
+//------------------------------------------------------------------------------
+vtkCellArray* vtkUnstructuredGrid::GetPolyhedronFaces()
+{
+  vtkPolyhedronCellArray* polyhedra = this->GetPerCellPolyhedra();
+  return polyhedra ? polyhedra->GetFaces() : nullptr;
+}
+
+//------------------------------------------------------------------------------
+vtkCellArray* vtkUnstructuredGrid::GetPolyhedronFaceLocations()
+{
+  vtkPolyhedronCellArray* polyhedra = this->GetPerCellPolyhedra();
+  return polyhedra ? polyhedra->GetFaceLocations() : nullptr;
+}
+
+//------------------------------------------------------------------------------
 void vtkUnstructuredGrid::RemoveGhostCells()
 {
   if (!this->GetNumberOfCells() || !this->CellData->GetGhostArray())
@@ -1723,8 +1763,10 @@ void vtkUnstructuredGrid::RemoveGhostCells()
   vtkNew<vtkCellArray> newCells;
   this->Connectivity->IsStorage64Bit() ? newCells->Use64BitStorage() : newCells->Use32BitStorage();
 
-  vtkCellArray* faces = this->GetPolyhedronFaces();
-  vtkCellArray* faceLocations = this->GetPolyhedronFaceLocations();
+  // The faces are copied cell by cell, so each cell has to own its faces.
+  vtkPolyhedronCellArray* perCell = this->GetPerCellPolyhedra();
+  vtkCellArray* faces = perCell ? perCell->GetFaces() : nullptr;
+  vtkCellArray* faceLocations = perCell ? perCell->GetFaceLocations() : nullptr;
   vtkNew<vtkCellArray> newFaces;
   if (faces)
   {

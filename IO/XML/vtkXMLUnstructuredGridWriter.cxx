@@ -125,7 +125,7 @@ void vtkXMLUnstructuredGridWriter::WriteInlinePiece(vtkIndent indent)
   {
     // This is a bit more efficient and avoids iteration over all cells.
     this->WritePolyCellsInline("Cells", grid->GetCells(), grid->GetCellTypes(),
-      grid->GetPolyhedronFaces(), grid->GetPolyhedronFaceLocations(), indent);
+      grid->GetOrientedPolyhedronFaces(), grid->GetOrientedPolyhedronFaceLocations(), indent);
   }
   else
   {
@@ -195,8 +195,8 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPiece(int index, vtkIndent inden
   if (vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(input))
   {
     this->ConvertCells(grid->GetCells());
-    this->WritePolyCellsAppended("Cells", grid->GetCellTypes(), grid->GetPolyhedronFaces(),
-      grid->GetPolyhedronFaceLocations(), indent, &this->CellsOM->GetPiece(index));
+    this->WritePolyCellsAppended("Cells", grid->GetCellTypes(), grid->GetOrientedPolyhedronFaces(),
+      grid->GetOrientedPolyhedronFaceLocations(), indent, &this->CellsOM->GetPiece(index));
   }
   else
   {
@@ -267,8 +267,8 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPieceData(int index)
   if (vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(input))
   {
     this->WritePolyCellsAppendedData(grid->GetCells(), grid->GetCellTypes(),
-      grid->GetPolyhedronFaces(), grid->GetPolyhedronFaceLocations(), this->CurrentTimeIndex,
-      &this->CellsOM->GetPiece(index));
+      grid->GetOrientedPolyhedronFaces(), grid->GetOrientedPolyhedronFaceLocations(),
+      this->CurrentTimeIndex, &this->CellsOM->GetPiece(index));
   }
   else
   {

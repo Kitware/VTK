@@ -111,7 +111,7 @@ bool CheckOutput(vtkUnstructuredGrid* output)
     return false;
   }
 
-  if (!output->GetPolyhedronFaces() || !output->GetPolyhedronFaceLocations())
+  if (!output->GetOrientedPolyhedronFaces() || !output->GetOrientedPolyhedronFaceLocations())
   {
     vtkLog(ERROR, "Output has no polyhedron face arrays: face topology was dropped.");
     return false;

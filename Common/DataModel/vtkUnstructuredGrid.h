@@ -20,9 +20,11 @@
 #include "vtkCellArray.h"             // inline GetCellPoints()
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_8_0
-#include "vtkPolyhedronCellArray.h"   // inline GetPolyhedronFaces()
+#include "vtkPolyhedronCellArray.h"   // inline GetOrientedPolyhedronFaces()
 #include "vtkSmartPointer.h"          // for smart pointer
+#include "vtkTimeStamp.h"             // for vtkTimeStamp
 #include "vtkUnstructuredGridBase.h"
+#include "vtkWeakPointer.h"   // for vtkWeakPointer
 #include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -456,26 +458,39 @@ public:
 
   ///@{
   /**
-   * Get pointer to faces and facelocations for polyhedron cells.
+   * The faces and face locations of the polyhedron cells as stored, the arrays
+   * of GetPolyhedronCellArray(), or nullptr if no polyhedron cell has been added.
+   * A face shared by two cells may be stored once, wound outward for one of
+   * them, and the other lists it as -(n+1) to traverse face n in reverse.
    *
-   * This provides direct, zero-copy access to internal vtkCellArray structures:
-   * the faces and face locations of GetPolyhedronCellArray(), or nullptr if no
-   * polyhedron cell has been added.
-   *
-   * @note Use GetPolyhedronFaces() and GetPolyhedronFaceLocations() only for whole-array
-   * operations such as I/O, serialization, or copying between datasets. To query faces
-   * per cell, use GetPolyhedronCellArray() instead.
+   * This is direct, zero-copy access, for whole-array operations such as I/O,
+   * serialization, or copying between datasets. To query faces per cell, use
+   * GetPolyhedronCellArray(), whose queries read through the sign.
    *
    * @sa GetPolyhedronCellArray()
    */
-  vtkCellArray* GetPolyhedronFaces()
+  vtkCellArray* GetOrientedPolyhedronFaces()
   {
     return this->Polyhedra ? this->Polyhedra->GetFaces() : nullptr;
   }
-  vtkCellArray* GetPolyhedronFaceLocations()
+  vtkCellArray* GetOrientedPolyhedronFaceLocations()
   {
     return this->Polyhedra ? this->Polyhedra->GetFaceLocations() : nullptr;
   }
+  ///@}
+
+  ///@{
+  /**
+   * The faces and face locations of the polyhedron cells with every cell owning
+   * its faces and every face id positive, as before faces could be shared. When
+   * no face is shared, these are the stored arrays. Otherwise they are a copy,
+   * made on the first call and kept until the polyhedra change, which is not
+   * thread safe, and to which modifications are lost.
+   */
+  VTK_DEPRECATED_IN_9_8_0("Use GetOrientedPolyhedronFaces(), whose faces may be shared")
+  vtkCellArray* GetPolyhedronFaces();
+  VTK_DEPRECATED_IN_9_8_0("Use GetOrientedPolyhedronFaceLocations(), which may list -(n+1)")
+  vtkCellArray* GetPolyhedronFaceLocations();
   ///@}
 
   ///@{
@@ -542,13 +557,14 @@ public:
    * Guidelines for accessing polyhedron faces:
    * - **Per-cell face queries:** Use GetPolyhedronCellArray() to inspect faces per cell
    *   (e.g., using `GetCellNumberOfFaces`, `GetFacePoints`, or via `Dispatch` in tight loops).
-   * - **Whole-array workflows:** Use GetPolyhedronFaces() and GetPolyhedronFaceLocations()
-   *   only for dataset-level operations such as file I/O, pipeline serialization, or copying.
+   * - **Whole-array workflows:** Use GetOrientedPolyhedronFaces() and
+   *   GetOrientedPolyhedronFaceLocations() only for dataset-level operations such as file I/O,
+   *   pipeline serialization, or copying.
    * - **Convenience extractions:** Methods such as GetPolyhedronFaces(vtkIdType, vtkCellArray*)
    *   and GetFaceStream() allocate and copy data; use them only when an explicit vtkCellArray
    *   or serialized face stream is strictly required.
    *
-   * @sa GetPolyhedronFaces(), GetPolyhedronFaceLocations(), GetFaceStream()
+   * @sa GetOrientedPolyhedronFaces(), GetOrientedPolyhedronFaceLocations(), GetFaceStream()
    */
   vtkPolyhedronCellArray* GetPolyhedronCellArray() { return this->Polyhedra; }
 
@@ -677,6 +693,17 @@ protected:
   // The numbering of the sides, made on first use, and the data on them.
   vtkSmartPointer<vtkUnstructuredGridSideMap> SideMap;
   vtkSmartPointer<vtkSideData> SideData;
+  // Polyhedra with every cell owning its faces, for GetPolyhedronFaces() and
+  // GetPolyhedronFaceLocations() when Polyhedra shares faces, and the source and
+  // time they were made from.
+  VTK_DEPRECATED_IN_9_8_0("Only for the deprecated GetPolyhedronFaces()")
+  vtkPolyhedronCellArray* GetPerCellPolyhedra();
+  vtkSmartPointer<vtkPolyhedronCellArray> PerCellPolyhedra VTK_DEPRECATED_IN_9_8_0(
+    "Only for the deprecated GetPolyhedronFaces()");
+  vtkWeakPointer<vtkPolyhedronCellArray> PerCellPolyhedraSource VTK_DEPRECATED_IN_9_8_0(
+    "Only for the deprecated GetPolyhedronFaces()");
+  vtkTimeStamp PerCellPolyhedraTime VTK_DEPRECATED_IN_9_8_0(
+    "Only for the deprecated GetPolyhedronFaces()");
 
   vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]) override;
   vtkIdType InternalInsertNextCell(int type, vtkIdList* ptIds) override;

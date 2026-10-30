@@ -214,13 +214,13 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
     if (inputUG)
     {
       totalNumberOfCellConnectivity += inputUG->GetCells()->GetNumberOfConnectivityIds();
-      if (inputUG->GetPolyhedronFaces() && inputUG->GetPolyhedronFaceLocations())
+      if (inputUG->GetOrientedPolyhedronFaces() && inputUG->GetOrientedPolyhedronFaceLocations())
       {
-        totalNumberOfFaces += inputUG->GetPolyhedronFaces()->GetNumberOfCells();
+        totalNumberOfFaces += inputUG->GetOrientedPolyhedronFaces()->GetNumberOfCells();
         totalNumberOfFaceConnectivity +=
-          inputUG->GetPolyhedronFaces()->GetNumberOfConnectivityIds();
+          inputUG->GetOrientedPolyhedronFaces()->GetNumberOfConnectivityIds();
         totalNumberOfFaceLocationIds +=
-          inputUG->GetPolyhedronFaceLocations()->GetNumberOfConnectivityIds();
+          inputUG->GetOrientedPolyhedronFaceLocations()->GetNumberOfConnectivityIds();
       }
     }
     else if (auto polyData = vtkPolyData::SafeDownCast(dataset))
@@ -531,14 +531,15 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
             cellConnectivityOffset, globalIndices, pointOffset);
           if (havePolyhedronFaces)
           {
-            if (ug->GetPolyhedronFaces() && ug->GetPolyhedronFaceLocations()) // handle polyhedrons
+            if (ug->GetOrientedPolyhedronFaces() &&
+              ug->GetOrientedPolyhedronFaceLocations()) // handle polyhedrons
             {
               // copy polyhedron faces
-              ug->GetPolyhedronFaces()->Dispatch(AppendCellArray{}, faceOffsetsArray,
+              ug->GetOrientedPolyhedronFaces()->Dispatch(AppendCellArray{}, faceOffsetsArray,
                 faceConnectivityArray, faceOffset, faceConnectivityOffset, globalIndices,
                 pointOffset);
               // copy polyhedron face locations
-              ug->GetPolyhedronFaceLocations()->Dispatch(AppendFaceLocations{},
+              ug->GetOrientedPolyhedronFaceLocations()->Dispatch(AppendFaceLocations{},
                 faceLocationsOffsetsArray, faceLocationsConnectivityArray, cellOffset,
                 faceLocationOffset, faceOffset);
             }

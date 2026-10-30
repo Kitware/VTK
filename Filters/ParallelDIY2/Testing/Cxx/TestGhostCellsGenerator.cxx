@@ -41,6 +41,7 @@
 #include "vtkPointDataToCellData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkPolyhedronCellArray.h"
 #include "vtkRandomAttributeGenerator.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRemoveGhosts.h"
@@ -4139,7 +4140,7 @@ bool TestPolyhedraWithSharedFaces(int myrank, bool useImplicitArray)
       vtkLog(ERROR, "Wrong polyhedra in partition " << partitionId);
       return false;
     }
-    const vtkIdType numberOfFaces = ug->GetPolyhedronFaces()->GetNumberOfCells();
+    const vtkIdType numberOfFaces = ug->GetPolyhedronCellArray()->GetNumberOfFaces();
     if (numberOfFaces != 6 * 3)
     {
       vtkLog(ERROR,

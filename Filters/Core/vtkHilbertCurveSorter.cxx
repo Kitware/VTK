@@ -372,12 +372,13 @@ int vtkHilbertCurveSorter::RequestData(
       cells->DeepCopy(inUG->GetCells());
       cells->Dispatch(updateConn, inversePermutation->GetPointer(0));
       vtkNew<vtkCellArray> faces, faceLocations;
-      if (inUG->GetPolyhedronFaces() && inUG->GetPolyhedronFaces()->GetNumberOfCells() > 0)
+      if (inUG->GetOrientedPolyhedronFaces() &&
+        inUG->GetOrientedPolyhedronFaces()->GetNumberOfCells() > 0)
       {
-        faces->DeepCopy(inUG->GetPolyhedronFaces());
+        faces->DeepCopy(inUG->GetOrientedPolyhedronFaces());
         faces->Dispatch(updateConn, inversePermutation->GetPointer(0));
         outUG->SetPolyhedralCells(
-          inUG->GetCellTypes(), cells, inUG->GetPolyhedronFaceLocations(), faces);
+          inUG->GetCellTypes(), cells, inUG->GetOrientedPolyhedronFaceLocations(), faces);
       }
       else
       {

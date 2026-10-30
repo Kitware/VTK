@@ -146,8 +146,8 @@ int TestPolyhedralCellsInUG(int argc, char* argv[])
 
   ugrid0->SetPolyhedralCells(cellTypes, cells, faceLocations, faces);
 
-  vtkCellArray* facesHandle = ugrid0->GetPolyhedronFaces();
-  vtkCellArray* faceLocationsHandle = ugrid0->GetPolyhedronFaceLocations();
+  vtkCellArray* facesHandle = ugrid0->GetOrientedPolyhedronFaces();
+  vtkCellArray* faceLocationsHandle = ugrid0->GetOrientedPolyhedronFaceLocations();
 
   vtkNew<vtkUnstructuredGrid> ugrid1;
   ugrid1->SetPoints(poly->GetPoints());
