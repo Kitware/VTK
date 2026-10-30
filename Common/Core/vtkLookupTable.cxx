@@ -1555,10 +1555,18 @@ void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "TableRange: (" << this->TableRange[0] << ", " << this->TableRange[1] << ")\n";
-  os << indent << "Scale: "
-     << (this->Scale == VTK_SCALE_LOG10
-            ? "Log10\n"
-            : (this->Scale == VTK_SCALE_SYMLOG ? "Symlog\n" : "Linear\n"));
+  if (this->Scale == VTK_SCALE_LOG10)
+  {
+    os << indent << "Scale: Log10\n";
+  }
+  else if (this->Scale == VTK_SCALE_SYMLOG)
+  {
+    os << indent << "Scale: Symlog\n";
+  }
+  else
+  {
+    os << indent << "Scale: Linear\n";
+  }
   os << indent << "SymlogLinearThreshold: " << this->SymlogLinearThreshold << "\n";
   os << indent << "HueRange: (" << this->HueRange[0] << ", " << this->HueRange[1] << ")\n";
   os << indent << "SaturationRange: (" << this->SaturationRange[0] << ", "

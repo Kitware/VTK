@@ -216,7 +216,7 @@ int TestLookupTable(int, char*[])
       double values[] = { -extent, 0.0, extent };
       const vtkIdType indices[] = { 0, 128, 255 };
       unsigned char colors[12];
-      table->MapScalarsThroughTable2(values, colors, VTK_DOUBLE, 3, 1, VTK_RGBA);
+      table->MapScalarsThroughTable(values, colors, VTK_DOUBLE, 3, 1, VTK_RGBA);
       for (int i = 0; i < 3; ++i)
       {
         const vtkIdType index = table->GetIndex(values[i]);

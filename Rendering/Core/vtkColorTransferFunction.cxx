@@ -38,7 +38,6 @@ inline double vtkSymlogInv(double x, double linthresh)
 #include "vtkStringArray.h"
 
 #include <algorithm>
-#include <cmath>
 #include <iterator>
 #include <set>
 #include <vector>
