@@ -317,7 +317,7 @@ struct CountCellsImpl : public vtkPolyhedronCellArray::DispatchUtilities
       vtkIdType cellPoints = 0;
       for (const vtkIdType faceId : faceIds)
       {
-        cellPoints += GetCellSize(faceOffsets, faceId);
+        cellPoints += GetFaceSize(faceOffsets, faceId);
       }
       numFaces[i] = faceIds.size();
       numPoints[i] = cellPoints;
@@ -348,8 +348,10 @@ struct WriteCellsImpl : public vtkPolyhedronCellArray::DispatchUtilities
       {
         outLocationConnectivity[face] = static_cast<ValueT>(face);
         outFaceOffsets[face++] = static_cast<ValueT>(point);
-        for (const vtkIdType id : GetCellRange(faceOffsets, faceConnectivity, faceId))
+        const auto ids = GetOrientedFaceRange(faceOffsets, faceConnectivity, faceId);
+        for (vtkIdType k = 0; k < ids.size(); ++k)
         {
+          const vtkIdType id = ids[k];
           outFaceConnectivity[point++] = static_cast<ValueT>(pointMap ? pointMap[id] : id);
         }
       }

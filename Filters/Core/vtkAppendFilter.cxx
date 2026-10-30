@@ -103,6 +103,29 @@ vtkDataSetCollection* vtkAppendFilter::GetInputList()
 
 namespace
 {
+// Append the face locations of polyhedra: the offsets move by locationOffset,
+// and a face id moves by faceOffset away from zero, so that a reversed face
+// -(n+1) becomes -(n+faceOffset+1).
+struct AppendFaceLocations : public vtkCellArray::DispatchUtilities
+{
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdTypeArray* outputOffsets,
+    vtkIdTypeArray* outputConnectivity, vtkIdType cellOffset, vtkIdType locationOffset,
+    vtkIdType faceOffset)
+  {
+    using ValueType = GetAPIType<OffsetsT>;
+    auto inputOffsets = GetRange(offsets);
+    auto inputConnectivity = GetRange(conn);
+    auto numberOfCells = inputOffsets.size() - 1;
+    std::transform(inputOffsets.begin(), inputOffsets.begin() + numberOfCells,
+      outputOffsets->GetPointer(cellOffset),
+      [&](ValueType offset) { return static_cast<vtkIdType>(offset + locationOffset); });
+    std::transform(inputConnectivity.begin(), inputConnectivity.end(),
+      outputConnectivity->GetPointer(locationOffset), [&](ValueType id)
+      { return static_cast<vtkIdType>(id < 0 ? id - faceOffset : id + faceOffset); });
+  }
+};
+
 struct AppendCellArray : public vtkCellArray::DispatchUtilities
 {
   template <class OffsetsT, class ConnectivityT>
@@ -161,12 +184,14 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType totalNumberOfCellConnectivity = 0;
   vtkIdType totalNumberOfFaces = 0;
   vtkIdType totalNumberOfFaceConnectivity = 0;
+  vtkIdType totalNumberOfFaceLocationIds = 0;
 
   std::vector<vtkIdType> pointOffsets(datasets.size());
   std::vector<vtkIdType> cellOffsets(datasets.size());
   std::vector<vtkIdType> cellConnectivityOffsets(datasets.size());
   std::vector<vtkIdType> faceOffsets(datasets.size());
   std::vector<vtkIdType> faceConnectivityOffsets(datasets.size());
+  std::vector<vtkIdType> faceLocationOffsets(datasets.size());
 
   // If we only have a single dataset and it's an unstructured grid
   // we can just shallow copy that and exit quickly.
@@ -180,6 +205,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
     cellConnectivityOffsets[idx] = totalNumberOfCellConnectivity;
     faceOffsets[idx] = totalNumberOfFaces;
     faceConnectivityOffsets[idx] = totalNumberOfFaceConnectivity;
+    faceLocationOffsets[idx] = totalNumberOfFaceLocationIds;
 
     totalNumberOfPoints += dataset->GetNumberOfPoints();
     totalNumberOfCells += dataset->GetNumberOfCells();
@@ -193,6 +219,8 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
         totalNumberOfFaces += inputUG->GetPolyhedronFaces()->GetNumberOfCells();
         totalNumberOfFaceConnectivity +=
           inputUG->GetPolyhedronFaces()->GetNumberOfConnectivityIds();
+        totalNumberOfFaceLocationIds +=
+          inputUG->GetPolyhedronFaceLocations()->GetNumberOfConnectivityIds();
       }
     }
     else if (auto polyData = vtkPolyData::SafeDownCast(dataset))
@@ -475,8 +503,8 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
     faceOffsetsArray->SetValue(totalNumberOfFaces, totalNumberOfFaceConnectivity);
     faceConnectivityArray->SetNumberOfValues(totalNumberOfFaceConnectivity);
     faceLocationsOffsetsArray->SetNumberOfValues(totalNumberOfCells + 1);
-    faceLocationsOffsetsArray->SetValue(totalNumberOfCells, totalNumberOfFaces);
-    faceLocationsConnectivityArray->SetNumberOfValues(totalNumberOfFaces);
+    faceLocationsOffsetsArray->SetValue(totalNumberOfCells, totalNumberOfFaceLocationIds);
+    faceLocationsConnectivityArray->SetNumberOfValues(totalNumberOfFaceLocationIds);
   }
   vtkSMPThreadLocalObject<vtkIdList> tlPointIdsList, tlNewPointIdsList;
   vtkSMPTools::For(0, static_cast<vtkIdType>(datasets.size()),
@@ -490,6 +518,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
         auto cellConnectivityOffset = cellConnectivityOffsets[idx];
         const auto& faceOffset = faceOffsets[idx];
         const auto& faceConnectivityOffset = faceConnectivityOffsets[idx];
+        const auto& faceLocationOffset = faceLocationOffsets[idx];
         const auto numberOfCells = dataset->GetNumberOfCells();
 
         if (auto ug = vtkUnstructuredGrid::SafeDownCast(dataset)) // vtkUnstructuredGrid
@@ -509,16 +538,15 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
                 faceConnectivityArray, faceOffset, faceConnectivityOffset, globalIndices,
                 pointOffset);
               // copy polyhedron face locations
-              std::vector<vtkIdType> dummy;
-              ug->GetPolyhedronFaceLocations()->Dispatch(AppendCellArray{},
-                faceLocationsOffsetsArray, faceLocationsConnectivityArray, cellOffset, faceOffset,
-                dummy, faceOffset);
+              ug->GetPolyhedronFaceLocations()->Dispatch(AppendFaceLocations{},
+                faceLocationsOffsetsArray, faceLocationsConnectivityArray, cellOffset,
+                faceLocationOffset, faceOffset);
             }
             else
             {
               // fill location to avoid incorrect offsets
-              std::fill_n(
-                faceLocationsOffsetsArray->GetPointer(cellOffset), numberOfCells, faceOffset);
+              std::fill_n(faceLocationsOffsetsArray->GetPointer(cellOffset), numberOfCells,
+                faceLocationOffset);
             }
           }
         }
@@ -534,7 +562,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
           {
             // fill location to avoid incorrect offsets
             std::fill_n(
-              faceLocationsOffsetsArray->GetPointer(cellOffset), numberOfCells, faceOffset);
+              faceLocationsOffsetsArray->GetPointer(cellOffset), numberOfCells, faceLocationOffset);
           }
           // copy cells
           if (auto numVerts = pd->GetVerts()->GetNumberOfCells())
@@ -572,7 +600,7 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
           {
             // fill location to avoid incorrect offsets
             std::fill_n(
-              faceLocationsOffsetsArray->GetPointer(cellOffset), numberOfCells, faceOffset);
+              faceLocationsOffsetsArray->GetPointer(cellOffset), numberOfCells, faceLocationOffset);
           }
           auto pointIdsList = tlPointIdsList.Local();
           auto newPointIdsList = tlNewPointIdsList.Local();
