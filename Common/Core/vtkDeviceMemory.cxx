@@ -794,11 +794,6 @@ bool LevelZeroCopyToHost(void* destination, const void* source, std::size_t byte
   return true;
 }
 
-const char* NotYet(vtkDataArray::MemorySpace space)
-{
-  return space == vtkDataArray::HipDeviceMemory ? "HIP memory is not supported yet"
-                                                : "Level Zero memory is not supported yet";
-}
 } // namespace
 
 //------------------------------------------------------------------------------
@@ -862,7 +857,7 @@ bool vtkDeviceMemory::IsAvailable(vtkDataArray::MemorySpace space, std::string* 
   {
     return Fail(why, "host memory is not device memory");
   }
-  return Fail(why, NotYet(space));
+  return Fail(why, "not a device memory space VTK knows");
 }
 
 //------------------------------------------------------------------------------

@@ -43,6 +43,8 @@ def load_cuda():
             or cuda.cuCtxSetCurrent(context) != 0):
         return None
     for name, args in (("cuMemAlloc_v2", [ctypes.POINTER(ctypes.c_uint64), ctypes.c_size_t]),
+                       ("cuMemAllocManaged", [ctypes.POINTER(ctypes.c_uint64), ctypes.c_size_t,
+                                              ctypes.c_uint]),
                        ("cuMemFree_v2", [ctypes.c_uint64]),
                        ("cuMemcpyHtoD_v2", [ctypes.c_uint64, ctypes.c_void_p, ctypes.c_size_t]),
                        ("cuMemcpyDtoH_v2", [ctypes.c_void_p, ctypes.c_uint64, ctypes.c_size_t])):
@@ -67,10 +69,15 @@ class DeviceBuffer:
     """Device memory holding *values*, freed by the release callback a
     descriptor carries, so the test sees when VTK lets go of it."""
 
-    def __init__(self, values):
+    def __init__(self, values, managed=False):
         self.values = numpy.ascontiguousarray(values)
         self.address = ctypes.c_uint64()
-        assert CUDA.cuMemAlloc_v2(ctypes.byref(self.address), self.values.nbytes) == 0
+        if managed:
+            CU_MEM_ATTACH_GLOBAL = 1
+            assert CUDA.cuMemAllocManaged(
+                ctypes.byref(self.address), self.values.nbytes, CU_MEM_ATTACH_GLOBAL) == 0
+        else:
+            assert CUDA.cuMemAlloc_v2(ctypes.byref(self.address), self.values.nbytes) == 0
         self.write(self.values)
         self.released = 0
         self._release = RELEASE(self._free)    # kept: VTK calls it later
@@ -248,6 +255,12 @@ class TestDeviceDataArray(unittest.TestCase):
             self.assertIsNone(factory.CreateArray())
         finally:
             vtkObject.GlobalWarningDisplayOn()
+
+    def testManagedMemoryIsHeld(self):
+        array = DeviceBuffer(self.values, managed=True).array()
+        self.assertIsNotNone(array)
+        self.assertEqual(array.GetMemorySpace(), vtkDataArray.CudaDeviceMemory)
+        self.assertEqual(array.GetTuple3(999), (2997.0, 2998.0, 2999.0))
 
     def testTooSmallABufferIsRefused(self):
         factory = vtkDeviceArrayFactory()
