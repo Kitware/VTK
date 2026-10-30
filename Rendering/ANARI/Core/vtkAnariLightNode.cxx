@@ -48,6 +48,18 @@ struct AnariHasPrimaryVisibility<ExtensionsT,
 {
 };
 
+// Modification time of the camera a light may be positioned against.
+vtkMTimeType GetRendererCameraTime(vtkRenderer* renderer)
+{
+  if (!renderer)
+  {
+    return 0;
+  }
+
+  vtkCamera* camera = renderer->GetActiveCamera();
+  return camera ? camera->GetMTime() : 0;
+}
+
 template <typename ExtensionsT>
 bool AnariSupportsLightVisibility(const ExtensionsT& extensions)
 {
@@ -69,6 +81,7 @@ struct vtkAnariLightNodeInternals
   anari::Light AnariLight{ nullptr };
   vtkTexture* EnvironmentTexture{ nullptr };
   vtkMTimeType EnvironmentTextureTime{ 0 };
+  vtkMTimeType CameraTime{ 0 };
   bool UseImageBasedLighting{ false };
 };
 
@@ -224,6 +237,8 @@ void vtkAnariLightNode::Synchronize(bool prepass)
 
   vtkLight* light = this->GetVtkLight();
   this->RenderTime = light->GetMTime();
+  this->Internals->CameraTime = ::GetRendererCameraTime(
+    this->Internals->RendererNode ? this->Internals->RendererNode->GetRenderer() : nullptr);
 
   vtkSmartPointer<vtkAnariDevice> anariDevice = this->Internals->RendererNode->GetDevice();
   auto vtkRenderer = this->Internals->RendererNode->GetRenderer();
@@ -468,6 +483,11 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     }
   }
 
+  // The light handle just replaced the one the world is holding, so the scene
+  // has to be re-collected; otherwise the world keeps pointing at the released
+  // light and the scene is lit by whatever the camera first saw.
+  this->Internals->RendererNode->InvalidateSceneStructure();
+
   if (anariLight != nullptr)
   {
     // All light sources accept the following parameters
@@ -533,6 +553,17 @@ bool vtkAnariLightNode::LightWasModified() const
   }
 
   auto* renderer = this->Internals->RendererNode->GetRenderer();
+
+  // Headlights and camera lights are placed relative to the camera, which moves
+  // without touching the light's own MTime. Track the camera too, otherwise the
+  // light stays frozen where the camera first was and the scene goes dark as
+  // soon as it is rotated away from there.
+  if (!GetVtkLight()->LightTypeIsSceneLight() &&
+    this->Internals->CameraTime < ::GetRendererCameraTime(renderer))
+  {
+    return true;
+  }
+
   auto* texture = renderer->GetEnvironmentTexture();
   if (this->Internals->UseImageBasedLighting != renderer->GetUseImageBasedLighting() ||
     this->Internals->EnvironmentTexture != texture)
