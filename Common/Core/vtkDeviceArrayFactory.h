@@ -13,7 +13,7 @@
  *
  * VTK needs no GPU toolkit for this: the vendor's driver is loaded the first
  * time it is needed (vtkDeviceMemory). IsMemorySpaceAvailable() says whether
- * it can be. Only "cuda" so far.
+ * it can be. "cuda" and "hip" so far.
  *
  * @sa vtkDeviceDataArray vtkMemoryDescriptor
  */
@@ -67,7 +67,7 @@ public:
 
   /**
    * Whether memory of the space named ("cuda", "hip", "level_zero") can be
-   * held: whether the vendor's driver loads.
+   * held: whether the vendor's driver or runtime loads and has a device.
    */
   static bool IsMemorySpaceAvailable(const char* space);
 

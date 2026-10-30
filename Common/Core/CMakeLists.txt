@@ -782,6 +782,8 @@ vtk_module_link(VTK::CommonCore
     $<$<PLATFORM_ID:SunOS>:socket>
     $<$<PLATFORM_ID:SunOS>:nsl>
     $<$<PLATFORM_ID:Android>:log>
+    # dlopen, for vtkDeviceMemory's HIP layer (in libdl before glibc 2.34)
+    ${CMAKE_DL_LIBS}
     )
 vtk_module_compile_features(VTK::CommonCore
   PUBLIC

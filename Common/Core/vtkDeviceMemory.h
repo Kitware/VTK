@@ -10,9 +10,11 @@
  * so a VTK built without any GPU toolkit can still hold and read GPU memory on
  * a machine that has the driver.
  *
- * Only CUDA so far, through the driver API (`libcuda.so.1`, `nvcuda.dll`),
- * which every NVIDIA driver installs. HIP and Level Zero report themselves
- * unavailable.
+ * CUDA through the driver API (`libcuda.so.1`, `nvcuda.dll`), which every
+ * NVIDIA driver installs. HIP through ROCm's runtime (`libamdhip64.so.7`,
+ * `amdhip64_7.dll`, or version 6), which every HIP program runs on: the one the
+ * process has loaded already, if any, since two copies of it share nothing.
+ * Level Zero reports itself unavailable.
  *
  * Nothing here allocates or frees: the memory belongs to whoever made it.
  */
