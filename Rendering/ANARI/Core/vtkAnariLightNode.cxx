@@ -34,6 +34,20 @@ VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
+vtkMTimeType GetLightTime(vtkLight* light)
+{
+  auto mtime = light->GetMTime();
+  if (auto* info = light->GetInformation())
+  {
+    mtime = std::max(mtime, info->GetMTime());
+  }
+  if (auto* transform = light->GetTransformMatrix())
+  {
+    mtime = std::max(mtime, transform->GetMTime());
+  }
+  return mtime;
+}
+
 // The ANARI 1.0 specification's KHR_AREA_LIGHTS extension for light visibility was removed in
 // ANARI 1.1.
 template <typename ExtensionsT, typename = void>
@@ -47,18 +61,6 @@ struct AnariHasPrimaryVisibility<ExtensionsT,
   : std::true_type
 {
 };
-
-// Modification time of the camera a light may be positioned against.
-vtkMTimeType GetRendererCameraTime(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 0;
-  }
-
-  vtkCamera* camera = renderer->GetActiveCamera();
-  return camera ? camera->GetMTime() : 0;
-}
 
 template <typename ExtensionsT>
 bool AnariSupportsLightVisibility(const ExtensionsT& extensions)
@@ -83,6 +85,8 @@ struct vtkAnariLightNodeInternals
   vtkTexture* EnvironmentTexture{ nullptr };
   vtkMTimeType EnvironmentTextureTime{ 0 };
   vtkMTimeType CameraTime{ 0 };
+  vtkTransform* UserLightTransform{ nullptr };
+  vtkMTimeType UserLightTransformTime{ 0 };
   bool UseImageBasedLighting{ false };
 };
 
@@ -239,17 +243,23 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   }
 
   vtkLight* light = this->GetVtkLight();
-  this->RenderTime = light->GetMTime();
-  this->Internals->CameraTime = ::GetRendererCameraTime(
-    this->Internals->RendererNode ? this->Internals->RendererNode->GetRenderer() : nullptr);
+  this->RenderTime = ::GetLightTime(light);
 
   auto* anariDevice = this->Internals->AnariDevice.GetPointer();
   auto vtkRenderer = this->Internals->RendererNode->GetRenderer();
   const auto& anariExtensions = anariDevice->GetExtensions();
+  this->Internals->CameraTime = vtkRenderer->GetActiveCamera()->GetMTime();
 
   this->ClearLight();
 
   vtkTransform* userLightTransform = vtkRenderer->GetUserLightTransform();
+  this->Internals->UserLightTransform = userLightTransform;
+  this->Internals->UserLightTransformTime = userLightTransform ? userLightTransform->GetMTime() : 0;
+  if (!light->LightTypeIsSceneLight())
+  {
+    this->RenderTime = std::max(
+      { this->RenderTime, this->Internals->CameraTime, this->Internals->UserLightTransformTime });
+  }
 
   vtkNew<vtkMatrix4x4> cameraTransform;
   vtkNew<vtkMatrix4x4> invCameraTransform;
@@ -545,23 +555,22 @@ vtkLight* vtkAnariLightNode::GetVtkLight() const
 
 bool vtkAnariLightNode::LightWasModified() const
 {
-  if (this->RenderTime < GetVtkLight()->GetMTime())
+  if (this->RenderTime < ::GetLightTime(this->GetVtkLight()))
   {
     return true;
   }
 
   auto* renderer = this->Internals->RendererNode->GetRenderer();
-
-  // Headlights and camera lights are placed relative to the camera, which moves
-  // without touching the light's own MTime. Track the camera too, otherwise the
-  // light stays frozen where the camera first was and the scene goes dark as
-  // soon as it is rotated away from there.
-  if (!GetVtkLight()->LightTypeIsSceneLight() &&
-    this->Internals->CameraTime < ::GetRendererCameraTime(renderer))
+  if (!this->GetVtkLight()->LightTypeIsSceneLight())
   {
-    return true;
+    auto* transform = renderer->GetUserLightTransform();
+    if (this->Internals->CameraTime != renderer->GetActiveCamera()->GetMTime() ||
+      this->Internals->UserLightTransform != transform ||
+      (transform && this->Internals->UserLightTransformTime < transform->GetMTime()))
+    {
+      return true;
+    }
   }
-
   auto* texture = renderer->GetEnvironmentTexture();
   if (this->Internals->UseImageBasedLighting != renderer->GetUseImageBasedLighting() ||
     this->Internals->EnvironmentTexture != texture)
