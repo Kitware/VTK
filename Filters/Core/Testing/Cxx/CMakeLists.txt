@@ -68,6 +68,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestPolyDataConnectivityFilter.cxx,NO_VALID
   TestPolyDataNormals.cxx,NO_VALID
   TestPolyDataTangents.cxx
+  TestPolyhedronContourStalledEarCut.cxx,NO_DATA,NO_VALID
   TestProbeFilter.cxx,NO_VALID
   TestProbeFilterImageInput.cxx
   TestProbeFilterOutputAttributes.cxx,NO_VALID
