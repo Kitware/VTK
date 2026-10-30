@@ -17,5 +17,11 @@ array of the same type.
 
 VTK does not link against CUDA for this: the driver (`libcuda.so.1`,
 `nvcuda.dll`) is loaded the first time it is needed. HIP and Level Zero memory
-still need Viskores. `VTK_DLPACK_DEVICE_ARRAYS=viskores` makes
-`dlpack_support` prefer Viskores' arrays where both are available.
+still need Viskores.
+
+In VTK built with Viskores, `dlpack_support` still gives device memory of a
+kind Viskores was built for to Viskores' arrays, so Viskores' filters run on
+it, and uses `vtkDeviceDataArray` for the rest. `VTK_DLPACK_DEVICE_ARRAYS=vtk`
+prefers `vtkDeviceDataArray` where both could hold the memory, and
+`vtkmDataArrayFactory::IsMemorySpaceAvailable()` says which memory this
+build's Viskores can hold.

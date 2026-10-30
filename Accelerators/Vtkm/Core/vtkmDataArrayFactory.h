@@ -136,6 +136,14 @@ public:
   VTK_NEWINSTANCE
   vtkDataArray* CreateArray();
 
+  /**
+   * Whether this build's Viskores can hold memory of the space named
+   * ("host", "cuda", "hip", "level_zero"): a device adapter for it was
+   * compiled in. The same name as vtkDeviceArrayFactory's, so callers can
+   * ask either.
+   */
+  static bool IsMemorySpaceAvailable(const char* space);
+
   ///@{
   /**
    * The Level Zero handles of the SYCL queue Viskores runs on, as integers:

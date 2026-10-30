@@ -7,6 +7,7 @@ skips where there is none.
 
 import ctypes
 import gc
+import os
 import sys
 import unittest
 
@@ -47,6 +48,15 @@ def load_cuda():
                        ("cuMemcpyDtoH_v2", [ctypes.c_void_p, ctypes.c_uint64, ctypes.c_size_t])):
         getattr(cuda, name).argtypes = args
     return cuda
+
+
+def viskores_holds(space):
+    """Whether this VTK has Viskores, built for *space*'s memory."""
+    try:
+        from vtkmodules.vtkAcceleratorsVTKmCore import vtkmDataArrayFactory
+    except ImportError:
+        return False
+    return vtkmDataArrayFactory.IsMemorySpaceAvailable(space)
 
 
 CUDA = load_cuda()
@@ -210,6 +220,20 @@ class TestDeviceDataArray(unittest.TestCase):
         del exported
         gc.collect()
         self.assertEqual(self.buffer.released, 1)
+
+    def testDLPackGivesViskoresWhatItWasBuiltFor(self):
+        exported = dlpack_support.DLPackArray(self.buffer.array())
+        imported = dlpack_support.dlpack_to_vtk(exported)
+        expected = "vtkmDataArray" if viskores_holds("cuda") else "vtkDeviceDataArray"
+        self.assertIn(expected, imported.GetClassName())
+        numpy.testing.assert_array_equal(numpy_support.vtk_to_numpy(imported), self.values)
+
+        os.environ["VTK_DLPACK_DEVICE_ARRAYS"] = "vtk"
+        try:
+            imported = dlpack_support.dlpack_to_vtk(exported)
+        finally:
+            del os.environ["VTK_DLPACK_DEVICE_ARRAYS"]
+        self.assertIn("vtkDeviceDataArray", imported.GetClassName())
 
     def testHostMemoryLabelledCudaIsRefused(self):
         host = numpy.zeros(4, numpy.float32)

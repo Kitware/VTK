@@ -33,13 +33,14 @@ is one that will be got wrong.
 
 Device support
 --------------
-Host arrays work with plain VTK. Device memory is held by VTK's own
-``vtkDeviceDataArray`` wherever the vendor's driver loads -- VTK needs no GPU
-toolkit for it, only the driver at run time (CUDA so far). Other device
-memory needs VTK built with Viskores (``vtkmDataArrayFactory``), and
-``VTK_DLPACK_DEVICE_ARRAYS=viskores`` in the environment prefers Viskores
-where both could. Without either, importing a device tensor raises
-``RuntimeError`` rather than silently copying to the host.
+Host arrays work with plain VTK. In VTK built with Viskores, device memory
+of a kind Viskores was built for is held by Viskores' arrays
+(``vtkmDataArrayFactory``), so Viskores' filters run on it. Any other device
+memory is held by VTK's own ``vtkDeviceDataArray`` wherever the vendor's
+driver loads -- VTK needs no GPU toolkit for it, only the driver at run time
+(CUDA so far). ``VTK_DLPACK_DEVICE_ARRAYS=vtk`` in the environment prefers
+VTK's own arrays where both could. Without either, importing a device tensor
+raises ``RuntimeError`` rather than silently copying to the host.
 
 Metal tensors are rejected. The data pointer a Metal tensor carries is the
 ``MTLBuffer`` object itself, not memory the host can read -- PyTorch's MPS
@@ -781,25 +782,28 @@ def _wrap_host(key, vtk_type, n_tuples, n_components, pointer, ndim):
 
 
 def _device_array_factory(space):
-    """The factory that can hold *space*'s memory: VTK's own where the
-    vendor's driver loads, else Viskores' where VTK has it."""
+    """The factory that can hold *space*'s memory: Viskores' where VTK was
+    built with it for that memory, else VTK's own where the vendor's driver
+    loads. ``VTK_DLPACK_DEVICE_ARRAYS=vtk`` puts VTK's own first."""
     from vtkmodules.vtkCommonCore import vtkDeviceArrayFactory
 
-    own = vtkDeviceArrayFactory.IsMemorySpaceAvailable(space)
-    if own and os.environ.get("VTK_DLPACK_DEVICE_ARRAYS") != "viskores":
-        return vtkDeviceArrayFactory()
     try:
         from vtkmodules.vtkAcceleratorsVTKmCore import vtkmDataArrayFactory
-    except ImportError as exc:
-        if own:
-            return vtkDeviceArrayFactory()
-        raise RuntimeError(
-            f"importing {space!r} memory needs its driver (VTK holds CUDA memory "
-            f"itself) or VTK built with the Viskores accelerators "
-            f"(-DVTK_MODULE_ENABLE_VTK_AcceleratorsVTKmCore=YES); only host "
-            f"tensors can be wrapped otherwise"
-        ) from exc
-    return vtkmDataArrayFactory()
+    except ImportError:
+        vtkmDataArrayFactory = None
+
+    factories = [vtkmDataArrayFactory, vtkDeviceArrayFactory]
+    if os.environ.get("VTK_DLPACK_DEVICE_ARRAYS") == "vtk":
+        factories.reverse()
+    for factory in factories:
+        if factory is not None and factory.IsMemorySpaceAvailable(space):
+            return factory()
+    raise RuntimeError(
+        f"importing {space!r} memory needs its driver (VTK holds CUDA memory "
+        f"itself) or VTK built with Viskores for that memory "
+        f"(-DVTK_MODULE_ENABLE_VTK_AcceleratorsVTKmCore=YES); only host "
+        f"tensors can be wrapped otherwise"
+    )
 
 
 def _wrap_descriptor(descriptor, vtk_type, n_tuples, n_components, space):
