@@ -96,6 +96,22 @@ public:
   virtual void SetSize(int a[2]);
   ///@}
 
+  ///@{
+  /**
+   * Get the minimum size (width and height) of the rendering window in
+   * screen coordinates (in pixels).
+   */
+  virtual int* GetMinimumSize() VTK_SIZEHINT(2);
+
+  /**
+   * Set the minimum size (width and height) of the rendering window in
+   * screen coordinates (in pixels).
+   * This is an hint for the window manager and should be called before the window is initialized.
+   */
+  virtual void SetMinimumSize(int width, int height);
+  virtual void SetMinimumSize(int size[2]);
+  ///@}
+
   /**
    * GetSize() returns the size * this->TileScale, whereas this method returns
    * the size without multiplying with the tile scale. Measured in pixels.
@@ -322,6 +338,7 @@ protected:
 
   char* WindowName;
   int Size[2];
+  int MinimumSize[2] = { 30, 30 };
   int Position[2];
   vtkTypeBool Mapped;
   bool ShowWindow;

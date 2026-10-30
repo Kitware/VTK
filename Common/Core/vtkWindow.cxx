@@ -60,6 +60,12 @@ int* vtkWindow::GetActualSize()
 }
 
 //------------------------------------------------------------------------------
+int* vtkWindow::GetMinimumSize()
+{
+  return this->MinimumSize;
+}
+
+//------------------------------------------------------------------------------
 void vtkWindow::SetSize(int a[2])
 {
   this->SetSize(a[0], a[1]);
@@ -74,6 +80,23 @@ void vtkWindow::SetSize(int width, int height)
     this->Size[1] = height;
     this->Modified();
     this->InvokeEvent(vtkCommand::WindowResizeEvent, nullptr);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWindow::SetMinimumSize(int size[2])
+{
+  this->SetMinimumSize(size[0], size[1]);
+}
+
+//------------------------------------------------------------------------------
+void vtkWindow::SetMinimumSize(int width, int height)
+{
+  if (this->MinimumSize[0] != width || this->MinimumSize[1] != height)
+  {
+    this->MinimumSize[0] = width;
+    this->MinimumSize[1] = height;
+    this->Modified();
   }
 }
 

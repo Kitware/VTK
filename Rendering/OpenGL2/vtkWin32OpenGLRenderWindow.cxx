@@ -862,6 +862,17 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(
         rect->bottom - rect->top, SWP_NOZORDER | SWP_NOACTIVATE);
       return TRUE;
     }
+    case WM_GETMINMAXINFO:
+    {
+      // Make the interactive minimum size to 30x30 to avoid OpenGL errors
+      RECT rect;
+      AdjustWindowRectForBorders(
+        this->WindowId, 0, 0, 0, this->MinimumSize[0], this->MinimumSize[1], rect);
+      auto* mmi = reinterpret_cast<MINMAXINFO*>(lParam);
+      mmi->ptMinTrackSize.x = rect.right - rect.left;
+      mmi->ptMinTrackSize.y = rect.bottom - rect.top;
+      return 0;
+    }
     case WM_ERASEBKGND:
       return TRUE;
     case WM_SETCURSOR:
