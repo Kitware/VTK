@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <string>
 #include <type_traits>
 #include <vector>
 
@@ -82,12 +83,34 @@ struct vtkAnariLightNodeInternals
   vtkAnariSceneGraph* RendererNode{ nullptr };
   vtkSmartPointer<vtkAnariDevice> AnariDevice;
   anari::Light AnariLight{ nullptr };
+  std::string LightSubtype;
   vtkTexture* EnvironmentTexture{ nullptr };
   vtkMTimeType EnvironmentTextureTime{ 0 };
   vtkMTimeType CameraTime{ 0 };
   vtkTransform* UserLightTransform{ nullptr };
   vtkMTimeType UserLightTransformTime{ 0 };
   bool UseImageBasedLighting{ false };
+
+  anari::Light UpdateLight(const std::string& subtype)
+  {
+    if (this->LightSubtype != subtype)
+    {
+      auto previousLight = this->AnariLight;
+      this->AnariLight = subtype.empty()
+        ? nullptr
+        : anari::newObject<anari::Light>(this->AnariDevice->GetHandle(), subtype.c_str());
+      this->LightSubtype = subtype;
+      if (previousLight)
+      {
+        anari::release(this->AnariDevice->GetHandle(), previousLight);
+      }
+      if (previousLight || this->AnariLight)
+      {
+        this->RendererNode->InvalidateSceneStructure();
+      }
+    }
+    return this->AnariLight;
+  }
 };
 
 //============================================================================
@@ -250,8 +273,6 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   const auto& anariExtensions = anariDevice->GetExtensions();
   this->Internals->CameraTime = vtkRenderer->GetActiveCamera()->GetMTime();
 
-  this->ClearLight();
-
   vtkTransform* userLightTransform = vtkRenderer->GetUserLightTransform();
   this->Internals->UserLightTransform = userLightTransform;
   this->Internals->UserLightTransformTime = userLightTransform ? userLightTransform->GetMTime() : 0;
@@ -330,7 +351,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   {
     if (anariExtensions.ANARI_KHR_LIGHT_HDRI)
     {
-      anariLight = anari::newObject<anari::Light>(anariDevice->GetHandle(), "hdri");
+      anariLight = this->Internals->UpdateLight("hdri");
 
       // Direction to which the center of the texture will be mapped to
       anari::setParameter(anariDevice->GetHandle(), anariLight, "direction", lightDirection);
@@ -340,7 +361,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
       if (!imageData || !imageData->GetPointData()->GetScalars())
       {
         vtkWarningMacro(<< "Cannot create an HDRI light from an empty environment texture.");
-        anari::release(anariDevice->GetHandle(), anariLight);
+        this->Internals->UpdateLight("");
         return;
       }
 
@@ -358,7 +379,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
       if (xsize <= 0 || ysize <= 0)
       {
         vtkWarningMacro(<< "Cannot create an HDRI light from an empty environment texture.");
-        anari::release(anariDevice->GetHandle(), anariLight);
+        this->Internals->UpdateLight("");
         return;
       }
       floatData.reserve(static_cast<size_t>(xsize) * ysize);
@@ -410,7 +431,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     {
       if (anariExtensions.ANARI_KHR_LIGHT_POINT)
       {
-        anariLight = anari::newObject<anari::Light>(anariDevice->GetHandle(), "point");
+        anariLight = this->Internals->UpdateLight("point");
         vtkDebugMacro(<< "Point Light");
 
         // The position of the point light
@@ -431,7 +452,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     {
       if (anariExtensions.ANARI_KHR_LIGHT_SPOT)
       {
-        anariLight = anari::newObject<anari::Light>(anariDevice->GetHandle(), "spot");
+        anariLight = this->Internals->UpdateLight("spot");
         vtkDebugMacro(<< "Spot Light");
 
         // The overall amount of light emitted by the light in a direction in W/sr
@@ -459,7 +480,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   {
     if (anariExtensions.ANARI_KHR_LIGHT_DIRECTIONAL)
     {
-      anariLight = anari::newObject<anari::Light>(anariDevice->GetHandle(), "directional");
+      anariLight = this->Internals->UpdateLight("directional");
       vtkDebugMacro(<< "Directional Light");
 
       // main emission direction of the directional light
@@ -483,11 +504,6 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     }
   }
 
-  // The light handle just replaced the one the world is holding, so the scene
-  // has to be re-collected; otherwise the world keeps pointing at the released
-  // light and the scene is lit by whatever the camera first saw.
-  this->Internals->RendererNode->InvalidateSceneStructure();
-
   if (anariLight != nullptr)
   {
     // All light sources accept the following parameters
@@ -507,7 +523,10 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     anari::commitParameters(anariDevice->GetHandle(), anariLight);
   }
 
-  this->Internals->AnariLight = anariLight;
+  if (!anariLight)
+  {
+    this->Internals->UpdateLight("");
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -533,6 +552,7 @@ void vtkAnariLightNode::ClearLight()
     anari::release(this->Internals->AnariDevice->GetHandle(), this->Internals->AnariLight);
     this->Internals->AnariLight = nullptr;
   }
+  this->Internals->LightSubtype.clear();
 }
 
 vtkLight* vtkAnariLightNode::GetVtkLight() const

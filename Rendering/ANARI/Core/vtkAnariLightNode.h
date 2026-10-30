@@ -39,7 +39,7 @@ public:
    */
   void Build(bool prepass) override;
   /**
-   * Sync ANARICamera parameters with vtkCamera.
+   * Sync ANARILight parameters with vtkLight, retaining the handle for the same subtype.
    */
   void Synchronize(bool prepass) override;
   /**
