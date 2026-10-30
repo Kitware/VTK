@@ -17,6 +17,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTable.h"
 
 #include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
@@ -43,6 +44,7 @@ vtkConduitSource::vtkConduitSource()
   : Internals(new vtkConduitSource::vtkInternals())
   , UseAMRMeshProtocol(false)
   , UseMultiMeshProtocol(false)
+  , UseTableProtocol(false)
   , OutputMultiBlock(false)
 {
   this->SetNumberOfInputPorts(0);
@@ -220,11 +222,52 @@ bool vtkConduitSource::GeneratePartitionedDataSetCollection(vtkDataObject* outpu
 }
 
 //----------------------------------------------------------------------------
+bool vtkConduitSource::GenerateTable(vtkDataObject* output)
+{
+  const auto& node = this->Internals->Node;
+  if (node.has_child("values"))
+  {
+    vtkNew<vtkTable> table;
+    if (!vtkConduitToDataObject::FillTable(table, node))
+    {
+      output->Initialize();
+      return false;
+    }
+    output->ShallowCopy(table);
+    return true;
+  }
+
+  vtkNew<vtkMultiBlockDataSet> blocks;
+  const auto count = static_cast<unsigned int>(node.number_of_children());
+  blocks->SetNumberOfBlocks(count);
+  for (unsigned int cc = 0; cc < count; ++cc)
+  {
+    const auto child = node.child(cc);
+    vtkNew<vtkTable> table;
+    if (!vtkConduitToDataObject::FillTable(table, child))
+    {
+      output->Initialize();
+      return false;
+    }
+    blocks->SetBlock(cc, table);
+    blocks->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(), child.name().c_str());
+  }
+  output->ShallowCopy(blocks);
+  return true;
+}
+
+//----------------------------------------------------------------------------
 int vtkConduitSource::RequestDataObject(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   int dataType = VTK_PARTITIONED_DATA_SET; // default
-  if (this->OutputMultiBlock)
+  if (this->UseTableProtocol)
+  {
+    const auto& node = this->Internals->Node;
+    const bool manyTables = !node.has_child("values") && node.number_of_children() > 0;
+    dataType = manyTables ? VTK_MULTIBLOCK_DATA_SET : VTK_TABLE;
+  }
+  else if (this->OutputMultiBlock)
   {
     dataType = VTK_MULTIBLOCK_DATA_SET;
   }
@@ -250,7 +293,11 @@ int vtkConduitSource::RequestData(
   vtkDataObject* real_output = vtkDataObject::GetData(outputVector, 0);
 
   bool dataGenerated = false;
-  if (this->UseAMRMeshProtocol)
+  if (this->UseTableProtocol)
+  {
+    dataGenerated = this->GenerateTable(real_output);
+  }
+  else if (this->UseAMRMeshProtocol)
   {
     dataGenerated = this->GenerateAMR(real_output);
   }
@@ -279,7 +326,7 @@ int vtkConduitSource::RequestData(
     }
   }
 
-  if (this->OutputMultiBlock)
+  if (this->OutputMultiBlock && !this->UseTableProtocol)
   {
     vtkNew<vtkConvertToMultiBlockDataSet> converter;
     converter->SetInputData(real_output);
@@ -339,5 +386,9 @@ int vtkConduitSource::RequestInformation(
 void vtkConduitSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "UseAMRMeshProtocol: " << this->UseAMRMeshProtocol << "\n";
+  os << indent << "UseMultiMeshProtocol: " << this->UseMultiMeshProtocol << "\n";
+  os << indent << "UseTableProtocol: " << this->UseTableProtocol << "\n";
+  os << indent << "OutputMultiBlock: " << this->OutputMultiBlock << "\n";
 }
 VTK_ABI_NAMESPACE_END

@@ -9,8 +9,9 @@
  * Blueprint](https://llnl-conduit.readthedocs.io/en/latest/blueprint_mesh.html#)
  * to describe computational mesh and associated meta-data.
  *
- * vtkConduitSource currently produces a `vtkParitionedDataSet` or
- * `vtkPartitionedDataSetCollection`
+ * vtkConduitSource currently produces a `vtkParitionedDataSet`,
+ * `vtkPartitionedDataSetCollection` or `vtkOverlappingAMR` for meshes, and a `vtkTable`
+ * (or a `vtkMultiBlockDataSet` of tables) for the Conduit table blueprint.
  *
  * @sa vtkConduitArrayUtilities
  */
@@ -54,6 +55,17 @@ public:
   vtkSetMacro(UseMultiMeshProtocol, bool);
   vtkGetMacro(UseMultiMeshProtocol, bool);
   vtkBooleanMacro(UseMultiMeshProtocol, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set this to true if the node follows the Conduit table blueprint (default is false).
+   * A single table (a node with a "values" child) produces a vtkTable; a node holding
+   * several named tables produces a vtkMultiBlockDataSet with one vtkTable per block.
+   */
+  vtkSetMacro(UseTableProtocol, bool);
+  vtkGetMacro(UseTableProtocol, bool);
+  vtkBooleanMacro(UseTableProtocol, bool);
   ///@}
 
   ///@{
@@ -110,6 +122,7 @@ protected:
   bool GenerateAMR(vtkDataObject* output);
   bool GeneratePartitionedDataSet(vtkDataObject* output);
   bool GeneratePartitionedDataSetCollection(vtkDataObject* output);
+  bool GenerateTable(vtkDataObject* output);
   ///@}
 
 private:
@@ -120,6 +133,7 @@ private:
   std::unique_ptr<vtkInternals> Internals;
   bool UseAMRMeshProtocol;
   bool UseMultiMeshProtocol;
+  bool UseTableProtocol;
   bool OutputMultiBlock;
 };
 VTK_ABI_NAMESPACE_END

@@ -28,6 +28,7 @@
 #include "vtkStringFormatter.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTable.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -1141,6 +1142,35 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
   }
 
   return unstructured;
+}
+
+//----------------------------------------------------------------------------
+bool FillTable(vtkTable* output, const conduit_cpp::Node& tableNode)
+{
+  if (!tableNode.has_child("values"))
+  {
+    vtkLogF(ERROR, "Table '%s' has no 'values' node.", tableNode.name().c_str());
+    return false;
+  }
+  auto values = tableNode["values"];
+  for (conduit_index_t cc = 0, max = values.number_of_children(); cc < max; ++cc)
+  {
+    auto column = values.child(cc);
+    std::string name = column.name();
+    if (name.empty())
+    {
+      name = "Column" + std::to_string(cc);
+    }
+    auto array = vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&column), name);
+    if (!array)
+    {
+      vtkLogF(ERROR, "Failed to convert column '%s' of table '%s'.", name.c_str(),
+        tableNode.name().c_str());
+      return false;
+    }
+    output->AddColumn(array);
+  }
+  return true;
 }
 
 //----------------------------------------------------------------------------

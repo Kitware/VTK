@@ -9,7 +9,9 @@
 #include "vtkConduitSource.h"
 #include "vtkDataArrayRange.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkLogger.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
@@ -18,6 +20,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTable.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
@@ -1609,6 +1612,57 @@ bool ValidatePolyhedra()
 } // end namespace
 
 //----------------------------------------------------------------------------
+bool ValidateTable()
+{
+  conduit_cpp::Node node;
+  auto values = node["values"];
+  values["iteration"].set_int64_vector({ 1, 2, 3 });
+  values["residual"].set_float64_vector({ 0.5, 0.25, 0.125 });
+  values["velocity/x"].set_float64_vector({ 1, 2, 3 });
+  values["velocity/y"].set_float64_vector({ 4, 5, 6 });
+  values["velocity/z"].set_float64_vector({ 7, 8, 9 });
+
+  conduit_cpp::Node info;
+  VERIFY(conduit_cpp::Blueprint::verify("table", node, info), "Node is not a valid table.");
+
+  vtkNew<vtkConduitSource> source;
+  source->SetUseTableProtocol(true);
+  source->SetNode(conduit_cpp::c_node(&node));
+  source->Update();
+
+  auto table = vtkTable::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(table != nullptr, "Expected a vtkTable, got %s.",
+    source->GetOutputDataObject(0)->GetClassName());
+  VERIFY(table->GetNumberOfRows() == 3, "Expected 3 rows, got %lld.",
+    static_cast<long long>(table->GetNumberOfRows()));
+  VERIFY(table->GetNumberOfColumns() == 3, "Expected 3 columns, got %lld.",
+    static_cast<long long>(table->GetNumberOfColumns()));
+  auto residual = vtkDataArray::SafeDownCast(table->GetColumnByName("residual"));
+  VERIFY(
+    residual != nullptr && residual->GetComponent(2, 0) == 0.125, "Incorrect 'residual' column.");
+  auto velocity = vtkDataArray::SafeDownCast(table->GetColumnByName("velocity"));
+  VERIFY(velocity != nullptr && velocity->GetNumberOfComponents() == 3 &&
+      velocity->GetComponent(1, 2) == 8,
+    "Incorrect 'velocity' column.");
+
+  conduit_cpp::Node many;
+  many["probes/values/time"].set_float64_vector({ 0.0, 1.0 });
+  many["probes/values/pressure"].set_float64_vector({ 2.0, 3.0 });
+  many["forces/values/drag"].set_float64_vector({ 0.3 });
+  VERIFY(conduit_cpp::Blueprint::verify("table", many, info), "Node is not a valid set of tables.");
+
+  source->SetNode(conduit_cpp::c_node(&many));
+  source->Update();
+  auto blocks = vtkMultiBlockDataSet::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(blocks != nullptr && blocks->GetNumberOfBlocks() == 2,
+    "Expected a vtkMultiBlockDataSet with 2 blocks.");
+  auto forces = vtkTable::SafeDownCast(blocks->GetBlock(1));
+  VERIFY(forces != nullptr && forces->GetNumberOfRows() == 1 &&
+      std::string(blocks->GetMetaData(1u)->Get(vtkCompositeDataSet::NAME())) == "forces",
+    "Incorrect 'forces' table.");
+  return true;
+}
+
 int TestConduitSource(int argc, char** argv)
 {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
@@ -1628,7 +1682,7 @@ int TestConduitSource(int argc, char** argv)
       ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D() && ValidateMeshTypeAMR(amrFile) &&
       ValidateAscentGhostCellData() && ValidateAscentGhostPointData() && ValidateMeshTypePoints() &&
       ValidateDistributedAMR() && ValidatePolyhedra() && ValidateInterlacedArrays() &&
-      ValidateNullMesh()
+      ValidateNullMesh() && ValidateTable()
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
 
