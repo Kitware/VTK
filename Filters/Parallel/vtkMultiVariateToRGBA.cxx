@@ -787,6 +787,29 @@ void vtkMultiVariateToRGBA::AddPartitionIndex(int index)
 }
 
 //------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::ClearVisibleComponents()
+{
+  if (!this->VisibleComponents.empty())
+  {
+    this->VisibleComponents.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::AddVisibleComponent(int index)
+{
+  this->VisibleComponents.push_back(index);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+std::vector<int> vtkMultiVariateToRGBA::GetVisibleComponents() VTK_FUTURE_CONST
+{
+  return this->VisibleComponents;
+}
+
+//------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::ClearPartitionOffsets()
 {
   if (!this->PartitionOffsets.empty())
@@ -903,9 +926,19 @@ vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::GetVisibleComponentsArray(v
   std::vector<int> componentIndices;
   for (int c = 0; c < array->GetNumberOfComponents(); ++c)
   {
-    // unnamed components get their index as name, same as GetAllColumnNames
-    const char* compName = array->GetComponentName(c);
-    if (this->GetColumnVisibility(compName ? compName : vtk::to_string(c)))
+    bool visible;
+    if (!this->VisibleComponents.empty())
+    {
+      visible = std::find(this->VisibleComponents.begin(), this->VisibleComponents.end(), c) !=
+        this->VisibleComponents.end();
+    }
+    else
+    {
+      // unnamed components get their index as name, same as GetAllColumnNames
+      const char* compName = array->GetComponentName(c);
+      visible = this->GetColumnVisibility(compName ? compName : vtk::to_string(c));
+    }
+    if (visible)
     {
       componentIndices.push_back(c);
     }

@@ -316,6 +316,21 @@ public:
 
   ///@{
   /**
+   * Index-based visibility for the components of a dataset array. When the
+   * list is not empty, only these components are processed, in increasing
+   * order, and the column visibility is ignored for dataset arrays; indices
+   * outside the array are ignored. An empty list (the default) leaves the
+   * column visibility in charge. ClearVisibleComponents() empties the list
+   * and AddVisibleComponent() appends one index, so that the ParaView server
+   * manager XML can set it, like AddPartitionIndex().
+   */
+  void ClearVisibleComponents();
+  void AddVisibleComponent(int index);
+  std::vector<int> GetVisibleComponents() VTK_FUTURE_CONST;
+  ///@}
+
+  ///@{
+  /**
    * Data type of the 'rgba' array: VTK_DOUBLE (the default) or VTK_FLOAT.
    * VTK_FLOAT uses half the memory and is faster to upload as a volume
    * texture, which matters when the lens is dragged.
@@ -375,6 +390,10 @@ protected:
    */
   bool ColumnsVisibleByDefault = true;
   std::set<std::string> ColumnVisibilityExceptions;
+  /**
+   * Components of a dataset array to process, see AddVisibleComponent().
+   */
+  std::vector<int> VisibleComponents;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
