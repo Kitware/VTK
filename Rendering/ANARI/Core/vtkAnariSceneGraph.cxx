@@ -591,6 +591,10 @@ void vtkAnariSceneGraph::Build(bool prepass)
     {
       aren->UpdateLightsGeometryToFollowCamera();
     }
+    if (aren->GetLights()->GetMTime() > this->AnariSceneConstructedMTime)
+    {
+      this->InvalidateSceneStructure();
+    }
   }
 
   this->Superclass::Build(prepass);
