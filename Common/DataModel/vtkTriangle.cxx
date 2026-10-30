@@ -124,7 +124,7 @@ double vtkTriangle::ComputeArea()
 // using barycentric coordinates.
 // https://www.r-5.org/files/books/computers/algo-list/realtime-3d/Christer_Ericson-Real-Time_Collision_Detection-EN.pdf
 int vtkTriangle::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,
-  double pcoords[3], double& dist2, double weights[])
+  double pcoords[3], double& dist2, double weights[3])
 {
   subId = 0;
   pcoords[2] = 0.0;
@@ -240,7 +240,7 @@ int vtkTriangle::EvaluatePosition(const double x[3], double closestPoint[3], int
 
 //------------------------------------------------------------------------------
 void vtkTriangle::EvaluateLocation(
-  int& vtkNotUsed(subId), const double pcoords[3], double x[3], double* weights)
+  int& vtkNotUsed(subId), const double pcoords[3], double x[3], double weights[3])
 {
   // Efficient point access
   const auto pointsArray = vtkDoubleArray::FastDownCast(this->Points->GetData());

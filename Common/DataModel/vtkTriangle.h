@@ -53,8 +53,9 @@ public:
     vtkCellArray* verts, vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd,
     vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
   int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
-    double& dist2, double weights[]) override;
-  void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
+    double& dist2, double weights[3]) override;
+  void EvaluateLocation(
+    int& subId, const double pcoords[3], double x[3], double weights[3]) override;
   int TriangulateLocalIds(int index, vtkIdList* ptIds) override;
   void Derivatives(
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
