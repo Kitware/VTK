@@ -1670,7 +1670,6 @@ void vtkOSPRayRendererNode::Denoise()
     this->DenoiserColor = this->DenoiserDevice.newBuffer(size * sizeof(osp::vec4f));
     this->DenoiserNormal = this->DenoiserDevice.newBuffer(size * sizeof(osp::vec3f));
     this->DenoiserAlbedo = this->DenoiserDevice.newBuffer(size * sizeof(osp::vec3f));
-    this->DenoiserOutput = this->DenoiserDevice.newBuffer(size * sizeof(osp::vec4f));
 
     this->DenoiserFilter.setImage("color", this->DenoiserColor, oidn::Format::Float3, this->ImageX,
       this->ImageY, 0, sizeof(osp::vec4f));
@@ -1681,8 +1680,8 @@ void vtkOSPRayRendererNode::Denoise()
     this->DenoiserFilter.setImage("albedo", this->DenoiserAlbedo, oidn::Format::Float3,
       this->ImageX, this->ImageY, 0, sizeof(osp::vec3f));
 
-    this->DenoiserFilter.setImage("output", this->DenoiserOutput, oidn::Format::Float3,
-      this->ImageX, this->ImageY, 0, sizeof(osp::vec4f));
+    this->DenoiserFilter.setImage("output", this->DenoiserColor, oidn::Format::Float3, this->ImageX,
+      this->ImageY, 0, sizeof(osp::vec4f));
 #else
     this->DenoiserFilter.setImage("color", (void*)this->ColorBuffer.data(), oidn::Format::Float3,
       this->ImageX, this->ImageY, 0, sizeof(osp::vec4f));
@@ -1732,7 +1731,7 @@ void vtkOSPRayRendererNode::Denoise()
   }
 
 #if OIDN_VERSION_MAJOR >= 2
-  this->DenoiserOutput.read(0, size * sizeof(osp::vec4f), this->DenoisedBuffer.data());
+  this->DenoiserColor.read(0, size * sizeof(osp::vec4f), this->DenoisedBuffer.data());
 #endif
 
   // Carson: not sure we need two buffers

@@ -64,6 +64,12 @@ if (VTK_ENABLE_OSPRAY)
   )
 endif()
 
+if (VTK_ENABLE_OSPRAY AND VTKOSPRAY_ENABLE_DENOISER)
+  vtk_add_test_cxx(vtkRenderingRayTracingCxxTests tests
+    TestOSPRayDenoiserAlpha.cxx,NO_VALID
+    )
+endif()
+
 if (VTK_ENABLE_VISRTX)
   # OSPRay tests that are rerun with the OptiX backend
   set(optix_tests
