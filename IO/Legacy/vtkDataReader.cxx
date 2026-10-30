@@ -47,7 +47,8 @@
 #include "vtkVariantArray.h"
 
 #include "vtksys/FStream.hxx"
-#include <vtksys/SystemTools.hxx>
+#include "vtksys/String.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
 #include <cctype>
@@ -1771,11 +1772,8 @@ int vtkReadASCIIData(vtkDataReader* self, T* data, vtkIdType numTuples, vtkIdTyp
 vtkAbstractArray* vtkDataReader::ReadArray(
   const char* dataType, vtkIdType numTuples, vtkIdType numComp)
 {
-  char* type = strdup(dataType);
-  type = this->LowerCase(type);
-
   vtkAbstractArray* array;
-  if (!strncmp(type, "bit", 3))
+  if (!vtksysString_strncasecmp(dataType, "bit", 3))
   {
     array = vtkBitArray::New();
     array->SetNumberOfComponents(numComp);
@@ -1796,7 +1794,6 @@ vtkAbstractArray* vtkDataReader::ReadArray(
         if (this->IS->eof())
         {
           vtkErrorMacro(<< "Error reading binary bit array!");
-          free(type);
           array->Delete();
           return nullptr;
         }
@@ -1811,7 +1808,6 @@ vtkAbstractArray* vtkDataReader::ReadArray(
             if (!this->Read(&b))
             {
               vtkErrorMacro("Error reading ascii bit array! tuple: " << i << ", component: " << j);
-              free(type);
               array->Delete();
               return nullptr;
             }
@@ -1825,7 +1821,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
   }
 
-  else if (!strcmp(type, "char") || !strcmp(type, "signed_char"))
+  else if (!strcmp(dataType, "char") || !strcmp(dataType, "signed_char"))
   {
     array = vtkCharArray::New();
     array->SetNumberOfComponents(numComp);
@@ -1840,7 +1836,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
   }
 
-  else if (!strncmp(type, "unsigned_char", 13))
+  else if (!vtksysString_strncasecmp(dataType, "unsigned_char", 13))
   {
     array = vtkUnsignedCharArray::New();
     array->SetNumberOfComponents(numComp);
@@ -1855,7 +1851,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
   }
 
-  else if (!strncmp(type, "short", 5))
+  else if (!vtksysString_strncasecmp(dataType, "short", 5))
   {
     array = vtkShortArray::New();
     array->SetNumberOfComponents(numComp);
@@ -1871,7 +1867,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
   }
 
-  else if (!strncmp(type, "unsigned_short", 14))
+  else if (!vtksysString_strncasecmp(dataType, "unsigned_short", 14))
   {
     array = vtkUnsignedShortArray::New();
     array->SetNumberOfComponents(numComp);
@@ -1887,7 +1883,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
   }
 
-  else if (!strncmp(type, "vtkidtype", 9))
+  else if (!vtksysString_strncasecmp(dataType, "vtkidtype", 9))
   {
     // currently writing vtkIdType as int.
     array = vtkIdTypeArray::New();
@@ -1915,7 +1911,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
   }
 
-  else if (!strncmp(type, "int", 3))
+  else if (!vtksysString_strncasecmp(dataType, "int", 3))
   {
     array = vtkIntArray::New();
     array->SetNumberOfComponents(numComp);
@@ -1931,7 +1927,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
   }
 
-  else if (!strncmp(type, "unsigned_int", 12))
+  else if (!vtksysString_strncasecmp(dataType, "unsigned_int", 12))
   {
     array = vtkUnsignedIntArray::New();
     array->SetNumberOfComponents(numComp);
@@ -1947,7 +1943,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
   }
 
-  else if (!strncmp(type, "long", 4))
+  else if (!vtksysString_strncasecmp(dataType, "long", 4))
   {
     // vtkDataWriter does not write "long" data anymore
     // as data size is not certain
@@ -1971,7 +1967,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
   }
 
-  else if (!strncmp(type, "unsigned_long", 13))
+  else if (!vtksysString_strncasecmp(dataType, "unsigned_long", 13))
   {
     array = vtkUnsignedLongArray::New();
     array->SetNumberOfComponents(numComp);
@@ -1991,7 +1987,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
   }
 
-  else if (!strncmp(type, "vtktypeint64", 12))
+  else if (!vtksysString_strncasecmp(dataType, "vtktypeint64", 12))
   {
     array = vtkTypeInt64Array::New();
     array->SetNumberOfComponents(numComp);
@@ -2008,7 +2004,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
   }
 
-  else if (!strncmp(type, "vtktypeuint64", 13))
+  else if (!vtksysString_strncasecmp(dataType, "vtktypeuint64", 13))
   {
     array = vtkTypeUInt64Array::New();
     array->SetNumberOfComponents(numComp);
@@ -2025,7 +2021,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     }
   }
 
-  else if (!strncmp(type, "float", 5))
+  else if (!vtksysString_strncasecmp(dataType, "float", 5))
   {
     array = vtkFloatArray::New();
     array->SetNumberOfComponents(numComp);
@@ -2040,13 +2036,12 @@ vtkAbstractArray* vtkDataReader::ReadArray(
       if (!vtkReadASCIIData(this, ptr, numTuples, numComp))
       {
         array->Delete();
-        free(type);
         return nullptr;
       }
     }
   }
 
-  else if (!strncmp(type, "double", 6))
+  else if (!vtksysString_strncasecmp(dataType, "double", 6))
   {
     array = vtkDoubleArray::New();
     array->SetNumberOfComponents(numComp);
@@ -2061,13 +2056,13 @@ vtkAbstractArray* vtkDataReader::ReadArray(
       if (!vtkReadASCIIData(this, ptr, numTuples, numComp))
       {
         array->Delete();
-        free(type);
         return nullptr;
       }
     }
   }
 
-  else if (!strncmp(type, "string", 6) || !strncmp(type, "utf8_string", 11))
+  else if (!vtksysString_strncasecmp(dataType, "string", 6) ||
+    !vtksysString_strncasecmp(dataType, "utf8_string", 11))
   {
     array = vtkStringArray::New();
     array->SetNumberOfComponents(numComp);
@@ -2146,7 +2141,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
       }
     }
   }
-  else if (!strncmp(type, "variant", 7))
+  else if (!vtksysString_strncasecmp(dataType, "variant", 7))
   {
     array = vtkVariantArray::New();
     array->SetNumberOfComponents(numComp);
@@ -2215,12 +2210,9 @@ vtkAbstractArray* vtkDataReader::ReadArray(
   }
   else
   {
-    vtkErrorMacro(<< "Unsupported data type: " << type);
-    free(type);
+    vtkErrorMacro(<< "Unsupported data type: " << dataType);
     return nullptr;
   }
-
-  free(type);
 
   // Pop off any blank lines, these get added occasionally by the writer
   // when the data is a certain length:
@@ -2276,7 +2268,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
   }
 
   this->LowerCase(&line[0], 8);
-  if (strncmp(line, "metadata", 8) != 0)
+  if (vtksysString_strncasecmp(line, "metadata", 8) != 0)
   { // No metadata
     return array;
   }
@@ -2287,7 +2279,7 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     return array;
   }
   this->LowerCase(line, 256);
-  assert("sanity check" && strncmp(line, "metadata", 8) == 0);
+  assert("sanity check" && vtksysString_strncasecmp(line, "metadata", 8) == 0);
 
   while (this->ReadLine(line))
   {
