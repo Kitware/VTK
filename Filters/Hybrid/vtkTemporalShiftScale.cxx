@@ -292,10 +292,6 @@ int vtkTemporalShiftScale::RequestData(vtkInformation* vtkNotUsed(request),
     outData->ShallowCopy(inData);
   }
 
-  // @TODO The time value set here is not correct if periodic is true
-  // @2017-01-15, Christian Schmitz: I believe my changes above fix this?
-  //   Can the author if this 'todo' verify?
-
   double inTime = inData->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
 
   double range = this->PeriodicRange[1] - this->PeriodicRange[0];

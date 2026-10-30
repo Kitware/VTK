@@ -9,7 +9,7 @@
  *
  * This reader doesn't support reading from memory.
  *
- * @bug
+ * @note
  * There are several limitations on what type of nrrd files we can read.  This
  * reader only supports nrrd files in raw, ascii and gzip format.  Other encodings
  * like hex will result in errors.  When reading in detached headers, this only

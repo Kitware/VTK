@@ -12,7 +12,7 @@
  * methods do.
  *
  *
- * @bug
+ * @note
  * Sometimes Execute() will return false (meaning an error) but
  * GetLastErrorText() winds up null.  I am not certain why this is
  * happening.

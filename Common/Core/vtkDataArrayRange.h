@@ -242,7 +242,7 @@ VTK_ABI_NAMESPACE_END
  *   }
  * }
  * ```
- * @todo Just like the `DataArrayValueRange`, the tuple range can also accept a forced value type
+ * todo Just like the `DataArrayValueRange`, the tuple range can also accept a forced value type
  * for generic vtkDataArray.
  */
 VTK_ABI_NAMESPACE_BEGIN

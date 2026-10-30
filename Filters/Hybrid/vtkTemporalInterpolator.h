@@ -26,7 +26,7 @@
  * will produce an irregular sequence of regular steps between
  * each of the original irregular steps (clear enough, yes?).
  *
- * @todo
+ * todo
  * Higher order interpolation schemes will require changes to the API
  * as most calls assume only two timesteps are used.
  *

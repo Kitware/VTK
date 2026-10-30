@@ -13,7 +13,7 @@
  * vtkMultiProcessController::CreateSubController method.
  *
  *
- * @bug
+ * @note
  * Because all communication is delegated to the original communicator,
  * any error will report process ids with respect to the original
  * communicator, not this communicator that was actually used.

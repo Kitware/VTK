@@ -33,7 +33,6 @@ This package is made of the following Perl scripts:
 - doc_header2doxygen.pl: convert the VTK headers to the Doxygen format
 - doc_version.pl: extract the VTK version and add it to the documentation set
 - doc_class2example.pl: build cross-references between classes and examples
-- doc_index.pl: build the full-text index
 
 Use the --help option to display the parameters that are allowed for each
 script.
@@ -85,7 +84,7 @@ processed by doxygen to produce the documentation. Each directory/file
 is separated by a space. Whenever you will be requested to add a
 filename to INPUT, just add it to the end of the list. Example:
 
-    INPUT = ../../../VTK-doxygen/Common ../../../VTK-doxygen/Filtering ../../../VTK-doxygen/Graphics ../../../VTK-doxygen/Hybrid ../../../VTK-doxygen/Imaging ../../../VTK-doxygen/IO ../../../VTK-doxygen/Parallel ../../../VTK-doxygen/Patented ../../../VTK-doxygen/Rendering ../../../VTK-doxygen/doc_version.dox ../../../VTK-doxygen/doc_class2examples.dox ../../../VTK-doxygen/doc_class2tests.dox ../../../VTK-doxygen/doc_index.dox
+    INPUT = ../../../VTK-doxygen/Common ../../../VTK-doxygen/Filtering ../../../VTK-doxygen/Graphics ../../../VTK-doxygen/Hybrid ../../../VTK-doxygen/Imaging ../../../VTK-doxygen/IO ../../../VTK-doxygen/Parallel ../../../VTK-doxygen/Patented ../../../VTK-doxygen/Rendering ../../../VTK-doxygen/doc_version.dox ../../../VTK-doxygen/doc_class2examples.dox ../../../VTK-doxygen/doc_class2tests.dox
 
 WARNING: disable the HAVE_DOT directive if you have not installed graphviz
 (http://www.research.att.com/~north/graphviz/download.html).
@@ -247,58 +246,6 @@ Update the Doxygen configuration file ('doxyfile'):
     '../../../VTK-doxygen/doc_class2example.dox') to the INPUT
     directive, so that Doxygen might process it (see also section D).
 
-
-C4. Build full-text index
-    ---------------------
-
-    Use the indexing script: doc_index.pl
-
-For example:
-
-    D:\src\kitware\vtk\VTK\Utilities\Doxygen> perl doc_index.pl --to ../../../VTK-doxygen
-    doc_index.pl 0.2, by Sebastien Barre
-    Reading stop-words from doc_index.stop...
-     => 724 stop-word(s) read.
-    Collecting files...
-    Indexing...
-     => 8174 word(s) grabbed in 729 file(s) in 2 s.
-    Removing...
-     => 3126 word(s) removed.
-    Grouping...
-     => 2075 word(s) grouped.
-    Normalizing...
-     => normalized to lowercase.
-    Building indexes doc and alphabetical section(s) weight(s)...
-     => 2973 words(s) documented in 2 s.
-     => total weight is 400800 in 47 section(s) (mean is 8527)
-    Computing alphabetical group(s)/page(s)...
-     => max weight is 90000 per group/page, but a section can not be divided
-     => 6 group(s) for 47 section(s)
-    Building pages header...
-    Writing documentation to ../../../VTK-doxygen/doc_index.dox...
-      - 729 file(s) indexed by 2973 word(s) on Mon Oct  1 11:13:44 2001
-      - max limit is 10 xref(s) per word
-    Finished in 5 s.
-
-Meaning that:
-
-    The optional '--to ../../../VTK-doxygen' parameter specifies that
-    the script stores the full-text index in the
-    '../../../VTK-doxygen' directory (more precisely in the
-    '../../../VTK-doxygen/doc_index.dox' file).
-
-    The optional --stop parameter can be used to specify that the
-    script should read its stop-words from a different file (default
-    is 'doc_index.stop').  This file is a list of trivial words (one
-    per line) that won't be indexed.
-
-Update the Doxygen configuration file ('doxyfile'):
-
-    Add the relative path to 'doc_index.dox' (here :
-    '../../../VTK-doxygen/doc_index.dox') to the INPUT directive, so that
-    Doxygen might process it (see also section D)
-
-
 D.  Run doxygen
     -----------
 
@@ -308,7 +255,7 @@ D.  Run doxygen
     PROJECT_NAME         = VTK
     # PROJECT_NUMBER     =
     OUTPUT_DIRECTORY     = ../../../doc
-    INPUT = ../../../VTK-doxygen/Common ../../../VTK-doxygen/Filtering ../../../VTK-doxygen/Graphics ../../../VTK-doxygen/Hybrid ../../../VTK-doxygen/Imaging ../../../VTK-doxygen/IO ../../../VTK-doxygen/Parallel ../../../VTK-doxygen/Patented ../../../VTK-doxygen/Rendering ../../../VTK-doxygen/doc_version.dox ../../../VTK-doxygen/doc_class2examples.dox ../../../VTK-doxygen/doc_class2tests.dox ../../../VTK-doxygen/doc_index.dox
+    INPUT = ../../../VTK-doxygen/Common ../../../VTK-doxygen/Filtering ../../../VTK-doxygen/Graphics ../../../VTK-doxygen/Hybrid ../../../VTK-doxygen/Imaging ../../../VTK-doxygen/IO ../../../VTK-doxygen/Parallel ../../../VTK-doxygen/Patented ../../../VTK-doxygen/Rendering ../../../VTK-doxygen/doc_version.dox ../../../VTK-doxygen/doc_class2examples.dox ../../../VTK-doxygen/doc_class2tests.dox
 
     Then run doxygen. Be *patient* :)
 
