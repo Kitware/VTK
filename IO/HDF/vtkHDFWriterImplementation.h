@@ -25,12 +25,47 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkHDFWriter::Implementation
 {
 public:
-  hid_t GetRoot() { return this->Root; }
-  hid_t GetFile() { return this->File; }
-  hid_t GetStepsGroup(hid_t currentGroup);
+  ///@{
+  /**
+   * Create/Open/Close file.
+   * Set File and Root groups, close them when the file is closed.
+   */
+  bool CreateFile(bool overwrite, const std::string& filename);
+  bool OpenFile(const std::string& filename);
+  void CloseFile();
+  ///@}
 
+  /**
+   * Access root group.
+   */
+  hid_t GetRoot() { return this->Root; }
+
+  ///@{
+  /**
+   * Create/Get the steps group in the given group.
+   */
+  bool CreateStepsGroup(hid_t group);
+  hid_t GetStepsGroup(hid_t currentGroup);
+  ///@}
+
+  ///@{
+  /**
+   * Global properties
+   */
   void SetChunkSize(int chunkSize) { this->ChunkSize = chunkSize; };
   void SetCompressionLevel(int level) { this->CompressionLevel = level; };
+  ///@}
+
+  ///@{
+  /**
+   * Use distributed HDF5 MPI I/O for writing.
+   * When enabled, all operations will be done collectively.
+   * GetUseDistributedWriting will always return false if HDF5_ENABLE_PARALLEL is not enabled at
+   * compile time
+   */
+  void SetUseDistributedWriting(bool distributedFile);
+  bool GetUseDistributedWriting() const { return this->UseDistributedWriting; }
+  ///@}
 
   /**
    * Write version and type attributes to the root group
@@ -40,28 +75,13 @@ public:
    */
   bool WriteHeader(hid_t group, const char* hdfType);
 
+  //--------------- Distributed ---------------
   /**
-   * Create the file from the filename and create the root VTKHDF group.
-   * This file is closed on object destruction.
-   * Overwrite the file if it exists by default
-   * Returns true if the operation was successful
-   * If the operation fails, the file may have been created
+   * Collect offsets from all distributed partitions in the object using collective operartions.
    */
-  bool CreateFile(bool overwrite, const std::string& filename);
+  bool CollectPartitionOffsets(vtkDataObject* input);
 
-  /**
-   * Open existing VTKHDF file and set Root and File members.
-   * This file is closed on object destruction.
-   */
-  bool OpenFile();
-
-  /**
-   * Close currently handled file, open using CreateFile or OpenFile.
-   * This does only need to be called when we want to close the file early; the file and open groups
-   * are closed automatically on object destruction.
-   */
-  void CloseFile();
-
+  ///@{
   /**
    * Open subfile where data has already been written, and needs to be referenced by the main file
    * using virtual datasets.
@@ -79,44 +99,7 @@ public:
   bool GetSubFilesReady() { return this->SubFilesReady; }
   ///@}
 
-  /**
-   * Create the steps group in the given group. It can be retrieved later using `GetStepsGroup`
-   */
-  bool CreateStepsGroup(hid_t group);
-
-  /**
-   * @struct PolyDataTopos
-   * @brief Stores a group name and the corresponding cell array.
-   *
-   * Use this structure to avoid maintaining two arrays which is error prone (AOS instead of SOA)
-   */
-  typedef struct
-  {
-    const char* hdfGroupName;
-    vtkCellArray* cellArray;
-  } PolyDataTopos;
-
-  /**
-   * Get the cell array for the POLY_DATA_TOPOS
-   */
-  std::vector<PolyDataTopos> GetCellArraysForTopos(vtkPolyData* polydata);
-
-  // Creation utility functions
-
-  /**
-   * Create a dataset in the given group with the given parameters and write data to it
-   * Returned scoped handle may be invalid
-   */
-  vtkHDF::ScopedH5DHandle CreateAndWriteHdfDataset(hid_t group, hid_t type, hid_t source_type,
-    const char* name, const std::vector<hsize_t>& dimensions, const void* data);
-
-  /**
-   * Create a HDF dataspace
-   * It is simple (not scalar or null) which means that it is an array of elements
-   * Returned scoped handle may be invalid
-   */
-  vtkHDF::ScopedH5SHandle CreateSimpleDataspace(const std::vector<hsize_t>& dimensions);
-
+  //--------------- Attributes ---------------
   /**
    * Create a scalar integer attribute in the given group.
    * Noop if the attribute already exists.
@@ -138,6 +121,7 @@ public:
   vtkHDF::ScopedH5AHandle CreateStringAttribute(
     hid_t group, const char* name, const std::string& value);
 
+  //--------------- Groups ---------------
   /**
    * Retrieve group if it exists, create it if needed.
    * Returned scoped handle may be invalid when group could not be created
@@ -151,6 +135,17 @@ public:
   vtkHDF::ScopedH5GHandle CreateHdfGroupWithLinkOrder(hid_t group, const char* name);
 
   /**
+   * Open and return an existing group thanks to id and a relative or absolute path to this group.
+   */
+  vtkHDF::ScopedH5GHandle OpenExistingGroup(hid_t group, const char* name);
+
+  /**
+   * Return the name of a group given its id
+   */
+  std::string GetGroupName(hid_t group);
+
+  //--------------- Links ---------------
+  /**
    * Create a soft link to the real group containing the block dataset.
    * Return true if the operation succeeded or if it already exists.
    */
@@ -163,10 +158,17 @@ public:
   bool CreateExternalLink(
     hid_t group, const char* filename, const char* source, const char* targetLink);
 
+  //--------------- Datasets ---------------
+  ///@{
   /**
-   * Open and return an existing group thanks to id and a relative or absolute path to this group.
+   * Create a chunked dataset with an empty extendable dataspace using chunking
+   * Return true if the operation was successful.
    */
-  vtkHDF::ScopedH5GHandle OpenExistingGroup(hid_t group, const char* name);
+  bool InitDynamicDataset(
+    hid_t group, const char* name, hid_t type, hsize_t cols, const std::vector<hsize_t>& chunkSize);
+  bool InitDynamicDataset(hid_t group, const char* name, hid_t type,
+    const std::vector<hsize_t>& dims, const std::vector<hsize_t>& chunkSize);
+  ///@}
 
   /**
    * Open and return an existing dataset using its group id and dataset name.
@@ -180,35 +182,35 @@ public:
    */
   hsize_t GetDataSetSize(hid_t group, const char* name);
 
+  //--------------- Data writing ---------------
   /**
-   * Return the name of a group given its id
+   * Creates a dataset in the given group from a dataArray and write data to it
+   * dims provides the dimensions of the structured dataset. If dims is empty, the dataspace shape
+   * is [nTuples] (or [nTuples, nComp] when nComp > 1). Returned scoped handle may be invalid
    */
-  std::string GetGroupName(hid_t group);
+  vtkHDF::ScopedH5DHandle CreateHdfDatasetFromDataArray(hid_t group, const char* name, hid_t type,
+    vtkAbstractArray* dataArray, const std::vector<hsize_t>& dims = {});
 
   /**
-   * Create a dataset in the given group from a dataspace
-   * Returned scoped handle may be invalid
+   * Append the given array to the dataset with the given `name`, creating it if it does not exist
+   * yet. If the dataset/dataspace already exists, array types must match.
+   * dims provides the dimensions of the structured dataset. Used only for ImageData for now.
+   * Return true if the operation was successful.
    */
-  vtkHDF::ScopedH5DHandle CreateHdfDataset(
-    hid_t group, const char* name, hid_t type, hid_t dataspace);
+  bool AddOrCreateDataset(hid_t group, unsigned int partId, const char* name, hid_t type,
+    vtkAbstractArray* dataArray, const std::vector<hsize_t>& dims = {});
 
   /**
-   * Create a dataset in the given group
-   * It internally creates a dataspace from a rank and dimensions
-   * Returned scoped handle may be invalid
+   * Append a single row of integer values to the dataset with name `name` in `group` group.
+   * Create the dataset and dataspace if it does not exist yet.
+   * When offset is true, the value written to the dataset is offset by the previous value of the
+   * dataspace.
+   * Return true if the operation is successful.
    */
-  vtkHDF::ScopedH5DHandle CreateHdfDataset(
-    hid_t group, const char* name, hid_t type, const std::vector<hsize_t>& dimensions);
+  bool AddOrCreateSingleRowDataset(hid_t group, unsigned int partId, const char* name,
+    const std::vector<vtkIdType>& value, bool offset = false, bool trim = false);
 
-  /**
-   * Create a virtual dataset from all the subfiles that have been added.
-   * This virtual dataset references the datasets with the same name in subfiles,
-   * and its first dimension is the sum of all subfiles datasets'.
-   * the number of components must be the same in every subfile.
-   * Return true iff the operation completed successfully
-   */
-  bool CreateVirtualDataset(hid_t group, const char* name, hid_t type, int numComp);
-
+  //--------------- Subfile tools ---------------
   ///@{
   /**
    * For temporal multi-piece meta-files, write the dataset `name` in group `group`,
@@ -220,95 +222,6 @@ public:
   bool WriteSumSteps(hid_t group, const char* name);
   bool WriteSumStepsPolyData(hid_t group, const char* name);
   ///@}
-
-  /**
-   * Creates a dataspace to the exact array dimensions
-   * dims provides the dimensions of the structured dataset. If dims is empty, the dataspace shape
-   * is [nTuples] (or [nTuples, nComp] when nComp > 1). Returned scoped handle may be invalid
-   */
-  vtkHDF::ScopedH5SHandle CreateDataspaceFromArray(
-    vtkAbstractArray* dataArray, const std::vector<hsize_t>& dims = {});
-
-  /**
-   * Creates a dataset in the given group from a dataArray and write data to it
-   * dims provides the dimensions of the structured dataset. If dims is empty, the dataspace shape
-   * is [nTuples] (or [nTuples, nComp] when nComp > 1). Returned scoped handle may be invalid
-   */
-  vtkHDF::ScopedH5DHandle CreateDatasetFromDataArray(hid_t group, const char* name, hid_t type,
-    vtkAbstractArray* dataArray, const std::vector<hsize_t>& dims = {});
-
-  /**
-   * Creates a dataset and write a row of values to it.
-   * Returned scoped handle may be invalid
-   */
-  vtkHDF::ScopedH5DHandle CreateSingleRowDataset(
-    hid_t group, const char* name, const std::vector<vtkIdType>& values);
-
-  ///@{
-  /**
-   * Create a chunked dataset with an empty extendable dataspace using chunking
-   * Return true if the operation was successful.
-   */
-  bool InitDynamicDataset(
-    hid_t group, const char* name, hid_t type, hsize_t cols, const std::vector<hsize_t>& chunkSize);
-  bool InitDynamicDataset(hid_t group, const char* name, hid_t type,
-    const std::vector<hsize_t>& dims, const std::vector<hsize_t>& chunkSize);
-  ///@}
-
-  /**
-   * Add a single row of integer type to an existing dataspace.
-   * The trim parameter allows to overwrite the last data instead
-   * of appending it to the dataset.
-   * Return true if the write operation was successful.
-   */
-  bool AddSingleRowToDataset(
-    hid_t dataset, const std::vector<vtkIdType>& value, bool offset, bool trim = false);
-
-  /**
-   * Add a 2D value of integer type to an existing dataspace which represents the FieldDataSize.
-   * Return true if the write operation was successful.
-   */
-  bool AddFieldDataSizeValueToDataset(hid_t dataset, vtkIdType* value, vtkIdType size, bool offset);
-
-  /**
-   * Append a full data array at the end of an existing infinite dataspace.
-   * It can also overwrite the last elements using the `trim` parameter.
-   * When `trim` is positive, it will overwrite the number of array defined
-   * by the parameter starting from the end of the dataset. When `trim` is non positive
-   * it appends data array at the end of the dataset.
-   * Return true if the write operation was successful.
-   */
-  bool AddArrayToDataset(hid_t dataset, vtkAbstractArray* dataArray, int trim = 0,
-    const std::vector<hsize_t>& dims = {});
-
-  /**
-   * Append the given array to the dataset with the given `name`, creating it if it does not exist
-   * yet. If the dataset/dataspace already exists, array types must match.
-   * dims provides the dimensions of the structured dataset. Used only for ImageData for now.
-   * Return true if the operation was successful.
-   */
-  bool AddOrCreateDataset(hid_t group, const char* name, hid_t type, vtkAbstractArray* dataArray,
-    const std::vector<hsize_t>& dims = {});
-
-  /**
-   * Append a single row of integer values to the dataset with name `name` in `group` group.
-   * Create the dataset and dataspace if it does not exist yet.
-   * When offset is true, the value written to the dataset is offset by the previous value of the
-   * dataspace.
-   * Return true if the operation is successful.
-   */
-  bool AddOrCreateSingleRowDataset(hid_t group, const char* name,
-    const std::vector<vtkIdType>& value, bool offset = false, bool trim = false);
-
-  /**
-   * Append a 2D integer value to the dataset with name `FieldDataSize`.
-   * Create the dataset and dataspace if it does not exist yet.
-   * When offset is true, the value written to the dataset is offset by the previous value of the
-   * dataspace.
-   * Return true if the operation is successful.
-   */
-  bool AddOrCreateFieldDataSizeValueDataset(
-    hid_t group, const char* name, vtkIdType* value, vtkIdType size, bool offset = false);
 
   /**
    * Find the first non null part for the given path in all subfiles.
@@ -326,6 +239,49 @@ public:
   virtual ~Implementation();
 
 private:
+  /**
+   * Store write offsets for a partition in the current time step.
+   * This is used to allocate HDF5 dataset sizes and collective writes.
+   */
+  struct UnstructuredGridOffset
+  {
+    vtkIdType PartOffset;
+    vtkIdType PointOffset;
+    vtkIdType CellOffset;
+
+    vtkIdType PointDataOffset;
+    vtkIdType CellDataOffset;
+    vtkIdType ConnectivityOffset;
+
+    // Polyhedron support (to be completed)
+    vtkIdType FaceOffset;
+    vtkIdType FacePartOffset;
+    vtkIdType FaceConnectivityOffset;
+    vtkIdType PolyhedronOffset;
+    vtkIdType PolyhedronToFaceOffset;
+  };
+  struct PartitionedOffsets
+  {
+    std::vector<vtkIdType> PartOffsets;            // size = nRanks + 1
+    std::vector<UnstructuredGridOffset> UgOffsets; // size = nParts + 1
+  };
+  /**
+   * Collect partitioned information for the current time step, append to existing temporal data
+   */
+  bool CollectPartitionOffsets(vtkDataObject* input, const UnstructuredGridOffset& temporalOffsets);
+
+  /**
+   * Print offsets as debug info.
+   */
+  void PrintOffsetInformation(PartitionedOffsets& offsets);
+
+  /**
+   * Return the dataset transfer property list to use for reads and writes.
+   * In distributed single-file mode, use collective operations.
+   */
+  hid_t GetTransferPropertyList();
+
+  bool UseDistributedWriting = false;
   vtkHDFWriter* Writer;
   vtkHDF::ScopedH5FHandle File;
   vtkHDF::ScopedH5GHandle Root;
@@ -333,27 +289,75 @@ private:
   std::vector<vtkHDF::ScopedH5FHandle> Subfiles;
   std::vector<std::string> SubfileNames;
   bool SubFilesReady = false;
+  vtkHDF::ScopedH5PHandle TransferPropertyList;
+  PartitionedOffsets UgOffsets;
 
   // Forwarded constant properties from the writer
   int ChunkSize = 25000;
   int CompressionLevel = 0;
 
-  const std::array<std::string, 4> PrimitiveNames = { { "Vertices", "Lines", "Polygons",
-    "Strips" } };
+  //--------------- Datasets ---------------
+  ///@{
+  /**
+   * Create a dataset in the given group from a dataspace or dimensions
+   * Returned scoped handle may be invalid
+   */
+  vtkHDF::ScopedH5DHandle CreateHdfDataset(
+    hid_t group, const char* name, hid_t type, hid_t dataspace);
+  vtkHDF::ScopedH5DHandle CreateHdfDataset(
+    hid_t group, const char* name, hid_t type, const std::vector<hsize_t>& dimensions);
 
+  /**
+   * Create a HDF dataspace
+   * It is simple (not scalar or null) which means that it is an array of elements
+   * Returned scoped handle may be invalid
+   */
+  vtkHDF::ScopedH5SHandle CreateSimpleDataspace(const std::vector<hsize_t>& dimensions);
+
+  /**
+   * Creates a dataspace to the exact array dimensions
+   * dims provides the dimensions of the structured dataset. If dims is empty, the dataspace shape
+   * is [nTuples] (or [nTuples, nComp] when nComp > 1). Returned scoped handle may be invalid
+   */
+  vtkHDF::ScopedH5SHandle CreateDataspaceFromArray(
+    vtkAbstractArray* dataArray, const std::vector<hsize_t>& dims = {});
+
+  /**
+   * Set a single row of the dataset
+   * Return true if the write operation was successful.
+   */
+  bool WriteOneRowDataset(hid_t dataset, const std::vector<vtkIdType>& value, hsize_t rowOffset,
+    bool offset, bool trim = false);
+
+  /**
+   * Write a contiguous buffer into an existing dataset selection, without resizing.
+   */
+  bool WriteDataset(hid_t dataset, hid_t memoryType, const std::vector<hsize_t>& start,
+    const std::vector<hsize_t>& count, const void* data);
+
+  /**
+   * Append a full data array at the end of an existing infinite dataspace.
+   * It can also overwrite the last elements using the `trim` parameter.
+   * When `trim` is positive, it will overwrite the number of array defined
+   * by the parameter starting from the end of the dataset. When `trim` is non positive
+   * it appends data array at the end of the dataset.
+   * Return true if the write operation was successful.
+   */
+  bool AddArrayToDataset(hid_t dataset, vtkAbstractArray* dataArray, hsize_t rowOffset,
+    const std::vector<hsize_t>& dims = {});
+
+  /**
+   * Return true if the given dataset exists in the given existing group.
+   */
+  bool DatasetAndGroupExist(const std::string& dataset, hid_t group);
+
+  //--------------- Meta-file tools ---------------
   /**
    * Look into subfile `subfileId` and return the number of cells in part `part`.
    * Supports UnstructuredGrid and PolyData subfiles.
    */
   hsize_t GetNumberOfCellsSubfile(const std::string& basePath, std::size_t subfileId, hsize_t part,
     bool isPolyData, const std::string& groupName);
-
-  /**
-   * Return the digit between 0 and 4 in the order of `PrimitiveNames`,
-   * representing the primitive associated to `group`.
-   * Return -1 if group is not a polydata primitive group.
-   */
-  char GetPrimitive(hid_t group);
 
   /**
    * Retrieve a single value from the 1-dimensional (usually meta-data)
@@ -365,13 +369,14 @@ private:
   hsize_t GetSubfileNumberOf(const std::string& base, const std::string_view& qualifier,
     std::size_t subfileId, hsize_t part, char primitive = 0xff);
 
-  std::string GetBasePath(const std::string& fullPath);
-
   /**
-   * Return true if the given dataset exists in the given existing group.
+   * Create a virtual dataset from all the subfiles that have been added.
+   * This virtual dataset references the datasets with the same name in subfiles,
+   * and its first dimension is the sum of all subfiles datasets'.
+   * the number of components must be the same in every subfile.
+   * Return true iff the operation completed successfully
    */
-  bool DatasetAndGroupExist(const std::string& dataset, hid_t group);
-
+  bool CreateVirtualDataset(hid_t group, const char* name, hid_t type, int numComp);
   /**
    * Set `totalSize` as the the sum of the subfiles dataset's size given a path to the dataset.
    * Return false on failure (dataset does not exist on every subfile). `totalSize` value should not
@@ -380,6 +385,12 @@ private:
   bool GetSubFilesDatasetSize(
     const std::string& datasetPath, const std::string& groupName, hsize_t& totalSize);
 
+  /**
+   * Copy the datatype from dataset in subfile
+   */
+  vtkHDF::ScopedH5THandle GetSubfileDataType(const std::string& datasetPath);
+
+  //--------------- Distributed tools ---------------
   // Possible indexing mode of VTKHDF datasets. See `GetDatasetIndexationMode`
   enum class IndexingMode
   {
@@ -391,8 +402,46 @@ private:
     Descriptor,
     HTGCoords,
     MetaData,
-    Undefined
+    Undefined,
   };
+
+  /**
+   * Return the total number of rows for the given dataset.
+   * This is computed using collected offsets from all ranks.
+   */
+  hsize_t GetDistributedDatasetSize(const std::string& datasetPath);
+
+  /**
+   * Resize an existing dataset using local rows or gathered distributed totals.
+   */
+  vtkHDF::ScopedH5DHandle AllocateDataset(
+    hid_t group, const char* name, std::vector<hsize_t> dimensions);
+
+  /**
+   * Create a dataset and allocate it
+   */
+  vtkHDF::ScopedH5DHandle CreateAndAllocateDataSet(hid_t group, const char* name, hid_t type,
+    unsigned int partId, const std::vector<hsize_t>& dimensions,
+    const std::vector<hsize_t>& chunkSize, hsize_t& rowOffset, bool trim = false);
+
+  /**
+   * Return true if a given path can use distributed offsets and writing. Temporary utility while
+   * everything does not support distributed writing.
+   */
+  bool UsesDistributedOffsets(const std::string& path);
+
+  /**
+   * Return the write offset for a given part of a dataset, writing <localRows> rows
+   */
+  hsize_t GetDatasetWriteOffset(
+    hid_t dataset, unsigned int partId, hsize_t localRows, bool trim = false);
+
+  /**
+   * Get offset value from a file-absolute partition number and path, using computed offsets from
+   * the collective offset pass.
+   */
+  hsize_t GetDatasetValueOffset(
+    std::size_t partition, const std::string& datasetPath, IndexingMode mode) const;
 
   /**
    * Return the indexation mode of dataset at the given path: when the dataset adds 1 component for

@@ -189,6 +189,11 @@ VTKIOHDF_EXPORT std::size_t GetNumberOfSteps(hid_t groupID);
 VTKIOHDF_EXPORT std::vector<hsize_t> GetDimensions(hid_t fileID, const char* datasetName);
 
 /**
+ * Return the dimensions of an open dataset.
+ */
+VTKIOHDF_EXPORT std::vector<hsize_t> GetDimensions(hid_t dataset);
+
+/**
  * Initialize meta information of the file.
  */
 

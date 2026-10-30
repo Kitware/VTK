@@ -97,6 +97,31 @@ bool HasPolyhedra(vtkUnstructuredGrid* input)
   return input && input->GetPolyhedronFaces() != nullptr &&
     input->GetPolyhedronFaces()->GetNumberOfCells() > 0;
 }
+
+/**
+ * @struct PolyDataTopos
+ * @brief Stores a group name and the corresponding cell array.
+ *
+ * Use this structure to avoid maintaining two arrays which is error prone (AOS instead of SOA)
+ */
+struct PolyDataTopos
+{
+  const char* hdfGroupName;
+  vtkCellArray* cellArray;
+};
+
+/**
+ * Get cell array associated to each topology type
+ */
+std::vector<::PolyDataTopos> GetCellArraysForTopos(vtkPolyData* polydata)
+{
+  return {
+    { "Vertices", polydata->GetVerts() },
+    { "Lines", polydata->GetLines() },
+    { "Polygons", polydata->GetPolys() },
+    { "Strips", polydata->GetStrips() },
+  };
+}
 }
 
 //------------------------------------------------------------------------------
@@ -262,15 +287,22 @@ void vtkHDFWriter::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDataAndReturn()
 {
+  vtkDataObject* input = this->GetInput();
+
   this->Impl->SetSubFilesReady(false);
   this->Impl->SetCompressionLevel(this->CompressionLevel);
   this->Impl->SetChunkSize(this->ChunkSize);
+
+  // For now, distributed writing is only available for non-partitioned, non-temporal
+  // UnstructuredGrid. Other distributed inputs use external files.
+  this->Impl->SetUseDistributedWriting(!this->UseExternalDistributed && this->NbPieces > 1 &&
+    !this->IsTemporal && vtkUnstructuredGrid::SafeDownCast(input));
 
   // Root file group only needs to be opened for the first timestep
   if (this->CurrentTimeIndex == 0)
   {
     // Write all pieces concurrently
-    if (this->NbPieces > 1)
+    if (this->NbPieces > 1 && !this->Impl->GetUseDistributedWriting())
     {
       const std::string partitionSuffix = "part" + vtk::to_string(this->CurrentPiece);
       const std::string filePath =
@@ -293,8 +325,6 @@ bool vtkHDFWriter::WriteDataAndReturn()
 
   // Wait for the file to be created
   this->Controller->Barrier();
-
-  vtkDataObject* input = vtkDataObject::SafeDownCast(this->GetInput());
 
   if (this->IsTemporal)
   {
@@ -354,7 +384,8 @@ bool vtkHDFWriter::WriteDataAndReturn()
   this->UpdatePreviousStepMeshMTime(input);
 
   // Write the metafile for distributed datasets, gathering information from all timesteps
-  if (this->NbPieces > 1 && !this->WriteDistributedMetafile(input))
+  if (this->NbPieces > 1 && !this->Impl->GetUseDistributedWriting() &&
+    !this->WriteDistributedMetafile(input))
   {
     vtkErrorMacro("Could not write distributed metafile");
     return false;
@@ -546,7 +577,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkRectilinearGrid* input, un
   writeSuccess &= this->Impl->CreateVectorAttribute(
                     group, "Dimensions", H5T_NATIVE_INT, 3, dims.data()) != H5I_INVALID_HID;
 
-  writeSuccess &= this->AppendRectilinearCoordinates(group, input);
+  writeSuccess &= this->AppendRectilinearCoordinates(group, partId, input);
   writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, dims);
   return writeSuccess;
 }
@@ -605,7 +636,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkStructuredGrid* input, uns
     writeSuccess &=
       this->Impl->InitDynamicDataset(group, "Points", datatype, dimensions, pointChunkSize);
   }
-  writeSuccess &= this->AppendPoints(group, input, dims.data());
+  writeSuccess &= this->AppendPoints(group, partId, input, dims.data());
   writeSuccess &= this->AppendDataSetAttributes(group, input, partId, nullptr, dims);
   return writeSuccess;
 }
@@ -615,8 +646,8 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkTable* input, unsigned int
 {
   bool writeSuccess = true;
 
-  writeSuccess &=
-    this->Impl->AddOrCreateSingleRowDataset(group, "NumberOfRows", { input->GetNumberOfRows() });
+  writeSuccess &= this->Impl->AddOrCreateSingleRowDataset(
+    group, partId, "NumberOfRows", { input->GetNumberOfRows() });
   writeSuccess &= this->AppendDataSetAttributes(group, input, partId);
   return writeSuccess;
 }
@@ -625,7 +656,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkTable* input, unsigned int
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPolyData* input, unsigned int partId)
 {
   // For each primitive type, create a group and datasets/dataspaces
-  auto cellArrayTopos = this->Impl->GetCellArraysForTopos(input);
+  auto cellArrayTopos = ::GetCellArraysForTopos(input);
   for (const auto& cellArrayTopo : cellArrayTopos)
   {
     const char* groupName = cellArrayTopo.hdfGroupName;
@@ -652,9 +683,9 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPolyData* input, unsigned 
 
   if (this->HasGeometryChangedFromPreviousStep(input) || this->CurrentTimeIndex == 0)
   {
-    writeSuccess &= this->AppendNumberOfPoints(group, input);
-    writeSuccess &= this->AppendPoints(group, input);
-    writeSuccess &= this->AppendPrimitiveCells(group, input);
+    writeSuccess &= this->AppendNumberOfPoints(group, partId, input);
+    writeSuccess &= this->AppendPoints(group, partId, input);
+    writeSuccess &= this->AppendPrimitiveCells(group, partId, input);
   }
   writeSuccess &= this->AppendDataArrays(group, input, partId);
   return writeSuccess;
@@ -663,6 +694,11 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPolyData* input, unsigned 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, unsigned int partId)
 {
+  if (this->Impl->GetUseDistributedWriting() && !this->Impl->GetSubFilesReady())
+  {
+    this->Impl->CollectPartitionOffsets(input);
+  }
+
   if (this->CurrentTimeIndex == 0 && partId == 0)
   {
     if (!this->InitializeTemporalUnstructuredGrid(group))
@@ -685,25 +721,28 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, u
 
   if (this->HasGeometryChangedFromPreviousStep(input) || this->CurrentTimeIndex == 0)
   {
-    writeSuccess &= this->AppendNumberOfPoints(group, input);
-    writeSuccess &= this->AppendNumberOfCells(group, cells);
-    writeSuccess &= this->AppendNumberOfConnectivityIds(group, cells);
-    writeSuccess &= this->AppendPoints(group, input);
-    writeSuccess &= this->AppendCellTypes(group, input);
-    writeSuccess &= this->AppendConnectivity(group, cells);
+    writeSuccess &= this->AppendNumberOfPoints(group, partId, input);
+    writeSuccess &= this->AppendNumberOfCells(group, partId, cells);
+    writeSuccess &= this->AppendNumberOfConnectivityIds(group, partId, cells);
+    writeSuccess &= this->AppendPoints(group, partId, input);
+    writeSuccess &= this->AppendCellTypes(group, partId, input);
+    writeSuccess &= this->AppendConnectivity(group, partId, cells);
 
     if (::HasPolyhedra(input))
     {
-      writeSuccess &= this->AppendNumberOfFaceConnectivityIds(group, input->GetPolyhedronFaces());
-      writeSuccess &= this->AppendNumberOfFaces(group, input->GetPolyhedronFaces());
-      writeSuccess &= this->AppendFaceConnectivity(group, input->GetPolyhedronFaces());
-      writeSuccess &= this->AppendFaceOffsets(group, input->GetPolyhedronFaces());
-      writeSuccess &= this->AppendPolyhedronToFaces(group, input->GetPolyhedronFaceLocations());
-      writeSuccess &= this->AppendPolyhedronOffsets(group, input->GetPolyhedronFaceLocations());
       writeSuccess &=
-        this->AppendNumberOfPolyhedronToFaceIds(group, input->GetPolyhedronFaceLocations());
+        this->AppendNumberOfFaceConnectivityIds(group, partId, input->GetPolyhedronFaces());
+      writeSuccess &= this->AppendNumberOfFaces(group, partId, input->GetPolyhedronFaces());
+      writeSuccess &= this->AppendFaceConnectivity(group, partId, input->GetPolyhedronFaces());
+      writeSuccess &= this->AppendFaceOffsets(group, partId, input->GetPolyhedronFaces());
+      writeSuccess &=
+        this->AppendPolyhedronToFaces(group, partId, input->GetPolyhedronFaceLocations());
+      writeSuccess &=
+        this->AppendPolyhedronOffsets(group, partId, input->GetPolyhedronFaceLocations());
+      writeSuccess &=
+        this->AppendNumberOfPolyhedronToFaceIds(group, partId, input->GetPolyhedronFaceLocations());
     }
-    writeSuccess &= this->AppendOffsets(group, cells);
+    writeSuccess &= this->AppendOffsets(group, partId, cells);
   }
 
   writeSuccess &= this->AppendDataArrays(group, input, partId);
@@ -747,14 +786,14 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsi
   if (input->GetMaxNumberOfTrees() > 0)
   {
     auto xcoords = input->GetXCoordinates();
-    this->Impl->AddOrCreateDataset(group, "XCoordinates",
+    this->Impl->AddOrCreateDataset(group, partId, "XCoordinates",
       vtkHDFUtilities::getH5TypeFromVtkType(xcoords->GetDataType()), xcoords);
     auto ycoords = input->GetYCoordinates();
-    this->Impl->AddOrCreateDataset(group, "YCoordinates",
+    this->Impl->AddOrCreateDataset(group, partId, "YCoordinates",
       vtkHDFUtilities::getH5TypeFromVtkType(ycoords->GetDataType()), ycoords);
 
     auto zcoords = input->GetZCoordinates();
-    this->Impl->AddOrCreateDataset(group, "ZCoordinates",
+    this->Impl->AddOrCreateDataset(group, partId, "ZCoordinates",
       vtkHDFUtilities::getH5TypeFromVtkType(zcoords->GetDataType()), zcoords);
   }
   else
@@ -763,11 +802,11 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsi
     // We don't want to write it to the file.
     vtkNew<vtkDoubleArray> empty;
     this->Impl->AddOrCreateDataset(
-      group, "XCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(VTK_DOUBLE), empty);
+      group, partId, "XCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(VTK_DOUBLE), empty);
     this->Impl->AddOrCreateDataset(
-      group, "YCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(VTK_DOUBLE), empty);
+      group, partId, "YCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(VTK_DOUBLE), empty);
     this->Impl->AddOrCreateDataset(
-      group, "ZCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(VTK_DOUBLE), empty);
+      group, partId, "ZCoordinates", vtkHDFUtilities::getH5TypeFromVtkType(VTK_DOUBLE), empty);
   }
 
   vtkNew<vtkBitArray> descriptors;
@@ -834,18 +873,18 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsi
     maskSizeBytes = packedMask->GetNumberOfValues();
     packedMask->SetVoidArray( // NOLINTNEXTLINE(bugprone-unsafe-functions)
       breadthFirstReorderedMask->GetVoidPointer(0), packedMask->GetNumberOfValues(), 1);
-    this->Impl->AddOrCreateDataset(group, "Mask", H5T_STD_U8LE, packedMask);
+    this->Impl->AddOrCreateDataset(group, partId, "Mask", H5T_STD_U8LE, packedMask);
   }
 
-  this->Impl->AddOrCreateSingleRowDataset(group, "NumberOfDepths", { numberOfDepths });
-  this->Impl->AddOrCreateSingleRowDataset(group, "NumberOfTrees", { currentId });
-  this->Impl->AddOrCreateSingleRowDataset(group, "NumberOfCells", { numCells });
-  this->Impl->AddOrCreateSingleRowDataset(group, "DescriptorsSize", { descriptorsSize });
-  this->Impl->AddOrCreateDataset(group, "TreeIds", H5T_STD_I64LE, treeIds);
-  this->Impl->AddOrCreateDataset(group, "DepthPerTree", H5T_STD_I64LE, depthPerTree);
+  this->Impl->AddOrCreateSingleRowDataset(group, partId, "NumberOfDepths", { numberOfDepths });
+  this->Impl->AddOrCreateSingleRowDataset(group, partId, "NumberOfTrees", { currentId });
+  this->Impl->AddOrCreateSingleRowDataset(group, partId, "NumberOfCells", { numCells });
+  this->Impl->AddOrCreateSingleRowDataset(group, partId, "DescriptorsSize", { descriptorsSize });
+  this->Impl->AddOrCreateDataset(group, partId, "TreeIds", H5T_STD_I64LE, treeIds);
+  this->Impl->AddOrCreateDataset(group, partId, "DepthPerTree", H5T_STD_I64LE, depthPerTree);
   this->Impl->AddOrCreateDataset(
-    group, "NumberOfCellsPerTreeDepth", H5T_STD_I64LE, numberOfCellsPerDepth);
-  this->Impl->AddOrCreateDataset(group, "Descriptors", H5T_STD_U8LE, packedDescriptors);
+    group, partId, "NumberOfCellsPerTreeDepth", H5T_STD_I64LE, numberOfCellsPerDepth);
+  this->Impl->AddOrCreateDataset(group, partId, "Descriptors", H5T_STD_U8LE, packedDescriptors);
 
   if (!this->UpdateStepsGroup(group, input, partId, numberOfCellsPerDepth->GetNumberOfTuples(),
         packedDescriptors->GetNumberOfTuples(), maskSizeBytes))
@@ -1014,8 +1053,8 @@ bool vtkHDFWriter::UpdateStepsGroupCommon(hid_t group, vtkDataObject* input, uns
                this->Impl->GetStepsGroup(group), "NumberOfParts")) == this->CurrentTimeIndex + 1;
     }
 
-    if (!this->Impl->AddOrCreateSingleRowDataset(this->Impl->GetStepsGroup(group), "NumberOfParts",
-          { static_cast<vtkIdType>(partId + 1) }, false, trim))
+    if (!this->Impl->AddOrCreateSingleRowDataset(this->Impl->GetStepsGroup(group), partId,
+          "NumberOfParts", { static_cast<vtkIdType>(partId + 1) }, false, trim))
     {
       vtkErrorMacro(<< "Failed to write NumberOfParts in " << this->FileName);
       return false;
@@ -1043,11 +1082,11 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkRectilinearGrid* input)
   }
 
   result &= this->Impl->AddOrCreateSingleRowDataset(
-    stepsGroup, "XCoordinatesOffsets", { input->GetXCoordinates()->GetNumberOfTuples() }, true);
+    stepsGroup, 0, "XCoordinatesOffsets", { input->GetXCoordinates()->GetNumberOfTuples() }, true);
   result &= this->Impl->AddOrCreateSingleRowDataset(
-    stepsGroup, "YCoordinatesOffsets", { input->GetYCoordinates()->GetNumberOfTuples() }, true);
+    stepsGroup, 0, "YCoordinatesOffsets", { input->GetYCoordinates()->GetNumberOfTuples() }, true);
   result &= this->Impl->AddOrCreateSingleRowDataset(
-    stepsGroup, "ZCoordinatesOffsets", { input->GetZCoordinates()->GetNumberOfTuples() }, true);
+    stepsGroup, 0, "ZCoordinatesOffsets", { input->GetZCoordinates()->GetNumberOfTuples() }, true);
 
   return result;
 }
@@ -1071,7 +1110,7 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkStructuredGrid* vtkNotUsed(i
 
   // No static points support yet
   this->Impl->AddOrCreateSingleRowDataset(
-    stepsGroup, "PointOffsets", { this->CurrentTimeIndex + 1 }, false);
+    stepsGroup, 0, "PointOffsets", { this->CurrentTimeIndex + 1 }, false);
 
   return result;
 }
@@ -1092,21 +1131,23 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, uns
     // Subtract current number of points, cells and connectivity ids from last value to nullify the
     // offset
     result &= this->Impl->AddOrCreateSingleRowDataset(
-      stepsGroup, "CellOffsets", { -input->GetNumberOfCells() }, true, true);
+      stepsGroup, partId, "CellOffsets", { -input->GetNumberOfCells() }, true, true);
     result &= this->Impl->AddOrCreateSingleRowDataset(
-      stepsGroup, "PointOffsets", { -input->GetNumberOfPoints() }, true, true);
-    result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "ConnectivityIdOffsets",
+      stepsGroup, partId, "PointOffsets", { -input->GetNumberOfPoints() }, true, true);
+    result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "ConnectivityIdOffsets",
       { -input->GetCells()->GetNumberOfConnectivityIds() }, true, true);
-    result &=
-      this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PartOffsets", { -1 }, true, true);
+    result &= this->Impl->AddOrCreateSingleRowDataset(
+      stepsGroup, partId, "PartOffsets", { -1 }, true, true);
     if (::HasPolyhedra(input))
     {
-      result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "FaceConnectivityOffsets",
-        { -input->GetPolyhedronFaces()->GetNumberOfConnectivityIds() }, true, true);
-      result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "FaceOffsetsOffsets",
+      result &=
+        this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "FaceConnectivityOffsets",
+          { -input->GetPolyhedronFaces()->GetNumberOfConnectivityIds() }, true, true);
+      result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "FaceOffsetsOffsets",
         { -input->GetPolyhedronFaces()->GetNumberOfCells() }, true, true);
-      result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PolyhedronToFaceIdOffsets",
-        { -input->GetPolyhedronFaceLocations()->GetNumberOfConnectivityIds() }, true, true);
+      result &=
+        this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "PolyhedronToFaceIdOffsets",
+          { -input->GetPolyhedronFaceLocations()->GetNumberOfConnectivityIds() }, true, true);
     }
   }
 
@@ -1118,22 +1159,23 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, uns
 
   bool addToLastValue = partId > 0;
   result &= this->Impl->AddOrCreateSingleRowDataset(
-    stepsGroup, "CellOffsets", { input->GetNumberOfCells() }, true, addToLastValue);
+    stepsGroup, partId, "CellOffsets", { input->GetNumberOfCells() }, true, addToLastValue);
   result &= this->Impl->AddOrCreateSingleRowDataset(
-    stepsGroup, "PointOffsets", { input->GetNumberOfPoints() }, true, addToLastValue);
-  result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "ConnectivityIdOffsets",
+    stepsGroup, partId, "PointOffsets", { input->GetNumberOfPoints() }, true, addToLastValue);
+  result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "ConnectivityIdOffsets",
     { input->GetCells()->GetNumberOfConnectivityIds() }, true, addToLastValue);
-  result &=
-    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PartOffsets", { 1 }, true, addToLastValue);
+  result &= this->Impl->AddOrCreateSingleRowDataset(
+    stepsGroup, partId, "PartOffsets", { 1 }, true, addToLastValue);
 
   if (::HasPolyhedra(input))
   {
-    result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "FaceConnectivityOffsets",
+    result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "FaceConnectivityOffsets",
       { input->GetPolyhedronFaces()->GetNumberOfConnectivityIds() }, true);
-    result &= this->Impl->AddOrCreateSingleRowDataset(
-      stepsGroup, "FaceOffsetsOffsets", { input->GetPolyhedronFaces()->GetNumberOfCells() }, true);
-    result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PolyhedronToFaceIdOffsets",
-      { input->GetPolyhedronFaceLocations()->GetNumberOfConnectivityIds() }, true);
+    result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "FaceOffsetsOffsets",
+      { input->GetPolyhedronFaces()->GetNumberOfCells() }, true);
+    result &=
+      this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "PolyhedronToFaceIdOffsets",
+        { input->GetPolyhedronFaceLocations()->GetNumberOfConnectivityIds() }, true);
   }
 
   return result;
@@ -1152,7 +1194,7 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkPolyData* input, unsigned in
 
   // Retrieve current # of connectivity values and cells
   std::vector<vtkIdType> numConnectivityIdsByTopo(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
-  auto cellArrayTopos = this->Impl->GetCellArraysForTopos(input);
+  auto cellArrayTopos = ::GetCellArraysForTopos(input);
   for (std::size_t i = 0; i < vtkHDFUtilities::NUM_POLY_DATA_TOPOS; i++)
   {
     numConnectivityIdsByTopo[i] = cellArrayTopos[i].cellArray->GetNumberOfConnectivityIds();
@@ -1167,22 +1209,22 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkPolyData* input, unsigned in
     // so we subtract current number of points/cells/etc. from last offset value to nullify the
     // offset difference compared to the previous step.
     result &= this->Impl->AddOrCreateSingleRowDataset(
-      stepsGroup, "PointOffsets", { -input->GetNumberOfPoints() }, true, true);
-    result &=
-      this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PartOffsets", { -1 }, true, true);
+      stepsGroup, partId, "PointOffsets", { -input->GetNumberOfPoints() }, true, true);
+    result &= this->Impl->AddOrCreateSingleRowDataset(
+      stepsGroup, partId, "PartOffsets", { -1 }, true, true);
 
     std::vector<vtkIdType> negateNumConn(vtkHDFUtilities::NUM_POLY_DATA_TOPOS);
     std::transform(numConnectivityIdsByTopo.begin(), numConnectivityIdsByTopo.end(),
       negateNumConn.begin(), std::negate<>());
     result &= this->Impl->AddOrCreateSingleRowDataset(
-      stepsGroup, "ConnectivityIdOffsets", negateNumConn, true, true);
+      stepsGroup, partId, "ConnectivityIdOffsets", negateNumConn, true, true);
 
     std::vector<vtkIdType> negateNumCells(vtkHDFUtilities::NUM_POLY_DATA_TOPOS);
     std::transform(
       numCellsByTopo.begin(), numCellsByTopo.end(), negateNumCells.begin(), std::negate<>());
 
     result &= this->Impl->AddOrCreateSingleRowDataset(
-      stepsGroup, "CellOffsets", negateNumCells, true, true);
+      stepsGroup, partId, "CellOffsets", negateNumCells, true, true);
   }
 
   // Don't write offsets for the last time step
@@ -1194,9 +1236,9 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkPolyData* input, unsigned in
   // When part is not 0, append values to the current offset instead of creating a new one
   bool addToLastValue = partId > 0;
   result &= this->Impl->AddOrCreateSingleRowDataset(
-    stepsGroup, "PointOffsets", { input->GetNumberOfPoints() }, true, addToLastValue);
-  result &=
-    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PartOffsets", { 1 }, true, addToLastValue);
+    stepsGroup, partId, "PointOffsets", { input->GetNumberOfPoints() }, true, addToLastValue);
+  result &= this->Impl->AddOrCreateSingleRowDataset(
+    stepsGroup, partId, "PartOffsets", { 1 }, true, addToLastValue);
 
   // Special code path when writing meta-file
   if (this->Impl->GetSubFilesReady() && this->NbPieces > 1)
@@ -1207,9 +1249,9 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkPolyData* input, unsigned in
   else
   {
     result &= this->Impl->AddOrCreateSingleRowDataset(
-      stepsGroup, "CellOffsets", numCellsByTopo, true, addToLastValue);
+      stepsGroup, partId, "CellOffsets", numCellsByTopo, true, addToLastValue);
     result &= this->Impl->AddOrCreateSingleRowDataset(
-      stepsGroup, "ConnectivityIdOffsets", numConnectivityIdsByTopo, true, addToLastValue);
+      stepsGroup, partId, "ConnectivityIdOffsets", numConnectivityIdsByTopo, true, addToLastValue);
   }
 
   return result;
@@ -1235,26 +1277,26 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkHyperTreeGrid* input, unsign
     return result;
   }
 
-  result &=
-    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PartOffsets", { 1 }, true, addToLastValue);
   result &= this->Impl->AddOrCreateSingleRowDataset(
-    stepsGroup, "TreeIdsOffsets", { input->GetNumberOfNonEmptyTrees() }, true, addToLastValue);
+    stepsGroup, partId, "PartOffsets", { 1 }, true, addToLastValue);
+  result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "TreeIdsOffsets",
+    { input->GetNumberOfNonEmptyTrees() }, true, addToLastValue);
+  result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "DepthPerTreeOffsets",
+    { input->GetNumberOfNonEmptyTrees() }, true, addToLastValue);
+  result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId,
+    "NumberOfCellsPerTreeDepthOffsets", { numberOfCellsPerDepthSize }, true, addToLastValue);
   result &= this->Impl->AddOrCreateSingleRowDataset(
-    stepsGroup, "DepthPerTreeOffsets", { input->GetNumberOfNonEmptyTrees() }, true, addToLastValue);
-  result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "NumberOfCellsPerTreeDepthOffsets",
-    { numberOfCellsPerDepthSize }, true, addToLastValue);
-  result &= this->Impl->AddOrCreateSingleRowDataset(
-    stepsGroup, "DescriptorsOffsets", { descriptorsSize }, true, addToLastValue);
+    stepsGroup, partId, "DescriptorsOffsets", { descriptorsSize }, true, addToLastValue);
   if (input->HasMask())
   {
     result &= this->Impl->AddOrCreateSingleRowDataset(
-      stepsGroup, "MaskOffsets", { maskSize }, true, addToLastValue);
+      stepsGroup, partId, "MaskOffsets", { maskSize }, true, addToLastValue);
   }
-  result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "XCoordinatesOffsets",
+  result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "XCoordinatesOffsets",
     { input->GetXCoordinates()->GetNumberOfTuples() }, true, addToLastValue);
-  result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "YCoordinatesOffsets",
+  result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "YCoordinatesOffsets",
     { input->GetYCoordinates()->GetNumberOfTuples() }, true, addToLastValue);
-  result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "ZCoordinatesOffsets",
+  result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "ZCoordinatesOffsets",
     { input->GetZCoordinates()->GetNumberOfTuples() }, true, addToLastValue);
 
   // Don't write offsets for the last timestep
@@ -1279,16 +1321,20 @@ bool vtkHDFWriter::InitializeTemporalHTG(hid_t group)
   bool initResult = true;
 
   // Add an initial 0 value in the offset arrays
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PartOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "TreeIdsOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "DepthPerTreeOffsets", { 0 });
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "PartOffsets", { 0 });
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "TreeIdsOffsets", { 0 });
   initResult &=
-    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "NumberOfCellsPerTreeDepthOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "DescriptorsOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "MaskOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "XCoordinatesOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "YCoordinatesOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "ZCoordinatesOffsets", { 0 });
+    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "DepthPerTreeOffsets", { 0 });
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(
+    stepsGroup, 0, "NumberOfCellsPerTreeDepthOffsets", { 0 });
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "DescriptorsOffsets", { 0 });
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "MaskOffsets", { 0 });
+  initResult &=
+    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "XCoordinatesOffsets", { 0 });
+  initResult &=
+    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "YCoordinatesOffsets", { 0 });
+  initResult &=
+    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "ZCoordinatesOffsets", { 0 });
 
   if (!initResult)
   {
@@ -1311,9 +1357,12 @@ bool vtkHDFWriter::InitializeTemporalRectilinearGrid(hid_t group)
 
   // Add an initial 0 value in the offset arrays
   bool initResult = true;
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "XCoordinatesOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "YCoordinatesOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "ZCoordinatesOffsets", { 0 });
+  initResult &=
+    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "XCoordinatesOffsets", { 0 });
+  initResult &=
+    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "YCoordinatesOffsets", { 0 });
+  initResult &=
+    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "ZCoordinatesOffsets", { 0 });
 
   if (!initResult)
   {
@@ -1335,7 +1384,7 @@ bool vtkHDFWriter::InitializeTemporalStructuredGrid(hid_t group)
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
 
   bool initResult = true;
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PointOffsets", { 0 });
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "PointOffsets", { 0 });
   if (!initResult)
   {
     vtkErrorMacro(<< "Could not initialize steps offset arrays when creating: " << this->FileName);
@@ -1356,10 +1405,11 @@ bool vtkHDFWriter::InitializeTemporalUnstructuredGrid(hid_t group)
   // Add an initial 0 value in the offset arrays
   bool initResult = true;
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PointOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "CellOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "ConnectivityIdOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PartOffsets", { 0 });
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "PointOffsets", { 0 });
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "CellOffsets", { 0 });
+  initResult &=
+    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "ConnectivityIdOffsets", { 0 });
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "PartOffsets", { 0 });
 
   if (!initResult)
   {
@@ -1381,10 +1431,10 @@ bool vtkHDFWriter::InitializeTemporalPolyhedra(hid_t group)
   hid_t stepsGroup = this->Impl->GetStepsGroup(group);
   bool initResult = true;
   initResult &=
-    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "FaceConnectivityOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "FaceOffsetsOffsets", { 0 });
+    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "FaceConnectivityOffsets", { 0 });
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "FaceOffsetsOffsets", { 0 });
   initResult &=
-    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PolyhedronToFaceIdOffsets", { 0 });
+    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "PolyhedronToFaceIdOffsets", { 0 });
 
   if (!initResult)
   {
@@ -1408,11 +1458,12 @@ bool vtkHDFWriter::InitializeTemporalPolyData(hid_t group)
   // Add an initial 0 value in the offset arrays
   std::vector<vtkIdType> emptyTopoArray(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
   bool initResult = true;
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PointOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "PartOffsets", { 0 });
-  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "CellOffsets", emptyTopoArray);
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "PointOffsets", { 0 });
+  initResult &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "PartOffsets", { 0 });
   initResult &=
-    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, "ConnectivityIdOffsets", emptyTopoArray);
+    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "CellOffsets", emptyTopoArray);
+  initResult &=
+    this->Impl->AddOrCreateSingleRowDataset(stepsGroup, 0, "ConnectivityIdOffsets", emptyTopoArray);
 
   if (!initResult)
   {
@@ -1427,7 +1478,7 @@ bool vtkHDFWriter::InitializeTemporalPolyData(hid_t group)
 bool vtkHDFWriter::CreatePrimitiveGroups(hid_t group, vtkPolyData* input)
 {
   // For each primitive type, create a group and datasets/dataspaces
-  auto cellArrayTopos = this->Impl->GetCellArraysForTopos(input);
+  auto cellArrayTopos = ::GetCellArraysForTopos(input);
   for (const auto& cellArrayTopo : cellArrayTopos)
   {
     const char* groupName = cellArrayTopo.hdfGroupName;
@@ -1444,12 +1495,13 @@ bool vtkHDFWriter::CreatePrimitiveGroups(hid_t group, vtkPolyData* input)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendRectilinearCoordinates(hid_t group, vtkRectilinearGrid* input)
+bool vtkHDFWriter::AppendRectilinearCoordinates(
+  hid_t group, unsigned int partId, vtkRectilinearGrid* input)
 {
   auto appendCoordinates = [&](const char* name, vtkDataArray* array)
   {
     hid_t dataType = vtkHDFUtilities::getH5TypeFromVtkType(array->GetDataType());
-    return this->Impl->AddOrCreateDataset(group, name, dataType, array);
+    return this->Impl->AddOrCreateDataset(group, partId, name, dataType, array);
   };
 
   if (!appendCoordinates("XCoordinates", input->GetXCoordinates()) ||
@@ -1464,10 +1516,10 @@ bool vtkHDFWriter::AppendRectilinearCoordinates(hid_t group, vtkRectilinearGrid*
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendNumberOfPoints(hid_t group, vtkPointSet* input)
+bool vtkHDFWriter::AppendNumberOfPoints(hid_t group, unsigned int partId, vtkPointSet* input)
 {
   if (!this->Impl->AddOrCreateSingleRowDataset(
-        group, "NumberOfPoints", { input->GetNumberOfPoints() }))
+        group, partId, "NumberOfPoints", { input->GetNumberOfPoints() }))
   {
     vtkErrorMacro(<< "Cannot create NumberOfPoints dataset when creating: " << this->FileName);
     return false;
@@ -1476,10 +1528,10 @@ bool vtkHDFWriter::AppendNumberOfPoints(hid_t group, vtkPointSet* input)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendNumberOfCells(hid_t group, vtkCellArray* input)
+bool vtkHDFWriter::AppendNumberOfCells(hid_t group, unsigned int partId, vtkCellArray* input)
 {
   vtkIdType nbCells = input ? input->GetNumberOfCells() : 0;
-  if (!this->Impl->AddOrCreateSingleRowDataset(group, "NumberOfCells", { nbCells }))
+  if (!this->Impl->AddOrCreateSingleRowDataset(group, partId, "NumberOfCells", { nbCells }))
   {
     vtkErrorMacro(<< "Cannot create NumberOfCells dataset when creating: " << this->FileName);
     return false;
@@ -1488,10 +1540,12 @@ bool vtkHDFWriter::AppendNumberOfCells(hid_t group, vtkCellArray* input)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendNumberOfConnectivityIds(hid_t group, vtkCellArray* input)
+bool vtkHDFWriter::AppendNumberOfConnectivityIds(
+  hid_t group, unsigned int partId, vtkCellArray* input)
 {
   vtkIdType nbConn = input ? input->GetNumberOfConnectivityIds() : 0;
-  if (!this->Impl->AddOrCreateSingleRowDataset(group, "NumberOfConnectivityIds", { nbConn }))
+  if (!this->Impl->AddOrCreateSingleRowDataset(
+        group, partId, "NumberOfConnectivityIds", { nbConn }))
   {
     vtkErrorMacro(<< "Cannot create NumberOfConnectivityIds dataset when creating: "
                   << this->FileName);
@@ -1501,9 +1555,9 @@ bool vtkHDFWriter::AppendNumberOfConnectivityIds(hid_t group, vtkCellArray* inpu
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendCellTypes(hid_t group, vtkUnstructuredGrid* input)
+bool vtkHDFWriter::AppendCellTypes(hid_t group, unsigned int partId, vtkUnstructuredGrid* input)
 {
-  if (!this->Impl->AddOrCreateDataset(group, "Types", H5T_STD_U8LE, input->GetCellTypes()))
+  if (!this->Impl->AddOrCreateDataset(group, partId, "Types", H5T_STD_U8LE, input->GetCellTypes()))
   {
     vtkErrorMacro(<< "Can not create Types dataset when creating: " << this->FileName);
     return false;
@@ -1512,11 +1566,12 @@ bool vtkHDFWriter::AppendCellTypes(hid_t group, vtkUnstructuredGrid* input)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendNumberOfFaceConnectivityIds(hid_t group, vtkCellArray* faces)
+bool vtkHDFWriter::AppendNumberOfFaceConnectivityIds(
+  hid_t group, unsigned int partId, vtkCellArray* faces)
 {
   vtkIdType nbFaceConn = faces ? faces->GetNumberOfConnectivityIds() : 0;
   if (!this->Impl->AddOrCreateSingleRowDataset(
-        group, "NumberOfFaceConnectivityIds", { nbFaceConn }))
+        group, partId, "NumberOfFaceConnectivityIds", { nbFaceConn }))
   {
     vtkErrorMacro(<< "Cannot create NumberOfFaceConnectivityIds dataset when creating: "
                   << this->FileName);
@@ -1526,11 +1581,11 @@ bool vtkHDFWriter::AppendNumberOfFaceConnectivityIds(hid_t group, vtkCellArray* 
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendNumberOfFaces(hid_t group, vtkCellArray* faces)
+bool vtkHDFWriter::AppendNumberOfFaces(hid_t group, unsigned int partId, vtkCellArray* faces)
 {
 #if 1
   vtkIdType nbFaces = faces ? faces->GetNumberOfCells() : 0;
-  if (!this->Impl->AddOrCreateSingleRowDataset(group, "NumberOfFaces", { nbFaces }))
+  if (!this->Impl->AddOrCreateSingleRowDataset(group, partId, "NumberOfFaces", { nbFaces }))
   {
     vtkErrorMacro(<< "Cannot create NumberOfFaces dataset when creating: " << this->FileName);
     return false;
@@ -1540,7 +1595,7 @@ bool vtkHDFWriter::AppendNumberOfFaces(hid_t group, vtkCellArray* faces)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendOffsets(hid_t group, vtkCellArray* input)
+bool vtkHDFWriter::AppendOffsets(hid_t group, unsigned int partId, vtkCellArray* input)
 {
   vtkSmartPointer<vtkDataArray> offsetsArray = nullptr;
   if (input && input->GetOffsetsArray())
@@ -1551,7 +1606,7 @@ bool vtkHDFWriter::AppendOffsets(hid_t group, vtkCellArray* input)
   {
     offsetsArray = vtkSmartPointer<vtkIntArray>::New();
   }
-  if (!this->Impl->AddOrCreateDataset(group, "Offsets", H5T_STD_I64LE, offsetsArray))
+  if (!this->Impl->AddOrCreateDataset(group, partId, "Offsets", H5T_STD_I64LE, offsetsArray))
   {
     vtkErrorMacro(<< "Can not create Offsets dataset when creating: " << this->FileName);
     return false;
@@ -1560,7 +1615,7 @@ bool vtkHDFWriter::AppendOffsets(hid_t group, vtkCellArray* input)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendConnectivity(hid_t group, vtkCellArray* input)
+bool vtkHDFWriter::AppendConnectivity(hid_t group, unsigned int partId, vtkCellArray* input)
 {
   vtkSmartPointer<vtkDataArray> connArray = nullptr;
   if (input && input->GetConnectivityArray())
@@ -1571,7 +1626,7 @@ bool vtkHDFWriter::AppendConnectivity(hid_t group, vtkCellArray* input)
   {
     connArray = vtkSmartPointer<vtkIntArray>::New();
   }
-  if (!this->Impl->AddOrCreateDataset(group, "Connectivity", H5T_STD_I64LE, connArray))
+  if (!this->Impl->AddOrCreateDataset(group, partId, "Connectivity", H5T_STD_I64LE, connArray))
   {
     vtkErrorMacro(<< "Can not create Connectivity dataset when creating: " << this->FileName);
     return false;
@@ -1580,7 +1635,7 @@ bool vtkHDFWriter::AppendConnectivity(hid_t group, vtkCellArray* input)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendFaceConnectivity(hid_t group, vtkCellArray* faces)
+bool vtkHDFWriter::AppendFaceConnectivity(hid_t group, unsigned int partId, vtkCellArray* faces)
 {
   vtkSmartPointer<vtkDataArray> connArray = nullptr;
   if (faces && faces->GetConnectivityArray())
@@ -1591,7 +1646,7 @@ bool vtkHDFWriter::AppendFaceConnectivity(hid_t group, vtkCellArray* faces)
   {
     connArray = vtkSmartPointer<vtkIntArray>::New();
   }
-  if (!this->Impl->AddOrCreateDataset(group, "FaceConnectivity", H5T_STD_I64LE, connArray))
+  if (!this->Impl->AddOrCreateDataset(group, partId, "FaceConnectivity", H5T_STD_I64LE, connArray))
   {
     vtkErrorMacro(<< "Can not create FaceConnectivity dataset when creating: " << this->FileName);
     return false;
@@ -1600,7 +1655,7 @@ bool vtkHDFWriter::AppendFaceConnectivity(hid_t group, vtkCellArray* faces)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendFaceOffsets(hid_t group, vtkCellArray* faces)
+bool vtkHDFWriter::AppendFaceOffsets(hid_t group, unsigned int partId, vtkCellArray* faces)
 {
   vtkSmartPointer<vtkDataArray> offsetsArray = nullptr;
   if (faces && faces->GetOffsetsArray())
@@ -1611,7 +1666,7 @@ bool vtkHDFWriter::AppendFaceOffsets(hid_t group, vtkCellArray* faces)
   {
     offsetsArray = vtkSmartPointer<vtkIntArray>::New();
   }
-  if (!this->Impl->AddOrCreateDataset(group, "FaceOffsets", H5T_STD_I64LE, offsetsArray))
+  if (!this->Impl->AddOrCreateDataset(group, partId, "FaceOffsets", H5T_STD_I64LE, offsetsArray))
   {
     vtkErrorMacro(<< "Can not create FaceOffsets dataset when creating: " << this->FileName);
     return false;
@@ -1620,7 +1675,8 @@ bool vtkHDFWriter::AppendFaceOffsets(hid_t group, vtkCellArray* faces)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendPolyhedronToFaces(hid_t group, vtkCellArray* polyhedrons)
+bool vtkHDFWriter::AppendPolyhedronToFaces(
+  hid_t group, unsigned int partId, vtkCellArray* polyhedrons)
 {
   vtkSmartPointer<vtkDataArray> connArray = nullptr;
   if (polyhedrons && polyhedrons->GetConnectivityArray())
@@ -1631,7 +1687,7 @@ bool vtkHDFWriter::AppendPolyhedronToFaces(hid_t group, vtkCellArray* polyhedron
   {
     connArray = vtkSmartPointer<vtkIntArray>::New();
   }
-  if (!this->Impl->AddOrCreateDataset(group, "PolyhedronToFaces", H5T_STD_I64LE, connArray))
+  if (!this->Impl->AddOrCreateDataset(group, partId, "PolyhedronToFaces", H5T_STD_I64LE, connArray))
   {
     vtkErrorMacro(<< "Can not create PolyhedronToFaces dataset when creating: " << this->FileName);
     return false;
@@ -1640,7 +1696,8 @@ bool vtkHDFWriter::AppendPolyhedronToFaces(hid_t group, vtkCellArray* polyhedron
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendPolyhedronOffsets(hid_t group, vtkCellArray* polyhedrons)
+bool vtkHDFWriter::AppendPolyhedronOffsets(
+  hid_t group, unsigned int partId, vtkCellArray* polyhedrons)
 {
   vtkSmartPointer<vtkDataArray> offsetsArray = nullptr;
   if (polyhedrons && polyhedrons->GetOffsetsArray())
@@ -1651,7 +1708,8 @@ bool vtkHDFWriter::AppendPolyhedronOffsets(hid_t group, vtkCellArray* polyhedron
   {
     offsetsArray = vtkSmartPointer<vtkIntArray>::New();
   }
-  if (!this->Impl->AddOrCreateDataset(group, "PolyhedronOffsets", H5T_STD_I64LE, offsetsArray))
+  if (!this->Impl->AddOrCreateDataset(
+        group, partId, "PolyhedronOffsets", H5T_STD_I64LE, offsetsArray))
   {
     vtkErrorMacro(<< "Can not create PolyhedronOffsets dataset when creating: " << this->FileName);
     return false;
@@ -1660,11 +1718,12 @@ bool vtkHDFWriter::AppendPolyhedronOffsets(hid_t group, vtkCellArray* polyhedron
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendNumberOfPolyhedronToFaceIds(hid_t group, vtkCellArray* polyhedrons)
+bool vtkHDFWriter::AppendNumberOfPolyhedronToFaceIds(
+  hid_t group, unsigned int partId, vtkCellArray* polyhedrons)
 {
   vtkIdType nbPolyToFaceIds = polyhedrons ? polyhedrons->GetNumberOfConnectivityIds() : 0;
   if (!this->Impl->AddOrCreateSingleRowDataset(
-        group, "NumberOfPolyhedronToFaceIds", { nbPolyToFaceIds }))
+        group, partId, "NumberOfPolyhedronToFaceIds", { nbPolyToFaceIds }))
   {
     vtkErrorMacro(<< "Cannot create NumberOfPolyhedronToFaceIds dataset when creating: "
                   << this->FileName);
@@ -1674,7 +1733,8 @@ bool vtkHDFWriter::AppendNumberOfPolyhedronToFaceIds(hid_t group, vtkCellArray* 
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input, const int* dims)
+bool vtkHDFWriter::AppendPoints(
+  hid_t group, unsigned int partId, vtkPointSet* input, const int* dims)
 {
   vtkSmartPointer<vtkPoints> points = nullptr;
   if (input && input->GetPoints())
@@ -1693,7 +1753,8 @@ bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input, const int* dims
       static_cast<hsize_t>(dims[0]) };
   }
 
-  if (!this->Impl->AddOrCreateDataset(group, "Points", H5T_IEEE_F64LE, points->GetData(), dsetDims))
+  if (!this->Impl->AddOrCreateDataset(group, partId, "Points",
+        vtkHDFUtilities::getH5TypeFromVtkType(points->GetDataType()), points->GetData(), dsetDims))
   {
     vtkErrorMacro(<< "Can not create points dataset when creating: " << this->FileName);
     return false;
@@ -1702,10 +1763,10 @@ bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input, const int* dims
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendPrimitiveCells(hid_t baseGroup, vtkPolyData* input)
+bool vtkHDFWriter::AppendPrimitiveCells(hid_t baseGroup, unsigned int partId, vtkPolyData* input)
 {
   // On group per primitive: Polygons, Strips, Vertices, Lines
-  auto cellArrayTopos = this->Impl->GetCellArraysForTopos(input);
+  auto cellArrayTopos = ::GetCellArraysForTopos(input);
   for (const auto& cellArrayTopo : cellArrayTopos)
   {
     vtkDebugMacro(<< "Adding primitive cells for type " << cellArrayTopo.hdfGroupName);
@@ -1729,14 +1790,14 @@ bool vtkHDFWriter::AppendPrimitiveCells(hid_t baseGroup, vtkPolyData* input)
       return false;
     }
 
-    if (!this->AppendNumberOfCells(group, cells))
+    if (!this->AppendNumberOfCells(group, partId, cells))
     {
       vtkErrorMacro(<< "Could not create NumberOfCells dataset in group " << groupName
                     << " when creating: " << this->FileName);
       return false;
     }
 
-    if (!this->AppendNumberOfConnectivityIds(group, cells))
+    if (!this->AppendNumberOfConnectivityIds(group, partId, cells))
     {
       vtkErrorMacro(<< "Could not create NumberOfConnectivityIds dataset in group " << groupName
                     << " when creating: " << this->FileName);
@@ -1745,13 +1806,13 @@ bool vtkHDFWriter::AppendPrimitiveCells(hid_t baseGroup, vtkPolyData* input)
 
     if (this->HasGeometryChangedFromPreviousStep(input) || this->CurrentTimeIndex == 0)
     {
-      if (!this->AppendOffsets(group, cells))
+      if (!this->AppendOffsets(group, partId, cells))
       {
         vtkErrorMacro(<< "Could not create Offsets dataset in group " << groupName
                       << " when creating: " << this->FileName);
         return false;
       }
-      if (!this->AppendConnectivity(group, cells))
+      if (!this->AppendConnectivity(group, partId, cells))
       {
         vtkErrorMacro(<< "Could not create Connectivity dataset in group " << groupName
                       << " when creating: " << this->FileName);
@@ -1906,13 +1967,13 @@ bool vtkHDFWriter::AppendDataSetAttributes(hid_t baseGroup, vtkDataObject* input
         }
 
         writeSuccess = this->Impl->AddOrCreateDataset(
-          attributeGroup, arrayName.c_str(), dataType, array, fileDims);
+          attributeGroup, partId, arrayName.c_str(), dataType, array, fileDims);
       }
       else
       {
         // Add actual array in the dataset
-        writeSuccess =
-          this->Impl->AddOrCreateDataset(attributeGroup, arrayName.c_str(), dataType, array);
+        writeSuccess = this->Impl->AddOrCreateDataset(
+          attributeGroup, partId, arrayName.c_str(), dataType, array);
       }
 
       if (!writeSuccess)
@@ -2023,7 +2084,7 @@ bool vtkHDFWriter::AppendFieldDataArrays(hid_t baseGroup, vtkDataObject* input, 
     }
 
     // Add actual array in the dataset
-    if (!this->Impl->AddOrCreateDataset(fieldDataGroup, arrayName.c_str(), dataType, array))
+    if (!this->Impl->AddOrCreateDataset(fieldDataGroup, partId, arrayName.c_str(), dataType, array))
     {
       vtkErrorMacro(<< "Can not create array " << arrayName << " of attribute " << groupName
                     << " when creating: " << this->FileName);
@@ -2343,8 +2404,8 @@ bool vtkHDFWriter::AppendTimeValues(hid_t group)
 
   vtkNew<vtkDoubleArray> timeStepsArray;
   timeStepsArray->SetArray(this->timeSteps.data(), this->NumberOfTimeSteps, 1);
-  return this->Impl->CreateDatasetFromDataArray(group, "Values", H5T_IEEE_F32LE, timeStepsArray) !=
-    H5I_INVALID_HID;
+  return this->Impl->CreateHdfDatasetFromDataArray(
+           group, "Values", H5T_IEEE_F32LE, timeStepsArray) != H5I_INVALID_HID;
 }
 
 //------------------------------------------------------------------------------
@@ -2358,7 +2419,7 @@ bool vtkHDFWriter::AppendDataArrayOffset(hid_t baseGroup, vtkAbstractArray* arra
   {
     // Push a 0 value to the offsets array
     if (!this->Impl->AddOrCreateSingleRowDataset(
-          this->Impl->GetStepsGroup(baseGroup), datasetName.c_str(), { 0 }, false))
+          this->Impl->GetStepsGroup(baseGroup), partId, datasetName.c_str(), { 0 }, false))
     {
       vtkErrorMacro(<< "Could not push a 0 value in the offsets array: " << arrayName
                     << " when creating: " << this->FileName);
@@ -2374,7 +2435,7 @@ bool vtkHDFWriter::AppendDataArrayOffset(hid_t baseGroup, vtkAbstractArray* arra
     vtkDebugMacro("Add value " << offsetValue << " to offset array " << arrayName
                                << " append to last? " << appendToLastValue << " for part "
                                << partId);
-    if (!this->Impl->AddOrCreateSingleRowDataset(this->Impl->GetStepsGroup(baseGroup),
+    if (!this->Impl->AddOrCreateSingleRowDataset(this->Impl->GetStepsGroup(baseGroup), partId,
           datasetName.c_str(), { offsetValue }, true, appendToLastValue))
     {
       vtkErrorMacro(<< "Could not insert a value in the offsets array: " << arrayName
@@ -2398,36 +2459,13 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(hid_t baseGroup, vtkAbstractArray* 
     return true;
   }
 
-  std::vector<vtkIdType> value;
-  value.resize(2);
-  value[0] = array->GetNumberOfComponents();
-  value[1] = array->GetNumberOfTuples();
-
-  if (this->CurrentTimeIndex == 0)
+  if (this->CurrentTimeIndex < this->NumberOfTimeSteps &&
+    !this->Impl->AddOrCreateSingleRowDataset(this->Impl->GetStepsGroup(baseGroup), partId,
+      datasetName.c_str(), { array->GetNumberOfComponents(), array->GetNumberOfTuples() }))
   {
-    // Push a 0 value to the offsets array
-    if (!this->Impl->AddOrCreateFieldDataSizeValueDataset(this->Impl->GetStepsGroup(baseGroup),
-          datasetName.c_str(), value.data(), static_cast<vtkIdType>(value.size())))
-    {
-      vtkErrorMacro(<< "Could not push a 0 value in the offsets array: " << arrayName
-                    << " when creating: " << this->FileName);
-      return false;
-    }
-  }
-  else if (this->CurrentTimeIndex < this->NumberOfTimeSteps)
-  {
-    value.resize(2);
-    value[0] = array->GetNumberOfComponents();
-    value[1] = array->GetNumberOfTuples();
-
-    // Append offset to offset array
-    if (!this->Impl->AddOrCreateFieldDataSizeValueDataset(this->Impl->GetStepsGroup(baseGroup),
-          datasetName.c_str(), value.data(), static_cast<vtkIdType>(value.size()), false))
-    {
-      vtkErrorMacro(<< "Could not insert a value in the offsets array: " << arrayName
-                    << " when creating: " << this->FileName);
-      return false;
-    }
+    vtkErrorMacro(<< "Could not insert a field-data size in the offsets array: " << arrayName
+                  << " when creating: " << this->FileName);
+    return false;
   }
 
   return true;

@@ -558,15 +558,8 @@ bool vtkHDFReader::Implementation::ComputeAMRBlocksPerLevels(unsigned int nLevel
       return false;
     }
 
-    vtkHDF::ScopedH5SHandle spaceID = H5Dget_space(amrBoxDatasetID);
-    if (spaceID == H5I_INVALID_HID)
-    {
-      vtkErrorWithObjectMacro(this->Reader, "Can't get space of AMRBox dataset at Level" << level);
-      return false;
-    }
-
-    std::array<hsize_t, 2> dimensions;
-    if (H5Sget_simple_extent_dims(spaceID, dimensions.data(), nullptr) <= 0)
+    const auto dimensions = vtkHDFUtilities::GetDimensions(amrBoxDatasetID);
+    if (dimensions.size() != 2)
     {
       vtkErrorWithObjectMacro(
         this->Reader, "Can't get space dimensions of AMRBox dataset at Level" << level);
@@ -912,15 +905,8 @@ bool vtkHDFReader::Implementation::ReadAMRBoxRawValues(
     return false;
   }
 
-  vtkHDF::ScopedH5SHandle spaceID = H5Dget_space(amrBoxDatasetID);
-  if (spaceID == H5I_INVALID_HID)
-  {
-    vtkErrorWithObjectMacro(this->Reader, "Can't get space of AMRBox dataset");
-    return false;
-  }
-
-  std::array<hsize_t, 2> dimensions;
-  if (H5Sget_simple_extent_dims(spaceID, dimensions.data(), nullptr) <= 0)
+  const auto dimensions = vtkHDFUtilities::GetDimensions(amrBoxDatasetID);
+  if (dimensions.size() != 2)
   {
     vtkErrorWithObjectMacro(this->Reader, "Can't get space dimensions of AMRBox dataset");
     return false;

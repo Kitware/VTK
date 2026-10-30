@@ -187,6 +187,16 @@ public:
   vtkGetMacro(UseExternalPartitions, bool);
   ///@}
 
+  ///@{
+  /**
+   * When set, distributed writes use one file per process and create a main file that references
+   * the process files using HDF5 virtual datasets. When false, distributed writes target a single
+   * file. Enabling this option may impact reading performance. Default is false.
+   */
+  vtkSetMacro(UseExternalDistributed, bool);
+  vtkGetMacro(UseExternalDistributed, bool);
+  ///@}
+
 protected:
   /**
    * Override vtkWriter's ProcessRequest method, in order to dispatch the request
@@ -284,13 +294,13 @@ private:
    * Add the three coordinate arrays to the file
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendRectilinearCoordinates(hid_t group, vtkRectilinearGrid* input);
+  bool AppendRectilinearCoordinates(hid_t group, unsigned int partId, vtkRectilinearGrid* input);
 
   /**
    * Add the number of points to the file
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendNumberOfPoints(hid_t group, vtkPointSet* input);
+  bool AppendNumberOfPoints(hid_t group, unsigned int partId, vtkPointSet* input);
 
   /**
    * Add the points of the point set to the file
@@ -298,85 +308,86 @@ private:
    * dims provides the dimensions of the structured dataset.
    * Used only for StructuredGrid for now.
    */
-  bool AppendPoints(hid_t group, vtkPointSet* input, const int* dims = nullptr);
+  bool AppendPoints(
+    hid_t group, unsigned int partId, vtkPointSet* input, const int* dims = nullptr);
 
   /**
    * Add the number of cells to the file.
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendNumberOfCells(hid_t group, vtkCellArray* input);
+  bool AppendNumberOfCells(hid_t group, unsigned int partId, vtkCellArray* input);
 
   /**
    * Add the number of face connectivity Ids to the file.
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendNumberOfFaceConnectivityIds(hid_t group, vtkCellArray* input);
+  bool AppendNumberOfFaceConnectivityIds(hid_t group, unsigned int partId, vtkCellArray* input);
 
   /**
    * Add the number of faces to the file.
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendNumberOfFaces(hid_t group, vtkCellArray* input);
+  bool AppendNumberOfFaces(hid_t group, unsigned int partId, vtkCellArray* input);
 
   /**
    * Add the number of connectivity Ids to the file.
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendNumberOfConnectivityIds(hid_t group, vtkCellArray* input);
+  bool AppendNumberOfConnectivityIds(hid_t group, unsigned int partId, vtkCellArray* input);
 
   /**
    * Add the unstrucutred grid cell types to the file.
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendCellTypes(hid_t group, vtkUnstructuredGrid* input);
+  bool AppendCellTypes(hid_t group, unsigned int partId, vtkUnstructuredGrid* input);
 
   /**
    * Add the offsets to the file.
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendOffsets(hid_t group, vtkCellArray* input);
+  bool AppendOffsets(hid_t group, unsigned int partId, vtkCellArray* input);
 
   /**
    * Add the connectivity array to the file.
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendConnectivity(hid_t group, vtkCellArray* input);
+  bool AppendConnectivity(hid_t group, unsigned int partId, vtkCellArray* input);
 
   /**
    * Add the face connectivity array to the file.
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendFaceConnectivity(hid_t group, vtkCellArray* input);
+  bool AppendFaceConnectivity(hid_t group, unsigned int partId, vtkCellArray* input);
 
   /**
    * Add the face offsets array to the file.
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendFaceOffsets(hid_t group, vtkCellArray* input);
+  bool AppendFaceOffsets(hid_t group, unsigned int partId, vtkCellArray* input);
 
   /**
    * Add the polyhedron to faces array to the file.
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendPolyhedronToFaces(hid_t group, vtkCellArray* input);
+  bool AppendPolyhedronToFaces(hid_t group, unsigned int partId, vtkCellArray* input);
 
   /**
    * Add the polyhedron offsets array to the file.
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendPolyhedronOffsets(hid_t group, vtkCellArray* input);
+  bool AppendPolyhedronOffsets(hid_t group, unsigned int partId, vtkCellArray* input);
 
   /**
    * Append the number of polyhedron to face Ids to the file.
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendNumberOfPolyhedronToFaceIds(hid_t group, vtkCellArray* input);
+  bool AppendNumberOfPolyhedronToFaceIds(hid_t group, unsigned int partId, vtkCellArray* input);
 
   /**
    * Add the cells of the polydata to the file
    * OpenRoot should succeed on this->Impl before calling this function
    */
-  bool AppendPrimitiveCells(hid_t baseGroup, vtkPolyData* input);
+  bool AppendPrimitiveCells(hid_t baseGroup, unsigned int partId, vtkPolyData* input);
 
   ///@{
   /**
@@ -473,6 +484,7 @@ private:
   bool UseExternalComposite = false;
   bool UseExternalTimeSteps = false;
   bool UseExternalPartitions = false;
+  bool UseExternalDistributed = false;
   int ChunkSize = 25000;
   int CompressionLevel = 0;
 
@@ -489,9 +501,6 @@ private:
   int NbPieces = 1;
   int CurrentPiece = 0;
   bool UsesDummyController = false;
-  std::vector<vtkIdType> PointOffsets;
-  std::vector<vtkIdType> CellOffsets;
-  std::vector<vtkIdType> ConnectivityIdOffsets;
 };
 VTK_ABI_NAMESPACE_END
 #endif
