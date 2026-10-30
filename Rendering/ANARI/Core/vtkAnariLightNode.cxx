@@ -333,19 +333,22 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   anari::Light anariLight = nullptr;
   vtkTexture* envTexture = vtkRenderer->GetEnvironmentTexture();
   bool useHDRI = vtkRenderer->GetUseImageBasedLighting() && envTexture;
-  this->Internals->EnvironmentTexture = envTexture;
-  this->Internals->UseImageBasedLighting = vtkRenderer->GetUseImageBasedLighting();
-  this->Internals->EnvironmentTextureTime = 0;
+  vtkMTimeType environmentTextureTime = 0;
   if (useHDRI)
   {
     envTexture->Update();
-    this->Internals->EnvironmentTextureTime = envTexture->GetMTime();
+    environmentTextureTime = envTexture->GetMTime();
     if (auto* image = envTexture->GetInput())
     {
-      this->Internals->EnvironmentTextureTime =
-        std::max(this->Internals->EnvironmentTextureTime, image->GetMTime());
+      environmentTextureTime = std::max(environmentTextureTime, image->GetMTime());
     }
   }
+  const bool updateRadiance = this->Internals->LightSubtype != "hdri" ||
+    this->Internals->EnvironmentTexture != envTexture ||
+    this->Internals->EnvironmentTextureTime < environmentTextureTime;
+  this->Internals->EnvironmentTexture = envTexture;
+  this->Internals->UseImageBasedLighting = vtkRenderer->GetUseImageBasedLighting();
+  this->Internals->EnvironmentTextureTime = environmentTextureTime;
 
   if (useHDRI)
   {
@@ -356,65 +359,69 @@ void vtkAnariLightNode::Synchronize(bool prepass)
       // Direction to which the center of the texture will be mapped to
       anari::setParameter(anariDevice->GetHandle(), anariLight, "direction", lightDirection);
 
-      // Environment map
-      vtkImageData* imageData = envTexture->GetInput();
-      if (!imageData || !imageData->GetPointData()->GetScalars())
+      if (updateRadiance)
       {
-        vtkWarningMacro(<< "Cannot create an HDRI light from an empty environment texture.");
-        this->Internals->UpdateLight("");
-        return;
-      }
-
-      int comps = imageData->GetNumberOfScalarComponents();
-      comps = comps > 3 ? 3 : comps;
-      std::vector<vec3> floatData;
-      const float colorScale = imageData->GetScalarType() == VTK_UNSIGNED_CHAR ? 1.f / 255.f : 1.f;
-      const bool isSRGB = envTexture->GetUseSRGBColorSpace();
-
-      // Get the needed image data attributes
-      int extent[6];
-      imageData->GetExtent(extent);
-      int xsize = (extent[1] - extent[0]) + 1;
-      int ysize = (extent[3] - extent[2]) + 1;
-      if (xsize <= 0 || ysize <= 0)
-      {
-        vtkWarningMacro(<< "Cannot create an HDRI light from an empty environment texture.");
-        this->Internals->UpdateLight("");
-        return;
-      }
-      floatData.reserve(static_cast<size_t>(xsize) * ysize);
-
-      for (int i = 0; i < ysize; i++)
-      {
-        for (int j = 0; j < xsize; j++)
+        // Environment map
+        vtkImageData* imageData = envTexture->GetInput();
+        if (!imageData || !imageData->GetPointData()->GetScalars())
         {
-          vec3 value;
-
-          for (int k = 0; k < comps; k++)
-          {
-            // HDRI radiance is linear; byte colors must first be normalized.
-            value[k] =
-              imageData->GetScalarComponentAsFloat(j + extent[0], i + extent[2], extent[4], k) *
-              colorScale;
-            if (isSRGB)
-            {
-              value[k] = value[k] <= 0.04045f ? value[k] / 12.92f
-                                              : std::pow((value[k] + 0.055f) / 1.055f, 2.4f);
-            }
-          }
-
-          for (int k = comps; k < 3; k++)
-          {
-            value[k] = 0.0f;
-          }
-
-          floatData.emplace_back(value);
+          vtkWarningMacro(<< "Cannot create an HDRI light from an empty environment texture.");
+          this->Internals->UpdateLight("");
+          return;
         }
-      }
 
-      auto array2D = anariNewArray2D(anariDevice->GetHandle(), floatData.data(), nullptr, nullptr,
-        ANARI_FLOAT32_VEC3, xsize, ysize);
-      anari::setAndReleaseParameter(anariDevice->GetHandle(), anariLight, "radiance", array2D);
+        int comps = imageData->GetNumberOfScalarComponents();
+        comps = comps > 3 ? 3 : comps;
+        std::vector<vec3> floatData;
+        const float colorScale =
+          imageData->GetScalarType() == VTK_UNSIGNED_CHAR ? 1.f / 255.f : 1.f;
+        const bool isSRGB = envTexture->GetUseSRGBColorSpace();
+
+        // Get the needed image data attributes
+        int extent[6];
+        imageData->GetExtent(extent);
+        int xsize = (extent[1] - extent[0]) + 1;
+        int ysize = (extent[3] - extent[2]) + 1;
+        if (xsize <= 0 || ysize <= 0)
+        {
+          vtkWarningMacro(<< "Cannot create an HDRI light from an empty environment texture.");
+          this->Internals->UpdateLight("");
+          return;
+        }
+        floatData.reserve(static_cast<size_t>(xsize) * ysize);
+
+        for (int i = 0; i < ysize; i++)
+        {
+          for (int j = 0; j < xsize; j++)
+          {
+            vec3 value;
+
+            for (int k = 0; k < comps; k++)
+            {
+              // HDRI radiance is linear; byte colors must first be normalized.
+              value[k] =
+                imageData->GetScalarComponentAsFloat(j + extent[0], i + extent[2], extent[4], k) *
+                colorScale;
+              if (isSRGB)
+              {
+                value[k] = value[k] <= 0.04045f ? value[k] / 12.92f
+                                                : std::pow((value[k] + 0.055f) / 1.055f, 2.4f);
+              }
+            }
+
+            for (int k = comps; k < 3; k++)
+            {
+              value[k] = 0.0f;
+            }
+
+            floatData.emplace_back(value);
+          }
+        }
+
+        auto array2D = anariNewArray2D(anariDevice->GetHandle(), floatData.data(), nullptr, nullptr,
+          ANARI_FLOAT32_VEC3, xsize, ysize);
+        anari::setAndReleaseParameter(anariDevice->GetHandle(), anariLight, "radiance", array2D);
+      }
     }
     else
     {
