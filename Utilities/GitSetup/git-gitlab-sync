@@ -43,6 +43,7 @@ state_dir="$GIT_DIR"/gitlab-sync
 remote=''
 autostash="$(git config --bool gitlab.sync.autostash || echo false)"
 dry_run=false
+tracking_branches=( $(git config --get-all gitlab.sync.tracking || echo master) )
 
 # Parse the command line options.
 while test $# != 0; do
@@ -63,8 +64,8 @@ test -n "$remote" || remote="gitlab"
 
 # Identify and validate the topic branch name.
 head="$(git symbolic-ref HEAD)" && topic="${head#refs/heads/}" || topic=''
-if test -z "$topic" -o "$topic" = "master"; then
-  die 'You cannot sync the master branch.  Please checkout the correct branch with:
+if [[ -z "$topic" || " ${tracking_branches[*]} " == *" $topic "* ]]; then
+  die 'You cannot sync the '"$topic"' branch.  Please checkout the correct branch with:
   git checkout <branch>'
 fi
 

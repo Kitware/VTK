@@ -22,9 +22,13 @@ OPTIONS
 --dry-run
     Show what would be pushed without actually updating the destination
 
--f,--force
-    Force-push the topic HEAD to rewrite the destination branch (use twice
-    to ignore stale remote tracking branches)
+-f,--force,--force-with-lease
+    Force-push the topic HEAD only if the destination branch still matches
+    the local remote-tracking commit. Repeating this option keeps the lease.
+
+-F,--force-no-lease
+    Force-push the topic HEAD without checking the remote-tracking commit.
+    Cannot be combined with -f, --force, or --force-with-lease.
 
 --keep-data
     Do not erase local data refs after pushing
@@ -65,7 +69,8 @@ site=$(git config -f "$config" --get gitlab.site ||
 group_path=$(git config -f "$config" --get gitlab.group-path) &&
 project_path=$(git config -f "$config" --get gitlab.project-path) &&
 gitlab_upstream="$site/$group_path/$project_path.git" &&
-gitlab_configured=1
+gitlab_configured=1 &&
+tracking_branches=( $(git config --get-all gitlab.sync.tracking || echo master) )
 
 data_report_and_remove() {
 	data="$1" &&
@@ -122,14 +127,8 @@ submodule_config='-c push.recurseSubmodules=on-demand'
 # Parse the command line options.
 while test $# != 0; do
 	case "$1" in
-		-f|--force)
-			if test -n "$force"; then
-				lease=false
-			else
-				lease=true
-			fi
-			force='+'
-			;;
+		-f|--force|--force-with-lease) lease=true ;;
+		-F|--force-no-lease)          force='+' ;;
 		--keep-data)     keep_data=1 ;;
 		--no-topic)      no_topic=1; set_upstream=false ;;
 		--no-data)       no_data=1 ;;
@@ -145,82 +144,73 @@ while test $# != 0; do
 done
 test $# = 0 || usage
 
+if $lease && test -n "$force"; then
+	die 'Options -f/--force/--force-with-lease and -F/--force-no-lease cannot be combined.'
+fi
+
 # Default remote.
 test -n "$remote" || remote="gitlab"
 
 if test -z "$no_topic"; then
 	# Identify and validate the topic branch name.
 	head="$(git symbolic-ref HEAD)" && topic="${head#refs/heads/}" || topic=''
-	if test -z "$topic" -o "$topic" = "master"; then
+	if [[ -z "$topic" || " ${tracking_branches[*]} " == *" $topic "* ]]; then
 		die 'Please name your topic:
 		git checkout -b descriptive-name'
 	fi
 
 	if $lease; then
-		have_ref=false
 		remoteref="refs/remotes/$remote/$topic"
-		if git rev-parse --verify -q "$remoteref" > /dev/null; then
-			have_ref=true
-		else
+		if ! lease_head=$(git rev-parse --verify -q "$remoteref^{commit}"); then
 			die "It seems that a local ref for the branch is
 missing; forcing a push is dangerous and may overwrite
 previous work.  Fetch from the $remote remote first or
-push without '-f' or '--force'."
+push without '-f', '--force', or '--force-with-lease'."
 		fi
 
-		have_lease_flag=false
-		# Note: on Windows 'git push --help' will open a browser, and
-		# the check will fail, so use the flag by default.
-		if git --version | egrep_q -e 'windows'; then
-			have_lease_flag=true
-		elif git push --help | egrep_q -e '--force-with-lease'; then
-			have_lease_flag=true
-		fi
-
-		if $have_lease_flag && $have_ref; then
-			# Set the lease flag.
-			lease_flag="--force-with-lease=$topic:$remoteref"
-			# Clear the force string.
-			force=''
-		fi
+		lease_flag="--force-with-lease=refs/heads/$topic:$lease_head"
 	fi
 
 	# The topic branch will be pushed by name.
 	refspecs="${force}HEAD:refs/heads/$topic $refspecs"
 fi
 
-# Fetch the current remote master branch head.
+# Fetch the current remote tracking branch heads.
 # This helps computation of a minimal pack to push.
-echo "Fetching $remote master"
-fetch_out=$(git fetch "$remote" master 2>&1) || die "$fetch_out"
-gitlab_head=$(git rev-parse FETCH_HEAD) || exit
+upstream_heads=()
+for tracking_branch in "${tracking_branches[@]}"; do
+	echo "Fetching $remote $tracking_branch"
+	fetch_out=$(git fetch "$remote" "$tracking_branch" 2>&1) || die "$fetch_out"
+	gitlab_head=$(git rev-parse FETCH_HEAD) || exit
 
-# Fetch the current upstream master branch head.
-if origin_fetchurl=$(git config --get remote.origin.url) &&
-   test "$origin_fetchurl" = "$gitlab_upstream"; then
-	upstream_remote='origin'
-else
-	upstream_remote="$gitlab_upstream"
-fi
-echo "Fetching $upstream_remote master"
-fetch_out=$(git fetch "$upstream_remote" master 2>&1) || die "$fetch_out"
-upstream_head=$(git rev-parse FETCH_HEAD) || exit
+	# Fetch the current upstream branch head.
+	if origin_fetchurl=$(git config --get remote.origin.url) &&
+	test "$origin_fetchurl" = "$gitlab_upstream"; then
+		upstream_remote='origin'
+	else
+		upstream_remote="$gitlab_upstream"
+	fi
+	echo "Fetching $upstream_remote $tracking_branch"
+	fetch_out=$(git fetch "$upstream_remote" "$tracking_branch" 2>&1) || die "$fetch_out"
+	upstream_head=$(git rev-parse FETCH_HEAD) || exit
+	upstream_heads+=("$upstream_head")
+
+	# Add a refspec to keep the remote branch up to date if possible.
+	if test -z "$no_default" &&
+	base=$(git merge-base "$gitlab_head" "$upstream_head") &&
+	test "$base" = "$gitlab_head"; then
+		refspecs="$upstream_head:refs/heads/$tracking_branch $refspecs"
+	fi
+done
 
 # Collect refspecs for each data object referenced by the topic.
 if test -z "$no_data"; then
-	data_refs=$(data_refs $upstream_head..) &&
+	data_refs=$(data_refs HEAD --not "${upstream_heads[@]}") &&
 	for data in $data_refs; do
 		refspecs="+$data:$data $refspecs"
 	done
 else
 	data_refs=''
-fi
-
-# Add a refspec to keep the remote master up to date if possible.
-if test -z "$no_default" &&
-   base=$(git merge-base "$gitlab_head" "$upstream_head") &&
-   test "$base" = "$gitlab_head"; then
-	refspecs="$upstream_head:refs/heads/master $refspecs"
 fi
 
 # Exit early if we have nothing to push.
