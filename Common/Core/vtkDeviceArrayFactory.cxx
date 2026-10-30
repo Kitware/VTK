@@ -83,6 +83,53 @@ bool vtkDeviceArrayFactory::IsMemorySpaceAvailable(const char* space)
 }
 
 //------------------------------------------------------------------------------
+void vtkDeviceArrayFactory::SetLevelZeroContext(
+  vtkTypeUInt64 driver, vtkTypeUInt64 device, vtkTypeUInt64 context)
+{
+  vtkDeviceMemory::SetLevelZeroContext(reinterpret_cast<void*>(driver),
+    reinterpret_cast<void*>(device), reinterpret_cast<void*>(context));
+}
+
+//------------------------------------------------------------------------------
+bool vtkDeviceArrayFactory::HasLevelZeroContext()
+{
+  return vtkDeviceMemory::HasLevelZeroContext();
+}
+
+namespace
+{
+// One of VTK's Level Zero handles, making the context if there is none: 0, the
+// driver, the device or the context.
+vtkTypeUInt64 LevelZeroHandle(int which)
+{
+  void* handles[3];
+  if (!vtkDeviceMemory::GetLevelZeroContext(handles[0], handles[1], handles[2]))
+  {
+    return 0;
+  }
+  return reinterpret_cast<vtkTypeUInt64>(handles[which]);
+}
+}
+
+//------------------------------------------------------------------------------
+vtkTypeUInt64 vtkDeviceArrayFactory::GetLevelZeroDriverHandle()
+{
+  return LevelZeroHandle(0);
+}
+
+//------------------------------------------------------------------------------
+vtkTypeUInt64 vtkDeviceArrayFactory::GetLevelZeroDeviceHandle()
+{
+  return LevelZeroHandle(1);
+}
+
+//------------------------------------------------------------------------------
+vtkTypeUInt64 vtkDeviceArrayFactory::GetLevelZeroContextHandle()
+{
+  return LevelZeroHandle(2);
+}
+
+//------------------------------------------------------------------------------
 void vtkDeviceArrayFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

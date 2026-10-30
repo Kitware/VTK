@@ -14,7 +14,13 @@
  * NVIDIA driver installs. HIP through ROCm's runtime (`libamdhip64.so.7`,
  * `amdhip64_7.dll`, or version 6), which every HIP program runs on: the one the
  * process has loaded already, if any, since two copies of it share nothing.
- * Level Zero reports itself unavailable.
+ * Level Zero through its loader (`libze_loader.so.1`, `ze_loader.dll`), which
+ * Intel's GPU driver installs.
+ *
+ * A Level Zero pointer means something only in the context that allocated it,
+ * so VTK keeps one Level Zero context for the process: one a producer gave it
+ * (SetLevelZeroContext), or else one it makes on the first GPU the loader
+ * reports, the first time it needs one. Pointers are checked and copied in it.
  *
  * Nothing here allocates or frees: the memory belongs to whoever made it.
  */
@@ -63,6 +69,22 @@ public:
    */
   static bool CopyToHost(vtkDataArray::MemorySpace space, void* destination, const void* source,
     std::size_t bytes, std::string* why = nullptr);
+
+  ///@{
+  /**
+   * VTK's Level Zero context and the driver and device it is on (the
+   * `ze_*_handle_t`s). SetLevelZeroContext makes VTK use another library's;
+   * set it before any Level Zero array is made, since arrays copy in whichever
+   * context is current. A null context forgets it (a context VTK made is kept
+   * alive, not destroyed). HasLevelZeroContext says whether there is one
+   * without making one; GetLevelZeroContext makes one if there is none, and
+   * returns false, with the reason in `why`, if it cannot.
+   */
+  static void SetLevelZeroContext(void* driver, void* device, void* context);
+  static bool HasLevelZeroContext();
+  static bool GetLevelZeroContext(
+    void*& driver, void*& device, void*& context, std::string* why = nullptr);
+  ///@}
 };
 
 VTK_ABI_NAMESPACE_END

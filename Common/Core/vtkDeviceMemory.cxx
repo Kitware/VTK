@@ -8,7 +8,14 @@
 #include <dlfcn.h> // For RTLD_NOLOAD
 #endif
 
+#include <cstdint>
+#include <cstdio>
 #include <cstring>
+#include <map>
+#include <mutex>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace
@@ -379,6 +386,292 @@ bool HipIsDevicePointer(const void* pointer, std::string* why)
   return true;
 }
 
+// Level Zero, declared here rather than included: VTK builds without oneAPI.
+// The types and values are ze_api.h's (API 1.9, level-zero-dev 1.16.15), checked
+// against loader 1.21.9; they are part of the specification's stable ABI.
+using ze_result_t = int;
+using ze_driver_handle_t = struct _ze_driver_handle_t*;
+using ze_device_handle_t = struct _ze_device_handle_t*;
+using ze_context_handle_t = struct _ze_context_handle_t*;
+using ze_command_list_handle_t = struct _ze_command_list_handle_t*;
+using ze_event_handle_t = struct _ze_event_handle_t*;
+
+constexpr ze_result_t ZE_RESULT_SUCCESS = 0;
+constexpr unsigned int ZE_INIT_FLAG_GPU_ONLY = 1;
+constexpr unsigned int ZE_DEVICE_TYPE_GPU = 1;
+constexpr unsigned int ZE_MEMORY_TYPE_DEVICE = 2;
+constexpr unsigned int ZE_MEMORY_TYPE_SHARED = 3;
+constexpr unsigned int ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_COPY = 2;
+constexpr unsigned int ZE_COMMAND_QUEUE_MODE_SYNCHRONOUS = 1;
+constexpr unsigned int ZE_STRUCTURE_TYPE_DEVICE_PROPERTIES = 0x3;
+constexpr unsigned int ZE_STRUCTURE_TYPE_COMMAND_QUEUE_GROUP_PROPERTIES = 0x6;
+constexpr unsigned int ZE_STRUCTURE_TYPE_CONTEXT_DESC = 0xd;
+constexpr unsigned int ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC = 0xe;
+constexpr unsigned int ZE_STRUCTURE_TYPE_MEMORY_ALLOCATION_PROPERTIES = 0x17;
+
+struct ze_device_properties_t
+{
+  unsigned int stype = ZE_STRUCTURE_TYPE_DEVICE_PROPERTIES;
+  void* pNext = nullptr;
+  unsigned int type = 0;
+  std::uint32_t vendorId = 0;
+  std::uint32_t deviceId = 0;
+  std::uint32_t flags = 0;
+  std::uint32_t subdeviceId = 0;
+  std::uint32_t coreClockRate = 0;
+  std::uint64_t maxMemAllocSize = 0;
+  std::uint32_t maxHardwareContexts = 0;
+  std::uint32_t maxCommandQueuePriority = 0;
+  std::uint32_t numThreadsPerEU = 0;
+  std::uint32_t physicalEUSimdWidth = 0;
+  std::uint32_t numEUsPerSubslice = 0;
+  std::uint32_t numSubslicesPerSlice = 0;
+  std::uint32_t numSlices = 0;
+  std::uint64_t timerResolution = 0;
+  std::uint32_t timestampValidBits = 0;
+  std::uint32_t kernelTimestampValidBits = 0;
+  std::uint8_t uuid[16] = {};
+  char name[256] = {};
+};
+
+struct ze_memory_allocation_properties_t
+{
+  unsigned int stype = ZE_STRUCTURE_TYPE_MEMORY_ALLOCATION_PROPERTIES;
+  void* pNext = nullptr;
+  unsigned int type = 0;
+  std::uint64_t id = 0;
+  std::uint64_t pageSize = 0;
+};
+
+struct ze_command_queue_group_properties_t
+{
+  unsigned int stype = ZE_STRUCTURE_TYPE_COMMAND_QUEUE_GROUP_PROPERTIES;
+  void* pNext = nullptr;
+  std::uint32_t flags = 0;
+  std::size_t maxMemoryFillPatternSize = 0;
+  std::uint32_t numQueues = 0;
+};
+
+struct ze_context_desc_t
+{
+  unsigned int stype = ZE_STRUCTURE_TYPE_CONTEXT_DESC;
+  const void* pNext = nullptr;
+  std::uint32_t flags = 0;
+};
+
+struct ze_command_queue_desc_t
+{
+  unsigned int stype = ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC;
+  const void* pNext = nullptr;
+  std::uint32_t ordinal = 0;
+  std::uint32_t index = 0;
+  std::uint32_t flags = 0;
+  unsigned int mode = ZE_COMMAND_QUEUE_MODE_SYNCHRONOUS;
+  unsigned int priority = 0; // ZE_COMMAND_QUEUE_PRIORITY_NORMAL
+};
+
+struct LevelZeroDriver
+{
+  bool Loaded = false;
+  std::string Error;
+  // The first driver with a GPU device, and that device: where VTK makes its
+  // own context if no one gives it one.
+  ze_driver_handle_t Driver = nullptr;
+  ze_device_handle_t Device = nullptr;
+
+  ze_result_t (*Init)(unsigned int) = nullptr;
+  ze_result_t (*DriverGet)(std::uint32_t*, ze_driver_handle_t*) = nullptr;
+  ze_result_t (*DeviceGet)(ze_driver_handle_t, std::uint32_t*, ze_device_handle_t*) = nullptr;
+  ze_result_t (*DeviceGetProperties)(ze_device_handle_t, ze_device_properties_t*) = nullptr;
+  ze_result_t (*ContextCreate)(
+    ze_driver_handle_t, const ze_context_desc_t*, ze_context_handle_t*) = nullptr;
+  ze_result_t (*MemGetAllocProperties)(ze_context_handle_t, const void*,
+    ze_memory_allocation_properties_t*, ze_device_handle_t*) = nullptr;
+  ze_result_t (*DeviceGetCommandQueueGroupProperties)(
+    ze_device_handle_t, std::uint32_t*, ze_command_queue_group_properties_t*) = nullptr;
+  ze_result_t (*CommandListCreateImmediate)(ze_context_handle_t, ze_device_handle_t,
+    const ze_command_queue_desc_t*, ze_command_list_handle_t*) = nullptr;
+  ze_result_t (*CommandListAppendMemoryCopy)(ze_command_list_handle_t, void*, const void*,
+    std::size_t, ze_event_handle_t, std::uint32_t, ze_event_handle_t*) = nullptr;
+  // Optional (API 1.6): a synchronous list's copy has finished when it returns anyway.
+  ze_result_t (*CommandListHostSynchronize)(ze_command_list_handle_t, std::uint64_t) = nullptr;
+
+  static std::string Describe(ze_result_t result)
+  {
+    char hex[16];
+    std::snprintf(hex, sizeof(hex), "0x%x", static_cast<unsigned int>(result));
+    return std::string("Level Zero error ") + hex;
+  }
+};
+
+LevelZeroDriver LoadLevelZero()
+{
+  LevelZeroDriver ze;
+#if defined(_WIN32)
+  const char* name = "ze_loader.dll";
+#elif defined(__APPLE__)
+  const char* name = nullptr;
+#else
+  const char* name = "libze_loader.so.1";
+#endif
+  if (!name)
+  {
+    ze.Error = "there is no Level Zero loader on this platform";
+    return ze;
+  }
+  // Never closed: arrays may read through it until the process ends.
+  auto library = vtksys::DynamicLoader::OpenLibrary(name);
+  if (library == vtksys::DynamicLoader::InvalidLibrary)
+  {
+    const char* reason = vtksys::DynamicLoader::LastError();
+    ze.Error = std::string("could not load ") + name + (reason ? std::string(": ") + reason : "");
+    return ze;
+  }
+  auto bind = [&](const char* symbol, auto& function)
+  {
+    function = reinterpret_cast<std::remove_reference_t<decltype(function)>>(
+      vtksys::DynamicLoader::GetSymbolAddress(library, symbol));
+    if (!function)
+    {
+      ze.Error = std::string("the Level Zero loader has no ") + symbol;
+    }
+    return function != nullptr;
+  };
+  if (!bind("zeInit", ze.Init) || !bind("zeDriverGet", ze.DriverGet) ||
+    !bind("zeDeviceGet", ze.DeviceGet) || !bind("zeDeviceGetProperties", ze.DeviceGetProperties) ||
+    !bind("zeContextCreate", ze.ContextCreate) ||
+    !bind("zeMemGetAllocProperties", ze.MemGetAllocProperties) ||
+    !bind("zeDeviceGetCommandQueueGroupProperties", ze.DeviceGetCommandQueueGroupProperties) ||
+    !bind("zeCommandListCreateImmediate", ze.CommandListCreateImmediate) ||
+    !bind("zeCommandListAppendMemoryCopy", ze.CommandListAppendMemoryCopy))
+  {
+    return ze;
+  }
+  if (!bind("zeCommandListHostSynchronize", ze.CommandListHostSynchronize))
+  {
+    ze.Error.clear();
+  }
+
+  ze_result_t result = ze.Init(ZE_INIT_FLAG_GPU_ONLY);
+  if (result != ZE_RESULT_SUCCESS)
+  {
+    ze.Error = "zeInit failed: " + LevelZeroDriver::Describe(result);
+    return ze;
+  }
+  std::uint32_t count = 0;
+  ze.DriverGet(&count, nullptr);
+  std::vector<ze_driver_handle_t> drivers(count);
+  if (count == 0 || ze.DriverGet(&count, drivers.data()) != ZE_RESULT_SUCCESS)
+  {
+    ze.Error = "no Level Zero driver";
+    return ze;
+  }
+  for (ze_driver_handle_t driver : drivers)
+  {
+    std::uint32_t devices = 0;
+    ze.DeviceGet(driver, &devices, nullptr);
+    std::vector<ze_device_handle_t> handles(devices);
+    if (devices == 0 || ze.DeviceGet(driver, &devices, handles.data()) != ZE_RESULT_SUCCESS)
+    {
+      continue;
+    }
+    for (ze_device_handle_t device : handles)
+    {
+      ze_device_properties_t properties;
+      if (ze.DeviceGetProperties(device, &properties) == ZE_RESULT_SUCCESS &&
+        properties.type == ZE_DEVICE_TYPE_GPU)
+      {
+        ze.Driver = driver;
+        ze.Device = device;
+        ze.Loaded = true;
+        return ze;
+      }
+    }
+  }
+  ze.Error = "no Level Zero GPU";
+  return ze;
+}
+
+const LevelZeroDriver& LevelZero()
+{
+  static const LevelZeroDriver ze = LoadLevelZero(); // loaded once, on first use
+  return ze;
+}
+
+// VTK's one Level Zero context -- one a producer gave, or one VTK made on first
+// request and kept for the process -- and the lists it copies with.
+struct LevelZeroState
+{
+  std::mutex Mutex;
+  ze_driver_handle_t Driver = nullptr;
+  ze_device_handle_t Device = nullptr;
+  ze_context_handle_t Context = nullptr;
+  // One synchronous immediate list per (context, device), never destroyed: the
+  // context may be another library's, destroyed first.
+  std::map<std::pair<ze_context_handle_t, ze_device_handle_t>, ze_command_list_handle_t> Lists;
+};
+
+LevelZeroState& LevelZeroShared()
+{
+  static LevelZeroState* state = new LevelZeroState; // never destroyed: used at exit
+  return *state;
+}
+
+// The context, made if there is none yet. The state's mutex must be held.
+ze_context_handle_t LevelZeroContextLocked(LevelZeroState& state, std::string* why)
+{
+  if (state.Context)
+  {
+    return state.Context;
+  }
+  const LevelZeroDriver& ze = LevelZero();
+  if (!ze.Loaded)
+  {
+    Fail(why, ze.Error);
+    return nullptr;
+  }
+  ze_context_desc_t desc;
+  ze_context_handle_t context = nullptr;
+  ze_result_t result = ze.ContextCreate(ze.Driver, &desc, &context);
+  if (result != ZE_RESULT_SUCCESS)
+  {
+    Fail(why, "zeContextCreate failed: " + LevelZeroDriver::Describe(result));
+    return nullptr;
+  }
+  state.Driver = ze.Driver;
+  state.Device = ze.Device;
+  state.Context = context;
+  return context;
+}
+
+// The memory's allocation properties in VTK's context, and its device.
+bool LevelZeroProperties(LevelZeroState& state, const void* pointer,
+  ze_memory_allocation_properties_t& properties, ze_device_handle_t& device, std::string* why)
+{
+  const LevelZeroDriver& ze = LevelZero();
+  if (!ze.Loaded)
+  {
+    return Fail(why, ze.Error);
+  }
+  ze_context_handle_t context = LevelZeroContextLocked(state, why);
+  if (!context)
+  {
+    return false;
+  }
+  ze_result_t result = ze.MemGetAllocProperties(context, pointer, &properties, &device);
+  if (result != ZE_RESULT_SUCCESS)
+  {
+    return Fail(why, "not memory Level Zero knows (" + LevelZeroDriver::Describe(result) + ")");
+  }
+  if (properties.type != ZE_MEMORY_TYPE_DEVICE && properties.type != ZE_MEMORY_TYPE_SHARED)
+  {
+    // The driver answers for a pointer of any context, so this tells device
+    // memory from host memory, not VTK's context from another.
+    return Fail(why, "not Level Zero device or shared memory");
+  }
+  return true;
+}
+
 bool HipCopyToHost(void* destination, const void* source, std::size_t bytes, std::string* why)
 {
   const HipRuntime& hip = Hip();
@@ -421,6 +714,82 @@ bool HipCopyToHost(void* destination, const void* source, std::size_t bytes, std
     return Fail(why,
       "copying " + std::to_string(bytes) + " bytes off the GPU failed (" + hip.Describe(result) +
         ")");
+  }
+  return true;
+}
+
+bool LevelZeroIsDevicePointer(const void* pointer, std::string* why)
+{
+  LevelZeroState& state = LevelZeroShared();
+  std::lock_guard<std::mutex> lock(state.Mutex);
+  ze_memory_allocation_properties_t properties;
+  ze_device_handle_t device = nullptr;
+  return LevelZeroProperties(state, pointer, properties, device, why);
+}
+
+bool LevelZeroCopyToHost(void* destination, const void* source, std::size_t bytes, std::string* why)
+{
+  LevelZeroState& state = LevelZeroShared();
+  std::lock_guard<std::mutex> lock(state.Mutex);
+  ze_memory_allocation_properties_t properties;
+  ze_device_handle_t device = nullptr;
+  if (!LevelZeroProperties(state, source, properties, device, why))
+  {
+    return false;
+  }
+  const LevelZeroDriver& ze = LevelZero();
+  if (!device)
+  {
+    device = state.Device; // shared memory need not name one
+  }
+
+  // An immediate list on the memory's device, in synchronous mode: the copy
+  // has finished when the call returns, so nothing reads or writes the host
+  // memory after it (a pageable destination is fine).
+  const auto key = std::make_pair(state.Context, device);
+  auto found = state.Lists.find(key);
+  if (found == state.Lists.end())
+  {
+    // A queue group that can copy; compute groups can, so usually ordinal 0.
+    std::uint32_t count = 0;
+    ze.DeviceGetCommandQueueGroupProperties(device, &count, nullptr);
+    std::vector<ze_command_queue_group_properties_t> groups(count);
+    ze_result_t result = ze.DeviceGetCommandQueueGroupProperties(device, &count, groups.data());
+    ze_command_queue_desc_t desc;
+    bool copies = false;
+    for (std::uint32_t i = 0; result == ZE_RESULT_SUCCESS && i < count && !copies; ++i)
+    {
+      if (groups[i].flags & ZE_COMMAND_QUEUE_GROUP_PROPERTY_FLAG_COPY)
+      {
+        desc.ordinal = i;
+        copies = true;
+      }
+    }
+    if (!copies)
+    {
+      return Fail(why, "the memory's Level Zero device has no queue that can copy");
+    }
+    ze_command_list_handle_t list = nullptr;
+    result = ze.CommandListCreateImmediate(state.Context, device, &desc, &list);
+    if (result != ZE_RESULT_SUCCESS)
+    {
+      return Fail(why, "zeCommandListCreateImmediate failed: " + LevelZeroDriver::Describe(result));
+    }
+    found = state.Lists.emplace(key, list).first;
+  }
+  ze_command_list_handle_t list = found->second;
+
+  ze_result_t result =
+    ze.CommandListAppendMemoryCopy(list, destination, source, bytes, nullptr, 0, nullptr);
+  if (result == ZE_RESULT_SUCCESS && ze.CommandListHostSynchronize)
+  {
+    result = ze.CommandListHostSynchronize(list, UINT64_MAX);
+  }
+  if (result != ZE_RESULT_SUCCESS)
+  {
+    return Fail(why,
+      "copying " + std::to_string(bytes) + " bytes off the GPU failed (" +
+        LevelZeroDriver::Describe(result) + ")");
   }
   return true;
 }
@@ -485,6 +854,10 @@ bool vtkDeviceMemory::IsAvailable(vtkDataArray::MemorySpace space, std::string* 
   {
     return Hip().Loaded || Fail(why, Hip().Error);
   }
+  if (space == vtkDataArray::LevelZeroDeviceMemory)
+  {
+    return LevelZero().Loaded || Fail(why, LevelZero().Error);
+  }
   if (space == vtkDataArray::HostMemory)
   {
     return Fail(why, "host memory is not device memory");
@@ -503,6 +876,10 @@ bool vtkDeviceMemory::IsDevicePointer(
   if (space == vtkDataArray::HipDeviceMemory)
   {
     return HipIsDevicePointer(pointer, why);
+  }
+  if (space == vtkDataArray::LevelZeroDeviceMemory)
+  {
+    return LevelZeroIsDevicePointer(pointer, why);
   }
   return vtkDeviceMemory::IsAvailable(space, why);
 }
@@ -523,7 +900,54 @@ bool vtkDeviceMemory::CopyToHost(vtkDataArray::MemorySpace space, void* destinat
   {
     return HipCopyToHost(destination, source, bytes, why);
   }
+  if (space == vtkDataArray::LevelZeroDeviceMemory)
+  {
+    return LevelZeroCopyToHost(destination, source, bytes, why);
+  }
   return vtkDeviceMemory::IsAvailable(space, why);
+}
+
+//------------------------------------------------------------------------------
+void vtkDeviceMemory::SetLevelZeroContext(void* driver, void* device, void* context)
+{
+  LevelZeroState& state = LevelZeroShared();
+  std::lock_guard<std::mutex> lock(state.Mutex);
+  // A context VTK made is kept, not destroyed: arrays may still copy in it.
+  // The lists of other contexts are forgotten (not destroyed: their context may
+  // be gone), so a later context at a reused address never meets them.
+  const auto kept = static_cast<ze_context_handle_t>(context);
+  for (auto it = state.Lists.begin(); it != state.Lists.end();)
+  {
+    it = it->first.first == kept ? std::next(it) : state.Lists.erase(it);
+  }
+  state.Driver = context ? static_cast<ze_driver_handle_t>(driver) : nullptr;
+  state.Device = context ? static_cast<ze_device_handle_t>(device) : nullptr;
+  state.Context = static_cast<ze_context_handle_t>(context);
+}
+
+//------------------------------------------------------------------------------
+bool vtkDeviceMemory::HasLevelZeroContext()
+{
+  LevelZeroState& state = LevelZeroShared();
+  std::lock_guard<std::mutex> lock(state.Mutex);
+  return state.Context != nullptr;
+}
+
+//------------------------------------------------------------------------------
+bool vtkDeviceMemory::GetLevelZeroContext(
+  void*& driver, void*& device, void*& context, std::string* why)
+{
+  LevelZeroState& state = LevelZeroShared();
+  std::lock_guard<std::mutex> lock(state.Mutex);
+  driver = device = context = nullptr;
+  if (!LevelZeroContextLocked(state, why))
+  {
+    return false;
+  }
+  driver = state.Driver;
+  device = state.Device;
+  context = state.Context;
+  return true;
 }
 
 VTK_ABI_NAMESPACE_END
