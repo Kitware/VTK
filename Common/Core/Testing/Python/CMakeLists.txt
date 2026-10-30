@@ -57,6 +57,7 @@ vtk_add_test_python(
   TestDLPack.py
   TestDeviceDataArray.py
   TestDeviceDataArrayHIP.py
+  TestDeviceDataArrayLevelZero.py
   TestVtkBufferNumpy.py
   TestWeakref.py
   TestCollectionPythonAPI.py

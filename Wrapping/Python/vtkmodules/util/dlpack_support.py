@@ -37,10 +37,11 @@ Host arrays work with plain VTK. In VTK built with Viskores, device memory
 of a kind Viskores was built for is held by Viskores' arrays
 (``vtkmDataArrayFactory``), so Viskores' filters run on it. Any other device
 memory is held by VTK's own ``vtkDeviceDataArray`` wherever the vendor's
-driver loads -- VTK needs no GPU toolkit for it, only the driver at run time
-(CUDA so far). ``VTK_DLPACK_DEVICE_ARRAYS=vtk`` in the environment prefers
-VTK's own arrays where both could. Without either, importing a device tensor
-raises ``RuntimeError`` rather than silently copying to the host.
+driver or runtime loads -- VTK needs no GPU toolkit for it, only the driver at
+run time (CUDA, HIP and Level Zero). ``VTK_DLPACK_DEVICE_ARRAYS=vtk`` in the
+environment prefers VTK's own arrays where both could. Without either,
+importing a device tensor raises ``RuntimeError`` rather than silently copying
+to the host.
 
 Metal tensors are rejected. The data pointer a Metal tensor carries is the
 ``MTLBuffer`` object itself, not memory the host can read -- PyTorch's MPS
@@ -63,17 +64,21 @@ meaningful inside the ``ze_context_handle_t`` it was allocated from, and
 recovering that requires a context you already hold.
 
 So for ``kDLOneAPI`` the context travels once, out of band, instead of with
-every tensor. ``level_zero_handles()`` reports the driver, device and
-context of the SYCL queue Viskores runs on, and a producer that wants VTK
-to read its memory allocates *there*. Kokkos builds that queue in the SYCL
-platform's default context, which is also where a SYCL program allocates
-unless it creates a context of its own. On import the
-pointer is checked against that context and refused if the SYCL runtime
-does not know it as USM device or shared memory. The check separates device
-memory from host memory; it cannot prove which context a pointer came from,
-because drivers are not required to tell contexts apart and Intel's does
-not. Exported Level Zero tensors are in that context too. All of this
-needs VTK built with Viskores on Kokkos' SYCL backend; without it
+every tensor. VTK has one Level Zero context per process, and
+``level_zero_handles()`` reports its driver, device and context; a producer
+that wants VTK to read its memory allocates *there*. The context is, in
+order: one a producer gave VTK
+(``vtkDeviceArrayFactory.SetLevelZeroContext(driver, device, context)``, for
+a library whose context VTK cannot make, such as a SYCL runtime's default
+context), else the one Viskores' SYCL queue runs in where VTK is built with
+Viskores on Kokkos' SYCL backend, else one VTK makes on the first Level Zero
+GPU the first time it is asked, and keeps. Give VTK a context before
+importing any Level Zero tensor. On import the pointer is checked against
+that context and refused if Level Zero does not know it as device or shared
+memory. The check separates device memory from host memory; it cannot prove
+which context a pointer came from, because drivers are not required to tell
+contexts apart and Intel's does not. Exported Level Zero tensors are in that
+context too. Without the Level Zero loader and a GPU (and without Viskores)
 ``kDLOneAPI`` tensors are refused, naming the space.
 
 **Device ordinal.** ``DLPackArray(array, device_id=...)`` is taken from the
@@ -377,14 +382,36 @@ def level_zero_handles():
 
     Returns ``{"driver": int, "device": int, "context": int}`` -- the
     ``ze_driver_handle_t``, ``ze_device_handle_t`` and ``ze_context_handle_t``
-    of the SYCL queue Viskores runs on -- when VTK was built with Viskores on
-    Kokkos' SYCL backend and that backend is running on a Level Zero device.
-    Otherwise ``None``.
+    of VTK's one Level Zero context: one given to
+    ``vtkDeviceArrayFactory.SetLevelZeroContext``, else that of the SYCL queue
+    Viskores runs on (VTK built with Viskores on Kokkos' SYCL backend, running
+    on a Level Zero device), else one VTK makes on the first Level Zero GPU.
+    ``None`` when there is none of these: no Level Zero loader or GPU.
 
     A producer allocates in this context so that its ``kDLOneAPI`` tensors
     are meaningful to VTK; see "Context" in the module documentation. The
-    handles belong to the SYCL runtime: use them, do not destroy them.
+    handles belong to whoever made them: use them, do not destroy them.
     """
+    from vtkmodules.vtkCommonCore import vtkDeviceArrayFactory
+
+    if not vtkDeviceArrayFactory.HasLevelZeroContext():
+        viskores = _viskores_level_zero_handles()
+        if viskores:
+            # One context for VTK: its own device arrays use Viskores' too.
+            vtkDeviceArrayFactory.SetLevelZeroContext(
+                viskores["driver"], viskores["device"], viskores["context"])
+    context = vtkDeviceArrayFactory.GetLevelZeroContextHandle()
+    if not context:
+        return None
+    return {
+        "driver": vtkDeviceArrayFactory.GetLevelZeroDriverHandle(),
+        "device": vtkDeviceArrayFactory.GetLevelZeroDeviceHandle(),
+        "context": context,
+    }
+
+
+def _viskores_level_zero_handles():
+    """The Level Zero handles of the SYCL queue Viskores runs on, or ``None``."""
     try:
         from vtkmodules.vtkAcceleratorsVTKmCore import vtkmDataArrayFactory
     except ImportError:
@@ -791,6 +818,14 @@ def _device_array_factory(space):
         from vtkmodules.vtkAcceleratorsVTKmCore import vtkmDataArrayFactory
     except ImportError:
         vtkmDataArrayFactory = None
+    if space == "level_zero":
+        # Settle VTK's context first: Viskores' where it has one. Viskores
+        # reads only its own, so memory of a context a producer gave VTK
+        # instead goes to VTK's arrays.
+        handles = level_zero_handles()
+        viskores = _viskores_level_zero_handles()
+        if viskores and handles and viskores["context"] != handles["context"]:
+            vtkmDataArrayFactory = None
 
     factories = [vtkmDataArrayFactory, vtkDeviceArrayFactory]
     if os.environ.get("VTK_DLPACK_DEVICE_ARRAYS") == "vtk":
@@ -799,10 +834,10 @@ def _device_array_factory(space):
         if factory is not None and factory.IsMemorySpaceAvailable(space):
             return factory()
     raise RuntimeError(
-        f"importing {space!r} memory needs its driver (VTK holds CUDA memory "
-        f"itself) or VTK built with Viskores for that memory "
-        f"(-DVTK_MODULE_ENABLE_VTK_AcceleratorsVTKmCore=YES); only host "
-        f"tensors can be wrapped otherwise"
+        f"importing {space!r} memory needs its driver or runtime (VTK holds "
+        f"CUDA, HIP and Level Zero memory itself) or VTK built with Viskores "
+        f"for that memory (-DVTK_MODULE_ENABLE_VTK_AcceleratorsVTKmCore=YES); "
+        f"only host tensors can be wrapped otherwise"
     )
 
 
