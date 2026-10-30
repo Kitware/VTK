@@ -804,7 +804,7 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(
       return 0;
     case WM_SIZE:
       /* track window size changes */
-      if (this->ContextId)
+      if (this->ContextId && wParam != SIZE_MINIMIZED)
       {
         this->SetSize((int)LOWORD(lParam), (int)HIWORD(lParam));
         return 0;
@@ -1108,7 +1108,7 @@ void vtkWin32OpenGLRenderWindow::DestroyWindow()
 int* vtkWin32OpenGLRenderWindow::GetSize(void)
 {
   // if we aren't mapped then just call super
-  if (this->WindowId && !this->UseOffScreenBuffers)
+  if (this->WindowId && !IsIconic(this->WindowId) && !this->UseOffScreenBuffers)
   {
     RECT rect;
 
@@ -1167,10 +1167,15 @@ int* vtkWin32OpenGLRenderWindow::GetPosition(void)
   }
 
   //  Find the current window position
-  RECT rect;
-  GetWindowRect(this->WindowId, &rect);
-  this->Position[0] = rect.left;
-  this->Position[1] = rect.top;
+  WINDOWPLACEMENT wp{};
+  wp.length = sizeof(wp);
+
+  if (GetWindowPlacement(this->WindowId, &wp))
+  {
+    RECT rect = wp.rcNormalPosition;
+    this->Position[0] = wp.rcNormalPosition.left;
+    this->Position[1] = wp.rcNormalPosition.top;
+  }
 
   return this->Position;
 }

@@ -1087,7 +1087,10 @@ LRESULT CALLBACK vtkHandleMessage2(
     }
 
     case WM_SIZE:
-      handled = me->OnSize(hWnd, wParam, LOWORD(lParam), HIWORD(lParam));
+      if (wParam != SIZE_MINIMIZED)
+      {
+        handled = me->OnSize(hWnd, wParam, LOWORD(lParam), HIWORD(lParam));
+      }
       break;
 
     case WM_LBUTTONDBLCLK:
