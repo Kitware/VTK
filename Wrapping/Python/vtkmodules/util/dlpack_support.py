@@ -81,10 +81,12 @@ contexts apart and Intel's does not. Exported Level Zero tensors are in that
 context too. Without the Level Zero loader and a GPU (and without Viskores)
 ``kDLOneAPI`` tensors are refused, naming the space.
 
-**Device ordinal.** ``DLPackArray(array, device_id=...)`` is taken from the
-caller and reported verbatim by ``__dlpack_device__``. It is not derived
-from where the memory actually lives, so on a multi-GPU host the default of
-0 will mislabel memory that is not on device 0. Pass the right ordinal.
+**Device ordinal.** An exported tensor's ``device_id`` is the number of the
+device its memory is on, as the vendor's runtime counts devices: CUDA's and
+HIP's device ordinal, or the device's index among its Level Zero driver's
+devices (``vtkDeviceArrayFactory.GetDeviceOrdinal``). Where the vendor's
+library cannot tell, it is 0. ``vtk_to_dlpack(array, device_id=...)`` and
+``DLPackArray(array, device_id=...)`` override it.
 
 **Streams.** ``__dlpack__`` accepts DLPack's ``stream`` argument and ignores
 it. That argument is how a consumer says "make this safe to read on my
@@ -431,7 +433,18 @@ def _viskores_level_zero_handles():
 # ---------------------------------------------------------------------
 
 
-def vtk_to_dlpack(array, device_id=0, versioned=False):
+def _device_id(descriptor, space):
+    """The number of the device *descriptor*'s memory is on, or 0."""
+    if space == "host":
+        return 0
+    from vtkmodules.vtkCommonCore import vtkDeviceArrayFactory
+
+    if space == "level_zero":
+        level_zero_handles()  # Viskores' context, not a new one, where VTK has it
+    return max(vtkDeviceArrayFactory.GetDeviceOrdinal(descriptor), 0)
+
+
+def vtk_to_dlpack(array, device_id=None, versioned=False):
     """Export a vtkDataArray as a DLPack capsule, without copying.
 
     The tensor is 2-D, ``(number of tuples, number of components)``, which
@@ -440,6 +453,9 @@ def vtk_to_dlpack(array, device_id=0, versioned=False):
 
     The array is kept alive for as long as the consumer holds the tensor,
     so it is safe to drop every other reference to it.
+
+    *device_id* is the device the memory is on; by default VTK asks the
+    vendor's runtime (see "Device ordinal" above).
 
     With *versioned*, produces a v1.0 tensor in a "dltensor_versioned"
     capsule instead of the legacy "dltensor" one. Consumers that ask for
@@ -479,6 +495,9 @@ def vtk_to_dlpack(array, device_id=0, versioned=False):
     device_type = _SPACE_TO_DEVICE.get(space)
     if device_type is None:
         raise ValueError(f"unknown memory space {space!r}")
+
+    if device_id is None:
+        device_id = _device_id(descriptor, space)
 
     n_tuples = array.GetNumberOfTuples()
     n_components = array.GetNumberOfComponents()
@@ -533,7 +552,7 @@ class DLPackArray:
         torch.from_dlpack(DLPackArray(vtk_array))
     """
 
-    def __init__(self, array, device_id=0):
+    def __init__(self, array, device_id=None):
         self.array = array
         self.device_id = device_id
 
@@ -547,8 +566,12 @@ class DLPackArray:
         descriptors = self.array.NewMemoryDescriptors()
         if descriptors is None or descriptors.GetNumberOfItems() == 0:
             return (kDLCPU, 0)
-        space = descriptors.GetItemAsObject(0).GetMemorySpace() or "host"
-        return (_SPACE_TO_DEVICE.get(space, kDLCPU), self.device_id)
+        descriptor = descriptors.GetItemAsObject(0)
+        space = descriptor.GetMemorySpace() or "host"
+        device_id = self.device_id
+        if device_id is None:
+            device_id = _device_id(descriptor, space)
+        return (_SPACE_TO_DEVICE.get(space, kDLCPU), device_id)
 
 
 # ---------------------------------------------------------------------

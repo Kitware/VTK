@@ -70,6 +70,15 @@ public:
   static bool CopyToHost(vtkDataArray::MemorySpace space, void* destination, const void* source,
     std::size_t bytes, std::string* why = nullptr);
 
+  /**
+   * The number of the device `pointer` is on, as the vendor's runtime counts
+   * devices (and DLPack's device_id does): CUDA's and HIP's device ordinal, or
+   * the device's index among its Level Zero driver's devices. -1, with the
+   * reason in `why`, if it cannot be told.
+   */
+  static int DeviceOrdinal(
+    vtkDataArray::MemorySpace space, const void* pointer, std::string* why = nullptr);
+
   ///@{
   /**
    * VTK's Level Zero context and the driver and device it is on (the

@@ -9,7 +9,10 @@ machine with the vendor's driver.
 
 The array gives the memory back as it is -- `GetMemorySpace()`,
 `GetDeviceVoidPointer()`, `NewMemoryDescriptors()`, and so `vtk_to_dlpack` --
-so GPU filters in a pipeline exchange it without copies. VTK code that reads
+so GPU filters in a pipeline exchange it without copies. An exported tensor's
+DLPack `device_id` is now the device its memory is on
+(`vtkDeviceArrayFactory::GetDeviceOrdinal()`, for Viskores' arrays too), not
+0, unless the caller passes one. VTK code that reads
 values on the host reads a copy of the whole buffer, made on first use and
 again after `Modified()`. The array is read-only on the host and cannot grow:
 both are refused with an error, and `NewInstance()` returns an ordinary host

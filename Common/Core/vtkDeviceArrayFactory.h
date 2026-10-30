@@ -75,6 +75,15 @@ public:
    */
   static bool IsMemorySpaceAvailable(const char* space);
 
+  /**
+   * The number of the device the memory a descriptor describes is on, as the
+   * vendor's runtime counts devices and DLPack's device_id does: CUDA's and
+   * HIP's device ordinal, or the device's index among its Level Zero driver's
+   * devices. Any descriptor of device memory, not only this factory's. -1 for
+   * host memory, or when the vendor's library cannot tell.
+   */
+  static int GetDeviceOrdinal(vtkMemoryDescriptor* descriptor);
+
   ///@{
   /**
    * VTK's Level Zero context, as integers: the `ze_driver_handle_t`,

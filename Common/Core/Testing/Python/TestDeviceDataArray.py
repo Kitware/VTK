@@ -167,6 +167,24 @@ class TestDeviceDataArray(unittest.TestCase):
         exported = dlpack_support.DLPackArray(array)
         self.assertEqual(exported.__dlpack_device__(), (dlpack_support.kDLCUDA, 0))
 
+    def testExportsNameTheMemorysDevice(self):
+        device = ctypes.c_int()
+        CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL = 9
+        assert CUDA.cuPointerGetAttribute(
+            ctypes.byref(device), CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL,
+            ctypes.c_uint64(self.buffer.address.value)) == 0
+        array = self.buffer.array()
+        descriptor = array.NewMemoryDescriptors().GetItemAsObject(0)
+        self.assertEqual(vtkDeviceArrayFactory.GetDeviceOrdinal(descriptor), device.value)
+        self.assertEqual(dlpack_support.DLPackArray(array).__dlpack_device__(),
+                         (dlpack_support.kDLCUDA, device.value))
+        self.assertEqual(dlpack_support.DLPackArray(array, device_id=3).__dlpack_device__(),
+                         (dlpack_support.kDLCUDA, 3))
+        host = vtkFloatArray()
+        host.SetNumberOfTuples(4)
+        descriptor = host.NewMemoryDescriptors().GetItemAsObject(0)
+        self.assertEqual(vtkDeviceArrayFactory.GetDeviceOrdinal(descriptor), -1)
+
     def testHostWritesAreRefused(self):
         array = self.buffer.array()
         errors = quietly(array, lambda: array.SetComponent(0, 0, 42.0))

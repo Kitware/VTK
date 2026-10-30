@@ -672,6 +672,84 @@ bool LevelZeroProperties(LevelZeroState& state, const void* pointer,
   return true;
 }
 
+int CudaDeviceOrdinal(const void* pointer, std::string* why)
+{
+  const CudaDriver& cuda = Cuda();
+  if (!cuda.Loaded)
+  {
+    Fail(why, cuda.Error);
+    return -1;
+  }
+  int ordinal = -1;
+  CUresult result = cuda.PointerGetAttribute(
+    &ordinal, CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL, reinterpret_cast<CUdeviceptr>(pointer));
+  if (result != CUDA_SUCCESS)
+  {
+    Fail(why, "not memory CUDA knows (" + cuda.Describe(result) + ")");
+    return -1;
+  }
+  return ordinal;
+}
+
+int HipDeviceOrdinal(const void* pointer, std::string* why)
+{
+  const HipRuntime& hip = Hip();
+  if (!hip.Loaded)
+  {
+    Fail(why, hip.Error);
+    return -1;
+  }
+  int ordinal = -1;
+  hipError_t result = hip.PointerGetAttribute(
+    &ordinal, HIP_POINTER_ATTRIBUTE_DEVICE_ORDINAL, const_cast<void*>(pointer));
+  if (result != hipSuccess)
+  {
+    Fail(why, "not memory HIP knows (" + hip.Describe(result) + ")");
+    return -1;
+  }
+  return ordinal;
+}
+
+int LevelZeroDeviceOrdinal(const void* pointer, std::string* why)
+{
+  LevelZeroState& state = LevelZeroShared();
+  std::lock_guard<std::mutex> lock(state.Mutex);
+  ze_memory_allocation_properties_t properties;
+  ze_device_handle_t device = nullptr;
+  if (!LevelZeroProperties(state, pointer, properties, device, why))
+  {
+    return -1;
+  }
+  if (!device)
+  {
+    device = state.Device; // shared memory need not name one
+  }
+  // Level Zero has no ordinals: a device's is its place in its driver's list,
+  // which is how Level Zero programs (Tack among them) number devices.
+  const LevelZeroDriver& ze = LevelZero();
+  std::uint32_t count = 0;
+  ze_result_t result = ze.DeviceGet(state.Driver, &count, nullptr);
+  std::vector<ze_device_handle_t> devices(count);
+  if (result == ZE_RESULT_SUCCESS)
+  {
+    result = ze.DeviceGet(state.Driver, &count, devices.data());
+  }
+  if (result != ZE_RESULT_SUCCESS)
+  {
+    Fail(why, "zeDeviceGet failed: " + LevelZeroDriver::Describe(result));
+    return -1;
+  }
+  for (std::uint32_t i = 0; i < count; ++i)
+  {
+    if (devices[i] == device)
+    {
+      return static_cast<int>(i);
+    }
+  }
+  Fail(why, "the memory's device is not one of VTK's Level Zero driver's");
+  return -1;
+}
+
 bool HipCopyToHost(void* destination, const void* source, std::size_t bytes, std::string* why)
 {
   const HipRuntime& hip = Hip();
@@ -900,6 +978,24 @@ bool vtkDeviceMemory::CopyToHost(vtkDataArray::MemorySpace space, void* destinat
     return LevelZeroCopyToHost(destination, source, bytes, why);
   }
   return vtkDeviceMemory::IsAvailable(space, why);
+}
+
+//------------------------------------------------------------------------------
+int vtkDeviceMemory::DeviceOrdinal(
+  vtkDataArray::MemorySpace space, const void* pointer, std::string* why)
+{
+  switch (space)
+  {
+    case vtkDataArray::CudaDeviceMemory:
+      return CudaDeviceOrdinal(pointer, why);
+    case vtkDataArray::HipDeviceMemory:
+      return HipDeviceOrdinal(pointer, why);
+    case vtkDataArray::LevelZeroDeviceMemory:
+      return LevelZeroDeviceOrdinal(pointer, why);
+    default:
+      vtkDeviceMemory::IsAvailable(space, why);
+      return -1;
+  }
 }
 
 //------------------------------------------------------------------------------

@@ -130,6 +130,18 @@ vtkTypeUInt64 vtkDeviceArrayFactory::GetLevelZeroContextHandle()
 }
 
 //------------------------------------------------------------------------------
+int vtkDeviceArrayFactory::GetDeviceOrdinal(vtkMemoryDescriptor* descriptor)
+{
+  vtkDataArray::MemorySpace space;
+  if (!descriptor || !vtkDeviceMemory::SpaceFromName(descriptor->GetMemorySpace(), space))
+  {
+    return -1;
+  }
+  return vtkDeviceMemory::DeviceOrdinal(
+    space, reinterpret_cast<const void*>(descriptor->GetPointer()));
+}
+
+//------------------------------------------------------------------------------
 void vtkDeviceArrayFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
