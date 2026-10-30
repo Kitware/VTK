@@ -67,6 +67,7 @@ vtk_add_test_cxx(vtkFiltersParallelDIY2CxxTests non_mpi_tests
   TestOverlappingCellsDetector.cxx,NO_VALID
   TestGenerateGlobalIds.cxx,NO_VALID
   TestGenerateGlobalIdsSphere.cxx,NO_VALID
+  TestGhostCellsGeneratorSharedFaces.cxx,NO_VALID
   TestRedistributeDataSetFilter.cxx,NO_VALID
   TestRedistributeDataSetFilterOnIOSS.cxx,NO_VALID
   TestRedistributeDataSetFilterWithPolyData.cxx
