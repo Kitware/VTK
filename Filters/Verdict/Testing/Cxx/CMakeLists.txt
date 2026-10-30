@@ -4,6 +4,7 @@ vtk_add_test_cxx(vtkFiltersVerdictCxxTests tests
   CellSizeFilter2.cxx
   MeshQuality.cxx
   TestCellQuality.cxx
+  TestCellSizeFilterPolyhedron.cxx,NO_DATA
   TestBoundaryMeshQuality.cxx
   )
 vtk_test_cxx_executable(vtkFiltersVerdictCxxTests tests)

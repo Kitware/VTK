@@ -166,6 +166,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   TestPolyhedron4.cxx,NO_VALID,NO_OUTPUT
   TestPolyhedronConcaveCentroid.cxx,NO_VALID,NO_OUTPUT
   TestPolyhedronFacePoints.cxx,NO_DATA,NO_VALID,NO_OUTPUT
+  TestPolyhedronTriangulate.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestPolyhedronVolume.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestPolyhedronContouring.cxx,NO_VALID
   TestPolyhedronCutter.cxx,NO_VALID
