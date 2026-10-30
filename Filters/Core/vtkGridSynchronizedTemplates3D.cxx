@@ -83,16 +83,11 @@ static void vtkGridSynchronizedTemplates3DInitializeOutput(int* ext, int precisi
   vtkStructuredGrid* input, vtkPolyData* o, vtkFloatArray* scalars, vtkFloatArray* normals,
   vtkFloatArray* gradients, vtkDataArray* inScalars)
 {
-  vtkPoints* newPts;
-  vtkCellArray* newPolys;
-  long estimatedSize;
+  vtkIdType estimatedSize = static_cast<vtkIdType>(pow(
+    static_cast<double>(ext[1] - ext[0] + 1) * (ext[3] - ext[2] + 1) * (ext[5] - ext[4] + 1), .75));
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
-  estimatedSize = static_cast<int>(
-    pow(static_cast<double>((ext[1] - ext[0] + 1) * (ext[3] - ext[2] + 1) * (ext[5] - ext[4] + 1)),
-      .75));
-  estimatedSize = std::max<long>(estimatedSize, 1024);
-
-  newPts = vtkPoints::New();
+  vtkNew<vtkPoints> newPts;
 
   // set precision for the points in the output
   if (precision == vtkAlgorithm::DEFAULT_PRECISION)
@@ -117,12 +112,10 @@ static void vtkGridSynchronizedTemplates3DInitializeOutput(int* ext, int precisi
   }
 
   newPts->Reserve(estimatedSize);
-  newPolys = vtkCellArray::New();
+  vtkNew<vtkCellArray> newPolys;
   newPolys->AllocateEstimate(estimatedSize, 3);
   o->SetPoints(newPts);
-  newPts->Delete();
   o->SetPolys(newPolys);
-  newPolys->Delete();
 
   o->GetPointData()->CopyAllOn();
 
@@ -165,29 +158,24 @@ static void vtkGridSynchronizedTemplates3DInitializeOutput(int* ext, int precisi
 // Given a linear gradient assumption find gradient that minimizes
 // error squared for + and - (*3) neighbors).
 template <class TScalarIter, class TPointIter>
-void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6], int incY,
-  int incZ, TScalarIter& sc, TPointIter& pt, double g[3])
+void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6], vtkIdType incY,
+  vtkIdType incZ, TScalarIter& sc, TPointIter& pt, double g[3])
 {
-  double N[6][3];
-  double NtN[3][3], NtNi[3][3];
-  double *NtN2[3], *NtNi2[3];
-  double tmpDoubleArray[3];
-  int tmpIntArray[3];
-  double s[6], Nts[3], sum;
   int count = 0;
-  TScalarIter s2;
-  TPointIter p2;
 
   if (i == 2 && k == 2)
   {
     count = 0;
   }
 
+  double N[6][3];
+  double s[6];
+
   // x-direction
   if (i > inExt[0])
   {
-    p2 = pt - 3;
-    s2 = sc - 1;
+    TPointIter p2 = pt - 3;
+    TScalarIter s2 = sc - 1;
     N[count][0] = p2[0] - pt[0];
     N[count][1] = p2[1] - pt[1];
     N[count][2] = p2[2] - pt[2];
@@ -196,8 +184,8 @@ void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6]
   }
   if (i < inExt[1])
   {
-    p2 = pt + 3;
-    s2 = sc + 1;
+    TPointIter p2 = pt + 3;
+    TScalarIter s2 = sc + 1;
     N[count][0] = p2[0] - pt[0];
     N[count][1] = p2[1] - pt[1];
     N[count][2] = p2[2] - pt[2];
@@ -208,8 +196,8 @@ void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6]
   // y-direction
   if (j > inExt[2])
   {
-    p2 = pt - 3 * incY;
-    s2 = sc - incY;
+    TPointIter p2 = pt - 3 * incY;
+    TScalarIter s2 = sc - incY;
     N[count][0] = p2[0] - pt[0];
     N[count][1] = p2[1] - pt[1];
     N[count][2] = p2[2] - pt[2];
@@ -218,8 +206,8 @@ void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6]
   }
   if (j < inExt[3])
   {
-    p2 = pt + 3 * incY;
-    s2 = sc + incY;
+    TPointIter p2 = pt + 3 * incY;
+    TScalarIter s2 = sc + incY;
     N[count][0] = p2[0] - pt[0];
     N[count][1] = p2[1] - pt[1];
     N[count][2] = p2[2] - pt[2];
@@ -230,8 +218,8 @@ void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6]
   // z-direction
   if (k > inExt[4])
   {
-    p2 = pt - 3 * incZ;
-    s2 = sc - incZ;
+    TPointIter p2 = pt - 3 * incZ;
+    TScalarIter s2 = sc - incZ;
     N[count][0] = p2[0] - pt[0];
     N[count][1] = p2[1] - pt[1];
     N[count][2] = p2[2] - pt[2];
@@ -240,8 +228,8 @@ void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6]
   }
   if (k < inExt[5])
   {
-    p2 = pt + 3 * incZ;
-    s2 = sc + incZ;
+    TPointIter p2 = pt + 3 * incZ;
+    TScalarIter s2 = sc + incZ;
     N[count][0] = p2[0] - pt[0];
     N[count][1] = p2[1] - pt[1];
     N[count][2] = p2[2] - pt[2];
@@ -252,11 +240,12 @@ void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6]
   // compute transpose(N)N.
   // since this will be a symmetric matrix, we could make the
   // computation a little more efficient.
+  double NtN[3][3];
   for (i = 0; i < 3; ++i)
   {
     for (j = 0; j < 3; ++j)
     {
-      sum = 0.0;
+      double sum = 0.0;
       for (k = 0; k < count; ++k)
       {
         sum += N[k][i] * N[k][j];
@@ -266,12 +255,17 @@ void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6]
   }
   // compute the inverse of NtN
   // We have to setup a double** for the invert matrix call (@#$%!&%$!)
+  double* NtN2[3];
   NtN2[0] = &(NtN[0][0]);
   NtN2[1] = &(NtN[1][0]);
   NtN2[2] = &(NtN[2][0]);
+  double NtNi[3][3];
+  double* NtNi2[3];
   NtNi2[0] = &(NtNi[0][0]);
   NtNi2[1] = &(NtNi[1][0]);
   NtNi2[2] = &(NtNi[2][0]);
+  int tmpIntArray[3];
+  double tmpDoubleArray[3];
   if (vtkMath::InvertMatrix(NtN2, NtNi2, 3, tmpIntArray, tmpDoubleArray) == 0)
   {
     vtkGenericWarningMacro("Cannot compute gradient of grid");
@@ -279,9 +273,10 @@ void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6]
   }
 
   // compute transpose(N)s.
+  double Nts[3];
   for (i = 0; i < 3; ++i)
   {
-    sum = 0.0;
+    double sum = 0.0;
     for (j = 0; j < count; ++j)
     {
       sum += N[j][i] * s[j];
@@ -292,7 +287,7 @@ void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6]
   // now compute gradient
   for (i = 0; i < 3; ++i)
   {
-    sum = 0.0;
+    double sum = 0.0;
     for (j = 0; j < 3; ++j)
     {
       sum += NtNi[j][i] * Nts[j];
@@ -312,8 +307,9 @@ void ComputeGridPointGradient(int i, int j, int k, VTK_FUTURE_CONST int inExt[6]
         ComputeGridPointGradient(i, j, k, inExt, incY, incZ, s0, p0, n0);                          \
         g0 = 1;                                                                                    \
       }                                                                                            \
+      double n1[3];                                                                                \
       ComputeGridPointGradient(i2, j2, k2, inExt, incY, incZ, s, p, n1);                           \
-      for (jj = 0; jj < 3; jj++)                                                                   \
+      for (int jj = 0; jj < 3; jj++)                                                               \
       {                                                                                            \
         grad[jj] = n0[jj] + t * (n1[jj] - n0[jj]);                                                 \
       }                                                                                            \
@@ -403,85 +399,50 @@ struct ContourGridFunctor
     int* exExt, vtkStructuredGrid* input, vtkPolyData* output, vtkDataArray* inScalars,
     bool outputTriangles)
   {
-    VTK_FUTURE_CONST int* inExt = input->GetExtent();
-    int xdim = exExt[1] - exExt[0] + 1;
-    int ydim = exExt[3] - exExt[2] + 1;
-    double n0[3], n1[3]; // used in gradient macro
-    double* values = self->GetValues();
-    vtkIdType numContours = self->GetNumberOfContours();
-    int XMin, XMax, YMin, YMax, ZMin, ZMax;
-    int incY, incZ;
-    auto points = vtk::DataArrayValueRange<3>(pointArray).begin();
-    auto scalars = vtk::DataArrayValueRange<TupleSize>(scalarArray).begin();
-    double t;
-    int *isect1Ptr, *isect2Ptr;
-    vtkIdType ptIds[3];
-    int* tablePtr;
-    int v0, v1, v2, v3;
-    int idx, vidx;
-    double value;
-    int i, j, k;
-    int zstep, yisectstep;
-    int offsets[12];
-    vtkTypeBool ComputeNormals = self->GetComputeNormals();
-    vtkTypeBool ComputeGradients = self->GetComputeGradients();
     vtkTypeBool ComputeScalars = self->GetComputeScalars();
-    bool NeedGradients = ComputeGradients || ComputeNormals;
-    int jj, g0;
-    // We need to know the edgePointId's for interpolating attributes.
-    vtkIdType edgePtId, inCellId, outCellId;
-    vtkPointData* inPD = input->GetPointData();
-    vtkCellData* inCD = input->GetCellData();
-    CellVisibility isCellVisible(input);
-    vtkPointData* outPD = output->GetPointData();
-    vtkCellData* outCD = output->GetCellData();
-    // Temporary point data.
-    double x[3];
-    double grad[3];
-    double norm[3];
-    // Used to be passed in as parameteters.
-    vtkCellArray* newPolys;
-    vtkPoints* newPts;
-    vtkFloatArray* newScalars = nullptr;
-    vtkFloatArray* newNormals = nullptr;
-    vtkFloatArray* newGradients = nullptr;
-    vtkPolygonBuilder polyBuilder;
-    vtkSmartPointer<vtkIdListCollection> polys = vtkSmartPointer<vtkIdListCollection>::New();
-    bool abort = false;
-
+    vtkSmartPointer<vtkFloatArray> newScalars;
     if (ComputeScalars)
     {
-      newScalars = vtkFloatArray::New();
+      newScalars = vtkSmartPointer<vtkFloatArray>::New();
     }
+    vtkTypeBool ComputeNormals = self->GetComputeNormals();
+    vtkSmartPointer<vtkFloatArray> newNormals;
     if (ComputeNormals)
     {
-      newNormals = vtkFloatArray::New();
+      newNormals = vtkSmartPointer<vtkFloatArray>::New();
     }
+    vtkTypeBool ComputeGradients = self->GetComputeGradients();
+    vtkSmartPointer<vtkFloatArray> newGradients;
     if (ComputeGradients)
     {
-      newGradients = vtkFloatArray::New();
+      newGradients = vtkSmartPointer<vtkFloatArray>::New();
     }
     vtkGridSynchronizedTemplates3DInitializeOutput(exExt, self->GetOutputPointsPrecision(), input,
       output, newScalars, newNormals, newGradients, inScalars);
-    newPts = output->GetPoints();
-    newPolys = output->GetPolys();
+    // Used to be passed in as parameteters.
+    vtkPoints* newPts = output->GetPoints();
+    vtkCellArray* newPolys = output->GetPolys();
 
     // this is an exploded execute extent.
-    XMin = exExt[0];
-    XMax = exExt[1];
-    YMin = exExt[2];
-    YMax = exExt[3];
-    ZMin = exExt[4];
-    ZMax = exExt[5];
+    int XMin = exExt[0];
+    int XMax = exExt[1];
+    int YMin = exExt[2];
+    int YMax = exExt[3];
+    int ZMin = exExt[4];
+    int ZMax = exExt[5];
+    VTK_FUTURE_CONST int* inExt = input->GetExtent();
     // to skip over an x row of the input.
-    incY = inExt[1] - inExt[0] + 1;
+    vtkIdType incY = inExt[1] - inExt[0] + 1;
     // to skip over an xy slice of the input.
-    incZ = (inExt[3] - inExt[2] + 1) * incY;
+    vtkIdType incZ = (inExt[3] - inExt[2] + 1) * incY;
 
+    vtkIdType xdim = exExt[1] - exExt[0] + 1;
+    vtkIdType ydim = exExt[3] - exExt[2] + 1;
     // Kens increments, probably to do with edge array
-    zstep = xdim * ydim;
-    yisectstep = xdim * 3;
+    vtkIdType zstep = xdim * ydim;
+    vtkIdType yisectstep = xdim * 3;
     // compute offsets probably how to get to the edges in the edge array.
+    vtkIdType offsets[12];
     offsets[0] = -xdim * 3;
     offsets[1] = -xdim * 3 + 1;
     offsets[2] = -xdim * 3 + 2;
@@ -496,34 +457,49 @@ struct ContourGridFunctor
     offsets[11] = zstep * 3;
 
     // allocate storage array
-    std::vector<int> isect1(xdim * ydim * 3 * 2);
+    std::vector<vtkIdType> isect1(xdim * ydim * 3 * 2);
     // set impossible edges to -1
-    for (i = 0; i < ydim; i++)
+    for (int i = 0; i < ydim; i++)
     {
       isect1[(i + 1) * xdim * 3 - 3] = -1;
       isect1[(i + 1) * xdim * 3 * 2 - 3] = -1;
     }
-    for (i = 0; i < xdim; i++)
+    for (int i = 0; i < xdim; i++)
     {
       isect1[((ydim - 1) * xdim + i) * 3 + 1] = -1;
       isect1[((ydim - 1) * xdim + i) * 3 * 2 + 1] = -1;
     }
 
     int checkAbortInterval = std::min((XMax - XMin) / 10 + 1, 1000);
+    bool abort = false;
+    vtkIdType numContours = self->GetNumberOfContours();
+    double* values = self->GetValues();
+    auto points = vtk::DataArrayValueRange<3>(pointArray).begin();
+    auto scalars = vtk::DataArrayValueRange<TupleSize>(scalarArray).begin();
+    bool NeedGradients = ComputeGradients || ComputeNormals;
+    vtkPointData* outPD = output->GetPointData();
+    vtkPointData* inPD = input->GetPointData();
+    CellVisibility isCellVisible(input);
+    vtkPolygonBuilder polyBuilder;
+    vtkCellData* outCD = output->GetCellData();
+    vtkCellData* inCD = input->GetCellData();
+    vtkNew<vtkIdListCollection> polys;
     // for each contour
-    for (vidx = 0; vidx < numContours && !abort; vidx++)
+
+    for (int vidx = 0; vidx < numContours && !abort; vidx++)
     {
-      value = values[vidx];
+      double value = values[vidx];
       //  skip any slices which are overlap for computing gradients.
       auto inPtPtrZ =
         points + 3 * ((ZMin - inExt[4]) * incZ + (YMin - inExt[2]) * incY + (XMin - inExt[0]));
       auto inPtrZ =
         scalars + ((ZMin - inExt[4]) * incZ + (YMin - inExt[2]) * incY + (XMin - inExt[0]));
-      auto s2 = inPtrZ;
 
       //==================================================================
-      for (k = ZMin; k <= ZMax && !abort; k++)
+      for (int k = ZMin; k <= ZMax && !abort; k++)
       {
+        vtkIdType* isect1Ptr;
+        vtkIdType* isect2Ptr;
         // swap the buffers
         if (k % 2)
         {
@@ -546,24 +522,26 @@ struct ContourGridFunctor
 
         auto inPtPtrY = inPtPtrZ;
         auto inPtrY = inPtrZ;
-        for (j = YMin; j <= YMax && !abort; j++)
+        for (int j = YMin; j <= YMax && !abort; j++)
         {
+          // We need to know the edgePointId's for interpolating attributes.
           // Should not impact performance here/
-          edgePtId = (j - inExt[2]) * incY + (k - inExt[4]) * incZ;
+          vtkIdType edgePtId = (j - inExt[2]) * incY + (k - inExt[4]) * incZ;
           // Increments are different for cells.
           // Since the cells are not contoured until the second row of templates,
           // subtract 1 from i,j,and k.  Note: first cube is formed when i=0, j=1, and k=1.
-          inCellId = (XMin - inExt[0]) +
-            (inExt[1] - inExt[0]) *
-              ((j - inExt[2] - 1) + (k - inExt[4] - 1) * (inExt[3] - inExt[2]));
+          vtkIdType inCellId = (XMin - inExt[0]) +
+            static_cast<vtkIdType>(inExt[1] - inExt[0]) *
+              ((j - inExt[2] - 1) +
+                static_cast<vtkIdType>(k - inExt[4] - 1) * (inExt[3] - inExt[2]));
 
           auto p1 = inPtPtrY;
           auto s1 = inPtrY;
-          v1 = (*s1 < value ? 0 : 1);
+          int v1 = (*s1 < value ? 0 : 1);
           auto inPtPtrX = inPtPtrY;
           auto inPtrX = inPtrY;
           // inCellId is ised to keep track of ids for copying cell attributes.
-          for (i = XMin; i <= XMax; i++, inCellId++)
+          for (int i = XMin; i <= XMax; i++, inCellId++)
           {
             if (i % checkAbortInterval == 0 && self->CheckAbort())
             {
@@ -572,9 +550,10 @@ struct ContourGridFunctor
             }
             auto p0 = p1;
             auto s0 = s1;
-            v0 = v1;
+            int v0 = v1;
             // this flag keeps up from computing gradient for grid point 0 twice.
-            g0 = 0;
+            int g0 = 0;
+            double n0[3]; // used in gradient macro
             *isect2Ptr = -1;
             *(isect2Ptr + 1) = -1;
             *(isect2Ptr + 2) = -1;
@@ -615,12 +594,15 @@ struct ContourGridFunctor
                 // if the edge has not been set yet then it is a new point
                 if (*isect2Ptr == -1)
                 {
-                  t = (value - static_cast<double>(*s0)) /
+                  double t = (value - static_cast<double>(*s0)) /
                     (static_cast<double>(*s1) - static_cast<double>(*s0));
+                  double x[3];
                   x[0] = p0[0] + t * (p1[0] - p0[0]);
                   x[1] = p0[1] + t * (p1[1] - p0[1]);
                   x[2] = p0[2] + t * (p1[2] - p0[2]);
                   *isect2Ptr = newPts->InsertNextPoint(x);
+                  double grad[3];
+                  double norm[3];
                   VTK_CSP3PA(i + 1, j, k, s1, p1, grad, norm);
                   outPD->InterpolateEdge(inPD, *isect2Ptr, edgePtId, edgePtId + 1, t);
                 }
@@ -629,8 +611,8 @@ struct ContourGridFunctor
             if (j < YMax)
             {
               auto p2 = (inPtPtrX + incY * 3);
-              s2 = (inPtrX + incY);
-              v2 = (*s2 < value ? 0 : 1);
+              auto s2 = (inPtrX + incY);
+              int v2 = (*s2 < value ? 0 : 1);
               if (v0 ^ v2)
               {
                 // watch for degen points
@@ -660,12 +642,15 @@ struct ContourGridFunctor
                 // if the edge has not been set yet then it is a new point
                 if (*(isect2Ptr + 1) == -1)
                 {
-                  t = (value - static_cast<double>(*s0)) /
+                  double t = (value - static_cast<double>(*s0)) /
                     (static_cast<double>(*s2) - static_cast<double>(*s0));
+                  double x[3];
                   x[0] = p0[0] + t * (p2[0] - p0[0]);
                   x[1] = p0[1] + t * (p2[1] - p0[1]);
                   x[2] = p0[2] + t * (p2[2] - p0[2]);
                   *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
+                  double grad[3];
+                  double norm[3];
                   VTK_CSP3PA(i, j + 1, k, s2, p2, grad, norm);
                   outPD->InterpolateEdge(inPD, *(isect2Ptr + 1), edgePtId, edgePtId + incY, t);
                 }
@@ -675,7 +660,7 @@ struct ContourGridFunctor
             {
               auto p3 = (inPtPtrX + incZ * 3);
               auto s3 = (inPtrX + incZ);
-              v3 = (*s3 < value ? 0 : 1);
+              int v3 = (*s3 < value ? 0 : 1);
               if (v0 ^ v3)
               {
                 // watch for degen points
@@ -704,12 +689,15 @@ struct ContourGridFunctor
                 }
                 if (*(isect2Ptr + 2) == -1)
                 {
-                  t = (value - static_cast<double>(*s0)) /
+                  double t = (value - static_cast<double>(*s0)) /
                     (static_cast<double>(*s3) - static_cast<double>(*s0));
+                  double x[3];
                   x[0] = p0[0] + t * (p3[0] - p0[0]);
                   x[1] = p0[1] + t * (p3[1] - p0[1]);
                   x[2] = p0[2] + t * (p3[2] - p0[2]);
                   *(isect2Ptr + 2) = newPts->InsertNextPoint(x);
+                  double grad[3];
+                  double norm[3];
                   VTK_CSP3PA(i, j, k + 1, s3, p3, grad, norm);
                   outPD->InterpolateEdge(inPD, *(isect2Ptr + 2), edgePtId, edgePtId + incZ, t);
                 }
@@ -724,7 +712,7 @@ struct ContourGridFunctor
             // form an index and lookup the polys
             if (j > YMin && i < XMax && k > ZMin)
             {
-              idx = (v0 ? 4096 : 0);
+              int idx = (v0 ? 4096 : 0);
               idx = idx + (*(isect1Ptr - yisectstep) > -1 ? 2048 : 0);
               idx = idx + (*(isect1Ptr - yisectstep + 1) > -1 ? 1024 : 0);
               idx = idx + (*(isect1Ptr - yisectstep + 2) > -1 ? 512 : 0);
@@ -738,7 +726,7 @@ struct ContourGridFunctor
               idx = idx + (*(isect2Ptr - yisectstep + 4) > -1 ? 2 : 0);
               idx = idx + (*(isect2Ptr) > -1 ? 1 : 0);
 
-              tablePtr =
+              int* tablePtr =
                 VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2 + VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_1[idx];
               // to protect data against multiple threads
               if (isCellVisible(inCellId))
@@ -749,6 +737,7 @@ struct ContourGridFunctor
                 }
                 while (*tablePtr != -1)
                 {
+                  vtkIdType ptIds[3];
                   ptIds[0] = *(isect1Ptr + offsets[*tablePtr]);
                   tablePtr++;
                   ptIds[1] = *(isect1Ptr + offsets[*tablePtr]);
@@ -759,7 +748,7 @@ struct ContourGridFunctor
                   {
                     if (outputTriangles)
                     {
-                      outCellId = newPolys->InsertNextCell(3, ptIds);
+                      vtkIdType outCellId = newPolys->InsertNextCell(3, ptIds);
                       outCD->CopyData(inCD, inCellId, outCellId);
                     }
                     else
@@ -777,7 +766,7 @@ struct ContourGridFunctor
                     vtkIdList* poly = polys->GetItem(polyId);
                     if (poly->GetNumberOfIds() != 0)
                     {
-                      outCellId = newPolys->InsertNextCell(poly);
+                      vtkIdType outCellId = newPolys->InsertNextCell(poly);
                       outCD->CopyData(inCD, inCellId, outCellId);
                     }
                     poly->Delete();
@@ -802,22 +791,16 @@ struct ContourGridFunctor
     if (newScalars)
     {
       newScalars->SetName(inScalars->GetName());
-      idx = output->GetPointData()->AddArray(newScalars);
+      int idx = output->GetPointData()->AddArray(newScalars);
       output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
-      newScalars->Delete();
-      newScalars = nullptr;
     }
     if (newGradients)
     {
       output->GetPointData()->SetVectors(newGradients);
-      newGradients->Delete();
-      newGradients = nullptr;
     }
     if (newNormals)
     {
       output->GetPointData()->SetNormals(newNormals);
-      newNormals->Delete();
-      newNormals = nullptr;
     }
   }
 };
@@ -828,22 +811,19 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(
   vtkStructuredGrid* input, vtkInformationVector** inputVector, vtkInformation* outInfo)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  const int* inExt = input->GetExtent();
 
   int exExt[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), exExt);
+  const int* inExt = input->GetExtent();
   for (int i = 0; i < 3; i++)
   {
     exExt[2 * i] = std::max(inExt[2 * i], exExt[2 * i]);
     exExt[2 * i + 1] = std::min(inExt[2 * i + 1], exExt[2 * i + 1]);
   }
 
-  vtkDataArray* inScalars = this->GetInputArrayToProcess(0, inputVector);
-  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  long dataSize;
-
   vtkDebugMacro(<< "Executing 3D structured contour");
 
+  vtkDataArray* inScalars = this->GetInputArrayToProcess(0, inputVector);
   if (inScalars == nullptr)
   {
     vtkErrorMacro(<< "Scalars must be defined for contouring");
@@ -859,7 +839,10 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(
   //
   // Check dimensionality of data and get appropriate form
   //
-  dataSize = (exExt[1] - exExt[0] + 1) * (exExt[3] - exExt[2] + 1) * (exExt[5] - exExt[4] + 1);
+  vtkIdType dataSize = static_cast<vtkIdType>(exExt[1] - exExt[0] + 1) * (exExt[3] - exExt[2] + 1) *
+    (exExt[5] - exExt[4] + 1);
+
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   //
   // Check data type and execute appropriate function
@@ -914,8 +897,8 @@ int vtkGridSynchronizedTemplates3D::RequestUpdateExtent(vtkInformation* vtkNotUs
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-    int ghostLevels;
-    ghostLevels = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+    int ghostLevels =
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevels + 1);
   }
 
