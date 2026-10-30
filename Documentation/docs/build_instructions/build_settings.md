@@ -52,7 +52,7 @@ Less common, but variables which may be of interest to some:
     including the VTK catalyst implementation. Depends on an external Catalyst.
   * `VTK_WEBASSEMBLY_64_BIT` (default `OFF`):
     This option is applicable only when building with Emscripten toolchain.
-    Adds -sMEMORY64 compiler and linker flags.
+    Adds --target=wasm64 compiler and linker flags.
   * `VTK_WEBASSEMBLY_THREADS` (default `OFF`):
     This option is applicable only when building with Emscripten toolchain.
     Adds `-pthread` compiler and linker flags. When `VTK_BUILD_TESTING` is `ON`,
