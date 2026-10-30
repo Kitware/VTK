@@ -823,8 +823,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestProgramPointSize$"
     "^VTK::RenderingOpenGL2Cxx-TestRemoveActorNonCurrentContext$"
     "^VTK::RenderingOpenGL2Cxx-TestDirectSelectionRendering$"
-    "^VTK::RenderingOpenGL2Cxx-TestSkyboxRotation$"
-    "^VTK::RenderingOpenGL2Cxx-TestSkyboxRotationVectors$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotation$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotationVectors$"
     "^VTK::RenderingOpenGL2Cxx-TestSimpleMotionBlur$" # flaky
     "^VTK::RenderingOpenGL2Cxx-TestSpherePoints$"
     "^VTK::RenderingOpenGL2Cxx-TestSphereVertex$"
