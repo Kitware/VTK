@@ -10,6 +10,11 @@
  * reader's file format is "vtu".  This reader is also used to read a
  * single piece of the parallel file format.
  *
+ * The SideData and SideIds elements of a piece are read into the side data
+ * and side numbering of the output when exactly one piece is read into it.
+ * Side numberings of several pieces are not merged, so their side data is
+ * skipped with a warning.
+ *
  * @sa
  * vtkXMLPUnstructuredGridReader
  */
@@ -22,6 +27,7 @@
 #include "vtkXMLUnstructuredDataReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDataArraySelection;
 class vtkUnstructuredGrid;
 class vtkIdTypeArray;
 
@@ -41,6 +47,22 @@ public:
   vtkUnstructuredGrid* GetOutput(int idx);
   ///@}
 
+  ///@{
+  /**
+   * Which side data arrays to read, the way point and cell data arrays are
+   * chosen. All are read by default.
+   */
+  vtkGetObjectMacro(SideDataArraySelection, vtkDataArraySelection);
+  int GetNumberOfSideArrays();
+  const char* GetSideArrayName(int index);
+  int GetSideArrayStatus(const char* name);
+  void SetSideArrayStatus(const char* name, int status);
+  ///@}
+
+  // For the specified port, copy the information this reader sets up in
+  // SetupOutputInformation to outInfo
+  void CopyOutputInformation(vtkInformation* outInfo, int port) override;
+
 protected:
   vtkXMLUnstructuredGridReader();
   ~vtkXMLUnstructuredGridReader() override;
@@ -55,6 +77,11 @@ protected:
   int ReadPiece(vtkXMLDataElement* ePiece) override;
   void SetupNextPiece() override;
   int ReadPieceData() override;
+  void ReadXMLData() override;
+  void SetupOutputInformation(vtkInformation* outInfo) override;
+
+  // Read the side numbering and side data of the piece read into the output.
+  void ReadSides();
 
   // Read a data array whose tuples correspond to cells.
   int ReadArrayForCells(vtkXMLDataElement* da, vtkAbstractArray* outArray) override;
@@ -72,6 +99,11 @@ protected:
   // The Cells element for each piece.
   vtkXMLDataElement** CellElements;
   vtkIdType* NumberOfCells;
+
+  // The SideData and SideIds elements for each piece.
+  vtkXMLDataElement** SideDataElements = nullptr;
+  vtkXMLDataElement** SideIdsElements = nullptr;
+  vtkDataArraySelection* SideDataArraySelection;
 
   int CellsTimeStep;
   unsigned long CellsOffset;

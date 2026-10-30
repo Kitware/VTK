@@ -53,6 +53,9 @@ protected:
   void SetupNextPiece() override;
   int ReadPieceData() override;
 
+  // Carry the side data of the piece read into the output.
+  void ReadXMLData() override;
+
   void CopyArrayForCells(vtkAbstractArray* inArray, vtkAbstractArray* outArray) override;
   vtkXMLDataReader* CreatePieceReader() override;
   int FillOutputPortInformation(int, vtkInformation*) override;

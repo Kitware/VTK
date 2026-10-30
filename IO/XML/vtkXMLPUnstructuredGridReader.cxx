@@ -7,10 +7,12 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
+#include "vtkSideData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkUnstructuredGridSideMap.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
@@ -144,6 +146,53 @@ int vtkXMLPUnstructuredGridReader::ReadPieceData()
   outTypes->InsertTuples(this->StartCell, inTypes->GetNumberOfTuples(), 0, inTypes);
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLPUnstructuredGridReader::ReadXMLData()
+{
+  this->Superclass::ReadXMLData();
+  vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(this->GetCurrentOutput());
+  if (!output || this->AbortExecute)
+  {
+    return;
+  }
+
+  // The side numbering of a piece is that of its own cells, so the side data
+  // of a piece carries over when it is the only one in the output, and is
+  // skipped otherwise.
+  vtkUnstructuredGrid* withSides = nullptr;
+  int numberWithSides = 0;
+  for (int piece = this->StartPiece; piece < this->EndPiece; ++piece)
+  {
+    auto* input = this->PieceReaders[piece]
+      ? vtkUnstructuredGrid::SafeDownCast(this->GetPieceInputAsPointSet(piece))
+      : nullptr;
+    if (input &&
+      (input->GetSideData()->GetNumberOfArrays() > 0 ||
+        (input->HasSideMap() && input->GetSideMap()->GetAuthored())))
+    {
+      withSides = input;
+      ++numberWithSides;
+    }
+  }
+  if (!withSides)
+  {
+    return;
+  }
+  if (this->EndPiece - this->StartPiece != 1)
+  {
+    vtkWarningMacro("Side data is read only when one piece is read into the output, so the side "
+                    "data of "
+      << numberWithSides << " pieces was skipped.");
+    return;
+  }
+  if (withSides->HasSideMap() && withSides->GetSideMap()->GetAuthored())
+  {
+    vtkUnstructuredGridSideMap* sides = withSides->GetSideMap();
+    output->SetSideIds(sides->GetHalfSideToSide(), sides->GetNumberOfSides());
+  }
+  output->GetSideData()->ShallowCopy(withSides->GetSideData());
 }
 
 //------------------------------------------------------------------------------

@@ -142,10 +142,19 @@ Each UnstructuredGrid piece specifies a set of points and cells independently fr
       <CellData>...</CellData>
       <Points>...</Points>
       <Cells>...</Cells>
+      <SideIds>...</SideIds>
+      <SideData>...</SideData>
     </Piece>
   </UnstructuredGrid>
 </VTKFile>
 ```
+
+Since version 2.4, an UnstructuredGrid piece can also carry data on the sides shared between its cells, the faces of 3D cells and the edges of 2D cells:
+
+* **SideData**. Laid out like _CellData_, with one tuple per side. A side shared by two cells has one tuple. The sides are numbered by `vtkUnstructuredGridSideMap`.
+* **SideIds**. Optional. The side numbering, when the writer was given one rather than letting VTK derive it. Its attributes are _NumberOfSides_ and _NumberOfHalfSides_, and it holds one _DataArray_, _HalfSideToSide_, with the side id of every side of every cell, in cell order and then in the local side order of `vtkCellTypeSides`. Without it, the reader derives the numbering from the cells.
+
+Readers older than version 2.4 ignore both elements.
 
 Every dataset describes the data associated with its points and cells with PointData and CellData XML elements as follows:
 ```{code-block} xml

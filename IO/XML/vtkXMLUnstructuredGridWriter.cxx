@@ -9,8 +9,10 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSideData.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkUnstructuredGridSideMap.h"
 #define vtkXMLOffsetsManager_DoNotInclude
 #include "vtkXMLOffsetsManager.h"
 #undef vtkXMLOffsetsManager_DoNotInclude
@@ -18,18 +20,42 @@
 #include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
+namespace
+{
+// The side numbering of the input when it was supplied, which has to be
+// written for the side data to read back against it. A derived numbering is
+// recomputed on reading.
+vtkUnstructuredGridSideMap* AuthoredSides(vtkUnstructuredGridBase* input)
+{
+  auto* grid = vtkUnstructuredGrid::SafeDownCast(input);
+  return grid && grid->HasSideMap() && grid->GetSideMap()->GetAuthored() ? grid->GetSideMap()
+                                                                         : nullptr;
+}
+
+// The side data of the input when it has any arrays.
+vtkSideData* SideArrays(vtkUnstructuredGridBase* input)
+{
+  auto* grid = vtkUnstructuredGrid::SafeDownCast(input);
+  return grid && grid->GetSideData()->GetNumberOfArrays() > 0 ? grid->GetSideData() : nullptr;
+}
+}
+
 vtkStandardNewMacro(vtkXMLUnstructuredGridWriter);
 
 //------------------------------------------------------------------------------
 vtkXMLUnstructuredGridWriter::vtkXMLUnstructuredGridWriter()
 {
   this->CellsOM = new OffsetsManagerArray;
+  this->SideDataOM = new OffsetsManagerArray;
+  this->SideIdsOM = new OffsetsManagerArray;
 }
 
 //------------------------------------------------------------------------------
 vtkXMLUnstructuredGridWriter::~vtkXMLUnstructuredGridWriter()
 {
   delete this->CellsOM;
+  delete this->SideDataOM;
+  delete this->SideIdsOM;
 }
 
 //------------------------------------------------------------------------------
@@ -107,6 +133,21 @@ void vtkXMLUnstructuredGridWriter::WriteInlinePiece(vtkIndent indent)
     this->WriteCellsInline(
       "Cells", cellIter, input->GetNumberOfCells(), input->GetMaxCellSize(), indent);
   }
+
+  if (vtkUnstructuredGridSideMap* sides = AuthoredSides(input))
+  {
+    ostream& os = *(this->Stream);
+    os << indent << "<SideIds";
+    this->WriteScalarAttribute("NumberOfSides", sides->GetNumberOfSides());
+    this->WriteScalarAttribute("NumberOfHalfSides", sides->GetNumberOfHalfSides());
+    os << ">\n";
+    this->WriteArrayInline(sides->GetHalfSideToSide(), indent.GetNextIndent(), "HalfSideToSide");
+    os << indent << "</SideIds>\n";
+  }
+  if (vtkSideData* sideData = SideArrays(input))
+  {
+    this->WriteDataSetAttributesInline(sideData, "SideData", indent, 1);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -116,6 +157,8 @@ void vtkXMLUnstructuredGridWriter::AllocatePositionArrays()
 
   this->NumberOfCellsPositions = new vtkTypeInt64[this->NumberOfPieces];
   this->CellsOM->Allocate(this->NumberOfPieces, 7, this->NumberOfTimeSteps);
+  this->SideDataOM->Allocate(this->NumberOfPieces);
+  this->SideIdsOM->Allocate(this->NumberOfPieces, 1, this->NumberOfTimeSteps);
 }
 
 //------------------------------------------------------------------------------
@@ -161,6 +204,27 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPiece(int index, vtkIndent inden
     this->WriteCellsAppended(
       "Cells", cellIter, input->GetNumberOfCells(), indent, &this->CellsOM->GetPiece(index));
     cellIter->Delete();
+  }
+
+  if (vtkUnstructuredGridSideMap* sides = AuthoredSides(input))
+  {
+    ostream& os = *(this->Stream);
+    os << indent << "<SideIds";
+    this->WriteScalarAttribute("NumberOfSides", sides->GetNumberOfSides());
+    this->WriteScalarAttribute("NumberOfHalfSides", sides->GetNumberOfHalfSides());
+    os << ">\n";
+    OffsetsManager& offsets = this->SideIdsOM->GetPiece(index).GetElement(0);
+    for (int t = 0; t < this->NumberOfTimeSteps; ++t)
+    {
+      this->WriteArrayAppended(
+        sides->GetHalfSideToSide(), indent.GetNextIndent(), offsets, "HalfSideToSide", 0, t);
+    }
+    os << indent << "</SideIds>\n";
+  }
+  if (vtkSideData* sideData = SideArrays(input))
+  {
+    this->WriteDataSetAttributesAppended(
+      sideData, "SideData", indent, &this->SideDataOM->GetPiece(index), 1);
   }
 }
 
@@ -212,6 +276,18 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPieceData(int index)
     this->WriteCellsAppendedData(cellIter, input->GetNumberOfCells(), input->GetMaxCellSize(),
       this->CurrentTimeIndex, &this->CellsOM->GetPiece(index));
     cellIter->Delete();
+  }
+
+  if (vtkUnstructuredGridSideMap* sides = AuthoredSides(input))
+  {
+    OffsetsManager& offsets = this->SideIdsOM->GetPiece(index).GetElement(0);
+    this->WriteArrayAppendedData(sides->GetHalfSideToSide(),
+      offsets.GetPosition(this->CurrentTimeIndex), offsets.GetOffsetValue(this->CurrentTimeIndex));
+  }
+  if (vtkSideData* sideData = SideArrays(input))
+  {
+    this->WriteDataSetAttributesAppendedData(
+      sideData, this->CurrentTimeIndex, &this->SideDataOM->GetPiece(index));
   }
 }
 
