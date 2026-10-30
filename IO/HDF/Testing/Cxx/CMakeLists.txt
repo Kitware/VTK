@@ -12,6 +12,7 @@ vtk_add_test_cxx(vtkIOHDFCxxTests tests
 if (TARGET VTK::ParallelMPI)
   set(vtkIOHDFCxxTests-MPI_NUMPROCS 3)
   vtk_add_test_mpi(vtkIOHDFCxxTests-MPI mpi_test
+    TestHDFConfigurationSource.cxx,NO_VALID,NO_OUTPUT
     TestHDFWriterDistributed.cxx,TESTING_DATA,NO_VALID
     TestHDFWriterDistributedUGConfigs.cxx,TESTING_DATA,NO_VALID
     TestHDFWriterHTGDistributed.cxx,TESTING_DATA,NO_VALID
