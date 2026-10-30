@@ -35,7 +35,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Ensure the right type of ANARICamera object is being held.
+   * Find the ANARI scene graph and device.
    */
   void Build(bool prepass) override;
   /**

@@ -78,6 +78,7 @@ bool AnariSupportsLightVisibility(const ExtensionsT& extensions)
 struct vtkAnariLightNodeInternals
 {
   vtkAnariSceneGraph* RendererNode{ nullptr };
+  vtkSmartPointer<vtkAnariDevice> AnariDevice;
   anari::Light AnariLight{ nullptr };
   vtkTexture* EnvironmentTexture{ nullptr };
   vtkMTimeType EnvironmentTextureTime{ 0 };
@@ -102,6 +103,7 @@ vtkAnariLightNode::vtkAnariLightNode()
 //----------------------------------------------------------------------------
 vtkAnariLightNode::~vtkAnariLightNode()
 {
+  this->ClearLight();
   delete this->Internals;
 }
 
@@ -214,7 +216,7 @@ void vtkAnariLightNode::Invalidate(bool prepass)
 void vtkAnariLightNode::Build(bool prepass)
 {
   vtkAnariProfiling startProfiling("vtkAnariLightNode::Build", vtkAnariProfiling::BROWN);
-  if (!prepass || !LightWasModified())
+  if (!prepass)
   {
     return;
   }
@@ -223,6 +225,7 @@ void vtkAnariLightNode::Build(bool prepass)
   {
     this->Internals->RendererNode =
       static_cast<vtkAnariSceneGraph*>(this->GetFirstAncestorOfType("vtkAnariSceneGraph"));
+    this->Internals->AnariDevice = this->Internals->RendererNode->GetDevice();
   }
 }
 
@@ -240,9 +243,9 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   this->Internals->CameraTime = ::GetRendererCameraTime(
     this->Internals->RendererNode ? this->Internals->RendererNode->GetRenderer() : nullptr);
 
-  vtkSmartPointer<vtkAnariDevice> anariDevice = this->Internals->RendererNode->GetDevice();
+  auto* anariDevice = this->Internals->AnariDevice.GetPointer();
   auto vtkRenderer = this->Internals->RendererNode->GetRenderer();
-  auto anariExtensions = this->Internals->RendererNode->GetDevice()->GetExtensions();
+  const auto& anariExtensions = anariDevice->GetExtensions();
 
   this->ClearLight();
 
@@ -528,15 +531,10 @@ void vtkAnariLightNode::Render(bool prepass)
 
 void vtkAnariLightNode::ClearLight()
 {
-  if (this->Internals->RendererNode != nullptr)
+  if (this->Internals->AnariDevice && this->Internals->AnariLight)
   {
-    vtkSmartPointer<vtkAnariDevice> anariDevice = this->Internals->RendererNode->GetDevice();
-
-    if (anariDevice)
-    {
-      anari::release(anariDevice->GetHandle(), this->Internals->AnariLight);
-      this->Internals->AnariLight = nullptr;
-    }
+    anari::release(this->Internals->AnariDevice->GetHandle(), this->Internals->AnariLight);
+    this->Internals->AnariLight = nullptr;
   }
 }
 
