@@ -267,7 +267,7 @@ public:
   /**
    * The key of a key id, and the key id of a key, -1 if absent, by a binary search.
    */
-  KeyType GetKey(KeyIdType keyId) const { return this->Keys[keyId]; }
+  KeyType GetKey(KeyIdType keyId) const { return this->Keys.get()[keyId]; }
   KeyIdType FindKeyId(KeyType key) const;
 
   /**
@@ -291,7 +291,8 @@ private:
     this->Keys = other.Keys;
   }
 
-  std::shared_ptr<KeyType[]> Keys; // NumberOfKeys
+  // An array deleter instead of shared_ptr<KeyType[]>, whose reset() some standard libraries lack.
+  std::shared_ptr<KeyType> Keys; // NumberOfKeys
 };
 
 /**
