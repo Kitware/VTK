@@ -26,9 +26,96 @@
 #include "vtkTriangleFilter.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
+#include <cmath>
 #include <iostream>
+#include <utility>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
+namespace
+{
+// Winds the triangle so that its normal points away from `inside`.
+void OrientAwayFrom(vtkIdList* face, vtkPoints* points, const double inside[3])
+{
+  double a[3], b[3], c[3], u[3], v[3], n[3], w[3];
+  points->GetPoint(face->GetId(0), a);
+  points->GetPoint(face->GetId(1), b);
+  points->GetPoint(face->GetId(2), c);
+  for (int k = 0; k < 3; k++)
+  {
+    u[k] = b[k] - a[k];
+    v[k] = c[k] - a[k];
+    w[k] = a[k] - inside[k];
+  }
+  vtkMath::Cross(u, v, n);
+  if (vtkMath::Dot(n, w) < 0)
+  {
+    const vtkIdType id = face->GetId(1);
+    face->SetId(1, face->GetId(2));
+    face->SetId(2, id);
+  }
+}
+
+// Orders the points of a planar convex face around it, wound so that its normal points away
+// from `inside`.
+void OrderConvexFace(vtkIdList* face, vtkPoints* points, const double inside[3])
+{
+  const vtkIdType numPts = face->GetNumberOfIds();
+  double p0[3], base[3], n[3] = { 0, 0, 0 }, q[3];
+  points->GetPoint(face->GetId(0), p0);
+  points->GetPoint(face->GetId(1), q);
+  for (int k = 0; k < 3; k++)
+  {
+    base[k] = q[k] - p0[k];
+  }
+  for (vtkIdType i = 2; i < numPts; i++)
+  {
+    double v[3], c[3];
+    points->GetPoint(face->GetId(i), q);
+    for (int k = 0; k < 3; k++)
+    {
+      v[k] = q[k] - p0[k];
+    }
+    vtkMath::Cross(base, v, c);
+    if (vtkMath::Norm(c) > vtkMath::Norm(n))
+    {
+      std::copy_n(c, 3, n);
+    }
+  }
+  double w[3];
+  for (int k = 0; k < 3; k++)
+  {
+    w[k] = p0[k] - inside[k];
+  }
+  if (vtkMath::Dot(n, w) < 0)
+  {
+    vtkMath::MultiplyScalar(n, -1.0);
+  }
+
+  // Seen from p0, a vertex of the convex face, the other points span less than half a turn,
+  // so their signed angles about n order them counterclockwise.
+  std::vector<std::pair<double, vtkIdType>> angles;
+  angles.reserve(numPts - 1);
+  for (vtkIdType i = 1; i < numPts; i++)
+  {
+    double v[3], c[3];
+    points->GetPoint(face->GetId(i), q);
+    for (int k = 0; k < 3; k++)
+    {
+      v[k] = q[k] - p0[k];
+    }
+    vtkMath::Cross(base, v, c);
+    angles.emplace_back(std::atan2(vtkMath::Dot(c, n), vtkMath::Dot(base, v)), face->GetId(i));
+  }
+  std::sort(angles.begin(), angles.end());
+  for (vtkIdType i = 1; i < numPts; i++)
+  {
+    face->SetId(i, angles[i - 1].second);
+  }
+}
+} // anonymous namespace
+
 vtkStandardNewMacro(vtkContinuousScatterplot);
 
 // Data structure to store the fragment faces.
@@ -176,17 +263,6 @@ int vtkContinuousScatterplot::RequestData(
 
   // structure for storing the vertices of cutting planes used to subdivide the cell.
   vtkSmartPointer<vtkIdList> cut = vtkSmartPointer<vtkIdList>::New();
-
-  // Initially the points in the cutting plane are not ordered. These parameters are used
-  // to compute convex hull for points lying on the cutting plane. The sorting process
-  // utilizes the angular information between the plane edges.
-  float theta[100];
-  vtkIdType index[100];
-  // number of points in the current cutting plane.
-  int nrPoints;
-  float base[3], vec[3];
-  float baseNorm, ang;
-  vtkIdType pnt, pnt0, pnt1;
 
   // min and max scalar value of the current field in a tetrahedron
   float maxCell, minCell;
@@ -396,6 +472,8 @@ int vtkContinuousScatterplot::RequestData(
       {
         face->SetId(pnr, tetTemplate[fnr][pnr]);
       }
+      newPoints->GetPoint(3 - fnr, p0);
+      OrientAwayFrom(face, newPoints, p0);
       outputQ[0]->push_back(face);
     }
 
@@ -649,61 +727,43 @@ int vtkContinuousScatterplot::RequestData(
             }
           } // for each face.
 
-          // We need to compute the face defined by the cut points.
-          // We cannot guarantee that points in the cut-list are ordered wrt
-          // polygon boundary, so we recompute an order by effectively working
-          // the convex hull.
-          // The cut-list is added to the fragment and residual array.
+          // The cut points are not ordered around the cut face, so order them, wound outward for
+          // the fragment, which lies below the threshold. The residual gets the face reversed.
           if (cut->GetNumberOfIds() > 2)
           {
-            nrPoints = cut->GetNumberOfIds();
-            pnt0 = cut->GetId(0);
-            pnt1 = cut->GetId(1);
-            // 2.  Compute vector from p[0] to p[1].
-            newPoints->GetPoint(pnt0, p0);
-            newPoints->GetPoint(pnt1, p1);
-            for (int i = 0; i < 3; i++)
+            // Finds a point of the faces strictly on the given side of the threshold.
+            auto findPoint = [&](Polytope faces, double side)
             {
-              base[i] = p1[i] - p0[i];
-            }
-            baseNorm = vtkMath::Norm(base);
-            theta[0] = 0.0;
-            index[0] = pnt1;
-            // 3.  For the remaining points p, compute angle between p-p0 and base.
-            for (int i = 2; i < nrPoints; i++)
-            {
-              newPoints->GetPoint(cut->GetId(i), p1);
-              for (int j = 0; j < 3; j++)
+              for (const auto& sideFace : *faces)
               {
-                vec[j] = p1[j] - p0[j];
+                for (vtkIdType k = 0; k < sideFace->GetNumberOfIds(); k++)
+                {
+                  const vtkIdType id = sideFace->GetId(k);
+                  const double value = newPointsPD->GetArray((int)fieldNr)->GetComponent(id, 0);
+                  if (side * (value - threshold) > this->Epsilon)
+                  {
+                    newPoints->GetPoint(id, p0);
+                    return true;
+                  }
+                }
               }
-              theta[i - 1] = acos(vtkMath::Dot(base, vec) / (baseNorm * vtkMath::Norm(vec)));
-              index[i - 1] = cut->GetId(i);
-            }
-            // 4.  Sort angles.
-            for (int j = 1; j < nrPoints - 1; j++)
+              return false;
+            };
+            if (findPoint(fragment, -1.0))
             {
-              ang = theta[j];
-              pnt = index[j];
-              int i = j - 1;
-              while (i >= 0 && theta[i] > ang)
-              {
-                theta[i + 1] = theta[i];
-                index[i + 1] = index[i];
-                i--;
-              }
-              theta[i + 1] = ang;
-              index[i + 1] = pnt;
+              OrderConvexFace(cut, newPoints, p0);
             }
-            cut->Reset();
-            cut->InsertNextId(pnt0);
-            for (int i = 0; i < nrPoints - 1; i++)
+            else if (findPoint(residual, 1.0))
             {
-              cut->InsertNextId(index[i]);
+              OrderConvexFace(cut, newPoints, p0);
+              std::reverse(cut->begin(), cut->end());
             }
             fragment->push_back(cut);
-            residual->push_back(cut);
-          } // Generate cut plane.  // Generate cut plane.
+            vtkSmartPointer<vtkIdList> reversed = vtkSmartPointer<vtkIdList>::New();
+            reversed->SetNumberOfIds(cut->GetNumberOfIds());
+            std::reverse_copy(cut->begin(), cut->end(), reversed->begin());
+            residual->push_back(reversed);
+          }
 
           // OUTPUT PHASE  -----------------------------------------
           // Have completed traversing each face.
@@ -838,11 +898,16 @@ int vtkContinuousScatterplot::RequestData(
       fragRangeValue[0] = fragScalar->GetComponent((vtkIdType)(firstFragNr + co), 0);
       fragRangeValue[1] = fragScalar->GetComponent((vtkIdType)(firstFragNr + co), 1);
 
-      // Map the current fragment into the 2-Dimensional bin based on its range values.
-      binIndexFirst = (int)(this->ResX - 1) *
-        (fragRangeValue[0] - inPD->GetArray(this->Fields[0])->GetRange()[0]) / fieldInterval[0];
-      binIndexSecond = (int)(this->ResY - 1) *
-        (fragRangeValue[1] - inPD->GetArray(this->Fields[1])->GetRange()[0]) / fieldInterval[1];
+      // A fragment's range value is the threshold that closes its slice, minField + k *
+      // fragWidth for slice k in [1, res], so slice k goes in bin k - 1.
+      auto binOf = [&](int f, int res)
+      {
+        const double slices =
+          (fragRangeValue[f] - inPD->GetArray(this->Fields[f])->GetRange()[0]) / fragWidth[f];
+        return std::min<vtkIdType>(res - 1, std::lround(slices) - 1);
+      };
+      binIndexFirst = binOf(0, this->ResX);
+      binIndexSecond = binOf(1, this->ResY);
 
       ////std::cout << "biF: " << binIndexFirst << "\tbiS: " << binIndexSecond << "\t" << fragVolume
       ///<<
