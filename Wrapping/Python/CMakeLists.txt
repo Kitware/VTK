@@ -238,26 +238,43 @@ endforeach ()
 
 set(vtk_build_paths_module
   "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/_build_paths.py")
-if (WIN32 AND VTK_DLL_PATHS)
-  set(vtk_dll_paths_python)
-  foreach (vtk_dll_path IN LISTS VTK_DLL_PATHS)
-    file(TO_NATIVE_PATH "${vtk_dll_path}" vtk_dll_path_native)
-    string(APPEND vtk_dll_paths_python
-      "    r'${vtk_dll_path_native}',\n")
-  endforeach ()
-  file(WRITE "${vtk_build_paths_module}"
-    "paths = [\n${vtk_dll_paths_python}]\n")
-  # Add the file to the zip only if required in the install tree.
-  if (NOT VTK_RELOCATABLE_INSTALL AND NOT VTK_UNIFIED_INSTALL_TREE)
-    list(APPEND _vtk_python_files
-      "${vtk_build_paths_module}")
-    install(
-      FILES       "${vtk_build_paths_module}"
-      DESTINATION "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules"
-      COMPONENT   "python")
+if (WIN32)
+  set(vtk_config_dll_paths)
+  get_property(vtk_is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+  if (BUILD_SHARED_LIBS AND vtk_is_multi_config)
+    # `vtkmodules` only finds `bin`, but multi-config build trees put VTK's DLLs
+    # in a per-config subdirectory.
+    foreach (vtk_config IN LISTS CMAKE_CONFIGURATION_TYPES)
+      list(APPEND vtk_config_dll_paths "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${vtk_config}")
+    endforeach ()
   endif ()
-elseif (EXISTS "${vtk_build_paths_module}")
-  file(REMOVE "${vtk_build_paths_module}")
+  if (VTK_DLL_PATHS OR vtk_config_dll_paths)
+    foreach (vtk_dll_paths IN ITEMS VTK_DLL_PATHS vtk_config_dll_paths)
+      set(${vtk_dll_paths}_python)
+      foreach (vtk_dll_path IN LISTS ${vtk_dll_paths})
+        file(TO_NATIVE_PATH "${vtk_dll_path}" vtk_dll_path_native)
+        string(APPEND ${vtk_dll_paths}_python
+          "    r'${vtk_dll_path_native}',\n")
+      endforeach ()
+    endforeach ()
+    file(WRITE "${vtk_build_paths_module}"
+      "paths = [\n${VTK_DLL_PATHS_python}${vtk_config_dll_paths_python}]\n")
+    # Add the file to the zip only if required in the install tree.
+    if (VTK_DLL_PATHS AND NOT VTK_RELOCATABLE_INSTALL AND NOT VTK_UNIFIED_INSTALL_TREE)
+      list(APPEND _vtk_python_files
+        "${vtk_build_paths_module}")
+      # The per-config directories exist only in the build tree.
+      set(vtk_install_paths_module "${CMAKE_CURRENT_BINARY_DIR}/_build_paths.py")
+      file(WRITE "${vtk_install_paths_module}"
+        "paths = [\n${VTK_DLL_PATHS_python}]\n")
+      install(
+        FILES       "${vtk_install_paths_module}"
+        DESTINATION "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules"
+        COMPONENT   "python")
+    endif ()
+  elseif (EXISTS "${vtk_build_paths_module}")
+    file(REMOVE "${vtk_build_paths_module}")
+  endif ()
 endif ()
 
 list(APPEND _vtk_python_files
