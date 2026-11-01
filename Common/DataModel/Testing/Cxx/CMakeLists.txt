@@ -170,6 +170,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   TestPolyhedronContouring.cxx,NO_VALID
   TestPolyhedronCutter.cxx,NO_VALID
   TestPolyhedronDecompose.cxx,NO_DATA
+  TestPolyhedronEvaluate.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestKdTreePointLocator2D.cxx,NO_DATA,NO_VALID
   TestSmoothErrorMetric.cxx
   TestStaticCellLocatorEdgeCases.cxx,NO_VALID
