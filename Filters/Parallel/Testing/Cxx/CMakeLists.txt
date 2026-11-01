@@ -4,6 +4,7 @@ vtk_add_test_cxx(vtkFiltersParallelCxxTests testsStd
   TestGaussianQuadratureIntegration.cxx,NO_VALID
   TestGeometryFilterDispatcher.cxx
   TestMultiVariateToRGBA.cxx
+  TestMultiVariateToRGBADegenerate.cxx,NO_VALID
   TestMultiVariateToRGBALens.cxx,NO_VALID
   TestMultiVariateToRGBATableTypes.cxx,NO_VALID
   TestPOutlineFilter.cxx,NO_VALID
@@ -29,6 +30,7 @@ if (TARGET VTK::ParallelMPI)
   vtk_add_test_mpi(vtkFiltersParallelCxxTests-MPI no_data_tests
     ParallelResampling.cxx
     TestMultiVariateToRGBAEmptyPiece.cxx,NO_VALID
+    TestMultiVariateToRGBAParallel.cxx,NO_VALID
     UnitTestPMaskPoints.cxx
     TestGenerateProcessIds.cxx,NO_VALID
     TestGenerateProcessIdsHTG.cxx,NO_VALID
