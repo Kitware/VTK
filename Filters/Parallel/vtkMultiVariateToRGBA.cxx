@@ -998,7 +998,12 @@ int vtkMultiVariateToRGBA::RequestDataObject(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  vtkDataObject* inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  // no input connection: the pipeline reports it
+  vtkDataObject* inData = inInfo ? inInfo->Get(vtkDataObject::DATA_OBJECT()) : nullptr;
+  if (!inData)
+  {
+    return 0;
+  }
   if (!vtkTable::SafeDownCast(inData) && !vtkDataSet::SafeDownCast(inData))
   {
     vtkErrorMacro("Input type not supported: " << inData->GetClassName());
