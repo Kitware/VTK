@@ -44,10 +44,7 @@
   if (self.vtkWindow)
   {
     NSWindow* window = (NSWindow*)notification.object;
-    NSRect frame = [window.contentView frame];
-    // Update the size in the vtkHardwareWindow. The SetSize method has an
-    // internal check to prevent unintended recursion.
-    // self.vtkWindow->SetSize(frame.size.width, frame.size.height);
+    NSRect frame = [window.contentView convertRectToBacking:[window.contentView bounds]];
     int newWidth = static_cast<int>(frame.size.width);
     int newHeight = static_cast<int>(frame.size.height);
     // Get the interactor's current cache of the size.
@@ -66,6 +63,7 @@
 
       // Send vtkCommand::ConfigureEvent from the Interactor.
       interactor->InvokeEvent(vtkCommand::ConfigureEvent, nullptr);
+      interactor->Render();
     }
   }
 }
@@ -125,6 +123,13 @@ void vtkCocoaHardwareWindow::Create()
     NSScreen* mainScreen = [NSScreen mainScreen];
     NSScreen* primaryScreen = mainScreen ? mainScreen : [NSScreen screens].firstObject;
     NSRect screenFrame = [primaryScreen frame];
+    if (primaryScreen)
+    {
+      NSRect backingRect = NSMakeRect(0.0, 0.0, initialWidth, initialHeight);
+      NSRect contentRect = [primaryScreen convertRectFromBacking:backingRect];
+      initialWidth = NSWidth(contentRect);
+      initialHeight = NSHeight(contentRect);
+    }
     CGFloat initialY = screenFrame.size.height - this->Position[1] - initialHeight;
 
     NSRect frame = NSMakeRect(this->Position[0], initialY, initialWidth, initialHeight);
@@ -203,62 +208,19 @@ void vtkCocoaHardwareWindow::Destroy()
 //------------------------------------------------------------------------------
 void vtkCocoaHardwareWindow::SetSize(int width, int height)
 {
-  static bool resizing = false;
   if (this->Size[0] != width || this->Size[1] != height)
   {
     this->Superclass::SetSize(width, height);
     if (this->WindowId && this->ViewId)
     {
-      // Set the NSView size, not the window size.
-      if (!resizing)
+      NSSize backingSize = NSMakeSize((CGFloat)width, (CGFloat)height);
+      NSSize newSize = [this->ViewId convertSizeFromBacking:backingSize];
+      if (!NSEqualSizes(newSize, [this->ViewId bounds].size))
       {
-        resizing = true;
-
-        // Get the NSView's current frame (in points).
-        NSView* theView = this->GetViewId();
-        NSRect viewRect = [theView frame];
-
-        // Convert the given new size from pixels to points.
-        NSSize backingNewSize = NSMakeSize((CGFloat)width, (CGFloat)height);
-        NSSize newSize = [theView convertSizeFromBacking:backingNewSize];
-
-        // Test that there's actually a change so as not to recurse into viewFrameDidChange:.
-        if (!NSEqualSizes(newSize, viewRect.size))
-        {
-          // Update the view's frame (in points) keeping the bottom-left
-          // corner in the same place.
-          CGFloat oldHeight = NSHeight(viewRect);
-          CGFloat xpos = NSMinX(viewRect);
-          CGFloat ypos = NSMinY(viewRect) - (newSize.height - oldHeight);
-          NSRect newRect = NSMakeRect(xpos, ypos, newSize.width, newSize.height);
-          [theView setFrame:newRect];
-          [theView setNeedsDisplay:YES];
-        }
-
-        resizing = false;
+        [this->WindowId setContentSize:newSize];
       }
-      else if (this->WindowId)
-      {
-        if (!resizing)
-        {
-          resizing = true;
-
-          // Convert the given new size from pixels to points.
-          NSRect backingNewRect = NSMakeRect(0.0, 0.0, (CGFloat)width, (CGFloat)height);
-          NSRect newRect = [this->WindowId convertRectFromBacking:backingNewRect];
-
-          // Test that there's actually a change so as not to recurse into viewFrameDidChange:.
-          if (!NSEqualSizes(newRect.size, [this->WindowId frame].size))
-          {
-            // Set the window size and the view size.
-            [this->WindowId setContentSize:newRect.size];
-          }
-
-          resizing = false;
-        }
-      }
+      [this->ViewId setNeedsDisplay:YES];
     }
-    this->Modified();
   }
 }
 

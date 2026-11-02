@@ -130,9 +130,10 @@
 {
   (void)theRect;
 
-  if (_myHardwareWindow)
+  vtkCocoaRenderWindowInteractor* interactor = [self getInteractor];
+  if (interactor && interactor->GetEnabled())
   {
-    _myHardwareWindow->Render();
+    interactor->Render();
   }
 }
 

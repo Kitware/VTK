@@ -66,6 +66,7 @@ int TestEdgeOpacity(int argc, char* argv[])
     VTK_CREATE(vtkRenderWindowInteractor, iren);
     iren->SetRenderWindow(renwin);
     iren->Initialize();
+    renwin->Render();
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
   }

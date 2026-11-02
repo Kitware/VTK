@@ -2487,7 +2487,7 @@ void vtkWebGPURenderWindow::SyncWithHardware()
     return;
   }
   this->HardwareWindow->SetWindowName(this->GetWindowName());
-  int* renderWindowSize = this->GetSize();
+  int* renderWindowSize = this->GetActualSize();
   int* hardwareWindowSize = this->HardwareWindow->GetSize();
   if (renderWindowSize[0] != hardwareWindowSize[0] || renderWindowSize[1] != hardwareWindowSize[1])
   {
