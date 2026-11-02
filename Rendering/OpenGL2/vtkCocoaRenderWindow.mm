@@ -776,6 +776,7 @@ bool vtkCocoaRenderWindow::CreateNSWindowAndView()
                                               styleMask:styleMask
                                                 backing:NSBackingStoreBuffered
                                                   defer:NO];
+      [theWindow setContentMinSize:NSMakeSize(this->MinimumSize[0], this->MinimumSize[1])];
     }
 
     if (!theWindow)

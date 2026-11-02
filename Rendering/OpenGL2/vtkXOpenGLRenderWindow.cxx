@@ -490,7 +490,10 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
   XSizeHints xsh;
   XClassHint xch;
 
-  xsh.flags = USSize;
+  xsh.flags = USSize | PMinSize;
+  xsh.min_width = this->MinimumSize[0];
+  xsh.min_height = this->MinimumSize[1];
+
   if ((this->Position[0] >= 0) && (this->Position[1] >= 0))
   {
     xsh.flags |= USPosition;
