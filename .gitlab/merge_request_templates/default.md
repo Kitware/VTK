@@ -24,8 +24,11 @@ Screenshots are required for rendering changes, and strongly recommended for all
 ## AI disclosure
 
 <!---
-Please check this **before** asking for any review
+Please remove the AI disclosure section if AI was not used to generate any content in this merge request
 -->
 
-- []: I did not use AI to generate any content in this merge request
-- []: I used AI to generate content in this merge request, so I've read the [AI policy](https://gitlab.kitware.com/vtk/vtk/-/blob/master/AI_POLICY.md?ref_type=heads) carefully and disclose usage in details below:
+- [ ] I have read the [AI policy](https://gitlab.kitware.com/vtk/vtk/-/blob/master/AI_POLICY.md?ref_type=heads) carefully.
+- [ ] I have reviewed every AI-generated change carefully, certify they match my intentions, and request a review. Feel free to provide more info about usage below.
+
+Description of AI use (not required but very useful for reviewers):
+<!-- Where did you have AI assistance? Autocompletion, documentation generation, automated code generation, etc. Please add a brief note below -->
