@@ -159,6 +159,30 @@
     variables:
         CMAKE_CONFIGURATION: wheel_linux314_x86_64_egl
 
+.wheel_linux315_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux315_x86_64
+        PYTHON_PREFIX: /opt/python/cp315-cp315
+
+.wheel_linux315_x86_64_osmesa:
+    extends:
+        - .wheel_linux315_x86_64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux315_x86_64_osmesa
+
+.wheel_linux315_x86_64_egl:
+    extends:
+        - .wheel_linux315_x86_64
+        - .manylinux_2_28_x86_64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux315_x86_64_egl
+
 .wheel_linux314t_x86_64:
     extends: .manylinux2014_x86_64
 
@@ -182,6 +206,30 @@
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux314t_x86_64_egl
+
+.wheel_linux315t_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux315t_x86_64
+        PYTHON_PREFIX: /opt/python/cp315-cp315t
+
+.wheel_linux315t_x86_64_osmesa:
+    extends:
+        - .wheel_linux315t_x86_64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux315t_x86_64_osmesa
+
+.wheel_linux315t_x86_64_egl:
+    extends:
+        - .wheel_linux315t_x86_64
+        - .manylinux_2_28_x86_64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux315t_x86_64_egl
 
 .wheel_linux310_aarch64:
     extends: .manylinux_2_28_aarch64
@@ -298,6 +346,29 @@
     variables:
         CMAKE_CONFIGURATION: wheel_linux314_aarch64_egl
 
+.wheel_linux315_aarch64:
+    extends: .manylinux_2_28_aarch64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux315_aarch64
+        PYTHON_PREFIX: /opt/python/cp315-cp315
+
+.wheel_linux315_aarch64_osmesa:
+    extends:
+        - .wheel_linux315_aarch64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux315_aarch64_osmesa
+
+.wheel_linux315_aarch64_egl:
+    extends:
+        - .wheel_linux315_aarch64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux315_aarch64_egl
+
 .wheel_linux314t_aarch64:
     extends: .manylinux_2_28_aarch64
 
@@ -320,6 +391,29 @@
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux314t_aarch64_egl
+
+.wheel_linux315t_aarch64:
+    extends: .manylinux_2_28_aarch64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux315t_aarch64
+        PYTHON_PREFIX: /opt/python/cp315-cp315t
+
+.wheel_linux315t_aarch64_osmesa:
+    extends:
+        - .wheel_linux315t_aarch64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux315t_aarch64_osmesa
+
+.wheel_linux315t_aarch64_egl:
+    extends:
+        - .wheel_linux315t_aarch64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux315t_aarch64_egl
 
 .fedora42:
     extends: .linux
