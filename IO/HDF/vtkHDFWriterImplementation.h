@@ -258,38 +258,43 @@ private:
   /**
    * Store absolute file offsets for a partition in the current time step.
    * This is used to allocate HDF5 dataset sizes and collective writes.
+   * This structure is common to UG and PD.
    */
-  struct UnstructuredGridOffset
+  struct GeometryOffset
   {
+    // Common to UG & PD
     vtkIdType PartOffset;
     vtkIdType PointOffset;
     vtkIdType CellOffset;
-
     vtkIdType PointDataOffset;
     vtkIdType CellDataOffset;
-    vtkIdType ConnectivityOffset;
 
-    // Polyhedron support (to be completed)
+    // UG & Polyhedron specific
+    vtkIdType ConnectivityOffset;
     vtkIdType FaceOffset;
     vtkIdType FaceConnectivityOffset;
     vtkIdType PolyhedronToFaceOffset;
+
+    // PolyData specific
+    std::array<vtkIdType, 4> PrimitiveCellOffsets;
+    std::array<vtkIdType, 4> PrimitiveConnectivityOffsets;
   };
   struct PartitionedOffsets
   {
-    std::vector<vtkIdType> PartOffsets;            // offset per rank,       size = nRanks + 1
-    std::vector<UnstructuredGridOffset> UgOffsets; // absolute file offsets, size = nParts + 1
+    std::vector<vtkIdType> PartOffsets;     // offset per rank,       size = nRanks + 1
+    std::vector<GeometryOffset> GeoOffsets; // absolute file offsets, size = nParts + 1
   };
 
   /**
    * Collect temporal offsets from the file currently open.
    * Return false on failure.
    */
-  bool CollectTemporalOffsets(hid_t group, UnstructuredGridOffset& offsets);
+  bool CollectTemporalOffsets(hid_t group, GeometryOffset& offsets);
 
   /**
    * Collect partitioned information for the current time step, append to existing temporal data
    */
-  void CollectPartitionOffsets(vtkDataObject* input, const UnstructuredGridOffset& temporalOffsets);
+  void CollectPartitionOffsets(vtkDataObject* input, const GeometryOffset& temporalOffsets);
 
   /**
    * Print offsets as debug info.
@@ -311,7 +316,7 @@ private:
   std::vector<std::string> SubfileNames;
   bool SubFilesReady = false;
   vtkHDF::ScopedH5PHandle TransferPropertyList;
-  PartitionedOffsets UgOffsets;
+  PartitionedOffsets GeoOffsets;
 
   // Forwarded constant properties from the writer
   int ChunkSize = 25000;
