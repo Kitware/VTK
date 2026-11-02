@@ -2,14 +2,22 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXMLUnstructuredGridReader.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkCellArray.h"
+#include "vtkCommand.h"
+#include "vtkDataArraySelection.h"
+#include "vtkExecutive.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkSideData.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkUnstructuredGridSideMap.h"
 #include "vtkUpdateCellsV8toV9.h"
 #include "vtkXMLDataElement.h"
 
@@ -25,6 +33,8 @@ vtkXMLUnstructuredGridReader::vtkXMLUnstructuredGridReader()
   this->NumberOfCells = nullptr;
   this->CellsTimeStep = -1;
   this->CellsOffset = static_cast<unsigned long>(-1); // almost invalid state
+  this->SideDataArraySelection = vtkDataArraySelection::New();
+  this->SideDataArraySelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
 }
 
 //------------------------------------------------------------------------------
@@ -34,12 +44,88 @@ vtkXMLUnstructuredGridReader::~vtkXMLUnstructuredGridReader()
   {
     this->DestroyPieces();
   }
+  this->SideDataArraySelection->RemoveObserver(this->SelectionObserver);
+  this->SideDataArraySelection->Delete();
 }
 
 //------------------------------------------------------------------------------
 void vtkXMLUnstructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "SideDataArraySelection: " << this->SideDataArraySelection << "\n";
+}
+
+//------------------------------------------------------------------------------
+int vtkXMLUnstructuredGridReader::GetNumberOfSideArrays()
+{
+  return this->SideDataArraySelection->GetNumberOfArrays();
+}
+
+//------------------------------------------------------------------------------
+const char* vtkXMLUnstructuredGridReader::GetSideArrayName(int index)
+{
+  return this->SideDataArraySelection->GetArrayName(index);
+}
+
+//------------------------------------------------------------------------------
+int vtkXMLUnstructuredGridReader::GetSideArrayStatus(const char* name)
+{
+  return this->SideDataArraySelection->ArrayIsEnabled(name);
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLUnstructuredGridReader::SetSideArrayStatus(const char* name, int status)
+{
+  if (status)
+  {
+    this->SideDataArraySelection->EnableArray(name);
+  }
+  else
+  {
+    this->SideDataArraySelection->DisableArray(name);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLUnstructuredGridReader::SetupOutputInformation(vtkInformation* outInfo)
+{
+  this->Superclass::SetupOutputInformation(outInfo);
+  if (this->InformationError || !this->SideDataElements)
+  {
+    return;
+  }
+  vtkXMLDataElement* eSideData = this->SideDataElements[0];
+  this->SetDataArraySelections(eSideData, this->SideDataArraySelection);
+
+  // The number of sides is that of the arrays, since the numbering is only
+  // made when the cells are read.
+  vtkIdType numberOfSides = -1;
+  if (eSideData && eSideData->GetNumberOfNestedElements() > 0)
+  {
+    eSideData->GetNestedElement(0)->GetScalarAttribute("NumberOfTuples", numberOfSides);
+  }
+  vtkInformationVector* infoVector = nullptr;
+  if (!this->SetFieldDataInfo(
+        eSideData, vtkDataObject::FIELD_ASSOCIATION_SIDES, numberOfSides, infoVector))
+  {
+    return;
+  }
+  if (infoVector)
+  {
+    outInfo->Set(vtkDataObject::SIDE_DATA_VECTOR(), infoVector);
+    infoVector->Delete();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLUnstructuredGridReader::CopyOutputInformation(vtkInformation* outInfo, int port)
+{
+  this->Superclass::CopyOutputInformation(outInfo, port);
+  vtkInformation* localInfo = this->GetExecutive()->GetOutputInformation(port);
+  if (localInfo->Has(vtkDataObject::SIDE_DATA_VECTOR()))
+  {
+    outInfo->CopyEntry(localInfo, vtkDataObject::SIDE_DATA_VECTOR());
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -92,9 +178,13 @@ void vtkXMLUnstructuredGridReader::SetupPieces(int numPieces)
   this->Superclass::SetupPieces(numPieces);
   this->NumberOfCells = new vtkIdType[numPieces];
   this->CellElements = new vtkXMLDataElement*[numPieces];
+  this->SideDataElements = new vtkXMLDataElement*[numPieces];
+  this->SideIdsElements = new vtkXMLDataElement*[numPieces];
   for (int i = 0; i < numPieces; ++i)
   {
     this->CellElements[i] = nullptr;
+    this->SideDataElements[i] = nullptr;
+    this->SideIdsElements[i] = nullptr;
   }
 }
 
@@ -103,6 +193,10 @@ void vtkXMLUnstructuredGridReader::DestroyPieces()
 {
   delete[] this->CellElements;
   delete[] this->NumberOfCells;
+  delete[] this->SideDataElements;
+  delete[] this->SideIdsElements;
+  this->SideDataElements = nullptr;
+  this->SideIdsElements = nullptr;
   this->Superclass::DestroyPieces();
 }
 
@@ -144,14 +238,24 @@ int vtkXMLUnstructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
     return 0;
   }
 
-  // Find the Cells element in the piece.
+  // Find the Cells, SideData and SideIds elements in the piece.
   this->CellElements[this->Piece] = nullptr;
+  this->SideDataElements[this->Piece] = nullptr;
+  this->SideIdsElements[this->Piece] = nullptr;
   for (i = 0; i < ePiece->GetNumberOfNestedElements(); ++i)
   {
     vtkXMLDataElement* eNested = ePiece->GetNestedElement(i);
     if ((strcmp(eNested->GetName(), "Cells") == 0) && (eNested->GetNumberOfNestedElements() > 0))
     {
       this->CellElements[this->Piece] = eNested;
+    }
+    else if (strcmp(eNested->GetName(), "SideData") == 0)
+    {
+      this->SideDataElements[this->Piece] = eNested;
+    }
+    else if (strcmp(eNested->GetName(), "SideIds") == 0)
+    {
+      this->SideIdsElements[this->Piece] = eNested;
     }
   }
 
@@ -162,6 +266,115 @@ int vtkXMLUnstructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
   }
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLUnstructuredGridReader::ReadXMLData()
+{
+  this->Superclass::ReadXMLData();
+  this->ReadSides();
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLUnstructuredGridReader::ReadSides()
+{
+  vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(this->GetCurrentOutput());
+  if (!output || this->AbortExecute || this->DataError || !this->SideDataElements)
+  {
+    return;
+  }
+  bool present = false;
+  for (int piece = this->StartPiece; piece < this->EndPiece; ++piece)
+  {
+    present = present || this->SideDataElements[piece] || this->SideIdsElements[piece];
+  }
+  if (!present)
+  {
+    return;
+  }
+  if (this->EndPiece - this->StartPiece != 1)
+  {
+    vtkWarningMacro("Side data is read only when one piece is read into the output, so the side "
+                    "data of pieces "
+      << this->StartPiece << " to " << this->EndPiece - 1 << " was skipped.");
+    return;
+  }
+
+  // Of the arrays of an element, the one for the time step being read.
+  auto forThisTimeStep = [this](vtkXMLDataElement* eArray)
+  {
+    int timeStep = 0;
+    return !eArray->GetScalarAttribute("TimeStep", timeStep) || timeStep == this->CurrentTimeStep;
+  };
+
+  const int piece = this->StartPiece;
+  if (vtkXMLDataElement* eIds = this->SideIdsElements[piece])
+  {
+    vtkIdType numberOfSides = 0;
+    vtkIdType numberOfHalfSides = 0;
+    vtkXMLDataElement* eArray = nullptr;
+    for (int i = 0; i < eIds->GetNumberOfNestedElements() && !eArray; ++i)
+    {
+      eArray = forThisTimeStep(eIds->GetNestedElement(i)) ? eIds->GetNestedElement(i) : nullptr;
+    }
+    vtkSmartPointer<vtkAbstractArray> ids =
+      eArray ? vtk::TakeSmartPointer(this->CreateArray(eArray)) : nullptr;
+    vtkDataArray* sideIds = vtkDataArray::SafeDownCast(ids);
+    if (!eIds->GetScalarAttribute("NumberOfSides", numberOfSides) ||
+      !eIds->GetScalarAttribute("NumberOfHalfSides", numberOfHalfSides) || !sideIds)
+    {
+      vtkErrorMacro("The SideIds element of piece " << piece << " is incomplete.");
+      this->DataError = 1;
+      return;
+    }
+    sideIds->SetNumberOfTuples(numberOfHalfSides);
+    if (!this->ReadArrayValues(eArray, 0, sideIds, 0, numberOfHalfSides))
+    {
+      vtkErrorMacro("Cannot read the side ids of piece " << piece << ".");
+      this->DataError = 1;
+      return;
+    }
+    if (!output->SetSideIds(sideIds, numberOfSides))
+    {
+      vtkErrorMacro("The side ids of piece " << piece << " do not fit its cells.");
+      this->DataError = 1;
+      return;
+    }
+  }
+
+  if (vtkXMLDataElement* eSideData = this->SideDataElements[piece])
+  {
+    vtkSideData* sideData = output->GetSideData();
+    const vtkIdType numberOfSides = output->GetNumberOfSides();
+    for (int i = 0; i < eSideData->GetNumberOfNestedElements(); ++i)
+    {
+      vtkXMLDataElement* eArray = eSideData->GetNestedElement(i);
+      const char* name = eArray->GetAttribute("Name");
+      if (!forThisTimeStep(eArray) || !name || !this->SideDataArraySelection->ArrayIsEnabled(name))
+      {
+        continue;
+      }
+      vtkSmartPointer<vtkAbstractArray> array = vtk::TakeSmartPointer(this->CreateArray(eArray));
+      if (!array)
+      {
+        vtkErrorMacro("Cannot create a side data array of piece " << piece << ".");
+        this->DataError = 1;
+        return;
+      }
+      array->SetNumberOfTuples(numberOfSides);
+      if (!this->ReadArrayValues(
+            eArray, 0, array, 0, numberOfSides * array->GetNumberOfComponents()))
+      {
+        vtkErrorMacro("Cannot read side data array \""
+          << array->GetName() << "\" of piece " << piece << ", which should have " << numberOfSides
+          << " tuples, one per side.");
+        this->DataError = 1;
+        return;
+      }
+      sideData->AddArray(array);
+    }
+    this->ReadAttributeIndices(eSideData, sideData);
+  }
 }
 
 //------------------------------------------------------------------------------

@@ -7,6 +7,7 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkArrayDispatchDataSetArrayList.h"
+#include "vtkCallbackCommand.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
@@ -14,6 +15,7 @@
 #include "vtkCellTypeSides.h"
 #include "vtkCellTypeUtilities.h"
 #include "vtkCellTypes.h"
+#include "vtkCommand.h"
 #include "vtkConstantArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
@@ -25,9 +27,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
+#include "vtkSideData.h"
 #include "vtkStaticCellLinks.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGridCellIterator.h"
+#include "vtkUnstructuredGridSideMap.h"
 
 #include <algorithm>
 #include <array>
@@ -250,10 +254,16 @@ vtkUnstructuredGrid::vtkUnstructuredGrid()
   this->DistinctCellTypes = vtkSmartPointer<vtkCellTypes>::New();
   this->Types = vtkSmartPointer<vtkUnsignedCharArray>::New();
   this->Connectivity = vtkSmartPointer<vtkCellArray>::New();
+
+  this->SideData = vtkSmartPointer<vtkSideData>::New();
+  this->SideData->AddObserver(vtkCommand::ModifiedEvent, this->DataObserver);
 }
 
 //------------------------------------------------------------------------------
-vtkUnstructuredGrid::~vtkUnstructuredGrid() = default;
+vtkUnstructuredGrid::~vtkUnstructuredGrid()
+{
+  this->SideData->RemoveObserver(this->DataObserver);
+}
 
 //------------------------------------------------------------------------------
 int vtkUnstructuredGrid::GetPiece()
@@ -290,6 +300,30 @@ void vtkUnstructuredGrid::CopyStructure(vtkDataSet* ds)
   this->DistinctCellTypes = nullptr;
   this->DistinctCellTypesUpdateMTime = 0;
   this->Polyhedra = ug->Polyhedra;
+
+  // The side numbering belongs to the topology just copied, so it comes with
+  // it. The side data, like the point and cell data, is copied by
+  // CopyAttributes() or passed by the filter.
+  if (vtkSmartPointer<vtkUnstructuredGridSideMap> source = ug->SideMap)
+  {
+    this->SideMap = vtkSmartPointer<vtkUnstructuredGridSideMap>::New();
+    this->SideMap->SetDataSet(this);
+    this->SideMap->ShallowCopy(source);
+  }
+  else
+  {
+    this->SideMap = nullptr;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkUnstructuredGrid::CopyAttributes(vtkDataSet* ds)
+{
+  this->Superclass::CopyAttributes(ds);
+  if (vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(ds))
+  {
+    this->SideData->PassData(ug->SideData);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -301,6 +335,7 @@ void vtkUnstructuredGrid::Cleanup()
   this->DistinctCellTypes = nullptr;
   this->DistinctCellTypesUpdateMTime = 0;
   this->Polyhedra = nullptr;
+  this->SideMap = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -309,6 +344,7 @@ void vtkUnstructuredGrid::Initialize()
   vtkPointSet::Initialize();
 
   this->Cleanup();
+  this->SideData->Initialize();
 
   if (this->Information)
   {
@@ -607,6 +643,70 @@ vtkMTimeType vtkUnstructuredGrid::GetMeshMTime()
   time = vtkMath::Max(this->GetGhostCellsTime(), time);
 
   return time;
+}
+
+//------------------------------------------------------------------------------
+vtkUnstructuredGridSideMap* vtkUnstructuredGrid::GetSideMap()
+{
+  if (!this->SideMap)
+  {
+    this->SideMap = vtkSmartPointer<vtkUnstructuredGridSideMap>::New();
+    this->SideMap->SetDataSet(this);
+  }
+  this->SideMap->BuildMap();
+  return this->SideMap;
+}
+
+//------------------------------------------------------------------------------
+bool vtkUnstructuredGrid::SetSideIds(vtkDataArray* halfSideToSide, vtkIdType numberOfSides)
+{
+  if (!this->SideMap)
+  {
+    this->SideMap = vtkSmartPointer<vtkUnstructuredGridSideMap>::New();
+    this->SideMap->SetDataSet(this);
+  }
+  this->SideMap->SetSideIds(halfSideToSide, numberOfSides);
+  return this->SideMap->GetAuthored();
+}
+
+//------------------------------------------------------------------------------
+bool vtkUnstructuredGrid::HasSideMap()
+{
+  return this->SideMap != nullptr;
+}
+
+//------------------------------------------------------------------------------
+vtkSideData* vtkUnstructuredGrid::GetSideData()
+{
+  return this->SideData;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkUnstructuredGrid::GetNumberOfSides()
+{
+  return this->GetSideMap()->GetNumberOfSides();
+}
+
+//------------------------------------------------------------------------------
+vtkFieldData* vtkUnstructuredGrid::GetAttributesAsFieldData(int type)
+{
+  if (type == SIDE)
+  {
+    return this->SideData;
+  }
+  return this->Superclass::GetAttributesAsFieldData(type);
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkUnstructuredGrid::GetNumberOfElements(int type)
+{
+  if (type == SIDE)
+  {
+    // Counting the sides builds the numbering, which is only worth doing when
+    // something is indexed by it or has asked for it already.
+    return this->SideMap || this->SideData->GetNumberOfArrays() > 0 ? this->GetNumberOfSides() : 0;
+  }
+  return this->Superclass::GetNumberOfElements(type);
 }
 
 //------------------------------------------------------------------------------
@@ -1035,6 +1135,7 @@ void vtkUnstructuredGrid::Squeeze()
   {
     this->Polyhedra->Squeeze();
   }
+  this->SideData->Squeeze();
 
   vtkPointSet::Squeeze();
 }
@@ -1106,6 +1207,7 @@ void vtkUnstructuredGrid::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->Links, "Links");
+  vtkGarbageCollectorReport(collector, this->SideMap, "SideMap");
 }
 
 //------------------------------------------------------------------------------
@@ -1131,6 +1233,12 @@ unsigned long vtkUnstructuredGrid::GetActualMemorySize()
   {
     size += this->Polyhedra->GetActualMemorySize();
   }
+
+  if (this->SideMap)
+  {
+    size += this->SideMap->GetActualMemorySize();
+  }
+  size += this->SideData->GetActualMemorySize();
 
   return size;
 }
@@ -1165,9 +1273,25 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject* dataObject)
     {
       this->Links = nullptr;
     }
+
+    // The side map is carried, not recomputed: once the side data is indexed
+    // by a numbering, a rebuilt numbering would be a different permutation.
+    if (grid->SideMap)
+    {
+      this->SideMap = vtkSmartPointer<vtkUnstructuredGridSideMap>::New();
+      this->SideMap->SetDataSet(this);
+      this->SideMap->ShallowCopy(grid->SideMap);
+    }
+    else
+    {
+      this->SideMap = nullptr;
+    }
+    this->SideData->ShallowCopy(grid->SideData);
   }
   else if (vtkUnstructuredGridBase* ugb = vtkUnstructuredGridBase::SafeDownCast(dataObject))
   {
+    this->SideMap = nullptr;
+    this->SideData->Initialize();
     bool isNewAlloc = false;
     if (!this->Connectivity || !this->Types)
     {
@@ -1250,10 +1374,26 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject* dataObject)
     {
       this->Links = nullptr;
     }
+
+    // As in ShallowCopy: the numbering and the data indexed by it travel
+    // together, rather than the numbering being invented again here.
+    if (grid->SideMap)
+    {
+      this->SideMap = vtkSmartPointer<vtkUnstructuredGridSideMap>::New();
+      this->SideMap->SetDataSet(this);
+      this->SideMap->DeepCopy(grid->SideMap);
+    }
+    else
+    {
+      this->SideMap = nullptr;
+    }
+    this->SideData->DeepCopy(grid->SideData);
   }
   else
   {
     // Use the vtkUnstructuredGridBase deep copy implementation.
+    this->SideMap = nullptr;
+    this->SideData->Initialize();
     this->Superclass::DeepCopy(dataObject);
   }
 }
@@ -1266,6 +1406,19 @@ void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Pieces: " << this->GetNumberOfPieces() << endl;
   os << indent << "Piece: " << this->GetPiece() << endl;
   os << indent << "Ghost Level: " << this->GetGhostLevel() << endl;
+
+  // Printed only when there is one, so that printing a grid never builds it.
+  if (this->SideMap)
+  {
+    os << indent << "SideMap:\n";
+    this->SideMap->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "SideMap: (none)\n";
+  }
+  os << indent << "Side Data:\n";
+  this->SideData->PrintSelf(os, indent.GetNextIndent());
 }
 
 //------------------------------------------------------------------------------

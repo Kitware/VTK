@@ -2307,10 +2307,17 @@ void vtkXMLWriter::WritePointDataInline(vtkPointData* pd, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkXMLWriter::WriteCellDataInline(vtkCellData* cd, vtkIndent indent)
 {
+  this->WriteDataSetAttributesInline(cd, "CellData", indent);
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLWriter::WriteDataSetAttributesInline(
+  vtkDataSetAttributes* cd, const char* elementName, vtkIndent indent, int writeNumTuples)
+{
   ostream& os = *(this->Stream);
   char** names = this->CreateStringArray(cd->GetNumberOfArrays());
 
-  os << indent << "<CellData";
+  os << indent << "<" << elementName;
   this->WriteAttributeIndices(cd, names);
 
   if (this->ErrorCode != vtkErrorCode::NoError)
@@ -2327,7 +2334,7 @@ void vtkXMLWriter::WriteCellDataInline(vtkCellData* cd, vtkIndent indent)
   {
     this->SetProgressRange(progressRange, i, cd->GetNumberOfArrays());
     vtkAbstractArray* a = cd->GetAbstractArray(i);
-    this->WriteArrayInline(a, indent.GetNextIndent(), names[i]);
+    this->WriteArrayInline(a, indent.GetNextIndent(), names[i], writeNumTuples);
     if (this->ErrorCode != vtkErrorCode::NoError)
     {
       this->DestroyStringArray(cd->GetNumberOfArrays(), names);
@@ -2335,7 +2342,7 @@ void vtkXMLWriter::WriteCellDataInline(vtkCellData* cd, vtkIndent indent)
     }
   }
 
-  os << indent << "</CellData>\n";
+  os << indent << "</" << elementName << ">\n";
   os.flush();
   if (os.fail())
   {
@@ -2506,10 +2513,17 @@ void vtkXMLWriter::WritePointDataAppendedData(
 void vtkXMLWriter::WriteCellDataAppended(
   vtkCellData* cd, vtkIndent indent, OffsetsManagerGroup* cdManager)
 {
+  this->WriteDataSetAttributesAppended(cd, "CellData", indent, cdManager);
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLWriter::WriteDataSetAttributesAppended(vtkDataSetAttributes* cd, const char* elementName,
+  vtkIndent indent, OffsetsManagerGroup* cdManager, int writeNumTuples)
+{
   ostream& os = *(this->Stream);
   char** names = this->CreateStringArray(cd->GetNumberOfArrays());
 
-  os << indent << "<CellData";
+  os << indent << "<" << elementName;
   this->WriteAttributeIndices(cd, names);
 
   if (this->ErrorCode != vtkErrorCode::NoError)
@@ -2526,8 +2540,8 @@ void vtkXMLWriter::WriteCellDataAppended(
     cdManager->GetElement(i).Allocate(this->NumberOfTimeSteps);
     for (int t = 0; t < this->NumberOfTimeSteps; ++t)
     {
-      this->WriteArrayAppended(
-        cd->GetAbstractArray(i), indent.GetNextIndent(), cdManager->GetElement(i), names[i], 0, t);
+      this->WriteArrayAppended(cd->GetAbstractArray(i), indent.GetNextIndent(),
+        cdManager->GetElement(i), names[i], writeNumTuples, t);
       if (this->ErrorCode != vtkErrorCode::NoError)
       {
         this->DestroyStringArray(cd->GetNumberOfArrays(), names);
@@ -2536,7 +2550,7 @@ void vtkXMLWriter::WriteCellDataAppended(
     }
   }
 
-  os << indent << "</CellData>\n";
+  os << indent << "</" << elementName << ">\n";
 
   os.flush();
   if (os.fail())
@@ -2549,6 +2563,13 @@ void vtkXMLWriter::WriteCellDataAppended(
 //------------------------------------------------------------------------------
 void vtkXMLWriter::WriteCellDataAppendedData(
   vtkCellData* cd, int timestep, OffsetsManagerGroup* cdManager)
+{
+  this->WriteDataSetAttributesAppendedData(cd, timestep, cdManager);
+}
+
+//------------------------------------------------------------------------------
+void vtkXMLWriter::WriteDataSetAttributesAppendedData(
+  vtkDataSetAttributes* cd, int timestep, OffsetsManagerGroup* cdManager)
 {
   float progressRange[2] = { 0.f, 0.f };
   this->GetProgressRange(progressRange);

@@ -1,12 +1,15 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCellArray.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDeserializer.h"
 #include "vtkPolyhedronCellArray.h"
 #include "vtkSerializer.h"
+#include "vtkSideData.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkUnstructuredGridSideMap.h"
 
 // clang-format off
 #include "vtk_nlohmannjson.h"
@@ -43,6 +46,18 @@ static nlohmann::json Serialize_vtkUnstructuredGrid(
   if (auto* polyhedra = object->GetPolyhedronCellArray())
   {
     state["PolyhedronCellArray"] = serializer->SerializeJSON(polyhedra);
+  }
+  // A derived side numbering is recomputed from the cells, so only a supplied
+  // one and the side data travel.
+  if (object->HasSideMap() && object->GetSideMap()->GetAuthored())
+  {
+    vtkUnstructuredGridSideMap* sides = object->GetSideMap();
+    state["SideIds"] = serializer->SerializeJSON(sides->GetHalfSideToSide());
+    state["NumberOfSides"] = sides->GetNumberOfSides();
+  }
+  if (object->GetSideData()->GetNumberOfArrays() > 0)
+  {
+    state["SideData"] = serializer->SerializeJSON(object->GetSideData());
   }
   state["MeshMTime"] = object->GetMeshMTime();
   return state;
@@ -100,6 +115,9 @@ static bool Deserialize_vtkUnstructuredGrid(
   }
   if (cellTypes && connectivity)
   {
+    // The side data in the state replaces what the grid holds, and it would
+    // otherwise be dropped with a warning when the new cells are set.
+    object->GetSideData()->Initialize();
     if (polyhedra)
     {
       // The connectivity holds point lists. SetCells() would reinterpret it as
@@ -110,6 +128,35 @@ static bool Deserialize_vtkUnstructuredGrid(
     else
     {
       object->SetCells(cellTypes, connectivity);
+    }
+  }
+  {
+    auto iter = state.find("SideIds");
+    if ((iter != state.end()) && !iter->is_null())
+    {
+      const auto* context = deserializer->GetContext();
+      const auto identifier = iter->at("Id").get<vtkTypeUInt32>();
+      auto subObject = context->GetObjectAtId(identifier);
+      success &= deserializer->DeserializeJSON(identifier, subObject);
+      if (auto* sideIds = vtkDataArray::SafeDownCast(subObject))
+      {
+        object->SetSideIds(sideIds, state["NumberOfSides"].get<vtkIdType>());
+      }
+    }
+  }
+  {
+    auto iter = state.find("SideData");
+    if ((iter != state.end()) && !iter->is_null())
+    {
+      auto* context = deserializer->GetContext();
+      const auto identifier = iter->at("Id").get<vtkTypeUInt32>();
+      vtkSmartPointer<vtkObjectBase> subObject = object->GetSideData();
+      if (context->GetObjectAtId(identifier) != subObject)
+      {
+        auto registrationId = identifier;
+        context->RegisterObject(subObject, registrationId);
+      }
+      success &= deserializer->DeserializeJSON(identifier, subObject);
     }
   }
   return success;

@@ -1,6 +1,6 @@
 from vtkmodules.test import Testing as vtkTesting
 from vtkmodules.vtkSerializationManager import vtkObjectManager
-from vtkmodules.vtkCommonCore import vtkObjectBase, vtkCharArray, vtkIdList, vtkIndent, vtkPoints, vtkUnsignedCharArray
+from vtkmodules.vtkCommonCore import vtkObjectBase, vtkCharArray, vtkDoubleArray, vtkIdList, vtkIdTypeArray, vtkIndent, vtkPoints, vtkUnsignedCharArray
 from vtkmodules.vtkCommonDataModel import vtkImageData, vtkDataObjectTreeIterator, vtkCellArray, vtkUnstructuredGrid, VTK_POLYHEDRON
 from vtkmodules.vtkFiltersSources import vtkSphereSource, vtkCellTypeSource, vtkPartitionedDataSetCollectionSource
 
@@ -190,6 +190,54 @@ class TestDataSetImportExport(vtkTesting.vtkTest):
                     self.assertEqual(original_face.GetId(i),
                                      deserialized_face.GetId(i))
 
+    def check_side_data(self, original, deserialized):
+        self.assertTrue(deserialized.GetSideData().GetNumberOfArrays() > 0, "the side data was lost")
+        original_sides = original.GetSideMap()
+        deserialized_sides = deserialized.GetSideMap()
+        self.assertEqual(original_sides.GetAuthored(),
+                         deserialized_sides.GetAuthored())
+        self.assertEqual(original_sides.GetNumberOfSides(),
+                         deserialized_sides.GetNumberOfSides())
+        for cell_id in range(original.GetNumberOfCells()):
+            for local_side in range(original_sides.GetNumberOfCellSides(cell_id)):
+                self.assertEqual(
+                    original_sides.GetCellSide(cell_id, local_side),
+                    deserialized_sides.GetCellSide(cell_id, local_side))
+        original_array = original.GetSideData().GetArray("flux")
+        deserialized_array = deserialized.GetSideData().GetArray("flux")
+        self.assertIsNotNone(deserialized_array, "the side data was lost")
+        for side_id in range(original_array.GetNumberOfTuples()):
+            self.assertEqual(original_array.GetValue(side_id),
+                             deserialized_array.GetValue(side_id))
+
+    def test_side_data(self):
+        def make_grid():
+            grid = create_polyhedral_grid()
+            flux = vtkDoubleArray()
+            flux.SetName("flux")
+            flux.SetNumberOfTuples(grid.GetNumberOfSides())
+            for side_id in range(flux.GetNumberOfTuples()):
+                flux.SetValue(side_id, 0.5 * side_id + 1.0)
+            return grid, flux
+
+        derived, flux = make_grid()
+        derived.GetSideData().AddArray(flux)
+        self.check_side_data(derived, deserialize(serialize(derived)))
+
+        # A numbering supplied by a reader, here the derived one reversed.
+        authored, flux = make_grid()
+        sides = authored.GetSideMap()
+        number_of_sides = sides.GetNumberOfSides()
+        derived_ids = sides.GetHalfSideToSide()
+        ids = vtkIdTypeArray()
+        ids.SetNumberOfTuples(derived_ids.GetNumberOfTuples())
+        for half_side in range(ids.GetNumberOfTuples()):
+            ids.SetValue(half_side, number_of_sides - 1 -
+                         int(derived_ids.GetTuple1(half_side)))
+        sides.SetSideIds(ids, number_of_sides)
+        authored.GetSideData().AddArray(flux)
+        self.check_side_data(authored, deserialize(serialize(authored)))
+
     def test_image_data(self):
         serialized_image_data = serialize(self.image_data)
         deserialized_image_data = deserialize(serialized_image_data)
@@ -247,5 +295,6 @@ if __name__ == "__main__":
                      (TestDataSetImportExport, 'test_unstructured_grid'),
                      (TestDataSetImportExport,
                       'test_polyhedral_unstructured_grid'),
+                     (TestDataSetImportExport, 'test_side_data'),
                      (TestDataSetImportExport, 'test_image_data'),
                      (TestDataSetImportExport, 'test_partitioned_data_set_collection')])

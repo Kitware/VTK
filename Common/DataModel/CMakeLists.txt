@@ -230,6 +230,7 @@ set(classes
   vtkReebGraphSimplificationMetric
   vtkSelection
   vtkSelectionNode
+  vtkSideData
   vtkSimpleCellTessellator
   vtkSmoothErrorMetric
   vtkSortFieldData
@@ -267,6 +268,7 @@ set(classes
   vtkUnstructuredGrid
   vtkUnstructuredGridBase
   vtkUnstructuredGridCellIterator
+  vtkUnstructuredGridSideMap
   vtkVertex
   vtkVertexListIterator
   vtkVoxel

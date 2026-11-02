@@ -29,6 +29,8 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkIdTypeArray;
 class vtkUnsignedCharArray;
+class vtkSideData;
+class vtkUnstructuredGridSideMap;
 
 class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALMANUAL vtkUnstructuredGrid
   : public vtkUnstructuredGridBase
@@ -476,6 +478,61 @@ public:
   }
   ///@}
 
+  ///@{
+  /**
+   * Shared sides, and the attributes carried on them. A side is a face of a 3D
+   * cell or an edge of a 2D cell.
+   *
+   * GetSideData() is the peer of GetPointData() and GetCellData(): a
+   * vtkSideData, indexed by side id rather than by point or cell id, for data
+   * defined on the sides between cells, such as the flux or the normal
+   * component of velocity through a face. Its arrays have GetNumberOfSides()
+   * tuples.
+   *
+   * What a side's id is comes from GetSideMap(), a vtkUnstructuredGridSideMap
+   * that numbers the sides so that a side shared by two cells has one id and
+   * so one tuple of side data. GetSideMap() and GetNumberOfSides() make the
+   * map and build it if it is missing or out of date, so that the map they
+   * return can be read from several threads. HasSideMap() says whether the
+   * map has been made. Once the side data holds an array, the numbering it is
+   * indexed by is pinned.
+   *
+   * GetSideMap() and GetNumberOfSides() are not thread safe themselves: call
+   * one of them from one thread, after any change of the cells, before
+   * reading the map from several.
+   */
+  vtkUnstructuredGridSideMap* GetSideMap();
+  bool HasSideMap();
+  vtkSideData* GetSideData();
+  vtkIdType GetNumberOfSides();
+  ///@}
+
+  /**
+   * Supply the side numbering rather than derive one, e.g., from a reader
+   * keeping the numbering of its file, without building a derived numbering
+   * first. See vtkUnstructuredGridSideMap::SetSideIds(). Returns whether the
+   * numbering was taken.
+   */
+  bool SetSideIds(vtkDataArray* halfSideToSide, vtkIdType numberOfSides);
+
+  ///@{
+  /**
+   * Side data is reached through the vtkDataObject::SIDE attribute type the
+   * same way point and cell data are. GetNumberOfElements(SIDE) counts the
+   * sides only when the grid has side data or a side map, so that generic code
+   * enumerating attribute types does not set off an O(n) build; otherwise it
+   * is 0.
+   */
+  vtkFieldData* GetAttributesAsFieldData(int type) override;
+  vtkIdType GetNumberOfElements(int type) override;
+  ///@}
+
+  /**
+   * Pass the point, cell, field and side data of ds, the attributes that
+   * CopyStructure() leaves alone.
+   */
+  void CopyAttributes(vtkDataSet* ds) override;
+
   /**
    * Get the faces of the polyhedron cells, one cell per cell of the dataset,
    * without faces for cells that are not polyhedra (see vtkPolyhedronCellArray).
@@ -616,6 +673,10 @@ protected:
    * see vtkPolyhedronCellArray, nullptr if no polyhedron cell has been added.
    */
   vtkSmartPointer<vtkPolyhedronCellArray> Polyhedra;
+
+  // The numbering of the sides, made on first use, and the data on them.
+  vtkSmartPointer<vtkUnstructuredGridSideMap> SideMap;
+  vtkSmartPointer<vtkSideData> SideData;
 
   vtkIdType InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType ptIds[]) override;
   vtkIdType InternalInsertNextCell(int type, vtkIdList* ptIds) override;

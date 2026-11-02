@@ -237,6 +237,15 @@ protected:
   void WritePointDataAppendedData(vtkPointData* pd, int timestep, OffsetsManagerGroup* pdManager);
   void WriteCellDataAppended(vtkCellData* cd, vtkIndent indent, OffsetsManagerGroup* cdManager);
   void WriteCellDataAppendedData(vtkCellData* cd, int timestep, OffsetsManagerGroup* cdManager);
+  // Write a vtkDataSetAttributes as an element of the given name, e.g., the
+  // side data of a vtkUnstructuredGrid, the way cell data is written, with the
+  // NumberOfTuples of each array when writeNumTuples is set.
+  void WriteDataSetAttributesInline(
+    vtkDataSetAttributes* dsa, const char* elementName, vtkIndent indent, int writeNumTuples = 0);
+  void WriteDataSetAttributesAppended(vtkDataSetAttributes* dsa, const char* elementName,
+    vtkIndent indent, OffsetsManagerGroup* manager, int writeNumTuples = 0);
+  void WriteDataSetAttributesAppendedData(
+    vtkDataSetAttributes* dsa, int timestep, OffsetsManagerGroup* manager);
   void WriteAttributeIndices(vtkDataSetAttributes* dsa, char** names);
   void WritePointsAppended(vtkPoints* points, vtkIndent indent, OffsetsManager* manager);
   void WritePointsAppendedData(vtkPoints* points, int timestep, OffsetsManager* pdManager);

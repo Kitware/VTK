@@ -11,6 +11,11 @@
  * format is "vtu".  This writer is also used to write a single piece
  * of the parallel file format.
  *
+ * The side data of a vtkUnstructuredGrid is written in a SideData element of
+ * each piece, and a side numbering supplied through
+ * vtkUnstructuredGridSideMap::SetSideIds() in a SideIds element, so that the
+ * side data reads back against the same numbering.
+ *
  * @sa
  * vtkXMLPUnstructuredGridWriter
  */
@@ -67,7 +72,9 @@ protected:
 
   // Positions of attributes for each piece.
   vtkTypeInt64* NumberOfCellsPositions;
-  OffsetsManagerArray* CellsOM; // one per piece
+  OffsetsManagerArray* CellsOM;    // one per piece
+  OffsetsManagerArray* SideDataOM; // one per piece
+  OffsetsManagerArray* SideIdsOM;  // one per piece
 
 private:
   vtkXMLUnstructuredGridWriter(const vtkXMLUnstructuredGridWriter&) = delete;

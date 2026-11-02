@@ -17,6 +17,7 @@ from vtkmodules.vtkCommonDataModel import (
     vtkDataSetAttributes,
     vtkPointData,
     vtkCellData,
+    vtkSideData,
     vtkDataObject,
     vtkImageData,
     vtkMultiBlockDataSet,
@@ -249,6 +250,7 @@ class FieldDataBase(object):
             vtkDataObject.POINT,
             vtkDataObject.CELL,
             vtkDataObject.ROW,
+            vtkDataObject.SIDE,
         ):
             raise RuntimeError(
                 "Cannot size the array %r: the owning dataset is no longer "
@@ -268,6 +270,10 @@ class FieldDataBase(object):
             arrLength = dataset.GetNumberOfPoints()
         elif self.association == vtkDataObject.CELL:
             arrLength = dataset.GetNumberOfCells()
+        elif self.association == vtkDataObject.SIDE:
+            # Sides are shared, so this is the number of distinct sides rather
+            # than the number a cell-by-cell walk would see.
+            arrLength = dataset.GetNumberOfSides()
         elif (
             self.association == vtkDataObject.ROW
             and dataset.GetNumberOfColumns() > 0
@@ -470,6 +476,11 @@ class PointData(DataSetAttributesBase, vtkPointData):
 
 @vtkCellData.override
 class CellData(DataSetAttributesBase, vtkCellData):
+    pass
+
+
+@vtkSideData.override
+class SideData(DataSetAttributesBase, vtkSideData):
     pass
 
 
@@ -802,6 +813,55 @@ class UnstructuredGrid(PointSet, vtkUnstructuredGrid):
     def cells(self, value):
         cell_type, ca = value
         self.SetCells(cell_type, ca)
+
+    @property
+    def side_data(self):
+        """Attributes on the sides between cells, indexed by side id.
+
+        The peer of ``point_data`` and ``cell_data`` for data that lives on a
+        cell's boundary rather than at its centre or corners -- the flux or the
+        normal component of velocity through a side, say.  A side shared by two
+        cells has one id and so one tuple, which both cells read; the sign from
+        ``GetSideMap().GetSideOrientation()`` says which way is outward for a
+        given cell.  A 3D cell's sides are its faces and a 2D cell's are its
+        edges, so this works on surface meshes too.
+
+        Assigning an array sizes it by ``GetNumberOfSides()``, which builds
+        the side numbering if there is not one already.
+
+            grid.side_data["flux"] = numpy_array
+            grid.side_data["flux"] = 0.0          # broadcast over every side
+        """
+        fd = self.GetSideData()
+        fd.dataset = self
+        fd.association = self.SIDE
+        return fd
+
+    @side_data.setter
+    def side_data(self, arrays):
+        """Set side arrays from a dict of ``{name: array}``.
+
+        Each value can be a numpy array or a VTK data array.
+        Existing side arrays are removed first.
+        """
+        fd = self.side_data
+        fd.Initialize()
+        for name, arr in arrays.items():
+            fd.set_array(name, arr)
+
+    @property
+    def has_side_data(self):
+        """Whether this grid carries any side arrays."""
+        return self.GetSideData().GetNumberOfArrays() > 0
+
+    def __eq__(self, other: object) -> bool:
+        if not super().__eq__(other):
+            return False
+        # Compared only when at least one grid has side arrays, so that grids
+        # of other kinds compare as they always have.
+        if self.has_side_data or getattr(other, "has_side_data", False):
+            return self.side_data == other.side_data
+        return True
 
 
 @vtkImageData.override
