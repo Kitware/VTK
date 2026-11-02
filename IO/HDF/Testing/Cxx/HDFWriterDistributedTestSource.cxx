@@ -134,7 +134,13 @@ protected:
     vtkNew<vtkDataSetSurfaceFilter> surface;
     surface->SetInputData(this->BuildUGPart(rank, part, step));
     surface->Update();
-    return surface->GetOutput();
+    auto pd = surface->GetOutput();
+    if (static_cast<int>(rank) == this->Config.EmptyRank)
+    {
+      // Restore attributes on the null rank that were removed by the surface filter
+      this->AddAttributes(pd, rank, part, step);
+    }
+    return pd;
   }
 
   vtkSmartPointer<vtkPartitionedDataSet> BuildPartitioned(

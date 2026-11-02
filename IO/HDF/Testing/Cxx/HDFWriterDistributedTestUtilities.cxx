@@ -332,17 +332,27 @@ bool HDFWriterDistributedTestUtilities::RunDistributedConfigurations(
 
   // Helper: run a single test case by its name using --case <test_case>
   std::string caseName;
+  bool debug = false;
   for (int arg = 1; arg < argc; ++arg)
   {
-    if (std::string(argv[arg]) == "--case")
+    std::string currentArg = std::string(argv[arg]);
+    if (currentArg == "--debug")
+    {
+      debug = true;
+    }
+    if (currentArg == "--case")
     {
       if (arg + 1 == argc)
       {
         break;
       }
       caseName = argv[++arg];
-      break;
     }
+  }
+
+  for (auto& config : configs)
+  {
+    config.debug = debug;
   }
 
   const std::size_t numFailed = RunAllConfigs(controller, tmpDir, std::move(configs), caseName);

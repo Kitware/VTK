@@ -66,6 +66,7 @@ struct Configuration
   PolyhedronsType Polyhedrons = PolyhedronsType::NoPolyhedrons;
   StaticMeshType StaticMesh = StaticMeshType::NoStatic;
   int EmptyRank = -1;
+  bool debug = false;
 };
 
 /**

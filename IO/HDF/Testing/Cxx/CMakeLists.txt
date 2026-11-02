@@ -16,6 +16,7 @@ if (TARGET VTK::ParallelMPI)
     TestHDFWriterDistributed.cxx,TESTING_DATA,NO_VALID
     TestHDFWriterDistributedUGConfigs.cxx,TESTING_DATA,NO_VALID
     TestHDFWriterDistributedPolyhedraConfigs.cxx,TESTING_DATA,NO_VALID
+    TestHDFWriterDistributedPDConfigs.cxx,TESTING_DATA,NO_VALID
     TestHDFWriterDistributedCompositeConfigs.cxx,TESTING_DATA,NO_VALID
     TestHDFWriterHTGDistributed.cxx,TESTING_DATA,NO_VALID
     TestHDFReaderDistributed.cxx,TESTING_DATA,NO_VALID
