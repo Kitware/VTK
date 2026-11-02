@@ -13,6 +13,7 @@
 #include "vtkONNXInternalUtils.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <filesystem>
 #include <onnxruntime_cxx_api.h>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -85,8 +86,9 @@ bool vtkONNXInference::InitializeSession()
 
   try
   {
-    this->Internals->Session = std::make_unique<Ort::Session>(
-      this->Internals->OrtEnv, this->ModelFile.c_str(), sessionOptions);
+    const std::filesystem::path model_path = std::filesystem::u8path(this->ModelFile);
+    this->Internals->Session =
+      std::make_unique<Ort::Session>(this->Internals->OrtEnv, model_path.c_str(), sessionOptions);
   }
   catch (const Ort::Exception& e)
   {
