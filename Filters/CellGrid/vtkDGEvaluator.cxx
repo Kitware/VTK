@@ -269,6 +269,7 @@ bool vtkDGEvaluator::ClassifyPoints(
 
   // Pre-size the output array so the scatter pass can write directly by index.
   alloc.InputPoints.resize(numOutputPoints);
+  alloc.NumberOfOutputPoints = numOutputPoints;
 
   // Scatter pass: write classified points from cellPoints into alloc.InputPoints
   // at the pre-computed batch offset. Each batch writes to a disjoint slice of
