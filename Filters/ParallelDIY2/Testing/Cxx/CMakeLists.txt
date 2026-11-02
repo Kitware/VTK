@@ -32,6 +32,7 @@ if (TARGET VTK::mpi)
     TestAdaptiveResampleToImage.cxx
     TestGenerateGlobalIds.cxx
     TestPResolveHangingNodes2DUG.cxx,NO_VALID
+    TestPResolveHangingNodes3DGlobalIds.cxx,NO_VALID
     TestPResolveHangingNodes3DUG.cxx,NO_VALID
     TestReducePartitions.cxx
   )
