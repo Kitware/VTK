@@ -589,7 +589,7 @@ struct SparseScatterer : Scatterer
 
     keys.NumberOfKeys = numKeys;
     keys.NumberOfElements = numElements;
-    keys.Keys.reset(new KeyType[numKeys]);
+    keys.Keys = std::shared_ptr<KeyType>(new KeyType[numKeys], std::default_delete<KeyType[]>());
     keys.Offsets.reset(new ElementIdType[numKeys + 1]);
     KeyType* distinctKeys = keys.Keys.get();
     ElementIdType* offsets = keys.Offsets.get();
