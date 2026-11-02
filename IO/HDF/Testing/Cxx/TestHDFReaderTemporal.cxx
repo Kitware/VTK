@@ -17,6 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
@@ -133,7 +134,9 @@ namespace
 int TestUGTemporal(const std::string& dataRoot)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_ug.vtkhdf").c_str());
+  const std::string filename = dataRoot + "/Data/vtkHDF/temporal_ug.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->Update();
 
   // Generic Time data checks
@@ -231,7 +234,9 @@ int TestUGTemporal(const std::string& dataRoot)
 int TestPartitionedUGTemporal(const std::string& dataRoot)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_partitioned_ug.vtkhdf").c_str());
+  const std::string filename = dataRoot + "/Data/vtkHDF/temporal_partitioned_ug.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->Update();
 
   // Generic Time data checks
@@ -330,7 +335,9 @@ int TestPartitionedUGTemporal(const std::string& dataRoot)
 int TestUGTemporalPolyhedron(const std::string& dataRoot)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName((dataRoot + "/Data/vtkHDF/polyhedron_temporal.vtkhdf").c_str());
+  const std::string filename = dataRoot + "/Data/vtkHDF/polyhedron_temporal.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->Update();
 
   for (int step = 0; step <= 1; step++)
@@ -365,7 +372,9 @@ int TestUGTemporalPolyhedron(const std::string& dataRoot)
 int TestImageDataTemporal(const std::string& dataRoot)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_image.vtkhdf").c_str());
+  const std::string filename = dataRoot + "/Data/vtkHDF/temporal_image.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->Update();
 
   // Generic Time data checks
@@ -443,7 +452,9 @@ int TestImageDataTemporal(const std::string& dataRoot)
 int TestImageDataTemporalCache(const std::string& dataRoot)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_image.vtkhdf").c_str());
+  const std::string filename = dataRoot + "/Data/vtkHDF/temporal_image.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->UpdateInformation();
   double* timeSteps =
     reader->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
@@ -470,7 +481,9 @@ int TestImageDataTemporalCache(const std::string& dataRoot)
 int TestPolyDataTemporal(const std::string& dataRoot)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_polydata.vtkhdf").c_str());
+  const std::string filename = dataRoot + "/Data/vtkHDF/temporal_polydata.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->Update();
 
   // Generic Time data checks
@@ -565,8 +578,9 @@ int TestPolyDataTemporal(const std::string& dataRoot)
 int TestPartitionedPolyDataTemporal(const std::string& dataRoot)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName(
-    (dataRoot + "/Data/vtkHDF/temporal_partitioned_polydata_cache.vtkhdf").c_str());
+  const std::string filename = dataRoot + "/Data/vtkHDF/temporal_partitioned_polydata_cache.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->Update();
 
   // Generic Time data checks
@@ -669,7 +683,9 @@ int TestPartitionedPolyDataTemporal(const std::string& dataRoot)
 int TestPartitionedPolyDataTemporalWithOffset(const std::string& dataRoot)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_partitioned_polydata.vtkhdf").c_str());
+  const std::string filename = dataRoot + "/Data/vtkHDF/temporal_partitioned_polydata.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->Update();
 
   // Generic Time data checks
@@ -719,7 +735,9 @@ int TestPartitionedPolyDataTemporalWithOffset(const std::string& dataRoot)
 int TestPolyDataTemporalFieldData(const std::string& dataRoot)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_polydata_field_data.vtkhdf").c_str());
+  const std::string filename = dataRoot + "/Data/vtkHDF/temporal_polydata_field_data.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->Update();
 
   // Generic Time data checks
@@ -786,7 +804,9 @@ int TestPolyDataTemporalFieldData(const std::string& dataRoot)
 int TestPartialArrayWithCompositeDataset(const std::string& dataRoot)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName((dataRoot + "/Data/vtkHDF/composite_partial_array.vtkhdf").c_str());
+  const std::string filename = dataRoot + "/Data/vtkHDF/composite_partial_array.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->Update();
 
   // Generic Time data checks
@@ -868,7 +888,9 @@ int TestPartialArrayWithCompositeDataset(const std::string& dataRoot)
 int TestHyperTreeGridTemporal(const std::string& dataRoot, unsigned int depthLimit)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_htg.vtkhdf").c_str());
+  const std::string filename = dataRoot + "/Data/vtkHDF/temporal_htg.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->Update();
 
   // Generic Time data checks
@@ -928,7 +950,9 @@ int TestHyperTreeGridTemporal(const std::string& dataRoot, unsigned int depthLim
 int TestHyperTreeGridPartitionedTemporal(const std::string& dataRoot)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName((dataRoot + "/Data/vtkHDF/multipiece_temporal_htg.vtkhdf").c_str());
+  const std::string filename = dataRoot + "/Data/vtkHDF/multipiece_temporal_htg.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->Update();
 
   // Generic Time data checks
@@ -1004,7 +1028,9 @@ int TestHyperTreeGridPartitionedTemporal(const std::string& dataRoot)
 int TestOverlappingAMRTemporalBase(const std::string& dataRoot, const std::string& dataName)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName((dataRoot + dataName).c_str());
+  const std::string filename = dataRoot + dataName;
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->Update();
 
   // Generic Time data checks
@@ -1131,7 +1157,9 @@ int TestOverlappingAMRTemporalLegacy(const std::string& dataRoot)
 int TestPDCPolyDataUGTemporal(const std::string& dataRoot)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_pdc_polydata_ug.vtkhdf").c_str());
+  const std::string filename = dataRoot + "/Data/vtkHDF/temporal_pdc_polydata_ug.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->Update();
 
   // Generic Time data checks
@@ -1199,7 +1227,9 @@ int TestPDCPolyDataUGTemporal(const std::string& dataRoot)
 int TestMBPolyDataUGTemporal(const std::string& dataRoot)
 {
   vtkNew<vtkHDFReader> reader;
-  reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_mb_polydata_ug.vtkhdf").c_str());
+  const std::string filename = dataRoot + "/Data/vtkHDF/temporal_mb_polydata_ug.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
   reader->Update();
 
   // Generic Time data checks
