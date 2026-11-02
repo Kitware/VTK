@@ -29,7 +29,9 @@
 
 #include "vtkRenderingHyperTreeGridModule.h" // For export macro
 
-#include <set> // For std::set
+#include <array> // For std::array
+#include <map>   // For std::map
+#include <set>   // For std::set
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHyperTreeGrid;
@@ -108,6 +110,33 @@ public:
   void RemoveBlockVisibilities();
   ///@}
 
+  ///@{
+  /**
+   * Set/get the color for a block given its flat index.
+   */
+  void SetBlockColor(unsigned int index, const double color[3]);
+  void SetBlockColor(unsigned int index, double r, double g, double b)
+  {
+    double color[3] = { r, g, b };
+    this->SetBlockColor(index, color);
+  }
+  void GetBlockColor(unsigned int index, double color[3]);
+  void RemoveBlockColor(unsigned int index);
+  void RemoveBlockColors();
+  ///@}
+
+  ///@{
+  /**
+   * Set/get the opacity for a block given its flat index.
+   */
+  void SetBlockOpacity(unsigned int index, double opacity);
+  double GetBlockOpacity(unsigned int index);
+  void RemoveBlockOpacity(unsigned int index);
+  void RemoveBlockOpacities();
+  bool HasTranslucentPolygonalGeometry() override;
+  bool HasOpaqueGeometry() override;
+  ///@}
+
   /**
    * Use the internal PolyData Mapper to do the rendering
    * of the HTG transformed by the current SurfaceFilter:
@@ -149,11 +178,13 @@ private:
 
   std::set<unsigned int> BlocksShown;
   std::set<unsigned int> BlocksHidden;
+  std::map<unsigned int, std::array<double, 3>> BlockColors;
+  std::map<unsigned int, double> BlockOpacities;
 
   /**
-   * Apply internally-stored block visibility settings to the composite mapper, if any.
+   * Apply internally-stored block display settings to the composite mapper, if any.
    */
-  void ApplyBlockVisibilities();
+  void ApplyBlockAttributes();
 };
 
 VTK_ABI_NAMESPACE_END
