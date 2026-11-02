@@ -448,7 +448,7 @@ void vtkPiecewiseFunction::SortAndUpdateRange(bool updateSearchMethod)
     this->Modified();
   }
 
-  if (updateSearchMethod)
+  if (updateSearchMethod && !this->Internal->UseCustomSearchMethod)
   {
     this->UpdateSearchMethod();
   }
