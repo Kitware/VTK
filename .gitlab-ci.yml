@@ -2185,8 +2185,6 @@ wheel-macos-python310-arm64:pypi:upload:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-macos-python310-arm64:build
-        - job: wheel-macos-python310-arm64:test
-          artifacts: false
 
 wheel-macos-python310-arm64:upload:
     extends:
@@ -2207,8 +2205,6 @@ wheel-macos-python310-x86_64:pypi:upload:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-macos-python310-x86_64:build
-        - job: wheel-macos-python310-x86_64:test
-          artifacts: false
 
 wheel-macos-python310-x86_64:upload:
     extends:
@@ -2228,8 +2224,6 @@ wheel-macos-python311-arm64:pypi:upload:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-macos-python311-arm64:build
-        - job: wheel-macos-python311-arm64:test
-          artifacts: false
 
 wheel-macos-python311-arm64:upload:
     extends:
@@ -2250,8 +2244,6 @@ wheel-macos-python311-x86_64:pypi:upload:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-macos-python311-x86_64:build
-        - job: wheel-macos-python311-x86_64:test
-          artifacts: false
 
 wheel-macos-python311-x86_64:upload:
     extends:
@@ -2271,8 +2263,6 @@ wheel-macos-python312-arm64:pypi:upload:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-macos-python312-arm64:build
-        - job: wheel-macos-python312-arm64:test
-          artifacts: false
 
 wheel-macos-python312-arm64:upload:
     extends:
@@ -2293,8 +2283,6 @@ wheel-macos-python312-x86_64:pypi:upload:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-macos-python312-x86_64:build
-        - job: wheel-macos-python312-x86_64:test
-          artifacts: false
 
 wheel-macos-python312-x86_64:upload:
     extends:
@@ -2314,8 +2302,6 @@ wheel-macos-python313-arm64:pypi:upload:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-macos-python313-arm64:build
-        - job: wheel-macos-python313-arm64:test
-          artifacts: false
 
 wheel-macos-python313-arm64:upload:
     extends:
@@ -2336,8 +2322,6 @@ wheel-macos-python313-x86_64:pypi:upload:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-macos-python313-x86_64:build
-        - job: wheel-macos-python313-x86_64:test
-          artifacts: false
 
 wheel-macos-python313-x86_64:upload:
     extends:
@@ -2357,8 +2341,6 @@ wheel-macos-python314-arm64:pypi:upload:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-macos-python314-arm64:build
-        - job: wheel-macos-python314-arm64:test
-          artifacts: false
 
 wheel-macos-python314-arm64:upload:
     extends:
@@ -2379,8 +2361,6 @@ wheel-macos-python315-arm64:pypi:upload:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-macos-python315-arm64:build
-        - job: wheel-macos-python315-arm64:test
-          artifacts: false
 
 wheel-macos-python315-arm64:upload:
     extends:
@@ -2392,8 +2372,6 @@ wheel-macos-python315-arm64:upload:
         VTK_CI_WHEEL_SDK_TARBALL: "false"
     needs:
         - wheel-macos-python315-arm64:build
-        - job: wheel-macos-python315-arm64:test
-          artifacts: false
 
 wheel-macos-python314-x86_64:pypi:upload:
     extends:
@@ -2403,8 +2381,6 @@ wheel-macos-python314-x86_64:pypi:upload:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-macos-python314-x86_64:build
-        - job: wheel-macos-python314-x86_64:test
-          artifacts: false
 
 wheel-macos-python314-x86_64:upload:
     extends:
@@ -2424,8 +2400,6 @@ wheel-macos-python314t-x86_64:pypi:upload:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-macos-python314t-x86_64:build
-        - job: wheel-macos-python314t-x86_64:test
-          artifacts: false
 
 wheel-macos-python315-x86_64:pypi:upload:
     extends:
@@ -2435,8 +2409,6 @@ wheel-macos-python315-x86_64:pypi:upload:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-macos-python315-x86_64:build
-        - job: wheel-macos-python315-x86_64:test
-          artifacts: false
 
 wheel-macos-python315t-x86_64:pypi:upload:
     extends:
@@ -2446,8 +2418,6 @@ wheel-macos-python315t-x86_64:pypi:upload:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-macos-python315t-x86_64:build
-        - job: wheel-macos-python315t-x86_64:test
-          artifacts: false
 
 wheel-macos-python314t-x86_64:upload:
     extends:
@@ -2468,8 +2438,6 @@ wheel-macos-python315-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-macos-python315-x86_64:build
-        - job: wheel-macos-python315-x86_64:test
-          artifacts: false
 
 wheel-macos-python315t-x86_64:upload:
     extends:
@@ -2480,8 +2448,6 @@ wheel-macos-python315t-x86_64:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-macos-python315t-x86_64:build
-        - job: wheel-macos-python315t-x86_64:test
-          artifacts: false
 
 wheel-windows-python310-x86_64:pypi:upload:
     extends:
@@ -3006,53 +2972,25 @@ release-artifacts:upload:
         - job: wheel-linux-python315t-aarch64-egl:test-x11
           artifacts: false
         - wheel-macos-python310-arm64:build
-        - job: wheel-macos-python310-arm64:test
-          artifacts: false
         - wheel-macos-python310-x86_64:build
-        - job: wheel-macos-python310-x86_64:test
-          artifacts: false
         - wheel-macos-python311-arm64:build
-        - job: wheel-macos-python311-arm64:test
-          artifacts: false
         - wheel-macos-python311-x86_64:build
-        - job: wheel-macos-python311-x86_64:test
-          artifacts: false
         - wheel-macos-python312-arm64:build
-        - job: wheel-macos-python312-arm64:test
-          artifacts: false
         - wheel-macos-python312-x86_64:build
-        - job: wheel-macos-python312-x86_64:test
-          artifacts: false
         - wheel-macos-python313-arm64:build
-        - job: wheel-macos-python313-arm64:test
-          artifacts: false
         - wheel-macos-python313-x86_64:build
-        - job: wheel-macos-python313-x86_64:test
-          artifacts: false
         - wheel-macos-python314-arm64:build
-        - job: wheel-macos-python314-arm64:test
-          artifacts: false
         - wheel-macos-python314-x86_64:build
-        - job: wheel-macos-python314-x86_64:test
-          artifacts: false
         - wheel-macos-python315-arm64:build
-        - job: wheel-macos-python315-arm64:test
-          artifacts: false
         - wheel-macos-python315-x86_64:build
-        - job: wheel-macos-python315-x86_64:test
-          artifacts: false
 #        - wheel-macos-python314t-arm64:build
 #        - job: wheel-macos-python314t-arm64:test
 #          artifacts: false
         - wheel-macos-python314t-x86_64:build
-        - job: wheel-macos-python314t-x86_64:test
-          artifacts: false
 #        - wheel-macos-python315t-arm64:build
 #        - job: wheel-macos-python315t-arm64:test
 #          artifacts: false
         - wheel-macos-python315t-x86_64:build
-        - job: wheel-macos-python315t-x86_64:test
-          artifacts: false
         - wheel-windows-python310-x86_64:build
         - job: wheel-windows-python310-x86_64:test
           artifacts: false
