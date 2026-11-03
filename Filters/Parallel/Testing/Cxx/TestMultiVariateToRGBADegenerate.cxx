@@ -296,8 +296,9 @@ int TestMultiVariateToRGBADegenerate(int, char*[])
   CHECK(Rejected(image, Partition({ 0, 1, 2 }, { 3 }), invalidPartition));
   CHECK(Rejected(image, Partition({ 0, 1, 2, 4 }, { 4 }), invalidPartition));
   CHECK(Rejected(image, Partition({ -1, 0, 1, 2 }, { 4 }), invalidPartition));
-  // missing, empty, decreasing, short and long offsets
+  // missing, empty, decreasing, short and long offsets, and offsets without indices
   CHECK(Rejected(image, Partition({ 0, 1, 2, 3 }, {}), invalidPartition));
+  CHECK(Rejected(image, Partition({}, { 4 }), invalidPartition));
   CHECK(Rejected(image, Partition({ 0, 1, 2, 3 }, { 0, 4 }), invalidPartition));
   CHECK(Rejected(image, Partition({ 0, 1, 2, 3 }, { 2, 2, 4 }), invalidPartition));
   CHECK(Rejected(image, Partition({ 0, 1, 2, 3 }, { 3, 1, 4 }), invalidPartition));

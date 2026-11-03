@@ -1199,7 +1199,7 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   // components and RequestData should not modify filter state.
   std::vector<int> partition = this->PartitionIndices;
   std::vector<int> partitionOffsets = this->PartitionOffsets;
-  if (partition.empty())
+  if (partition.empty() && partitionOffsets.empty())
   {
     // add one group with all variables
     partition.resize(numComponents);

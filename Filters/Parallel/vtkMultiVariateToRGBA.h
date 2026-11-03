@@ -243,7 +243,9 @@ public:
   /**
    * Variables can be partitioned into several groups. After that,
    * all multivariate scalars in a group are normalized together.
-   * By default, all variables (components) are in one group.
+   * By default (both PartitionIndices and PartitionOffsets empty), all
+   * variables (components) are in one group; setting only one of them is
+   * an error.
    *
    * PartitionIndices holds component indices for each group, with groups
    * stored contiguously. PartitionOffsets holds, for each group, the
