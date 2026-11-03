@@ -90,6 +90,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestSetZBuffer.cxx,NO_SERDES
   TestShadowMapBakerPass.cxx,NO_SERDES
   TestShadowMapPass.cxx
+  TestShadowMapPassPrimitives.cxx
   TestSharedRenderWindow.cxx,NO_SERDES
   TestSimpleMotionBlur.cxx,NO_SERDES
   TestSkyboxBlur.cxx

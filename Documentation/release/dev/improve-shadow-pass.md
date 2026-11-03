@@ -13,3 +13,4 @@ Force the shadow map camera to use a 1:1 ratio to avoid shadow map distortions.
 `ShadowMaps`, `LightCameras`, `CompositeZPass` and `FrameBufferObject` in `vtkShadowMapBakerPass` protected members are now private.
 `vtkShadowMapBakerPass::GetNeedUpdate()` and `vtkShadowMapBakerPass::SetUpToDate()` functions are now private.
 `vtkShadowMapBakerPass::GetShadowMaps()` and `vtkShadowMapBakerPass::GetLightCameras()` return a reference instead of a pointer now and are documented as public API.
+`vtkShadowMapBakerPass::LightCreatesShadow()` is now static and public.

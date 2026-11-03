@@ -21,6 +21,7 @@
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkPerspectiveTransform.h"
@@ -154,7 +155,7 @@ void vtkShadowMapPass::Render(const vtkRenderState* s)
          light = lights->GetNextItem(), lightIndex++)
     {
       this->ShadowTextureUnits[lightIndex] = -1;
-      if (this->ShadowMapBakerPass->LightCreatesShadow(light))
+      if (vtkShadowMapBakerPass::LightCreatesShadow(light))
       {
         vtkTextureObject* map =
           this->ShadowMapBakerPass->GetShadowMaps()[static_cast<size_t>(shadowingLightIndex)];
@@ -231,7 +232,7 @@ void vtkShadowMapPass::Render(const vtkRenderState* s)
     for (lights->InitTraversal(), light = lights->GetNextItem(), lightIndex = 0; light != nullptr;
          light = lights->GetNextItem(), lightIndex++)
     {
-      if (this->ShadowMapBakerPass->LightCreatesShadow(light))
+      if (vtkShadowMapBakerPass::LightCreatesShadow(light))
       {
         vtkTextureObject* map =
           this->ShadowMapBakerPass->GetShadowMaps()[static_cast<size_t>(shadowingLightIndex)];
@@ -252,10 +253,10 @@ void vtkShadowMapPass::Render(const vtkRenderState* s)
 }
 
 //------------------------------------------------------------------------------
-bool vtkShadowMapPass::SetShaderParameters(vtkShaderProgram* program, vtkAbstractMapper*,
+bool vtkShadowMapPass::SetShaderParameters(vtkShaderProgram* program, vtkAbstractMapper* mapper,
   vtkProp* prop, vtkOpenGLVertexArrayObject* vtkNotUsed(VAO))
 {
-  if (!vtkShadowMapPass::IsReceiver(prop))
+  if (!vtkShadowMapPass::IsReceiver(mapper, prop))
   {
     return true;
   }
@@ -305,9 +306,9 @@ bool vtkShadowMapPass::SetShaderParameters(vtkShaderProgram* program, vtkAbstrac
 
 //------------------------------------------------------------------------------
 bool vtkShadowMapPass::PreReplaceShaderValues(
-  std::string&, std::string&, std::string& fragmentShader, vtkAbstractMapper*, vtkProp* prop)
+  std::string&, std::string&, std::string& fragmentShader, vtkAbstractMapper* mapper, vtkProp* prop)
 {
-  if (!vtkShadowMapPass::IsReceiver(prop))
+  if (!vtkShadowMapPass::IsReceiver(mapper, prop))
   {
     return true;
   }
@@ -325,9 +326,9 @@ bool vtkShadowMapPass::PreReplaceShaderValues(
 
 //------------------------------------------------------------------------------
 bool vtkShadowMapPass::PostReplaceShaderValues(
-  std::string&, std::string&, std::string& fragmentShader, vtkAbstractMapper*, vtkProp* prop)
+  std::string&, std::string&, std::string& fragmentShader, vtkAbstractMapper* mapper, vtkProp* prop)
 {
-  if (!vtkShadowMapPass::IsReceiver(prop))
+  if (!vtkShadowMapPass::IsReceiver(mapper, prop))
   {
     return true;
   }
@@ -490,7 +491,7 @@ void vtkShadowMapPass::ReleaseGraphicsResources(vtkWindow* w)
 }
 
 //------------------------------------------------------------------------------
-bool vtkShadowMapPass::IsReceiver(vtkProp* prop)
+bool vtkShadowMapPass::IsReceiver(vtkAbstractMapper* mapper, vtkProp* prop)
 {
   if (!prop->GetVisibility())
   {
@@ -500,6 +501,17 @@ bool vtkShadowMapPass::IsReceiver(vtkProp* prop)
   // only lit actors can be shadow receivers
   vtkActor* actor = vtkActor::SafeDownCast(prop);
   if (!actor || actor->GetProperty()->GetLighting() == 0)
+  {
+    return false;
+  }
+
+  // If drawing points, lines, or spheres, they should not receive shadows
+  // Note that spheres are supposed to receive shadows but the fragment shader "vertexVC" variable
+  // is the same for all fragments resulting in incorrect shadow calculation
+  vtkOpenGLPolyDataMapper* glmapper = vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
+  if (glmapper &&
+    ((glmapper->DrawingLines(actor) && !glmapper->DrawingTubes(actor)) ||
+      glmapper->DrawingPoints(actor)))
   {
     return false;
   }

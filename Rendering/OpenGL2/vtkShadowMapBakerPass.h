@@ -133,15 +133,13 @@ public:
   bool GetHasShadows();
 
   /**
-   * INTERNAL USE ONLY.
-   * Internally used by vtkShadowMapBakerPass and vtkShadowMapPass.
-
    * Tell if the light \c l can create shadows.
    * The light has to not be a head light and to be directional or
-   * positional with an angle less than 180 degrees.
+   * positional with an angle less than 90 degrees.
+   * CAST_SHADOWS key should not be different than 0 if it exists.
    * \pre l_exists: l!=0
    */
-  bool LightCreatesShadow(vtkLight* l);
+  static bool LightCreatesShadow(vtkLight* l);
 
   /**
    * key that can be used on actors to define if they create shadows.

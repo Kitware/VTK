@@ -179,7 +179,7 @@ private:
   vtkShadowMapPass(const vtkShadowMapPass&) = delete;
   void operator=(const vtkShadowMapPass&) = delete;
 
-  static bool IsReceiver(vtkProp* prop);
+  static bool IsReceiver(vtkAbstractMapper* mapper, vtkProp* prop);
 
   vtkRenderPass* DelegatePass;
 };
