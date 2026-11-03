@@ -175,7 +175,7 @@ bool PaintLabels(const std::vector<std::string>& labels, const std::vector<std::
     labelsArray->InsertNextValue(label);
   }
   plot->SetLabels(labelsArray);
-  plot->SetColumnVisibility("b", false);
+  plot->SetVariableVisibility("b", false);
   view->GetRenderWindow()->Render();
   vtkStringArray* visibleLabels = plot->GetVisibleLabels();
   if (!visibleLabels ||
@@ -273,10 +273,10 @@ int TestRadVizChartInput(int, char*[])
           [](vtkPlotRadViz* plot)
           {
             SetInputConnection(plot, MakeTable());
-            plot->SetColumnVisibilityAll(false);
+            plot->SetVariableVisibilityAll(false);
             for (const char* name : { "a", "b", "d" })
             {
-              plot->SetColumnVisibility(name, true);
+              plot->SetVariableVisibility(name, true);
             }
           }) == 3);
   CHECK(PaintVertices(
@@ -288,7 +288,7 @@ int TestRadVizChartInput(int, char*[])
             {
               visible->InsertNextValue(name);
             }
-            plot->SetVisibleColumns(visible);
+            plot->SetVisibleVariables(visible);
           }) == 3);
   // labels of the visible columns, or the column names for a label count
   // that does not match the columns
@@ -310,8 +310,8 @@ int TestRadVizChartInput(int, char*[])
   CHECK(RepaintVertices(
           [](vtkPlotRadViz* plot)
           {
-            plot->SetColumnVisibility("a", false);
-            plot->SetColumnVisibility("b", false);
+            plot->SetVariableVisibility("a", false);
+            plot->SetVariableVisibility("b", false);
           }) == 0);
   CHECK(RepaintVertices([](vtkPlotRadViz* plot) { plot->SetVisible(false); }) == 0);
   // nothing for a hidden plot

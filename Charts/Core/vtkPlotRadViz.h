@@ -103,21 +103,22 @@ public:
 
   ///@{
   /**
-   * Set the visibility of the specified column/component by name. Only
-   * visible columns/components are used to compute the plot. This is a
-   * passthrough to the underlying vtkMultiVariateToRGBA; see
-   * vtkMultiVariateToRGBA::SetColumnVisibility for details. Every
-   * column/component of the input set with SetInputDataSet/SetInputData is
-   * visible by default. Labels set with SetLabels are one per
-   * column/component of the input, in order, and only the ones of visible
-   * columns/components are drawn. If their number does not match, the
-   * column/component names are drawn instead.
+   * Set the visibility of the specified variable by name. Variables are
+   * the columns of an input table or the components of the array
+   * processed for an input dataset. Only visible variables are used to
+   * compute the plot. This is a passthrough to the underlying
+   * vtkMultiVariateToRGBA; see vtkMultiVariateToRGBA::SetVariableVisibility
+   * for details. Every variable of the input set with
+   * SetInputDataSet/SetInputData is visible by default. Labels set with
+   * SetLabels are one per variable of the input, in order, and only the
+   * ones of visible variables are drawn. If their number does not match,
+   * the variable names are drawn instead.
    */
-  void SetColumnVisibility(const std::string& name, bool visible);
-  void SetColumnVisibilityAll(bool visible);
-  bool GetColumnVisibility(const std::string& name);
-  vtkStringArray* GetVisibleColumns();
-  void SetVisibleColumns(vtkStringArray* visColumns);
+  void SetVariableVisibility(const std::string& name, bool visible);
+  void SetVariableVisibilityAll(bool visible);
+  bool GetVariableVisibility(const std::string& name);
+  vtkStringArray* GetVisibleVariables();
+  void SetVisibleVariables(vtkStringArray* names);
   ///@}
 
   ///@{
@@ -411,7 +412,7 @@ protected:
   void DrawLabels(vtkContext2D* painter, vtkDataArray* vertices, vtkPen* pen);
   void DrawLens(vtkContext2D* painter);
   /**
-   * Computes VisibleLabels, and AutoLabels from the visible columns/components.
+   * Computes VisibleLabels, and AutoLabels from the visible variables.
    */
   void ComputeVisibleLabels();
   /**
@@ -521,8 +522,8 @@ protected:
   vtkSmartPointer<vtkTextProperty> LabelsProperties = vtkSmartPointer<vtkTextProperty>::New();
   /**
    * The label of each vertex: the labels set with SetLabels for the visible
-   * columns/components, or their names if SetLabels was not given one label
-   * per column/component of the input. AutoLabels always holds the names.
+   * variables, or their names if SetLabels was not given one label
+   * per variable of the input. AutoLabels always holds the names.
    * For example, for columns a, b, c, d with b hidden, AutoLabels is
    * {a, c, d}, and VisibleLabels is {A, C, D} after SetLabels({A, B, C, D}),
    * or {a, c, d} without SetLabels or after SetLabels({A, B}).
@@ -535,8 +536,8 @@ protected:
 
   /**
    * Persistent filter used to compute the GBC/RGBA values, and that also
-   * owns the column/component visibility configuration (see
-   * SetColumnVisibility). Kept alive across Paint() calls so that the
+   * owns the variable visibility configuration (see
+   * SetVariableVisibility). Kept alive across Paint() calls so that the
    * visibility configuration and the vtkAlgorithm modified-time tracking
    * both persist between renders.
    */

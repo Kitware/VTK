@@ -37,13 +37,13 @@
 #include "vtkChart.h"
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
-#include <memory>
+#include <memory>                // For std::unique_ptr
+#include <string>                // For variable names
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkChartLegend;
 class vtkTooltipItem;
 class vtkPlotRadViz;
-class vtkStdString;
 class vtkStringArray;
 
 class VTKCHARTSCORE_EXPORT VTK_MARSHALAUTO vtkChartRadViz : public vtkChart
@@ -95,37 +95,39 @@ public:
 
   ///@{
   /**
-   * Set the visibility of the specified column/component. Only visible
-   * columns/components are used to compute the RadViz plot. This is a
-   * passthrough to the underlying vtkPlotRadViz (and, in turn, to its
-   * vtkMultiVariateToRGBA); see vtkMultiVariateToRGBA::SetColumnVisibility
-   * and vtkPlotRadViz::SetColumnVisibility for details, including the
-   * default visibility of every column/component before this is called.
+   * Set the visibility of the specified variable. Variables are the
+   * columns of an input table or the components of the array processed
+   * for an input dataset. Only visible variables are used to compute the
+   * RadViz plot. This is a passthrough to the underlying vtkPlotRadViz
+   * (and, in turn, to its vtkMultiVariateToRGBA); see
+   * vtkMultiVariateToRGBA::SetVariableVisibility and
+   * vtkPlotRadViz::SetVariableVisibility for details, including the
+   * default visibility of every variable before this is called.
    * A no-op if the chart has no plot yet.
    */
-  void SetColumnVisibility(const vtkStdString& name, bool visible);
+  void SetVariableVisibility(const std::string& name, bool visible);
 
   /**
-   * Set the visibility of all columns/components.
+   * Set the visibility of all variables.
    */
-  void SetColumnVisibilityAll(bool visible);
+  void SetVariableVisibilityAll(bool visible);
 
   /**
-   * Get the visibility of the specified column/component.
+   * Get the visibility of the specified variable.
    */
-  bool GetColumnVisibility(const vtkStdString& name);
+  bool GetVariableVisibility(const std::string& name);
 
   /**
-   * Get a list of the columns/components explicitly marked visible, and
+   * Get a list of the variables explicitly marked visible, and
    * the order in which they are used. Returns nullptr if the chart has no
    * plot yet.
    */
-  virtual vtkStringArray* GetVisibleColumns();
+  virtual vtkStringArray* GetVisibleVariables();
 
   /**
-   * Set the list of visible columns/components, and the order in which they will be used.
+   * Set the list of visible variables, and the order in which they will be used.
    */
-  virtual void SetVisibleColumns(vtkStringArray* visColumns);
+  virtual void SetVisibleVariables(vtkStringArray* names);
 
   /**
    * Set the vtkContextScene for the item, always set for an item in a scene.

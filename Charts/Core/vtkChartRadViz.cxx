@@ -163,41 +163,41 @@ void vtkChartRadViz::SetPlot(vtkPlotRadViz* plot)
 }
 
 //------------------------------------------------------------------------------
-void vtkChartRadViz::SetColumnVisibility(const vtkStdString& name, bool visible)
+void vtkChartRadViz::SetVariableVisibility(const std::string& name, bool visible)
 {
   if (this->Internals->Plot)
   {
-    this->Internals->Plot->SetColumnVisibility(name, visible);
+    this->Internals->Plot->SetVariableVisibility(name, visible);
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkChartRadViz::SetColumnVisibilityAll(bool visible)
+void vtkChartRadViz::SetVariableVisibilityAll(bool visible)
 {
   if (this->Internals->Plot)
   {
-    this->Internals->Plot->SetColumnVisibilityAll(visible);
+    this->Internals->Plot->SetVariableVisibilityAll(visible);
   }
 }
 
 //------------------------------------------------------------------------------
-bool vtkChartRadViz::GetColumnVisibility(const vtkStdString& name)
+bool vtkChartRadViz::GetVariableVisibility(const std::string& name)
 {
-  return this->Internals->Plot ? this->Internals->Plot->GetColumnVisibility(name) : false;
+  return this->Internals->Plot ? this->Internals->Plot->GetVariableVisibility(name) : false;
 }
 
 //------------------------------------------------------------------------------
-vtkStringArray* vtkChartRadViz::GetVisibleColumns()
+vtkStringArray* vtkChartRadViz::GetVisibleVariables()
 {
-  return this->Internals->Plot ? this->Internals->Plot->GetVisibleColumns() : nullptr;
+  return this->Internals->Plot ? this->Internals->Plot->GetVisibleVariables() : nullptr;
 }
 
 //------------------------------------------------------------------------------
-void vtkChartRadViz::SetVisibleColumns(vtkStringArray* visColumns)
+void vtkChartRadViz::SetVisibleVariables(vtkStringArray* names)
 {
   if (this->Internals->Plot)
   {
-    this->Internals->Plot->SetVisibleColumns(visColumns);
+    this->Internals->Plot->SetVisibleVariables(names);
   }
 }
 

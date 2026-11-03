@@ -67,18 +67,18 @@ int TestRadVizChartTable(int argc, char* argv[])
   }
   else if (testType == HIDE_COLUMN)
   {
-    chart->SetColumnVisibility("tangent", false);
+    chart->SetVariableVisibility("tangent", false);
     plot->SetPartitionIndices({ 0, 1, 2 });
     plot->SetPartitionOffsets({ 1, 3 });
   }
   else if (testType == HIDE_TWO_COLUMNS)
   {
-    chart->SetColumnVisibility("tangent", false);
-    chart->SetColumnVisibility("x", false);
+    chart->SetVariableVisibility("tangent", false);
+    chart->SetVariableVisibility("x", false);
     // RadViz needs 3 columns, so the plot draws nothing
     view->GetRenderWindow()->Render();
     vtkPoints2D* vertices = plot->GetVertices();
-    if (chart->GetVisibleColumns()->GetNumberOfTuples() != 2 ||
+    if (chart->GetVisibleVariables()->GetNumberOfTuples() != 2 ||
       (vertices && vertices->GetNumberOfPoints() != 0))
     {
       std::cerr << "Expected no vertices with 2 visible columns" << std::endl;

@@ -252,44 +252,44 @@ void vtkPlotRadViz::SetInputData(vtkTable* table)
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotRadViz::SetColumnVisibility(const std::string& name, bool visible)
+void vtkPlotRadViz::SetVariableVisibility(const std::string& name, bool visible)
 {
-  this->ComputeGBC->SetColumnVisibility(name, visible);
+  this->ComputeGBC->SetVariableVisibility(name, visible);
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotRadViz::SetColumnVisibilityAll(bool visible)
+void vtkPlotRadViz::SetVariableVisibilityAll(bool visible)
 {
-  this->ComputeGBC->SetColumnVisibilityAll(visible);
+  this->ComputeGBC->SetVariableVisibilityAll(visible);
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-bool vtkPlotRadViz::GetColumnVisibility(const std::string& name)
+bool vtkPlotRadViz::GetVariableVisibility(const std::string& name)
 {
-  return this->ComputeGBC->GetColumnVisibility(name);
+  return this->ComputeGBC->GetVariableVisibility(name);
 }
 
 //------------------------------------------------------------------------------
-vtkStringArray* vtkPlotRadViz::GetVisibleColumns()
+vtkStringArray* vtkPlotRadViz::GetVisibleVariables()
 {
-  return this->ComputeGBC->GetVisibleColumns();
+  return this->ComputeGBC->GetVisibleVariables();
 }
 
 //------------------------------------------------------------------------------
-void vtkPlotRadViz::SetVisibleColumns(vtkStringArray* visColumns)
+void vtkPlotRadViz::SetVisibleVariables(vtkStringArray* names)
 {
-  this->ComputeGBC->SetVisibleColumns(visColumns);
+  this->ComputeGBC->SetVisibleVariables(names);
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::ComputeVisibleLabels()
 {
-  this->AutoLabels = this->ComputeGBC->GetVisibleColumns();
+  this->AutoLabels = this->ComputeGBC->GetVisibleVariables();
   this->VisibleLabels = this->AutoLabels;
-  vtkSmartPointer<vtkStringArray> allNames = this->ComputeGBC->GetAllColumnNames();
+  vtkSmartPointer<vtkStringArray> allNames = this->ComputeGBC->GetAllVariableNames();
   if (!this->Labels || this->Labels->GetNumberOfValues() != allNames->GetNumberOfValues())
   {
     return;
@@ -298,7 +298,7 @@ void vtkPlotRadViz::ComputeVisibleLabels()
   this->VisibleLabels = vtkSmartPointer<vtkStringArray>::New();
   for (vtkIdType i = 0; i < allNames->GetNumberOfValues(); ++i)
   {
-    if (this->ComputeGBC->GetColumnVisibility(allNames->GetValue(i)))
+    if (this->ComputeGBC->GetVariableVisibility(allNames->GetValue(i)))
     {
       this->VisibleLabels->InsertNextValue(this->Labels->GetValue(i));
     }
@@ -372,8 +372,8 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
       return true;
     }
     auto* dataset = vtkDataSet::SafeDownCast(input);
-    // vtkMultiVariateToRGBA does the column/component visibility filtering
-    // itself (see SetColumnVisibility), so the raw input is passed as-is.
+    // vtkMultiVariateToRGBA does the variable visibility filtering
+    // itself (see SetVariableVisibility), so the raw input is passed as-is.
     this->ComputeGBC->SetInputDataObject(0, input);
     if (dataset)
     {
@@ -392,7 +392,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
       }
     }
     // counts the columns of the input and array set above
-    if (this->GetVisibleColumns()->GetNumberOfTuples() < 3)
+    if (this->GetVisibleVariables()->GetNumberOfTuples() < 3)
     {
       // RadViz does not work for < 3 components, so we don't render anything
       return true;

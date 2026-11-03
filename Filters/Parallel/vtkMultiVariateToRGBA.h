@@ -276,42 +276,41 @@ public:
 
   ///@{
   /**
-   * Set the visibility of the specified column/component by name (a table
-   * column name, or a component name of the dataset array being
-   * processed). Only visible (i.e. not hidden) columns/components are used
+   * Set the visibility of the specified variable by name. Variables are
+   * the columns of a table or the components of the dataset array
+   * processed. Only visible (i.e. not hidden) variables are used
    * to compute the RGBA/GBC values, letting a subset of a multivariate
-   * dataset be visualized. By default, every column/component is visible.
+   * dataset be visualized. By default, every variable is visible.
    * The visibility is stored by name and does not depend on the current
    * input, so it can be set before the input is connected or updated.
    */
-  void SetColumnVisibility(const std::string& name, bool visible);
+  void SetVariableVisibility(const std::string& name, bool visible);
   /**
-   * Set the visibility of all columns/components, including the ones of
+   * Set the visibility of all variables, including the ones of
    * inputs set later. Passing false leaves the filter with nothing to
-   * process until columns/components are made visible again.
+   * process until variables are made visible again.
    */
-  void SetColumnVisibilityAll(bool visible);
+  void SetVariableVisibilityAll(bool visible);
   /**
-   * Get the visibility of the specified column/component.
+   * Get the visibility of the specified variable.
    */
-  bool GetColumnVisibility(const std::string& name);
+  bool GetVariableVisibility(const std::string& name);
   /**
-   * Get the list of the columns/components of the current input that are
+   * Get the list of the variables of the current input that are
    * visible (i.e. not hidden), in their natural order. Empty when the
-   * current input has no visible column/component.
+   * current input has no visible variable.
    */
-  virtual vtkStringArray* GetVisibleColumns();
+  virtual vtkStringArray* GetVisibleVariables();
   /**
-   * Set the list of visible columns/components: every column/component
-   * not in this list is hidden. Passing a null or empty array hides every
-   * column/component.
+   * Set the list of visible variables: every variable not in this list is
+   * hidden. Passing a null or empty array hides every variable.
    */
-  virtual void SetVisibleColumns(vtkStringArray* visColumns);
+  virtual void SetVisibleVariables(vtkStringArray* names);
   /**
-   * Returns the names of every column (table) or component (dataset array)
-   * found in the current input, visible or not, in their natural order.
+   * Returns the names of every variable found in the current input,
+   * visible or not, in their natural order.
    */
-  vtkSmartPointer<vtkStringArray> GetAllColumnNames();
+  vtkSmartPointer<vtkStringArray> GetAllVariableNames();
   ///@}
 
   ///@{
@@ -381,15 +380,15 @@ protected:
    */
   std::vector<double> Range;
   /**
-   * Column/component visibility: a column/component is visible when
-   * ColumnsVisibleByDefault is true, unless its name is in
-   * ColumnVisibilityExceptions, which flips it. For example, for columns
-   * a, b, c: SetColumnVisibility("b", false) gives {true, {b}}, so a and c
-   * are visible; SetVisibleColumns({a, c}) gives {false, {a, c}}, the same
-   * visible columns.
+   * Variable visibility: a variable is visible when
+   * VariablesVisibleByDefault is true, unless its name is in
+   * VariableVisibilityExceptions, which flips it. For example, for variables
+   * a, b, c: SetVariableVisibility("b", false) gives {true, {b}}, so a and c
+   * are visible; SetVisibleVariables({a, c}) gives {false, {a, c}}, the same
+   * visible variables.
    */
-  bool ColumnsVisibleByDefault = true;
-  std::set<std::string> ColumnVisibilityExceptions;
+  bool VariablesVisibleByDefault = true;
+  std::set<std::string> VariableVisibilityExceptions;
   /**
    * Components of a dataset array to process, see AddVisibleComponent().
    */
@@ -422,9 +421,9 @@ private:
    */
   vtkSmartPointer<vtkDataArray> GetVisibleComponentsArray(vtkDataArray* array);
   /**
-   * Backing storage for the pointer returned by GetVisibleColumns().
+   * Backing storage for the pointer returned by GetVisibleVariables().
    */
-  vtkSmartPointer<vtkStringArray> VisibleColumnsCache;
+  vtkSmartPointer<vtkStringArray> VisibleVariablesCache;
 
   ///@{
   /**

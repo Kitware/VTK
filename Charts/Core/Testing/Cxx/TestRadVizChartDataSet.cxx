@@ -100,7 +100,7 @@ int TestRadVizChartDataSet(int argc, char* argv[])
   {
     plot->ColorWheelVisibilityOff();
     plot->ScalarVisibilityOn();
-    plot->SetColumnVisibility("Co", false);
+    plot->SetVariableVisibility("Co", false);
   }
 
   chart->SetShowLegend(false);

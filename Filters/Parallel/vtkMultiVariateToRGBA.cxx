@@ -553,7 +553,7 @@ struct CreateSOAWorker
 /**
  * Read-only view over a subset of components of a vtkDataArray, used to
  * expose only the components marked visible via
- * vtkMultiVariateToRGBA::SetColumnVisibility without copying the underlying
+ * vtkMultiVariateToRGBA::SetVariableVisibility without copying the underlying
  * data. ComponentMap[i] is the index, in the original array, of the i-th
  * component of this view.
  */
@@ -827,7 +827,7 @@ void vtkMultiVariateToRGBA::AddPartitionOffset(int offset)
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetAllColumnNames()
+vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetAllVariableNames()
 {
   vtkSmartPointer<vtkStringArray> names = vtkSmartPointer<vtkStringArray>::New();
   vtkDataObject* input = this->GetInputDataObject(0, 0);
@@ -861,11 +861,11 @@ vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetAllColumnNames()
 }
 
 //------------------------------------------------------------------------------
-void vtkMultiVariateToRGBA::SetColumnVisibility(const std::string& name, bool visible)
+void vtkMultiVariateToRGBA::SetVariableVisibility(const std::string& name, bool visible)
 {
-  bool changed = visible == this->ColumnsVisibleByDefault
-    ? this->ColumnVisibilityExceptions.erase(name) > 0
-    : this->ColumnVisibilityExceptions.insert(name).second;
+  bool changed = visible == this->VariablesVisibleByDefault
+    ? this->VariableVisibilityExceptions.erase(name) > 0
+    : this->VariableVisibilityExceptions.insert(name).second;
   if (changed)
   {
     this->Modified();
@@ -873,48 +873,48 @@ void vtkMultiVariateToRGBA::SetColumnVisibility(const std::string& name, bool vi
 }
 
 //------------------------------------------------------------------------------
-void vtkMultiVariateToRGBA::SetColumnVisibilityAll(bool visible)
+void vtkMultiVariateToRGBA::SetVariableVisibilityAll(bool visible)
 {
-  this->ColumnsVisibleByDefault = visible;
-  this->ColumnVisibilityExceptions.clear();
+  this->VariablesVisibleByDefault = visible;
+  this->VariableVisibilityExceptions.clear();
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-bool vtkMultiVariateToRGBA::GetColumnVisibility(const std::string& name)
+bool vtkMultiVariateToRGBA::GetVariableVisibility(const std::string& name)
 {
-  return this->ColumnsVisibleByDefault !=
-    (this->ColumnVisibilityExceptions.find(name) != this->ColumnVisibilityExceptions.end());
+  return this->VariablesVisibleByDefault !=
+    (this->VariableVisibilityExceptions.find(name) != this->VariableVisibilityExceptions.end());
 }
 
 //------------------------------------------------------------------------------
-vtkStringArray* vtkMultiVariateToRGBA::GetVisibleColumns()
+vtkStringArray* vtkMultiVariateToRGBA::GetVisibleVariables()
 {
   // keep only the names of the current input that are not hidden,
   // preserving their natural order.
-  vtkSmartPointer<vtkStringArray> all = this->GetAllColumnNames();
-  this->VisibleColumnsCache = vtkSmartPointer<vtkStringArray>::New();
+  vtkSmartPointer<vtkStringArray> all = this->GetAllVariableNames();
+  this->VisibleVariablesCache = vtkSmartPointer<vtkStringArray>::New();
   for (vtkIdType i = 0; i < all->GetNumberOfTuples(); ++i)
   {
     const vtkStdString& name = all->GetValue(i);
-    if (this->GetColumnVisibility(name))
+    if (this->GetVariableVisibility(name))
     {
-      this->VisibleColumnsCache->InsertNextValue(name);
+      this->VisibleVariablesCache->InsertNextValue(name);
     }
   }
-  return this->VisibleColumnsCache;
+  return this->VisibleVariablesCache;
 }
 
 //------------------------------------------------------------------------------
-void vtkMultiVariateToRGBA::SetVisibleColumns(vtkStringArray* visColumns)
+void vtkMultiVariateToRGBA::SetVisibleVariables(vtkStringArray* names)
 {
-  this->ColumnsVisibleByDefault = false;
-  this->ColumnVisibilityExceptions.clear();
-  if (visColumns)
+  this->VariablesVisibleByDefault = false;
+  this->VariableVisibilityExceptions.clear();
+  if (names)
   {
-    for (vtkIdType i = 0; i < visColumns->GetNumberOfTuples(); ++i)
+    for (vtkIdType i = 0; i < names->GetNumberOfTuples(); ++i)
     {
-      this->ColumnVisibilityExceptions.insert(visColumns->GetValue(i));
+      this->VariableVisibilityExceptions.insert(names->GetValue(i));
     }
   }
   this->Modified();
@@ -934,9 +934,9 @@ vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::GetVisibleComponentsArray(v
     }
     else
     {
-      // unnamed components get their index as name, same as GetAllColumnNames
+      // unnamed components get their index as name, same as GetAllVariableNames
       const char* compName = array->GetComponentName(c);
-      visible = this->GetColumnVisibility(compName ? compName : vtk::to_string(c));
+      visible = this->GetVariableVisibility(compName ? compName : vtk::to_string(c));
     }
     if (visible)
     {
@@ -1290,7 +1290,7 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
     for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
     {
       const char* name = table->GetColumnName(i);
-      if (name && this->GetColumnVisibility(name))
+      if (name && this->GetVariableVisibility(name))
       {
         columns.push_back(table->GetColumn(i));
       }
