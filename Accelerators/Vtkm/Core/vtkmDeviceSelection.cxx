@@ -92,7 +92,14 @@ bool vtkmDeviceSelection::EnableDevice(const char* name)
   {
     return false;
   }
-  viskores::cont::GetRuntimeDeviceTracker().ResetDevice(device);
+  auto& tracker = viskores::cont::GetRuntimeDeviceTracker();
+  tracker.ResetDevice(device);
+  // Resetting a device this build or machine cannot run leaves it unavailable.
+  if (!tracker.CanRunOn(device))
+  {
+    vtkGenericWarningMacro("Cannot run on Viskores device \"" << device.GetName() << "\".");
+    return false;
+  }
   return true;
 }
 

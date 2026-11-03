@@ -49,6 +49,23 @@ class TestVtkmDeviceSelection(Testing.vtkTest):
             vtkObject.GlobalWarningDisplayOn()
         self.assertEqual(available(), self.default)
 
+    def test_device_that_cannot_run_is_refused(self):
+        # A device Viskores knows (disabling it succeeds) that this build or
+        # machine cannot run: it can be neither forced nor enabled.
+        vtkObject.GlobalWarningDisplayOff()
+        try:
+            missing = [name for name in ("Cuda", "Kokkos", "OpenMP", "TBB")
+                       if name not in self.default
+                       and vtkmDeviceSelection.DisableDevice(name)]
+            if not missing:
+                self.skipTest("this build runs every device")
+            for name in missing:
+                self.assertFalse(vtkmDeviceSelection.ForceDevice(name), name)
+                self.assertFalse(vtkmDeviceSelection.EnableDevice(name), name)
+        finally:
+            vtkObject.GlobalWarningDisplayOn()
+        self.assertEqual(available(), self.default)
+
 
 if __name__ == "__main__":
     Testing.main([(TestVtkmDeviceSelection, "test")])

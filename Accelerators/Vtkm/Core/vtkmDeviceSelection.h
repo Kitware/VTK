@@ -11,8 +11,9 @@
  *
  * Devices are named as Viskores names them, ignoring case: "Serial", "Cuda",
  * "TBB", "OpenMP", "Kokkos". A request naming a device Viskores does not
- * know, or one this build or machine cannot run, is refused with a warning
- * and leaves the selection as it was.
+ * know is refused with a warning and leaves the selection as it was. So is
+ * forcing or enabling a device this build or machine cannot run; disabling
+ * one succeeds, since it was not running anyway.
  *
  * @warning The selection is per thread, as Viskores' runtime device tracker
  * is: it applies to filters executed on the thread that made it. A thread
@@ -44,13 +45,14 @@ public:
 
   /**
    * Stop running on @a name; other devices are unaffected. Returns false if
-   * the device is unknown.
+   * the device is unknown. Disabling a device that cannot run here succeeds.
    */
   static bool DisableDevice(const char* name);
 
   /**
    * Undo ForceDevice() or DisableDevice() for @a name, making it available
-   * again if it can run here. Returns false if the device is unknown.
+   * again. Returns false, with a warning, if the device is unknown or cannot
+   * run here.
    */
   static bool EnableDevice(const char* name);
 
@@ -63,6 +65,9 @@ public:
 
   /**
    * The devices filters can currently run on, separated by spaces.
+   *
+   * The string belongs to the calling thread and is overwritten by its next
+   * call, so copy it to keep it. (Python gets a copy.)
    */
   static const char* GetAvailableDevices();
 
