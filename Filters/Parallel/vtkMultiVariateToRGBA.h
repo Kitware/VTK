@@ -54,7 +54,7 @@
 #include "vtkTimeStamp.h"             // For vtkTimeStamp
 #include "vtkWeakPointer.h"           // For vtkWeakPointer
 #include <array>                      // For std::array
-#include <set>                        // For column visibility
+#include <set>                        // For variable visibility
 #include <string>                     // For column names
 #include <vector>                     // For components partition
 
@@ -276,56 +276,75 @@ public:
 
   ///@{
   /**
-   * Set the visibility of the specified variable by name. Variables are
-   * the columns of a table or the components of the dataset array
-   * processed. Only visible (i.e. not hidden) variables are used
-   * to compute the RGBA/GBC values, letting a subset of a multivariate
-   * dataset be visualized. By default, every variable is visible.
-   * The visibility is stored by name and does not depend on the current
-   * input, so it can be set before the input is connected or updated.
+   * Variable visibility. Variables are the columns of a table or the
+   * components of the dataset array processed, and only the visible ones
+   * are used to compute the GBC/RGBA values, letting a subset of a
+   * multivariate dataset be visualized. A variable is set visible or hidden
+   * by name or by index; unnamed variables are named after their index
+   * ("0", "1", ...). By default, every variable is visible.
+   *
+   * The visibility is stored as a default visibility and the variables
+   * that differ from it, which do not depend on the input, so they can be
+   * set before the input is connected. Names and indices do not mix: while
+   * variables differ from the default by name, setting the visibility by
+   * index is an error, and the other way around. SetVariableVisibilityAll(),
+   * SetVisibleVariables(), SetVisibleVariableIndices() and
+   * ResetVisibleVariableIndices() start over. Indices outside the input are
+   * ignored, and negative indices are an error.
    */
   void SetVariableVisibility(const std::string& name, bool visible);
+  void SetVariableVisibility(int index, bool visible);
   /**
-   * Set the visibility of all variables, including the ones of
-   * inputs set later. Passing false leaves the filter with nothing to
-   * process until variables are made visible again.
+   * Set the visibility of all variables, including the ones of inputs set
+   * later. Passing false leaves the filter with nothing to process until
+   * variables are made visible again.
    */
   void SetVariableVisibilityAll(bool visible);
   /**
-   * Get the visibility of the specified variable.
+   * Get the visibility of a variable of the current input, by name or index.
    */
   bool GetVariableVisibility(const std::string& name);
+  bool GetVariableVisibility(int index);
   /**
-   * Get the list of the variables of the current input that are
-   * visible (i.e. not hidden), in their natural order. Empty when the
-   * current input has no visible variable.
+   * Get the names of the visible variables of the current input, in their
+   * natural order. Empty when the current input has no visible variable.
    */
   virtual vtkStringArray* GetVisibleVariables();
   /**
-   * Set the list of visible variables: every variable not in this list is
-   * hidden. Passing a null or empty array hides every variable.
+   * Set the list of visible variables by name: every variable not in this
+   * list is hidden. Passing a null or empty array hides every variable.
    */
   virtual void SetVisibleVariables(vtkStringArray* names);
   /**
-   * Returns the names of every variable found in the current input,
-   * visible or not, in their natural order.
+   * Set the list of visible variables by index: every variable not in this
+   * list is hidden. Passing an empty list hides every variable.
+   */
+  void SetVisibleVariableIndices(const std::vector<int>& indices);
+  /**
+   * Get the indices of the visible variables of the current input, in
+   * increasing order.
+   */
+  std::vector<int> GetVisibleVariableIndices();
+  /**
+   * Build the list of visible variables by index, for the ParaView server
+   * manager XML, which calls a method without arguments (clean_command) and
+   * then a method once per index (command), like AddPartitionIndex(). From
+   * C++ or Python, use SetVisibleVariableIndices() or
+   * SetVariableVisibility(int, bool) instead.
+   *
+   * ResetVisibleVariableIndices() makes every variable visible, the same as
+   * SetVariableVisibilityAll(true), so an empty list shows every variable.
+   * AddVisibleVariableIndex() shows a variable; when every variable is
+   * visible without any change (after ResetVisibleVariableIndices()), it
+   * first hides every variable, so only the added ones are visible.
+   */
+  void ResetVisibleVariableIndices();
+  void AddVisibleVariableIndex(int index);
+  /**
+   * Returns the names of every variable of the current input, visible or
+   * not, in their natural order.
    */
   vtkSmartPointer<vtkStringArray> GetAllVariableNames();
-  ///@}
-
-  ///@{
-  /**
-   * Index-based visibility for the components of a dataset array. When the
-   * list is not empty, only these components are processed, in increasing
-   * order, and the column visibility is ignored for dataset arrays; indices
-   * outside the array are ignored. An empty list (the default) leaves the
-   * column visibility in charge. ClearVisibleComponents() empties the list
-   * and AddVisibleComponent() appends one index, so that the ParaView server
-   * manager XML can set it, like AddPartitionIndex().
-   */
-  void ClearVisibleComponents();
-  void AddVisibleComponent(int index);
-  std::vector<int> GetVisibleComponents() VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -381,18 +400,15 @@ protected:
   std::vector<double> Range;
   /**
    * Variable visibility: a variable is visible when
-   * VariablesVisibleByDefault is true, unless its name is in
-   * VariableVisibilityExceptions, which flips it. For example, for variables
-   * a, b, c: SetVariableVisibility("b", false) gives {true, {b}}, so a and c
-   * are visible; SetVisibleVariables({a, c}) gives {false, {a, c}}, the same
-   * visible variables.
+   * VariablesVisibleByDefault is true, unless its name or index is in the
+   * exceptions, which flip it. At most one of the exceptions is not empty.
+   * For example, for variables a, b, c: SetVariableVisibility("b", false)
+   * gives {true, {b}}, so a and c are visible; SetVisibleVariables({a, c})
+   * gives {false, {a, c}}, the same visible variables.
    */
   bool VariablesVisibleByDefault = true;
-  std::set<std::string> VariableVisibilityExceptions;
-  /**
-   * Components of a dataset array to process, see AddVisibleComponent().
-   */
-  std::vector<int> VisibleComponents;
+  std::set<std::string> NameVisibilityExceptions;
+  std::set<int> IndexVisibilityExceptions;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
@@ -415,11 +431,15 @@ private:
   std::pair<vtkDataSetAttributes*, vtkSmartPointer<vtkDataArray>> GetAttributesAndScalars(
     vtkDataObject* input, vtkInformationVector** inputVector);
   /**
-   * Returns a read-only view exposing only the visible (i.e. not hidden)
-   * named components of 'array' (or 'array' itself, unmodified, if every
+   * Returns a read-only view exposing only the visible components of
+   * 'array' (or 'array' itself, unmodified, if every
    * component of 'array' happens to be visible).
    */
   vtkSmartPointer<vtkDataArray> GetVisibleComponentsArray(vtkDataArray* array);
+  /**
+   * Returns true if the variable with this index and name is visible.
+   */
+  bool IsVariableVisible(int index, const std::string& name) const;
   /**
    * Backing storage for the pointer returned by GetVisibleVariables().
    */

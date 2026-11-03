@@ -39,6 +39,7 @@
 #include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
 #include <memory>                // For std::unique_ptr
 #include <string>                // For variable names
+#include <vector>                // For variable indices
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkChartLegend;
@@ -95,39 +96,27 @@ public:
 
   ///@{
   /**
-   * Set the visibility of the specified variable. Variables are the
-   * columns of an input table or the components of the array processed
-   * for an input dataset. Only visible variables are used to compute the
-   * RadViz plot. This is a passthrough to the underlying vtkPlotRadViz
-   * (and, in turn, to its vtkMultiVariateToRGBA); see
-   * vtkMultiVariateToRGBA::SetVariableVisibility and
-   * vtkPlotRadViz::SetVariableVisibility for details, including the
-   * default visibility of every variable before this is called.
-   * A no-op if the chart has no plot yet.
+   * Variable visibility, by name or index. Only visible variables (table
+   * columns or dataset array components) are used to compute the RadViz
+   * plot. These are passthroughs to the underlying vtkPlotRadViz (and, in
+   * turn, to its vtkMultiVariateToRGBA); see
+   * vtkMultiVariateToRGBA::SetVariableVisibility for details. The setters
+   * are no-ops and the getters return false, nullptr or an empty list if
+   * the chart has no plot yet. ResetVisibleVariableIndices() and
+   * AddVisibleVariableIndex() are for the ParaView server manager XML, see
+   * vtkMultiVariateToRGBA::AddVisibleVariableIndex.
    */
   void SetVariableVisibility(const std::string& name, bool visible);
-
-  /**
-   * Set the visibility of all variables.
-   */
+  void SetVariableVisibility(int index, bool visible);
   void SetVariableVisibilityAll(bool visible);
-
-  /**
-   * Get the visibility of the specified variable.
-   */
   bool GetVariableVisibility(const std::string& name);
-
-  /**
-   * Get a list of the variables explicitly marked visible, and
-   * the order in which they are used. Returns nullptr if the chart has no
-   * plot yet.
-   */
+  bool GetVariableVisibility(int index);
   virtual vtkStringArray* GetVisibleVariables();
-
-  /**
-   * Set the list of visible variables, and the order in which they will be used.
-   */
   virtual void SetVisibleVariables(vtkStringArray* names);
+  void SetVisibleVariableIndices(const std::vector<int>& indices);
+  std::vector<int> GetVisibleVariableIndices();
+  void ResetVisibleVariableIndices();
+  void AddVisibleVariableIndex(int index);
 
   /**
    * Set the vtkContextScene for the item, always set for an item in a scene.

@@ -259,6 +259,13 @@ void vtkPlotRadViz::SetVariableVisibility(const std::string& name, bool visible)
 }
 
 //------------------------------------------------------------------------------
+void vtkPlotRadViz::SetVariableVisibility(int index, bool visible)
+{
+  this->ComputeGBC->SetVariableVisibility(index, visible);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkPlotRadViz::SetVariableVisibilityAll(bool visible)
 {
   this->ComputeGBC->SetVariableVisibilityAll(visible);
@@ -269,6 +276,12 @@ void vtkPlotRadViz::SetVariableVisibilityAll(bool visible)
 bool vtkPlotRadViz::GetVariableVisibility(const std::string& name)
 {
   return this->ComputeGBC->GetVariableVisibility(name);
+}
+
+//------------------------------------------------------------------------------
+bool vtkPlotRadViz::GetVariableVisibility(int index)
+{
+  return this->ComputeGBC->GetVariableVisibility(index);
 }
 
 //------------------------------------------------------------------------------
@@ -285,6 +298,33 @@ void vtkPlotRadViz::SetVisibleVariables(vtkStringArray* names)
 }
 
 //------------------------------------------------------------------------------
+void vtkPlotRadViz::SetVisibleVariableIndices(const std::vector<int>& indices)
+{
+  this->ComputeGBC->SetVisibleVariableIndices(indices);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+std::vector<int> vtkPlotRadViz::GetVisibleVariableIndices()
+{
+  return this->ComputeGBC->GetVisibleVariableIndices();
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::ResetVisibleVariableIndices()
+{
+  this->ComputeGBC->ResetVisibleVariableIndices();
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::AddVisibleVariableIndex(int index)
+{
+  this->ComputeGBC->AddVisibleVariableIndex(index);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkPlotRadViz::ComputeVisibleLabels()
 {
   this->AutoLabels = this->ComputeGBC->GetVisibleVariables();
@@ -294,14 +334,11 @@ void vtkPlotRadViz::ComputeVisibleLabels()
   {
     return;
   }
-  // user labels are one per input column, keep the visible ones
+  // user labels are one per input variable, keep the visible ones
   this->VisibleLabels = vtkSmartPointer<vtkStringArray>::New();
-  for (vtkIdType i = 0; i < allNames->GetNumberOfValues(); ++i)
+  for (int index : this->ComputeGBC->GetVisibleVariableIndices())
   {
-    if (this->ComputeGBC->GetVariableVisibility(allNames->GetValue(i)))
-    {
-      this->VisibleLabels->InsertNextValue(this->Labels->GetValue(i));
-    }
+    this->VisibleLabels->InsertNextValue(this->Labels->GetValue(index));
   }
 }
 
@@ -372,8 +409,8 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
       return true;
     }
     auto* dataset = vtkDataSet::SafeDownCast(input);
-    // vtkMultiVariateToRGBA does the variable visibility filtering
-    // itself (see SetVariableVisibility), so the raw input is passed as-is.
+    // vtkMultiVariateToRGBA does the variable visibility filtering itself
+    // (see SetVariableVisibility), so the raw input is passed as-is.
     this->ComputeGBC->SetInputDataObject(0, input);
     if (dataset)
     {
@@ -391,7 +428,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
           0, 0, 0, association, arrayInfo->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE()));
       }
     }
-    // counts the columns of the input and array set above
+    // counts the variables of the input and array set above
     if (this->GetVisibleVariables()->GetNumberOfTuples() < 3)
     {
       // RadViz does not work for < 3 components, so we don't render anything
@@ -683,7 +720,7 @@ vtkSmartPointer<vtkPoints2D> vtkPlotRadViz::DrawMarkers(
     painter->GetPen()->SetWidth(fillWidth);
   }
   painter->DrawMarkers(markerStyle, false /*highlight*/, data, numberOfPoints);
-  // hiding a column can leave a stale active index
+  // hiding a variable can leave a stale active index
   if (activeIndex >= 0 && activeIndex < numberOfPoints)
   {
     painter->DrawMarkers(

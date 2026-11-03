@@ -69,7 +69,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
-#include <string> // For column names
+#include <string> // For variable names
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContext2D;
@@ -103,22 +103,30 @@ public:
 
   ///@{
   /**
-   * Set the visibility of the specified variable by name. Variables are
-   * the columns of an input table or the components of the array
-   * processed for an input dataset. Only visible variables are used to
-   * compute the plot. This is a passthrough to the underlying
-   * vtkMultiVariateToRGBA; see vtkMultiVariateToRGBA::SetVariableVisibility
-   * for details. Every variable of the input set with
-   * SetInputDataSet/SetInputData is visible by default. Labels set with
-   * SetLabels are one per variable of the input, in order, and only the
-   * ones of visible variables are drawn. If their number does not match,
-   * the variable names are drawn instead.
+   * Variable visibility, by name or index. Variables are the columns of an
+   * input table or the components of the array processed for an input
+   * dataset, and only the visible ones are used to compute the plot. These
+   * are passthroughs to the underlying vtkMultiVariateToRGBA; see
+   * vtkMultiVariateToRGBA::SetVariableVisibility for details. Every variable
+   * of the input set with SetInputDataSet/SetInputData is visible by
+   * default. Labels set with SetLabels are one per variable of the input, in
+   * order, and only the ones of visible variables are drawn. If their number
+   * does not match, the variable names are drawn instead.
+   * ResetVisibleVariableIndices() and AddVisibleVariableIndex() are for the
+   * ParaView server manager XML, see
+   * vtkMultiVariateToRGBA::AddVisibleVariableIndex.
    */
   void SetVariableVisibility(const std::string& name, bool visible);
+  void SetVariableVisibility(int index, bool visible);
   void SetVariableVisibilityAll(bool visible);
   bool GetVariableVisibility(const std::string& name);
+  bool GetVariableVisibility(int index);
   vtkStringArray* GetVisibleVariables();
   void SetVisibleVariables(vtkStringArray* names);
+  void SetVisibleVariableIndices(const std::vector<int>& indices);
+  std::vector<int> GetVisibleVariableIndices();
+  void ResetVisibleVariableIndices();
+  void AddVisibleVariableIndex(int index);
   ///@}
 
   ///@{
@@ -522,9 +530,9 @@ protected:
   vtkSmartPointer<vtkTextProperty> LabelsProperties = vtkSmartPointer<vtkTextProperty>::New();
   /**
    * The label of each vertex: the labels set with SetLabels for the visible
-   * variables, or their names if SetLabels was not given one label
-   * per variable of the input. AutoLabels always holds the names.
-   * For example, for columns a, b, c, d with b hidden, AutoLabels is
+   * variables, or their names if SetLabels was not given one label per
+   * variable of the input. AutoLabels always holds the names.
+   * For example, for variables a, b, c, d with b hidden, AutoLabels is
    * {a, c, d}, and VisibleLabels is {A, C, D} after SetLabels({A, B, C, D}),
    * or {a, c, d} without SetLabels or after SetLabels({A, B}).
    */

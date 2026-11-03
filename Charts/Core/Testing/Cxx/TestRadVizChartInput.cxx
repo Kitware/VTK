@@ -5,10 +5,11 @@
  * SetInputConnection, for a table and for a dataset, when the array to
  * process is not the active scalars, and when the active scalars become
  * unnamed. Check that it draws the arrays computed for cell scalars, that
- * column visibility set before the first paint is kept, that labels set with
- * SetLabels follow the visible columns, that SetPlot(nullptr) removes the
- * plot, and that it draws nothing, leaving no vertices to interact with, when
- * hidden or when too few columns remain after a paint.
+ * variable visibility, by name or index, set before the first paint is kept,
+ * that labels set with SetLabels follow the visible variables, that
+ * SetPlot(nullptr) removes the plot, and that it draws nothing, leaving no
+ * vertices to interact with, when hidden or when too few variables remain
+ * after a paint.
  */
 
 #include "vtkCellData.h"
@@ -158,9 +159,11 @@ vtkIdType PaintUnnamedScalars()
 
 /**
  * Renders a RadViz chart of a 4 column table, with 'labels' set and column
- * "b" hidden, and returns whether the plot drew 'expected' as vertex labels.
+ * "b" hidden, by name or by index, and returns whether the plot drew
+ * 'expected' as vertex labels.
  */
-bool PaintLabels(const std::vector<std::string>& labels, const std::vector<std::string>& expected)
+bool PaintLabels(const std::vector<std::string>& labels, const std::vector<std::string>& expected,
+  bool byIndex = false)
 {
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(300, 300);
@@ -175,7 +178,17 @@ bool PaintLabels(const std::vector<std::string>& labels, const std::vector<std::
     labelsArray->InsertNextValue(label);
   }
   plot->SetLabels(labelsArray);
-  plot->SetVariableVisibility("b", false);
+  if (byIndex)
+  {
+    for (int index : { 0, 2, 3 })
+    {
+      plot->AddVisibleVariableIndex(index);
+    }
+  }
+  else
+  {
+    plot->SetVariableVisibility("b", false);
+  }
   view->GetRenderWindow()->Render();
   vtkStringArray* visibleLabels = plot->GetVisibleLabels();
   if (!visibleLabels ||
@@ -217,6 +230,32 @@ bool PaintCellScalars()
   return vertices->GetNumberOfTuples() == 3 &&
     gbc->GetNumberOfTuples() == image->GetNumberOfCells() &&
     rgba->GetNumberOfTuples() == image->GetNumberOfCells();
+}
+
+/**
+ * Renders a RadViz chart of an image whose active scalars are unnamed with 4
+ * components, the second one hidden by index, and returns whether the plot
+ * drew 3 vertices labeled with the indices of the other components.
+ */
+bool PaintImageHiddenByIndex()
+{
+  vtkNew<vtkContextView> view;
+  view->GetRenderWindow()->SetSize(300, 300);
+  vtkNew<vtkChartRadViz> chart;
+  view->GetScene()->AddItem(chart);
+  vtkNew<InternalsPlot> plot;
+  chart->SetPlot(plot);
+  vtkNew<vtkImageData> image;
+  image->SetDimensions(5, 5, 2);
+  image->GetPointData()->SetScalars(MakeArray(nullptr, 4));
+  plot->SetInputDataSet(image);
+  plot->SetVariableVisibility(1, false);
+  view->GetRenderWindow()->Render();
+  vtkPoints2D* vertices = plot->GetVertices();
+  vtkStringArray* labels = plot->GetVisibleLabels();
+  return vertices && vertices->GetNumberOfPoints() == 3 && labels &&
+    labels->GetNumberOfValues() == 3 && labels->GetValue(0) == "0" && labels->GetValue(1) == "2" &&
+    labels->GetValue(2) == "3";
 }
 
 /**
@@ -294,6 +333,25 @@ int TestRadVizChartInput(int, char*[])
   // that does not match the columns
   CHECK(PaintLabels({ "A", "B", "C", "D" }, { "A", "C", "D" }));
   CHECK(PaintLabels({ "A", "B" }, { "a", "c", "d" }));
+  CHECK(PaintLabels({ "A", "B", "C", "D" }, { "A", "C", "D" }, true));
+  CHECK(PaintLabels({ "A", "B" }, { "a", "c", "d" }, true));
+  // visibility by index, for a table and a dataset
+  // 4 columns, "c" hidden by index: 3 vertices (PaintLabels checks which)
+  CHECK(PaintVertices(
+          [](vtkPlotRadViz* plot)
+          {
+            SetInputConnection(plot, MakeTable());
+            plot->SetVariableVisibility(2, false);
+          }) == 3);
+  // 3 components, one hidden by index: too few to draw (3 if the index were ignored)
+  CHECK(PaintVertices(
+          [](vtkPlotRadViz* plot)
+          {
+            SetInputConnection(plot, MakeImage(false));
+            plot->SetVariableVisibility(1, false);
+          }) == 0);
+  // 4 components, the second hidden by index: the other 3 drawn
+  CHECK(PaintImageHiddenByIndex());
   // no plot after SetPlot(nullptr)
   {
     vtkNew<vtkContextView> view;

@@ -172,6 +172,15 @@ void vtkChartRadViz::SetVariableVisibility(const std::string& name, bool visible
 }
 
 //------------------------------------------------------------------------------
+void vtkChartRadViz::SetVariableVisibility(int index, bool visible)
+{
+  if (this->Internals->Plot)
+  {
+    this->Internals->Plot->SetVariableVisibility(index, visible);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkChartRadViz::SetVariableVisibilityAll(bool visible)
 {
   if (this->Internals->Plot)
@@ -187,6 +196,12 @@ bool vtkChartRadViz::GetVariableVisibility(const std::string& name)
 }
 
 //------------------------------------------------------------------------------
+bool vtkChartRadViz::GetVariableVisibility(int index)
+{
+  return this->Internals->Plot ? this->Internals->Plot->GetVariableVisibility(index) : false;
+}
+
+//------------------------------------------------------------------------------
 vtkStringArray* vtkChartRadViz::GetVisibleVariables()
 {
   return this->Internals->Plot ? this->Internals->Plot->GetVisibleVariables() : nullptr;
@@ -198,6 +213,40 @@ void vtkChartRadViz::SetVisibleVariables(vtkStringArray* names)
   if (this->Internals->Plot)
   {
     this->Internals->Plot->SetVisibleVariables(names);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkChartRadViz::SetVisibleVariableIndices(const std::vector<int>& indices)
+{
+  if (this->Internals->Plot)
+  {
+    this->Internals->Plot->SetVisibleVariableIndices(indices);
+  }
+}
+
+//------------------------------------------------------------------------------
+std::vector<int> vtkChartRadViz::GetVisibleVariableIndices()
+{
+  return this->Internals->Plot ? this->Internals->Plot->GetVisibleVariableIndices()
+                               : std::vector<int>();
+}
+
+//------------------------------------------------------------------------------
+void vtkChartRadViz::ResetVisibleVariableIndices()
+{
+  if (this->Internals->Plot)
+  {
+    this->Internals->Plot->ResetVisibleVariableIndices();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkChartRadViz::AddVisibleVariableIndex(int index)
+{
+  if (this->Internals->Plot)
+  {
+    this->Internals->Plot->AddVisibleVariableIndex(index);
   }
 }
 

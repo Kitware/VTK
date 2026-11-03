@@ -134,7 +134,7 @@ int TestMultiVariateToRGBAParallel(int argc, char* argv[])
               {
                 for (int i : { 0, 2, 3 })
                 {
-                  filter->AddVisibleComponent(i);
+                  filter->AddVisibleVariableIndex(i);
                 }
               }) &&
     success;

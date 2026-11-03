@@ -254,8 +254,8 @@ int TestMultiVariateToRGBADegenerate(int, char*[])
   filter = Run(MakeImage(oneConstant),
     [](vtkMultiVariateToRGBA* f)
     {
-      f->AddVisibleComponent(0);
-      f->AddVisibleComponent(1);
+      f->AddVisibleVariableIndex(0);
+      f->AddVisibleVariableIndex(1);
     });
   CHECK(!GetArray(filter, "rgba") && !GetArray(filter, "gbc"));
 
