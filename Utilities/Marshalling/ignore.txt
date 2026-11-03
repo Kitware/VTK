@@ -58,6 +58,9 @@ Common/Core/vtkDebugLeaksManager.h
 Common/Core/vtkDenseArray.h
 Common/Core/vtkDeprecation.h
 Common/Core/vtkDeserializer.h
+Common/Core/vtkDeviceArrayFactory.h
+Common/Core/vtkDeviceDataArray.h
+Common/Core/vtkDeviceMemory.h
 Common/Core/vtkDynamicLoader.h
 Common/Core/vtkEventData.h
 Common/Core/vtkEventForwarderCommand.h
