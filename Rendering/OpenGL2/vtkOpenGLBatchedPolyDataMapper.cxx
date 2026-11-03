@@ -228,12 +228,21 @@ void vtkOpenGLBatchedPolyDataMapper::RenderPieceStart(vtkRenderer* renderer, vtk
 {
   this->Superclass::RenderPieceStart(renderer, actor);
 
-  if (!this->BlockTexturePrototype->GetTextureObject())
+  this->NeedsBlockTexturing = false;
+  for (const auto& [_, batchElement] : this->VTKPolyDataToGLBatchElement)
+  {
+    if (batchElement->Parent.Texture)
+    {
+      this->NeedsBlockTexturing = true;
+      break;
+    }
+  }
+  if (!this->BlockTexturePrototype->GetTextureObject() && this->NeedsBlockTexturing)
   {
     this->BlockTexturePrototype->Load(renderer);
   }
 
-  for (auto& [polyData, element] : this->VTKPolyDataToGLBatchElement)
+  for (auto& [_, element] : this->VTKPolyDataToGLBatchElement)
   {
     vtkOpenGLTexture* texture = vtkOpenGLTexture::SafeDownCast(element->Parent.Texture);
     if (texture)
@@ -1504,12 +1513,7 @@ std::vector<vtkOpenGLPolyDataMapper::texinfo> vtkOpenGLBatchedPolyDataMapper::Ge
 {
   std::vector<texinfo> textures = this->Superclass::GetTextures(actor);
 
-  bool needBlockTextureSlot = false;
-  for (const auto& [_, batchElement] : this->VTKPolyDataToGLBatchElement)
-  {
-    needBlockTextureSlot |= batchElement->Parent.Texture != nullptr;
-  }
-  if (this->BlockTexturePrototype && needBlockTextureSlot)
+  if (this->BlockTexturePrototype && this->NeedsBlockTexturing)
   {
     textures.emplace_back(this->BlockTexturePrototype, "blocktexture");
   }

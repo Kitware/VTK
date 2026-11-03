@@ -121,7 +121,18 @@ protected:
   // cached bbox of all points
   vtkBoundingBox PointsBBox;
 
+  /**
+   * This prototype texture is only used to give proper texture information for texturing per
+   * block.
+   * In vtkOpenGLBatchedPolyDataMapper::GetTextures it is passed in the texinfo vector for the
+   * shader generation.
+   */
   vtkSmartPointer<vtkOpenGLTexture> BlockTexturePrototype;
+
+  /**
+   * Set to true when at least one block has a texture attached to it.
+   */
+  bool NeedsBlockTexturing = false;
 
 private:
   vtkOpenGLLowMemoryBatchedPolyDataMapper(const vtkOpenGLLowMemoryBatchedPolyDataMapper&) = delete;
