@@ -601,8 +601,8 @@ bool vtkRotationalExtrusionFilter::ExecuteSurfacic(
   vtkIdType numCells = input->GetNumberOfElements(1);
   if (numPts < 1 || numCells < 1)
   {
-    vtkErrorMacro(<< "No data to extrude!");
-    return false;
+    vtkDebugMacro(<< "No data to extrude!");
+    return true;
   }
 
   // Build cell data structure.
