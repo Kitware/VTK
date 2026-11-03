@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 // A unit cube, and the same cube with its top pushed in to a point at height 0.6. A point in
-// the dent is outside the concave cell, and the derivatives of linear fields are exact
-// everywhere in both, the corners of the box included.
+// the dent is outside the concave cell, and linear fields are interpolated exactly and
+// differentiated exactly everywhere in both, the corners of the box included.
 
 #include "vtkCellType.h"
 #include "vtkGenericCell.h"
@@ -80,6 +80,29 @@ int Evaluate(vtkPolyhedron* cell, double x, double y, double z, double& dist2)
   return cell->EvaluatePosition(point, closest, subId, pcoords, dist2, weights.data());
 }
 
+double Linear(const double p[3])
+{
+  return 1 + 2 * p[0] + 3 * p[1] + 4 * p[2];
+}
+
+void CheckInterpolation(vtkPolyhedron* cell, double x, double y, double z)
+{
+  const double point[3] = { x, y, z };
+  std::vector<double> weights(cell->GetNumberOfPoints());
+  cell->InterpolateFunctions(point, weights.data());
+  double value = 0;
+  for (vtkIdType i = 0; i < cell->GetNumberOfPoints(); i++)
+  {
+    double p[3];
+    cell->GetPoints()->GetPoint(i, p);
+    value += weights[i] * Linear(p);
+  }
+  Check(std::abs(value - Linear(point)) <= 1e-9,
+    "interpolated value at " + vtk::to_string(x) + "," + vtk::to_string(y) + "," +
+      vtk::to_string(z) + " is " + vtk::to_string(value) + " instead of " +
+      vtk::to_string(Linear(point)));
+}
+
 // Two linear fields, f = 1 + 2x + 3y + 4z and g = 5 - x + 2y - z, with two padding components.
 void CheckDerivatives(vtkPolyhedron* cell, const double pcoords[3], const std::string& where)
 {
@@ -90,7 +113,7 @@ void CheckDerivatives(vtkPolyhedron* cell, const double pcoords[3], const std::s
   {
     double p[3];
     cell->GetPoints()->GetPoint(i, p);
-    values[dim * i] = 1 + 2 * p[0] + 3 * p[1] + 4 * p[2];
+    values[dim * i] = Linear(p);
     values[dim * i + 1] = 5 - p[0] + 2 * p[1] - p[2];
     values[dim * i + 2] = 0;
     values[dim * i + 3] = 7;
@@ -122,10 +145,18 @@ int TestPolyhedronEvaluate(int, char*[])
   Check(Evaluate(polyhedron, 0.5, 0.5, 0.0, dist2) == 1, "a point on a face should be on the cell");
   Check(
     Evaluate(polyhedron, 0.5, 0.5, 0.6, dist2) == 1, "the tip of the dent should be on the cell");
+  CheckInterpolation(polyhedron, 0.2, 0.2, 0.5);
+  CheckInterpolation(polyhedron, 0.3, 0.5, 0.7);
+  CheckInterpolation(polyhedron, 0.45, 0.5, 0.59);
   const double underDent[3] = { 0.5, 0.5, 0.3 };
   CheckDerivatives(polyhedron, underDent, "under the dent");
   const double nearCorner[3] = { 0.9, 0.95, 0.1 };
   CheckDerivatives(polyhedron, nearCorner, "near a corner of the dented cube");
+  const double offAxis[3] = { 0.2, 0.2, 0.5 };
+  CheckDerivatives(polyhedron, offAxis, "off the axis of the dented cube");
+  // The step in x from here crosses into the dent, out of the cell.
+  const double belowDent[3] = { 0.3, 0.5, 0.755 };
+  CheckDerivatives(polyhedron, belowDent, "just below the dent");
 
   auto box = MakeCube(false);
   box->GetCell(0, cell);

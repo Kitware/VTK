@@ -1395,8 +1395,8 @@ void vtkPolyhedron::EvaluateLocation(
 void vtkPolyhedron::Derivatives(
   int vtkNotUsed(subId), const double pcoords[3], const double* values, int dim, double* derivs)
 {
-  // Mean value coordinates reproduce linear fields inside the cell, so each sample is offset
-  // toward the middle of the bounding box, which keeps it in [0, 1] parametric space.
+  // Each sample is offset toward the middle of the bounding box, which keeps it in [0, 1]
+  // parametric space.
   constexpr double offset = 0.01;
   double x[4][3];
   this->ComputePositionFromParametricCoordinate(pcoords, x[0]);
