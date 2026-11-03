@@ -75,6 +75,18 @@ bool Bind(vtksys::DynamicLoader::LibraryHandle library, const char* symbol, Func
   return true;
 }
 
+// Open a vendor library by its bare name, searched for the way the system
+// loader searches. On Windows vtksys::DynamicLoader::OpenLibrary would make the
+// name absolute against the current directory, missing the driver in System32.
+vtksys::DynamicLoader::LibraryHandle OpenVendorLibrary(const char* name)
+{
+#if defined(_WIN32)
+  return LoadLibraryA(name);
+#else
+  return vtksys::DynamicLoader::OpenLibrary(name);
+#endif
+}
+
 CudaDriver LoadCuda()
 {
   CudaDriver cuda;
@@ -91,7 +103,7 @@ CudaDriver LoadCuda()
     return cuda;
   }
   // Never closed: arrays may read through it until the process ends.
-  auto library = vtksys::DynamicLoader::OpenLibrary(name);
+  auto library = OpenVendorLibrary(name);
   if (library == vtksys::DynamicLoader::InvalidLibrary)
   {
     const char* reason = vtksys::DynamicLoader::LastError();
@@ -308,7 +320,7 @@ HipRuntime LoadHip()
     {
       break;
     }
-    library = vtksys::DynamicLoader::OpenLibrary(candidate);
+    library = OpenVendorLibrary(candidate);
     name = candidate;
   }
   if (library == vtksys::DynamicLoader::InvalidLibrary)
@@ -520,7 +532,7 @@ LevelZeroDriver LoadLevelZero()
     return ze;
   }
   // Never closed: arrays may read through it until the process ends.
-  auto library = vtksys::DynamicLoader::OpenLibrary(name);
+  auto library = OpenVendorLibrary(name);
   if (library == vtksys::DynamicLoader::InvalidLibrary)
   {
     const char* reason = vtksys::DynamicLoader::LastError();
