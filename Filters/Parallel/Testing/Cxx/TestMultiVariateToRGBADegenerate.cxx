@@ -5,7 +5,8 @@
  * groups, single component groups, integer types at their limits, a single
  * point, no points, fewer than 3 components and no input. The output has no
  * NaNs and matches the expected normalization, or the filter fails without
- * crashing.
+ * crashing. Also check that invalid partitions, custom ranges and output
+ * selections are reported as errors.
  */
 
 #include <vtkCommand.h>
@@ -25,6 +26,7 @@
 #include <cmath>
 #include <functional>
 #include <iostream>
+#include <string>
 #include <vector>
 
 namespace
@@ -61,13 +63,18 @@ vtkSmartPointer<vtkImageData> MakeImage(const Rows& rows, int dataType = VTK_DOU
 }
 
 // Runs the filter on 'mv' of 'input', after 'setup', with expected errors
-// silenced. Returns the filter.
+// silenced or caught by 'errorObserver'. Returns the filter.
 vtkSmartPointer<vtkMultiVariateToRGBA> Run(
   vtkDataObject* input,
-  const std::function<void(vtkMultiVariateToRGBA*)>& setup = [](vtkMultiVariateToRGBA*) {})
+  const std::function<void(vtkMultiVariateToRGBA*)>& setup = [](vtkMultiVariateToRGBA*) {},
+  vtkTest::ErrorObserver* errorObserver = nullptr)
 {
   auto filter = vtkSmartPointer<vtkMultiVariateToRGBA>::New();
-  vtkNew<vtkTest::ErrorObserver> errorObserver;
+  vtkNew<vtkTest::ErrorObserver> silencer;
+  if (!errorObserver)
+  {
+    errorObserver = silencer;
+  }
   filter->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   filter->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   filter->SetController(nullptr);
@@ -168,6 +175,28 @@ void SetGroups(vtkMultiVariateToRGBA* filter, const std::vector<int>& offsets)
     filter->AddPartitionOffset(offset);
   }
 }
+
+using Setup = std::function<void(vtkMultiVariateToRGBA*)>;
+
+// Returns true if the filter, after 'setup', reports an error containing
+// 'message' and adds no arrays.
+bool Rejected(vtkDataObject* input, const Setup& setup, const std::string& message)
+{
+  vtkNew<vtkTest::ErrorObserver> errorObserver;
+  auto filter = Run(input, setup, errorObserver);
+  return errorObserver->HasErrorMessage(message) && !GetArray(filter, "rgba") &&
+    !GetArray(filter, "gbc");
+}
+
+// Returns a setup with the partition 'indices' and 'offsets'.
+Setup Partition(const std::vector<int>& indices, const std::vector<int>& offsets)
+{
+  return [=](vtkMultiVariateToRGBA* f)
+  {
+    f->SetPartitionIndices(indices);
+    f->SetPartitionOffsets(offsets);
+  };
+}
 }
 
 int TestMultiVariateToRGBADegenerate(int, char*[])
@@ -258,6 +287,65 @@ int TestMultiVariateToRGBADegenerate(int, char*[])
       f->AddVisibleVariableIndex(1);
     });
   CHECK(!GetArray(filter, "rgba") && !GetArray(filter, "gbc"));
+
+  // Invalid partitions of the 4 components are rejected
+  auto image = MakeImage(oneConstant);
+  const std::string invalidPartition = "Invalid partition";
+  // duplicate, missing, out of range and negative indices
+  CHECK(Rejected(image, Partition({ 0, 0, 1, 2 }, { 4 }), invalidPartition));
+  CHECK(Rejected(image, Partition({ 0, 1, 2 }, { 3 }), invalidPartition));
+  CHECK(Rejected(image, Partition({ 0, 1, 2, 4 }, { 4 }), invalidPartition));
+  CHECK(Rejected(image, Partition({ -1, 0, 1, 2 }, { 4 }), invalidPartition));
+  // missing, empty, decreasing, short and long offsets
+  CHECK(Rejected(image, Partition({ 0, 1, 2, 3 }, {}), invalidPartition));
+  CHECK(Rejected(image, Partition({ 0, 1, 2, 3 }, { 0, 4 }), invalidPartition));
+  CHECK(Rejected(image, Partition({ 0, 1, 2, 3 }, { 2, 2, 4 }), invalidPartition));
+  CHECK(Rejected(image, Partition({ 0, 1, 2, 3 }, { 3, 1, 4 }), invalidPartition));
+  CHECK(Rejected(image, Partition({ 0, 1, 2, 3 }, { 2, 3 }), invalidPartition));
+  CHECK(Rejected(image, Partition({ 0, 1, 2, 3 }, { 2, 5 }), invalidPartition));
+
+  // A CustomRange without one [min, max] pair per group is rejected
+  const std::string invalidRange = "Invalid CustomRange";
+  CHECK(Rejected(image, [](vtkMultiVariateToRGBA* f) { f->SetCustomRange({ 0 }); }, invalidRange));
+  CHECK(Rejected(
+    image, [](vtkMultiVariateToRGBA* f) { f->SetCustomRange({ 0, 1, 0, 1 }); }, invalidRange));
+  CHECK(Rejected(
+    image,
+    [](vtkMultiVariateToRGBA* f)
+    {
+      SetGroups(f, { 3, 4 });
+      f->AddCustomRange(0, 4);
+    },
+    invalidRange));
+  // one pair per group is accepted
+  filter = Run(image,
+    [](vtkMultiVariateToRGBA* f)
+    {
+      SetGroups(f, { 3, 4 });
+      f->AddCustomRange(0, 4);
+      f->AddCustomRange(0, 8);
+    });
+  CHECK(Finite(filter));
+
+  // Invalid output selections are rejected
+  CHECK(Rejected(
+    image, [](vtkMultiVariateToRGBA* f) { f->SetStoreA(true); }, "both StoreRGBA and StoreA"));
+  CHECK(Rejected(
+    image,
+    [](vtkMultiVariateToRGBA* f)
+    {
+      f->SetStoreGBC(false);
+      f->SetStoreRGBA(false);
+    },
+    "all set to false"));
+
+  // A rejected filter recovers once its configuration is fixed
+  filter = Run(image, Partition({ 0, 1, 2 }, { 3 }));
+  CHECK(!GetArray(filter, "rgba"));
+  filter->SetPartitionIndices({ 0, 1, 2, 3 });
+  filter->SetPartitionOffsets({ 3, 4 });
+  filter->Update();
+  CHECK(Finite(filter));
 
   // No input: the filter fails without crashing
   vtkNew<vtkMultiVariateToRGBA> noInput;
