@@ -247,6 +247,11 @@ public:
    * variables (components) are in one group; setting only one of them is
    * an error.
    *
+   * The component indices refer to the visible variables only (see
+   * SetVariableVisibility), in their input order: with variables a, b, c, d
+   * and b hidden, index 1 is c. Hiding or showing a variable changes the
+   * number of components, so a partition set before is then invalid.
+   *
    * PartitionIndices holds component indices for each group, with groups
    * stored contiguously. PartitionOffsets holds, for each group, the
    * offset of the (last_element + 1) of that group in PartitionIndices,

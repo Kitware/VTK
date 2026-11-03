@@ -6,10 +6,12 @@
  * visible variables reported match the vertices computed, names and indices
  * do not mix until the visibility starts over, unnamed variables are named
  * after their index, and changes that do not change the visibility do not
- * modify the filter.
+ * modify the filter. Also check that the partition indexes the visible
+ * variables only.
  */
 
 #include <vtkCommand.h>
+#include <vtkDataArrayRange.h>
 #include <vtkDataSetAttributes.h>
 #include <vtkDoubleArray.h>
 #include <vtkExecutive.h>
@@ -24,6 +26,7 @@
 #include <vtkTestErrorObserver.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstdlib>
 #include <functional>
 #include <iostream>
@@ -45,16 +48,18 @@ using Indices = std::vector<int>;
 constexpr int NumberOfVariables = 5;
 constexpr vtkIdType NumberOfValues = 10;
 const Names VariableNames = { "a", "b", "c", "d", "e" };
+const Indices AllVariables = { 0, 1, 2, 3, 4 };
 
 double Value(vtkIdType i, int variable)
 {
   return static_cast<double>((i * (variable + 3) + variable) % 7);
 }
 
-vtkSmartPointer<vtkDataObject> MakeTable()
+// Returns a table with a column per variable in 'variables'.
+vtkSmartPointer<vtkDataObject> MakeTable(const Indices& variables = AllVariables)
 {
   vtkNew<vtkTable> table;
-  for (int v = 0; v < NumberOfVariables; ++v)
+  for (int v : variables)
   {
     vtkNew<vtkDoubleArray> column;
     column->SetName(VariableNames[v].c_str());
@@ -68,23 +73,26 @@ vtkSmartPointer<vtkDataObject> MakeTable()
   return table;
 }
 
-vtkSmartPointer<vtkDataObject> MakeImage(bool namedComponents)
+// Returns an image with a scalar component per variable in 'variables'.
+vtkSmartPointer<vtkDataObject> MakeImage(
+  bool namedComponents, const Indices& variables = AllVariables)
 {
   vtkNew<vtkImageData> image;
   image->SetDimensions(static_cast<int>(NumberOfValues), 1, 1);
   vtkNew<vtkDoubleArray> values;
   values->SetName("mv");
-  values->SetNumberOfComponents(NumberOfVariables);
+  values->SetNumberOfComponents(static_cast<int>(variables.size()));
   values->SetNumberOfTuples(NumberOfValues);
-  for (int v = 0; v < NumberOfVariables; ++v)
+  for (int c = 0; c < static_cast<int>(variables.size()); ++c)
   {
+    int v = variables[c];
     if (namedComponents)
     {
-      values->SetComponentName(v, VariableNames[v].c_str());
+      values->SetComponentName(c, VariableNames[v].c_str());
     }
     for (vtkIdType i = 0; i < NumberOfValues; ++i)
     {
-      values->SetComponent(i, v, Value(i, v));
+      values->SetComponent(i, c, Value(i, v));
     }
   }
   image->GetPointData()->SetScalars(values);
@@ -271,12 +279,100 @@ bool TestInput(const std::function<vtkSmartPointer<vtkDataObject>()>& makeInput,
   CHECK(CheckVisible(before, names, { 1, 2, 3 }));
   return true;
 }
+
+// Returns the array 'name' of the rows or points of the output of 'filter'.
+vtkDataArray* GetArray(vtkMultiVariateToRGBA* filter, const char* name)
+{
+  vtkDataObject* output = filter->GetOutputDataObject(0);
+  vtkDataSetAttributes* attributes = output->GetAttributes(
+    vtkTable::SafeDownCast(output) ? vtkDataObject::ROW : vtkDataObject::POINT);
+  return attributes ? attributes->GetArray(name) : nullptr;
+}
+
+bool Equal(vtkDataArray* a, vtkDataArray* b)
+{
+  if (!a || !b)
+  {
+    return false;
+  }
+  auto aValues = vtk::DataArrayValueRange(a);
+  auto bValues = vtk::DataArrayValueRange(b);
+  return aValues.size() == bValues.size() &&
+    std::equal(aValues.begin(), aValues.end(), bValues.begin(),
+      [](double x, double y) { return std::fabs(x - y) <= 1e-12; });
+}
+
+// Returns true if 'filter' fails with an "Invalid partition" error and adds
+// no arrays.
+bool InvalidPartition(vtkMultiVariateToRGBA* filter)
+{
+  vtkNew<vtkTest::ErrorObserver> errorObserver;
+  unsigned long filterTag = filter->AddObserver(vtkCommand::ErrorEvent, errorObserver);
+  unsigned long executiveTag =
+    filter->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver);
+  filter->Update();
+  filter->RemoveObserver(filterTag);
+  filter->GetExecutive()->RemoveObserver(executiveTag);
+  return errorObserver->HasErrorMessage("Invalid partition") && !GetArray(filter, "rgba");
+}
+
+// Checks that the partition indexes the visible variables only, in their
+// natural order, on the input made by 'makeInput' with the variables passed
+// to it: with variable 1 hidden, the results match the ones for an input
+// without it, and a partition of every variable is invalid until variable 1
+// is visible again. Returns true if the checks pass.
+bool TestPartition(const std::function<vtkSmartPointer<vtkDataObject>(const Indices&)>& makeInput)
+{
+  const Indices visible = { 0, 2, 3, 4 };
+  vtkSmartPointer<vtkMultiVariateToRGBA> filter = MakeFilter(makeInput(AllVariables));
+  vtkSmartPointer<vtkMultiVariateToRGBA> reference = MakeFilter(makeInput(visible));
+  filter->SetVisibleVariableIndices(visible);
+  for (auto* f : { filter.Get(), reference.Get() })
+  {
+    f->SetStoreGBC(true);
+    // groups { d }, { a, e, c } of the visible variables a, c, d, e
+    f->SetPartitionIndices({ 2, 0, 3, 1 });
+    f->SetPartitionOffsets({ 1, 4 });
+  }
+  filter->Update();
+  reference->Update();
+  CHECK(Equal(GetArray(filter, "rgba"), GetArray(reference, "rgba")));
+  CHECK(Equal(GetArray(filter, "gbc"), GetArray(reference, "gbc")));
+  CHECK(filter->GetRange().size() == 4);
+  CHECK(filter->GetRange() == reference->GetRange());
+
+  // a custom range per group of visible variables
+  for (auto* f : { filter.Get(), reference.Get() })
+  {
+    f->SetCustomRange({ 1, 5, 0, 6 });
+  }
+  filter->Update();
+  reference->Update();
+  CHECK(Equal(GetArray(filter, "rgba"), GetArray(reference, "rgba")));
+  CHECK(Equal(GetArray(filter, "gbc"), GetArray(reference, "gbc")));
+  filter->ClearCustomRange();
+
+  // a partition of every variable, while one is hidden
+  filter->SetPartitionIndices({ 0, 1, 2, 3, 4 });
+  filter->SetPartitionOffsets({ 2, 5 });
+  CHECK(InvalidPartition(filter));
+  // valid once every variable is visible again
+  filter->SetVariableVisibilityAll(true);
+  filter->Update();
+  CHECK(GetArray(filter, "rgba"));
+  CHECK(filter->GetRange().size() == 4);
+  // and the partition of the visible variables is now invalid
+  filter->SetPartitionIndices({ 2, 0, 3, 1 });
+  filter->SetPartitionOffsets({ 1, 4 });
+  CHECK(InvalidPartition(filter));
+  return true;
+}
 }
 
 int TestMultiVariateToRGBAVisibleVariables(int, char*[])
 {
   // variables are the columns a to e of a table
-  if (!TestInput(MakeTable, VariableNames))
+  if (!TestInput([] { return MakeTable(); }, VariableNames))
   {
     std::cerr << "Table failed" << std::endl;
     return EXIT_FAILURE;
@@ -291,6 +387,16 @@ int TestMultiVariateToRGBAVisibleVariables(int, char*[])
   if (!TestInput([] { return MakeImage(false); }, { "0", "1", "2", "3", "4" }))
   {
     std::cerr << "Image with unnamed components failed" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!TestPartition([](const Indices& variables) { return MakeTable(variables); }))
+  {
+    std::cerr << "Table partition failed" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!TestPartition([](const Indices& variables) { return MakeImage(true, variables); }))
+  {
+    std::cerr << "Image partition failed" << std::endl;
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
