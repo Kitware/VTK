@@ -127,6 +127,25 @@ def make_array(values, n_components=1, cls=vtkFloatArray):
     return array
 
 
+# A descriptor whose hold outlives the interpreter. Held by a leaked reference,
+# as dlpack_support's table of exports holds what it exports, so its wrapper
+# survives finalization and VTK deletes it from a Py_AtExit hook, after the
+# interpreter is gone. (A ctypes callback in its place segfaults.)
+RELEASE_AT_EXIT = """
+import ctypes
+from vtkmodules.vtkCommonCore import vtkMemoryDescriptor, release_callable_address
+
+def release():
+    raise AssertionError("released after the interpreter is gone")
+
+ctypes.pythonapi.Py_IncRef(ctypes.py_object(release))
+descriptor = vtkMemoryDescriptor()
+descriptor.Set(0x1000, 64, "host", "data")
+descriptor.SetReleaseAddress(release_callable_address(), id(release))
+ctypes.pythonapi.Py_IncRef(ctypes.py_object(descriptor))
+"""
+
+
 class TestDLPack(Testing.vtkTest):
     def testExportValuesAndShape(self):
         """A 3-component array exports as (tuples, components)."""
@@ -313,6 +332,10 @@ class TestDLPack(Testing.vtkTest):
         It runs in a child interpreter because only a real shutdown gets
         the order right; see LATE_CONSUMER.
         """
+        self.runCleanlyInAChild(LATE_CONSUMER)
+
+    def runCleanlyInAChild(self, code):
+        """Run *code* in a child interpreter; it must exit cleanly."""
         import os
         import shutil
         import subprocess
@@ -330,11 +353,43 @@ class TestDLPack(Testing.vtkTest):
         # child is handed the parent's path.
         env = dict(os.environ, PYTHONPATH=os.pathsep.join(sys.path))
         result = subprocess.run(
-            [interpreter, "-c", LATE_CONSUMER],
+            [interpreter, "-c", code],
             capture_output=True, text=True, timeout=300, env=env)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertNotIn("Exception ignored", result.stderr)
         self.assertNotIn("Traceback", result.stderr)
+
+    def testReleaseCallableIsCalledOnceAndDropped(self):
+        """VTK's C release calls a Python callable, then lets it go."""
+        import ctypes
+        import sys
+
+        from vtkmodules.vtkCommonCore import release_callable_address
+
+        calls = []
+
+        def release():
+            calls.append(1)
+
+        before = sys.getrefcount(release)
+        ctypes.pythonapi.Py_IncRef(ctypes.py_object(release))
+        descriptor = vtkMemoryDescriptor()
+        descriptor.Set(0x1000, 64, "host", "data")
+        descriptor.SetReleaseAddress(release_callable_address(), id(release))
+
+        del descriptor
+        gc.collect()
+        self.assertEqual(calls, [1])
+        self.assertEqual(sys.getrefcount(release), before)
+
+    def testReleaseCallableIsSafeAtExit(self):
+        """A hold still alive at exit ends after the interpreter is gone.
+
+        VTK deletes the objects that outlive finalization from a Py_AtExit
+        hook, so the release runs with no interpreter. A ctypes callback
+        crashes there; VTK's C release leaves the callable alone instead.
+        """
+        self.runCleanlyInAChild(RELEASE_AT_EXIT)
 
     def testDescriptorReleaseIsCalledOnce(self):
         """SetRelease is the hook a non-VTK producer hangs its lifetime on."""

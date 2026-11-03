@@ -86,6 +86,7 @@ anything asynchronous produced the data.
 """
 
 import ctypes
+import functools
 import sys
 
 from vtkmodules.vtkCommonCore import (
@@ -103,6 +104,7 @@ from vtkmodules.vtkCommonCore import (
     VTK_UNSIGNED_LONG_LONG,
     VTK_UNSIGNED_SHORT,
     vtkMemoryDescriptor,
+    release_callable_address,
 )
 
 __all__ = [
@@ -684,12 +686,6 @@ def _release_adopted(key):
         managed.deleter(managed_ptr)
 
 
-@ctypes.CFUNCTYPE(None, ctypes.c_void_p)
-def _adopted_release(context):
-    """Called by VTK when it is finished with an imported tensor."""
-    _release_adopted(context)
-
-
 _PyCapsule_SetName = ctypes.pythonapi.PyCapsule_SetName
 _PyCapsule_SetName.restype = ctypes.c_int
 _PyCapsule_SetName.argtypes = [ctypes.py_object, ctypes.c_char_p]
@@ -716,8 +712,16 @@ def _hold_via_descriptor(descriptor, key):
     # SetReleaseAddress, not SetRelease: the latter takes a function
     # pointer, which the wrapping tools cannot express, so it does not
     # exist on the Python side at all.
-    descriptor.SetReleaseAddress(
-        ctypes.cast(_adopted_release, ctypes.c_void_p).value, key)
+    #
+    # The release goes through VTK's C function rather than a ctypes
+    # callback: the hold can end after the interpreter has finalized (VTK
+    # deletes the objects still alive at exit from a Py_AtExit hook), and a
+    # ctypes callback would then enter a dead interpreter. The C function
+    # checks first and leaks instead. Its context is a callable carrying a
+    # reference of its own, which it drops after the call.
+    release = functools.partial(_release_adopted, key)
+    ctypes.pythonapi.Py_IncRef(ctypes.py_object(release))
+    descriptor.SetReleaseAddress(release_callable_address(), id(release))
 
 
 class _HostTensor:
