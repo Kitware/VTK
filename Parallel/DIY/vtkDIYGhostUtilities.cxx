@@ -37,6 +37,7 @@
 #include <algorithm>
 #include <numeric>
 #include <set>
+#include <tuple>
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
@@ -2898,11 +2899,10 @@ template <class PointSetT>
 
   ::LinkMap linkMap(inputs.size());
 
-  // For each local point id to be sent to connected blocks, this multimap
-  // stores which block id this point is to be sent to, as well as its position in the buffer being
-  // sent to its corresponding block.
-  std::vector<std::multimap<vtkIdType, std::pair<int, vtkIdType>>>
-    localPointIdsToSendBufferMultimaps(inputs.size());
+  // For each local point id to be sent to connected blocks: the block id this point is to be sent
+  // to, as well as its position in the buffer being sent to that block.
+  using PointToSend = std::tuple<vtkIdType, int, vtkIdType>;
+  std::vector<std::vector<PointToSend>> localPointsToSend(inputs.size());
 
   for (int localId = 0; localId < static_cast<int>(inputs.size()); ++localId)
   {
@@ -2960,8 +2960,7 @@ template <class PointSetT>
         vtkIdList* pointIdsToSend = blockStructure.PointIdsToSend;
         for (vtkIdType id = 0; id < pointIdsToSend->GetNumberOfIds(); ++id)
         {
-          localPointIdsToSendBufferMultimaps[localId].insert(
-            { pointIdsToSend->GetId(id), { it->first, id } });
+          localPointsToSend[localId].emplace_back(pointIdsToSend->GetId(id), it->first, id);
         }
         ++it;
       }
@@ -2978,8 +2977,12 @@ template <class PointSetT>
   // information to some common block neighbor. When such events happen, the receiving block will
   // instantiate multiple copies of the same point if nothing is done against it.
   // We can detect those points by looking at which points on our interface do we send to multiple
-  // blocks. An interfacing point for one block A can be a non-interfacing point for a block B, and
-  // be sent both by us and A to B.
+  // blocks, or that interface at least one neighbor, because the other owner of this point could
+  // send it to the same block, even if we only send it once. An interfacing point for one block A
+  // can be a non-interfacing point for a block B, and be sent both by us and A to B.
+  // This flags more points than needed: a point on the interface with a neighbor C is flagged even
+  // if C does not border the block it is sent to. The output is the same, because the receiving
+  // block removes the duplicates by position.
   //
   // So here, we list each points for which it could happen and store it in SharedPointIds.
   // The receiving block will then be able to look at those and deal with this information.
@@ -2989,44 +2992,49 @@ template <class PointSetT>
     BlockType* block = master.block<BlockType>(localId);
     auto& blockStructures = block->BlockStructures;
 
-    const auto& localPointIdsToSendBufferMultimap = localPointIdsToSendBufferMultimaps[localId];
-
-    vtkIdType previousPointId = -1;
-    vtkIdType previousLocalId = -1;
-    vtkIdType previousPointIdInSendBuffer = -1;
-    for (auto it = localPointIdsToSendBufferMultimap.cbegin();
-         it != localPointIdsToSendBufferMultimap.cend(); ++it)
+    // The point ids interfacing each neighbor, and where they start in interfacePointIds.
+    std::vector<vtkIdList*> matchingReceivedPointIdLists;
+    std::vector<vtkIdType> interfacePointIdOffsets{ 0 };
+    for (auto& pair : blockStructures)
     {
-      vtkIdType pointId = it->first;
+      vtkIdList* matchingReceivedPointIds = pair.second.MatchingReceivedPointIds;
+      matchingReceivedPointIdLists.push_back(matchingReceivedPointIds);
+      interfacePointIdOffsets.push_back(
+        interfacePointIdOffsets.back() + matchingReceivedPointIds->GetNumberOfIds());
+    }
 
-      if (pointId == previousPointId)
+    std::vector<vtkIdType> interfacePointIds(interfacePointIdOffsets.back());
+    vtkSMPTools::For(0, static_cast<vtkIdType>(matchingReceivedPointIdLists.size()),
+      [&](vtkIdType begin, vtkIdType end)
       {
-        // Do not forget to store the previous point as it is a duplicate.
-        blockStructures.at(previousLocalId)
-          .SharedPointIds->InsertNextValue(previousPointIdInSendBuffer);
-      }
-
-      // Look for other duplicates and store the one we just found
-      while (pointId == previousPointId && it != localPointIdsToSendBufferMultimap.cend())
-      {
-        auto& pair = it->second;
-        int localIdTmp = pair.first;
-        vtkIdType pointIdInSendBuffer = pair.second;
-        blockStructures.at(localIdTmp).SharedPointIds->InsertNextValue(pointIdInSendBuffer);
-        if (++it == localPointIdsToSendBufferMultimap.cend())
+        for (vtkIdType listId = begin; listId < end; ++listId)
         {
-          break;
+          vtkIdList* matchingReceivedPointIds = matchingReceivedPointIdLists[listId];
+          const vtkIdType* ids = matchingReceivedPointIds->GetPointer(0);
+          std::copy_n(ids, matchingReceivedPointIds->GetNumberOfIds(),
+            interfacePointIds.begin() + interfacePointIdOffsets[listId]);
         }
-        pointId = it->first;
-      }
-      if (it == localPointIdsToSendBufferMultimap.cend())
-      {
-        break;
-      }
+      });
+    vtkSMPTools::Sort(interfacePointIds.begin(), interfacePointIds.end());
 
-      previousPointId = pointId;
-      previousLocalId = it->second.first;
-      previousPointIdInSendBuffer = it->second.second;
+    // The points to send by point id, then block id and position, which is the order in which they
+    // were listed, since the blocks are visited by increasing id.
+    std::vector<PointToSend>& pointsToSend = localPointsToSend[localId];
+    vtkSMPTools::Sort(pointsToSend.begin(), pointsToSend.end());
+
+    // A point sent to several blocks, or that interfaces a neighbor, is a duplicate. Equal point
+    // ids are next to each other after the sort. Each block gets its duplicates in the order of the
+    // point ids, which is the order the receiver needs.
+    const vtkIdType numberOfPointsToSend = static_cast<vtkIdType>(pointsToSend.size());
+    for (vtkIdType i = 0; i < numberOfPointsToSend; ++i)
+    {
+      const auto& [pointId, blockId, position] = pointsToSend[i];
+      if ((i > 0 && std::get<0>(pointsToSend[i - 1]) == pointId) ||
+        (i + 1 < numberOfPointsToSend && std::get<0>(pointsToSend[i + 1]) == pointId) ||
+        std::binary_search(interfacePointIds.cbegin(), interfacePointIds.cend(), pointId))
+      {
+        blockStructures.at(blockId).SharedPointIds->InsertNextValue(position);
+      }
     }
   }
 
