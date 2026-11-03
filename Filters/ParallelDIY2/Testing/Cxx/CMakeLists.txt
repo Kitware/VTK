@@ -48,6 +48,9 @@ if (TARGET VTK::mpi)
   )
 
   vtk_test_cxx_executable(vtkFiltersParallelDIY2CxxTests-MPI all_tests)
+  if (VTK_USE_LARGE_DATA)
+    target_compile_definitions(vtkFiltersParallelDIY2CxxTests-MPI PRIVATE VTK_USE_LARGE_DATA)
+  endif ()
 endif()
 
 # non-mpi tests

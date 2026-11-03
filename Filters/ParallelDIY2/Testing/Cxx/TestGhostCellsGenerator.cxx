@@ -16,6 +16,7 @@
 #include "vtkCellData.h"
 #include "vtkCellTypeSource.h"
 #include "vtkCommunicator.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkConeSource.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
@@ -49,10 +50,14 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#ifdef VTK_USE_LARGE_DATA
+#include "vtkXMLPartitionedDataSetCollectionReader.h"
+#endif
 
 #include <array>
 #include <cmath>
 #include <set>
+#include <vector>
 
 namespace
 {
@@ -3568,45 +3573,97 @@ bool TestArraySerialization(vtkMultiProcessController* contr, int myrank, bool u
 }
 
 //----------------------------------------------------------------------------
-bool TestGenerateGlobalIds(vtkMultiProcessController* controller)
+bool TestGenerateGlobalIds(vtkDataObject* input)
 {
-  // Check that generating global ids does not change the result of GCG,
-  // Especially when points' position do not match exactly,
-  // Which is the case for a distributed Sphere source.
+  // Check that generating global ids does not change the result of GCG.
+  vtkNew<vtkGhostCellsGenerator> ghosts;
+  ghosts->SetInputDataObject(input);
+  ghosts->BuildIfRequiredOff();
+  ghosts->GenerateGlobalIdsOff();
+  ghosts->Update();
+
+  vtkNew<vtkGhostCellsGenerator> ghostsWithGlobalIds;
+  ghostsWithGlobalIds->SetInputDataObject(input);
+  ghostsWithGlobalIds->BuildIfRequiredOff();
+  ghostsWithGlobalIds->GenerateGlobalIdsOn();
+  ghostsWithGlobalIds->Update();
+
+  // Both outputs have the same structure, and only the non null data sets are listed.
+  std::vector<vtkDataSet*> outputs =
+    vtkCompositeDataSet::GetDataSets<vtkDataSet>(ghosts->GetOutputDataObject(0));
+  std::vector<vtkDataSet*> outputsWithGlobalIds =
+    vtkCompositeDataSet::GetDataSets<vtkDataSet>(ghostsWithGlobalIds->GetOutputDataObject(0));
+  if (outputs.size() != outputsWithGlobalIds.size())
+  {
+    vtkLog(ERROR, "Generating global IDs changed the number of data sets of the output");
+    return false;
+  }
+
+  bool success = true;
+  for (std::size_t i = 0; i < outputs.size(); ++i)
+  {
+    vtkNew<vtkExtractGhostCells> extractedGhosts;
+    extractedGhosts->SetInputData(outputs[i]);
+    extractedGhosts->Update();
+
+    vtkNew<vtkExtractGhostCells> extractedGhostsWithGlobalIds;
+    extractedGhostsWithGlobalIds->SetInputData(outputsWithGlobalIds[i]);
+    extractedGhostsWithGlobalIds->Update();
+
+    vtkUnstructuredGrid* output = extractedGhostsWithGlobalIds->GetOutput();
+    output->GetPointData()->RemoveArray(output->GetPointData()->GetGlobalIds()->GetName());
+    output->GetCellData()->RemoveArray(output->GetCellData()->GetGlobalIds()->GetName());
+
+    if (!vtkTestUtilities::CompareDataObjects(extractedGhosts->GetOutput(), output))
+    {
+      vtkLog(ERROR, "Generating global IDs changed the extracted ghost cells of data set " << i);
+      success = false;
+    }
+  }
+  return success;
+}
+
+//----------------------------------------------------------------------------
+bool TestGenerateGlobalIdsOnSphere(vtkMultiProcessController* controller)
+{
+  // The points' position do not match exactly in a distributed Sphere source.
   // See https://gitlab.kitware.com/paraview/paraview/-/work_items/23389
   vtkNew<vtkSphereSource> sphere;
   sphere->SetThetaResolution(32);
   sphere->SetPhiResolution(16);
   sphere->UpdatePiece(controller->GetLocalProcessId(), controller->GetNumberOfProcesses(), 0);
 
-  vtkNew<vtkGhostCellsGenerator> ghosts;
-  ghosts->SetInputDataObject(sphere->GetOutput());
-  ghosts->BuildIfRequiredOff();
+  return ::TestGenerateGlobalIds(sphere->GetOutput());
+}
 
-  vtkNew<vtkExtractGhostCells> extractedGhosts;
-  extractedGhosts->SetInputConnection(ghosts->GetOutputPort());
-  extractedGhosts->Update();
+#ifdef VTK_USE_LARGE_DATA
+//----------------------------------------------------------------------------
+bool TestGenerateGlobalIdsOnCFDPolyhedralMesh(
+  vtkMultiProcessController* controller, int argc, char* argv[])
+{
+  // The partitions of this polyhedral mesh have duplicate points.
+  char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/CFDPolyhedralMesh.vtpc");
+  vtkNew<vtkXMLPartitionedDataSetCollectionReader> reader;
+  reader->SetFileName(fileName);
+  delete[] fileName;
+  reader->UpdateInformation();
+  reader->UpdatePiece(controller->GetLocalProcessId(), controller->GetNumberOfProcesses(), 0);
 
-  vtkNew<vtkGhostCellsGenerator> ghostsWithGlobalIds;
-  ghostsWithGlobalIds->SetInputDataObject(sphere->GetOutput());
-  ghostsWithGlobalIds->BuildIfRequiredOff();
-  ghostsWithGlobalIds->GenerateGlobalIdsOn();
-
-  vtkNew<vtkExtractGhostCells> extractedGhostsWithGlobalIds;
-  extractedGhostsWithGlobalIds->SetInputConnection(ghostsWithGlobalIds->GetOutputPort());
-  extractedGhostsWithGlobalIds->Update();
-
-  vtkUnstructuredGrid* output = extractedGhostsWithGlobalIds->GetOutput();
-  output->GetPointData()->RemoveArray(output->GetPointData()->GetGlobalIds()->GetName());
-  output->GetCellData()->RemoveArray(output->GetCellData()->GetGlobalIds()->GetName());
-
-  if (!vtkTestUtilities::CompareDataObjects(extractedGhosts->GetOutput(), output))
+  auto* collection = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutputDataObject(0));
+  if (!collection)
   {
-    vtkLog(ERROR, "Generating global IDs changed the extracted ghost cells");
+    vtkLog(ERROR, "Could not read the polyhedral mesh");
     return false;
   }
-  return true;
+  vtkPartitionedDataSet* partitions = collection->GetPartitionedDataSet(0);
+  if (!partitions)
+  {
+    vtkLog(ERROR, "The polyhedral mesh has no partitioned data set");
+    return false;
+  }
+  return ::TestGenerateGlobalIds(partitions);
 }
+#endif
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
@@ -3671,10 +3728,17 @@ int TestGhostCellsGenerator(int argc, char* argv[])
     retVal = EXIT_FAILURE;
   }
 
-  if (!::TestGenerateGlobalIds(contr))
+  if (!::TestGenerateGlobalIdsOnSphere(contr))
   {
     retVal = EXIT_FAILURE;
   }
+
+#ifdef VTK_USE_LARGE_DATA
+  if (!::TestGenerateGlobalIdsOnCFDPolyhedralMesh(contr, argc, argv))
+  {
+    retVal = EXIT_FAILURE;
+  }
+#endif
 
   for (int numberOfGhostLayers = 1; numberOfGhostLayers < 3; ++numberOfGhostLayers)
   {
