@@ -309,6 +309,8 @@ public:
   void SetVariableVisibilityAll(bool visible);
   /**
    * Get the visibility of a variable of the current input, by name or index.
+   * A variable that is not in the current input, or any variable when there
+   * is no input, is not visible.
    */
   bool GetVariableVisibility(const std::string& name);
   bool GetVariableVisibility(int index);

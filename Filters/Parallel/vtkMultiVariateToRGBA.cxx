@@ -910,15 +910,16 @@ bool vtkMultiVariateToRGBA::GetVariableVisibility(const std::string& name)
 {
   vtkSmartPointer<vtkStringArray> names = this->GetAllVariableNames();
   vtkIdType index = names->LookupValue(name);
-  return this->IsVariableVisible(static_cast<int>(index), name);
+  // a variable not in the current input is not visible
+  return index >= 0 && this->IsVariableVisible(static_cast<int>(index), name);
 }
 
 //------------------------------------------------------------------------------
 bool vtkMultiVariateToRGBA::GetVariableVisibility(int index)
 {
   vtkSmartPointer<vtkStringArray> names = this->GetAllVariableNames();
-  return this->IsVariableVisible(
-    index, index >= 0 && index < names->GetNumberOfValues() ? names->GetValue(index) : "");
+  return index >= 0 && index < names->GetNumberOfValues() &&
+    this->IsVariableVisible(index, names->GetValue(index));
 }
 
 //------------------------------------------------------------------------------

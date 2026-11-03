@@ -149,6 +149,10 @@ bool CheckVisible(vtkMultiVariateToRGBA* filter, const Names& names, const Indic
     CHECK(filter->GetVariableVisibility(v) == visible);
     CHECK(filter->GetVariableVisibility(names[v]) == visible);
   }
+  // variables not in the input are not visible
+  CHECK(!filter->GetVariableVisibility(-1));
+  CHECK(!filter->GetVariableVisibility(NumberOfVariables));
+  CHECK(!filter->GetVariableVisibility("missing"));
   if (expected.size() >= 3)
   {
     CHECK(NumberOfVertices(filter) == static_cast<vtkIdType>(expected.size()));
@@ -299,6 +303,9 @@ bool TestInput(const std::function<vtkSmartPointer<vtkDataObject>()>& makeInput,
   before->AddVisibleVariableIndex(1);
   before->AddVisibleVariableIndex(2);
   before->SetVariableVisibility(3, true);
+  // no input: no variable is visible yet
+  CHECK(!before->GetVariableVisibility(1));
+  CHECK(!before->GetVariableVisibility(names[1]));
   before->SetInputDataObject(0, input);
   CHECK(CheckVisible(before, names, { 1, 2, 3 }));
   return true;
