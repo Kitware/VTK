@@ -18,7 +18,7 @@
 #include "vtkImageData.h"
 #include "vtkIncrementalOctreePointLocator.h"
 #include "vtkIndexedArray.h"
-#include "vtkKdTree.h"
+#include "vtkKdTreePointLocator.h"
 #include "vtkLogger.h"
 #include "vtkMathUtilities.h"
 #include "vtkMatrix3x3.h"
@@ -2245,7 +2245,8 @@ struct MatchingPointExtractor
     else
     {
       // We only use the locator if global point ids are not present.
-      this->KdTree->BuildLocatorFromPoints(surface->GetPoints());
+      this->Locator->SetDataSet(surface);
+      this->Locator->BuildLocator();
     }
   }
 
@@ -2289,7 +2290,7 @@ struct MatchingPointExtractor
       {
         vtkMath::Assign(point, p);
         vtkIdType closestPointId =
-          this->KdTree->FindClosestPointWithinRadius(this->Tolerance, p, dist2);
+          this->Locator->FindClosestPointWithinRadius(this->Tolerance, p, dist2);
 
         if (closestPointId == -1)
         {
@@ -2324,7 +2325,7 @@ struct MatchingPointExtractor
 
   // Inputs
   vtkIdTypeArray* SourcePointIds;
-  vtkNew<vtkKdTree> KdTree;
+  vtkNew<vtkKdTreePointLocator> Locator;
   vtkDataArray* SourcePoints;
   std::unordered_map<vtkIdType, vtkIdType> SourceGlobalPointIds;
   vtkIdList* InputToOutputPointIdMap;
