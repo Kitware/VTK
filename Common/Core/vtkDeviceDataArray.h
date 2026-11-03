@@ -95,6 +95,7 @@ public:
    * this one cannot hold host data.
    */
   void ShallowCopy(vtkDataArray* other) override;
+  using vtkAbstractArray::ShallowCopy;
 
   /**
    * Refuse to grow past the device memory. Asking for no more than it holds
@@ -167,6 +168,11 @@ private:
 vtkArrayDownCast_TemplateFastCastMacro(vtkDeviceDataArray);
 
 #ifndef vtkDeviceDataArray_cxx
+#ifdef _MSC_VER
+#pragma warning(push)
+// Needed when vtkDeviceDataArray is used from another class in vtkCommonCore.
+#pragma warning(disable : 4910) // extern and dllexport incompatible
+#endif
 extern template class VTKCOMMONCORE_EXPORT vtkDeviceDataArray<char>;
 extern template class VTKCOMMONCORE_EXPORT vtkDeviceDataArray<double>;
 extern template class VTKCOMMONCORE_EXPORT vtkDeviceDataArray<float>;
@@ -180,6 +186,9 @@ extern template class VTKCOMMONCORE_EXPORT vtkDeviceDataArray<unsigned int>;
 extern template class VTKCOMMONCORE_EXPORT vtkDeviceDataArray<unsigned long>;
 extern template class VTKCOMMONCORE_EXPORT vtkDeviceDataArray<unsigned long long>;
 extern template class VTKCOMMONCORE_EXPORT vtkDeviceDataArray<unsigned short>;
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 #endif
 
 VTK_ABI_NAMESPACE_END

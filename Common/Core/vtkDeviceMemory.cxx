@@ -1,15 +1,15 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDeviceMemory.h"
+#include "vtkStringFormatter.h"
 
 #include <vtksys/DynamicLoader.hxx>
 
-#if !defined(_WIN32)
+#if !defined(_WIN32) && !defined(__APPLE__)
 #include <dlfcn.h> // For RTLD_NOLOAD
 #endif
 
 #include <cstdint>
-#include <cstdio>
 #include <cstring>
 #include <map>
 #include <mutex>
@@ -58,7 +58,7 @@ struct CudaDriver
     {
       return name;
     }
-    return "CUDA error " + std::to_string(result);
+    return "CUDA error " + vtk::to_string(result);
   }
 };
 
@@ -188,7 +188,8 @@ bool CudaCopyToHost(void* destination, const void* source, std::size_t bytes, st
   CUcontext context = nullptr;
   CUdevice device = 0;
   bool retained = false;
-  if (cuda.PointerGetAttribute(&context, CU_POINTER_ATTRIBUTE_CONTEXT, address) != CUDA_SUCCESS ||
+  if (cuda.PointerGetAttribute(
+        static_cast<void*>(&context), CU_POINTER_ATTRIBUTE_CONTEXT, address) != CUDA_SUCCESS ||
     !context)
   {
     int ordinal = -1;
@@ -202,7 +203,7 @@ bool CudaCopyToHost(void* destination, const void* source, std::size_t bytes, st
       (result = cuda.DevicePrimaryCtxRetain(&context, device)) != CUDA_SUCCESS)
     {
       return Fail(why,
-        "no context for device " + std::to_string(ordinal) + " (" + cuda.Describe(result) + ")");
+        "no context for device " + vtk::to_string(ordinal) + " (" + cuda.Describe(result) + ")");
     }
     retained = true;
   }
@@ -226,7 +227,7 @@ bool CudaCopyToHost(void* destination, const void* source, std::size_t bytes, st
   if (result != CUDA_SUCCESS)
   {
     return Fail(why,
-      "copying " + std::to_string(bytes) + " bytes off the GPU failed (" + cuda.Describe(result) +
+      "copying " + vtk::to_string(bytes) + " bytes off the GPU failed (" + cuda.Describe(result) +
         ")");
   }
   return true;
@@ -270,11 +271,12 @@ struct HipRuntime
     this->ClearError();
     const char* name = this->GetErrorName(result);
     const char* text = this->GetErrorString(result);
-    return (name ? std::string(name) : "HIP error " + std::to_string(result)) +
+    return (name ? std::string(name) : "HIP error " + vtk::to_string(result)) +
       (text ? std::string(": ") + text : "");
   }
 };
 
+#if !defined(__APPLE__)
 // The HIP runtime the process has loaded already, if any: hip-python, PyTorch
 // and CuPy load one, and two copies of the runtime in a process share no
 // devices, streams or allocations. The handle is never closed.
@@ -287,22 +289,19 @@ vtksys::DynamicLoader::LibraryHandle LoadedHip(const char* name)
   return dlopen(name, RTLD_NOLOAD | RTLD_LAZY);
 #endif
 }
+#endif
 
 HipRuntime LoadHip()
 {
   HipRuntime hip;
+#if defined(__APPLE__)
+  hip.Error = "there is no HIP runtime on this platform";
+#else
 #if defined(_WIN32)
   const char* const names[] = { "amdhip64_7.dll", "amdhip64_6.dll" };
-#elif defined(__APPLE__)
-  const char* const names[] = { nullptr };
 #else
   const char* const names[] = { "libamdhip64.so.7", "libamdhip64.so.6", "libamdhip64.so" };
 #endif
-  if (!names[0])
-  {
-    hip.Error = "there is no HIP runtime on this platform";
-    return hip;
-  }
   const char* name = nullptr;
   auto library = vtksys::DynamicLoader::InvalidLibrary;
   for (const char* candidate : names)
@@ -361,6 +360,7 @@ HipRuntime LoadHip()
     return hip;
   }
   hip.Loaded = true;
+#endif
   return hip;
 }
 
@@ -510,9 +510,7 @@ struct LevelZeroDriver
 
   static std::string Describe(ze_result_t result)
   {
-    char hex[16];
-    std::snprintf(hex, sizeof(hex), "0x%x", static_cast<unsigned int>(result));
-    return std::string("Level Zero error ") + hex;
+    return vtk::format("Level Zero error {:#x}", static_cast<unsigned int>(result));
   }
 };
 
@@ -725,7 +723,7 @@ int HipDeviceOrdinal(const void* pointer, std::string* why)
 int LevelZeroDeviceOrdinal(const void* pointer, std::string* why)
 {
   LevelZeroState& state = LevelZeroShared();
-  std::lock_guard<std::mutex> lock(state.Mutex);
+  std::scoped_lock lock(state.Mutex);
   ze_memory_allocation_properties_t properties;
   ze_device_handle_t device = nullptr;
   if (!LevelZeroProperties(state, pointer, properties, device, why))
@@ -787,7 +785,7 @@ bool HipCopyToHost(void* destination, const void* source, std::size_t bytes, std
   if (switched && (result = hip.SetDevice(ordinal)) != hipSuccess)
   {
     return Fail(
-      why, "could not use device " + std::to_string(ordinal) + " (" + hip.Describe(result) + ")");
+      why, "could not use device " + vtk::to_string(ordinal) + " (" + hip.Describe(result) + ")");
   }
   // The producer's work may still be queued on a stream of its own.
   result = hip.DeviceSynchronize();
@@ -802,7 +800,7 @@ bool HipCopyToHost(void* destination, const void* source, std::size_t bytes, std
   if (result != hipSuccess)
   {
     return Fail(why,
-      "copying " + std::to_string(bytes) + " bytes off the GPU failed (" + hip.Describe(result) +
+      "copying " + vtk::to_string(bytes) + " bytes off the GPU failed (" + hip.Describe(result) +
         ")");
   }
   return true;
@@ -811,7 +809,7 @@ bool HipCopyToHost(void* destination, const void* source, std::size_t bytes, std
 bool LevelZeroIsDevicePointer(const void* pointer, std::string* why)
 {
   LevelZeroState& state = LevelZeroShared();
-  std::lock_guard<std::mutex> lock(state.Mutex);
+  std::scoped_lock lock(state.Mutex);
   ze_memory_allocation_properties_t properties;
   ze_device_handle_t device = nullptr;
   return LevelZeroProperties(state, pointer, properties, device, why);
@@ -820,7 +818,7 @@ bool LevelZeroIsDevicePointer(const void* pointer, std::string* why)
 bool LevelZeroCopyToHost(void* destination, const void* source, std::size_t bytes, std::string* why)
 {
   LevelZeroState& state = LevelZeroShared();
-  std::lock_guard<std::mutex> lock(state.Mutex);
+  std::scoped_lock lock(state.Mutex);
   ze_memory_allocation_properties_t properties;
   ze_device_handle_t device = nullptr;
   if (!LevelZeroProperties(state, source, properties, device, why))
@@ -878,7 +876,7 @@ bool LevelZeroCopyToHost(void* destination, const void* source, std::size_t byte
   if (result != ZE_RESULT_SUCCESS)
   {
     return Fail(why,
-      "copying " + std::to_string(bytes) + " bytes off the GPU failed (" +
+      "copying " + vtk::to_string(bytes) + " bytes off the GPU failed (" +
         LevelZeroDriver::Describe(result) + ")");
   }
   return true;
@@ -1014,7 +1012,7 @@ int vtkDeviceMemory::DeviceOrdinal(
 void vtkDeviceMemory::SetLevelZeroContext(void* driver, void* device, void* context)
 {
   LevelZeroState& state = LevelZeroShared();
-  std::lock_guard<std::mutex> lock(state.Mutex);
+  std::scoped_lock lock(state.Mutex);
   // A context VTK made is kept, not destroyed: arrays may still copy in it.
   // The lists of other contexts are forgotten (not destroyed: their context may
   // be gone), so a later context at a reused address never meets them.
@@ -1032,7 +1030,7 @@ void vtkDeviceMemory::SetLevelZeroContext(void* driver, void* device, void* cont
 bool vtkDeviceMemory::HasLevelZeroContext()
 {
   LevelZeroState& state = LevelZeroShared();
-  std::lock_guard<std::mutex> lock(state.Mutex);
+  std::scoped_lock lock(state.Mutex);
   return state.Context != nullptr;
 }
 
@@ -1041,7 +1039,7 @@ bool vtkDeviceMemory::GetLevelZeroContext(
   void*& driver, void*& device, void*& context, std::string* why)
 {
   LevelZeroState& state = LevelZeroShared();
-  std::lock_guard<std::mutex> lock(state.Mutex);
+  std::scoped_lock lock(state.Mutex);
   driver = device = context = nullptr;
   if (!LevelZeroContextLocked(state, why))
   {

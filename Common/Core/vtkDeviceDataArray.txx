@@ -233,7 +233,7 @@ vtkDeviceDataArray<ValueTypeT>::HostValues() const
 {
   if (!this->HostCurrent.load(std::memory_order_acquire))
   {
-    std::lock_guard<std::mutex> lock(this->HostMutex);
+    std::scoped_lock lock(this->HostMutex);
     if (!this->HostCurrent.load(std::memory_order_relaxed))
     {
       // Sized once: the array never grows, so pointers into the copy stay
