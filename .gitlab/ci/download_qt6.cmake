@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 
 # Input variables.
 set(qt_version_major "6")
-set(qt_version_minor "9")
+set(qt_version_minor "12")
 set(qt_version_patch "0")
 # This URL is only visible inside of Kitware's network. Please use your own Qt
 # Account to obtain these files.
@@ -44,46 +44,48 @@ endif ()
 # Combined version variables.
 set(qt_version "${qt_version_major}.${qt_version_minor}.${qt_version_patch}")
 set(qt_version_nodot "${qt_version_major}${qt_version_minor}${qt_version_patch}")
+set(qt_url_path "${qt_platform}/desktop/qt6_${qt_version_nodot}/qt6_${qt_version_nodot}")
 
 # Files needed to download.
 set(qt_files)
 if (qt_platform STREQUAL "windows_x86")
-  set(qt_build_stamp "202503301022")
+  set(qt_build_stamp "202609280346")
   set(qt_file_name_prefix "${qt_version}-0-${qt_build_stamp}")
+  set(qt_url_path "${qt_platform}/desktop/qt6_${qt_version_nodot}/qt6_${qt_version_nodot}_msvc2022_64")
   list(APPEND qt_files
     "qt.qt6.${qt_version_nodot}.${qt_abi}/${qt_file_name_prefix}d3dcompiler_47-x64.7z"
     "qt.qt6.${qt_version_nodot}.${qt_abi}/${qt_file_name_prefix}opengl32sw-64-mesa_11_2_2-signed_sha256.7z")
 
   foreach (qt_component IN ITEMS qtbase qtdeclarative qttools)
     list(APPEND qt_files
-      "qt.qt6.${qt_version_nodot}${}.${qt_abi}/${qt_file_name_prefix}${qt_component}-Windows-Windows_11_23H2-MSVC2022-Windows-Windows_11_23H2-X86_64.7z")
+      "qt.qt6.${qt_version_nodot}.${qt_abi}/${qt_file_name_prefix}${qt_component}-Windows-Windows_11_24H2-MSVC2022-Windows-Windows_11_24H2-X86_64.7z")
   endforeach ()
 
   set(qt_subdir "${qt_version}/clang_64")
 elseif (qt_platform STREQUAL "mac_x64")
-  set(qt_build_stamp "202503301021")
+  set(qt_build_stamp "202609280346")
   set(qt_file_name_prefix "${qt_version}-0-${qt_build_stamp}")
 
   foreach (qt_component IN ITEMS qtbase qtdeclarative qttools)
     list(APPEND qt_files
-      "qt.qt6.${qt_version_nodot}.${qt_abi}/${qt_file_name_prefix}${qt_component}-MacOS-MacOS_14-Clang-MacOS-MacOS_14-X86_64-ARM64.7z")
+      "qt.qt6.${qt_version_nodot}.${qt_abi}/${qt_file_name_prefix}${qt_component}-MacOS-MacOS_26-Clang-MacOS-MacOS_26-X86_64-ARM64.7z")
   endforeach ()
 
   set(qt_subdir "${qt_version}/clang_64")
 elseif (qt_platform STREQUAL "linux_x64")
-  set(qt_build_stamp "202503301022")
+  set(qt_build_stamp "202609280346")
   set(qt_file_name_prefix "${qt_version}-0-${qt_build_stamp}")
 
   foreach (qt_component IN ITEMS qtbase qtdeclarative qttools)
     list(APPEND qt_files
-      "qt.qt6.${qt_version_nodot}.${qt_abi}/${qt_file_name_prefix}${qt_component}-Linux-RHEL_8_10-GCC-Linux-RHEL_8_10-X86_64.7z")
+      "qt.qt6.${qt_version_nodot}.${qt_abi}/${qt_file_name_prefix}${qt_component}-Linux-RHEL_9_6-GCC-Linux-RHEL_9_6-X86_64.7z")
   endforeach ()
   list(APPEND qt_files
-    "qt.qt6.${qt_version_nodot}${qt_addon_directory_for_${qt_component}}.${qt_abi}/6.9.0-0-202501171339icu-linux-Rhel8.6-x86_64.7z")
+    "qt.qt6.${qt_version_nodot}${qt_addon_directory_for_${qt_component}}.${qt_abi}/${qt_file_name_prefix}icu-linux-Rhel8.6-x86_64.7z")
 
   set(qt_subdir "${qt_version}/clang_64")
 elseif (qt_platform STREQUAL "linux_arm64")
-  set(qt_build_stamp "202503301022")
+  set(qt_build_stamp "202609280346")
   set(qt_file_name_prefix "${qt_version}-0-${qt_build_stamp}")
 
   foreach (qt_component IN ITEMS qtbase qtdeclarative qttools)
@@ -91,7 +93,7 @@ elseif (qt_platform STREQUAL "linux_arm64")
       "qt.qt6.${qt_version_nodot}.${qt_abi}/${qt_file_name_prefix}${qt_component}-Linux-Ubuntu_24_04-GCC-Linux-Ubuntu_24_04-AARCH64.7z")
   endforeach ()
   list(APPEND qt_files
-    "qt.qt6.${qt_version_nodot}${qt_addon_directory_for_${qt_component}}.${qt_abi}/6.9.0-0-202501171339icu-linux-Debian11.6-arm64.7z")
+    "qt.qt6.${qt_version_nodot}${qt_addon_directory_for_${qt_component}}.${qt_abi}/${qt_file_name_prefix}icu-linux-Debian11.6-arm64.7z")
 
   set(qt_subdir "${qt_version}/clang_64")
 else ()
@@ -106,7 +108,6 @@ if (NOT qt_subdir)
 endif ()
 
 # Build up the path to the file to download.
-set(qt_url_path "${qt_platform}/desktop/qt6_${qt_version_nodot}/qt6_${qt_version_nodot}")
 set(qt_url_prefix "${qt_url_root}/${qt_url_path}")
 
 # Include the file containing the hashes of the files that matter.
