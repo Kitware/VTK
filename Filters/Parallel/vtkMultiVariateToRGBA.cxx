@@ -939,17 +939,22 @@ vtkStringArray* vtkMultiVariateToRGBA::GetVisibleVariables()
 //------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetVisibleVariables(vtkStringArray* names)
 {
-  this->VariablesVisibleByDefault = false;
-  this->NameVisibilityExceptions.clear();
-  this->IndexVisibilityExceptions.clear();
+  std::set<std::string> visible;
   if (names)
   {
     for (vtkIdType i = 0; i < names->GetNumberOfValues(); ++i)
     {
-      this->NameVisibilityExceptions.insert(names->GetValue(i));
+      visible.insert(names->GetValue(i));
     }
   }
-  this->Modified();
+  if (this->VariablesVisibleByDefault || !this->IndexVisibilityExceptions.empty() ||
+    this->NameVisibilityExceptions != visible)
+  {
+    this->VariablesVisibleByDefault = false;
+    this->NameVisibilityExceptions = std::move(visible);
+    this->IndexVisibilityExceptions.clear();
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -960,10 +965,15 @@ void vtkMultiVariateToRGBA::SetVisibleVariableIndices(const std::vector<int>& in
     vtkErrorMacro("Invalid variable indices: " << fmt::format("{}", fmt::join(indices, ", ")));
     return;
   }
-  this->VariablesVisibleByDefault = false;
-  this->NameVisibilityExceptions.clear();
-  this->IndexVisibilityExceptions = std::set<int>(indices.begin(), indices.end());
-  this->Modified();
+  std::set<int> visible(indices.begin(), indices.end());
+  if (this->VariablesVisibleByDefault || !this->NameVisibilityExceptions.empty() ||
+    this->IndexVisibilityExceptions != visible)
+  {
+    this->VariablesVisibleByDefault = false;
+    this->NameVisibilityExceptions.clear();
+    this->IndexVisibilityExceptions = std::move(visible);
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------

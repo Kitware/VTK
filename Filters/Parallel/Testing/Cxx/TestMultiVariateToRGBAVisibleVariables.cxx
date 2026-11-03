@@ -267,6 +267,22 @@ bool TestInput(const std::function<vtkSmartPointer<vtkDataObject>()>& makeInput,
   filter->SetVariableVisibilityAll(true);
   filter->ResetVisibleVariableIndices();
   CHECK(filter->GetMTime() == mtime);
+  // nor do the visible variables they already have, in any order
+  filter->SetVisibleVariables(visible);
+  mtime = filter->GetMTime();
+  vtkNew<vtkStringArray> reordered;
+  for (int index : { 4, 0, 2 })
+  {
+    reordered->InsertNextValue(names[index]);
+  }
+  filter->SetVisibleVariables(reordered);
+  CHECK(filter->GetMTime() == mtime);
+  CHECK(CheckVisible(filter, names, { 0, 2, 4 }));
+  filter->SetVisibleVariableIndices({ 0, 2, 4 });
+  mtime = filter->GetMTime();
+  filter->SetVisibleVariableIndices({ 4, 0, 2, 0 });
+  CHECK(filter->GetMTime() == mtime);
+  CHECK(CheckVisible(filter, names, { 0, 2, 4 }));
 
   // visibility set before the input is connected
   vtkNew<vtkMultiVariateToRGBA> before;

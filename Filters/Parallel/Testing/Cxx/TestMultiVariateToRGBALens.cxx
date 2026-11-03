@@ -3,7 +3,8 @@
 /**
  * Check that a lens-only change of vtkMultiVariateToRGBA reuses the last
  * results and output object, and gives the same output as a full execution,
- * and that the output object follows the input type.
+ * that setting the visible variables they already have keeps the last
+ * results, and that the output object follows the input type.
  */
 
 #include <vtkDataArrayRange.h>
@@ -13,14 +14,17 @@
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkSmartPointer.h>
+#include <vtkStringArray.h>
 #include <vtkStringFormatter.h>
 #include <vtkTable.h>
 #include <vtkTrivialProducer.h>
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <iostream>
 #include <string>
+#include <vector>
 
 namespace
 {
@@ -127,6 +131,33 @@ int TestMultiVariateToRGBALens(int, char*[])
   SetLens(cached, full, 0.2, 0.3, 0.6);
   CHECK(GetArray(cached, "gbc") != gbc);
   CHECK(Equal(GetArray(cached, "rgba"), GetArray(full, "rgba")));
+
+  // setting the visible variables they already have keeps the cache, by
+  // index and by name (unnamed components are named after their index)
+  vtkNew<vtkStringArray> names;
+  for (const char* name : { "0", "1", "2", "3" })
+  {
+    names->InsertNextValue(name);
+  }
+  for (const auto& setVisible :
+    std::vector<std::function<void(vtkMultiVariateToRGBA*)>>{ [](vtkMultiVariateToRGBA* f)
+      { f->SetVisibleVariableIndices({ 0, 1, 2, 3 }); },
+      [&names](vtkMultiVariateToRGBA* f) { f->SetVisibleVariables(names); } })
+  {
+    setVisible(cached);
+    setVisible(full);
+    SetLens(cached, full, 0.2, 0.3, 0.5);
+    gbc = GetArray(cached, "gbc");
+    setVisible(cached);
+    SetLens(cached, full, 0.2, 0.3, 0.6);
+    CHECK(GetArray(cached, "gbc") == gbc);
+    CHECK(Equal(GetArray(cached, "rgba"), GetArray(full, "rgba")));
+  }
+  for (vtkMultiVariateToRGBA* filter : { cached.GetPointer(), full.GetPointer() })
+  {
+    filter->SetVariableVisibilityAll(true);
+    filter->Update();
+  }
 
   // inverting the lens is a lens-only change too: the points inside get the cap
   gbc = GetArray(cached, "gbc");
