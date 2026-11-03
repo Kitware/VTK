@@ -5,6 +5,7 @@
 // ordinary VTK array holding the same values, leaves its input alone, and
 // owns what it produces: the output stays valid after the input is gone.
 
+#include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
@@ -12,12 +13,14 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkPolyhedronCellArray.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkmContour.h"
 #include "vtkmConvertToVTKArrays.h"
+#include "vtkmDataArray.h"
 #include "vtkmPointElevation.h"
 #include "vtkmThreshold.h"
 
@@ -25,6 +28,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <viskores/cont/ArrayHandleConstant.h>
 
 namespace
 {
@@ -109,6 +114,72 @@ int Compare(vtkDataSet* original, vtkDataSet* converted, const char* name)
     wrapped += IsVtkm(before[i].second);
   }
   return wrapped;
+}
+
+// Polyhedra are passed through as they are: the output holds the input's
+// vtkPolyhedronCellArray itself, not one rebuilt from its faces, which would
+// give every cell its own copy of a shared face.
+bool TestPolyhedra()
+{
+  // Two unit cubes sharing the face x = 1.
+  vtkNew<vtkPoints> points;
+  for (int k = 0; k < 2; ++k)
+  {
+    for (int j = 0; j < 2; ++j)
+    {
+      for (int i = 0; i < 3; ++i)
+      {
+        points->InsertNextPoint(i, j, k);
+      }
+    }
+  }
+  auto id = [](int i, int j, int k) { return static_cast<vtkIdType>(i + 3 * (j + 2 * k)); };
+  vtkNew<vtkUnstructuredGrid> grid;
+  grid->SetPoints(points);
+  for (int x = 0; x < 2; ++x)
+  {
+    const vtkIdType pts[8] = { id(x, 0, 0), id(x + 1, 0, 0), id(x + 1, 1, 0), id(x, 1, 0),
+      id(x, 0, 1), id(x + 1, 0, 1), id(x + 1, 1, 1), id(x, 1, 1) };
+    const vtkIdType faces[30] = { 4, pts[0], pts[3], pts[2], pts[1], 4, pts[4], pts[5], pts[6],
+      pts[7], 4, pts[0], pts[1], pts[5], pts[4], 4, pts[3], pts[7], pts[6], pts[2], 4, pts[0],
+      pts[4], pts[7], pts[3], 4, pts[1], pts[2], pts[6], pts[5] };
+    grid->InsertNextCell(VTK_POLYHEDRON, 8, pts, 6, faces);
+  }
+
+  // Cell types held by Viskores, so the filter has something to convert.
+  auto types = vtkSmartPointer<vtkmDataArray<unsigned char>>::New();
+  types->SetVtkmArrayHandle(
+    viskores::cont::make_ArrayHandleConstant(static_cast<viskores::UInt8>(VTK_POLYHEDRON), 2));
+  vtkPolyhedronCellArray* polyhedra = grid->GetPolyhedronCellArray();
+  grid->SetPolyhedralCells(types, grid->GetCells(), polyhedra);
+
+  vtkNew<vtkmConvertToVTKArrays> convert;
+  convert->SetInputData(grid);
+  convert->Update();
+  auto* output = vtkUnstructuredGrid::SafeDownCast(convert->GetOutput());
+
+  bool ok = true;
+  if (!output || IsVtkm(output->GetCellTypes()))
+  {
+    std::cerr << "polyhedra: cell types are still a vtkmDataArray\n";
+    return false;
+  }
+  if (Values(output->GetCellTypes()) != std::vector<double>(2, VTK_POLYHEDRON))
+  {
+    std::cerr << "polyhedra: cell types changed value\n";
+    ok = false;
+  }
+  if (output->GetPolyhedronCellArray() != polyhedra)
+  {
+    std::cerr << "polyhedra: the polyhedron cell array was rebuilt instead of passed as it is\n";
+    ok = false;
+  }
+  if (output->GetNumberOfCells() != 2 || output->GetCell(1)->GetNumberOfFaces() != 6)
+  {
+    std::cerr << "polyhedra: the cells changed\n";
+    ok = false;
+  }
+  return ok;
 }
 }
 
@@ -217,5 +288,6 @@ int TestVTKMConvertToVTKArrays(int, char*[])
     std::cerr << "No vtkmDataArray was converted\n";
     ok = false;
   }
+  ok = TestPolyhedra() && ok;
   return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
