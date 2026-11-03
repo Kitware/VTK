@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkmDeviceAdapter
+ * @class   vtkmDeviceSelection
  * @brief   Choose which Viskores devices VTK's accelerated filters run on.
  *
  * VTK built with several Viskores devices -- CUDA and TBB, say -- runs each
- * Viskores filter on the best one available. vtkmDeviceAdapter lets that
+ * Viskores filter on the best one available. vtkmDeviceSelection lets that
  * choice be made explicitly: force one device, disable or re-enable a
  * device, or go back to the default.
  *
@@ -21,19 +21,19 @@
  * on the main thread before then is inherited, and later changes are not.
  */
 
-#ifndef vtkmDeviceAdapter_h
-#define vtkmDeviceAdapter_h
+#ifndef vtkmDeviceSelection_h
+#define vtkmDeviceSelection_h
 
 #include "vtkAcceleratorsVTKmCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKACCELERATORSVTKMCORE_EXPORT vtkmDeviceAdapter : public vtkObject
+class VTKACCELERATORSVTKMCORE_EXPORT vtkmDeviceSelection : public vtkObject
 {
 public:
-  static vtkmDeviceAdapter* New();
-  vtkTypeMacro(vtkmDeviceAdapter, vtkObject);
+  static vtkmDeviceSelection* New();
+  vtkTypeMacro(vtkmDeviceSelection, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -67,13 +67,13 @@ public:
   static const char* GetAvailableDevices();
 
 protected:
-  vtkmDeviceAdapter();
-  ~vtkmDeviceAdapter() override;
+  vtkmDeviceSelection();
+  ~vtkmDeviceSelection() override;
 
 private:
-  vtkmDeviceAdapter(const vtkmDeviceAdapter&) = delete;
-  void operator=(const vtkmDeviceAdapter&) = delete;
+  vtkmDeviceSelection(const vtkmDeviceSelection&) = delete;
+  void operator=(const vtkmDeviceSelection&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END
-#endif // vtkmDeviceAdapter_h
+#endif // vtkmDeviceSelection_h

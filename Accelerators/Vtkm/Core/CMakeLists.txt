@@ -8,7 +8,7 @@ set(private_headers
 
 set(classes
   vtkmDataArrayFactory
-  vtkmDeviceAdapter)
+  vtkmDeviceSelection)
 
 set(nowrap_classes
   vtkmDataArray

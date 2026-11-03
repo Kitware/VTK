@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkmDeviceAdapter.h"
+#include "vtkmDeviceSelection.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkmlib/vtkmInitializer.h"
@@ -14,7 +14,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-vtkStandardNewMacro(vtkmDeviceAdapter);
+vtkStandardNewMacro(vtkmDeviceSelection);
 
 namespace
 {
@@ -37,20 +37,20 @@ viskores::cont::DeviceAdapterId DeviceNamed(const char* name)
 }
 
 //------------------------------------------------------------------------------
-vtkmDeviceAdapter::vtkmDeviceAdapter() = default;
+vtkmDeviceSelection::vtkmDeviceSelection() = default;
 
 //------------------------------------------------------------------------------
-vtkmDeviceAdapter::~vtkmDeviceAdapter() = default;
+vtkmDeviceSelection::~vtkmDeviceSelection() = default;
 
 //------------------------------------------------------------------------------
-void vtkmDeviceAdapter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkmDeviceSelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "AvailableDevices: " << vtkmDeviceAdapter::GetAvailableDevices() << "\n";
+  os << indent << "AvailableDevices: " << vtkmDeviceSelection::GetAvailableDevices() << "\n";
 }
 
 //------------------------------------------------------------------------------
-bool vtkmDeviceAdapter::ForceDevice(const char* name)
+bool vtkmDeviceSelection::ForceDevice(const char* name)
 {
   const auto device = DeviceNamed(name);
   if (!device.IsValueValid())
@@ -73,7 +73,7 @@ bool vtkmDeviceAdapter::ForceDevice(const char* name)
 }
 
 //------------------------------------------------------------------------------
-bool vtkmDeviceAdapter::DisableDevice(const char* name)
+bool vtkmDeviceSelection::DisableDevice(const char* name)
 {
   const auto device = DeviceNamed(name);
   if (!device.IsValueValid())
@@ -85,7 +85,7 @@ bool vtkmDeviceAdapter::DisableDevice(const char* name)
 }
 
 //------------------------------------------------------------------------------
-bool vtkmDeviceAdapter::EnableDevice(const char* name)
+bool vtkmDeviceSelection::EnableDevice(const char* name)
 {
   const auto device = DeviceNamed(name);
   if (!device.IsValueValid())
@@ -97,7 +97,7 @@ bool vtkmDeviceAdapter::EnableDevice(const char* name)
 }
 
 //------------------------------------------------------------------------------
-void vtkmDeviceAdapter::Reset()
+void vtkmDeviceSelection::Reset()
 {
   vtkmInitializer initialize;
   (void)initialize;
@@ -105,7 +105,7 @@ void vtkmDeviceAdapter::Reset()
 }
 
 //------------------------------------------------------------------------------
-const char* vtkmDeviceAdapter::GetAvailableDevices()
+const char* vtkmDeviceSelection::GetAvailableDevices()
 {
   vtkmInitializer initialize;
   (void)initialize;
