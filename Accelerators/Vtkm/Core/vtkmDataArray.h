@@ -130,6 +130,10 @@ public:
   /// and the host copy is kept in the handle, so reading this array on the
   /// host afterwards does not transfer it again.
   ///
+  /// Only the values are copied: the result has no name and no component
+  /// names. Set them on it if they are needed, as vtkmConvertToVTKArrays
+  /// does.
+  ///
   /// Returns null if no handle is set.
   VTK_NEWINSTANCE
   vtkDataArray* NewVTKArray();

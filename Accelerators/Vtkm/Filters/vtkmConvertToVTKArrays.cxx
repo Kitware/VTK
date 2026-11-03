@@ -170,9 +170,10 @@ void ConvertUnstructuredGrid(vtkUnstructuredGrid* output)
   }
   vtkCellArray* useCells = newCells ? newCells.Get() : cells;
   vtkDataArray* useTypes = newTypes ? newTypes.Get() : types;
-  if (vtkCellArray* faces = output->GetPolyhedronFaces())
+  // The polyhedra are passed as they are, so faces shared between cells stay shared.
+  if (vtkPolyhedronCellArray* polyhedra = output->GetPolyhedronCellArray())
   {
-    output->SetPolyhedralCells(useTypes, useCells, output->GetPolyhedronFaceLocations(), faces);
+    output->SetPolyhedralCells(useTypes, useCells, polyhedra);
   }
   else
   {
