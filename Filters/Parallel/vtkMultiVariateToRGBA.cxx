@@ -925,7 +925,12 @@ bool vtkMultiVariateToRGBA::GetVariableVisibility(int index)
 vtkStringArray* vtkMultiVariateToRGBA::GetVisibleVariables()
 {
   vtkSmartPointer<vtkStringArray> names = this->GetAllVariableNames();
-  this->VisibleVariablesCache = vtkSmartPointer<vtkStringArray>::New();
+  // refilled, not replaced, so pointers returned before stay valid
+  if (!this->VisibleVariablesCache)
+  {
+    this->VisibleVariablesCache = vtkSmartPointer<vtkStringArray>::New();
+  }
+  this->VisibleVariablesCache->Initialize();
   for (vtkIdType i = 0; i < names->GetNumberOfValues(); ++i)
   {
     if (this->IsVariableVisible(static_cast<int>(i), names->GetValue(i)))

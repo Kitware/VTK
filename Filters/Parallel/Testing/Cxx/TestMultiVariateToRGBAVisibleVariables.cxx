@@ -24,6 +24,7 @@
 #include <vtkStringArray.h>
 #include <vtkTable.h>
 #include <vtkTestErrorObserver.h>
+#include <vtkWeakPointer.h>
 
 #include <algorithm>
 #include <cmath>
@@ -178,6 +179,13 @@ bool TestInput(const std::function<vtkSmartPointer<vtkDataObject>()>& makeInput,
   vtkSmartPointer<vtkMultiVariateToRGBA> filter = MakeFilter(input);
   CHECK(ToNames(filter->GetAllVariableNames()) == names);
   CHECK(CheckVisible(filter, names, { 0, 1, 2, 3, 4 }));
+  // the array returned stays valid after the next call, which refills it
+  vtkWeakPointer<vtkStringArray> first = filter->GetVisibleVariables();
+  filter->SetVariableVisibility(names[1], false);
+  filter->GetVisibleVariables();
+  CHECK(first);
+  CHECK(ToNames(first) == Select(names, { 0, 2, 3, 4 }));
+  filter->SetVariableVisibilityAll(true);
 
   // by index
   filter->AddVisibleVariableIndex(0);

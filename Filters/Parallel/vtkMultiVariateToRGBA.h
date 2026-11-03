@@ -315,6 +315,8 @@ public:
   /**
    * Get the names of the visible variables of the current input, in their
    * natural order. Empty when the current input has no visible variable.
+   * The filter owns the array returned, and every call refills it, so copy
+   * it to keep the names of an earlier call.
    */
   virtual vtkStringArray* GetVisibleVariables();
   /**
