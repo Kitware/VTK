@@ -43,26 +43,6 @@
 
 namespace AMRUtils
 {
-struct LocalInfo
-{
-  int Rank = 0;
-  conduit_index_t NbOfLeaves = 0;
-  std::vector<int> BlocksPerLevel = { 0 };
-  std::vector<vtkIdType> BlockOffsets;
-  vtkIdType NbOfBlocks = 0;
-  double Origin[3] = { vtkMath::Inf(), vtkMath::Inf(), vtkMath::Inf() };
-  std::map<int, std::pair<int, int>> DomainBlockLevelIds;
-};
-
-struct GlobalInfo
-{
-  int NbOfProcesses = 1;
-  vtkIdType NbOfBlocks = 0;
-  std::vector<int> BlocksPerLevelAndRank;
-  double Origin[3] = { vtkMath::Inf(), vtkMath::Inf(), vtkMath::Inf() };
-  vtkIdType NbOfLevels = 0;
-};
-
 // ---------------------
 // The valid region of a domain. Its grid may include `state/nghosts` layers of ghost cells on each
 // side of its AMR box, in which case the coordset describes the grown grid, and the valid region is
@@ -75,9 +55,32 @@ struct ValidRegion
   int NumberOfGhostLayers = 0;
 };
 
-ValidRegion GetValidRegion(const conduit_cpp::Node& child)
+struct LocalInfo
 {
-  ValidRegion region;
+  int Rank = 0;
+  conduit_index_t NbOfLeaves = 0;
+  std::vector<int> BlocksPerLevel = { 0 };
+  std::vector<vtkIdType> BlockOffsets;
+  vtkIdType NbOfBlocks = 0;
+  double Origin[3] = { vtkMath::Inf(), vtkMath::Inf(), vtkMath::Inf() };
+  std::map<int, std::pair<int, int>> DomainBlockLevelIds;
+  std::map<int, ValidRegion> Regions; // per domain id
+  bool Valid = true;                  // false if a domain could not be read
+};
+
+struct GlobalInfo
+{
+  int NbOfProcesses = 1;
+  vtkIdType NbOfBlocks = 0;
+  std::vector<int> BlocksPerLevelAndRank;
+  double Origin[3] = { vtkMath::Inf(), vtkMath::Inf(), vtkMath::Inf() };
+  vtkIdType NbOfLevels = 0;
+};
+
+// Read the valid region of `child`. Return false, with an error, if its grid is too small for its
+// ghost layers.
+bool GetValidRegion(const conduit_cpp::Node& child, ValidRegion& region)
+{
   const auto coords = child["coordsets/coords"];
   region.Origin[0] = coords["origin/x"].to_float64();
   region.Origin[1] = coords["origin/y"].to_float64();
@@ -92,16 +95,17 @@ ValidRegion GetValidRegion(const conduit_cpp::Node& child)
   const int nghosts = child.has_path("state/nghosts") ? child["state/nghosts"].to_int32() : 0;
   if (nghosts <= 0)
   {
-    return region;
+    return true;
   }
   for (int d = 0; d < 3; ++d)
   {
     if (region.PointDimensions[d] > 1 && region.PointDimensions[d] - 2 * nghosts < 2)
     {
       vtkLog(ERROR,
-        "state/nghosts is " << nghosts << " but the grid has only " << region.PointDimensions[d] - 1
-                            << " cells along dimension " << d);
-      return region;
+        "Domain " << child["state/domain_id"].to_int32() << ": state/nghosts is " << nghosts
+                  << " but the grid has only " << region.PointDimensions[d] - 1
+                  << " cells along dimension " << d);
+      return false;
     }
   }
   for (int d = 0; d < 3; ++d)
@@ -113,7 +117,7 @@ ValidRegion GetValidRegion(const conduit_cpp::Node& child)
     }
   }
   region.NumberOfGhostLayers = nghosts;
-  return region;
+  return true;
 }
 
 // ---------------------
@@ -141,7 +145,12 @@ void ConstructLocalInfo(const conduit_cpp::Node& node, LocalInfo& rankInfo)
       rankInfo.DomainBlockLevelIds[domain_id] = { level, rankInfo.BlocksPerLevel[level] };
       rankInfo.BlocksPerLevel[level]++;
 
-      const ValidRegion region = GetValidRegion(child);
+      ValidRegion& region = rankInfo.Regions[domain_id];
+      if (!GetValidRegion(child, region))
+      {
+        rankInfo.Valid = false;
+        continue;
+      }
       std::copy(region.Origin, region.Origin + 3, origin);
       // check global origin
       if (origin[0] <= rankInfo.Origin[0] && origin[1] <= rankInfo.Origin[1] &&
@@ -253,7 +262,7 @@ void FillLocalData(const conduit_cpp::Node& child, const LocalInfo& rankInfo,
   const int domain_id = child["state/domain_id"].to_int32();
   const int level = child["state/level"].to_int32();
 
-  const ValidRegion region = GetValidRegion(child);
+  const ValidRegion& region = rankInfo.Regions.at(domain_id);
   std::copy(region.Origin, region.Origin + 3, origin);
   std::copy(region.Spacing, region.Spacing + 3, spacing);
   int pdims[3];
@@ -272,8 +281,11 @@ void FillLocalData(const conduit_cpp::Node& child, const LocalInfo& rankInfo,
   // set level spacing
   amr->SetSpacing(level, spacing);
   amr->SetAMRBox(level, index, box);
-  // vtkOverlappingAMR records the bounds of the grid it is given, so the grid is set while it
-  // covers the valid region only, and grown by the ghost layers afterwards.
+  // The block bounds must be those of the valid region: the AMR origin is the min of the valid
+  // regions, and CheckValidity requires it to be the min of the bounds. SetDataSet records the
+  // bounds of the grid it is given and the AMR bounds only ever grow, so the grid is set here,
+  // while it covers the valid region only, and grown by the ghost layers below. Do not move this
+  // call.
   amr->SetDataSet(level, index, ug);
 
   // Index 0 is the low corner of the AMR box, so the ghost layers get negative indices on the low
@@ -289,10 +301,11 @@ void FillLocalData(const conduit_cpp::Node& child, const LocalInfo& rankInfo,
 
   if (child.has_path("fields"))
   {
-    auto fields = child["fields"];
+    const auto fields = child["fields"];
     vtkConduitToDataObject::AddFieldData(ug, fields, true);
   }
 
+  // The same layout vtkAMReXGridReader gives its ghost array.
   if (nghosts > 0 && !ug->GetCellGhostArray())
   {
     vtkNew<vtkUnsignedCharArray> ghosts;
@@ -730,6 +743,19 @@ bool FillAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
     rankInfo.Rank = controller->GetLocalProcessId();
   }
   AMRUtils::ConstructLocalInfo(node, rankInfo);
+
+  // Every rank must give up together: the others would wait for it in the collectives below.
+  int valid = rankInfo.Valid ? 1 : 0;
+  if (globalInfo.NbOfProcesses > 1 && controller)
+  {
+    int allValid = 0;
+    controller->AllReduce(&valid, &allValid, 1, vtkCommunicator::MIN_OP);
+    valid = allValid;
+  }
+  if (!valid)
+  {
+    return false;
+  }
 
   AMRUtils::GatherInfos(rankInfo, globalInfo);
 
