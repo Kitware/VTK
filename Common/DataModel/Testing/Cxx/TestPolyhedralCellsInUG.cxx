@@ -363,7 +363,8 @@ int TestPolyhedralCellsInUG(int argc, char* argv[])
   }
   std::cout << std::endl;
 
-  double refWeights2[8] = { 0.0307, 0.0307, 0.0307, 0.0307, 0.2193, 0.2193, 0.2193, 0.2193 };
+  // The weights reproduce the point: 4 (-0.075) (-5) + 4 (0.325) (5) = 8.
+  double refWeights2[8] = { -0.075, -0.075, -0.075, -0.075, 0.325, 0.325, 0.325, 0.325 };
   for (int i = 0; i < 8; i++)
   {
     if (!::compare_double(refWeights2[i], weights[i], tol * 0.1))

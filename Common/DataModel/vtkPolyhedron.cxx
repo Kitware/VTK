@@ -40,6 +40,8 @@ VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
+// A point within this fraction of the cell's diagonal of its boundary is on the cell.
+constexpr double BoundaryTolerance = 1e-6;
 
 /// Called in IsConvex() when a face is flipped so its normal points outward.
 ///
@@ -1199,8 +1201,7 @@ int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], 
 
   // determine whether point is inside of polygon
   if (pcoords[0] >= 0.0 && pcoords[0] <= 1.0 && pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
-    pcoords[2] >= 0.0 && pcoords[2] <= 1.0 &&
-    (this->IsInside(x, std::numeric_limits<double>::infinity())))
+    pcoords[2] >= 0.0 && pcoords[2] <= 1.0 && (this->IsInside(x, BoundaryTolerance)))
   {
     return 1;
   }
@@ -1356,7 +1357,7 @@ int vtkPolyhedron::EvaluatePosition(const double x[3], double closestPoint[3],
   // boundary point and its distance are not used - minDist2 is zero and the
   // point itself is the closest point - so the expensive cell-locator closest-
   // point search (and building the locator) is skipped entirely.
-  const int isInside = this->IsInside(x, std::numeric_limits<double>::infinity());
+  const int isInside = this->IsInside(x, BoundaryTolerance);
   if (isInside)
   {
     minDist2 = 0.0;
@@ -1403,84 +1404,56 @@ void vtkPolyhedron::EvaluateLocation(
 void vtkPolyhedron::Derivatives(
   int vtkNotUsed(subId), const double pcoords[3], const double* values, int dim, double* derivs)
 {
-  int i, j, k, idx;
-  for (j = 0; j < dim; j++)
+  // Each sample is offset toward the middle of the bounding box, which keeps it in [0, 1]
+  // parametric space.
+  constexpr double offset = 0.01;
+  double x[4][3];
+  this->ComputePositionFromParametricCoordinate(pcoords, x[0]);
+  for (int axis = 0; axis < 3; axis++)
   {
-    for (i = 0; i < 3; i++)
-    {
-      derivs[j * dim + i] = 0.0;
-    }
+    double coord[3] = { pcoords[0], pcoords[1], pcoords[2] };
+    coord[axis] += pcoords[axis] > 0.5 ? -offset : offset;
+    this->ComputePositionFromParametricCoordinate(coord, x[axis + 1]);
   }
 
-  static constexpr double Sample_Offset_In_Parameter_Space = 0.01;
-
-  double x[4][3];
-  double coord[3];
-
-  // compute positions of point and three offset sample points
-  coord[0] = pcoords[0];
-  coord[1] = pcoords[1];
-  coord[2] = pcoords[2];
-  this->ComputePositionFromParametricCoordinate(coord, x[0]);
-
-  coord[0] += Sample_Offset_In_Parameter_Space;
-  this->ComputePositionFromParametricCoordinate(coord, x[1]);
-  coord[0] = pcoords[0];
-
-  coord[1] += Sample_Offset_In_Parameter_Space;
-  this->ComputePositionFromParametricCoordinate(coord, x[2]);
-  coord[1] = pcoords[1];
-
-  coord[2] += Sample_Offset_In_Parameter_Space;
-  this->ComputePositionFromParametricCoordinate(coord, x[3]);
-  coord[2] = pcoords[2];
-
   this->ConstructPolyData();
-  int numVerts = this->PolyData->GetNumberOfPoints();
-
-  double* weights = new double[numVerts];
-  double* sample = new double[dim * 4];
-  // for each sample point, sample data values
-  for (idx = 0, k = 0; k < 4; k++) // loop over three sample points
+  const vtkIdType numVerts = this->PolyData->GetNumberOfPoints();
+  std::vector<double> weights(numVerts);
+  std::vector<double> sample(4 * dim, 0.0);
+  for (int k = 0; k < 4; k++)
   {
-    this->InterpolateFunctions(x[k], weights);
-    for (j = 0; j < dim; j++, idx++) // over number of derivates requested
+    this->InterpolateFunctions(x[k], weights.data());
+    for (int j = 0; j < dim; j++)
     {
-      sample[idx] = 0.0;
-      for (i = 0; i < numVerts; i++)
+      for (vtkIdType i = 0; i < numVerts; i++)
       {
-        sample[idx] += weights[i] * values[j + i * dim];
+        sample[k * dim + j] += weights[i] * values[j + i * dim];
       }
     }
   }
 
-  double v1[3], v2[3], v3[3];
-  // compute differences along the two axes
-  for (i = 0; i < 3; i++)
+  double v[3][3], length[3];
+  for (int axis = 0; axis < 3; axis++)
   {
-    v1[i] = x[1][i] - x[0][i];
-    v2[i] = x[2][i] - x[0][i];
-    v3[i] = x[3][i] - x[0][i];
-  }
-  double l1 = vtkMath::Normalize(v1);
-  double l2 = vtkMath::Normalize(v2);
-  double l3 = vtkMath::Normalize(v3);
-
-  // compute derivatives along x-y-z axes
-  for (j = 0; j < dim; j++)
-  {
-    double ddx = (sample[dim + j] - sample[j]) / l1;
-    double ddy = (sample[2 * dim + j] - sample[j]) / l2;
-    double ddz = (sample[3 * dim + j] - sample[j]) / l3;
-
-    // project onto global x-y-z axes
-    derivs[3 * j] = ddx * v1[0] + ddy * v2[0] + ddz * v3[0];
-    derivs[3 * j + 1] = ddx * v1[1] + ddy * v2[1] + ddz * v3[1];
-    derivs[3 * j + 2] = ddx * v1[2] + ddy * v2[2] + ddz * v3[2];
+    for (int i = 0; i < 3; i++)
+    {
+      v[axis][i] = x[axis + 1][i] - x[0][i];
+    }
+    length[axis] = vtkMath::Normalize(v[axis]);
   }
 
-  delete[] weights;
-  delete[] sample;
+  for (int j = 0; j < dim; j++)
+  {
+    double d[3];
+    for (int axis = 0; axis < 3; axis++)
+    {
+      d[axis] = (sample[(axis + 1) * dim + j] - sample[j]) / length[axis];
+    }
+    for (int i = 0; i < 3; i++)
+    {
+      derivs[3 * j + i] = d[0] * v[0][i] + d[1] * v[1][i] + d[2] * v[2][i];
+    }
+  }
 }
 
 //------------------------------------------------------------------------------

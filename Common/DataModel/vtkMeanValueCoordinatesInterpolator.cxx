@@ -197,12 +197,16 @@ struct ComputeWeightsForPolygonMesh
 
       // The direction of v depends on the orientation (clockwise or
       // contour-clockwise) of the polygon. We want to make sure that v
-      // starts from x and point towards the polygon.
+      // starts from x and point towards the polygon. The polygon still
+      // contributes with the sign of its orientation, so that one seen from
+      // its back, as in a concave mesh, is subtracted.
+      double faceSign = 1.0;
       if (vtkMath::Dot(v, u[0]) < 0)
       {
         v[0] = -v[0];
         v[1] = -v[1];
         v[2] = -v[2];
+        faceSign = -1.0;
       }
 
       // angles between edges
@@ -253,7 +257,7 @@ struct ComputeWeightsForPolygonMesh
         if (fabs(theta[j]) < eps)
         {
           outlierFlag = true;
-          weights[poly[j]] += vNorm / dist[poly[j]];
+          weights[poly[j]] += faceSign * vNorm / dist[poly[j]];
           break;
         }
       }
@@ -310,11 +314,11 @@ struct ComputeWeightsForPolygonMesh
       }
 
       // weight
-      weights[poly[0]] += vNorm / sum / dist[poly[0]] / sin(theta[0]) *
+      weights[poly[0]] += faceSign * vNorm / sum / dist[poly[0]] / sin(theta[0]) *
         (tan(alpha[0] / 2.0) + tan(alpha[nPolyPts - 1] / 2.0));
       for (int j = 1; j < nPolyPts; j++)
       {
-        weights[poly[j]] += vNorm / sum / dist[poly[j]] / sin(theta[j]) *
+        weights[poly[j]] += faceSign * vNorm / sum / dist[poly[j]] / sin(theta[j]) *
           (tan(alpha[j] / 2.0) + tan(alpha[j - 1] / 2.0));
       }
 
