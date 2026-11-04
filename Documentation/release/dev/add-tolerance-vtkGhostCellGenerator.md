@@ -25,3 +25,8 @@ ensuring identical and predictable results across both paths.
   default was avoided to prevent potential matching issues when datasets contain varying point precisions.
 * **Special Note:** If your dataset contains topologically distinct points with bit-identical coordinates that need to
   be strictly separated, you can explicitly configure a zero tolerance.
+* **Point precision:** The point locator path matches the points with `vtkKdTreePointLocator`, which compares them in
+  double precision. The previous `vtkKdTree` stored the points as floats, so with the default tolerance, the
+  coincident points of a dataset with double coordinates were not matched and no ghost cells were generated.
+* **Shared points:** When global point IDs are not present, a point owned by several blocks and sent to the same block
+  by more than one of them is no longer duplicated in the output.
