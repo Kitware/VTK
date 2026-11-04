@@ -7,7 +7,8 @@ set(private_headers
   vtkmlib/PortalTraits.h)
 
 set(classes
-  vtkmDataArrayFactory)
+  vtkmDataArrayFactory
+  vtkmDeviceSelection)
 
 set(nowrap_classes
   vtkmDataArray
