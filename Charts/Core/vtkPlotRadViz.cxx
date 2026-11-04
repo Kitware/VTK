@@ -252,6 +252,12 @@ void vtkPlotRadViz::SetVerticesRotation(double rotation)
   }
 }
 
+vtkStringArray* vtkPlotRadViz::GetLabels()
+{
+  return this->Labels;
+}
+
+//------------------------------------------------------------------------------
 void vtkPlotRadViz::SetInputDataSet(vtkDataSet* dataset)
 {
   this->Data->SetInputDataObject(0, dataset);

@@ -147,6 +147,40 @@ vtkPlot* vtkChartRadViz::AddPlot(int /* type */)
 }
 
 //------------------------------------------------------------------------------
+vtkIdType vtkChartRadViz::AddPlot(vtkPlot* plot)
+{
+  auto* radviz = vtkPlotRadViz::SafeDownCast(plot);
+  if (!radviz)
+  {
+    // ignored, like vtkChart does: ParaView's chart view adds its time plot
+    // to every chart type
+    return -1;
+  }
+  this->SetPlot(radviz);
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+bool vtkChartRadViz::RemovePlot(vtkIdType index)
+{
+  if (index != 0 || !this->Internals->Plot)
+  {
+    return false;
+  }
+  this->SetPlot(nullptr);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+void vtkChartRadViz::ClearPlots()
+{
+  if (this->Internals->Plot)
+  {
+    this->SetPlot(nullptr);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkChartRadViz::SetPlot(vtkPlotRadViz* plot)
 {
   if (this->Internals->Plot)

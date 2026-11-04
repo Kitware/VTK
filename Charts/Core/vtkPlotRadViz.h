@@ -97,6 +97,12 @@ public:
   using vtkPlot::SetInputData;
   void SetInputData(vtkTable* table) override;
   /**
+   * Returns the labels set with SetLabels(), or nullptr. Unlike vtkPlot, it
+   * does not fall back on labels computed from the input, so serialization
+   * saves and restores only the labels that were set.
+   */
+  vtkStringArray* GetLabels() override;
+  /**
    * Paint event for the item.
    */
   bool Paint(vtkContext2D* painter) override;

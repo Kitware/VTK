@@ -167,6 +167,11 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
 vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestRadVizChartInteractionLens,TestRadVizChartInteraction.cxx 1
 )
+if (VTK_WRAP_SERIALIZATION)
+  vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+    TestRadVizSerDes.cxx,NO_DATA,NO_VALID
+  )
+endif ()
 
 
 vtk_test_cxx_executable(vtkChartsCoreCxxTests tests

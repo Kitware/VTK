@@ -70,12 +70,27 @@ public:
    */
   bool Paint(vtkContext2D* painter) override;
 
-  using vtkChart::AddPlot;
+  ///@{
   /**
    * Add a plot to the chart. If a plot already exists, it does nothing.
    * It returns the added or existing plot.
    */
   vtkPlot* AddPlot(int type) override;
+
+  /**
+   * Set 'plot', a vtkPlotRadViz, as the plot of the chart, the same as
+   * SetPlot(), and return 0. Any other plot is ignored, as vtkChart does,
+   * and -1 is returned. Used to restore a serialized chart.
+   */
+  vtkIdType AddPlot(vtkPlot* plot) override;
+
+  /**
+   * Remove the plot, the same as SetPlot(nullptr). RemovePlot() returns
+   * false if 'index' is not 0 or the chart has no plot.
+   */
+  bool RemovePlot(vtkIdType index) override;
+  void ClearPlots() override;
+  ///@}
 
   /**
    * Set the plot to use for the chart. Since this type of chart can

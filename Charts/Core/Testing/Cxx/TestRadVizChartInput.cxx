@@ -7,7 +7,9 @@
  * unnamed. Check that it draws the arrays computed for cell scalars, that
  * variable visibility, by name or index, set before the first paint is kept,
  * that labels set with SetLabels follow the visible variables, that
- * SetPlot(nullptr) removes the plot, and that it draws nothing, leaving no
+ * SetPlot(nullptr) removes the plot, that AddPlot(vtkPlot*), RemovePlot()
+ * and ClearPlots() set or remove a RadViz plot only, that GetLabels()
+ * returns only the labels set, and that it draws nothing, leaving no
  * vertices to interact with, when hidden or when too few variables remain
  * after a paint. Check that unchanged or rejected visibility settings do not
  * modify the plot.
@@ -25,6 +27,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPassThrough.h"
+#include "vtkPlotPoints.h"
 #include "vtkPlotRadViz.h"
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
@@ -409,6 +412,38 @@ int TestRadVizChartInput(int, char*[])
     chart->SetPlot(nullptr);
     CHECK(chart->GetNumberOfPlots() == 0 && chart->GetNumberOfItems() == 0);
     view->GetRenderWindow()->Render();
+  }
+  // AddPlot(vtkPlot*) replaces the plot, ignores other plot types
+  {
+    vtkNew<vtkChartRadViz> chart;
+    vtkPlot* first = chart->AddPlot(0);
+    vtkNew<vtkPlotPoints> points;
+    CHECK(chart->AddPlot(points) == -1);
+    CHECK(chart->GetPlot(0) == first && chart->GetNumberOfItems() == 1);
+    vtkNew<vtkPlotRadViz> second;
+    CHECK(chart->AddPlot(second) == 0);
+    CHECK(chart->GetPlot(0) == second && chart->GetNumberOfItems() == 1);
+    CHECK(!chart->RemovePlot(1));
+    CHECK(chart->RemovePlot(0));
+    CHECK(chart->GetNumberOfPlots() == 0 && chart->GetNumberOfItems() == 0);
+    CHECK(!chart->RemovePlot(0));
+    chart->AddPlot(second);
+    chart->ClearPlots();
+    CHECK(chart->GetNumberOfPlots() == 0 && chart->GetNumberOfItems() == 0);
+  }
+  // GetLabels() returns only the labels set, not the ones drawn
+  {
+    vtkNew<vtkContextView> view;
+    vtkNew<vtkChartRadViz> chart;
+    view->GetScene()->AddItem(chart);
+    auto* plot = vtkPlotRadViz::SafeDownCast(chart->AddPlot(0));
+    plot->SetInputData(MakeTable());
+    view->GetRenderWindow()->Render();
+    CHECK(plot->GetLabels() == nullptr);
+    vtkNew<vtkStringArray> labels;
+    labels->InsertNextValue("A");
+    plot->SetLabels(labels);
+    CHECK(plot->GetLabels() == labels.Get());
   }
   // the arrays computed for cell scalars, not point arrays of the same name
   CHECK(PaintCellScalars());
