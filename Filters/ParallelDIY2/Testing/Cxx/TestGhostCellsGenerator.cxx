@@ -3910,8 +3910,10 @@ bool TestMisalignedBlocks(
 }
 
 //----------------------------------------------------------------------------
-// A row of `numberOfCells` unit cube polyhedra along x, starting at `x0`.
-vtkSmartPointer<vtkUnstructuredGrid> MakePolyhedronRow(double x0, int numberOfCells)
+// A row of `numberOfCells` unit cube polyhedra along x, starting at `x0`. If `shareFaces`, two
+// adjacent cells reference the same face for their common side, else each cell has its own.
+vtkSmartPointer<vtkUnstructuredGrid> MakePolyhedronRow(
+  double x0, int numberOfCells, bool shareFaces)
 {
   const vtkIdType nx = numberOfCells + 1;
   auto pointId = [nx](vtkIdType i, vtkIdType j, vtkIdType k) { return i + nx * (j + 2 * k); };
@@ -3930,6 +3932,16 @@ vtkSmartPointer<vtkUnstructuredGrid> MakePolyhedronRow(double x0, int numberOfCe
   }
 
   vtkNew<vtkCellArray> faces;
+  if (shareFaces)
+  {
+    // The faces orthogonal to x, shared by the cells on both of their sides, have ids 0 to nx - 1.
+    for (vtkIdType i = 0; i < nx; ++i)
+    {
+      faces->InsertNextCell(
+        { pointId(i, 0, 0), pointId(i, 1, 0), pointId(i, 1, 1), pointId(i, 0, 1) });
+    }
+  }
+
   vtkNew<vtkCellArray> cells;
   vtkNew<vtkCellArray> faceLocations;
   vtkNew<vtkUnsignedCharArray> types;
@@ -3944,8 +3956,15 @@ vtkSmartPointer<vtkUnstructuredGrid> MakePolyhedronRow(double x0, int numberOfCe
     faceLocations->InsertNextCell(6);
     for (vtkIdType i = c; i <= c + 1; ++i)
     {
-      faceLocations->InsertCellPoint(faces->InsertNextCell(
-        { pointId(i, 0, 0), pointId(i, 1, 0), pointId(i, 1, 1), pointId(i, 0, 1) }));
+      if (shareFaces)
+      {
+        faceLocations->InsertCellPoint(i);
+      }
+      else
+      {
+        faceLocations->InsertCellPoint(faces->InsertNextCell(
+          { pointId(i, 0, 0), pointId(i, 1, 0), pointId(i, 1, 1), pointId(i, 0, 1) }));
+      }
     }
     for (vtkIdType j = 0; j < 2; ++j)
     {
@@ -4050,11 +4069,11 @@ bool TestPolyhedraWithGhostCellsToPeel(int myrank, bool useImplicitArray)
   vtkNew<vtkPartitionedDataSet> pds;
   if (myrank == 0)
   {
-    vtkSmartPointer<vtkUnstructuredGrid> ug0 = ::MakePolyhedronRow(0.0, 3);
+    vtkSmartPointer<vtkUnstructuredGrid> ug0 = ::MakePolyhedronRow(0.0, 3, false);
     ug0->AllocateCellGhostArray()->SetValue(0, vtkDataSetAttributes::DUPLICATECELL);
     pds->SetNumberOfPartitions(2);
     pds->SetPartition(0, ug0);
-    pds->SetPartition(1, ::MakePolyhedronRow(3.0, 2));
+    pds->SetPartition(1, ::MakePolyhedronRow(3.0, 2, false));
   }
 
   vtkNew<vtkGhostCellsGenerator> generator;
@@ -4077,6 +4096,54 @@ bool TestPolyhedraWithGhostCellsToPeel(int myrank, bool useImplicitArray)
     if (!ug || !::TestPolyhedronRowFaces(ug, 3))
     {
       vtkLog(ERROR, "Wrong polyhedra in partition " << partitionId);
+      return false;
+    }
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+// The adjacent polyhedra of the input share their common face. The output has the faces of each
+// polyhedron apart.
+bool TestPolyhedraWithSharedFaces(int myrank, bool useImplicitArray)
+{
+  vtkLog(INFO, "Testing polyhedra with shared faces");
+
+  vtkNew<vtkPartitionedDataSet> pds;
+  if (myrank == 0)
+  {
+    pds->SetNumberOfPartitions(2);
+    pds->SetPartition(0, ::MakePolyhedronRow(0.0, 2, true));
+    pds->SetPartition(1, ::MakePolyhedronRow(2.0, 2, true));
+  }
+
+  vtkNew<vtkGhostCellsGenerator> generator;
+  generator->SetInputData(pds);
+  generator->SetNumberOfGhostLayers(1);
+  generator->BuildIfRequiredOff();
+  generator->SetUseImplicitArrays(useImplicitArray);
+  generator->Update();
+
+  if (myrank != 0)
+  {
+    return true;
+  }
+
+  // Each partition keeps 2 cells and gets 1 ghost cell from the other.
+  auto output = vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0));
+  for (unsigned int partitionId = 0; partitionId < 2; ++partitionId)
+  {
+    auto ug = vtkUnstructuredGrid::SafeDownCast(output->GetPartition(partitionId));
+    if (!ug || !::TestPolyhedronRowFaces(ug, 3))
+    {
+      vtkLog(ERROR, "Wrong polyhedra in partition " << partitionId);
+      return false;
+    }
+    const vtkIdType numberOfFaces = ug->GetPolyhedronFaces()->GetNumberOfCells();
+    if (numberOfFaces != 6 * 3)
+    {
+      vtkLog(ERROR,
+        "Partition " << partitionId << " has " << numberOfFaces << " faces instead of " << 6 * 3);
       return false;
     }
   }
@@ -4164,6 +4231,11 @@ int TestGhostCellsGenerator(int argc, char* argv[])
   for (bool useImplicitArray : { false, true })
   {
     if (!::TestPolyhedraWithGhostCellsToPeel(myrank, useImplicitArray))
+    {
+      retVal = EXIT_FAILURE;
+    }
+
+    if (!::TestPolyhedraWithSharedFaces(myrank, useImplicitArray))
     {
       retVal = EXIT_FAILURE;
     }
