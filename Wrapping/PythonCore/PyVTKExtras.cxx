@@ -105,7 +105,7 @@ static void PyVTKExtras_ReleaseCallable(void* context)
   {
     return;
   }
-  PyGILState_STATE state = PyGILState_Ensure();
+  vtkPythonScopeGilEnsurer gilEnsurer(true);
   PyObject* callable = static_cast<PyObject*>(context);
   PyObject* result = PyObject_CallObject(callable, nullptr);
   if (result)
@@ -117,7 +117,6 @@ static void PyVTKExtras_ReleaseCallable(void* context)
     PyErr_WriteUnraisable(callable);
   }
   Py_DECREF(callable);
-  PyGILState_Release(state);
 }
 
 //------------------------------------------------------------------------------
