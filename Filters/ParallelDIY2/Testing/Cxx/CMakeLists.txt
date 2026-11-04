@@ -25,12 +25,19 @@ if (TARGET VTK::mpi)
       TestPResampleToImage.cxx)
   endif ()
 
-  # We want 4 processes to test the vtkAggregateDataSetFilter properly.
+  # We want 4 processes to test the vtkAggregateDataSetFilter and vtkPResolveHangingNodes properly.
   set (vtkFiltersParallelDIY2CxxTests-MPI_NUMPROCS 4)
   vtk_add_test_mpi(vtkFiltersParallelDIY2CxxTests-MPI no_data_tests_4_procs
     DIYAggregateDataSet.cxx
     TestAdaptiveResampleToImage.cxx
     TestGenerateGlobalIds.cxx
+    TestPResolveHangingNodes2DNOAMR.cxx,NO_VALID
+    TestPResolveHangingNodes2DPDC.cxx,NO_VALID
+    TestPResolveHangingNodes2DUG.cxx,NO_VALID
+    TestPResolveHangingNodes3DGlobalIds.cxx,NO_VALID
+    TestPResolveHangingNodes3DNOAMR.cxx,NO_VALID
+    TestPResolveHangingNodes3DPDC.cxx,NO_VALID
+    TestPResolveHangingNodes3DUG.cxx,NO_VALID
     TestReducePartitions.cxx
   )
 

@@ -8,6 +8,7 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellTypeUtilities.h"
+#include "vtkConstantArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
@@ -22,14 +23,13 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
-#include "vtkUnsignedIntArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
 #include <functional>
 #include <set>
-
-#define VTK_MAX_CELLS_PER_POINT 4096
+#include <type_traits>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkCellDataToPointData);
@@ -38,29 +38,74 @@ namespace
 {
 
 //------------------------------------------------------------------------------
+// Normalize `weights` so that their sum is 1, return false if their sum is 0.
+bool NormalizeWeights(std::vector<double>& weights)
+{
+  double totalWeight = 0.0;
+  for (double weight : weights)
+  {
+    totalWeight += weight;
+  }
+  if (totalWeight == 0.0)
+  {
+    return false;
+  }
+  for (double& weight : weights)
+  {
+    weight /= totalWeight;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
 // Optimized code for vtkUnstructuredGrid/vtkPolyData. It's waaaay faster than the more
 // general path.
-template <typename TCellLinks>
-struct UnstructuredDataCD2PD
+template <typename TCellLinks, typename TWeightArray>
+struct UnstructuredDataCD2PDFunctor
 {
   TCellLinks* Links;
+  TWeightArray* WeightArray;
   ArrayList Arrays;
 
-  UnstructuredDataCD2PD(vtkIdType numPts, vtkCellData* inDA, vtkPointData* outDA, TCellLinks* links)
+  UnstructuredDataCD2PDFunctor(vtkIdType numPts, vtkCellData* inDA, vtkPointData* outDA,
+    TCellLinks* links, TWeightArray* weightArray)
     : Links(links)
+    , WeightArray(weightArray)
   {
     this->Arrays.AddArrays(numPts, inDA, outDA);
   }
 
   void operator()(vtkIdType beginPointId, vtkIdType endPointId)
   {
+    auto cellWeights = vtk::DataArrayValueRange<1, double>(this->WeightArray);
+    std::vector<double> weights;
     vtkIdType ncells;
     for (vtkIdType pointId = beginPointId; pointId < endPointId; ++pointId)
     {
       if ((ncells = this->Links->GetNcells(pointId)) > 0)
       {
         auto cells = this->Links->GetCells(pointId);
-        this->Arrays.Average(ncells, cells, pointId);
+        if constexpr (std::is_base_of_v<vtkConstantArray<double>, TWeightArray>)
+        {
+          this->Arrays.Average(ncells, cells, pointId);
+        }
+        else
+        {
+          weights.resize(ncells);
+          for (vtkIdType cellId = 0; cellId < ncells; ++cellId)
+          {
+            weights[cellId] = cellWeights[cells[cellId]];
+          }
+          if (NormalizeWeights(weights))
+          {
+            this->Arrays.WeightedAverage(ncells, cells, weights.data(), pointId);
+          }
+          else
+          {
+            // like a point without cells
+            this->Arrays.AssignNullValue(pointId);
+          }
+        }
       }
       else
       {
@@ -70,61 +115,46 @@ struct UnstructuredDataCD2PD
   }
 };
 
+template <typename TCellLinks>
+struct UnstructuredDataCD2PDWorker
+{
+  template <typename TWeightArray>
+  void operator()(TWeightArray* weightArray, vtkIdType numPts, vtkCellData* inDA,
+    vtkPointData* outDA, TCellLinks* links)
+  {
+    UnstructuredDataCD2PDFunctor<TCellLinks, TWeightArray> cd2Pd(
+      numPts, inDA, outDA, links, weightArray);
+    vtkSMPTools::For(0, numPts, cd2Pd);
+  }
+};
+
+using WeightArrays = vtkTypeList::Create<vtkAOSDataArrayTemplate<float>,
+  vtkAOSDataArrayTemplate<double>, vtkConstantArray<float>, vtkConstantArray<double>>;
+
 //------------------------------------------------------------------------------
 // Take care of dispatching to the functor using an abstract cell links.
-void FastUnstructuredDataACL(
-  vtkIdType numPts, vtkAbstractCellLinks* links, vtkCellData* cfl, vtkPointData* pd)
+void FastUnstructuredDataACL(vtkIdType numPts, vtkAbstractCellLinks* links, vtkCellData* cfl,
+  vtkPointData* pd, vtkDataArray* weightArray)
 {
   assert(links != nullptr);
   if (auto staticCellLinks = vtkStaticCellLinks::SafeDownCast(links))
   {
-    UnstructuredDataCD2PD<vtkStaticCellLinks> cd2pd(numPts, cfl, pd, staticCellLinks);
-    vtkSMPTools::For(0, numPts, cd2pd);
+    UnstructuredDataCD2PDWorker<vtkStaticCellLinks> worker;
+    if (!vtkArrayDispatch::DispatchByArray<WeightArrays>::Execute(
+          weightArray, worker, numPts, cfl, pd, staticCellLinks))
+    {
+      worker(weightArray, numPts, cfl, pd, staticCellLinks);
+    }
   }
   else // vtkCellLinks
   {
     auto cellLinks = vtkCellLinks::SafeDownCast(links);
-    UnstructuredDataCD2PD<vtkCellLinks> cd2pd(numPts, cfl, pd, cellLinks);
-    vtkSMPTools::For(0, numPts, cd2pd);
-  }
-}
-
-//------------------------------------------------------------------------------
-// Take care of dispatching to the functor using a static cell links template instance.
-template <typename TInput>
-void FastUnstructuredDataSCLT(
-  vtkIdType connectivitySize, TInput* input, vtkCellData* cfl, vtkPointData* pd)
-{
-  const auto numberOfPoints = input->GetNumberOfPoints();
-  const auto numberOfCells = input->GetNumberOfCells();
-  auto linksType =
-    vtkAbstractCellLinks::ComputeType(numberOfPoints - 1, numberOfCells - 1, connectivitySize);
-  // build the appropriate static cell links template instance
-  if (linksType == vtkAbstractCellLinks::STATIC_CELL_LINKS_USHORT)
-  {
-    using TCellLinks = vtkStaticCellLinksTemplate<unsigned short>;
-    TCellLinks cellLinks;
-    cellLinks.BuildLinks(input);
-    UnstructuredDataCD2PD<TCellLinks> cd2pd(numberOfPoints, cfl, pd, &cellLinks);
-    vtkSMPTools::For(0, numberOfPoints, cd2pd);
-  }
-#ifdef VTK_USE_64BIT_IDS
-  else if (linksType == vtkAbstractCellLinks::STATIC_CELL_LINKS_UINT)
-  {
-    using TCellLinks = vtkStaticCellLinksTemplate<unsigned int>;
-    TCellLinks cellLinks;
-    cellLinks.BuildLinks(input);
-    UnstructuredDataCD2PD<TCellLinks> cd2pd(numberOfPoints, cfl, pd, &cellLinks);
-    vtkSMPTools::For(0, numberOfPoints, cd2pd);
-  }
-#endif
-  else
-  {
-    using TCellLinks = vtkStaticCellLinksTemplate<vtkIdType>;
-    TCellLinks cellLinks;
-    cellLinks.BuildLinks(input);
-    UnstructuredDataCD2PD<TCellLinks> cd2pd(numberOfPoints, cfl, pd, &cellLinks);
-    vtkSMPTools::For(0, numberOfPoints, cd2pd);
+    UnstructuredDataCD2PDWorker<vtkCellLinks> worker;
+    if (!vtkArrayDispatch::DispatchByArray<WeightArrays>::Execute(
+          weightArray, worker, numPts, cfl, pd, cellLinks))
+    {
+      worker(weightArray, numPts, cfl, pd, cellLinks);
+    }
   }
 }
 
@@ -138,23 +168,29 @@ void FastUnstructuredDataSCLT(
 struct Spread
 {
   template <typename SrcArrayT, typename DstArrayT>
-  void operator()(SrcArrayT* const srcarray, DstArrayT* const dstarray, vtkDataSet* const src,
-    vtkUnsignedIntArray* const num, vtkIdType ncells, vtkIdType npoints, vtkIdType ncomps,
-    int highestCellDimension, int contributingCellOption, vtkCellDataToPointData* filter) const
+  void operator()(SrcArrayT* const srcArray, DstArrayT* const dstArray,
+    vtkDataArray* const weightArray, vtkDataSet* const src, vtkIdType ncells, vtkIdType npoints,
+    vtkIdType ncomps, int highestCellDimension, int contributingCellOption,
+    vtkCellDataToPointData* filter) const
   {
     // Both arrays will have the same value type:
     using T = vtk::GetAPIType<SrcArrayT>;
+    // The weighted sums of integers are accumulated as doubles, the weights being fractional
+    using AccumulateT = std::conditional_t<std::is_floating_point_v<T>, T, double>;
 
     // zero initialization
-    std::fill_n(vtk::DataArrayValueRange(dstarray).begin(), npoints * ncomps, T(0));
+    std::fill_n(vtk::DataArrayValueRange(dstArray).begin(), npoints * ncomps, T(0));
 
-    const auto srcTuples = vtk::DataArrayTupleRange(srcarray);
-    auto dstTuples = vtk::DataArrayTupleRange(dstarray);
+    const auto srcTuples = vtk::DataArrayTupleRange(srcArray);
+    auto dstTuples = vtk::DataArrayTupleRange(dstArray);
     vtkIdType checkAbortInterval;
 
     // accumulate
     if (contributingCellOption != vtkCellDataToPointData::Patch)
     {
+      // point_data += weight * cell_data
+      std::vector<AccumulateT> sums(npoints * ncomps, AccumulateT(0));
+      std::vector<double> totalWeights(npoints, 0.0);
       vtkNew<vtkIdList> pointIds;
       checkAbortInterval = std::min(ncells / 10 + 1, (vtkIdType)1000);
       for (vtkIdType cid = 0; cid < ncells; ++cid)
@@ -166,19 +202,21 @@ struct Spread
         int dimension = vtkCellTypeUtilities::GetDimension(src->GetCellType(cid));
         if (dimension >= highestCellDimension)
         {
+          const double weight = weightArray->GetComponent(cid, 0);
           const auto srcTuple = srcTuples[cid];
           src->GetCellPoints(cid, pointIds);
           for (vtkIdType i = 0, I = pointIds->GetNumberOfIds(); i < I; ++i)
           {
             const vtkIdType ptId = pointIds->GetId(i);
-            auto dstTuple = dstTuples[ptId];
-            // accumulate cell data to point data <==> point_data += cell_data
-            std::transform(srcTuple.cbegin(), srcTuple.cend(), dstTuple.cbegin(), dstTuple.begin(),
-              std::plus<T>());
+            totalWeights[ptId] += weight;
+            for (vtkIdType comp = 0; comp < ncomps; ++comp)
+            {
+              sums[ptId * ncomps + comp] += static_cast<AccumulateT>(srcTuple[comp] * weight);
+            }
           }
         }
       }
-      // average
+      // weighted average
 
       checkAbortInterval = std::min(npoints / 10 + 1, (vtkIdType)1000);
       for (vtkIdType pid = 0; pid < npoints; ++pid)
@@ -188,20 +226,22 @@ struct Spread
           break;
         }
         // guard against divide by zero
-        if (unsigned int const denom = num->GetValue(pid))
+        const double totalWeight = totalWeights[pid];
+        if (totalWeight != 0.0)
         {
-          // divide point data by the number of cells using it <==>
-          // point_data /= denum
+          // point_data = sum / total weight of the cells using the point
           auto dstTuple = dstTuples[pid];
-          std::transform(dstTuple.cbegin(), dstTuple.cend(), dstTuple.begin(),
-            [denom](T value) { return value / denom; });
+          for (vtkIdType comp = 0; comp < ncomps; ++comp)
+          {
+            dstTuple[comp] = static_cast<T>(sums[pid * ncomps + comp] / totalWeight);
+          }
         }
       }
     }
     else
     { // compute over cell patches
       vtkNew<vtkIdList> cellsOnPoint;
-      std::vector<T> data(4 * ncomps);
+      std::vector<AccumulateT> data(4 * ncomps);
       checkAbortInterval = std::min(npoints / 10 + 1, (vtkIdType)1000);
       for (vtkIdType pid = 0; pid < npoints; ++pid)
       {
@@ -209,8 +249,8 @@ struct Spread
         {
           break;
         }
-        std::fill(data.begin(), data.end(), 0);
-        T numPointCells[4] = { 0, 0, 0, 0 };
+        std::fill(data.begin(), data.end(), AccumulateT(0));
+        std::array<double, 4> weightsPointCells = { 0, 0, 0, 0 };
         // Get all cells touching this point.
         src->GetPointCells(pid, cellsOnPoint);
         vtkIdType numPatchCells = cellsOnPoint->GetNumberOfIds();
@@ -218,21 +258,24 @@ struct Spread
         {
           vtkIdType cellId = cellsOnPoint->GetId(pc);
           int cellDimension = src->GetCell(cellId)->GetCellDimension();
-          numPointCells[cellDimension] += 1;
+          const double weight = weightArray->GetComponent(cellId, 0);
+          weightsPointCells[cellDimension] += weight;
           const auto srcTuple = srcTuples[cellId];
           for (int comp = 0; comp < ncomps; comp++)
           {
-            data[comp + ncomps * cellDimension] += srcTuple[comp];
+            data[comp + ncomps * cellDimension] +=
+              static_cast<AccumulateT>(srcTuple[comp] * weight);
           }
         }
         auto dstTuple = dstTuples[pid];
         for (int dimension = 3; dimension >= 0; dimension--)
         {
-          if (numPointCells[dimension])
+          if (weightsPointCells[dimension] != 0)
           {
             for (int comp = 0; comp < ncomps; comp++)
             {
-              dstTuple[comp] = data[comp + dimension * ncomps] / numPointCells[dimension];
+              dstTuple[comp] =
+                static_cast<T>(data[comp + dimension * ncomps] / weightsPointCells[dimension]);
             }
             break;
           }
@@ -241,6 +284,16 @@ struct Spread
     }
   }
 };
+
+//------------------------------------------------------------------------------
+// A weight array where all the cells have the same weight, for the plain average.
+vtkSmartPointer<vtkDataArray> MakeConstantWeights(vtkIdType numberOfCells)
+{
+  vtkNew<vtkConstantArray<double>> constantWeightArray;
+  constantWeightArray->ConstructBackend(1);
+  constantWeightArray->SetNumberOfValues(numberOfCells);
+  return constantWeightArray;
+}
 
 } // end anonymous namespace
 
@@ -251,10 +304,42 @@ class vtkCellDataToPointData::Internals
 public:
   std::set<std::string> CellDataArrays;
 
+  // The weights of the cells if EnableWeightedAverage is on, otherwise a constant weight array
+  // for a plain average. The weight array must be a cell array with a single component,
+  // otherwise a plain average is done, with a warning.
+  static vtkSmartPointer<vtkDataArray> GetWeights(
+    vtkCellDataToPointData* filter, vtkInformationVector** inputVector, vtkDataSet* input)
+  {
+    if (!filter->EnableWeightedAverage)
+    {
+      return MakeConstantWeights(input->GetNumberOfCells());
+    }
+    int association = vtkDataObject::FIELD_ASSOCIATION_NONE;
+    vtkDataArray* weights = filter->GetInputArrayToProcess(0, inputVector, association);
+    if (!weights)
+    {
+      vtkWarningWithObjectMacro(
+        filter, "EnableWeightedAverage is on, but no weight array is selected: no weight is used.");
+      return MakeConstantWeights(input->GetNumberOfCells());
+    }
+    // A point array with as many tuples as there are cells is not a weight array either.
+    if (association != vtkDataObject::FIELD_ASSOCIATION_CELLS ||
+      weights->GetNumberOfComponents() != 1 ||
+      weights->GetNumberOfTuples() != input->GetNumberOfCells())
+    {
+      vtkWarningWithObjectMacro(filter,
+        "The weight array " << (weights->GetName() ? weights->GetName() : "(unnamed)")
+                            << " must be a cell array with a single component: no weight is used.");
+      return MakeConstantWeights(input->GetNumberOfCells());
+    }
+    return weights;
+  }
+
   // Special traversal algorithm for vtkUniformGrid and vtkRectilinearGrid to support blanking
   // points will not have more than 8 cells for either of these data sets
   template <typename T>
-  int InterpolatePointDataWithMask(vtkCellDataToPointData* filter, T* input, vtkDataSet* output)
+  int InterpolatePointDataWithMask(
+    vtkCellDataToPointData* filter, T* input, vtkDataSet* output, vtkDataArray* weightArray)
   {
     vtkNew<vtkIdList> allCellIds;
     allCellIds->Reserve(8);
@@ -289,7 +374,7 @@ public:
 
     outPD->InterpolateAllocate(processedCellData, numberOfPoints);
 
-    double weights[8];
+    std::vector<double> weights;
 
     bool abort = false;
     vtkIdType progressInterval = numberOfPoints / 20 + 1;
@@ -313,15 +398,15 @@ public:
       }
 
       vtkIdType numCells = cellIds->GetNumberOfIds();
-
-      if (numCells > 0)
+      weights.resize(numCells);
+      for (vtkIdType i = 0; i < numCells; ++i)
       {
-        double weight = 1.0 / numCells;
-        for (vtkIdType cellId = 0; cellId < numCells; cellId++)
-        {
-          weights[cellId] = weight;
-        }
-        outPD->InterpolatePoint(processedCellData, ptId, cellIds, weights);
+        weights[i] = weightArray->GetComponent(cellIds->GetId(i), 0);
+      }
+
+      if (numCells > 0 && NormalizeWeights(weights))
+      {
+        outPD->InterpolatePoint(processedCellData, ptId, cellIds, weights.data());
       }
       else
       {
@@ -337,6 +422,7 @@ public:
 // Instantiate object so that cell data is not passed to output.
 vtkCellDataToPointData::vtkCellDataToPointData()
 {
+  this->EnableWeightedAverage = false;
   this->PassCellData = false;
   this->ContributingCellOption = vtkCellDataToPointData::All;
   this->ProcessAllArrays = true;
@@ -438,21 +524,24 @@ int vtkCellDataToPointData::RequestData(
     return 1;
   }
 
+  vtkSmartPointer<vtkDataArray> weightArray = Internals::GetWeights(this, inputVector, input);
+
   // Do the interpolation, taking care of masked cells if needed.
   vtkStructuredGrid* sGrid = vtkStructuredGrid::SafeDownCast(input);
   vtkUniformGrid* uniformGrid = vtkUniformGrid::SafeDownCast(input);
   int result;
   if (sGrid && sGrid->HasAnyBlankCells())
   {
-    result = this->Implementation->InterpolatePointDataWithMask(this, sGrid, output);
+    result = this->Implementation->InterpolatePointDataWithMask(this, sGrid, output, weightArray);
   }
   else if (uniformGrid && uniformGrid->HasAnyBlankCells())
   {
-    result = this->Implementation->InterpolatePointDataWithMask(this, uniformGrid, output);
+    result =
+      this->Implementation->InterpolatePointDataWithMask(this, uniformGrid, output, weightArray);
   }
   else
   {
-    result = this->InterpolatePointData(input, output);
+    result = this->InterpolatePointData(input, output, weightArray);
   }
 
   if (result == 0)
@@ -511,6 +600,7 @@ void vtkCellDataToPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
+  os << indent << "EnableWeightedAverage: " << (this->EnableWeightedAverage ? "On\n" : "Off\n");
   os << indent << "PassCellData: " << (this->PassCellData ? "On\n" : "Off\n");
   os << indent << "ContributingCellOption: " << this->ContributingCellOption << endl;
   os << indent << "PieceInvariant: " << (this->PieceInvariant ? "On\n" : "Off\n");
@@ -590,7 +680,9 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
   }
   outCD->PassData(inCD);
 
-  // Now perform the averaging operation.
+  vtkSmartPointer<vtkDataArray> weightArray = Internals::GetWeights(this, inputVector, input);
+
+  // Now perform the (weighted) averaging operation.
 
   // Use a much faster approach for the "All" ContributingCellOption, and
   // unstructured datasets. A common workflow requiring maximum performance.
@@ -598,83 +690,37 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
   {
     if (auto uGrid = vtkUnstructuredGrid::SafeDownCast(input))
     {
-      if (uGrid->GetLinks()) // if links are present use them
-      {
-        uGrid->BuildLinks(); // ensure links are up to date
-        FastUnstructuredDataACL(numberOfPoints, uGrid->GetLinks(), processedCellData, outPD);
-      }
-      else // otherwise create links with the minimum size
-      {
-        vtkIdType connectivitySize = uGrid->GetCells()->GetNumberOfConnectivityIds();
-        FastUnstructuredDataSCLT(connectivitySize, uGrid, processedCellData, outPD);
-      }
+      uGrid->BuildLinks(); // ensure links are built or up to date
+      FastUnstructuredDataACL(
+        numberOfPoints, uGrid->GetLinks(), processedCellData, outPD, weightArray);
       return 1;
     }
     else // polydata
     {
       auto polyData = vtkPolyData::SafeDownCast(input);
-      if (polyData->GetLinks()) // if links are present use them
-      {
-        polyData->BuildLinks(); // ensure links are up to date
-        FastUnstructuredDataACL(numberOfPoints, polyData->GetLinks(), processedCellData, outPD);
-      }
-      else // otherwise create links with the minimum size
-      {
-        auto verts = polyData->GetVerts();
-        auto lines = polyData->GetLines();
-        auto polys = polyData->GetPolys();
-        auto strips = polyData->GetStrips();
-        vtkIdType connectivitySize = 0;
-        connectivitySize += verts ? verts->GetNumberOfConnectivityIds() : 0;
-        connectivitySize += lines ? lines->GetNumberOfConnectivityIds() : 0;
-        connectivitySize += polys ? polys->GetNumberOfConnectivityIds() : 0;
-        connectivitySize += strips ? strips->GetNumberOfConnectivityIds() : 0;
-        FastUnstructuredDataSCLT(connectivitySize, polyData, processedCellData, outPD);
-      }
+      polyData->BuildLinks(); // ensure links are built or up to date
+      FastUnstructuredDataACL(
+        numberOfPoints, polyData->GetLinks(), processedCellData, outPD, weightArray);
       return 1;
     }
   } // fast path
 
   // If necessary, begin the slow, more general path.
 
-  // To a large extent the loops immediately following are a serial version
-  // of BuildLinks() found in vtkUnstructuredGrid and vtkPolyData. The code
-  // below could be threaded if necessary. Count the number of cells
-  // associated with each point. If we are doing patches though we will do
-  // that later on.
-  vtkSmartPointer<vtkUnsignedIntArray> num;
+  // The cells of the highest dimension of the data set contribute with DataSetMax.
   int highestCellDimension = 0;
-  if (this->ContributingCellOption != vtkCellDataToPointData::Patch)
+  if (this->ContributingCellOption == vtkCellDataToPointData::DataSetMax)
   {
-    num = vtkSmartPointer<vtkUnsignedIntArray>::New();
-    num->SetNumberOfValues(numberOfPoints);
-    num->FillValue(0);
-    if (this->ContributingCellOption == vtkCellDataToPointData::DataSetMax)
+    int maxDimension = input->IsA("vtkPolyData") == 1 ? 2 : 3;
+    for (vtkIdType i = 0; i < numberOfCells; i++)
     {
-      int maxDimension = input->IsA("vtkPolyData") == 1 ? 2 : 3;
-      for (vtkIdType i = 0; i < numberOfCells; i++)
+      int dim = vtkCellTypeUtilities::GetDimension(input->GetCellType(i));
+      if (dim > highestCellDimension)
       {
-        int dim = vtkCellTypeUtilities::GetDimension(input->GetCellType(i));
-        if (dim > highestCellDimension)
+        highestCellDimension = dim;
+        if (highestCellDimension == maxDimension)
         {
-          highestCellDimension = dim;
-          if (highestCellDimension == maxDimension)
-          {
-            break;
-          }
-        }
-      }
-    }
-    vtkNew<vtkIdList> pids;
-    for (vtkIdType cid = 0; cid < numberOfCells; ++cid)
-    {
-      if (input->GetCell(cid)->GetCellDimension() >= highestCellDimension)
-      {
-        input->GetCellPoints(cid, pids);
-        for (vtkIdType i = 0, I = pids->GetNumberOfIds(); i < I; ++i)
-        {
-          vtkIdType const pid = pids->GetId(i);
-          num->SetValue(pid, num->GetValue(pid) + 1);
+          break;
         }
       }
     }
@@ -682,8 +728,8 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
 
   const auto nfields = processedCellData->GetNumberOfArrays();
   int fid = 0;
-  auto f = [this, &fid, nfields, numberOfPoints, input, num, numberOfCells, highestCellDimension](
-             vtkAbstractArray* aa_srcarray, vtkAbstractArray* aa_dstarray)
+  auto f = [this, &fid, nfields, numberOfPoints, input, numberOfCells, highestCellDimension,
+             weightArray](vtkAbstractArray* aa_srcarray, vtkAbstractArray* aa_dstarray)
   {
     // update progress and check for an abort request.
     this->UpdateProgress((fid + 1.0) / nfields);
@@ -698,10 +744,10 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
 
       Spread worker;
       using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
-      if (!Dispatcher::Execute(srcarray, dstarray, worker, input, num, numberOfCells,
+      if (!Dispatcher::Execute(srcarray, dstarray, worker, weightArray, input, numberOfCells,
             numberOfPoints, ncomps, highestCellDimension, this->ContributingCellOption, this))
       { // fallback for unknown arrays:
-        worker(srcarray, dstarray, input, num, numberOfCells, numberOfPoints, ncomps,
+        worker(srcarray, dstarray, weightArray, input, numberOfCells, numberOfPoints, ncomps,
           highestCellDimension, this->ContributingCellOption, this);
       }
     }
@@ -719,11 +765,9 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
 }
 
 //------------------------------------------------------------------------------
-int vtkCellDataToPointData::InterpolatePointData(vtkDataSet* input, vtkDataSet* output)
+int vtkCellDataToPointData::InterpolatePointData(
+  vtkDataSet* input, vtkDataSet* output, vtkDataArray* weightArray)
 {
-  vtkNew<vtkIdList> cellIds;
-  cellIds->Reserve(VTK_MAX_CELLS_PER_POINT);
-
   const vtkIdType numberOfPoints = input->GetNumberOfPoints();
 
   vtkCellData* inCD = input->GetCellData();
@@ -752,7 +796,8 @@ int vtkCellDataToPointData::InterpolatePointData(vtkDataSet* input, vtkDataSet* 
 
   outPD->InterpolateAllocate(processedCellData, numberOfPoints);
 
-  double weights[VTK_MAX_CELLS_PER_POINT];
+  std::vector<double> weights;
+  vtkNew<vtkIdList> cellIds;
 
   bool abort = false;
   vtkIdType progressInterval = numberOfPoints / 20 + 1;
@@ -766,15 +811,15 @@ int vtkCellDataToPointData::InterpolatePointData(vtkDataSet* input, vtkDataSet* 
 
     input->GetPointCells(ptId, cellIds);
     vtkIdType numCells = cellIds->GetNumberOfIds();
-
-    if (numCells > 0 && numCells < VTK_MAX_CELLS_PER_POINT)
+    weights.resize(numCells);
+    for (vtkIdType i = 0; i < numCells; ++i)
     {
-      double weight = 1.0 / numCells;
-      for (vtkIdType cellId = 0; cellId < numCells; cellId++)
-      {
-        weights[cellId] = weight;
-      }
-      outPD->InterpolatePoint(processedCellData, ptId, cellIds, weights);
+      weights[i] = weightArray->GetComponent(cellIds->GetId(i), 0);
+    }
+
+    if (numCells > 0 && NormalizeWeights(weights))
+    {
+      outPD->InterpolatePoint(processedCellData, ptId, cellIds, weights.data());
     }
     else
     {
@@ -783,5 +828,11 @@ int vtkCellDataToPointData::InterpolatePointData(vtkDataSet* input, vtkDataSet* 
   }
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkCellDataToPointData::InterpolatePointData(vtkDataSet* input, vtkDataSet* output)
+{
+  return this->InterpolatePointData(input, output, MakeConstantWeights(input->GetNumberOfCells()));
 }
 VTK_ABI_NAMESPACE_END

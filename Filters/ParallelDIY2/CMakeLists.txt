@@ -4,6 +4,9 @@ vtk_object_factory_declare(
 vtk_object_factory_declare(
   BASE      vtkResampleWithDataSet
   OVERRIDE  vtkPResampleWithDataSet)
+vtk_object_factory_declare(
+  BASE      vtkResolveHangingNodes
+  OVERRIDE  vtkPResolveHangingNodes)
 
 set(classes
   vtkAdaptiveResampleToImage
@@ -13,6 +16,7 @@ set(classes
   vtkNativePartitioningStrategy
   vtkOverlappingCellsDetector
   vtkPartitioningStrategy
+  vtkPResolveHangingNodes
   vtkPResampleToImage
   vtkPResampleWithDataSet
   vtkProbeLineFilter

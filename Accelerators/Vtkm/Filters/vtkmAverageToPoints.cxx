@@ -72,6 +72,11 @@ int vtkmAverageToPoints::RequestData(
         "Only `All` is supported for ContributingCellOption.");
     }
 
+    if (this->EnableWeightedAverage)
+    {
+      throw viskores::cont::ErrorFilterExecution("EnableWeightedAverage is not supported.");
+    }
+
     vtkStructuredGrid* sGrid = vtkStructuredGrid::SafeDownCast(input);
     vtkUniformGrid* uniformGrid = vtkUniformGrid::SafeDownCast(input);
     if ((sGrid && sGrid->HasAnyBlankCells()) || (uniformGrid && uniformGrid->HasAnyBlankCells()))

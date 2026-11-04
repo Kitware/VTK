@@ -82,6 +82,12 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestResampleWithDataSet2.cxx,NO_SERDES
   TestResampleWithDataSet3.cxx
   TestRemoveDuplicatePolys.cxx,NO_VALID
+  TestResolveHangingNodes2DNOAMR.cxx,NO_VALID
+  TestResolveHangingNodes2DPDC.cxx,NO_VALID
+  TestResolveHangingNodes2DUG.cxx,NO_VALID
+  TestResolveHangingNodes3DNOAMR.cxx,NO_VALID
+  TestResolveHangingNodes3DPDC.cxx,NO_VALID
+  TestResolveHangingNodes3DUG.cxx,NO_VALID
   TestSmoothPolyDataFilter.cxx,NO_VALID
   TestSMPPipelineContour.cxx,NO_VALID
   TestSlicePlanePrecision.cxx,NO_VALID
@@ -107,6 +113,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   UnitTestMergeFilter.cxx,NO_VALID
   TestContourImplicitArrays.cxx,NO_VALID
   TestContourConstantScalarUG.cxx,NO_VALID
+  TestPolyDataToUnstructuredGrid.cxx,NO_VALID
   )
 
 # This test fails on vtk-m due to bug #804 (vtk/vtkm)

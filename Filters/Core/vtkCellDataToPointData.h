@@ -43,6 +43,7 @@
 #define vtkCellDataToPointData_h
 
 #include "vtkDataSetAlgorithm.h"
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_8_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
@@ -68,6 +69,20 @@ public:
     Patch = 1, //!< Highest dimension cells in the patch of cells contributing to the calculation
     DataSetMax = 2 //!< Highest dimension cells in the data set
   };
+
+  ///@{
+  /**
+   * Enable cell weighted average by selecting a single component cell weight array using
+   * SetInputArrayToProcess. The value of a point is then the average of the values of its cells,
+   * weighted by the weights of these cells. If no array is selected, or if the selected array is
+   * not a cell array with a single component, a warning is issued and the average is not weighted.
+   * A point whose cells have weights that sum to 0 gets the value of a point without cells. The
+   * default is off.
+   */
+  vtkSetMacro(EnableWeightedAverage, bool);
+  vtkGetMacro(EnableWeightedAverage, bool);
+  vtkBooleanMacro(EnableWeightedAverage, bool);
+  ///@}
 
   ///@{
   /**
@@ -149,7 +164,17 @@ protected:
     vtkInformation*, vtkInformationVector**, vtkInformationVector*);
   ///@}
 
+  /**
+   * Interpolate the cell data of `input` to the point data of `output`: the value of a point is
+   * the average of the values of its cells, weighted by `weightArray`, a cell array with a single
+   * component (constant for an average that is not weighted, see EnableWeightedAverage). This is
+   * the general algorithm, used when no specific one applies.
+   */
+  int InterpolatePointData(vtkDataSet* input, vtkDataSet* output, vtkDataArray* weightArray);
+  VTK_DEPRECATED_IN_9_8_0("Use the version with the weight array")
   int InterpolatePointData(vtkDataSet* input, vtkDataSet* output);
+
+  bool EnableWeightedAverage;
 
   ///@{
   /**

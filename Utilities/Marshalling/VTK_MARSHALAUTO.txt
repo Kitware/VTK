@@ -264,6 +264,7 @@ Filters/Core/vtkRemoveDuplicatePolys.h
 Filters/Core/vtkRemoveUnusedPoints.h
 Filters/Core/vtkResampleToImage.h
 Filters/Core/vtkResampleWithDataSet.h
+Filters/Core/vtkResolveHangingNodes.h
 Filters/Core/vtkReverseSense.h
 Filters/Core/vtkSimpleElevationFilter.h
 Filters/Core/vtkSmoothPolyDataFilter.h

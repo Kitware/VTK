@@ -4,13 +4,19 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkConstantArray.h"
+#include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
+
+#include <algorithm>
+#include <array>
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
@@ -61,57 +67,82 @@ bool vtkPolyDataToUnstructuredGrid::CanBeProcessedFast(vtkPolyData* polyData)
 //------------------------------------------------------------------------------
 namespace
 {
-struct BuildCellTypesImpl : public vtkCellArray::DispatchUtilities
+enum ArrayKind
 {
-  // Given a polyData cell array and a size to type functor, it creates the cell types
-  template <typename OffsetsT, typename ConnectivityT, typename SizeToTypeFunctor>
-  void operator()(OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn),
-    vtkUnsignedCharArray* cellTypes, SizeToTypeFunctor&& typer, vtkIdType offset)
-  {
-    const vtkIdType numCells = offsets->GetNumberOfValues() - 1;
-    if (numCells == 0)
-    {
-      return;
-    }
+  VERTS = 0,
+  LINES,
+  POLYS,
+  STRIPS
+};
 
-    vtkSMPTools::For(0, numCells,
+// Cell type of a cell with the given number of points that comes from the given cell array.
+int GetCellType(ArrayKind kind, vtkIdType size)
+{
+  switch (kind)
+  {
+    case VERTS:
+      return size == 1 ? VTK_VERTEX : VTK_POLY_VERTEX;
+    case LINES:
+      return size == 2 ? VTK_LINE : VTK_POLY_LINE;
+    case POLYS:
+      if (size == 3)
+      {
+        return VTK_TRIANGLE;
+      }
+      return size == 4 ? VTK_QUAD : VTK_POLYGON;
+    default:
+      return VTK_TRIANGLE_STRIP;
+  }
+}
+
+struct CopyConnectivityImpl : public vtkCellArray::DispatchUtilities
+{
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType* out)
+  {
+    vtkSMPTools::For(0, conn->GetNumberOfValues(),
       [&](vtkIdType begin, vtkIdType end)
       {
-        auto types = cellTypes->GetPointer(offset);
-        for (vtkIdType cellId = begin; cellId < end; ++cellId)
-        {
-          types[cellId] = static_cast<unsigned char>(typer(GetCellSize(offsets, cellId)));
-        }
+        auto inConnRange = GetRange(conn).GetSubRange(begin, end);
+        std::copy(inConnRange.begin(), inConnRange.end(), out + begin);
       });
   }
 };
 
-struct BuildConnectivityImpl : public vtkCellArray::DispatchUtilities
+struct CopyOffsetsImpl : public vtkCellArray::DispatchUtilities
 {
+  // Writes the offsets of a segment with cells of different sizes, shifted by `shift`.
   template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdTypeArray* outOffSets,
-    vtkIdTypeArray* outConnectivity, vtkIdType offset, vtkIdType connectivityOffset)
+  void operator()(
+    OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), vtkIdType* out, vtkIdType shift)
   {
-    using ValueType = GetAPIType<OffsetsT>;
-    const vtkIdType connectivitySize = conn->GetNumberOfValues();
     const vtkIdType numCells = offsets->GetNumberOfValues() - 1;
-
-    // copy connectivity values
-    vtkSMPTools::For(0, connectivitySize,
-      [&](vtkIdType begin, vtkIdType end)
-      {
-        auto inConnRange = GetRange(conn).GetSubRange(begin, end);
-        auto outConnPtr = outConnectivity->GetPointer(connectivityOffset);
-        std::copy(inConnRange.begin(), inConnRange.end(), outConnPtr + begin);
-      });
-    // transform offset values
     vtkSMPTools::For(0, numCells,
       [&](vtkIdType begin, vtkIdType end)
       {
         auto inOffRange = GetRange(offsets).GetSubRange(begin, end);
-        auto outOffPtr = outOffSets->GetPointer(offset);
-        std::transform(inOffRange.begin(), inOffRange.end(), outOffPtr + begin,
-          [&connectivityOffset](ValueType val) -> ValueType { return val + connectivityOffset; });
+        std::transform(inOffRange.begin(), inOffRange.end(), out + begin,
+          [shift](auto val) -> vtkIdType { return static_cast<vtkIdType>(val) + shift; });
+      });
+  }
+};
+
+struct BuildCellTypesImpl : public vtkCellArray::DispatchUtilities
+{
+  // Writes the type of every cell of a segment with cells of different sizes
+  template <typename OffsetsT, typename ConnectivityT>
+  void operator()(
+    OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), unsigned char* types, ArrayKind kind)
+  {
+    const vtkIdType numCells = offsets->GetNumberOfValues() - 1;
+    vtkSMPTools::For(0, numCells,
+      [&](vtkIdType begin, vtkIdType end)
+      {
+        for (vtkIdType cellId = begin; cellId < end; ++cellId)
+        {
+          types[cellId] =
+            static_cast<unsigned char>(GetCellType(kind, GetCellSize(offsets, cellId)));
+        }
       });
   }
 };
@@ -124,26 +155,53 @@ int vtkPolyDataToUnstructuredGrid::RequestData(
   auto input = vtkPolyData::GetData(inputVector[0], 0);
   auto output = vtkUnstructuredGrid::GetData(outputVector, 0);
 
-  if (!input || input->GetNumberOfPoints() == 0)
+  if (!input)
   {
     vtkDebugMacro("No input data.");
     return 1;
   }
 
-  // copy points
-  vtkNew<vtkPoints> points;
-  points->ShallowCopy(input->GetPoints());
-  output->SetPoints(points);
+  // the field data is shared, even without points
+  output->GetFieldData()->ShallowCopy(input->GetFieldData());
+  if (input->GetNumberOfPoints() == 0)
+  {
+    vtkDebugMacro("No input points.");
+    return 1;
+  }
 
-  // copy point data
+  // points, point data and cell data are shared
+  output->SetPoints(input->GetPoints());
   output->GetPointData()->ShallowCopy(input->GetPointData());
+  output->GetCellData()->ShallowCopy(input->GetCellData());
 
-  const vtkIdType numVerts = input->GetNumberOfVerts();
-  const vtkIdType numLines = input->GetNumberOfLines();
-  const vtkIdType numPolys = input->GetNumberOfPolys();
-  const vtkIdType numStrips = input->GetNumberOfStrips();
-  const vtkIdType numCells = numVerts + numLines + numPolys + numStrips;
-
+  // the cell arrays of the polydata in the order of its cells
+  const std::array<vtkCellArray*, 4> cellArraysPerType = { input->GetVerts(), input->GetLines(),
+    input->GetPolys(), input->GetStrips() };
+  std::array<vtkIdType, 4> numCellsPerType = {};
+  // number of points of every cell of an array if they all have the same size, otherwise -1
+  std::array<vtkIdType, 4> cellSizesPerType = {};
+  // first cell and first connectivity entry of an array in the output
+  std::array<vtkIdType, 4> cellOffsetsPerType = {};
+  std::array<vtkIdType, 4> connectivityOffsetsPerType = {};
+  vtkIdType numCells = 0;
+  vtkIdType numConnectivity = 0;
+  int numArrays = 0;
+  int lastArray = 0;
+  for (int i = 0; i < 4; ++i)
+  {
+    numCellsPerType[i] = cellArraysPerType[i]->GetNumberOfCells();
+    if (numCellsPerType[i] == 0)
+    {
+      continue;
+    }
+    cellSizesPerType[i] = cellArraysPerType[i]->IsHomogeneous(); // O(1) for fixed size storage
+    cellOffsetsPerType[i] = numCells;
+    connectivityOffsetsPerType[i] = numConnectivity;
+    numCells += numCellsPerType[i];
+    numConnectivity += cellArraysPerType[i]->GetNumberOfConnectivityIds();
+    ++numArrays;
+    lastArray = i;
+  }
   if (numCells == 0)
   {
     return 1;
@@ -155,53 +213,82 @@ int vtkPolyDataToUnstructuredGrid::RequestData(
     return 1;
   }
 
-  const bool hasVerts = (numVerts > 0);
-  const bool hasLines = (numLines > 0);
-  const bool hasPolys = (numPolys > 0);
-  const bool hasStrips = (numStrips > 0);
+  // all the cells of an array have the same type, so no type per cell is needed
+  auto hasConstantType = [&](int i) { return i == STRIPS || cellSizesPerType[i] > 0; };
+  auto constantType = [&](int i) {
+    return static_cast<unsigned char>(GetCellType(static_cast<ArrayKind>(i), cellSizesPerType[i]));
+  };
 
-  // construct cell types array
-  vtkNew<vtkUnsignedCharArray> cellTypes;
-  cellTypes->SetNumberOfValues(numCells);
-  vtkIdType offset = 0;
-  if (hasVerts)
+  // The cells are shared when there is only one cell array
+  vtkSmartPointer<vtkCellArray> outCells;
+  if (numArrays == 1)
   {
-    input->GetVerts()->Dispatch(
-      BuildCellTypesImpl{}, cellTypes, [](vtkIdType size) -> VTKCellType
-      { return size == 1 ? VTK_VERTEX : VTK_POLY_VERTEX; }, offset);
+    outCells = cellArraysPerType[lastArray];
   }
-  if (hasLines)
+  else
   {
-    offset += numVerts;
-    input->GetLines()->Dispatch(
-      BuildCellTypesImpl{}, cellTypes,
-      [](vtkIdType size) -> VTKCellType { return size == 2 ? VTK_LINE : VTK_POLY_LINE; }, offset);
-  }
-  if (hasPolys)
-  {
-    offset += numLines;
-    input->GetPolys()->Dispatch(
-      BuildCellTypesImpl{}, cellTypes,
-      [](vtkIdType size) -> VTKCellType
+    // if all the cells have the same size the offsets are implicit (fixed size cell array)
+    bool sameSize = true;
+    vtkIdType firstSize = -1;
+    for (int i = 0; i < 4; ++i)
+    {
+      if (numCellsPerType[i] == 0)
       {
-        switch (size)
+        continue;
+      }
+      firstSize = firstSize < 0 ? cellSizesPerType[i] : firstSize;
+      sameSize = sameSize && cellSizesPerType[i] > 0 && cellSizesPerType[i] == firstSize;
+    }
+
+    vtkNew<vtkIdTypeArray> connectivity;
+    connectivity->SetNumberOfValues(numConnectivity);
+    for (int i = 0; i < 4; ++i)
+    {
+      if (numCellsPerType[i] > 0)
+      {
+        cellArraysPerType[i]->Dispatch(
+          CopyConnectivityImpl{}, connectivity->GetPointer(connectivityOffsetsPerType[i]));
+      }
+    }
+
+    outCells = vtkSmartPointer<vtkCellArray>::New();
+    if (sameSize)
+    {
+      outCells->SetData(firstSize, connectivity);
+    }
+    else
+    {
+      vtkNew<vtkIdTypeArray> offsets;
+      offsets->SetNumberOfValues(numCells + 1);
+      offsets->SetValue(numCells, numConnectivity);
+      for (int i = 0; i < 4; ++i)
+      {
+        if (numCellsPerType[i] == 0)
         {
-          case 3:
-            return VTK_TRIANGLE;
-          case 4:
-            return VTK_QUAD;
-          default:
-            return VTK_POLYGON;
+          continue;
         }
-      },
-      offset);
-  }
-  if (hasStrips)
-  {
-    offset += numPolys;
-    input->GetStrips()->Dispatch(
-      BuildCellTypesImpl{}, cellTypes,
-      [](vtkIdType vtkNotUsed(size)) -> VTKCellType { return VTK_TRIANGLE_STRIP; }, offset);
+        vtkIdType* out = offsets->GetPointer(cellOffsetsPerType[i]);
+        if (cellSizesPerType[i] > 0)
+        {
+          // the offsets are an arithmetic sequence
+          const vtkIdType size = cellSizesPerType[i];
+          const vtkIdType shift = connectivityOffsetsPerType[i];
+          vtkSMPTools::For(0, numCellsPerType[i],
+            [&](vtkIdType begin, vtkIdType end)
+            {
+              for (vtkIdType c = begin; c < end; ++c)
+              {
+                out[c] = shift + c * size;
+              }
+            });
+        }
+        else
+        {
+          cellArraysPerType[i]->Dispatch(CopyOffsetsImpl{}, out, connectivityOffsetsPerType[i]);
+        }
+      }
+      outCells->SetData(offsets, connectivity);
+    }
   }
   this->UpdateProgress(0.5);
   if (this->CheckAbort())
@@ -209,84 +296,41 @@ int vtkPolyDataToUnstructuredGrid::RequestData(
     return 1;
   }
 
-  // check if we can shallow copy only one cell array
-  const bool hasOnlyVerts = (hasVerts && !hasLines && !hasPolys && !hasStrips);
-  const bool hasOnlyLines = (!hasVerts && hasLines && !hasPolys && !hasStrips);
-  const bool hasOnlyPolys = (!hasVerts && !hasLines && hasPolys && !hasStrips);
-  const bool hasOnlyStrips = (!hasVerts && !hasLines && !hasPolys && hasStrips);
-
-  if (hasOnlyVerts)
+  // The cell types are implicit when all the cells have the same type. They are set directly
+  // since there are no polyhedra in a polydata.
+  vtkSmartPointer<vtkDataArray> cellTypes;
+  if (numArrays == 1 && hasConstantType(lastArray))
   {
-    output->SetPolyhedralCells(cellTypes, input->GetVerts(), nullptr, nullptr);
-  }
-  else if (hasOnlyLines)
-  {
-    output->SetPolyhedralCells(cellTypes, input->GetLines(), nullptr, nullptr);
-  }
-  else if (hasOnlyPolys)
-  {
-    output->SetPolyhedralCells(cellTypes, input->GetPolys(), nullptr, nullptr);
-  }
-  else if (hasOnlyStrips)
-  {
-    output->SetPolyhedralCells(cellTypes, input->GetStrips(), nullptr, nullptr);
+    vtkNew<vtkConstantArray<unsigned char>> types;
+    types->ConstructBackend(constantType(lastArray));
+    types->SetNumberOfValues(numCells);
+    cellTypes = types;
   }
   else
   {
-    // create offset array
-    vtkNew<vtkIdTypeArray> offsets;
-    offsets->SetNumberOfValues(numCells + 1);
-
-    // create connectivity array
-    vtkNew<vtkIdTypeArray> connectivity;
-    const vtkIdType numConnectivity = input->GetVerts()->GetNumberOfConnectivityIds() +
-      input->GetLines()->GetNumberOfConnectivityIds() +
-      input->GetPolys()->GetNumberOfConnectivityIds() +
-      input->GetStrips()->GetNumberOfConnectivityIds();
-    connectivity->SetNumberOfValues(numConnectivity);
-
-    offset = 0;
-    vtkIdType connectivityOffset = 0;
-    if (hasVerts)
+    vtkNew<vtkUnsignedCharArray> types;
+    types->SetNumberOfValues(numCells);
+    for (int i = 0; i < 4; ++i)
     {
-      input->GetVerts()->Dispatch(
-        BuildConnectivityImpl{}, offsets, connectivity, offset, connectivityOffset);
+      if (numCellsPerType[i] == 0)
+      {
+        continue;
+      }
+      unsigned char* out = types->GetPointer(cellOffsetsPerType[i]);
+      if (hasConstantType(i))
+      {
+        const unsigned char type = constantType(i);
+        vtkSMPTools::For(0, numCellsPerType[i],
+          [&](vtkIdType begin, vtkIdType end) { std::fill(out + begin, out + end, type); });
+      }
+      else
+      {
+        cellArraysPerType[i]->Dispatch(BuildCellTypesImpl{}, out, static_cast<ArrayKind>(i));
+      }
     }
-    if (hasLines)
-    {
-      offset += numVerts;
-      connectivityOffset += input->GetVerts()->GetNumberOfConnectivityIds();
-      input->GetLines()->Dispatch(
-        BuildConnectivityImpl{}, offsets, connectivity, offset, connectivityOffset);
-    }
-    if (hasPolys)
-    {
-      offset += numLines;
-      connectivityOffset += input->GetLines()->GetNumberOfConnectivityIds();
-      input->GetPolys()->Dispatch(
-        BuildConnectivityImpl{}, offsets, connectivity, offset, connectivityOffset);
-    }
-    if (hasStrips)
-    {
-      offset += numPolys;
-      connectivityOffset += input->GetPolys()->GetNumberOfConnectivityIds();
-      input->GetStrips()->Dispatch(
-        BuildConnectivityImpl{}, offsets, connectivity, offset, connectivityOffset);
-    }
-    // set last offset
-    offsets->SetValue(numCells, numConnectivity);
-
-    // create cell array
-    vtkNew<vtkCellArray> cellArray;
-    cellArray->SetData(offsets, connectivity);
-    // set cells
-    output->SetPolyhedralCells(cellTypes, cellArray, nullptr, nullptr);
+    cellTypes = types;
   }
-
-  this->UpdateProgress(0.95);
-
-  // copy cell data
-  output->GetCellData()->ShallowCopy(input->GetCellData());
+  output->SetPolyhedralCells(cellTypes, outCells, nullptr, nullptr);
   this->UpdateProgress(1.0);
 
   return 1;
