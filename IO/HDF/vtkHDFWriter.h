@@ -36,6 +36,7 @@
 #include "vtkIOHDFModule.h" // For export macro
 #include "vtkWriter.h"
 
+#include <cmath>
 #include <map>
 #include <memory>
 
@@ -106,6 +107,33 @@ public:
    */
   vtkSetMacro(WriteAllTimeSteps, bool);
   vtkGetMacro(WriteAllTimeSteps, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Append the input to the existing temporal file, if any.
+   * Create a temporal file if it does not exist yet.
+   *
+   * Only supports vtkUnstructuredGrid, vtkPolyData and composites built from them.
+   * Enabling this option will disable all UseExternal* options used.
+   * Data cannot be appended on top of an existing file using UseExternal* options.
+   * Existing arrays must all match in type and number of components
+   * the arrays from the input
+   *
+   * Default is false.
+   */
+  vtkSetMacro(AppendTimeSteps, bool);
+  vtkGetMacro(AppendTimeSteps, bool);
+  vtkBooleanMacro(AppendTimeSteps, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Time value written when AppendTimeSteps is enabled.
+   * Defaults to NaN, which uses the timestep index as a time value
+   */
+  vtkSetMacro(CurrentTimeValue, double);
+  vtkGetMacro(CurrentTimeValue, double);
   ///@}
 
   ///@{
@@ -282,6 +310,18 @@ private:
   bool InitializeTemporalPolyhedra(hid_t group);
   bool InitializeTemporalHTG(hid_t group);
   ///@}
+
+  /**
+   * Initialize append indices from the existing file's timestep count.
+   */
+  bool InitializeAppendTimeIndex();
+
+  /**
+   * Check option compatibility with the input, disable incompatible external options,
+   * and select the distributed writing mode.
+   * Return false when the option combination is incompatible with the input dataset.
+   */
+  bool CheckOptionsCompatibility(vtkDataObject* input);
 
   ///@{
   /**
@@ -485,6 +525,8 @@ private:
   bool UseExternalTimeSteps = false;
   bool UseExternalPartitions = false;
   bool UseExternalDistributed = false;
+  bool AppendTimeSteps = false;
+  double CurrentTimeValue = std::nan("0");
   int ChunkSize = 25000;
   int CompressionLevel = 0;
 
