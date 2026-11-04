@@ -62,6 +62,12 @@ static vtkBoundingBox AllReduceBounds(
     }
   }
   vtkDIYUtilities::AllReduce(comm, bbox);
+  // diy::kdtree divides each side of the domain in histogram bins, which have no width on a side
+  // of zero length, e.g. the z side of points in a plane.
+  if (bbox.IsValid())
+  {
+    bbox.Inflate();
+  }
   return bbox;
 }
 
