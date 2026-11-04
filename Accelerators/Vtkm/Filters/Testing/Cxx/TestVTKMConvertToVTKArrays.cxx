@@ -16,6 +16,7 @@
 #include "vtkPolyhedronCellArray.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkmContour.h"
@@ -56,13 +57,15 @@ std::vector<double> Values(vtkDataArray* array)
 std::vector<std::pair<std::string, vtkDataArray*>> Arrays(vtkDataSet* data)
 {
   std::vector<std::pair<std::string, vtkDataArray*>> arrays;
+  arrays.reserve(
+    data->GetPointData()->GetNumberOfArrays() + data->GetCellData()->GetNumberOfArrays() + 4);
   for (int i = 0; i < data->GetPointData()->GetNumberOfArrays(); ++i)
   {
-    arrays.emplace_back("point data " + std::to_string(i), data->GetPointData()->GetArray(i));
+    arrays.emplace_back("point data " + vtk::to_string(i), data->GetPointData()->GetArray(i));
   }
   for (int i = 0; i < data->GetCellData()->GetNumberOfArrays(); ++i)
   {
-    arrays.emplace_back("cell data " + std::to_string(i), data->GetCellData()->GetArray(i));
+    arrays.emplace_back("cell data " + vtk::to_string(i), data->GetCellData()->GetArray(i));
   }
   if (auto* pointSet = vtkPointSet::SafeDownCast(data))
   {

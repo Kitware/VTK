@@ -69,6 +69,7 @@ void ConvertFieldData(vtkFieldData* fields)
 
   // Replacing an array can move others, so walk a snapshot.
   std::vector<vtkAbstractArray*> arrays;
+  arrays.reserve(fields->GetNumberOfArrays());
   for (int i = 0; i < fields->GetNumberOfArrays(); ++i)
   {
     arrays.push_back(fields->GetAbstractArray(i));
