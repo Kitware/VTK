@@ -2581,6 +2581,8 @@ macos-x86_64-webgpu:build:
         - .rules
     variables:
         VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     timeout: 150 minutes
     needs: []
 
@@ -2591,6 +2593,9 @@ macos-x86_64-webgpu:test:
         - .macos_x86_64_builder_tags
         - .cmake_test_artifacts
         - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - macos-x86_64-webgpu:build
     timeout: 2 hours
@@ -2686,6 +2691,9 @@ wheel-macos-python310-x86_64:build:
         - .macos_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     timeout: 120 minutes
     needs: []
 
@@ -2696,6 +2704,9 @@ wheel-macos-python310-x86_64:test:
         - .macos_x86_64_wheel_tags
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python310-x86_64:build
 
@@ -2725,6 +2736,9 @@ wheel-macos-python311-x86_64:build:
         - .macos_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     timeout: 120 minutes
     needs: []
 
@@ -2735,6 +2749,9 @@ wheel-macos-python311-x86_64:test:
         - .macos_x86_64_wheel_tags
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python311-x86_64:build
 
@@ -2764,6 +2781,9 @@ wheel-macos-python312-x86_64:build:
         - .macos_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     timeout: 120 minutes
     needs: []
 
@@ -2774,6 +2794,9 @@ wheel-macos-python312-x86_64:test:
         - .macos_x86_64_wheel_tags
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python312-x86_64:build
 
@@ -2804,6 +2827,9 @@ wheel-macos-python313-x86_64:build:
         - .macos_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_previous_build
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     timeout: 120 minutes
     needs: []
 
@@ -2815,6 +2841,9 @@ wheel-macos-python313-x86_64:test:
         - .rules
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_previous_test
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python313-x86_64:build
 
@@ -2844,6 +2873,9 @@ wheel-macos-python314-x86_64:build:
         - .macos_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_latest_build
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     timeout: 120 minutes
     needs: []
 
@@ -2854,6 +2886,9 @@ wheel-macos-python314-x86_64:test:
         - .macos_x86_64_wheel_tags
         - .rules_variables_wheel_latest_test
         - .cdash_annotations_artifacts
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python314-x86_64:build
 
@@ -2884,6 +2919,9 @@ wheel-macos-python314t-x86_64:build:
         - .macos_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_weekly_build
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     timeout: 120 minutes
     needs: []
 
@@ -2894,6 +2932,9 @@ wheel-macos-python314t-x86_64:test:
         - .macos_x86_64_wheel_tags
         - .rules_variables_wheel_weekly_test
         - .cdash_annotations_artifacts
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python314t-x86_64:build
 
@@ -3243,6 +3284,7 @@ macos-x86_64-java8:build:
         VTK_CI_RUN_MANUALLY: "true"
         VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 8
+        VTK_CI_NIGHTLY_ONLY: "true"
     timeout: 4 hours
     needs: []
 
@@ -3257,6 +3299,7 @@ macos-x86_64-java8:test:
         VTK_CI_MERGED_ONLY: "true"
         VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 8
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - macos-x86_64-java8:build
 
@@ -3272,6 +3315,7 @@ macos-x86_64-java11:build:
         VTK_CI_RUN_MANUALLY: "true"
         VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 11
+        VTK_CI_NIGHTLY_ONLY: "true"
     timeout: 4 hours
     needs: []
 
@@ -3286,6 +3330,7 @@ macos-x86_64-java11:test:
         VTK_CI_MERGED_ONLY: "true"
         VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 11
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - macos-x86_64-java11:build
 
