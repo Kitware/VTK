@@ -7,6 +7,7 @@
 #import "vtkObjectFactory.h"
 
 #import <AppKit/AppKit.h>
+#import <QuartzCore/QuartzCore.h>
 
 //------------------------------------------------------------------------------
 // A custom delegate to handle NSWindow notifications.
