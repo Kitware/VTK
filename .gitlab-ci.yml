@@ -2536,6 +2536,9 @@ macos-arm64-kits-python-qt:test:
         - .macos_arm64_builder_tags
         - .cmake_test_artifacts
         - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - macos-arm64-kits-python-qt:build
 
@@ -2547,6 +2550,9 @@ macos-arm64-kits-python-qt-serialization:test:
        - .macos_arm64_builder_tags
        - .cmake_test_artifacts
        - .rules
+   variables:
+       VTK_CI_MERGED_ONLY: "true"
+       VTK_CI_NIGHTLY_ONLY: "true"
    needs:
        - macos-arm64-kits-python-qt:build
 
@@ -2681,6 +2687,9 @@ wheel-macos-python310-arm64:test:
         - .macos_arm64_wheel_tags
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python310-arm64:build
 
@@ -2726,6 +2735,9 @@ wheel-macos-python311-arm64:test:
         - .macos_arm64_wheel_tags
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python311-arm64:build
 
@@ -2771,6 +2783,9 @@ wheel-macos-python312-arm64:test:
         - .macos_arm64_wheel_tags
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python312-arm64:build
 
@@ -2817,6 +2832,9 @@ wheel-macos-python313-arm64:test:
         - .rules
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_previous_test
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python313-arm64:build
 
@@ -2863,6 +2881,9 @@ wheel-macos-python314-arm64:test:
         - .macos_arm64_wheel_tags
         - .rules_variables_wheel_latest_test
         - .cdash_annotations_artifacts
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python314-arm64:build
 
@@ -3360,6 +3381,7 @@ macos-arm64-java8:test:
         VTK_CI_MERGED_ONLY: "true"
         VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 8
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - macos-arm64-java8:build
 
@@ -3387,6 +3409,7 @@ macos-arm64-java11:test:
     variables:
         VTK_CI_MERGED_ONLY: "true"
         VTK_JAVA_VERSION: 11
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - macos-arm64-java11:build
 
