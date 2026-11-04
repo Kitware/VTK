@@ -723,7 +723,7 @@ int HipDeviceOrdinal(const void* pointer, std::string* why)
 int LevelZeroDeviceOrdinal(const void* pointer, std::string* why)
 {
   LevelZeroState& state = LevelZeroShared();
-  std::scoped_lock lock(state.Mutex);
+  std::scoped_lock<std::mutex> lock(state.Mutex);
   ze_memory_allocation_properties_t properties;
   ze_device_handle_t device = nullptr;
   if (!LevelZeroProperties(state, pointer, properties, device, why))
@@ -809,7 +809,7 @@ bool HipCopyToHost(void* destination, const void* source, std::size_t bytes, std
 bool LevelZeroIsDevicePointer(const void* pointer, std::string* why)
 {
   LevelZeroState& state = LevelZeroShared();
-  std::scoped_lock lock(state.Mutex);
+  std::scoped_lock<std::mutex> lock(state.Mutex);
   ze_memory_allocation_properties_t properties;
   ze_device_handle_t device = nullptr;
   return LevelZeroProperties(state, pointer, properties, device, why);
@@ -818,7 +818,7 @@ bool LevelZeroIsDevicePointer(const void* pointer, std::string* why)
 bool LevelZeroCopyToHost(void* destination, const void* source, std::size_t bytes, std::string* why)
 {
   LevelZeroState& state = LevelZeroShared();
-  std::scoped_lock lock(state.Mutex);
+  std::scoped_lock<std::mutex> lock(state.Mutex);
   ze_memory_allocation_properties_t properties;
   ze_device_handle_t device = nullptr;
   if (!LevelZeroProperties(state, source, properties, device, why))
@@ -1012,7 +1012,7 @@ int vtkDeviceMemory::DeviceOrdinal(
 void vtkDeviceMemory::SetLevelZeroContext(void* driver, void* device, void* context)
 {
   LevelZeroState& state = LevelZeroShared();
-  std::scoped_lock lock(state.Mutex);
+  std::scoped_lock<std::mutex> lock(state.Mutex);
   // A context VTK made is kept, not destroyed: arrays may still copy in it.
   // The lists of other contexts are forgotten (not destroyed: their context may
   // be gone), so a later context at a reused address never meets them.
@@ -1030,7 +1030,7 @@ void vtkDeviceMemory::SetLevelZeroContext(void* driver, void* device, void* cont
 bool vtkDeviceMemory::HasLevelZeroContext()
 {
   LevelZeroState& state = LevelZeroShared();
-  std::scoped_lock lock(state.Mutex);
+  std::scoped_lock<std::mutex> lock(state.Mutex);
   return state.Context != nullptr;
 }
 
@@ -1039,7 +1039,7 @@ bool vtkDeviceMemory::GetLevelZeroContext(
   void*& driver, void*& device, void*& context, std::string* why)
 {
   LevelZeroState& state = LevelZeroShared();
-  std::scoped_lock lock(state.Mutex);
+  std::scoped_lock<std::mutex> lock(state.Mutex);
   driver = device = context = nullptr;
   if (!LevelZeroContextLocked(state, why))
   {
