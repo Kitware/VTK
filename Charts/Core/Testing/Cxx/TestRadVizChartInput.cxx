@@ -9,11 +9,13 @@
  * that labels set with SetLabels follow the visible variables, that
  * SetPlot(nullptr) removes the plot, and that it draws nothing, leaving no
  * vertices to interact with, when hidden or when too few variables remain
- * after a paint.
+ * after a paint. Check that unchanged or rejected visibility settings do not
+ * modify the plot.
  */
 
 #include "vtkCellData.h"
 #include "vtkChartRadViz.h"
+#include "vtkCommand.h"
 #include "vtkContextMapper2D.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
@@ -29,6 +31,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkTestErrorObserver.h"
 #include "vtkTrivialProducer.h"
 
 #include <cmath>
@@ -58,6 +61,7 @@ public:
   static InternalsPlot* New();
   vtkTypeMacro(InternalsPlot, vtkPlotRadViz);
   vtkStringArray* GetVisibleLabels() { return this->VisibleLabels; }
+  vtkMultiVariateToRGBA* GetFilter() { return this->ComputeGBC; }
   std::tuple<vtkDataArray*, vtkDataArray*, vtkDataArray*> GetDrawnArrays()
   {
     return this->GetVerticesGbcRgba(this->ComputeGBC->GetOutputDataObject(0));
@@ -291,8 +295,52 @@ void SetInputConnection(vtkPlotRadViz* plot, vtkDataObject* data)
 }
 }
 
+/**
+ * Checks that the visibility setters modify the plot only when they change
+ * the visibility, not when it is unchanged or the change is rejected.
+ */
+int TestPlotModified()
+{
+  vtkNew<InternalsPlot> plot;
+  plot->SetInputData(MakeTable());
+  vtkNew<vtkTest::ErrorObserver> errors;
+  plot->GetFilter()->AddObserver(vtkCommand::ErrorEvent, errors);
+  auto modifies = [&plot](const std::function<void()>& change)
+  {
+    vtkMTimeType mtime = plot->GetMTime();
+    change();
+    return plot->GetMTime() != mtime;
+  };
+  vtkNew<vtkStringArray> bcd;
+  for (const char* name : { "b", "c", "d" })
+  {
+    bcd->InsertNextValue(name);
+  }
+
+  CHECK(!modifies([&] { plot->SetVariableVisibilityAll(true); }));
+  CHECK(!modifies([&] { plot->SetVariableVisibility("a", true); }));
+  CHECK(modifies([&] { plot->SetVariableVisibility("a", false); }));
+  CHECK(!modifies([&] { plot->SetVariableVisibility("a", false); }));
+  CHECK(modifies([&] { plot->SetVisibleVariables(bcd); }));
+  CHECK(!modifies([&] { plot->SetVisibleVariables(bcd); }));
+  // rejected: the visibility is set by name
+  CHECK(!modifies([&] { plot->SetVariableVisibility(1, false); }));
+  CHECK(errors->GetError());
+  errors->Clear();
+
+  CHECK(modifies([&] { plot->ResetVisibleVariableIndices(); }));
+  CHECK(!modifies([&] { plot->ResetVisibleVariableIndices(); }));
+  CHECK(modifies([&] { plot->AddVisibleVariableIndex(2); }));
+  CHECK(!modifies([&] { plot->SetVisibleVariableIndices({ 2 }); }));
+  CHECK(modifies([&] { plot->SetVisibleVariableIndices({ 0, 2 }); }));
+  // rejected: a negative index
+  CHECK(!modifies([&] { plot->AddVisibleVariableIndex(-1); }));
+  CHECK(errors->GetError());
+  return EXIT_SUCCESS;
+}
 int TestRadVizChartInput(int, char*[])
 {
+  CHECK(TestPlotModified() == EXIT_SUCCESS);
   // a column per vertex
   CHECK(PaintVertices([](vtkPlotRadViz* plot) { SetInputConnection(plot, MakeTable()); }) == 4);
   // a component per vertex

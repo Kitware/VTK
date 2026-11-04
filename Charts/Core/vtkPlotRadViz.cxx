@@ -57,6 +57,21 @@ public:
     std::transform(input.begin(), input.end(), output.begin(), [](ValueType c) { return c * 255; });
   }
 };
+
+/**
+ * Applies 'change' to 'filter' and modifies 'plot' only if the filter
+ * changed, so unchanged or rejected settings leave the plot unmodified.
+ */
+template <typename Change>
+void ChangeFilter(vtkPlotRadViz* plot, vtkMultiVariateToRGBA* filter, Change&& change)
+{
+  vtkMTimeType mtime = filter->GetMTime();
+  change(filter);
+  if (filter->GetMTime() != mtime)
+  {
+    plot->Modified();
+  }
+}
 }
 
 //------------------------------------------------------------------------------
@@ -254,22 +269,22 @@ void vtkPlotRadViz::SetInputData(vtkTable* table)
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::SetVariableVisibility(const std::string& name, bool visible)
 {
-  this->ComputeGBC->SetVariableVisibility(name, visible);
-  this->Modified();
+  ::ChangeFilter(this, this->ComputeGBC,
+    [&](vtkMultiVariateToRGBA* f) { f->SetVariableVisibility(name, visible); });
 }
 
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::SetVariableVisibility(int index, bool visible)
 {
-  this->ComputeGBC->SetVariableVisibility(index, visible);
-  this->Modified();
+  ::ChangeFilter(this, this->ComputeGBC,
+    [&](vtkMultiVariateToRGBA* f) { f->SetVariableVisibility(index, visible); });
 }
 
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::SetVariableVisibilityAll(bool visible)
 {
-  this->ComputeGBC->SetVariableVisibilityAll(visible);
-  this->Modified();
+  ::ChangeFilter(this, this->ComputeGBC,
+    [&](vtkMultiVariateToRGBA* f) { f->SetVariableVisibilityAll(visible); });
 }
 
 //------------------------------------------------------------------------------
@@ -293,15 +308,15 @@ vtkStringArray* vtkPlotRadViz::GetVisibleVariables()
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::SetVisibleVariables(vtkStringArray* names)
 {
-  this->ComputeGBC->SetVisibleVariables(names);
-  this->Modified();
+  ::ChangeFilter(
+    this, this->ComputeGBC, [&](vtkMultiVariateToRGBA* f) { f->SetVisibleVariables(names); });
 }
 
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::SetVisibleVariableIndices(const std::vector<int>& indices)
 {
-  this->ComputeGBC->SetVisibleVariableIndices(indices);
-  this->Modified();
+  ::ChangeFilter(this, this->ComputeGBC,
+    [&](vtkMultiVariateToRGBA* f) { f->SetVisibleVariableIndices(indices); });
 }
 
 //------------------------------------------------------------------------------
@@ -313,15 +328,15 @@ std::vector<int> vtkPlotRadViz::GetVisibleVariableIndices()
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::ResetVisibleVariableIndices()
 {
-  this->ComputeGBC->ResetVisibleVariableIndices();
-  this->Modified();
+  ::ChangeFilter(
+    this, this->ComputeGBC, [&](vtkMultiVariateToRGBA* f) { f->ResetVisibleVariableIndices(); });
 }
 
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::AddVisibleVariableIndex(int index)
 {
-  this->ComputeGBC->AddVisibleVariableIndex(index);
-  this->Modified();
+  ::ChangeFilter(
+    this, this->ComputeGBC, [&](vtkMultiVariateToRGBA* f) { f->AddVisibleVariableIndex(index); });
 }
 
 //------------------------------------------------------------------------------
