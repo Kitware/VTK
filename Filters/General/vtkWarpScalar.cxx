@@ -22,6 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridToPointSet.h"
+#include "vtkType.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWeakPointer.h"
 
@@ -31,7 +32,7 @@
 
 #include <algorithm>
 #include <bitset>
-#include <numeric>
+#include <cstddef>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWarpScalar);
@@ -119,6 +120,9 @@ struct ScaleWorker
     auto opts = vtk::DataArrayTupleRange<3>(outPts);
     const auto sRange = vtk::DataArrayTupleRange(scalars);
 
+    constexpr vtkIdType minCheckAbortInterval = 1'000'000;
+    vtkIdType checkAbortInterval = std::min(numPts / 10 + 1, minCheckAbortInterval);
+
     // We use THRESHOLD to test if the data size is small enough
     // to execute the functor serially.
     vtkSMPTools::For(0, numPts, vtkSMPTools::THRESHOLD,
@@ -128,9 +132,10 @@ struct ScaleWorker
         bool isFirst = vtkSMPTools::GetSingleThread();
         for (; ptId < endPtId; ++ptId)
         {
-          if (isFirst)
+          if (isFirst && ptId % checkAbortInterval == 0)
           {
-            self->CheckAbort();
+            self->UpdateProgress(static_cast<double>(ptId) / numPts);
+            self->CheckAbortAndInvoke();
           }
           if (self->GetAbortOutput())
           {
@@ -324,6 +329,8 @@ int vtkWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->CopyNormalsOff(); // distorted geometry
   output->GetCellData()->PassData(input->GetCellData());
+
+  this->InvokeCleanupAbortCheck();
 
   if (this->GenerateEnclosure && inputHasBoundary)
   {

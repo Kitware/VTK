@@ -24,6 +24,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <array>
+#include <cstddef>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -640,8 +641,19 @@ int vtkArrayCalculator::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSmartPointer<vtkCompositeDataIterator> cdIter;
     cdIter.TakeReference(inputCD->NewIterator());
     cdIter->SkipEmptyNodesOn();
-    for (cdIter->InitTraversal(); !cdIter->IsDoneWithTraversal(); cdIter->GoToNextItem())
+
+    std::size_t numberOfDataObjects = 0;
+    for (cdIter->GoToFirstItem(); !cdIter->IsDoneWithTraversal(); cdIter->GoToNextItem())
     {
+      numberOfDataObjects += 1;
+    }
+
+    std::size_t currentDataObject = 0;
+    for (cdIter->GoToFirstItem(); !cdIter->IsDoneWithTraversal() && !this->CheckAbortAndInvoke();
+         cdIter->GoToNextItem())
+    {
+      this->UpdateProgress(static_cast<double>(currentDataObject) / numberOfDataObjects);
+      currentDataObject += 1;
       vtkDataObject* inputDataObject = cdIter->GetCurrentDataObject();
       vtkDataObject* outputDataObject = inputDataObject->NewInstance();
       outputDataObject->ShallowCopy(inputDataObject);
@@ -663,6 +675,8 @@ int vtkArrayCalculator::RequestData(vtkInformation* vtkNotUsed(request),
         return 1;
       }
     }
+
+    this->InvokeCleanupAbortCheck();
 
     return success;
   }

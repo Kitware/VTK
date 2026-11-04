@@ -6,7 +6,6 @@
 #include "vtkConvertToPartitionedDataSetCollection.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataAssemblyUtilities.h"
-#include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
@@ -173,7 +172,8 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
     auto output = vtkPartitionedDataSet::GetData(outputVector, 0);
     for (auto& input : inputs)
     {
-      if (this->CheckAbort())
+      this->UpdateProgress(static_cast<double>(next) / inputs.size());
+      if (this->CheckAbortAndInvoke())
       {
         break;
       }
@@ -190,7 +190,8 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
     auto output = vtkMultiBlockDataSet::GetData(outputVector, 0);
     for (auto& input : inputs)
     {
-      if (this->CheckAbort())
+      this->UpdateProgress(static_cast<double>(next) / inputs.size());
+      if (this->CheckAbortAndInvoke())
       {
         break;
       }
@@ -237,7 +238,8 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
     auto output = vtkPartitionedDataSetCollection::GetData(outputVector, 0);
     for (auto& input : inputs)
     {
-      if (this->CheckAbort())
+      this->UpdateProgress(static_cast<double>(next) / inputs.size());
+      if (this->CheckAbortAndInvoke())
       {
         break;
       }
@@ -304,6 +306,7 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro("Unsupported output type: " << this->OutputType);
     return 0;
   }
+  this->InvokeCleanupAbortCheck();
   return 1;
 }
 

@@ -544,7 +544,7 @@ int vtkStreamTracer::RequestData(vtkInformation* vtkNotUsed(request),
   seedIds->Delete();
 
   this->InputData->UnRegister(this);
-  this->CheckAbort();
+  this->InvokeCleanupAbortCheck();
   return 1;
 }
 
@@ -975,15 +975,21 @@ struct TracerIntegrator
 
     bool isFirst = this->Sequential || vtkSMPTools::GetSingleThread();
 
+    constexpr vtkIdType minCheckAbortInterval = 1000;
+    vtkIdType checkAbortInterval =
+      std::min(this->SeedIds->GetNumberOfIds() / 10 + 1, minCheckAbortInterval);
+
     // We will interpolate all point attributes of the input on each point of
     // the output (unless they are turned off). Note that we are using only
     // the first input, if there are more than one, the attributes have to match.
     double velocity[3];
     for (; seedNum < endSeedNum; ++seedNum)
     {
-      if (isFirst)
+      if (isFirst && seedNum % checkAbortInterval == 0)
       {
-        this->StreamTracer->CheckAbort();
+        this->StreamTracer->UpdateProgress(
+          static_cast<double>(seedNum) / this->SeedIds->GetNumberOfIds());
+        this->StreamTracer->CheckAbortAndInvoke();
       }
       if (this->StreamTracer->GetAbortOutput())
       {
@@ -1658,6 +1664,10 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal, 
     {
       for (; ptId < endPtId; ++ptId)
       {
+        if (this->GetAbortOutput())
+        {
+          break;
+        }
         normals->SetTuple3(ptId, 1, 0, 0);
       }
     });
@@ -1684,6 +1694,10 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal, 
       double velocity[3];
       for (; ptId < endPtId; ++ptId)
       {
+        if (this->GetAbortOutput())
+        {
+          break;
+        }
         normals->GetTuple(ptId, normal);
         newVectors->GetTuple(ptId, velocity);
         // obtain two unit orthogonal vectors on the plane perpendicular to

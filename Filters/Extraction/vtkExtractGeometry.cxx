@@ -23,6 +23,7 @@
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
+#include <cstddef>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractGeometry);
@@ -372,9 +373,17 @@ int vtkExtractGeometry::RequestData(
     inputIter->SkipEmptyNodesOff();
 
     outIter->InitTraversal();
-    int nbOfLeaves = treeInput->GetNumberOfChildren();
-    int currentLeaveIdx = 0;
+    std::size_t nbOfLeaves = 0;
+    std::size_t currentLeaveIdx = 0;
+
     for (inputIter->InitTraversal(); !inputIter->IsDoneWithTraversal(); inputIter->GoToNextItem())
+    {
+      nbOfLeaves++;
+    }
+
+    for (inputIter->GoToFirstItem();
+         !inputIter->IsDoneWithTraversal() && !this->CheckAbortAndInvoke();
+         inputIter->GoToNextItem())
     {
       // Internal API for leaf processing uses vtkInformationVector.
       // As our input is (now) a Composite, we should replace the DATA_OBJECT key content
@@ -387,11 +396,13 @@ int vtkExtractGeometry::RequestData(
       auto outLeafVector =
         this->DuplicateInfoForLeaf(outputVector, outIter->GetCurrentDataObject());
 
-      this->SetProgressShiftScale(currentLeaveIdx / nbOfLeaves, 1 / nbOfLeaves);
+      this->SetProgressShiftScale(
+        static_cast<double>(currentLeaveIdx) / nbOfLeaves, 1.0 / nbOfLeaves);
       ret = ret && this->ExtractLeaf(request, inLeafVectors.data(), outLeafVector);
       currentLeaveIdx++;
       outIter->GoToNextItem();
     }
+    this->InvokeCleanupAbortCheck();
     return ret;
   }
   else
