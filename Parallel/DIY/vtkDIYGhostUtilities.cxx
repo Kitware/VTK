@@ -3926,16 +3926,15 @@ void DeepCopyPolyhedrons(
   DeepCopyPolyhedronWorker worker;
   if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::OffsetsArrays,
         vtkArrayDispatch::ConnectivityArrays>::Execute(ugFaceLocations->GetOffsetsArray(),
-        ugFaceLocations->GetConnectivityArray(), worker, ugFaces->GetOffsetsArray(),
-        ugFaces->GetConnectivityArray(), cloneFaceLocations->GetOffsetsArray(),
-        cloneFaceLocations->GetConnectivityArray(), cloneFaces->GetOffsetsArray(),
+        ugFaceLocations->GetConnectivityArray(), worker, cloneFaceLocations->GetOffsetsArray(),
+        cloneFaceLocations->GetConnectivityArray(), ugFaces->GetOffsetsArray(),
+        ugFaces->GetConnectivityArray(), cloneFaces->GetOffsetsArray(),
         cloneFaces->GetConnectivityArray(), cellRedirectionMap, pointRedirectionMap))
   {
     worker(ugFaceLocations->GetOffsetsArray(), ugFaceLocations->GetConnectivityArray(),
-      ugFaces->GetOffsetsArray(), ugFaces->GetConnectivityArray(),
       cloneFaceLocations->GetOffsetsArray(), cloneFaceLocations->GetConnectivityArray(),
-      cloneFaces->GetOffsetsArray(), cloneFaces->GetConnectivityArray(), cellRedirectionMap,
-      pointRedirectionMap);
+      ugFaces->GetOffsetsArray(), ugFaces->GetConnectivityArray(), cloneFaces->GetOffsetsArray(),
+      cloneFaces->GetConnectivityArray(), cellRedirectionMap, pointRedirectionMap);
   }
 }
 
