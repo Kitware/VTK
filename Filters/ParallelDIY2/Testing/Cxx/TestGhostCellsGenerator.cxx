@@ -4150,6 +4150,66 @@ bool TestPolyhedraWithSharedFaces(int myrank, bool useImplicitArray)
   return true;
 }
 
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkUnstructuredGrid> MakeLine(double x0, double x1)
+{
+  vtkNew<vtkPoints> points;
+  points->SetDataType(VTK_DOUBLE);
+  points->InsertNextPoint(x0, 0.0, 0.0);
+  points->InsertNextPoint(x1, 0.0, 0.0);
+
+  vtkNew<vtkCellArray> cells;
+  cells->InsertNextCell({ 0, 1 });
+
+  auto ug = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  ug->SetPoints(points);
+  ug->SetCells(VTK_LINE, cells);
+  return ug;
+}
+
+//----------------------------------------------------------------------------
+// The gap between the partitions is larger than the inflation of their bounding boxes, 0.1% of
+// their length, but smaller than the tolerance.
+bool TestToleranceLargerThanBoundingBoxInflation(int myrank, bool useImplicitArray)
+{
+  vtkLog(INFO, "Testing a tolerance larger than the bounding box inflation");
+
+  vtkNew<vtkPartitionedDataSet> pds;
+  if (myrank == 0)
+  {
+    pds->SetNumberOfPartitions(2);
+    pds->SetPartition(0, ::MakeLine(0.0, 1.0));
+    pds->SetPartition(1, ::MakeLine(1.01, 2.0));
+  }
+
+  vtkNew<vtkGhostCellsGenerator> generator;
+  generator->SetInputData(pds);
+  generator->SetNumberOfGhostLayers(1);
+  generator->SetTolerance(0.05);
+  generator->BuildIfRequiredOff();
+  generator->SetUseImplicitArrays(useImplicitArray);
+  generator->Update();
+
+  if (myrank != 0)
+  {
+    return true;
+  }
+
+  // Each partition gets the line of the other as a ghost cell.
+  auto output = vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0));
+  for (unsigned int partitionId = 0; partitionId < 2; ++partitionId)
+  {
+    auto ug = vtkUnstructuredGrid::SafeDownCast(output->GetPartition(partitionId));
+    if (!ug || ug->GetNumberOfCells() != 2 || ug->GetNumberOfPoints() != 3)
+    {
+      vtkLog(ERROR,
+        "The points of partition " << partitionId
+                                   << " within the tolerance of the other were not matched");
+      return false;
+    }
+  }
+  return true;
+}
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
@@ -4236,6 +4296,11 @@ int TestGhostCellsGenerator(int argc, char* argv[])
     }
 
     if (!::TestPolyhedraWithSharedFaces(myrank, useImplicitArray))
+    {
+      retVal = EXIT_FAILURE;
+    }
+
+    if (!::TestToleranceLargerThanBoundingBoxInflation(myrank, useImplicitArray))
     {
       retVal = EXIT_FAILURE;
     }
