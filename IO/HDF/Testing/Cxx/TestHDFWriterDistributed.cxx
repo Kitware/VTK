@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAppendDataSets.h"
+#include "vtkCellData.h"
 #include "vtkDataAssemblyUtilities.h"
 #include "vtkDataSetSurfaceFilter.h"
+#include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkForceStaticMesh.h"
 #include "vtkGenerateTimeSteps.h"
@@ -20,6 +22,8 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
 #include "vtkPolyData.h"
 #include "vtkRedistributeDataSetFilter.h"
 #include "vtkSetGet.h"
@@ -34,7 +38,6 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkWarpScalar.h"
 #include "vtkXMLMultiBlockDataReader.h"
-#include "vtkXMLMultiBlockDataWriter.h"
 #include "vtkXMLPolyDataReader.h"
 
 #include <cstddef>
@@ -159,6 +162,158 @@ bool TestDistributedObject(vtkMPIController* controller, const std::string& temp
   }
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+bool TestDistributedArrayNames(vtkMPIController* controller, const std::string& tempDir,
+  ExternalDistributed external, bool temporal = false)
+{
+  /*
+  Test that missing or mismatched arrays on some ranks don't deadlock the writer.
+  */
+
+  const int rank = controller->GetLocalProcessId();
+  const int ranks = controller->GetNumberOfProcesses();
+  bool success = true;
+  for (bool polyData : { false, true })
+  {
+    vtkNew<vtkPoints> points;
+    points->InsertNextPoint(rank, 0, 0);
+    points->InsertNextPoint(rank, 1, 0);
+    points->InsertNextPoint(rank, 0, 1);
+    const vtkIdType ids[] = { 0, 1, 2 };
+    vtkSmartPointer<vtkPointSet> input;
+    if (polyData)
+    {
+      vtkNew<vtkPolyData> data;
+      data->SetPoints(points);
+      vtkNew<vtkCellArray> cells;
+      cells->InsertNextCell(3, ids);
+      data->SetPolys(cells);
+      input = data;
+    }
+    else
+    {
+      vtkNew<vtkUnstructuredGrid> data;
+      data->SetPoints(points);
+      data->Allocate(1);
+      data->InsertNextCell(VTK_TRIANGLE, 3, ids);
+      input = data;
+    }
+    for (int association : { vtkDataObject::POINT, vtkDataObject::CELL })
+    {
+      auto* attributes = input->GetAttributes(association);
+      const vtkIdType tuples = input->GetNumberOfElements(association);
+      vtkNew<vtkDoubleArray> common;
+      common->SetName("Common");
+      common->SetNumberOfTuples(tuples);
+      common->Fill(rank + 1);
+      vtkNew<vtkDoubleArray> local;
+      local->SetName(("Rank" + vtk::to_string(rank)).c_str());
+      local->SetNumberOfComponents(2);
+      local->SetNumberOfTuples(tuples);
+      local->Fill(rank + 1);
+
+      // Use different local array array names
+      attributes->AddArray(rank % 2 ? local.GetPointer() : common.GetPointer());
+      attributes->AddArray(rank % 2 ? common.GetPointer() : local.GetPointer());
+      attributes->SetActiveScalars("Common");
+    }
+
+    const int steps = temporal ? 3 : 1;
+    vtkNew<vtkHDFWriter> writer;
+    if (temporal)
+    {
+      vtkNew<vtkGenerateTimeSteps> timeSteps;
+      timeSteps->SetInputDataObject(input);
+      for (int step = 0; step < steps; ++step)
+      {
+        timeSteps->AddTimeStepValue(step);
+      }
+      writer->SetInputConnection(timeSteps->GetOutputPort());
+    }
+    else
+    {
+      writer->SetInputDataObject(input);
+    }
+
+    const std::string prefix = OutputPrefix(tempDir, external) +
+      (polyData ? "array_names_pd" : "array_names_ug") + (temporal ? "_temporal" : "");
+    const std::string filename = prefix + ".vtkhdf";
+    writer->SetFileName(filename.c_str());
+    writer->SetUseExternalDistributed(external == ExternalDistributed::Enabled);
+    writer->Write();
+    controller->Barrier();
+
+    if (external == ExternalDistributed::Enabled)
+    {
+      // Read individual rank files
+      vtkNew<vtkHDFReader> readerPart;
+      const std::string partFilename = prefix + "_part" + vtk::to_string(rank) + ".vtkhdf";
+      readerPart->SetFileName(partFilename.c_str());
+      for (int step = 0; step < steps; ++step)
+      {
+        readerPart->SetStep(step);
+        readerPart->UpdatePiece(0, 1, 0);
+        auto* part = readerPart->GetOutputDataObject(0);
+        part->GetFieldData()->RemoveArray("Time");
+        if (!vtkTestUtilities::CompareDataObjects(input, part))
+        {
+          vtkLog(ERROR, "External array-name test part does not match its source");
+          success = false;
+        }
+      }
+    }
+
+    vtkNew<vtkHDFReader> reader;
+    reader->SetFileName(filename.c_str());
+    for (int association : { vtkDataObject::POINT, vtkDataObject::CELL })
+    {
+      if (input->GetAttributes(association)->GetNumberOfArrays() != 2)
+      {
+        vtkLog(ERROR, "Array synchronization modified the source dataset");
+        return false;
+      }
+      for (int sourceRank = 0; sourceRank < ranks; ++sourceRank)
+      {
+        if (sourceRank == rank)
+        {
+          continue;
+        }
+
+        // Add missing arrays to input for comparison to succeed
+        vtkNew<vtkDoubleArray> missing;
+        missing->SetName(("Rank" + vtk::to_string(sourceRank)).c_str());
+        missing->SetNumberOfComponents(2);
+        missing->SetNumberOfTuples(input->GetNumberOfElements(association));
+        missing->Fill(0);
+        input->GetAttributes(association)->AddArray(missing);
+      }
+    }
+    reader->UpdateInformation();
+    if (reader->GetNumberOfSteps() != steps)
+    {
+      vtkLog(ERROR, "Unexpected number of array-name test timesteps");
+      success = false;
+    }
+    for (int step = 0; step < steps; ++step)
+    {
+      reader->SetStep(step);
+      reader->UpdatePiece(rank, ranks, 0);
+      auto* partitions = vtkPartitionedDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+      auto* actual = partitions ? partitions->GetPartition(rank) : nullptr;
+      if (actual)
+      {
+        actual->GetFieldData()->RemoveArray("Time");
+      }
+      if (!actual || !vtkTestUtilities::CompareDataObjects(input, actual))
+      {
+        vtkLog(ERROR, "Read array-name test partition does not match its source");
+        success = false;
+      }
+    }
+  }
+  return success;
 }
 
 //------------------------------------------------------------------------------
@@ -1003,6 +1158,8 @@ int TestHDFWriterDistributed(int argc, char* argv[])
   bool res = true;
   for (auto external : { ExternalDistributed::Disabled, ExternalDistributed::Enabled })
   {
+    res &= ::TestDistributedArrayNames(controller, tempDir, external);
+    res &= ::TestDistributedArrayNames(controller, tempDir, external, true);
     res &= ::TestDistributedPolyData(controller, tempDir, external);
     res &= ::TestDistributedUnstructuredGrid(controller, tempDir, external);
     res &= ::TestDistributedMultiBlock(controller, tempDir, external);

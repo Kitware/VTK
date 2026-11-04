@@ -83,12 +83,17 @@ public:
   bool CollectOffsets(hid_t group, vtkDataObject* input);
 
   /**
-   * Create an empty dataobject on all ranks with an empty input,
-   * of the same type and with the same arrays that the first rank with non-null input.
+   * Create placeholders for empty inputs to make sure all ranks have the same data type,
+   * and synchronize point/cell array names on all ranks.
    * This is used to make sure that all ranks share the same structure before collective writes.
    * At least 1 rank should have a non null partition.
    */
   vtkSmartPointer<vtkDataObject> CreateEmptyPartition(vtkSmartPointer<vtkDataObject> input);
+
+  /**
+   * Add schemas for point/cell arrays found in any subfile during metafile assembly.
+   */
+  bool CollectSubfileAttributes(hid_t group, vtkDataObject* data);
 
   ///@{
   /**
@@ -417,6 +422,13 @@ private:
    */
   bool GetSubFilesDatasetSize(const std::string& datasetPath, const std::string& groupName,
     hsize_t& totalSize, const std::string& fallbackPath = "");
+
+  /**
+   * Return the number of tuples for all a given number of parts in a subfile,
+   * starting at offset `partOffset`
+   */
+  hsize_t GetSubfileFieldSize(
+    const std::string& datasetPath, std::size_t file, hsize_t partOffset, hsize_t parts);
 
   /**
    * Copy the datatype from dataset in subfile

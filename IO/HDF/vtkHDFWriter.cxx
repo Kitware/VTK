@@ -2016,6 +2016,30 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input, unsig
 bool vtkHDFWriter::AppendDataSetAttributes(hid_t baseGroup, vtkDataObject* input,
   unsigned int partId, vtkIdList* cellIdMap, const std::vector<int>& dims)
 {
+  // Make sure that all ranks/subfiles have the same arrays to avoid possible desync
+  vtkSmartPointer<vtkDataObject> synchronizedInput;
+  bool isUnstructured =
+    vtkUnstructuredGrid::SafeDownCast(input) || vtkPolyData::SafeDownCast(input);
+  if (this->Impl->GetSubFilesReady() && isUnstructured)
+  {
+    synchronizedInput.TakeReference(input->NewInstance());
+    synchronizedInput->ShallowCopy(input);
+    if (!this->Impl->CollectSubfileAttributes(baseGroup, synchronizedInput))
+    {
+      return false;
+    }
+    input = synchronizedInput;
+  }
+  else if (this->Impl->GetUseDistributedWriting() && isUnstructured)
+  {
+    synchronizedInput = this->Impl->CreateEmptyPartition(input);
+    if (!synchronizedInput)
+    {
+      return false;
+    }
+    input = synchronizedInput;
+  }
+
   constexpr std::array<int, 3> attributeTypes = { vtkDataObject::AttributeTypes::POINT,
     vtkDataObject::AttributeTypes::CELL, vtkDataObject::AttributeTypes::ROW };
   constexpr std::array<const char*, 3> groupNames = { "PointData", "CellData", "RowData" };
@@ -2290,7 +2314,7 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
       datasetGroup = this->Impl->CreateHdfGroup(group, currentName.c_str());
       if (!this->UseExternalDistributed && !this->Impl->GetSubFilesReady())
       {
-        if (!this->Impl->CollectOffsets(this->Impl->GetRoot(), currentBlock))
+        if (!this->Impl->CollectOffsets(datasetGroup, currentBlock))
         {
           return false;
         }
