@@ -25,7 +25,9 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
 
+#include <algorithm>
 #include <cmath>
+#include <limits>
 #include <map>
 #include <set>
 #include <unordered_map>
@@ -81,6 +83,13 @@ struct LocalPointAccessor
   };
   Pt3 operator[](vtkIdType id) const { return Pt3{ this->Pts + 3 * id }; }
 };
+
+// Copy without the Squeeze in vtkIdList::DeepCopy, which reallocates every call.
+void CopyIds(vtkIdList* source, vtkIdList* target)
+{
+  target->SetNumberOfIds(source->GetNumberOfIds());
+  std::copy(source->begin(), source->end(), target->begin());
+}
 
 //------------------------------------------------------------------------------
 } // anonymous namespace
@@ -1526,7 +1535,148 @@ int vtkPolyhedron::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
   }
   this->Triangulator->Triangulate();
   this->Triangulator->AddTetras(0, ptIds);
-  return 1;
+
+  // The Delaunay tetrahedra fill the convex hull of the points, which is the cell when it is
+  // convex. Otherwise those inside the cell make it up when the triangulation respects its
+  // faces, and their volume tells.
+  const double volume = std::abs(this->ComputeVolume());
+  const double length = std::sqrt(this->GetLength2());
+  const double tolerance = 1e-6 * volume + 1e-12 * length * length * length;
+  const auto tetVolume = [this](const vtkIdType* tet)
+  {
+    double x[4][3];
+    for (int k = 0; k < 4; ++k)
+    {
+      this->Points->GetPoint(tet[k], x[k]);
+    }
+    return std::abs(vtkTetra::ComputeVolume(x[0], x[1], x[2], x[3]));
+  };
+  // A closed surface wound consistently bounds the same volume seen from any point; one wound
+  // otherwise bounds none, and the Delaunay tetrahedra of its points are all there is.
+  this->GenerateFaces();
+  double origin[3], a[3], b[3], c[3];
+  this->Points->GetPoint(0, origin);
+  double fromPoint = 0.0;
+  vtkIdType npts;
+  const vtkIdType* face;
+  for (vtkIdType faceId = 0; faceId < this->Faces->GetNumberOfCells(); ++faceId)
+  {
+    this->Faces->GetCellAtId(faceId, npts, face);
+    this->Points->GetPoint(face[0], a);
+    for (vtkIdType i = 1; i + 1 < npts; ++i)
+    {
+      this->Points->GetPoint(face[i], b);
+      this->Points->GetPoint(face[i + 1], c);
+      fromPoint += vtkTetra::ComputeVolume(origin, a, b, c);
+    }
+  }
+  if (std::abs(std::abs(fromPoint) - volume) > tolerance)
+  {
+    return 1;
+  }
+
+  const vtkIdType numTets = ptIds->GetNumberOfIds() / 4;
+  double hull = 0.0;
+  for (vtkIdType tet = 0; tet < numTets; ++tet)
+  {
+    hull += tetVolume(ptIds->GetPointer(4 * tet));
+  }
+  if (numTets > 0 && std::abs(hull - volume) <= tolerance)
+  {
+    return 1;
+  }
+
+  vtkNew<vtkIdList> carved;
+  double carvedVolume = 0.0;
+  for (vtkIdType tet = 0; tet < numTets; ++tet)
+  {
+    const vtkIdType* ids = ptIds->GetPointer(4 * tet);
+    double x[3], center[3] = { 0, 0, 0 };
+    for (int k = 0; k < 4; ++k)
+    {
+      this->Points->GetPoint(ids[k], x);
+      for (int i = 0; i < 3; ++i)
+      {
+        center[i] += 0.25 * x[i];
+      }
+    }
+    if (this->IsInside(center, 1e-6))
+    {
+      carved->InsertNextId(ids[0]);
+      carved->InsertNextId(ids[1]);
+      carved->InsertNextId(ids[2]);
+      carved->InsertNextId(ids[3]);
+      carvedVolume += tetVolume(ids);
+    }
+  }
+  if (carved->GetNumberOfIds() > 0 && std::abs(carvedVolume - volume) <= tolerance)
+  {
+    CopyIds(carved, ptIds);
+    return 1;
+  }
+
+  // A thin cell gets no Delaunay tetrahedra, and Delaunay tetrahedra can cross the faces of a
+  // concave cell. A fan from a point that sees every face covers the cell; one that sees all
+  // but a sliver of a bent face covers it but for a sliver.
+  vtkNew<vtkIdList> fan;
+  double leastInverted = std::numeric_limits<double>::infinity();
+  for (vtkIdType apex = 0; apex < this->GetNumberOfPoints() && leastInverted > tolerance; ++apex)
+  {
+    const double inverted = this->FanTriangulate(apex, fan);
+    if (fan->GetNumberOfIds() > 0 && inverted < leastInverted)
+    {
+      leastInverted = inverted;
+      CopyIds(fan, ptIds);
+    }
+  }
+  if (leastInverted <= std::max(tolerance, 1e-3 * volume))
+  {
+    return 1;
+  }
+
+  // Nonplanar faces bound a volume that no tetrahedra on the points of the cell match exactly.
+  if (carved->GetNumberOfIds() > 0 && std::abs(carvedVolume - volume) <= 0.05 * volume)
+  {
+    CopyIds(carved, ptIds);
+    return 1;
+  }
+  ptIds->Reset();
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+double vtkPolyhedron::FanTriangulate(vtkIdType apex, vtkIdList* ptIds)
+{
+  this->GenerateFaces();
+  ptIds->Reset();
+  const double sign = this->ComputeVolume() < 0 ? -1.0 : 1.0;
+  double a[3], b[3], c[3], d[3];
+  this->Points->GetPoint(apex, d);
+  double inverted = 0.0;
+  vtkIdType npts;
+  const vtkIdType* face;
+  for (vtkIdType faceId = 0; faceId < this->Faces->GetNumberOfCells(); ++faceId)
+  {
+    this->Faces->GetCellAtId(faceId, npts, face);
+    this->Points->GetPoint(face[0], a);
+    // The triangles of the face, fanned from its first point as ComputeVolume() takes them.
+    for (vtkIdType i = 1; i + 1 < npts; ++i)
+    {
+      if (face[0] == apex || face[i] == apex || face[i + 1] == apex)
+      {
+        continue;
+      }
+      this->Points->GetPoint(face[i + 1], b);
+      this->Points->GetPoint(face[i], c);
+      // Faces are wound outward, so (a, b, c, apex) has the sign of the cell's volume.
+      inverted += std::max(0.0, -sign * vtkTetra::ComputeVolume(a, b, c, d));
+      ptIds->InsertNextId(face[0]);
+      ptIds->InsertNextId(face[i + 1]);
+      ptIds->InsertNextId(face[i]);
+      ptIds->InsertNextId(apex);
+    }
+  }
+  return inverted;
 }
 
 //------------------------------------------------------------------------------

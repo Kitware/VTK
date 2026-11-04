@@ -5,8 +5,10 @@
 #include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkPolyhedron.h"
+#include "vtkTetra.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 
@@ -174,6 +176,53 @@ int TestPolyhedronVolume(int, char*[])
     ok &= TestVolume("Offset cube centroid X", centroid[0], 10.5);
     ok &= TestVolume("Offset cube centroid Y", centroid[1], 20.5);
     ok &= TestVolume("Offset cube centroid Z", centroid[2], 30.5);
+  }
+
+  // --- Thin tetrahedron as polyhedron, from a Delaunay mesh of random points ---
+  // Its circumsphere takes in the points that bound the Delaunay triangulation
+  // of TriangulateIds(), which then found no tetrahedron inside the cell.
+  {
+    const double x[4][3] = {
+      { 0.99868357181549072, 0.67447972297668457, 0.18184348940849304 },
+      { 0.9945252537727356, 0.23247383534908295, 0.44469746947288513 },
+      { 0.99774801731109619, 0.14650104939937592, 0.41676804423332214 },
+      { 0.99735122919082642, 0.39230278134346008, 0.4737933874130249 },
+    };
+    vtkNew<vtkPoints> pts;
+    for (const auto& p : x)
+    {
+      pts->InsertNextPoint(p);
+    }
+    const double exact = vtkTetra::ComputeVolume(const_cast<double*>(x[0]),
+      const_cast<double*>(x[1]), const_cast<double*>(x[2]), const_cast<double*>(x[3]));
+    // Outward faces for a positively oriented tetrahedron, reversed otherwise.
+    std::vector<std::vector<vtkIdType>> faces = { { 0, 2, 1 }, { 0, 1, 3 }, { 1, 2, 3 },
+      { 0, 3, 2 } };
+    if (exact < 0)
+    {
+      for (auto& face : faces)
+      {
+        std::reverse(face.begin(), face.end());
+      }
+    }
+
+    vtkNew<vtkUnstructuredGrid> grid;
+    vtkPolyhedron* cell = BuildPolyhedron(grid, pts, faces);
+    ok &= TestVolume("Thin tetrahedron", cell->ComputeVolume(), std::abs(exact), 1e-12);
+
+    vtkNew<vtkIdList> tetIds;
+    cell->TriangulateIds(0, tetIds);
+    double triangulated = 0.0;
+    for (vtkIdType t = 0; t + 3 < tetIds->GetNumberOfIds(); t += 4)
+    {
+      double p[4][3];
+      for (int k = 0; k < 4; ++k)
+      {
+        grid->GetPoint(tetIds->GetId(t + k), p[k]);
+      }
+      triangulated += std::abs(vtkTetra::ComputeVolume(p[0], p[1], p[2], p[3]));
+    }
+    ok &= TestVolume("Thin tetrahedron, triangulated", triangulated, std::abs(exact), 1e-12);
   }
 
   return ok ? EXIT_SUCCESS : EXIT_FAILURE;

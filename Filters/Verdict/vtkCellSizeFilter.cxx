@@ -20,9 +20,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 #include "vtkPolygon.h"
+#include "vtkPolyhedron.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"
+
+#include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellSizeFilter);
@@ -359,8 +362,16 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, doub
           case 3:
             if (this->ComputeVolume)
             {
-              cell->TriangulateIds(1, cellPtIds);
-              value = this->IntegrateGeneral3DCell(inputPS, cellPtIds);
+              if (auto* polyhedron = vtkPolyhedron::SafeDownCast(cell->GetRepresentativeCell()))
+              {
+                // Exact for any closed polyhedron, convex or not.
+                value = std::abs(polyhedron->ComputeVolume());
+              }
+              else
+              {
+                cell->TriangulateIds(1, cellPtIds);
+                value = this->IntegrateGeneral3DCell(inputPS, cellPtIds);
+              }
             }
             else
             {

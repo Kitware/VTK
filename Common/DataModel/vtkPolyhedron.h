@@ -109,9 +109,9 @@
  * polyhedrons is currently limited. Concavity can lead to bad results with some filters,
  * including:
  * - Contour: the contour (surface) can be constructed outside of the cell,
- * - Triangulate: the current tetrahedralization algorithm can modify the initial
- *   shape of the polygon (created tetrahedrons can change concave portions of the shape
- *   to convex ones).
+ * - Triangulate: a concave cell that no point sees whole, and whose faces the Delaunay
+ *   tetrahedralization of its points crosses, cannot be tetrahedralized without adding
+ *   points, so Triangulate() returns no tetrahedra and 0 for it.
  *
  * @section OtherDetails Other details
  *
@@ -318,8 +318,8 @@ public:
    * A point may be stored multiple times when it is shared by more than one
    * tetrahedrons. The points stored in pts are ordered the same as they are
    * listed in ptIds.
-   * @warning This method works well for a convex polyhedron but may return
-   * wrong result in a concave case.
+   * The tetrahedra make up the cell, concave or not. A cell that cannot be tetrahedralized
+   * on its own points gets none, and 0 is returned.
    */
   int TriangulateLocalIds(int index, vtkIdList* ptIds) override;
 
@@ -482,6 +482,10 @@ protected:
   void GenerateFaces();
   vtkNew<vtkCellArray> Faces; // These are numbered in canonical id space
   int FacesGenerated = 0;     // True when Faces have been successfully constructed
+
+  // Triangulates as a fan of tetrahedra from apex over the triangles of the faces, in canonical
+  // ids. Returns the volume of the inverted ones, which apex does not see from inside.
+  double FanTriangulate(vtkIdType apex, vtkIdList* ptIds);
 
   // Bounds management
   int BoundsComputed = 0;
