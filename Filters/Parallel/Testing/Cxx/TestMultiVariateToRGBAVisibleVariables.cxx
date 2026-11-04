@@ -192,6 +192,7 @@ bool TestInput(const std::function<vtkSmartPointer<vtkDataObject>()>& makeInput,
   filter->SetVariableVisibilityAll(true);
 
   // by index
+  filter->ResetVisibleVariableIndices();
   filter->AddVisibleVariableIndex(0);
   filter->AddVisibleVariableIndex(1);
   filter->AddVisibleVariableIndex(4);
@@ -214,6 +215,23 @@ bool TestInput(const std::function<vtkSmartPointer<vtkDataObject>()>& makeInput,
     Rejected(filter, [](vtkMultiVariateToRGBA* f) { f->SetVisibleVariableIndices({ 0, -1 }); }));
   CHECK(Rejected(filter, [](vtkMultiVariateToRGBA* f) { f->SetVariableVisibility(-1, true); }));
   CHECK(Rejected(filter, [](vtkMultiVariateToRGBA* f) { f->AddVisibleVariableIndex(-1); }));
+
+  // AddVisibleVariableIndex() starts a list only after
+  // ResetVisibleVariableIndices(); otherwise it shows one more variable, even
+  // when every variable is already visible
+  filter->SetVariableVisibilityAll(true);
+  filter->AddVisibleVariableIndex(3);
+  CHECK(CheckVisible(filter, names, { 0, 1, 2, 3, 4 }));
+  filter->SetVariableVisibility(2, false);
+  filter->SetVariableVisibility(2, true);
+  filter->AddVisibleVariableIndex(3);
+  CHECK(CheckVisible(filter, names, { 0, 1, 2, 3, 4 }));
+  filter->SetVisibleVariableIndices({ 0, 1 });
+  filter->AddVisibleVariableIndex(3);
+  CHECK(CheckVisible(filter, names, { 0, 1, 3 }));
+  filter->ResetVisibleVariableIndices();
+  filter->AddVisibleVariableIndex(3);
+  CHECK(CheckVisible(filter, names, { 3 }));
 
   // by name
   filter->SetVariableVisibilityAll(true);

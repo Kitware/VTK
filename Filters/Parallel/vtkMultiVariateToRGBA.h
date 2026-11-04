@@ -345,9 +345,10 @@ public:
    *
    * ResetVisibleVariableIndices() makes every variable visible, the same as
    * SetVariableVisibilityAll(true), so an empty list shows every variable.
-   * AddVisibleVariableIndex() shows a variable; when every variable is
-   * visible without any change (after ResetVisibleVariableIndices()), it
-   * first hides every variable, so only the added ones are visible.
+   * The first AddVisibleVariableIndex() after it, or on a new filter, hides
+   * every other variable, so only the added ones are visible. After any other
+   * visibility setter, AddVisibleVariableIndex(i) is the same as
+   * SetVariableVisibility(i, true).
    */
   void ResetVisibleVariableIndices();
   void AddVisibleVariableIndex(int index);
@@ -420,6 +421,13 @@ protected:
   bool VariablesVisibleByDefault = true;
   std::set<std::string> NameVisibilityExceptions;
   std::set<int> IndexVisibilityExceptions;
+  /**
+   * True after ResetVisibleVariableIndices() or on a new filter, until the
+   * next visibility setter: the next AddVisibleVariableIndex() hides every
+   * other variable. It does not change the visibility, so it is not part of
+   * the MTime.
+   */
+  bool StartVisibleIndexList = true;
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

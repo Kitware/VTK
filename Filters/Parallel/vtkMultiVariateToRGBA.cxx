@@ -856,6 +856,7 @@ bool vtkMultiVariateToRGBA::IsVariableVisible(int index, const std::string& name
 //------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetVariableVisibility(const std::string& name, bool visible)
 {
+  this->StartVisibleIndexList = false;
   if (!this->IndexVisibilityExceptions.empty())
   {
     vtkErrorMacro("The visibility is set by index, start over before setting it by name");
@@ -873,6 +874,7 @@ void vtkMultiVariateToRGBA::SetVariableVisibility(const std::string& name, bool 
 //------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetVariableVisibility(int index, bool visible)
 {
+  this->StartVisibleIndexList = false;
   if (index < 0)
   {
     vtkErrorMacro("Invalid variable index: " << index);
@@ -895,6 +897,7 @@ void vtkMultiVariateToRGBA::SetVariableVisibility(int index, bool visible)
 //------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetVariableVisibilityAll(bool visible)
 {
+  this->StartVisibleIndexList = false;
   if (this->VariablesVisibleByDefault != visible || !this->NameVisibilityExceptions.empty() ||
     !this->IndexVisibilityExceptions.empty())
   {
@@ -945,6 +948,7 @@ vtkStringArray* vtkMultiVariateToRGBA::GetVisibleVariables()
 //------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetVisibleVariables(vtkStringArray* names)
 {
+  this->StartVisibleIndexList = false;
   std::set<std::string> visible;
   if (names)
   {
@@ -966,6 +970,7 @@ void vtkMultiVariateToRGBA::SetVisibleVariables(vtkStringArray* names)
 //------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetVisibleVariableIndices(const std::vector<int>& indices)
 {
+  this->StartVisibleIndexList = false;
   if (std::any_of(indices.begin(), indices.end(), [](int index) { return index < 0; }))
   {
     vtkErrorMacro("Invalid variable indices: " << fmt::format("{}", fmt::join(indices, ", ")));
@@ -1001,15 +1006,20 @@ std::vector<int> vtkMultiVariateToRGBA::GetVisibleVariableIndices()
 void vtkMultiVariateToRGBA::ResetVisibleVariableIndices()
 {
   this->SetVariableVisibilityAll(true);
+  this->StartVisibleIndexList = true;
 }
 
 //------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::AddVisibleVariableIndex(int index)
 {
-  if (index >= 0 && this->VariablesVisibleByDefault && this->NameVisibilityExceptions.empty() &&
-    this->IndexVisibilityExceptions.empty())
+  if (index < 0)
   {
-    // the first index added: only the added indices are visible
+    vtkErrorMacro("Invalid variable index: " << index);
+    return;
+  }
+  if (this->StartVisibleIndexList)
+  {
+    // every variable is visible: the first index added hides the others
     this->VariablesVisibleByDefault = false;
   }
   this->SetVariableVisibility(index, true);
