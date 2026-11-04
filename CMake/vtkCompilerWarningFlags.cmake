@@ -89,6 +89,7 @@ if (VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING)
   vtk_add_flag(-Wno-vla ${langs})
   vtk_add_flag(-Wno-vla-extension ${langs})
   vtk_add_flag(-Wno-unsafe-buffer-usage ${langs})
+  vtk_add_flag(-Wno-lifetime-safety-suggestions ${langs})
 
   if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     if (VTK_WEBASSEMBLY_THREADS)
