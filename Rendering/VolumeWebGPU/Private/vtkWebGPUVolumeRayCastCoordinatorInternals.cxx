@@ -1806,7 +1806,9 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateBindGroup(vtkWebGPUR
 //------------------------------------------------------------------------------
 void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::EnsurePipeline(vtkWebGPURenderWindow* window)
 {
-  const WGPUTextureFormat colorFormat = window->GetPreferredSurfaceTextureFormat();
+  // The pass draws into the renderer's offscreen attachment, not into the surface; the two
+  // formats differ and a pipeline built for the wrong one invalidates the command buffer.
+  const WGPUTextureFormat colorFormat = window->GetOffscreenColorTextureFormat();
   if (this->Pipeline != nullptr && this->PipelineColorFormat == colorFormat &&
     this->PipelineRenderToImage == this->RenderToImage)
   {
@@ -2051,7 +2053,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::EnsureImageTargets(
     view = vtkWebGPU::TextureView::Acquire(configuration->CreateView(texture, viewDescriptor));
   };
 
-  make(window->GetPreferredSurfaceTextureFormat(), "VolumeRenderToImageColor", this->ImageColor,
+  make(window->GetOffscreenColorTextureFormat(), "VolumeRenderToImageColor", this->ImageColor,
     this->ImageColorView);
   make(ImageDepthFormat, "VolumeRenderToImageDepth", this->ImageDepth, this->ImageDepthView);
 }
