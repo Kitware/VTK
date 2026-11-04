@@ -83,6 +83,7 @@ public:
   /// next call.
   void BeginFrame();
 
+  ///@{
   /**
    * Look up a brick, or make room for one. Lookup touches the slot it finds so the frame being
    * built keeps it. Allocate returns InvalidSlot when every slot is spoken for by this frame,
