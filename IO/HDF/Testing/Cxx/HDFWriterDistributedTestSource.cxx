@@ -200,7 +200,7 @@ protected:
     vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) override
   {
     auto* outInfo = outputVector->GetInformationObject(0);
-    if (this->Config.Temporal == TemporalType::Temporal)
+    if (this->Config.Temporal != TemporalType::NoTemporal)
     {
       std::array<double, NumberOfSteps> times;
       std::iota(times.begin(), times.end(), 0.0);

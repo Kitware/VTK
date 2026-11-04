@@ -29,6 +29,7 @@ enum class TemporalType
 {
   NoTemporal,
   Temporal,
+  AddTemporal,
 };
 enum class StaticMeshType
 {

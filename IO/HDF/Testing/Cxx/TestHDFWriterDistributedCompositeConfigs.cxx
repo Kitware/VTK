@@ -36,7 +36,16 @@ int TestHDFWriterDistributedCompositeConfigs(int argc, char* argv[])
         }
         layout.Name += composite == CompositeType::PDC ? "_pdc" : "_mb";
         layout.Name += distributed == ExternalType::Distributed ? "_extrdistr" : "";
-        configs.push_back(std::move(layout));
+        configs.push_back(layout);
+        if (distributed == ExternalType::NoExternal)
+        {
+          layout.Temporal = TemporalType::AddTemporal;
+          layout.Name += "_addtemp";
+          configs.push_back(layout);
+          layout.StaticMesh = StaticMeshType::Static;
+          layout.Name += "_static";
+          configs.push_back(std::move(layout));
+        }
       }
     }
   }
