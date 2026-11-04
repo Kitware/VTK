@@ -712,25 +712,7 @@
 ## Linux-specific scripts
 
 .before_script_linux: &before_script_linux
-    - .gitlab/ci/cmake.sh
-    - '( echo "$CMAKE_CONFIGURATION" | grep -q "mindeps" ) && env CMAKE_SUFFIX=-mindeps .gitlab/ci/cmake-mindeps.sh'
-    - .gitlab/ci/ninja.sh
-    - export PATH=$PWD/.gitlab:$PWD/.gitlab/cmake/bin:$PATH
-    # Download Qt
-    - cmake -P .gitlab/ci/download_qt6.cmake
-    - export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$PWD/.gitlab/qt6
-    - cmake --version
-    - ninja --version
-    - $LAUNCHER cmake -P "$PWD/.gitlab/ci/fetch_tags.cmake"
-    # Load any modules that may be necessary.
-    - '[ -n "$MODULES" ] && . /etc/profile.d/modules.sh && module load $MODULES'
-    # Load a venv
-    - '[ -n "$VENV_ROOT" ] && . $VENV_ROOT/bin/activate'
-    # activate does not set PYTHONPATH which is needed for vtkpython to pickup packages installed in a separate venv.
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/19539
-    - '[ -n "$VENV_ROOT" ] && export PYTHONPATH=$VENV_ROOT/lib/$SITE_PACKAGES_DIR/site-packages'
-    # Enable the Intel compiler if required.
-    - '[ "$CC" = "icx" ] && source /opt/intel/oneapi/setvars.sh || true'
+    - . .gitlab/ci/before_script_linux.sh
 
 .before_script_java_linux: &before_script_java_linux
     - *before_script_linux
