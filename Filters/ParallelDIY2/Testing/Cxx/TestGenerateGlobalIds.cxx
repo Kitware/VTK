@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommunicator.h"
 #include "vtkDataSet.h"
@@ -11,7 +12,10 @@
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
+#include "vtkPartitionedDataSet.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkStructuredData.h"
 #include "vtkUnsignedCharArray.h"
@@ -21,6 +25,10 @@
 #else
 #include "vtkDummyController.h"
 #endif
+
+#include <algorithm>
+#include <limits>
+#include <vector>
 
 namespace
 {
@@ -135,6 +143,108 @@ bool ValidateOutputHiddenGhosts(vtkUnsignedCharArray* ghosts)
 
   return true;
 }
+
+// A plane of 9x9 quads in 27 partitions of 3x1 quads, partition p on rank p % ranks.
+vtkSmartPointer<vtkPartitionedDataSet> CreateFlatQuads(vtkMultiProcessController* contr)
+{
+  const int num_ranks = contr->GetNumberOfProcesses();
+  const int rank = contr->GetLocalProcessId();
+  auto pds = vtkSmartPointer<vtkPartitionedDataSet>::New();
+  for (int partition = rank; partition < 27; partition += num_ranks)
+  {
+    const int i0 = 3 * (partition % 3);
+    const int j0 = partition / 3;
+    vtkNew<vtkPoints> points;
+    for (int j = j0; j <= j0 + 1; ++j)
+    {
+      for (int i = i0; i <= i0 + 3; ++i)
+      {
+        points->InsertNextPoint(i, j, 0.0);
+      }
+    }
+    vtkNew<vtkCellArray> polys;
+    for (vtkIdType i = 0; i < 3; ++i)
+    {
+      polys->InsertNextCell({ i, i + 1, i + 5, i + 4 });
+    }
+    vtkNew<vtkPolyData> polyData;
+    polyData->SetPoints(points);
+    polyData->SetPolys(polys);
+    pds->SetPartition(pds->GetNumberOfPartitions(), polyData);
+  }
+  return pds;
+}
+
+// Whether each of the n positions has one id, the same in all partitions (its minimum and maximum
+// ids are equal), and whether these ids are 0 to n - 1.
+bool IsPermutation(const std::vector<vtkIdType>& minIds, const std::vector<vtkIdType>& maxIds)
+{
+  const vtkIdType n = static_cast<vtkIdType>(minIds.size());
+  std::vector<bool> used(n, false);
+  for (vtkIdType position = 0; position < n; ++position)
+  {
+    const vtkIdType id = minIds[position];
+    if (id != maxIds[position] || id < 0 || id >= n || used[id])
+    {
+      return false;
+    }
+    used[id] = true;
+  }
+  return true;
+}
+
+// The 100 points and 81 quads of CreateFlatQuads, numbered by position, have global ids 0 to 99
+// and 0 to 80, and a point shared by several partitions has the same id in all of them.
+bool ValidateFlatQuads(vtkPartitionedDataSet* pds, vtkMultiProcessController* contr)
+{
+  constexpr vtkIdType unseen = std::numeric_limits<vtkIdType>::max();
+  std::vector<vtkIdType> localMinIds(100 + 81, unseen);
+  std::vector<vtkIdType> localMaxIds(100 + 81, -1);
+  for (unsigned int cc = 0; cc < pds->GetNumberOfPartitions(); ++cc)
+  {
+    vtkPolyData* polyData = vtkPolyData::SafeDownCast(pds->GetPartition(cc));
+    auto gpids = vtkIdTypeArray::SafeDownCast(polyData->GetPointData()->GetGlobalIds());
+    auto gcids = vtkIdTypeArray::SafeDownCast(polyData->GetCellData()->GetGlobalIds());
+    if (!gpids || !gcids)
+    {
+      vtkLogF(ERROR, "missing global ids on the flat quads!");
+      return false;
+    }
+    for (vtkIdType pointId = 0; pointId < polyData->GetNumberOfPoints(); ++pointId)
+    {
+      double p[3];
+      polyData->GetPoint(pointId, p);
+      const vtkIdType position = static_cast<vtkIdType>(p[0]) + 10 * static_cast<vtkIdType>(p[1]);
+      localMinIds[position] = std::min(localMinIds[position], gpids->GetValue(pointId));
+      localMaxIds[position] = std::max(localMaxIds[position], gpids->GetValue(pointId));
+    }
+    for (vtkIdType cellId = 0; cellId < polyData->GetNumberOfCells(); ++cellId)
+    {
+      // The first point of a quad is its lower left corner.
+      double p[3];
+      polyData->GetPoint(polyData->GetPolys()->GetCellPointAtId(cellId, 0), p);
+      const vtkIdType position =
+        100 + static_cast<vtkIdType>(p[0]) + 9 * static_cast<vtkIdType>(p[1]);
+      localMinIds[position] = std::min(localMinIds[position], gcids->GetValue(cellId));
+      localMaxIds[position] = std::max(localMaxIds[position], gcids->GetValue(cellId));
+    }
+  }
+
+  std::vector<vtkIdType> minIds(localMinIds.size());
+  std::vector<vtkIdType> maxIds(localMaxIds.size());
+  contr->AllReduce(localMinIds.data(), minIds.data(), static_cast<vtkIdType>(minIds.size()),
+    vtkCommunicator::MIN_OP);
+  contr->AllReduce(localMaxIds.data(), maxIds.data(), static_cast<vtkIdType>(maxIds.size()),
+    vtkCommunicator::MAX_OP);
+  if (!IsPermutation(
+        { minIds.begin(), minIds.begin() + 100 }, { maxIds.begin(), maxIds.begin() + 100 }) ||
+    !IsPermutation({ minIds.begin() + 100, minIds.end() }, { maxIds.begin() + 100, maxIds.end() }))
+  {
+    vtkLogF(ERROR, "incorrect global ids on the flat quads!");
+    return false;
+  }
+  return true;
+}
 }
 
 int TestGenerateGlobalIds(int argc, char* argv[])
@@ -210,6 +320,19 @@ int TestGenerateGlobalIds(int argc, char* argv[])
       {
         status = EXIT_FAILURE;
       }
+    }
+  }
+
+  // test a flat dataset, whose bounds have no thickness in z.
+  {
+    vtkNew<vtkGenerateGlobalIds> generator;
+    generator->SetInputDataObject(CreateFlatQuads(contr));
+    generator->Update();
+
+    if (!ValidateFlatQuads(
+          vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0)), contr))
+    {
+      status = EXIT_FAILURE;
     }
   }
 
