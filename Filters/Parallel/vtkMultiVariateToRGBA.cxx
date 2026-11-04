@@ -551,11 +551,64 @@ struct CreateSOAWorker
 };
 
 /**
- * Returns the name of a variable, or its index for an unnamed variable.
+ * Returns unique variable names. An unnamed variable is named after its
+ * index. A name already used, by a named variable or an earlier variable,
+ * gets the first free " (2)", " (3)", ... suffix, so named variables keep
+ * their name, and the first of several variables with the same name keeps
+ * it.
  */
-std::string variableName(const char* name, int index)
+std::vector<std::string> uniqueVariableNames(const std::vector<const char*>& rawNames)
 {
-  return name && *name ? std::string(name) : vtk::to_string(index);
+  auto isNamed = [](const char* name) { return name && *name; };
+  std::set<std::string> taken;
+  for (const char* name : rawNames)
+  {
+    if (isNamed(name))
+    {
+      taken.insert(name);
+    }
+  }
+  std::set<std::string> given;
+  std::vector<std::string> names;
+  names.reserve(rawNames.size());
+  for (size_t i = 0; i < rawNames.size(); ++i)
+  {
+    const char* rawName = rawNames[i];
+    if (isNamed(rawName) && given.insert(rawName).second)
+    {
+      names.emplace_back(rawName);
+      continue;
+    }
+    std::string base = isNamed(rawName) ? std::string(rawName) : vtk::to_string(i);
+    std::string name = base;
+    for (int n = 2; taken.count(name) > 0; ++n)
+    {
+      name = base + " (" + vtk::to_string(n) + ")";
+    }
+    taken.insert(name);
+    names.push_back(std::move(name));
+  }
+  return names;
+}
+
+std::vector<std::string> columnNames(vtkTable* table)
+{
+  std::vector<const char*> rawNames;
+  for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
+  {
+    rawNames.push_back(table->GetColumnName(i));
+  }
+  return uniqueVariableNames(rawNames);
+}
+
+std::vector<std::string> componentNames(vtkDataArray* array)
+{
+  std::vector<const char*> rawNames;
+  for (int i = 0; i < array->GetNumberOfComponents(); ++i)
+  {
+    rawNames.push_back(array->GetComponentName(i));
+  }
+  return uniqueVariableNames(rawNames);
 }
 
 /**
@@ -824,9 +877,9 @@ vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetAllVariableNames()
   vtkDataSet* dataset = vtkDataSet::SafeDownCast(input);
   if (table)
   {
-    for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
+    for (const std::string& name : ::columnNames(table))
     {
-      names->InsertNextValue(variableName(table->GetColumnName(i), static_cast<int>(i)));
+      names->InsertNextValue(name);
     }
   }
   else if (dataset)
@@ -835,9 +888,9 @@ vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetAllVariableNames()
     vtkDataArray* array = this->GetInputArrayToProcess(0, input, association);
     if (array)
     {
-      for (int i = 0; i < array->GetNumberOfComponents(); ++i)
+      for (const std::string& name : ::componentNames(array))
       {
-        names->InsertNextValue(variableName(array->GetComponentName(i), i));
+        names->InsertNextValue(name);
       }
     }
   }
@@ -1029,9 +1082,10 @@ void vtkMultiVariateToRGBA::AddVisibleVariableIndex(int index)
 vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::GetVisibleComponentsArray(vtkDataArray* array)
 {
   std::vector<int> componentIndices;
+  std::vector<std::string> names = ::componentNames(array);
   for (int c = 0; c < array->GetNumberOfComponents(); ++c)
   {
-    if (this->IsVariableVisible(c, variableName(array->GetComponentName(c), c)))
+    if (this->IsVariableVisible(c, names[c]))
     {
       componentIndices.push_back(c);
     }
@@ -1380,10 +1434,10 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
 
     // Only keep the visible columns, in their natural order.
     std::vector<vtkAbstractArray*> columns;
+    std::vector<std::string> names = ::columnNames(table);
     for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
     {
-      int index = static_cast<int>(i);
-      if (this->IsVariableVisible(index, variableName(table->GetColumnName(i), index)))
+      if (this->IsVariableVisible(static_cast<int>(i), names[i]))
       {
         columns.push_back(table->GetColumn(i));
       }

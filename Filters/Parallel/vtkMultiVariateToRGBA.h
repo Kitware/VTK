@@ -288,7 +288,10 @@ public:
    * are used to compute the GBC/RGBA values, letting a subset of a
    * multivariate dataset be visualized. A variable is set visible or hidden
    * by name or by index; unnamed variables are named after their index
-   * ("0", "1", ...). By default, every variable is visible.
+   * ("0", "1", ...). Names are unique: a name already used, by a named
+   * variable or an earlier variable, gets the first free " (2)", " (3)",
+   * ... suffix, so a column named "1" keeps its name and an unnamed column
+   * 1 is named "1 (2)". By default, every variable is visible.
    *
    * The visibility is stored as a default visibility and the variables
    * that differ from it, which do not depend on the input, so they can be

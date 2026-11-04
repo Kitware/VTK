@@ -5,7 +5,7 @@
  * for the columns of a table and the components of a dataset array: the
  * visible variables reported match the vertices computed, names and indices
  * do not mix until the visibility starts over, unnamed variables are named
- * after their index, and changes that do not change the visibility do not
+ * after their index, names are unique, and changes that do not change the visibility do not
  * modify the filter. Also check that the partition indexes the visible
  * variables only.
  */
@@ -98,6 +98,28 @@ vtkSmartPointer<vtkDataObject> MakeImage(
   }
   image->GetPointData()->SetScalars(values);
   return image;
+}
+
+// Renames the table columns or the image components, nullptr for unnamed.
+vtkSmartPointer<vtkDataObject> Rename(
+  vtkSmartPointer<vtkDataObject> input, const std::vector<const char*>& names)
+{
+  if (auto* table = vtkTable::SafeDownCast(input))
+  {
+    for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
+    {
+      table->GetColumn(i)->SetName(names[i]);
+    }
+  }
+  else
+  {
+    vtkDataArray* values = vtkImageData::SafeDownCast(input)->GetPointData()->GetScalars();
+    for (int c = 0; c < values->GetNumberOfComponents(); ++c)
+    {
+      values->SetComponentName(c, names[c]);
+    }
+  }
+  return input;
 }
 
 vtkSmartPointer<vtkMultiVariateToRGBA> MakeFilter(vtkDataObject* input)
@@ -436,6 +458,20 @@ int TestMultiVariateToRGBAVisibleVariables(int, char*[])
   if (!TestInput([] { return MakeImage(false); }, { "0", "1", "2", "3", "4" }))
   {
     std::cerr << "Image with unnamed components failed" << std::endl;
+    return EXIT_FAILURE;
+  }
+  // an unnamed column 1 does not take the name of column 0, "1"
+  if (!TestInput([] { return Rename(MakeTable(), { "1", nullptr, "c", "d", "e" }); },
+        { "1", "1 (2)", "c", "d", "e" }))
+  {
+    std::cerr << "Table with colliding names failed" << std::endl;
+    return EXIT_FAILURE;
+  }
+  // named components keep their name, the others get the first free suffix
+  if (!TestInput([] { return Rename(MakeImage(false), { "1", nullptr, "x", "x", "1 (2)" }); },
+        { "1", "1 (3)", "x", "x (2)", "1 (2)" }))
+  {
+    std::cerr << "Image with colliding names failed" << std::endl;
     return EXIT_FAILURE;
   }
   if (!TestPartition([](const Indices& variables) { return MakeTable(variables); }))
