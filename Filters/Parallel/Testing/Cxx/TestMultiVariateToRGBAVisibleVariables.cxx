@@ -24,6 +24,7 @@
 #include <vtkStringArray.h>
 #include <vtkTable.h>
 #include <vtkTestErrorObserver.h>
+#include <vtkTrivialProducer.h>
 #include <vtkWeakPointer.h>
 
 #include <algorithm>
@@ -392,6 +393,56 @@ bool InvalidPartition(vtkMultiVariateToRGBA* filter)
 // to it: with variable 1 hidden, the results match the ones for an input
 // without it, and a partition of every variable is invalid until variable 1
 // is visible again. Returns true if the checks pass.
+// Checks that the variable names follow the changes of the input and of
+// the array processed.
+bool TestNamesFollowInput()
+{
+  vtkSmartPointer<vtkDataObject> image = MakeImage(true);
+  vtkNew<vtkDoubleArray> other;
+  other->SetName("other");
+  other->SetNumberOfComponents(3);
+  other->SetNumberOfTuples(NumberOfValues);
+  other->Fill(1.0);
+  for (int c = 0; c < 3; ++c)
+  {
+    other->SetComponentName(c, Names({ "p", "q", "r" })[c].c_str());
+  }
+  vtkImageData::SafeDownCast(image)->GetPointData()->AddArray(other);
+  vtkSmartPointer<vtkMultiVariateToRGBA> filter = MakeFilter(image);
+  CHECK(ToNames(filter->GetAllVariableNames()) == VariableNames);
+  CHECK(filter->GetVariableVisibility("a"));
+
+  // a renamed component, after the input is marked modified
+  vtkDataArray* values = vtkImageData::SafeDownCast(image)->GetPointData()->GetScalars();
+  values->SetComponentName(0, "z");
+  image->Modified();
+  CHECK(ToNames(filter->GetAllVariableNames()) == Names({ "z", "b", "c", "d", "e" }));
+  CHECK(filter->GetVariableVisibility("z"));
+  CHECK(!filter->GetVariableVisibility("a"));
+
+  // another array processed
+  filter->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "other");
+  CHECK(ToNames(filter->GetAllVariableNames()) == Names({ "p", "q", "r" }));
+  CHECK(filter->GetVariableVisibility(2));
+  CHECK(!filter->GetVariableVisibility(3));
+  CHECK(filter->GetVisibleVariableIndices() == Indices({ 0, 1, 2 }));
+
+  // another input, built before the names were last computed
+  vtkSmartPointer<vtkDataObject> older = MakeTable({ 1, 3 });
+  vtkNew<vtkTrivialProducer> producer;
+  producer->SetOutput(MakeTable());
+  filter->SetInputConnection(producer->GetOutputPort());
+  CHECK(ToNames(filter->GetAllVariableNames()) == VariableNames);
+  producer->SetOutput(older);
+  CHECK(ToNames(filter->GetAllVariableNames()) == Names({ "b", "d" }));
+  CHECK(ToNames(filter->GetVisibleVariables()) == Names({ "b", "d" }));
+  CHECK(!filter->GetVariableVisibility("p"));
+  filter->SetInputDataObject(0, nullptr);
+  CHECK(ToNames(filter->GetAllVariableNames()).empty());
+  CHECK(!filter->GetVariableVisibility("b"));
+  return true;
+}
+
 bool TestPartition(const std::function<vtkSmartPointer<vtkDataObject>(const Indices&)>& makeInput)
 {
   const Indices visible = { 0, 2, 3, 4 };
@@ -472,6 +523,11 @@ int TestMultiVariateToRGBAVisibleVariables(int, char*[])
         { "1", "1 (3)", "x", "x (2)", "1 (2)" }))
   {
     std::cerr << "Image with colliding names failed" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!TestNamesFollowInput())
+  {
+    std::cerr << "Names following the input failed" << std::endl;
     return EXIT_FAILURE;
   }
   if (!TestPartition([](const Indices& variables) { return MakeTable(variables); }))
