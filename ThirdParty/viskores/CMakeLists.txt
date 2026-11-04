@@ -32,6 +32,18 @@ if(VTK_MODULE_USE_EXTERNAL_vtkviskores)
   viskores_setup_job_pool()
 endif()
 
+# `kokkos_compilation` needs the compiler Kokkos was built with, which
+# find_package(Kokkos) defines only in the directory that found it: Viskores'
+# own when it is vendored. Keep it for device targets in VTK's other modules.
+if (VTK_USE_KOKKOS)
+  if (NOT DEFINED Kokkos_CXX_COMPILER AND NOT VTK_MODULE_USE_EXTERNAL_vtkviskores)
+    get_directory_property(Kokkos_CXX_COMPILER
+      DIRECTORY vtkviskores/viskores
+      DEFINITION Kokkos_CXX_COMPILER)
+  endif ()
+  set_property(GLOBAL PROPERTY _vtk_viskores_kokkos_cxx_compiler "${Kokkos_CXX_COMPILER}")
+endif ()
+
 set(viskores_specific_targets
   cont
   cont_testing
@@ -68,6 +80,7 @@ function(vtk_add_viskores_device_target_information target)
   endif()
   if(TARGET VTK::vtkviskores_kokkos_hip)
     set_source_files_properties(${sources} PROPERTIES LANGUAGE HIP)
-    kokkos_compilation(SOURCE ${sources})
+    get_property(kokkos_cxx_compiler GLOBAL PROPERTY _vtk_viskores_kokkos_cxx_compiler)
+    kokkos_compilation(SOURCE ${sources} COMPILER "${kokkos_cxx_compiler}")
   endif()
 endfunction()
