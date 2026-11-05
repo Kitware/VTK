@@ -12,6 +12,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #include <iostream>
+#include <limits>
 
 // simple macro for performing tests
 #define TestAssert(t)                                                                              \
@@ -170,6 +171,63 @@ int TestLookupTable(int, char*[])
   TestAssert(table->GetIndex(hi * step) == 255);
   TestAssert(table->GetIndex(lo * step) == 1);
   TestAssert(table->GetIndex(hi / step) == 254);
+
+  // symlog range test
+  table->SetScaleToSymlog();
+  table->SetTableRange(-100.0, 100.0);
+  table->SetSymlogLinearThreshold(10.0);
+  table->Build();
+  TestAssert(table->GetIndex(-100.0) == 0);
+  TestAssert(table->GetIndex(100.0) == 255);
+  TestAssert(table->GetIndex(0.0) == 128);
+  const vtkIdType expectedPosIdx = static_cast<vtkIdType>(
+    ((std::log10(2.0) + std::log10(11.0)) / (2.0 * std::log10(11.0))) * 256.0);
+  TestAssert(table->GetIndex(10.0) == expectedPosIdx);
+  TestAssert(table->GetIndex(vtkMath::Nan()) == -1);
+
+  // high-dynamic-range symlog test ([-1e6, 1e6] with linthresh = 1e-7)
+  table->SetTableRange(-1e6, 1e6);
+  table->SetSymlogLinearThreshold(1e-7);
+  table->Build();
+  TestAssert(table->GetIndex(-1e6) == 0);
+  TestAssert(table->GetIndex(1e6) == 255);
+  TestAssert(table->GetIndex(0.0) == 128);
+  TestAssert(table->GetIndex(-1e-6) < table->GetIndex(-1e-7));
+  TestAssert(table->GetIndex(-1e-7) < table->GetIndex(0.0));
+  TestAssert(table->GetIndex(0.0) < table->GetIndex(1e-7));
+  TestAssert(table->GetIndex(1e-7) < table->GetIndex(1e-6));
+  TestAssert(table->GetIndex(1e-6) < table->GetIndex(1e6));
+
+  // trace-concentration symlog threshold below 1e-10 and non-positive clamping
+  table->SetSymlogLinearThreshold(1e-16);
+  TestAssert(table->GetSymlogLinearThreshold() == 1e-16);
+  table->SetSymlogLinearThreshold(0.0);
+  TestAssert(table->GetSymlogLinearThreshold() == VTK_DBL_MIN);
+  table->SetSymlogLinearThreshold(-1.0);
+  TestAssert(table->GetSymlogLinearThreshold() == VTK_DBL_MIN);
+
+  for (double threshold : { 0.0, -1.0, VTK_DBL_MIN, 1e-16, 1.0, 1e20, VTK_DOUBLE_MAX })
+  {
+    table->SetSymlogLinearThreshold(threshold);
+    for (double extent : { 1.0, 100.0, std::numeric_limits<double>::max() })
+    {
+      table->SetTableRange(-extent, extent);
+      table->Build();
+      double values[] = { -extent, 0.0, extent };
+      const vtkIdType indices[] = { 0, 128, 255 };
+      unsigned char colors[12];
+      table->MapScalarsThroughTable(values, colors, VTK_DOUBLE, 3, 1, VTK_RGBA);
+      for (int i = 0; i < 3; ++i)
+      {
+        const vtkIdType index = table->GetIndex(values[i]);
+        TestAssert(index == indices[i] || (i == 1 && index == 127));
+        if (index >= 0 && index < 256)
+        {
+          TestAssert(TestColor4uc(table->GetPointer(index), colors + 4 * i));
+        }
+      }
+    }
+  }
 
   // negative log range
   double tmp = hi;

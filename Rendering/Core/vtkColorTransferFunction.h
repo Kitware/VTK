@@ -26,6 +26,7 @@
 #ifndef vtkColorTransferFunction_h
 #define vtkColorTransferFunction_h
 
+#include "vtkMath.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkScalarsToColors.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
@@ -44,6 +45,7 @@ class vtkDoubleArray;
 
 #define VTK_CTF_LINEAR 0
 #define VTK_CTF_LOG10 1
+#define VTK_CTF_SYMLOG 2
 
 class VTKRENDERINGCORE_EXPORT VTK_MARSHALMANUAL vtkColorTransferFunction : public vtkScalarsToColors
 {
@@ -218,6 +220,7 @@ public:
   vtkSetMacro(Scale, int);
   void SetScaleToLinear() { this->SetScale(VTK_CTF_LINEAR); }
   void SetScaleToLog10() { this->SetScale(VTK_CTF_LOG10); }
+  void SetScaleToSymlog() { this->SetScale(VTK_CTF_SYMLOG); }
   vtkGetMacro(Scale, int);
 
   /**
@@ -354,7 +357,19 @@ public:
    */
   int EstimateMinNumberOfSamples(double const& x1, double const& x2);
 
+  ///@{
+  /**
+   * Set/Get the linear threshold for the symmetric logarithm scale.
+   * The symmetric logarithm is linear from -LinearThreshold to LinearThreshold,
+   * and logarithmic beyond.
+   * Default is 1.0.
+   */
+  vtkSetClampMacro(SymlogLinearThreshold, double, VTK_DBL_MIN, VTK_DOUBLE_MAX);
+  vtkGetMacro(SymlogLinearThreshold, double);
+  ///@}
+
 protected:
+  double SymlogLinearThreshold;
   vtkColorTransferFunction();
   ~vtkColorTransferFunction() override;
 

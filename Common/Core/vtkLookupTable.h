@@ -43,6 +43,7 @@
 #define vtkLookupTable_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkMath.h"
 #include "vtkScalarsToColors.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
@@ -53,6 +54,7 @@
 #define VTK_RAMP_SQRT 2
 #define VTK_SCALE_LINEAR 0
 #define VTK_SCALE_LOG10 1
+#define VTK_SCALE_SYMLOG 2
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkLookupTable : public vtkScalarsToColors
@@ -146,6 +148,7 @@ public:
   void SetScale(int scale);
   void SetScaleToLinear() { this->SetScale(VTK_SCALE_LINEAR); }
   void SetScaleToLog10() { this->SetScale(VTK_SCALE_LOG10); }
+  void SetScaleToSymlog() { this->SetScale(VTK_SCALE_SYMLOG); }
   vtkGetMacro(Scale, int);
   ///@}
 
@@ -421,7 +424,19 @@ public:
    */
   void GetIndexedColor(vtkIdType idx, double rgba[4]) override;
 
+  ///@{
+  /**
+   * Set/Get the linear threshold for the symmetric logarithm scale.
+   * The symmetric logarithm is linear from -LinearThreshold to LinearThreshold,
+   * and logarithmic beyond.
+   * Default is 1.0.
+   */
+  vtkSetClampMacro(SymlogLinearThreshold, double, VTK_DBL_MIN, VTK_DOUBLE_MAX);
+  vtkGetMacro(SymlogLinearThreshold, double);
+  ///@}
+
 protected:
+  double SymlogLinearThreshold;
   vtkLookupTable(int sze = 256, int ext = 256);
   ~vtkLookupTable() override;
 

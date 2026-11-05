@@ -2,6 +2,33 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkColorTransferFunction.h"
 
+#include <cmath>
+#include <limits>
+
+namespace
+{
+inline double vtkSymlog(double x, double linthresh)
+{
+  const double magnitude = std::abs(x);
+  if (linthresh < 1.0 && magnitude >= std::numeric_limits<double>::max() * linthresh)
+  {
+    return std::copysign(std::log10(magnitude) - std::log10(linthresh), x);
+  }
+  return std::copysign(std::log1p(magnitude / linthresh) / std::log(10.0), x);
+}
+
+inline double vtkSymlogInv(double x, double linthresh)
+{
+  const double exponent = std::abs(x) * std::log(10.0);
+  if (exponent <= std::log(std::numeric_limits<double>::max()))
+  {
+    return std::copysign(linthresh * std::expm1(exponent), x);
+  }
+  const double half = std::exp(0.5 * exponent);
+  return std::copysign((linthresh * half) * half, x);
+}
+}
+
 #include "vtkArrayDispatch.h"
 #include "vtkCIEDE2000.h"
 #include "vtkDataArrayRange.h"
@@ -11,9 +38,7 @@
 #include "vtkStringArray.h"
 
 #include <algorithm>
-#include <cmath>
 #include <iterator>
-#include <limits>
 #include <set>
 #include <vector>
 
@@ -281,6 +306,7 @@ vtkColorTransferFunction::vtkColorTransferFunction()
   this->HSVWrap = 1; // By default HSV will be wrap
 
   this->Scale = VTK_CTF_LINEAR;
+  this->SymlogLinearThreshold = 1.0;
 
   this->NanColor[0] = 0.5;
   this->NanColor[1] = 0.0;
@@ -837,6 +863,7 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
 
   // If the scale is logarithmic, make sure the range is valid.
   bool usingLogScale = this->Scale == VTK_CTF_LOG10;
+  bool usingSymlogScale = this->Scale == VTK_CTF_SYMLOG;
   if (usingLogScale)
   {
     // Note: This requires range[0] <= range[1].
@@ -852,6 +879,11 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
     double tmpEnd = (xEnd <= 0.0) ? this->Range[0] * 1e-6 : xEnd;
     logStart = log10(tmpStart);
     logEnd = log10(tmpEnd);
+  }
+  else if (usingSymlogScale)
+  {
+    logStart = vtkSymlog(xStart, this->SymlogLinearThreshold);
+    logEnd = vtkSymlog(xEnd, this->SymlogLinearThreshold);
   }
 
   vtkSmartPointer<vtkColorTransferFunction> ciede2000Helper = nullptr;
@@ -874,6 +906,11 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
           logStart + (static_cast<double>(i) / static_cast<double>(size - 1)) * (logEnd - logStart);
         x = pow(10.0, logX);
       }
+      else if (usingSymlogScale)
+      {
+        logX =
+          logStart + (static_cast<double>(i) / static_cast<double>(size - 1)) * (logEnd - logStart);
+      }
       else
       {
         x = xStart + (static_cast<double>(i) / static_cast<double>(size - 1)) * (xEnd - xStart);
@@ -886,9 +923,31 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
         logX = 0.5 * (logStart + logEnd);
         x = pow(10.0, logX);
       }
+      else if (usingSymlogScale)
+      {
+        logX = 0.5 * (logStart + logEnd);
+      }
       else
       {
         x = 0.5 * (xStart + xEnd);
+      }
+    }
+
+    if (usingSymlogScale)
+    {
+      if (xStart == xEnd || (size > 1 && i == 0))
+      {
+        logX = logStart;
+        x = xStart;
+      }
+      else if (size > 1 && i == size - 1)
+      {
+        logX = logEnd;
+        x = xEnd;
+      }
+      else
+      {
+        x = vtkSymlogInv(logX, this->SymlogLinearThreshold);
       }
     }
 
@@ -908,6 +967,11 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
         {
           x1 = log10(x1);
           x2 = log10(x2);
+        }
+        else if (usingSymlogScale)
+        {
+          x1 = vtkSymlog(x1, this->SymlogLinearThreshold);
+          x2 = vtkSymlog(x2, this->SymlogLinearThreshold);
         }
 
         rgb1[0] = this->Internal->Nodes[idx - 1]->R;
@@ -998,9 +1062,12 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
       // sharpness to get the curve shape we want and to have
       // it pass through (y1+y2)/2 at the midpoint.
       double s = 0.0;
-      if (usingLogScale)
+      if (usingLogScale || usingSymlogScale)
       {
-        s = (logX - x1) / (x2 - x1);
+        if (x2 != x1)
+        {
+          s = (logX - x1) / (x2 - x1);
+        }
       }
       else
       {
@@ -1452,6 +1519,7 @@ void vtkColorTransferFunction::DeepCopy(vtkScalarsToColors* o)
     this->ColorSpace = f->ColorSpace;
     this->HSVWrap = f->HSVWrap;
     this->Scale = f->Scale;
+    this->SymlogLinearThreshold = f->SymlogLinearThreshold;
 
     int i;
     this->RemoveAllPoints();
@@ -1476,6 +1544,7 @@ void vtkColorTransferFunction::ShallowCopy(vtkColorTransferFunction* f)
     this->ColorSpace = f->ColorSpace;
     this->HSVWrap = f->HSVWrap;
     this->Scale = f->Scale;
+    this->SymlogLinearThreshold = f->SymlogLinearThreshold;
 
     int i;
     this->RemoveAllPoints();
@@ -1992,10 +2061,15 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Scale: Log10\n";
   }
+  else if (this->Scale == VTK_CTF_SYMLOG)
+  {
+    os << indent << "Scale: Symlog\n";
+  }
   else
   {
     os << indent << "Scale: Linear\n";
   }
+  os << indent << "SymlogLinearThreshold: " << this->SymlogLinearThreshold << "\n";
 
   os << indent << "Range: " << this->Range[0] << " to " << this->Range[1] << endl;
 
