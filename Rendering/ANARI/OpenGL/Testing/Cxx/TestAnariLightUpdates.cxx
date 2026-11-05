@@ -21,6 +21,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
+#include "vtkTesting.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkViewNodeFactory.h"
@@ -142,7 +143,7 @@ int TestAnariLightUpdates(int argc, char* argv[])
   if (!extensions.ANARI_KHR_LIGHT_DIRECTIONAL)
   {
     vtkLogF(WARNING, "Directional lights are required for this test.");
-    return 125;
+    return VTK_SKIP_RETURN_CODE;
   }
 
   if (GetCenterBrightness(graph, window) < 100.0)
