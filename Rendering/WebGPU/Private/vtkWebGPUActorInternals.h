@@ -5,16 +5,22 @@
 #define vtkWebGPUActorInternals_h
 
 #include "Private/vtkWebGPUHandle.h"
+#include "vtkActor.h"
 #include "vtkDataObject.h"
 #include "vtkMapper.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
+#include "vtkProperty.h"
 #include "vtkRenderingWebGPUModule.h"
 #include "vtkTransform.h"
 #include "vtkWebGPUPolyDataMapper.h"
+#include "vtkWebGPUTexture.h"
 
 #include "vtk_wgpu.h"
+
+#include <array>   // for std::array
+#include <cstddef> // for offsetof
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -87,8 +93,29 @@ public:
       vtkTypeUInt32 InterpolationType = VTK_FLAT;
       // Id to color by
       vtkTypeUInt32 Id = 0;
+      vtkTypeFloat32 Metallic = 0.0f;
+      vtkTypeFloat32 Roughness = 0.5f;
+      vtkTypeFloat32 BaseF0 = 0.04f;
+      vtkTypeFloat32 Anisotropy = 0.0f;
+      vtkTypeFloat32 AnisotropyRotation = 0.0f;
+      vtkTypeFloat32 CoatStrength = 0.0f;
+      vtkTypeFloat32 CoatRoughness = 0.0f;
+      vtkTypeFloat32 CoatF0 = 0.0f;
+      vtkTypeFloat32 CoatNormalScale = 1.0f;
+      vtkTypeFloat32 NormalScale = 1.0f;
+      vtkTypeFloat32 EmissiveFactor[3] = { 1.0f, 1.0f, 1.0f };
+      vtkTypeFloat32 OcclusionStrength = 1.0f;
+      vtkTypeFloat32 EdgeTint[3] = { 1.0f, 1.0f, 1.0f };
+      vtkTypeUInt32 Pad5 = 0;
+      vtkTypeFloat32 CoatColor[3] = { 1.0f, 1.0f, 1.0f };
+      vtkTypeUInt32 Pad6 = 0;
     } ColorOpts;
   };
+
+  static_assert(sizeof(ActorBlock::ColorOptions) == 192,
+    "ColorOptions must match the layout of ActorColorOptions in ActorColorOptions.wgsl");
+  static_assert(offsetof(ActorBlock, ColorOpts) == 160,
+    "ColorOptions must start where the Actor struct places color_options");
 
   class MapperBooleanCache
   {
@@ -148,6 +175,41 @@ public:
   vtkWebGPU::Buffer ActorBuffer;
 
   vtkTypeUInt32 Id = 0;
+
+  enum PBRTexture
+  {
+    PBR_ALBEDO = 0,
+    PBR_MATERIAL,
+    PBR_EMISSIVE,
+    PBR_NORMAL,
+    PBR_ANISOTROPY,
+    PBR_COAT_NORMAL,
+    PBR_NUMBER_OF_TEXTURES
+  };
+  using PBRTextureArray = std::array<vtkWebGPUTexture*, PBR_NUMBER_OF_TEXTURES>;
+
+  static PBRTextureArray GetPBRTextures(vtkActor* actor)
+  {
+    static constexpr const char* names[PBR_NUMBER_OF_TEXTURES] = { "albedoTex", "materialTex",
+      "emissiveTex", "normalTex", "anisotropyTex", "coatNormalTex" };
+    PBRTextureArray textures{};
+    vtkProperty* property = actor->GetProperty();
+    if (property->GetInterpolation() != VTK_PBR)
+    {
+      return textures;
+    }
+    for (int i = 0; i < PBR_NUMBER_OF_TEXTURES; ++i)
+    {
+      auto* texture = vtkWebGPUTexture::SafeDownCast(property->GetTexture(names[i]));
+      if (texture && texture->GetDeviceResource())
+      {
+        textures[i] = texture;
+      }
+    }
+    return textures;
+  }
+
+  PBRTextureArray BoundPBRTextures{};
 
   void PopulateBindgroupLayouts(std::vector<WGPUBindGroupLayout>& layouts)
   {

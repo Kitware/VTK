@@ -4,21 +4,17 @@
 // It renders spheres with different materials using a skybox as image based lighting
 
 #include "vtkActor.h"
-#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkHDRReader.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
-#include "vtkOpenGLPolyDataMapper.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLSkybox.h"
-#include "vtkOpenGLTexture.h"
-#include "vtkPBRIrradianceTexture.h"
-#include "vtkPBRPrefilterTexture.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkSkybox.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
@@ -26,7 +22,7 @@
 //------------------------------------------------------------------------------
 int TestPBRHdrEnvironment(int argc, char* argv[])
 {
-  vtkNew<vtkOpenGLRenderer> renderer;
+  vtkNew<vtkRenderer> renderer;
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(600, 600);
@@ -35,10 +31,7 @@ int TestPBRHdrEnvironment(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  vtkNew<vtkOpenGLSkybox> skybox;
-
-  vtkSmartPointer<vtkPBRIrradianceTexture> irradiance = renderer->GetEnvMapIrradiance();
-  irradiance->SetIrradianceStep(0.3);
+  vtkNew<vtkSkybox> skybox;
 
   vtkNew<vtkHDRReader> reader;
   char* fname =
@@ -51,11 +44,9 @@ int TestPBRHdrEnvironment(int argc, char* argv[])
   texture->InterpolateOn();
   texture->SetInputConnection(reader->GetOutputPort());
 
-  // HDRI OpenGL
   renderer->UseImageBasedLightingOn();
   renderer->SetEnvironmentTexture(texture);
 
-  // Skybox OpenGL
   skybox->SetFloorRight(0.0, 0.0, 1.0);
   skybox->SetProjection(vtkSkybox::Sphere);
   skybox->SetTexture(texture);

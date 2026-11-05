@@ -4,6 +4,7 @@ endif ()
 # (vtk/vtk#19322): Add baselines for these unit tests
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestComputeDoublePipelineRenderBuffer.cxx,NO_DATA
+  TestDeepFramebufferImageBasedLighting.cxx,NO_DATA,NO_VALID
   TestDeepFramebufferManyLayers.cxx,NO_DATA,NO_VALID
   TestDeepFramebufferMappers.cxx,NO_DATA,NO_VALID
   TestDeepFramebufferOpaqueOcclusion.cxx,NO_DATA,NO_VALID
@@ -45,6 +46,8 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestComputeTriangulationVerifyPointIds,TestComputeTriangulation.cxx,NO_DATA,NO_VALID)
 
 vtk_test_cxx_executable(vtkRenderingWebGPUCxxTests tests)
+set_property(TEST VTK::RenderingWebGPUCxx-TestDeepFramebufferImageBasedLighting
+  APPEND PROPERTY FAIL_REGULAR_EXPRESSION "Validation error")
 
 # The tests call wgpu* directly, so they take the same redirect as the module.
 if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")

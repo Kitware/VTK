@@ -150,6 +150,7 @@ int vtkWebGPUHelpers::ComputeTextureFormatToVTKDataType(
   {
     case vtkWebGPUComputeTexture::TextureFormat::RGBA8_UNORM:
     case vtkWebGPUComputeTexture::TextureFormat::BGRA8_UNORM:
+    case vtkWebGPUComputeTexture::TextureFormat::RGBA8_UNORM_SRGB:
       return VTK_UNSIGNED_CHAR;
 
     case vtkWebGPUComputeTexture::TextureFormat::R32_FLOAT:

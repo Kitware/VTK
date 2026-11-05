@@ -116,6 +116,16 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
         {
           wgpuTexture->Render(renderer);
         }
+        if (this->GetProperty()->GetInterpolation() == VTK_PBR)
+        {
+          for (const auto& item : this->GetProperty()->GetAllTextures())
+          {
+            if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(item.second))
+            {
+              wgpuTexture->Render(renderer);
+            }
+          }
+        }
         if (this->NeedToRecreateBindGroups())
         {
           this->CreateBindGroups(wgpuConfiguration);
@@ -419,6 +429,25 @@ bool vtkWebGPUActor::CacheActorShadeOptions()
       so.EdgeColor[i] = displayProperty->GetEdgeColor()[i];
       so.VertexColor[i] = displayProperty->GetVertexColor()[i];
     }
+    so.Metallic = static_cast<vtkTypeFloat32>(displayProperty->GetMetallic());
+    so.Roughness = static_cast<vtkTypeFloat32>(displayProperty->GetRoughness());
+    so.BaseF0 = static_cast<vtkTypeFloat32>(displayProperty->ComputeReflectanceOfBaseLayer());
+    so.Anisotropy = static_cast<vtkTypeFloat32>(displayProperty->GetAnisotropy());
+    so.AnisotropyRotation = static_cast<vtkTypeFloat32>(displayProperty->GetAnisotropyRotation());
+    so.CoatStrength = static_cast<vtkTypeFloat32>(displayProperty->GetCoatStrength());
+    so.CoatRoughness = static_cast<vtkTypeFloat32>(displayProperty->GetCoatRoughness());
+    so.CoatF0 = static_cast<vtkTypeFloat32>(
+      vtkProperty::ComputeReflectanceFromIOR(displayProperty->GetCoatIOR(), 1.0));
+    so.CoatNormalScale = static_cast<vtkTypeFloat32>(displayProperty->GetCoatNormalScale());
+    so.NormalScale = static_cast<vtkTypeFloat32>(displayProperty->GetNormalScale());
+    so.OcclusionStrength = static_cast<vtkTypeFloat32>(displayProperty->GetOcclusionStrength());
+    for (int i = 0; i < 3; ++i)
+    {
+      so.EmissiveFactor[i] = static_cast<vtkTypeFloat32>(displayProperty->GetEmissiveFactor()[i]);
+      so.EdgeTint[i] = static_cast<vtkTypeFloat32>(displayProperty->GetEdgeTint()[i]);
+      so.CoatColor[i] = static_cast<vtkTypeFloat32>(displayProperty->GetCoatColor()[i]);
+    }
+    so.InterpolationType = static_cast<vtkTypeUInt32>(displayProperty->GetInterpolation());
     internals.ShadingOptionsLastUpdated.Modified();
     return true;
   }
@@ -448,6 +477,18 @@ bool vtkWebGPUActor::NeedToRecreateBindGroups()
   if (auto* texture = this->GetTexture())
   {
     if (texture->GetMTime() > internals.DeviceResourcesBuildTimestamp)
+    {
+      return true;
+    }
+  }
+  const auto pbrTextures = vtkWebGPUActorInternals::GetPBRTextures(this);
+  if (pbrTextures != internals.BoundPBRTextures)
+  {
+    return true;
+  }
+  for (auto* texture : pbrTextures)
+  {
+    if (texture && texture->GetMTime() > internals.DeviceResourcesBuildTimestamp)
     {
       return true;
     }
@@ -492,6 +533,19 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
     }
   }
 
+  internals.BoundPBRTextures = vtkWebGPUActorInternals::GetPBRTextures(this);
+  for (auto* texture : internals.BoundPBRTextures)
+  {
+    if (texture)
+    {
+      auto devRc = texture->GetDeviceResource();
+      bglEntries.push_back(devRc->MakeSamplerBindGroupLayoutEntry(
+        bindingIdBGL++, static_cast<WGPUShaderStage>(WGPUShaderStage_Fragment)));
+      bglEntries.push_back(devRc->MakeTextureViewBindGroupLayoutEntry(
+        bindingIdBGL++, static_cast<WGPUShaderStage>(WGPUShaderStage_Fragment)));
+    }
+  }
+
   internals.ActorBindGroupLayout = vtkWebGPU::BindGroupLayout::Acquire(
     vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, bglEntries, actorDescription));
   std::uint32_t bindingIdBG = 0;
@@ -513,6 +567,16 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
         WGPUBindGroupEntry textureEntry = devRc->MakeTextureViewBindGroupEntry(bindingIdBG++);
         bgEntries.push_back(textureEntry);
       }
+    }
+  }
+
+  for (auto* texture : internals.BoundPBRTextures)
+  {
+    if (texture)
+    {
+      auto devRc = texture->GetDeviceResource();
+      bgEntries.push_back(devRc->MakeSamplerBindGroupEntry(bindingIdBG++));
+      bgEntries.push_back(devRc->MakeTextureViewBindGroupEntry(bindingIdBG++));
     }
   }
 

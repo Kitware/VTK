@@ -339,7 +339,12 @@ void vtkWebGPUTexture::Load(vtkRenderer* renderer)
       numComponents = 4;
     }
     auto format = this->GetTextureFormatFromImageData(numComponents, dataType);
+    if (this->UseSRGBColorSpace && format == vtkWebGPURenderTextureDeviceResource::RGBA8_UNORM)
+    {
+      format = vtkWebGPURenderTextureDeviceResource::RGBA8_UNORM_SRGB;
+    }
     deviceResource->SetFormat(format);
+    deviceResource->SetMipLevelCount(1);
     // float32 texture formats can only be sampled with a filtering sampler when the device
     // supports `float32-filterable`, which is optional and absent on many devices. Without it,
     // WebGPU only allows a non-filtering sampler for these formats, so fall back to
@@ -377,11 +382,15 @@ void vtkWebGPUTexture::Load(vtkRenderer* renderer)
         vtkWebGPURenderTextureDeviceResource::SamplerMode::FILTERING);
       deviceResource->SetMagFilter(vtkWebGPURenderTextureDeviceResource::FilterMode::LINEAR);
       const int levels = floor(log2(vtkMath::Max(size[0], size[1]))) + 1;
-      if (this->Mipmap && levels > 1 && (!this->CubeMap && !this->UseSRGBColorSpace))
+      const bool filterable = format != vtkWebGPURenderTextureDeviceResource::R16_UINT &&
+        format != vtkWebGPURenderTextureDeviceResource::RG16_UINT &&
+        format != vtkWebGPURenderTextureDeviceResource::RGBA16_UINT;
+      if (this->Mipmap && levels > 1 && filterable &&
+        dimension == vtkWebGPURenderTextureDeviceResource::DIMENSION_2D)
       {
         deviceResource->SetMinFilter(vtkWebGPURenderTextureDeviceResource::FilterMode::LINEAR);
         deviceResource->SetMipmapFilter(vtkWebGPURenderTextureDeviceResource::FilterMode::LINEAR);
-        deviceResource->SetMipLevelCount(levels - 1);
+        deviceResource->SetMipLevelCount(levels);
         deviceResource->SetMaxAnisotropy(this->MaximumAnisotropicFiltering);
       }
       else

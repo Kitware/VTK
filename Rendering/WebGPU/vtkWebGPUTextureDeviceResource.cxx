@@ -39,6 +39,7 @@ unsigned int vtkWebGPUTextureDeviceResource::GetBytesPerPixel() const
       return 2;
     case RGBA8_UNORM:
     case BGRA8_UNORM:
+    case RGBA8_UNORM_SRGB:
       return 4;
     case R16_UINT:
       return 2;
@@ -81,6 +82,7 @@ unsigned int vtkWebGPUTextureDeviceResource::GetPixelComponentsCount() const
       return 2;
     case RGBA8_UNORM:
     case BGRA8_UNORM:
+    case RGBA8_UNORM_SRGB:
     case RGBA16_UINT:
     case RGBA32_FLOAT:
       return 4;

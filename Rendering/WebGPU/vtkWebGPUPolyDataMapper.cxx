@@ -45,6 +45,7 @@
 #include "vtkWebGPURenderer.h"
 #include "vtkWebGPUTexture.h"
 
+#include "PBRFunctions.h"
 #include "vtkPolyDataFSWGSL.h"
 #include "vtkPolyDataVSWGSL.h"
 
@@ -63,6 +64,316 @@ VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
+struct PBRShaderFeatures
+{
+  bool ImageBasedLighting = false;
+  bool Tangents = false;
+  bool LinearizeColors = false;
+  bool AlbedoTexture = false;
+  bool MaterialTexture = false;
+  bool EmissiveTexture = false;
+  bool NormalTexture = false;
+  bool AnisotropyTexture = false;
+  bool CoatNormalTexture = false;
+};
+
+std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
+{
+  std::ostringstream code;
+  code << R"(
+  var pbr_ambient = actor.color_options.ambient_intensity * ambient_color;
+  var pbr_albedo = actor.color_options.diffuse_intensity * diffuse_color;
+)";
+  if (features.LinearizeColors)
+  {
+    code << R"(
+  pbr_ambient = pow(pbr_ambient, vec3<f32>(2.2));
+  pbr_albedo = pow(pbr_albedo, vec3<f32>(2.2));
+)";
+  }
+  code << R"(
+  var pbr_color = pbr_ambient + pbr_albedo;
+)";
+  const auto sample = [&code](const char* name)
+  {
+    code << "  let pbr_" << name << "_sample = textureSample(pbr_" << name << "_texture, pbr_"
+         << name << "_sampler, vertex.uv);\n";
+  };
+  if (features.AlbedoTexture)
+  {
+    sample("albedo");
+    code << "  pbr_color = pbr_ambient + pbr_albedo * pbr_albedo_sample.rgb;\n";
+  }
+  if (features.MaterialTexture)
+  {
+    sample("material");
+  }
+  if (features.EmissiveTexture)
+  {
+    sample("emissive");
+  }
+  if (features.NormalTexture)
+  {
+    sample("normal");
+  }
+  if (features.AnisotropyTexture)
+  {
+    sample("anisotropy");
+  }
+  if (features.CoatNormalTexture)
+  {
+    sample("coat_normal");
+  }
+  code << R"(
+  let pbr_lit = isLightingEnabled(actor.render_options.flags_2) &&
+    (scene_lights.count > 0u || )"
+       << (features.ImageBasedLighting ? "true" : "false") << R"();
+  if (pbr_lit)
+  {
+    var roughness = actor.color_options.roughness;
+    var metallic = actor.color_options.metallic;
+    var ao = 1.0;
+    var emissive = vec3<f32>(0.0);
+)";
+  if (features.AlbedoTexture)
+  {
+    code << R"(
+    pbr_albedo = pbr_albedo_sample.rgb * pbr_albedo;
+    opacity = pbr_albedo_sample.a;
+)";
+  }
+  if (features.MaterialTexture)
+  {
+    code << R"(
+    roughness = pbr_material_sample.g * roughness;
+    metallic = pbr_material_sample.b * metallic;
+    ao = pbr_material_sample.r;
+)";
+  }
+  if (features.EmissiveTexture)
+  {
+    code << R"(
+    emissive = pbr_emissive_sample.rgb * actor.color_options.emissive_factor;
+)";
+  }
+  code << R"(
+    var surface: PBRSurface;
+    surface.normal = normal_VC;
+    surface.view = normalize(-vertex.position_VC.xyz);
+    surface.coat_normal = normal_VC;
+    let pbr_has_coat = actor.color_options.coat_strength > 0.0;
+    var pbr_has_anisotropy = false;
+    var anisotropy = 0.0;
+)";
+  if (features.Tangents)
+  {
+    code << R"(
+    var tangent = vertex.tangent_VC;
+)";
+    code << R"(
+    pbr_has_anisotropy = actor.color_options.anisotropy != 0.0;
+    if (pbr_has_anisotropy)
+    {
+      anisotropy = actor.color_options.anisotropy;
+      var rotation = 2.0 * PBR_PI * actor.color_options.anisotropy_rotation;
+)";
+    if (features.AnisotropyTexture)
+    {
+      code << R"(
+      anisotropy = pbr_anisotropy_sample.r * anisotropy;
+      rotation = pbr_anisotropy_sample.g * rotation;
+)";
+    }
+    code << R"(
+      let s = -sin(rotation);
+      let c = cos(rotation);
+      let n = normalize(surface.normal);
+      tangent = (1.0 - c) * dot(vertex.tangent_VC, n) * n + c * vertex.tangent_VC -
+        s * cross(n, vertex.tangent_VC);
+    }
+)";
+    code << R"(
+    tangent = normalize(tangent - dot(tangent, surface.normal) * surface.normal);
+    surface.tangent = tangent;
+    surface.bitangent = cross(surface.normal, tangent);
+    surface.TdV = dot(surface.tangent, surface.view);
+    surface.BdV = dot(surface.bitangent, surface.view);
+    let tbn = mat3x3<f32>(surface.tangent, surface.bitangent, surface.normal);
+)";
+    if (features.NormalTexture)
+    {
+      code << R"(
+    let scale = actor.color_options.normal_scale;
+    let normal_TS = normalize((pbr_normal_sample.xyz * 2.0 - 1.0) * vec3<f32>(scale, scale, 1.0));
+    surface.normal = normalize(tbn * normal_TS);
+)";
+    }
+    if (features.CoatNormalTexture)
+    {
+      code << R"(
+    if (pbr_has_coat)
+    {
+      let coat_scale = actor.color_options.coat_normal_scale;
+      let coat_normal_TS = normalize((pbr_coat_normal_sample.xyz * 2.0 - 1.0) *
+        vec3<f32>(coat_scale, coat_scale, 1.0));
+      surface.coat_normal = normalize(tbn * coat_normal_TS);
+    }
+)";
+    }
+  }
+  code << R"(
+    surface.NdV = clamp(dot(surface.normal, surface.view), 1e-5, 1.0);
+    surface.coat_NdV = clamp(dot(surface.coat_normal, surface.view), 1e-5, 1.0);
+
+    var material: PBRMaterial;
+    material.albedo = pbr_albedo;
+    material.metallic = metallic;
+    material.roughness = roughness;
+    material.F0 = mix(vec3<f32>(actor.color_options.base_f0), pbr_albedo, metallic);
+    let f90 = clamp(dot(material.F0, vec3<f32>(50.0 * 0.33)), 0.0, 1.0);
+    material.F90 = mix(vec3<f32>(f90), actor.color_options.edge_tint, metallic);
+)";
+  code << R"(
+    if (pbr_has_anisotropy)
+    {
+      material.anisotropy = anisotropy;
+      let r2 = roughness * roughness;
+      let aspect = sqrt(1.0 - 0.9 * anisotropy);
+      material.alpha_t = max(r2 / aspect, 0.001);
+      material.alpha_b = max(r2 * aspect, 0.001);
+    }
+    if (pbr_has_coat)
+    {
+      material.coat_strength = actor.color_options.coat_strength;
+      material.coat_roughness = actor.color_options.coat_roughness;
+      material.coat_F0 = vec3<f32>(actor.color_options.coat_f0);
+      material.coat_F90 = vec3<f32>(1.0);
+      material.coat_color_factor =
+        mix(vec3<f32>(1.0), actor.color_options.coat_color, material.coat_strength);
+    }
+)";
+  code << R"(
+    var Lo = vec3<f32>(0.0);
+    for (var i = 0u; i < scene_lights.count; i++)
+    {
+      let light = scene_lights.values[i];
+      var L: vec3<f32>;
+      var attenuation = 1.0;
+      if (scene_lights.count == 1u && light.light_type == VTK_LIGHT_TYPE_HEADLIGHT)
+      {
+        L = surface.view;
+      }
+      else
+      {
+        var direction = light.direction_vc;
+        if (light.light_type == VTK_LIGHT_TYPE_HEADLIGHT)
+        {
+          direction = vec3<f32>(0.0, 0.0, -1.0);
+        }
+        if (light.positional == 0u)
+        {
+          L = -normalize(direction);
+        }
+        else
+        {
+          L = light.position_vc - vertex.position_VC.xyz;
+          let distance = length(L);
+          L = normalize(L);
+          attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * distance +
+            light.attenuation.z * distance * distance);
+          if (light.cone_angle < 90.0)
+          {
+            let cone_dot = dot(-L, normalize(direction));
+            if (cone_dot >= cos(radians(light.cone_angle)))
+            {
+              attenuation = attenuation * pow(cone_dot, light.exponent);
+            }
+            else
+            {
+              attenuation = 0.0;
+            }
+          }
+        }
+      }
+      Lo += pbrEvaluateLight(surface, material, L, light.color * attenuation,
+        pbr_has_anisotropy, pbr_has_coat);
+    }
+    pbr_color = vec3<f32>(0.0);
+)";
+  if (features.ImageBasedLighting)
+  {
+    code << R"(
+    let view = scene_transform.view;
+    let environment_matrix = ibl_parameters.environment_rotation *
+      transpose(mat3x3<f32>(view[0].xyz, view[1].xyz, view[2].xyz));
+    var irradiance: vec3<f32>;
+    if (ibl_parameters.use_spherical_harmonics != 0u)
+    {
+      var harmonics: array<vec3<f32>, 9>;
+      for (var k = 0u; k < 9u; k++)
+      {
+        harmonics[k] = ibl_spherical_harmonics[k].xyz;
+      }
+      irradiance = pbrEvaluateSphericalHarmonics(environment_matrix * surface.normal, &harmonics);
+    }
+    else
+    {
+      irradiance = textureSampleLevel(ibl_irradiance_texture, ibl_sampler,
+        environment_matrix * surface.normal, 0.0).rgb;
+    }
+    var reflection_normal = surface.normal;
+)";
+    code << R"(
+    if (pbr_has_anisotropy)
+    {
+      let anisotropic_tangent = cross(surface.bitangent, surface.view);
+      let anisotropic_normal = cross(anisotropic_tangent, surface.bitangent);
+      reflection_normal = normalize(mix(surface.normal, anisotropic_normal, anisotropy));
+    }
+)";
+    code << R"(
+    let reflection = normalize(environment_matrix * reflect(-surface.view, reflection_normal));
+    let prefiltered = textureSampleLevel(ibl_prefilter_texture, ibl_sampler, reflection,
+      roughness * ibl_parameters.prefilter_max_level).rgb;
+    let brdf = textureSampleLevel(ibl_brdf_texture, ibl_sampler,
+      vec2<f32>(surface.NdV, roughness), 0.0).rg;
+    let ibl_albedo = (1.0 - metallic) * (1.0 - 0.04) * pbr_albedo;
+    let Fr = max(vec3<f32>(1.0 - roughness), material.F0) - material.F0;
+    let k_S = material.F0 + Fr * pow(1.0 - surface.NdV, 5.0);
+    let FssEss = k_S * brdf.r + material.F90 * brdf.g;
+    let Ems = 1.0 - (brdf.r + brdf.g);
+    let F_avg = material.F0 + (1.0 - material.F0) / 21.0;
+    let FmsEms = Ems * FssEss * F_avg / max(1.0 - F_avg * Ems, vec3<f32>(1e-5));
+    let k_D = ibl_albedo * (1.0 - FssEss - FmsEms);
+    pbr_color = FssEss * prefiltered + (FmsEms + k_D) * irradiance;
+)";
+    code << R"(
+    if (pbr_has_coat)
+    {
+      let coat_reflection =
+        normalize(environment_matrix * reflect(-surface.view, surface.coat_normal));
+      let coat_prefiltered = textureSampleLevel(ibl_prefilter_texture, ibl_sampler,
+        coat_reflection, material.coat_roughness * ibl_parameters.prefilter_max_level).rgb;
+      let coat_brdf = textureSampleLevel(ibl_brdf_texture, ibl_sampler,
+        vec2<f32>(surface.coat_NdV, material.coat_roughness), 0.0).rg;
+      let Fc = pbrFresnelSchlick(material.coat_F0, material.coat_F90, surface.coat_NdV) *
+        material.coat_strength;
+      pbr_color *= material.coat_color_factor;
+      pbr_color += coat_prefiltered * (material.coat_F0 * coat_brdf.r + coat_brdf.g) * Fc;
+    }
+)";
+  }
+  code << R"(
+    pbr_color += Lo;
+    pbr_color = mix(pbr_color, pbr_color * ao, actor.color_options.occlusion_strength);
+    pbr_color += emissive;
+  }
+  output.color = vec4<f32>(pow(max(pbr_color, vec3<f32>(0.0)), vec3<f32>(1.0 / 2.2)),
+    actor.color_options.opacity * opacity);
+)";
+  return code.str();
+}
+
 std::map<vtkWebGPUPolyDataMapper::GraphicsPipelineType,
   std::vector<vtkWebGPUCellToPrimitiveConverter::TopologySourceType>>
   PipelineBindGroupCombos[VTK_SURFACE + 1] = { // VTK_POINTS
@@ -242,6 +553,26 @@ struct WriteTypedArrayWithScale
     this->NewWatermark = this->LastWatermark + sizeBytes;
   }
 };
+}
+
+//------------------------------------------------------------------------------
+vtkTypeUInt32 vtkWebGPUPolyDataMapper::GetShadingFeatures(vtkActor* actor, vtkRenderer* renderer)
+{
+  vtkProperty* property = actor->GetProperty();
+  vtkTypeUInt32 features = static_cast<vtkTypeUInt32>(property->GetInterpolation());
+  if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
+  {
+    features |= wgpuRenderer->HasImageBasedLighting() ? 0x4u : 0u;
+  }
+  if (property->GetInterpolation() == VTK_PBR)
+  {
+    const auto textures = vtkWebGPUActorInternals::GetPBRTextures(actor);
+    for (std::size_t i = 0; i < textures.size(); ++i)
+    {
+      features |= textures[i] ? (0x20u << i) : 0u;
+    }
+  }
+  return features;
 }
 
 //------------------------------------------------------------------------------
@@ -431,6 +762,7 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
     state.LastWideLines = displayProperty->GetLineWidth() > 1;
     state.LastLineJoin = displayProperty->GetLineJoin();
     state.LastSelectingPoints = this->SelectingPoints;
+    state.LastShadingFeatures = GetShadingFeatures(actor, renderer);
     this->CachedActorRendererProperties[key] = state;
     return true;
   }
@@ -485,6 +817,12 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
       cacheChanged = true;
     }
     state.LastLineJoin = displayProperty->GetLineJoin();
+    const vtkTypeUInt32 shadingFeatures = GetShadingFeatures(actor, renderer);
+    if (state.LastShadingFeatures != shadingFeatures)
+    {
+      cacheChanged = true;
+    }
+    state.LastShadingFeatures = shadingFeatures;
     return cacheChanged;
   }
 }
@@ -2316,8 +2654,8 @@ const TRIANGLE_VERTS = array(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceShaderActorDef(GraphicsPipelineType vtkNotUsed(pipelineType),
-  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
-  std::string& vss, std::string& fss)
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* wgpuActor, std::string& vss,
+  std::string& fss)
 {
   const std::string code = R"(
 struct Actor
@@ -2328,7 +2666,15 @@ struct Actor
 };
 )";
   vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Actor::Def", code, /*all=*/true);
-  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Actor::Def", code, /*all=*/true);
+  if (wgpuActor->GetProperty()->GetInterpolation() == VTK_PBR)
+  {
+    vtkWebGPURenderPipelineCache::Substitute(
+      fss, "//VTK::Actor::Def", code + PBRFunctions, /*all=*/true);
+  }
+  else
+  {
+    vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Actor::Def", code, /*all=*/true);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -2360,7 +2706,7 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderCustomDef(GraphicsPipelineType vtkNot
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceShaderRendererBindings(
-  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* wgpuRenderer,
   vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss, std::string& fss)
 {
   auto& bindingId = this->NumberOfBindings[GROUP_RENDERER];
@@ -2370,6 +2716,31 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderRendererBindings(
              << ") var<uniform> scene_transform: SceneTransform;\n";
   codeStream << "@group(" << GROUP_RENDERER << ") @binding(" << bindingId++
              << ") var<storage, read> scene_lights: SceneLights;\n";
+  bindingId += 3;
+
+  if (wgpuRenderer->HasImageBasedLighting())
+  {
+    codeStream << R"(
+struct IBLParameters
+{
+  environment_rotation: mat3x3<f32>,
+  prefilter_max_level: f32,
+  use_spherical_harmonics: u32,
+}
+)";
+    // vtkWebGPUEnvironmentMap always generates these as rgba16float, so the sample type is
+    // f32 whatever the format of the environment texture they were built from.
+    const char* declarations[] = { "var ibl_sampler: sampler;",
+      "var ibl_prefilter_texture: texture_cube<f32>;",
+      "var ibl_irradiance_texture: texture_cube<f32>;", "var ibl_brdf_texture: texture_2d<f32>;",
+      "var<uniform> ibl_parameters: IBLParameters;",
+      "var<storage, read> ibl_spherical_harmonics: array<vec4<f32>, 9>;" };
+    for (const char* declaration : declarations)
+    {
+      codeStream << "@group(" << GROUP_RENDERER << ") @binding(" << bindingId++ << ") "
+                 << declaration << "\n";
+    }
+  }
 
   vtkWebGPURenderPipelineCache::Substitute(
     vss, "//VTK::Renderer::Bindings", codeStream.str(), /*all=*/true);
@@ -2397,6 +2768,24 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderActorBindings(
                  << ") var actor_texture_sampler: sampler;\n";
       codeStream << "@group(" << GROUP_ACTOR << ") @binding(" << bindingId++
                  << ") var actor_texture: texture_2d<" << textureSampleTypeStr << ">;\n";
+    }
+  }
+  static constexpr const char* pbrTextureNames[] = { "albedo", "material", "emissive", "normal",
+    "anisotropy", "coat_normal" };
+  const auto pbrTextures = vtkWebGPUActorInternals::GetPBRTextures(wgpuActor);
+  for (std::size_t i = 0; i < pbrTextures.size(); ++i)
+  {
+    if (pbrTextures[i])
+    {
+      // The bind group layout takes its sample type from the device resource, so the shader
+      // has to agree with it or the bind group fails validation.
+      const char* textureSampleTypeStr =
+        vtkWebGPURenderTextureDeviceResource::GetTextureSampleTypeString(
+          pbrTextures[i]->GetDeviceResource()->GetSampleType());
+      codeStream << "@group(" << GROUP_ACTOR << ") @binding(" << bindingId++ << ") var pbr_"
+                 << pbrTextureNames[i] << "_sampler: sampler;\n";
+      codeStream << "@group(" << GROUP_ACTOR << ") @binding(" << bindingId++ << ") var pbr_"
+                 << pbrTextureNames[i] << "_texture: texture_2d<" << textureSampleTypeStr << ">;\n";
     }
   }
 
@@ -3776,8 +4165,35 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderEdges(GraphicsPipelineType pi
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(GraphicsPipelineType pipelineType,
-  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* wgpuActor, std::string& fss)
+  vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor, std::string& fss)
 {
+  vtkProperty* property = wgpuActor->GetProperty();
+  if (property->GetInterpolation() == VTK_PBR)
+  {
+    PBRShaderFeatures features;
+    features.ImageBasedLighting = wgpuRenderer->HasImageBasedLighting();
+    features.Tangents =
+      this->HasPointAttributes[POINT_NORMALS] && this->HasPointAttributes[POINT_TANGENTS];
+    features.LinearizeColors = this->HasPointAttributes[POINT_COLORS] ||
+      this->HasCellAttributes[CELL_COLORS] || this->HasPointAttributes[POINT_COLOR_UVS];
+    if (this->HasPointAttributes[POINT_UVS])
+    {
+      using Internals = vtkWebGPUActorInternals;
+      const auto textures = Internals::GetPBRTextures(wgpuActor);
+      features.AlbedoTexture = textures[Internals::PBR_ALBEDO] != nullptr;
+      features.MaterialTexture = textures[Internals::PBR_MATERIAL] != nullptr;
+      features.EmissiveTexture = textures[Internals::PBR_EMISSIVE] != nullptr;
+      features.NormalTexture = features.Tangents && textures[Internals::PBR_NORMAL] != nullptr;
+      features.AnisotropyTexture =
+        features.Tangents && textures[Internals::PBR_ANISOTROPY] != nullptr;
+      features.CoatNormalTexture =
+        features.Tangents && textures[Internals::PBR_COAT_NORMAL] != nullptr;
+    }
+    vtkWebGPURenderPipelineCache::Substitute(
+      fss, "//VTK::Lights::Impl", BuildPBRLightingSource(features), /*all=*/true);
+    return;
+  }
+
   bool needLighting = false;
   switch (pipelineType)
   {
@@ -4163,7 +4579,7 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
   {
     return true;
   }
-  return false;
+  return it->second.LastShadingFeatures != GetShadingFeatures(actor, renderer);
 }
 
 //------------------------------------------------------------------------------

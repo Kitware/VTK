@@ -87,8 +87,6 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->LightingCount = -1;
   this->LightingComplexity = -1;
 
-  this->UseSphericalHarmonics = true;
-
   // Prepare a quadrilateral for the textured/gradient background actor.
   this->BackgroundGradientActor = vtk::TakeSmartPointer(vtkTexturedActor2D::New());
   this->BackgroundTextureActor = vtk::TakeSmartPointer(vtkTexturedActor2D::New());

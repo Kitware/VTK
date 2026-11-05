@@ -28,6 +28,7 @@ public:
    * R32_FLOAT: Only a 32 bit float red channel
    * DEPTH_24_PLUS: 24 bit depth format
    * DEPTH_24_PLUS_8_STENCIL: 24 bit depth format + 8 bit stencil
+   * RGBA8_UNORM_SRGB: RGB + alpha encoded in the sRGB color space, decoded to linear when sampled
    */
   enum TextureFormat
   {
@@ -42,7 +43,8 @@ public:
     RG32_FLOAT,
     RGBA32_FLOAT,
     DEPTH_24_PLUS,
-    DEPTH_24_PLUS_8_STENCIL
+    DEPTH_24_PLUS_8_STENCIL,
+    RGBA8_UNORM_SRGB
   };
 
   /**

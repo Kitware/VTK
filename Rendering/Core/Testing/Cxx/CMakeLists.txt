@@ -123,6 +123,18 @@ set(cxx_tests
   TestOpacityMSAA.cxx,LOOSE_VALID
   TestOrderedTriangulator.cxx
   TestOSConeCxx.cxx
+  TestPBRAnisotropy.cxx
+  TestPBRClearCoat.cxx
+  TestPBRColorMap.cxx,NO_DATA
+  TestPBRColorMultiplier.cxx
+  TestPBREdgeTint.cxx
+  TestPBRHdrEnvironment.cxx
+  TestPBRIrradianceHDR.cxx
+  TestPBRMapping.cxx
+  TestPBRMaterials.cxx
+  TestPBRMaterialsCoat.cxx
+  TestPBRMultipleScatteringIBL.cxx
+  TestPBRTextureInterpolateScalars.cxx
   TestPickingManager.cxx,NO_VALID
   TestPickTextActor.cxx,NO_VALID
   TestPointPicker.cxx,NO_DATA
@@ -147,6 +159,7 @@ set(cxx_tests
   TestResizingWindowToImageFilterScaleFactors.cxx,NO_DATA,NO_VALID
   TestScalarModeToggle.cxx,NO_DATA
   TestSelectVisiblePoints.cxx,NO_VALID
+  TestSkyboxCubeRotation.cxx
   TestSplitViewportStereoHorizontal.cxx
   TestStereoBackgroundLeft.cxx
   TestStereoBackgroundRight.cxx
@@ -263,6 +276,14 @@ if (TARGET VTK::RenderingOpenGL2)
   endif()
   set_tests_properties(VTK::RenderingCoreCxx-OpenGL-TestManyRenderWindows
     PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestManyRenderWindows})
+  # Serializing the HDR environment texture makes this test slow.
+  if (TEST VTK::RenderingCoreCxx-OpenGL-TestPBRIrradianceHDRSerDes)
+    if (NOT VTK_TEST_TIMEOUT_TestPBRIrradianceHDRSerDes)
+      set(VTK_TEST_TIMEOUT_TestPBRIrradianceHDRSerDes 300)
+    endif ()
+    set_tests_properties(VTK::RenderingCoreCxx-OpenGL-TestPBRIrradianceHDRSerDes
+      PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestPBRIrradianceHDRSerDes})
+  endif ()
 endif ()
 
 if (TARGET VTK::RenderingWebGPU)

@@ -65,18 +65,6 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestOutlineGlowPass.cxx
   TestOrderIndependentTranslucentPass.cxx
   TestPanoramicProjectionPass.cxx,NO_DATA
-  TestPBRClearCoat.cxx
-  TestPBREdgeTint.cxx
-  TestPBRHdrEnvironment.cxx
-  TestPBRAnisotropy.cxx
-  TestPBRColorMap.cxx,NO_DATA
-  TestPBRColorMultiplier.cxx
-  TestPBRIrradianceHDR.cxx
-  TestPBRMapping.cxx
-  TestPBRMaterials.cxx
-  TestPBRMaterialsCoat.cxx
-  TestPBRTextureInterpolateScalars.cxx
-  TestPBRMultipleScatteringIBL.cxx
   TestPointFillPass.cxx
 
   TestPointGaussianMapper.cxx
@@ -94,7 +82,6 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestSimpleMotionBlur.cxx,NO_SERDES
   TestSkyboxBlur.cxx
   TestSkyboxBlurWithRenderPasses.cxx,NO_VALID
-  TestSkyboxCubeRotation.cxx
   TestSkyboxNoBlur.cxx
   TestSobelGradientMagnitudePass.cxx
   TestSphereMap.cxx

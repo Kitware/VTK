@@ -563,6 +563,12 @@ private:
   friend class vtkWebGPURenderer;
 
   /**
+   * Bit field of the shading features of an actor that select a shader variant. The graphics
+   * pipelines are rebuilt when it changes.
+   */
+  static vtkTypeUInt32 GetShadingFeatures(vtkActor* actor, vtkRenderer* renderer);
+
+  /**
    * Returns the WGPUBuffer containing the point data attributes of this mapper
    */
   WGPUBuffer GetPointDataWGPUBuffer(PointDataAttributes attribute)
@@ -715,6 +721,7 @@ private:
     bool LastWideLines = false;
     vtkProperty::LineJoinType LastLineJoin = vtkProperty::LineJoinType::NoJoin;
     bool LastSelectingPoints = false;
+    vtkTypeUInt32 LastShadingFeatures = 0;
   };
   std::map<std::pair<vtkActor*, vtkRenderer*>, ActorState> CachedActorRendererProperties;
 };

@@ -368,27 +368,27 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
     "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotationVectors(SerDes)?$"
     "^VTK::RenderingLICOpenGL2Cxx-TestSurfaceLICPlanarVectorNormalizeOff$"
     "^VTK::RenderingLICOpenGL2Cxx-TestSurfaceLICPlanarVectorNormalizeOffSerDes$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRAnisotropy$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRAnisotropySerDes$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRClearCoat$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRClearCoatSerDes$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBREdgeTint$" # x86_64 is stdthread-only
-    "^VTK::RenderingOpenGL2Cxx-TestPBREdgeTintSerDes$" # x86_64 is stdthread-only
-    "^VTK::RenderingOpenGL2Cxx-TestPBRHdrEnvironment$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRHdrEnvironmentSerDes$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRIrradianceHDR$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRMapping$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRMappingSerDes$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRMaterials$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRMaterialsCoat$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRMaterialsCoatSerDes$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRMaterialsSerDes$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRMultipleScatteringIBL(SerDes)?$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRAnisotropy$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRAnisotropySerDes$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRClearCoat$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRClearCoatSerDes$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBREdgeTint$" # x86_64 is stdthread-only
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBREdgeTintSerDes$" # x86_64 is stdthread-only
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRHdrEnvironment$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRHdrEnvironmentSerDes$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRIrradianceHDR$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRMapping$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRMappingSerDes$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRMaterials$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRMaterialsCoat$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRMaterialsCoatSerDes$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRMaterialsSerDes$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRMultipleScatteringIBL(SerDes)?$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlur$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlurSerDes$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlurWithRenderPasses$"
-    "^VTK::RenderingOpenGL2Cxx-TestSkyboxCubeRotation$"
-    "^VTK::RenderingOpenGL2Cxx-TestSkyboxCubeRotationSerDes$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxCubeRotation$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxCubeRotationSerDes$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxNoBlur(SerDes)?$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxWithRenderPassSerDes$"
     "^VTK::RenderingVolumeCxx-TestGPURayCastCameraInsideSmallSpacing$"
@@ -501,7 +501,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
       # https://gitlab.kitware.com/vtk/vtk/-/issues/20151
       # timeouts
       "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotation$" # stdthread
-      "^VTK::RenderingOpenGL2Cxx-TestPBRMultipleScatteringIBL$" # not-stdthread
+      "^VTK::RenderingCoreCxx-OpenGL-TestPBRMultipleScatteringIBL$" # not-stdthread
       "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlur$"
       "^VTK::RenderingOpenGL2Cxx-TestSkyboxWithRenderPass$"
       "^VTK::RenderingVolumeCxx-TestGPURayCastMapperRectilinearGrid$"
@@ -810,11 +810,11 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperEdges$"
     "^VTK::RenderingOpenGL2Cxx-TestMultiTexturing$"
     "^VTK::RenderingOpenGL2Cxx-TestMultiTexturingInterpolateScalars$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRClearCoat$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBREdgeTint$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRHdrEnvironment$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRIrradianceHDR$"
-    "^VTK::RenderingOpenGL2Cxx-TestPBRMultipleScatteringIBL$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRClearCoat$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBREdgeTint$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRHdrEnvironment$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRIrradianceHDR$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRMultipleScatteringIBL$"
     "^VTK::RenderingOpenGL2Cxx-TestPointFillPass$"
     "^VTK::RenderingOpenGL2Cxx-TestPointGaussianMapper$"
     "^VTK::RenderingOpenGL2Cxx-TestPointGaussianMapperAnisotropic$"
@@ -823,8 +823,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestProgramPointSize$"
     "^VTK::RenderingOpenGL2Cxx-TestRemoveActorNonCurrentContext$"
     "^VTK::RenderingOpenGL2Cxx-TestDirectSelectionRendering$"
-    "^VTK::RenderingOpenGL2Cxx-TestSkyboxRotation$"
-    "^VTK::RenderingOpenGL2Cxx-TestSkyboxRotationVectors$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotation$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestSkyboxRotationVectors$"
     "^VTK::RenderingOpenGL2Cxx-TestSimpleMotionBlur$" # flaky
     "^VTK::RenderingOpenGL2Cxx-TestSpherePoints$"
     "^VTK::RenderingOpenGL2Cxx-TestSphereVertex$"
@@ -840,7 +840,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     # TestCoincident hangs (times out); TestGlyph3DMapperPicking is an image
     # mismatch.
     "^VTK::RenderingCoreCxx-WebGPU-TestCoincident$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestGlyph3DMapperPicking$")
+    "^VTK::RenderingCoreCxx-WebGPU-TestGlyph3DMapperPicking$"
+    # The test harness treats image comparison INFO logs as errors.
+    "^VTK::RenderingCoreCxx-WebGPU-TestSkyboxCubeRotation$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "webgpu")

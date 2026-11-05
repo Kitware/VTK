@@ -1,36 +1,31 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This test covers the PBR Edge Tint feature
-// It renders spheres with different edge colors using a skybox as image based lighting
+// This test covers the PBR Clear coat feature
+// It renders spheres with different coat materials using a skybox as image based lighting
 
 #include "vtkActor.h"
 #include "vtkActorCollection.h"
-#include "vtkGenericOpenGLRenderWindow.h"
-#include "vtkHDRReader.h"
 #include "vtkImageData.h"
 #include "vtkImageFlip.h"
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkJPEGReader.h"
 #include "vtkNew.h"
-#include "vtkOpenGLPolyDataMapper.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLSkybox.h"
-#include "vtkOpenGLTexture.h"
-#include "vtkPBRIrradianceTexture.h"
-#include "vtkPBRLUTTexture.h"
-#include "vtkPBRPrefilterTexture.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkSkybox.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 
-//------------------------------------------------------------------------------
-int TestPBREdgeTint(int argc, char* argv[])
+//----------------------------------------------------------------------------
+int TestPBRMaterialsCoat(int argc, char* argv[])
 {
-  vtkNew<vtkOpenGLRenderer> renderer;
+  vtkNew<vtkRenderer> renderer;
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(600, 600);
@@ -39,33 +34,31 @@ int TestPBREdgeTint(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  vtkNew<vtkOpenGLSkybox> skybox;
+  vtkNew<vtkSkybox> skybox;
 
-  vtkSmartPointer<vtkPBRIrradianceTexture> irradiance = renderer->GetEnvMapIrradiance();
-  irradiance->SetIrradianceStep(0.3);
-  vtkSmartPointer<vtkPBRPrefilterTexture> prefilter = renderer->GetEnvMapPrefiltered();
+  renderer->UseSphericalHarmonicsOff();
 
-  vtkNew<vtkHDRReader> reader;
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/spiaggia_di_mondello_1k.hdr");
-  reader->SetFileName(fname);
-  delete[] fname;
-  vtkNew<vtkTexture> texture;
-  texture->SetColorModeToDirectScalars();
-  texture->MipmapOn();
-  texture->InterpolateOn();
-  texture->SetInputConnection(reader->GetOutputPort());
+  vtkNew<vtkTexture> textureCubemap;
+  textureCubemap->CubeMapOn();
 
-  // HDRI OpenGL
+  std::string pathSkybox[6] = { "Data/skybox/posx.jpg", "Data/skybox/negx.jpg",
+    "Data/skybox/posy.jpg", "Data/skybox/negy.jpg", "Data/skybox/posz.jpg",
+    "Data/skybox/negz.jpg" };
+
+  for (int i = 0; i < 6; i++)
+  {
+    vtkNew<vtkJPEGReader> jpg;
+    char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, pathSkybox[i].c_str());
+    jpg->SetFileName(fname);
+    delete[] fname;
+    vtkNew<vtkImageFlip> flip;
+    flip->SetInputConnection(jpg->GetOutputPort());
+    flip->SetFilteredAxis(1); // flip y axis
+    textureCubemap->SetInputConnection(i, flip->GetOutputPort());
+  }
+
+  renderer->SetEnvironmentTexture(textureCubemap, true);
   renderer->UseImageBasedLightingOn();
-  renderer->SetEnvironmentTexture(texture);
-
-  // Skybox OpenGL
-  skybox->SetFloorRight(0.0, 0.0, 1.0);
-  skybox->SetProjection(vtkSkybox::Sphere);
-  skybox->SetTexture(texture);
-
-  renderer->AddActor(skybox);
 
   vtkNew<vtkSphereSource> sphere;
   sphere->SetThetaResolution(75);
@@ -80,9 +73,11 @@ int TestPBREdgeTint(int argc, char* argv[])
     actorSphere->SetPosition(i, 0.0, 0.0);
     actorSphere->SetMapper(pdSphere);
     actorSphere->GetProperty()->SetInterpolationToPBR();
+    actorSphere->GetProperty()->SetColor(0.72, 0.45, 0.2);
     actorSphere->GetProperty()->SetMetallic(1.0);
-    actorSphere->GetProperty()->SetEdgeTint(0.0, 0.0, 0.0);
-    actorSphere->GetProperty()->SetRoughness(i / 5.0);
+    actorSphere->GetProperty()->SetRoughness(0.1);
+    actorSphere->GetProperty()->SetCoatStrength(1.0);
+    actorSphere->GetProperty()->SetCoatRoughness(i / 5.0);
     renderer->AddActor(actorSphere);
   }
 
@@ -92,10 +87,11 @@ int TestPBREdgeTint(int argc, char* argv[])
     actorSphere->SetPosition(i, 1.0, 0.0);
     actorSphere->SetMapper(pdSphere);
     actorSphere->GetProperty()->SetInterpolationToPBR();
+    actorSphere->GetProperty()->SetColor(0.72, 0.45, 0.2);
     actorSphere->GetProperty()->SetMetallic(1.0);
-    actorSphere->GetProperty()->SetColor(0.0, 0.0, 0.0);
-    actorSphere->GetProperty()->SetEdgeTint(1.0, 1.0, 1.0);
-    actorSphere->GetProperty()->SetRoughness(i / 5.0);
+    actorSphere->GetProperty()->SetRoughness(1.0);
+    actorSphere->GetProperty()->SetCoatStrength(1.0);
+    actorSphere->GetProperty()->SetCoatRoughness(i / 5.0);
     renderer->AddActor(actorSphere);
   }
 
@@ -106,9 +102,10 @@ int TestPBREdgeTint(int argc, char* argv[])
     actorSphere->SetMapper(pdSphere);
     actorSphere->GetProperty()->SetInterpolationToPBR();
     actorSphere->GetProperty()->SetMetallic(1.0);
-    actorSphere->GetProperty()->SetColor(0.0, 0.0, 1.0);
-    actorSphere->GetProperty()->SetEdgeTint(1.0, 0.0, 0.0);
-    actorSphere->GetProperty()->SetRoughness(i / 5.0);
+    actorSphere->GetProperty()->SetRoughness(0.1);
+    actorSphere->GetProperty()->SetCoatColor(1.0, 0.0, 0.0);
+    actorSphere->GetProperty()->SetCoatRoughness(0.1);
+    actorSphere->GetProperty()->SetCoatStrength(i / 5.0);
     renderer->AddActor(actorSphere);
   }
 
@@ -118,10 +115,10 @@ int TestPBREdgeTint(int argc, char* argv[])
     actorSphere->SetPosition(i, 3.0, 0.0);
     actorSphere->SetMapper(pdSphere);
     actorSphere->GetProperty()->SetInterpolationToPBR();
-    actorSphere->GetProperty()->SetMetallic(1.0);
-    actorSphere->GetProperty()->SetColor(1.0, 0.0, 0.0);
-    actorSphere->GetProperty()->SetEdgeTint(0.0, 0.0, 1.0);
-    actorSphere->GetProperty()->SetRoughness(i / 5.0);
+    actorSphere->GetProperty()->SetRoughness(0.1);
+    actorSphere->GetProperty()->SetCoatColor(1.0, 0.0, 0.0);
+    actorSphere->GetProperty()->SetCoatRoughness(1.0);
+    actorSphere->GetProperty()->SetCoatStrength(i / 5.0);
     renderer->AddActor(actorSphere);
   }
 
@@ -131,12 +128,13 @@ int TestPBREdgeTint(int argc, char* argv[])
     actorSphere->SetPosition(i, 4.0, 0.0);
     actorSphere->SetMapper(pdSphere);
     actorSphere->GetProperty()->SetInterpolationToPBR();
-    actorSphere->GetProperty()->SetMetallic(1.0);
-    actorSphere->GetProperty()->SetColor(0.0, 0.0, 0.0);
-    actorSphere->GetProperty()->SetEdgeTint(1.0, 1.0, 0.0);
-    actorSphere->GetProperty()->SetRoughness(i / 5.0);
+    actorSphere->GetProperty()->SetColor(0.0, 0.5, 0.30);
+    actorSphere->GetProperty()->SetBaseIOR(1.0 + (i / 3.0));
     renderer->AddActor(actorSphere);
   }
+
+  skybox->SetTexture(textureCubemap);
+  renderer->AddActor(skybox);
 
   renWin->Render();
 

@@ -142,15 +142,6 @@ public:
    */
   vtkFloatArray* GetSphericalHarmonics();
 
-  ///@{
-  /**
-   * Use spherical harmonics instead of irradiance texture
-   */
-  vtkSetMacro(UseSphericalHarmonics, bool);
-  vtkGetMacro(UseSphericalHarmonics, bool);
-  vtkBooleanMacro(UseSphericalHarmonics, bool);
-  ///@}
-
   /**
    * Set/Get the environment texture used for image based lighting.
    * This texture is supposed to represent the scene background.
@@ -240,7 +231,6 @@ protected:
   vtkSmartPointer<vtkPBRIrradianceTexture> EnvMapIrradiance;
   vtkSmartPointer<vtkPBRPrefilterTexture> EnvMapPrefiltered;
   vtkSmartPointer<vtkFloatArray> SphericalHarmonics;
-  bool UseSphericalHarmonics;
 
   vtkSmartPointer<vtkTexturedActor2D> BackgroundTextureActor;
   vtkSmartPointer<vtkTexturedActor2D> BackgroundGradientActor;

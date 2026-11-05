@@ -65,7 +65,9 @@ set(private_headers
   "Private/vtkWebGPUComputePassTextureStorageInternals.h"
   "Private/vtkWebGPUComputePassBufferStorageInternals.h"
   "Private/vtkWebGPUConfigurationInternals.h"
+  "Private/vtkWebGPUEnvironmentMap.h"
   "Private/vtkWebGPUHandle.h"
+  "Private/vtkWebGPUMipmapGenerator.h"
   "Private/vtkWebGPUPipelineLayoutInternals.h"
   "Private/vtkWebGPUPointCloudMapperInternals.h"
   "Private/vtkWebGPUPolyDataMapper2DInternals.h"
@@ -87,6 +89,8 @@ set(private_sources
   "Private/vtkWebGPUComputePassTextureStorageInternals.cxx"
   "Private/vtkWebGPUComputePassBufferStorageInternals.cxx"
   "Private/vtkWebGPUConfigurationInternals.cxx"
+  "Private/vtkWebGPUMipmapGenerator.cxx"
+  "Private/vtkWebGPUEnvironmentMap.cxx"
   "Private/vtkWebGPUPipelineLayoutInternals.cxx"
   "Private/vtkWebGPUPointCloudMapperInternals.cxx"
   "Private/vtkWebGPUPolyDataMapper2DInternals.cxx"
@@ -138,9 +142,16 @@ set(private_shader_files
   wgsl/ActorTransform.wgsl
   wgsl/CopyDepthTextureToBuffer.wgsl
   wgsl/FrustumCullingShader.wgsl
+  wgsl/IBLBRDFLookupTable.wgsl
+  wgsl/IBLCommon.wgsl
+  wgsl/IBLEnvironmentCube.wgsl
+  wgsl/IBLIrradiance.wgsl
+  wgsl/IBLPrefilter.wgsl
+  wgsl/IBLSphericalHarmonics.wgsl
   wgsl/OcclusionCullingCopyDepthTexture.wgsl
   wgsl/OcclusionCullingDepthMipmaps.wgsl
   wgsl/OcclusionCullingPropsCulling.wgsl
+  wgsl/PBRFunctions.wgsl
   wgsl/PointCloudMapperCopyDepthFromWindow.wgsl
   wgsl/PointCloudMapperCopyDepthToWindow.wgsl
   wgsl/PointCloudMapperShader.wgsl

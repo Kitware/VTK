@@ -4,6 +4,7 @@
 #include "vtkWebGPURenderTextureDeviceResource.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUHandle.h"
+#include "Private/vtkWebGPUMipmapGenerator.h"
 #include "vtkObjectFactory.h"
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPURenderWindow.h"
@@ -240,9 +241,18 @@ void vtkWebGPURenderTextureDeviceResource::SendToWebGPUDevice(std::vector<void*>
     vtkWebGPUComputePassTextureStorageInternals::ComputeTextureFormatToWebGPU(this->GetFormat()));
   this->TextureDescriptor.mipLevelCount = this->GetMipLevelCount();
   this->TextureDescriptor.sampleCount = this->SampleCount;
-  this->TextureDescriptor.usage = static_cast<WGPUTextureUsage>(
-    vtkWebGPUComputePassTextureStorageInternals::ComputeTextureModeToUsage(
-      this->GetMode(), this->Label.empty() ? std::string("Unnamed Texture") : this->Label));
+  WGPUTextureUsage usage = vtkWebGPUComputePassTextureStorageInternals::ComputeTextureModeToUsage(
+    this->GetMode(), this->Label.empty() ? std::string("Unnamed Texture") : this->Label);
+  if (this->GetFormat() == RGBA8_UNORM_SRGB)
+  {
+    usage &= ~WGPUTextureUsage_StorageBinding;
+  }
+  const bool generateMipmaps = this->GetMipLevelCount() > 1 && dimension == DIMENSION_2D;
+  if (generateMipmaps)
+  {
+    usage |= WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment;
+  }
+  this->TextureDescriptor.usage = usage;
   this->Texture = wgpuConfiguration->CreateTexture(this->TextureDescriptor);
   // upload data
   const auto bytesPerRow = this->GetWidth() * this->GetBytesPerPixel();
@@ -261,6 +271,11 @@ void vtkWebGPURenderTextureDeviceResource::SendToWebGPUDevice(std::vector<void*>
     }
     wgpuConfiguration->WriteTexture(this->Texture, bytesPerRow, sizeBytes, dataPlanes[i], srcOffset,
       dstOrigin, dstMipLevel, cubeMap ? "Upload Cube Map Face" : "Upload Texture Data");
+  }
+  if (generateMipmaps)
+  {
+    vtkWebGPUMipmapGenerator::Generate(wgpuConfiguration, this->Texture,
+      this->TextureDescriptor.format, this->GetMipLevelCount(), cubeMap ? 6 : 1);
   }
   this->SamplerDescriptor = {};
   this->SamplerDescriptor.addressModeU = this->GetWebGPUAddressMode(this->AddressModeU);
