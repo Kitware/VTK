@@ -235,7 +235,10 @@ bool CudaCopyToHost(void* destination, const void* source, std::size_t bytes, st
 
 //------------------------------------------------------------------------------
 // The HIP runtime API, declared here rather than included: VTK builds without
-// ROCm. The values are ROCm 7.1.1's (hip/driver_types.h, hip/hip_runtime_api.h).
+// ROCm. The values are ROCm 7.1.1's (hip/driver_types.h, hip/hip_runtime_api.h),
+// the same since ROCm 6.0 renumbered hipMemoryType to match CUDA. ROCm 5's
+// runtime numbers memory types differently (host 0, device 1, managed 4), so
+// it is refused once loaded.
 using hipError_t = int;
 
 constexpr hipError_t hipSuccess = 0;
@@ -245,12 +248,16 @@ constexpr int HIP_POINTER_ATTRIBUTE_DEVICE_ORDINAL = 9;
 constexpr int hipMemoryTypeDevice = 2;
 constexpr int hipMemoryTypeManaged = 3;
 constexpr int hipMemcpyDeviceToHost = 2;
+// hipRuntimeGetVersion's HIP_VERSION: major * 10000000 + minor * 100000 + patch.
+constexpr int HIP_VERSION_MAJOR_FACTOR = 10000000;
+constexpr int HIP_OLDEST_MAJOR = 6;
 
 struct HipRuntime
 {
   bool Loaded = false;
   std::string Error;
 
+  hipError_t (*RuntimeGetVersion)(int*) = nullptr;
   hipError_t (*GetDeviceCount)(int*) = nullptr;
   hipError_t (*PointerGetAttribute)(void*, int, void*) = nullptr;
   hipError_t (*GetDevice)(int*) = nullptr;
@@ -338,7 +345,8 @@ HipRuntime LoadHip()
     }
     return true;
   };
-  if (!bind("hipGetDeviceCount", hip.GetDeviceCount) ||
+  if (!bind("hipRuntimeGetVersion", hip.RuntimeGetVersion) ||
+    !bind("hipGetDeviceCount", hip.GetDeviceCount) ||
     !bind("hipPointerGetAttribute", hip.PointerGetAttribute) ||
     !bind("hipGetDevice", hip.GetDevice) || !bind("hipSetDevice", hip.SetDevice) ||
     !bind("hipDeviceSynchronize", hip.DeviceSynchronize) || !bind("hipMemcpy", hip.Memcpy) ||
@@ -347,8 +355,24 @@ HipRuntime LoadHip()
   {
     return hip;
   }
+  // Checked by version, not by file name: `libamdhip64.so` or a runtime the
+  // process loaded already may be ROCm 5's.
+  int version = 0;
+  hipError_t result = hip.RuntimeGetVersion(&version);
+  if (result != hipSuccess)
+  {
+    hip.Error = "hipRuntimeGetVersion failed: " + hip.Describe(result);
+    return hip;
+  }
+  if (version / HIP_VERSION_MAJOR_FACTOR < HIP_OLDEST_MAJOR)
+  {
+    hip.Error = std::string("the HIP runtime ") + name + " is version " +
+      vtk::to_string(version / HIP_VERSION_MAJOR_FACTOR) + "; VTK needs ROCm " +
+      vtk::to_string(HIP_OLDEST_MAJOR) + " or newer";
+    return hip;
+  }
   int count = 0;
-  hipError_t result = hip.GetDeviceCount(&count);
+  result = hip.GetDeviceCount(&count);
   if (result != hipSuccess)
   {
     hip.Error = "hipGetDeviceCount failed: " + hip.Describe(result);
@@ -834,6 +858,11 @@ bool LevelZeroCopyToHost(void* destination, const void* source, std::size_t byte
   // An immediate list on the memory's device, in synchronous mode: the copy
   // has finished when the call returns, so nothing reads or writes the host
   // memory after it (a pageable destination is fine).
+  //
+  // Unlike CUDA and HIP, nothing here waits for the producer. Level Zero has
+  // no device-wide synchronize, and the copy runs on VTK's own list, so
+  // kernels a producer still has queued (on a SYCL queue, say) may be writing
+  // the memory while it is read. The producer has to synchronize first.
   const auto key = std::make_pair(state.Context, device);
   auto found = state.Lists.find(key);
   if (found == state.Lists.end())

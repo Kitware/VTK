@@ -94,6 +94,14 @@ stream", so a producer with asynchronous work still queued -- Viskores on a
 Kokkos backend, for instance -- can hand over memory whose contents are not
 there yet, and the race has no diagnostic. Synchronize before exporting if
 anything asynchronous produced the data.
+
+The same holds for memory VTK imports and reads on the host through
+``vtkDeviceDataArray``. For CUDA and HIP, VTK synchronizes the memory's
+device before copying, so work the producer queued on any stream is done.
+Level Zero has no device-wide synchronize, and VTK copies on a command list
+of its own, so it does not wait for kernels a producer still has queued (on
+a SYCL queue, for instance): synchronize the producer before VTK reads a
+``kDLOneAPI`` tensor.
 """
 
 import ctypes
@@ -831,10 +839,11 @@ def _wrap_host(key, vtk_type, n_tuples, n_components, pointer, ndim):
     return numpy_support.numpy_to_vtk(view, deep=False, array_type=vtk_type)
 
 
-def _device_array_factory(space):
-    """The factory that can hold *space*'s memory: Viskores' where VTK was
-    built with it for that memory, else VTK's own where the vendor's driver
-    loads. ``VTK_DLPACK_DEVICE_ARRAYS=vtk`` puts VTK's own first."""
+def _device_array_factories(space):
+    """The factories that can hold *space*'s memory, in the order to try them:
+    Viskores' where VTK was built with it for that memory, then VTK's own where
+    the vendor's driver loads. ``VTK_DLPACK_DEVICE_ARRAYS=vtk`` puts VTK's own
+    first."""
     from vtkmodules.vtkCommonCore import vtkDeviceArrayFactory
 
     try:
@@ -853,9 +862,13 @@ def _device_array_factory(space):
     factories = [vtkmDataArrayFactory, vtkDeviceArrayFactory]
     if os.environ.get("VTK_DLPACK_DEVICE_ARRAYS") == "vtk":
         factories.reverse()
-    for factory in factories:
-        if factory is not None and factory.IsMemorySpaceAvailable(space):
-            return factory()
+    available = [
+        factory()
+        for factory in factories
+        if factory is not None and factory.IsMemorySpaceAvailable(space)
+    ]
+    if available:
+        return available
     raise RuntimeError(
         f"importing {space!r} memory needs its driver or runtime (VTK holds "
         f"CUDA, HIP and Level Zero memory itself) or VTK built with Viskores "
@@ -865,17 +878,51 @@ def _device_array_factory(space):
 
 
 def _wrap_descriptor(descriptor, vtk_type, n_tuples, n_components, space):
-    """Build the array from a device pointer."""
+    """Build the array from a device pointer, with the first factory that can.
 
-    factory = _device_array_factory(space)
-    factory.SetNumberOfTuples(n_tuples)
-    factory.SetNumberOfComponents(n_components)
-    factory.SetDataType(vtk_type)
-    factory.AddBuffer(descriptor)
-    array = factory.CreateArray()
-    if array is None:
-        raise RuntimeError(
-            f"could not wrap {space!r} memory as a {factory.GetClassName()} array "
-            f"({n_tuples} tuples x {n_components} components, VTK type {vtk_type})"
-        )
-    return array
+    A factory being available says only that it was built for the memory, not
+    that it works on this machine: Viskores' is available wherever a device
+    adapter for the space was compiled in. So a factory that fails hands the
+    memory to the next one, its errors kept for the message should all fail.
+    """
+    from vtkmodules.util.misc import calldata_type
+    from vtkmodules.util.vtkConstants import VTK_STRING
+
+    factories = _device_array_factories(space)
+    failures = []
+    for index, factory in enumerate(factories):
+        factory.SetNumberOfTuples(n_tuples)
+        factory.SetNumberOfComponents(n_components)
+        factory.SetDataType(vtk_type)
+        factory.AddBuffer(descriptor)
+
+        # A factory with another behind it reports to failures rather than
+        # printing an error the next one may make moot.
+        errors = []
+        observer = None
+        if index + 1 < len(factories):
+
+            @calldata_type(VTK_STRING)
+            def record(caller, event, message, errors=errors):
+                # The last line, past "vtkClass (0x...): ", is the reason.
+                errors.append(message.strip().splitlines()[-1].split("): ", 1)[-1])
+
+            observer = factory.AddObserver("ErrorEvent", record)
+        try:
+            array = factory.CreateArray()
+        finally:
+            if observer is not None:
+                factory.RemoveObserver(observer)
+        if array is not None:
+            return array
+        reason = f" ({'; '.join(errors)})" if errors else ""
+        failures.append(factory.GetClassName() + reason)
+        if not descriptor.HasOwnership():
+            # The factory took the hold on the tensor and dropped it on the way
+            # out, so the memory may be gone: no one else may wrap it.
+            break
+    raise RuntimeError(
+        f"could not wrap {space!r} memory as an array "
+        f"({n_tuples} tuples x {n_components} components, VTK type {vtk_type}); "
+        f"tried " + " and ".join(failures)
+    )

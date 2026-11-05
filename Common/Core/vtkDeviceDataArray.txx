@@ -11,6 +11,7 @@
 #include "vtkObjectFactory.h"
 
 #include <algorithm>
+#include <limits>
 #include <string>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -236,8 +237,8 @@ vtkDeviceDataArray<ValueTypeT>::HostValues() const
     std::scoped_lock<std::mutex> lock(this->HostMutex);
     if (!this->HostCurrent.load(std::memory_order_relaxed))
     {
-      // Sized once: the array never grows, so pointers into the copy stay
-      // valid when it is refreshed.
+      // Grown only when SetDescriptor or ShallowCopy brought more values:
+      // refreshing the copy for the same memory keeps pointers into it valid.
       if (this->Host.size() < static_cast<std::size_t>(this->DeviceValues))
       {
         this->Host.resize(static_cast<std::size_t>(this->DeviceValues));
@@ -248,9 +249,17 @@ vtkDeviceDataArray<ValueTypeT>::HostValues() const
           reinterpret_cast<const void*>(this->Descriptor->GetPointer()),
           static_cast<std::size_t>(this->DeviceValues) * sizeof(ValueType), &why))
       {
+        // The size cannot change from inside a read, whose caller has sized
+        // its loop already, so the copy is filled instead: with NaN where the
+        // type has one, so that the values show as missing downstream.
+        const ValueType fill = std::numeric_limits<ValueType>::has_quiet_NaN
+          ? std::numeric_limits<ValueType>::quiet_NaN()
+          : ValueType(0);
         vtkErrorWithObjectMacro(const_cast<SelfType*>(this),
-          "Could not read the device memory on the host: " << why << ". Reading zeros.");
-        std::fill(this->Host.begin(), this->Host.end(), ValueType(0));
+          "Could not read the device memory on the host: "
+            << why << ". Reading "
+            << (std::numeric_limits<ValueType>::has_quiet_NaN ? "NaN" : "zeros") << ".");
+        std::fill(this->Host.begin(), this->Host.end(), fill);
       }
       this->HostCurrent.store(true, std::memory_order_release);
     }

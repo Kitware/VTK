@@ -16,6 +16,19 @@
  * rendering, numpy -- reads a copy, made from the whole buffer on first use
  * and refreshed after Modified(). GetVoidPointer() returns that copy.
  *
+ * Any Modified() marks the copy stale, including the ones metadata changes
+ * make (SetName(), SetLookupTable(), ...): the array cannot tell those from a
+ * write to the device memory, so the next host read copies the whole buffer
+ * again and waits for the device. Set metadata before reading on the host
+ * where that matters.
+ *
+ * If the device memory cannot be read, an error is reported and the copy
+ * holds NaN (zeros for integer types) in its place.
+ *
+ * A pointer into the copy stays valid when the copy is refreshed. It does not
+ * survive SetDescriptor() or ShallowCopy() to memory with more values: the
+ * next host read then reallocates the copy.
+ *
  * The array is read-only on the host and fixed in size: a host write, or
  * growing the array, is refused with an error. The device memory is the only
  * real copy, and a write to the host copy would never reach it. NewInstance()
@@ -24,7 +37,8 @@
  * Shrinking is allowed and keeps the memory.
  *
  * VTK does not link against a GPU runtime for this: vtkDeviceMemory loads the
- * vendor's driver when a copy is first needed. Only CUDA memory so far.
+ * vendor's driver or runtime when a copy is first needed: CUDA, HIP and
+ * Level Zero memory.
  *
  * @sa vtkDeviceArrayFactory vtkMemoryDescriptor
  */

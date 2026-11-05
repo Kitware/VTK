@@ -14,6 +14,7 @@
  * NVIDIA driver installs. HIP through ROCm's runtime (`libamdhip64.so.7`,
  * `amdhip64_7.dll`, or version 6), which every HIP program runs on: the one the
  * process has loaded already, if any, since two copies of it share nothing.
+ * ROCm 5's runtime is refused: it numbers memory types differently.
  * Level Zero through its loader (`libze_loader.so.1`, `ze_loader.dll`), which
  * Intel's GPU driver installs.
  *
@@ -64,8 +65,13 @@ public:
 
   /**
    * Copy `bytes` from device memory at `source` to host memory at
-   * `destination`. Work already queued on the device is finished first, so the
-   * copy sees it. Returns false, with the reason in `why`, if it could not.
+   * `destination`. Returns false, with the reason in `why`, if it could not.
+   *
+   * For CUDA and HIP, work already queued on the memory's device is finished
+   * first, so the copy sees it. Level Zero has no device-wide synchronize:
+   * the copy runs on VTK's own command list and does not wait for work a
+   * producer queued elsewhere (a SYCL queue, say), so the producer must
+   * finish writing before VTK reads.
    */
   static bool CopyToHost(vtkDataArray::MemorySpace space, void* destination, const void* source,
     std::size_t bytes, std::string* why = nullptr);

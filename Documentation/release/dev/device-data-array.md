@@ -24,7 +24,8 @@ says whether it can be:
 
 - CUDA: the driver, `libcuda.so.1` (`nvcuda.dll`).
 - HIP: ROCm's runtime, `libamdhip64.so.7` or `.so.6` (`amdhip64_7.dll`,
-  `amdhip64_6.dll`); the copy the process has loaded already, if any.
+  `amdhip64_6.dll`); the copy the process has loaded already, if any. ROCm 6
+  or newer: ROCm 5 numbers memory types differently and is refused.
 - Level Zero: the loader, `libze_loader.so.1` (`ze_loader.dll`).
 
 A Level Zero pointer means something only in the context that allocated it,
@@ -36,9 +37,14 @@ makes on the first GPU the loader reports. `GetLevelZeroDriverHandle()`,
 `dlpack_support.level_zero_handles()` returns them: a producer allocates in
 that context.
 
+Before reading CUDA or HIP memory on the host, VTK synchronizes its device, so
+work a producer still has queued is finished. Level Zero has no device-wide
+synchronize: a producer must finish writing its memory before VTK reads it.
+
 In VTK built with Viskores, `dlpack_support` still gives device memory of a
 kind Viskores was built for to Viskores' arrays, so Viskores' filters run on
 it, and uses `vtkDeviceDataArray` for the rest. `VTK_DLPACK_DEVICE_ARRAYS=vtk`
 prefers `vtkDeviceDataArray` where both could hold the memory, and
 `vtkmDataArrayFactory::IsMemorySpaceAvailable()` says which memory this
-build's Viskores can hold.
+build's Viskores can hold. If Viskores cannot wrap the memory after all,
+`dlpack_support` hands it to `vtkDeviceDataArray` instead.
