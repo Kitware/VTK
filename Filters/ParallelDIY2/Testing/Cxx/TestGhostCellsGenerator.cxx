@@ -25,6 +25,7 @@
 #include "vtkGenerateTimeSteps.h"
 #include "vtkGhostCellsGenerator.h"
 #include "vtkGroupDataSetsFilter.h"
+#include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
@@ -3907,6 +3908,308 @@ bool TestMisalignedBlocks(
 
   return retVal;
 }
+
+//----------------------------------------------------------------------------
+// A row of `numberOfCells` unit cube polyhedra along x, starting at `x0`. If `shareFaces`, two
+// adjacent cells reference the same face for their common side, else each cell has its own.
+vtkSmartPointer<vtkUnstructuredGrid> MakePolyhedronRow(
+  double x0, int numberOfCells, bool shareFaces)
+{
+  const vtkIdType nx = numberOfCells + 1;
+  auto pointId = [nx](vtkIdType i, vtkIdType j, vtkIdType k) { return i + nx * (j + 2 * k); };
+
+  vtkNew<vtkPoints> points;
+  points->SetNumberOfPoints(4 * nx);
+  for (vtkIdType k = 0; k < 2; ++k)
+  {
+    for (vtkIdType j = 0; j < 2; ++j)
+    {
+      for (vtkIdType i = 0; i < nx; ++i)
+      {
+        points->SetPoint(pointId(i, j, k), x0 + i, j, k);
+      }
+    }
+  }
+
+  vtkNew<vtkCellArray> faces;
+  if (shareFaces)
+  {
+    // The faces orthogonal to x, shared by the cells on both of their sides, have ids 0 to nx - 1.
+    for (vtkIdType i = 0; i < nx; ++i)
+    {
+      faces->InsertNextCell(
+        { pointId(i, 0, 0), pointId(i, 1, 0), pointId(i, 1, 1), pointId(i, 0, 1) });
+    }
+  }
+
+  vtkNew<vtkCellArray> cells;
+  vtkNew<vtkCellArray> faceLocations;
+  vtkNew<vtkUnsignedCharArray> types;
+  types->SetNumberOfValues(numberOfCells);
+  for (vtkIdType c = 0; c < numberOfCells; ++c)
+  {
+    cells->InsertNextCell(
+      { pointId(c, 0, 0), pointId(c + 1, 0, 0), pointId(c + 1, 1, 0), pointId(c, 1, 0),
+        pointId(c, 0, 1), pointId(c + 1, 0, 1), pointId(c + 1, 1, 1), pointId(c, 1, 1) });
+    types->SetValue(c, VTK_POLYHEDRON);
+
+    faceLocations->InsertNextCell(6);
+    for (vtkIdType i = c; i <= c + 1; ++i)
+    {
+      if (shareFaces)
+      {
+        faceLocations->InsertCellPoint(i);
+      }
+      else
+      {
+        faceLocations->InsertCellPoint(faces->InsertNextCell(
+          { pointId(i, 0, 0), pointId(i, 1, 0), pointId(i, 1, 1), pointId(i, 0, 1) }));
+      }
+    }
+    for (vtkIdType j = 0; j < 2; ++j)
+    {
+      faceLocations->InsertCellPoint(faces->InsertNextCell(
+        { pointId(c, j, 0), pointId(c + 1, j, 0), pointId(c + 1, j, 1), pointId(c, j, 1) }));
+    }
+    for (vtkIdType k = 0; k < 2; ++k)
+    {
+      faceLocations->InsertCellPoint(faces->InsertNextCell(
+        { pointId(c, 0, k), pointId(c + 1, 0, k), pointId(c + 1, 1, k), pointId(c, 1, k) }));
+    }
+  }
+
+  auto ug = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  ug->SetPoints(points);
+  ug->SetPolyhedralCells(types, cells, faceLocations, faces);
+  return ug;
+}
+
+//----------------------------------------------------------------------------
+// Checks that `ug` has `numberOfCells` polyhedra, made by MakePolyhedronRow, whose 6 faces are
+// the 6 sides of their cube: the points of a face are points of the cell, on one side of its
+// bounds.
+bool TestPolyhedronRowFaces(vtkUnstructuredGrid* ug, vtkIdType numberOfCells)
+{
+  if (ug->GetNumberOfCells() != numberOfCells)
+  {
+    vtkLog(
+      ERROR, "Wrong number of polyhedra: " << ug->GetNumberOfCells() << " != " << numberOfCells);
+    return false;
+  }
+
+  vtkNew<vtkIdList> cellPointIds;
+  vtkNew<vtkIdList> faceStream;
+  for (vtkIdType cellId = 0; cellId < numberOfCells; ++cellId)
+  {
+    if (ug->GetCellType(cellId) != VTK_POLYHEDRON)
+    {
+      vtkLog(ERROR, "Cell " << cellId << " is not a polyhedron");
+      return false;
+    }
+    ug->GetCellPoints(cellId, cellPointIds);
+    double bounds[6];
+    ug->GetCellBounds(cellId, bounds);
+    ug->GetFaceStream(cellId, faceStream);
+
+    const vtkIdType numberOfFaces = faceStream->GetId(0);
+    if (numberOfFaces != 6)
+    {
+      vtkLog(ERROR, "Polyhedron " << cellId << " has " << numberOfFaces << " faces instead of 6");
+      return false;
+    }
+    std::set<int> sides;
+    vtkIdType streamId = 1;
+    for (vtkIdType faceId = 0; faceId < numberOfFaces; ++faceId)
+    {
+      const vtkIdType numberOfFacePoints = faceStream->GetId(streamId++);
+      const vtkIdType* facePointIds = faceStream->GetPointer(streamId);
+      streamId += numberOfFacePoints;
+      for (vtkIdType i = 0; i < numberOfFacePoints; ++i)
+      {
+        if (cellPointIds->IsId(facePointIds[i]) < 0)
+        {
+          vtkLog(ERROR,
+            "Face " << faceId << " of polyhedron " << cellId << " has point " << facePointIds[i]
+                    << " that is not a point of the cell");
+          return false;
+        }
+      }
+      for (int side = 0; side < 6; ++side)
+      {
+        bool isOnSide = true;
+        for (vtkIdType i = 0; i < numberOfFacePoints && isOnSide; ++i)
+        {
+          double p[3];
+          ug->GetPoint(facePointIds[i], p);
+          isOnSide = p[side / 2] == bounds[side];
+        }
+        if (isOnSide)
+        {
+          sides.insert(side);
+          break;
+        }
+      }
+    }
+    if (sides.size() != 6)
+    {
+      vtkLog(ERROR, "The faces of polyhedron " << cellId << " are not the sides of its cube");
+      return false;
+    }
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+// The input has a ghost cell to peel whose points come before the kept points, so the input and
+// output point ids of the faces of the kept polyhedra differ.
+bool TestPolyhedraWithGhostCellsToPeel(int myrank, bool useImplicitArray)
+{
+  vtkLog(INFO, "Testing polyhedra with ghost cells to peel");
+
+  vtkNew<vtkPartitionedDataSet> pds;
+  if (myrank == 0)
+  {
+    vtkSmartPointer<vtkUnstructuredGrid> ug0 = ::MakePolyhedronRow(0.0, 3, false);
+    ug0->AllocateCellGhostArray()->SetValue(0, vtkDataSetAttributes::DUPLICATECELL);
+    pds->SetNumberOfPartitions(2);
+    pds->SetPartition(0, ug0);
+    pds->SetPartition(1, ::MakePolyhedronRow(3.0, 2, false));
+  }
+
+  vtkNew<vtkGhostCellsGenerator> generator;
+  generator->SetInputData(pds);
+  generator->SetNumberOfGhostLayers(1);
+  generator->BuildIfRequiredOff();
+  generator->SetUseImplicitArrays(useImplicitArray);
+  generator->Update();
+
+  if (myrank != 0)
+  {
+    return true;
+  }
+
+  // Each partition keeps 2 cells and gets 1 ghost cell from the other.
+  auto output = vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0));
+  for (unsigned int partitionId = 0; partitionId < 2; ++partitionId)
+  {
+    auto ug = vtkUnstructuredGrid::SafeDownCast(output->GetPartition(partitionId));
+    if (!ug || !::TestPolyhedronRowFaces(ug, 3))
+    {
+      vtkLog(ERROR, "Wrong polyhedra in partition " << partitionId);
+      return false;
+    }
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+// The adjacent polyhedra of the input share their common face. The output has the faces of each
+// polyhedron apart.
+bool TestPolyhedraWithSharedFaces(int myrank, bool useImplicitArray)
+{
+  vtkLog(INFO, "Testing polyhedra with shared faces");
+
+  vtkNew<vtkPartitionedDataSet> pds;
+  if (myrank == 0)
+  {
+    pds->SetNumberOfPartitions(2);
+    pds->SetPartition(0, ::MakePolyhedronRow(0.0, 2, true));
+    pds->SetPartition(1, ::MakePolyhedronRow(2.0, 2, true));
+  }
+
+  vtkNew<vtkGhostCellsGenerator> generator;
+  generator->SetInputData(pds);
+  generator->SetNumberOfGhostLayers(1);
+  generator->BuildIfRequiredOff();
+  generator->SetUseImplicitArrays(useImplicitArray);
+  generator->Update();
+
+  if (myrank != 0)
+  {
+    return true;
+  }
+
+  // Each partition keeps 2 cells and gets 1 ghost cell from the other.
+  auto output = vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0));
+  for (unsigned int partitionId = 0; partitionId < 2; ++partitionId)
+  {
+    auto ug = vtkUnstructuredGrid::SafeDownCast(output->GetPartition(partitionId));
+    if (!ug || !::TestPolyhedronRowFaces(ug, 3))
+    {
+      vtkLog(ERROR, "Wrong polyhedra in partition " << partitionId);
+      return false;
+    }
+    const vtkIdType numberOfFaces = ug->GetPolyhedronFaces()->GetNumberOfCells();
+    if (numberOfFaces != 6 * 3)
+    {
+      vtkLog(ERROR,
+        "Partition " << partitionId << " has " << numberOfFaces << " faces instead of " << 6 * 3);
+      return false;
+    }
+  }
+  return true;
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkUnstructuredGrid> MakeLine(double x0, double x1)
+{
+  vtkNew<vtkPoints> points;
+  points->SetDataType(VTK_DOUBLE);
+  points->InsertNextPoint(x0, 0.0, 0.0);
+  points->InsertNextPoint(x1, 0.0, 0.0);
+
+  vtkNew<vtkCellArray> cells;
+  cells->InsertNextCell({ 0, 1 });
+
+  auto ug = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  ug->SetPoints(points);
+  ug->SetCells(VTK_LINE, cells);
+  return ug;
+}
+
+//----------------------------------------------------------------------------
+// The gap between the partitions is larger than the inflation of their bounding boxes, 0.1% of
+// their length, but smaller than the tolerance.
+bool TestToleranceLargerThanBoundingBoxInflation(int myrank, bool useImplicitArray)
+{
+  vtkLog(INFO, "Testing a tolerance larger than the bounding box inflation");
+
+  vtkNew<vtkPartitionedDataSet> pds;
+  if (myrank == 0)
+  {
+    pds->SetNumberOfPartitions(2);
+    pds->SetPartition(0, ::MakeLine(0.0, 1.0));
+    pds->SetPartition(1, ::MakeLine(1.01, 2.0));
+  }
+
+  vtkNew<vtkGhostCellsGenerator> generator;
+  generator->SetInputData(pds);
+  generator->SetNumberOfGhostLayers(1);
+  generator->SetTolerance(0.05);
+  generator->BuildIfRequiredOff();
+  generator->SetUseImplicitArrays(useImplicitArray);
+  generator->Update();
+
+  if (myrank != 0)
+  {
+    return true;
+  }
+
+  // Each partition gets the line of the other as a ghost cell.
+  auto output = vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0));
+  for (unsigned int partitionId = 0; partitionId < 2; ++partitionId)
+  {
+    auto ug = vtkUnstructuredGrid::SafeDownCast(output->GetPartition(partitionId));
+    if (!ug || ug->GetNumberOfCells() != 2 || ug->GetNumberOfPoints() != 3)
+    {
+      vtkLog(ERROR,
+        "The points of partition " << partitionId
+                                   << " within the tolerance of the other were not matched");
+      return false;
+    }
+  }
+  return true;
+}
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
@@ -3982,6 +4285,26 @@ int TestGhostCellsGenerator(int argc, char* argv[])
     retVal = EXIT_FAILURE;
   }
 #endif
+
+  // Only rank 0 checks the outputs of these cases, so every rank runs all of them: the
+  // generators stay in step even if one fails.
+  for (bool useImplicitArray : { false, true })
+  {
+    if (!::TestPolyhedraWithGhostCellsToPeel(myrank, useImplicitArray))
+    {
+      retVal = EXIT_FAILURE;
+    }
+
+    if (!::TestPolyhedraWithSharedFaces(myrank, useImplicitArray))
+    {
+      retVal = EXIT_FAILURE;
+    }
+
+    if (!::TestToleranceLargerThanBoundingBoxInflation(myrank, useImplicitArray))
+    {
+      retVal = EXIT_FAILURE;
+    }
+  }
 
   for (int numberOfGhostLayers = 1; numberOfGhostLayers < 3; ++numberOfGhostLayers)
   {

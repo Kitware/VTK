@@ -83,7 +83,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
-class vtkAlgorithm;
 class vtkCellArray;
 class vtkDataArray;
 class vtkDataSet;
@@ -96,6 +95,7 @@ class vtkMultiProcessController;
 class vtkPoints;
 class vtkPointSet;
 class vtkPolyData;
+class vtkPolyhedronCellArray;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
 class vtkUnsignedCharArray;
@@ -445,11 +445,11 @@ protected:
     ///@}
 
     /**
-     * Filter that is being used to extract the surface of the input.
-     * The surface is used to check how the interface of the input matches the ones of its
-     * neighboring blocks.
+     * The interface of the input: the points of its surface, which may be shared with its
+     * neighboring blocks, with their local ids. It is used to check how the interface of the input
+     * matches the ones of its neighboring blocks.
      */
-    vtkSmartPointer<vtkAlgorithm> InterfaceExtractor;
+    vtkSmartPointer<vtkPointSet> Interface;
 
     /**
      * Handle to the local point ids of the surface of the input.
@@ -579,8 +579,10 @@ protected:
      */
     vtkIdType CurrentConnectivitySize = 0;
 
-    vtkCellArray* Faces = nullptr;
-    vtkCellArray* FaceLocations = nullptr;
+    /**
+     * The polyhedra of the input, nullptr if it has none.
+     */
+    vtkPolyhedronCellArray* Polyhedra = nullptr;
 
     vtkUnstructuredGrid* Input;
 
@@ -608,8 +610,7 @@ protected:
     struct TopologyBufferType
     {
       vtkSmartPointer<vtkUnsignedCharArray> Types = nullptr;
-      vtkSmartPointer<vtkCellArray> Faces = nullptr;
-      vtkSmartPointer<vtkCellArray> FaceLocations = nullptr;
+      vtkSmartPointer<vtkPolyhedronCellArray> Polyhedra = nullptr;
       vtkNew<vtkCellArray> CellArray;
     };
 
@@ -943,11 +944,12 @@ protected:
   ///@}
 
   /**
-   * This method exchanges the bounding boxes among blocks.
+   * This method exchanges the bounding boxes among blocks, inflated with `tolerance`, the tolerance
+   * of the matching of the points (see InflateBoundingBoxIfNecessary).
    */
   template <class DataSetT>
-  static void ExchangeBoundingBoxes(
-    diy::Master& master, const vtkDIYExplicitAssigner& assigner, std::vector<DataSetT*>& inputs);
+  static void ExchangeBoundingBoxes(diy::Master& master, const vtkDIYExplicitAssigner& assigner,
+    std::vector<DataSetT*>& inputs, double tolerance = 0);
 
   template <class BlockT>
   static LinkMap ComputeLinkMapUsingBoundingBoxes(const diy::Master& master);
@@ -957,15 +959,19 @@ protected:
    * Method to be overloaded for each supported type of input data set.
    * This method is called in the pipeline right after diy environment
    * has been set up. It exchanges between every information needed for the data set type `DataSetT`
-   * in order to be able to set link connections.
+   * in order to be able to set link connections. `tolerance` is the tolerance of the matching of
+   * the points of unstructured data, see ComputeLinkMap.
    */
-  static void ExchangeBlockStructures(diy::Master& master, std::vector<vtkImageData*>& inputs);
   static void ExchangeBlockStructures(
-    diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs);
-  static void ExchangeBlockStructures(diy::Master& master, std::vector<vtkStructuredGrid*>& inputs);
+    diy::Master& master, std::vector<vtkImageData*>& inputs, double tolerance = 0);
   static void ExchangeBlockStructures(
-    diy::Master& master, std::vector<vtkUnstructuredGrid*>& inputs);
-  static void ExchangeBlockStructures(diy::Master& master, std::vector<vtkPolyData*>& inputs);
+    diy::Master& master, std::vector<vtkRectilinearGrid*>& inputs, double tolerance = 0);
+  static void ExchangeBlockStructures(
+    diy::Master& master, std::vector<vtkStructuredGrid*>& inputs, double tolerance = 0);
+  static void ExchangeBlockStructures(
+    diy::Master& master, std::vector<vtkUnstructuredGrid*>& inputs, double tolerance = 0);
+  static void ExchangeBlockStructures(
+    diy::Master& master, std::vector<vtkPolyData*>& inputs, double tolerance = 0);
   ///@}
 
   ///@{
@@ -1116,14 +1122,15 @@ private:
   ///@{
   /**
    * Internal method that inflates exchanged bounding boxes to better treat floating point precision
-   * for points that are on the boundary of the bounding box.
+   * for points that are on the boundary of the bounding box, and at least by `tolerance`, the
+   * tolerance of the matching of the points.
    *
-   * @note This method only does something for vtkUnstructuredGrid and vtkPolyData. The vtkDataSet
-   * version is empty;
+   * @note This method only does something for vtkPointSet. The vtkDataSet version is empty;
    */
   static void InflateBoundingBoxIfNecessary(
-    vtkDataSet* vtkNotUsed(input), vtkBoundingBox& vtkNotUsed(bb));
-  static void InflateBoundingBoxIfNecessary(vtkPointSet* input, vtkBoundingBox& bb);
+    vtkDataSet* vtkNotUsed(input), vtkBoundingBox& vtkNotUsed(bb), double vtkNotUsed(tolerance));
+  static void InflateBoundingBoxIfNecessary(
+    vtkPointSet* input, vtkBoundingBox& bb, double tolerance);
   ///@}
 };
 

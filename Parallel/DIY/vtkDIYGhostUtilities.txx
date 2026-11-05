@@ -13,7 +13,6 @@
 #include "vtkDIYUtilities.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkDataSetSurfaceFilter.h"
 #include "vtkFieldData.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
@@ -342,13 +341,13 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //----------------------------------------------------------------------------
 template <class DataSetT>
-void vtkDIYGhostUtilities::ExchangeBoundingBoxes(
-  diy::Master& master, const vtkDIYExplicitAssigner& assigner, std::vector<DataSetT*>& inputs)
+void vtkDIYGhostUtilities::ExchangeBoundingBoxes(diy::Master& master,
+  const vtkDIYExplicitAssigner& assigner, std::vector<DataSetT*>& inputs, double tolerance)
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
 
   diy::all_to_all(master, assigner,
-    [&master, &inputs](BlockType* block, const diy::ReduceProxy& srp)
+    [&master, &inputs, tolerance](BlockType* block, const diy::ReduceProxy& srp)
     {
       int myBlockId = srp.gid();
       int localId = master.lid(myBlockId);
@@ -359,7 +358,7 @@ void vtkDIYGhostUtilities::ExchangeBoundingBoxes(
         vtkBoundingBox& bb = block->BoundingBox;
         bb = vtkBoundingBox(bounds);
 
-        vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(input, bb);
+        vtkDIYGhostUtilities::InflateBoundingBoxIfNecessary(input, bb, tolerance);
 
         for (int i = 0; i < srp.out_link().size(); ++i)
         {
@@ -683,7 +682,7 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   vtkLogEndScope("Setup block self information.");
 
   vtkLogStartScope(TRACE, "Exchanging bounding boxes");
-  vtkDIYGhostUtilities::ExchangeBoundingBoxes(master, assigner, inputs);
+  vtkDIYGhostUtilities::ExchangeBoundingBoxes(master, assigner, inputs, tolerance);
   vtkLogEndScope("Exchanging bounding boxes");
 
   // We compute a temporary link map that weeds out data sets that do not have
@@ -701,7 +700,7 @@ int vtkDIYGhostUtilities::GenerateGhostCells(std::vector<DataSetT*>& inputs,
   // Here, we exchange structural information between blocks that will be used to
   // determine if blocks are actually adjacent or not.
   vtkLogStartScope(TRACE, "Exchanging block structures");
-  vtkDIYGhostUtilities::ExchangeBlockStructures(master, inputs);
+  vtkDIYGhostUtilities::ExchangeBlockStructures(master, inputs, tolerance);
   vtkLogEndScope("Exchanging block structures");
 
   // The structural information that has been exchanged is used to compute
