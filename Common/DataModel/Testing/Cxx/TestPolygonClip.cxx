@@ -25,8 +25,8 @@ namespace
 // Clips a 4-point polygon (given by its point coordinates and per-point
 // scalars) at the given value, returning the number of output cells and
 // their total area.
-void ClipSquare(vtkPoints* inputPoints, vtkDoubleArray* scalars, double value, int insideOut,
-  vtkIdType& numberOfOutputCells, double& totalArea)
+void ClipSquare(vtkPoints* inputPoints, vtkDoubleArray* scalars, double value,
+  vtkTypeBool insideOut, vtkIdType& numberOfOutputCells, double& totalArea)
 {
   vtkNew<vtkPolygon> polygon;
   vtkIdType numPts = inputPoints->GetNumberOfPoints();

@@ -374,7 +374,7 @@ public:
    * \pre secondaryCd_exists: secondaryCd!=0
    */
   virtual void Clip(double value, vtkImplicitFunction* f, vtkGenericAttributeCollection* attributes,
-    vtkGenericCellTessellator* tess, int insideOut, vtkIncrementalPointLocator* locator,
+    vtkGenericCellTessellator* tess, vtkTypeBool insideOut, vtkIncrementalPointLocator* locator,
     vtkCellArray* connectivity, vtkPointData* outPd, vtkCellData* outCd, vtkPointData* internalPd,
     vtkPointData* secondaryPd, vtkCellData* secondaryCd);
 

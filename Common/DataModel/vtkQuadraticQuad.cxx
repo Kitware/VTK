@@ -329,7 +329,7 @@ void vtkQuadraticQuad::Contour(double value, vtkDataArray* cellScalars,
 // except that it cuts the quad to produce other quads and triangles.
 void vtkQuadraticQuad::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   // interpolate point and cell data
   this->InterpolateAttributes(inPd, inCd, cellId, cellScalars);

@@ -115,7 +115,7 @@ public:
    */
   void OutputClip(vtkPolyhedron* cell, vtkCellArray* connectivity,
     vtkIncrementalPointLocator* locator, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
-    vtkIdType cellId, vtkCellData* outCd, int insideOut, vtkCellArray* outFaces = nullptr,
+    vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut, vtkCellArray* outFaces = nullptr,
     vtkCellArray* outFaceLocs = nullptr);
 
   //

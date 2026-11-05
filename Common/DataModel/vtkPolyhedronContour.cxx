@@ -512,7 +512,7 @@ void vtkPolyhedronContour::OutputContours(
 //------------------------------------------------------------------------------
 void vtkPolyhedronContour::OutputClip(vtkPolyhedron* cell, vtkCellArray* connectivity,
   vtkIncrementalPointLocator* locator, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
-  vtkIdType cellId, vtkCellData* outCd, int insideOut, vtkCellArray* outFaces,
+  vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut, vtkCellArray* outFaces,
   vtkCellArray* outFaceLocs)
 {
   if (!cell || !connectivity || !locator)

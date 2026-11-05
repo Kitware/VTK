@@ -460,7 +460,7 @@ void vtkPolyLine::Derivatives(
 //------------------------------------------------------------------------------
 void vtkPolyLine::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
   vtkCellArray* polyLines, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
-  vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   const vtkIdType numLines = this->Points->GetNumberOfPoints() - 1;
   this->LineScalars->SetNumberOfComponents(cellScalars->GetNumberOfComponents());

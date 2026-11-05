@@ -211,7 +211,7 @@ void vtkVertex::Derivatives(int vtkNotUsed(subId), const double vtkNotUsed(pcoor
 //------------------------------------------------------------------------------
 void vtkVertex::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
   vtkCellArray* verts, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId,
-  vtkCellData* outCd, int insideOut)
+  vtkCellData* outCd, vtkTypeBool insideOut)
 {
   double x[3];
   vtkIdType pts[1];

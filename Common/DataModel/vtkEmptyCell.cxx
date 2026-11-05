@@ -75,7 +75,7 @@ void vtkEmptyCell::Derivatives(int vtkNotUsed(subId), const double vtkNotUsed(pc
 void vtkEmptyCell::Clip(double vtkNotUsed(value), vtkDataArray* vtkNotUsed(cellScalars),
   vtkIncrementalPointLocator* vtkNotUsed(locator), vtkCellArray* vtkNotUsed(verts),
   vtkPointData* vtkNotUsed(inPD), vtkPointData* vtkNotUsed(outPD), vtkCellData* vtkNotUsed(inCD),
-  vtkIdType vtkNotUsed(cellId), vtkCellData* vtkNotUsed(outCD), int vtkNotUsed(insideOut))
+  vtkIdType vtkNotUsed(cellId), vtkCellData* vtkNotUsed(outCD), vtkTypeBool vtkNotUsed(insideOut))
 {
 }
 

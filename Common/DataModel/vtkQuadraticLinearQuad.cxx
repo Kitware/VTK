@@ -231,7 +231,7 @@ void vtkQuadraticLinearQuad::Contour(double value, vtkDataArray* cellScalars,
 // except that it cuts the quad to produce other quads and triangles.
 void vtkQuadraticLinearQuad::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   for (int i = 0; i < 2; i++)
   {

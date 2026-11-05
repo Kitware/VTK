@@ -121,7 +121,7 @@ void vtkQuadraticPolygon::Contour(double value, vtkDataArray* cellScalars,
 //------------------------------------------------------------------------------
 void vtkQuadraticPolygon::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   this->InitializePolygon();
 

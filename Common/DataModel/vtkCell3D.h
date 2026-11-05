@@ -160,7 +160,7 @@ public:
    */
   void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* connectivity, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
-    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
+    vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut) override;
 
   /**
    * The topological dimension of the cell. (Satisfies vtkCell API.)

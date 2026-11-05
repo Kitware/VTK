@@ -418,7 +418,7 @@ int vtkClipVolume::RequestData(vtkInformation* vtkNotUsed(request),
 void vtkClipVolume::ClipTets(double value, vtkTetra* clipTetra, vtkDataArray* clipScalars,
   vtkDataArray* cellScalars, vtkIdList* tetraIds, vtkPoints* tetraPts, vtkPointData* inPD,
   vtkPointData* outPD, vtkCellData* inCD, vtkIdType cellId, vtkCellData* outCD,
-  vtkCellData* clippedCD, int insideOut)
+  vtkCellData* clippedCD, vtkTypeBool insideOut)
 {
   // Tessellate this cell as if it were inside
   vtkIdType ntetra = tetraPts->GetNumberOfPoints() / 4;

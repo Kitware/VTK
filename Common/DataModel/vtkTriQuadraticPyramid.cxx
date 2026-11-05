@@ -918,7 +918,7 @@ void vtkTriQuadraticPyramid::Derivatives(
 //
 void vtkTriQuadraticPyramid::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* tets, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType vtkNotUsed(cellId), vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType vtkNotUsed(cellId), vtkCellData* outCd, vtkTypeBool insideOut)
 {
   // subdivide into 6 linear pyramids + 20 tetrahedra
 

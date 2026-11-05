@@ -2152,7 +2152,8 @@ void vtkPolyhedron::Contour(double value, vtkDataArray* pointScalars,
 
 void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* connectivity, vtkPointData* inPd,
-  vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd,
+  vtkTypeBool insideOut)
 {
   // Use López polygon-tracing algorithm for clipping
   // Reference: López et al., "A new isosurface extraction method on arbitrary grids",
@@ -2212,8 +2213,8 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
 //------------------------------------------------------------------------------
 void vtkPolyhedron::ClipWithContext(double value, vtkDataArray* pointScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* connectivity, vtkPointData* inPd,
-  vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut,
-  vtkCellArray* outFaces, vtkCellArray* outFaceLocs)
+  vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd,
+  vtkTypeBool insideOut, vtkCellArray* outFaces, vtkCellArray* outFaceLocs)
 {
   vtkPolyhedronContour contour;
   auto result = contour.Execute(this, pointScalars, value, locator, inPd, outPd);
@@ -2280,8 +2281,8 @@ void vtkPolyhedron::ClipWithContext(double value, vtkDataArray* pointScalars,
 //------------------------------------------------------------------------------
 void vtkPolyhedron::ClipWithContext(double value, vtkDataArray* pointScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* connectivity, vtkPointData* inPd,
-  vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut,
-  vtkUnstructuredGrid* outUG)
+  vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd,
+  vtkTypeBool insideOut, vtkUnstructuredGrid* outUG)
 {
   this->ClipWithContext(value, pointScalars, locator, connectivity, inPd, outPd, inCd, cellId,
     outCd, insideOut, outUG ? outUG->GetPolyhedronFaces() : nullptr,

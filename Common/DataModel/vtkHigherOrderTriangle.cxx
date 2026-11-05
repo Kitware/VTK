@@ -422,7 +422,7 @@ void vtkHigherOrderTriangle::Contour(double value, vtkDataArray* cellScalars,
 //------------------------------------------------------------------------------
 void vtkHigherOrderTriangle::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   vtkIdType bindices[3][3];
   vtkIdType numberOfSubtriangles = this->GetNumberOfSubtriangles();

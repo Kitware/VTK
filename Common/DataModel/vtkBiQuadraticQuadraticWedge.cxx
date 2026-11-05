@@ -584,7 +584,7 @@ void vtkBiQuadraticQuadraticWedge::Contour(double value, vtkDataArray* cellScala
 // except that it cuts the wedge to produce tetrahedra.
 void vtkBiQuadraticQuadraticWedge::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* tets, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   // contour each linear wedge separately
   for (int i = 0; i < 8; i++) // for each wedge

@@ -1067,7 +1067,7 @@ int vtkTetra::JacobianInverse(double** inverse, double derivs[12])
 // remain compatible.
 void vtkTetra::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
   vtkCellArray* tets, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId,
-  vtkCellData* outCd, int insideOut)
+  vtkCellData* outCd, vtkTypeBool insideOut)
 {
   vtkIdType pts[6];
   double grdDiffs[4];

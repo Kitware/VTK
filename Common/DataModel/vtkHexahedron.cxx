@@ -634,7 +634,8 @@ int* vtkHexahedron::GetTriangleCases(int caseId)
 //------------------------------------------------------------------------------
 void vtkHexahedron::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* connectivity, vtkPointData* inPd,
-  vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd,
+  vtkTypeBool insideOut)
 {
   vtkIdType pts[8];
   double coords[8][3];

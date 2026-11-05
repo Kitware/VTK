@@ -608,7 +608,7 @@ void vtkPixel::Derivatives(
 // that it cuts the pixel to produce quads and/or triangles.
 void vtkPixel::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
   vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId,
-  vtkCellData* outCd, int insideOut)
+  vtkCellData* outCd, vtkTypeBool insideOut)
 {
   vtkIdType pts[4];
   double grdDiffs[4];

@@ -140,7 +140,7 @@ public:
    */
   void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* tets, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
-    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
+    vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut) override;
 
   /**
    * Return the center of the tri-quadratic pyramid in parametric coordinates.

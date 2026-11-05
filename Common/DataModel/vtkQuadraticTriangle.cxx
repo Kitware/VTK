@@ -346,7 +346,7 @@ void vtkQuadraticTriangle::Derivatives(
 // and triangles.
 void vtkQuadraticTriangle::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   for (int i = 0; i < 4; i++)
   {

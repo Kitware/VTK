@@ -70,7 +70,7 @@ public:
     vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
   void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
-    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
+    vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut) override;
   int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
     double pcoords[3], int& subId) override;
   int TriangulateLocalIds(int index, vtkIdList* ptIds) override;

@@ -875,7 +875,7 @@ void vtkQuadraticPyramid::Derivatives(
 //
 void vtkQuadraticPyramid::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* tets, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   // create six linear pyramid + 4 tetra
   this->Subdivide(inPd, inCd, cellId, cellScalars);

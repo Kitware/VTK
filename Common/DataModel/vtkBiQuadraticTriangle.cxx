@@ -412,7 +412,7 @@ void vtkBiQuadraticTriangle::Derivatives(
 // and triangles.
 void vtkBiQuadraticTriangle::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   for (int i = 0; i < 6; i++)
   {

@@ -46,7 +46,7 @@ public:
     vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
   void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* verts, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
-    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
+    vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut) override;
   int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
     double& dist2, double weights[]) override;
   void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
