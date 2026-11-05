@@ -482,7 +482,7 @@ public:
   }
 
   // Return the name of the label if one exists, else return an empty string
-  static std::string GetLabelName(const TDF_Label& label);
+  static std::pair<std::string, std::string> GetLabelName(const TDF_Label& label);
 
   // Convert a OCC Location matrix into a VTK Matrix
   static void GetMatrix(const TopLoc_Location& loc, vtkMatrix4x4* mat);
@@ -534,14 +534,16 @@ OCC_IdType vtkOCCTPDCReader::vtkInternals::GetHash(const TDF_Label& label)
 
 //----------------------------------------------------------------------------
 // Return the name of the label if one exists, else return an empty string
-std::string vtkOCCTPDCReader::vtkInternals::GetLabelName(const TDF_Label& label)
+std::pair<std::string, std::string> vtkOCCTPDCReader::vtkInternals::GetLabelName(
+  const TDF_Label& label)
 {
   Handle(TDataStd_Name) nameAttr;
   if (label.FindAttribute(TDataStd_Name::GetID(), nameAttr))
   {
-    return MakeNameValid(TCollection_AsciiString(nameAttr->Get()).ToCString());
+    std::string actualName(TCollection_AsciiString(nameAttr->Get()).ToCString());
+    return { MakeNameValid(actualName), actualName };
   }
-  return "";
+  return { "", "" };
 }
 
 //----------------------------------------------------------------------------
@@ -1182,7 +1184,9 @@ void vtkOCCTPDCReader::vtkInternals::AddLabelToOutput(const TDF_Label& label,
   vtkDataAssembly* assembly, int parentNode, unsigned int& datasetIndex,
   std::unordered_map<std::string, NodeInfo>& parentNameCount)
 {
-  std::string name = this->GetLabelName(label);
+  auto namePair = this->GetLabelName(label);
+  const std::string& name(namePair.first);
+  const std::string& actualName(namePair.second);
   int node;
 
   // If the label is not named then we will create a node for it in the assembly and will use
@@ -1199,6 +1203,7 @@ void vtkOCCTPDCReader::vtkInternals::AddLabelToOutput(const TDF_Label& label,
     {
       // name is unique - add it to the map with an initial count of 1
       node = assembly->AddNode(name.c_str(), parentNode);
+      assembly->SetAttribute(node, "name", actualName.c_str());
       NodeInfo ninfo(node, 1);
       parentNameCount[name] = ninfo;
     }
@@ -1206,9 +1211,9 @@ void vtkOCCTPDCReader::vtkInternals::AddLabelToOutput(const TDF_Label& label,
     {
       std::ostringstream str;
       str << name << "_" << std::setw(3) << std::setfill('0') << it->second.Count;
-      name = str.str();
       it->second.Count = it->second.Count + 1;
-      node = assembly->AddNode(name.c_str(), parentNode);
+      node = assembly->AddNode(str.str().c_str(), parentNode);
+      assembly->SetAttribute(node, "name", actualName.c_str());
       NodeMap[node] = it->second.NodeId;
     }
   }
