@@ -118,7 +118,7 @@ public:
   ProgressIndicator(vtkOCCTPDCReader* reader) { this->Reader = reader; }
 
 protected:
-  void Show(const Message_ProgressScope&, const Standard_Boolean) override
+  void Show(const Message_ProgressScope&, const bool) override
   {
     double currentPosition = this->GetPosition();
     if (currentPosition - this->LastPosition > 0.01)
@@ -627,7 +627,7 @@ bool vtkOCCTPDCReader::vtkInternals::AddBRepToDocument(Handle(TDocStd_Document) 
 
   // Add the BREP shape to the document
   auto shapeTool = XCAFDoc_DocumentTool::ShapeTool(doc->Main());
-  TDF_Label label = shapeTool->AddShape(shape, Standard_False);
+  TDF_Label label = shapeTool->AddShape(shape, false);
   TDataStd_Name::Set(label, "BREP");
   return true;
 }
@@ -881,7 +881,7 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::SurfacesToPolyData(
   bool hasUVs = false;
   bool hasColors = false;
 
-  Standard_Integer shift = 0;
+  int shift = 0;
 
   // Add all faces to polydata
   for (TopExp_Explorer exFace(shape, TopAbs_FACE); exFace.More(); exFace.Next())
@@ -896,7 +896,7 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::SurfacesToPolyData(
     {
       // meshing
       BRepMesh_IncrementalMesh(face, this->Parent->GetLinearDeflection(),
-        this->Parent->GetRelativeDeflection(), this->Parent->GetAngularDeflection(), Standard_True);
+        this->Parent->GetRelativeDeflection(), this->Parent->GetAngularDeflection(), true);
       // Refresh the handle after meshing
       poly = BRep_Tool::Triangulation(face, location);
       ;
@@ -931,11 +931,11 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::SurfacesToPolyData(
     Poly::ComputeNormals(poly);
     TopAbs_Orientation faceOrientation = face.Orientation();
 
-    Standard_Integer nbT = poly->NbTriangles();
-    Standard_Integer nbV = poly->NbNodes();
+    int nbT = poly->NbTriangles();
+    int nbV = poly->NbNodes();
 
     // Insert the Points
-    for (Standard_Integer i = 1; i <= nbV; i++)
+    for (int i = 1; i <= nbV; i++)
     {
       gp_Pnt pt = poly->Node(i).Transformed(location);
       points->InsertNextPoint(pt.X(), pt.Y(), pt.Z());
@@ -945,7 +945,7 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::SurfacesToPolyData(
     if (poly->HasNormals())
     {
       hasNormals = true;
-      for (Standard_Integer i = 1; i <= nbV; i++)
+      for (int i = 1; i <= nbV; i++)
       {
         gp_Dir n = poly->Normal(i);
         float fn[3] = { static_cast<float>(n.X()), static_cast<float>(n.Y()),
@@ -959,7 +959,7 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::SurfacesToPolyData(
     }
     else
     {
-      for (Standard_Integer i = 1; i <= nbV; i++)
+      for (int i = 1; i <= nbV; i++)
       {
         normals->InsertNextTypedTuple(DefaultNormal);
       }
@@ -969,7 +969,7 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::SurfacesToPolyData(
     if (poly->HasUVNodes())
     {
       hasUVs = true;
-      for (Standard_Integer i = 1; i <= nbV; i++)
+      for (int i = 1; i <= nbV; i++)
       {
         gp_Pnt2d uv = poly->UVNode(i);
         float fn[2] = { static_cast<float>(uv.X()), static_cast<float>(uv.Y()) };
@@ -978,7 +978,7 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::SurfacesToPolyData(
     }
     else
     {
-      for (Standard_Integer i = 1; i <= nbV; i++)
+      for (int i = 1; i <= nbV; i++)
       {
         uvs->InsertNextTypedTuple(DefaultUV);
       }
@@ -1040,7 +1040,7 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::WiresToPolyData(
   vtkNew<vtkCellArray> lineCells;
   bool hasColors = false;
 
-  Standard_Integer shift = 0;
+  int shift = 0;
 
   // Meshing each edge independently can leave Polygon3D unavailable. As in
   // vtkF3DOCCTReader, mesh one compound containing every edge instead.
@@ -1055,7 +1055,7 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::WiresToPolyData(
     edges.push_back(edge);
   }
   BRepMesh_IncrementalMesh(compound, this->Parent->GetLinearDeflection(),
-    this->Parent->GetRelativeDeflection(), this->Parent->GetAngularDeflection(), Standard_True);
+    this->Parent->GetRelativeDeflection(), this->Parent->GetAngularDeflection(), true);
 
   // Add all wires to polydata
   for (const TopoDS_Edge& edge : edges)
@@ -1094,11 +1094,11 @@ vtkSmartPointer<vtkPolyData> vtkOCCTPDCReader::vtkInternals::WiresToPolyData(
       }
     }
 
-    Standard_Integer nbV = poly->NbNodes();
+    int nbV = poly->NbNodes();
 
     // Points
     const auto& aNodes = poly->Nodes();
-    for (Standard_Integer i = 1; i <= nbV; i++)
+    for (int i = 1; i <= nbV; i++)
     {
       gp_Pnt pt = aNodes(i).Transformed(location);
       points->InsertNextPoint(pt.X(), pt.Y(), pt.Z());
@@ -1228,7 +1228,7 @@ void vtkOCCTPDCReader::vtkInternals::AddLabelToOutput(const TDF_Label& label,
     // Traverse the label's children
     this->ShapeTool->GetComponents(label, children);
 
-    for (Standard_Integer i = 1; i <= children.Length(); ++i)
+    for (int i = 1; i <= children.Length(); ++i)
     {
       TDF_Label child = children.Value(i);
 
@@ -1449,7 +1449,7 @@ int vtkOCCTPDCReader::RequestData(
   // Insert each into its appropriate map
   this->Internals->ShapeTool->GetShapes(topLevelShapes);
 
-  for (Standard_Integer iLabel = 1; iLabel <= topLevelShapes.Length(); ++iLabel)
+  for (int iLabel = 1; iLabel <= topLevelShapes.Length(); ++iLabel)
   {
     TDF_Label label = topLevelShapes.Value(iLabel);
 
@@ -1494,7 +1494,7 @@ int vtkOCCTPDCReader::RequestData(
 
   // Provide a map that will be used to make sure all sibling node names are unique
   std::unordered_map<std::string, NodeInfo> myChildrenNameCount;
-  for (Standard_Integer iLabel = 1; iLabel <= topLevelShapes.Length(); ++iLabel)
+  for (int iLabel = 1; iLabel <= topLevelShapes.Length(); ++iLabel)
   {
     this->Internals->AddLabelToOutput(topLevelShapes.Value(iLabel), identLocation, output, assembly,
       assembly->GetRootNode(), datasetIndex, myChildrenNameCount);
