@@ -4,10 +4,10 @@
 #include "vtkActor.h"
 #include "vtkAnariDevice.h"
 #include "vtkAnariLightNode.h"
-#include "vtkAnariOpenGLTestUtilities.h"
-#include "vtkAnariPass.h"
+#include "vtkAnariRenderWindow.h"
 #include "vtkAnariRenderer.h"
 #include "vtkAnariSceneGraph.h"
+#include "vtkAnariTestUtilities.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
 #include "vtkLight.h"
@@ -18,7 +18,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTesting.h"
@@ -60,9 +59,9 @@ vtkViewNode* MakeSceneGraph()
   return vtkTestAnariSceneGraph::New();
 }
 
-double GetCenterBrightness(vtkAnariSceneGraph* graph, vtkRenderWindow* window)
+double GetCenterBrightness(vtkAnariRenderWindow* window)
 {
-  const auto* pixels = graph->GetBuffer();
+  const auto* pixels = window->GetSceneGraph()->GetBuffer();
   const auto* size = window->GetSize();
   const int xMin = std::max(size[0] / 2 - 2, 0);
   const int xMax = std::min(size[0] / 2 + 2, size[0] - 1);
@@ -90,19 +89,16 @@ int TestAnariLightUpdates(int argc, char* argv[])
     useDebugDevice |= std::strcmp(argv[i], "--trace") == 0;
   }
 
-  vtkNew<vtkRenderWindow> window;
+  vtkNew<vtkAnariRenderWindow> window;
   vtkNew<vtkRenderer> renderer;
   window->AddRenderer(renderer);
   window->SetSize(100, 100);
   window->SetMultiSamples(0);
   window->SetOffScreenRendering(true);
-  vtkNew<vtkAnariPass> pass;
-  pass->GetViewNodeFactory()->RegisterOverride("vtkRenderer", MakeSceneGraph);
-  vtkAnariOpenGLTestUtilities::SetParameterDefaults(
-    pass, renderer, useDebugDevice, "TestAnariLightUpdates");
-  pass->GetAnariRenderer()->SetParameterf("ambientRadiance", 0.0f);
-  pass->GetAnariRenderer()->SetParameterb("denoise", false);
-  renderer->SetPass(pass);
+  window->GetViewNodeFactory()->RegisterOverride("vtkRenderer", MakeSceneGraph);
+  vtkAnariTestUtilities::SetParameterDefaults(window, useDebugDevice, "TestAnariLightUpdates");
+  window->GetAnariRenderer()->SetParameterf("ambientRadiance", 0.0f);
+  window->GetAnariRenderer()->SetParameterb("denoise", false);
 
   vtkNew<vtkSphereSource> sphere;
   sphere->SetThetaResolution(40);
@@ -117,7 +113,12 @@ int TestAnariLightUpdates(int argc, char* argv[])
   renderer->ResetCamera();
   window->Render();
 
-  auto* graph = vtkTestAnariSceneGraph::SafeDownCast(pass->GetSceneGraph());
+  auto* graph = vtkTestAnariSceneGraph::SafeDownCast(window->GetSceneGraph());
+  if (!graph)
+  {
+    vtkLogF(ERROR, "The ANARI render window did not use the custom scene graph.");
+    return EXIT_FAILURE;
+  }
   auto* headlight = vtkLight::SafeDownCast(renderer->GetLights()->GetItemAsObject(0));
   if (!headlight || !headlight->LightTypeIsHeadlight())
   {
@@ -139,21 +140,21 @@ int TestAnariLightUpdates(int argc, char* argv[])
     structureTime = nextTime;
   };
 
-  const auto& extensions = pass->GetAnariDevice()->GetExtensions();
+  const auto& extensions = window->GetAnariDevice()->GetExtensions();
   if (!extensions.ANARI_KHR_LIGHT_DIRECTIONAL)
   {
     vtkLogF(WARNING, "Directional lights are required for this test.");
     return VTK_SKIP_RETURN_CODE;
   }
 
-  if (GetCenterBrightness(graph, window) < 100.0)
+  if (GetCenterBrightness(window) < 100.0)
   {
     vtkLogF(ERROR, "The default headlight did not illuminate the sphere.");
     success = false;
   }
   renderer->GetActiveCamera()->Azimuth(180.0);
   checkStructure(false, "moving the headlight with the camera");
-  if (GetCenterBrightness(graph, window) < 100.0)
+  if (GetCenterBrightness(window) < 100.0)
   {
     vtkLogF(ERROR, "The headlight did not follow the camera.");
     success = false;
@@ -165,7 +166,7 @@ int TestAnariLightUpdates(int argc, char* argv[])
   checkStructure(false, "changing to a camera light");
   renderer->GetActiveCamera()->Azimuth(180.0);
   checkStructure(false, "moving the camera light with the camera");
-  if (GetCenterBrightness(graph, window) < 100.0)
+  if (GetCenterBrightness(window) < 100.0)
   {
     vtkLogF(ERROR, "The camera light did not follow the camera.");
     success = false;
@@ -182,7 +183,7 @@ int TestAnariLightUpdates(int argc, char* argv[])
 
   headlight->SwitchOff();
   checkStructure(false, "switching off the light");
-  if (GetCenterBrightness(graph, window) > 10.0)
+  if (GetCenterBrightness(window) > 10.0)
   {
     vtkLogF(ERROR, "Switching off the retained light did not darken the sphere.");
     success = false;
@@ -191,7 +192,7 @@ int TestAnariLightUpdates(int argc, char* argv[])
   checkStructure(false, "switching on the light");
   vtkAnariLightNode::SetLightScale(0.0, headlight);
   checkStructure(false, "changing the light scale information key");
-  if (GetCenterBrightness(graph, window) > 10.0)
+  if (GetCenterBrightness(window) > 10.0)
   {
     vtkLogF(ERROR, "The retained light ignored its light scale information key.");
     success = false;
@@ -213,7 +214,7 @@ int TestAnariLightUpdates(int argc, char* argv[])
     vtkLogF(ERROR, "The retained light ignored its modified user transform.");
     success = false;
   }
-  if (GetCenterBrightness(graph, window) > 10.0)
+  if (GetCenterBrightness(window) > 10.0)
   {
     vtkLogF(ERROR, "The modified user transform did not turn the light away from the sphere.");
     success = false;
@@ -228,7 +229,7 @@ int TestAnariLightUpdates(int argc, char* argv[])
   checkStructure(false, "setting a scene light transform");
   lightTransform->SetElement(2, 2, -1.0);
   checkStructure(false, "modifying the scene light transform");
-  if (GetCenterBrightness(graph, window) > 10.0)
+  if (GetCenterBrightness(window) > 10.0)
   {
     vtkLogF(ERROR, "The retained scene light ignored its modified transform matrix.");
     success = false;
@@ -274,13 +275,13 @@ int TestAnariLightUpdates(int argc, char* argv[])
     renderer->SetEnvironmentTexture(texture);
     renderer->UseImageBasedLightingOn();
     checkStructure(true, "changing the light subtype to HDRI");
-    const double initialRadiance = GetCenterBrightness(graph, window);
+    const double initialRadiance = GetCenterBrightness(window);
     renderer->GetActiveCamera()->Azimuth(15.0);
     checkStructure(false, "moving the HDRI light with the camera");
     std::fill(values, values + 8 * 4 * 3, 0.2f);
     image->Modified();
     checkStructure(false, "changing the HDRI radiance");
-    if (GetCenterBrightness(graph, window) < initialRadiance * 1.2 + 1.0)
+    if (GetCenterBrightness(window) < initialRadiance * 1.2 + 1.0)
     {
       vtkLogF(ERROR, "The retained HDRI light ignored its modified radiance.");
       success = false;

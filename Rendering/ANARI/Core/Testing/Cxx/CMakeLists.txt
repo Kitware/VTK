@@ -34,6 +34,7 @@ set(tests_with_baseline
 )
 
 set(tests_without_baseline
+  TestAnariLightUpdates
   TestAnariRendererParameters
 )
 
