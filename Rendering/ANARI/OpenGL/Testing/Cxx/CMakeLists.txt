@@ -1,4 +1,4 @@
-set(test_names
+set(tests_with_baseline
   TestAnariLayers
   TestAnariPass
   TestAnariScalarBar
@@ -8,7 +8,12 @@ set(test_names
   TestAnariWindowResize
 )
 
-foreach(name IN LISTS test_names)
+# Switching ANARI libraries only has to avoid crashing, so there is no baseline.
+set(tests_without_baseline
+  TestAnariLibrarySwitch
+)
+
+foreach(name IN LISTS tests_with_baseline)
   set(test_file_name "${name}.cxx")
 
   vtk_add_test_cxx(vtkRenderingAnariOpenGLCxxTests tests
@@ -21,15 +26,18 @@ foreach(name IN LISTS test_names)
   )
 endforeach()
 
-# Switching ANARI libraries only has to avoid crashing, so there is no baseline.
-vtk_add_test_cxx(vtkRenderingAnariOpenGLCxxTests tests
-  TestAnariLibrarySwitch.cxx,NO_VALID,NO_SERDES)
+foreach(name IN LISTS tests_without_baseline)
+  set(test_file_name "${name}.cxx")
 
-set_tests_properties(VTK::RenderingAnariOpenGLCxx-TestAnariLibrarySwitch
-  PROPERTIES
-  ENVIRONMENT "VTK_FACTORY_PREFER=SupportRenderPass=true"
-  TIMEOUT 300
-)
+  vtk_add_test_cxx(vtkRenderingAnariOpenGLCxxTests tests
+    ${test_file_name},NO_VALID,NO_SERDES)
+
+  set_tests_properties(VTK::RenderingAnariOpenGLCxx-${name}
+    PROPERTIES
+    ENVIRONMENT "VTK_FACTORY_PREFER=SupportRenderPass=true"
+    TIMEOUT 300
+  )
+endforeach()
 
 vtk_test_cxx_executable(vtkRenderingAnariOpenGLCxxTests tests
   RENDERING_FACTORY
