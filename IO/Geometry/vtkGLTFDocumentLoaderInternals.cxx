@@ -830,6 +830,8 @@ bool vtkGLTFDocumentLoaderInternals::LoadMaterial(
 
   material.Unlit = false;
   material.IOR = 1.5;
+  material.SpecularFactor = 1.0;
+  material.SpecularColorFactor = { 1.0, 1.0, 1.0 };
 
   auto extRootIt = root.find("extensions");
   if (extRootIt != root.end())
@@ -840,6 +842,29 @@ bool vtkGLTFDocumentLoaderInternals::LoadMaterial(
     if (iorIt != extRootIt.value().end())
     {
       vtkGLTFUtils::GetDoubleValue(iorIt.value(), "ior", material.IOR);
+    }
+
+    auto specularIt = extRootIt.value().find("KHR_materials_specular");
+    if (specularIt != extRootIt.value().end())
+    {
+      vtkGLTFUtils::GetDoubleValue(specularIt.value(), "specularFactor", material.SpecularFactor);
+      std::vector<double> specularColor;
+      if (vtkGLTFUtils::GetDoubleArray(specularIt.value(), "specularColorFactor", specularColor) &&
+        specularColor.size() == 3)
+      {
+        material.SpecularColorFactor = specularColor;
+      }
+
+      auto specularTextureIt = specularIt.value().find("specularTexture");
+      if (specularTextureIt != specularIt.value().end())
+      {
+        this->LoadTextureInfo(specularTextureIt.value(), material.SpecularTexture);
+      }
+      auto specularColorTextureIt = specularIt.value().find("specularColorTexture");
+      if (specularColorTextureIt != specularIt.value().end())
+      {
+        this->LoadTextureInfo(specularColorTextureIt.value(), material.SpecularColorTexture);
+      }
     }
   }
 

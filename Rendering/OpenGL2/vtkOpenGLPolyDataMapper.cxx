@@ -1024,6 +1024,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     bool albedo = false;
     bool material = false;
     bool emissive = false;
+    bool specularStrength = false;
+    bool specularColor = false;
     toString.clear();
 
     if (this->HaveTCoords(this->CurrentInput) && !this->DrawingVertices)
@@ -1053,6 +1055,17 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
           toString << "  vec3 emissiveColor = texture(emissiveTex, tcoordVCVSOutput).rgb;\n"
                       "  emissiveColor = emissiveColor * emissiveFactorUniform;\n";
         }
+        else if (t.second == "specularTex")
+        {
+          // KHR_materials_specular strength is stored in the alpha channel
+          specularStrength = true;
+          toString << "  float dielectricStrength = texture(specularTex, tcoordVCVSOutput).a;\n";
+        }
+        else if (t.second == "specularColorTex")
+        {
+          specularColor = true;
+          toString << "  vec3 dielectricColor = texture(specularColorTex, tcoordVCVSOutput).rgb;\n";
+        }
         // Anisotropy texture is sampled in ReplaceShaderNormal
       }
     }
@@ -1081,6 +1094,14 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     if (!emissive)
     {
       toString << "  vec3 emissiveColor = vec3(0.0);\n";
+    }
+    if (!specularStrength)
+    {
+      toString << "  float dielectricStrength = 1.0;\n";
+    }
+    if (!specularColor)
+    {
+      toString << "  vec3 dielectricColor = vec3(1.0);\n";
     }
 
     toString << "  vec3 N = normalVCVSOutput;\n"
@@ -1181,11 +1202,14 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
 
     toString << "  vec3 Lo = vec3(0.0);\n";
 
-    toString << "  vec3 F0 = mix(vec3(baseF0Uniform), albedo, metallic);\n"
+    toString << "  float specularWeight = baseSpecularWeightUniform * dielectricStrength;\n"
+                "  vec3 dielectricF0 = min(vec3(baseF0Uniform) * baseSpecularColorUniform * "
+                "dielectricColor, vec3(1.0));\n"
+                "  vec3 F0 = mix(dielectricF0 * specularWeight, albedo, metallic);\n"
                 // specular occlusion, it affects only material with an f0 < 0.02,
                 // else f90 is 1.0
-                "  float f90 = clamp(dot(F0, vec3(50.0 * 0.33)), 0.0, 1.0);\n"
-                "  vec3 F90 = mix(vec3(f90), edgeTintUniform, metallic);\n"
+                "  float f90 = clamp(dot(vec3(baseF0Uniform), vec3(50.0 * 0.33)), 0.0, 1.0);\n"
+                "  vec3 F90 = mix(vec3(f90 * specularWeight), edgeTintUniform, metallic);\n"
                 "  vec3 L, H, radiance, F, specular, diffuse;\n"
                 "  float NdL, NdH, HdL, distanceVC, attenuation, D, Vis;\n\n";
     if (hasClearCoat)
@@ -1579,12 +1603,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       if (hasIBL)
       {
         toString << "  // Multi-scatter approximation: see https://bruop.github.io/ibl/\n"
-                    "  diffuse = (1.0 - metallic) * (1.0 - 0.04) * albedo;\n"
-                    "  vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;\n"
+                    "  diffuse = (1.0 - metallic) * (1.0 - F0) * albedo;\n"
+                    "  vec3 Fmax = mix(vec3(f90 * specularWeight), vec3(1.0), metallic);\n"
+                    "  vec3 Fr = max(Fmax * (1.0 - roughness), F0) - F0;\n"
                     "  vec3 k_S = F0 + Fr * pow(1.0 - NdV, 5.0);\n"
                     "  vec3 FssEss = k_S * brdf.r + F90 * brdf.g;\n"
                     "  float Ems = 1.0 - (brdf.r + brdf.g);\n"
-                    "  vec3 F_avg = F0 + (1.0 - F0) / 21.0;\n"
+                    "  vec3 F_avg = F0 + (Fmax - F0) / 21.0;\n"
                     "  vec3 FmsEms = Ems * FssEss * F_avg / max(1.0 - F_avg * Ems, vec3(1e-5));\n"
                     "  vec3 k_D = diffuse * (1.0 - FssEss - FmsEms);\n"
                     "  vec3 iblSpecular = FssEss * prefilteredSpecularColor;\n"
@@ -1838,7 +1863,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     if (textures[i].second == "albedoTex" || textures[i].second == "normalTex" ||
       textures[i].second == "materialTex" || textures[i].second == "brdfTex" ||
       textures[i].second == "emissiveTex" || textures[i].second == "anisotropyTex" ||
-      textures[i].second == "coatNormalTex" || textures[i].second == "colortexture")
+      textures[i].second == "coatNormalTex" || textures[i].second == "specularTex" ||
+      textures[i].second == "specularColorTex" || textures[i].second == "colortexture")
     {
       continue;
     }
@@ -3457,6 +3483,9 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(
     // Compute the reflectance of the base layer
     program->SetUniformf(
       "baseF0Uniform", static_cast<float>(ppty->ComputeReflectanceOfBaseLayer()));
+    program->SetUniformf(
+      "baseSpecularWeightUniform", static_cast<float>(ppty->GetBaseSpecularWeight()));
+    program->SetUniform3f("baseSpecularColorUniform", ppty->GetBaseSpecularColor());
   }
 
   // handle specular

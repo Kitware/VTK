@@ -210,6 +210,28 @@ public:
 
   ///@{
   /**
+   * Set/Get the weight of the specular reflection of the dielectric (non metallic) base layer,
+   * including at grazing angles. A value of 0 disables the specular reflection.
+   * This parameter is only used by PBR Interpolation.
+   * Default value is 1.0
+   */
+  vtkSetClampMacro(BaseSpecularWeight, double, 0.0, 1.0);
+  vtkGetMacro(BaseSpecularWeight, double);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the color multiplying the F0 reflectance of the dielectric (non metallic) base layer.
+   * The resulting F0 is clamped to 1.
+   * This parameter is only used by PBR Interpolation.
+   * Default value is (1.0, 1.0, 1.0)
+   */
+  vtkSetVector3Macro(BaseSpecularColor, double);
+  vtkGetVector3Macro(BaseSpecularColor, double);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the metallic coefficient.
    * Usually this value is either 0 or 1 for real material but any value in between is valid.
    * This parameter is only used by PBR Interpolation.
@@ -612,10 +634,11 @@ public:
    * must be assigned unique names. Note that for texture blending the
    * textures will be rendering is alphabetical order and after any texture
    * defined in the actor.
-   * There exists 6 special textures with reserved names: "albedoTex", "materialTex", "normalTex",
-   * "emissiveTex", "anisotropyTex" and "coatNormalTex". While these textures can be added with the
-   * regular SetTexture method, it is preferred to use the methods SetBaseColorTexture,
-   * SetORMTexture, SetNormalTexture, SetEmissiveTexture, SetAnisotropyTexture and SetCoatNormalTex
+   * There exists 8 special textures with reserved names: "albedoTex", "materialTex", "normalTex",
+   * "emissiveTex", "anisotropyTex", "coatNormalTex", "specularTex" and "specularColorTex". While
+   * these textures can be added with the regular SetTexture method, it is preferred to use the
+   * methods SetBaseColorTexture, SetORMTexture, SetNormalTexture, SetEmissiveTexture,
+   * SetAnisotropyTexture, SetCoatNormalTexture, SetSpecularTexture and SetSpecularColorTexture
    * respectively.
    */
   void SetTexture(const char* name, vtkTexture* texture);
@@ -681,6 +704,26 @@ public:
    * @sa vtkPolyDataTangents SetCoatNormalScale
    */
   void SetCoatNormalTexture(vtkTexture* texture) { this->SetTexture("coatNormalTex", texture); }
+
+  /**
+   * Set the specular texture. The alpha channel of this texture scales the specular reflection of
+   * the dielectric layer, on top of BaseSpecularWeight.
+   * It is only supported by PBR interpolation.
+   * @sa SetInterpolationToPBR SetBaseSpecularWeight
+   */
+  void SetSpecularTexture(vtkTexture* texture) { this->SetTexture("specularTex", texture); }
+
+  /**
+   * Set the specular color texture. The RGB channels of this texture scale the F0 color of the
+   * specular reflection of the dielectric layer, on top of the reflectance computed from BaseIOR.
+   * It is only supported by PBR interpolation.
+   * This texture must be in sRGB color space.
+   * @sa SetInterpolationToPBR SetBaseIOR vtkTexture::UseSRGBColorSpaceOn
+   */
+  void SetSpecularColorTexture(vtkTexture* texture)
+  {
+    this->SetTexture("specularColorTex", texture);
+  }
 
   /**
    * Remove a texture from the collection.
@@ -770,6 +813,8 @@ protected:
   double Anisotropy;
   double AnisotropyRotation;
   double BaseIOR;
+  double BaseSpecularWeight;
+  double BaseSpecularColor[3];
   double CoatIOR;
   double CoatColor[3];
   double CoatRoughness;

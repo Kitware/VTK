@@ -41,6 +41,10 @@
  *   - VTK does not support changing the falloff of the cone with innerConeAngle and outerConeAngle.
  *     The importer uses outerConeAngle and ignores innerConeAngle as specified for this situation.
  * - KHR_materials_unlit
+ * - KHR_materials_specular :
+ *   The specular factor and color factor are mapped to vtkProperty::SetBaseSpecularWeight and
+ *   vtkProperty::SetBaseSpecularColor, the specular textures to vtkProperty::SetSpecularTexture and
+ *   vtkProperty::SetSpecularColorTexture.
  * - KHR_texture_transform :
  *   The importer supports the KHR_texture_transform extension, but assumes all texture transforms
  * are equal. The base color texture transform is used for all textures.

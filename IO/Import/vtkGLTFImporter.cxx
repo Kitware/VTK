@@ -172,7 +172,8 @@ bool MaterialHasMultipleUVs(
   for (const vtkGLTFDocumentLoader::TextureInfo& info :
     { material.PbrMetallicRoughness.BaseColorTexture, material.EmissiveTexture,
       material.NormalTexture, material.OcclusionTexture,
-      material.PbrMetallicRoughness.MetallicRoughnessTexture })
+      material.PbrMetallicRoughness.MetallicRoughnessTexture, material.SpecularTexture,
+      material.SpecularColorTexture })
   {
     if (info.Index >= 0)
       uv_sets.insert(info.TexCoord);
@@ -263,6 +264,8 @@ vtkSmartPointer<vtkTransform2D> GetTextureTransform(const vtkGLTFDocumentLoader:
   CheckAndSetTransform(material.NormalTexture);
   CheckAndSetTransform(material.OcclusionTexture);
   CheckAndSetTransform(material.EmissiveTexture);
+  CheckAndSetTransform(material.SpecularTexture);
+  CheckAndSetTransform(material.SpecularColorTexture);
 
   vtkNew<vtkTransform2D> transform;
   if (material.PbrMetallicRoughness.BaseColorTexture.Offset.size() == 2)
@@ -449,8 +452,38 @@ bool ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     property->SetNormalTexture(normalTex);
   }
 
+  // extension KHR_materials_specular textures
+  int specularTexIndex = material.SpecularTexture.Index;
+  if (specularTexIndex >= 0 && specularTexIndex < static_cast<int>(model->Textures.size()))
+  {
+    auto specularTex =
+      CreateVTKTextureFromGLTFTexture(model, specularTexIndex, existingTextures, parent);
+    if (!specularTex)
+    {
+      return false;
+    }
+    property->SetSpecularTexture(specularTex);
+  }
+  int specularColorTexIndex = material.SpecularColorTexture.Index;
+  if (specularColorTexIndex >= 0 &&
+    specularColorTexIndex < static_cast<int>(model->Textures.size()))
+  {
+    auto specularColorTex =
+      CreateVTKTextureFromGLTFTexture(model, specularColorTexIndex, existingTextures, parent);
+    if (!specularColorTex)
+    {
+      return false;
+    }
+    specularColorTex->UseSRGBColorSpaceOn();
+    property->SetSpecularColorTexture(specularColorTex);
+  }
+
   // extension KHR_materials_ior
   actor->GetProperty()->SetBaseIOR(material.IOR);
+
+  // extension KHR_materials_specular
+  actor->GetProperty()->SetBaseSpecularWeight(material.SpecularFactor);
+  actor->GetProperty()->SetBaseSpecularColor(material.SpecularColorFactor.data());
 
   // extension KHR_materials_unlit
   actor->GetProperty()->SetLighting(!material.Unlit);

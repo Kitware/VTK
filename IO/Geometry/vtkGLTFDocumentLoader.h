@@ -371,6 +371,12 @@ public:
 
     // extension KHR_materials_ior
     double IOR;
+
+    // extension KHR_materials_specular
+    double SpecularFactor;
+    std::vector<double> SpecularColorFactor;
+    TextureInfo SpecularTexture;
+    TextureInfo SpecularColorTexture;
   };
 
   /**
