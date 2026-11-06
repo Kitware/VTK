@@ -5,10 +5,11 @@
  * @brief    parallel streamline generators
  *
  * This class implements parallel streamline generators. By default all
- * processes must have access to the WHOLE seed source, i.e. the source must
+ * processes must have access to the WHOLE seed source on piece0, i.e. the source must
  * be identical on all processes. If property `UseLocalSeedSource` is set to
- * false then this filter will aggregate seed sources from all ranks into a
- * single dataset.
+ * AggregateSeeds then this filter will aggregate seed sources from all ranks into a
+ * single dataset. If property `UseLocalSeedSource` is set to 'LocalSeedDistributed',
+ * the seeds are expected to be distributed among processes.
  * @sa
  * vtkStreamTracer
  */

@@ -23,6 +23,7 @@ PRIVATE_DEPENDS
   VTK::FiltersAMR
   VTK::FiltersCore
   VTK::FiltersGeneral
+  VTK::FiltersParallelDIY2
   VTK::IOCore
   VTK::ParallelCore
   VTK::ParallelMPI

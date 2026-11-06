@@ -105,7 +105,7 @@ vtkStreamTracer::vtkStreamTracer()
   this->ForceSerialExecution = false;
   this->SerialExecution = false;
 
-  this->UseLocalSeedSource = true;
+  this->UseLocalSeedSource = vtkStreamTracer::LocalSeedPartition0;
 
   this->SetCellLocator(vtkNew<vtkJumpAndWalkCellLocator>());
 }
@@ -239,6 +239,27 @@ void vtkStreamTracer::SetIntegrationStepUnit(int unit)
 
   this->IntegrationStepUnit = unit;
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkStreamTracer::SetUseLocalSeedSource(int seedSource)
+{
+  if (this->UseLocalSeedSource != seedSource)
+  {
+    switch (seedSource)
+    {
+      case AggregateSeeds:
+        this->UseLocalSeedSource = AggregateSeeds;
+        break;
+      case LocalSeedPartition0:
+        this->UseLocalSeedSource = LocalSeedPartition0;
+        break;
+      case LocalSeedDistributed:
+        this->UseLocalSeedSource = LocalSeedDistributed;
+        break;
+    }
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1868,7 +1889,22 @@ void vtkStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Force Serial Execution: " << (this->ForceSerialExecution ? " On" : " Off")
      << endl;
-  os << indent << "UseLocalSeedSource: " << (this->UseLocalSeedSource ? "On" : "Off") << endl;
+  os << indent << "UseLocalSeedSource: ";
+  switch (this->UseLocalSeedSource)
+  {
+    case AggregateSeeds:
+      os << "AggregateSeeds\n";
+      break;
+    case LocalSeedPartition0:
+      os << "LocalSeedPartition0\n";
+      break;
+    case LocalSeedDistributed:
+      os << "LocalSeedDistributed\n";
+      break;
+    default:
+      os << "Unknown\n";
+      break;
+  }
 }
 
 //------------------------------------------------------------------------------

@@ -470,18 +470,37 @@ public:
 
   ///@{
   /**
-   * If true the filter considers that the whole seed source is available on all ranks.
-   * Else the filter will aggregate all seed sources from all ranks and merge their points.
+   * Specifies how seed sources are handled across MPI ranks in parallel execution:
+   * - AggregateSeeds: Local seeds disabled. The filter will aggregate seed sources from all ranks
+   *   and merge coincident points into a single dataset.
+   * - LocalSeedPartition0: Use local seeds on each rank, but request piece 0 from the seed source
+   * pipeline.
+   * - LocalSeedDistributed: Each rank requests its corresponding partition of the seed source.
    *
    * This property only makes sense when the filter is parallelized and is a no-op for its
    * sequential version. However, this member function needs to be defined in this class to
    * maintain a uniform interface between vtkStreamTracer and its parallel override class,
    * vtkPStreamTracer.
-   * Default is true.
+   * Default is LocalSeedPartition0.
    */
-  vtkSetMacro(UseLocalSeedSource, bool);
-  vtkGetMacro(UseLocalSeedSource, bool);
-  vtkBooleanMacro(UseLocalSeedSource, bool);
+  enum UseLocalSeed
+  {
+    AggregateSeeds = 0,
+    LocalSeedPartition0,
+    LocalSeedDistributed,
+  };
+
+  vtkGetMacro(UseLocalSeedSource, UseLocalSeed);
+  void SetUseLocalSeedSource(int);
+
+  VTK_DEPRECATED_IN_9_8_0("Use: SetUseLocalSeed(vtkStreamTracer::LocalSeedDistributed)")
+  void UseLocalSeedSourceOn() { this->SetUseLocalSeedSource(LocalSeedDistributed); }
+  VTK_DEPRECATED_IN_9_8_0("Use: SetUseLocalSeed(vtkStreamTracer::AggregateSeeds)")
+  void UseLocalSeedSourceOff() { this->SetUseLocalSeedSource(AggregateSeeds); }
+
+  void SetUseLocalSeedSourceToOFF() { this->SetUseLocalSeedSource(AggregateSeeds); }
+  void SetUseLocalSeedSourceToLocal0() { this->SetUseLocalSeedSource(LocalSeedPartition0); }
+  void SetUseLocalSeedSourceToDistributed() { this->SetUseLocalSeedSource(LocalSeedDistributed); }
   ///@}
 
 protected:
@@ -565,16 +584,16 @@ protected:
   std::vector<void*> CustomTerminationClientData;
   std::vector<int> CustomReasonForTermination;
 
-  // Only relevant for this derived parallel version of vtkStreamTracer,
-  // but needs to be defined in this class to have a uniform interface
-  // between this class and the parallel override vtkPStreamTracer
-  bool UseLocalSeedSource;
-
   friend class PStreamTracerUtils;
 
 private:
   vtkStreamTracer(const vtkStreamTracer&) = delete;
   void operator=(const vtkStreamTracer&) = delete;
+
+  // Only relevant for this derived parallel version of vtkStreamTracer,
+  // but needs to be defined in this class to have a uniform interface
+  // between this class and the parallel override vtkPStreamTracer
+  UseLocalSeed UseLocalSeedSource;
 };
 
 VTK_ABI_NAMESPACE_END

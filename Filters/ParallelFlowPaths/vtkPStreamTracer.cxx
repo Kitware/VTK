@@ -8,11 +8,14 @@
 #include "vtkAppendPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellLocator.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkCompositeInterpolatedVelocityField.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
@@ -28,21 +31,22 @@
 #include "vtkPolyData.h"
 #include "vtkRungeKutta2.h"
 #include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
+#include "vtkStreamTracer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
-#include "vtkUniformGrid.h"
 
 #include <algorithm>
 #include <cassert>
 #include <list>
 #include <numeric>
+#include <string>
 #include <vector>
-
-#include <iostream>
 
 #ifndef NDEBUG
 // #define DEBUGTRACE
 // #define LOGTRACE
+// #include <vtkCartesianGrid.h>
 #else
 #endif
 
@@ -198,6 +202,37 @@ inline void UpdateBB(double* a, const double* b)
     a[i] = std::max(a[i], b[i]);
   }
 }
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkIdList> SynchronizeOriginalSeedIds(
+  vtkMultiProcessController* controller, vtkIdList* localSeedIds)
+{
+  if (!controller || controller->GetNumberOfProcesses() <= 1)
+  {
+    return localSeedIds;
+  }
+
+  vtkNew<vtkIdTypeArray> localSeedIdsArr;
+  if (localSeedIds)
+  {
+    localSeedIdsArr->ReserveTuples(localSeedIds->GetNumberOfIds());
+    for (auto id : *localSeedIds)
+    {
+      localSeedIdsArr->InsertNextTuple1(id);
+    }
+  }
+
+  vtkNew<vtkIdTypeArray> allSeedIdsArr;
+  controller->AllGatherV(localSeedIdsArr, allSeedIdsArr);
+
+  auto allSeedIds = vtkSmartPointer<vtkIdList>::New();
+  allSeedIds->Reserve(allSeedIdsArr->GetNumberOfTuples());
+  for (vtkIdType i = 0; i < allSeedIdsArr->GetNumberOfTuples(); i++)
+  {
+    allSeedIds->InsertNextId(allSeedIdsArr->GetValue(i));
+  }
+  return allSeedIds;
+}
 }
 
 //------------------------------------------------------------------------------
@@ -284,6 +319,8 @@ public:
     {
       size += data->GetArray(i)->GetNumberOfComponents();
     }
+    // This is an overestimate: PStreamTracerPoint include vtkObject elements (ref count, vtkClass,
+    // etc) which are not used by Read() / Write()
     return size * sizeof(double) + sizeof(PStreamTracerPoint);
   }
 
@@ -534,6 +571,8 @@ public:
     return true;
   }
 
+  virtual bool SnapToSurface(double*) { return false; }
+
   vtkSmartPointer<vtkIdList> ComputeSeeds(
     vtkDataSet* source, PStreamTracerPointArray& out, int& maxId)
   {
@@ -543,15 +582,65 @@ public:
     this->Tracer->InitializeSeeds(seeds, seedIds, integrationDirections, source);
 
     int numSeeds = seedIds->GetNumberOfIds();
+    int globalIdOffset = 0;
+    int totalSeeds = numSeeds;
+
+    if (this->Tracer->GetUseLocalSeedSource() == vtkStreamTracer::LocalSeedDistributed &&
+      this->NumProcs > 1)
+    {
+      std::vector<int> seedCounts(this->NumProcs, 0);
+      this->Controller->AllGather(&numSeeds, seedCounts.data(), 1);
+
+      globalIdOffset = 0;
+      for (int r = 0; r < this->Rank; ++r)
+      {
+        globalIdOffset += seedCounts[r];
+      }
+      totalSeeds = 0;
+      for (int r = 0; r < this->NumProcs; ++r)
+      {
+        totalSeeds += seedCounts[r];
+      }
+    }
+
     for (int i = 0; i < numSeeds; i++)
     {
       double seed[3];
       seeds->GetTuple(seedIds->GetId(i), seed);
+      int seedId = globalIdOffset + i;
       vtkSmartPointer<PStreamTracerPoint> point =
-        NewPoint(i, seed, integrationDirections->GetValue(i));
-      if (this->InBound(point))
+        NewPoint(seedId, seed, integrationDirections->GetValue(i));
+      if (this->Tracer->GetUseLocalSeedSource() == vtkStreamTracer::LocalSeedDistributed ||
+        this->InBound(point))
       {
         out.push_back(point);
+      }
+    }
+
+    if (this->Tracer->GetUseLocalSeedSource() == vtkStreamTracer::LocalSeedDistributed &&
+      this->NumProcs > 1)
+    {
+      vtkIdType numOriginalSeeds = source ? source->GetNumberOfPoints() : 0;
+      std::vector<vtkIdType> origSeedCounts(this->NumProcs, 0);
+      this->Controller->AllGather(&numOriginalSeeds, origSeedCounts.data(), 1);
+      vtkIdType origSeedOffset = 0;
+      for (int r = 0; r < this->Rank; ++r)
+      {
+        origSeedOffset += origSeedCounts[r];
+      }
+
+      vtkDataArray* gids = source->GetPointData()->GetGlobalIds();
+      for (vtkIdType i = 0; i < seedIds->GetNumberOfIds(); ++i)
+      {
+        vtkIdType localPtId = seedIds->GetId(i);
+        if (gids)
+        {
+          seedIds->SetId(i, gids->GetTuple1(localPtId));
+        }
+        else
+        {
+          seedIds->SetId(i, origSeedOffset + localPtId);
+        }
       }
     }
     if (seeds)
@@ -563,7 +652,7 @@ public:
       integrationDirections->Delete();
     }
 
-    maxId = numSeeds - 1;
+    maxId = totalSeeds - 1;
     return vtkSmartPointer<vtkIdList>::Take(seedIds);
   }
 
@@ -678,13 +767,44 @@ public:
 
   static PStreamTracerUtils* New();
 
-  PStreamTracerUtils() { this->Locator = nullptr; }
+  PStreamTracerUtils()
+  {
+    this->Locator = nullptr;
+    this->CellLocator = nullptr;
+  }
 
   void Initialize(vtkPStreamTracer* tracer) override
   {
     this->Superclass::Initialize(tracer);
     this->Locator = vtkSmartPointer<ProcessLocator>::New();
     this->Locator->Initialize(tracer->InputData);
+    if (tracer->GetSurfaceStreamlines() && vtkPolyData::SafeDownCast(this->Input0))
+    {
+      this->CellLocator = vtkSmartPointer<vtkCellLocator>::New();
+      this->CellLocator->SetDataSet(this->Input0);
+      this->CellLocator->BuildLocator();
+    }
+  }
+
+  bool SnapToSurface(double* p) override
+  {
+    if (!this->CellLocator)
+    {
+      return false;
+    }
+    double closest[3];
+    vtkIdType cellId = -1;
+    int subId = -1;
+    double dist = 0.0;
+    this->CellLocator->FindClosestPoint(p, closest, cellId, subId, dist);
+    if (cellId >= 0)
+    {
+      p[0] = closest[0];
+      p[1] = closest[1];
+      p[2] = closest[2];
+      return true;
+    }
+    return false;
   }
 
   ProcessLocator* GetProcessLocator() override { return this->Locator; }
@@ -705,6 +825,7 @@ public:
 
 private:
   vtkSmartPointer<ProcessLocator> Locator;
+  vtkSmartPointer<vtkCellLocator> CellLocator;
 };
 
 vtkStandardNewMacro(PStreamTracerUtils);
@@ -977,7 +1098,7 @@ public:
   {
     NewTask,
     NoMoreTasks,
-    TaskFinished
+    TaskFinished,
   };
 
   TaskManager(ProcessLocator* locator, PStreamTracerPoint* proto)
@@ -1000,9 +1121,18 @@ public:
     this->ReceiveTime = 0;
   }
 
-  void Initialize(bool hasData, const PStreamTracerPointArray& seeds, int MaxId)
+  void Initialize(bool hasData, const PStreamTracerPointArray& seeds, int MaxId,
+    vtkStreamTracer::UseLocalSeed useLocalSeedSource)
   {
     AssertGe(MaxId, 0);
+    if (this->Controller && this->NumProcs > 1)
+    {
+      int globalMaxMsgSize = this->MessageSize;
+      this->Controller->AllReduce(
+        &this->MessageSize, &globalMaxMsgSize, 1, vtkCommunicator::MAX_OP);
+      this->MessageSize = globalMaxMsgSize;
+    }
+
     int numSeeds = static_cast<int>(seeds.size());
     this->HasData.resize(this->NumProcs);
     std::fill(this->HasData.begin(), this->HasData.end(), 0);
@@ -1018,6 +1148,42 @@ public:
         this->Leader = i;
         break;
       }
+    }
+
+    if (useLocalSeedSource == vtkStreamTracer::LocalSeedDistributed)
+    {
+      if (this->HasData[this->Rank])
+      {
+        for (int i = 0; i < numSeeds; i++)
+        {
+          int rank = seeds[i]->GetRank();
+          if (this->NumProcs == 1)
+          {
+            rank = this->Rank;
+          }
+          else if (rank < 0 && this->Locator->InCurrentProcess(seeds[i]->GetSeed()))
+          {
+            rank = this->Rank;
+          }
+          else
+          {
+            rank = this->Locator->FindNextProcess(seeds[i]->GetSeed());
+          }
+
+          if (rank == this->Rank && this->HasData[this->Rank])
+          {
+            vtkNew<Task> task;
+            task->Point = seeds[i];
+            NTasks.emplace_back(task);
+          }
+        }
+      }
+
+      int numLocalTasks = static_cast<int>(NTasks.size());
+      int totalNumTasks = 0;
+      this->Controller->AllReduce(&numLocalTasks, &totalNumTasks, 1, vtkCommunicator::SUM_OP);
+      this->TotalNumTasks = (this->Rank == this->Leader) ? totalNumTasks : INT_MAX;
+      return;
     }
 
     std::vector<int> processMap0(MaxId + 1, -1);
@@ -1097,7 +1263,7 @@ public:
           {
             task->IncHop();
             // send it to the next guy
-            this->Send(NewTask, NextProcess(task), task);
+            this->Send(NewTask, nextProcess, task);
           }
         }
 
@@ -1197,6 +1363,8 @@ public:
       }
     }
   }
+
+  double GetReceiveTime() { return ReceiveTime; }
 
 private:
   ProcessLocator* Locator;
@@ -1423,9 +1591,22 @@ int vtkPStreamTracer::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
   if (sourceInfo)
   {
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
-    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
+    if (this->GetUseLocalSeedSource() == vtkStreamTracer::LocalSeedDistributed)
+    {
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+    }
+    else
+    {
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+      sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+      sourceInfo->Set(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
+    }
   }
 
   return 1;
@@ -1461,18 +1642,19 @@ int vtkPStreamTracer::RequestData(
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkInformation* sourceInfo = inputVector[1]->GetInformationObject(0);
-  vtkDataSet* localSource = vtkDataSet::SafeDownCast(sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet* source = nullptr;
+  auto localSource = vtkDataSet::SafeDownCast(sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkSmartPointer<vtkDataSet> source = nullptr;
   vtkNew<vtkAppendDataSets> distantAppender;
 
-  if (this->UseLocalSeedSource)
+  if (this->GetUseLocalSeedSource() != vtkStreamTracer::AggregateSeeds)
   {
     source = localSource;
   }
   else
   {
+    auto sendSource = (localSource && localSource->GetNumberOfPoints() > 0) ? localSource : nullptr;
     std::vector<vtkSmartPointer<vtkDataObject>> allSources;
-    if (this->Controller->AllGather(localSource, allSources) == 0)
+    if (this->Controller->AllGather(sendSource, allSources) == 0)
     {
       vtkErrorMacro("Couldn't gather seed sources, aborting StreamTracer");
       return 0;
@@ -1484,16 +1666,18 @@ int vtkPStreamTracer::RequestData(
         distantAppender->AddInputData(ds);
       }
     }
-    distantAppender->MergePointsOn();
-    distantAppender->SetTolerance(0.0);
-    distantAppender->Update();
-    source = vtkDataSet::SafeDownCast(distantAppender->GetOutputDataObject(0));
+    if (distantAppender->GetNumberOfInputConnections(0) > 0)
+    {
+      distantAppender->MergePointsOn();
+      distantAppender->SetTolerance(0.0);
+      distantAppender->Update();
+      source = vtkDataSet::SafeDownCast(distantAppender->GetOutputDataObject(0));
+    }
   }
 
   if (!source)
   {
-    vtkErrorMacro("Error while retrieving the source");
-    return 0;
+    source = vtkSmartPointer<vtkDataSet>::Take(localSource->NewInstance());
   }
 
   // init 'func' with nullptr such that we can check it later to determine
@@ -1520,6 +1704,14 @@ int vtkPStreamTracer::RequestData(
   else
   {
     func->SetCaching(false);
+    if (this->SurfaceStreamlines)
+    {
+      if (auto surfaceFunc = vtkCompositeInterpolatedVelocityField::SafeDownCast(func))
+      {
+        surfaceFunc->SetForceSurfaceTangentVector(true);
+        surfaceFunc->SetSurfaceDataset(true);
+      }
+    }
   }
 
   if (vtkOverlappingAMR::SafeDownCast(this->InputData))
@@ -1538,9 +1730,21 @@ int vtkPStreamTracer::RequestData(
   TaskManager taskManager(this->Utils->GetProcessLocator(), this->Utils->GetProto());
   PStreamTracerPointArray seedPoints;
 
-  int maxId;
+  int maxId = 0;
   auto originalSeedIds = this->Utils->ComputeSeeds(source, seedPoints, maxId);
-  taskManager.Initialize(this->EmptyData == 0, seedPoints, maxId);
+  if (this->Controller)
+  {
+    int localMaxId = maxId;
+    this->Controller->AllReduce(&localMaxId, &maxId, 1, vtkCommunicator::MAX_OP);
+
+    if (this->GetUseLocalSeedSource() == vtkStreamTracer::LocalSeedDistributed)
+    {
+      // LocalSeedDistributed mode, seeds are partitioned across MPI ranks.
+      // because of this, global synchronization is needed for originalSeedIds
+      originalSeedIds = SynchronizeOriginalSeedIds(this->Controller, originalSeedIds);
+    }
+  }
+  taskManager.Initialize(this->EmptyData == 0, seedPoints, maxId, this->GetUseLocalSeedSource());
 
   Task* task(nullptr);
   std::vector<int> traceIds;
@@ -1554,20 +1758,20 @@ int vtkPStreamTracer::RequestData(
 
     task->SetTraceExtended(traceOut->GetNumberOfPoints() > 0);
 
-    if (task->GetTraceExtended() && task->GetPoint()->GetTail())
-    {
-      // if we got this streamline from another process then this
-      // process is responsible for filling in the gap over
-      // the subdomain boundary
-      this->Prepend(traceOut, task->GetPoint()->GetTail());
-    }
-
     int resTerm = vtkStreamTracer::OUT_OF_DOMAIN;
     vtkIntArray* resTermArray =
       vtkArrayDownCast<vtkIntArray>(traceOut->GetCellData()->GetArray("ReasonForTermination"));
     if (resTermArray)
     {
       resTerm = resTermArray->GetValue(0);
+    }
+
+    if (task->GetTraceExtended() && task->GetPoint()->GetTail())
+    {
+      // if we got this streamline from another process then this
+      // process is responsible for filling in the gap over
+      // the subdomain boundary
+      this->Prepend(traceOut, task->GetPoint()->GetTail());
     }
 
     // construct a new seed from the last point
@@ -1594,7 +1798,7 @@ int vtkPStreamTracer::RequestData(
   this->Controller->Barrier();
 
 #ifdef LOGTRACE
-  double receiveTime = taskManager.ComputeReceiveTime();
+  double receiveTime = taskManager.GetReceiveTime();
   if (this->Rank == 0)
   {
     PRINT("Total receive time: " << receiveTime)
@@ -1716,6 +1920,12 @@ void vtkPStreamTracer::Trace(vtkDataSet* input, int vecType, const char* vecName
   int direction = point->GetDirection();
 
   this->Utils->InitializeVelocityFunction(point, func);
+
+  double testVal[3];
+  if (func->FunctionValues(seedSource, testVal) == 0)
+  {
+    this->Utils->SnapToSurface(seedSource);
+  }
 
   vtkSmartPointer<vtkFloatArray> seeds = vtkSmartPointer<vtkFloatArray>::New();
   seeds->SetNumberOfComponents(3);
@@ -1878,7 +2088,7 @@ void vtkPStreamTracer::Prepend(vtkPolyData* pathPoly, vtkPolyData* headPoly)
   }
   AssertEq(pathCells->GetNumberOfCells(), 1);
   vtkIdType newNumPoints(0);
-  pathCells->GetNextCell(newNumPoints, path);
+  pathCells->GetCellAtId(0, newNumPoints, path);
   AssertEq(newNumPoints, nPoints + 1);
   AssertEq(newNumPoints, pathPoly->GetNumberOfPoints());
 }
