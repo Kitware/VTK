@@ -69,10 +69,10 @@ void vtkHyperTreeGridMapper::Render(vtkRenderer* ren, vtkActor* act)
 
   this->Mapper->SetInputDataObject(adaptedHtgs);
 
-  // Forward visibility property to the composite mapper.
+  // Forward block display properties to the composite mapper.
   // This needs to be done after HTGs have been decimated because block selection is done using data
   // object pointers in the composite mapper.
-  this->ApplyBlockVisibilities();
+  this->ApplyBlockAttributes();
 
   this->Mapper->Render(ren, act);
 }
@@ -148,11 +148,22 @@ void vtkHyperTreeGridMapper::GetBoundsComposite(double bounds[6])
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridMapper::ApplyBlockVisibilities()
+void vtkHyperTreeGridMapper::ApplyBlockAttributes()
 {
   auto compositeMapper = vtkCompositePolyDataMapper::SafeDownCast(this->Mapper);
   if (compositeMapper)
   {
+    compositeMapper->RemoveBlockColors();
+    compositeMapper->RemoveBlockVisibilities();
+    compositeMapper->RemoveBlockOpacities();
+    for (const auto& [index, color] : this->BlockColors)
+    {
+      compositeMapper->SetBlockColor(index, color.data());
+    }
+    for (const auto& [index, opacity] : this->BlockOpacities)
+    {
+      compositeMapper->SetBlockOpacity(index, opacity);
+    }
     for (auto idx : this->BlocksShown)
     {
       compositeMapper->SetBlockVisibility(idx, true);
@@ -162,6 +173,98 @@ void vtkHyperTreeGridMapper::ApplyBlockVisibilities()
       compositeMapper->SetBlockVisibility(idx, false);
     }
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::SetBlockColor(unsigned int index, const double color[3])
+{
+  this->BlockColors[index] = { color[0], color[1], color[2] };
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::GetBlockColor(unsigned int index, double color[3])
+{
+  const auto iter = this->BlockColors.find(index);
+  for (unsigned int component = 0; component < 3; ++component)
+  {
+    color[component] = iter == this->BlockColors.end() ? 1. : iter->second[component];
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::RemoveBlockColor(unsigned int index)
+{
+  if (this->BlockColors.erase(index) > 0)
+  {
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::RemoveBlockColors()
+{
+  if (!this->BlockColors.empty())
+  {
+    this->BlockColors.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::SetBlockOpacity(unsigned int index, double opacity)
+{
+  auto iter = this->BlockOpacities.find(index);
+  if (iter == this->BlockOpacities.end() || iter->second != opacity)
+  {
+    this->BlockOpacities[index] = opacity;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+double vtkHyperTreeGridMapper::GetBlockOpacity(unsigned int index)
+{
+  auto iter = this->BlockOpacities.find(index);
+  return iter == this->BlockOpacities.end() ? 1. : iter->second;
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::RemoveBlockOpacity(unsigned int index)
+{
+  if (this->BlockOpacities.erase(index) > 0)
+  {
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridMapper::RemoveBlockOpacities()
+{
+  if (!this->BlockOpacities.empty())
+  {
+    this->BlockOpacities.clear();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkHyperTreeGridMapper::HasOpaqueGeometry()
+{
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHyperTreeGridMapper::HasTranslucentPolygonalGeometry()
+{
+  for (const auto& item : this->BlockOpacities)
+  {
+    if (item.second < 1.)
+    {
+      return true;
+    }
+  }
+  return this->Superclass::HasTranslucentPolygonalGeometry();
 }
 
 //------------------------------------------------------------------------------
