@@ -49,7 +49,6 @@ vtkGenericInterpolatedVelocityField::~vtkGenericInterpolatedVelocityField()
   delete this->DataSets;
 }
 
-static int tmp_count = 0;
 // Evaluate u,v,w at x,y,z,t
 int vtkGenericInterpolatedVelocityField::FunctionValues(double* x, double* f)
 {
@@ -66,7 +65,6 @@ int vtkGenericInterpolatedVelocityField::FunctionValues(double* x, double* f)
   int retVal = this->FunctionValues(ds, x, f);
   if (!retVal)
   {
-    tmp_count = 0;
     for (DataSetsTypeBase::iterator i = this->DataSets->begin(); i != this->DataSets->end(); ++i)
     {
       ds = *i;
@@ -84,7 +82,6 @@ int vtkGenericInterpolatedVelocityField::FunctionValues(double* x, double* f)
     this->ClearLastCell();
     return 0;
   }
-  tmp_count++;
   return retVal;
 }
 
