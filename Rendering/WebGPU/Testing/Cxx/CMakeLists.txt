@@ -46,7 +46,9 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestComputeTriangulationVerifyPointIds,TestComputeTriangulation.cxx,NO_DATA,NO_VALID)
 
 vtk_test_cxx_executable(vtkRenderingWebGPUCxxTests tests)
-set_property(TEST VTK::RenderingWebGPUCxx-TestDeepFramebufferImageBasedLighting
+set_property(TEST
+  VTK::RenderingWebGPUCxx-TestDeepFramebufferImageBasedLighting
+  VTK::RenderingWebGPUCxx-TestDeepFramebufferOpaqueOcclusion
   APPEND PROPERTY FAIL_REGULAR_EXPRESSION "Validation error")
 
 # The tests call wgpu* directly, so they take the same redirect as the module.
