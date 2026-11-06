@@ -1496,9 +1496,18 @@ class UnstructuredGrid(PointSet):
         ca.SetCells(cellTypes.GetNumberOfTuples(), cells)
         self.VTKObject.SetCells(cellTypes, cellLocations, ca)
 
+    def HasAttributes(self, type):
+        "Returns if current object support this attributes type"
+        return type == ArrayAssociation.SIDE or PointSet.HasAttributes(self, type)
+
+    def GetSideData(self):
+        "Returns the side data as a DataSetAttributes instance."
+        return self.GetAttributes(ArrayAssociation.SIDE)
+
     CellTypes = property(GetCellTypes, None, None, "This property returns the types of cells.")
     CellLocations = property(GetCellLocations, None, None, "This property returns the locations of cells.")
     Cells = property(GetCells, None, None, "This property returns the connectivity of cells.")
+    SideData = property(GetSideData, None, None, "This property returns the side data of the unstructured grid.")
 
 class Graph(DataObject):
     """This is a python friendly wrapper of a vtkGraph that defines

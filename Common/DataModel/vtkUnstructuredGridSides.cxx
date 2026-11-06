@@ -11,7 +11,6 @@
 #include "vtkConstantArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkNew.h"
@@ -1987,14 +1986,6 @@ int vtkUnstructuredGridSides<TId, TSideId>::GetDimensionOfGroup(vtkIdType group)
   // The dimension of its first side.
   return this->Dimensions ? this->Dimensions[this->GetSideOffsetOfGroup(group)]
                           : this->SideDimension;
-}
-
-//------------------------------------------------------------------------------
-template <typename TId, typename TSideId>
-void vtkUnstructuredGridSides<TId, TSideId>::ReportReferences(vtkGarbageCollector* collector)
-{
-  this->Superclass::ReportReferences(collector);
-  vtkGarbageCollectorReport(collector, this->DataSet, "DataSet");
 }
 
 //------------------------------------------------------------------------------

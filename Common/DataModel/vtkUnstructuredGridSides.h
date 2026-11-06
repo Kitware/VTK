@@ -345,11 +345,6 @@ public:
    */
   vtkGetMacro(BuildTime, vtkMTimeType);
 
-  /**
-   * The dataset is reported to the garbage collector, see ReportReferences().
-   */
-  bool UsesGarbageCollector() const override { return true; }
-
   //------------------------------------------------------------------------------
   // The sides, after any build: by key, and by their index k in their key. BuildScatteredSides()
   // and BuildReducedSides() have no getters of their own.
@@ -491,8 +486,6 @@ protected:
   ~vtkUnstructuredGridSides() override;
 
   vtkTimeStamp BuildTime; // time at which the sides were built
-
-  void ReportReferences(vtkGarbageCollector*) override;
 
 private:
   vtkUnstructuredGridSides(const vtkUnstructuredGridSides&) = delete;

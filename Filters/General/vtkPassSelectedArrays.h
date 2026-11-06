@@ -83,6 +83,10 @@ public:
   {
     return this->GetArraySelection(vtkDataObject::FIELD_ASSOCIATION_ROWS);
   }
+  vtkDataArraySelection* GetSideDataArraySelection()
+  {
+    return this->GetArraySelection(vtkDataObject::FIELD_ASSOCIATION_SIDES);
+  }
   ///@}
 
 protected:

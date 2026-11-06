@@ -35,6 +35,7 @@ struct AxisOfRevolution
 {
   std::array<double, 3> Position;
   std::array<double, 3> Direction;
+  std::array<double, 3> UnitDirection;
 };
 
 vtkSmartPointer<vtkUnstructuredGrid> AMRToUnstructuredGrid(vtkSmartPointer<vtkUniformGridAMR> inAMR)
@@ -86,8 +87,9 @@ vtkSmartPointer<vtkUnstructuredGrid> AMRToUnstructuredGrid(vtkSmartPointer<vtkUn
 void RevolvePoint(std::array<double, 3> inPt, const AxisOfRevolution* axis, double angleIncr,
   double radIncr, double transIncr, std::array<double, 3>& outPt)
 {
-  std::array<double, 4> rotationAngleAndAxis{ angleIncr, axis->Direction[0], axis->Direction[1],
-    axis->Direction[2] };
+  // RotateVectorByWXYZ assumes a unit axis.
+  std::array<double, 4> rotationAngleAndAxis{ angleIncr, axis->UnitDirection[0],
+    axis->UnitDirection[1], axis->UnitDirection[2] };
 
   // offsetting the points to the actual rotation axis coordinate system
   // (because RotateVectorByWXYZ rotates around origin)
@@ -100,9 +102,9 @@ void RevolvePoint(std::array<double, 3> inPt, const AxisOfRevolution* axis, doub
   vtkMath::RotateVectorByWXYZ(inPt.data(), rotationAngleAndAxis.data(), outPt.data());
 
   // translating point along axis
-  outPt[0] += axis->Direction[0] * transIncr;
-  outPt[1] += axis->Direction[1] * transIncr;
-  outPt[2] += axis->Direction[2] * transIncr;
+  outPt[0] += axis->UnitDirection[0] * transIncr;
+  outPt[1] += axis->UnitDirection[1] * transIncr;
+  outPt[2] += axis->UnitDirection[2] * transIncr;
 
   // incrementing radius along rotation
   std::array<double, 3> projection;
@@ -570,6 +572,7 @@ bool vtkRotationalExtrusionFilter::ExecuteSurfacic(
     vtkErrorMacro(<< "Cannot perform extrusion around an axis with a norm of 0.");
     return false;
   }
+  axis.UnitDirection = rotationAxisNormalized;
 
   vtkIdType cellId;
   vtkIdType npts;
@@ -598,8 +601,8 @@ bool vtkRotationalExtrusionFilter::ExecuteSurfacic(
   vtkIdType numCells = input->GetNumberOfElements(1);
   if (numPts < 1 || numCells < 1)
   {
-    vtkErrorMacro(<< "No data to extrude!");
-    return false;
+    vtkDebugMacro(<< "No data to extrude!");
+    return true;
   }
 
   // Build cell data structure.
@@ -815,6 +818,8 @@ bool vtkRotationalExtrusionFilter::ExecuteVolumetric(
     axis.Position[i] = this->AxisPosition[i];
     axis.Direction[i] = this->RotationAxis[i];
   }
+  axis.UnitDirection = axis.Direction;
+  vtkMath::Normalize(axis.UnitDirection.data());
 
   vtkPointData* inPd{ input->GetPointData() };
   vtkCellData* inCd{ input->GetCellData() };

@@ -1066,24 +1066,35 @@ void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 int vtkOpenGLRenderWindow::GetDepthBufferSize()
 {
-  GLint size;
-
   if (this->Initialized)
   {
     this->MakeCurrent();
-    size = 0;
+    // Without a depth attachment there is no depth buffer, so its size is 0.
+    GLint size = 0;
     GLint fboBind = 0;
     glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fboBind);
 
+    // Querying the size of a missing depth attachment is a GL error.
+    GLint attachmentType = GL_NONE;
     if (fboBind == 0)
     {
       glGetFramebufferAttachmentParameteriv(
-        GL_DRAW_FRAMEBUFFER, GL_DEPTH, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &size);
+        GL_DRAW_FRAMEBUFFER, GL_DEPTH, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &attachmentType);
+      if (attachmentType != GL_NONE)
+      {
+        glGetFramebufferAttachmentParameteriv(
+          GL_DRAW_FRAMEBUFFER, GL_DEPTH, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &size);
+      }
     }
     else
     {
-      glGetFramebufferAttachmentParameteriv(
-        GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &size);
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+        GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, &attachmentType);
+      if (attachmentType != GL_NONE)
+      {
+        glGetFramebufferAttachmentParameteriv(
+          GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &size);
+      }
     }
     return static_cast<int>(size);
   }
