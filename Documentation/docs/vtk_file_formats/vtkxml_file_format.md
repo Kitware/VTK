@@ -156,6 +156,8 @@ Since version 2.4, an UnstructuredGrid piece can also carry data on the sides sh
 
 Readers older than version 2.4 ignore both elements.
 
+Since version 2.3, the faces of polyhedra are given by four arrays of the _Cells_ element, laid out as in `vtkPolyhedronCellArray`: _face_connectivity_ and _face_offsets_ list the point ids of every face, and _polyhedron_to_faces_ and _polyhedron_offsets_ list the ids of the faces of every cell. Since version 2.5, a face shared by two polyhedra may be stored once, wound for one of them: the other lists face n as -(n+1) in _polyhedron_to_faces_ to traverse it in reverse, so that every cell sees its faces wound outward. Each face is shared or not on its own, so a piece may store some shared faces once and give others a copy per cell. Face ids are local to the piece, as point ids are. Readers older than version 2.5 check only the major version, so they open such a file without a warning and misread the polyhedra that share faces. To write a file that they read correctly, duplicate the shared faces first with `vtkPolyhedronCellArray::DuplicateSharedFaces()`.
+
 Every dataset describes the data associated with its points and cells with PointData and CellData XML elements as follows:
 ```{code-block} xml
 :force:

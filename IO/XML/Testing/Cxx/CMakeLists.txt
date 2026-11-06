@@ -22,6 +22,7 @@ set(all_tests
   TestXMLMultiBlockDataReaderIndex.cxx,NO_DATA,NO_VALID
   TestXMLMultiBlockDataWriterWithEmptyLeaf.cxx,NO_DATA,NO_VALID
   TestXMLPieceDistribution.cxx
+  TestXMLPolyhedronSharedFaces.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLPolyhedronUnstructuredGrid.cxx,NO_DATA,NO_VALID
   TestXMLReaderVariant.cxx,NO_VALID
   TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT
