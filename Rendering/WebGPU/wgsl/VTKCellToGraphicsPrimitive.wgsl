@@ -12,6 +12,16 @@
 // to ear-clip non-convex polygons. Only the polygon_to_triangle entry point
 // declares/uses this binding.
 @group(0) @binding(7) var<storage, read> point_coordinates: array<f32>;
+// One flag per cell, non-zero when the cell is a triangle strip. Strip cells
+// follow the polygons in the same cell array. When there are no strips, the
+// array holds a single zero. Used by polygon_to_triangle and
+// polygon_edges_to_lines.
+@group(0) @binding(8) var<storage, read> triangle_strip_cells: array<u32>;
+
+fn is_triangle_strip(cell_id: u32) -> bool
+{
+  return cell_id < arrayLength(&triangle_strip_cells) && triangle_strip_cells[cell_id] != 0u;
+}
 
 @compute @workgroup_size(64)
 fn polygon_to_triangle(
@@ -37,6 +47,20 @@ fn polygon_to_triangle(
   var output_offset: u32 = primitive_counts[cell_id] * 3u;
   // where to obtain the point indices that describe connectivity of a polygon.
   let input_offset: u32 = offsets[cell_id];
+  if (is_triangle_strip(cell_id))
+  {
+    for (var i: u32 = 0u; i < num_triangles_per_cell; i++)
+    {
+      let triangle_id = primitive_counts[cell_id] + i;
+      cell_ids[triangle_id] = cell_id + cell_id_offset;
+      edge_array[triangle_id] = 7.0;
+      out_connectivity[output_offset] = connectivity[input_offset + i];
+      out_connectivity[output_offset + 1u] = connectivity[input_offset + i + 1u + (i % 2u)];
+      out_connectivity[output_offset + 2u] = connectivity[input_offset + i + 1u + ((i + 1u) % 2u)];
+      output_offset += 3u;
+    }
+    return;
+  }
   // number of vertices in this polygon (== num_triangles_per_cell + 2 for a simple polygon).
   let cell_size: u32 = num_triangles_per_cell + 2u;
 
@@ -367,6 +391,30 @@ fn polygon_edges_to_lines(
 
   // where to obtain the point indices that describe connectivity of a polygon
   let input_offset: u32 = offsets[cell_id];
+
+  if (is_triangle_strip(cell_id))
+  {
+    let cell_size = offsets[cell_id + 1u] - input_offset;
+    if (cell_size < 3u)
+    {
+      return;
+    }
+    out_connectivity[output_offset] = connectivity[input_offset];
+    out_connectivity[output_offset + 1u] = connectivity[input_offset + 1u];
+    cell_ids[primitive_counts[cell_id]] = cell_id + cell_id_offset;
+    output_offset += 2u;
+    for (var i: u32 = 0u; i < cell_size - 2u; i++)
+    {
+      out_connectivity[output_offset] = connectivity[input_offset + i];
+      out_connectivity[output_offset + 1u] = connectivity[input_offset + i + 2u];
+      out_connectivity[output_offset + 2u] = connectivity[input_offset + i + 1u];
+      out_connectivity[output_offset + 3u] = connectivity[input_offset + i + 2u];
+      cell_ids[primitive_counts[cell_id] + 1u + 2u * i] = cell_id + cell_id_offset;
+      cell_ids[primitive_counts[cell_id] + 2u + 2u * i] = cell_id + cell_id_offset;
+      output_offset += 4u;
+    }
+    return;
+  }
 
   for (var i: u32 = 0u; i < num_lines_per_cell; i++)
   {

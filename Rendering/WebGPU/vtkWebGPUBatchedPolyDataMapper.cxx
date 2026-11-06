@@ -412,12 +412,13 @@ void vtkWebGPUBatchedPolyDataMapper::UpdateMeshGeometryBuffers(
       std::copy_n(batchElement->DiffuseColor.GetData(), 3, properties.Diffuse);
     }
     properties.CellIdOffsetForVerts = cellIdOffsetForVerts;
-    cellIdOffsetForVerts +=
-      this->CurrentInput->GetNumberOfLines() + this->CurrentInput->GetNumberOfPolys();
+    cellIdOffsetForVerts += this->CurrentInput->GetNumberOfLines() +
+      this->CurrentInput->GetNumberOfPolys() + this->CurrentInput->GetNumberOfStrips();
 
     cellIdOffsetForLines += this->CurrentInput->GetNumberOfVerts();
     properties.CellIdOffsetForLines = cellIdOffsetForLines;
-    cellIdOffsetForLines += this->CurrentInput->GetNumberOfPolys();
+    cellIdOffsetForLines +=
+      this->CurrentInput->GetNumberOfPolys() + this->CurrentInput->GetNumberOfStrips();
 
     cellIdOffsetForPolys +=
       (this->CurrentInput->GetNumberOfVerts() + this->CurrentInput->GetNumberOfLines());
