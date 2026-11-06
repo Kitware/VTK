@@ -251,6 +251,10 @@ if (WIN32 AND VTK_DLL_PATHS)
   if (NOT VTK_RELOCATABLE_INSTALL AND NOT VTK_UNIFIED_INSTALL_TREE)
     list(APPEND _vtk_python_files
       "${vtk_build_paths_module}")
+    install(
+      FILES       "${vtk_build_paths_module}"
+      DESTINATION "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules"
+      COMPONENT   "python")
   endif ()
 elseif (EXISTS "${vtk_build_paths_module}")
   file(REMOVE "${vtk_build_paths_module}")
