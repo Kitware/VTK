@@ -99,8 +99,7 @@ std::string GetExternalBlockFileName(const std::string& filename, const std::str
  */
 bool HasPolyhedra(vtkUnstructuredGrid* input)
 {
-  return input && input->GetOrientedPolyhedronFaces() != nullptr &&
-    input->GetOrientedPolyhedronFaces()->GetNumberOfCells() > 0;
+  return input && input->GetOrientedPolyhedronFaces() != nullptr;
 }
 
 /**
@@ -1337,12 +1336,13 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, uns
   if (::HasPolyhedra(input))
   {
     result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "FaceConnectivityOffsets",
-      { input->GetOrientedPolyhedronFaces()->GetNumberOfConnectivityIds() }, true);
+      { input->GetOrientedPolyhedronFaces()->GetNumberOfConnectivityIds() }, true, addToLastValue);
     result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "FaceOffsetsOffsets",
-      { input->GetOrientedPolyhedronFaces()->GetNumberOfCells() }, true);
+      { input->GetOrientedPolyhedronFaces()->GetNumberOfCells() }, true, addToLastValue);
     result &=
       this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "PolyhedronToFaceIdOffsets",
-        { input->GetOrientedPolyhedronFaceLocations()->GetNumberOfConnectivityIds() }, true);
+        { input->GetOrientedPolyhedronFaceLocations()->GetNumberOfConnectivityIds() }, true,
+        addToLastValue);
   }
 
   return result;
@@ -2602,7 +2602,20 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(hid_t baseGroup, vtkAbstractArray* 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::HasGeometryChangedFromPreviousStep(vtkDataSet* input)
 {
-  return this->CurrentTimeIndex != 0 && input->GetMeshMTime() != this->PreviousStepMeshMTime;
+  // When writing an "external" rank file, never reuse geometry
+  // so the metafile does not mess up offsets
+  const bool externalRankFile = this->NbPieces > 1 && !this->Impl->GetUseDistributedWriting() &&
+    !this->Impl->GetSubFilesReady();
+  int localGeometryChanged = this->UseExternalTimeSteps || externalRankFile ||
+    input->GetMeshMTime() != this->PreviousStepMeshMTime;
+  if (!this->Impl->GetUseDistributedWriting() || this->Impl->GetSubFilesReady())
+  {
+    return this->CurrentTimeIndex != 0 && localGeometryChanged;
+  }
+  int anyGeometryChanged = 0;
+  this->Controller->AllReduce(
+    &localGeometryChanged, &anyGeometryChanged, 1, vtkCommunicator::MAX_OP);
+  return this->CurrentTimeIndex != 0 && anyGeometryChanged;
 }
 
 //------------------------------------------------------------------------------
