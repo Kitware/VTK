@@ -109,13 +109,15 @@ public:
       vtkTypeUInt32 Pad5 = 0;
       vtkTypeFloat32 CoatColor[3] = { 1.0f, 1.0f, 1.0f };
       vtkTypeUInt32 Pad6 = 0;
-    } ColorOpts;
+    } ColorOpts, BackfaceColorOpts;
   };
 
   static_assert(sizeof(ActorBlock::ColorOptions) == 192,
     "ColorOptions must match the layout of ActorColorOptions in ActorColorOptions.wgsl");
   static_assert(offsetof(ActorBlock, ColorOpts) == 160,
     "ColorOptions must start where the Actor struct places color_options");
+  static_assert(offsetof(ActorBlock, BackfaceColorOpts) == 352,
+    "BackfaceColorOptions must match the Actor struct's backface_color_options");
 
   class MapperBooleanCache
   {

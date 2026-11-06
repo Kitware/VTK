@@ -81,8 +81,8 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
 {
   std::ostringstream code;
   code << R"(
-  var pbr_ambient = actor.color_options.ambient_intensity * ambient_color;
-  var pbr_albedo = actor.color_options.diffuse_intensity * diffuse_color;
+  var pbr_ambient = color_options.ambient_intensity * ambient_color;
+  var pbr_albedo = color_options.diffuse_intensity * diffuse_color;
 )";
   if (features.LinearizeColors)
   {
@@ -130,8 +130,8 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
        << (features.ImageBasedLighting ? "true" : "false") << R"();
   if (pbr_lit)
   {
-    var roughness = actor.color_options.roughness;
-    var metallic = actor.color_options.metallic;
+    var roughness = color_options.roughness;
+    var metallic = color_options.metallic;
     var ao = 1.0;
     var emissive = vec3<f32>(0.0);
 )";
@@ -153,7 +153,7 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
   if (features.EmissiveTexture)
   {
     code << R"(
-    emissive = pbr_emissive_sample.rgb * actor.color_options.emissive_factor;
+    emissive = pbr_emissive_sample.rgb * color_options.emissive_factor;
 )";
   }
   code << R"(
@@ -161,7 +161,7 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     surface.normal = normal_VC;
     surface.view = normalize(-vertex.position_VC.xyz);
     surface.coat_normal = normal_VC;
-    let pbr_has_coat = actor.color_options.coat_strength > 0.0;
+    let pbr_has_coat = color_options.coat_strength > 0.0;
     var pbr_has_anisotropy = false;
     var anisotropy = 0.0;
 )";
@@ -171,11 +171,11 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     var tangent = vertex.tangent_VC;
 )";
     code << R"(
-    pbr_has_anisotropy = actor.color_options.anisotropy != 0.0;
+    pbr_has_anisotropy = color_options.anisotropy != 0.0;
     if (pbr_has_anisotropy)
     {
-      anisotropy = actor.color_options.anisotropy;
-      var rotation = 2.0 * PBR_PI * actor.color_options.anisotropy_rotation;
+      anisotropy = color_options.anisotropy;
+      var rotation = 2.0 * PBR_PI * color_options.anisotropy_rotation;
 )";
     if (features.AnisotropyTexture)
     {
@@ -203,7 +203,7 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     if (features.NormalTexture)
     {
       code << R"(
-    let scale = actor.color_options.normal_scale;
+    let scale = color_options.normal_scale;
     let normal_TS = normalize((pbr_normal_sample.xyz * 2.0 - 1.0) * vec3<f32>(scale, scale, 1.0));
     surface.normal = normalize(tbn * normal_TS);
 )";
@@ -213,7 +213,7 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
       code << R"(
     if (pbr_has_coat)
     {
-      let coat_scale = actor.color_options.coat_normal_scale;
+      let coat_scale = color_options.coat_normal_scale;
       let coat_normal_TS = normalize((pbr_coat_normal_sample.xyz * 2.0 - 1.0) *
         vec3<f32>(coat_scale, coat_scale, 1.0));
       surface.coat_normal = normalize(tbn * coat_normal_TS);
@@ -229,9 +229,9 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     material.albedo = pbr_albedo;
     material.metallic = metallic;
     material.roughness = roughness;
-    material.F0 = mix(vec3<f32>(actor.color_options.base_f0), pbr_albedo, metallic);
+    material.F0 = mix(vec3<f32>(color_options.base_f0), pbr_albedo, metallic);
     let f90 = clamp(dot(material.F0, vec3<f32>(50.0 * 0.33)), 0.0, 1.0);
-    material.F90 = mix(vec3<f32>(f90), actor.color_options.edge_tint, metallic);
+    material.F90 = mix(vec3<f32>(f90), color_options.edge_tint, metallic);
 )";
   code << R"(
     if (pbr_has_anisotropy)
@@ -244,12 +244,12 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     }
     if (pbr_has_coat)
     {
-      material.coat_strength = actor.color_options.coat_strength;
-      material.coat_roughness = actor.color_options.coat_roughness;
-      material.coat_F0 = vec3<f32>(actor.color_options.coat_f0);
+      material.coat_strength = color_options.coat_strength;
+      material.coat_roughness = color_options.coat_roughness;
+      material.coat_F0 = vec3<f32>(color_options.coat_f0);
       material.coat_F90 = vec3<f32>(1.0);
       material.coat_color_factor =
-        mix(vec3<f32>(1.0), actor.color_options.coat_color, material.coat_strength);
+        mix(vec3<f32>(1.0), color_options.coat_color, material.coat_strength);
     }
 )";
   code << R"(
@@ -365,11 +365,11 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
   }
   code << R"(
     pbr_color += Lo;
-    pbr_color = mix(pbr_color, pbr_color * ao, actor.color_options.occlusion_strength);
+    pbr_color = mix(pbr_color, pbr_color * ao, color_options.occlusion_strength);
     pbr_color += emissive;
   }
   output.color = vec4<f32>(pow(max(pbr_color, vec3<f32>(0.0)), vec3<f32>(1.0 / 2.2)),
-    actor.color_options.opacity * opacity);
+    color_options.opacity * opacity);
 )";
   return code.str();
 }
@@ -2663,6 +2663,7 @@ struct Actor
   transform: ActorTransform,
   render_options: ActorRenderOptions,
   color_options: ActorColorOptions,
+  backface_color_options: ActorColorOptions,
 };
 )";
   vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Actor::Def", code, /*all=*/true);
@@ -3833,13 +3834,15 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderMainStart(GraphicsPipelineTyp
 fn fragmentMain(
   vertex: VertexOutput) -> FragmentOutput {
   var output: FragmentOutput;
-  output.frag_depth = vertex.position.z;)";
+  output.frag_depth = vertex.position.z;
+  var color_options = actor.color_options;)";
   const std::string frontFacingCode = R"(@fragment
 fn fragmentMain(
   @builtin(front_facing) is_front_facing: bool,
   vertex: VertexOutput) -> FragmentOutput {
   var output: FragmentOutput;
-  output.frag_depth = vertex.position.z;)";
+  output.frag_depth = vertex.position.z;
+  var color_options = actor.color_options;)";
 
   switch (pipelineType)
   {
@@ -3864,11 +3867,26 @@ fn fragmentMain(
     case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
     case GFX_PIPELINE_LINES_MITER_JOIN:
     case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
-    case GFX_PIPELINE_TRIANGLES:
-    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
       vtkWebGPURenderPipelineCache::Substitute(
         fss, "//VTK::FragmentMain::Start", frontFacingCode, /*all=*/true);
       break;
+    case GFX_PIPELINE_TRIANGLES:
+    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+    {
+      std::string code = frontFacingCode;
+      if (!this->HasPointAttributes[POINT_COLORS] && !this->HasCellAttributes[CELL_COLORS] &&
+        !this->HasPointAttributes[POINT_COLOR_UVS])
+      {
+        code += R"(
+  if (!is_front_facing && hasBackfaceProperty(actor.render_options.flags_2))
+  {
+    color_options = actor.backface_color_options;
+  })";
+      }
+      vtkWebGPURenderPipelineCache::Substitute(
+        fss, "//VTK::FragmentMain::Start", code, /*all=*/true);
+      break;
+    }
     case GFX_PIPELINE_NB_TYPES:
       break;
   }
@@ -3909,8 +3927,8 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderColors(GraphicsPipelineType p
   var diffuse_color: vec3<f32> = vec3<f32>(0., 0., 0.);
   var specular_color: vec3<f32> = vec3<f32>(0., 0., 0.);
   var opacity: f32;
-  ambient_color = actor.color_options.ambient_color;
-  diffuse_color = actor.color_options.diffuse_color;
+  ambient_color = color_options.ambient_color;
+  diffuse_color = color_options.diffuse_color;
   opacity = 1.0;
   )";
   if (this->HasPointAttributes[POINT_COLORS] || this->HasCellAttributes[CELL_COLORS])
@@ -3965,8 +3983,8 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderColors(GraphicsPipelineType p
   if (show_vertices)
   {
     // use vertex color instead of point scalar colors when drawing vertices.
-    ambient_color = actor.color_options.vertex_color;
-    diffuse_color = actor.color_options.vertex_color;
+    ambient_color = color_options.vertex_color;
+    diffuse_color = color_options.vertex_color;
     opacity = 1.0;
   })",
         /*all=*/true);
@@ -4233,15 +4251,15 @@ if scene_lights.count == 0u || !isLightingEnabled(actor.render_options.flags_2)
 {
   // No lights: ambient + diffuse only
   output.color = vec4<f32>(
-    actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
-    actor.color_options.opacity * opacity
+    color_options.ambient_intensity * ambient_color + color_options.diffuse_intensity * diffuse_color,
+    color_options.opacity * opacity
   );
 }
 else
 {
   var total_diffuse: vec3<f32> = vec3<f32>(0.0);
   var total_specular: vec3<f32> = vec3<f32>(0.0);
-  var total_ambient: vec3<f32> = actor.color_options.ambient_intensity * ambient_color;
+  var total_ambient: vec3<f32> = color_options.ambient_intensity * ambient_color;
 
   // In view space, the camera is at the origin.
   let frag_position_vc: vec3<f32> = vertex.position_VC.xyz;
@@ -4299,13 +4317,13 @@ else
     total_diffuse += df * diffuse_color * light_color;
 
     // Specular contribution
-    let sf: f32 = pow(max(dot(view_dir, reflect_dir), 0.0), actor.color_options.specular_power);
-    total_specular += sf * actor.color_options.specular_intensity * actor.color_options.specular_color * light_color;
+    let sf: f32 = pow(max(dot(view_dir, reflect_dir), 0.0), color_options.specular_power);
+    total_specular += sf * color_options.specular_intensity * color_options.specular_color * light_color;
   }
 
   output.color = vec4<f32>(
-    total_ambient + actor.color_options.diffuse_intensity * total_diffuse + total_specular,
-    actor.color_options.opacity * opacity
+    total_ambient + color_options.diffuse_intensity * total_diffuse + total_specular,
+    color_options.opacity * opacity
   );
 }
 )",
@@ -4315,8 +4333,8 @@ else
   {
     vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Lights::Impl",
       R"(output.color = vec4<f32>(
-      actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
-      actor.color_options.opacity * opacity);)",
+      color_options.ambient_intensity * ambient_color + color_options.diffuse_intensity * diffuse_color,
+      color_options.opacity * opacity);)",
       true);
   }
 }

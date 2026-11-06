@@ -64,6 +64,9 @@ int TestGlyph3DMapperBackfaceColor(int argc, char* argv[])
   renWin->SetMultiSamples(0);
   renWin->SetSize(300, 300);
 
+  backfaceProperty->SetColor(0.0, 0.0, 1.0);
+  renWin->Render();
+  backfaceProperty->SetColor(1.0, 0.0, 1.0);
   renWin->Render();
 
   int retVal = vtkRegressionTestImage(renWin);

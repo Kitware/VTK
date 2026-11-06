@@ -95,3 +95,8 @@ fn isLightingEnabled(flags_2: u32) -> bool
   let result: u32 = flags_2 & 0x1;
   return select(false, true, result == 1u);
 }
+
+fn hasBackfaceProperty(flags_2: u32) -> bool
+{
+  return (flags_2 & 0x2u) != 0u;
+}
