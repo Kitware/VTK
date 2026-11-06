@@ -7,10 +7,16 @@
 
 using namespace HDFWriterDistributedTestUtilities;
 
-int TestHDFWriterDistributedUGConfigs(int argc, char* argv[])
+int TestHDFWriterPolyhedraConfigs(int argc, char* argv[])
 {
   std::vector<Configuration> allConfigs =
     GenerateConfigurations(MakeBaseConfigurations(DataType::UnstructuredGrid));
+  for (auto& config : allConfigs)
+  {
+    config.Polyhedrons = PolyhedronsType::Polyhedrons;
+    config.Name += "_polyhedrons";
+  }
+
   return RunDistributedConfigurations(argc, argv, std::move(allConfigs)) ? EXIT_SUCCESS
                                                                          : EXIT_FAILURE;
 }

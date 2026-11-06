@@ -8,7 +8,7 @@
 
 using namespace HDFWriterDistributedTestUtilities;
 
-int TestHDFWriterDistributedCompositeConfigs(int argc, char* argv[])
+int TestHDFWriterCompositeConfigs(int argc, char* argv[])
 {
   // Test composite writing with UG
   std::vector<Configuration> bases = MakeBaseConfigurations(DataType::UnstructuredGrid);

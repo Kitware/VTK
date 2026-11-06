@@ -36,7 +36,8 @@ bool WriteToFile(vtkHDFWriter* writer, vtkDataObjectAlgorithm* source, const Con
   writer->SetUseExternalComposite(config.External & ExternalType::Composite);
   writer->SetUseExternalPartitions(config.External & ExternalType::Partitions);
   writer->SetUseExternalTimeSteps(config.External & ExternalType::Time);
-  writer->SetUseExternalDistributed(config.External & ExternalType::Distributed);
+  writer->SetUseExternalDistributed(
+    controller->GetNumberOfProcesses() > 1 && (config.External & ExternalType::Distributed));
   writer->SetWriteAllTimeSteps(true);
   writer->SetController(controller);
   // Compressed collective writes can hang with the CI's MPICH
@@ -253,7 +254,7 @@ bool ReadAndCompareStep(vtkDataObjectAlgorithm* source, const Configuration& con
   }
 
   // Compare _partX.vtkhdf files from external distributed
-  if ((config.External & ExternalType::Distributed) &&
+  if (nbRanks > 1 && (config.External & ExternalType::Distributed) &&
     (config.PartitionCounts.empty() || config.PartitionCounts[myRank] > 0))
   {
     const std::string partFilename = filebase + "_part" + vtk::to_string(myRank) + ".vtkhdf";
@@ -299,7 +300,9 @@ bool RunTestConfig(const Configuration& config, std::size_t id, vtkMPIController
 {
   auto source = MakeConfigurationSource(config);
 
-  std::string filebase = tmpDir + "/hdfwriter_config_" + vtk::to_string(id) + "_" + config.Name;
+  const std::string prefix = controller->GetNumberOfProcesses() == 1 ? "serial_" : "distributed_";
+  std::string filebase =
+    tmpDir + "/" + prefix + "hdfwriter_config_" + vtk::to_string(id) + "_" + config.Name;
 
   vtkNew<vtkHDFWriter> writer;
   if (!WriteToFile(writer, source, config, controller, filebase))
