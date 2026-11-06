@@ -271,19 +271,31 @@ class _DLManagedTensorVersioned(ctypes.Structure):
 DLPACK_FLAG_BITMASK_READ_ONLY = 1 << 0
 
 
-_PyCapsule_New = ctypes.pythonapi.PyCapsule_New
-_PyCapsule_New.restype = ctypes.py_object
-_PyCapsule_New.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_void_p]
+def _c_api(name, restype, *argtypes):
+    """*name* from Python's C API, through a prototype of this module's own.
+
+    ``ctypes.pythonapi.<name>`` is one object for the whole process: setting
+    ``argtypes`` on it changes the calls of every other library that uses it,
+    and theirs change ours. Warp, for one, passes the capsule itself
+    (``py_object``) to PyCapsule_GetPointer where this module passes its
+    address, so whichever was imported last broke the other's DLPack imports.
+    A prototype of our own binds the same symbol and changes nothing shared.
+    """
+    return ctypes.PYFUNCTYPE(restype, *argtypes)((name, ctypes.pythonapi))
+
+
+_PyCapsule_New = _c_api("PyCapsule_New", ctypes.py_object,
+                        ctypes.c_void_p, ctypes.c_char_p, ctypes.c_void_p)
 
 # Raw pointers rather than py_object: the capsule destructor runs during
 # teardown, where touching the capsule's own refcount can resurrect it.
-_PyCapsule_IsValid = ctypes.pythonapi.PyCapsule_IsValid
-_PyCapsule_IsValid.restype = ctypes.c_int
-_PyCapsule_IsValid.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
-
-_PyCapsule_GetPointer = ctypes.pythonapi.PyCapsule_GetPointer
-_PyCapsule_GetPointer.restype = ctypes.c_void_p
-_PyCapsule_GetPointer.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+_PyCapsule_IsValid = _c_api("PyCapsule_IsValid", ctypes.c_int,
+                            ctypes.c_void_p, ctypes.c_char_p)
+_PyCapsule_GetPointer = _c_api("PyCapsule_GetPointer", ctypes.c_void_p,
+                               ctypes.c_void_p, ctypes.c_char_p)
+_PyCapsule_SetName = _c_api("PyCapsule_SetName", ctypes.c_int,
+                            ctypes.py_object, ctypes.c_char_p)
+_Py_IncRef = _c_api("Py_IncRef", None, ctypes.py_object)
 
 
 # ---------------------------------------------------------------------
@@ -316,7 +328,7 @@ _CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
 
 def _immortal(obj):
     """Leak one reference to *obj*, so it outlives interpreter teardown."""
-    ctypes.pythonapi.Py_IncRef(ctypes.py_object(obj))
+    _Py_IncRef(obj)
     return obj
 
 
@@ -749,11 +761,6 @@ def _release_adopted(key):
         managed.deleter(managed_ptr)
 
 
-_PyCapsule_SetName = ctypes.pythonapi.PyCapsule_SetName
-_PyCapsule_SetName.restype = ctypes.c_int
-_PyCapsule_SetName.argtypes = [ctypes.py_object, ctypes.c_char_p]
-
-
 def _register_adopted(capsule, managed_ptr, struct, used_name):
     """Take ownership of *capsule*, and return the key that releases it.
 
@@ -783,7 +790,7 @@ def _hold_via_descriptor(descriptor, key):
     # checks first and leaks instead. Its context is a callable carrying a
     # reference of its own, which it drops after the call.
     release = functools.partial(_release_adopted, key)
-    ctypes.pythonapi.Py_IncRef(ctypes.py_object(release))
+    _Py_IncRef(release)
     descriptor.SetReleaseAddress(release_callable_address(), id(release))
 
 
