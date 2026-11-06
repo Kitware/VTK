@@ -248,9 +248,6 @@ constexpr int HIP_POINTER_ATTRIBUTE_DEVICE_ORDINAL = 9;
 constexpr int hipMemoryTypeDevice = 2;
 constexpr int hipMemoryTypeManaged = 3;
 constexpr int hipMemcpyDeviceToHost = 2;
-// hipRuntimeGetVersion's HIP_VERSION: major * 10000000 + minor * 100000 + patch.
-constexpr int HIP_VERSION_MAJOR_FACTOR = 10000000;
-constexpr int HIP_OLDEST_MAJOR = 6;
 
 struct HipRuntime
 {
@@ -356,7 +353,10 @@ HipRuntime LoadHip()
     return hip;
   }
   // Checked by version, not by file name: `libamdhip64.so` or a runtime the
-  // process loaded already may be ROCm 5's.
+  // process loaded already may be ROCm 5's. hipRuntimeGetVersion reports
+  // HIP_VERSION: major * 10000000 + minor * 100000 + patch.
+  constexpr int HIP_VERSION_MAJOR_FACTOR = 10000000;
+  constexpr int HIP_OLDEST_MAJOR = 6;
   int version = 0;
   hipError_t result = hip.RuntimeGetVersion(&version);
   if (result != hipSuccess)
