@@ -2300,7 +2300,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       //  if (int(gl_FrontFacing) == 0) does not work on mesa
       if (!this->DrawingPoints(*this->LastBoundBO, actor))
       {
-        if (this->DrawingLines(*this->LastBoundBO, actor))
+        if (this->DrawingLines(*this->LastBoundBO, actor) &&
+          actor->GetProperty()->GetLineWidth() > 1.0)
         {
           toString << "  if (normalVCVSOutput.z < 0.0) { normalVCVSOutput = -normalVCVSOutput; }\n";
         }
@@ -2465,7 +2466,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       }
       if (!this->DrawingPoints(*this->LastBoundBO, actor))
       {
-        if (this->DrawingLines(*this->LastBoundBO, actor))
+        if (this->DrawingLines(*this->LastBoundBO, actor) &&
+          actor->GetProperty()->GetLineWidth() > 1.0)
         {
           toString << "  if (normalVCVSOutput.z < 0.0) { normalVCVSOutput = -normalVCVSOutput; }\n";
         }
@@ -2697,34 +2699,27 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
 //------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::DrawingTubesOrSpheres(vtkOpenGLHelper& cellBO, vtkActor* actor)
 {
-  unsigned int mode =
-    this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(), cellBO.PrimitiveType);
-  vtkProperty* prop = actor->GetProperty();
-
-  return (prop->GetRenderPointsAsSpheres() && mode == GL_POINTS) ||
-    (prop->GetRenderLinesAsTubes() && mode == GL_LINES && prop->GetLineWidth() > 1.0);
+  return (this->DrawingSpheres(cellBO, actor) || this->DrawingTubes(cellBO, actor));
 }
 
 //------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::DrawingSpheres(vtkOpenGLHelper& cellBO, vtkActor* actor)
 {
-  return (actor->GetProperty()->GetRenderPointsAsSpheres() &&
-    this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(), cellBO.PrimitiveType) ==
-      GL_POINTS);
+  return (actor->GetProperty()->GetRenderPointsAsSpheres() && this->DrawingPoints(cellBO, actor));
 }
 
 //------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::DrawingLines(vtkOpenGLHelper& cellBO, vtkActor* actor)
 {
-  return (actor->GetProperty()->GetLineWidth() > 1.0 &&
-    this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(), cellBO.PrimitiveType) ==
-      GL_LINES);
+  return (this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(), cellBO.PrimitiveType) ==
+    GL_LINES);
 }
 
 //------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::DrawingTubes(vtkOpenGLHelper& cellBO, vtkActor* actor)
 {
-  return (actor->GetProperty()->GetRenderLinesAsTubes() && this->DrawingLines(cellBO, actor));
+  return actor->GetProperty()->GetRenderLinesAsTubes() &&
+    actor->GetProperty()->GetLineWidth() > 1.0 && this->DrawingLines(cellBO, actor);
 }
 
 //------------------------------------------------------------------------------
@@ -2732,6 +2727,41 @@ bool vtkOpenGLPolyDataMapper::DrawingPoints(vtkOpenGLHelper& cellBO, vtkActor* a
 {
   return (this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(), cellBO.PrimitiveType) ==
     GL_POINTS);
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLPolyDataMapper::DrawingSpheres(vtkActor* actor)
+{
+  assert(this->LastBoundBO != nullptr);
+  return this->DrawingSpheres(*this->LastBoundBO, actor);
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLPolyDataMapper::DrawingLines(vtkActor* actor)
+{
+  assert(this->LastBoundBO != nullptr);
+  return this->DrawingLines(*this->LastBoundBO, actor);
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLPolyDataMapper::DrawingTubes(vtkActor* actor)
+{
+  assert(this->LastBoundBO != nullptr);
+  return this->DrawingTubes(*this->LastBoundBO, actor);
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLPolyDataMapper::DrawingTubesOrSpheres(vtkActor* actor)
+{
+  assert(this->LastBoundBO != nullptr);
+  return this->DrawingTubesOrSpheres(*this->LastBoundBO, actor);
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLPolyDataMapper::DrawingPoints(vtkActor* actor)
+{
+  assert(this->LastBoundBO != nullptr);
+  return this->DrawingPoints(*this->LastBoundBO, actor);
 }
 
 //------------------------------------------------------------------------------

@@ -287,7 +287,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState* s)
     bool hasLight = false;
     while (!hasLight && l != nullptr)
     {
-      hasLight = l->GetSwitch() && this->LightCreatesShadow(l);
+      hasLight = vtkShadowMapBakerPass::LightCreatesShadow(l);
       l = lights->GetNextItem();
     }
 
@@ -390,7 +390,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState* s)
       size_t numberOfShadowLights = 0;
       while (l != nullptr)
       {
-        if (l->GetSwitch() && this->LightCreatesShadow(l))
+        if (vtkShadowMapBakerPass::LightCreatesShadow(l))
         {
           ++numberOfShadowLights;
         }
@@ -449,7 +449,8 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState* s)
       l = lights->GetNextItem();
       while (l != nullptr)
       {
-        if (!l->GetSwitch() || !this->LightCreatesShadow(l) || l->GetTransformMatrix() == nullptr)
+        if (!l->GetSwitch() || !vtkShadowMapBakerPass::LightCreatesShadow(l) ||
+          l->GetTransformMatrix() == nullptr)
         {
           cachedLightTransforms[l] = nullptr;
         }
@@ -470,7 +471,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState* s)
 
       while (l != nullptr)
       {
-        if (l->GetSwitch() && this->LightCreatesShadow(l))
+        if (vtkShadowMapBakerPass::LightCreatesShadow(l))
         {
           // Restore the light's original matrix.
           vtkMatrix4x4* cachedTransform = cachedLightTransforms.at(l);

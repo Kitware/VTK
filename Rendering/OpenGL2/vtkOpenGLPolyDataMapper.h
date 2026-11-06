@@ -178,6 +178,17 @@ public:
   void ProcessSelectorPixelBuffers(
     vtkHardwareSelector* sel, std::vector<unsigned int>& pixeloffsets, vtkProp* prop) override;
 
+  //@{
+  /**
+   * Determine if the mapper is currently drawing some primitives.
+   */
+  bool DrawingSpheres(vtkActor* actor);
+  bool DrawingLines(vtkActor* actor);
+  bool DrawingTubes(vtkActor* actor);
+  bool DrawingTubesOrSpheres(vtkActor* actor);
+  bool DrawingPoints(vtkActor* actor);
+  //@}
+
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper() override;
