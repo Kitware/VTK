@@ -95,6 +95,8 @@ if (VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING)
   vtk_add_flag(-Wno-lifetime-safety-use-after-free ${langs})
   vtk_add_flag(-Wno-lifetime-safety-dangling-field ${langs})
   vtk_add_flag(-Wno-lifetime-safety-dangling-field-moved ${langs})
+  vtk_add_flag(-Wno-thread-safety-negative ${langs})
+  vtk_add_flag(-Wno-thread-safety-analysis ${langs})
 
   if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     if (VTK_WEBASSEMBLY_THREADS)
