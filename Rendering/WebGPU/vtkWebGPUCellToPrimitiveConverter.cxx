@@ -69,6 +69,20 @@ int Factorize(vtkTypeUInt32 n, std::array<vtkTypeUInt32, 3>& result)
 vtkStandardNewMacro(vtkWebGPUCellToPrimitiveConverter);
 
 //------------------------------------------------------------------------------
+bool vtkWebGPUCellToPrimitiveConverter::RetainRegisteredBuffer(
+  vtkWebGPUComputePipeline* pipeline, vtkWebGPUComputeBuffer* computeBuffer, WGPUBuffer& output)
+{
+  WGPUBuffer buffer = nullptr;
+  if (!pipeline->GetRegisteredBuffer(computeBuffer, buffer))
+  {
+    return false;
+  }
+  auto retained = vtkWebGPU::Buffer::Reference(buffer);
+  output = retained.Release();
+  return true;
+}
+
+//------------------------------------------------------------------------------
 vtkWebGPUCellToPrimitiveConverter::vtkWebGPUCellToPrimitiveConverter() = default;
 
 //------------------------------------------------------------------------------
@@ -756,11 +770,11 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
     // the topology and edge_array buffers are populated by compute pipeline and their contents
     // read in the graphics pipeline within the vertex and fragment shaders
     // keep reference to the output of compute pipeline, reuse it in the vertex, fragment shaders.
-    if (!pipeline->GetRegisteredBuffer(outputConnectivityBuffer, *connectivityBuffer))
+    if (!RetainRegisteredBuffer(pipeline, outputConnectivityBuffer, *connectivityBuffer))
     {
       vtkErrorMacro(<< "Failed to get registered buffer for output connectivity.");
     }
-    if (!pipeline->GetRegisteredBuffer(outputCellIdBuffer, *cellIdBuffer))
+    if (!RetainRegisteredBuffer(pipeline, outputCellIdBuffer, *cellIdBuffer))
     {
       vtkErrorMacro(<< "Failed to get registered buffer for output cell ids.");
     }
@@ -769,7 +783,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
     {
       if (primitiveSize == 3)
       {
-        if (!pipeline->GetRegisteredBuffer(edgeArrayComputeBuffer, *edgeArrayBuffer))
+        if (!RetainRegisteredBuffer(pipeline, edgeArrayComputeBuffer, *edgeArrayBuffer))
         {
           vtkErrorMacro(<< "edgeArray compute buffer for " << primitiveTypeAsString
                         << " is not registered!");
@@ -1078,7 +1092,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
     // the topology and edge_array buffers are populated by compute pipeline and their contents
     // read in the graphics pipeline within the vertex and fragment shaders
     // keep reference to the output of compute pipeline, reuse it in the vertex, fragment shaders.
-    if (pipeline->GetRegisteredBuffer(outputConnectivityBuffer, *connectivityBuffer))
+    if (RetainRegisteredBuffer(pipeline, outputConnectivityBuffer, *connectivityBuffer))
     {
       *vertexCount = static_cast<vtkTypeUInt32>(numberOfPrimitives * primitiveSize);
     }
@@ -1086,13 +1100,13 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
     {
       *vertexCount = 0;
     }
-    pipeline->GetRegisteredBuffer(outputCellIdBuffer, *cellIdBuffer);
+    RetainRegisteredBuffer(pipeline, outputCellIdBuffer, *cellIdBuffer);
     // do the same for the edge array buffer only when output primitives are triangles.
     if (edgeArrayBuffer)
     {
       if (primitiveSize == 3)
       {
-        if (!pipeline->GetRegisteredBuffer(edgeArrayComputeBuffer, *edgeArrayBuffer))
+        if (!RetainRegisteredBuffer(pipeline, edgeArrayComputeBuffer, *edgeArrayBuffer))
         {
           vtkErrorMacro(<< "edgeArray compute buffer for " << primitiveTypeAsString
                         << " is not registered!");
@@ -1104,8 +1118,8 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
       }
     }
     // repeat for cellIdOffset
-    if (!pipeline->GetRegisteredBuffer(
-          cellIfOffsetUniformComputeBuffer, *cellIdOffsetUniformBuffer))
+    if (!RetainRegisteredBuffer(
+          pipeline, cellIfOffsetUniformComputeBuffer, *cellIdOffsetUniformBuffer))
     {
       vtkErrorMacro(<< "cellIdOffsetUniform compute buffer for " << primitiveTypeAsString
                     << " is not registered!");

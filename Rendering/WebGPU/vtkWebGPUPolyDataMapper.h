@@ -569,6 +569,12 @@ private:
   static vtkTypeUInt32 GetShadingFeatures(vtkActor* actor, vtkRenderer* renderer);
 
   /**
+   * Release the buffers and bind groups in `TopologyBindGroupInfos`. The mapper owns a reference
+   * to each of them.
+   */
+  void ReleaseTopologyBindGroupInfos();
+
+  /**
    * Returns the WGPUBuffer containing the point data attributes of this mapper
    */
   WGPUBuffer GetPointDataWGPUBuffer(PointDataAttributes attribute)

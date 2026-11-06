@@ -458,9 +458,13 @@ void vtkWebGPUBatchedPolyDataMapper::UpdateMeshTopologyBuffers(
   std::array<WGPUBuffer*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
     edgeArrayBuffers;
 
+  std::array<std::array<WGPUBuffer, 3>,
+    vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
+    previousBuffers;
   for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
   {
     auto& bgInfo = this->TopologyBindGroupInfos[i];
+    previousBuffers[i] = { bgInfo.ConnectivityBuffer, bgInfo.CellIdBuffer, bgInfo.EdgeArrayBuffer };
     bgInfo.VertexOffsetAndCounts.resize(meshes.size());
     vertexOffsetsAndCounts[i] = &(bgInfo.VertexOffsetAndCounts);
     connectivityBuffers[i] = &(bgInfo.ConnectivityBuffer);
@@ -485,6 +489,15 @@ void vtkWebGPUBatchedPolyDataMapper::UpdateMeshTopologyBuffers(
   {
     const auto topologySourceType = vtkWebGPUCellToPrimitiveConverter::TopologySourceType(i);
     auto& bgInfo = this->TopologyBindGroupInfos[i];
+    const std::array<WGPUBuffer, 3> currentBuffers = { bgInfo.ConnectivityBuffer,
+      bgInfo.CellIdBuffer, bgInfo.EdgeArrayBuffer };
+    for (std::size_t j = 0; j < currentBuffers.size(); ++j)
+    {
+      if (previousBuffers[i][j] != currentBuffers[j])
+      {
+        vtkWebGPU::ReleaseAndNull(previousBuffers[i][j], wgpuBufferRelease);
+      }
+    }
     bgInfo.VertexCount = 0; // store total vertex count for this batch
     for (const auto& pair : bgInfo.VertexOffsetAndCounts)
     {

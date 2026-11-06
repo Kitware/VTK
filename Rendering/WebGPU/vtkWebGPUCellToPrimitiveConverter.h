@@ -13,6 +13,11 @@
  *
  * This class can process millions of polygons, lines, vertices very quickly in parallel.
  *
+ * The dispatch methods write WebGPU buffers into the caller's `WGPUBuffer` slots. The caller owns
+ * a reference to every buffer written into a slot and must release it. A slot is overwritten
+ * without releasing the buffer it held, so the caller must release the previous buffer whenever a
+ * slot changes.
+ *
  * @sa
  * vtkPolyDataMapper2D
  */
@@ -38,6 +43,7 @@ class vtkWebGPUConfiguration;
 class vtkPolyData;
 class vtkCellArray;
 class vtkDataArray;
+class vtkWebGPUComputeBuffer;
 class vtkWebGPUComputePass;
 class vtkWebGPUComputePipeline;
 
@@ -225,6 +231,11 @@ protected:
   ~vtkWebGPUCellToPrimitiveConverter() override;
 
 private:
+  // Gives the caller its own reference to a buffer owned by the compute pipeline, which is
+  // replaced on every rebuild. A member so that it can use the pipeline's friendship.
+  static bool RetainRegisteredBuffer(
+    vtkWebGPUComputePipeline* pipeline, vtkWebGPUComputeBuffer* computeBuffer, WGPUBuffer& output);
+
   vtkWebGPUCellToPrimitiveConverter(const vtkWebGPUCellToPrimitiveConverter&) = delete;
   void operator=(const vtkWebGPUCellToPrimitiveConverter&) = delete;
 

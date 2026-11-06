@@ -1157,22 +1157,20 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
   for (int i = 0; i < kNumTopologyTypes; ++i)
   {
     auto& bgInfo = this->TopologyBindGroupInfos[i];
-    // The converter hands back handles that stay owned by the compute pipeline
-    // (see vtkWebGPUComputePipeline::GetRegisteredBuffer), so take a reference
-    // rather than adopting one. Only reassign when the converter actually
-    // replaced a handle; re-wrapping an unchanged one is pointless work.
+    // The converter hands back a reference that the caller owns, so adopt it. A slot it left
+    // alone still holds the handle's own buffer, which must not be adopted twice.
     if (connectivityBufferStorage[i] != bgInfo.ConnectivityBuffer.Get())
     {
-      bgInfo.ConnectivityBuffer = vtkWebGPU::Buffer::Reference(connectivityBufferStorage[i]);
+      bgInfo.ConnectivityBuffer = vtkWebGPU::Buffer::Acquire(connectivityBufferStorage[i]);
     }
     if (cellIdBufferStorage[i] != bgInfo.CellIdBuffer.Get())
     {
-      bgInfo.CellIdBuffer = vtkWebGPU::Buffer::Reference(cellIdBufferStorage[i]);
+      bgInfo.CellIdBuffer = vtkWebGPU::Buffer::Acquire(cellIdBufferStorage[i]);
     }
     if (cellIdOffsetUniformBufferStorage[i] != bgInfo.CellIdOffsetUniformBuffer.Get())
     {
       bgInfo.CellIdOffsetUniformBuffer =
-        vtkWebGPU::Buffer::Reference(cellIdOffsetUniformBufferStorage[i]);
+        vtkWebGPU::Buffer::Acquire(cellIdOffsetUniformBufferStorage[i]);
     }
   }
 
