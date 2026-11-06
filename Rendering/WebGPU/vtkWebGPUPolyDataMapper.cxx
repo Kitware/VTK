@@ -363,7 +363,8 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
       // the coat reflects light away from the base layer, which only sees what gets through
       pbr_color = ibl_diffuse * (1.0 - Fc) * (1.0 - Fc) + ibl_specular * (1.0 - Fc);
       pbr_color *= material.coat_color_factor;
-      pbr_color += coat_prefiltered * (material.coat_F0 * coat_brdf.r + coat_brdf.g) * Fc;
+      pbr_color += coat_prefiltered * (material.coat_F0 * coat_brdf.r + coat_brdf.g) *
+        material.coat_strength;
     }
 )";
   }
