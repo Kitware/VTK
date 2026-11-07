@@ -13,6 +13,7 @@
 #include "vtkNew.h"
 #include "vtkProperty.h"
 #include "vtkRenderingWebGPUModule.h"
+#include "vtkSmartPointer.h"
 #include "vtkTransform.h"
 #include "vtkWebGPUPolyDataMapper.h"
 #include "vtkWebGPUTexture.h"
@@ -215,6 +216,28 @@ public:
   vtkWebGPU::Buffer ActorBuffer;
 
   vtkTypeUInt32 Id = 0;
+
+  vtkSmartPointer<vtkWebGPUTexture> BoundActorTexture;
+
+  /**
+   * The color texture of an actor: the actor's own texture, or else the only texture of a
+   * non-PBR property. Unlike OpenGL, which blends every property texture, WebGPU renders at most
+   * one.
+   */
+  static vtkWebGPUTexture* GetActorTexture(vtkActor* actor)
+  {
+    if (actor->GetTexture())
+    {
+      return vtkWebGPUTexture::SafeDownCast(actor->GetTexture());
+    }
+    auto* property = actor->GetProperty();
+    const auto& textures = property->GetAllTextures();
+    if (property->GetInterpolation() != VTK_PBR && textures.size() == 1)
+    {
+      return vtkWebGPUTexture::SafeDownCast(textures.begin()->second);
+    }
+    return nullptr;
+  }
 
   enum PBRTexture
   {

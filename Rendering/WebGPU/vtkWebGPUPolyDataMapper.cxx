@@ -641,6 +641,7 @@ vtkTypeUInt32 vtkWebGPUPolyDataMapper::GetShadingFeatures(vtkActor* actor, vtkRe
 {
   vtkProperty* property = actor->GetProperty();
   vtkTypeUInt32 features = static_cast<vtkTypeUInt32>(property->GetInterpolation());
+  features |= vtkWebGPUActorInternals::GetActorTexture(actor) ? 0x8u : 0u;
   if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
   {
     features |= wgpuRenderer->HasImageBasedLighting() ? 0x4u : 0u;
@@ -2860,7 +2861,7 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderActorBindings(
   std::stringstream codeStream;
   codeStream << "@group(" << GROUP_ACTOR << ") @binding(" << bindingId++
              << ") var<storage, read> actor: Actor;";
-  if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(wgpuActor->GetTexture()))
+  if (auto* wgpuTexture = vtkWebGPUActorInternals::GetActorTexture(wgpuActor))
   {
     if (auto devRc = wgpuTexture->GetDeviceResource())
     {
@@ -4056,7 +4057,7 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderColors(GraphicsPipelineType p
 
   if (this->HasPointAttributes[POINT_UVS])
   {
-    if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(wgpuActor->GetTexture()))
+    if (auto* wgpuTexture = vtkWebGPUActorInternals::GetActorTexture(wgpuActor))
     {
       if (wgpuTexture->GetDeviceResource() != nullptr)
       {
