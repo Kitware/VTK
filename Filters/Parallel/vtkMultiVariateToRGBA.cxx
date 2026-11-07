@@ -1151,13 +1151,18 @@ int vtkMultiVariateToRGBA::RequestDataObject(
   {
     return 0;
   }
+  vtkDataObject* outData = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (!vtkTable::SafeDownCast(inData) && !vtkDataSet::SafeDownCast(inData))
   {
     vtkErrorMacro("Input type not supported: " << inData->GetClassName());
-    return 1;
+    // empty the previous output on error
+    if (outData)
+    {
+      outData->Initialize();
+    }
+    return 0;
   }
   // keep the output across executions, e.g. lens-only changes
-  vtkDataObject* outData = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (!outData || !outData->IsA(inData->GetClassName()))
   {
     auto newData = vtkSmartPointer<vtkDataObject>::Take(inData->NewInstance());
