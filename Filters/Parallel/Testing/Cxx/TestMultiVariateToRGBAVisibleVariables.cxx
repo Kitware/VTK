@@ -7,7 +7,8 @@
  * do not mix until the visibility starts over, unnamed variables are named
  * after their index, names are unique, and changes that do not change the visibility do not
  * modify the filter. Also check that the partition indexes the visible
- * variables only.
+ * variables only, and that a non-numeric column is hidden by default and
+ * an error when made visible.
  */
 
 #include <vtkCommand.h>
@@ -443,6 +444,46 @@ bool TestNamesFollowInput()
   return true;
 }
 
+// Checks that a string column is hidden by default, keeps its index, and
+// is reported as an error when made visible by name or by index.
+bool TestNonNumericColumn()
+{
+  vtkSmartPointer<vtkDataObject> input = MakeTable({ 0, 1, 2, 3 });
+  auto* table = vtkTable::SafeDownCast(input);
+  vtkNew<vtkStringArray> species;
+  species->SetName("species");
+  species->SetNumberOfValues(NumberOfValues);
+  table->InsertColumn(species, 2);
+  vtkSmartPointer<vtkMultiVariateToRGBA> filter = MakeFilter(input);
+  CHECK(ToNames(filter->GetAllVariableNames()) == Names({ "a", "b", "species", "c", "d" }));
+  CHECK(filter->GetVisibleVariableIndices() == Indices({ 0, 1, 3, 4 }));
+  CHECK(ToNames(filter->GetVisibleVariables()) == Names({ "a", "b", "c", "d" }));
+  CHECK(!filter->GetVariableVisibility("species"));
+  CHECK(!filter->GetVariableVisibility(2));
+  vtkNew<vtkTest::ErrorObserver> errorObserver;
+  filter->AddObserver(vtkCommand::ErrorEvent, errorObserver);
+  filter->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver);
+  CHECK(NumberOfVertices(filter) == 4);
+  CHECK(!errorObserver->GetError());
+
+  const std::string notNumeric = "Column is not a one component numeric array: species";
+  vtkNew<vtkStringArray> visible;
+  for (const char* name : { "a", "species", "c" })
+  {
+    visible->InsertNextValue(name);
+  }
+  filter->SetVisibleVariables(visible);
+  CHECK(filter->GetVariableVisibility("species"));
+  CHECK(NumberOfVertices(filter) == -1);
+  CHECK(errorObserver->HasErrorMessage(notNumeric));
+  errorObserver->Clear();
+  filter->SetVisibleVariableIndices({ 0, 2, 3 });
+  CHECK(filter->GetVisibleVariableIndices() == Indices({ 0, 2, 3 }));
+  CHECK(NumberOfVertices(filter) == -1);
+  CHECK(errorObserver->HasErrorMessage(notNumeric));
+  return true;
+}
+
 bool TestPartition(const std::function<vtkSmartPointer<vtkDataObject>(const Indices&)>& makeInput)
 {
   const Indices visible = { 0, 2, 3, 4 };
@@ -528,6 +569,11 @@ int TestMultiVariateToRGBAVisibleVariables(int, char*[])
   if (!TestNamesFollowInput())
   {
     std::cerr << "Names following the input failed" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!TestNonNumericColumn())
+  {
+    std::cerr << "Non-numeric column failed" << std::endl;
     return EXIT_FAILURE;
   }
   if (!TestPartition([](const Indices& variables) { return MakeTable(variables); }))

@@ -898,12 +898,20 @@ vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetAllVariableNames()
 }
 
 //------------------------------------------------------------------------------
-bool vtkMultiVariateToRGBA::IsVariableVisible(int index, const std::string& name) const
+bool vtkMultiVariateToRGBA::IsVariableVisible(
+  int index, const std::string& name, bool numeric) const
 {
   // at most one of the exceptions is not empty
-  return this->VariablesVisibleByDefault !=
-    (this->NameVisibilityExceptions.count(name) > 0 ||
-      this->IndexVisibilityExceptions.count(index) > 0);
+  bool exception = this->NameVisibilityExceptions.count(name) > 0 ||
+    this->IndexVisibilityExceptions.count(index) > 0;
+  return exception ? !this->VariablesVisibleByDefault : this->VariablesVisibleByDefault && numeric;
+}
+
+//------------------------------------------------------------------------------
+bool vtkMultiVariateToRGBA::IsNumericVariable(int index)
+{
+  vtkTable* table = vtkTable::SafeDownCast(this->GetInputDataObject(0, 0));
+  return !table || vtkDataArray::SafeDownCast(table->GetColumn(index)) != nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -967,7 +975,9 @@ bool vtkMultiVariateToRGBA::GetVariableVisibility(const std::string& name)
   vtkSmartPointer<vtkStringArray> names = this->GetAllVariableNames();
   vtkIdType index = names->LookupValue(name);
   // a variable not in the current input is not visible
-  return index >= 0 && this->IsVariableVisible(static_cast<int>(index), name);
+  return index >= 0 &&
+    this->IsVariableVisible(
+      static_cast<int>(index), name, this->IsNumericVariable(static_cast<int>(index)));
 }
 
 //------------------------------------------------------------------------------
@@ -975,7 +985,7 @@ bool vtkMultiVariateToRGBA::GetVariableVisibility(int index)
 {
   vtkSmartPointer<vtkStringArray> names = this->GetAllVariableNames();
   return index >= 0 && index < names->GetNumberOfValues() &&
-    this->IsVariableVisible(index, names->GetValue(index));
+    this->IsVariableVisible(index, names->GetValue(index), this->IsNumericVariable(index));
 }
 
 //------------------------------------------------------------------------------
@@ -990,7 +1000,8 @@ vtkStringArray* vtkMultiVariateToRGBA::GetVisibleVariables()
   this->VisibleVariablesCache->Initialize();
   for (vtkIdType i = 0; i < names->GetNumberOfValues(); ++i)
   {
-    if (this->IsVariableVisible(static_cast<int>(i), names->GetValue(i)))
+    if (this->IsVariableVisible(
+          static_cast<int>(i), names->GetValue(i), this->IsNumericVariable(static_cast<int>(i))))
     {
       this->VisibleVariablesCache->InsertNextValue(names->GetValue(i));
     }
@@ -1047,7 +1058,8 @@ std::vector<int> vtkMultiVariateToRGBA::GetVisibleVariableIndices()
   std::vector<int> indices;
   for (vtkIdType i = 0; i < names->GetNumberOfValues(); ++i)
   {
-    if (this->IsVariableVisible(static_cast<int>(i), names->GetValue(i)))
+    if (this->IsVariableVisible(
+          static_cast<int>(i), names->GetValue(i), this->IsNumericVariable(static_cast<int>(i))))
     {
       indices.push_back(static_cast<int>(i));
     }
@@ -1444,7 +1456,8 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
     std::vector<std::string> names = ::columnNames(table);
     for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
     {
-      if (this->IsVariableVisible(static_cast<int>(i), names[i]))
+      if (this->IsVariableVisible(static_cast<int>(i), names[i],
+            vtkDataArray::SafeDownCast(table->GetColumn(i)) != nullptr))
       {
         columns.push_back(table->GetColumn(i));
       }

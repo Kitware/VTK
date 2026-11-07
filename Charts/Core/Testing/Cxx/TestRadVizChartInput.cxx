@@ -12,8 +12,8 @@
  * returns only the labels set, and that it draws nothing, leaving no
  * vertices to interact with, when hidden or when too few variables remain
  * after a paint. Check that unchanged or rejected visibility settings do not
- * modify the plot, and that a table column with several components is
- * reported as an error.
+ * modify the plot, that a table column with several components is
+ * reported as an error, and that a string column is hidden by default.
  */
 
 #include "vtkCellData.h"
@@ -478,6 +478,22 @@ int TestRadVizChartInput(int, char*[])
               }) == 0);
       CHECK(errors->HasErrorMessage(several));
     }
+  }
+  // a string column is hidden by default
+  {
+    vtkNew<vtkTest::ErrorObserver> errors;
+    CHECK(PaintVertices(
+            [&](vtkPlotRadViz* plot)
+            {
+              plot->AddObserver(vtkCommand::ErrorEvent, errors);
+              vtkSmartPointer<vtkTable> table = MakeTable();
+              vtkNew<vtkStringArray> species;
+              species->SetName("species");
+              species->SetNumberOfValues(NumberOfValues);
+              table->AddColumn(species);
+              plot->SetInputData(table);
+            }) == 4);
+    CHECK(!errors->GetError());
   }
   // nothing for a hidden plot
   CHECK(PaintVertices(
