@@ -840,6 +840,8 @@ const TRIANGLE_VERTS = array(
         break;
       case GFX_PIPELINE_TRIANGLES:
       case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+        // Without scalar colors, color_options selects actor.backface_color_options for back faces.
+        // It is initialized by vtkWebGPUPolyDataMapper::ReplaceFragmentShaderMainStart.
         vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Colors::Impl", basicColorFSImpl + R"(
     if (!is_front_facing && hasBackfaceProperty(actor.render_options.flags_2))
     {
