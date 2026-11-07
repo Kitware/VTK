@@ -266,15 +266,20 @@ int TestMultiVariateToRGBADegenerate(int, char*[])
   CHECK(AtCenter(filter));
   CHECK(AlphaIs(filter, { 0 }));
 
-  // No points: the output arrays are empty
-  vtkNew<vtkPolyData> empty;
-  vtkNew<vtkDoubleArray> emptyValues;
-  emptyValues->SetName("mv");
-  emptyValues->SetNumberOfComponents(4);
-  empty->GetPointData()->AddArray(emptyValues);
-  filter = Run(empty);
-  CHECK(GetArray(filter, "rgba") && GetArray(filter, "rgba")->GetNumberOfTuples() == 0);
-  CHECK(GetArray(filter, "gbc") && GetArray(filter, "gbc")->GetNumberOfTuples() == 0);
+  // No points: the output arrays are empty and the range is the empty
+  // vtkDataArray range, whatever the type
+  for (int dataType : { VTK_DOUBLE, VTK_UNSIGNED_CHAR, VTK_INT })
+  {
+    vtkNew<vtkPolyData> empty;
+    auto emptyValues = vtkSmartPointer<vtkDataArray>::Take(vtkDataArray::CreateDataArray(dataType));
+    emptyValues->SetName("mv");
+    emptyValues->SetNumberOfComponents(4);
+    empty->GetPointData()->AddArray(emptyValues);
+    filter = Run(empty);
+    CHECK(GetArray(filter, "rgba") && GetArray(filter, "rgba")->GetNumberOfTuples() == 0);
+    CHECK(GetArray(filter, "gbc") && GetArray(filter, "gbc")->GetNumberOfTuples() == 0);
+    CHECK(filter->GetRange() == std::vector<double>({ VTK_DOUBLE_MAX, VTK_DOUBLE_MIN }));
+  }
 
   // Fewer than 3 components, in the array or visible: the filter fails
   // without adding arrays

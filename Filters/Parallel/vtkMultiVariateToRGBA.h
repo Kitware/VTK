@@ -236,8 +236,10 @@ public:
    * group during the last RequestData, in the same flat, interleaved
    * layout as CustomRange: CustomRange[i] when it was set for that group,
    * otherwise the range computed from the data (and reduced across
-   * processes if the Controller is not null). Empty until RequestData has
-   * run at least once.
+   * processes if the Controller is not null). For a group without values in
+   * any process, the computed range is [VTK_DOUBLE_MAX, VTK_DOUBLE_MIN], the
+   * range of an empty vtkDataArray. Empty until RequestData has run at least
+   * once.
    */
   std::vector<double> GetRange() VTK_FUTURE_CONST;
 

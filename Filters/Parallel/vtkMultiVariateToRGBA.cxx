@@ -134,6 +134,12 @@ struct NormalizeWorker
         this->Controller->AllReduce(&localMax, &globalMax, 1, vtkCommunicator::MAX_OP);
         maxValue = globalMax;
       }
+      if (minValue > maxValue)
+      {
+        // no values in any process: use the range of an empty vtkDataArray
+        minValue = VTK_DOUBLE_MAX;
+        maxValue = VTK_DOUBLE_MIN;
+      }
     }
     this->MinValue = minValue;
     this->MaxValue = maxValue;
