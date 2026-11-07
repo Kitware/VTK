@@ -4,12 +4,16 @@
  * Check that a lens-only change of vtkMultiVariateToRGBA reuses the last
  * results and output object, and gives the same output as a full execution,
  * that setting the visible variables they already have keeps the last
- * results, and that the output object follows the input type.
+ * results, and that the output object follows the input type. Lens-only
+ * changes are also checked for table rows of mixed types and cell data.
  */
 
+#include <vtkCellData.h>
 #include <vtkDataArrayRange.h>
 #include <vtkDoubleArray.h>
+#include <vtkFloatArray.h>
 #include <vtkImageData.h>
+#include <vtkIntArray.h>
 #include <vtkMultiVariateToRGBA.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
@@ -67,6 +71,27 @@ void SetLens(
   full->Modified();
   cached->Update();
   full->Update();
+}
+
+// Returns true if a lens-only change, for 'input' with the scalars in its
+// 'attributeType' attributes, reuses the last results and gives the same
+// 'rgba' as a full execution.
+bool LensReusesCache(vtkDataObject* input, int attributeType)
+{
+  vtkNew<vtkMultiVariateToRGBA> cached;
+  vtkNew<vtkMultiVariateToRGBA> full;
+  for (vtkMultiVariateToRGBA* filter : { cached.GetPointer(), full.GetPointer() })
+  {
+    filter->SetController(nullptr);
+    filter->SetInputData(input);
+    filter->SetStoreGBC(true);
+  }
+  auto get = [attributeType](vtkMultiVariateToRGBA* filter, const char* name)
+  { return filter->GetOutputDataObject(0)->GetAttributes(attributeType)->GetArray(name); };
+  SetLens(cached, full, 0.4, -0.2, 0.5);
+  vtkSmartPointer<vtkDataArray> gbc = get(cached, "gbc");
+  SetLens(cached, full, 0.1, 0.3, 0.6);
+  return gbc && get(cached, "gbc") == gbc && Equal(get(cached, "rgba"), get(full, "rgba"));
 }
 }
 
@@ -247,5 +272,38 @@ int TestMultiVariateToRGBALens(int, char*[])
   full->SetInputData(image);
   full->Update();
   CHECK(vtkImageData::SafeDownCast(full->GetOutputDataObject(0)));
+
+  // lens-only changes for table columns of mixed types, which are copied
+  vtkNew<vtkTable> mixed;
+  vtkNew<vtkIntArray> intColumn;
+  vtkNew<vtkFloatArray> floatColumn;
+  vtkNew<vtkDoubleArray> doubleColumn;
+  int c = 0;
+  for (vtkDataArray* column : { static_cast<vtkDataArray*>(intColumn),
+         static_cast<vtkDataArray*>(floatColumn), static_cast<vtkDataArray*>(doubleColumn) })
+  {
+    column->SetName(vtk::to_string(c).c_str());
+    column->SetNumberOfTuples(10);
+    for (vtkIdType i = 0; i < 10; ++i)
+    {
+      column->SetTuple1(i, (i * (c + 3) + c) % 11);
+    }
+    mixed->AddColumn(column);
+    ++c;
+  }
+  CHECK(LensReusesCache(mixed, vtkDataObject::ROW));
+
+  // and for cell scalars
+  vtkNew<vtkImageData> cellImage;
+  cellImage->SetDimensions(5, 5, 5);
+  vtkNew<vtkDoubleArray> cellValues;
+  cellValues->SetNumberOfComponents(4);
+  cellValues->SetNumberOfTuples(cellImage->GetNumberOfCells());
+  for (vtkIdType i = 0; i < cellValues->GetNumberOfValues(); ++i)
+  {
+    cellValues->SetValue(i, std::fabs(std::sin(0.37 * i)));
+  }
+  cellImage->GetCellData()->SetScalars(cellValues);
+  CHECK(LensReusesCache(cellImage, vtkDataObject::CELL));
   return EXIT_SUCCESS;
 }

@@ -1198,6 +1198,32 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataObject* outData = outInfo->Get(vtkDataObject::DATA_OBJECT());
   outData->ShallowCopy(inData);
   bool parallel = this->Controller && this->Controller->GetNumberOfProcesses() > 1;
+  // Only the lens changed since the last execution: reuse its results,
+  // without looking up the scalars again.
+  int useCache = (this->StoreRGBA || this->StoreA) && this->CachedAlpha &&
+    this->CachedInput == inData && this->NonLensModifiedTime < this->CacheTime &&
+    inData->GetMTime() < this->CacheTime.GetMTime();
+  if (parallel)
+  {
+    // every process must take the same path: the full one has collectives
+    int localUseCache = useCache;
+    this->Controller->AllReduce(&localUseCache, &useCache, 1, vtkCommunicator::MIN_OP);
+  }
+  if (useCache)
+  {
+    vtkDataSetAttributes* attributes =
+      GetAttributesForAssociation(outData, this->CachedAssociation);
+    if (this->StoreVertices)
+    {
+      outData->GetFieldData()->AddArray(this->CachedVertices);
+    }
+    if (this->StoreGBC)
+    {
+      attributes->AddArray(this->CachedGBC);
+    }
+    attributes->AddArray(this->ApplyLens());
+    return 1;
+  }
   bool emptyPiece = parallel && IsEmptyPiece(outData);
   vtkTable* table = vtkTable::SafeDownCast(outData);
   // an empty piece looks up its own scalars if it has them, so all pieces can
@@ -1261,29 +1287,6 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   else if (!scalars)
   {
     return 0;
-  }
-  // Only the lens changed since the last execution: reuse its results.
-  int useCache = (this->StoreRGBA || this->StoreA) && this->CachedAlpha &&
-    this->CachedInput == inData && this->NonLensModifiedTime < this->CacheTime &&
-    inData->GetMTime() < this->CacheTime.GetMTime();
-  if (parallel)
-  {
-    // every process must take the same path: the full one has collectives
-    int localUseCache = useCache;
-    this->Controller->AllReduce(&localUseCache, &useCache, 1, vtkCommunicator::MIN_OP);
-  }
-  if (useCache)
-  {
-    if (this->StoreVertices)
-    {
-      outData->GetFieldData()->AddArray(this->CachedVertices);
-    }
-    if (this->StoreGBC)
-    {
-      attributes->AddArray(this->CachedGBC);
-    }
-    attributes->AddArray(this->ApplyLens());
-    return 1;
   }
   int numComponents = scalars->GetNumberOfComponents();
   // Use local copies: the default partition depends on the current number of
@@ -1412,6 +1415,10 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     this->CachedRGB = rgbScalars;
     this->CachedAlpha = alphaScalars.GetPointer();
     this->CachedInput = inData;
+    vtkDataSet* dataset = vtkDataSet::SafeDownCast(outData);
+    this->CachedAssociation = dataset && attributes == dataset->GetCellData()
+      ? vtkDataObject::FIELD_ASSOCIATION_CELLS
+      : vtkDataObject::FIELD_ASSOCIATION_POINTS;
     this->CacheTime.Modified();
     attributes->AddArray(this->ApplyLens());
   }

@@ -485,6 +485,8 @@ private:
   vtkSmartPointer<vtkDoubleArray> CachedAlpha;
   vtkSmartPointer<vtkDoubleArray> CachedVertices;
   vtkWeakPointer<vtkDataObject> CachedInput;
+  // association of the attributes that received the cached arrays
+  int CachedAssociation = 0;
   vtkTimeStamp CacheTime;
   ///@}
   /**
