@@ -345,7 +345,9 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     let F_avg = material.F0 + (1.0 - material.F0) / 21.0;
     let FmsEms = Ems * FssEss * F_avg / max(1.0 - F_avg * Ems, vec3<f32>(1e-5));
     let k_D = ibl_albedo * (1.0 - FssEss - FmsEms);
-    pbr_color = FssEss * prefiltered + (FmsEms + k_D) * irradiance;
+    let ibl_specular = FssEss * prefiltered;
+    let ibl_diffuse = (FmsEms + k_D) * irradiance;
+    pbr_color = ibl_diffuse + ibl_specular;
 )";
     code << R"(
     if (pbr_has_coat)
@@ -358,8 +360,11 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
         vec2<f32>(surface.coat_NdV, material.coat_roughness), 0.0).rg;
       let Fc = pbrFresnelSchlick(material.coat_F0, material.coat_F90, surface.coat_NdV) *
         material.coat_strength;
+      // the coat reflects light away from the base layer, which only sees what gets through
+      pbr_color = ibl_diffuse * (1.0 - Fc) * (1.0 - Fc) + ibl_specular * (1.0 - Fc);
       pbr_color *= material.coat_color_factor;
-      pbr_color += coat_prefiltered * (material.coat_F0 * coat_brdf.r + coat_brdf.g) * Fc;
+      pbr_color += coat_prefiltered * (material.coat_F0 * coat_brdf.r + coat_brdf.g) *
+        material.coat_strength;
     }
 )";
   }

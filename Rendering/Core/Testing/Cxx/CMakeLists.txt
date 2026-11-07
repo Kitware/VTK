@@ -125,6 +125,7 @@ set(cxx_tests
   TestOSConeCxx.cxx
   TestPBRAnisotropy.cxx
   TestPBRClearCoat.cxx
+  TestPBRCoatAttenuation.cxx
   TestPBRColorMap.cxx,NO_DATA
   TestPBRColorMultiplier.cxx
   TestPBREdgeTint.cxx
@@ -135,6 +136,7 @@ set(cxx_tests
   TestPBRMaterialsCoat.cxx
   TestPBRMultipleScatteringIBL.cxx
   TestPBRTextureInterpolateScalars.cxx
+  TestPBRWhiteFurnace.cxx,NO_DATA,NO_VALID
   TestPickingManager.cxx,NO_VALID
   TestPickTextActor.cxx,NO_VALID
   TestPointPicker.cxx,NO_DATA

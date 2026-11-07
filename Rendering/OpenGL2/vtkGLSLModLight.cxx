@@ -704,9 +704,11 @@ bool vtkGLSLModLight::ReplaceShaderValues(vtkOpenGLRenderer* renderer, std::stri
              "  Fc = F_Schlick(coatF0, coatF90, coatNdV) * coatStrength;\n"
              "  iblSpecular *= (1.0 - Fc);\n"
              "  iblDiffuse *= (1.0 - Fc) * (1.0 - Fc);\n"
+             // the base layer has to be rebuilt from the attenuated lobes
+             "  color = iblDiffuse + iblSpecular;\n"
              "  // Clear coat specular\n"
              "  vec3 iblSpecularClearCoat = prefilteredSpecularCoatColor * (coatF0 * coatBrdf.r + "
-             "coatBrdf.g) * Fc;\n"
+             "coatBrdf.g) * coatStrength;\n"
              // Color absorption by the coat layer
              "  color *= coatColorFactor;\n"
              "  color += iblSpecularClearCoat;\n"
