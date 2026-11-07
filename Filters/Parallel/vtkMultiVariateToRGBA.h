@@ -443,12 +443,12 @@ private:
    * Returns the attributes that receive the output arrays and the scalars
    * to process, keeping only the visible columns or components. For a table,
    * the attributes are its row data, and the scalars combine its visible
-   * columns into one array with a component per column, or are the only
-   * visible column if it has several components. For a dataset, they are the
-   * point or cell data that hold the input array to process, and the scalars
-   * are that array. On an error, which is reported, the scalars are null; the
-   * attributes are also null if the dataset lacks the array or the input is
-   * neither a table nor a dataset.
+   * columns, which must be one component numeric arrays, into one array with
+   * a component per column. For a dataset, they are the point or cell data
+   * that hold the input array to process, and the scalars are that array.
+   * On an error, which is reported, the scalars are null; the attributes are
+   * also null if the dataset lacks the array or the input is neither a table
+   * nor a dataset.
    */
   std::pair<vtkDataSetAttributes*, vtkSmartPointer<vtkDataArray>> GetAttributesAndScalars(
     vtkDataObject* input, vtkInformationVector** inputVector);

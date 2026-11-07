@@ -2,12 +2,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * Check that vtkMultiVariateToRGBA processes table columns of any numeric
- * type, the same type or mixed, and AOS or not, the same as double columns.
+ * type, the same type or mixed, and AOS or not, the same as double columns,
+ * and that it rejects columns with several components.
  */
 
+#include <vtkCommand.h>
 #include <vtkDataArrayRange.h>
 #include <vtkDataSetAttributes.h>
 #include <vtkDoubleArray.h>
+#include <vtkExecutive.h>
 #include <vtkFloatArray.h>
 #include <vtkIntArray.h>
 #include <vtkMultiVariateToRGBA.h>
@@ -16,6 +19,7 @@
 #include <vtkShortArray.h>
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
+#include <vtkTestErrorObserver.h>
 
 #include <algorithm>
 #include <cstdlib>
@@ -49,8 +53,10 @@ vtkSmartPointer<vtkDataArray> MakeColumn(const std::string& name, int seed)
   return column;
 }
 
-// Returns the 'gbc' array the filter computes for a table with 'columns'.
-vtkSmartPointer<vtkDataArray> ComputeGBC(const std::vector<vtkSmartPointer<vtkDataArray>>& columns)
+// Returns the 'gbc' array the filter computes for a table with 'columns',
+// with errors caught by 'errorObserver' if it is set.
+vtkSmartPointer<vtkDataArray> ComputeGBC(const std::vector<vtkSmartPointer<vtkDataArray>>& columns,
+  vtkTest::ErrorObserver* errorObserver = nullptr)
 {
   vtkNew<vtkTable> table;
   for (vtkDataArray* column : columns)
@@ -58,6 +64,11 @@ vtkSmartPointer<vtkDataArray> ComputeGBC(const std::vector<vtkSmartPointer<vtkDa
     table->AddColumn(column);
   }
   vtkNew<vtkMultiVariateToRGBA> filter;
+  if (errorObserver)
+  {
+    filter->AddObserver(vtkCommand::ErrorEvent, errorObserver);
+    filter->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver);
+  }
   filter->SetController(nullptr);
   filter->SetStoreGBC(true);
   filter->SetInputData(table);
@@ -94,5 +105,21 @@ int TestMultiVariateToRGBATableTypes(int, char*[])
     MakeColumn<vtkSOADataArrayTemplate<double>>("b", 1),
     MakeColumn<vtkSOADataArrayTemplate<double>>("c", 2) });
   CHECK(gbc && Equal(gbc, expected));
+
+  // a column with several components is rejected, alone or with other columns
+  vtkNew<vtkDoubleArray> multi;
+  multi->SetName("multi");
+  multi->SetNumberOfComponents(4);
+  multi->SetNumberOfTuples(NumberOfValues);
+  multi->Fill(1.0);
+  const std::string oneComponent = "Column is not a one component numeric array: multi";
+  vtkNew<vtkTest::ErrorObserver> errorObserver;
+  CHECK(!ComputeGBC({ multi }, errorObserver));
+  CHECK(errorObserver->HasErrorMessage(oneComponent));
+  errorObserver->Clear();
+  CHECK(
+    !ComputeGBC({ MakeColumn<vtkDoubleArray>("a", 0), MakeColumn<vtkDoubleArray>("b", 1), multi },
+      errorObserver));
+  CHECK(errorObserver->HasErrorMessage(oneComponent));
   return EXIT_SUCCESS;
 }

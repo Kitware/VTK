@@ -1453,47 +1453,34 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
       return { attributes, nullptr };
     }
 
-    auto* array0 = vtkDataArray::FastDownCast(columns[0]);
-    if (!array0)
+    for (vtkAbstractArray* column : columns)
     {
-      vtkErrorMacro("Column is not a numeric array: " << columns[0]->GetName());
+      auto* array = vtkDataArray::FastDownCast(column);
+      if (!array || array->GetNumberOfComponents() != 1)
+      {
+        vtkErrorMacro("Column is not a one component numeric array: " << column->GetName());
+        return { attributes, nullptr };
+      }
+    }
+    if (columns.size() < 3)
+    {
+      vtkErrorMacro("Number of visible columns is less than 3: " << columns.size());
       return { attributes, nullptr };
     }
-    // for a table, convert the columns into a SOA array with multiple components
-    if (columns.size() > 1)
+    // convert the columns into a SOA array with a component per column
+    typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes> Dispatcher;
+    CreateSOAWorker worker(columns);
+    if (Dispatcher::Execute(vtkDataArray::FastDownCast(columns[0]), worker) && worker.SOAArray)
     {
-      if (columns.size() < 3)
-      {
-        vtkErrorMacro("Number of visible columns is less than 3: " << columns.size());
-        return { attributes, nullptr };
-      }
-      typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes> Dispatcher;
-      CreateSOAWorker worker(columns);
-      if (Dispatcher::Execute(array0, worker) && worker.SOAArray)
-      {
-        return { attributes, worker.SOAArray };
-      }
-      // columns of different types, or not AOS: copy them
-      vtkSmartPointer<vtkDataArray> copy = copyColumns(columns);
-      if (!copy)
-      {
-        vtkErrorMacro("Columns have to be one component numeric arrays");
-      }
-      return { attributes, copy };
+      return { attributes, worker.SOAArray };
     }
-    else
+    // columns of different types, or not AOS: copy them
+    vtkSmartPointer<vtkDataArray> copy = copyColumns(columns);
+    if (!copy)
     {
-      // otherwise, we just use the existing array with multiple components
-      if (array0->GetNumberOfComponents() > 2)
-      {
-        return { attributes, array0 };
-      }
-      else
-      {
-        vtkErrorMacro("Array has less than 3 components: " << array0->GetName());
-        return { attributes, nullptr };
-      }
+      vtkErrorMacro("Cannot copy the columns");
     }
+    return { attributes, copy };
   }
   else if (dataset)
   {
