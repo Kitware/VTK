@@ -12,7 +12,8 @@
  * returns only the labels set, and that it draws nothing, leaving no
  * vertices to interact with, when hidden or when too few variables remain
  * after a paint. Check that unchanged or rejected visibility settings do not
- * modify the plot.
+ * modify the plot, and that a table column with several components is
+ * reported as an error.
  */
 
 #include "vtkCellData.h"
@@ -455,6 +456,29 @@ int TestRadVizChartInput(int, char*[])
             plot->SetVariableVisibility("b", false);
           }) == 0);
   CHECK(RepaintVertices([](vtkPlotRadViz* plot) { plot->SetVisible(false); }) == 0);
+  // a table column with several components, alone or with other columns
+  {
+    const std::string several = "Column has several components: multi";
+    vtkNew<vtkTest::ErrorObserver> errors;
+    for (bool alone : { true, false })
+    {
+      auto table = vtkSmartPointer<vtkTable>::New();
+      if (!alone)
+      {
+        table->AddColumn(MakeArray("a", 1));
+        table->AddColumn(MakeArray("b", 1));
+      }
+      table->AddColumn(MakeArray("multi", 4));
+      errors->Clear();
+      CHECK(PaintVertices(
+              [&](vtkPlotRadViz* plot)
+              {
+                plot->AddObserver(vtkCommand::ErrorEvent, errors);
+                plot->SetInputData(table);
+              }) == 0);
+      CHECK(errors->HasErrorMessage(several));
+    }
+  }
   // nothing for a hidden plot
   CHECK(PaintVertices(
           [](vtkPlotRadViz* plot)

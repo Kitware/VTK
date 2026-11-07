@@ -9,9 +9,10 @@
  *
  * Radial plot of multivariate data (a tuple with multiple components
  * corresponds to a point) that shows the relations among these
- * variables (components). The plot accepts either a vtkTable or a
- * vtkDataSet as input. It uses vtkMultiVariateToRGBA to compute the
- * point generalized barycentric coordinates (GBC) and the color
+ * variables (components). The plot accepts either a vtkTable, whose
+ * visible columns must have one component, or a vtkDataSet as input. It
+ * uses vtkMultiVariateToRGBA to compute the point generalized
+ * barycentric coordinates (GBC) and the color
  * (RGBA) for a tuple. The point position and color represent the
  * normalized value of each component in relation to each other while
  * the opacity represents the average normalized value for all

@@ -449,6 +449,19 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
           0, 0, 0, association, arrayInfo->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE()));
       }
     }
+    if (auto* table = vtkTable::SafeDownCast(input))
+    {
+      // vtkMultiVariateToRGBA rejects them, so report it instead of drawing nothing
+      for (int index : this->ComputeGBC->GetVisibleVariableIndices())
+      {
+        vtkAbstractArray* column = table->GetColumn(index);
+        if (column->GetNumberOfComponents() != 1)
+        {
+          throw std::runtime_error(std::string("Column has several components: ") +
+            this->ComputeGBC->GetAllVariableNames()->GetValue(index));
+        }
+      }
+    }
     // counts the variables of the input and array set above
     if (this->GetVisibleVariables()->GetNumberOfTuples() < 3)
     {
