@@ -653,7 +653,6 @@ vtkSmartPointer<vtkDataArray> createFilteredSOAArray(
   {
     result->SetArray(static_cast<int>(i), soaArray->GetComponentArrayPointer(componentIndices[i]),
       numTuples, false /*updateMaxId*/, true /*save*/);
-    result->SetComponentName(static_cast<int>(i), soaArray->GetComponentName(componentIndices[i]));
   }
   return result;
 }
@@ -1096,14 +1095,9 @@ vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::GetVisibleComponentsArray(v
     return nullptr;
   }
 
-  // Fast path: nothing filtered out, use the original array directly so
-  // that vtkArrayDispatch can still fast-path on its concrete type.
-  bool identity = static_cast<int>(componentIndices.size()) == array->GetNumberOfComponents();
-  for (size_t i = 0; identity && i < componentIndices.size(); ++i)
-  {
-    identity = componentIndices[i] == static_cast<int>(i);
-  }
-  if (identity)
+  // Fast path: every component is visible (the indices increase), so use the
+  // array directly and vtkArrayDispatch can still fast-path on its type.
+  if (static_cast<int>(componentIndices.size()) == array->GetNumberOfComponents())
   {
     return array;
   }
@@ -1131,11 +1125,6 @@ vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::GetVisibleComponentsArray(v
   implicitArray->SetBackend(backend);
   implicitArray->SetNumberOfComponents(static_cast<int>(componentIndices.size()));
   implicitArray->SetNumberOfTuples(array->GetNumberOfTuples());
-  for (size_t i = 0; i < componentIndices.size(); ++i)
-  {
-    implicitArray->SetComponentName(
-      static_cast<int>(i), array->GetComponentName(componentIndices[i]));
-  }
   return implicitArray;
 }
 
@@ -1338,13 +1327,8 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   vtkNew<vtkDoubleArray> normalizedScalars;
-  normalizedScalars->SetName("normalized");
   normalizedScalars->SetNumberOfComponents(scalars->GetNumberOfComponents());
   normalizedScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
-  for (int i = 0; i < scalars->GetNumberOfComponents(); ++i)
-  {
-    normalizedScalars->SetComponentName(i, scalars->GetComponentName(i));
-  }
   // the input scalars can be of any numeric type; the intermediate arrays created by this
   // filter are always vtkDoubleArray, so only the input array needs to be dispatched.
   typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes> InputDispatcher;
