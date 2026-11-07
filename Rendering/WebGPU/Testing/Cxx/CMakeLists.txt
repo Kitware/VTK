@@ -41,7 +41,8 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestWebGPUContextDevice2DPolygons.cxx
   TestWebGPUContextDevice2DSprites.cxx
   TestWebGPUContextDevice2DText.cxx
-  TestWebGPUContext2D.cxx,NO_DATA,NO_VALID)
+  TestWebGPUContext2D.cxx,NO_DATA,NO_VALID
+  TestTriangleStrips.cxx,NO_SERDES)
 
 if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   # A browser always renders into its canvas, so there is no window to do without there.
@@ -59,6 +60,7 @@ vtk_test_cxx_executable(vtkRenderingWebGPUCxxTests tests)
 set_property(TEST
   VTK::RenderingWebGPUCxx-TestDeepFramebufferImageBasedLighting
   VTK::RenderingWebGPUCxx-TestDeepFramebufferOpaqueOcclusion
+  VTK::RenderingWebGPUCxx-TestTriangleStrips
   APPEND PROPERTY FAIL_REGULAR_EXPRESSION "Validation error")
 
 # The test compiles a broken shader on purpose and checks the error it logs.

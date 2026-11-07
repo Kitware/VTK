@@ -28,6 +28,7 @@ TEST_DEPENDS
   VTK::CommonColor
   VTK::CommonSystem
   VTK::RenderingAnnotation
+  VTK::FiltersCore
   VTK::FiltersExtraction
   VTK::FiltersGeneral
   VTK::FiltersSources
