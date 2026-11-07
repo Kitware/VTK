@@ -122,17 +122,12 @@ struct NormalizeWorker
       maxValue = localMaxValue;
       if (this->Controller)
       {
-        double globalMin;
-        double localMin = minValue;
-        this->Controller->AllReduce(&localMin, &globalMin, 1, vtkCommunicator::MIN_OP);
-        minValue = globalMin;
-      }
-      if (this->Controller)
-      {
-        double globalMax;
-        double localMax = maxValue;
-        this->Controller->AllReduce(&localMax, &globalMax, 1, vtkCommunicator::MAX_OP);
-        maxValue = globalMax;
+        // one MIN reduction for both: the max is the opposite of the min of the opposites
+        double local[2] = { minValue, -maxValue };
+        double global[2];
+        this->Controller->AllReduce(local, global, 2, vtkCommunicator::MIN_OP);
+        minValue = global[0];
+        maxValue = -global[1];
       }
       if (minValue > maxValue)
       {
