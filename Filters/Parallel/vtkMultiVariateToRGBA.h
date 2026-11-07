@@ -213,7 +213,9 @@ public:
    * in which case the global min/max is computed from the data (and
    * reduced across processes if the Controller is not null). Otherwise,
    * CustomRange must hold exactly two values (one [min, max] pair) per
-   * partition group.
+   * partition group, with min <= max. A pair with min == max, which GetRange
+   * reports for a group with a constant value, maps every value of that
+   * group to 0, the same as a constant group without a custom range.
    */
   void SetCustomRange(const std::vector<double>& customRange);
   std::vector<double> GetCustomRange() VTK_FUTURE_CONST;

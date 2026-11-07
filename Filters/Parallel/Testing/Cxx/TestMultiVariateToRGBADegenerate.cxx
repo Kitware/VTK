@@ -327,6 +327,23 @@ int TestMultiVariateToRGBADegenerate(int, char*[])
       f->AddCustomRange(0, 8);
     });
   CHECK(Finite(filter));
+  // a pair with min > max is rejected, in any group
+  CHECK(
+    Rejected(image, [](vtkMultiVariateToRGBA* f) { f->SetCustomRange({ 4, 0 }); }, invalidRange));
+  CHECK(Rejected(
+    image,
+    [](vtkMultiVariateToRGBA* f)
+    {
+      SetGroups(f, { 3, 4 });
+      f->AddCustomRange(0, 4);
+      f->AddCustomRange(8, 0);
+    },
+    invalidRange));
+  // min == max, as GetRange reports for a constant group, maps every value to 0
+  filter = Run(image, [](vtkMultiVariateToRGBA* f) { f->SetCustomRange({ 2, 2 }); });
+  CHECK(Finite(filter));
+  CHECK(AtCenter(filter));
+  CHECK(AlphaIs(filter, { 0, 0, 0, 0 }));
 
   // Invalid output selections are rejected
   CHECK(Rejected(

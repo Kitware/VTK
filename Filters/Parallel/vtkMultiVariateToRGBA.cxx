@@ -1322,6 +1322,16 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
            this->CustomRange.size(), partitionOffsets.size(), 2 * partitionOffsets.size()));
     return 0;
   }
+  for (size_t i = 0; i < this->CustomRange.size(); i += 2)
+  {
+    if (this->CustomRange[i] > this->CustomRange[i + 1])
+    {
+      vtkErrorMacro(<< fmt::format("Invalid CustomRange for group {}: min {} is greater "
+                                   "than max {}",
+                      i / 2, this->CustomRange[i], this->CustomRange[i + 1]));
+      return 0;
+    }
+  }
 
   vtkNew<vtkDoubleArray> normalizedScalars;
   normalizedScalars->SetName("normalized");
