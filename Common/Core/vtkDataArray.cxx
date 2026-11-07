@@ -101,6 +101,7 @@ vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray* source)
       case vtkArrayTypes::VTK_STD_FUNCTION_ARRAY:
       case vtkArrayTypes::VTK_STRIDED_ARRAY:
       case vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY:
+      case vtkArrayTypes::VTK_DEVICE_DATA_ARRAY:
         return static_cast<vtkDataArray*>(source);
       default:
         break;

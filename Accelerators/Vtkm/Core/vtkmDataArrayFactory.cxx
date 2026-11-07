@@ -289,6 +289,13 @@ int vtkmDataArrayFactory::GetNumberOfBuffers() const
 }
 
 //------------------------------------------------------------------------------
+bool vtkmDataArrayFactory::IsMemorySpaceAvailable(const char* space)
+{
+  viskores::cont::DeviceAdapterId device = viskores::cont::DeviceAdapterTagUndefined{};
+  return MemorySpaceToDevice(space, device);
+}
+
+//------------------------------------------------------------------------------
 vtkTypeUInt64 vtkmDataArrayFactory::GetLevelZeroDriverHandle()
 {
   void *driver, *device, *context;

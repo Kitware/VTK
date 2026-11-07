@@ -33,10 +33,15 @@ is one that will be got wrong.
 
 Device support
 --------------
-Host arrays work with plain VTK. Device arrays require VTK built with
-``VTK_ENABLE_VISKORES`` so that ``vtkmDataArrayFactory`` is available to
-wrap device memory; importing a device tensor without it raises
-``RuntimeError`` rather than silently copying to the host.
+Host arrays work with plain VTK. In VTK built with Viskores, device memory
+of a kind Viskores was built for is held by Viskores' arrays
+(``vtkmDataArrayFactory``), so Viskores' filters run on it. Any other device
+memory is held by VTK's own ``vtkDeviceDataArray`` wherever the vendor's
+driver or runtime loads -- VTK needs no GPU toolkit for it, only the driver at
+run time (CUDA, HIP and Level Zero). ``VTK_DLPACK_DEVICE_ARRAYS=vtk`` in the
+environment prefers VTK's own arrays where both could. Without either,
+importing a device tensor raises ``RuntimeError`` rather than silently copying
+to the host.
 
 Metal tensors are rejected. The data pointer a Metal tensor carries is the
 ``MTLBuffer`` object itself, not memory the host can read -- PyTorch's MPS
@@ -59,23 +64,29 @@ meaningful inside the ``ze_context_handle_t`` it was allocated from, and
 recovering that requires a context you already hold.
 
 So for ``kDLOneAPI`` the context travels once, out of band, instead of with
-every tensor. ``level_zero_handles()`` reports the driver, device and
-context of the SYCL queue Viskores runs on, and a producer that wants VTK
-to read its memory allocates *there*. Kokkos builds that queue in the SYCL
-platform's default context, which is also where a SYCL program allocates
-unless it creates a context of its own. On import the
-pointer is checked against that context and refused if the SYCL runtime
-does not know it as USM device or shared memory. The check separates device
-memory from host memory; it cannot prove which context a pointer came from,
-because drivers are not required to tell contexts apart and Intel's does
-not. Exported Level Zero tensors are in that context too. All of this
-needs VTK built with Viskores on Kokkos' SYCL backend; without it
+every tensor. VTK has one Level Zero context per process, and
+``level_zero_handles()`` reports its driver, device and context; a producer
+that wants VTK to read its memory allocates *there*. The context is, in
+order: one a producer gave VTK
+(``vtkDeviceArrayFactory.SetLevelZeroContext(driver, device, context)``, for
+a library whose context VTK cannot make, such as a SYCL runtime's default
+context), else the one Viskores' SYCL queue runs in where VTK is built with
+Viskores on Kokkos' SYCL backend, else one VTK makes on the first Level Zero
+GPU the first time it is asked, and keeps. Give VTK a context before
+importing any Level Zero tensor. On import the pointer is checked against
+that context and refused if Level Zero does not know it as device or shared
+memory. The check separates device memory from host memory; it cannot prove
+which context a pointer came from, because drivers are not required to tell
+contexts apart and Intel's does not. Exported Level Zero tensors are in that
+context too. Without the Level Zero loader and a GPU (and without Viskores)
 ``kDLOneAPI`` tensors are refused, naming the space.
 
-**Device ordinal.** ``DLPackArray(array, device_id=...)`` is taken from the
-caller and reported verbatim by ``__dlpack_device__``. It is not derived
-from where the memory actually lives, so on a multi-GPU host the default of
-0 will mislabel memory that is not on device 0. Pass the right ordinal.
+**Device ordinal.** An exported tensor's ``device_id`` is the number of the
+device its memory is on, as the vendor's runtime counts devices: CUDA's and
+HIP's device ordinal, or the device's index among its Level Zero driver's
+devices (``vtkDeviceArrayFactory.GetDeviceOrdinal``). Where the vendor's
+library cannot tell, it is 0. ``vtk_to_dlpack(array, device_id=...)`` and
+``DLPackArray(array, device_id=...)`` override it.
 
 **Streams.** ``__dlpack__`` accepts DLPack's ``stream`` argument and ignores
 it. That argument is how a consumer says "make this safe to read on my
@@ -83,10 +94,19 @@ stream", so a producer with asynchronous work still queued -- Viskores on a
 Kokkos backend, for instance -- can hand over memory whose contents are not
 there yet, and the race has no diagnostic. Synchronize before exporting if
 anything asynchronous produced the data.
+
+The same holds for memory VTK imports and reads on the host through
+``vtkDeviceDataArray``. For CUDA and HIP, VTK synchronizes the memory's
+device before copying, so work the producer queued on any stream is done.
+Level Zero has no device-wide synchronize, and VTK copies on a command list
+of its own, so it does not wait for kernels a producer still has queued (on
+a SYCL queue, for instance): synchronize the producer before VTK reads a
+``kDLOneAPI`` tensor.
 """
 
 import ctypes
 import functools
+import os
 import sys
 
 from vtkmodules.vtkCommonCore import (
@@ -251,19 +271,31 @@ class _DLManagedTensorVersioned(ctypes.Structure):
 DLPACK_FLAG_BITMASK_READ_ONLY = 1 << 0
 
 
-_PyCapsule_New = ctypes.pythonapi.PyCapsule_New
-_PyCapsule_New.restype = ctypes.py_object
-_PyCapsule_New.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_void_p]
+def _c_api(name, restype, *argtypes):
+    """*name* from Python's C API, through a prototype of this module's own.
+
+    ``ctypes.pythonapi.<name>`` is one object for the whole process: setting
+    ``argtypes`` on it changes the calls of every other library that uses it,
+    and theirs change ours. Warp, for one, passes the capsule itself
+    (``py_object``) to PyCapsule_GetPointer where this module passes its
+    address, so whichever was imported last broke the other's DLPack imports.
+    A prototype of our own binds the same symbol and changes nothing shared.
+    """
+    return ctypes.PYFUNCTYPE(restype, *argtypes)((name, ctypes.pythonapi))
+
+
+_PyCapsule_New = _c_api("PyCapsule_New", ctypes.py_object,
+                        ctypes.c_void_p, ctypes.c_char_p, ctypes.c_void_p)
 
 # Raw pointers rather than py_object: the capsule destructor runs during
 # teardown, where touching the capsule's own refcount can resurrect it.
-_PyCapsule_IsValid = ctypes.pythonapi.PyCapsule_IsValid
-_PyCapsule_IsValid.restype = ctypes.c_int
-_PyCapsule_IsValid.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
-
-_PyCapsule_GetPointer = ctypes.pythonapi.PyCapsule_GetPointer
-_PyCapsule_GetPointer.restype = ctypes.c_void_p
-_PyCapsule_GetPointer.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
+_PyCapsule_IsValid = _c_api("PyCapsule_IsValid", ctypes.c_int,
+                            ctypes.c_void_p, ctypes.c_char_p)
+_PyCapsule_GetPointer = _c_api("PyCapsule_GetPointer", ctypes.c_void_p,
+                               ctypes.c_void_p, ctypes.c_char_p)
+_PyCapsule_SetName = _c_api("PyCapsule_SetName", ctypes.c_int,
+                            ctypes.py_object, ctypes.c_char_p)
+_Py_IncRef = _c_api("Py_IncRef", None, ctypes.py_object)
 
 
 # ---------------------------------------------------------------------
@@ -296,7 +328,7 @@ _CALLBACK = ctypes.CFUNCTYPE(None, ctypes.c_void_p)
 
 def _immortal(obj):
     """Leak one reference to *obj*, so it outlives interpreter teardown."""
-    ctypes.pythonapi.Py_IncRef(ctypes.py_object(obj))
+    _Py_IncRef(obj)
     return obj
 
 
@@ -372,14 +404,36 @@ def level_zero_handles():
 
     Returns ``{"driver": int, "device": int, "context": int}`` -- the
     ``ze_driver_handle_t``, ``ze_device_handle_t`` and ``ze_context_handle_t``
-    of the SYCL queue Viskores runs on -- when VTK was built with Viskores on
-    Kokkos' SYCL backend and that backend is running on a Level Zero device.
-    Otherwise ``None``.
+    of VTK's one Level Zero context: one given to
+    ``vtkDeviceArrayFactory.SetLevelZeroContext``, else that of the SYCL queue
+    Viskores runs on (VTK built with Viskores on Kokkos' SYCL backend, running
+    on a Level Zero device), else one VTK makes on the first Level Zero GPU.
+    ``None`` when there is none of these: no Level Zero loader or GPU.
 
     A producer allocates in this context so that its ``kDLOneAPI`` tensors
     are meaningful to VTK; see "Context" in the module documentation. The
-    handles belong to the SYCL runtime: use them, do not destroy them.
+    handles belong to whoever made them: use them, do not destroy them.
     """
+    from vtkmodules.vtkCommonCore import vtkDeviceArrayFactory
+
+    if not vtkDeviceArrayFactory.HasLevelZeroContext():
+        viskores = _viskores_level_zero_handles()
+        if viskores:
+            # One context for VTK: its own device arrays use Viskores' too.
+            vtkDeviceArrayFactory.SetLevelZeroContext(
+                viskores["driver"], viskores["device"], viskores["context"])
+    context = vtkDeviceArrayFactory.GetLevelZeroContextHandle()
+    if not context:
+        return None
+    return {
+        "driver": vtkDeviceArrayFactory.GetLevelZeroDriverHandle(),
+        "device": vtkDeviceArrayFactory.GetLevelZeroDeviceHandle(),
+        "context": context,
+    }
+
+
+def _viskores_level_zero_handles():
+    """The Level Zero handles of the SYCL queue Viskores runs on, or ``None``."""
     try:
         from vtkmodules.vtkAcceleratorsVTKmCore import vtkmDataArrayFactory
     except ImportError:
@@ -399,7 +453,18 @@ def level_zero_handles():
 # ---------------------------------------------------------------------
 
 
-def vtk_to_dlpack(array, device_id=0, versioned=False):
+def _device_id(descriptor, space):
+    """The number of the device *descriptor*'s memory is on, or 0."""
+    if space == "host":
+        return 0
+    from vtkmodules.vtkCommonCore import vtkDeviceArrayFactory
+
+    if space == "level_zero":
+        level_zero_handles()  # Viskores' context, not a new one, where VTK has it
+    return max(vtkDeviceArrayFactory.GetDeviceOrdinal(descriptor), 0)
+
+
+def vtk_to_dlpack(array, device_id=None, versioned=False):
     """Export a vtkDataArray as a DLPack capsule, without copying.
 
     The tensor is 2-D, ``(number of tuples, number of components)``, which
@@ -408,6 +473,9 @@ def vtk_to_dlpack(array, device_id=0, versioned=False):
 
     The array is kept alive for as long as the consumer holds the tensor,
     so it is safe to drop every other reference to it.
+
+    *device_id* is the device the memory is on; by default VTK asks the
+    vendor's runtime (see "Device ordinal" above).
 
     With *versioned*, produces a v1.0 tensor in a "dltensor_versioned"
     capsule instead of the legacy "dltensor" one. Consumers that ask for
@@ -447,6 +515,9 @@ def vtk_to_dlpack(array, device_id=0, versioned=False):
     device_type = _SPACE_TO_DEVICE.get(space)
     if device_type is None:
         raise ValueError(f"unknown memory space {space!r}")
+
+    if device_id is None:
+        device_id = _device_id(descriptor, space)
 
     n_tuples = array.GetNumberOfTuples()
     n_components = array.GetNumberOfComponents()
@@ -501,7 +572,7 @@ class DLPackArray:
         torch.from_dlpack(DLPackArray(vtk_array))
     """
 
-    def __init__(self, array, device_id=0):
+    def __init__(self, array, device_id=None):
         self.array = array
         self.device_id = device_id
 
@@ -515,8 +586,12 @@ class DLPackArray:
         descriptors = self.array.NewMemoryDescriptors()
         if descriptors is None or descriptors.GetNumberOfItems() == 0:
             return (kDLCPU, 0)
-        space = descriptors.GetItemAsObject(0).GetMemorySpace() or "host"
-        return (_SPACE_TO_DEVICE.get(space, kDLCPU), self.device_id)
+        descriptor = descriptors.GetItemAsObject(0)
+        space = descriptor.GetMemorySpace() or "host"
+        device_id = self.device_id
+        if device_id is None:
+            device_id = _device_id(descriptor, space)
+        return (_SPACE_TO_DEVICE.get(space, kDLCPU), device_id)
 
 
 # ---------------------------------------------------------------------
@@ -686,11 +761,6 @@ def _release_adopted(key):
         managed.deleter(managed_ptr)
 
 
-_PyCapsule_SetName = ctypes.pythonapi.PyCapsule_SetName
-_PyCapsule_SetName.restype = ctypes.c_int
-_PyCapsule_SetName.argtypes = [ctypes.py_object, ctypes.c_char_p]
-
-
 def _register_adopted(capsule, managed_ptr, struct, used_name):
     """Take ownership of *capsule*, and return the key that releases it.
 
@@ -720,7 +790,7 @@ def _hold_via_descriptor(descriptor, key):
     # checks first and leaks instead. Its context is a callable carrying a
     # reference of its own, which it drops after the call.
     release = functools.partial(_release_adopted, key)
-    ctypes.pythonapi.Py_IncRef(ctypes.py_object(release))
+    _Py_IncRef(release)
     descriptor.SetReleaseAddress(release_callable_address(), id(release))
 
 
@@ -776,27 +846,90 @@ def _wrap_host(key, vtk_type, n_tuples, n_components, pointer, ndim):
     return numpy_support.numpy_to_vtk(view, deep=False, array_type=vtk_type)
 
 
-def _wrap_descriptor(descriptor, vtk_type, n_tuples, n_components, space):
-    """Build the array from a device pointer, via Viskores."""
+def _device_array_factories(space):
+    """The factories that can hold *space*'s memory, in the order to try them:
+    Viskores' where VTK was built with it for that memory, then VTK's own where
+    the vendor's driver loads. ``VTK_DLPACK_DEVICE_ARRAYS=vtk`` puts VTK's own
+    first."""
+    from vtkmodules.vtkCommonCore import vtkDeviceArrayFactory
 
     try:
         from vtkmodules.vtkAcceleratorsVTKmCore import vtkmDataArrayFactory
-    except ImportError as exc:
-        raise RuntimeError(
-            f"importing {space!r} memory needs VTK built with the Viskores "
-            f"accelerators (-DVTK_MODULE_ENABLE_VTK_AcceleratorsVTKmCore=YES); "
-            f"only host tensors can be wrapped otherwise"
-        ) from exc
+    except ImportError:
+        vtkmDataArrayFactory = None
+    if space == "level_zero":
+        # Settle VTK's context first: Viskores' where it has one. Viskores
+        # reads only its own, so memory of a context a producer gave VTK
+        # instead goes to VTK's arrays.
+        handles = level_zero_handles()
+        viskores = _viskores_level_zero_handles()
+        if viskores and handles and viskores["context"] != handles["context"]:
+            vtkmDataArrayFactory = None
 
-    factory = vtkmDataArrayFactory()
-    factory.SetNumberOfTuples(n_tuples)
-    factory.SetNumberOfComponents(n_components)
-    factory.SetDataType(vtk_type)
-    factory.AddBuffer(descriptor)
-    array = factory.CreateArray()
-    if array is None:
-        raise RuntimeError(
-            f"could not wrap {space!r} memory as a vtkmDataArray "
-            f"({n_tuples} tuples x {n_components} components, VTK type {vtk_type})"
-        )
-    return array
+    factories = [vtkmDataArrayFactory, vtkDeviceArrayFactory]
+    if os.environ.get("VTK_DLPACK_DEVICE_ARRAYS") == "vtk":
+        factories.reverse()
+    available = [
+        factory()
+        for factory in factories
+        if factory is not None and factory.IsMemorySpaceAvailable(space)
+    ]
+    if available:
+        return available
+    raise RuntimeError(
+        f"importing {space!r} memory needs its driver or runtime (VTK holds "
+        f"CUDA, HIP and Level Zero memory itself) or VTK built with Viskores "
+        f"for that memory (-DVTK_MODULE_ENABLE_VTK_AcceleratorsVTKmCore=YES); "
+        f"only host tensors can be wrapped otherwise"
+    )
+
+
+def _wrap_descriptor(descriptor, vtk_type, n_tuples, n_components, space):
+    """Build the array from a device pointer, with the first factory that can.
+
+    A factory being available says only that it was built for the memory, not
+    that it works on this machine: Viskores' is available wherever a device
+    adapter for the space was compiled in. So a factory that fails hands the
+    memory to the next one, its errors kept for the message should all fail.
+    """
+    from vtkmodules.util.misc import calldata_type
+    from vtkmodules.util.vtkConstants import VTK_STRING
+
+    factories = _device_array_factories(space)
+    failures = []
+    for index, factory in enumerate(factories):
+        factory.SetNumberOfTuples(n_tuples)
+        factory.SetNumberOfComponents(n_components)
+        factory.SetDataType(vtk_type)
+        factory.AddBuffer(descriptor)
+
+        # A factory with another behind it reports to failures rather than
+        # printing an error the next one may make moot.
+        errors = []
+        observer = None
+        if index + 1 < len(factories):
+
+            @calldata_type(VTK_STRING)
+            def record(caller, event, message, errors=errors):
+                # The last line, past "vtkClass (0x...): ", is the reason.
+                errors.append(message.strip().splitlines()[-1].split("): ", 1)[-1])
+
+            observer = factory.AddObserver("ErrorEvent", record)
+        try:
+            array = factory.CreateArray()
+        finally:
+            if observer is not None:
+                factory.RemoveObserver(observer)
+        if array is not None:
+            return array
+        reason = f" ({'; '.join(errors)})" if errors else ""
+        failures.append(factory.GetClassName() + reason)
+        if not descriptor.HasOwnership():
+            # The factory took the hold on the tensor and dropped it on the way
+            # out, so the memory may be gone: no one else may wrap it.
+            break
+    raise RuntimeError(
+        f"could not wrap {space!r} memory as an array "
+        f"({n_tuples} tuples x {n_components} components, VTK type {vtk_type}); "
+        f"tried " + " and ".join(failures)
+    )
