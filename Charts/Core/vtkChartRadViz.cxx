@@ -453,8 +453,8 @@ void vtkChartRadViz::GetActiveElement(
   activeLensInterior = false;
   // half the drawn width of a vertex or the lens outline, at least 5 pixels
   vtkPlotRadViz* plot = this->Internals->Plot;
-  const double vertexSize = std::max(5.0, plot->GetVerticesPen()->GetWidth() / 2.0);
-  const double lensSize = std::max(5.0, plot->GetLensPen()->GetWidth() / 2.0);
+  const double vertexHitWidth = std::max(5.0, plot->GetVerticesPen()->GetWidth() / 2.0);
+  const double lensHitWidth = std::max(5.0, plot->GetLensPen()->GetWidth() / 2.0);
   auto vertices = plot->GetVertices();
   if (!vertices || vertices->GetNumberOfPoints() < 3)
   {
@@ -464,7 +464,7 @@ void vtkChartRadViz::GetActiveElement(
   {
     double xy[2];
     vertices->GetPoint(i, xy);
-    if (std::abs(pos[0] - xy[0]) <= vertexSize && std::abs(pos[1] - xy[1]) <= vertexSize)
+    if (std::abs(pos[0] - xy[0]) <= vertexHitWidth && std::abs(pos[1] - xy[1]) <= vertexHitWidth)
     {
       activeVertexIndex = i;
       vtkDebugMacro("vtkChartRadViz::GetActiveElement: Vertex: " << i);
@@ -477,7 +477,9 @@ void vtkChartRadViz::GetActiveElement(
     double lensRadius = plot->GetSceneLensRadius();
     // distance between the lensCenter and the mouse point
     double r = std::sqrt(std::pow(pos[0] - lensCenter[0], 2) + std::pow(pos[1] - lensCenter[1], 2));
-    if (std::abs(lensRadius - r) < lensSize)
+    // the outline reaches at most halfway inside, so a small lens keeps an interior to drag
+    const double lensInsideHitWidth = std::min(lensHitWidth, lensRadius / 2.0);
+    if (r - lensRadius < lensHitWidth && lensRadius - r < lensInsideHitWidth)
     {
       activeLensOutline = true;
       vtkDebugMacro("vtkChartRadViz::GetActiveElement: Lens Outline");

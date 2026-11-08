@@ -422,7 +422,7 @@ int TestFilterInput()
 /**
  * Checks that the mouse finds a vertex, or the lens outline, 8 pixels away
  * from its center line when its pen is 20 pixels wide, and not with the
- * default pen.
+ * default pen, and that a lens smaller than its pen keeps an interior.
  */
 int TestHitArea()
 {
@@ -457,6 +457,18 @@ int TestHitArea()
     mouse.SetScenePos(vtkVector2f(lensCenter[0] + offset, lensCenter[1] + offset));
     chart->MouseMoveEvent(mouse);
     CHECK(plot->GetActiveVertexIndex() == -1);
+    CHECK(plot->GetActiveLensOutline() == wide);
+
+    // a lens smaller than its pen keeps an interior to drag
+    plot->SetSceneLensRadius(8);
+    view->GetRenderWindow()->Render();
+    mouse.SetScenePos(vtkVector2f(lensCenter[0], lensCenter[1]));
+    chart->MouseMoveEvent(mouse);
+    CHECK(!plot->GetActiveLensOutline());
+    CHECK(plot->GetActiveLensInterior());
+    offset = (plot->GetSceneLensRadius() + 8) / std::sqrt(2.0);
+    mouse.SetScenePos(vtkVector2f(lensCenter[0] + offset, lensCenter[1] + offset));
+    chart->MouseMoveEvent(mouse);
     CHECK(plot->GetActiveLensOutline() == wide);
   }
   return EXIT_SUCCESS;
