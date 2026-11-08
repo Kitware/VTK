@@ -471,9 +471,9 @@ bool vtkWebGPUActor::NeedToRecreateBindGroups()
   {
     return true;
   }
-  for (auto* texture : pbrTextures)
+  for (auto* pbrTexture : pbrTextures)
   {
-    if (texture && texture->GetMTime() > internals.DeviceResourcesBuildTimestamp)
+    if (pbrTexture && pbrTexture->GetMTime() > internals.DeviceResourcesBuildTimestamp)
     {
       return true;
     }
