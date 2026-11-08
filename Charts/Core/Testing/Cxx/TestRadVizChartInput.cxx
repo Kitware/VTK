@@ -17,14 +17,16 @@
  * SetInputArray selects a point or cell array of a dataset, that the
  * visibility getters follow the input and array selection before a paint,
  * that the getters and painting again without changes do not modify the
- * filter, that it draws nothing when the labels leave no room, and that
- * drawing the labels leaves LabelsProperties unchanged.
+ * filter, that it draws nothing when the labels leave no room, that
+ * drawing the labels leaves LabelsProperties unchanged, and that the mouse
+ * finds a vertex or the lens outline anywhere on their drawn width.
  */
 
 #include "vtkCellData.h"
 #include "vtkChartRadViz.h"
 #include "vtkCommand.h"
 #include "vtkContextMapper2D.h"
+#include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
 #include "vtkDataSetAttributes.h"
@@ -34,6 +36,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPassThrough.h"
+#include "vtkPen.h"
 #include "vtkPlotPoints.h"
 #include "vtkPlotRadViz.h"
 #include "vtkPointData.h"
@@ -393,10 +396,54 @@ int TestFilterInput()
   return EXIT_SUCCESS;
 }
 
+/**
+ * Checks that the mouse finds a vertex, or the lens outline, 8 pixels away
+ * from its center line when its pen is 20 pixels wide, and not with the
+ * default pen.
+ */
+int TestHitArea()
+{
+  for (bool wide : { true, false })
+  {
+    vtkNew<vtkContextView> view;
+    view->GetRenderWindow()->SetSize(300, 300);
+    vtkNew<vtkChartRadViz> chart;
+    view->GetScene()->AddItem(chart);
+    auto* plot = vtkPlotRadViz::SafeDownCast(chart->AddPlot(0));
+    plot->SetInputData(MakeTable());
+    plot->SetLensVisibility(true);
+    if (wide)
+    {
+      plot->GetVerticesPen()->SetWidth(20);
+      plot->GetLensPen()->SetWidth(20);
+    }
+    view->GetRenderWindow()->Render();
+    vtkContextMouseEvent mouse;
+    mouse.SetButton(vtkContextMouseEvent::NO_BUTTON);
+
+    double vertex[2];
+    plot->GetVertices()->GetPoint(0, vertex);
+    mouse.SetScenePos(vtkVector2f(vertex[0] + 8, vertex[1]));
+    chart->MouseMoveEvent(mouse);
+    CHECK((plot->GetActiveVertexIndex() == 0) == wide);
+
+    const double* lensCenter = plot->GetSceneLensCenter();
+    double lensRadius = plot->GetSceneLensRadius();
+    // at 45 degrees, away from the 4 vertices the outline may pass through
+    double offset = (lensRadius + 8) / std::sqrt(2.0);
+    mouse.SetScenePos(vtkVector2f(lensCenter[0] + offset, lensCenter[1] + offset));
+    chart->MouseMoveEvent(mouse);
+    CHECK(plot->GetActiveVertexIndex() == -1);
+    CHECK(plot->GetActiveLensOutline() == wide);
+  }
+  return EXIT_SUCCESS;
+}
+
 int TestRadVizChartInput(int, char*[])
 {
   CHECK(TestPlotModified() == EXIT_SUCCESS);
   CHECK(TestFilterInput() == EXIT_SUCCESS);
+  CHECK(TestHitArea() == EXIT_SUCCESS);
   // a column per vertex
   CHECK(PaintVertices([](vtkPlotRadViz* plot) { SetInputConnection(plot, MakeTable()); }) == 4);
   // a component per vertex

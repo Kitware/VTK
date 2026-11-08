@@ -9,10 +9,13 @@
 #include "vtkContextScene.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPen.h"
 #include "vtkPlotRadViz.h"
 #include "vtkPoints2D.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
+#include <algorithm>
+#include <cmath>
 #include <sstream>
 #include <vtk_fmt.h>
 // clang-format off
@@ -448,8 +451,11 @@ void vtkChartRadViz::GetActiveElement(
   activeVertexIndex = -1;
   activeLensOutline = false;
   activeLensInterior = false;
-  const int SIZE = 5;
-  auto vertices = this->Internals->Plot->GetVertices();
+  // half the drawn width of a vertex or the lens outline, at least 5 pixels
+  vtkPlotRadViz* plot = this->Internals->Plot;
+  const double vertexSize = std::max(5.0, plot->GetVerticesPen()->GetWidth() / 2.0);
+  const double lensSize = std::max(5.0, plot->GetLensPen()->GetWidth() / 2.0);
+  auto vertices = plot->GetVertices();
   if (!vertices || vertices->GetNumberOfPoints() < 3)
   {
     return;
@@ -458,21 +464,20 @@ void vtkChartRadViz::GetActiveElement(
   {
     double xy[2];
     vertices->GetPoint(i, xy);
-    if (pos[0] <= xy[0] + SIZE && pos[0] >= xy[0] - SIZE && pos[1] <= xy[1] + SIZE &&
-      pos[1] >= xy[1] - SIZE)
+    if (std::abs(pos[0] - xy[0]) <= vertexSize && std::abs(pos[1] - xy[1]) <= vertexSize)
     {
       activeVertexIndex = i;
       vtkDebugMacro("vtkChartRadViz::GetActiveElement: Vertex: " << i);
       break;
     }
   }
-  if (activeVertexIndex < 0 && this->Internals->Plot->GetLensVisibility())
+  if (activeVertexIndex < 0 && plot->GetLensVisibility())
   {
-    double* lensCenter = this->Internals->Plot->GetSceneLensCenter();
-    double lensRadius = this->Internals->Plot->GetSceneLensRadius();
+    double* lensCenter = plot->GetSceneLensCenter();
+    double lensRadius = plot->GetSceneLensRadius();
     // distance between the lensCenter and the mouse point
     double r = std::sqrt(std::pow(pos[0] - lensCenter[0], 2) + std::pow(pos[1] - lensCenter[1], 2));
-    if (std::abs(lensRadius - r) < SIZE)
+    if (std::abs(lensRadius - r) < lensSize)
     {
       activeLensOutline = true;
       vtkDebugMacro("vtkChartRadViz::GetActiveElement: Lens Outline");
