@@ -489,11 +489,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     this->ComputeGBC->SetStoreVertices(true);
     this->ComputeGBC->SetVerticesRotation(this->VerticesRotation);
     this->ComputeGBC->SetVerticesClockwiseOrdering(this->VerticesClockwiseOrdering);
-    // The A component is always computed, even when ScalarVisibility is
-    // off, so that the lens can still cap the (single-color) points' alpha
-    // via its A component (see OutsideLensAlpha). When ScalarVisibility
-    // is off, only alpha is needed (see ApplyPenColor), so StoreA is used
-    // instead of StoreRGBA to skip the RGB computation.
+    // without scalar colors, only alpha is computed, which the lens caps (OutsideLensAlpha)
     this->ComputeGBC->SetStoreRGBA(this->ScalarVisibility);
     this->ComputeGBC->SetStoreA(!this->ScalarVisibility);
     this->ComputeGBC->SetLensRadius(this->LensRadius);
