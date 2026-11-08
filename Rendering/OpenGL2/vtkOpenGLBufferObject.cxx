@@ -5,6 +5,8 @@
 
 #include "vtk_glad.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLBufferObject);
 
@@ -260,8 +262,21 @@ bool vtkOpenGLBufferObject::UploadRangeInternal(
   glBindBuffer(this->Internal->Type, this->Internal->Handle);
   vtkDebugMacro(<< "glBufferSubData: "
                 << "(offset: " << offset << ", size: " << size << ")");
+#ifdef __APPLE__
+  // Apple's OpenGL driver crashes when a single glBufferSubData call transfers
+  // more than 2^31 bytes, so upload large buffers in chunks.
+  constexpr ptrdiff_t maxChunkSize = (ptrdiff_t(1) << 31) - 1;
+  const char* data = static_cast<const char*>(buffer);
+  for (ptrdiff_t chunkOffset = 0; chunkOffset < size; chunkOffset += maxChunkSize)
+  {
+    const ptrdiff_t chunkSize = std::min(maxChunkSize, size - chunkOffset);
+    glBufferSubData(this->Internal->Type, static_cast<GLintptr>(offset + chunkOffset),
+      static_cast<GLsizeiptr>(chunkSize), data + chunkOffset);
+  }
+#else
   glBufferSubData(
     this->Internal->Type, static_cast<GLintptr>(offset), static_cast<GLsizeiptr>(size), buffer);
+#endif
   this->Dirty = false;
   return true;
 }
