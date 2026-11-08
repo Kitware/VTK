@@ -372,9 +372,9 @@ int TestPlotModified()
   return EXIT_SUCCESS;
 }
 /**
- * Checks that the visibility getters follow the input connection and the
- * array selection without a paint, and that they and a paint without
- * changes do not modify the filter.
+ * Checks that the visibility getters follow the input connection, also to
+ * a pipeline not yet updated, and the array selection without a paint, and that they and a paint
+ * without changes do not modify the filter.
  */
 int TestFilterInput()
 {
@@ -391,6 +391,10 @@ int TestFilterInput()
   CHECK(plot->GetVisibleVariableIndices().size() == 4);
   CHECK(plot->GetVariableVisibility("d"));
   CHECK(plot->GetVariableVisibility(3));
+  // a pipeline that has not been updated yet
+  SetInputConnection(plot, MakeTable());
+  CHECK(plot->GetVisibleVariables()->GetNumberOfValues() == 4);
+  CHECK(plot->GetVisibleVariableIndices().size() == 4);
 
   // the active scalars have one component, "values" three
   plot->SetInputDataSet(MakeImage(true));

@@ -439,8 +439,9 @@ protected:
    */
   void ComputeVisibleLabels();
   /**
-   * Passes the input and the array selection of the plot to ComputeGBC, so
-   * that it computes, and reports the variables of, the plot input.
+   * Updates the producer of the plot input, then passes the input and the
+   * array selection of the plot to ComputeGBC, so that it computes, and
+   * reports the variables of, the current plot input.
    */
   void UpdateFilterInput();
   /**

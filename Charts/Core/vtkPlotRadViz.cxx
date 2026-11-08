@@ -355,6 +355,12 @@ void vtkPlotRadViz::AddVisibleVariableIndex(int index)
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::UpdateFilterInput()
 {
+  // vtkPlot::Update only updates a table input, so update a dataset's producer here
+  int producerPort = 0;
+  if (vtkAlgorithm* producer = this->Data->GetInputAlgorithm(0, 0, producerPort))
+  {
+    producer->Update(producerPort);
+  }
   this->ComputeGBC->SetInputDataObject(0, this->Data->GetInputDataObject(0, 0));
   // the array selection of vtkContextMapper2D, which may be unnamed
   vtkInformation* plotArray = this->Data->GetInputArrayInformation(0);
@@ -443,21 +449,15 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
   }
   try
   {
-    // vtkPlot::Update only updates a table input, so update a dataset's producer here
-    int producerPort = 0;
-    if (vtkAlgorithm* producer = this->Data->GetInputAlgorithm(0, 0, producerPort))
-    {
-      producer->Update(producerPort);
-    }
+    // vtkMultiVariateToRGBA does the variable visibility filtering itself
+    // (see SetVariableVisibility), so the raw input is passed as-is.
+    this->UpdateFilterInput();
     vtkDataObject* input = this->Data->GetInputDataObject(0, 0);
     if (!input)
     {
       // no input, we don't render anything
       return true;
     }
-    // vtkMultiVariateToRGBA does the variable visibility filtering itself
-    // (see SetVariableVisibility), so the raw input is passed as-is.
-    this->UpdateFilterInput();
     if (auto* table = vtkTable::SafeDownCast(input))
     {
       // vtkMultiVariateToRGBA rejects them, so report it instead of drawing nothing
