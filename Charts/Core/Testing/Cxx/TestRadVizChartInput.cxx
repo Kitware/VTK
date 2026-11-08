@@ -13,7 +13,8 @@
  * vertices to interact with, when hidden or when too few variables remain
  * after a paint. Check that unchanged or rejected visibility settings do not
  * modify the plot, that a table column with several components is
- * reported as an error, and that a string column is hidden by default.
+ * reported as an error, that a string column is hidden by default, and that
+ * SetInputArray selects a point or cell array of a dataset.
  */
 
 #include "vtkCellData.h"
@@ -357,6 +358,21 @@ int TestRadVizChartInput(int, char*[])
             plot->GetData()->SetInputArrayToProcess(
               0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "values");
           }) == 3);
+  // SetInputArray selects a point array, or a cell array, of a dataset
+  CHECK(PaintVertices(
+          [](vtkPlotRadViz* plot)
+          {
+            plot->SetInputDataSet(MakeImage(true));
+            plot->SetInputArray(0, "values");
+          }) == 3);
+  CHECK(PaintVertices(
+          [](vtkPlotRadViz* plot)
+          {
+            vtkSmartPointer<vtkImageData> image = MakeImage(true);
+            image->GetCellData()->AddArray(MakeArray("cellValues", 4, image->GetNumberOfCells()));
+            plot->SetInputDataSet(image);
+            plot->SetInputArray(0, "cellValues");
+          }) == 4);
   // the unnamed active scalars, not the array processed before
   CHECK(PaintUnnamedScalars() == 4);
   // visibility set before the first paint

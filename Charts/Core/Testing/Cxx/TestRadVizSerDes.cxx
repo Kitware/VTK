@@ -3,12 +3,16 @@
 /**
  * Check that vtkPlotRadViz and vtkChartRadViz can be saved and restored:
  * a plot with a table input is saved without errors and restored with its
- * input, visibility and labels, and a restored chart has the saved plot.
+ * input, visibility, labels and array selection (the active scalars by
+ * default), and a restored chart has the saved plot.
  */
 
 #include "vtkChartRadViz.h"
+#include "vtkContextMapper2D.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDeserializer.h"
 #include "vtkDoubleArray.h"
+#include "vtkInformation.h"
 #include "vtkInvoker.h"
 #include "vtkMarshalContext.h"
 #include "vtkNew.h"
@@ -113,6 +117,12 @@ bool TestPlot()
   CHECK(restored->GetInput() && restored->GetInput()->GetNumberOfColumns() == 4);
   CHECK(ToNames(restored->GetVisibleVariables()) == Names({ "a", "c", "d" }));
   CHECK(restored->GetLabels() == nullptr);
+  // the active scalars, which have no name
+  vtkInformation* arrayInfo = restored->GetData()->GetInputArrayInformation(0);
+  CHECK(!arrayInfo->Has(vtkDataObject::FIELD_NAME()));
+  CHECK(arrayInfo->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE()) == vtkDataSetAttributes::SCALARS);
+  CHECK(arrayInfo->Get(vtkDataObject::FIELD_ASSOCIATION()) ==
+    vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS);
 
   // labels set
   vtkNew<vtkStringArray> labels;
@@ -124,6 +134,15 @@ bool TestPlot()
   restored = RoundTrip(plot.Get());
   CHECK(restored);
   CHECK(ToNames(restored->GetLabels()) == Names({ "A", "B", "C", "D" }));
+
+  // an array selected by name
+  plot->SetInputArray(0, "values");
+  restored = RoundTrip(plot.Get());
+  CHECK(restored);
+  arrayInfo = restored->GetData()->GetInputArrayInformation(0);
+  CHECK(arrayInfo->Get(vtkDataObject::FIELD_NAME()) == std::string("values"));
+  CHECK(arrayInfo->Get(vtkDataObject::FIELD_ASSOCIATION()) ==
+    vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS);
   return true;
 }
 

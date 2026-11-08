@@ -98,6 +98,12 @@ public:
   using vtkPlot::SetInputData;
   void SetInputData(vtkTable* table) override;
   /**
+   * Selects the array 'name' of a dataset input for index 0, searching the
+   * point data then the cell data, or the active scalars, the default, for
+   * an empty name. A table input uses its columns instead.
+   */
+  void SetInputArray(int index, const vtkStdString& name) override;
+  /**
    * Returns the labels set with SetLabels(), or nullptr. Unlike vtkPlot, it
    * does not fall back on labels computed from the input, so serialization
    * saves and restores only the labels that were set.

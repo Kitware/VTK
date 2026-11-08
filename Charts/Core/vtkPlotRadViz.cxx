@@ -273,6 +273,29 @@ void vtkPlotRadViz::SetInputData(vtkTable* table)
 }
 
 //------------------------------------------------------------------------------
+void vtkPlotRadViz::SetInputArray(int index, const vtkStdString& name)
+{
+  if (index != 0)
+  {
+    this->Superclass::SetInputArray(index, name);
+    return;
+  }
+  // vtkPlot uses the rows association, which a dataset does not have
+  if (name.empty())
+  {
+    // the default, saved as an empty name by serialization
+    this->Data->SetInputArrayToProcess(
+      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, vtkDataSetAttributes::SCALARS);
+  }
+  else
+  {
+    this->Data->SetInputArrayToProcess(
+      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, name.c_str());
+  }
+  this->AutoLabels = nullptr;
+}
+
+//------------------------------------------------------------------------------
 void vtkPlotRadViz::SetVariableVisibility(const std::string& name, bool visible)
 {
   ::ChangeFilter(this, this->ComputeGBC,
