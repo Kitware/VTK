@@ -17,7 +17,8 @@
  * SetInputArray selects a point or cell array of a dataset, that the
  * visibility getters follow the input and array selection before a paint,
  * that the getters and painting again without changes do not modify the
- * filter, and that it draws nothing when the labels leave no room.
+ * filter, that it draws nothing when the labels leave no room, and that
+ * drawing the labels leaves LabelsProperties unchanged.
  */
 
 #include "vtkCellData.h"
@@ -41,6 +42,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTestErrorObserver.h"
+#include "vtkTextProperty.h"
 #include "vtkTrivialProducer.h"
 
 #include <cmath>
@@ -572,6 +574,22 @@ int TestRadVizChartInput(int, char*[])
             }
             plot->SetLabels(labels);
           }) == 0);
+  // drawing the labels leaves LabelsProperties unchanged
+  {
+    vtkNew<vtkTextProperty> labelsProperties;
+    labelsProperties->SetJustificationToRight();
+    labelsProperties->SetVerticalJustificationToTop();
+    vtkMTimeType mtime = labelsProperties->GetMTime();
+    CHECK(PaintVertices(
+            [&](vtkPlotRadViz* plot)
+            {
+              plot->SetInputData(MakeTable());
+              plot->SetLabelsProperties(labelsProperties);
+            }) == 4);
+    CHECK(labelsProperties->GetJustification() == VTK_TEXT_RIGHT);
+    CHECK(labelsProperties->GetVerticalJustification() == VTK_TEXT_TOP);
+    CHECK(labelsProperties->GetMTime() == mtime);
+  }
   // nothing for a hidden plot
   CHECK(PaintVertices(
           [](vtkPlotRadViz* plot)

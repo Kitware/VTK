@@ -752,14 +752,16 @@ void vtkPlotRadViz::DrawLabels(vtkContext2D* painter, vtkDataArray* points, vtkP
 {
   assert(this->VisibleLabels->GetNumberOfValues() == points->GetNumberOfTuples());
   auto transformedPoints = this->TransformPoints(points);
+  // the painter copies the property, so the justification set below leaves it unchanged
+  painter->ApplyTextProp(this->LabelsProperties);
+  vtkTextProperty* textProperty = painter->GetTextProp();
   for (int i = 0; i < points->GetNumberOfTuples(); ++i)
   {
     std::vector<double> xy(points->GetNumberOfComponents());
     points->GetTuple(i, xy.data());
     auto [just, vertJust] = this->GetJustification(xy.data());
-    this->LabelsProperties->SetJustification(just);
-    this->LabelsProperties->SetVerticalJustification(vertJust);
-    painter->ApplyTextProp(this->LabelsProperties);
+    textProperty->SetJustification(just);
+    textProperty->SetVerticalJustification(vertJust);
     double transformedXy[2];
     transformedPoints->GetPoint(i, transformedXy);
     const std::string& label = this->VisibleLabels->GetValue(i);

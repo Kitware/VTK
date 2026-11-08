@@ -357,7 +357,8 @@ public:
   ///@{
   /**
    * Get the vtkTextProperty that governs how the vertex labels are displayed.
-   * Default is bold, black Arial with a font size of 16.
+   * Default is bold, black Arial with a font size of 16. Its justification
+   * is not used: each label is justified away from the plot.
    */
   vtkSetSmartPointerMacro(LabelsProperties, vtkTextProperty);
   vtkGetSmartPointerMacro(LabelsProperties, vtkTextProperty);
