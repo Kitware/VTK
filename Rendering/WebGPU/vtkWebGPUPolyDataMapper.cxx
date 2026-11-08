@@ -422,6 +422,7 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
   }
   const bool encodeDebug = features.DebugView == Renderer::PBR_DEBUG_VIEW_ALBEDO ||
     features.DebugView == Renderer::PBR_DEBUG_VIEW_EMISSIVE ||
+    features.DebugView == Renderer::PBR_DEBUG_VIEW_F0 ||
     features.DebugView == Renderer::PBR_DEBUG_VIEW_DIRECT_LIGHTING ||
     features.DebugView == Renderer::PBR_DEBUG_VIEW_DIFFUSE_IBL ||
     features.DebugView == Renderer::PBR_DEBUG_VIEW_SPECULAR_IBL;

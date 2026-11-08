@@ -82,5 +82,17 @@ int TestPBRDebugView(int, char*[])
     std::pow(0.6, 1.0 / 2.2) };
   success &=
     CheckCenter(window, wgpuRenderer, vtkWebGPURenderer::PBR_DEBUG_VIEW_ALBEDO, albedo, "albedo");
+
+  // F0 is a color, so it is gamma encoded like the albedo is. At this metallic it is mostly the
+  // albedo itself, mixed with the reflectance of the base layer.
+  const double base = actor->GetProperty()->ComputeReflectanceOfBaseLayer();
+  const double color[3] = { 0.2, 0.4, 0.6 };
+  double f0[3];
+  for (int c = 0; c < 3; ++c)
+  {
+    f0[c] = std::pow(base * (1.0 - 0.75) + color[c] * 0.75, 1.0 / 2.2);
+  }
+  success &= CheckCenter(window, wgpuRenderer, vtkWebGPURenderer::PBR_DEBUG_VIEW_F0, f0, "F0");
+
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
