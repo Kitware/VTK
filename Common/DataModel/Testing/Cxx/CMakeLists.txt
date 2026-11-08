@@ -89,6 +89,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestPolygon.cxx
   TestPolygonBoundedTriangulate.cxx
   TestPolygonClip.cxx
+  TestPolygonEarCutStall.cxx,NO_DATA,NO_VALID
   TestPolygonNormalOverflow.cxx
   TestPolyhedron0.cxx
   TestPolyhedron1.cxx

@@ -359,6 +359,11 @@ public:
    * Points and PointIds). Ears can be removed using different measures
    * (the measures indicate convexity plus characterize the local
    * geometry around each vertex).
+   *
+   * Returns 0 when no valid ear is left before the polygon is reduced to a
+   * triangle, e.g., on a polygon that folds over itself. The triangles then
+   * still cover the polygon: the part left is closed with a fan, whose
+   * triangles may overlap.
    */
   int EarCutTriangulation(int measure = PERIMETER2_TO_AREA_RATIO);
   int EarCutTriangulation(vtkIdList* outTris, int measure = PERIMETER2_TO_AREA_RATIO);

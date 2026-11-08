@@ -1671,8 +1671,19 @@ int vtkPolygon::EarCutTriangulation(vtkIdList* outTris, int measure)
     }
   } // while
 
-  if (poly.NumberOfVerts > 2) // couldn't triangulate
+  if (poly.NumberOfVerts > 2)
   {
+    // Ear cutting stalls when no vertex left is a valid ear, e.g., on a polygon
+    // that folds over itself. A fan closes the rest, so that the triangles still
+    // cover the polygon, and the failure is reported.
+    const vtkLocalPolyVertex* first = poly.Head;
+    const vtkLocalPolyVertex* vertex = first->next;
+    for (int i = 1; i + 1 < poly.NumberOfVerts; ++i, vertex = vertex->next)
+    {
+      outTris->InsertNextId(first->id);
+      outTris->InsertNextId(vertex->id);
+      outTris->InsertNextId(vertex->next->id);
+    }
     return (this->SuccessfulTriangulation = 0);
   }
   return (this->SuccessfulTriangulation = 1);
