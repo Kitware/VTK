@@ -319,18 +319,21 @@ void vtkPlotRadViz::SetVariableVisibilityAll(bool visible)
 //------------------------------------------------------------------------------
 bool vtkPlotRadViz::GetVariableVisibility(const std::string& name)
 {
+  this->UpdateFilterInput();
   return this->ComputeGBC->GetVariableVisibility(name);
 }
 
 //------------------------------------------------------------------------------
 bool vtkPlotRadViz::GetVariableVisibility(int index)
 {
+  this->UpdateFilterInput();
   return this->ComputeGBC->GetVariableVisibility(index);
 }
 
 //------------------------------------------------------------------------------
 vtkStringArray* vtkPlotRadViz::GetVisibleVariables()
 {
+  this->UpdateFilterInput();
   return this->ComputeGBC->GetVisibleVariables();
 }
 
@@ -351,6 +354,7 @@ void vtkPlotRadViz::SetVisibleVariableIndices(const std::vector<int>& indices)
 //------------------------------------------------------------------------------
 std::vector<int> vtkPlotRadViz::GetVisibleVariableIndices()
 {
+  this->UpdateFilterInput();
   return this->ComputeGBC->GetVisibleVariableIndices();
 }
 
@@ -366,6 +370,25 @@ void vtkPlotRadViz::AddVisibleVariableIndex(int index)
 {
   ::ChangeFilter(
     this, this->ComputeGBC, [&](vtkMultiVariateToRGBA* f) { f->AddVisibleVariableIndex(index); });
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::UpdateFilterInput()
+{
+  this->ComputeGBC->SetInputDataObject(0, this->Data->GetInputDataObject(0, 0));
+  // the array selection of vtkContextMapper2D, which may be unnamed
+  vtkInformation* plotArray = this->Data->GetInputArrayInformation(0);
+  int association = plotArray->Get(vtkDataObject::FIELD_ASSOCIATION());
+  if (const char* name = plotArray->Get(vtkDataObject::FIELD_NAME()))
+  {
+    this->ComputeGBC->SetInputArrayToProcess(0, 0, 0, association, name);
+  }
+  else
+  {
+    // e.g. active scalars: the filter finds the same, possibly unnamed, array
+    this->ComputeGBC->SetInputArrayToProcess(
+      0, 0, 0, association, plotArray->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE()));
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -452,26 +475,9 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
       // no input, we don't render anything
       return true;
     }
-    auto* dataset = vtkDataSet::SafeDownCast(input);
     // vtkMultiVariateToRGBA does the variable visibility filtering itself
     // (see SetVariableVisibility), so the raw input is passed as-is.
-    this->ComputeGBC->SetInputDataObject(0, input);
-    if (dataset)
-    {
-      // forward the array selection of vtkContextMapper2D, which may be unnamed
-      vtkInformation* arrayInfo = this->GetData()->GetInputArrayInformation(0);
-      int association = arrayInfo->Get(vtkDataObject::FIELD_ASSOCIATION());
-      if (const char* name = arrayInfo->Get(vtkDataObject::FIELD_NAME()))
-      {
-        this->ComputeGBC->SetInputArrayToProcess(0, 0, 0, association, name);
-      }
-      else
-      {
-        // e.g. active scalars: the filter finds the same, possibly unnamed, array
-        this->ComputeGBC->SetInputArrayToProcess(
-          0, 0, 0, association, arrayInfo->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE()));
-      }
-    }
+    this->UpdateFilterInput();
     if (auto* table = vtkTable::SafeDownCast(input))
     {
       // vtkMultiVariateToRGBA rejects them, so report it instead of drawing nothing

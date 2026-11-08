@@ -443,6 +443,11 @@ protected:
    */
   void ComputeVisibleLabels();
   /**
+   * Passes the input and the array selection of the plot to ComputeGBC, so
+   * that it computes, and reports the variables of, the plot input.
+   */
+  void UpdateFilterInput();
+  /**
    * Recomputes the plot circle's center and radius from Dimensions,
    * shrinking the radius so that there is enough room around the circle
    * for the vertex labels (measured using LabelsProperties and painter)

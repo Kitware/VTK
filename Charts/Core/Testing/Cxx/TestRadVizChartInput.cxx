@@ -13,8 +13,11 @@
  * vertices to interact with, when hidden or when too few variables remain
  * after a paint. Check that unchanged or rejected visibility settings do not
  * modify the plot, that a table column with several components is
- * reported as an error, that a string column is hidden by default, and that
- * SetInputArray selects a point or cell array of a dataset.
+ * reported as an error, that a string column is hidden by default, that
+ * SetInputArray selects a point or cell array of a dataset, that the
+ * visibility getters follow the input and array selection before a paint,
+ * and that the getters and painting again without changes do not modify the
+ * filter.
  */
 
 #include "vtkCellData.h"
@@ -23,6 +26,7 @@
 #include "vtkContextMapper2D.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkMultiVariateToRGBA.h"
@@ -343,9 +347,54 @@ int TestPlotModified()
   CHECK(errors->GetError());
   return EXIT_SUCCESS;
 }
+/**
+ * Checks that the visibility getters follow the input connection and the
+ * array selection without a paint, and that they and a paint without
+ * changes do not modify the filter.
+ */
+int TestFilterInput()
+{
+  vtkNew<vtkContextView> view;
+  view->GetRenderWindow()->SetSize(300, 300);
+  vtkNew<vtkChartRadViz> chart;
+  view->GetScene()->AddItem(chart);
+  vtkNew<InternalsPlot> plot;
+  chart->SetPlot(plot);
+  vtkNew<vtkTrivialProducer> producer;
+  producer->SetOutput(MakeTable());
+  plot->SetInputConnection(producer->GetOutputPort());
+  CHECK(plot->GetVisibleVariables()->GetNumberOfValues() == 4);
+  CHECK(plot->GetVisibleVariableIndices().size() == 4);
+  CHECK(plot->GetVariableVisibility("d"));
+  CHECK(plot->GetVariableVisibility(3));
+
+  // the active scalars have one component, "values" three
+  plot->SetInputDataSet(MakeImage(true));
+  CHECK(plot->GetVisibleVariables()->GetNumberOfValues() == 1);
+  plot->SetInputArray(0, "values");
+  CHECK(plot->GetVisibleVariables()->GetNumberOfValues() == 3);
+  view->GetRenderWindow()->Render();
+  CHECK(plot->GetVertices() && plot->GetVertices()->GetNumberOfPoints() == 3);
+  plot->GetData()->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  CHECK(plot->GetVisibleVariableIndices().size() == 1);
+  CHECK(!plot->GetVariableVisibility(1));
+
+  // painting again without changes
+  plot->SetInputArray(0, "values");
+  view->GetRenderWindow()->Render();
+  vtkMTimeType mtime = plot->GetFilter()->GetMTime();
+  view->GetRenderWindow()->Render();
+  plot->GetVisibleVariables();
+  plot->GetVariableVisibility(1);
+  CHECK(plot->GetFilter()->GetMTime() == mtime);
+  return EXIT_SUCCESS;
+}
+
 int TestRadVizChartInput(int, char*[])
 {
   CHECK(TestPlotModified() == EXIT_SUCCESS);
+  CHECK(TestFilterInput() == EXIT_SUCCESS);
   // a column per vertex
   CHECK(PaintVertices([](vtkPlotRadViz* plot) { SetInputConnection(plot, MakeTable()); }) == 4);
   // a component per vertex
