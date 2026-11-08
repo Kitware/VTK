@@ -415,12 +415,6 @@ public:
   std::vector<double> GetCustomRange() VTK_FUTURE_CONST;
   ///@}
 
-  /**
-   * Returns the angle in degrees between vertex and mousePos, measured
-   * at the plot's center. All these positions are in scene coordinates.
-   */
-  double GetAngle(double vertex[2], double mousePos[2]);
-
 protected:
   vtkPlotRadViz();
   ~vtkPlotRadViz() override;

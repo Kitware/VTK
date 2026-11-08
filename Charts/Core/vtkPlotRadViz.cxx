@@ -80,8 +80,7 @@ vtkStandardNewMacro(vtkPlotRadViz);
 class vtkPlotRadViz::vtkInternals
 {
 public:
-  vtkInternals(vtkObject* parent)
-    : Parent(parent)
+  vtkInternals()
   {
     this->SceneCenter[0] = this->SceneCenter[1] = 0;
     this->SceneRadius = 0;
@@ -104,21 +103,6 @@ public:
     }
   }
 
-  double GetAngle(double vertex[2], double mousePos[2])
-  {
-    mousePos[0] -= this->SceneCenter[0];
-    mousePos[1] -= this->SceneCenter[1];
-    vertex[0] -= this->SceneCenter[0];
-    vertex[1] -= this->SceneCenter[1];
-    double vertexRad = std::atan2(vertex[1], vertex[0]);
-    double mousePosRad = std::atan2(mousePos[1], mousePos[0]);
-    vtkDebugWithObjectMacro(this->Parent,
-      "mouse angle: " << vtkMath::DegreesFromRadians(mousePosRad)
-                      << " vertex angle: " << vtkMath::DegreesFromRadians(vertexRad));
-    double angle = vtkMath::DegreesFromRadians(mousePosRad - vertexRad);
-    return angle;
-  }
-
   void SetSceneCenterAndRadius(int dimensions[4])
   {
     this->SceneCenter[0] = dimensions[0] + 0.5 * dimensions[2];
@@ -134,15 +118,11 @@ public:
    * The radius of the GBC circle in scene coordinates
    */
   double SceneRadius;
-  /**
-   * PlotRadViz object, used for debug or error logging
-   */
-  vtkObject* Parent;
 };
 
 //------------------------------------------------------------------------------
 vtkPlotRadViz::vtkPlotRadViz()
-  : Internals(new vtkInternals(this))
+  : Internals(new vtkInternals())
 {
   this->Pen->SetColor(255, 255, 255, 255);
   this->Pen->SetWidth(6);
@@ -601,11 +581,6 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkPlotRadViz::TransformColors(vtkDataArra
     vtkErrorMacro("Invalid type for the colors array: " << colors->GetClassName());
   }
   return transformedColors;
-}
-
-double vtkPlotRadViz::GetAngle(double vertex[2], double mousePos[2])
-{
-  return this->Internals->GetAngle(vertex, mousePos);
 }
 
 std::pair<int, int> vtkPlotRadViz::GetJustification(double xy[2])
