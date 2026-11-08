@@ -1,6 +1,6 @@
-# Emscripten.cmake automatically enables 64-bit when the shell defines CMAKE_C_FLAGS="-sMEMORY64=1".
+# Emscripten.cmake automatically enables 64-bit when the shell defines CMAKE_C_FLAGS="--target=wasm64".
 # This exposes a proper CMake option to switch b/w 32 and 64 bit.
-option(VTK_WEBASSEMBLY_64_BIT "Enable support for 64-bit memory in wasm. Adds -sMEMORY64=1 compile and link flags." OFF)
+option(VTK_WEBASSEMBLY_64_BIT "Enable support for 64-bit memory in wasm. Adds --target=wasm64 compile and link flags." OFF)
 if (VTK_WEBASSEMBLY_64_BIT)
   # stick to what Emscripten.cmake does.
   set(CMAKE_LIBRARY_ARCHITECTURE "wasm64-emscripten")

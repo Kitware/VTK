@@ -70,19 +70,19 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     endif ()
   endif ()
   if (VTK_WEBASSEMBLY_64_BIT)
-    set(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -sMEMORY64=1")
-    set(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -sMEMORY64=1")
-    set(VTK_REQUIRED_EXE_LINKER_FLAGS "${VTK_REQUIRED_EXE_LINKER_FLAGS} -sMEMORY64=1")
-    set(VTK_REQUIRED_SHARED_LINKER_FLAGS "${VTK_REQUIRED_SHARED_LINKER_FLAGS} -sMEMORY64=1")
-    set(VTK_REQUIRED_MODULE_LINKER_FLAGS "${VTK_REQUIRED_MODULE_LINKER_FLAGS} -sMEMORY64=1")
+    set(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} --target=wasm64")
+    set(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} --target=wasm64")
+    set(VTK_REQUIRED_EXE_LINKER_FLAGS "${VTK_REQUIRED_EXE_LINKER_FLAGS} --target=wasm64")
+    set(VTK_REQUIRED_SHARED_LINKER_FLAGS "${VTK_REQUIRED_SHARED_LINKER_FLAGS} --target=wasm64")
+    set(VTK_REQUIRED_MODULE_LINKER_FLAGS "${VTK_REQUIRED_MODULE_LINKER_FLAGS} --target=wasm64")
     # Consumers linking to VTK also need to add the memory64 flag.
     if (TARGET vtkplatform)
       target_compile_options(vtkplatform
         INTERFACE
-          "-sMEMORY64=1")
+          "--target=wasm64")
       target_link_options(vtkplatform
         INTERFACE
-          "-sMEMORY64=1")
+          "--target=wasm64")
     endif ()
   endif ()
 endif ()

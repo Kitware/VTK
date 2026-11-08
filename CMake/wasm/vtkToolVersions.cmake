@@ -9,8 +9,8 @@ lands in a fresh directory instead of colliding with what is already cached.
 Bump a version and its hash together.
 #]==]
 
-set(vtk_emsdk_version "4.0.20")
-set(vtk_emsdk_hash "9153c801da503d266541bf018d68924bda4e405da45aeea608ed30959ed75a17")
+set(vtk_emsdk_version "6.0.13")
+set(vtk_emsdk_hash "6c84ec9326701c0bc27719ecd7662d4f033eb42519897d3d88aa88e1e781b6bd")
 
 set(vtk_node_version "24.9.0")
 set(vtk_node_hash_linux_x64 "d57d6c28a35785f58f33899a0aa0bfc83f7a8ef4448b6cf3f7d0961efc7b9189")
