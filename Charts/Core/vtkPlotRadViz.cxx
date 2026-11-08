@@ -472,7 +472,7 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
       }
     }
     // counts the variables of the input and array set above
-    if (this->GetVisibleVariables()->GetNumberOfTuples() < 3)
+    if (this->ComputeGBC->GetVisibleVariables()->GetNumberOfTuples() < 3)
     {
       // RadViz does not work for < 3 components, so we don't render anything
       return true;
