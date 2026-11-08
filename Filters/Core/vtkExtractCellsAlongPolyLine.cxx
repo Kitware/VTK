@@ -612,16 +612,14 @@ bool BuildOutputPolyhedronFaces(vtkUnstructuredGrid* input, vtkIdList* sortedCel
     faceIds.clear();
     for (int f = 0; f < numberOfFaces; ++f)
     {
-      vtkIdType npts;
-      const vtkIdType* pts;
-      polyhedra->GetFacePoints(inputCellId, f, npts, pts, facePts);
-      remappedFace.resize(npts);
-      for (vtkIdType p = 0; p < npts; ++p)
+      const auto face = polyhedra->GetFace(inputCellId, f, facePts);
+      remappedFace.resize(face.NumberOfPoints);
+      for (vtkIdType p = 0; p < face.NumberOfPoints; ++p)
       {
-        remappedFace[p] = inputToOutputPointIdMap.at(pts[p]);
+        remappedFace[p] = inputToOutputPointIdMap.at(face[p]);
       }
       const vtkIdType globalFaceId =
-        outputFaces->InsertNextCell(static_cast<int>(npts), remappedFace.data());
+        outputFaces->InsertNextCell(static_cast<int>(face.NumberOfPoints), remappedFace.data());
       faceIds.push_back(globalFaceId);
     }
     outputFaceLocations->InsertNextCell(

@@ -1227,11 +1227,27 @@ void ExtractCellGeometry(vtkUnstructuredGrid* input, vtkIdType cellId, int cellT
 
     case VTK_POLYHEDRON:
     {
-      vtkIdType numFacePoints;
-      const vtkIdType* facePointIds = nullptr;
-      input->GetPolyhedronCellArray()->GetFacePoints(
-        cellId, faceId, numFacePoints, facePointIds, localData->IPts);
-      InsertAFace(localData->FaceList, cellId, numFacePoints, facePointIds, isGhost);
+      vtkPolyhedronCellArray* polyhedra = input->GetPolyhedronCellArray();
+      const auto face = polyhedra->GetFace(cellId, faceId, localData->IPts);
+      if (!face.Reversed)
+      {
+        InsertAFace(localData->FaceList, cellId, face.NumberOfPoints, face.Points, isGhost);
+      }
+      else if (face.NumberOfPoints <= MAX_FACE_POINTS)
+      {
+        for (vtkIdType i = 0; i < face.NumberOfPoints; ++i)
+        {
+          ptIds[i] = face[i];
+        }
+        InsertAFace(localData->FaceList, cellId, face.NumberOfPoints, ptIds, isGhost);
+      }
+      else
+      {
+        vtkIdType numFacePoints;
+        const vtkIdType* facePointIds = nullptr;
+        polyhedra->GetFacePoints(cellId, faceId, numFacePoints, facePointIds, localData->IPts);
+        InsertAFace(localData->FaceList, cellId, numFacePoints, facePointIds, isGhost);
+      }
       break;
     }
     default:
