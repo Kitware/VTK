@@ -4,7 +4,8 @@
  * Check that vtkPlotRadViz and vtkChartRadViz can be saved and restored:
  * a plot with a table input is saved without errors and restored with its
  * input, visibility, labels and array selection (the active scalars by
- * default), and a restored chart has the saved plot.
+ * default), and a restored chart has the saved plot and does not save the
+ * plot visibility again.
  */
 
 #include "vtkChartRadViz.h"
@@ -40,10 +41,11 @@ using Names = std::vector<std::string>;
 
 /**
  * Serializes 'source' and deserializes its state into a new object.
- * Returns nullptr if either half fails.
+ * Returns nullptr if either half fails. Stores the saved state in 'state'
+ * if it is not null.
  */
 template <typename T>
-vtkSmartPointer<T> RoundTrip(T* source)
+vtkSmartPointer<T> RoundTrip(T* source, nlohmann::json* state = nullptr)
 {
   vtkNew<vtkMarshalContext> context;
   vtkNew<vtkSerializer> serializer;
@@ -65,10 +67,14 @@ vtkSmartPointer<T> RoundTrip(T* source)
     return nullptr;
   }
   // a new id, so the deserializer builds a new object
-  auto state = context->GetState(idIt->template get<vtkTypeUInt32>());
+  auto newState = context->GetState(idIt->template get<vtkTypeUInt32>());
+  if (state)
+  {
+    *state = newState;
+  }
   const vtkTypeUInt32 newId = context->MakeId();
-  state["Id"] = newId;
-  if (!context->RegisterState(state))
+  newState["Id"] = newId;
+  if (!context->RegisterState(newState))
   {
     std::cerr << "Failed to register state." << std::endl;
     return nullptr;
@@ -150,8 +156,11 @@ bool TestChart()
 {
   vtkNew<vtkChartRadViz> chart;
   vtkPlot* plot = chart->AddPlot(0);
-  auto restored = RoundTrip(chart.Get());
+  nlohmann::json state;
+  auto restored = RoundTrip(chart.Get(), &state);
   CHECK(restored);
+  // the plot saves its visibility, the chart does not save it again
+  CHECK(!state.contains("VisibleVariables"));
   CHECK(restored->GetNumberOfPlots() == 1);
   auto* restoredPlot = vtkPlotRadViz::SafeDownCast(restored->GetPlot(0));
   // the context already holds the plot, so it is restored as is, not the

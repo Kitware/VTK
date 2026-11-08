@@ -121,15 +121,18 @@ public:
    * AddVisibleVariableIndex() are for the ParaView server manager XML, see
    * vtkMultiVariateToRGBA::AddVisibleVariableIndex.
    *
-   * Get/SetVisibleVariableIndices are excluded from serialization: they are
-   * another view of the visibility VisibleVariables already serializes.
+   * Get/SetVisibleVariables and Get/SetVisibleVariableIndices are excluded
+   * from serialization: the plot, a child item of the chart, already saves
+   * and restores its visibility.
    */
   void SetVariableVisibility(const std::string& name, bool visible);
   void SetVariableVisibility(int index, bool visible);
   void SetVariableVisibilityAll(bool visible);
   bool GetVariableVisibility(const std::string& name);
   bool GetVariableVisibility(int index);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual vtkStringArray* GetVisibleVariables();
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetVisibleVariables(vtkStringArray* names);
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetVisibleVariableIndices(const std::vector<int>& indices);
