@@ -495,7 +495,11 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     this->ComputeGBC->SetLensRadius(this->LensRadius);
     this->ComputeGBC->SetOutsideLensAlpha(this->OutsideLensAlpha);
     this->ComputeGBC->SetLensCenter(this->LensCenter);
-    this->ComputeGBC->Update();
+    if (!this->ComputeGBC->Update())
+    {
+      // the filter already reported why
+      return false;
+    }
     vtkDataObject* output = this->ComputeGBC->GetOutputDataObject(0);
     auto [vertices, gbc, rgba] = this->GetVerticesGbcRgba(output);
     if (this->ColorWheelVisibility)

@@ -14,7 +14,8 @@
  * after a paint. Check that unchanged or rejected visibility settings do not
  * modify the plot, that the partition and custom range reach the filter
  * when set, that a table column with several components is
- * reported as an error, that a string column is hidden by default, that
+ * reported as an error, that a string column is hidden by default and
+ * reported only by the filter when made visible, that
  * SetInputArray selects a point or cell array of a dataset, that the
  * visibility getters follow the input and array selection before a paint,
  * that the getters and painting again without changes do not modify the
@@ -32,6 +33,7 @@
 #include "vtkContextView.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
+#include "vtkExecutive.h"
 #include "vtkImageData.h"
 #include "vtkMultiVariateToRGBA.h"
 #include "vtkNew.h"
@@ -643,6 +645,37 @@ int TestRadVizChartInput(int, char*[])
               plot->SetInputData(table);
             }) == 4);
     CHECK(!errors->GetError());
+  }
+  // a string column made visible is reported by the filter only
+  {
+    vtkNew<vtkContextView> view;
+    view->GetRenderWindow()->SetSize(300, 300);
+    vtkNew<vtkChartRadViz> chart;
+    view->GetScene()->AddItem(chart);
+    vtkNew<InternalsPlot> plot;
+    chart->SetPlot(plot);
+    vtkNew<vtkTest::ErrorObserver> plotErrors;
+    vtkNew<vtkTest::ErrorObserver> filterErrors;
+    plot->AddObserver(vtkCommand::ErrorEvent, plotErrors);
+    plot->GetFilter()->AddObserver(vtkCommand::ErrorEvent, filterErrors);
+    // the executive reports that the filter failed
+    plot->GetFilter()->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, filterErrors);
+    vtkSmartPointer<vtkTable> table = MakeTable();
+    vtkNew<vtkStringArray> species;
+    species->SetName("species");
+    species->SetNumberOfValues(NumberOfValues);
+    table->AddColumn(species);
+    plot->SetInputData(table);
+    vtkNew<vtkStringArray> visible;
+    for (const char* name : { "a", "b", "c", "species" })
+    {
+      visible->InsertNextValue(name);
+    }
+    plot->SetVisibleVariables(visible);
+    view->GetRenderWindow()->Render();
+    CHECK(filterErrors->HasErrorMessage("Column is not a one component numeric array: species"));
+    CHECK(!plotErrors->GetError());
+    CHECK(!plot->GetVertices());
   }
   // nothing when the labels leave no room for the plot
   CHECK(PaintVertices(
