@@ -782,12 +782,14 @@ void vtkPolyhedronContour::OutputClip(vtkPolyhedron* cell, vtkCellArray* connect
 void vtkPolyhedronContour::ContourCell(vtkIdType numPointIds, const vtkIdType* pointIds,
   vtkCellArray* polyhedronFaces, vtkDataArray* points, vtkDataArray* scalars, double isoValue,
   bool generateTriangles, std::vector<vtkIdType>& polygonsSize,
-  std::vector<EdgeTuple<vtkIdType, double>>& intersectedEdges)
+  std::vector<EdgeTuple<vtkIdType, double>>& intersectedEdges, vtkPolygon* triPolygon,
+  vtkIdList* triIds)
 {
   polygonsSize.clear();
   intersectedEdges.clear();
 
-  if (numPointIds < 4 || polyhedronFaces == nullptr || scalars == nullptr)
+  if (numPointIds < 4 || polyhedronFaces == nullptr || scalars == nullptr ||
+    (generateTriangles && (triPolygon == nullptr || triIds == nullptr)))
   {
     return;
   }
@@ -858,12 +860,9 @@ void vtkPolyhedronContour::ContourCell(vtkIdType numPointIds, const vtkIdType* p
     // fraction of the contour pipeline (dominated by the Lopez trace and the edge
     // locator), so the measure-ordered clip's cost is negligible.
     //
-    // triPolygon/triIds are reused across this call's iso-polygons and destroyed
-    // when this function returns; they are deliberately NOT thread_local, because
-    // a thread_local vtkObject outlives teardown and is reported as a leak.
+    // triPolygon/triIds belong to the caller, one per thread. Constructing a
+    // vtkPolygon per cell serializes threads on the object factory lock.
     auto& earCoords = ws.EarCoords; // contiguous iso-vertex coords, loop order
-    vtkNew<vtkPolygon> triPolygon;
-    vtkNew<vtkIdList> triIds;
     for (const auto& poly : trace.IsoPolygons)
     {
       const vtkIdType nv = static_cast<vtkIdType>(poly.size());
@@ -935,6 +934,18 @@ void vtkPolyhedronContour::ContourCell(vtkIdType numPointIds, const vtkIdType* p
       polygonsSize.push_back(nv);
     }
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkPolyhedronContour::ContourCell(vtkIdType numPointIds, const vtkIdType* pointIds,
+  vtkCellArray* polyhedronFaces, vtkDataArray* points, vtkDataArray* scalars, double isoValue,
+  bool generateTriangles, std::vector<vtkIdType>& polygonsSize,
+  std::vector<EdgeTuple<vtkIdType, double>>& intersectedEdges)
+{
+  vtkNew<vtkPolygon> triPolygon;
+  vtkNew<vtkIdList> triIds;
+  vtkPolyhedronContour::ContourCell(numPointIds, pointIds, polyhedronFaces, points, scalars,
+    isoValue, generateTriangles, polygonsSize, intersectedEdges, triPolygon, triIds);
 }
 
 //------------------------------------------------------------------------------

@@ -228,15 +228,18 @@ shared edge locator.
 fast and general paths.
 
 ```
-static void ContourCell(numPointIds, pointIds, polyhedronFaces, scalars,
-    isoValue, generateTriangles,
-    polygonsSize, intersectedEdges);
+static void ContourCell(numPointIds, pointIds, polyhedronFaces, points,
+    scalars, isoValue, generateTriangles,
+    polygonsSize, intersectedEdges, triPolygon, triIds);
 ```
 
 `polygonsSize` is a per-output-polygon vertex count (3 for each triangle
 when `generateTriangles=true`); `intersectedEdges` holds the edge tuples in
 polygon traversal order so the caller can build polygon connectivity by
-looking up each edge's deduplicated iso-vertex ID.
+looking up each edge's deduplicated iso-vertex ID. `triPolygon` and `triIds`
+are scratch objects the caller keeps per thread for triangulating iso-polygons
+with more than three vertices. Constructing them per cell serializes the
+threads on the VTK object factory and garbage collector locks.
 
 **Clip — two-pass Count/Emit.** Used by `vtkTableBasedClipDataSet`. Output
 point IDs are written directly (combining the kept-point `pointMap` lookup

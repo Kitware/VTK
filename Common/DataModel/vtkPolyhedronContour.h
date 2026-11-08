@@ -28,6 +28,7 @@
 #define vtkPolyhedronContour_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_8_0
 #include "vtkType.h"                  // For vtkIdType
 
 #include "vtkSmartPointer.h"         // For vtkSmartPointer
@@ -146,7 +147,21 @@ public:
    *                                    NPolys). Make sure to clear it before adding.
    * @param intersectedEdges            [out] Intersected Edges defined as (globalPtId0,
    *                                    globalPtId1, t). Make sure to clear it before adding.
+   * @param triPolygon                  Scratch polygon for triangulating iso-polygons when
+   *                                    generateTriangles=true. Owned by the caller and reused
+   *                                    across calls, one per thread.
+   * @param triIds                      Scratch id list used with triPolygon.
    */
+  static void ContourCell(vtkIdType numPointIds, const vtkIdType* pointIds,
+    vtkCellArray* polyhedronFaces, vtkDataArray* points, vtkDataArray* scalars, double isoValue,
+    bool generateTriangles, std::vector<vtkIdType>& polygonsSize,
+    std::vector<EdgeTuple<vtkIdType, double>>& intersectedEdges, vtkPolygon* triPolygon,
+    vtkIdList* triIds);
+
+  /**
+   * ContourCell for a single polyhedron, with a scratch polygon created for every call.
+   */
+  VTK_DEPRECATED_IN_9_8_0("Use the overload that takes a scratch vtkPolygon and vtkIdList")
   static void ContourCell(vtkIdType numPointIds, const vtkIdType* pointIds,
     vtkCellArray* polyhedronFaces, vtkDataArray* points, vtkDataArray* scalars, double isoValue,
     bool generateTriangles, std::vector<vtkIdType>& polygonsSize,

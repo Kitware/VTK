@@ -202,6 +202,8 @@ struct ExtractEdgesBase
     vtkSmartPointer<vtkIdList> LocalPointIds;
 
     vtkSmartPointer<vtkCellArray> PolyhedronFaces;
+    vtkSmartPointer<vtkPolygon> TriPolygon;
+    vtkSmartPointer<vtkIdList> TriIds;
     std::vector<vtkIdType> OutputPolyhedronPolySize;
     std::vector<EdgeTuple<vtkIdType, double>> IntersectedEdges;
   };
@@ -249,6 +251,8 @@ struct ExtractEdgesBase
     auto& localData = this->LocalData.Local();
     localData.LocalPointIds = vtkSmartPointer<vtkIdList>::New();
     localData.PolyhedronFaces = vtkSmartPointer<vtkCellArray>::New();
+    localData.TriPolygon = vtkSmartPointer<vtkPolygon>::New();
+    localData.TriIds = vtkSmartPointer<vtkIdList>::New();
   }
 
   // operator() provided by subclass
@@ -513,7 +517,7 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TScalarsArray, GenerateTri
           this->Input->GetPolyhedronFaces(cellId, lPolyhedronFaces);
           vtkPolyhedronContour::ContourCell(npts, pts, lPolyhedronFaces.Get(),
             this->Input->GetPoints()->GetData(), this->Scalars, value, GenerateTriangles,
-            lOutputPolyhedronPolySize, lIntersectedEdges);
+            lOutputPolyhedronPolySize, lIntersectedEdges, localData.TriPolygon, localData.TriIds);
           size_t edgeOffset = 0;
           for (size_t polyId = 0; polyId < lOutputPolyhedronPolySize.size(); ++polyId)
           {
@@ -673,7 +677,7 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray, GenerateT
           this->Input->GetPolyhedronFaces(cellId, lPolyhedronFaces);
           vtkPolyhedronContour::ContourCell(npts, pts, lPolyhedronFaces.Get(),
             this->Input->GetPoints()->GetData(), this->Scalars, value, GenerateTriangles,
-            lOutputPolyhedronPolySize, lIntersectedEdges);
+            lOutputPolyhedronPolySize, lIntersectedEdges, localData.TriPolygon, localData.TriIds);
           size_t edgeOffset = 0;
           for (size_t polyId = 0; polyId < lOutputPolyhedronPolySize.size(); ++polyId)
           {
