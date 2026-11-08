@@ -499,6 +499,11 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     }
     this->ComputeVisibleLabels();
     this->UpdateCenterAndRadius(painter);
+    if (this->Internals->SceneRadius <= 0)
+    {
+      // the labels leave no room for the plot, and the label positions would divide by 0
+      return true;
+    }
 
     this->ComputeGBC->SetStoreGBC(true);
     this->ComputeGBC->SetStoreVertices(true);

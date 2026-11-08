@@ -16,8 +16,8 @@
  * reported as an error, that a string column is hidden by default, that
  * SetInputArray selects a point or cell array of a dataset, that the
  * visibility getters follow the input and array selection before a paint,
- * and that the getters and painting again without changes do not modify the
- * filter.
+ * that the getters and painting again without changes do not modify the
+ * filter, and that it draws nothing when the labels leave no room.
  */
 
 #include "vtkCellData.h"
@@ -560,6 +560,18 @@ int TestRadVizChartInput(int, char*[])
             }) == 4);
     CHECK(!errors->GetError());
   }
+  // nothing when the labels leave no room for the plot
+  CHECK(PaintVertices(
+          [](vtkPlotRadViz* plot)
+          {
+            plot->SetInputData(MakeTable());
+            vtkNew<vtkStringArray> labels;
+            for (int i = 0; i < 4; ++i)
+            {
+              labels->InsertNextValue(std::string(40, 'W'));
+            }
+            plot->SetLabels(labels);
+          }) == 0);
   // nothing for a hidden plot
   CHECK(PaintVertices(
           [](vtkPlotRadViz* plot)
