@@ -14,8 +14,8 @@
  * after a paint. Check that unchanged or rejected visibility settings do not
  * modify the plot, that the partition and custom range reach the filter
  * when set, that a table column with several components is
- * reported as an error, that a string column is hidden by default and
- * reported only by the filter when made visible, that
+ * reported as an error, that a string column is hidden, that a filter
+ * failure is reported only by the filter, that
  * SetInputArray selects a point or cell array of a dataset, that the
  * visibility getters follow the input and array selection before a paint,
  * that the getters and painting again without changes do not modify the
@@ -375,8 +375,8 @@ int TestPlotModified()
 }
 /**
  * Checks that the visibility getters follow the input connection, also to
- * a pipeline not yet updated, and the array selection without a paint, and that they and a paint
- * without changes do not modify the filter.
+ * a pipeline not yet updated, and the array selection without a paint, and
+ * that they and a paint without changes do not modify the filter.
  */
 int TestFilterInput()
 {
@@ -630,7 +630,7 @@ int TestRadVizChartInput(int, char*[])
       CHECK(errors->HasErrorMessage(several));
     }
   }
-  // a string column is hidden by default
+  // a string column is hidden
   {
     vtkNew<vtkTest::ErrorObserver> errors;
     CHECK(PaintVertices(
@@ -646,7 +646,7 @@ int TestRadVizChartInput(int, char*[])
             }) == 4);
     CHECK(!errors->GetError());
   }
-  // a string column made visible is reported by the filter only
+  // a filter failure is reported by the filter only
   {
     vtkNew<vtkContextView> view;
     view->GetRenderWindow()->SetSize(300, 300);
@@ -660,20 +660,11 @@ int TestRadVizChartInput(int, char*[])
     plot->GetFilter()->AddObserver(vtkCommand::ErrorEvent, filterErrors);
     // the executive reports that the filter failed
     plot->GetFilter()->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, filterErrors);
-    vtkSmartPointer<vtkTable> table = MakeTable();
-    vtkNew<vtkStringArray> species;
-    species->SetName("species");
-    species->SetNumberOfValues(NumberOfValues);
-    table->AddColumn(species);
-    plot->SetInputData(table);
-    vtkNew<vtkStringArray> visible;
-    for (const char* name : { "a", "b", "c", "species" })
-    {
-      visible->InsertNextValue(name);
-    }
-    plot->SetVisibleVariables(visible);
+    plot->SetInputData(MakeTable());
+    // min greater than max
+    plot->SetCustomRange({ 1, 0 });
     view->GetRenderWindow()->Render();
-    CHECK(filterErrors->HasErrorMessage("Column is not a one component numeric array: species"));
+    CHECK(filterErrors->HasErrorMessage("Invalid CustomRange for group 0: min 1 is greater"));
     CHECK(!plotErrors->GetError());
     CHECK(!plot->GetVertices());
   }

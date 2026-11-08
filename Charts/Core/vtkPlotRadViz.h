@@ -121,8 +121,8 @@ public:
    * dataset, and only the visible ones are used to compute the plot. These
    * are passthroughs to the underlying vtkMultiVariateToRGBA; see
    * vtkMultiVariateToRGBA::SetVariableVisibility for details. Every variable
-   * of the input set with SetInputDataSet/SetInputData, except non-numeric
-   * table columns, is visible by default. Labels set with SetLabels are one
+   * of the input set with SetInputDataSet/SetInputData is visible by
+   * default, and non-numeric table columns are never visible. Labels set with SetLabels are one
    * per variable of the input, in order, and only the ones of visible
    * variables are drawn. If their number does not match, the variable names
    * are drawn instead.

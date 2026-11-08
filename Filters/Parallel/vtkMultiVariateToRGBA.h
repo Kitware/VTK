@@ -295,9 +295,9 @@ public:
    * ("0", "1", ...). Names are unique: a name already used, by a named
    * variable or an earlier variable, gets the first free " (2)", " (3)",
    * ... suffix, so a column named "1" keeps its name and an unnamed column
-   * 1 is named "1 (2)". By default, every variable is visible, except the
-   * non-numeric columns of a table, such as string columns. These keep
-   * their index, and making one visible is an error when the filter runs.
+   * 1 is named "1 (2)". By default, every variable is visible. The
+   * non-numeric columns of a table, such as string columns, are never
+   * visible, whatever their visibility is set to, but keep their index.
    *
    * The visibility is stored as a default visibility and the variables
    * that differ from it, which do not depend on the input, so they can be
@@ -312,7 +312,7 @@ public:
   void SetVariableVisibility(int index, bool visible);
   /**
    * Set the visibility of all variables, including the ones of inputs set
-   * later. Passing true leaves the non-numeric columns of a table hidden.
+   * later. The non-numeric columns of a table stay hidden.
    * Passing false leaves the filter with nothing to process until
    * variables are made visible again.
    */
@@ -467,7 +467,7 @@ private:
   vtkSmartPointer<vtkDataArray> GetVisibleComponentsArray(vtkDataArray* array);
   /**
    * Returns true if the variable with this index and name is visible. A
-   * variable that is not 'numeric' is visible only if set so explicitly.
+   * variable that is not 'numeric' is never visible.
    */
   bool IsVariableVisible(int index, const std::string& name, bool numeric = true) const;
   /**

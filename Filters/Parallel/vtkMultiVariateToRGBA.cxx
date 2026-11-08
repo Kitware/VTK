@@ -901,10 +901,10 @@ vtkSmartPointer<vtkStringArray> vtkMultiVariateToRGBA::GetAllVariableNames()
 bool vtkMultiVariateToRGBA::IsVariableVisible(
   int index, const std::string& name, bool numeric) const
 {
-  // at most one of the exceptions is not empty
+  // at most one of the exceptions is not empty, and an exception flips the default
   bool exception = this->NameVisibilityExceptions.count(name) > 0 ||
     this->IndexVisibilityExceptions.count(index) > 0;
-  return exception ? !this->VariablesVisibleByDefault : this->VariablesVisibleByDefault && numeric;
+  return numeric && exception != this->VariablesVisibleByDefault;
 }
 
 //------------------------------------------------------------------------------

@@ -7,8 +7,7 @@
  * do not mix until the visibility starts over, unnamed variables are named
  * after their index, names are unique, and changes that do not change the visibility do not
  * modify the filter. Also check that the partition indexes the visible
- * variables only, and that a non-numeric column is hidden by default and
- * an error when made visible.
+ * variables only, and that a non-numeric column is never visible.
  */
 
 #include <vtkCommand.h>
@@ -444,8 +443,8 @@ bool TestNamesFollowInput()
   return true;
 }
 
-// Checks that a string column is hidden by default, keeps its index, and
-// is reported as an error when made visible by name or by index.
+// Checks that a string column is hidden, keeps its index, and stays hidden,
+// without an error, when made visible by name or by index.
 bool TestNonNumericColumn()
 {
   vtkSmartPointer<vtkDataObject> input = MakeTable({ 0, 1, 2, 3 });
@@ -466,21 +465,23 @@ bool TestNonNumericColumn()
   CHECK(NumberOfVertices(filter) == 4);
   CHECK(!errorObserver->GetError());
 
-  const std::string notNumeric = "Column is not a one component numeric array: species";
   vtkNew<vtkStringArray> visible;
-  for (const char* name : { "a", "species", "c" })
+  for (const char* name : { "a", "species", "c", "d" })
   {
     visible->InsertNextValue(name);
   }
   filter->SetVisibleVariables(visible);
-  CHECK(filter->GetVariableVisibility("species"));
-  CHECK(NumberOfVertices(filter) == -1);
-  CHECK(errorObserver->HasErrorMessage(notNumeric));
-  errorObserver->Clear();
-  filter->SetVisibleVariableIndices({ 0, 2, 3 });
-  CHECK(filter->GetVisibleVariableIndices() == Indices({ 0, 2, 3 }));
-  CHECK(NumberOfVertices(filter) == -1);
-  CHECK(errorObserver->HasErrorMessage(notNumeric));
+  CHECK(!filter->GetVariableVisibility("species"));
+  CHECK(ToNames(filter->GetVisibleVariables()) == Names({ "a", "c", "d" }));
+  CHECK(NumberOfVertices(filter) == 3);
+  filter->SetVisibleVariableIndices({ 0, 2, 3, 4 });
+  CHECK(!filter->GetVariableVisibility(2));
+  CHECK(filter->GetVisibleVariableIndices() == Indices({ 0, 3, 4 }));
+  CHECK(NumberOfVertices(filter) == 3);
+  filter->SetVariableVisibilityAll(false);
+  filter->SetVariableVisibility("species", true);
+  CHECK(!filter->GetVariableVisibility("species"));
+  CHECK(!errorObserver->GetError());
   return true;
 }
 
