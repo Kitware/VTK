@@ -12,7 +12,8 @@
  * returns only the labels set, and that it draws nothing, leaving no
  * vertices to interact with, when hidden or when too few variables remain
  * after a paint. Check that unchanged or rejected visibility settings do not
- * modify the plot, that a table column with several components is
+ * modify the plot, that the partition and custom range reach the filter
+ * when set, that a table column with several components is
  * reported as an error, that a string column is hidden by default, that
  * SetInputArray selects a point or cell array of a dataset, that the
  * visibility getters follow the input and array selection before a paint,
@@ -350,6 +351,24 @@ int TestPlotModified()
   // rejected: a negative index
   CHECK(!modifies([&] { plot->AddVisibleVariableIndex(-1); }));
   CHECK(errors->GetError());
+
+  // the partition and custom range are set on the filter
+  CHECK(modifies([&] { plot->SetPartitionIndices({ 0, 1, 2 }); }));
+  CHECK(!modifies([&] { plot->SetPartitionIndices({ 0, 1, 2 }); }));
+  CHECK(modifies([&] { plot->SetPartitionOffsets({ 1, 3 }); }));
+  CHECK(modifies([&] { plot->SetCustomRange({ 0, 1, 0, 2 }); }));
+  CHECK(!modifies([&] { plot->SetCustomRange({ 0, 1, 0, 2 }); }));
+  CHECK(plot->GetFilter()->GetPartitionIndices() == std::vector<int>({ 0, 1, 2 }));
+  CHECK(plot->GetFilter()->GetPartitionOffsets() == std::vector<int>({ 1, 3 }));
+  CHECK(plot->GetFilter()->GetCustomRange() == std::vector<double>({ 0, 1, 0, 2 }));
+  CHECK(modifies([&] { plot->ClearPartitionIndices(); }));
+  CHECK(!modifies([&] { plot->ClearPartitionIndices(); }));
+  CHECK(modifies([&] { plot->AddPartitionIndex(2); }));
+  CHECK(modifies([&] { plot->ClearPartitionOffsets(); }));
+  CHECK(modifies([&] { plot->AddPartitionOffset(1); }));
+  CHECK(plot->GetPartitionIndices() == std::vector<int>({ 2 }));
+  CHECK(plot->GetFilter()->GetPartitionIndices() == std::vector<int>({ 2 }));
+  CHECK(plot->GetFilter()->GetPartitionOffsets() == std::vector<int>({ 1 }));
   return EXIT_SUCCESS;
 }
 /**

@@ -498,9 +498,6 @@ bool vtkPlotRadViz::Paint(vtkContext2D* painter)
     this->ComputeGBC->SetStoreA(!this->ScalarVisibility);
     this->ComputeGBC->SetLensRadius(this->LensRadius);
     this->ComputeGBC->SetOutsideLensAlpha(this->OutsideLensAlpha);
-    this->ComputeGBC->SetPartitionIndices(this->PartitionIndices);
-    this->ComputeGBC->SetPartitionOffsets(this->PartitionOffsets);
-    this->ComputeGBC->SetCustomRange(this->CustomRange);
     this->ComputeGBC->SetLensCenter(this->LensCenter);
     this->ComputeGBC->Update();
     vtkDataObject* output = this->ComputeGBC->GetOutputDataObject(0);
@@ -849,86 +846,68 @@ void vtkPlotRadViz::UpdateCenterAndRadius(vtkContext2D* painter)
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::SetCustomRange(const std::vector<double>& customRange)
 {
-  vtkDebugMacro(<< " setting CustomRange to " << fmt::format("{}", customRange));
-  if (this->CustomRange != customRange)
-  {
-    this->CustomRange = customRange;
-    this->Modified();
-  }
+  ::ChangeFilter(
+    this, this->ComputeGBC, [&](vtkMultiVariateToRGBA* f) { f->SetCustomRange(customRange); });
 }
 
 //------------------------------------------------------------------------------
 std::vector<double> vtkPlotRadViz::GetCustomRange() VTK_FUTURE_CONST
 {
-  return this->CustomRange;
+  return this->ComputeGBC->GetCustomRange();
 }
 
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::SetPartitionIndices(const std::vector<int>& partitionIndices)
 {
-  vtkDebugMacro(<< " setting PartitionIndices to " << fmt::format("{}", partitionIndices));
-  if (this->PartitionIndices != partitionIndices)
-  {
-    this->PartitionIndices = partitionIndices;
-    this->Modified();
-  }
+  ::ChangeFilter(this, this->ComputeGBC,
+    [&](vtkMultiVariateToRGBA* f) { f->SetPartitionIndices(partitionIndices); });
 }
 
 //------------------------------------------------------------------------------
 std::vector<int> vtkPlotRadViz::GetPartitionIndices() VTK_FUTURE_CONST
 {
-  return this->PartitionIndices;
+  return this->ComputeGBC->GetPartitionIndices();
 }
 
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::SetPartitionOffsets(const std::vector<int>& partitionOffsets)
 {
-  vtkDebugMacro(<< " setting PartitionOffsets to " << fmt::format("{}", partitionOffsets));
-  if (this->PartitionOffsets != partitionOffsets)
-  {
-    this->PartitionOffsets = partitionOffsets;
-    this->Modified();
-  }
+  ::ChangeFilter(this, this->ComputeGBC,
+    [&](vtkMultiVariateToRGBA* f) { f->SetPartitionOffsets(partitionOffsets); });
 }
 
 //------------------------------------------------------------------------------
 std::vector<int> vtkPlotRadViz::GetPartitionOffsets() VTK_FUTURE_CONST
 {
-  return this->PartitionOffsets;
+  return this->ComputeGBC->GetPartitionOffsets();
 }
 
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::ClearPartitionIndices()
 {
-  if (!this->PartitionIndices.empty())
-  {
-    this->PartitionIndices.clear();
-    this->Modified();
-  }
+  ::ChangeFilter(
+    this, this->ComputeGBC, [](vtkMultiVariateToRGBA* f) { f->ClearPartitionIndices(); });
 }
 
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::AddPartitionIndex(int index)
 {
-  this->PartitionIndices.push_back(index);
-  this->Modified();
+  ::ChangeFilter(
+    this, this->ComputeGBC, [&](vtkMultiVariateToRGBA* f) { f->AddPartitionIndex(index); });
 }
 
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::ClearPartitionOffsets()
 {
-  if (!this->PartitionOffsets.empty())
-  {
-    this->PartitionOffsets.clear();
-    this->Modified();
-  }
+  ::ChangeFilter(
+    this, this->ComputeGBC, [](vtkMultiVariateToRGBA* f) { f->ClearPartitionOffsets(); });
 }
 
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::AddPartitionOffset(int offset)
 {
-  this->PartitionOffsets.push_back(offset);
-  this->Modified();
+  ::ChangeFilter(
+    this, this->ComputeGBC, [&](vtkMultiVariateToRGBA* f) { f->AddPartitionOffset(offset); });
 }
 
 //------------------------------------------------------------------------------

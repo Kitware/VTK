@@ -377,7 +377,8 @@ public:
    *
    * For example, to normalize indices `[0, 1, 2]` together and `[3, 4]`
    * together, set PartitionIndices to `[0, 1, 2, 3, 4]` and PartitionOffsets to
-   * `[3, 5]`.
+   * `[3, 5]`. These are passthroughs to the underlying vtkMultiVariateToRGBA;
+   * see vtkMultiVariateToRGBA::SetPartitionIndices for details.
    */
   void SetPartitionIndices(const std::vector<int>& partitionIndices);
   std::vector<int> GetPartitionIndices() VTK_FUTURE_CONST;
@@ -479,14 +480,6 @@ protected:
   static vtkDataArray* GetArray(vtkDataSetAttributes* attributes, const char* name);
   ///@}
 
-  std::vector<int> PartitionIndices;
-  std::vector<int> PartitionOffsets;
-  /**
-   * Custom ranges used as the global min/max when normalizing scalars,
-   * interleaved as [min0, max0, min1, max1, ...], one pair per partition
-   * group. Empty means no custom range is set.
-   */
-  std::vector<double> CustomRange;
   int Dimensions[4] = { 0, 0, 0, 0 };
   /**
    * Controls how the vertices are drawn.
