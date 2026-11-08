@@ -94,5 +94,11 @@ int TestPBRDebugView(int, char*[])
   }
   success &= CheckCenter(window, wgpuRenderer, vtkWebGPURenderer::PBR_DEBUG_VIEW_F0, f0, "F0");
 
+  // The debug views report the material of an actor that is not lit too.
+  actor->GetProperty()->LightingOff();
+  success &= CheckCenter(window, wgpuRenderer, vtkWebGPURenderer::PBR_DEBUG_VIEW_ROUGHNESS,
+    roughness, "unlit roughness");
+  actor->GetProperty()->LightingOn();
+
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

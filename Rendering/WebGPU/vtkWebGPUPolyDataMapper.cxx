@@ -128,10 +128,21 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
   {
     sample("coat_normal");
   }
-  code << R"(
+  if (features.DebugView != vtkWebGPURenderer::PBR_DEBUG_VIEW_NONE)
+  {
+    // The debug views are computed in the lit branch, so enter it even when the actor is not
+    // lit: the material inputs stay inspectable and the terms that need a light stay zero.
+    code << "  let pbr_lit = true;\n";
+  }
+  else
+  {
+    code << R"(
   let pbr_lit = isLightingEnabled(actor.render_options.flags_2) &&
     (scene_lights.count > 0u || )"
-       << (features.ImageBasedLighting ? "true" : "false") << R"();
+         << (features.ImageBasedLighting ? "true" : "false") << R"();
+)";
+  }
+  code << R"(
   if (pbr_lit)
   {
     var roughness = actor.color_options.roughness;
