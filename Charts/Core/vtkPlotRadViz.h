@@ -95,8 +95,6 @@ public:
   static vtkPlotRadViz* New();
 
   virtual void SetInputDataSet(vtkDataSet* dataset);
-  using vtkPlot::SetInputData;
-  void SetInputData(vtkTable* table) override;
   /**
    * Selects the array 'name' of a dataset input for index 0, searching the
    * point data then the cell data, or the active scalars, the default, for

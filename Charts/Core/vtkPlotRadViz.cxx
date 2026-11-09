@@ -241,14 +241,6 @@ vtkStringArray* vtkPlotRadViz::GetLabels()
 void vtkPlotRadViz::SetInputDataSet(vtkDataSet* dataset)
 {
   this->Data->SetInputDataObject(0, dataset);
-  this->ComputeGBC->SetInputDataObject(0, dataset);
-}
-
-//------------------------------------------------------------------------------
-void vtkPlotRadViz::SetInputData(vtkTable* table)
-{
-  this->Superclass::SetInputData(table);
-  this->ComputeGBC->SetInputDataObject(0, table);
 }
 
 //------------------------------------------------------------------------------
