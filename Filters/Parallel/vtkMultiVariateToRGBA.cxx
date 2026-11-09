@@ -1456,26 +1456,22 @@ vtkMultiVariateToRGBA::GetAttributesAndScalars(
     std::vector<std::string> names = ::columnNames(table);
     for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
     {
-      if (this->IsVariableVisible(static_cast<int>(i), names[i],
-            vtkDataArray::SafeDownCast(table->GetColumn(i)) != nullptr))
+      vtkAbstractArray* column = table->GetColumn(i);
+      if (this->IsVariableVisible(
+            static_cast<int>(i), names[i], vtkDataArray::SafeDownCast(column) != nullptr))
       {
-        columns.push_back(table->GetColumn(i));
+        if (column->GetNumberOfComponents() != 1)
+        {
+          vtkErrorMacro("Column has several components: " << names[i]);
+          return { attributes, nullptr };
+        }
+        columns.push_back(column);
       }
     }
     if (columns.empty())
     {
       vtkErrorMacro("No visible columns found");
       return { attributes, nullptr };
-    }
-
-    for (vtkAbstractArray* column : columns)
-    {
-      auto* array = vtkDataArray::FastDownCast(column);
-      if (!array || array->GetNumberOfComponents() != 1)
-      {
-        vtkErrorMacro("Column is not a one component numeric array: " << column->GetName());
-        return { attributes, nullptr };
-      }
     }
     if (columns.size() < 3)
     {

@@ -3,7 +3,8 @@
 /**
  * Check that vtkMultiVariateToRGBA processes table columns of any numeric
  * type, the same type or mixed, and AOS or not, the same as double columns,
- * and that it rejects columns with several components.
+ * and that it rejects columns with several components, naming them also
+ * when unnamed.
  */
 
 #include <vtkCommand.h>
@@ -112,7 +113,7 @@ int TestMultiVariateToRGBATableTypes(int, char*[])
   multi->SetNumberOfComponents(4);
   multi->SetNumberOfTuples(NumberOfValues);
   multi->Fill(1.0);
-  const std::string oneComponent = "Column is not a one component numeric array: multi";
+  const std::string oneComponent = "Column has several components: multi";
   vtkNew<vtkTest::ErrorObserver> errorObserver;
   CHECK(!ComputeGBC({ multi }, errorObserver));
   CHECK(errorObserver->HasErrorMessage(oneComponent));
@@ -121,5 +122,12 @@ int TestMultiVariateToRGBATableTypes(int, char*[])
     !ComputeGBC({ MakeColumn<vtkDoubleArray>("a", 0), MakeColumn<vtkDoubleArray>("b", 1), multi },
       errorObserver));
   CHECK(errorObserver->HasErrorMessage(oneComponent));
+  // an unnamed column is reported by the name made from its index
+  errorObserver->Clear();
+  multi->SetName(nullptr);
+  CHECK(
+    !ComputeGBC({ MakeColumn<vtkDoubleArray>("a", 0), MakeColumn<vtkDoubleArray>("b", 1), multi },
+      errorObserver));
+  CHECK(errorObserver->HasErrorMessage("Column has several components: 2"));
   return EXIT_SUCCESS;
 }
