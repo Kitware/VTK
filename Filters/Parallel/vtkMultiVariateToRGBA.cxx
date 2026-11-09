@@ -1599,5 +1599,26 @@ void vtkMultiVariateToRGBA::HSLToRGB(double h, double s, double l, double rgb[3]
 void vtkMultiVariateToRGBA::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Controller: " << this->Controller << "\n";
+  os << indent << "VerticesRotation: " << this->VerticesRotation << "\n";
+  os << indent << "VerticesClockwiseOrdering: " << this->VerticesClockwiseOrdering << "\n";
+  os << indent << "StoreGBC: " << this->StoreGBC << "\n";
+  os << indent << "StoreVertices: " << this->StoreVertices << "\n";
+  os << indent << "StoreRGBA: " << this->StoreRGBA << "\n";
+  os << indent << "StoreA: " << this->StoreA << "\n";
+  os << indent << "PartitionIndices: " << fmt::format("{}", this->PartitionIndices) << "\n";
+  os << indent << "PartitionOffsets: " << fmt::format("{}", this->PartitionOffsets) << "\n";
+  os << indent << "CustomRange: " << fmt::format("{}", this->CustomRange) << "\n";
+  os << indent << "Range: " << fmt::format("{}", this->Range) << "\n";
+  os << indent << "LensCenter: (" << this->LensCenter[0] << ", " << this->LensCenter[1] << ")\n";
+  os << indent << "LensRadius: " << this->LensRadius << "\n";
+  os << indent << "OutsideLensAlpha: " << this->OutsideLensAlpha << "\n";
+  os << indent << "InvertLens: " << this->InvertLens << "\n";
+  os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
+  os << indent << "VariablesVisibleByDefault: " << this->VariablesVisibleByDefault << "\n";
+  os << indent << "NameVisibilityExceptions: " << fmt::format("{}", this->NameVisibilityExceptions)
+     << "\n";
+  os << indent
+     << "IndexVisibilityExceptions: " << fmt::format("{}", this->IndexVisibilityExceptions) << "\n";
 }
 VTK_ABI_NAMESPACE_END

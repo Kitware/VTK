@@ -5,8 +5,9 @@
  * results and output object, and gives the same output as a full execution,
  * that setting the visible variables they already have keeps the last
  * results, and that the output object follows the input type. Lens-only
- * changes are also checked for table rows of mixed types and cell data,
- * and a negative lens radius is rejected.
+ * changes are also checked for table rows of mixed types and cell data.
+ * Also check that a negative lens radius is rejected and that Print shows
+ * the lens.
  */
 
 #include <vtkCellData.h>
@@ -30,6 +31,7 @@
 #include <cmath>
 #include <functional>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -263,6 +265,13 @@ int TestMultiVariateToRGBALens(int, char*[])
     CHECK(errorObserver->HasErrorMessage("Invalid lens radius: -2"));
     CHECK(full->GetLensRadius() == 0.6);
     full->RemoveObserver(errorObserver);
+  }
+  // Print shows the settings
+  {
+    std::ostringstream printed;
+    full->Print(printed);
+    CHECK(printed.str().find("LensRadius: 0.6\n") != std::string::npos);
+    CHECK(printed.str().find("LensCenter: (1.5, 0)\n") != std::string::npos);
   }
 
   // the output follows a switch to a table input and back
