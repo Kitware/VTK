@@ -8,6 +8,7 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
+#include "vtkFieldData.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
@@ -624,6 +625,8 @@ int vtkAMRSliceFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // STEP 3: Get the AMR slice
   this->GetAMRSliceInPlane(cutPlane, inputAMR, outputAMR);
   cutPlane->Delete();
+
+  outputAMR->GetFieldData()->ShallowCopy(inputAMR->GetFieldData());
 
   vtkTimerLog::MarkEndEvent(eventName.c_str());
   return 1;
