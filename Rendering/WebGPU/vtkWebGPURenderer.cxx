@@ -740,6 +740,14 @@ bool vtkWebGPURenderer::VisiblePropSetChanged()
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPURenderer::InvalidateBundle()
+{
+  this->RebuildRenderBundle = true;
+  // Dropping the handle without releasing leaks the bundle and everything it retains.
+  vtkWebGPU::ReleaseAndNull(this->Bundle, wgpuRenderBundleRelease);
+}
+
+//------------------------------------------------------------------------------
 bool vtkWebGPURenderer::PropSupportsReusingRenderBundle(vtkProp* prop) const
 {
   if (!this->CanReuseRenderBundle())
