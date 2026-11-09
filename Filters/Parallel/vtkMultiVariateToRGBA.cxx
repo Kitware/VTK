@@ -307,44 +307,6 @@ struct ComputeGBCWorker
   vtkSmartPointer<vtkDoubleArray> Vertices;
 };
 
-struct GBCToHSLWorker
-{
-  GBCToHSLWorker(double lightness)
-    : Lightness(lightness)
-  {
-  }
-
-  void operator()(vtkDoubleArray* gbcScalars, vtkDoubleArray* hslScalars)
-  {
-    auto gbc = vtk::DataArrayTupleRange(gbcScalars);
-    auto hsl = vtk::DataArrayTupleRange(hslScalars);
-
-    vtkIdType nTuples = gbc.size();
-    vtkSMPTools::For(0, nTuples,
-      [&](vtkIdType begin, vtkIdType end)
-      {
-        for (vtkIdType i = begin; i < end; ++i)
-        {
-          // negate Y so that the hue increases clockwise, starting at the top
-          double gbcValue[2] = { gbc[i][0], -gbc[i][1] };
-          double radius = std::sqrt(std::pow(gbcValue[0], 2) + std::pow(gbcValue[1], 2));
-          if (radius > 1)
-          {
-            gbcValue[0] /= radius;
-            gbcValue[1] /= radius;
-          }
-          double hue = std::atan2(gbcValue[1], gbcValue[0]) + vtkMath::Pi() / 2;
-          hue = numpy_mod(hue, 2 * vtkMath::Pi()) / (2 * vtkMath::Pi());
-          double saturation = std::sqrt(std::pow(gbcValue[0], 2) + std::pow(gbcValue[1], 2));
-          hsl[i][0] = hue;
-          hsl[i][1] = saturation;
-          hsl[i][2] = this->Lightness;
-        }
-      });
-  }
-  double Lightness = 0;
-};
-
 double hslValue(double m1, double m2, double h)
 {
   h = numpy_mod(h, 1.0);
@@ -386,27 +348,44 @@ void hslToRgb(double h, double s, double l, double* rgb)
   rgb[2] = hslValue(m1, m2, h - 1.0 / 3);
 }
 
-struct HSLToRGBWorker
+/**
+ * Computes the RGB color of each point from its GBC position: the hue is
+ * its angle, increasing clockwise from the top, and the saturation its
+ * distance from the center, at most 1.
+ */
+struct GBCToRGBWorker
 {
-  void operator()(vtkDoubleArray* hslScalars, vtkDoubleArray* rgbScalars)
+  GBCToRGBWorker(double lightness)
+    : Lightness(lightness)
   {
-    auto hsl = vtk::DataArrayTupleRange(hslScalars);
+  }
+
+  void operator()(vtkDoubleArray* gbcScalars, vtkDoubleArray* rgbScalars)
+  {
+    auto gbc = vtk::DataArrayTupleRange<2>(gbcScalars);
     auto rgb = vtk::DataArrayTupleRange<3>(rgbScalars);
 
-    vtkIdType nTuples = hsl.size();
+    vtkIdType nTuples = gbc.size();
     vtkSMPTools::For(0, nTuples,
       [&](vtkIdType begin, vtkIdType end)
       {
         for (vtkIdType i = begin; i < end; ++i)
         {
+          // negate Y so that the hue increases clockwise, starting at the top
+          double x = gbc[i][0];
+          double y = -gbc[i][1];
+          double hue = std::atan2(y, x) + vtkMath::Pi() / 2;
+          hue = numpy_mod(hue, 2 * vtkMath::Pi()) / (2 * vtkMath::Pi());
+          double saturation = std::min(std::sqrt(x * x + y * y), 1.0);
           double color[3];
-          hslToRgb(hsl[i][0], hsl[i][1], hsl[i][2], color);
+          hslToRgb(hue, saturation, this->Lightness, color);
           rgb[i][0] = color[0];
           rgb[i][1] = color[1];
           rgb[i][2] = color[2];
         }
       });
   }
+  double Lightness = 0;
 };
 
 /**
@@ -1392,19 +1371,11 @@ int vtkMultiVariateToRGBA::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSmartPointer<vtkDoubleArray> rgbScalars;
     if (this->StoreRGBA)
     {
-      vtkNew<vtkDoubleArray> hslScalars;
-      hslScalars->SetName("hsl");
-      hslScalars->SetNumberOfComponents(3);
-      hslScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
-      {
-        GBCToHSLWorker worker(vtkMultiVariateToRGBA::ColorLightness);
-        worker(gbcScalars.GetPointer(), hslScalars.GetPointer());
-      }
       rgbScalars = vtkSmartPointer<vtkDoubleArray>::New();
       rgbScalars->SetNumberOfComponents(3);
       rgbScalars->SetNumberOfTuples(scalars->GetNumberOfTuples());
-      HSLToRGBWorker worker;
-      worker(hslScalars.GetPointer(), rgbScalars);
+      GBCToRGBWorker worker(vtkMultiVariateToRGBA::ColorLightness);
+      worker(gbcScalars.GetPointer(), rgbScalars);
     }
     // StoreA: only alpha is computed, ApplyLens sets RGB to 0.
     vtkNew<vtkDoubleArray> alphaScalars;
