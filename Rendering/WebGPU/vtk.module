@@ -18,6 +18,7 @@ DEPENDS
   VTK::RenderingUI
   VTK::IOImage
   VTK::webgpuheaders
+  VTK::RenderingContext2D
 PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonSystem
@@ -36,4 +37,5 @@ TEST_DEPENDS
   VTK::IOParallel
   VTK::TestingCore
   VTK::TestingRendering
+  VTK::ViewsContext2D
 INCLUDE_MARSHAL

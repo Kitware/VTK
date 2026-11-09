@@ -871,6 +871,8 @@ Rendering/WebGPU/vtkWebGPUDeepFramebuffer.h
 Rendering/WebGPU/vtkWebGPUHelpers.h
 Rendering/WebGPU/vtkWebGPUProcTable.h
 Rendering/WebGPU/vtkWebGPUUniforms.h
+Rendering/WebGPU/vtkWebGPUContextDevice2D.h
+Rendering/WebGPU/vtkWebGPUContextActor.h
 Rendering/WebXR/vtkWebXR.h
 Rendering/WebXR/vtkWebXRUtilities.h
 Views/Infovis/vtkApplyColors.h

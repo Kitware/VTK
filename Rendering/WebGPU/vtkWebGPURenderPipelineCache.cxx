@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPURenderPipelineCache.h"
+#include "vtkArrayComponents.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkWebGPUConfiguration.h"
@@ -272,11 +273,27 @@ std::string vtkWebGPURenderPipelineCache::GetPipelineKey(WGPURenderPipelineDescr
     return {};
   }
   const auto stateStr = DescribePipelineState(descriptor);
+
+  std::string constantsStr = "";
+  if (descriptor->vertex.constants != nullptr && descriptor->vertex.constantCount > 0)
+  {
+    for (uint32_t i = 0; i < descriptor->vertex.constantCount; ++i)
+    {
+      constantsStr += vtkWebGPUStringViewToStdString(descriptor->vertex.constants[i].key) + "=" +
+        std::to_string(descriptor->vertex.constants[i].value) + ";";
+    }
+  }
+
   std::string hash;
   this->Internals->ComputeMD5(
-    { vertexShaderSource, fragmentShaderSource,
+    {
+      vertexShaderSource,
+      fragmentShaderSource,
       vtkWebGPUStringViewToStdString(descriptor->vertex.entryPoint),
-      vtkWebGPUStringViewToStdString(descriptor->fragment->entryPoint), stateStr },
+      vtkWebGPUStringViewToStdString(descriptor->fragment->entryPoint),
+      stateStr,
+      constantsStr,
+    },
     hash);
   return hash;
 }
