@@ -438,6 +438,8 @@ struct ApplyLensWorker
     const double* rgb = rgbArray ? rgbArray->GetPointer(0) : nullptr;
     auto alphaRange = vtk::DataArrayValueRange<1>(alphaArray);
     auto gbc = vtk::DataArrayTupleRange<2>(gbcArray);
+    // squared distances, as the radius is not negative
+    const double radius2 = this->LensRadius * this->LensRadius;
     vtkSMPTools::For(0, gbc.size(),
       [&](vtkIdType begin, vtkIdType end)
       {
@@ -448,9 +450,9 @@ struct ApplyLensWorker
             output[i][c] = rgb ? static_cast<ValueType>(rgb[3 * i + c]) : 0;
           }
           double alpha = alphaRange[i];
-          double distance = std::sqrt(std::pow(gbc[i][0] - this->LensCenter[0], 2) +
-            std::pow(gbc[i][1] - this->LensCenter[1], 2));
-          if ((distance > this->LensRadius) != this->InvertLens)
+          const double dx = gbc[i][0] - this->LensCenter[0];
+          const double dy = gbc[i][1] - this->LensCenter[1];
+          if ((dx * dx + dy * dy > radius2) != this->InvertLens)
           {
             alpha = std::min(this->OutsideLensAlpha, alpha);
           }
