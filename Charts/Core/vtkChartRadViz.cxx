@@ -464,7 +464,9 @@ void vtkChartRadViz::GetActiveElement(
   {
     double xy[2];
     vertices->GetPoint(i, xy);
-    if (std::abs(pos[0] - xy[0]) <= vertexHitWidth && std::abs(pos[1] - xy[1]) <= vertexHitWidth)
+    const double dx = pos[0] - xy[0];
+    const double dy = pos[1] - xy[1];
+    if (dx * dx + dy * dy <= vertexHitWidth * vertexHitWidth)
     {
       activeVertexIndex = i;
       vtkDebugMacro("vtkChartRadViz::GetActiveElement: Vertex: " << i);

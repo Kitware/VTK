@@ -431,7 +431,8 @@ int TestFilterInput()
 /**
  * Checks that the mouse finds a vertex, or the lens outline, 8 pixels away
  * from its center line when its pen is 20 pixels wide, and not with the
- * default pen, and that a lens smaller than its pen keeps an interior.
+ * default pen, that a vertex is not found outside its drawn circle, and
+ * that a lens smaller than its pen keeps an interior.
  */
 int TestHitArea()
 {
@@ -458,6 +459,10 @@ int TestHitArea()
     mouse.SetScenePos(vtkVector2f(vertex[0] + 8, vertex[1]));
     chart->MouseMoveEvent(mouse);
     CHECK((plot->GetActiveVertexIndex() == 0) == wide);
+    // outside the drawn circle, though inside its bounding square
+    mouse.SetScenePos(vtkVector2f(vertex[0] + 8, vertex[1] + 8));
+    chart->MouseMoveEvent(mouse);
+    CHECK(plot->GetActiveVertexIndex() != 0);
 
     const double* lensCenter = plot->GetSceneLensCenter();
     double lensRadius = plot->GetSceneLensRadius();
