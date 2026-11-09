@@ -3676,16 +3676,21 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderUVs(GraphicsPipelineType vtkNot
   std::stringstream codeStream;
   if (this->HasPointAttributes[POINT_UVS])
   {
+    // Same operations as the OpenGL backend's tcMatrix, including the homogeneous divide.
     codeStream << R"(
-      output.uv[0] = point_uvs[2u * point_id];
-      output.uv[1] = point_uvs[2u * point_id + 1u];
+      let uv_in = vec2<f32>(point_uvs[2u * point_id], point_uvs[2u * point_id + 1u]);
+      let uv_transformed = actor.transform.texture_coordinate * vec4<f32>(uv_in, 0.0, 1.0);
+      output.uv = uv_transformed.xy / uv_transformed.w;
     )";
   }
   if (this->HasPointAttributes[POINT_COLOR_UVS])
   {
+    // Transformed too: vtkMapper makes it two component and OpenGL passes it through the matrix.
     codeStream << R"(
-      output.lut_uv[0] = point_color_uvs[2u * point_id];
-      output.lut_uv[1] = point_color_uvs[2u * point_id + 1u];
+      let lut_uv_in = vec2<f32>(
+        point_color_uvs[2u * point_id], point_color_uvs[2u * point_id + 1u]);
+      let lut_uv_transformed = actor.transform.texture_coordinate * vec4<f32>(lut_uv_in, 0.0, 1.0);
+      output.lut_uv = lut_uv_transformed.xy / lut_uv_transformed.w;
     )";
   }
   vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::UVs::Impl", codeStream.str(), /*all=*/true);

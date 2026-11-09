@@ -176,6 +176,7 @@ set(cxx_tests
   TestTextureRGBA.cxx
   TestTextureRGBADepthPeeling.cxx
   TestTextureSize.cxx,NO_VALID
+  TestTextureTransform.cxx,NO_DATA,NO_VALID
   TestTextureWrap.cxx
   TestTilingCxx.cxx
   TestToggleOSWithInteractor.cxx,NO_DATA
