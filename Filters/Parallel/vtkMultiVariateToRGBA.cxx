@@ -748,6 +748,11 @@ void vtkMultiVariateToRGBA::SetVerticesRotation(double rotation)
 {
   vtkDebugMacro(<< " setting VerticesRotation to " << rotation);
   rotation = numpy_mod(rotation, 360);
+  // a tiny negative rotation rounds to 360
+  if (rotation == 360)
+  {
+    rotation = 0;
+  }
   if (this->VerticesRotation != rotation)
   {
     this->VerticesRotation = rotation;

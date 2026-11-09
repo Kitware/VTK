@@ -240,6 +240,11 @@ void vtkPlotRadViz::SetVerticesRotation(double rotation)
   {
     rotation += 360;
   }
+  // a tiny negative rotation rounds to 360
+  if (rotation == 360)
+  {
+    rotation = 0;
+  }
   if (this->VerticesRotation != rotation)
   {
     this->VerticesRotation = rotation;

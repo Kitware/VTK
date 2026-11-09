@@ -6,7 +6,8 @@
  * point, no points, fewer than 3 components and no input. The output has no
  * NaNs and matches the expected normalization, or the filter fails without
  * crashing. Also check that invalid partitions, custom ranges and output
- * selections are reported as errors.
+ * selections are reported as errors, and that a tiny negative rotation
+ * wraps to 0.
  */
 
 #include <vtkCommand.h>
@@ -378,5 +379,9 @@ int TestMultiVariateToRGBADegenerate(int, char*[])
   noInput->SetController(nullptr);
   noInput->Update();
   CHECK(errorObserver->GetError());
+
+  // A tiny negative rotation wraps to 0, not to 360
+  noInput->SetVerticesRotation(-1e-14);
+  CHECK(noInput->GetVerticesRotation() == 0);
   return EXIT_SUCCESS;
 }

@@ -314,7 +314,9 @@ void SetInputConnection(vtkPlotRadViz* plot, vtkDataObject* data)
 
 /**
  * Checks that the visibility setters modify the plot only when they change
- * the visibility, not when it is unchanged or the change is rejected.
+ * the visibility, not when it is unchanged or the change is rejected. Also
+ * checks that a tiny negative rotation wraps to 0 and that a negative lens
+ * radius is rejected.
  */
 int TestPlotModified()
 {
@@ -371,6 +373,10 @@ int TestPlotModified()
   CHECK(plot->GetPartitionIndices() == std::vector<int>({ 2 }));
   CHECK(plot->GetFilter()->GetPartitionIndices() == std::vector<int>({ 2 }));
   CHECK(plot->GetFilter()->GetPartitionOffsets() == std::vector<int>({ 1 }));
+
+  // a tiny negative rotation wraps to 0, not to 360
+  plot->SetVerticesRotation(-1e-14);
+  CHECK(plot->GetVerticesRotation() == 0);
 
   // rejected: a negative lens radius
   plot->AddObserver(vtkCommand::ErrorEvent, errors);
