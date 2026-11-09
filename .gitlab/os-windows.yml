@@ -375,8 +375,8 @@
         - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
     interruptible: true
 
-.cmake_test_external_windows_x86-64:
-    stage: test-ext
+.cmake_build_external_windows_x86-64:
+    stage: build-ext
     extends: .warning_policy
 
     script:
@@ -390,8 +390,26 @@
         - Set-Item -Force -Path "env:PYTHONPATH" -Value "$pwdpath\build\ci-venv\Lib\site-packages"
         - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\build\install\bin;$env:PATH"
         - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
-        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external.cmake
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_build_external.cmake
         - .gitlab\ci\check_warnings.ps1 -BuildPath .\Testing\External\ # This will call exit in case of warnings
+
+    interruptible: true
+
+.cmake_test_external_windows_x86-64:
+    stage: test-ext
+
+    script:
+        - *before_script_windows
+        - *before_script_windows_deps
+        - *before_script_windows_openxr_deps
+        # Reuse the venv from the build step (avoids version changes between
+        # build and testing). This is set up manually because Activate.ps1
+        # doesn't seem to work for our extracted Python tarball.
+        - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\build\ci-venv\Scripts;$env:PATH"
+        - Set-Item -Force -Path "env:PYTHONPATH" -Value "$pwdpath\build\ci-venv\Lib\site-packages"
+        - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\build\install\bin;$env:PATH"
+        - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test.cmake
 
     interruptible: true
 

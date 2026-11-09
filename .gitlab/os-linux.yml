@@ -758,16 +758,31 @@
 
     interruptible: true
 
-.cmake_test_external_linux:
-    stage: test-ext
+.cmake_build_external_linux:
+    stage: build-ext
     extends: .warning_policy
 
     script:
         - *before_script_linux
         - cmake -P .gitlab/ci/download_onnxruntime.cmake
         - export LD_LIBRARY_PATH=$PWD/.gitlab/onnxruntime/lib64:/usr/local/lib
-        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external.cmake
+        - .gitlab/ci/sccache.sh
+        - sccache --start-server
+        - sccache --show-stats
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_build_external.cmake
+        - sccache --show-stats
         - exec .gitlab/ci/check_warnings.sh ./Testing/External
+
+    interruptible: true
+
+.cmake_test_external_linux:
+    stage: test-ext
+
+    script:
+        - *before_script_linux
+        - cmake -P .gitlab/ci/download_onnxruntime.cmake
+        - export LD_LIBRARY_PATH=$PWD/.gitlab/onnxruntime/lib64:/usr/local/lib
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test.cmake
 
     interruptible: true
 

@@ -15,6 +15,7 @@ stages:
     - quick
     - build
     - test
+    - build-ext
     - test-ext
     - package
     - release-prep
@@ -187,6 +188,16 @@ fedora44-x86_64-mpi-renderless:test:
     needs:
         - fedora44-x86_64-mpi-renderless:build
 
+vtk:fedora44-x86_64-mpi-renderless:build-ext:
+    extends:
+        - .fedora44_x86_64_mpi_renderless_ext_vtk
+        - .cmake_build_external_linux
+        - .linux_x86_64_builder_tags
+        - .cmake_build_external_artifacts
+        - .rules
+    needs:
+        - fedora44-x86_64-mpi-renderless:build
+
 vtk:fedora44-x86_64-mpi-renderless:test-ext:
     extends:
         - .fedora44_x86_64_mpi_renderless_ext_vtk
@@ -195,7 +206,7 @@ vtk:fedora44-x86_64-mpi-renderless:test-ext:
         - .cmake_junit_artifacts
         - .rules
     needs:
-        - fedora44-x86_64-mpi-renderless:test
+        - vtk:fedora44-x86_64-mpi-renderless:build-ext
 
 fedora44-x86_64-cuda-mpi:build:
     extends:
@@ -223,6 +234,17 @@ fedora44-x86_64-cuda-mpi:test:
         CTEST_MAX_PARALLELISM: 8
     timeout: 2 hours
 
+vtk:fedora44-x86_64-cuda-mpi:build-ext:
+    extends:
+        - .fedora44_x86_64_cuda_mpi_ext_vtk
+        - .cmake_build_external_linux
+        - .linux_x86_64_builder_tags
+        - .cmake_build_external_artifacts
+        - .rules
+    needs:
+        - fedora44-x86_64-cuda-mpi:build
+    timeout: 150 minutes
+
 vtk:fedora44-x86_64-cuda-mpi:test-ext:
     extends:
         - .fedora44_x86_64_cuda_mpi_ext_vtk
@@ -231,7 +253,7 @@ vtk:fedora44-x86_64-cuda-mpi:test-ext:
         - .linux_x86_64_cuda_tester_tags
         - .rules
     needs:
-        - fedora44-x86_64-cuda-mpi:test
+        - vtk:fedora44-x86_64-cuda-mpi:build-ext
     variables:
         CTEST_MAX_PARALLELISM: 8
     timeout: 150 minutes
@@ -268,6 +290,17 @@ fedora44-x86_64-mpi-offscreen-osmesa-python-qt-tbb:test:
     needs:
         - fedora44-x86_64-mpi-python-qt-tbb:build
 
+vtk:fedora44-x86_64-mpi-offscreen-osmesa-python-qt-tbb:build-ext:
+    extends:
+        - .fedora44_x86_64_mpi_offscreen_osmesa_python_qt_tbb_ext_vtk
+        - .cmake_build_external_linux
+        - .linux_x86_64_builder_tags
+        - .cmake_build_external_artifacts
+        - .rules
+    needs:
+        - fedora44-x86_64-mpi-python-qt-tbb:build
+    timeout: 90 minutes
+
 vtk:fedora44-x86_64-mpi-offscreen-osmesa-python-qt-tbb:test-ext:
     extends:
         - .fedora44_x86_64_mpi_offscreen_osmesa_python_qt_tbb_ext_vtk
@@ -276,7 +309,7 @@ vtk:fedora44-x86_64-mpi-offscreen-osmesa-python-qt-tbb:test-ext:
         - .cmake_junit_artifacts
         - .rules
     needs:
-        - fedora44-x86_64-mpi-offscreen-osmesa-python-qt-tbb:test
+        - vtk:fedora44-x86_64-mpi-offscreen-osmesa-python-qt-tbb:build-ext
     timeout: 90 minutes
 
 fedora44-x86_64-mpi-ospray-python-qt-tbb:build:
@@ -375,6 +408,16 @@ fedora44-x86_64-mpi-python-qt-tbb:test:
     needs:
         - fedora44-x86_64-mpi-python-qt-tbb:build
 
+vtk:fedora44-x86_64-mpi-python-qt-tbb:build-ext:
+    extends:
+        - .fedora44_x86_64_mpi_python_qt_tbb_ext_vtk
+        - .cmake_build_external_linux
+        - .linux_x86_64_builder_tags
+        - .cmake_build_external_artifacts
+        - .rules
+    needs:
+        - fedora44-x86_64-mpi-python-qt-tbb:build
+
 vtk:fedora44-x86_64-mpi-python-qt-tbb:test-ext:
     extends:
         - .fedora44_x86_64_mpi_python_qt_tbb_ext_vtk
@@ -383,7 +426,7 @@ vtk:fedora44-x86_64-mpi-python-qt-tbb:test-ext:
         - .cmake_junit_artifacts
         - .rules
     needs:
-        - fedora44-x86_64-mpi-python-qt-tbb:test
+        - vtk:fedora44-x86_64-mpi-python-qt-tbb:build-ext
 
 fedora44-x86_64-mpi-python-qt-stdthread:test:
     extends:
@@ -2659,6 +2702,16 @@ macos-x86_64-kits-python-qt-stdthread:test:
 # tests exists that are just Python scripts, so `vtkpython` needs to work
 # standalone.
 #
+# vtk:macos-x86_64-kits-python-qt:build-ext:
+#     extends:
+#         - .macos_x86_64_kits_python_qt_ext_vtk
+#         - .cmake_build_external_macos
+#         - .macos_x86_64_builder_tags
+#         - .cmake_build_external_artifacts
+#         - .rules
+#     needs:
+#         - macos-x86_64-kits-python-qt:build
+#
 # vtk:macos-x86_64-kits-python-qt:test-ext:
 #     extends:
 #         - .macos_x86_64_kits_python_qt_ext_vtk
@@ -2667,7 +2720,7 @@ macos-x86_64-kits-python-qt-stdthread:test:
 #         - .cmake_junit_artifacts
 #         - .rules
 #     needs:
-#         - macos-x86_64-kits-python-qt:test
+#         - vtk:macos-x86_64-kits-python-qt:build-ext
 
 ## Python wheel builds
 
@@ -3076,6 +3129,16 @@ windows-vs2022-kits-mpi-python-qt-stdthread-x86_64:test:
 # Also, the `VTK_DLL_PATHS` ends up making a non-relocatable installation. See
 # `.gitlab/ci/configure_windows.cmake` for the relevant code.
 #
+# vtk:windows-vs2022-kits-mpi-python-qt-x86_64:build-ext:
+#     extends:
+#         - .windows_vs2022_kits_mpi_python_qt_ext_vtk_x86-64
+#         - .cmake_build_external_windows_x86-64
+#         - .windows_ext_builder_tags_x86-64
+#         - .cmake_build_external_artifacts
+#         - .rules
+#     needs:
+#         - windows-vs2022-kits-mpi-python-qt-x86_64:build
+#
 # vtk:windows-vs2022-kits-mpi-python-qt-x86_64:test-ext:
 #     extends:
 #         - .windows_vs2022_kits_mpi_python_qt_ext_vtk_x86-64
@@ -3084,7 +3147,7 @@ windows-vs2022-kits-mpi-python-qt-stdthread-x86_64:test:
 #         - .cmake_junit_artifacts
 #         - .rules
 #     needs:
-#         - windows-vs2022-kits-mpi-python-qt-x86_64:test
+#         - vtk:windows-vs2022-kits-mpi-python-qt-x86_64:build-ext
 
 windows-vs2022-mpi-python-qt-x86_64:build:
     extends:
