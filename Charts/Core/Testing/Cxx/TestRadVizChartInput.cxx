@@ -54,6 +54,7 @@
 #include <cmath>
 #include <functional>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -315,8 +316,8 @@ void SetInputConnection(vtkPlotRadViz* plot, vtkDataObject* data)
 /**
  * Checks that the visibility setters modify the plot only when they change
  * the visibility, not when it is unchanged or the change is rejected. Also
- * checks that a tiny negative rotation wraps to 0 and that a negative lens
- * radius is rejected.
+ * checks that a tiny negative rotation wraps to 0, that a negative lens
+ * radius is rejected, and that Print shows the plot and filter settings.
  */
 int TestPlotModified()
 {
@@ -383,6 +384,12 @@ int TestPlotModified()
   errors->Clear();
   CHECK(!modifies([&] { plot->SetLensRadius(-1); }));
   CHECK(errors->GetError() && plot->GetLensRadius() == 1);
+
+  // Print shows the plot and its filter settings
+  std::ostringstream printed;
+  plot->Print(printed);
+  CHECK(printed.str().find("LensRadius: 1\n") != std::string::npos);
+  CHECK(printed.str().find("PartitionIndices: [2]\n") != std::string::npos);
   return EXIT_SUCCESS;
 }
 /**

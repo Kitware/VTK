@@ -924,6 +924,31 @@ void vtkPlotRadViz::AddPartitionOffset(int offset)
 void vtkPlotRadViz::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Dimensions: (" << this->Dimensions[0] << ", " << this->Dimensions[1] << ", "
+     << this->Dimensions[2] << ", " << this->Dimensions[3] << ")\n";
+  os << indent << "VerticesRotation: " << this->VerticesRotation << "\n";
+  os << indent << "VerticesClockwiseOrdering: " << this->VerticesClockwiseOrdering << "\n";
+  os << indent << "VerticesPen: " << this->VerticesPen << "\n";
+  os << indent << "MarkerOutlineWidth: " << this->MarkerOutlineWidth << "\n";
+  os << indent << "LensVisibility: " << this->LensVisibility << "\n";
+  os << indent << "LensCenter: (" << this->LensCenter[0] << ", " << this->LensCenter[1] << ")\n";
+  os << indent << "LensRadius: " << this->LensRadius << "\n";
+  os << indent << "OutsideLensAlpha: " << this->OutsideLensAlpha << "\n";
+  os << indent << "LensPen: " << this->LensPen << "\n";
+  os << indent << "ActiveColor: (" << static_cast<int>(this->ActiveColor[0]) << ", "
+     << static_cast<int>(this->ActiveColor[1]) << ", " << static_cast<int>(this->ActiveColor[2])
+     << ", " << static_cast<int>(this->ActiveColor[3]) << ")\n";
+  os << indent << "ActiveVertexIndex: " << this->ActiveVertexIndex << "\n";
+  os << indent << "ActiveLensOutline: " << this->ActiveLensOutline << "\n";
+  os << indent << "ActiveLensInterior: " << this->ActiveLensInterior << "\n";
+  os << indent << "LabelsProperties: " << this->LabelsProperties << "\n";
+  os << indent << "ColorWheelVisibility: " << this->ColorWheelVisibility << "\n";
+  os << indent << "ColorWheelSegmentCount: " << this->ColorWheelSegmentCount << "\n";
+  os << indent << "ColorWheelRingCount: " << this->ColorWheelRingCount << "\n";
+  os << indent << "ScalarVisibility: " << this->ScalarVisibility << "\n";
+  // the variable visibility, partition and custom range are kept by the filter
+  os << indent << "Filter:\n";
+  this->ComputeGBC->PrintSelf(os, indent.GetNextIndent());
 }
 
 VTK_ABI_NAMESPACE_END
