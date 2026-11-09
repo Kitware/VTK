@@ -49,6 +49,12 @@ VTKIOCATALYSTCONDUIT_EXPORT bool FillPartitionedDataSet(
 
 /**
  * Fill the vtkOverlappingAMR input.
+ *
+ * A domain may include ghost cells around its AMR box, as AMReX grow cells. `state/nghosts` then
+ * gives the number of ghost layers on each side, and the coordset describes the grown grid. The AMR
+ * box is built from the valid region, the grid extent runs from -nghosts to the valid cells plus
+ * nghosts, and the ghost layers are flagged as DUPLICATECELL unless the domain provides its own
+ * ghost array.
  */
 VTKIOCATALYSTCONDUIT_EXPORT bool FillAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node);
 

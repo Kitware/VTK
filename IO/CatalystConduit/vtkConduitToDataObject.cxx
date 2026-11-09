@@ -6,6 +6,7 @@
 #include "vtkAMRBox.h"
 #include "vtkArrayDispatch.h"
 #include "vtkCellArrayIterator.h"
+#include "vtkCellData.h"
 #include "vtkConduitArrayUtilities.h"
 #include "vtkConstantTypeUInt8Array.h"
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
@@ -25,8 +26,10 @@
 #include "vtkSMPTools.h"
 #include "vtkStringArray.h"
 #include "vtkStringFormatter.h"
+#include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtksys/SystemTools.hxx"
@@ -34,11 +37,24 @@
 #include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
 
+#include <algorithm>
 #include <numeric>
 #include <set>
 
 namespace AMRUtils
 {
+// ---------------------
+// The valid region of a domain. Its grid may include `state/nghosts` layers of ghost cells on each
+// side of its AMR box, in which case the coordset describes the grown grid, and the valid region is
+// recovered by removing those layers along every dimension that has cells.
+struct ValidRegion
+{
+  double Origin[3];
+  double Spacing[3];
+  int PointDimensions[3];
+  int NumberOfGhostLayers = 0;
+};
+
 struct LocalInfo
 {
   int Rank = 0;
@@ -48,6 +64,8 @@ struct LocalInfo
   vtkIdType NbOfBlocks = 0;
   double Origin[3] = { vtkMath::Inf(), vtkMath::Inf(), vtkMath::Inf() };
   std::map<int, std::pair<int, int>> DomainBlockLevelIds;
+  std::map<int, ValidRegion> Regions; // per domain id
+  bool Valid = true;                  // false if a domain could not be read
 };
 
 struct GlobalInfo
@@ -58,6 +76,49 @@ struct GlobalInfo
   double Origin[3] = { vtkMath::Inf(), vtkMath::Inf(), vtkMath::Inf() };
   vtkIdType NbOfLevels = 0;
 };
+
+// Read the valid region of `child`. Return false, with an error, if its grid is too small for its
+// ghost layers.
+bool GetValidRegion(const conduit_cpp::Node& child, ValidRegion& region)
+{
+  const auto coords = child["coordsets/coords"];
+  region.Origin[0] = coords["origin/x"].to_float64();
+  region.Origin[1] = coords["origin/y"].to_float64();
+  region.Origin[2] = coords["origin/z"].to_float64();
+  region.Spacing[0] = coords["spacing/dx"].to_float64();
+  region.Spacing[1] = coords["spacing/dy"].to_float64();
+  region.Spacing[2] = coords["spacing/dz"].to_float64();
+  region.PointDimensions[0] = coords["dims/i"].to_int32();
+  region.PointDimensions[1] = coords["dims/j"].to_int32();
+  region.PointDimensions[2] = coords["dims/k"].to_int32();
+
+  const int nghosts = child.has_path("state/nghosts") ? child["state/nghosts"].to_int32() : 0;
+  if (nghosts <= 0)
+  {
+    return true;
+  }
+  for (int d = 0; d < 3; ++d)
+  {
+    if (region.PointDimensions[d] > 1 && region.PointDimensions[d] - 2 * nghosts < 2)
+    {
+      vtkLog(ERROR,
+        "Domain " << child["state/domain_id"].to_int32() << ": state/nghosts is " << nghosts
+                  << " but the grid has only " << region.PointDimensions[d] - 1
+                  << " cells along dimension " << d);
+      return false;
+    }
+  }
+  for (int d = 0; d < 3; ++d)
+  {
+    if (region.PointDimensions[d] > 1)
+    {
+      region.PointDimensions[d] -= 2 * nghosts;
+      region.Origin[d] += nghosts * region.Spacing[d];
+    }
+  }
+  region.NumberOfGhostLayers = nghosts;
+  return true;
+}
 
 // ---------------------
 // construct structure: nb of blocks per levels, and origin.
@@ -84,9 +145,13 @@ void ConstructLocalInfo(const conduit_cpp::Node& node, LocalInfo& rankInfo)
       rankInfo.DomainBlockLevelIds[domain_id] = { level, rankInfo.BlocksPerLevel[level] };
       rankInfo.BlocksPerLevel[level]++;
 
-      origin[0] = child["coordsets/coords/origin/x"].to_float64();
-      origin[1] = child["coordsets/coords/origin/y"].to_float64();
-      origin[2] = child["coordsets/coords/origin/z"].to_float64();
+      ValidRegion& region = rankInfo.Regions[domain_id];
+      if (!GetValidRegion(child, region))
+      {
+        rankInfo.Valid = false;
+        continue;
+      }
+      std::copy(region.Origin, region.Origin + 3, origin);
       // check global origin
       if (origin[0] <= rankInfo.Origin[0] && origin[1] <= rankInfo.Origin[1] &&
         origin[2] <= rankInfo.Origin[2])
@@ -194,19 +259,15 @@ void FillLocalData(const conduit_cpp::Node& child, const LocalInfo& rankInfo,
     return;
   }
 
-  int pdims[3] = { 0, 0, 0 };
   const int domain_id = child["state/domain_id"].to_int32();
   const int level = child["state/level"].to_int32();
 
-  origin[0] = child["coordsets/coords/origin/x"].to_float64();
-  origin[1] = child["coordsets/coords/origin/y"].to_float64();
-  origin[2] = child["coordsets/coords/origin/z"].to_float64();
-  spacing[0] = child["coordsets/coords/spacing/dx"].to_float64();
-  spacing[1] = child["coordsets/coords/spacing/dy"].to_float64();
-  spacing[2] = child["coordsets/coords/spacing/dz"].to_float64();
-  pdims[0] = child["coordsets/coords/dims/i"].to_int32();
-  pdims[1] = child["coordsets/coords/dims/j"].to_int32();
-  pdims[2] = child["coordsets/coords/dims/k"].to_int32();
+  const ValidRegion& region = rankInfo.Regions.at(domain_id);
+  std::copy(region.Origin, region.Origin + 3, origin);
+  std::copy(region.Spacing, region.Spacing + 3, spacing);
+  int pdims[3];
+  std::copy(region.PointDimensions, region.PointDimensions + 3, pdims);
+  const int nghosts = region.NumberOfGhostLayers;
 
   vtkNew<vtkUniformGrid> ug;
   ug->Initialize();
@@ -214,19 +275,66 @@ void FillLocalData(const conduit_cpp::Node& child, const LocalInfo& rankInfo,
   ug->SetSpacing(spacing);
   ug->SetDimensions(pdims);
 
+  vtkAMRBox box(origin, pdims, spacing, globalInfo.Origin, amr->GetGridDescription());
+  const unsigned int index =
+    rankInfo.DomainBlockLevelIds.at(domain_id).second + rankInfo.BlockOffsets[level];
+  // set level spacing
+  amr->SetSpacing(level, spacing);
+  amr->SetAMRBox(level, index, box);
+  // The block bounds must be those of the valid region: the AMR origin is the min of the valid
+  // regions, and CheckValidity requires it to be the min of the bounds. SetDataSet records the
+  // bounds of the grid it is given and the AMR bounds only ever grow, so the grid is set here,
+  // while it covers the valid region only, and grown by the ghost layers below. Do not move this
+  // call.
+  amr->SetDataSet(level, index, ug);
+
+  // Index 0 is the low corner of the AMR box, so the ghost layers get negative indices on the low
+  // side, as in vtkAMReXGridReader.
+  int extent[6];
+  for (int d = 0; d < 3; ++d)
+  {
+    const int ghosts = pdims[d] > 1 ? nghosts : 0;
+    extent[2 * d] = -ghosts;
+    extent[2 * d + 1] = pdims[d] - 1 + ghosts;
+  }
+  ug->SetExtent(extent);
+
   if (child.has_path("fields"))
   {
     const auto fields = child["fields"];
     vtkConduitToDataObject::AddFieldData(ug, fields, true);
   }
 
-  vtkAMRBox box(origin, pdims, spacing, globalInfo.Origin, amr->GetGridDescription());
-  // set level spacing
-  amr->SetSpacing(level, spacing);
-  amr->SetAMRBox(
-    level, rankInfo.DomainBlockLevelIds.at(domain_id).second + rankInfo.BlockOffsets[level], box);
-  amr->SetDataSet(
-    level, rankInfo.DomainBlockLevelIds.at(domain_id).second + rankInfo.BlockOffsets[level], ug);
+  // The same layout vtkAMReXGridReader gives its ghost array.
+  if (nghosts > 0 && !ug->GetCellGhostArray())
+  {
+    vtkNew<vtkUnsignedCharArray> ghosts;
+    ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+    ghosts->SetNumberOfValues(ug->GetNumberOfCells());
+    int ijk[3];
+    int cellHi[3];
+    for (int d = 0; d < 3; ++d)
+    {
+      cellHi[d] = std::max(extent[2 * d], extent[2 * d + 1] - 1);
+    }
+    for (ijk[2] = extent[4]; ijk[2] <= cellHi[2]; ++ijk[2])
+    {
+      for (ijk[1] = extent[2]; ijk[1] <= cellHi[1]; ++ijk[1])
+      {
+        for (ijk[0] = extent[0]; ijk[0] <= cellHi[0]; ++ijk[0])
+        {
+          bool ghost = false;
+          for (int d = 0; d < 3; ++d)
+          {
+            ghost |= pdims[d] > 1 && (ijk[d] < 0 || ijk[d] >= pdims[d] - 1);
+          }
+          ghosts->SetValue(vtkStructuredData::ComputeCellIdForExtent(extent, ijk),
+            ghost ? vtkDataSetAttributes::DUPLICATECELL : 0);
+        }
+      }
+    }
+    ug->GetCellData()->AddArray(ghosts);
+  }
 
   if (child.has_path("nestsets/nest/windows"))
   {
@@ -635,6 +743,19 @@ bool FillAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
     rankInfo.Rank = controller->GetLocalProcessId();
   }
   AMRUtils::ConstructLocalInfo(node, rankInfo);
+
+  // Every rank must give up together: the others would wait for it in the collectives below.
+  int valid = rankInfo.Valid ? 1 : 0;
+  if (globalInfo.NbOfProcesses > 1 && controller)
+  {
+    int allValid = 0;
+    controller->AllReduce(&valid, &allValid, 1, vtkCommunicator::MIN_OP);
+    valid = allValid;
+  }
+  if (!valid)
+  {
+    return false;
+  }
 
   AMRUtils::GatherInfos(rankInfo, globalInfo);
 
