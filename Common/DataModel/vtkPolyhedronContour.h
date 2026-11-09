@@ -149,8 +149,10 @@ public:
    *                                    globalPtId1, t). Make sure to clear it before adding.
    * @param triPolygon                  Scratch polygon for triangulating iso-polygons when
    *                                    generateTriangles=true. Owned by the caller and reused
-   *                                    across calls, one per thread.
-   * @param triIds                      Scratch id list used with triPolygon.
+   *                                    across calls, one per thread. If null, one is created
+   *                                    for the call, which is slow when called from many threads.
+   * @param triIds                      Scratch id list used with triPolygon, created for the
+   *                                    call if null.
    */
   static void ContourCell(vtkIdType numPointIds, const vtkIdType* pointIds,
     vtkCellArray* polyhedronFaces, vtkDataArray* points, vtkDataArray* scalars, double isoValue,

@@ -788,8 +788,7 @@ void vtkPolyhedronContour::ContourCell(vtkIdType numPointIds, const vtkIdType* p
   polygonsSize.clear();
   intersectedEdges.clear();
 
-  if (numPointIds < 4 || polyhedronFaces == nullptr || scalars == nullptr ||
-    (generateTriangles && (triPolygon == nullptr || triIds == nullptr)))
+  if (numPointIds < 4 || polyhedronFaces == nullptr || scalars == nullptr)
   {
     return;
   }
@@ -862,6 +861,18 @@ void vtkPolyhedronContour::ContourCell(vtkIdType numPointIds, const vtkIdType* p
     //
     // triPolygon/triIds belong to the caller, one per thread. Constructing a
     // vtkPolygon per cell serializes threads on the object factory lock.
+    vtkSmartPointer<vtkPolygon> ownPolygon;
+    vtkSmartPointer<vtkIdList> ownIds;
+    if (!triPolygon)
+    {
+      ownPolygon = vtkSmartPointer<vtkPolygon>::New();
+      triPolygon = ownPolygon;
+    }
+    if (!triIds)
+    {
+      ownIds = vtkSmartPointer<vtkIdList>::New();
+      triIds = ownIds;
+    }
     auto& earCoords = ws.EarCoords; // contiguous iso-vertex coords, loop order
     for (const auto& poly : trace.IsoPolygons)
     {
@@ -942,10 +953,8 @@ void vtkPolyhedronContour::ContourCell(vtkIdType numPointIds, const vtkIdType* p
   bool generateTriangles, std::vector<vtkIdType>& polygonsSize,
   std::vector<EdgeTuple<vtkIdType, double>>& intersectedEdges)
 {
-  vtkNew<vtkPolygon> triPolygon;
-  vtkNew<vtkIdList> triIds;
   vtkPolyhedronContour::ContourCell(numPointIds, pointIds, polyhedronFaces, points, scalars,
-    isoValue, generateTriangles, polygonsSize, intersectedEdges, triPolygon, triIds);
+    isoValue, generateTriangles, polygonsSize, intersectedEdges, nullptr, nullptr);
 }
 
 //------------------------------------------------------------------------------
