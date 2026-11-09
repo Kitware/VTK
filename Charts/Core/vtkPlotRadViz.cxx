@@ -241,7 +241,6 @@ vtkStringArray* vtkPlotRadViz::GetLabels()
 void vtkPlotRadViz::SetInputDataSet(vtkDataSet* dataset)
 {
   this->Data->SetInputDataObject(0, dataset);
-  this->AutoLabels = nullptr; // No longer valid
   this->ComputeGBC->SetInputDataObject(0, dataset);
 }
 
@@ -272,7 +271,6 @@ void vtkPlotRadViz::SetInputArray(int index, const vtkStdString& name)
     this->Data->SetInputArrayToProcess(
       0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS, name.c_str());
   }
-  this->AutoLabels = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -380,15 +378,15 @@ void vtkPlotRadViz::UpdateFilterInput()
 //------------------------------------------------------------------------------
 void vtkPlotRadViz::ComputeVisibleLabels()
 {
-  this->AutoLabels = this->ComputeGBC->GetVisibleVariables();
-  this->VisibleLabels = this->AutoLabels;
+  this->VisibleLabels = vtkSmartPointer<vtkStringArray>::New();
   vtkSmartPointer<vtkStringArray> allNames = this->ComputeGBC->GetAllVariableNames();
   if (!this->Labels || this->Labels->GetNumberOfValues() != allNames->GetNumberOfValues())
   {
+    // a copy, as the filter refills the array it returns on every call
+    this->VisibleLabels->DeepCopy(this->ComputeGBC->GetVisibleVariables());
     return;
   }
   // user labels are one per input variable, keep the visible ones
-  this->VisibleLabels = vtkSmartPointer<vtkStringArray>::New();
   for (int index : this->ComputeGBC->GetVisibleVariableIndices())
   {
     this->VisibleLabels->InsertNextValue(this->Labels->GetValue(index));

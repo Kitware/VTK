@@ -375,8 +375,9 @@ int TestPlotModified()
 }
 /**
  * Checks that the visibility getters follow the input connection, also to
- * a pipeline not yet updated, and the array selection without a paint, and
- * that they and a paint without changes do not modify the filter.
+ * a pipeline not yet updated, and the array selection without a paint,
+ * that they and a paint without changes do not modify the filter, and that
+ * they leave the labels drawn unchanged.
  */
 int TestFilterInput()
 {
@@ -418,6 +419,12 @@ int TestFilterInput()
   plot->GetVisibleVariables();
   plot->GetVariableVisibility(1);
   CHECK(plot->GetFilter()->GetMTime() == mtime);
+
+  // the labels drawn do not change with the filter until the next paint
+  CHECK(plot->GetVisibleLabels()->GetNumberOfValues() == 3);
+  plot->SetVariableVisibility(1, false);
+  CHECK(plot->GetVisibleVariables()->GetNumberOfValues() == 2);
+  CHECK(plot->GetVisibleLabels()->GetNumberOfValues() == 3);
   return EXIT_SUCCESS;
 }
 

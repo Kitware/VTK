@@ -435,7 +435,7 @@ protected:
   void DrawLabels(vtkContext2D* painter, vtkDataArray* vertices, vtkPen* pen);
   void DrawLens(vtkContext2D* painter);
   /**
-   * Computes VisibleLabels, and AutoLabels from the visible variables.
+   * Computes VisibleLabels from the visible variables.
    */
   void ComputeVisibleLabels();
   /**
@@ -544,10 +544,9 @@ protected:
   /**
    * The label of each vertex: the labels set with SetLabels for the visible
    * variables, or their names if SetLabels was not given one label per
-   * variable of the input. AutoLabels always holds the names.
-   * For example, for variables a, b, c, d with b hidden, AutoLabels is
-   * {a, c, d}, and VisibleLabels is {A, C, D} after SetLabels({A, B, C, D}),
-   * or {a, c, d} without SetLabels or after SetLabels({A, B}).
+   * variable of the input. For example, for variables a, b, c, d with b
+   * hidden, VisibleLabels is {A, C, D} after SetLabels({A, B, C, D}), or
+   * {a, c, d} without SetLabels or after SetLabels({A, B}).
    */
   vtkSmartPointer<vtkStringArray> VisibleLabels;
   int ColorWheelSegmentCount = 120;
