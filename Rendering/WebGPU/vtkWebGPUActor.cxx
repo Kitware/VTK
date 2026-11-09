@@ -130,6 +130,12 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
         {
           this->CreateBindGroups(wgpuConfiguration);
         }
+        // A recorded bundle still binds the bind group and buffer that CreateBindGroups replaced.
+        // Comparing timestamps re-records in every renderer drawing this actor, not just this one.
+        if (internals.DeviceResourcesBuildTimestamp > wgpuRenderer->RenderBundleBuildTime)
+        {
+          wgpuRenderer->InvalidateBundle();
+        }
         if (internals.MapperSwappedTime > wgpuRenderer->RenderBundleBuildTime)
         {
           wgpuRenderer->InvalidateBundle();
