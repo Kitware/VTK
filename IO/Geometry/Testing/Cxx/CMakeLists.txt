@@ -157,6 +157,10 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestGLTFDocumentLoaderMeshopt,TestGLTFDocumentLoaderMeshopt.cxx,NO_VALID,NO_OUTPUT DATA{../Data/glTF/SimpleSkin/SimpleSkin_meshopt.glb}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestGLTFReaderMultipleAnimations,TestGLTFReaderAnimation.cxx 75 DATA{../Data/glTF/InterpolationTest/InterpolationTest.gltf,interpolation.bin,InterpolationTest_data.bin}
 )
 

@@ -115,6 +115,39 @@ public:
     int ByteStride;
     int Target;
     std::string Name;
+
+    // BufferView-specific extension metadata
+    struct Extensions
+    {
+      // KHR_meshopt_compression / EXT_meshopt_compression extensions
+      // Only metadata are read, decoding the buffer view is left to subclasses (see PrepareData)
+      enum class MeshoptMode
+      {
+        ATTRIBUTES,
+        TRIANGLES,
+        INDICES
+      };
+      enum class MeshoptFilter
+      {
+        NONE,
+        OCTAHEDRAL,
+        QUATERNION,
+        EXPONENTIAL,
+        COLOR
+      };
+      struct MeshoptCompression
+      {
+        int Buffer = -1;
+        int ByteOffset = 0;
+        int ByteLength = 0;
+        int ByteStride = 0;
+        int Count = 0;
+        MeshoptMode Mode = MeshoptMode::ATTRIBUTES;
+        MeshoptFilter Filter = MeshoptFilter::NONE;
+      };
+      MeshoptCompression MeshoptMetaData;
+    };
+    Extensions ExtensionMetaData;
   };
 
   /**
