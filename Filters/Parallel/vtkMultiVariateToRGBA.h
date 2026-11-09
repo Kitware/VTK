@@ -139,6 +139,7 @@ public:
   vtkGetVector2Macro(LensCenter, double);
   /**
    * Radius of the lens in GBC space (unit circle centered at the origin).
+   * A negative radius is an error and leaves the radius unchanged.
    */
   virtual void SetLensRadius(double radius);
   vtkGetMacro(LensRadius, double);

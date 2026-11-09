@@ -1554,6 +1554,11 @@ double vtkMultiVariateToRGBA::GetLensRadius(
 
 void vtkMultiVariateToRGBA::SetLensRadius(double lensRadius)
 {
+  if (lensRadius < 0)
+  {
+    vtkErrorMacro("Invalid lens radius: " << lensRadius << ", it must be >= 0");
+    return;
+  }
   if (lensRadius != this->LensRadius)
   {
     this->LensRadius = lensRadius;

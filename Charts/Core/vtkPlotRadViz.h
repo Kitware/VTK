@@ -265,11 +265,12 @@ public:
    * Center and radius of the lens in GBC space (the unit circle centered at
    * the origin, as in vtkMultiVariateToRGBA). This is how the lens is
    * stored, so it can be set before the plot is rendered. The default,
-   * center (0, 0) and radius 1, covers the whole plot.
+   * center (0, 0) and radius 1, covers the whole plot. A negative radius is
+   * an error and leaves the radius unchanged.
    */
   vtkSetVector2Macro(LensCenter, double);
   vtkGetVector2Macro(LensCenter, double);
-  vtkSetMacro(LensRadius, double);
+  virtual void SetLensRadius(double radius);
   vtkGetMacro(LensRadius, double);
   /**
    * Center of the lens in scene coordinates. Only valid once the plot has

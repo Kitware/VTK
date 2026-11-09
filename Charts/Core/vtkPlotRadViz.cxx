@@ -178,6 +178,21 @@ double* vtkPlotRadViz::GetSceneLensCenter()
 }
 
 //------------------------------------------------------------------------------
+void vtkPlotRadViz::SetLensRadius(double radius)
+{
+  if (radius < 0)
+  {
+    vtkErrorMacro("Invalid lens radius: " << radius << ", it must be >= 0");
+    return;
+  }
+  if (radius != this->LensRadius)
+  {
+    this->LensRadius = radius;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 double vtkPlotRadViz::GetSceneLensRadius()
 {
   return this->LensRadius * this->Internals->SceneRadius;

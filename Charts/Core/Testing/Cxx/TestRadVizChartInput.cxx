@@ -371,6 +371,12 @@ int TestPlotModified()
   CHECK(plot->GetPartitionIndices() == std::vector<int>({ 2 }));
   CHECK(plot->GetFilter()->GetPartitionIndices() == std::vector<int>({ 2 }));
   CHECK(plot->GetFilter()->GetPartitionOffsets() == std::vector<int>({ 1 }));
+
+  // rejected: a negative lens radius
+  plot->AddObserver(vtkCommand::ErrorEvent, errors);
+  errors->Clear();
+  CHECK(!modifies([&] { plot->SetLensRadius(-1); }));
+  CHECK(errors->GetError() && plot->GetLensRadius() == 1);
   return EXIT_SUCCESS;
 }
 /**

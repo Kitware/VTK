@@ -5,10 +5,12 @@
  * results and output object, and gives the same output as a full execution,
  * that setting the visible variables they already have keeps the last
  * results, and that the output object follows the input type. Lens-only
- * changes are also checked for table rows of mixed types and cell data.
+ * changes are also checked for table rows of mixed types and cell data,
+ * and a negative lens radius is rejected.
  */
 
 #include <vtkCellData.h>
+#include <vtkCommand.h>
 #include <vtkDataArrayRange.h>
 #include <vtkDoubleArray.h>
 #include <vtkFloatArray.h>
@@ -21,6 +23,7 @@
 #include <vtkStringArray.h>
 #include <vtkStringFormatter.h>
 #include <vtkTable.h>
+#include <vtkTestErrorObserver.h>
 #include <vtkTrivialProducer.h>
 
 #include <algorithm>
@@ -251,6 +254,16 @@ int TestMultiVariateToRGBALens(int, char*[])
   full->SetLensRadius(0.6);
   full->SetLensCenter(1.5, 0.0);
   CHECK(cached->GetLensCenter()[0] == 1.5 && full->GetLensCenter()[0] == 1.5);
+
+  // a negative radius is rejected
+  {
+    vtkNew<vtkTest::ErrorObserver> errorObserver;
+    full->AddObserver(vtkCommand::ErrorEvent, errorObserver);
+    full->SetLensRadius(-2);
+    CHECK(errorObserver->HasErrorMessage("Invalid lens radius: -2"));
+    CHECK(full->GetLensRadius() == 0.6);
+    full->RemoveObserver(errorObserver);
+  }
 
   // the output follows a switch to a table input and back
   vtkNew<vtkTable> table;
