@@ -520,6 +520,65 @@ bool vtkGLTFDocumentLoaderInternals::LoadBufferView(
       "Invalid bufferView.target value. Expecting ARRAY_BUFFER or ELEMENT_ARRAY_BUFFER");
     return false;
   }
+
+  // extensions
+  auto rootExtIt = root.find("extensions");
+
+  if (rootExtIt != root.end() && rootExtIt.value().is_object())
+  {
+    for (const auto& extension : rootExtIt.value().items())
+    {
+      if (extension.key() == "KHR_meshopt_compression" ||
+        extension.key() == "EXT_meshopt_compression")
+      {
+        vtkGLTFDocumentLoader::BufferView::Extensions::MeshoptCompression& meshComp =
+          bufferView.ExtensionMetaData.MeshoptMetaData;
+        vtkGLTFUtils::GetIntValue(extension.value(), "buffer", meshComp.Buffer);
+        vtkGLTFUtils::GetIntValue(extension.value(), "byteOffset", meshComp.ByteOffset);
+        vtkGLTFUtils::GetIntValue(extension.value(), "byteLength", meshComp.ByteLength);
+        vtkGLTFUtils::GetIntValue(extension.value(), "byteStride", meshComp.ByteStride);
+        vtkGLTFUtils::GetIntValue(extension.value(), "count", meshComp.Count);
+
+        std::string mode;
+        if (vtkGLTFUtils::GetStringValue(extension.value(), "mode", mode))
+        {
+          if (mode == "TRIANGLES")
+          {
+            meshComp.Mode = vtkGLTFDocumentLoader::BufferView::Extensions::MeshoptMode::TRIANGLES;
+          }
+          else if (mode == "INDICES")
+          {
+            meshComp.Mode = vtkGLTFDocumentLoader::BufferView::Extensions::MeshoptMode::INDICES;
+          }
+        }
+
+        std::string filter;
+        if (vtkGLTFUtils::GetStringValue(extension.value(), "filter", filter))
+        {
+          if (filter == "OCTAHEDRAL")
+          {
+            meshComp.Filter =
+              vtkGLTFDocumentLoader::BufferView::Extensions::MeshoptFilter::OCTAHEDRAL;
+          }
+          else if (filter == "QUATERNION")
+          {
+            meshComp.Filter =
+              vtkGLTFDocumentLoader::BufferView::Extensions::MeshoptFilter::QUATERNION;
+          }
+          else if (filter == "EXPONENTIAL")
+          {
+            meshComp.Filter =
+              vtkGLTFDocumentLoader::BufferView::Extensions::MeshoptFilter::EXPONENTIAL;
+          }
+          else if (filter == "COLOR")
+          {
+            meshComp.Filter = vtkGLTFDocumentLoader::BufferView::Extensions::MeshoptFilter::COLOR;
+          }
+        }
+      }
+    }
+  }
+
   return true;
 }
 
