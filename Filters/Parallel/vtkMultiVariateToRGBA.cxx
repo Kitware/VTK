@@ -18,6 +18,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSMPThreadLocal.h"
 #include "vtkSMPTools.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"
@@ -87,8 +88,6 @@ struct NormalizeWorker
   {
     auto scalars = vtk::DataArrayTupleRange(scalarsArray);
     auto normalized = vtk::DataArrayTupleRange(normalizedArray);
-    using ScalarsRangeType = decltype(scalars);
-    using ValueType = typename ScalarsRangeType::ComponentType;
 
     double minValue, maxValue;
     if (this->CustomRange)
@@ -99,27 +98,34 @@ struct NormalizeWorker
     }
     else
     {
-      // single pass over the tuples for the min/max of all components in the group
-      ValueType localMinValue = std::numeric_limits<ValueType>::max(),
-                localMaxValue = std::numeric_limits<ValueType>::lowest();
-      vtkIdType nTuples = scalars.size();
-      for (vtkIdType i = 0; i < nTuples; ++i)
-      {
-        for (size_t k = 0; k < this->GroupIndices.size(); ++k)
+      // min/max of all components in the group, per thread then combined
+      vtkSMPThreadLocal<std::array<double, 2>> threadRanges(
+        std::array<double, 2>{ VTK_DOUBLE_MAX, -VTK_DOUBLE_MAX });
+      vtkSMPTools::For(0, scalars.size(),
+        [&](vtkIdType begin, vtkIdType end)
         {
-          ValueType value = scalars[i][this->GroupIndices[k]];
-          if (value < localMinValue)
+          double chunkMin = VTK_DOUBLE_MAX;
+          double chunkMax = -VTK_DOUBLE_MAX;
+          for (vtkIdType i = begin; i < end; ++i)
           {
-            localMinValue = value;
+            for (int index : this->GroupIndices)
+            {
+              double value = static_cast<double>(scalars[i][index]);
+              chunkMin = std::min(chunkMin, value);
+              chunkMax = std::max(chunkMax, value);
+            }
           }
-          if (value > localMaxValue)
-          {
-            localMaxValue = value;
-          }
-        }
+          std::array<double, 2>& threadRange = threadRanges.Local();
+          threadRange[0] = std::min(threadRange[0], chunkMin);
+          threadRange[1] = std::max(threadRange[1], chunkMax);
+        });
+      minValue = VTK_DOUBLE_MAX;
+      maxValue = -VTK_DOUBLE_MAX;
+      for (const std::array<double, 2>& threadRange : threadRanges)
+      {
+        minValue = std::min(minValue, threadRange[0]);
+        maxValue = std::max(maxValue, threadRange[1]);
       }
-      minValue = localMinValue;
-      maxValue = localMaxValue;
       if (this->Controller)
       {
         // one MIN reduction for both: the max is the opposite of the min of the opposites
