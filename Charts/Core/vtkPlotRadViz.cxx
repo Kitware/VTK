@@ -678,13 +678,13 @@ void vtkPlotRadViz::DrawLens(vtkContext2D* painter)
 
 int vtkPlotRadViz::GetColorWheelStartAngle()
 {
-  return this->ComputeGBC->GetColorWheelStartAngle();
+  return vtkMultiVariateToRGBA::GetColorWheelStartAngle();
 }
 
 //------------------------------------------------------------------------------
 bool vtkPlotRadViz::GetColorWheelClockwiseOrdering()
 {
-  return this->ComputeGBC->GetColorWheelClockwiseOrdering();
+  return vtkMultiVariateToRGBA::GetColorWheelClockwiseOrdering();
 }
 
 //------------------------------------------------------------------------------

@@ -188,8 +188,8 @@ public:
    * follow each other clockwise around the wheel.
    * @sa vtkPlotRadViz
    */
-  int GetColorWheelStartAngle() { return 90; }
-  bool GetColorWheelClockwiseOrdering() { return true; }
+  static constexpr int GetColorWheelStartAngle() { return 90; }
+  static constexpr bool GetColorWheelClockwiseOrdering() { return true; }
   ///@}
 
   ///@{

@@ -182,7 +182,7 @@ public:
    * color wheel. It is read from vtkMultiVariateToRGBA, so that the color
    * wheel matches the colors computed for the points.
    */
-  int GetColorWheelStartAngle();
+  static int GetColorWheelStartAngle();
   ///@}
 
   ///@{
@@ -191,7 +191,7 @@ public:
    * It is read from vtkMultiVariateToRGBA, so that the color wheel matches
    * the colors computed for the points.
    */
-  bool GetColorWheelClockwiseOrdering();
+  static bool GetColorWheelClockwiseOrdering();
   ///@}
 
   ///@{

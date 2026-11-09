@@ -66,8 +66,8 @@ bool ColorsMatchColorWheel(vtkAlgorithmOutput* input, bool verticesClockwiseOrde
     std::cerr << "Missing gbc or rgba array" << std::endl;
     return false;
   }
-  const double startAngle = filter->GetColorWheelStartAngle();
-  const double direction = filter->GetColorWheelClockwiseOrdering() ? -1.0 : 1.0;
+  const double startAngle = vtkMultiVariateToRGBA::GetColorWheelStartAngle();
+  const double direction = vtkMultiVariateToRGBA::GetColorWheelClockwiseOrdering() ? -1.0 : 1.0;
   double maxDifference = 0;
   vtkIdType numberOfColors = 0;
   for (vtkIdType i = 0; i < gbc->GetNumberOfTuples(); ++i)
