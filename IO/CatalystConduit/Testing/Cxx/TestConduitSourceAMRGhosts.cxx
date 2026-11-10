@@ -20,6 +20,7 @@
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkStructuredData.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
@@ -72,7 +73,7 @@ void CreateAMRMesh(int dim, int nghosts, conduit_cpp::Node& mesh)
   {
     const Domain& dom = domains[id];
     const double h = GetSpacing(dom.Level);
-    auto node = mesh["domain" + std::to_string(id)];
+    auto node = mesh["domain" + vtk::to_string(id)];
     node["state/domain_id"] = static_cast<int>(id);
     node["state/cycle"] = 0;
     node["state/time"] = 0.0;
@@ -307,7 +308,7 @@ bool ValidateDomainGhostArray(int dim)
       }
     }
     auto field =
-      mesh["domain" + std::to_string(id) + "/fields/" + vtkDataSetAttributes::GhostArrayName()];
+      mesh["domain" + vtk::to_string(id) + "/fields/" + vtkDataSetAttributes::GhostArrayName()];
     field["association"] = "element";
     field["topology"] = "topo";
     field["values"].set(values);
