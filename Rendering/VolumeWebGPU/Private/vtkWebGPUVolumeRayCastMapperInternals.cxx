@@ -666,6 +666,12 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
     return;
   }
 
+  // Converted here rather than per brick, so an array in another layout is copied once.
+  input.AOSScalars = input.Streaming ? nullptr : scalars->ToAOSDataArray();
+  input.AOSYAxisScalars = (input.Streaming || input.YAxisScalars == nullptr)
+    ? nullptr
+    : input.YAxisScalars->ToAOSDataArray();
+
   input.Data->GetDimensions(input.Dimensions);
   input.IndexToPhysical->DeepCopy(input.Data->GetIndexToPhysicalMatrix());
   // Placed before the range queries below so that the dimensions are the cell ones when needed.
@@ -758,7 +764,7 @@ void vtkWebGPUVolumeRayCastMapper::vtkInternals::UpdateVolumeData(Input& input, 
   }
   else
   {
-    void* source = scalars->GetVoidPointer(0);
+    void* source = input.AOSScalars->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
     // Every component is measured, because a region that one component maps to nothing may be
     // exactly where another one carries what there is to see.
     for (int component = 0; component < input.NumberOfComponents; ++component)
@@ -963,7 +969,8 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchStreamedBrick(
   const int blockDimensions[3] = { got[1] - got[0] + 1, got[3] - got[2] + 1, got[5] - got[4] + 1 };
   const int components = scalars->GetNumberOfComponents();
   const int channels = this->PoolChannels;
-  const void* source = scalars->GetVoidPointer(0);
+  auto aos = scalars->ToAOSDataArray();
+  const void* source = aos->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
 
   switch (scalars->GetDataType())
   {
@@ -1003,7 +1010,7 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchBrick(
   {
     return this->FetchStreamedBrick(brick, slotSize, voxels);
   }
-  vtkDataArray* scalars = this->Scalars;
+  vtkDataArray* scalars = this->AOSScalars;
   if (scalars == nullptr || slotSize <= 2)
   {
     return false;
@@ -1014,7 +1021,7 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchBrick(
   // One channel for a single component volume with nothing riding along, four for anything more,
   // padded where there is less to put in them.
   const int channels = this->PoolChannels;
-  void* source = scalars->GetVoidPointer(0);
+  void* source = scalars->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
 
   switch (scalars->GetDataType())
   {
@@ -1031,13 +1038,13 @@ bool vtkWebGPUVolumeRayCastMapper::vtkInternals::Input::FetchBrick(
       return false;
   }
 
-  if (this->YAxisScalars != nullptr && channels > 1)
+  if (this->AOSYAxisScalars != nullptr && channels > 1)
   {
     // Lay the second axis into the channel next to the scalars, one brick at a time like them.
     std::vector<float> axis(static_cast<std::size_t>(slotSize) * slotSize * slotSize);
-    void* yaxis = this->YAxisScalars->GetVoidPointer(0);
-    const int yComponents = this->YAxisScalars->GetNumberOfComponents();
-    switch (this->YAxisScalars->GetDataType())
+    void* yaxis = this->AOSYAxisScalars->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
+    const int yComponents = this->AOSYAxisScalars->GetNumberOfComponents();
+    switch (this->AOSYAxisScalars->GetDataType())
     {
       vtkTemplateMacro(ExtractBrick(static_cast<const VTK_TT*>(yaxis), yComponents, 1,
         this->Dimensions, brickSize, brick, slotSize, axis.data(), WholeOrigin, this->Dimensions));

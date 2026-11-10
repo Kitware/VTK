@@ -144,6 +144,10 @@ private:
     /// The array that gives the second axis of a two dimensional transfer function, if one was
     /// named. It rides along in the second channel of the same bricks.
     vtkDataArray* YAxisScalars = nullptr;
+    /// Both of them in the contiguous layout the bricks are cut from: the arrays themselves when
+    /// they already have it, a copy made once per update otherwise. Unset on a streaming input.
+    vtkSmartPointer<vtkDataArray> AOSScalars;
+    vtkSmartPointer<vtkDataArray> AOSYAxisScalars;
     bool Transfer2D = false;
     bool CellData = false;
     /// Index space to the input's own coordinates, shifted by half a voxel for cell data so that
