@@ -60,4 +60,8 @@ struct ActorColorOptions {
   edge_tint: vec3<f32>,
   // Clear coat layer color
   coat_color: vec3<f32>,
+  // Color multiplying the reflectance at normal incidence of the dielectric base layer
+  base_specular_color: vec3<f32>,
+  // Weight of the specular reflection of the dielectric base layer
+  base_specular_weight: f32,
 }

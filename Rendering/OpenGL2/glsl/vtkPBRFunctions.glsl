@@ -7,6 +7,8 @@ uniform float roughnessUniform;
 uniform vec3 emissiveFactorUniform;
 uniform float aoStrengthUniform;
 uniform float baseF0Uniform;
+uniform float baseSpecularWeightUniform;
+uniform vec3 baseSpecularColorUniform;
 uniform vec3 edgeTintUniform;
 #ifdef ANISOTROPY
 uniform float anisotropyUniform;

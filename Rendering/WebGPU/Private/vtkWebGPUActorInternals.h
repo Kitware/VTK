@@ -109,14 +109,16 @@ public:
       vtkTypeUInt32 Pad5 = 0;
       vtkTypeFloat32 CoatColor[3] = { 1.0f, 1.0f, 1.0f };
       vtkTypeUInt32 Pad6 = 0;
+      vtkTypeFloat32 BaseSpecularColor[3] = { 1.0f, 1.0f, 1.0f };
+      vtkTypeFloat32 BaseSpecularWeight = 1.0f;
     } ColorOpts, BackfaceColorOpts;
   };
 
-  static_assert(sizeof(ActorBlock::ColorOptions) == 192,
+  static_assert(sizeof(ActorBlock::ColorOptions) == 208,
     "ColorOptions must match the layout of ActorColorOptions in ActorColorOptions.wgsl");
   static_assert(offsetof(ActorBlock, ColorOpts) == 160,
     "ColorOptions must start where the Actor struct places color_options");
-  static_assert(offsetof(ActorBlock, BackfaceColorOpts) == 352,
+  static_assert(offsetof(ActorBlock, BackfaceColorOpts) == 368,
     "BackfaceColorOptions must match the Actor struct's backface_color_options");
 
   static void CacheMaterial(vtkProperty* property, ActorBlock::ColorOptions& colorOptions)
@@ -147,12 +149,16 @@ public:
     colorOptions.CoatNormalScale = static_cast<vtkTypeFloat32>(property->GetCoatNormalScale());
     colorOptions.NormalScale = static_cast<vtkTypeFloat32>(property->GetNormalScale());
     colorOptions.OcclusionStrength = static_cast<vtkTypeFloat32>(property->GetOcclusionStrength());
+    colorOptions.BaseSpecularWeight =
+      static_cast<vtkTypeFloat32>(property->GetBaseSpecularWeight());
     for (int i = 0; i < 3; ++i)
     {
       colorOptions.EmissiveFactor[i] =
         static_cast<vtkTypeFloat32>(property->GetEmissiveFactor()[i]);
       colorOptions.EdgeTint[i] = static_cast<vtkTypeFloat32>(property->GetEdgeTint()[i]);
       colorOptions.CoatColor[i] = static_cast<vtkTypeFloat32>(property->GetCoatColor()[i]);
+      colorOptions.BaseSpecularColor[i] =
+        static_cast<vtkTypeFloat32>(property->GetBaseSpecularColor()[i]);
     }
     colorOptions.InterpolationType = static_cast<vtkTypeUInt32>(property->GetInterpolation());
   }
@@ -224,6 +230,8 @@ public:
     PBR_NORMAL,
     PBR_ANISOTROPY,
     PBR_COAT_NORMAL,
+    PBR_SPECULAR,
+    PBR_SPECULAR_COLOR,
     PBR_NUMBER_OF_TEXTURES
   };
   using PBRTextureArray = std::array<vtkWebGPUTexture*, PBR_NUMBER_OF_TEXTURES>;
@@ -231,7 +239,8 @@ public:
   static PBRTextureArray GetPBRTextures(vtkActor* actor)
   {
     static constexpr const char* names[PBR_NUMBER_OF_TEXTURES] = { "albedoTex", "materialTex",
-      "emissiveTex", "normalTex", "anisotropyTex", "coatNormalTex" };
+      "emissiveTex", "normalTex", "anisotropyTex", "coatNormalTex", "specularTex",
+      "specularColorTex" };
     PBRTextureArray textures{};
     vtkProperty* property = actor->GetProperty();
     if (property->GetInterpolation() != VTK_PBR)

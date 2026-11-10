@@ -71,6 +71,10 @@ vtkProperty::vtkProperty()
   this->OcclusionStrength = 1.0;
   this->Metallic = 0.0;
   this->BaseIOR = 1.5;
+  this->BaseSpecularWeight = 1.0;
+  this->BaseSpecularColor[0] = 1.0;
+  this->BaseSpecularColor[1] = 1.0;
+  this->BaseSpecularColor[2] = 1.0;
   this->Roughness = 0.5;
   this->Anisotropy = 0.0;
   this->AnisotropyRotation = 0.0;
@@ -127,6 +131,8 @@ void vtkProperty::DeepCopy(vtkProperty* p)
     this->SetAnisotropyRotation(p->GetAnisotropyRotation());
     this->SetBackfaceCulling(p->GetBackfaceCulling());
     this->SetBaseIOR(p->GetBaseIOR());
+    this->SetBaseSpecularColor(p->GetBaseSpecularColor());
+    this->SetBaseSpecularWeight(p->GetBaseSpecularWeight());
     this->SetCoatColor(p->GetCoatColor());
     this->SetCoatIOR(p->GetCoatIOR());
     this->SetCoatNormalScale(p->GetCoatNormalScale());

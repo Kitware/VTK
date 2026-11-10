@@ -2584,7 +2584,8 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderTCoord(
       if (textures[i].second == "albedoTex" || textures[i].second == "normalTex" ||
         textures[i].second == "materialTex" || textures[i].second == "brdfTex" ||
         textures[i].second == "emissiveTex" || textures[i].second == "anisotropyTex" ||
-        textures[i].second == "coatNormalTex" || textures[i].second == "colortexture")
+        textures[i].second == "coatNormalTex" || textures[i].second == "specularTex" ||
+        textures[i].second == "specularColorTex" || textures[i].second == "colortexture")
       {
         continue;
       }

@@ -4,6 +4,7 @@
 #include <vtkDoubleArray.h>
 #include <vtkFileResourceStream.h>
 #include <vtkGLTFImporter.h>
+#include <vtkHDRReader.h>
 #include <vtkLightCollection.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
@@ -11,18 +12,19 @@
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkStringScanner.h>
+#include <vtkTexture.h>
 
 #include <iostream>
 
 int TestGLTFImporter(int argc, char* argv[])
 {
-  if (argc < 8)
+  if (argc < 11)
   {
     std::cout << "Usage: " << argv[0]
               << " <gltf file> <use_stream> <camera index> <expected nb of actors> <expected nb of "
                  "lights> <expected nb of cameras> <expected nb of animations>"
                  "<expected nb of timesteps in first animation>"
-                 "<time value to load>"
+                 "<time value to load> <HDR environment map>"
               << std::endl;
     return EXIT_FAILURE;
   }
@@ -71,6 +73,21 @@ int TestGLTFImporter(int argc, char* argv[])
   vtkNew<vtkRenderer> renderer;
   renderWindow->AddRenderer(renderer);
   renderer->SetBackground(.0, .0, .2);
+
+  if (vtksys::SystemTools::FileExists(argv[10]))
+  {
+    vtkNew<vtkHDRReader> hdrReader;
+    hdrReader->SetFileName(argv[10]);
+
+    vtkNew<vtkTexture> hdrTexture;
+    hdrTexture->SetInputConnection(hdrReader->GetOutputPort());
+    hdrTexture->MipmapOn();
+    hdrTexture->InterpolateOn();
+    hdrTexture->SetColorModeToDirectScalars();
+
+    renderer->SetEnvironmentTexture(hdrTexture);
+    renderer->UseImageBasedLightingOn();
+  }
 
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
   renderWindowInteractor->SetRenderWindow(renderWindow);

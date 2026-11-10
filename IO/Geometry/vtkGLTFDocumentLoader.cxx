@@ -1223,7 +1223,8 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
     for (const vtkGLTFDocumentLoader::TextureInfo& info :
       { material.PbrMetallicRoughness.BaseColorTexture, material.EmissiveTexture,
         material.NormalTexture, material.OcclusionTexture,
-        material.PbrMetallicRoughness.MetallicRoughnessTexture })
+        material.PbrMetallicRoughness.MetallicRoughnessTexture, material.SpecularTexture,
+        material.SpecularColorTexture })
     {
       if (info.Index != -1)
       {
@@ -1736,7 +1737,7 @@ std::shared_ptr<vtkGLTFDocumentLoader::Model> vtkGLTFDocumentLoader::GetInternal
 std::vector<std::string> vtkGLTFDocumentLoader::GetSupportedExtensions()
 {
   return { "KHR_lights_punctual", "KHR_materials_unlit", "KHR_texture_transform",
-    "KHR_materials_ior", "KHR_mesh_quantization" };
+    "KHR_materials_ior", "KHR_materials_specular", "KHR_mesh_quantization" };
 }
 
 //------------------------------------------------------------------------------

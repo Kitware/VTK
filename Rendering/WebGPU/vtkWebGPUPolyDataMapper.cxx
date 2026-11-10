@@ -77,6 +77,8 @@ struct PBRShaderFeatures
   bool NormalTexture = false;
   bool AnisotropyTexture = false;
   bool CoatNormalTexture = false;
+  bool SpecularTexture = false;
+  bool SpecularColorTexture = false;
   int DebugView = vtkWebGPURenderer::PBR_DEBUG_VIEW_NONE;
 };
 
@@ -128,6 +130,15 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
   {
     sample("coat_normal");
   }
+  if (features.SpecularTexture)
+  {
+    sample("specular");
+  }
+  if (features.SpecularColorTexture)
+  {
+    sample("specular_color");
+  }
+
   if (features.DebugView != vtkWebGPURenderer::PBR_DEBUG_VIEW_NONE)
   {
     // The debug views are computed in the lit branch, so enter it even when the actor is not
@@ -171,6 +182,12 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     emissive = pbr_emissive_sample.rgb * color_options.emissive_factor;
 )";
   }
+  // KHR_materials_specular: the strength is stored in the alpha channel
+  code << "    let dielectric_strength = "
+       << (features.SpecularTexture ? "pbr_specular_sample.a" : "1.0") << ";\n";
+  code << "    let dielectric_color = "
+       << (features.SpecularColorTexture ? "pbr_specular_color_sample.rgb" : "vec3<f32>(1.0)")
+       << ";\n";
   code << R"(
     var surface: PBRSurface;
     surface.normal = normal_VC;
@@ -244,9 +261,13 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     material.albedo = pbr_albedo;
     material.metallic = metallic;
     material.roughness = roughness;
-    material.F0 = mix(vec3<f32>(color_options.base_f0), pbr_albedo, metallic);
-    let f90 = clamp(dot(material.F0, vec3<f32>(50.0 * 0.33)), 0.0, 1.0);
-    material.F90 = mix(vec3<f32>(f90), color_options.edge_tint, metallic);
+
+    let specular_weight = color_options.base_specular_weight * dielectric_strength;
+    let dielectric_F0 = min(vec3<f32>(actor.color_options.base_f0) *
+      color_options.base_specular_color * dielectric_color, vec3<f32>(1.0));
+    material.F0 = mix(dielectric_F0 * specular_weight, pbr_albedo, metallic);
+    let f90 = clamp(dot(vec3<f32>(color_options.base_f0), vec3<f32>(50.0 * 0.33)), 0.0, 1.0);
+    material.F90 = mix(vec3<f32>(f90 * specular_weight), color_options.edge_tint, metallic);
 )";
   code << R"(
     if (pbr_has_anisotropy)
@@ -354,12 +375,13 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
       roughness * ibl_parameters.prefilter_max_level).rgb;
     let brdf = textureSampleLevel(ibl_brdf_texture, ibl_sampler,
       vec2<f32>(surface.NdV, roughness), 0.0).rg;
-    let ibl_albedo = (1.0 - metallic) * (1.0 - 0.04) * pbr_albedo;
-    let Fr = max(vec3<f32>(1.0 - roughness), material.F0) - material.F0;
+    let ibl_albedo = (1.0 - metallic) * (1.0 - material.F0) * pbr_albedo;
+    let Fmax = mix(vec3<f32>(f90 * specular_weight), vec3<f32>(1.0), metallic);
+    let Fr = max(Fmax * (1.0 - roughness), material.F0) - material.F0;
     let k_S = material.F0 + Fr * pow(1.0 - surface.NdV, 5.0);
     let FssEss = k_S * brdf.r + material.F90 * brdf.g;
     let Ems = 1.0 - (brdf.r + brdf.g);
-    let F_avg = material.F0 + (1.0 - material.F0) / 21.0;
+    let F_avg = material.F0 + (Fmax - material.F0) / 21.0;
     let FmsEms = Ems * FssEss * F_avg / max(1.0 - F_avg * Ems, vec3<f32>(1e-5));
     let k_D = ibl_albedo * (1.0 - FssEss - FmsEms);
     pbr_ibl_specular = FssEss * prefiltered;
@@ -2854,7 +2876,7 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderActorBindings(
     }
   }
   static constexpr const char* pbrTextureNames[] = { "albedo", "material", "emissive", "normal",
-    "anisotropy", "coat_normal" };
+    "anisotropy", "coat_normal", "specular", "specular_color" };
   const auto pbrTextures = vtkWebGPUActorInternals::GetPBRTextures(wgpuActor);
   for (std::size_t i = 0; i < pbrTextures.size(); ++i)
   {
@@ -4287,6 +4309,8 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(GraphicsPipelineType p
         features.Tangents && textures[Internals::PBR_ANISOTROPY] != nullptr;
       features.CoatNormalTexture =
         features.Tangents && textures[Internals::PBR_COAT_NORMAL] != nullptr;
+      features.SpecularTexture = textures[Internals::PBR_SPECULAR] != nullptr;
+      features.SpecularColorTexture = textures[Internals::PBR_SPECULAR_COLOR] != nullptr;
     }
     vtkWebGPURenderPipelineCache::Substitute(
       fss, "//VTK::Lights::Impl", BuildPBRLightingSource(features), /*all=*/true);

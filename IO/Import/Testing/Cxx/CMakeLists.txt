@@ -224,13 +224,13 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterURITexture,TestGLTFImporter.cxx DATA{../Data/glTF/Lantern/Lantern.gltf} 0 -1 3 0 0 0
-   DATA{../Data/glTF/Lantern/Lantern.bin}
-   DATA{../Data/glTF/Lantern/Lantern_baseColor.png}
-   DATA{../Data/glTF/Lantern/Lantern_emissive.png}
-   DATA{../Data/glTF/Lantern/Lantern_normal.png}
-   DATA{../Data/glTF/Lantern/Lantern_roughnessMetallic.png}
-)
+  TestGLTFImporterURITexture,TestGLTFImporter.cxx DATA{../Data/glTF/Lantern/Lantern.gltf} 0 -1 3 0 0 0)
+
+vtk_module_test_data("${CMAKE_CURRENT_SOURCE_DIR}/../Data/glTF/Lantern/Lantern.bin")
+vtk_module_test_data("${CMAKE_CURRENT_SOURCE_DIR}/../Data/glTF/Lantern/Lantern_baseColor.png")
+vtk_module_test_data("${CMAKE_CURRENT_SOURCE_DIR}/../Data/glTF/Lantern/Lantern_emissive.png")
+vtk_module_test_data("${CMAKE_CURRENT_SOURCE_DIR}/../Data/glTF/Lantern/Lantern_normal.png")
+vtk_module_test_data("${CMAKE_CURRENT_SOURCE_DIR}/../Data/glTF/Lantern/Lantern_roughnessMetallic.png")
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestGLTFImporterOpacity,TestGLTFImporter.cxx DATA{../Data/glTF/alpha.glb} 0 -1 16 0 0 0
@@ -274,6 +274,13 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestGLTFImporterPointLightIntensity,TestGLTFImporter.cxx DATA{../Data/glTF/PointLightIntensityTest.glb} 0 -1 13 8 0 0
+)
+
+# CC-BY 4.0
+# 2021, Analytical Graphics, Inc.
+# https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/SpecularTest
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterKHRMaterialsSpecular,TestGLTFImporter.cxx DATA{../Data/glTF/SpecularTest.glb} 0 -1 24 0 0 0 0 0 DATA{../../../../Testing/Data/spiaggia_di_mondello_1k.hdr}
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
