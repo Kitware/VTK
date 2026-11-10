@@ -106,7 +106,7 @@ struct LightData
   float DiffuseColor[3];
   float Exponent;
   float SpecularColor[3];
-  float Positional;
+  std::uint32_t Positional;
   float Direction[3];
   float Padding0;
   float Position[3];
@@ -1595,7 +1595,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
         entry.Position[i] = static_cast<float>(position[i]);
       }
 
-      entry.Positional = light->GetPositional() != 0 ? 1.0f : 0.0f;
+      entry.Positional = light->GetPositional() != 0 ? 1u : 0u;
       entry.ConeAngle = static_cast<float>(light->GetConeAngle());
       entry.Exponent = static_cast<float>(light->GetExponent());
       const double* attenuation = light->GetAttenuationValues();

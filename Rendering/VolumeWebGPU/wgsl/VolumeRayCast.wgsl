@@ -66,7 +66,7 @@ struct Light {
   diffuse: vec3<f32>,
   exponent: f32,
   specular: vec3<f32>,
-  positional: f32,
+  positional: u32,
   direction: vec3<f32>,
   padding0: f32,
   position: vec3<f32>,
@@ -591,7 +591,7 @@ fn shade(volume_index: u32, color: vec3<f32>, tex_coord: vec3<f32>,
       // Away from the light, which is what this formulation takes the dot products against.
       var away = light.direction;
 
-      if (light.positional > 0.5) {
+      if (light.positional != 0u) {
         let offset = world - light.position;
         let distance = length(offset);
         away = select(light.direction, offset / distance, distance > 1.0e-9);
