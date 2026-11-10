@@ -18,6 +18,7 @@
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
+#include "vtkWeakPointer.h"
 
 #include <anari/anari_cpp.hpp>
 #include <anari/anari_cpp/ext/std.h>
@@ -86,6 +87,7 @@ struct vtkAnariLightNodeInternals
   std::string LightSubtype;
   vtkTexture* EnvironmentTexture{ nullptr };
   vtkMTimeType EnvironmentTextureTime{ 0 };
+  vtkWeakPointer<vtkCamera> Camera;
   vtkMTimeType CameraTime{ 0 };
   vtkTransform* UserLightTransform{ nullptr };
   vtkMTimeType UserLightTransformTime{ 0 };
@@ -271,7 +273,9 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   auto* anariDevice = this->Internals->AnariDevice.GetPointer();
   auto vtkRenderer = this->Internals->RendererNode->GetRenderer();
   const auto& anariExtensions = anariDevice->GetExtensions();
-  this->Internals->CameraTime = vtkRenderer->GetActiveCamera()->GetMTime();
+  auto* camera = vtkRenderer->GetActiveCamera();
+  this->Internals->Camera = camera;
+  this->Internals->CameraTime = camera->GetMTime();
 
   vtkTransform* userLightTransform = vtkRenderer->GetUserLightTransform();
   this->Internals->UserLightTransform = userLightTransform;
@@ -294,7 +298,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   {
     vtkNew<vtkMatrix4x4> cameraTransform;
     vtkNew<vtkMatrix4x4> invCameraTransform;
-    vtkRenderer->GetActiveCamera()->GetModelViewTransformObject()->GetMatrix(cameraTransform);
+    camera->GetModelViewTransformObject()->GetMatrix(cameraTransform);
     vtkMatrix4x4::Invert(cameraTransform, invCameraTransform);
 
     cameraTransform->MultiplyPoint(position, position);
@@ -577,8 +581,9 @@ bool vtkAnariLightNode::LightWasModified() const
   auto* renderer = this->Internals->RendererNode->GetRenderer();
   if (!this->GetVtkLight()->LightTypeIsSceneLight())
   {
+    auto* camera = renderer->GetActiveCamera();
     auto* transform = renderer->GetUserLightTransform();
-    if (this->Internals->CameraTime != renderer->GetActiveCamera()->GetMTime() ||
+    if (this->Internals->Camera != camera || this->Internals->CameraTime < camera->GetMTime() ||
       this->Internals->UserLightTransform != transform ||
       (transform && this->Internals->UserLightTransformTime < transform->GetMTime()))
     {
