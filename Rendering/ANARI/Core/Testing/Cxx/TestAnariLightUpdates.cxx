@@ -19,6 +19,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkTesting.h"
 #include "vtkTexture.h"
@@ -221,6 +222,39 @@ int TestAnariLightUpdates(int argc, char* argv[])
   }
   renderer->SetUserLightTransform(nullptr);
   checkStructure(false, "removing the user light transform");
+
+  renderer->LightFollowCameraOff();
+  transform->Identity();
+  transform->RotateY(45.0);
+  renderer->SetUserLightTransform(transform);
+  vtkSmartPointer<vtkCamera> newerCamera = renderer->GetActiveCamera();
+  vtkNew<vtkCamera> olderCamera;
+  olderCamera->DeepCopy(newerCamera);
+  olderCamera->Roll(90.0);
+  newerCamera->Modified();
+  checkStructure(false, "preparing to replace the active camera");
+
+  renderer->SetActiveCamera(olderCamera);
+  checkStructure(false, "replacing the active camera with an older instance");
+  if (lightNode->RenderTime != olderCamera->GetMTime())
+  {
+    vtkLogF(ERROR, "The retained light ignored the replacement camera with an older MTime.");
+    success = false;
+  }
+
+  const auto replacementCameraTime = olderCamera->GetMTime();
+  olderCamera->Roll(30.0);
+  checkStructure(false, "moving the replacement camera");
+  if (lightNode->RenderTime <= replacementCameraTime)
+  {
+    vtkLogF(ERROR, "The retained light ignored movement of the same replacement camera.");
+    success = false;
+  }
+
+  renderer->SetActiveCamera(newerCamera);
+  renderer->LightFollowCameraOn();
+  renderer->SetUserLightTransform(nullptr);
+  checkStructure(false, "restoring the original camera");
 
   headlight->SetLightTypeToSceneLight();
   headlight->SetPosition(0.0, 0.0, 1.0);
