@@ -835,9 +835,20 @@ const TRIANGLE_VERTS = array(
       case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
       case GFX_PIPELINE_LINES_MITER_JOIN:
       case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+        vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Colors::Impl", basicColorFSImpl,
+          /*all=*/true);
+        break;
       case GFX_PIPELINE_TRIANGLES:
       case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
-        vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Colors::Impl", basicColorFSImpl,
+        // Without scalar colors, color_options selects actor.backface_color_options for back faces.
+        // It is initialized by vtkWebGPUPolyDataMapper::ReplaceFragmentShaderMainStart.
+        vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Colors::Impl", basicColorFSImpl + R"(
+    if (!is_front_facing && hasBackfaceProperty(actor.render_options.flags_2))
+    {
+      ambient_color = color_options.ambient_color;
+      diffuse_color = color_options.diffuse_color;
+      opacity = 1.0;
+    })",
           /*all=*/true);
         break;
       case GFX_PIPELINE_NB_TYPES:

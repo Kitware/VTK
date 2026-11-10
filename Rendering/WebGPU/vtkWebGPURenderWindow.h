@@ -392,6 +392,7 @@ protected:
 private:
   // For accessing SubmitCommandBuffer to submit custom prop render work
   friend class vtkWebGPUComputeOcclusionCuller;
+  friend class vtkWebGPURenderer;
 
   vtkWebGPURenderWindow(const vtkWebGPURenderWindow&) = delete;
   void operator=(const vtkWebGPURenderWindow&) = delete;

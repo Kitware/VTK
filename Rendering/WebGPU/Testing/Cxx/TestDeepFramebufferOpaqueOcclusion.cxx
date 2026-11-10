@@ -78,7 +78,7 @@ std::vector<unsigned char> Render(bool withHiddenSphere, bool interactive = fals
   renderer->SetBackground(0.1, 0.1, 0.1);
 
   vtkNew<vtkRenderWindow> window;
-  window->SetSize(WindowSize, WindowSize);
+  window->SetSize(WindowSize / 2, WindowSize / 2);
   window->AddRenderer(renderer);
   renderer->ResetCamera();
 
@@ -86,6 +86,9 @@ std::vector<unsigned char> Render(bool withHiddenSphere, bool interactive = fals
   {
     renderer->AddActor(MakeHiddenTranslucentSphere());
   }
+  renderer->ResetCameraClippingRange();
+  window->Render();
+  window->SetSize(WindowSize, WindowSize);
   window->Render();
   if (interactive)
   {

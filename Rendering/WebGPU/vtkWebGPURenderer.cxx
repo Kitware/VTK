@@ -1326,6 +1326,12 @@ void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
   vtkWebGPU::ReleaseAndNull(this->BackgroundGradientBuffer, wgpuBufferRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneBindGroup, wgpuBindGroupRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneBindGroupLayout, wgpuBindGroupLayoutRelease);
+  vtkWebGPU::ReleaseAndNull(this->DeepFramebufferResolveBindGroup, wgpuBindGroupRelease);
+  vtkWebGPU::ReleaseAndNull(
+    this->DeepFramebufferResolveBindGroupLayout, wgpuBindGroupLayoutRelease);
+  vtkWebGPU::ReleaseAndNull(this->DeepFramebufferDepthView, wgpuTextureViewRelease);
+  this->DeepFramebufferDepthTexture = nullptr;
+  this->DeepFramebufferResolveKey.clear();
   for (auto& placeholder : this->DeepFramebufferPlaceholders)
   {
     vtkWebGPU::ReleaseAndNull(placeholder, wgpuBufferRelease);
@@ -1591,15 +1597,41 @@ void vtkWebGPURenderer::ResolveDeepFramebuffer(WGPURenderPassEncoder encoder)
   auto* pipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
 
   const std::string pipelineLabel = "DeepFramebufferResolve-" + this->GetObjectDescription();
+  if (this->DeepFramebufferResolveBindGroupLayout == nullptr)
+  {
+    using LayoutEntry = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper;
+    this->DeepFramebufferResolveBindGroupLayout =
+      vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
+        { LayoutEntry{
+          0, WGPUShaderStage_Fragment, WGPUTextureSampleType_Depth, WGPUTextureViewDimension_2D } },
+        pipelineLabel + "-OpaqueDepthLayout");
+  }
+  WGPUTexture depthTexture = wgpuRenderWindow->DepthStencilAttachment.Texture;
+  if (this->DeepFramebufferDepthTexture != depthTexture ||
+    this->DeepFramebufferResolveBindGroup == nullptr)
+  {
+    vtkWebGPU::ReleaseAndNull(this->DeepFramebufferResolveBindGroup, wgpuBindGroupRelease);
+    vtkWebGPU::ReleaseAndNull(this->DeepFramebufferDepthView, wgpuTextureViewRelease);
+    this->DeepFramebufferDepthTexture = depthTexture;
+    WGPUTextureViewDescriptor viewDescriptor = WGPU_TEXTURE_VIEW_DESCRIPTOR_INIT;
+    viewDescriptor.aspect = WGPUTextureAspect_DepthOnly;
+    this->DeepFramebufferDepthView =
+      wgpuRenderWindow->GetWGPUConfiguration()->CreateView(depthTexture, viewDescriptor);
+    this->DeepFramebufferResolveBindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(device,
+      this->DeepFramebufferResolveBindGroupLayout, { { 0, this->DeepFramebufferDepthView } },
+      pipelineLabel + "-OpaqueDepth");
+  }
+  if (this->DeepFramebufferResolveBindGroup == nullptr)
+  {
+    vtkErrorMacro(<< "Could not bind the opaque depth buffer for transparency resolution.");
+    return;
+  }
   vtkWebGPURenderPipelineDescriptorInternals pipelineDesc;
   pipelineDesc.label = vtkWebGPUMakeStringView(pipelineLabel);
   pipelineDesc.vertex.entryPoint = WGPUStringView{ "resolveVertexMain", WGPU_STRLEN };
   pipelineDesc.vertex.bufferCount = 0;
   pipelineDesc.cFragment.entryPoint = WGPUStringView{ "resolveFragmentMain", WGPU_STRLEN };
   pipelineDesc.primitive.topology = WGPUPrimitiveTopology_TriangleStrip;
-  auto* depthState = pipelineDesc.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
-  depthState->depthWriteEnabled = WGPUOptionalBool_False;
-  depthState->depthCompare = WGPUCompareFunction_Always;
 
   pipelineDesc.cFragment.targetCount = 2;
   pipelineDesc.cTargets[0].format = wgpuRenderWindow->GetOffscreenColorTextureFormat();
@@ -1613,7 +1645,8 @@ void vtkWebGPURenderer::ResolveDeepFramebuffer(WGPURenderPassEncoder encoder)
   blend->alpha.dstFactor = WGPUBlendFactor_OneMinusSrcAlpha;
   blend->alpha.operation = WGPUBlendOperation_Add;
 
-  std::vector<WGPUBindGroupLayout> layouts = { this->SceneBindGroupLayout };
+  std::vector<WGPUBindGroupLayout> layouts = { this->SceneBindGroupLayout,
+    this->DeepFramebufferResolveBindGroupLayout };
   vtkWebGPU::PipelineLayout pipelineLayout =
     vtkWebGPU::PipelineLayout::Acquire(vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
       device, layouts, pipelineLabel + "-Layout"));
@@ -1639,6 +1672,7 @@ void vtkWebGPURenderer::ResolveDeepFramebuffer(WGPURenderPassEncoder encoder)
 
   wgpuRenderPassEncoderSetPipeline(encoder, pipeline);
   wgpuRenderPassEncoderSetBindGroup(encoder, 0, this->SceneBindGroup, 0, nullptr);
+  wgpuRenderPassEncoderSetBindGroup(encoder, 1, this->DeepFramebufferResolveBindGroup, 0, nullptr);
   wgpuRenderPassEncoderDraw(encoder, 4, 1, 0, 0);
 }
 
@@ -1675,7 +1709,7 @@ void vtkWebGPURenderer::EndRecording()
       vtkWebGPURenderPassDescriptorInternals resolvePassDesc(
         { wgpuRenderWindow->GetOffscreenColorAttachmentView(),
           wgpuRenderWindow->GetHardwareSelectorAttachmentView() },
-        wgpuRenderWindow->GetDepthStencilView(),
+        nullptr,
         /*clearColor=*/false, /*clearDepth=*/false, /*clearStencil=*/false);
       resolvePassDesc.label =
         WGPUStringView{ "vtkWebGPURenderer::ResolveDeepFramebuffer", WGPU_STRLEN };

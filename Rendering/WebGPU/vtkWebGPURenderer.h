@@ -436,6 +436,10 @@ private:
   void ResolveDeepFramebuffer(WGPURenderPassEncoder encoder);
 
   std::string DeepFramebufferResolveKey;
+  WGPUBindGroupLayout DeepFramebufferResolveBindGroupLayout = nullptr;
+  WGPUBindGroup DeepFramebufferResolveBindGroup = nullptr;
+  WGPUTextureView DeepFramebufferDepthView = nullptr;
+  WGPUTexture DeepFramebufferDepthTexture = nullptr;
 
   // Render bundles enable faster rendering.
   bool UseRenderBundles = true;

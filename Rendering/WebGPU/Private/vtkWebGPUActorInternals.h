@@ -109,13 +109,53 @@ public:
       vtkTypeUInt32 Pad5 = 0;
       vtkTypeFloat32 CoatColor[3] = { 1.0f, 1.0f, 1.0f };
       vtkTypeUInt32 Pad6 = 0;
-    } ColorOpts;
+    } ColorOpts, BackfaceColorOpts;
   };
 
   static_assert(sizeof(ActorBlock::ColorOptions) == 192,
     "ColorOptions must match the layout of ActorColorOptions in ActorColorOptions.wgsl");
   static_assert(offsetof(ActorBlock, ColorOpts) == 160,
     "ColorOptions must start where the Actor struct places color_options");
+  static_assert(offsetof(ActorBlock, BackfaceColorOpts) == 352,
+    "BackfaceColorOptions must match the Actor struct's backface_color_options");
+
+  static void CacheMaterial(vtkProperty* property, ActorBlock::ColorOptions& colorOptions)
+  {
+    colorOptions.AmbientIntensity = property->GetAmbient();
+    colorOptions.DiffuseIntensity = property->GetDiffuse();
+    colorOptions.SpecularIntensity = property->GetSpecular();
+    colorOptions.SpecularPower = property->GetSpecularPower();
+    colorOptions.Opacity = property->GetOpacity();
+    for (int i = 0; i < 3; ++i)
+    {
+      colorOptions.AmbientColor[i] = property->GetAmbientColor()[i];
+      colorOptions.DiffuseColor[i] = property->GetDiffuseColor()[i];
+      colorOptions.SpecularColor[i] = property->GetSpecularColor()[i];
+      colorOptions.EdgeColor[i] = property->GetEdgeColor()[i];
+      colorOptions.VertexColor[i] = property->GetVertexColor()[i];
+    }
+    colorOptions.Metallic = static_cast<vtkTypeFloat32>(property->GetMetallic());
+    colorOptions.Roughness = static_cast<vtkTypeFloat32>(property->GetRoughness());
+    colorOptions.BaseF0 = static_cast<vtkTypeFloat32>(property->ComputeReflectanceOfBaseLayer());
+    colorOptions.Anisotropy = static_cast<vtkTypeFloat32>(property->GetAnisotropy());
+    colorOptions.AnisotropyRotation =
+      static_cast<vtkTypeFloat32>(property->GetAnisotropyRotation());
+    colorOptions.CoatStrength = static_cast<vtkTypeFloat32>(property->GetCoatStrength());
+    colorOptions.CoatRoughness = static_cast<vtkTypeFloat32>(property->GetCoatRoughness());
+    colorOptions.CoatF0 = static_cast<vtkTypeFloat32>(
+      vtkProperty::ComputeReflectanceFromIOR(property->GetCoatIOR(), 1.0));
+    colorOptions.CoatNormalScale = static_cast<vtkTypeFloat32>(property->GetCoatNormalScale());
+    colorOptions.NormalScale = static_cast<vtkTypeFloat32>(property->GetNormalScale());
+    colorOptions.OcclusionStrength = static_cast<vtkTypeFloat32>(property->GetOcclusionStrength());
+    for (int i = 0; i < 3; ++i)
+    {
+      colorOptions.EmissiveFactor[i] =
+        static_cast<vtkTypeFloat32>(property->GetEmissiveFactor()[i]);
+      colorOptions.EdgeTint[i] = static_cast<vtkTypeFloat32>(property->GetEdgeTint()[i]);
+      colorOptions.CoatColor[i] = static_cast<vtkTypeFloat32>(property->GetCoatColor()[i]);
+    }
+    colorOptions.InterpolationType = static_cast<vtkTypeUInt32>(property->GetInterpolation());
+  }
 
   class MapperBooleanCache
   {

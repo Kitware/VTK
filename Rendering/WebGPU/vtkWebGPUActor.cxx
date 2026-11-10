@@ -370,7 +370,8 @@ bool vtkWebGPUActor::CacheActorRenderOptions()
       (displayProperty->GetRenderPointsAsSpheres() << 5) |
       (displayProperty->GetRenderLinesAsTubes() << 6) |
       (static_cast<int>(displayProperty->GetPoint2DShape()) << 7);
-    ro.Flags2 = displayProperty->GetLighting();
+    ro.Flags2 =
+      (displayProperty->GetLighting() ? 1u : 0u) | (this->GetBackfaceProperty() ? 2u : 0u);
     // Coincident topology parameters. Reset to zero first in case topology resolution is off.
     ro.CoinPolygonFactor = 0;
     ro.CoinPolygonOffset = 0;
@@ -411,43 +412,21 @@ bool vtkWebGPUActor::CacheActorRenderOptions()
 bool vtkWebGPUActor::CacheActorShadeOptions()
 {
   auto& internals = (*this->Internals);
-  auto* displayProperty = this->GetProperty();
-  if (displayProperty->GetMTime() > internals.ShadingOptionsLastUpdated ||
+  auto* frontFaceProperty = this->GetProperty();
+  if (frontFaceProperty->GetMTime() > internals.ShadingOptionsLastUpdated ||
     this->GetMTime() > internals.ShadingOptionsLastUpdated)
   {
-    auto& so = internals.CachedActorInfo.ColorOpts;
-    so.AmbientIntensity = displayProperty->GetAmbient();
-    so.DiffuseIntensity = displayProperty->GetDiffuse();
-    so.SpecularIntensity = displayProperty->GetSpecular();
-    so.SpecularPower = displayProperty->GetSpecularPower();
-    so.Opacity = displayProperty->GetOpacity();
-    for (int i = 0; i < 3; ++i)
+    vtkWebGPUActorInternals::CacheMaterial(frontFaceProperty, internals.CachedActorInfo.ColorOpts);
+    if (auto* backfaceProperty = this->GetBackfaceProperty())
     {
-      so.AmbientColor[i] = displayProperty->GetAmbientColor()[i];
-      so.DiffuseColor[i] = displayProperty->GetDiffuseColor()[i];
-      so.SpecularColor[i] = displayProperty->GetSpecularColor()[i];
-      so.EdgeColor[i] = displayProperty->GetEdgeColor()[i];
-      so.VertexColor[i] = displayProperty->GetVertexColor()[i];
+      vtkWebGPUActorInternals::CacheMaterial(
+        backfaceProperty, internals.CachedActorInfo.BackfaceColorOpts);
     }
-    so.Metallic = static_cast<vtkTypeFloat32>(displayProperty->GetMetallic());
-    so.Roughness = static_cast<vtkTypeFloat32>(displayProperty->GetRoughness());
-    so.BaseF0 = static_cast<vtkTypeFloat32>(displayProperty->ComputeReflectanceOfBaseLayer());
-    so.Anisotropy = static_cast<vtkTypeFloat32>(displayProperty->GetAnisotropy());
-    so.AnisotropyRotation = static_cast<vtkTypeFloat32>(displayProperty->GetAnisotropyRotation());
-    so.CoatStrength = static_cast<vtkTypeFloat32>(displayProperty->GetCoatStrength());
-    so.CoatRoughness = static_cast<vtkTypeFloat32>(displayProperty->GetCoatRoughness());
-    so.CoatF0 = static_cast<vtkTypeFloat32>(
-      vtkProperty::ComputeReflectanceFromIOR(displayProperty->GetCoatIOR(), 1.0));
-    so.CoatNormalScale = static_cast<vtkTypeFloat32>(displayProperty->GetCoatNormalScale());
-    so.NormalScale = static_cast<vtkTypeFloat32>(displayProperty->GetNormalScale());
-    so.OcclusionStrength = static_cast<vtkTypeFloat32>(displayProperty->GetOcclusionStrength());
-    for (int i = 0; i < 3; ++i)
+    else
     {
-      so.EmissiveFactor[i] = static_cast<vtkTypeFloat32>(displayProperty->GetEmissiveFactor()[i]);
-      so.EdgeTint[i] = static_cast<vtkTypeFloat32>(displayProperty->GetEdgeTint()[i]);
-      so.CoatColor[i] = static_cast<vtkTypeFloat32>(displayProperty->GetCoatColor()[i]);
+      vtkWebGPUActorInternals::CacheMaterial(
+        frontFaceProperty, internals.CachedActorInfo.BackfaceColorOpts);
     }
-    so.InterpolationType = static_cast<vtkTypeUInt32>(displayProperty->GetInterpolation());
     internals.ShadingOptionsLastUpdated.Modified();
     return true;
   }

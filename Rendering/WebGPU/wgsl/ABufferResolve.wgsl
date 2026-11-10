@@ -23,6 +23,7 @@ const MAX_LIST_STEPS: u32 = 4096u;
 @group(0) @binding(2) var<storage, read_write> abufferHeads: array<atomic<u32>>;
 @group(0) @binding(3) var<storage, read_write> abufferNodes: array<FragmentNode>;
 @group(0) @binding(4) var<storage, read_write> abufferCounter: atomic<u32>;
+@group(1) @binding(0) var opaqueDepth: texture_depth_2d;
 
 struct ResolveOutput
 {
@@ -51,6 +52,7 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
     discard;
     return output;
   }
+  let opaqueDepthValue = textureLoad(opaqueDepth, vec2<i32>(coord), 0);
 
   var depths: array<f32, MAX_LAYERS>;
   var colors: array<u32, MAX_LAYERS>;
@@ -74,6 +76,10 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
     let nodeComposite = abufferNodes[node].compositeId;
     let nodeProcess = abufferNodes[node].processId;
     node = abufferNodes[node].next;
+
+    if (nodeDepth > opaqueDepthValue) {
+      continue;
+    }
 
     if (nodeDepth < nearestDepth) {
       nearestDepth = nodeDepth;
