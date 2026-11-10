@@ -112,6 +112,36 @@ public:
 
   void SetEnvironmentTexture(vtkTexture* texture, bool isSRGB = false) override;
 
+  /**
+   * Values the PBR shading can display instead of the shaded color, to inspect its inputs and
+   * intermediate terms. Colors are gamma encoded like the shaded color, scalars and normals are
+   * shown as they are, normals being remapped from [-1, 1] to [0, 1].
+   */
+  enum PBRDebugViewEnum
+  {
+    PBR_DEBUG_VIEW_NONE = 0,
+    PBR_DEBUG_VIEW_ALBEDO,
+    PBR_DEBUG_VIEW_NORMAL,
+    PBR_DEBUG_VIEW_ROUGHNESS,
+    PBR_DEBUG_VIEW_METALLIC,
+    PBR_DEBUG_VIEW_AMBIENT_OCCLUSION,
+    PBR_DEBUG_VIEW_EMISSIVE,
+    PBR_DEBUG_VIEW_F0,
+    PBR_DEBUG_VIEW_NDOTV,
+    PBR_DEBUG_VIEW_DIRECT_LIGHTING,
+    PBR_DEBUG_VIEW_DIFFUSE_IBL,
+    PBR_DEBUG_VIEW_SPECULAR_IBL
+  };
+
+  ///@{
+  /**
+   * Set/Get the value displayed by actors whose interpolation is PBR. Default is
+   * PBR_DEBUG_VIEW_NONE, which displays the shaded color.
+   */
+  vtkSetClampMacro(PBRDebugView, int, PBR_DEBUG_VIEW_NONE, PBR_DEBUG_VIEW_SPECULAR_IBL);
+  vtkGetMacro(PBRDebugView, int);
+  ///@}
+
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
   WGPURenderPassEncoder GetRenderPassEncoder() { return this->WGPURenderEncoder; }
@@ -390,6 +420,7 @@ private:
   WGPUBindGroupLayout SceneBindGroupLayout = nullptr;
   bool LastUseIBL = false;
   bool ImageBasedLightingReady = false;
+  int PBRDebugView = PBR_DEBUG_VIEW_NONE;
   bool EnvironmentIsSRGB = false;
   std::unique_ptr<vtkWebGPUEnvironmentMap> EnvironmentMap;
 

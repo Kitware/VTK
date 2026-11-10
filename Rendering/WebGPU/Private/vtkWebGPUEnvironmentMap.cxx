@@ -6,6 +6,7 @@
 #include "Private/vtkWebGPUShaderModuleInternals.h"
 #include "vtkLogger.h"
 #include "vtkMath.h"
+#include "vtkStringFormatter.h"
 #include "vtkWebGPUConfiguration.h"
 
 #include "IBLBRDFLookupTable.h"
@@ -18,6 +19,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -122,8 +124,8 @@ vtkWebGPU::Texture MakeTexture(vtkWebGPUConfiguration* configuration, std::uint3
 {
   return vtkWebGPU::Texture::Acquire(
     configuration->CreateTexture({ size, size, layers }, WGPUTextureDimension_2D, IBLFormat,
-      static_cast<WGPUTextureUsage>(
-        WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding),
+      static_cast<WGPUTextureUsage>(WGPUTextureUsage_TextureBinding |
+        WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopySrc),
       static_cast<int>(levels), label));
 }
 
@@ -497,6 +499,178 @@ bool vtkWebGPUEnvironmentMap::Update(vtkWebGPUConfiguration* configuration, cons
   std::copy(basis, basis + 9, this->SourceBasis);
   this->Ready = true;
   return true;
+}
+
+namespace
+{
+float HalfToFloat(std::uint16_t half)
+{
+  const std::uint32_t sign = static_cast<std::uint32_t>(half & 0x8000u) << 16;
+  std::uint32_t exponent = (half >> 10) & 0x1fu;
+  std::uint32_t mantissa = half & 0x3ffu;
+  std::uint32_t bits;
+  if (exponent == 0)
+  {
+    if (mantissa == 0)
+    {
+      bits = sign;
+    }
+    else
+    {
+      exponent = 127 - 15 + 1;
+      while ((mantissa & 0x400u) == 0)
+      {
+        mantissa <<= 1;
+        --exponent;
+      }
+      bits = sign | (exponent << 23) | ((mantissa & 0x3ffu) << 13);
+    }
+  }
+  else if (exponent == 0x1f)
+  {
+    bits = sign | 0x7f800000u | (mantissa << 13);
+  }
+  else
+  {
+    bits = sign | ((exponent + 127 - 15) << 23) | (mantissa << 13);
+  }
+  float value;
+  std::memcpy(&value, &bits, sizeof(value));
+  return value;
+}
+
+struct Readback
+{
+  vtkWebGPU::Buffer Buffer;
+  std::uint32_t Size = 0;
+  std::uint32_t BytesPerRow = 0;
+  std::string FileName;
+  bool Mapped = false;
+};
+
+bool WritePFM(const std::string& fileName, const std::uint8_t* data, std::uint32_t size,
+  std::uint32_t bytesPerRow)
+{
+  std::ofstream file(fileName, std::ios::binary);
+  if (!file)
+  {
+    return false;
+  }
+  file << "PF\n" << size << " " << size << "\n-1.0\n";
+  for (std::uint32_t row = size; row-- > 0;)
+  {
+    const auto* texels = reinterpret_cast<const std::uint16_t*>(data + row * bytesPerRow);
+    for (std::uint32_t x = 0; x < size; ++x)
+    {
+      for (int c = 0; c < 3; ++c)
+      {
+        const float value = HalfToFloat(texels[4 * x + c]);
+        file.write(reinterpret_cast<const char*>(&value), sizeof(value));
+      }
+    }
+  }
+  return static_cast<bool>(file);
+}
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUEnvironmentMap::Dump(
+  vtkWebGPUConfiguration* configuration, const std::string& directory)
+{
+  if (!this->Ready || !configuration)
+  {
+    return false;
+  }
+  WGPUDevice device = configuration->GetDevice();
+  std::vector<Readback> readbacks;
+  WGPUCommandEncoderDescriptor encoderDescriptor = WGPU_COMMAND_ENCODER_DESCRIPTOR_INIT;
+  encoderDescriptor.label = WGPUStringView{ "IBLDump", WGPU_STRLEN };
+  vtkWebGPU::CommandEncoder encoder =
+    vtkWebGPU::CommandEncoder::Acquire(wgpuDeviceCreateCommandEncoder(device, &encoderDescriptor));
+  const auto copy = [&](WGPUTexture texture, std::uint32_t size, std::uint32_t level,
+                      std::uint32_t layer, const std::string& name)
+  {
+    Readback readback;
+    readback.Size = size;
+    readback.BytesPerRow = static_cast<std::uint32_t>(
+      vtkWebGPUConfiguration::Align(static_cast<std::size_t>(size) * 8, 256));
+    readback.FileName = directory + "/" + name + ".pfm";
+    readback.Buffer = vtkWebGPU::Buffer::Acquire(
+      configuration->CreateBuffer(static_cast<std::uint64_t>(readback.BytesPerRow) * size,
+        static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead), false,
+        "IBLDumpReadback"));
+    WGPUTexelCopyTextureInfo source = WGPU_TEXEL_COPY_TEXTURE_INFO_INIT;
+    source.texture = texture;
+    source.mipLevel = level;
+    source.origin = { 0, 0, layer };
+    WGPUTexelCopyBufferInfo destination = WGPU_TEXEL_COPY_BUFFER_INFO_INIT;
+    destination.buffer = readback.Buffer;
+    destination.layout.bytesPerRow = readback.BytesPerRow;
+    destination.layout.rowsPerImage = size;
+    const WGPUExtent3D extent = { size, size, 1 };
+    wgpuCommandEncoderCopyTextureToBuffer(encoder, &source, &destination, &extent);
+    readbacks.push_back(std::move(readback));
+  };
+  copy(this->LookupTable, LookupTableSize, 0, 0, "brdf_lookup_table");
+  for (std::uint32_t face = 0; face < 6; ++face)
+  {
+    copy(this->IrradianceCube, IrradianceSize, 0, face, "irradiance_face" + vtk::to_string(face));
+    for (std::uint32_t level = 0; level < this->PrefilterLevels; ++level)
+    {
+      copy(this->PrefilterCube, std::max(1u, this->EnvironmentSize >> level), level, face,
+        "prefilter_level" + vtk::to_string(level) + "_face" + vtk::to_string(face));
+    }
+  }
+  Readback harmonics;
+  harmonics.Buffer =
+    vtkWebGPU::Buffer::Acquire(configuration->CreateBuffer(GetHarmonicsBufferSize(),
+      static_cast<WGPUBufferUsage>(WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead), false,
+      "IBLDumpHarmonics"));
+  wgpuCommandEncoderCopyBufferToBuffer(
+    encoder, this->HarmonicsBuffer, 0, harmonics.Buffer, 0, GetHarmonicsBufferSize());
+  vtkWebGPU::CommandBuffer commands =
+    vtkWebGPU::CommandBuffer::Acquire(wgpuCommandEncoderFinish(encoder, nullptr));
+  vtkWebGPU::Queue queue = vtkWebGPU::Queue::Acquire(wgpuDeviceGetQueue(device));
+  WGPUCommandBuffer rawCommands = commands;
+  wgpuQueueSubmit(queue, 1, &rawCommands);
+
+  readbacks.push_back(std::move(harmonics));
+  for (auto& readback : readbacks)
+  {
+    WGPUBufferMapCallbackInfo callbackInfo = WGPU_BUFFER_MAP_CALLBACK_INFO_INIT;
+    callbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+    callbackInfo.callback = [](WGPUMapAsyncStatus, WGPUStringView, void* userdata1, void*)
+    { *static_cast<bool*>(userdata1) = true; };
+    callbackInfo.userdata1 = &readback.Mapped;
+    wgpuBufferMapAsync(readback.Buffer, WGPUMapMode_Read, 0, WGPU_WHOLE_MAP_SIZE, callbackInfo);
+  }
+  bool written = true;
+  for (auto& readback : readbacks)
+  {
+    while (!readback.Mapped)
+    {
+      configuration->ProcessEvents();
+    }
+    const auto* data = static_cast<const std::uint8_t*>(
+      wgpuBufferGetConstMappedRange(readback.Buffer, 0, WGPU_WHOLE_MAP_SIZE));
+    if (data && readback.FileName.empty())
+    {
+      std::ofstream file(directory + "/spherical_harmonics.txt");
+      const auto* coefficients = reinterpret_cast<const float*>(data);
+      for (int k = 0; k < 9; ++k)
+      {
+        file << coefficients[4 * k] << " " << coefficients[4 * k + 1] << " "
+             << coefficients[4 * k + 2] << "\n";
+      }
+      written &= static_cast<bool>(file);
+    }
+    else if (data)
+    {
+      written &= WritePFM(readback.FileName, data, readback.Size, readback.BytesPerRow);
+    }
+    wgpuBufferUnmap(readback.Buffer);
+  }
+  return written;
 }
 
 //------------------------------------------------------------------------------

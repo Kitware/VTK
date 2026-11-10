@@ -378,6 +378,13 @@ The compute shader API allows offloading work from the CPU to the GPU using WebG
 - **User-level information**: [Compute API User Guide](./doc/webgpu-compute-api-user.md)
 - **Developer-level information**: [Compute API Developer Guide](./doc/webgpu-compute-api-dev.md)
 
+## Physically Based Rendering
+
+Actors with `vtkProperty::SetInterpolationToPBR()` are shaded with the PBR model of the OpenGL
+backend, including image based lighting from `vtkRenderer::SetEnvironmentTexture()`. See the
+[PBR Developer Guide](./doc/webgpu-pbr-dev.md) for the data layout, the shader assembly and the
+debugging aids.
+
 ---
 
 ## Future Work

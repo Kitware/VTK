@@ -56,6 +56,8 @@
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 
 #include <array>
+#include <cstdio>
+#include <fstream>
 #include <iostream>
 #include <iterator>
 #include <sstream>
@@ -75,6 +77,7 @@ struct PBRShaderFeatures
   bool NormalTexture = false;
   bool AnisotropyTexture = false;
   bool CoatNormalTexture = false;
+  int DebugView = vtkWebGPURenderer::PBR_DEBUG_VIEW_NONE;
 };
 
 std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
@@ -93,6 +96,7 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
   }
   code << R"(
   var pbr_color = pbr_ambient + pbr_albedo;
+  var pbr_debug = vec3<f32>(0.0);
 )";
   const auto sample = [&code](const char* name)
   {
@@ -124,10 +128,21 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
   {
     sample("coat_normal");
   }
-  code << R"(
+  if (features.DebugView != vtkWebGPURenderer::PBR_DEBUG_VIEW_NONE)
+  {
+    // The debug views are computed in the lit branch, so enter it even when the actor is not
+    // lit: the material inputs stay inspectable and the terms that need a light stay zero.
+    code << "  let pbr_lit = true;\n";
+  }
+  else
+  {
+    code << R"(
   let pbr_lit = isLightingEnabled(actor.render_options.flags_2) &&
     (scene_lights.count > 0u || )"
-       << (features.ImageBasedLighting ? "true" : "false") << R"();
+         << (features.ImageBasedLighting ? "true" : "false") << R"();
+)";
+  }
+  code << R"(
   if (pbr_lit)
   {
     var roughness = actor.color_options.roughness;
@@ -299,6 +314,8 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
         pbr_has_anisotropy, pbr_has_coat);
     }
     pbr_color = vec3<f32>(0.0);
+    var pbr_ibl_diffuse = vec3<f32>(0.0);
+    var pbr_ibl_specular = vec3<f32>(0.0);
 )";
   if (features.ImageBasedLighting)
   {
@@ -345,9 +362,9 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     let F_avg = material.F0 + (1.0 - material.F0) / 21.0;
     let FmsEms = Ems * FssEss * F_avg / max(1.0 - F_avg * Ems, vec3<f32>(1e-5));
     let k_D = ibl_albedo * (1.0 - FssEss - FmsEms);
-    let ibl_specular = FssEss * prefiltered;
-    let ibl_diffuse = (FmsEms + k_D) * irradiance;
-    pbr_color = ibl_diffuse + ibl_specular;
+    pbr_ibl_specular = FssEss * prefiltered;
+    pbr_ibl_diffuse = (FmsEms + k_D) * irradiance;
+    pbr_color = pbr_ibl_diffuse + pbr_ibl_specular;
 )";
     code << R"(
     if (pbr_has_coat)
@@ -361,7 +378,7 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
       let Fc = pbrFresnelSchlick(material.coat_F0, material.coat_F90, surface.coat_NdV) *
         material.coat_strength;
       // the coat reflects light away from the base layer, which only sees what gets through
-      pbr_color = ibl_diffuse * (1.0 - Fc) * (1.0 - Fc) + ibl_specular * (1.0 - Fc);
+      pbr_color = pbr_ibl_diffuse * (1.0 - Fc) * (1.0 - Fc) + pbr_ibl_specular * (1.0 - Fc);
       pbr_color *= material.coat_color_factor;
       pbr_color += coat_prefiltered * (material.coat_F0 * coat_brdf.r + coat_brdf.g) *
         material.coat_strength;
@@ -372,10 +389,69 @@ std::string BuildPBRLightingSource(const PBRShaderFeatures& features)
     pbr_color += Lo;
     pbr_color = mix(pbr_color, pbr_color * ao, actor.color_options.occlusion_strength);
     pbr_color += emissive;
+)";
+  using Renderer = vtkWebGPURenderer;
+  const char* gamma = "pow(max(%s, vec3<f32>(0.0)), vec3<f32>(1.0 / 2.2))";
+  std::string debug;
+  switch (features.DebugView)
+  {
+    case Renderer::PBR_DEBUG_VIEW_ALBEDO:
+      debug = "material.albedo";
+      break;
+    case Renderer::PBR_DEBUG_VIEW_NORMAL:
+      debug = "surface.normal * 0.5 + vec3<f32>(0.5)";
+      break;
+    case Renderer::PBR_DEBUG_VIEW_ROUGHNESS:
+      debug = "vec3<f32>(roughness)";
+      break;
+    case Renderer::PBR_DEBUG_VIEW_METALLIC:
+      debug = "vec3<f32>(metallic)";
+      break;
+    case Renderer::PBR_DEBUG_VIEW_AMBIENT_OCCLUSION:
+      debug = "vec3<f32>(ao)";
+      break;
+    case Renderer::PBR_DEBUG_VIEW_EMISSIVE:
+      debug = "emissive";
+      break;
+    case Renderer::PBR_DEBUG_VIEW_F0:
+      debug = "material.F0";
+      break;
+    case Renderer::PBR_DEBUG_VIEW_NDOTV:
+      debug = "vec3<f32>(surface.NdV)";
+      break;
+    case Renderer::PBR_DEBUG_VIEW_DIRECT_LIGHTING:
+      debug = "Lo";
+      break;
+    case Renderer::PBR_DEBUG_VIEW_DIFFUSE_IBL:
+      debug = "pbr_ibl_diffuse";
+      break;
+    case Renderer::PBR_DEBUG_VIEW_SPECULAR_IBL:
+      debug = "pbr_ibl_specular";
+      break;
+    default:
+      break;
+  }
+  const bool encodeDebug = features.DebugView == Renderer::PBR_DEBUG_VIEW_ALBEDO ||
+    features.DebugView == Renderer::PBR_DEBUG_VIEW_EMISSIVE ||
+    features.DebugView == Renderer::PBR_DEBUG_VIEW_F0 ||
+    features.DebugView == Renderer::PBR_DEBUG_VIEW_DIRECT_LIGHTING ||
+    features.DebugView == Renderer::PBR_DEBUG_VIEW_DIFFUSE_IBL ||
+    features.DebugView == Renderer::PBR_DEBUG_VIEW_SPECULAR_IBL;
+  if (!debug.empty())
+  {
+    code << "    pbr_debug = " << debug << ";\n";
+  }
+  code << R"(
   }
   output.color = vec4<f32>(pow(max(pbr_color, vec3<f32>(0.0)), vec3<f32>(1.0 / 2.2)),
     actor.color_options.opacity * opacity);
 )";
+  if (!debug.empty())
+  {
+    char encoded[128];
+    std::snprintf(encoded, sizeof(encoded), gamma, "pbr_debug");
+    code << "  output.color = vec4<f32>(" << (encodeDebug ? encoded : "pbr_debug") << ", 1.0);\n";
+  }
   return code.str();
 }
 
@@ -568,6 +644,7 @@ vtkTypeUInt32 vtkWebGPUPolyDataMapper::GetShadingFeatures(vtkActor* actor, vtkRe
   if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
   {
     features |= wgpuRenderer->HasImageBasedLighting() ? 0x4u : 0u;
+    features |= static_cast<vtkTypeUInt32>(wgpuRenderer->GetPBRDebugView()) << 16;
   }
   if (property->GetInterpolation() == VTK_PBR)
   {
@@ -4177,6 +4254,7 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(GraphicsPipelineType p
   {
     PBRShaderFeatures features;
     features.ImageBasedLighting = wgpuRenderer->HasImageBasedLighting();
+    features.DebugView = wgpuRenderer->GetPBRDebugView();
     features.Tangents =
       this->HasPointAttributes[POINT_NORMALS] && this->HasPointAttributes[POINT_TANGENTS];
     features.LinearizeColors = this->HasPointAttributes[POINT_COLORS] ||
