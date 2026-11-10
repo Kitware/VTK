@@ -700,17 +700,17 @@ int TestRadVizChartInput(int, char*[])
     CHECK(!plot->GetVertices());
   }
   // nothing when the labels leave no room for the plot
-  CHECK(PaintVertices(
-          [](vtkPlotRadViz* plot)
-          {
-            plot->SetInputData(MakeTable());
-            vtkNew<vtkStringArray> labels;
-            for (int i = 0; i < 4; ++i)
-            {
-              labels->InsertNextValue(std::string(40, 'W'));
-            }
-            plot->SetLabels(labels);
-          }) == 0);
+  auto setWideLabels = [](vtkPlotRadViz* plot)
+  {
+    plot->SetInputData(MakeTable());
+    vtkNew<vtkStringArray> labels;
+    for (int i = 0; i < 4; ++i)
+    {
+      labels->InsertNextValue(std::string(40, 'W'));
+    }
+    plot->SetLabels(labels);
+  };
+  CHECK(PaintVertices(setWideLabels) == 0);
   // drawing the labels leaves LabelsProperties unchanged
   {
     vtkNew<vtkTextProperty> labelsProperties;

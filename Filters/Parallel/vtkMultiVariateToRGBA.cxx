@@ -582,6 +582,7 @@ std::vector<std::string> uniqueVariableNames(const std::vector<const char*>& raw
 std::vector<std::string> columnNames(vtkTable* table)
 {
   std::vector<const char*> rawNames;
+  rawNames.reserve(table->GetNumberOfColumns());
   for (vtkIdType i = 0; i < table->GetNumberOfColumns(); ++i)
   {
     rawNames.push_back(table->GetColumnName(i));
@@ -592,6 +593,7 @@ std::vector<std::string> columnNames(vtkTable* table)
 std::vector<std::string> componentNames(vtkDataArray* array)
 {
   std::vector<const char*> rawNames;
+  rawNames.reserve(array->GetNumberOfComponents());
   for (int i = 0; i < array->GetNumberOfComponents(); ++i)
   {
     rawNames.push_back(array->GetComponentName(i));

@@ -281,7 +281,7 @@ bool TestInput(const std::function<vtkSmartPointer<vtkDataObject>()>& makeInput,
   // names and indices do not mix until the visibility starts over
   filter->SetVariableVisibilityAll(true);
   filter->SetVariableVisibility(names[1], false);
-  const std::string name3 = names[3];
+  const std::string& name3 = names[3];
   CHECK(Rejected(filter, [](vtkMultiVariateToRGBA* f) { f->SetVariableVisibility(1, true); }));
   CHECK(Rejected(filter, [](vtkMultiVariateToRGBA* f) { f->AddVisibleVariableIndex(3); }));
   CHECK(CheckVisible(filter, names, { 0, 2, 3, 4 }));
