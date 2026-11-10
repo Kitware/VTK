@@ -1085,6 +1085,40 @@ void vtkMultiVariateToRGBA::AddVisibleVariableIndex(int index)
 }
 
 //------------------------------------------------------------------------------
+std::vector<std::string> vtkMultiVariateToRGBA::GetNameVisibilityExceptions() VTK_FUTURE_CONST
+{
+  return { this->NameVisibilityExceptions.begin(), this->NameVisibilityExceptions.end() };
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::SetNameVisibilityExceptions(const std::vector<std::string>& names)
+{
+  std::set<std::string> exceptions(names.begin(), names.end());
+  if (this->NameVisibilityExceptions != exceptions)
+  {
+    this->NameVisibilityExceptions = std::move(exceptions);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+std::vector<int> vtkMultiVariateToRGBA::GetIndexVisibilityExceptions() VTK_FUTURE_CONST
+{
+  return { this->IndexVisibilityExceptions.begin(), this->IndexVisibilityExceptions.end() };
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::SetIndexVisibilityExceptions(const std::vector<int>& indices)
+{
+  std::set<int> exceptions(indices.begin(), indices.end());
+  if (this->IndexVisibilityExceptions != exceptions)
+  {
+    this->IndexVisibilityExceptions = std::move(exceptions);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> vtkMultiVariateToRGBA::GetVisibleComponentsArray(vtkDataArray* array)
 {
   std::vector<int> componentIndices;

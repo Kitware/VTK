@@ -368,6 +368,17 @@ public:
    * not, in their natural order.
    */
   vtkSmartPointer<vtkStringArray> GetAllVariableNames();
+  /**
+   * The visibility as stored (see VariablesVisibleByDefault), which does not
+   * depend on the input, so vtkPlotRadViz can save and restore it. Use the
+   * setters above to change the visibility.
+   */
+  vtkGetMacro(VariablesVisibleByDefault, bool);
+  vtkSetMacro(VariablesVisibleByDefault, bool);
+  std::vector<std::string> GetNameVisibilityExceptions() VTK_FUTURE_CONST;
+  void SetNameVisibilityExceptions(const std::vector<std::string>& names);
+  std::vector<int> GetIndexVisibilityExceptions() VTK_FUTURE_CONST;
+  void SetIndexVisibilityExceptions(const std::vector<int>& indices);
   ///@}
 
   ///@{

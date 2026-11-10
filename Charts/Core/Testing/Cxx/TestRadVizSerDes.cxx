@@ -130,6 +130,22 @@ bool TestPlot()
   CHECK(arrayInfo->Get(vtkDataObject::FIELD_ASSOCIATION()) ==
     vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS);
 
+  // the visibility is restored as set, not as the visible variables of the
+  // input: a plot without input shows the variables of a later input, and
+  // a visibility set by index can still be changed by index
+  vtkNew<vtkPlotRadViz> noInput;
+  restored = RoundTrip(noInput.Get());
+  CHECK(restored);
+  restored->SetInputData(MakeTable());
+  CHECK(ToNames(restored->GetVisibleVariables()) == Names({ "a", "b", "c", "d" }));
+  vtkNew<vtkPlotRadViz> byIndex;
+  byIndex->SetInputData(MakeTable());
+  byIndex->SetVariableVisibility(1, false);
+  restored = RoundTrip(byIndex.Get());
+  CHECK(restored);
+  restored->SetVariableVisibility(2, false);
+  CHECK(ToNames(restored->GetVisibleVariables()) == Names({ "a", "d" }));
+
   // labels set
   vtkNew<vtkStringArray> labels;
   for (const char* label : { "A", "B", "C", "D" })

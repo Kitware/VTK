@@ -128,16 +128,26 @@ public:
    * ParaView server manager XML, see
    * vtkMultiVariateToRGBA::AddVisibleVariableIndex.
    *
-   * Get/SetVisibleVariableIndices are excluded from serialization: they are
-   * another view of the visibility VisibleVariables already serializes.
+   * Serialization saves the visibility as stored (VariablesVisibleByDefault
+   * and the visibility exceptions, see vtkMultiVariateToRGBA), which does
+   * not depend on the input. The visible variables are a view of it, so
+   * they are excluded.
    */
   void SetVariableVisibility(const std::string& name, bool visible);
   void SetVariableVisibility(int index, bool visible);
   void SetVariableVisibilityAll(bool visible);
   bool GetVariableVisibility(const std::string& name);
   bool GetVariableVisibility(int index);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkStringArray* GetVisibleVariables();
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetVisibleVariables(vtkStringArray* names);
+  bool GetVariablesVisibleByDefault() VTK_FUTURE_CONST;
+  void SetVariablesVisibleByDefault(bool visible);
+  std::vector<std::string> GetNameVisibilityExceptions() VTK_FUTURE_CONST;
+  void SetNameVisibilityExceptions(const std::vector<std::string>& names);
+  std::vector<int> GetIndexVisibilityExceptions() VTK_FUTURE_CONST;
+  void SetIndexVisibilityExceptions(const std::vector<int>& indices);
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetVisibleVariableIndices(const std::vector<int>& indices);
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)

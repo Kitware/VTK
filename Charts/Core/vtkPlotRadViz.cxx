@@ -335,6 +335,45 @@ void vtkPlotRadViz::SetVisibleVariables(vtkStringArray* names)
 }
 
 //------------------------------------------------------------------------------
+bool vtkPlotRadViz::GetVariablesVisibleByDefault() VTK_FUTURE_CONST
+{
+  return this->ComputeGBC->GetVariablesVisibleByDefault();
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::SetVariablesVisibleByDefault(bool visible)
+{
+  ::ChangeFilter(this, this->ComputeGBC,
+    [&](vtkMultiVariateToRGBA* f) { f->SetVariablesVisibleByDefault(visible); });
+}
+
+//------------------------------------------------------------------------------
+std::vector<std::string> vtkPlotRadViz::GetNameVisibilityExceptions() VTK_FUTURE_CONST
+{
+  return this->ComputeGBC->GetNameVisibilityExceptions();
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::SetNameVisibilityExceptions(const std::vector<std::string>& names)
+{
+  ::ChangeFilter(this, this->ComputeGBC,
+    [&](vtkMultiVariateToRGBA* f) { f->SetNameVisibilityExceptions(names); });
+}
+
+//------------------------------------------------------------------------------
+std::vector<int> vtkPlotRadViz::GetIndexVisibilityExceptions() VTK_FUTURE_CONST
+{
+  return this->ComputeGBC->GetIndexVisibilityExceptions();
+}
+
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::SetIndexVisibilityExceptions(const std::vector<int>& indices)
+{
+  ::ChangeFilter(this, this->ComputeGBC,
+    [&](vtkMultiVariateToRGBA* f) { f->SetIndexVisibilityExceptions(indices); });
+}
+
+//------------------------------------------------------------------------------
 void vtkPlotRadViz::SetVisibleVariableIndices(const std::vector<int>& indices)
 {
   ::ChangeFilter(this, this->ComputeGBC,
