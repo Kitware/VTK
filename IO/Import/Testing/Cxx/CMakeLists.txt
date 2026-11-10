@@ -284,6 +284,10 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterKHRGaussianSplatting,TestGLTFImporter.cxx DATA{../Data/glTF/gaussian_splatting.glb} 0 -1 1 0 0 0
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
   NO_VALID
   TestImportGLFTExportOBJ,TestImportExportOBJ.cxx
   DATA{../Data/glTF/Avocado/Avocado.glb}

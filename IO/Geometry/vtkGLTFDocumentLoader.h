@@ -235,6 +235,18 @@ public:
         std::map<std::string, int> AttributeIndices;
       };
       Primitive::Extensions::KHRDracoMeshCompression KHRDracoMetaData;
+
+      // KHR_gaussian_splatting extension
+      // The splat attributes (KHR_gaussian_splatting:ROTATION, SCALE, OPACITY and SH_DEGREE_*)
+      // are loaded as regular primitive attributes in the point data of the primitive geometry.
+      struct KHRGaussianSplatting
+      {
+        std::string Kernel;
+        std::string ColorSpace;
+        std::string Projection = "perspective";
+        std::string SortingMethod = "cameraDistance";
+      };
+      Primitive::Extensions::KHRGaussianSplatting KHRGaussianSplattingMetaData;
     };
     Primitive::Extensions ExtensionMetaData;
   };

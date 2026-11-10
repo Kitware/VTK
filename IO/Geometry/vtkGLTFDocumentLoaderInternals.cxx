@@ -1228,6 +1228,14 @@ bool vtkGLTFDocumentLoaderInternals::LoadPrimitive(
           }
         }
       }
+      else if (extension.key() == "KHR_gaussian_splatting")
+      {
+        auto& splatting = primitive.ExtensionMetaData.KHRGaussianSplattingMetaData;
+        vtkGLTFUtils::GetStringValue(extension.value(), "kernel", splatting.Kernel);
+        vtkGLTFUtils::GetStringValue(extension.value(), "colorSpace", splatting.ColorSpace);
+        vtkGLTFUtils::GetStringValue(extension.value(), "projection", splatting.Projection);
+        vtkGLTFUtils::GetStringValue(extension.value(), "sortingMethod", splatting.SortingMethod);
+      }
     }
   }
 
