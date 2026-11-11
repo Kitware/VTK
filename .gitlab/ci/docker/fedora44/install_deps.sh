@@ -10,6 +10,10 @@ dnf install -y --setopt=install_weak_deps=False \
 dnf install -y --setopt=install_weak_deps=False \
     doxygen perl-Digest-MD5
 
+# English locale, since ParaView's tests expect its number formatting.
+dnf install -y --setopt=install_weak_deps=False \
+    glibc-langpack-en
+
 # Development tools
 dnf install -y --setopt=install_weak_deps=False \
     libasan libtsan libubsan clang-tools-extra \
