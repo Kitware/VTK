@@ -3,7 +3,7 @@
 set -e
 
 readonly alembic_repo="https://github.com/alembic/alembic.git"
-readonly alembic_commit="1.8.11"
+readonly alembic_commit="1.8.12"
 
 readonly alembic_root="$HOME/alembic"
 readonly alembic_src="$alembic_root/src"
