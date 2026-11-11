@@ -3,8 +3,9 @@
 // AMR reaches a GPU ray cast mapper by being resampled onto a regular grid and handed to a
 // vtkSmartVolumeMapper, which is what vtkAMRVolumeMapper does inside. Resampling it here rather
 // than leaving it to the camera driven region that mapper picks keeps the test about the volume
-// rendering. It runs against every backend that is built, so it says that an AMR dataset draws
-// the same way whichever ray cast mapper the object factory hands over.
+// rendering. It runs against every backend that is built and they share the one baseline, so it
+// says that an AMR dataset draws the same way whichever ray cast mapper the object factory hands
+// over.
 
 #include "vtkAMRGaussianPulseSource.h"
 #include "vtkAMRResampleFilter.h"
@@ -24,11 +25,9 @@
 #include "vtkRenderer.h"
 #include "vtkSmartVolumeMapper.h"
 #include "vtkUniformGrid.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-#include <algorithm>
 #include <cstdlib>
 #include <iostream>
 
@@ -120,62 +119,10 @@ int TestAMRVolumeMapper(int argc, char* argv[])
   renderer->ResetCameraClippingRange();
   window->Render();
 
-  vtkNew<vtkUnsignedCharArray> pixels;
-  window->GetPixelData(0, 0, 299, 299, /*front=*/1, pixels);
-  const auto at = [&pixels](int x, int y, int channel)
-  { return static_cast<int>(pixels->GetValue(3 * (y * 300 + x) + channel)); };
-
-  // The source lays its domain out around the pulse rather than centring it, so where the pulse
-  // lands on the screen is worked out rather than assumed.
-  renderer->SetWorldPoint(0.0, 0.0, 0.0, 1.0);
-  renderer->WorldToDisplay();
-  double display[3];
-  renderer->GetDisplayPoint(display);
-  const int px = static_cast<int>(display[0]);
-  const int py = static_cast<int>(display[1]);
-  std::cout << "the pulse projects to " << px << ", " << py << "\n";
-  if (px < 20 || px > 279 || py < 20 || py > 279)
-  {
-    std::cerr << "The pulse does not project into the picture, so the camera is wrong.\n";
-    return EXIT_FAILURE;
-  }
-
-  int atPulse = 0;
-  for (int y = py - 15; y <= py + 15; ++y)
-  {
-    for (int x = px - 15; x <= px + 15; ++x)
-    {
-      atPulse = std::max({ atPulse, at(x, y, 0), at(x, y, 1), at(x, y, 2) });
-    }
-  }
-
-  // Only the brightest half of the pulse is given any opacity, so what is drawn is a blob rather
-  // than a haze filling the resampled box.
-  int lit = 0;
-  for (int y = 0; y < 300; ++y)
-  {
-    for (int x = 0; x < 300; ++x)
-    {
-      lit += (at(x, y, 0) > 12 || at(x, y, 1) > 12 || at(x, y, 2) > 12) ? 1 : 0;
-    }
-  }
-  const double covered = lit / (300.0 * 300.0);
-  std::cout << "brightest at the pulse " << atPulse << ", " << covered << " of the picture lit\n";
-
-  if (atPulse < 40)
-  {
-    std::cerr << "The resampled AMR pulse did not reach the picture.\n";
-    return EXIT_FAILURE;
-  }
-  if (covered > 0.35)
-  {
-    std::cerr << "Too much of the picture is lit for what was drawn to be the pulse.\n";
-    return EXIT_FAILURE;
-  }
-
-  if (vtkRegressionTestImage(window) == vtkRegressionTester::DO_INTERACTOR)
+  const int retVal = vtkRegressionTestImage(window);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     interactor->Start();
   }
-  return EXIT_SUCCESS;
+  return !retVal;
 }
