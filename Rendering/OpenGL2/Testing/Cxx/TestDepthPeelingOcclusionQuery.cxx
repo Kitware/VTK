@@ -66,11 +66,13 @@ int TestDepthPeelingOcclusionQuery(int vtkNotUsed(argc), char* vtkNotUsed(argv)[
   actorSphere2->SetMapper(mapperSphere);
   renderer->AddActor(actorSphere2);
 
-  // Occluded fragments must not expand the translucent depth range.
+  // Cover both visible spheres with occluded geometry. These fragments must not
+  // expand the translucent depth range.
   vtkNew<vtkActor> actorSphere3;
   actorSphere3->GetProperty()->SetColor(0.0, 0.0, 1.0);
   actorSphere3->GetProperty()->SetOpacity(0.5);
   actorSphere3->SetPosition(0.0, 0.0, -1.0);
+  actorSphere3->SetScale(2.0);
   actorSphere3->SetMapper(mapperSphere);
   renderer->AddActor(actorSphere3);
 
