@@ -1737,7 +1737,8 @@ std::shared_ptr<vtkGLTFDocumentLoader::Model> vtkGLTFDocumentLoader::GetInternal
 std::vector<std::string> vtkGLTFDocumentLoader::GetSupportedExtensions()
 {
   return { "KHR_lights_punctual", "KHR_materials_unlit", "KHR_texture_transform",
-    "KHR_materials_ior", "KHR_materials_specular", "KHR_mesh_quantization" };
+    "KHR_materials_ior", "KHR_materials_specular", "KHR_mesh_quantization",
+    "KHR_gaussian_splatting" };
 }
 
 //------------------------------------------------------------------------------

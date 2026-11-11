@@ -24,6 +24,7 @@
 #include "vtkMathUtilities.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
+#include "vtkPointGaussianMapper.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
@@ -282,6 +283,54 @@ vtkSmartPointer<vtkTransform2D> GetTextureTransform(const vtkGLTFDocumentLoader:
   }
 
   return transform;
+}
+
+//------------------------------------------------------------------------------
+void FixGaussianSplattingArrays(vtkPointData* pointData)
+{
+  // Match VTK quaternion order
+  vtkDataArray* rotation = pointData->GetArray("KHR_gaussian_splatting:ROTATION");
+  if (rotation)
+  {
+    if (rotation->GetNumberOfComponents() == 4)
+    {
+      for (vtkIdType i = 0; i < rotation->GetNumberOfTuples(); ++i)
+      {
+        double tuple[4];
+        rotation->GetTuple(i, tuple);
+        std::rotate(tuple, tuple + 3, tuple + 4);
+        rotation->SetTuple(i, tuple);
+      }
+    }
+  }
+
+  // Create color array with SH first degree coefficient
+  vtkFloatArray* sh0 =
+    vtkFloatArray::SafeDownCast(pointData->GetArray("KHR_gaussian_splatting:SH_DEGREE_0_COEF_0"));
+  if (sh0)
+  {
+    vtkNew<vtkUnsignedCharArray> colorArray;
+    colorArray->SetName("color");
+    colorArray->SetNumberOfComponents(3);
+    colorArray->SetNumberOfTuples(sh0->GetNumberOfTuples());
+    for (vtkIdType i = 0; i < sh0->GetNumberOfTuples(); ++i)
+    {
+      float value[3];
+      sh0->GetTypedTuple(i, value);
+
+      unsigned char rgb[3];
+      for (int j = 0; j < 3; ++j)
+      {
+        // It is assumed the color space specified in the file is srgb_rec709_display
+        // A conversion might be needed if the color space differs.
+        rgb[j] = static_cast<unsigned char>(
+          std::clamp(0.5 + value[j] * 0.2820947917738781, 0.0, 1.0) * 255.0);
+      }
+      colorArray->SetTypedTuple(i, rgb);
+    }
+
+    pointData->SetScalars(colorArray);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -738,36 +787,56 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
         auto pointData = primitive.Geometry->GetPointData();
 
         vtkNew<vtkActor> actor;
-        vtkNew<vtkPolyDataMapper> mapper;
-        mapper->SetColorModeToDirectScalars();
-        mapper->SetInterpolateScalarsBeforeMapping(true);
 
-        if (pointData->GetTangents() == nullptr && PrimitiveNeedsTangents(model, primitive))
+        if (!primitive.ExtensionMetaData.KHRGaussianSplattingMetaData.Kernel.empty())
         {
-          // Generate tangents
-          vtkNew<vtkPolyDataTangents> tangents;
+          ::FixGaussianSplattingArrays(pointData);
 
-          if (pointData->GetNormals() == nullptr)
-          {
-            // Generate normals first
-            vtkNew<vtkPolyDataNormals> normals;
-            normals->SetInputData(primitive.Geometry);
-            tangents->SetInputConnection(normals->GetOutputPort());
-          }
-          else
-          {
-            tangents->SetInputData(primitive.Geometry);
-          }
-
-          tangents->Update();
-          mapper->SetInputConnection(tangents->GetOutputPort(0));
+          vtkNew<vtkPointGaussianMapper> mapper;
+          mapper->SetInputData(primitive.Geometry);
+          mapper->AnisotropicOn();
+          mapper->SetRotationArray("KHR_gaussian_splatting:ROTATION");
+          mapper->SetScaleArray("KHR_gaussian_splatting:SCALE");
+          mapper->SetOpacityArray("KHR_gaussian_splatting:OPACITY");
+          mapper->SetColorModeToDirectScalars();
+          mapper->EmissiveOff();
+          actor->SetMapper(mapper);
+          actor->ForceTranslucentOn();
         }
         else
         {
-          mapper->SetInputData(primitive.Geometry);
+          vtkNew<vtkPolyDataMapper> mapper;
+          mapper->SetColorModeToDirectScalars();
+          mapper->SetInterpolateScalarsBeforeMapping(true);
+
+          if (pointData->GetTangents() == nullptr && PrimitiveNeedsTangents(model, primitive))
+          {
+            // Generate tangents
+            vtkNew<vtkPolyDataTangents> tangents;
+
+            if (pointData->GetNormals() == nullptr)
+            {
+              // Generate normals first
+              vtkNew<vtkPolyDataNormals> normals;
+              normals->SetInputData(primitive.Geometry);
+              tangents->SetInputConnection(normals->GetOutputPort());
+            }
+            else
+            {
+              tangents->SetInputData(primitive.Geometry);
+            }
+
+            tangents->Update();
+            mapper->SetInputConnection(tangents->GetOutputPort(0));
+          }
+          else
+          {
+            mapper->SetInputData(primitive.Geometry);
+          }
+
+          actor->SetMapper(mapper);
         }
 
-        actor->SetMapper(mapper);
         actor->SetUserMatrix(node.GlobalTransform);
         std::string meshNodeName;
         if (!mesh.Name.empty())
