@@ -343,9 +343,8 @@
 .fedora_cuda_x86_64_addon:
     extends: .fedora44_x86_64
     variables:
-        CUDACC: "/usr/local/cuda-13.3/bin/nvcc"
-        CUDACXX: "/usr/local/cuda-13.3/bin/nvcc"
-        CUDAHOSTCXX: "/usr/bin/g++-15"
+        CUDACC: "/usr/local/cuda-13.5/bin/nvcc"
+        CUDACXX: "/usr/local/cuda-13.5/bin/nvcc"
 
 .fedora_mpich_addon:
     variables:
