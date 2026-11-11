@@ -2,10 +2,6 @@
 
 set -e
 
-if [ "$( uname -m )" != "x86_64" ]; then
-   exit 0
-fi
-
 readonly openusd_repo="https://github.com/PixarAnimationStudios/OpenUSD.git"
 readonly openusd_commit="v26.11.1"
 

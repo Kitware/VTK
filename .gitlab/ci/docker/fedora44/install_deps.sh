@@ -79,6 +79,8 @@ python3 -m pip install 'wslink>=1.0.4'
 dnf install --releasever=41 -y --setopt=install_weak_deps=False \
     java-11-openjdk-devel xmlstarlet
 
+# OpenTURNS has no aarch64 packages for Fedora 44, and nasm is an x86
+# assembler.
 if [ "$( uname -m )" = "x86_64" ]; then
     # Openturns dependencies
     # FIXME: using Fedora 44 repo as a hotfix since the Fedora 42 repo is not available anymore

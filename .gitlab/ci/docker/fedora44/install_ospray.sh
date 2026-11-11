@@ -2,10 +2,6 @@
 
 set -e
 
-if [ "$( uname -m )" != "x86_64" ]; then
-    exit 0
-fi
-
 readonly ospray_version="3.2.0"
 readonly ospray_tarball="v$ospray_version.tar.gz"
 readonly ospray_sha256sum="2c8108df2950bc5d1bc2a62f74629233dbe4f36e3f6a8ea032907d4a3fdc6750"

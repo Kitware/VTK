@@ -2,6 +2,7 @@
 
 set -e
 
+# NVIDIA's fedora44 sbsa repository has no CUDA toolkit.
 if [ "$( uname -m )" != "x86_64" ]; then
     exit 0
 fi

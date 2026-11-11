@@ -2,10 +2,6 @@
 
 set -e
 
-if [ "$( uname -m )" != "x86_64" ]; then
-    exit 0
-fi
-
 readonly anari_repo="https://github.com/KhronosGroup/ANARI-SDK.git"
 readonly anari_commit="v0.16.0"
 
