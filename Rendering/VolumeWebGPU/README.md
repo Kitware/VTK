@@ -185,6 +185,11 @@ than at what the transfer functions make of them.
 - Twelve volumes per renderer per pass, set by how many the shared parameter
   buffer describes. Anything beyond that is not drawn, with a warning. This is a
   limit on how many volumes, not on how large they are.
-- Six lights and six clipping planes.
+- Six lights per renderer, six clipping planes per volume and sixteen iso
+  values. These are the lengths of fixed arrays in the shader's uniform
+  buffers, and of the arrays a ray keeps while it marches. A scene that asks for
+  more gets the first ones, with a warning. Raising a limit means changing the
+  constant in `wgsl/VolumeRayCast.wgsl` and its twin in
+  `vtkWebGPUVolumeRayCastCoordinatorInternals.h`.
 - Rectilinear grids, volumetric scattering and reduced image sample distances are
   not implemented.
