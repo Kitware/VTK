@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// This test ensure that when all translucent fragments are in front of opaque fragments, the
-// occlusion query check does not exit too early
+// Ensure that opaque geometry does not trigger early termination of depth peeling.
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCubeSource.h"
@@ -53,17 +52,27 @@ int TestDepthPeelingOcclusionQuery(int vtkNotUsed(argc), char* vtkNotUsed(argv)[
 
   vtkNew<vtkActor> actorSphere1;
   actorSphere1->GetProperty()->SetColor(1.0, 0.0, 0.0);
-  actorSphere1->GetProperty()->SetOpacity(0.2);
-  actorSphere1->SetPosition(0.0, 0.0, 1.0);
+  actorSphere1->GetProperty()->SetOpacity(0.5);
+  actorSphere1->GetProperty()->LightingOff();
+  actorSphere1->SetPosition(-0.15, 0.0, 1.0);
   actorSphere1->SetMapper(mapperSphere);
   renderer->AddActor(actorSphere1);
 
   vtkNew<vtkActor> actorSphere2;
   actorSphere2->GetProperty()->SetColor(0.0, 1.0, 0.0);
-  actorSphere2->GetProperty()->SetOpacity(0.2);
-  actorSphere2->SetPosition(0.0, 0.0, 2.0);
+  actorSphere2->GetProperty()->SetOpacity(0.5);
+  actorSphere2->GetProperty()->LightingOff();
+  actorSphere2->SetPosition(0.15, 0.0, 2.0);
   actorSphere2->SetMapper(mapperSphere);
   renderer->AddActor(actorSphere2);
+
+  // Occluded fragments must not expand the translucent depth range.
+  vtkNew<vtkActor> actorSphere3;
+  actorSphere3->GetProperty()->SetColor(0.0, 0.0, 1.0);
+  actorSphere3->GetProperty()->SetOpacity(0.5);
+  actorSphere3->SetPosition(0.0, 0.0, -1.0);
+  actorSphere3->SetMapper(mapperSphere);
+  renderer->AddActor(actorSphere3);
 
 #if VTK_MODULE_vtkglad_GLES3
   // create the basic VTK render steps
@@ -88,12 +97,17 @@ int TestDepthPeelingOcclusionQuery(int vtkNotUsed(argc), char* vtkNotUsed(argv)[
   glrenderer->SetPass(fop);
 #else
   renderer->SetUseDepthPeeling(1);
-  renderer->SetMaximumNumberOfPeels(20);
+  // Two dual peels must composite all four visible sphere surfaces.
+  renderer->SetMaximumNumberOfPeels(2);
   renderer->SetOcclusionRatio(0.0);
 #endif
 
   renWin->SetSize(500, 500);
-  renderer->ResetCamera();
+  renderer->GetActiveCamera()->ParallelProjectionOn();
+  renderer->GetActiveCamera()->SetPosition(0.0, 0.0, 5.0);
+  renderer->GetActiveCamera()->SetFocalPoint(0.0, 0.0, 0.0);
+  renderer->GetActiveCamera()->SetParallelScale(0.75);
+  renderer->ResetCameraClippingRange();
 
   renWin->Render();
   iren->Start();
