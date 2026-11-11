@@ -24,6 +24,32 @@ The solid-angle `IsInside()` depends on this for correct sign of the winding
 number. The López contour/clip algorithm depends on this for correct
 "key face" assignment (outside→inside edge transitions).
 
+### Shared Faces
+
+A face between two polyhedra is outward for one and inward for the other.
+`vtkPolyhedronCellArray` may store such a face once, wound for one cell; the
+other cell lists face `n` as `-(n+1)` in `FaceLocations` and traverses it in
+reverse. Every cell then sees its faces wound outward, as the algorithms
+above require.
+
+- The queries of `vtkPolyhedronCellArray` (`GetFace()`, `GetFacePoints()`,
+  `GetFaceStream()`, `GetCellFaces()`) apply the orientation, so
+  `vtkPolyhedron` and the filters built on them need nothing more.
+- Functors of `vtkPolyhedronCellArray::Dispatch()` read the raw arrays. They
+  pass the signed ids to `DispatchUtilities::GetFaceSize()` and
+  `GetOrientedFaceRange()`, which read the face in the order of its cell.
+- Whoever knows the sharing provides it: `InsertNextCell()` copies faces per
+  cell, a reader provides shared faces through `SetData()`, and
+  `DuplicateSharedFaces()` gives every cell its own copy for code that needs
+  one. Sharing is decided face by face, so shared faces and faces copied per
+  cell can be mixed in one array. `Validate()` checks that every id names a
+  face and that no face is used more than twice.
+- VTKHDF 2.9 and VTK XML 2.5 store the signed ids as they are.
+  `vtkUnstructuredGrid::GetOrientedPolyhedronFaces()` and
+  `GetOrientedPolyhedronFaceLocations()` return the stored arrays; the
+  deprecated `GetPolyhedronFaces()` and `GetPolyhedronFaceLocations()` return
+  a copy with one face per cell use.
+
 ## IsInside: Solid Angle Summation
 
 `vtkPolyhedron::IsInside()` determines whether a query point lies inside or

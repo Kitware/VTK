@@ -6,12 +6,15 @@
 
 #include "MockDataArray.h"
 #include "vtkCellArray.h"
+#include "vtkCommand.h"
+#include "vtkDataArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkNew.h"
 #include "vtkPolyhedronCellArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringFormatter.h"
+#include "vtkTestErrorObserver.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -195,7 +198,8 @@ void CheckCells(const std::string& name, vtkPolyhedronCellArray* polyhedra, cons
       const std::string where = cell + ", face " + vtk::to_string(face);
       const auto& expected = faces[face];
       numFacePoints += static_cast<vtkIdType>(expected.size());
-      Check(polyhedra->GetFaceId(cellId, face) == faceId++, where + ": wrong GetFaceId");
+      Check(
+        polyhedra->GetSignedFaceId(cellId, face) == faceId++, where + ": wrong GetSignedFaceId");
       Check(polyhedra->GetFaceSize(cellId, face) == static_cast<vtkIdType>(expected.size()),
         where + ": wrong GetFaceSize");
       vtkIdType npts = 0;
@@ -550,6 +554,206 @@ void TestLegacyFormat()
   CheckCells("AppendLegacyFormat(corrupt)", appended, Twice(cells));
 }
 
+//------------------------------------------------------------------------------
+// Two tetrahedra sharing the face {1, 2, 3}, stored once, wound for the first cell. The second
+// lists it as -(3+1) to traverse it in reverse, as {3, 2, 1}.
+const Cells SharedFaceCells = { { { 0, 2, 1 }, { 0, 1, 3 }, { 0, 3, 2 }, { 1, 2, 3 } },
+  { { 3, 2, 1 }, { 1, 2, 4 }, { 2, 3, 4 }, { 3, 1, 4 } } };
+
+vtkSmartPointer<vtkPolyhedronCellArray> NewSharedFacePolyhedra(bool use32Bit)
+{
+  vtkNew<vtkCellArray> faces;
+  vtkNew<vtkCellArray> locations;
+  if (use32Bit)
+  {
+    faces->Use32BitStorage();
+    locations->Use32BitStorage();
+  }
+  for (const std::vector<vtkIdType>& face : { std::vector<vtkIdType>{ 0, 2, 1 }, { 0, 1, 3 },
+         { 0, 3, 2 }, { 1, 2, 3 }, { 1, 2, 4 }, { 2, 3, 4 }, { 3, 1, 4 } })
+  {
+    faces->InsertNextCell(static_cast<vtkIdType>(face.size()), face.data());
+  }
+  const vtkIdType first[4] = { 0, 1, 2, 3 };
+  const vtkIdType second[4] = { vtkPolyhedronCellArray::EncodeFaceId(3, true), 4, 5, 6 };
+  locations->InsertNextCell(4, first);
+  locations->InsertNextCell(4, second);
+  auto polyhedra = vtkSmartPointer<vtkPolyhedronCellArray>::New();
+  polyhedra->SetData(faces, locations);
+  return polyhedra;
+}
+
+// The queries that read faces through the face locations, against cells.
+void CheckSharedFaceQueries(
+  const std::string& name, vtkPolyhedronCellArray* polyhedra, const Cells& cells)
+{
+  vtkNew<vtkIdList> tempIds;
+  vtkNew<vtkIdList> pts;
+  vtkNew<vtkIdList> stream;
+  vtkNew<vtkCellArray> cellFaces;
+  vtkNew<vtkIdList> cellFacePts;
+  for (vtkIdType cellId = 0; cellId < polyhedra->GetNumberOfCells(); ++cellId)
+  {
+    const std::string cell = name + ": cell " + vtk::to_string(cellId);
+    const auto& faces = cells[cellId];
+    polyhedra->GetCellFaces(cellId, cellFaces);
+    vtkIdType numFacePoints = 0;
+    for (int face = 0; face < static_cast<int>(faces.size()); ++face)
+    {
+      const std::string where = cell + ", face " + vtk::to_string(face);
+      const auto& expected = faces[face];
+      numFacePoints += static_cast<vtkIdType>(expected.size());
+      Check(polyhedra->GetFaceSize(cellId, face) == static_cast<vtkIdType>(expected.size()),
+        where + ": wrong GetFaceSize");
+      vtkIdType npts = 0;
+      const vtkIdType* ids = nullptr;
+      polyhedra->GetFacePoints(cellId, face, npts, ids, tempIds);
+      Check(std::vector<vtkIdType>(ids, ids + npts) == expected, where + ": wrong GetFacePoints");
+      if (vtkPolyhedronCellArray::IsReversedFaceId(polyhedra->GetSignedFaceId(cellId, face)))
+      {
+        Check(ids == tempIds->GetPointer(0), where + ": a reversed face should be copied");
+      }
+      polyhedra->GetFacePoints(cellId, face, pts);
+      Check(std::vector<vtkIdType>(pts->begin(), pts->end()) == expected,
+        where + ": wrong GetFacePoints into a vtkIdList");
+      cellFaces->GetCellAtId(face, cellFacePts);
+      Check(std::vector<vtkIdType>(cellFacePts->begin(), cellFacePts->end()) == expected,
+        where + ": wrong GetCellFaces");
+    }
+    Check(polyhedra->GetCellNumberOfFacePoints(cellId) == numFacePoints,
+      cell + ": wrong GetCellNumberOfFacePoints");
+    std::vector<vtkIdType> expectedStream = FaceStream(faces);
+    expectedStream.insert(expectedStream.begin(), static_cast<vtkIdType>(faces.size()));
+    polyhedra->GetFaceStream(cellId, stream);
+    Check(std::vector<vtkIdType>(stream->begin(), stream->end()) == expectedStream,
+      cell + ": wrong GetFaceStream");
+  }
+}
+
+// The faces of a cell as a functor of Dispatch() reads them, through the signed face ids.
+struct OrientedFacesOfCell : public vtkPolyhedronCellArray::DispatchUtilities
+{
+  template <class FaceOffsetsT, class FaceConnectivityT, class LocationOffsetsT,
+    class LocationConnectivityT>
+  void operator()(FaceOffsetsT* faceOffsets, FaceConnectivityT* faceConnectivity,
+    LocationOffsetsT* locationOffsets, LocationConnectivityT* locationConnectivity,
+    vtkIdType cellId, std::vector<std::vector<vtkIdType>>& faces) const
+  {
+    for (const vtkIdType signedId : GetCellRange(locationOffsets, locationConnectivity, cellId))
+    {
+      const auto face = GetOrientedFaceRange(faceOffsets, faceConnectivity, signedId);
+      std::vector<vtkIdType> points;
+      points.reserve(face.size());
+      for (vtkIdType i = 0; i < face.size(); ++i)
+      {
+        points.push_back(face[i]);
+      }
+      if (GetFaceSize(faceOffsets, signedId) != face.size())
+      {
+        throw std::runtime_error("GetFaceSize and GetOrientedFaceRange disagree");
+      }
+      faces.push_back(points);
+    }
+  }
+};
+
+void TestSharedFaces()
+{
+  Check(vtkPolyhedronCellArray::EncodeFaceId(0, true) == -1 &&
+      vtkPolyhedronCellArray::DecodeFaceId(-1) == 0 &&
+      vtkPolyhedronCellArray::IsReversedFaceId(-1) &&
+      !vtkPolyhedronCellArray::IsReversedFaceId(0) && vtkPolyhedronCellArray::DecodeFaceId(5) == 5,
+    "SharedFaces: wrong face id encoding");
+  for (const bool use32Bit : { false, true })
+  {
+    const std::string name = use32Bit ? "SharedFaces, 32-bit" : "SharedFaces, 64-bit";
+    const auto polyhedra = NewSharedFacePolyhedra(use32Bit);
+    Check(polyhedra->GetNumberOfFaces() == 7, name + ": the shared face should be stored once");
+    Check(
+      polyhedra->GetSignedFaceId(1, 0) == -4, name + ": wrong GetSignedFaceId of a reversed face");
+    CheckSharedFaceQueries(name, polyhedra, SharedFaceCells);
+
+    // GetFace() gives the stored points and their orientation, without reversing them.
+    vtkNew<vtkIdList> tempIds;
+    for (vtkIdType cellId = 0; cellId < 2; ++cellId)
+    {
+      for (int face = 0; face < 4; ++face)
+      {
+        const auto oriented = polyhedra->GetFace(cellId, face, tempIds);
+        std::vector<vtkIdType> points;
+        points.reserve(oriented.NumberOfPoints);
+        for (vtkIdType i = 0; i < oriented.NumberOfPoints; ++i)
+        {
+          points.push_back(oriented[i]);
+        }
+        Check(points == SharedFaceCells[cellId][face] &&
+            oriented.Reversed == (cellId == 1 && face == 0),
+          name + ": wrong GetFace");
+      }
+    }
+    Check(polyhedra->GetStoredFaceId(1, 0) == 3, name + ": wrong GetStoredFaceId");
+    for (vtkIdType cellId = 0; cellId < 2; ++cellId)
+    {
+      std::vector<std::vector<vtkIdType>> faces;
+      polyhedra->Dispatch(OrientedFacesOfCell{}, cellId, faces);
+      Check(faces == SharedFaceCells[cellId], name + ": wrong faces through DispatchUtilities");
+    }
+
+    // A copy in which every cell owns its faces, leaving the source shared.
+    vtkNew<vtkPolyhedronCellArray> perCell;
+    perCell->DuplicateSharedFaces(polyhedra);
+    Check(!perCell->HasSharedFaces() && perCell->GetNumberOfFaces() == 8 &&
+        polyhedra->HasSharedFaces() && polyhedra->GetNumberOfFaces() == 7,
+      name + ": DuplicateSharedFaces(source) should copy, not change the source");
+    CheckSharedFaceQueries(name + ", DuplicateSharedFaces(source)", perCell, SharedFaceCells);
+    Check(polyhedra->Validate(), name + ": Validate should accept two cells sharing a face");
+
+    // HasSharedFaces() follows the changes of the arrays.
+    vtkNew<vtkPolyhedronCellArray> copy;
+    copy->DeepCopy(polyhedra);
+    Check(copy->HasSharedFaces(), name + ": HasSharedFaces should see the shared face");
+    copy->DuplicateSharedFaces();
+    Check(!copy->HasSharedFaces() && copy->GetNumberOfFaces() == 8,
+      name + ": DuplicateSharedFaces should give each cell its own faces");
+    CheckSharedFaceQueries(name + ", DuplicateSharedFaces", copy, SharedFaceCells);
+    vtkDataArray* ids = copy->GetFaceLocations()->GetConnectivityArray();
+    ids->SetComponent(4, 0, vtkPolyhedronCellArray::EncodeFaceId(3, true));
+    copy->GetFaceLocations()->Modified();
+    Check(copy->HasSharedFaces(), name + ": HasSharedFaces should see a change of the arrays");
+
+    // Validate() rejects a face used more than twice, and an id past the faces.
+    vtkNew<vtkTest::ErrorObserver> errors;
+    copy->AddObserver(vtkCommand::ErrorEvent, errors);
+    ids->SetComponent(5, 0, vtkPolyhedronCellArray::EncodeFaceId(3, true));
+    copy->GetFaceLocations()->Modified();
+    Check(!copy->Validate() && errors->GetError(), name + ": Validate should reject a third use");
+    errors->Clear();
+    ids->SetComponent(5, 0, 8);
+    copy->GetFaceLocations()->Modified();
+    Check(
+      !copy->Validate() && errors->GetError(), name + ": Validate should reject a missing face");
+
+    // Append moves a reversed face away from zero, so that it still names the appended face.
+    vtkNew<vtkPolyhedronCellArray> appended;
+    appended->DeepCopy(polyhedra);
+    appended->Append(polyhedra, 5);
+    Check(
+      appended->GetSignedFaceId(3, 0) == -(3 + 7) - 1, name + ": Append moved a reversed face id");
+    CheckSharedFaceQueries(name + ", Append", appended, Twice(SharedFaceCells));
+
+    // The legacy layout has no shared faces, so each cell gets its own copy.
+    std::vector<vtkIdType> expectedFaces;
+    std::vector<vtkIdType> expectedLocations;
+    LegacyFormat(SharedFaceCells, expectedFaces, expectedLocations);
+    vtkNew<vtkIdTypeArray> faces;
+    vtkNew<vtkIdTypeArray> faceLocations;
+    polyhedra->ExportLegacyFormat(faces, faceLocations);
+    Check(std::vector<vtkIdType>(faces->Begin(), faces->End()) == expectedFaces &&
+        std::vector<vtkIdType>(faceLocations->Begin(), faceLocations->End()) == expectedLocations,
+      name + ": wrong ExportLegacyFormat");
+  }
+}
+
 template <StorageTypes StorageType>
 void RunTests(const char* name)
 {
@@ -601,6 +805,7 @@ int TestPolyhedronCellArray(int, char*[])
     RunTests<StorageTypes::FixedSizeInt64>("FixedSizeInt64");
     RunTests<StorageTypes::Generic>("Generic");
     TestMixedStorage();
+    TestSharedFaces();
   }
   catch (const std::exception& error)
   {

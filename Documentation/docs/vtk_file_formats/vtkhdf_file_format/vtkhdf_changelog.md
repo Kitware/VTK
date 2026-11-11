@@ -1,5 +1,9 @@
 # Changelog
 
+## VTKHDF - 2.9
+
+- a polyhedron can use a face in reverse: `PolyhedronToFaces` lists face `n` as `-(n+1)` to traverse it the other way, so that two polyhedra can share one face
+
 ## VTKHDF - 2.8
 
 - add specification for `Table`

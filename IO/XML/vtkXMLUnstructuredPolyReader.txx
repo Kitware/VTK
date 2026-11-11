@@ -72,16 +72,9 @@ public:
     auto& range = FaceIdMinAndMax::TLRange.Local();
     for (const APIType value : tuples)
     {
-      if (value < 0)
-      {
-        // ignored for now
-        // but can be needed for compact storage in the future.
-        continue;
-      }
-      else
-      {
-        vtkMathUtilities::UpdateRange(range[0], range[1], value);
-      }
+      // Since version 2.5, -(n+1) is the face n traversed in reverse.
+      vtkMathUtilities::UpdateRange(
+        range[0], range[1], value < 0 ? static_cast<APIType>(-value - 1) : value);
     }
   }
 };
@@ -160,7 +153,8 @@ public:
     APIType val = this->Offset;
     for (RefType value : range)
     {
-      value -= val;
+      // A face id -(n+1) moves the other way, to stay the reverse of the moved face n.
+      value = value < 0 ? value + val : value - val;
     }
   }
 };

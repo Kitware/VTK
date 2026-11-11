@@ -1116,11 +1116,11 @@ struct ExtractCells
                 const vtkIdType globalFaceId = facesOffset++;
                 faceOffsets[globalFaceId] = facesConnectivityOffset;
                 faceLocationsConnectivity[globalFaceId] = globalFaceId;
-                polyhedra->GetFacePoints(cellId, faceId, numberOfPoints, pointIndices, idList);
-                for (pointId = 0; pointId < numberOfPoints; ++pointId)
+                const auto face = polyhedra->GetFace(cellId, faceId, idList);
+                for (pointId = 0; pointId < face.NumberOfPoints; ++pointId)
                 {
                   faceConnectivity[facesConnectivityOffset++] =
-                    static_cast<TOutputIdType>(pointsMap[pointIndices[pointId]]);
+                    static_cast<TOutputIdType>(pointsMap[face[pointId]]);
                 }
               }
               this->CellDataArrays.Copy(cellId, cellsOffset++);

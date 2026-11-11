@@ -94,8 +94,8 @@ std::string GetExternalBlockFileName(const std::string&& filename, const std::st
  */
 bool HasPolyhedra(vtkUnstructuredGrid* input)
 {
-  return input && input->GetPolyhedronFaces() != nullptr &&
-    input->GetPolyhedronFaces()->GetNumberOfCells() > 0;
+  return input && input->GetOrientedPolyhedronFaces() != nullptr &&
+    input->GetOrientedPolyhedronFaces()->GetNumberOfCells() > 0;
 }
 
 /**
@@ -731,16 +731,17 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, u
     if (::HasPolyhedra(input))
     {
       writeSuccess &=
-        this->AppendNumberOfFaceConnectivityIds(group, partId, input->GetPolyhedronFaces());
-      writeSuccess &= this->AppendNumberOfFaces(group, partId, input->GetPolyhedronFaces());
-      writeSuccess &= this->AppendFaceConnectivity(group, partId, input->GetPolyhedronFaces());
-      writeSuccess &= this->AppendFaceOffsets(group, partId, input->GetPolyhedronFaces());
+        this->AppendNumberOfFaceConnectivityIds(group, partId, input->GetOrientedPolyhedronFaces());
+      writeSuccess &= this->AppendNumberOfFaces(group, partId, input->GetOrientedPolyhedronFaces());
       writeSuccess &=
-        this->AppendPolyhedronToFaces(group, partId, input->GetPolyhedronFaceLocations());
+        this->AppendFaceConnectivity(group, partId, input->GetOrientedPolyhedronFaces());
+      writeSuccess &= this->AppendFaceOffsets(group, partId, input->GetOrientedPolyhedronFaces());
       writeSuccess &=
-        this->AppendPolyhedronOffsets(group, partId, input->GetPolyhedronFaceLocations());
+        this->AppendPolyhedronToFaces(group, partId, input->GetOrientedPolyhedronFaceLocations());
       writeSuccess &=
-        this->AppendNumberOfPolyhedronToFaceIds(group, partId, input->GetPolyhedronFaceLocations());
+        this->AppendPolyhedronOffsets(group, partId, input->GetOrientedPolyhedronFaceLocations());
+      writeSuccess &= this->AppendNumberOfPolyhedronToFaceIds(
+        group, partId, input->GetOrientedPolyhedronFaceLocations());
     }
     writeSuccess &= this->AppendOffsets(group, partId, cells);
   }
@@ -1142,12 +1143,12 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, uns
     {
       result &=
         this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "FaceConnectivityOffsets",
-          { -input->GetPolyhedronFaces()->GetNumberOfConnectivityIds() }, true, true);
+          { -input->GetOrientedPolyhedronFaces()->GetNumberOfConnectivityIds() }, true, true);
       result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "FaceOffsetsOffsets",
-        { -input->GetPolyhedronFaces()->GetNumberOfCells() }, true, true);
-      result &=
-        this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "PolyhedronToFaceIdOffsets",
-          { -input->GetPolyhedronFaceLocations()->GetNumberOfConnectivityIds() }, true, true);
+        { -input->GetOrientedPolyhedronFaces()->GetNumberOfCells() }, true, true);
+      result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId,
+        "PolyhedronToFaceIdOffsets",
+        { -input->GetOrientedPolyhedronFaceLocations()->GetNumberOfConnectivityIds() }, true, true);
     }
   }
 
@@ -1170,12 +1171,12 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, uns
   if (::HasPolyhedra(input))
   {
     result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "FaceConnectivityOffsets",
-      { input->GetPolyhedronFaces()->GetNumberOfConnectivityIds() }, true);
+      { input->GetOrientedPolyhedronFaces()->GetNumberOfConnectivityIds() }, true);
     result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "FaceOffsetsOffsets",
-      { input->GetPolyhedronFaces()->GetNumberOfCells() }, true);
+      { input->GetOrientedPolyhedronFaces()->GetNumberOfCells() }, true);
     result &=
       this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "PolyhedronToFaceIdOffsets",
-        { input->GetPolyhedronFaceLocations()->GetNumberOfConnectivityIds() }, true);
+        { input->GetOrientedPolyhedronFaceLocations()->GetNumberOfConnectivityIds() }, true);
   }
 
   return result;

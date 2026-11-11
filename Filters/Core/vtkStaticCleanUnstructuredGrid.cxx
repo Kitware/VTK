@@ -490,9 +490,9 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
   // If the unstructured grid contains polyhedra, the face connectivity needs
   // to be updated as well. The faces are copied first: remapping them in place
   // would modify the input, and share the buffer between input and output.
-  vtkCellArray* faceLocations = input->GetPolyhedronFaceLocations();
+  vtkCellArray* faceLocations = input->GetOrientedPolyhedronFaceLocations();
   vtkSmartPointer<vtkCellArray> faces;
-  if (vtkCellArray* inFaces = input->GetPolyhedronFaces())
+  if (vtkCellArray* inFaces = input->GetOrientedPolyhedronFaces())
   {
     faces = vtkSmartPointer<vtkCellArray>::New();
     faces->DeepCopy(inFaces);

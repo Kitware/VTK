@@ -204,8 +204,8 @@ bool vtkHDFWriter::Implementation::CollectPartitionOffsets(
     localSizes[partition].PointDataOffset = localSizes[partition].PointOffset;
     localSizes[partition].CellDataOffset = localSizes[partition].CellOffset;
     localSizes[partition].ConnectivityOffset = cells ? cells->GetNumberOfConnectivityIds() : 0;
-    auto* faces = grid->GetPolyhedronFaces();
-    auto* polyhedra = grid->GetPolyhedronFaceLocations();
+    auto* faces = grid->GetOrientedPolyhedronFaces();
+    auto* polyhedra = grid->GetOrientedPolyhedronFaceLocations();
     localSizes[partition].FaceOffset = faces ? faces->GetNumberOfCells() : 0;
     localSizes[partition].FacePartOffset = 1;
     localSizes[partition].FaceConnectivityOffset = faces ? faces->GetNumberOfConnectivityIds() : 0;

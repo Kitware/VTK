@@ -15,9 +15,9 @@
  * point ids.
  *
  * FaceLocations is a vtkCellArray storing every polyhedral cell as a cell,
- * i.e., the list of the ids of its faces in Faces. A cell that is not
- * polyhedral, e.g., the hexahedron of a vtkUnstructuredGrid that also has
- * polyhedra, has no face.
+ * i.e., the list of the signed ids of its faces in Faces, see below. A cell
+ * that is not polyhedral, e.g., the hexahedron of a vtkUnstructuredGrid that
+ * also has polyhedra, has no face.
  *
  * Thus, for a set of cells consisting of a tetrahedron given by its faces, a
  * hexahedron, and a pyramid given by its faces, the internal arrays will appear
@@ -46,6 +46,32 @@
  * followed by its point ids, e.g., {3, 0, 1, 2, 3, 0, 3, 1, 3, 1, 3, 2, 3, 2, 3,
  * 0} for the four faces of cell 0 above.
  *
+ * <b>Shared faces</b>
+ *
+ * A face used by two cells may be stored once. It is wound for one of them.
+ * Another cell lists it in FaceLocations as -(n+1) to traverse face n of Faces
+ * in reverse, so that every cell sees its faces with an outward orientation.
+ * For example, two tetrahedra sharing a face:
+ *
+ * ```
+ * Cell 0: faces: {0, 1, 2}, {0, 3, 1}, {1, 3, 2}, {2, 3, 0}
+ * Cell 1: faces: {0, 2, 1}, {0, 1, 4}, {1, 2, 4}, {2, 0, 4}
+ *
+ * Faces:
+ *   Offsets:      {0, 3, 6, 9, 12, 15, 18, 21}
+ *   Connectivity: {0, 1, 2, 0, 3, 1, 1, 3, 2, 2, 3, 0, 0, 1, 4, 1, 2, 4, 2, 0, 4}
+ * FaceLocations:
+ *   Offsets:      {0, 4, 8}
+ *   Connectivity: {0, 1, 2, 3, -1, 4, 5, 6}
+ * ```
+ *
+ * Here the first face of cell 1 is face 0 of Faces, reversed, i.e., -1. Use GetFace() or
+ * GetFacePoints() to read the faces of a cell with their orientation applied. The ids of
+ * FaceLocations must be decoded with DecodeFaceId() before indexing Faces. Sharing is optional and
+ * decided face by face, so shared faces and faces copied per cell can be mixed: InsertNextCell()
+ * never shares faces, shared faces are given with SetData() by whoever knows them, e.g., a reader,
+ * and DuplicateSharedFaces() gives every cell its own copy.
+ *
  * The query methods, e.g., GetCellNumberOfFaces(), GetFaceSize() and
  * GetFacePoints(), dispatch the storage type of the arrays for every call, as
  * vtkCellArray::GetCellAtId(). They are thread-safe if the arrays are not
@@ -67,7 +93,7 @@
  *     const auto faceIds = GetCellRange(locationOffsets, locationConnectivity, cellId);
  *     for (int face = 0; face < numFaces; ++face)
  *     {
- *       numPoints += GetCellSize(faceOffsets, faceIds[face]);
+ *       numPoints += GetFaceSize(faceOffsets, faceIds[face]);
  *     }
  *     return numPoints;
  *   }
@@ -104,6 +130,7 @@
 #include "vtkSmartPointer.h"  // For vtkSmartPointer
 #include "vtkWrappingHints.h" // For VTK_EXPECTS, VTK_MARSHALMANUAL, VTK_WRAPEXCLUDE
 
+#include <algorithm>   // Needed for std::copy_n, std::reverse
 #include <type_traits> // Needed for std::is_base_of_v
 #include <utility>     // Needed for std::forward
 
@@ -118,7 +145,75 @@ public:
   using AffineArray32 = vtkCellArray::AffineArray32;
   using AffineArray64 = vtkCellArray::AffineArray64;
   using StorageTypes = vtkCellArray::StorageTypes;
+#ifdef __VTK_WRAP__
   using DispatchUtilities = vtkCellArray::DispatchUtilities;
+#else
+  /**
+   * The utilities of vtkCellArray::DispatchUtilities, and helpers that take the
+   * signed face ids of FaceLocations as they are, so that a functor of
+   * Dispatch() reads faces in the order of their cell without decoding ids.
+   */
+  struct DispatchUtilities : public vtkCellArray::DispatchUtilities
+  {
+    /**
+     * The points of a face in the order of the cell that lists it: operator[]
+     * reads the stored points in reverse for a reversed face.
+     */
+    template <class RangeT>
+    struct OrientedFaceRange
+    {
+      RangeT Points;
+      bool Reversed = false;
+
+      vtkIdType size() const { return static_cast<vtkIdType>(this->Points.size()); }
+      vtkIdType operator[](vtkIdType i) const
+      {
+        return static_cast<vtkIdType>(this->Points[this->Reversed ? this->size() - 1 - i : i]);
+      }
+    };
+
+    /**
+     * The number of points of the face that a signed face id names.
+     */
+    template <class FaceOffsetsT>
+    static vtkIdType GetFaceSize(FaceOffsetsT* faceOffsets, vtkIdType signedFaceId)
+    {
+      return GetCellSize(faceOffsets, vtkPolyhedronCellArray::DecodeFaceId(signedFaceId));
+    }
+
+    /**
+     * The points of the face that a signed face id names, in the order of the
+     * cell that lists it.
+     */
+    template <class FaceOffsetsT, class FaceConnectivityT>
+    static auto GetOrientedFaceRange(
+      FaceOffsetsT* faceOffsets, FaceConnectivityT* faceConnectivity, vtkIdType signedFaceId)
+    {
+      auto points = GetCellRange(
+        faceOffsets, faceConnectivity, vtkPolyhedronCellArray::DecodeFaceId(signedFaceId));
+      return OrientedFaceRange<decltype(points)>{ points,
+        vtkPolyhedronCellArray::IsReversedFaceId(signedFaceId) };
+    }
+  };
+#endif
+
+  /**
+   * A face of a cell, with its orientation applied lazily: the points are those
+   * stored in Faces, read in reverse if Reversed is true. Use operator[] to get
+   * the i'th point of the face as the cell traverses it. Points is only valid
+   * until the faces, or the vtkIdList given to GetFace(), are modified.
+   */
+  struct VTK_WRAPEXCLUDE OrientedFace
+  {
+    const vtkIdType* Points = nullptr;
+    vtkIdType NumberOfPoints = 0;
+    bool Reversed = false;
+
+    vtkIdType operator[](vtkIdType i) const
+    {
+      return this->Points[this->Reversed ? this->NumberOfPoints - 1 - i : i];
+    }
+  };
 
   ///@{
   /**
@@ -171,15 +266,18 @@ public:
 
   /**
    * Set the internal data arrays to the supplied faces and face locations,
-   * which are referenced, not copied. Both must be non-null.
+   * which are referenced, not copied. Both must be non-null. The ids of
+   * faceLocations may be signed, see the class documentation.
    */
   void SetData(vtkCellArray* faces, vtkCellArray* faceLocations);
 
   ///@{
   /**
    * Return the vtkCellArray of the faces, whose cells are the point ids of the
-   * faces, and the vtkCellArray of the face locations, whose cells are the ids
-   * of the faces of the polyhedral cells.
+   * faces, and the vtkCellArray of the face locations, whose cells are the
+   * signed ids of the faces of the polyhedral cells. The ids of the face
+   * locations must be decoded with DecodeFaceId() to index the faces, or read
+   * through the helpers of DispatchUtilities in a functor of Dispatch().
    */
   vtkCellArray* GetFaces() const { return this->Faces; }
   vtkCellArray* GetFaceLocations() const { return this->FaceLocations; }
@@ -192,7 +290,8 @@ public:
 
   ///@{
   /**
-   * Get the number of cells, and the number of faces of all the cells.
+   * Get the number of cells, and the number of stored faces. A face shared by
+   * several cells is counted once.
    */
   vtkIdType GetNumberOfCells() const { return this->FaceLocations->GetNumberOfCells(); }
   vtkIdType GetNumberOfFaces() const { return this->Faces->GetNumberOfCells(); }
@@ -221,7 +320,8 @@ public:
 
   /**
    * Return true if the points of the faces are stored as vtkIdType, so that
-   * GetFacePoints() returns a pointer to them instead of copying them.
+   * GetFace() and GetFacePoints() may return a pointer to them instead of
+   * copying them, see their documentation.
    */
   bool IsStorageShareable() const { return this->Faces->IsStorageShareable(); }
 
@@ -230,11 +330,29 @@ public:
    * Convert the storage of Faces and FaceLocations, see vtkCellArray. Returns
    * true if both are converted. ConvertToSmallestStorage() gives both the same
    * storage type: fixed size only if both can be, and 64-bit if either must be.
+   * The signed ids of FaceLocations are taken into account.
    */
   bool ConvertTo64BitStorage();
   bool ConvertTo32BitStorage();
   bool ConvertToDefaultStorage();
   bool ConvertToSmallestStorage();
+  ///@}
+
+  ///@{
+  /**
+   * Decode a signed face id of FaceLocations: the id of the face in Faces, and
+   * whether the cell traverses it in reverse. EncodeFaceId() is the inverse,
+   * with -(n+1) for the reverse of face n.
+   */
+  static vtkIdType DecodeFaceId(vtkIdType signedFaceId)
+  {
+    return signedFaceId < 0 ? -signedFaceId - 1 : signedFaceId;
+  }
+  static bool IsReversedFaceId(vtkIdType signedFaceId) { return signedFaceId < 0; }
+  static vtkIdType EncodeFaceId(vtkIdType storedFaceId, bool reversed)
+  {
+    return reversed ? -storedFaceId - 1 : storedFaceId;
+  }
   ///@}
 
   /**
@@ -244,10 +362,22 @@ public:
     VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
 
   /**
-   * Return the id, in Faces, of the face `face` of the cell cellId.
+   * Return the signed id, as listed in FaceLocations, of the face `face` of the
+   * cell cellId. It is negative if the cell traverses the stored face in
+   * reverse, see DecodeFaceId(). It must not be used to index Faces directly.
    */
-  vtkIdType GetFaceId(vtkIdType cellId, int face) const
+  vtkIdType GetSignedFaceId(vtkIdType cellId, int face) const
     VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
+
+  /**
+   * Return the id, in Faces, of the face `face` of the cell cellId, whatever
+   * its orientation.
+   */
+  vtkIdType GetStoredFaceId(vtkIdType cellId, int face) const
+    VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells())
+  {
+    return DecodeFaceId(this->GetSignedFaceId(cellId, face));
+  }
 
   /**
    * Return the number of points of the face `face` of the cell cellId.
@@ -263,18 +393,31 @@ public:
     VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
 
   /**
-   * Return the npts point ids `pts` of the face `face` of the cell cellId, as
-   * vtkCellArray::GetCellAtId(): `pts` points to the internal storage if it is
-   * shareable, see IsStorageShareable(), otherwise the point ids are copied
-   * into `tempIds`, which must be given. `pts` is only valid until the faces,
-   * or `tempIds`, are modified.
+   * Return the face `face` of the cell cellId, without copying its points
+   * whenever the storage is shareable, see IsStorageShareable(). The points are
+   * not reversed: OrientedFace::Reversed tells whether to read them in reverse,
+   * which operator[] does. `tempIds` is only used, and must be given, if the
+   * storage is not shareable, in which case the points are copied into it, in
+   * the order of Faces.
+   */
+  VTK_WRAPEXCLUDE OrientedFace GetFace(vtkIdType cellId, int face, vtkIdList* tempIds) const;
+
+  /**
+   * Return the npts point ids `pts` of the face `face` of the cell cellId, in
+   * the order the cell traverses them, as vtkCellArray::GetCellAtId(): `pts`
+   * points to the internal storage if it is shareable and the face is not
+   * reversed, otherwise the point ids are copied into `tempIds`, which must be
+   * given, in which case they are reversed for a reversed face. `pts` is only
+   * valid until the faces, or `tempIds`, are modified. Prefer GetFace() to
+   * avoid the copy of reversed faces.
    */
   void GetFacePoints(vtkIdType cellId, int face, vtkIdType& npts,
     vtkIdType const*& pts VTK_SIZEHINT(npts), vtkIdList* tempIds) const
     VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
 
   /**
-   * Copy the point ids of the face `face` of the cell cellId into `pts`.
+   * Copy the point ids of the face `face` of the cell cellId into `pts`, in the
+   * order the cell traverses them.
    */
   void GetFacePoints(vtkIdType cellId, int face, vtkIdList* pts) const
     VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
@@ -282,26 +425,30 @@ public:
   /**
    * Copy the faces of the cell cellId into `faceStream`, as a face stream
    * preceded by the number of faces: (numFaces, numFace0Pts, id1, id2, ...,
-   * numFace1Pts, id1, id2, ...). It is empty if the cell has no face.
+   * numFace1Pts, id1, id2, ...). The faces are oriented for the cell. It is
+   * empty if the cell has no face.
    */
   void GetFaceStream(vtkIdType cellId, vtkIdList* faceStream) const
     VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
 
   /**
-   * Copy the faces of the cell cellId into `faces`, one cell per face.
+   * Copy the faces of the cell cellId into `faces`, one cell per face. The
+   * faces are oriented for the cell.
    */
   void GetCellFaces(vtkIdType cellId, vtkCellArray* faces) const
     VTK_EXPECTS(0 <= cellId && cellId < GetNumberOfCells());
 
   /**
    * Insert a cell given by its numFaces faces, as a face stream: (numFace0Pts,
-   * id1, id2, ..., numFace1Pts, id1, id2, ...). Returns the id of the cell.
+   * id1, id2, ..., numFace1Pts, id1, id2, ...). The faces are copied, never
+   * shared with those of other cells. Returns the id of the cell.
    */
   VTK_WRAPEXCLUDE vtkIdType InsertNextCell(vtkIdType numFaces, const vtkIdType* faceStream);
 
   /**
-   * Insert a cell given by its faces, one cell of `faces` per face. Returns the
-   * id of the cell.
+   * Insert a cell given by its faces, one cell of `faces` per face. The faces
+   * are copied, never shared with those of other cells. Returns the id of the
+   * cell.
    */
   vtkIdType InsertNextCell(vtkCellArray* faces);
 
@@ -313,9 +460,42 @@ public:
   vtkIdType InsertEmptyCells(vtkIdType numCells);
 
   /**
+   * Whether the faces are not one copy per cell, in cell order: a face is used
+   * by several cells, traversed in reverse, or listed out of order. The result
+   * is cached until this or its vtkCellArrays are modified (call Modified() on
+   * a vtkCellArray after writing to its data arrays), so call it once before a
+   * threaded loop. When false, every face is read forward, and the points of
+   * the faces can be shared without a copy.
+   */
+  bool HasSharedFaces() const;
+
+  /**
+   * Give every cell its own copy of its faces, in cell order, a reversed face
+   * stored the way its cell traverses it. For code that expects the faces of
+   * each cell to be its own.
+   */
+  void DuplicateSharedFaces();
+
+  /**
+   * Make this a copy of source in which every cell owns its faces, as
+   * DuplicateSharedFaces(), for code or formats that expect the faces of each
+   * cell to be its own. If source has no shared faces, its arrays are shared
+   * with this, as by ShallowCopy().
+   */
+  void DuplicateSharedFaces(vtkPolyhedronCellArray* source);
+
+  /**
+   * Check the consistency of the arrays, for debugging: every id of
+   * FaceLocations refers to a face of Faces, and a face is used by at most two
+   * cells. Returns true if valid, otherwise prints the first error.
+   */
+  bool Validate() const;
+
+  /**
    * Append the cells of `source` into this, as vtkCellArray::Append(): the
    * point ids of its faces are offset by pointOffset, and the ids of its faces
-   * by the number of faces of this.
+   * by the number of faces of this. The orientation of the faces of source is
+   * preserved: the signed ids are decoded, offset, and encoded again.
    */
   void Append(vtkPolyhedronCellArray* source, vtkIdType pointOffset = 0);
 
@@ -332,7 +512,8 @@ public:
    * of its face Y, and `p0_Y_Z` the Z'th point of face Y, and @a faceLocations
    * has one value per cell, the index in @a faces of its face stream, or -1 for
    * a cell without face. For the cells of the class documentation, the face
-   * stream of cell 0 has 17 values, and @a faceLocations is { 0, -1, 17 }.
+   * stream of cell 0 has 17 values, and @a faceLocations is { 0, -1, 17 }. The
+   * faces are oriented for their cell, so shared faces are duplicated.
    */
   void ExportLegacyFormat(vtkIdTypeArray* faces, vtkIdTypeArray* faceLocations);
 
@@ -340,7 +521,8 @@ public:
   /**
    * Import arrays of data with the legacy layout of the faces of the cells,
    * see ExportLegacyFormat(): @a faces of @a facesLength values, and
-   * @a faceLocations of one value per cell, @a numberOfCells values.
+   * @a faceLocations of one value per cell, @a numberOfCells values. The faces
+   * are not shared.
    *
    * Returns false if the data is corrupt (for example a face location or `f0`
    * being too large for the actual buffer), in which case this is left
@@ -378,6 +560,9 @@ public:
    * FaceLocations, as vtkCellArray::AOSArray32, vtkCellArray::AOSArray64, the
    * vtkCellArray::AffineArray32 and vtkCellArray::AffineArray64 offsets of fixed
    * size storage, or vtkDataArray for Generic storage, see GetStorageType().
+   * The ids read from the connectivity of FaceLocations are signed: pass them
+   * to GetFaceSize() and GetOrientedFaceRange() of DispatchUtilities, or decode
+   * them with DecodeFaceId() before indexing Faces.
    * The functor may also return a value, and receive additional arguments:
    *
    * ```
@@ -463,6 +648,10 @@ private:
 
   vtkSmartPointer<vtkCellArray> Faces;
   vtkSmartPointer<vtkCellArray> FaceLocations;
+
+  // Cache of HasSharedFaces(), valid while SharedFacesMTime is the MTime of the arrays.
+  mutable vtkMTimeType SharedFacesMTime = 0;
+  mutable bool SharedFaces = false;
 };
 VTK_ABI_NAMESPACE_END
 
@@ -481,24 +670,24 @@ struct GetCellNumberOfFacesImpl : public vtkPolyhedronCellArray::DispatchUtiliti
   }
 };
 
-// The id, in Faces, of the face `face` of the cell cellId.
+// The signed id, as listed in FaceLocations, of the face `face` of the cell cellId.
 template <class LocationOffsetsT, class LocationConnectivityT>
-vtkIdType GetFaceId(LocationOffsetsT* locationOffsets, LocationConnectivityT* locationConnectivity,
-  vtkIdType cellId, int face)
+vtkIdType GetSignedFaceId(LocationOffsetsT* locationOffsets,
+  LocationConnectivityT* locationConnectivity, vtkIdType cellId, int face)
 {
   using Utilities = vtkPolyhedronCellArray::DispatchUtilities;
   return static_cast<vtkIdType>(Utilities::GetRange(
     locationConnectivity)[Utilities::GetBeginOffset(locationOffsets, cellId) + face]);
 }
 
-struct GetFaceIdImpl
+struct GetSignedFaceIdImpl
 {
   template <class FaceOffsetsT, class FaceConnectivityT, class LocationOffsetsT,
     class LocationConnectivityT>
   vtkIdType operator()(FaceOffsetsT*, FaceConnectivityT*, LocationOffsetsT* locationOffsets,
     LocationConnectivityT* locationConnectivity, vtkIdType cellId, int face) const
   {
-    return GetFaceId(locationOffsets, locationConnectivity, cellId, face);
+    return GetSignedFaceId(locationOffsets, locationConnectivity, cellId, face);
   }
 };
 
@@ -510,43 +699,49 @@ struct GetFaceSizeImpl : public vtkPolyhedronCellArray::DispatchUtilities
     LocationOffsetsT* locationOffsets, LocationConnectivityT* locationConnectivity,
     vtkIdType cellId, int face) const
   {
-    const vtkIdType faceId = GetFaceId(locationOffsets, locationConnectivity, cellId, face);
+    const vtkIdType faceId = vtkPolyhedronCellArray::DecodeFaceId(
+      GetSignedFaceId(locationOffsets, locationConnectivity, cellId, face));
     return GetEndOffset(faceOffsets, faceId) - GetBeginOffset(faceOffsets, faceId);
   }
 };
 
-struct GetFacePointsImpl : public vtkPolyhedronCellArray::DispatchUtilities
+struct GetFaceImpl : public vtkPolyhedronCellArray::DispatchUtilities
 {
-  // Points pts at the points of the face, copied into tempIds unless they are shared, and returns
-  // their number.
+  // The face, whose points are shared unless the storage is not shareable, in which case they are
+  // copied into tempIds, never reversed.
   template <class FaceOffsetsT, class FaceConnectivityT, class LocationOffsetsT,
     class LocationConnectivityT>
-  vtkIdType operator()(FaceOffsetsT* faceOffsets, FaceConnectivityT* faceConnectivity,
-    LocationOffsetsT* locationOffsets, LocationConnectivityT* locationConnectivity,
-    vtkIdType cellId, int face, vtkIdType const*& pts, vtkIdList* tempIds) const
+  vtkPolyhedronCellArray::OrientedFace operator()(FaceOffsetsT* faceOffsets,
+    FaceConnectivityT* faceConnectivity, LocationOffsetsT* locationOffsets,
+    LocationConnectivityT* locationConnectivity, vtkIdType cellId, int face,
+    vtkIdList* tempIds) const
   {
-    const vtkIdType faceId = GetFaceId(locationOffsets, locationConnectivity, cellId, face);
+    const vtkIdType signedId = GetSignedFaceId(locationOffsets, locationConnectivity, cellId, face);
+    const vtkIdType faceId = vtkPolyhedronCellArray::DecodeFaceId(signedId);
     const vtkIdType begin = GetBeginOffset(faceOffsets, faceId);
-    const vtkIdType npts = GetEndOffset(faceOffsets, faceId) - begin;
+    vtkPolyhedronCellArray::OrientedFace result;
+    result.NumberOfPoints = GetEndOffset(faceOffsets, faceId) - begin;
+    result.Reversed = vtkPolyhedronCellArray::IsReversedFaceId(signedId);
     if constexpr (std::is_base_of_v<vtkAOSDataArrayTemplate<vtkIdType>, FaceConnectivityT>)
     {
       // The points are shared, as by vtkCellArray::GetCellAtId().
-      pts = faceConnectivity->GetPointer(begin);
+      result.Points = faceConnectivity->GetPointer(begin);
     }
     else
     {
-      tempIds->SetNumberOfIds(npts);
+      tempIds->SetNumberOfIds(result.NumberOfPoints);
       vtkIdType* ids = tempIds->GetPointer(0);
       const auto facePoints = GetRange(faceConnectivity).begin() + begin;
-      for (vtkIdType i = 0; i < npts; ++i)
+      for (vtkIdType i = 0; i < result.NumberOfPoints; ++i)
       {
         ids[i] = static_cast<vtkIdType>(facePoints[i]);
       }
-      pts = ids;
+      result.Points = ids;
     }
-    return npts;
+    return result;
   }
 };
+
 VTK_ABI_NAMESPACE_END
 } // namespace vtkPolyhedronCellArray_detail
 
@@ -559,9 +754,9 @@ inline int vtkPolyhedronCellArray::GetCellNumberOfFaces(vtkIdType cellId) const
 }
 
 //----------------------------------------------------------------------------
-inline vtkIdType vtkPolyhedronCellArray::GetFaceId(vtkIdType cellId, int face) const
+inline vtkIdType vtkPolyhedronCellArray::GetSignedFaceId(vtkIdType cellId, int face) const
 {
-  return this->Dispatch(vtkPolyhedronCellArray_detail::GetFaceIdImpl{}, cellId, face);
+  return this->Dispatch(vtkPolyhedronCellArray_detail::GetSignedFaceIdImpl{}, cellId, face);
 }
 
 //----------------------------------------------------------------------------
@@ -571,11 +766,33 @@ inline vtkIdType vtkPolyhedronCellArray::GetFaceSize(vtkIdType cellId, int face)
 }
 
 //----------------------------------------------------------------------------
+inline vtkPolyhedronCellArray::OrientedFace vtkPolyhedronCellArray::GetFace(
+  vtkIdType cellId, int face, vtkIdList* tempIds) const
+{
+  return this->Dispatch(vtkPolyhedronCellArray_detail::GetFaceImpl{}, cellId, face, tempIds);
+}
+
+//----------------------------------------------------------------------------
 inline void vtkPolyhedronCellArray::GetFacePoints(
   vtkIdType cellId, int face, vtkIdType& npts, vtkIdType const*& pts, vtkIdList* tempIds) const
 {
-  npts =
-    this->Dispatch(vtkPolyhedronCellArray_detail::GetFacePointsImpl{}, cellId, face, pts, tempIds);
+  const OrientedFace oriented = this->GetFace(cellId, face, tempIds);
+  npts = oriented.NumberOfPoints;
+  if (!oriented.Reversed)
+  {
+    pts = oriented.Points;
+    return;
+  }
+  // GetFace() copied the points into tempIds if the storage is not shareable.
+  vtkIdType* ids = tempIds->GetPointer(0);
+  if (oriented.Points != ids)
+  {
+    tempIds->SetNumberOfIds(npts);
+    ids = tempIds->GetPointer(0);
+    std::copy_n(oriented.Points, npts, ids);
+  }
+  std::reverse(ids, ids + npts);
+  pts = ids;
 }
 
 VTK_ABI_NAMESPACE_END

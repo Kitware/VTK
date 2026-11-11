@@ -444,11 +444,9 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
       const int numFaces = newPolyhedra->GetCellNumberOfFaces(oldCellId);
       for (int face = 0; face < numFaces; ++face)
       {
-        vtkIdType numFacePts;
-        const vtkIdType* facePts;
-        newPolyhedra->GetFacePoints(oldCellId, face, numFacePts, facePts, facePtIds);
-        faceStream.push_back(numFacePts);
-        for (vtkIdType i = 0; i < numFacePts; ++i)
+        const auto facePts = newPolyhedra->GetFace(oldCellId, face, facePtIds);
+        faceStream.push_back(facePts.NumberOfPoints);
+        for (vtkIdType i = 0; i < facePts.NumberOfPoints; ++i)
         {
           faceStream.push_back(idMap ? idMap[facePts[i]] : this->NumberOfPoints + facePts[i]);
         }

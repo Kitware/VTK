@@ -807,36 +807,40 @@ struct ConvexPointSetSides
 // edges is shared by two of them, see vtkPolyhedron, so that an edge is once a pair of consecutive
 // points (a, b) of a face with a < b: the edge edgeId is the edgeId-th such pair, in the order of
 // the faces. An edge beyond them, of a polyhedron that is not closed, has no points.
+struct PolyhedronEdgePointsImpl : public vtkPolyhedronCellArray::DispatchUtilities
+{
+  template <class FaceOffsetsT, class FaceConnectivityT, class LocationOffsetsT,
+    class LocationConnectivityT>
+  vtkIdType operator()(FaceOffsetsT* faceOffsets, FaceConnectivityT* faceConnectivity,
+    LocationOffsetsT* locationOffsets, LocationConnectivityT* locationConnectivity,
+    vtkIdType cellId, int edgeId, vtkIdType* ptIds) const
+  {
+    int numEdges = 0;
+    for (const vtkIdType signedId : GetCellRange(locationOffsets, locationConnectivity, cellId))
+    {
+      const auto face = GetOrientedFaceRange(faceOffsets, faceConnectivity, signedId);
+      const vtkIdType numFacePts = face.size();
+      for (vtkIdType i = 0; i < numFacePts; ++i)
+      {
+        const vtkIdType a = face[i];
+        const vtkIdType b = face[i + 1 < numFacePts ? i + 1 : 0];
+        if (a < b && numEdges++ == edgeId)
+        {
+          ptIds[0] = a;
+          ptIds[1] = b;
+          return 2;
+        }
+      }
+    }
+    return 0;
+  }
+};
+
 inline vtkIdType GetPolyhedronEdgePoints(vtkPolyhedronCellArray* polyhedra, vtkIdType cellId,
   int edgeId, vtkIdType* ptIds, const vtkIdType*& ids, vtkIdType& numCorners)
 {
   ids = ptIds;
-  vtkCellArray* faces = polyhedra->GetFaces();
-  int numEdges = 0;
-  const int numFaces = polyhedra->GetCellNumberOfFaces(cellId);
-  for (int face = 0; face < numFaces; ++face)
-  {
-    const vtkIdType faceId = polyhedra->GetFaceId(cellId, face);
-    const vtkIdType numFacePts = faces->GetCellSize(faceId);
-    if (numFacePts == 0)
-    {
-      continue;
-    }
-    const vtkIdType firstPt = faces->GetCellPointAtId(faceId, 0);
-    vtkIdType a = firstPt;
-    for (vtkIdType i = 0; i < numFacePts; ++i)
-    {
-      const vtkIdType b = i + 1 < numFacePts ? faces->GetCellPointAtId(faceId, i + 1) : firstPt;
-      if (a < b && numEdges++ == edgeId)
-      {
-        ptIds[0] = a;
-        ptIds[1] = b;
-        return numCorners = 2;
-      }
-      a = b;
-    }
-  }
-  return numCorners = 0;
+  return numCorners = polyhedra->Dispatch(PolyhedronEdgePointsImpl{}, cellId, edgeId, ptIds);
 }
 
 //------------------------------------------------------------------------------

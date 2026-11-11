@@ -274,6 +274,15 @@ which also gives away the number of faces for the current polyhedron
 by reading the very next value in the array and substracting it to the current one.
 This means that a single (oriented) face can be used by multiple polyhedrons.
 
+Since version 2.9, `PolyhedronToFaces` can also list a face `n` as `-(n+1)`, so that the polyhedron
+traverses it in reverse. The faces of a polyhedron are wound outward, so a face shared by two
+polyhedra is outward for one and inward for the other: the first lists it as `n`, the second as
+`-(n+1)`, and the face is stored once. Each face is shared or not on its own, so a partition may
+store some shared faces once and give others a copy per polyhedron. Face ids are local to the
+partition, as point ids are. Readers before version 2.9 check only the major version, so
+they open such a file without a warning and misread the polyhedra that share faces.
+To write a file that they read correctly, duplicate the shared faces first with `vtkPolyhedronCellArray::DuplicateSharedFaces()`.
+
 When mixing polyhedral and non-polyhedral cells in the same dataset,
 the value of `PolyhedronOffsets` should stay the same as the previous one when the cell is non-polyhedral,
 and be incremented when the cell is a polyhedron and defines faces.

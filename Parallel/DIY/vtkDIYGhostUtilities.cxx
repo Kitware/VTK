@@ -3155,7 +3155,8 @@ struct PolyhedraCopier
       for (vtkIdType location = sourceLocationOffsets[cellId];
            location < sourceLocationOffsets[cellId + 1]; ++location, ++faceId)
       {
-        const vtkIdType sourceFaceId = sourceLocationConnectivity[location];
+        const vtkIdType sourceFaceId =
+          vtkPolyhedronCellArray::DecodeFaceId(sourceLocationConnectivity[location]);
         targetLocationConnectivity[faceId] = faceId;
         targetFaceOffsets[faceId] = facePointId;
         facePointId += sourceFaceOffsets[sourceFaceId + 1] - sourceFaceOffsets[sourceFaceId];
@@ -3187,13 +3188,17 @@ struct PolyhedraCopier
       for (vtkIdType location = sourceLocationOffsets[cellId];
            location < sourceLocationOffsets[cellId + 1]; ++location, ++faceId)
       {
-        const vtkIdType sourceFaceId = sourceLocationConnectivity[location];
+        // A face id -(n+1) is face n traversed in reverse.
+        const vtkIdType signedFaceId = sourceLocationConnectivity[location];
+        const bool reversed = vtkPolyhedronCellArray::IsReversedFaceId(signedFaceId);
+        const vtkIdType sourceFaceId = vtkPolyhedronCellArray::DecodeFaceId(signedFaceId);
+        const vtkIdType first = sourceFaceOffsets[sourceFaceId];
+        const vtkIdType last = sourceFaceOffsets[sourceFaceId + 1] - 1;
         vtkIdType facePointId = targetFaceOffsets[faceId];
-        for (vtkIdType sourceFacePointId = sourceFaceOffsets[sourceFaceId];
-             sourceFacePointId < sourceFaceOffsets[sourceFaceId + 1]; ++sourceFacePointId)
+        for (vtkIdType i = 0; i <= last - first; ++i)
         {
           targetFaceConnectivity[facePointId++] =
-            this->Copy.MapPointId(sourceFaceConnectivity[sourceFacePointId]);
+            this->Copy.MapPointId(sourceFaceConnectivity[reversed ? last - i : first + i]);
         }
       }
     }

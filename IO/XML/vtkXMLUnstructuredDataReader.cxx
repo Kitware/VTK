@@ -1431,6 +1431,13 @@ int vtkXMLUnstructuredDataReader::ReadPolyhedronCellArray(vtkIdType numberOfCell
     }
     outFaces->Append(tmpFaces);
 
+    // vtkCellArray::Append() would move a reversed face -(n+1) the wrong way, so the ids of the
+    // faces are offset here.
+    if (!vtkXMLUnstructuredDataReaderPrivate::RebasePolyFaces(polyToFaces, -faceNumOffset))
+    {
+      vtkErrorMacro("Cannot offset the polyhedron_to_faces array.");
+      return 0;
+    }
     vtkNew<vtkCellArray> tmpCells;
     ConstructCellArray builderPoly{ tmpCells, polyToFaces };
     if (!Dispatch::Execute(polyhedronCellOffsets, builderPoly))
@@ -1449,7 +1456,7 @@ int vtkXMLUnstructuredDataReader::ReadPolyhedronCellArray(vtkIdType numberOfCell
       return 0;
     }
 
-    outFaceOffsets->Append(tmpCells, faceNumOffset);
+    outFaceOffsets->Append(tmpCells, 0);
   }
   return 1;
 }

@@ -2285,8 +2285,8 @@ void vtkPolyhedron::ClipWithContext(double value, vtkDataArray* pointScalars,
   vtkTypeBool insideOut, vtkUnstructuredGrid* outUG)
 {
   this->ClipWithContext(value, pointScalars, locator, connectivity, inPd, outPd, inCd, cellId,
-    outCd, insideOut, outUG ? outUG->GetPolyhedronFaces() : nullptr,
-    outUG ? outUG->GetPolyhedronFaceLocations() : nullptr);
+    outCd, insideOut, outUG ? outUG->GetOrientedPolyhedronFaces() : nullptr,
+    outUG ? outUG->GetOrientedPolyhedronFaceLocations() : nullptr);
 }
 
 //------------------------------------------------------------------------------

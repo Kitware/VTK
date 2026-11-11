@@ -17,16 +17,21 @@
 // * TestHDFWriterMixedCells: tests that polyhedra are written and reread
 //   correctly when mixed with other cell types.
 
+#include "vtkCellArray.h"
 #include "vtkCellType.h"
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
+#include "vtkIdList.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
+#include "vtkPolyhedronCellArray.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
 #include <vector>
 
 //------------------------------------------------------------------------------
@@ -364,12 +369,103 @@ bool TestHDFWriterMixedCells(int argc, char* argv[])
 }
 
 //------------------------------------------------------------------------------
+// Two cubes sharing a face, stored once: the second cube lists it as -(n+1) to traverse it in
+// reverse. The file keeps the shared face and the sign.
+bool TestHDFWriterSharedFaces(int argc, char* argv[])
+{
+  vtkLog(INFO, "Starting TestHDFWriterSharedFaces...");
+  vtkNew<vtkTesting> testUtils;
+  testUtils->AddArguments(argc, argv);
+
+  vtkNew<vtkPoints> points;
+  for (int k = 0; k < 2; ++k)
+  {
+    for (int j = 0; j < 2; ++j)
+    {
+      for (int i = 0; i < 3; ++i)
+      {
+        points->InsertNextPoint(i, j, k);
+      }
+    }
+  }
+  // Point (i, j, k) is i + 3 * (j + 2 * k).
+  const std::vector<std::vector<vtkIdType>> storedFaces = {
+    { 0, 6, 9, 3 },  // x = 0
+    { 1, 4, 10, 7 }, // x = 1, outward for the first cube
+    { 0, 1, 7, 6 },  // y = 0
+    { 3, 9, 10, 4 }, // y = 1
+    { 0, 3, 4, 1 },  // z = 0
+    { 6, 7, 10, 9 }, // z = 1
+    { 2, 5, 11, 8 }, // x = 2
+    { 1, 2, 8, 7 },  // y = 0
+    { 4, 10, 11, 5 },
+    { 1, 4, 5, 2 },
+    { 7, 8, 11, 10 },
+  };
+  vtkNew<vtkCellArray> faces;
+  for (const auto& face : storedFaces)
+  {
+    faces->InsertNextCell(static_cast<vtkIdType>(face.size()), face.data());
+  }
+  vtkNew<vtkCellArray> locations;
+  const vtkIdType first[6] = { 0, 1, 2, 3, 4, 5 };
+  const vtkIdType second[6] = { vtkPolyhedronCellArray::EncodeFaceId(1, true), 6, 7, 8, 9, 10 };
+  locations->InsertNextCell(6, first);
+  locations->InsertNextCell(6, second);
+  vtkNew<vtkCellArray> cells;
+  const vtkIdType cube0[8] = { 0, 1, 4, 3, 6, 7, 10, 9 };
+  const vtkIdType cube1[8] = { 1, 2, 5, 4, 7, 8, 11, 10 };
+  cells->InsertNextCell(8, cube0);
+  cells->InsertNextCell(8, cube1);
+  vtkNew<vtkUnsignedCharArray> types;
+  types->InsertNextValue(VTK_POLYHEDRON);
+  types->InsertNextValue(VTK_POLYHEDRON);
+  vtkNew<vtkUnstructuredGrid> grid;
+  grid->SetPoints(points);
+  grid->SetPolyhedralCells(types, cells, locations, faces);
+
+  const std::string path =
+    std::string(testUtils->GetTempDirectory()) + "/TestHDFWriterSharedFaces.vtkhdf";
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetFileName(path.c_str());
+  writer->SetInputData(grid);
+  writer->Write();
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(path.c_str());
+  reader->Update();
+  vtkUnstructuredGrid* reread = vtkUnstructuredGrid::SafeDownCast(reader->GetOutput());
+  if (!reread || !reread->GetPolyhedronCellArray())
+  {
+    vtkLog(ERROR, "Failed to read the shared faces back");
+    return false;
+  }
+  vtkPolyhedronCellArray* polyhedra = reread->GetPolyhedronCellArray();
+  bool ok = polyhedra->GetNumberOfFaces() == static_cast<vtkIdType>(storedFaces.size()) &&
+    polyhedra->GetSignedFaceId(1, 0) == vtkPolyhedronCellArray::EncodeFaceId(1, true);
+  vtkNew<vtkIdList> expected;
+  vtkNew<vtkIdList> actual;
+  for (vtkIdType cellId = 0; cellId < 2; ++cellId)
+  {
+    grid->GetPolyhedronCellArray()->GetFaceStream(cellId, expected);
+    polyhedra->GetFaceStream(cellId, actual);
+    ok &= std::equal(expected->begin(), expected->end(), actual->begin(), actual->end());
+  }
+  if (!ok)
+  {
+    vtkLog(ERROR, "The shared face or its sign was lost");
+  }
+  return ok;
+}
+
+//------------------------------------------------------------------------------
 int TestHDFWriterPolyhedra(int argc, char* argv[])
 {
   bool success = true;
   success &= TestHDFWriterPolyhedraTemporal(argc, argv);
   success &= TestHDFWriterPolyhedraStaticTemporal(argc, argv);
   success &= TestHDFWriterMixedCells(argc, argv);
+  success &= TestHDFWriterSharedFaces(argc, argv);
 
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

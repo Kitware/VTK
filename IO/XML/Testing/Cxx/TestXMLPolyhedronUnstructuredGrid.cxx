@@ -271,8 +271,8 @@ int TestXMLPolyhedronUnstructuredGrid(int argc, char* argv[])
   {
     return EXIT_FAILURE;
   }
-  if (IcosidodecaheronGrid->GetPolyhedronFaces()->GetNumberOfCells() !=
-    reader->GetOutput()->GetPolyhedronFaces()->GetNumberOfCells())
+  if (IcosidodecaheronGrid->GetOrientedPolyhedronFaces()->GetNumberOfCells() !=
+    reader->GetOutput()->GetOrientedPolyhedronFaces()->GetNumberOfCells())
   {
     return EXIT_FAILURE;
   }
@@ -281,12 +281,14 @@ int TestXMLPolyhedronUnstructuredGrid(int argc, char* argv[])
   vtkNew<vtkIdList> ptsIdsRef;
   const vtkIdType* nodesRead;
   vtkNew<vtkIdList> ptsIdsRead;
-  for (vtkIdType idx = 0; idx < IcosidodecaheronGrid->GetPolyhedronFaces()->GetNumberOfCells();
-       ++idx)
+  for (vtkIdType idx = 0;
+       idx < IcosidodecaheronGrid->GetOrientedPolyhedronFaces()->GetNumberOfCells(); ++idx)
   {
     vtkIdType numPtsRef, numPtsRead;
-    IcosidodecaheronGrid->GetPolyhedronFaces()->GetCellAtId(idx, numPtsRef, nodesRef, ptsIdsRef);
-    reader->GetOutput()->GetPolyhedronFaces()->GetCellAtId(idx, numPtsRead, nodesRead, ptsIdsRead);
+    IcosidodecaheronGrid->GetOrientedPolyhedronFaces()->GetCellAtId(
+      idx, numPtsRef, nodesRef, ptsIdsRef);
+    reader->GetOutput()->GetOrientedPolyhedronFaces()->GetCellAtId(
+      idx, numPtsRead, nodesRead, ptsIdsRead);
     if (numPtsRef != numPtsRead)
     {
       return EXIT_FAILURE;
