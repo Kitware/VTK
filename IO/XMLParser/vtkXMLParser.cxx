@@ -9,6 +9,17 @@
 
 #include <cctype>
 
+// Expat 2.9 deprecates the position getters in favor of their 64-bit variants.
+#if XML_MAJOR_VERSION > 2 || (XML_MAJOR_VERSION == 2 && XML_MINOR_VERSION >= 9)
+#define vtkXML_GetCurrentLineNumber XML_GetCurrentLineNumber64
+#define vtkXML_GetCurrentColumnNumber XML_GetCurrentColumnNumber64
+#define vtkXML_GetCurrentByteIndex XML_GetCurrentByteIndex64
+#else
+#define vtkXML_GetCurrentLineNumber XML_GetCurrentLineNumber
+#define vtkXML_GetCurrentColumnNumber XML_GetCurrentColumnNumber
+#define vtkXML_GetCurrentByteIndex XML_GetCurrentByteIndex
+#endif
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLParser);
 
@@ -362,16 +373,16 @@ void vtkXMLParser::ReportUnknownElement(const char* element)
 void vtkXMLParser::ReportXmlParseError()
 {
   vtkErrorMacro("Error parsing XML in stream at line "
-    << XML_GetCurrentLineNumber(static_cast<XML_Parser>(this->Parser)) << ", column "
-    << XML_GetCurrentColumnNumber(static_cast<XML_Parser>(this->Parser)) << ", byte index "
-    << XML_GetCurrentByteIndex(static_cast<XML_Parser>(this->Parser)) << ": "
+    << vtkXML_GetCurrentLineNumber(static_cast<XML_Parser>(this->Parser)) << ", column "
+    << vtkXML_GetCurrentColumnNumber(static_cast<XML_Parser>(this->Parser)) << ", byte index "
+    << vtkXML_GetCurrentByteIndex(static_cast<XML_Parser>(this->Parser)) << ": "
     << XML_ErrorString(XML_GetErrorCode(static_cast<XML_Parser>(this->Parser))));
 }
 
 //------------------------------------------------------------------------------
 vtkTypeInt64 vtkXMLParser::GetXMLByteIndex()
 {
-  return XML_GetCurrentByteIndex(static_cast<XML_Parser>(this->Parser));
+  return vtkXML_GetCurrentByteIndex(static_cast<XML_Parser>(this->Parser));
 }
 
 //------------------------------------------------------------------------------
