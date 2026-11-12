@@ -46,6 +46,10 @@ public:
   {
     return this->vtkAlgorithm::GetInputArrayToProcess(idx, input);
   }
+  vtkDataArray* GetInputArrayToProcess(int idx, vtkDataObject* input, int& association)
+  {
+    return this->vtkAlgorithm::GetInputArrayToProcess(idx, input, association);
+  }
 
   vtkAbstractArray* GetInputAbstractArrayToProcess(int idx, vtkDataObject* input)
   {

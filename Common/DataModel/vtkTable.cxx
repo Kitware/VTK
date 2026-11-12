@@ -159,6 +159,17 @@ unsigned long vtkTable::GetActualMemorySize()
   return this->RowData->GetActualMemorySize() + this->Superclass::GetActualMemorySize();
 }
 
+//------------------------------------------------------------------------------
+vtkMTimeType vtkTable::GetMTime()
+{
+  vtkMTimeType mtime = this->Superclass::GetMTime();
+  if (this->RowData)
+  {
+    mtime = std::max(mtime, this->RowData->GetMTime());
+  }
+  return mtime;
+}
+
 //
 // Row functions
 //

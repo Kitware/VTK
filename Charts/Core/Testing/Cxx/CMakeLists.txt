@@ -114,6 +114,7 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestPlotPoints.cxx
   TestPlotRangeHandlesItem.cxx,NO_DATA,NO_VALID
   TestPropItem.cxx
+  TestRadVizChartInput.cxx,NO_DATA,NO_VALID
   TestRangeHandlesItemEvents.cxx,NO_DATA,NO_VALID
   TestScalarsToColors.cxx
   TestScatterPlot.cxx,LOOSE_VALID
@@ -127,7 +128,52 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestSurfacePlot.cxx
   TestZoomAxis.cxx
   TestZoomIndividualAxis.cxx
+)
+
+# scalar visibility off
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartDataSet,TestRadVizChartDataSet.cxx 0
+)
+# scalar visibility on
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartDataSetNoBackground,TestRadVizChartDataSet.cxx 1
+)
+# hide one column (Co)
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartDataSetHideColumn,TestRadVizChartDataSet.cxx 2
+)
+
+# show all columns
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartTable,TestRadVizChartTable.cxx 0
+)
+# hide one column
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartTableHideColumn,TestRadVizChartTable.cxx 1
+)
+# hide two columns, check that the plot is empty and no errors are printed
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartTableHideTwoColumns,TestRadVizChartTable.cxx,NO_VALID 2
+)
+# narrow window
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartTableNarrow,TestRadVizChartTable.cxx 3
+)
+
+
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartInteractionVertices,TestRadVizChartInteraction.cxx 0
+)
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+  TestRadVizChartInteractionLens,TestRadVizChartInteraction.cxx 1
+)
+if (VTK_WRAP_SERIALIZATION)
+  vtk_add_test_cxx(vtkChartsCoreCxxTests tests
+    TestRadVizSerDes.cxx,NO_DATA,NO_VALID
   )
+endif ()
+
+
 vtk_test_cxx_executable(vtkChartsCoreCxxTests tests
   DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY

@@ -3,6 +3,11 @@ vtk_add_test_cxx(vtkFiltersParallelCxxTests testsStd
   TestAngularPeriodicFilter.cxx
   TestGaussianQuadratureIntegration.cxx,NO_VALID
   TestGeometryFilterDispatcher.cxx
+  TestMultiVariateToRGBA.cxx
+  TestMultiVariateToRGBADegenerate.cxx,NO_VALID
+  TestMultiVariateToRGBALens.cxx,NO_VALID
+  TestMultiVariateToRGBATableTypes.cxx,NO_VALID
+  TestMultiVariateToRGBAVisibleVariables.cxx,NO_VALID
   TestPOutlineFilter.cxx,NO_VALID
   )
 vtk_test_cxx_executable(vtkFiltersParallelCxxTests testsStd)
@@ -14,6 +19,7 @@ if (TARGET VTK::ParallelMPI)
     DistributedData.cxx
     DistributedDataRenderPass.cxx
     PTextureMapToSphere.cxx
+    TestMultiVariateToRGBA.cxx
     TestPHyperTreeGridProbeFilter.cxx
     TestPExtractDataArraysOverTime.cxx,NO_VALID
     TestPartitionBalancer.cxx,NO_VALID
@@ -24,6 +30,8 @@ if (TARGET VTK::ParallelMPI)
     )
   vtk_add_test_mpi(vtkFiltersParallelCxxTests-MPI no_data_tests
     ParallelResampling.cxx
+    TestMultiVariateToRGBAEmptyPiece.cxx,NO_VALID
+    TestMultiVariateToRGBAParallel.cxx,NO_VALID
     UnitTestPMaskPoints.cxx
     TestGenerateProcessIds.cxx,NO_VALID
     TestGenerateProcessIdsHTG.cxx,NO_VALID

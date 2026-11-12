@@ -215,6 +215,20 @@ void InsertImplicitArray(vtkTable* table, std::vector<std::vector<double>>& stdT
   CheckEqual(table, stdTable, "InsertImplicitColumn");
 }
 
+void CheckMTime(vtkTable* table)
+{
+  vtkAbstractArray* column = table->GetColumn(0);
+  vtkMTimeType before = table->GetMTime();
+  column->Modified();
+  if (table->GetMTime() <= before || table->GetMTime() < column->GetMTime())
+  {
+    std::cout << "TestTable CheckMTime() fails: modifying a column does not "
+                 "modify the table."
+              << std::endl;
+    exit(EXIT_FAILURE);
+  }
+}
+
 void InsertRows(
   vtkTable* table, std::vector<std::vector<double>>& stdTable, const vtkIdType r0, const int n)
 {
@@ -416,6 +430,8 @@ int TestTable(int, char*[])
 
   // insert a column with an ImplicitArray, i.e. a read-only array.
   InsertImplicitArray(table, stdTable);
+
+  CheckMTime(table);
 
   return EXIT_SUCCESS;
 }

@@ -1,5 +1,6 @@
 vtk_module_test_data(
   Data/AMR/htg3d.htg
+  Data/Ce_Co_Fe_Gd_small_10.1038_s43246-022-00259-x.vti
   Data/RectGrid2.vtk
   Data/SampleStructGrid.vtk
   Data/ironProt.vtk
