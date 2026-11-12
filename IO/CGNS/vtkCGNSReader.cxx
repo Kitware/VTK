@@ -36,6 +36,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPolyhedronCellArray.h"
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
@@ -44,6 +45,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeInt64Array.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVertex.h"
 
@@ -3213,14 +3215,44 @@ int vtkCGNSReader::GetUnstructuredZone(
           }
         }
 
-        // We now have the face-to-node and cell-to-face connectivity arrays.
-        // VTK, however, has no concept of faces, and uses cell-to-node connectivity, so the
-        // intermediate faces need to be taken out of the description (basic CGNS 3.4 support).
+        // We now have the face-to-node and cell-to-face connectivity arrays. Every NGON_n face
+        // is stored once, wound as in the file. A cell that traverses it in reverse, a
+        // negative id in NFACE_n, lists it as -(n+1) (see vtkPolyhedronCellArray).
+        const vtkIdType numFaceNodes = faceElementsIdx[numFaces];
+        vtkNew<vtkIdTypeArray> polyFaceConnectivity;
+        polyFaceConnectivity->SetNumberOfValues(numFaceNodes);
+        for (vtkIdType i = 0; i < numFaceNodes; ++i)
+        {
+          // CGNS uses one-based indexing
+          polyFaceConnectivity->SetValue(i, faceElementsArr[i] - 1);
+        }
+        vtkNew<vtkIdTypeArray> polyFaceOffsets;
+        polyFaceOffsets->DeepCopy(outFaceOffsets);
+        vtkNew<vtkCellArray> polyFaces;
+        polyFaces->SetData(polyFaceOffsets, polyFaceConnectivity);
+
+        // Cells of the element sections read above come first.
+        vtkNew<vtkUnsignedCharArray> cellTypes;
+        vtkNew<vtkCellArray> cells;
+        vtkNew<vtkCellArray> faceLocations;
+        const vtkIdType numElementCells = ugrid->GetNumberOfCells();
+        if (numElementCells > 0)
+        {
+          cells->DeepCopy(ugrid->GetCells());
+          for (vtkIdType cellId = 0; cellId < numElementCells; ++cellId)
+          {
+            cellTypes->InsertNextValue(static_cast<unsigned char>(ugrid->GetCellType(cellId)));
+            faceLocations->InsertNextCell(0);
+          }
+        }
+
+        std::vector<vtkIdType> cellFaceIds;
+        std::vector<vtkIdType> cellPointIds;
         for (vtkIdType nc = 0; nc < numCells; nc++)
         {
           int numCellFaces = cellElementsIdx[nc + 1] - cellElementsIdx[nc];
-          vtkNew<vtkIdList> pointIds;
-          vtkNew<vtkCellArray> faces;
+          cellFaceIds.clear();
+          cellPointIds.clear();
 
           for (vtkIdType nf = 0; nf < numCellFaces; ++nf)
           {
@@ -3245,37 +3277,26 @@ int vtkCGNSReader::GetUnstructuredZone(
 
             // CGNS uses one-based indexing, so subtract 1 from face ID for zero-based indexing
             faceId -= 1;
+            cellFaceIds.push_back(vtkPolyhedronCellArray::EncodeFaceId(faceId, mustReverse));
 
             vtkIdType startNode = faceElementsIdx[faceId];
-            vtkIdType endNode = faceElementsIdx[faceId + 1];
-            vtkIdType numNodes = endNode - startNode;
-            faces->InsertNextCell(numNodes);
-
-            // Each face is composed of multiple vertices
-            if (mustReverse)
+            vtkIdType numNodes = faceElementsIdx[faceId + 1] - startNode;
+            for (vtkIdType nn = 0; nn < numNodes; ++nn)
             {
-              for (vtkIdType nn = numNodes - 1; nn >= 0; --nn)
+              vtkIdType nodeID =
+                polyFaceConnectivity->GetValue(startNode + (mustReverse ? numNodes - 1 - nn : nn));
+              if (std::find(cellPointIds.begin(), cellPointIds.end(), nodeID) == cellPointIds.end())
               {
-                // Subtract 1 from node ID for zero-based indexing
-                vtkIdType nodeID = faceElementsArr[startNode + nn] - 1;
-                pointIds->InsertUniqueId(nodeID);
-                faces->InsertCellPoint(nodeID);
-              }
-            }
-            else
-            {
-              for (vtkIdType nn = 0; nn < numNodes; ++nn)
-              {
-                // Subtract 1 from node ID for zero-based indexing
-                vtkIdType nodeID = faceElementsArr[startNode + nn] - 1;
-                pointIds->InsertUniqueId(nodeID);
-                faces->InsertCellPoint(nodeID);
+                cellPointIds.push_back(nodeID);
               }
             }
           }
-          ugrid->InsertNextCell(
-            VTK_POLYHEDRON, pointIds->GetNumberOfIds(), pointIds->GetPointer(0), faces);
+          cellTypes->InsertNextValue(VTK_POLYHEDRON);
+          cells->InsertNextCell(static_cast<vtkIdType>(cellPointIds.size()), cellPointIds.data());
+          faceLocations->InsertNextCell(
+            static_cast<vtkIdType>(cellFaceIds.size()), cellFaceIds.data());
         }
+        ugrid->SetPolyhedralCells(cellTypes, cells, faceLocations, polyFaces);
       }
 
       // If we have a 2D mesh or if FACE_DATA is requested, load polygons
