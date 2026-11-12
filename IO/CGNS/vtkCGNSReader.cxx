@@ -31,11 +31,13 @@
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
+#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyhedronCellArray.h"
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -85,6 +87,153 @@ bool IsIdTypeBigEnough(const T& val)
   (void)val;
   return (sizeof(vtkIdType) >= sizeof(T) || static_cast<T>(vtkTypeTraits<vtkIdType>::Max()) >= val);
 }
+
+/**
+ * Orients the faces of a polyhedron outward when the file does not: every edge is then traversed
+ * once in each direction, and the enclosed volume is positive. `reversed` holds, per face of the
+ * cell, whether the stored face is read in reverse. A cell that is not a closed, orientable
+ * surface keeps the orientation of the file.
+ */
+class PolyhedronOrienter
+{
+public:
+  void Orient(vtkPoints* points, vtkIdTypeArray* offsets, vtkIdTypeArray* connectivity,
+    const std::vector<vtkIdType>& faces, std::vector<bool>& reversed)
+  {
+    const int numFaces = static_cast<int>(faces.size());
+    if (numFaces == 0)
+    {
+      return;
+    }
+    this->Edges.clear();
+    for (int face = 0; face < numFaces; ++face)
+    {
+      const vtkIdType start = offsets->GetValue(faces[face]);
+      const vtkIdType size = offsets->GetValue(faces[face] + 1) - start;
+      for (vtkIdType i = 0; i < size; ++i)
+      {
+        const vtkIdType a = connectivity->GetValue(start + i);
+        const vtkIdType b = connectivity->GetValue(start + (i + 1) % size);
+        // An edge goes forward when the face, read as the cell reads it, goes from low to high.
+        const bool forward = (a < b) != reversed[face];
+        this->Edges.push_back({ std::min(a, b), std::max(a, b), face, forward });
+      }
+    }
+    std::sort(this->Edges.begin(), this->Edges.end(), [](const Edge& e1, const Edge& e2)
+      { return e1.Low < e2.Low || (e1.Low == e2.Low && e1.High < e2.High); });
+
+    bool consistent = true;
+    if (this->Neighbors.size() < faces.size())
+    {
+      this->Neighbors.resize(faces.size());
+    }
+    for (int face = 0; face < numFaces; ++face)
+    {
+      this->Neighbors[face].clear();
+    }
+    for (std::size_t i = 0; i < this->Edges.size(); i += 2)
+    {
+      const Edge& e1 = this->Edges[i];
+      if (i + 1 >= this->Edges.size() || this->Edges[i + 1].Low != e1.Low ||
+        this->Edges[i + 1].High != e1.High ||
+        (i + 2 < this->Edges.size() && this->Edges[i + 2].Low == e1.Low &&
+          this->Edges[i + 2].High == e1.High))
+      {
+        return;
+      }
+      const Edge& e2 = this->Edges[i + 1];
+      const bool same = e1.Forward == e2.Forward;
+      consistent &= !same;
+      this->Neighbors[e1.Face].emplace_back(e2.Face, same);
+      this->Neighbors[e2.Face].emplace_back(e1.Face, same);
+    }
+
+    if (!consistent)
+    {
+      // Flip faces so that neighbors traverse their common edge in opposite directions.
+      this->Flip.assign(numFaces, -1);
+      this->Flip[0] = 0;
+      this->Queue.assign(1, 0);
+      for (std::size_t q = 0; q < this->Queue.size(); ++q)
+      {
+        const int face = this->Queue[q];
+        for (const auto& neighbor : this->Neighbors[face])
+        {
+          const int flip = this->Flip[face] ^ static_cast<int>(neighbor.second);
+          if (this->Flip[neighbor.first] < 0)
+          {
+            this->Flip[neighbor.first] = flip;
+            this->Queue.push_back(neighbor.first);
+          }
+          else if (this->Flip[neighbor.first] != flip)
+          {
+            return;
+          }
+        }
+      }
+      if (static_cast<int>(this->Queue.size()) != numFaces)
+      {
+        return;
+      }
+      for (int face = 0; face < numFaces; ++face)
+      {
+        if (this->Flip[face])
+        {
+          reversed[face] = !reversed[face];
+        }
+      }
+    }
+
+    if (this->Volume(points, offsets, connectivity, faces, reversed) < 0.0)
+    {
+      reversed.flip();
+    }
+  }
+
+private:
+  struct Edge
+  {
+    vtkIdType Low;
+    vtkIdType High;
+    int Face;
+    bool Forward;
+  };
+
+  static double Volume(vtkPoints* points, vtkIdTypeArray* offsets, vtkIdTypeArray* connectivity,
+    const std::vector<vtkIdType>& faces, const std::vector<bool>& reversed)
+  {
+    double origin[3];
+    points->GetPoint(connectivity->GetValue(offsets->GetValue(faces[0])), origin);
+    double volume = 0.0;
+    for (std::size_t face = 0; face < faces.size(); ++face)
+    {
+      const vtkIdType start = offsets->GetValue(faces[face]);
+      const vtkIdType size = offsets->GetValue(faces[face] + 1) - start;
+      auto point = [&](vtkIdType i, double p[3])
+      {
+        points->GetPoint(connectivity->GetValue(start + (reversed[face] ? size - 1 - i : i)), p);
+        for (int c = 0; c < 3; ++c)
+        {
+          p[c] -= origin[c];
+        }
+      };
+      double p0[3], p1[3], p2[3];
+      point(0, p0);
+      for (vtkIdType i = 1; i + 1 < size; ++i)
+      {
+        point(i, p1);
+        point(i + 1, p2);
+        volume += vtkMath::Determinant3x3(p0, p1, p2);
+      }
+    }
+    return volume;
+  }
+
+  std::vector<Edge> Edges;
+  std::vector<std::vector<std::pair<int, bool>>> Neighbors;
+  std::vector<int> Flip;
+  std::vector<int> Queue;
+};
 
 // Helper structure to store zone ranges [start, end) for parallel distribution
 // Used in baseToZoneRange mapping to track which zones each rank processes
@@ -3217,7 +3366,8 @@ int vtkCGNSReader::GetUnstructuredZone(
 
         // We now have the face-to-node and cell-to-face connectivity arrays. Every NGON_n face
         // is stored once, wound as in the file. A cell that traverses it in reverse, a
-        // negative id in NFACE_n, lists it as -(n+1) (see vtkPolyhedronCellArray).
+        // negative id in NFACE_n, lists it as -(n+1) (see vtkPolyhedronCellArray). Cells whose
+        // faces the file does not orient outward, as the standard requires, are oriented here.
         const vtkIdType numFaceNodes = faceElementsIdx[numFaces];
         vtkNew<vtkIdTypeArray> polyFaceConnectivity;
         polyFaceConnectivity->SetNumberOfValues(numFaceNodes);
@@ -3246,18 +3396,23 @@ int vtkCGNSReader::GetUnstructuredZone(
           }
         }
 
+        PolyhedronOrienter orienter;
+        std::vector<vtkIdType> cellFaces;
+        std::vector<bool> cellFacesReversed;
         std::vector<vtkIdType> cellFaceIds;
         std::vector<vtkIdType> cellPointIds;
         for (vtkIdType nc = 0; nc < numCells; nc++)
         {
           int numCellFaces = cellElementsIdx[nc + 1] - cellElementsIdx[nc];
+          cellFaces.clear();
+          cellFacesReversed.clear();
           cellFaceIds.clear();
           cellPointIds.clear();
 
           for (vtkIdType nf = 0; nf < numCellFaces; ++nf)
           {
             vtkIdType faceId = cellElementsArr[cellElementsIdx[nc] + nf];
-            bool mustReverse = (faceId > 0) == this->FlipFaceNormals;
+            cellFacesReversed.push_back(faceId < 0);
             faceId = std::abs(faceId);
 
             // The following is needed because when the NGON_n face data does not precede the
@@ -3276,7 +3431,16 @@ int vtkCGNSReader::GetUnstructuredZone(
             }
 
             // CGNS uses one-based indexing, so subtract 1 from face ID for zero-based indexing
-            faceId -= 1;
+            cellFaces.push_back(faceId - 1);
+          }
+
+          orienter.Orient(ugrid->GetPoints(), polyFaceOffsets, polyFaceConnectivity, cellFaces,
+            cellFacesReversed);
+
+          for (vtkIdType nf = 0; nf < numCellFaces; ++nf)
+          {
+            const vtkIdType faceId = cellFaces[nf];
+            const bool mustReverse = cellFacesReversed[nf] != this->FlipFaceNormals;
             cellFaceIds.push_back(vtkPolyhedronCellArray::EncodeFaceId(faceId, mustReverse));
 
             vtkIdType startNode = faceElementsIdx[faceId];

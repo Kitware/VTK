@@ -215,8 +215,10 @@ vtkSmartPointer<vtkDataObject> Read(const std::string& fileName, bool share)
 int TestCGNSReaderSharedFaces(int argc, char* argv[])
 {
   bool ok = true;
-  // NFACE_n given in the file, and NFACE_n rebuilt from NGON_n ParentElements
-  for (const char* file : { "Data/Example_nface_n.cgns", "Data/Example_ngon_pe.cgns" })
+  // NFACE_n given in the file, NFACE_n rebuilt from NGON_n ParentElements, and a file whose
+  // NFACE_n orients the faces inward
+  for (const char* file :
+    { "Data/Example_nface_n.cgns", "Data/Example_ngon_pe.cgns", "Data/EngineSector.cgns" })
   {
     char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, file);
     const std::string name = fileName;

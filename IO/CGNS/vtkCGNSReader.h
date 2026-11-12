@@ -221,10 +221,10 @@ public:
 
   ///@{
   /**
-   * Polyhedron face normals are oriented outward if faceId is positive.
-   * If a file is not CGNS compliant, set this option to true in order to flip
-   * polyhedron face orientation.
-   * Default is false (CGNS standard by default)
+   * Polyhedron faces are oriented outward, as the CGNS standard requires, also when the
+   * signs in NFACE_n or the ParentElements of a file do not orient them so. Set this option
+   * to true to orient them inward instead.
+   * Default is false.
    */
   vtkSetMacro(FlipFaceNormals, bool);
   vtkGetMacro(FlipFaceNormals, bool);
