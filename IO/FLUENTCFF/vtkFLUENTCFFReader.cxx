@@ -22,16 +22,17 @@
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
+#include "vtkPolyhedronCellArray.h"
 #include "vtkPyramid.h"
 #include "vtkQuad.h"
 #include "vtkStringFormatter.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWedge.h"
 
@@ -145,13 +146,6 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     this->FileState = DataState::LOADED;
   }
 
-  // Transfer structures for VTK polyhedron cells
-  vtkNew<vtkCellArray> faces;
-  vtkNew<vtkIntArray> nodes;
-  vtkNew<vtkIntArray> nodesOffset;
-  nodes->SetNumberOfComponents(1);
-  nodesOffset->SetNumberOfComponents(1);
-
   // Convert Fluent format to VTK
   this->NumberOfCells = static_cast<vtkIdType>(this->Cells.size());
 
@@ -165,8 +159,36 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     g = vtkUnstructuredGrid::New();
   }
 
-  for (auto& cell : this->Cells)
+  // The cells of each zone, with the faces of its polyhedra. A face is stored
+  // once per zone, wound as in the file, which points into c0: c1 lists it as
+  // n and c0 as -(n+1).
+  struct ZoneCells
   {
+    vtkNew<vtkUnsignedCharArray> Types;
+    vtkNew<vtkCellArray> Cells;
+    vtkNew<vtkCellArray> FaceLocations;
+    vtkNew<vtkCellArray> Faces;
+    bool HasPolyhedra = false;
+  };
+  std::vector<ZoneCells> zoneCells(this->CellZones.size());
+  const std::size_t noZone = this->CellZones.size();
+  std::vector<std::size_t> faceZone(this->Faces.size(), noZone);
+  std::vector<vtkIdType> faceStoredId(this->Faces.size(), -1);
+  std::vector<vtkIdType> pointIds;
+  std::vector<vtkIdType> faceIds;
+  std::vector<vtkIdType> facePoints;
+
+  auto insertCell = [&zoneCells](std::size_t location, int cellType, vtkIdList* ids)
+  {
+    ZoneCells& zone = zoneCells[location];
+    zone.Types->InsertNextValue(static_cast<unsigned char>(cellType));
+    zone.Cells->InsertNextCell(ids);
+    zone.FaceLocations->InsertNextCell(0);
+  };
+
+  for (std::size_t cellId = 0; cellId < this->Cells.size(); ++cellId)
+  {
+    const Cell& cell = this->Cells[cellId];
     std::size_t location = std::find(this->CellZones.begin(), this->CellZones.end(), cell.zone) -
       this->CellZones.begin();
 
@@ -176,7 +198,7 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
       {
         this->Triangle->GetPointIds()->SetId(j, cell.nodes[j]);
       }
-      grid[location]->InsertNextCell(this->Triangle->GetCellType(), this->Triangle->GetPointIds());
+      insertCell(location, this->Triangle->GetCellType(), this->Triangle->GetPointIds());
     }
     else if (cell.type == 2)
     {
@@ -184,7 +206,7 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
       {
         this->Tetra->GetPointIds()->SetId(j, cell.nodes[j]);
       }
-      grid[location]->InsertNextCell(this->Tetra->GetCellType(), this->Tetra->GetPointIds());
+      insertCell(location, this->Tetra->GetCellType(), this->Tetra->GetPointIds());
     }
     else if (cell.type == 3)
     {
@@ -192,7 +214,7 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
       {
         this->Quad->GetPointIds()->SetId(j, cell.nodes[j]);
       }
-      grid[location]->InsertNextCell(this->Quad->GetCellType(), this->Quad->GetPointIds());
+      insertCell(location, this->Quad->GetCellType(), this->Quad->GetPointIds());
     }
     else if (cell.type == 4)
     {
@@ -200,8 +222,7 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
       {
         this->Hexahedron->GetPointIds()->SetId(j, cell.nodes[j]);
       }
-      grid[location]->InsertNextCell(
-        this->Hexahedron->GetCellType(), this->Hexahedron->GetPointIds());
+      insertCell(location, this->Hexahedron->GetCellType(), this->Hexahedron->GetPointIds());
     }
     else if (cell.type == 5)
     {
@@ -209,7 +230,7 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
       {
         this->Pyramid->GetPointIds()->SetId(j, cell.nodes[j]);
       }
-      grid[location]->InsertNextCell(this->Pyramid->GetCellType(), this->Pyramid->GetPointIds());
+      insertCell(location, this->Pyramid->GetCellType(), this->Pyramid->GetPointIds());
     }
     else if (cell.type == 6)
     {
@@ -217,20 +238,59 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
       {
         this->Wedge->GetPointIds()->SetId(j, cell.nodes[j]);
       }
-      grid[location]->InsertNextCell(this->Wedge->GetCellType(), this->Wedge->GetPointIds());
+      insertCell(location, this->Wedge->GetCellType(), this->Wedge->GetPointIds());
     }
     else if (cell.type == 7)
     {
-      vtkNew<vtkIdList> pointIds;
-      nodes->SetArray(cell.nodes.data(), cell.nodes.size(), 1);
-      nodesOffset->SetArray(cell.nodesOffset.data(), cell.nodesOffset.size(), 1);
-      faces->SetData(nodesOffset, nodes);
-      for (std::size_t j = 0; j < cell.nodes.size(); j++)
+      ZoneCells& zone = zoneCells[location];
+      pointIds.clear();
+      faceIds.clear();
+      for (const int faceId : cell.faces)
       {
-        pointIds->InsertUniqueId(static_cast<vtkIdType>(cell.nodes[j]));
+        const Face& face = this->Faces[faceId];
+        if (face.nodes.empty())
+        {
+          continue;
+        }
+        vtkIdType storedId = faceStoredId[faceId];
+        if (faceZone[faceId] != location)
+        {
+          facePoints.assign(face.nodes.begin(), face.nodes.end());
+          storedId = zone.Faces->InsertNextCell(
+            static_cast<vtkIdType>(facePoints.size()), facePoints.data());
+          if (faceZone[faceId] == noZone)
+          {
+            faceZone[faceId] = location;
+            faceStoredId[faceId] = storedId;
+          }
+        }
+        faceIds.push_back(
+          vtkPolyhedronCellArray::EncodeFaceId(storedId, face.c0 == static_cast<int>(cellId)));
+        for (const int node : face.nodes)
+        {
+          if (std::find(pointIds.begin(), pointIds.end(), node) == pointIds.end())
+          {
+            pointIds.push_back(node);
+          }
+        }
       }
-      grid[location]->InsertNextCell(
-        VTK_POLYHEDRON, pointIds->GetNumberOfIds(), pointIds->GetPointer(0), faces);
+      zone.Types->InsertNextValue(VTK_POLYHEDRON);
+      zone.Cells->InsertNextCell(static_cast<vtkIdType>(pointIds.size()), pointIds.data());
+      zone.FaceLocations->InsertNextCell(static_cast<vtkIdType>(faceIds.size()), faceIds.data());
+      zone.HasPolyhedra = true;
+    }
+  }
+
+  for (std::size_t location = 0; location < zoneCells.size(); location++)
+  {
+    ZoneCells& zone = zoneCells[location];
+    if (zone.HasPolyhedra)
+    {
+      grid[location]->SetPolyhedralCells(zone.Types, zone.Cells, zone.FaceLocations, zone.Faces);
+    }
+    else
+    {
+      grid[location]->SetCells(zone.Types, zone.Cells);
     }
   }
 
