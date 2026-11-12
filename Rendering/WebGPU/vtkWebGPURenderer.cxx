@@ -111,6 +111,7 @@ const char* backgroundQuadShaderSource = R"(
       // 2 = radial farthest side, 3 = radial farthest corner.
       mode: u32,
       dither: u32,
+      premultipliedAlpha: u32,
     }
     @group(0) @binding(0) var<uniform> background: BackgroundOptions;
     //VTK::Background::Dec
@@ -548,10 +549,12 @@ void vtkWebGPURenderer::ClearBackground(vtkWebGPUTexture* texture)
     float TCoordScaleOffset[4];
     std::uint32_t Mode;
     std::uint32_t Dither;
-    std::uint32_t Padding[2];
+    std::uint32_t PremultipliedAlpha;
+    std::uint32_t Padding;
   };
   static_assert(sizeof(BackgroundOptions) == 64, "BackgroundOptions must match WGSL");
   BackgroundOptions options = {};
+  options.PremultipliedAlpha = texture && texture->GetPremultipliedAlpha() ? 1u : 0u;
   for (int i = 0; i < 3; ++i)
   {
     options.StopColor0[i] = static_cast<float>(this->Background[i]);
@@ -659,8 +662,10 @@ void vtkWebGPURenderer::ClearBackground(vtkWebGPUTexture* texture)
 )";
     }
     // Match a textured overlay over the renderer's solid background, including alpha.
-    colorCode += R"(output.color = vec4<f32>(
-      color.rgb * color.a + background.stopColor0.rgb * (1.0 - color.a),
+    colorCode +=
+      R"(let rgb = select(color.rgb * color.a, color.rgb, background.premultipliedAlpha != 0u);
+      output.color = vec4<f32>(
+      rgb + background.stopColor0.rgb * (1.0 - color.a),
       color.a + background.stopColor0.a * (1.0 - color.a));)";
   }
   vtkWebGPURenderPipelineCache::Substitute(
