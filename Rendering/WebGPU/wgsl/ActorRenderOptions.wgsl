@@ -100,3 +100,8 @@ fn hasBackfaceProperty(flags_2: u32) -> bool
 {
   return (flags_2 & 0x2u) != 0u;
 }
+
+fn showTexturesOnBackface(flags_2: u32) -> bool
+{
+  return (flags_2 & 0x4u) != 0u;
+}

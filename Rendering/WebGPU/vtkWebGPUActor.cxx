@@ -370,8 +370,9 @@ bool vtkWebGPUActor::CacheActorRenderOptions()
       (displayProperty->GetRenderPointsAsSpheres() << 5) |
       (displayProperty->GetRenderLinesAsTubes() << 6) |
       (static_cast<int>(displayProperty->GetPoint2DShape()) << 7);
-    ro.Flags2 =
-      (displayProperty->GetLighting() ? 1u : 0u) | (this->GetBackfaceProperty() ? 2u : 0u);
+    ro.Flags2 = (displayProperty->GetLighting() ? 1u : 0u) |
+      (this->GetBackfaceProperty() ? 2u : 0u) |
+      (displayProperty->GetShowTexturesOnBackface() ? 4u : 0u);
     // Coincident topology parameters. Reset to zero first in case topology resolution is off.
     ro.CoinPolygonFactor = 0;
     ro.CoinPolygonOffset = 0;
