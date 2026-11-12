@@ -189,6 +189,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkPolyhedron.h"
+#include "vtkPolyhedronCellArray.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkSortDataArray.h"
@@ -7242,21 +7243,27 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
 )
 {
   // Scratch arrays
-  vtkFoamStackVector<vtkIdType, 256> cellPoints;  // For inserting primitive cell points
-  vtkFoamStackVector<vtkIdType, 256> polyOffsets; // For inserting polyhedral faces offsets
-  vtkFoamStackVector<vtkIdType, 1024> polyPoints; // For inserting polyhedral faces
+  vtkFoamStackVector<vtkIdType, 256> cellPoints; // For inserting primitive cell points
   vtkNew<vtkIdList> cellFacesList, facePointsList, otherFacePointsList;
   vtkIdType numCellFaces, numFacePoints, numOtherFacePoints;
   const vtkIdType *cellFaces, *facePoints, *otherFacePoints;
-#ifdef VTK_USE_64BIT_IDS
-  vtkNew<vtkTypeInt64Array> offsets;
-  vtkNew<vtkTypeInt64Array> connectivity;
-#else  // VTK_USE_64BIT_IDS
-  vtkNew<vtkTypeInt32Array> offsets;
-  vtkNew<vtkTypeInt32Array> connectivity;
-#endif // VTK_USE_64BIT_IDS
-  vtkNew<vtkCellArray> faces;
-  faces->SetData(offsets, connectivity);
+
+  // The cells, and the faces of the polyhedra. A mesh face is stored once, wound
+  // as in the file, which points out of its owner: the neighbour lists it as
+  // -(n+1) (see vtkPolyhedronCellArray).
+  vtkNew<vtkUnsignedCharArray> cellTypes;
+  vtkNew<vtkCellArray> cells;
+  vtkNew<vtkCellArray> faceLocations;
+  vtkNew<vtkCellArray> polyFaces;
+  std::vector<vtkIdType> storedFaceIds; // By mesh face, -1 until a polyhedron stores it
+  std::vector<vtkIdType> cellFaceIds;
+  bool hasPolyhedra = false;
+  auto insertCell = [&](int cellType, vtkIdType npts, const vtkIdType* pts)
+  {
+    cellTypes->InsertNextValue(static_cast<unsigned char>(cellType));
+    cells->InsertNextCell(npts, pts);
+    faceLocations->InsertNextCell(0);
+  };
 
   const bool faceOwner64Bit = ::Is64BitArray(this->FaceOwner);
   const bool cellLabels64Bit = faceOwner64Bit; // reasonable assumption
@@ -7523,7 +7530,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
       }
 
       // Add HEXAHEDRON (hex) cell to the mesh
-      internalMesh->InsertNextCell(VTK_HEXAHEDRON, 8, cellPoints.data());
+      insertCell(VTK_HEXAHEDRON, 8, cellPoints.data());
     }
 
     // OpenFOAM "prism" | vtkWedge
@@ -7709,7 +7716,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
         }
 
         // Add WEDGE (prism) cell to the mesh
-        internalMesh->InsertNextCell(VTK_WEDGE, 6, cellPoints.data());
+        insertCell(VTK_WEDGE, 6, cellPoints.data());
       }
     }
 
@@ -7780,7 +7787,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
       cellPoints[nCellPoints++] = apexMeshPointi;
 
       // Add tetra or pyramid to the mesh
-      internalMesh->InsertNextCell(cellType, nCellPoints, cellPoints.data());
+      insertCell(cellType, nCellPoints, cellPoints.data());
     }
 
     // Polyhedron cell (vtkPolyhedron)
@@ -7803,7 +7810,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
         if (allEmpty)
         {
           vtkWarningMacro("Warning: No points in cellId " << cellId);
-          internalMesh->InsertNextCell(VTK_EMPTY_CELL, 0, cellPoints.data());
+          insertCell(VTK_EMPTY_CELL, 0, cellPoints.data());
           continue;
         }
       }
@@ -7923,7 +7930,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             if (firstCell)
             {
               firstCell = false;
-              internalMesh->InsertNextCell(VTK_PYRAMID, 5, cellPoints.data());
+              insertCell(VTK_PYRAMID, 5, cellPoints.data());
             }
             else
             {
@@ -7952,7 +7959,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             if (firstCell)
             {
               firstCell = false;
-              internalMesh->InsertNextCell(VTK_TETRA, 4, cellPoints.data());
+              insertCell(VTK_TETRA, 4, cellPoints.data());
             }
             else
             {
@@ -7975,20 +7982,18 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
         // Not decomposed - using VTK_POLYHEDRON
 
         // Precalculated 'nPolyPoints' has all face points, including duplicates
-        // - need nPolyPoints + nPolyFaces for the face loops
         // - use nPolyPoints to estimate unique cell points
         //   (assume a point connects at least three faces)
 
         cellPoints.copy_resize(0);
-        polyPoints.copy_resize(0);
-        polyOffsets.copy_resize(0);
         cellPoints.copy_reserve(nPolyPoints / 3);
-        polyPoints.copy_reserve(nPolyPoints);
-        polyOffsets.copy_reserve(numCellFaces + 1);
+        cellFaceIds.clear();
+        if (storedFaceIds.empty())
+        {
+          storedFaceIds.assign(meshFaces->GetNumberOfCells(), -1);
+        }
 
         size_t nCellPoints = 0;
-        nPolyPoints = 0; // Reset
-        polyOffsets[0] = 0;
         for (vtkIdType facei = 0; facei < numCellFaces; ++facei)
         {
           const vtkTypeInt64 cellFacei = cellFaces[facei];
@@ -7998,22 +8003,26 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
           meshFaces->GetCellAtId(cellFacei, facePointsList);
           numFacePoints = facePointsList->GetNumberOfIds();
           facePoints = facePointsList->GetPointer(0);
-          size_t nUnique = 0;
 
-          // Pass 1: add face points, and mark up duplicates on the way
-
-          polyPoints.copy_resize(nPolyPoints + numFacePoints);
-          polyOffsets[facei + 1] = polyOffsets[facei] + numFacePoints;
+          vtkIdType& storedFaceId = storedFaceIds[cellFacei];
+          if (storedFaceId < 0)
+          {
+            storedFaceId = polyFaces->InsertNextCell(facePointsList);
+          }
+          cellFaceIds.push_back(vtkPolyhedronCellArray::EncodeFaceId(storedFaceId, !isOwner));
 
           if (!numFacePoints)
           {
             continue;
           }
 
-          // Add face point 0
+          // Pass 1: mark up duplicates
+
+          size_t nUnique = 0;
+
+          // Face point 0
           {
             const auto meshPointi = static_cast<vtkIdType>(facePoints[0]);
-            polyPoints[nPolyPoints++] = meshPointi;
             bool isUnique = true;
             for (size_t cp = 0; isUnique && cp < nCellPoints; ++cp)
             {
@@ -8029,7 +8038,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             }
           }
 
-          // Add other face points
+          // Other face points
           {
             // Local face point indexing - must be signed
             const int faceDirn = (isOwner ? 1 : -1); // Flip direction for neighbour face
@@ -8038,7 +8047,6 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             for (vtkIdType fp = 1; fp < numFacePoints; ++fp, facePointi += faceDirn)
             {
               const auto meshPointi = static_cast<vtkIdType>(facePoints[facePointi]);
-              polyPoints[nPolyPoints++] = meshPointi;
               bool isUnique = true;
               for (size_t cp = 0; isUnique && cp < nCellPoints; ++cp)
               {
@@ -8067,14 +8075,23 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             }
           }
         }
-        offsets->SetArray(polyOffsets.data(), numCellFaces + 1, 1);
-        connectivity->SetArray(polyPoints.data(), nPolyPoints, 1);
 
-        // Create the poly cell and insert it into the mesh
-        internalMesh->InsertNextCell(
-          VTK_POLYHEDRON, static_cast<vtkIdType>(nCellPoints), cellPoints.data(), faces);
+        cellTypes->InsertNextValue(VTK_POLYHEDRON);
+        cells->InsertNextCell(static_cast<vtkIdType>(nCellPoints), cellPoints.data());
+        faceLocations->InsertNextCell(
+          static_cast<vtkIdType>(cellFaceIds.size()), cellFaceIds.data());
+        hasPolyhedra = true;
       }
     }
+  }
+
+  if (hasPolyhedra)
+  {
+    internalMesh->SetPolyhedralCells(cellTypes, cells, faceLocations, polyFaces);
+  }
+  else
+  {
+    internalMesh->SetCells(cellTypes, cells);
   }
 }
 
