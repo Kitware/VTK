@@ -53,7 +53,6 @@ int TestBackfaceTexture(int argc, char* argv[])
   mapper->SetInputConnection(t2s->GetOutputPort());
   actor->SetMapper(mapper);
   actor->SetTexture(texture);
-  actor->GetProperty()->ShowTexturesOnBackfaceOff();
 
   ren->AddActor(actor);
   ren->ResetCamera();
@@ -64,6 +63,9 @@ int TestBackfaceTexture(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
+  // Prime the material cache with textures on both faces, then change only the property.
+  renWin->Render();
+  actor->GetProperty()->ShowTexturesOnBackfaceOff();
   renWin->Render();
 
   int retVal = vtkRegressionTestImage(renWin);
