@@ -1,5 +1,17 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+/**
+ * @class   vtkSlangShaderManager
+ * @brief   compile Slang shaders to WGSL with SlangKit
+ *
+ * vtkSlangShaderManager compiles Slang source to WGSL and reflects the bindings of the result.
+ * When VTK is built without SlangKit (VTK_USE_SLANG is OFF), IsSlangAvailable() returns false
+ * and every compile fails with a diagnostic.
+ *
+ * GetLastBindings(), GetLastPlan() and GetLastDiagnostics() describe the most recent compile on
+ * an instance, so an instance must not be shared by threads that compile at the same time. Use
+ * one instance per thread, or hold a lock from a compile until its results have been read.
+ */
 #ifndef vtkSlangShaderManager_h
 #define vtkSlangShaderManager_h
 
