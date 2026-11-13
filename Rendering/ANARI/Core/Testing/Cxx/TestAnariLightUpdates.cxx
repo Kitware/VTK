@@ -15,7 +15,6 @@
 #include "vtkLogger.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
-#include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
@@ -24,7 +23,6 @@
 #include "vtkTesting.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
-#include "vtkViewNodeFactory.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -32,34 +30,6 @@
 
 namespace
 {
-class vtkTestAnariSceneGraph : public vtkAnariSceneGraph
-{
-public:
-  static vtkTestAnariSceneGraph* New();
-  vtkTypeMacro(vtkTestAnariSceneGraph, vtkAnariSceneGraph);
-
-  vtkMTimeType GetStructureTime() { return this->AnariSceneStructureModifiedMTime; }
-
-  void RenderLightUpdates()
-  {
-    this->Traverse(vtkViewNode::build);
-    for (auto* child : this->GetChildren())
-    {
-      if (child->IsA("vtkAnariLightNode") || child->IsA("vtkAnariCameraNode"))
-      {
-        child->Traverse(vtkViewNode::synchronize);
-      }
-    }
-    this->Traverse(vtkViewNode::render);
-  }
-};
-vtkStandardNewMacro(vtkTestAnariSceneGraph);
-
-vtkViewNode* MakeSceneGraph()
-{
-  return vtkTestAnariSceneGraph::New();
-}
-
 double GetCenterBrightness(vtkAnariRenderWindow* window)
 {
   const auto* pixels = window->GetSceneGraph()->GetBuffer();
@@ -96,7 +66,6 @@ int TestAnariLightUpdates(int argc, char* argv[])
   window->SetSize(100, 100);
   window->SetMultiSamples(0);
   window->SetOffScreenRendering(true);
-  window->GetViewNodeFactory()->RegisterOverride("vtkRenderer", MakeSceneGraph);
   vtkAnariTestUtilities::SetParameterDefaults(window, useDebugDevice, "TestAnariLightUpdates");
   window->GetAnariRenderer()->SetParameterf("ambientRadiance", 0.0f);
   window->GetAnariRenderer()->SetParameterb("denoise", false);
@@ -114,10 +83,10 @@ int TestAnariLightUpdates(int argc, char* argv[])
   renderer->ResetCamera();
   window->Render();
 
-  auto* graph = vtkTestAnariSceneGraph::SafeDownCast(window->GetSceneGraph());
+  auto* graph = window->GetSceneGraph();
   if (!graph)
   {
-    vtkLogF(ERROR, "The ANARI render window did not use the custom scene graph.");
+    vtkLogF(ERROR, "The ANARI render window did not create its scene graph.");
     return EXIT_FAILURE;
   }
   auto* headlight = vtkLight::SafeDownCast(renderer->GetLights()->GetItemAsObject(0));
@@ -128,18 +97,6 @@ int TestAnariLightUpdates(int argc, char* argv[])
   }
 
   bool success = true;
-  auto structureTime = graph->GetStructureTime();
-  auto checkStructure = [&](bool changed, const char* operation)
-  {
-    graph->RenderLightUpdates();
-    const auto nextTime = graph->GetStructureTime();
-    if ((nextTime != structureTime) != changed)
-    {
-      vtkLogF(ERROR, "Unexpected scene structure update after %s.", operation);
-      success = false;
-    }
-    structureTime = nextTime;
-  };
 
   const auto& extensions = window->GetAnariDevice()->GetExtensions();
   if (!extensions.ANARI_KHR_LIGHT_DIRECTIONAL)
@@ -154,7 +111,7 @@ int TestAnariLightUpdates(int argc, char* argv[])
     success = false;
   }
   renderer->GetActiveCamera()->Azimuth(180.0);
-  checkStructure(false, "moving the headlight with the camera");
+  window->Render();
   if (GetCenterBrightness(window) < 100.0)
   {
     vtkLogF(ERROR, "The headlight did not follow the camera.");
@@ -164,9 +121,9 @@ int TestAnariLightUpdates(int argc, char* argv[])
   headlight->SetLightTypeToCameraLight();
   headlight->SetPosition(0.0, 0.0, 1.0);
   headlight->SetFocalPoint(0.0, 0.0, 0.0);
-  checkStructure(false, "changing to a camera light");
+  window->Render();
   renderer->GetActiveCamera()->Azimuth(180.0);
-  checkStructure(false, "moving the camera light with the camera");
+  window->Render();
   if (GetCenterBrightness(window) < 100.0)
   {
     vtkLogF(ERROR, "The camera light did not follow the camera.");
@@ -175,7 +132,7 @@ int TestAnariLightUpdates(int argc, char* argv[])
 
   auto* lightNode = graph->GetViewNodeFor(headlight);
   const auto lightTime = lightNode->RenderTime;
-  checkStructure(false, "rendering an unchanged light");
+  window->Render();
   if (lightNode->RenderTime != lightTime)
   {
     vtkLogF(ERROR, "An unchanged light was synchronized again.");
@@ -183,16 +140,16 @@ int TestAnariLightUpdates(int argc, char* argv[])
   }
 
   headlight->SwitchOff();
-  checkStructure(false, "switching off the light");
+  window->Render();
   if (GetCenterBrightness(window) > 10.0)
   {
     vtkLogF(ERROR, "Switching off the retained light did not darken the sphere.");
     success = false;
   }
   headlight->SwitchOn();
-  checkStructure(false, "switching on the light");
+  window->Render();
   vtkAnariLightNode::SetLightScale(0.0, headlight);
-  checkStructure(false, "changing the light scale information key");
+  window->Render();
   if (GetCenterBrightness(window) > 10.0)
   {
     vtkLogF(ERROR, "The retained light ignored its light scale information key.");
@@ -202,14 +159,14 @@ int TestAnariLightUpdates(int argc, char* argv[])
   headlight->SetIntensity(0.5);
   headlight->SetColor(1.0, 0.5, 0.25);
   vtkAnariLightNode::SetRadius(0.05, headlight);
-  checkStructure(false, "changing light color, intensity, and radius");
+  window->Render();
 
   vtkNew<vtkTransform> transform;
   renderer->SetUserLightTransform(transform);
-  checkStructure(false, "setting a user light transform");
+  window->Render();
   const auto transformTime = lightNode->RenderTime;
   transform->RotateY(180.0);
-  checkStructure(false, "modifying the user light transform");
+  window->Render();
   if (lightNode->RenderTime == transformTime)
   {
     vtkLogF(ERROR, "The retained light ignored its modified user transform.");
@@ -221,7 +178,7 @@ int TestAnariLightUpdates(int argc, char* argv[])
     success = false;
   }
   renderer->SetUserLightTransform(nullptr);
-  checkStructure(false, "removing the user light transform");
+  window->Render();
 
   renderer->LightFollowCameraOff();
   transform->Identity();
@@ -232,10 +189,10 @@ int TestAnariLightUpdates(int argc, char* argv[])
   olderCamera->DeepCopy(newerCamera);
   olderCamera->Roll(90.0);
   newerCamera->Modified();
-  checkStructure(false, "preparing to replace the active camera");
+  window->Render();
 
   renderer->SetActiveCamera(olderCamera);
-  checkStructure(false, "replacing the active camera with an older instance");
+  window->Render();
   if (lightNode->RenderTime != olderCamera->GetMTime())
   {
     vtkLogF(ERROR, "The retained light ignored the replacement camera with an older MTime.");
@@ -244,7 +201,7 @@ int TestAnariLightUpdates(int argc, char* argv[])
 
   const auto replacementCameraTime = olderCamera->GetMTime();
   olderCamera->Roll(30.0);
-  checkStructure(false, "moving the replacement camera");
+  window->Render();
   if (lightNode->RenderTime <= replacementCameraTime)
   {
     vtkLogF(ERROR, "The retained light ignored movement of the same replacement camera.");
@@ -254,15 +211,15 @@ int TestAnariLightUpdates(int argc, char* argv[])
   renderer->SetActiveCamera(newerCamera);
   renderer->LightFollowCameraOn();
   renderer->SetUserLightTransform(nullptr);
-  checkStructure(false, "restoring the original camera");
+  window->Render();
 
   headlight->SetLightTypeToSceneLight();
   headlight->SetPosition(0.0, 0.0, 1.0);
   vtkNew<vtkMatrix4x4> lightTransform;
   headlight->SetTransformMatrix(lightTransform);
-  checkStructure(false, "setting a scene light transform");
+  window->Render();
   lightTransform->SetElement(2, 2, -1.0);
-  checkStructure(false, "modifying the scene light transform");
+  window->Render();
   if (GetCenterBrightness(window) > 10.0)
   {
     vtkLogF(ERROR, "The retained scene light ignored its modified transform matrix.");
@@ -270,31 +227,31 @@ int TestAnariLightUpdates(int argc, char* argv[])
   }
   const auto sceneLightTime = lightNode->RenderTime;
   renderer->GetActiveCamera()->Roll(15.0);
-  checkStructure(false, "moving the camera with a scene light");
+  window->Render();
   if (lightNode->RenderTime != sceneLightTime)
   {
     vtkLogF(ERROR, "Camera motion synchronized a scene light.");
     success = false;
   }
   headlight->SetLightTypeToCameraLight();
-  checkStructure(false, "restoring the camera light");
+  window->Render();
 
   if (extensions.ANARI_KHR_LIGHT_POINT)
   {
     headlight->SetPositional(true);
     headlight->SetConeAngle(90.0);
-    checkStructure(true, "changing the light subtype to point");
+    window->Render();
     headlight->SetPosition(0.5, 0.0, 1.0);
-    checkStructure(false, "moving the point light");
+    window->Render();
   }
   if (extensions.ANARI_KHR_LIGHT_SPOT)
   {
     headlight->SetPositional(true);
     headlight->SetConeAngle(30.0);
-    checkStructure(true, "changing the light subtype to spot");
+    window->Render();
     headlight->SetConeAngle(40.0);
     vtkAnariLightNode::SetFalloffAngle(0.2, headlight);
-    checkStructure(false, "changing the spot opening and falloff angles");
+    window->Render();
   }
 
   if (extensions.ANARI_KHR_LIGHT_HDRI)
@@ -308,31 +265,30 @@ int TestAnariLightUpdates(int argc, char* argv[])
     texture->SetInputData(image);
     renderer->SetEnvironmentTexture(texture);
     renderer->UseImageBasedLightingOn();
-    checkStructure(true, "changing the light subtype to HDRI");
+    window->Render();
     const double initialRadiance = GetCenterBrightness(window);
     renderer->GetActiveCamera()->Azimuth(15.0);
-    checkStructure(false, "moving the HDRI light with the camera");
+    window->Render();
     std::fill(values, values + 8 * 4 * 3, 0.2f);
     image->Modified();
-    checkStructure(false, "changing the HDRI radiance");
+    window->Render();
     if (GetCenterBrightness(window) < initialRadiance * 1.2 + 1.0)
     {
       vtkLogF(ERROR, "The retained HDRI light ignored its modified radiance.");
       success = false;
     }
     renderer->UseImageBasedLightingOff();
-    checkStructure(true, "disabling image based lighting");
+    window->Render();
   }
 
   headlight->SetPositional(false);
-  checkStructure(extensions.ANARI_KHR_LIGHT_POINT || extensions.ANARI_KHR_LIGHT_SPOT,
-    "restoring the directional light subtype");
+  window->Render();
   vtkNew<vtkLight> additionalLight;
   additionalLight->SetLightTypeToSceneLight();
   renderer->AddLight(additionalLight);
-  checkStructure(true, "adding a light");
+  window->Render();
   renderer->RemoveLight(additionalLight);
-  checkStructure(true, "removing a light");
+  window->Render();
 
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

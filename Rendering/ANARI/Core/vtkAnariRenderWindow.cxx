@@ -63,12 +63,6 @@ vtkAnariSceneGraph* vtkAnariRenderWindow::GetSceneGraph()
 }
 
 //------------------------------------------------------------------------------
-vtkViewNodeFactory* vtkAnariRenderWindow::GetViewNodeFactory()
-{
-  return this->AnariFactory;
-}
-
-//------------------------------------------------------------------------------
 unsigned char* vtkAnariRenderWindow::GetPixelData(
   int x1, int y1, int x2, int y2, int vtkNotUsed(front), int vtkNotUsed(right))
 {

@@ -26,7 +26,6 @@ class vtkAnariDevice;
 class vtkAnariRenderer;
 class vtkAnariViewNodeFactory;
 class vtkOverrideAttribute;
-class vtkViewNodeFactory;
 
 class VTKRENDERINGANARICORE_EXPORT vtkAnariRenderWindow : public vtkRenderWindow
 {
@@ -51,11 +50,6 @@ public:
    * Return the scene graph, or nullptr before the first render.
    */
   virtual vtkAnariSceneGraph* GetSceneGraph();
-
-  /**
-   * Return the factory used to create scene graph nodes.
-   */
-  virtual vtkViewNodeFactory* GetViewNodeFactory();
 
   ///@{
   /**
