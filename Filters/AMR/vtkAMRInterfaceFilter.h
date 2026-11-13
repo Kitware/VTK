@@ -65,6 +65,7 @@ class vtkCellData;
 class vtkContourFilter;
 class vtkDataSet;
 class vtkMergePoints;
+class vtkMultiProcessController;
 class vtkOverlappingAMR;
 class vtkPointData;
 class vtkUnsignedCharArray;
@@ -74,6 +75,15 @@ public:
   vtkTypeMacro(vtkAMRInterfaceFilter, vtkPartitionedDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkAMRInterfaceFilter* New();
+
+  ///@{
+  /**
+   * Controller used when the AMR is distributed: each process exchanges the grids touching its own
+   * so interfaces with a finer level owned elsewhere are built. Defaults to the global controller.
+   */
+  virtual void SetController(vtkMultiProcessController*);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  ///@}
 
 protected:
   vtkAMRInterfaceFilter();
@@ -111,6 +121,8 @@ private:
   vtkNew<vtkCallbackCommand> InternalProgressObserver;
   double ProgressFloor = 0.;
   double ProgressCeiling = 1.;
+
+  vtkMultiProcessController* Controller = nullptr;
 };
 
 VTK_ABI_NAMESPACE_END

@@ -2,21 +2,32 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAMRInterfaceFilter.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCartesianGrid.h"
 #include "vtkCellData.h"
+#include "vtkCommunicator.h"
 #include "vtkDataObjectTreeIterator.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkMergePoints.h"
+#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataNormals.h"
+#include "vtkStructuredData.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <limits>
 #include <set>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -607,7 +618,336 @@ void GenerateInterfaceTetrahedrons(vtkOverlappingAMR* input, vtkCartesianGrid* i
 }
 
 //------------------------------------------------------------------------------
+namespace
+{
+constexpr int BORROWED_GRID_TAG = 31415;
+
+/*
+ * Remove the layers of duplicate ghost cells around an image grid, so the interface is built on the
+ * valid region only. Point data computed with ghost cells, which agrees across boxes, is kept.
+ */
+vtkSmartPointer<vtkCartesianGrid> PeelGhostLayers(vtkCartesianGrid* grid)
+{
+  vtkImageData* image = vtkImageData::SafeDownCast(grid);
+  vtkUnsignedCharArray* ghosts = grid->GetCellGhostArray();
+  if (!image || !ghosts)
+  {
+    return grid;
+  }
+
+  int extent[6];
+  image->GetExtent(extent);
+  int cropped[6];
+  std::copy(extent, extent + 6, cropped);
+
+  auto isGhostSlab = [&](int axis, int index)
+  {
+    int lo[3], hi[3];
+    for (int d = 0; d < 3; ++d)
+    {
+      lo[d] = d == axis ? index : cropped[2 * d];
+      hi[d] = d == axis ? index : std::max(cropped[2 * d], cropped[2 * d + 1] - 1);
+    }
+    int ijk[3];
+    for (ijk[2] = lo[2]; ijk[2] <= hi[2]; ++ijk[2])
+    {
+      for (ijk[1] = lo[1]; ijk[1] <= hi[1]; ++ijk[1])
+      {
+        for (ijk[0] = lo[0]; ijk[0] <= hi[0]; ++ijk[0])
+        {
+          if (!(ghosts->GetValue(vtkStructuredData::ComputeCellIdForExtent(extent, ijk)) &
+                vtkDataSetAttributes::DUPLICATECELL))
+          {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  };
+
+  for (int axis = 0; axis < 3; ++axis)
+  {
+    while (cropped[2 * axis + 1] - cropped[2 * axis] > 1 && isGhostSlab(axis, cropped[2 * axis]))
+    {
+      ++cropped[2 * axis];
+    }
+    while (
+      cropped[2 * axis + 1] - cropped[2 * axis] > 1 && isGhostSlab(axis, cropped[2 * axis + 1] - 1))
+    {
+      --cropped[2 * axis + 1];
+    }
+  }
+  if (std::equal(extent, extent + 6, cropped))
+  {
+    return grid;
+  }
+
+  vtkSmartPointer<vtkImageData> peeled = vtkSmartPointer<vtkImageData>::Take(image->NewInstance());
+  peeled->SetOrigin(image->GetOrigin());
+  peeled->SetSpacing(image->GetSpacing());
+  peeled->SetDirectionMatrix(image->GetDirectionMatrix());
+  peeled->SetExtent(cropped);
+
+  vtkCellData* inCD = image->GetCellData();
+  vtkCellData* outCD = peeled->GetCellData();
+  outCD->CopyAllocate(inCD, peeled->GetNumberOfCells());
+  int ijk[3];
+  int cellHi[3];
+  for (int d = 0; d < 3; ++d)
+  {
+    cellHi[d] = std::max(cropped[2 * d], cropped[2 * d + 1] - 1);
+  }
+  for (ijk[2] = cropped[4]; ijk[2] <= cellHi[2]; ++ijk[2])
+  {
+    for (ijk[1] = cropped[2]; ijk[1] <= cellHi[1]; ++ijk[1])
+    {
+      for (ijk[0] = cropped[0]; ijk[0] <= cellHi[0]; ++ijk[0])
+      {
+        outCD->CopyData(inCD, vtkStructuredData::ComputeCellIdForExtent(extent, ijk),
+          vtkStructuredData::ComputeCellIdForExtent(cropped, ijk));
+      }
+    }
+  }
+
+  vtkPointData* inPD = image->GetPointData();
+  vtkPointData* outPD = peeled->GetPointData();
+  outPD->CopyAllocate(inPD, peeled->GetNumberOfPoints());
+  for (ijk[2] = cropped[4]; ijk[2] <= cropped[5]; ++ijk[2])
+  {
+    for (ijk[1] = cropped[2]; ijk[1] <= cropped[3]; ++ijk[1])
+    {
+      for (ijk[0] = cropped[0]; ijk[0] <= cropped[1]; ++ijk[0])
+      {
+        outPD->CopyData(inPD, vtkStructuredData::ComputePointIdForExtent(extent, ijk),
+          vtkStructuredData::ComputePointIdForExtent(cropped, ijk));
+      }
+    }
+  }
+  return peeled;
+}
+
+/*
+ * Build the AMR the interface is computed on: local grids with their ghost layers peeled, plus,
+ * when distributed, the remote grids that touch a local grid. Those are exchanged with their
+ * owners, which compute the same pairs from the global metadata, so no request round is needed.
+ * `isLocal` flags the blocks this process owns; only those produce output.
+ */
+vtkSmartPointer<vtkOverlappingAMR> PrepareInput(
+  vtkOverlappingAMR* input, vtkMultiProcessController* controller, std::vector<bool>& isLocal)
+{
+  vtkNew<vtkOverlappingAMR> work;
+  work->ShallowCopy(input);
+
+  const unsigned int numberOfBlocks = input->GetNumberOfBlocks();
+  isLocal.assign(numberOfBlocks, false);
+  for (unsigned int blockIdx = 0; blockIdx < numberOfBlocks; ++blockIdx)
+  {
+    unsigned int level, gridIdx;
+    input->ComputeIndexPair(blockIdx, level, gridIdx);
+    if (vtkCartesianGrid* grid = input->GetDataSetAsCartesianGrid(level, gridIdx))
+    {
+      isLocal[blockIdx] = true;
+      vtkSmartPointer<vtkCartesianGrid> peeled = ::PeelGhostLayers(grid);
+      if (peeled != grid)
+      {
+        work->SetDataSet(level, gridIdx, peeled);
+      }
+    }
+  }
+
+  if (!controller || controller->GetNumberOfProcesses() < 2 || numberOfBlocks == 0)
+  {
+    return work;
+  }
+
+  const int rank = controller->GetLocalProcessId();
+  const int numberOfProcesses = controller->GetNumberOfProcesses();
+
+  std::vector<int> localOwner(numberOfBlocks, 0);
+  std::vector<int> owner(numberOfBlocks, 0);
+  for (unsigned int blockIdx = 0; blockIdx < numberOfBlocks; ++blockIdx)
+  {
+    localOwner[blockIdx] = isLocal[blockIdx] ? rank + 1 : 0;
+  }
+  controller->AllReduce(localOwner.data(), owner.data(), numberOfBlocks, vtkCommunicator::MAX_OP);
+  for (int& o : owner)
+  {
+    --o;
+  }
+
+  std::vector<std::array<double, 6>> bounds(numberOfBlocks);
+  for (unsigned int blockIdx = 0; blockIdx < numberOfBlocks; ++blockIdx)
+  {
+    unsigned int level, gridIdx;
+    work->ComputeIndexPair(blockIdx, level, gridIdx);
+    work->GetBounds(level, gridIdx, bounds[blockIdx].data());
+  }
+  double spacing[3];
+  work->GetSpacing(work->GetNumberOfLevels() - 1, spacing);
+  double tolerance = std::numeric_limits<double>::max();
+  for (double h : spacing)
+  {
+    if (h > 0)
+    {
+      tolerance = std::min(tolerance, 1e-6 * h);
+    }
+  }
+  if (tolerance == std::numeric_limits<double>::max())
+  {
+    tolerance = 0.0;
+  }
+  auto touches = [&](unsigned int a, unsigned int b)
+  {
+    for (int d = 0; d < 3; ++d)
+    {
+      if (bounds[a][2 * d] > bounds[b][2 * d + 1] + tolerance ||
+        bounds[b][2 * d] > bounds[a][2 * d + 1] + tolerance)
+      {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  // The blocks are bucketed on a regular grid of about one bin per block, so each local block is
+  // only tested against the blocks in the bins it overlaps. A pair (local block, block of a peer)
+  // that touches is sent to and received from that peer; both sides find the same pairs.
+  std::vector<std::set<unsigned int>> toSend(numberOfProcesses), toReceive(numberOfProcesses);
+  {
+    vtkBoundingBox domain;
+    for (const auto& blockBounds : bounds)
+    {
+      domain.AddBounds(blockBounds.data());
+    }
+    double binBounds[6];
+    int divisions[3];
+    domain.ComputeDivisions(numberOfBlocks, binBounds, divisions);
+    auto binIndex = [&](double x, int d)
+    {
+      const double length = binBounds[2 * d + 1] - binBounds[2 * d];
+      const int index = length > 0
+        ? static_cast<int>(std::floor((x - binBounds[2 * d]) / length * divisions[d]))
+        : 0;
+      return std::min(std::max(index, 0), divisions[d] - 1);
+    };
+    auto forEachBin = [&](unsigned int block, auto&& function)
+    {
+      int lo[3], hi[3];
+      for (int d = 0; d < 3; ++d)
+      {
+        lo[d] = binIndex(bounds[block][2 * d] - tolerance, d);
+        hi[d] = binIndex(bounds[block][2 * d + 1] + tolerance, d);
+      }
+      for (int k = lo[2]; k <= hi[2]; ++k)
+      {
+        for (int j = lo[1]; j <= hi[1]; ++j)
+        {
+          for (int i = lo[0]; i <= hi[0]; ++i)
+          {
+            function(i + divisions[0] * (j + divisions[1] * k));
+          }
+        }
+      }
+    };
+
+    std::vector<std::vector<unsigned int>> bins(
+      static_cast<std::size_t>(divisions[0]) * divisions[1] * divisions[2]);
+    for (unsigned int blockIdx = 0; blockIdx < numberOfBlocks; ++blockIdx)
+    {
+      if (owner[blockIdx] >= 0)
+      {
+        forEachBin(blockIdx, [&](int bin) { bins[bin].push_back(blockIdx); });
+      }
+    }
+
+    std::vector<unsigned int> lastTestedWith(numberOfBlocks, numberOfBlocks);
+    for (unsigned int localIdx = 0; localIdx < numberOfBlocks; ++localIdx)
+    {
+      if (owner[localIdx] != rank)
+      {
+        continue;
+      }
+      forEachBin(localIdx,
+        [&](int bin)
+        {
+          for (unsigned int other : bins[bin])
+          {
+            if (owner[other] == rank || lastTestedWith[other] == localIdx)
+            {
+              continue;
+            }
+            lastTestedWith[other] = localIdx;
+            if (touches(localIdx, other))
+            {
+              toSend[owner[other]].insert(localIdx);
+              toReceive[owner[other]].insert(other);
+            }
+          }
+        });
+    }
+  }
+
+  for (int peer = 0; peer < numberOfProcesses; ++peer)
+  {
+    if (peer == rank || (toSend[peer].empty() && toReceive[peer].empty()))
+    {
+      continue;
+    }
+
+    auto sendAll = [&]()
+    {
+      for (unsigned int blockIdx : toSend[peer])
+      {
+        unsigned int level, gridIdx;
+        work->ComputeIndexPair(blockIdx, level, gridIdx);
+        vtkCartesianGrid* grid = work->GetDataSetAsCartesianGrid(level, gridIdx);
+        // The communicator does not marshal vtkUniformGrid, so send its image data.
+        if (vtkImageData* image = vtkImageData::SafeDownCast(grid))
+        {
+          vtkNew<vtkImageData> sent;
+          sent->ShallowCopy(image);
+          controller->Send(sent, peer, BORROWED_GRID_TAG);
+        }
+        else
+        {
+          controller->Send(grid, peer, BORROWED_GRID_TAG);
+        }
+      }
+    };
+    auto receiveAll = [&]()
+    {
+      for (unsigned int blockIdx : toReceive[peer])
+      {
+        unsigned int level, gridIdx;
+        work->ComputeIndexPair(blockIdx, level, gridIdx);
+        vtkSmartPointer<vtkDataObject> received = vtkSmartPointer<vtkDataObject>::Take(
+          controller->ReceiveDataObject(peer, BORROWED_GRID_TAG));
+        work->SetDataSet(level, gridIdx, vtkDataSet::SafeDownCast(received));
+        if (!received)
+        {
+          vtkLog(ERROR, "Could not receive AMR grid " << blockIdx << " from process " << peer);
+        }
+      }
+    };
+    // The lower rank of each pair sends first, so blocking sends cannot deadlock.
+    if (rank < peer)
+    {
+      sendAll();
+      receiveAll();
+    }
+    else
+    {
+      receiveAll();
+      sendAll();
+    }
+  }
+  return work;
+}
+}
+
 vtkStandardNewMacro(vtkAMRInterfaceFilter);
+vtkCxxSetObjectMacro(vtkAMRInterfaceFilter, Controller, vtkMultiProcessController);
 
 //------------------------------------------------------------------------------
 vtkAMRInterfaceFilter::vtkAMRInterfaceFilter()
@@ -616,15 +956,20 @@ vtkAMRInterfaceFilter::vtkAMRInterfaceFilter()
   this->InternalProgressObserver->SetCallback(
     &vtkAMRInterfaceFilter::InternalProgressCallbackFunction);
   this->InternalProgressObserver->SetClientData(this);
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //------------------------------------------------------------------------------
-vtkAMRInterfaceFilter::~vtkAMRInterfaceFilter() = default;
+vtkAMRInterfaceFilter::~vtkAMRInterfaceFilter()
+{
+  this->SetController(nullptr);
+}
 
 //------------------------------------------------------------------------------
 void vtkAMRInterfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Controller: " << this->Controller << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -654,12 +999,16 @@ void vtkAMRInterfaceFilter::InternalProgressCallback(vtkAlgorithm* algorithm)
 int vtkAMRInterfaceFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkOverlappingAMR* input = vtkOverlappingAMR::GetData(inputVector[0]);
-  if (!input)
+  vtkOverlappingAMR* originalInput = vtkOverlappingAMR::GetData(inputVector[0]);
+  if (!originalInput)
   {
     vtkErrorMacro("Input AMR dataset is nullptr!");
     return 0;
   }
+  std::vector<bool> isLocal;
+  vtkSmartPointer<vtkOverlappingAMR> work =
+    ::PrepareInput(originalInput, this->Controller, isLocal);
+  vtkOverlappingAMR* input = work;
 
   auto output = vtkPartitionedDataSet::GetData(outputVector);
   if (!output)
@@ -691,7 +1040,7 @@ int vtkAMRInterfaceFilter::RequestData(
     unsigned int level, gridIdx;
     input->ComputeIndexPair(blockIdx, level, gridIdx);
     vtkCartesianGrid* inputGrid = input->GetDataSetAsCartesianGrid(level, gridIdx);
-    if (!inputGrid)
+    if (!inputGrid || !isLocal[blockIdx])
     {
       continue;
     }
