@@ -530,6 +530,22 @@ static nlohmann::json Serialize_vtkDataArray(vtkObjectBase* object, vtkSerialize
         const auto stateMTime = state.at("MTime").get<vtkMTimeType>();
         if (da->GetMTime() <= stateMTime)
         {
+          // The stored state also lists the superclasses that the concrete class's
+          // generated serializer appends after this returns. Keep only the ones reported
+          // below, or the state grows on every pass.
+          auto& superClasses = state["SuperClassNames"];
+          for (auto iter = superClasses.begin(); iter != superClasses.end(); ++iter)
+          {
+            if (*iter == "vtkAbstractArray")
+            {
+              superClasses.erase(iter + 1, superClasses.end());
+              break;
+            }
+          }
+          if (IsTemplatedArray(da))
+          {
+            superClasses.push_back("vtkDataArray");
+          }
           return state;
         }
         vtkVLog(serializer->GetSerializerLogVerbosity(),

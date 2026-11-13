@@ -70,6 +70,31 @@ class TestUpdateStateFromObject(vtkTesting.vtkTest):
         self.assertListEqual(camState["Position"], [0, 0.2, 1.3])
         self.assertEqual(camState["ViewAngle"], 60)
 
+    def test3(self):
+        from vtkmodules.vtkSerializationManager import vtkObjectManager
+        from vtkmodules.vtkCommonCore import vtkFloatArray
+        import json
+
+        manager = vtkObjectManager()
+        manager.Initialize()
+
+        # An unchanged array's state stays the same from one update to the next.
+        array = vtkFloatArray()
+        array.SetNumberOfComponents(3)
+        array.SetNumberOfTuples(4)
+        array.Fill(1.0)
+        manager.RegisterObject(array)
+
+        states = []
+        for _ in range(3):
+            manager.UpdateStatesFromObjects()
+            states.append(json.loads(manager.GetState(manager.GetId(array))))
+        self.assertEqual(states[1], states[0])
+        self.assertEqual(states[2], states[0])
+        names = states[0]["SuperClassNames"]
+        self.assertEqual(len(names), len(set(names)))
+
+
 
 if __name__ == "__main__":
     vtkTesting.main([(TestUpdateStateFromObject, 'test')])
