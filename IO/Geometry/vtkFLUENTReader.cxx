@@ -24,6 +24,7 @@
 #include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkPolyhedron.h"
+#include "vtkPolyhedronCellArray.h"
 #include "vtkPyramid.h"
 #include "vtkQuad.h"
 #include "vtkSmartPointer.h"
@@ -31,6 +32,7 @@
 #include "vtkStringScanner.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWedge.h"
 
@@ -39,6 +41,7 @@
 #include <algorithm>
 #include <optional>
 #include <sstream>
+#include <unordered_map>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFLUENTReader);
@@ -271,17 +274,82 @@ bool vtkFLUENTReader::FillMultiblock(std::unordered_set<unsigned int>& disabledZ
     return true;
   }
 
-  // Populate output cells
+  // Populate output cells. Each block stores a face of its polyhedra once, wound
+  // as in the file, which points into c0: c1 lists it as n and c0 as -(n+1)
+  // (see vtkPolyhedronCellArray).
+  struct BlockCells
+  {
+    vtkNew<vtkUnsignedCharArray> Types;
+    vtkNew<vtkCellArray> Cells;
+    vtkNew<vtkCellArray> FaceLocations;
+    vtkNew<vtkCellArray> Faces;
+    std::unordered_map<size_t, vtkIdType> StoredFaceIds; // By Fluent face
+    bool HasPolyhedra = false;
+  };
+  std::vector<BlockCells> blockCells(blockUGs.size());
+
   vtkNew<vtkTriangle> triangleBuffer;
   vtkNew<vtkTetra> tetraBuffer;
   vtkNew<vtkQuad> quadBuffer;
   vtkNew<vtkHexahedron> hexahedronBuffer;
   vtkNew<vtkPyramid> pyramidBuffer;
   vtkNew<vtkWedge> wedgeBuffer;
-  vtkNew<vtkIdList> polyhedronBuffer;
+  vtkNew<vtkIdList> polyhedronPoints;
+  std::vector<vtkIdType> facePoints;
+  std::vector<vtkIdType> cellFaceIds;
 
-  for (Cell& cell : this->Cells)
+  // A cell is also copied into the block of each face zone it touches, once per face, so faces
+  // are only shared between the cells of a cell zone.
+  auto insertPolyhedron = [&](BlockCells& block, size_t cellIdx, bool shareFaces)
   {
+    const Cell& cell = this->Cells[cellIdx];
+    cellFaceIds.clear();
+    for (const auto faceIdx : cell.faceIndices)
+    {
+      const Face& face = this->Faces[faceIdx];
+      vtkIdType storedId = -1;
+      auto stored = shareFaces ? block.StoredFaceIds.find(faceIdx) : block.StoredFaceIds.end();
+      if (stored != block.StoredFaceIds.end())
+      {
+        storedId = stored->second;
+      }
+      else
+      {
+        facePoints.assign(face.nodeIndices.begin(), face.nodeIndices.end());
+        storedId =
+          block.Faces->InsertNextCell(static_cast<vtkIdType>(facePoints.size()), facePoints.data());
+        if (shareFaces)
+        {
+          block.StoredFaceIds.emplace(faceIdx, storedId);
+        }
+      }
+      cellFaceIds.push_back(
+        vtkPolyhedronCellArray::EncodeFaceId(storedId, face.c0 == static_cast<int>(cellIdx)));
+    }
+    block.Types->InsertNextValue(VTK_POLYHEDRON);
+    block.Cells->InsertNextCell(polyhedronPoints);
+    block.FaceLocations->InsertNextCell(
+      static_cast<vtkIdType>(cellFaceIds.size()), cellFaceIds.data());
+    block.HasPolyhedra = true;
+  };
+
+  auto insertCell =
+    [&](size_t blockIdx, size_t cellIdx, int cellType, vtkIdList* pointIds, bool shareFaces)
+  {
+    BlockCells& block = blockCells[blockIdx];
+    if (cellType == VTK_POLYHEDRON)
+    {
+      insertPolyhedron(block, cellIdx, shareFaces);
+      return;
+    }
+    block.Types->InsertNextValue(static_cast<unsigned char>(cellType));
+    block.Cells->InsertNextCell(pointIds);
+    block.FaceLocations->InsertNextCell(0);
+  };
+
+  for (size_t cellIdx = 0; cellIdx < this->Cells.size(); ++cellIdx)
+  {
+    const Cell& cell = this->Cells[cellIdx];
     vtkIdList* newCellPointIDs = nullptr;
     int newCellType = -1;
 
@@ -348,20 +416,15 @@ bool vtkFLUENTReader::FillMultiblock(std::unordered_set<unsigned int>& disabledZ
         break;
 
       case 7:
-        // From vtkUnstructuredGrid::InsertNextCell :
-        // For polyhedron cell, input ptIds is of format:
-        // (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
-        polyhedronBuffer->SetNumberOfIds(0);
-        polyhedronBuffer->InsertNextId(cell.faceIndices.size());
+        polyhedronPoints->Reset();
         for (const auto faceId : cell.faceIndices)
         {
-          polyhedronBuffer->InsertNextId(Faces[faceId].nodeIndices.size());
-          for (const auto nodeId : Faces[faceId].nodeIndices)
+          for (const auto nodeId : this->Faces[faceId].nodeIndices)
           {
-            polyhedronBuffer->InsertNextId(nodeId);
+            polyhedronPoints->InsertUniqueId(nodeId);
           }
         }
-        newCellPointIDs = polyhedronBuffer;
+        newCellPointIDs = polyhedronPoints;
         newCellType = VTK_POLYHEDRON;
         break;
 
@@ -371,19 +434,35 @@ bool vtkFLUENTReader::FillMultiblock(std::unordered_set<unsigned int>& disabledZ
     }
 
     // Insert main cell
-    size_t blockIdx = zoneIDToBlockIdx.at(cell.zoneId);
-    blockUGs[blockIdx]->InsertNextCell(newCellType, newCellPointIDs);
+    insertCell(zoneIDToBlockIdx.at(cell.zoneId), cellIdx, newCellType, newCellPointIDs, true);
 
     // Insert faces cells
-    for (int faceIdx : cell.faceIndices)
+    for (size_t faceIdx : cell.faceIndices)
     {
       const Face& face = this->Faces[faceIdx];
       if (disabledZones.find(face.zoneId) != disabledZones.end())
       {
         continue;
       }
-      blockIdx = zoneIDToBlockIdx.at(face.zoneId);
-      blockUGs[blockIdx]->InsertNextCell(newCellType, newCellPointIDs);
+      insertCell(zoneIDToBlockIdx.at(face.zoneId), cellIdx, newCellType, newCellPointIDs, false);
+    }
+  }
+
+  for (size_t blockIdx = 0; blockIdx < blockCells.size(); ++blockIdx)
+  {
+    BlockCells& block = blockCells[blockIdx];
+    if (block.Types->GetNumberOfTuples() == 0)
+    {
+      continue;
+    }
+    if (block.HasPolyhedra)
+    {
+      blockUGs[blockIdx]->SetPolyhedralCells(
+        block.Types, block.Cells, block.FaceLocations, block.Faces);
+    }
+    else
+    {
+      blockUGs[blockIdx]->SetCells(block.Types, block.Cells);
     }
   }
   return true;

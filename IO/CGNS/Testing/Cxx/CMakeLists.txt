@@ -15,6 +15,7 @@ vtk_add_test_cxx(vtkIOCGNSReaderCxxTests tests
   TestCGNSUnsteadyGrid.cxx
   TestCGNSUnsteadyTemporalSolution.cxx
   TestCGNSReaderPatchesAsElementNodes.cxx
+  TestCGNSReaderSharedFaces.cxx
   TestCGNSFlipFaceNormals.cxx
   TestReadCGNSSolution.cxx
   TestCGNSReaderLibVersionFree.cxx

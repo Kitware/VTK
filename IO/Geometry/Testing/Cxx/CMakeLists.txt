@@ -4,6 +4,7 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   UnstructuredGridFastGradients.cxx
   UnstructuredGridGradients.cxx
   TestFLUENTReader.cxx,NO_VALID
+  TestFLUENTReaderSharedFaces.cxx,NO_VALID
   TestGLTFReaderMalformed.cxx,NO_VALID
   TestOBJReaderDouble.cxx
   TestOBJPolyDataWriter.cxx
@@ -30,6 +31,7 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestOpenFOAMReaderValuePointPatch.cxx
   TestOpenFOAMReaderWeighByCellSize.cxx
   TestOpenFOAMReaderRestartFiles.cxx,NO_VALID
+  TestOpenFOAMReaderSharedFaces.cxx,NO_VALID
   TestProStarReader.cxx
   TestTecplotReader.cxx
   TestAMRReadWrite.cxx,NO_VALID

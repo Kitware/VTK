@@ -17,7 +17,9 @@
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolyhedronCellArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <vtksys/RegularExpression.hxx>
@@ -970,50 +972,50 @@ int vtkCONVERGECFDReader::RequestData(
     // Set the points in the unstructured grid
     ugrid->SetPoints(points);
 
-    // Create polyhedra from their faces
-    vtkNew<vtkIdList> faces;
+    // Create polyhedra from their faces. Each polygon is stored once, wound as in
+    // the file, which points out of the cell it is stored against
+    // (connectedCells[2*polyId+0]). The other cell, which sees it inward, lists it
+    // as -(n+1) (see vtkPolyhedronCellArray), so every polyhedron sees its faces
+    // wound outward.
+    vtkNew<vtkCellArray> polyFaces;
+    polyFaces->AllocateExact(numPolygons, polygonOffsets[numPolygons]);
+    std::vector<vtkIdType> facePoints;
+    for (int polyId = 0; polyId < numPolygons; ++polyId)
+    {
+      facePoints.assign(
+        polygons.begin() + polygonOffsets[polyId], polygons.begin() + polygonOffsets[polyId + 1]);
+      polyFaces->InsertNextCell(static_cast<vtkIdType>(facePoints.size()), facePoints.data());
+    }
+
+    vtkNew<vtkUnsignedCharArray> cellTypes;
+    vtkNew<vtkCellArray> cells;
+    vtkNew<vtkCellArray> faceLocations;
+    std::vector<vtkIdType> cellFaceIds;
+    std::vector<vtkIdType> cellPointIds;
     for (const auto& cellIdAndPolys : cellToPoly)
     {
-      faces->Reset();
-      // Number of faces
-      faces->InsertNextId(static_cast<vtkIdType>(cellIdAndPolys.second.size()));
+      cellFaceIds.clear();
+      cellPointIds.clear();
       for (auto polyId : cellIdAndPolys.second)
       {
-        // Get polygon
-        int numPts = polygonOffsets[polyId + 1] - polygonOffsets[polyId];
-
-        // Number of points in face
-        faces->InsertNextId(numPts);
-
-        // Each interior face is shared by two cells (CONNECTED_CELLS) but is
-        // stored once with a single winding. Insert it as stored for the cell it
-        // is stored against (connectedCells[2*polyId+0]) and reversed for the
-        // other cell, so every polyhedron is built with consistently oriented
-        // faces. Without this, nearly every interior face is wound backwards for
-        // one of its two cells, leaving vtkPolyhedron with mixed face normals and
-        // breaking slicing/contouring (self-overlapping or open cross sections).
-        // This mirrors the face reversal the CGNS reader applies using the signed
-        // NFACE_n connectivity.
-        if (connectedCells[2 * polyId + 0] == cellIdAndPolys.first)
+        const bool reversed = connectedCells[2 * polyId + 0] != cellIdAndPolys.first;
+        cellFaceIds.push_back(vtkPolyhedronCellArray::EncodeFaceId(polyId, reversed));
+        const int begin = polygonOffsets[polyId];
+        const int numPts = polygonOffsets[polyId + 1] - begin;
+        for (int i = 0; i < numPts; ++i)
         {
-          for (int i = 0; i < numPts; ++i)
+          const vtkIdType ptId = polygons[begin + (reversed ? numPts - 1 - i : i)];
+          if (std::find(cellPointIds.begin(), cellPointIds.end(), ptId) == cellPointIds.end())
           {
-            // Polygon vertex, owner winding
-            faces->InsertNextId(polygons[polygonOffsets[polyId] + i]);
-          }
-        }
-        else
-        {
-          for (int i = numPts - 1; i >= 0; --i)
-          {
-            // Polygon vertex, reversed for the neighbor cell
-            faces->InsertNextId(polygons[polygonOffsets[polyId] + i]);
+            cellPointIds.push_back(ptId);
           }
         }
       }
-
-      ugrid->InsertNextCell(VTK_POLYHEDRON, faces);
+      cellTypes->InsertNextValue(VTK_POLYHEDRON);
+      cells->InsertNextCell(static_cast<vtkIdType>(cellPointIds.size()), cellPointIds.data());
+      faceLocations->InsertNextCell(static_cast<vtkIdType>(cellFaceIds.size()), cellFaceIds.data());
     }
+    ugrid->SetPolyhedralCells(cellTypes, cells, faceLocations, polyFaces);
 
     // ++++ CELL DATA ++++
     for (int i = 0; i < this->CellDataArraySelection->GetNumberOfArrays(); ++i)
