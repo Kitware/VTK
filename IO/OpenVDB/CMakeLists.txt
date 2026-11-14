@@ -11,6 +11,10 @@ vtk_module_find_package(PRIVATE_IF_SHARED
   COMPONENTS
     openvdb)
 
+if("${OpenVDB_VERSION}" VERSION_LESS "10.0.1")
+  message(FATAL_ERROR "IOOpenVDB require OpenVDB >= 10.0.1")
+endif()
+
 set(classes
   vtkOpenVDBWriter
   vtkOpenVDBReader)
