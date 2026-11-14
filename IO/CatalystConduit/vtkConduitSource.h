@@ -11,7 +11,7 @@
  *
  * vtkConduitSource currently produces a `vtkParitionedDataSet`,
  * `vtkPartitionedDataSetCollection` or `vtkOverlappingAMR` for meshes, and a `vtkTable`
- * (or a `vtkMultiBlockDataSet` of tables) for the Conduit table blueprint.
+ * (or a `vtkPartitionedDataSetCollection` of tables) for the Conduit table blueprint.
  *
  * @sa vtkConduitArrayUtilities
  */
@@ -60,8 +60,16 @@ public:
   ///@{
   /**
    * Set this to true if the node follows the Conduit table blueprint (default is false).
-   * A single table (a node with a "values" child) produces a vtkTable; a node holding
-   * several named tables produces a vtkMultiBlockDataSet with one vtkTable per block.
+   * It takes precedence over UseAMRMeshProtocol and UseMultiMeshProtocol.
+   *
+   * A single table (a node with a "values" child) produces a vtkTable. An empty node
+   * produces an empty vtkTable, so a rank with no rows, such as one that does not hold a
+   * global quantity, can pass an empty node.
+   *
+   * A node holding several named tables produces a vtkPartitionedDataSetCollection with one
+   * table per partitioned dataset, named in its metadata, or a vtkMultiBlockDataSet when
+   * OutputMultiBlock is on. Every rank must then provide the same tables, with zero-length
+   * columns where it has no rows.
    */
   vtkSetMacro(UseTableProtocol, bool);
   vtkGetMacro(UseTableProtocol, bool);

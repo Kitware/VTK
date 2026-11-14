@@ -225,10 +225,10 @@ bool vtkConduitSource::GeneratePartitionedDataSetCollection(vtkDataObject* outpu
 bool vtkConduitSource::GenerateTable(vtkDataObject* output)
 {
   const auto& node = this->Internals->Node;
-  if (node.has_child("values"))
+  if (node.number_of_children() == 0 || node.has_child("values"))
   {
     vtkNew<vtkTable> table;
-    if (!vtkConduitToDataObject::FillTable(table, node))
+    if (node.number_of_children() > 0 && !vtkConduitToDataObject::FillTable(table, node))
     {
       output->Initialize();
       return false;
@@ -237,9 +237,9 @@ bool vtkConduitSource::GenerateTable(vtkDataObject* output)
     return true;
   }
 
-  vtkNew<vtkMultiBlockDataSet> blocks;
+  vtkNew<vtkPartitionedDataSetCollection> tables;
   const auto count = static_cast<unsigned int>(node.number_of_children());
-  blocks->SetNumberOfBlocks(count);
+  tables->SetNumberOfPartitionedDataSets(count);
   for (unsigned int cc = 0; cc < count; ++cc)
   {
     const auto child = node.child(cc);
@@ -249,10 +249,10 @@ bool vtkConduitSource::GenerateTable(vtkDataObject* output)
       output->Initialize();
       return false;
     }
-    blocks->SetBlock(cc, table);
-    blocks->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(), child.name().c_str());
+    tables->GetPartitionedDataSet(cc)->SetPartition(0, table);
+    tables->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(), child.name().c_str());
   }
-  output->ShallowCopy(blocks);
+  output->ShallowCopy(tables);
   return true;
 }
 
@@ -265,7 +265,15 @@ int vtkConduitSource::RequestDataObject(
   {
     const auto& node = this->Internals->Node;
     const bool manyTables = !node.has_child("values") && node.number_of_children() > 0;
-    dataType = manyTables ? VTK_MULTIBLOCK_DATA_SET : VTK_TABLE;
+    if (!manyTables)
+    {
+      dataType = VTK_TABLE;
+    }
+    else
+    {
+      dataType =
+        this->OutputMultiBlock ? VTK_MULTIBLOCK_DATA_SET : VTK_PARTITIONED_DATA_SET_COLLECTION;
+    }
   }
   else if (this->OutputMultiBlock)
   {
@@ -326,7 +334,7 @@ int vtkConduitSource::RequestData(
     }
   }
 
-  if (this->OutputMultiBlock && !this->UseTableProtocol)
+  if (this->OutputMultiBlock && vtkCompositeDataSet::SafeDownCast(real_output))
   {
     vtkNew<vtkConvertToMultiBlockDataSet> converter;
     converter->SetInputData(real_output);

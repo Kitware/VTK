@@ -7,6 +7,7 @@
 #include "vtkCellIterator.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkConduitSource.h"
+#include "vtkConduitToDataObject.h"
 #include "vtkDataArrayRange.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -16,6 +17,7 @@
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
@@ -1653,13 +1655,39 @@ bool ValidateTable()
 
   source->SetNode(conduit_cpp::c_node(&many));
   source->Update();
+  auto tables = vtkPartitionedDataSetCollection::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(tables != nullptr && tables->GetNumberOfPartitionedDataSets() == 2,
+    "Expected a vtkPartitionedDataSetCollection with 2 tables.");
+  auto forces = vtkTable::SafeDownCast(tables->GetPartitionAsDataObject(1, 0));
+  VERIFY(forces != nullptr && forces->GetNumberOfRows() == 1 &&
+      std::string(tables->GetMetaData(1u)->Get(vtkCompositeDataSet::NAME())) == "forces",
+    "Incorrect 'forces' table.");
+
+  source->SetOutputMultiBlock(true);
+  source->Update();
   auto blocks = vtkMultiBlockDataSet::SafeDownCast(source->GetOutputDataObject(0));
   VERIFY(blocks != nullptr && blocks->GetNumberOfBlocks() == 2,
-    "Expected a vtkMultiBlockDataSet with 2 blocks.");
-  auto forces = vtkTable::SafeDownCast(blocks->GetBlock(1));
-  VERIFY(forces != nullptr && forces->GetNumberOfRows() == 1 &&
-      std::string(blocks->GetMetaData(1u)->Get(vtkCompositeDataSet::NAME())) == "forces",
-    "Incorrect 'forces' table.");
+    "Expected a vtkMultiBlockDataSet with 2 blocks when OutputMultiBlock is on.");
+  source->SetOutputMultiBlock(false);
+
+  // A rank with no rows passes an empty node.
+  conduit_cpp::Node empty;
+  source->SetNode(conduit_cpp::c_node(&empty));
+  source->Update();
+  auto emptyTable = vtkTable::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(emptyTable != nullptr && emptyTable->GetNumberOfRows() == 0 &&
+      emptyTable->GetNumberOfColumns() == 0,
+    "Expected an empty vtkTable for an empty node.");
+
+  conduit_cpp::Node uneven;
+  uneven["values/time"].set_float64_vector({ 0.0, 1.0, 2.0 });
+  uneven["values/drag"].set_float64_vector({ 0.3, 0.4 });
+  vtkNew<vtkTable> unevenTable;
+  const auto verbosity = vtkLogger::GetCurrentVerbosityCutoff();
+  vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_OFF);
+  const bool filled = vtkConduitToDataObject::FillTable(unevenTable, uneven);
+  vtkLogger::SetStderrVerbosity(verbosity);
+  VERIFY(!filled, "Columns of different lengths should be rejected.");
   return true;
 }
 

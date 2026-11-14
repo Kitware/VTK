@@ -61,9 +61,11 @@ VTKIOCATALYSTCONDUIT_EXPORT bool FillAMRMesh(vtkOverlappingAMR* amr, const condu
 
 /**
  * Fill the vtkTable from a node following the Conduit table blueprint: each child of
- * "values" is a column, given as a data array or an mcarray of the same length.
+ * "values" is a column, given as a data array or an mcarray. All columns must have the
+ * same length.
  *
- * Return true if data was correctly generated, false if an error occurred.
+ * Return true if data was correctly generated, false if an error occurred, including
+ * columns of different lengths.
  */
 VTKIOCATALYSTCONDUIT_EXPORT bool FillTable(vtkTable* output, const conduit_cpp::Node& tableNode);
 
