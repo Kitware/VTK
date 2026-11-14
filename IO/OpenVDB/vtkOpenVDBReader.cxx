@@ -852,7 +852,12 @@ bool vtkOpenVDBReader::LoadFile()
     try
     {
       // Read the istream using OpenVDB
+#if OPENVDB_ABI_VERSION_NUMBER == 14
+      openvdb::v14_0::io::ReadOptions opt;
+      this->Internals->GridsVdbMetadata = openvdb::io::Stream(buffer, opt).getGrids();
+#else
       this->Internals->GridsVdbMetadata = openvdb::io::Stream(buffer, false).getGrids();
+#endif
     }
     catch (openvdb::IoError& e)
     {
