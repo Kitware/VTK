@@ -198,7 +198,7 @@ bool vtkGLTFDocumentLoader::LoadModelMetaDataFromStream(
 template <typename Type>
 struct vtkGLTFDocumentLoader::BufferDataExtractionWorker
 {
-  int ByteOffset;
+  unsigned int ByteOffset;
   int ByteStride;
   int Count;
   const std::vector<char>* Inbuf;
@@ -497,7 +497,7 @@ namespace
  */
 template <typename Type>
 void ExtractAndCastCellBufferData(const std::vector<char>& inbuf,
-  vtkSmartPointer<vtkCellArray> output, int byteOffset, int byteStride, int count,
+  vtkSmartPointer<vtkCellArray> output, unsigned int byteOffset, int byteStride, int count,
   int numberOfComponents, int mode = vtkGLTFDocumentLoaderInternals::GL_TRIANGLES)
 {
   if (output == nullptr)
