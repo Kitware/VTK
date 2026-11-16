@@ -180,6 +180,8 @@ set(cxx_tests
   TestTextureWrap.cxx
   TestTilingCxx.cxx
   TestToggleOSWithInteractor.cxx,NO_DATA
+  TestToneMappingPass.cxx,NO_DATA
+  TestToneMappingPassOperators.cxx,NO_DATA,NO_VALID
   TestTransformCoordinateUseDouble.cxx
   TestTranslucentImageActorAlphaBlending.cxx
   TestTranslucentImageActorDepthPeeling.cxx
