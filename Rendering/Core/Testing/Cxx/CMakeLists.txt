@@ -147,6 +147,7 @@ set(cxx_tests
   TestPolyDataMapper2D.cxx,NO_DATA
   TestPolyDataMapperClipPlanes.cxx,NO_DATA
   TestPolyDataMapperNormals.cxx
+  TestPolyDataMapperReplacedArrays.cxx,NO_DATA,NO_VALID
   TestPolygonSelection.cxx,NO_DATA
   TestQuad.cxx,NO_DATA
   TestQuadPointRep.cxx,NO_DATA

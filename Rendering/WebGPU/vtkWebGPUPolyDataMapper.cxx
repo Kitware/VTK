@@ -1936,6 +1936,23 @@ bool vtkWebGPUPolyDataMapper::AllocateAttributeBuffers(vtkWebGPUConfiguration* w
 }
 
 //------------------------------------------------------------------------------
+bool vtkWebGPUPolyDataMapper::AttributeBuffer::RecordUpload(
+  vtkDataArray* array, vtkMTimeType buildTime)
+{
+  const std::size_t index = this->NumberOfUploads++;
+  if (index == this->Uploads.size())
+  {
+    this->Uploads.emplace_back();
+  }
+  auto& upload = this->Uploads[index];
+  const bool needsWrite = array->GetMTime() > buildTime || upload.Array.GetPointer() != array ||
+    upload.Offset != this->Watermark;
+  upload.Array = array;
+  upload.Offset = this->Watermark;
+  return needsWrite;
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::UploadAttributeToGPUBuffer(vtkWebGPUConfiguration* wgpuConfiguration,
   vtkDataArray* dataArray, PointDataAttributes attributeType, float denominator /*= 1.0f*/)
 {
@@ -1945,7 +1962,8 @@ void vtkWebGPUPolyDataMapper::UploadAttributeToGPUBuffer(vtkWebGPUConfiguration*
   }
   auto& attribBuffer = this->PointBuffers[attributeType];
   const auto& label = PointAttribLabels[attributeType];
-  if (dataArray->GetMTime() > this->PointAttributesBuildTimestamp[attributeType])
+  if (attribBuffer.RecordUpload(
+        dataArray, this->PointAttributesBuildTimestamp[attributeType].GetMTime()))
   {
     using DispatchT = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
     if (denominator != 1.0f)
@@ -1986,7 +2004,8 @@ void vtkWebGPUPolyDataMapper::UploadAttributeToGPUBuffer(vtkWebGPUConfiguration*
   }
   auto& attribBuffer = this->CellBuffers[attributeType];
   const auto& label = CellAttribLabels[attributeType];
-  if (dataArray->GetMTime() > this->CellAttributesBuildTimestamp[attributeType])
+  if (attribBuffer.RecordUpload(
+        dataArray, this->CellAttributesBuildTimestamp[attributeType].GetMTime()))
   {
     using DispatchT = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
     if (denominator != 1.0f)
@@ -2026,12 +2045,14 @@ void vtkWebGPUPolyDataMapper::BeginUpdateMeshGeometryBuffers()
   {
     this->PointBuffers[attributeIndex].Watermark = 0;
     this->PointBuffers[attributeIndex].Touched = false;
+    this->PointBuffers[attributeIndex].NumberOfUploads = 0;
   }
   for (int attributeIndex = 0; attributeIndex < CellDataAttributes::CELL_NB_ATTRIBUTES;
        attributeIndex++)
   {
     this->CellBuffers[attributeIndex].Watermark = 0;
     this->CellBuffers[attributeIndex].Touched = false;
+    this->CellBuffers[attributeIndex].NumberOfUploads = 0;
   }
 }
 
@@ -2154,7 +2175,10 @@ void vtkWebGPUPolyDataMapper::EndUpdateMeshGeometryBuffers()
   for (int attributeIndex = 0; attributeIndex < PointDataAttributes::POINT_NB_ATTRIBUTES;
        attributeIndex++)
   {
-    if (this->PointBuffers[attributeIndex].Touched)
+    auto& buffer = this->PointBuffers[attributeIndex];
+    // Forget meshes that are no longer written, such as removed blocks.
+    buffer.Uploads.resize(buffer.NumberOfUploads);
+    if (buffer.Touched)
     {
       this->PointAttributesBuildTimestamp[attributeIndex].Modified();
     }
@@ -2162,7 +2186,9 @@ void vtkWebGPUPolyDataMapper::EndUpdateMeshGeometryBuffers()
   for (int attributeIndex = 0; attributeIndex < CellDataAttributes::CELL_NB_ATTRIBUTES;
        attributeIndex++)
   {
-    if (this->CellBuffers[attributeIndex].Touched)
+    auto& buffer = this->CellBuffers[attributeIndex];
+    buffer.Uploads.resize(buffer.NumberOfUploads);
+    if (buffer.Touched)
     {
       this->CellAttributesBuildTimestamp[attributeIndex].Modified();
     }
