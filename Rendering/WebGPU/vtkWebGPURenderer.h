@@ -276,11 +276,7 @@ public:
    * | Props reordered | Misses it | Catches it, harmlessly |
    *
    */
-  void InvalidateBundle()
-  {
-    this->RebuildRenderBundle = true;
-    this->Bundle = nullptr;
-  }
+  void InvalidateBundle();
 
   /**
    * Get whether the render bundle associated with this actor must be reset by the renderer.

@@ -35,6 +35,10 @@ public:
     {
       vtkTypeFloat32 World[4][4] = {};
       vtkTypeFloat32 Normal[3][4] = {};
+      // Identity unless the actor carries vtkProp::GENERAL_TEXTURE_TRANSFORM(). Transposed
+      // like World.
+      vtkTypeFloat32 TextureCoordinate[4][4] = { { 1.0f, 0.0f, 0.0f, 0.0f },
+        { 0.0f, 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } };
     } Transform;
 
     struct RenderOptions
@@ -114,11 +118,13 @@ public:
     } ColorOpts, BackfaceColorOpts;
   };
 
+  static_assert(sizeof(ActorBlock::TransformInfo) == 176,
+    "TransformInfo must match the layout of ActorTransform in ActorTransform.wgsl");
   static_assert(sizeof(ActorBlock::ColorOptions) == 208,
     "ColorOptions must match the layout of ActorColorOptions in ActorColorOptions.wgsl");
-  static_assert(offsetof(ActorBlock, ColorOpts) == 160,
+  static_assert(offsetof(ActorBlock, ColorOpts) == 224,
     "ColorOptions must start where the Actor struct places color_options");
-  static_assert(offsetof(ActorBlock, BackfaceColorOpts) == 368,
+  static_assert(offsetof(ActorBlock, BackfaceColorOpts) == 432,
     "BackfaceColorOptions must match the Actor struct's backface_color_options");
 
   static void CacheMaterial(vtkProperty* property, ActorBlock::ColorOptions& colorOptions)

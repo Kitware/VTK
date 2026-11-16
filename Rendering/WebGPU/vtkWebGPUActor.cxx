@@ -10,6 +10,7 @@
 
 #include "vtkCompositePolyDataMapper.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkMapper.h"
 #include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
@@ -26,6 +27,7 @@
 #include "vtkWindow.h"
 
 #include <algorithm>
+#include <cstring>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -129,6 +131,12 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
         if (this->NeedToRecreateBindGroups())
         {
           this->CreateBindGroups(wgpuConfiguration);
+        }
+        // A recorded bundle still binds the bind group and buffer that CreateBindGroups replaced.
+        // Comparing timestamps re-records in every renderer drawing this actor, not just this one.
+        if (internals.DeviceResourcesBuildTimestamp > wgpuRenderer->RenderBundleBuildTime)
+        {
+          wgpuRenderer->InvalidateBundle();
         }
         if (internals.MapperSwappedTime > wgpuRenderer->RenderBundleBuildTime)
         {
@@ -331,9 +339,10 @@ std::size_t vtkWebGPUActor::GetCacheSizeBytes()
 bool vtkWebGPUActor::CacheActorTransforms()
 {
   auto& internals = (*this->Internals);
+  auto& transform = internals.CachedActorInfo.Transform;
+  bool updated = false;
   if (this->UpdateKeyMatrices())
   {
-    auto& transform = internals.CachedActorInfo.Transform;
     // stage world
     std::transform(internals.MCWCMatrix->GetData(), internals.MCWCMatrix->GetData() + 16,
       &(transform.World[0][0]), [](double& v) -> float { return static_cast<float>(v); });
@@ -345,9 +354,33 @@ bool vtkWebGPUActor::CacheActorTransforms()
         transform.Normal[i][j] = internals.NormalMatrix->GetElement(i, j);
       }
     }
-    return true;
+    updated = true;
   }
-  return false;
+
+  // vtkActor adds and removes the key around each render, so there is no modification time to
+  // compare against: stage it every time and report whether it changed.
+  vtkTypeFloat32 textureCoordinate[4][4] = { { 1.0f, 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 0.0f },
+    { 0.0f, 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } };
+  vtkInformation* info = this->GetPropertyKeys();
+  if (info && info->Has(vtkProp::GENERAL_TEXTURE_TRANSFORM()) &&
+    info->Length(vtkProp::GENERAL_TEXTURE_TRANSFORM()) == 16)
+  {
+    double* matrix = info->Get(vtkProp::GENERAL_TEXTURE_TRANSFORM());
+    // transposed, because WGSL reads the buffer column by column
+    for (int i = 0; i < 4; ++i)
+    {
+      for (int j = 0; j < 4; ++j)
+      {
+        textureCoordinate[j][i] = static_cast<float>(matrix[i * 4 + j]);
+      }
+    }
+  }
+  if (std::memcmp(transform.TextureCoordinate, textureCoordinate, sizeof(textureCoordinate)) != 0)
+  {
+    std::memcpy(transform.TextureCoordinate, textureCoordinate, sizeof(textureCoordinate));
+    updated = true;
+  }
+  return updated;
 }
 
 //------------------------------------------------------------------------------
