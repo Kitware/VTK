@@ -38,7 +38,8 @@ void WriteToFile(vtkHDFWriter* writer, vtkDataObjectAlgorithm* source, const Con
   writer->SetUseExternalDistributed(config.External & ExternalType::Distributed);
   writer->SetWriteAllTimeSteps(true);
   writer->SetController(controller);
-  writer->SetCompressionLevel(3); // Don't take too much space on disk
+  // Compressed collective writes can hang with the CI's MPICH
+  writer->SetCompressionLevel(0);
   if (config.StaticMesh == StaticMeshType::Static)
   {
     // Could be done in the source, but much easier to force meshmtime here
