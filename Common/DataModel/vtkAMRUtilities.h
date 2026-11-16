@@ -55,6 +55,16 @@ public:
   static bool HasPartiallyOverlappingGhostCells(vtkOverlappingAMR* amr);
 
   /**
+   * Blank cells in overlapping AMR when only some of its blocks are present locally.
+   * `processMap` has one entry per block, indexed by the absolute block index
+   * (see vtkOverlappingAMRMetaData::GetAbsoluteBlockIndex()). An entry is negative for a block
+   * that exists nowhere, and any other value for a block that exists on some process. This
+   * lets the cells of a local block be blanked by children that are held by other processes,
+   * since that only needs the AMR boxes.
+   */
+  static void BlankCells(vtkOverlappingAMR* amr, const std::vector<int>& processMap);
+
+  /**
    * Blank cells in overlapping AMR
    */
   static void BlankCells(vtkOverlappingAMR* amr);
