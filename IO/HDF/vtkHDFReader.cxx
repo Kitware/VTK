@@ -676,6 +676,8 @@ int vtkHDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 //------------------------------------------------------------------------------
 int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
 {
+  this->NumberOfSteps = this->Impl->GetNumberOfSteps();
+
   int dataSetType = this->Impl->GetDataSetType();
   if (dataSetType == VTK_IMAGE_DATA)
   {
