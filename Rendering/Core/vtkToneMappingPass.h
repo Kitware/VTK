@@ -5,7 +5,7 @@
  * @brief   Implement a post-processing Tone Mapping.
  *
  * Tone mapping is the process of mapping HDR colors to [0;1] range.
- * This render pass supports four different modes:
+ * This render pass supports five different modes:
  * - Clamp: clamps the color to [0;1] range
  * - Reinhard: maps the color using formula: x/(x+1)
  * - Exponential: maps the colors using a coefficient and the formula: 1-exp(-a*x)
@@ -15,9 +15,12 @@
  *                  level in percent of the curve for input and output (ie. the halfway point
  *                  between white and black); and HdrMax is the maximum HDR input that is not
  *                  clipped. A boolean UseACES allows to use the Academy Color Encoding System.
+ * - NeutralPBR: the Khronos PBR Neutral operator.
  *
  * Advanced tone mapping like GenericFilmic, Reinhard or Exponential can be useful when several
  * lights are added to the renderer.
+ *
+ * The rendering backends provide the implementation through the object factory.
  *
  * @sa
  * vtkRenderPass
@@ -26,31 +29,38 @@
 #ifndef vtkToneMappingPass_h
 #define vtkToneMappingPass_h
 
-#include "vtkImageProcessingPass.h"
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
+#include "vtkRenderPass.h"
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkOpenGLFramebufferObject;
-class vtkOpenGLQuadHelper;
-class vtkTextureObject;
-
-class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkToneMappingPass : public vtkImageProcessingPass
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkToneMappingPass : public vtkRenderPass
 {
 public:
   static vtkToneMappingPass* New();
-  vtkTypeMacro(vtkToneMappingPass, vtkImageProcessingPass);
+  vtkTypeMacro(vtkToneMappingPass, vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state.
    */
-  void Render(const vtkRenderState* s) override;
+  void Render(const vtkRenderState*) override {}
 
   /**
    * Release graphics resources and ask components to release their own resources.
    */
   void ReleaseGraphicsResources(vtkWindow* w) override;
+
+  ///@{
+  /**
+   * Delegate for rendering the image to be processed.
+   * If it is NULL, nothing will be rendered and a warning will be emitted.
+   * It is usually set to a vtkCameraPass or to a post-processing pass.
+   * Initial value is a NULL pointer.
+   */
+  vtkGetObjectMacro(DelegatePass, vtkRenderPass);
+  virtual void SetDelegatePass(vtkRenderPass* delegatePass);
+  ///@}
 
   ///@{
   /**
@@ -149,12 +159,7 @@ protected:
   vtkToneMappingPass() = default;
   ~vtkToneMappingPass() override;
 
-  /**
-   * Graphics resources.
-   */
-  vtkOpenGLFramebufferObject* FrameBufferObject = nullptr;
-  vtkTextureObject* ColorTexture = nullptr;
-  vtkOpenGLQuadHelper* QuadHelper = nullptr;
+  vtkRenderPass* DelegatePass = nullptr;
 
   vtkMTimeType PreComputeMTime = 0;
 
@@ -172,11 +177,6 @@ protected:
   bool UseACES = true;
 
   /**
-   * Used to recompile the shader if UseACES is modified
-   */
-  bool UseACESChangeValue = true;
-
-  /**
    * Computed from previous parameters.
    * Allow to anchor the curve.
    * Default value are for GenericFilmic default preset
@@ -188,6 +188,11 @@ protected:
    * Pre compute ClippingPoint and ToeSpeed.
    */
   void PreComputeAnchorCurveGenericFilmic();
+
+  /**
+   * Pre compute ClippingPoint and ToeSpeed if a parameter changed since they were last computed.
+   */
+  void UpdateAnchorCurveGenericFilmic();
 
 private:
   vtkToneMappingPass(const vtkToneMappingPass&) = delete;

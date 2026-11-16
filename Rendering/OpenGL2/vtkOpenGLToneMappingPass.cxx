@@ -1,8 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkToneMappingPass.h"
+#include "vtkOpenGLToneMappingPass.h"
 
+#include "vtkImageProcessingPass.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
@@ -12,16 +14,39 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOverrideAttribute.h"
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkToneMappingPass);
+namespace
+{
+// Renders the delegate into the framebuffer object the way the image processing passes do.
+class vtkToneMappingDelegateRenderer : public vtkImageProcessingPass
+{
+public:
+  static vtkToneMappingDelegateRenderer* New();
+  vtkTypeMacro(vtkToneMappingDelegateRenderer, vtkImageProcessingPass);
+  void Render(const vtkRenderState*) override {}
+  using vtkImageProcessingPass::RenderDelegate;
+};
+vtkStandardNewMacro(vtkToneMappingDelegateRenderer);
+}
+
+vtkStandardNewMacro(vtkOpenGLToneMappingPass);
 
 //------------------------------------------------------------------------------
-vtkToneMappingPass::~vtkToneMappingPass()
+vtkOverrideAttribute* vtkOpenGLToneMappingPass::CreateOverrideAttributes()
+{
+  auto* renderingBackendAttribute =
+    vtkOverrideAttribute::CreateAttributeChain("RenderingBackend", "OpenGL", nullptr);
+  return renderingBackendAttribute;
+}
+
+//------------------------------------------------------------------------------
+vtkOpenGLToneMappingPass::~vtkOpenGLToneMappingPass()
 {
   if (this->FrameBufferObject)
   {
@@ -38,7 +63,7 @@ vtkToneMappingPass::~vtkToneMappingPass()
 }
 
 //------------------------------------------------------------------------------
-void vtkToneMappingPass::PrintSelf(ostream& os, vtkIndent indent)
+void vtkOpenGLToneMappingPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -63,7 +88,7 @@ void vtkToneMappingPass::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkToneMappingPass::Render(const vtkRenderState* s)
+void vtkOpenGLToneMappingPass::Render(const vtkRenderState* s)
 {
   vtkOpenGLClearErrorMacro();
 
@@ -102,9 +127,12 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
     this->FrameBufferObject->SetContext(renWin);
   }
 
+  vtkNew<vtkToneMappingDelegateRenderer> delegateRenderer;
+  delegateRenderer->SetDelegatePass(this->DelegatePass);
   renWin->GetState()->PushFramebufferBindings();
-  this->RenderDelegate(s, w, h, w, h, this->FrameBufferObject, this->ColorTexture);
+  delegateRenderer->RenderDelegate(s, w, h, w, h, this->FrameBufferObject, this->ColorTexture);
   renWin->GetState()->PopFramebufferBindings();
+  this->NumberOfRenderedProps = this->DelegatePass->GetNumberOfRenderedProps();
 
   if (this->QuadHelper &&
     (static_cast<unsigned int>(this->ToneMappingType) != this->QuadHelper->ShaderChangeValue ||
@@ -236,11 +264,7 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
   this->QuadHelper->Program->SetUniformi("source", this->ColorTexture->GetTextureUnit());
 
   // Precompute generic filmic parameters after each modification
-  if (this->PreComputeMTime < this->GetMTime())
-  {
-    this->PreComputeAnchorCurveGenericFilmic();
-    this->PreComputeMTime = this->GetMTime();
-  }
+  this->UpdateAnchorCurveGenericFilmic();
 
   if (this->ToneMappingType == Exponential)
   {
@@ -269,7 +293,7 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
 }
 
 //------------------------------------------------------------------------------
-void vtkToneMappingPass::ReleaseGraphicsResources(vtkWindow* w)
+void vtkOpenGLToneMappingPass::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Superclass::ReleaseGraphicsResources(w);
 
@@ -288,52 +312,5 @@ void vtkToneMappingPass::ReleaseGraphicsResources(vtkWindow* w)
     this->ColorTexture->Delete();
     this->ColorTexture = nullptr;
   }
-}
-
-void vtkToneMappingPass::SetGenericFilmicDefaultPresets()
-{
-  this->Contrast = 1.6773;
-  this->Shoulder = 0.9714;
-  this->MidIn = 0.18;
-  this->MidOut = 0.18;
-  this->HdrMax = 11.0785;
-  this->UseACES = true;
-
-  this->Modified();
-}
-
-void vtkToneMappingPass::SetGenericFilmicUncharted2Presets()
-{
-  this->Contrast = 1.1759;
-  this->Shoulder = 0.9746;
-  this->MidIn = 0.18;
-  this->MidOut = 0.18;
-  this->HdrMax = 6.3704;
-  this->UseACES = false;
-
-  this->Modified();
-}
-
-void vtkToneMappingPass::PreComputeAnchorCurveGenericFilmic()
-{
-  const float& a = this->Contrast;
-  const float& d = this->Shoulder;
-  const float& m = this->MidIn;
-  const float& n = this->MidOut;
-
-  // Pre compute shape of the curve parameters
-  this->ClippingPoint =
-    -((powf(m, -a * d) *
-        (-powf(m, a) +
-          (n *
-            (powf(m, a * d) * n * powf(this->HdrMax, a) - powf(m, a) * powf(this->HdrMax, a * d))) /
-            (powf(m, a * d) * n - n * powf(this->HdrMax, a * d)))) /
-      n);
-
-  // Avoid discontinuous curve by clamping to 0
-  this->ToeSpeed =
-    std::max((powf(m, a * d) * n * powf(this->HdrMax, a) - powf(m, a) * powf(this->HdrMax, a * d)) /
-        (powf(m, a * d) * n - n * powf(this->HdrMax, a * d)),
-      0.f);
 }
 VTK_ABI_NAMESPACE_END
