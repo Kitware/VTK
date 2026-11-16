@@ -119,6 +119,10 @@ int vtkCellGridPointProbe::RequestData(
   auto* inputPoints = polydata->GetPoints()->GetData();
   if (attributes.size() == 1)
   {
+    // A new array per execution, as the evaluator would otherwise overwrite
+    // the values of the previous output.
+    vtkNew<vtkDoubleArray> singleValues;
+    this->Request->SetInterpolatedValues(singleValues);
     this->Request->SetCellAttribute(attributes.front());
     this->Request->InterpolatePoints(inputPoints);
   }
