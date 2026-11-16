@@ -87,6 +87,8 @@ void vtkWebGPUCellToPrimitiveConverter::ReleaseGraphicsResources(vtkWindow*)
   for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
   {
     this->TopologyBuildTimestamp[i] = vtkTimeStamp();
+    this->CellIdOffsets[i] = 0;
+    this->CellIdOffsetsValid[i] = false;
     this->ComputePipelines[i] = nullptr;
     this->ComputePasses[i] = nullptr;
   }
@@ -837,7 +839,8 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
     *vertexCount = 0;
     return false;
   }
-  if (!this->GetNeedToRebuildCellToPrimitiveComputePipeline(cellArray, idx))
+  if (!this->GetNeedToRebuildCellToPrimitiveComputePipeline(cellArray, idx) &&
+    this->CellIdOffsetsValid[idx] && this->CellIdOffsets[idx] == cellIdOffset)
   {
     return false;
   }
@@ -1118,6 +1121,8 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
 
   // update build timestamp
   this->UpdateCellToPrimitiveComputePipelineTimestamp(idx);
+  this->CellIdOffsets[idx] = cellIdOffset;
+  this->CellIdOffsetsValid[idx] = true;
 
   return true;
 }

@@ -240,6 +240,10 @@ private:
 
   // Timestamps help reuse previous resources as much as possible.
   vtkTimeStamp TopologyBuildTimestamp[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
+  // Preceding vertex/line cells can change a topology's global cell IDs without
+  // modifying that topology's cell array.
+  vtkTypeUInt32 CellIdOffsets[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES] = {};
+  bool CellIdOffsetsValid[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES] = {};
   // compute pass speeds up cell to primitive conversions.
   vtkSmartPointer<vtkWebGPUComputePass>
     ComputePasses[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
