@@ -726,7 +726,7 @@ int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
       return 0;
     }
     outInfo->Set(vtkDataObject::ORIGIN(), Origin, 3);
-    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 0);
+    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
   }
   else if (dataSetType == VTK_HYPER_TREE_GRID)
   {
@@ -1078,7 +1078,8 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
 
 //------------------------------------------------------------------------------
 bool vtkHDFReader::ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
-  const std::map<int, vtkDataArraySelection*>& dataArraySelection, bool isTemporalData)
+  const std::map<int, vtkDataArraySelection*>& dataArraySelection, bool isTemporalData, int piece,
+  int numberOfPieces)
 {
   for (unsigned int level = 0; level < maxLevel; level++)
   {
@@ -1118,15 +1119,8 @@ bool vtkHDFReader::ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
         for (unsigned int dataSetIndex = 0; dataSetIndex < numberOfDatasets; ++dataSetIndex)
         {
           const vtkAMRBox& amrBox = data->GetAMRBox(level, dataSetIndex);
-          vtkImageData* dataSet = data->GetDataSetAsImageData(level, dataSetIndex);
-          if (dataSet == nullptr)
-          {
-            vtkErrorMacro(
-              "Error fetching dataset at level " << level << " and dataSetIndex " << dataSetIndex);
-            return false;
-          }
 
-          // Here dataSize is the size of the previous dataset read. Offset
+          // Here dataSize is the size of the previous dataset, read by this piece or not. Offset
           // is incremented, and a new size is specified after the increment.
           // This allows for reading AMR's where the size of the blocks vary
           // inside each level.
@@ -1140,6 +1134,21 @@ bool vtkHDFReader::ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
             case vtkDataObject::AttributeTypes::CELL:
               dataSize = amrBox.GetNumberOfCells();
               break;
+          }
+
+          // The blocks read by other pieces are skipped, after the offset has moved past them
+          const int absoluteBlockIndex = data->GetAbsoluteBlockIndex(level, dataSetIndex);
+          if (Implementation::GetAMRBlockPiece(absoluteBlockIndex, numberOfPieces) != piece)
+          {
+            continue;
+          }
+
+          vtkImageData* dataSet = data->GetDataSetAsImageData(level, dataSetIndex);
+          if (dataSet == nullptr)
+          {
+            vtkErrorMacro(
+              "Error fetching dataset at level " << level << " and dataSetIndex " << dataSetIndex);
+            return false;
           }
 
           hsize_t offset = 0;
@@ -2040,8 +2049,17 @@ int vtkHDFReader::ReadRecursively(
 }
 
 //------------------------------------------------------------------------------
-int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* data)
+int vtkHDFReader::Read(vtkInformation* outInfo, vtkOverlappingAMR* data)
 {
+  int piece = 0;
+  int numberOfPieces = 1;
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) &&
+    outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
+  {
+    piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    numberOfPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  }
+
   double Origin[3];
   if (!this->Impl->GetAttribute("Origin", 3, Origin))
   {
@@ -2076,18 +2094,27 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
   }
 
   // Read AMR topology
-  if (!this->Impl->ReadAMRTopology(data, maxLevel, Origin, this->GetHasTemporalData()))
+  if (!this->Impl->ReadAMRTopology(
+        data, maxLevel, Origin, this->GetHasTemporalData(), piece, numberOfPieces))
   {
     return 1;
   }
 
   // Read the actual AMR data
-  if (!this->ReadAMRData(data, maxLevel, this->DataArraySelection, this->GetHasTemporalData()))
+  if (!this->ReadAMRData(data, maxLevel, this->DataArraySelection, this->GetHasTemporalData(),
+        piece, numberOfPieces))
   {
     return 1;
   }
 
-  vtkAMRUtilities::BlankCells(data);
+  // Every block is read by some piece, so the blanking of a local block can use the boxes of the
+  // children that other pieces hold
+  std::vector<int> processMap(data->GetNumberOfBlocks());
+  for (unsigned int block = 0; block < processMap.size(); ++block)
+  {
+    processMap[block] = Implementation::GetAMRBlockPiece(block, numberOfPieces);
+  }
+  vtkAMRUtilities::BlankCells(data, processMap);
 
   return 1;
 }

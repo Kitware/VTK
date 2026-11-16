@@ -353,11 +353,13 @@ private:
     vtkDataSet* data, const std::vector<int>& wholeExtent, const std::vector<int>& localExtent);
 
   /**
-   * Read the actual data into the provided amr up to maxLevel
+   * Read the actual data into the provided amr up to maxLevel, for the blocks read by
+   * `piece` out of `numberOfPieces` pieces. The other blocks are null.
    * Return true on success, false otherwise
    */
   bool ReadAMRData(vtkOverlappingAMR* data, unsigned int maxLevel,
-    const std::map<int, vtkDataArraySelection*>& dataArraySelection, bool isTemporalData);
+    const std::map<int, vtkDataArraySelection*>& dataArraySelection, bool isTemporalData, int piece,
+    int numberOfPieces);
 
   /**
    * Read 'pieceData' specified by 'filePiece' where

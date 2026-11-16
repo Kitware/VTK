@@ -233,9 +233,18 @@ public:
 
   /**
    * Read the AMR topology based on offset data on AMRBlocks.
+   * The AMR boxes are read for all blocks, but a grid is only created for the blocks read by
+   * `piece` out of `numberOfPieces` pieces. The other blocks are null.
    */
-  bool ReadAMRTopology(
-    vtkOverlappingAMR* data, unsigned int maxLevel, double origin[3], bool isTemporalData);
+  bool ReadAMRTopology(vtkOverlappingAMR* data, unsigned int maxLevel, double origin[3],
+    bool isTemporalData, int piece, int numberOfPieces);
+
+  /**
+   * Return the piece that reads the block with this absolute block index
+   * (see vtkOverlappingAMRMetaData::GetAbsoluteBlockIndex()). Blocks are dealt out to pieces
+   * in turn, which spreads the blocks of every level.
+   */
+  static int GetAMRBlockPiece(unsigned int absoluteBlockIndex, int numberOfPieces);
 
   /**
    * Get the temporal offset for a specific attribute
@@ -331,7 +340,7 @@ private:
   bool ReadAMRBoxRawValues(
     hid_t levelGroupID, std::vector<int>& amrBoxRawData, int level, bool isTemporalData);
   bool ReadLevelTopology(unsigned int level, const std::string& levelGroupName,
-    vtkOverlappingAMR* data, double origin[3], bool isTemporalData);
+    vtkOverlappingAMR* data, double origin[3], bool isTemporalData, int piece, int numberOfPieces);
   ///@}
 };
 
