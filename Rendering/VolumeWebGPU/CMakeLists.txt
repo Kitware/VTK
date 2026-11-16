@@ -6,11 +6,13 @@ set(private_headers
   "Private/vtkWebGPUVolumeBrickPool.h"
   "Private/vtkWebGPUVolumeRayCastContribution.h"
   "Private/vtkWebGPUVolumeRayCastCoordinatorInternals.h"
+  "Private/vtkWebGPUVolumeRayCastMapperInput.h"
   "Private/vtkWebGPUVolumeRayCastMapperInternals.h")
 
 set(private_sources
   "Private/vtkWebGPUVolumeBrickPool.cxx"
   "Private/vtkWebGPUVolumeRayCastCoordinatorInternals.cxx"
+  "Private/vtkWebGPUVolumeRayCastMapperInput.cxx"
   "Private/vtkWebGPUVolumeRayCastMapperInternals.cxx")
 
 set(shader_files
