@@ -146,6 +146,16 @@ public:
   void ReleaseGraphicsResources(vtkWindow* w) override;
 
   WGPURenderPassEncoder GetRenderPassEncoder() { return this->WGPURenderEncoder; }
+
+  ///@{
+  /**
+   * Get the color attachment that the geometry of this renderer is drawn into, and its format.
+   * Pipelines that draw the geometry of this renderer must use this format.
+   */
+  WGPUTextureView GetColorTextureView();
+  WGPUTextureFormat GetColorTextureFormat();
+  ///@}
+
   WGPURenderBundleEncoder GetRenderBundleEncoder() { return this->WGPUBundleEncoder; }
   WGPUBindGroup GetSceneBindGroup() { return this->SceneBindGroup; }
 

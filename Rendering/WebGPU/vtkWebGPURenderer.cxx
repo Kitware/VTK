@@ -438,6 +438,21 @@ void vtkWebGPURenderer::CreateBuffers()
 }
 
 //------------------------------------------------------------------------------
+WGPUTextureView vtkWebGPURenderer::GetColorTextureView()
+{
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow);
+  return wgpuRenderWindow ? wgpuRenderWindow->GetOffscreenColorAttachmentView() : nullptr;
+}
+
+//------------------------------------------------------------------------------
+WGPUTextureFormat vtkWebGPURenderer::GetColorTextureFormat()
+{
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow);
+  return wgpuRenderWindow ? wgpuRenderWindow->GetOffscreenColorTextureFormat()
+                          : WGPUTextureFormat_Undefined;
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderer::Clear()
 {
   if (!this->DrawBackgroundInClearPass)
@@ -461,7 +476,7 @@ void vtkWebGPURenderer::Clear()
   bkgPipelineDescriptor.vertex.entryPoint = WGPUStringView{ "vertexMain", WGPU_STRLEN };
   bkgPipelineDescriptor.vertex.bufferCount = 0;
   bkgPipelineDescriptor.cFragment.entryPoint = WGPUStringView{ "fragmentMain", WGPU_STRLEN };
-  bkgPipelineDescriptor.cTargets[0].format = wgpuRenderWindow->GetOffscreenColorTextureFormat();
+  bkgPipelineDescriptor.cTargets[0].format = this->GetColorTextureFormat();
 
   auto depthState =
     bkgPipelineDescriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
@@ -633,7 +648,7 @@ void vtkWebGPURenderer::ClearBackground(vtkWebGPUTexture* texture)
   bkgPipelineDescriptor.vertex.entryPoint = WGPUStringView{ "vertexMain", WGPU_STRLEN };
   bkgPipelineDescriptor.vertex.bufferCount = 0;
   bkgPipelineDescriptor.cFragment.entryPoint = WGPUStringView{ "fragmentMain", WGPU_STRLEN };
-  bkgPipelineDescriptor.cTargets[0].format = wgpuRenderWindow->GetOffscreenColorTextureFormat();
+  bkgPipelineDescriptor.cTargets[0].format = this->GetColorTextureFormat();
 
   auto depthState =
     bkgPipelineDescriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
@@ -780,8 +795,7 @@ void vtkWebGPURenderer::RecordRenderCommands()
   if (auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow))
   {
     vtkWebGPURenderPassDescriptorInternals renderPassDescriptor(
-      { wgpuRenderWindow->GetOffscreenColorAttachmentView(),
-        wgpuRenderWindow->GetHardwareSelectorAttachmentView() },
+      { this->GetColorTextureView(), wgpuRenderWindow->GetHardwareSelectorAttachmentView() },
       wgpuRenderWindow->GetDepthStencilView(),
       /*clearColor=*/false, /*clearDepth=*/false, /*clearStencil=*/false);
     renderPassDescriptor.label =
@@ -1542,10 +1556,8 @@ void vtkWebGPURenderer::BeginRecording()
     // create a new bundle encoder.
     const std::string label = this->GetObjectDescription();
     auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-    const std::vector<WGPUTextureFormat> colorFormats = {
-      wgpuRenderWindow->GetOffscreenColorTextureFormat(),
-      wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat()
-    };
+    const std::vector<WGPUTextureFormat> colorFormats = { this->GetColorTextureFormat(),
+      wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat() };
     WGPURenderBundleEncoderDescriptor bundleEncDesc = WGPU_RENDER_BUNDLE_ENCODER_DESCRIPTOR_INIT;
     bundleEncDesc.colorFormatCount = colorFormats.size();
     bundleEncDesc.colorFormats = colorFormats.data();
@@ -1755,7 +1767,7 @@ void vtkWebGPURenderer::ResolveDeepFramebuffer(WGPURenderPassEncoder encoder)
   pipelineDesc.primitive.topology = WGPUPrimitiveTopology_TriangleStrip;
 
   pipelineDesc.cFragment.targetCount = 2;
-  pipelineDesc.cTargets[0].format = wgpuRenderWindow->GetOffscreenColorTextureFormat();
+  pipelineDesc.cTargets[0].format = this->GetColorTextureFormat();
   pipelineDesc.cTargets[1].format = wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat();
   pipelineDesc.cTargets[1].writeMask = WGPUColorWriteMask_All;
   auto* blend = pipelineDesc.EnableBlending(0);
@@ -1828,8 +1840,7 @@ void vtkWebGPURenderer::EndRecording()
     if (wgpuRenderWindow != nullptr)
     {
       vtkWebGPURenderPassDescriptorInternals resolvePassDesc(
-        { wgpuRenderWindow->GetOffscreenColorAttachmentView(),
-          wgpuRenderWindow->GetHardwareSelectorAttachmentView() },
+        { this->GetColorTextureView(), wgpuRenderWindow->GetHardwareSelectorAttachmentView() },
         nullptr,
         /*clearColor=*/false, /*clearDepth=*/false, /*clearStencil=*/false);
       resolvePassDesc.label =
