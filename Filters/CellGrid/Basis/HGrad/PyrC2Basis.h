@@ -1,3 +1,22 @@
+// The 18-function quadratic ("C") basis on the pyramid: five vertex functions,
+// eight edge functions and five face functions - one for the quadrilateral base
+// (basis[13], which is 1 at the base centre) and one for each triangular face.
+// PyrI2Basis.h is the same element without the face functions (13), and
+// PyrF2Basis.h the same with an interior one added (19).
+//
+// This is not the order-2 member of the arbitrary-order family in PyrCnBasis.h,
+// and PyrCnBasis.h is not its generalization. That family spans the rational
+// pyramid space of dimension (n+1)(n+2)(2n+3)/6 - 14 functions at order 2, not
+// 18 - so the two agree only at order 1, where PyrC1Basis.h and PyrCnBasis.h do
+// give the same five functions up to the node ordering. The pyramid is the one
+// shape in this directory where Cn at order 2 is not C2; for the edge,
+// quadrilateral, hexahedron, triangle, tetrahedron and wedge they coincide.
+//
+// The functions here are also not nodal in the sense the Cn bases are: they do
+// not interpolate their degrees of freedom at any point set, which is why
+// vtkDGHGradOperators.cxx's Lagrange-point table has an entry for the pyramid's
+// "C" at order 1 but none at order 2.
+
 const RealT ZERO = 0.;
 const RealT HALF = 0.5;
 const RealT FOURTH = 0.25;

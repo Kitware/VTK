@@ -1,8 +1,8 @@
 ## Arbitrary-order and Bernstein-Bezier bases for cell-grids
 
 Cell-grid attributes on discontinuous Galerkin cells may now use any polynomial
-order. `HGRAD` provides Lagrange bases at every order for every cell shape but
-the pyramid. Hexahedra and quadrilaterals accept an independent order along
+order. `HGRAD` provides Lagrange bases at every order for every cell shape.
+Hexahedra and quadrilaterals accept an independent order along
 each parametric axis, and wedges an independent order for their triangular
 cross-section and their axial direction, through an array in the `order` role.
 

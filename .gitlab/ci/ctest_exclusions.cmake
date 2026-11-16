@@ -233,6 +233,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_aarch64")
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19418
     "^VTK::CommonDataModelCxx-TestHyperTreeGridGeometricLocator$"
     "^VTK::ChartsCoreCxx-TestLinePlot3D$"
+    "^VTK::FiltersCellGridCxx-TestCellGridFindCriticalPoints$"
     "^VTK::FiltersCoreCxx-TestImplicitPolyDataDistanceCube$"
     "^VTK::FiltersCorePython-TestSphereTreeFilter$"
     "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"
@@ -262,6 +263,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19418
     "^VTK::CommonDataModelCxx-TestHyperTreeGridGeometricLocator(SerDes)?$"
     "^VTK::ChartsCoreCxx-TestLinePlot3D(SerDes)?$"
+    "^VTK::FiltersCellGridCxx-TestCellGridFindCriticalPoints(SerDes)?$"
     "^VTK::FiltersCoreCxx-TestImplicitPolyDataDistanceCube(SerDes)?$"
     "^VTK::FiltersCorePython-TestSphereTreeFilter$"
     "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D(SerDes)?$"

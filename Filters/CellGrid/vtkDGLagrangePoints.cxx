@@ -192,8 +192,29 @@ bool vtkDGLagrangePoints::GetParameters(std::vector<std::vector<double>>& params
     break;
 
     case vtkDGCell::Shape::Pyramid:
-      // We do not support arbitrary-order pyramids.
-      return false;
+    {
+      // Domain point (i, j, k) sits at height t = k/n, where the pyramid's own
+      // cross-section has half-width w = (n - k)/n; r and s are the i-th and
+      // j-th of n - k + 1 equally spaced points spanning [-w, w]. Both
+      // arbitrary-order pyramid bases use this lattice: it is where HGrad's
+      // interpolates (see Basis/HGrad/PyrCnBasis.h) and where Bezier's control
+      // values sit (see Basis/Bezier/PyrCnBasis.h).
+      for (int kk = 0; kk <= order[0]; ++kk)
+      {
+        int mm = order[0] - kk;
+        double tt = order[0] > 0 ? static_cast<double>(kk) / order[0] : 0.;
+        for (int jj = 0; jj <= mm; ++jj)
+        {
+          for (int ii = 0; ii <= mm; ++ii)
+          {
+            double rr = order[0] > 0 ? static_cast<double>(2 * ii - mm) / order[0] : 0.;
+            double ss = order[0] > 0 ? static_cast<double>(2 * jj - mm) / order[0] : 0.;
+            params.push_back({ rr, ss, tt });
+          }
+        }
+      }
+    }
+    break;
 
     default:
     case vtkDGCell::Shape::None:

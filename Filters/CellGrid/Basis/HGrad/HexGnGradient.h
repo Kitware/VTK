@@ -32,10 +32,13 @@ for (int ii = 0; ii <= order; ++ii)
       {
         continue;
       }
+      // The jj-th term of the derivative is 1/(x_ii - x_jj) times the product
+      // of (x - x_kk)/(x_ii - x_kk) over every kk but ii and jj, which is what
+      // this one product comes to once the kk == jj factor drops its numerator.
       // clang-format off
-      drt *= (kk == jj ? 1. : (rr - gaussPoint(order, jj))) / (gaussPoint(order, kk) - gaussPoint(order, jj));
-      dst *= (kk == jj ? 1. : (ss - gaussPoint(order, jj))) / (gaussPoint(order, kk) - gaussPoint(order, jj));
-      dtt *= (kk == jj ? 1. : (tt - gaussPoint(order, jj))) / (gaussPoint(order, kk) - gaussPoint(order, jj));
+      drt *= (kk == jj ? 1. : (rr - gaussPoint(order, kk))) / (gaussPoint(order, ii) - gaussPoint(order, kk));
+      dst *= (kk == jj ? 1. : (ss - gaussPoint(order, kk))) / (gaussPoint(order, ii) - gaussPoint(order, kk));
+      dtt *= (kk == jj ? 1. : (tt - gaussPoint(order, kk))) / (gaussPoint(order, ii) - gaussPoint(order, kk));
       // clang-format on
     }
     drterm[ii] += drt;

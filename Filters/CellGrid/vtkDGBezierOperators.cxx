@@ -10,6 +10,8 @@
 #include "Basis_Bezier_EdgeCnGradient.h"
 #include "Basis_Bezier_HexCnBasis.h"
 #include "Basis_Bezier_HexCnGradient.h"
+#include "Basis_Bezier_PyrCnBasis.h"
+#include "Basis_Bezier_PyrCnGradient.h"
 #include "Basis_Bezier_QuadCnBasis.h"
 #include "Basis_Bezier_QuadCnGradient.h"
 #include "Basis_Bezier_TetCnBasis.h"
@@ -58,6 +60,13 @@ VTK_ABI_NAMESPACE_BEGIN
 
 using namespace vtk::literals;
 
+/// Spelled without a namespace so the kernels below, which are also compiled
+/// as GLSL, can call it there too; see vtkDGOperatorEntry::GetShaderString().
+inline RealT abs(RealT x)
+{
+  return std::fabs(x);
+}
+
 void EdgeCnBasis(
   const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>& order)
 {
@@ -95,6 +104,19 @@ void HexCnGradient(const std::array<double, 3>& param, std::vector<double>& basi
 {
   vtkBasisHeader();
 #include "Basis/Bezier/HexCnGradient.h"
+}
+
+void PyrCnBasis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/Bezier/PyrCnBasis.h"
+}
+void PyrCnGradient(const std::array<double, 3>& param, std::vector<double>& basisGradient,
+  const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/Bezier/PyrCnGradient.h"
 }
 
 void TriCnBasis(
@@ -162,9 +184,11 @@ bool RegisterOperators()
 
   // Every Bernstein-Bezier basis accepts an arbitrary order, so all of these are
   // registered under -1; there are no hand-written low-order variants to take
-  // precedence. The pyramid is absent for the same reason it is absent from the
-  // arbitrary-order Lagrange bases: its parameter space degenerates at the apex,
-  // so a polynomial basis of arbitrary order does not exist for it.
+  // precedence. Unlike the arbitrary-order Lagrange bases, the pyramid is not
+  // absent here: Chan & Warburton (arXiv:1508.05609) give a Bernstein-form
+  // pyramidal basis with the same convex-hull property as every other shape
+  // below - see PyrCnBasis.h - even though its parameter space still collapses
+  // at the apex the way the fixed-order HGrad pyramid bases' does.
   // clang-format off
   // # Basis functions
   basisMap["A"_token][-1]["vtkDGEdge"_token]  = { vtkDGOperatorEntry::TensorProductFunctionCount, 1, EdgeCnBasis, Basis_Bezier_EdgeCnBasis };
@@ -173,6 +197,7 @@ bool RegisterOperators()
   basisMap["A"_token][-1]["vtkDGTri"_token]   = { vtkDGOperatorEntry::SimplexFunctionCount, 1, TriCnBasis, Basis_Bezier_TriCnBasis };
   basisMap["A"_token][-1]["vtkDGTet"_token]   = { vtkDGOperatorEntry::SimplexFunctionCount, 1, TetCnBasis, Basis_Bezier_TetCnBasis };
   basisMap["A"_token][-1]["vtkDGWdg"_token]   = { vtkDGOperatorEntry::WedgeFunctionCount, 1, WdgCnBasis, Basis_Bezier_WdgCnBasis };
+  basisMap["A"_token][-1]["vtkDGPyr"_token]   = { vtkDGOperatorEntry::PyramidFunctionCount, 1, PyrCnBasis, Basis_Bezier_PyrCnBasis };
 
   // # Gradients of basis functions
   gradMap["A"_token][-1]["vtkDGEdge"_token]  = { vtkDGOperatorEntry::TensorProductFunctionCount, 3, EdgeCnGradient, Basis_Bezier_EdgeCnGradient };
@@ -181,6 +206,7 @@ bool RegisterOperators()
   gradMap["A"_token][-1]["vtkDGTri"_token]   = { vtkDGOperatorEntry::SimplexFunctionCount, 3, TriCnGradient, Basis_Bezier_TriCnGradient };
   gradMap["A"_token][-1]["vtkDGTet"_token]   = { vtkDGOperatorEntry::SimplexFunctionCount, 3, TetCnGradient, Basis_Bezier_TetCnGradient };
   gradMap["A"_token][-1]["vtkDGWdg"_token]   = { vtkDGOperatorEntry::WedgeFunctionCount, 3, WdgCnGradient, Basis_Bezier_WdgCnGradient };
+  gradMap["A"_token][-1]["vtkDGPyr"_token]   = { vtkDGOperatorEntry::PyramidFunctionCount, 3, PyrCnGradient, Basis_Bezier_PyrCnGradient };
   // clang-format on
 
   if (addFinalizer)

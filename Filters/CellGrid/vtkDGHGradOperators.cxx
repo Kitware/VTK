@@ -40,6 +40,8 @@
 #include "Basis_HGrad_PyrC1Gradient.h"
 #include "Basis_HGrad_PyrC2Basis.h"
 #include "Basis_HGrad_PyrC2Gradient.h"
+#include "Basis_HGrad_PyrCnBasis.h"
+#include "Basis_HGrad_PyrCnGradient.h"
 #include "Basis_HGrad_PyrF2Basis.h"
 #include "Basis_HGrad_PyrF2Gradient.h"
 #include "Basis_HGrad_PyrGnBasis.h"
@@ -404,6 +406,19 @@ void HexG5Gradient(
 {
   vtkBasisOrderHeader(5);
 #include "Basis/HGrad/HexGnGradient.h"
+}
+
+void PyrCnBasis(
+  const std::array<double, 3>& param, std::vector<double>& basis, const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/HGrad/PyrCnBasis.h"
+}
+void PyrCnGradient(const std::array<double, 3>& param, std::vector<double>& basisGradient,
+  const std::vector<int>& order)
+{
+  vtkBasisHeader();
+#include "Basis/HGrad/PyrCnGradient.h"
 }
 
 void PyrC1Basis(
@@ -1015,6 +1030,7 @@ bool RegisterOperators()
   basisMap["G"_token][3]["vtkDGPyr"_token]  = { 30, 1, PyrG3Basis,  Basis_HGrad_PyrGnBasis };
   basisMap["G"_token][4]["vtkDGPyr"_token]  = { 55, 1, PyrG4Basis,  Basis_HGrad_PyrGnBasis };
   basisMap["G"_token][5]["vtkDGPyr"_token]  = { 91, 1, PyrG5Basis,  Basis_HGrad_PyrGnBasis };
+  basisMap["A"_token][-1]["vtkDGPyr"_token] = { vtkDGOperatorEntry::PyramidFunctionCount, 1, PyrCnBasis, Basis_HGrad_PyrCnBasis };
 
   basisMap["C"_token][1]["vtkDGQuad"_token] = {  4, 1, QuadC1Basis, Basis_HGrad_QuadC1Basis };
   basisMap["C"_token][2]["vtkDGQuad"_token] = {  9, 1, QuadC2Basis, Basis_HGrad_QuadC2Basis };
@@ -1084,6 +1100,7 @@ bool RegisterOperators()
   gradMap["G"_token][3]["vtkDGPyr"_token]  = { 30, 3, PyrG3Gradient,  Basis_HGrad_PyrGnGradient };
   gradMap["G"_token][4]["vtkDGPyr"_token]  = { 55, 3, PyrG4Gradient,  Basis_HGrad_PyrGnGradient };
   gradMap["G"_token][5]["vtkDGPyr"_token]  = { 91, 3, PyrG5Gradient,  Basis_HGrad_PyrGnGradient };
+  gradMap["A"_token][-1]["vtkDGPyr"_token] = { vtkDGOperatorEntry::PyramidFunctionCount, 3, PyrCnGradient, Basis_HGrad_PyrCnGradient };
 
   gradMap["C"_token][1]["vtkDGQuad"_token] = {  4, 3, QuadC1Gradient, Basis_HGrad_QuadC1Gradient };
   gradMap["C"_token][2]["vtkDGQuad"_token] = {  9, 3, QuadC2Gradient, Basis_HGrad_QuadC2Gradient };

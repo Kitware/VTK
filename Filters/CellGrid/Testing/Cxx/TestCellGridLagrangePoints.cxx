@@ -226,6 +226,5 @@ int TestCellGridLagrangePoints(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
   std::cout << tested << " bases tested.\n";
 
-  std::cout << (ok ? "PASS\n" : "FAIL\n");
   return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }

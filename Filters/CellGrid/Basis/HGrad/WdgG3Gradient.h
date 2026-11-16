@@ -1,5 +1,13 @@
-#define size_tri ((order + 1) * (order + 2) / 2)
-#define size_lin (order + 1)
+// Gradients of the order-3 Gauss ("G") basis on the wedge.
+//
+// A wedge is a triangle (the r- and s-axes) crossed with an edge (the t-axis),
+// so its gradient factors into the two. The triangular terms are tabulated
+// below; the t-axis interpolants and their derivatives are computed from
+// gaussPoint(), as HexGnGradient.h computes its own, rather than tabulated -
+// the table they replace held the wrong polynomials, and at order 3 stopped an
+// entry short of size_lin besides.
+const int size_tri = (order + 1) * (order + 2) / 2;
+const int size_lin = order + 1;
 
 WORKSPACE(RealT, term_tri, size_tri);
 WORKSPACE(RealT, dterm_dr_tri, size_tri);
@@ -90,14 +98,30 @@ dterm_ds_tri[6] = 3.11602737534135*rr2 + 52.7135962468965*rr*ss - 11.81418061667
 dterm_ds_tri[7] = 4.7451347959385*rr2 - 36.9912719043369*rr*ss + 3.01612446339271*rr - 64.1648847664266*ss2 + 55.0335225410026*ss - 7.17833258660212;
 dterm_ds_tri[8] = 22.4284780661508*rr2 + 91.3384976285154*rr*ss - 39.3210995509058*rr + 64.1648847664265*ss2 - 73.2962469918503*ss + 16.309694812026;
 dterm_ds_tri[9] = -54.6389585958102*rr2 - 109.27791719162*rr*ss + 58.4136643378027*rr + 6.66133814775094e-16*ss2 + 7.5494114839851*ss - 3.77470574199255;
-
-term_lin[0] = 0.83333333333333333333333333333333 * tt * (tt - 0.77459666924148337703585307995648);
-term_lin[1] = 1.0 - 1.6666666666666666666666666666667 * tt * tt;
-term_lin[2] = 0.83333333333333333333333333333333 * tt * (tt + 0.77459666924148337703585307995648);
-
-dterm_dt_lin[0] =  1.6666666666666667 * tt - 0.64549722436790291;
-dterm_dt_lin[1] = -3.3333333333333333 * tt;
-dterm_dt_lin[2] =  1.6666666666666667 * tt + 0.64549722436790291;
+for (int ii = 0; ii < size_lin; ++ii)
+{
+  term_lin[ii] = 1.;
+  dterm_dt_lin[ii] = 0.;
+  for (int jj = 0; jj < size_lin; ++jj)
+  {
+    if (ii == jj)
+    {
+      continue;
+    }
+    term_lin[ii] *= (tt - gaussPoint(order, jj)) / (gaussPoint(order, ii) - gaussPoint(order, jj));
+    RealT dtt = 1.;
+    for (int kk = 0; kk < size_lin; ++kk)
+    {
+      if (kk == ii)
+      {
+        continue;
+      }
+      dtt *= (kk == jj ? 1. : (tt - gaussPoint(order, kk))) /
+        (gaussPoint(order, ii) - gaussPoint(order, kk));
+    }
+    dterm_dt_lin[ii] += dtt;
+  }
+}
 
 for (int ii = 0; ii < size_lin; ++ii)
 {

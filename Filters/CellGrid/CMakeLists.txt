@@ -8,6 +8,7 @@ set(classes
   vtkCellGridChangeBasis
   vtkCellGridComputeSides
   vtkCellGridElevation
+  vtkCellGridFindCriticalPoints
   vtkCellGridPointProbe
   vtkCellGridTransform
   vtkUnstructuredGridToCellGrid
@@ -25,6 +26,7 @@ set(classes
   vtkDGChangeBasisResponder
   vtkDGCopyResponder
   vtkDGElevationResponder
+  vtkDGFindCriticalPointsResponder
   vtkDGEvaluator
   vtkDGRangeResponder
   vtkDGSummaryInformationResponder
@@ -58,6 +60,7 @@ set(classes
 
   # Numerics and low-level classes
   vtkDGBezierOperators
+  vtkDGBezierFindCriticalPoints
   vtkDGConstantOperators
   vtkDGHGradOperators
   vtkDGHCurlOperators
@@ -87,6 +90,8 @@ set(basis_files
   Basis/Bezier/EdgeCnGradient.h
   Basis/Bezier/HexCnBasis.h
   Basis/Bezier/HexCnGradient.h
+  Basis/Bezier/PyrCnBasis.h
+  Basis/Bezier/PyrCnGradient.h
   Basis/Bezier/QuadCnBasis.h
   Basis/Bezier/QuadCnGradient.h
   Basis/Bezier/TetCnBasis.h
@@ -141,6 +146,8 @@ set(basis_files
   Basis/HGrad/PyrC1Gradient.h
   Basis/HGrad/PyrC2Basis.h
   Basis/HGrad/PyrC2Gradient.h
+  Basis/HGrad/PyrCnBasis.h
+  Basis/HGrad/PyrCnGradient.h
   Basis/HGrad/PyrF2Basis.h
   Basis/HGrad/PyrF2Gradient.h
   Basis/HGrad/PyrGnBasis.h
