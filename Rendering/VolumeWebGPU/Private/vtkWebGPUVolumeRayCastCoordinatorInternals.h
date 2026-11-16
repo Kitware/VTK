@@ -88,6 +88,10 @@ private:
   void UpdateResidency(vtkWebGPURenderWindow* window, vtkRenderer* renderer);
   void UpdateDepthView(vtkWebGPURenderWindow* window);
   void UpdateUniforms(vtkWebGPURenderWindow* window, vtkRenderer* renderer);
+  /// Two steps of UpdateUniforms: the id hardware selection knows each volume by, and where each
+  /// volume's pages and cells start in the shared tables.
+  void UpdatePropIds(vtkRenderer* renderer);
+  void UpdateTableLayout();
   void UpdateBindGroup(vtkWebGPURenderWindow* window);
   void EnsurePipeline(vtkWebGPURenderWindow* window);
   void EnsurePlaceholders(vtkWebGPURenderWindow* window);

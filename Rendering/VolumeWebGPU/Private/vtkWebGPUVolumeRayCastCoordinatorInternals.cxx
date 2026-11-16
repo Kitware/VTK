@@ -277,6 +277,484 @@ bool BoundsIntersect(const double b1[6], const double b2[6])
     b1[3] < b2[2] || b1[2] > b2[3] ||        // Y axis
     b1[5] < b2[4] || b1[4] > b2[5]);         // Z axis
 }
+
+//------------------------------------------------------------------------------
+// Where one input sits in the world and how finely it is cut up. Leaves the transform from the
+// texture's unit cube to index space in \a textureToIndex and the one to the world in
+// \a volumeMatrix, and returns the length of the shortest edge of a voxel.
+double PlaceVolume(const vtkWebGPUVolumeRayCastContribution& contribution,
+  vtkMatrix4x4* textureToIndex, vtkMatrix4x4* volumeMatrix, VolumeParams& params)
+{
+  // Point samples sit on the edges of the volume, so the texture spans centre to centre; cell
+  // samples sit half a cell in, so it spans the whole of the grid instead.
+  double extent[3];
+  for (int i = 0; i < 3; ++i)
+  {
+    extent[i] = contribution.CellData ? contribution.Dimensions[i]
+                                      : std::max(contribution.Dimensions[i] - 1, 1);
+  }
+
+  textureToIndex->Identity();
+  for (int i = 0; i < 3; ++i)
+  {
+    textureToIndex->SetElement(i, i, extent[i]);
+  }
+
+  vtkNew<vtkMatrix4x4> indexToWorld;
+  vtkMatrix4x4::Multiply4x4(contribution.WorldMatrix, contribution.IndexToPhysical, indexToWorld);
+
+  vtkMatrix4x4::Multiply4x4(indexToWorld, textureToIndex, volumeMatrix);
+  vtkNew<vtkMatrix4x4> inverseVolumeMatrix;
+  vtkMatrix4x4::Invert(volumeMatrix, inverseVolumeMatrix);
+
+  CopyMatrix(volumeMatrix, params.VolumeMatrix);
+  CopyMatrix(inverseVolumeMatrix, params.InverseVolumeMatrix);
+
+  // How long one voxel is once the volume is placed in the world.
+  double voxel[3];
+  for (int axis = 0; axis < 3; ++axis)
+  {
+    double column[3];
+    for (int row = 0; row < 3; ++row)
+    {
+      column[row] = indexToWorld->GetElement(row, axis);
+    }
+    voxel[axis] = std::max(vtkMath::Norm(column), 1.0e-9);
+    params.Spacing[axis] = static_cast<float>(voxel[axis]);
+  }
+  for (int i = 0; i < 3; ++i)
+  {
+    params.Dimensions[i] = static_cast<float>(contribution.Dimensions[i]);
+    params.CellDimensions[i] = static_cast<float>(contribution.CellDimensions[i]);
+  }
+  return std::min({ voxel[0], voxel[1], voxel[2] });
+}
+
+//------------------------------------------------------------------------------
+// How one input is sampled and shaded: what its property and its mapper say, as opposed to where
+// it sits. \a self is who reports what cannot be honoured.
+void SetAppearance(const vtkWebGPUVolumeRayCastContribution& contribution, int primaryBlendMode,
+  vtkObject* self, VolumeParams& params)
+{
+  vtkVolumeProperty* property = contribution.Property;
+  vtkWebGPUVolumeRayCastMapper* mapper = contribution.Mapper;
+
+  const int components = contribution.NumberOfComponents;
+  // Dependent components share the first set of transfer functions, so only that set is
+  // consulted for the appearance settings that come in per component.
+  const int appearance = contribution.IndependentComponents ? components : 1;
+  params.NumberOfComponents = static_cast<std::uint32_t>(components);
+  for (int component = 0; component < 4; ++component)
+  {
+    params.ValueScale[component] = contribution.ValueScale;
+    params.ValueBias[component] = contribution.ValueBias;
+    params.ScalarRangeMinimum[component] =
+      static_cast<float>(contribution.ScalarRange[component][0]);
+    params.ScalarRangeScale[component] = static_cast<float>(
+      1.0 / (contribution.ScalarRange[component][1] - contribution.ScalarRange[component][0]));
+
+    const double gradientExtent =
+      contribution.GradientRange[component][1] - contribution.GradientRange[component][0];
+    params.GradientOpacityMinimum[component] =
+      static_cast<float>(contribution.GradientRange[component][0]);
+    params.GradientOpacityScale[component] =
+      static_cast<float>(gradientExtent > 0.0 ? 1.0 / gradientExtent : 1.0);
+
+    params.ComponentWeights[component] =
+      component < components ? static_cast<float>(property->GetComponentWeight(component)) : 0.0f;
+  }
+
+  // The pool the bricks were uploaded to, which is chosen by channels rather than components:
+  // a second transfer function axis array rides in a channel of its own.
+  params.PoolKind = static_cast<std::uint32_t>(
+    (contribution.BytePool ? 0 : 1) + (contribution.PoolChannels > 1 ? 2 : 0));
+  params.CellSize = static_cast<float>(std::max(contribution.CellSize, 1));
+  params.OpacityUnitDistance =
+    static_cast<float>(std::max(property->GetScalarOpacityUnitDistance(appearance - 1), 1.0e-6));
+  params.Ambient = static_cast<float>(property->GetAmbient(appearance - 1));
+  params.Diffuse = static_cast<float>(property->GetDiffuse(appearance - 1));
+  params.Specular = static_cast<float>(property->GetSpecular(appearance - 1));
+  params.SpecularPower = static_cast<float>(property->GetSpecularPower(appearance - 1));
+  params.PrimaryComponent = static_cast<std::uint32_t>(contribution.PrimaryComponent);
+  params.BlendMode = static_cast<std::uint32_t>(mapper->GetBlendMode());
+
+  params.Flags = 0;
+  if (contribution.IndependentComponents)
+  {
+    params.Flags |= VolumeFlagIndependentComponents;
+  }
+  if (contribution.CellData)
+  {
+    params.Flags |= VolumeFlagCellData;
+  }
+  if (property->GetInterpolationType() == VTK_NEAREST_INTERPOLATION)
+  {
+    params.Flags |= VolumeFlagNearest;
+  }
+  params.MaskBlendFactor = std::clamp(contribution.MaskBlendFactor, 0.0f, 1.0f);
+  params.PropId = contribution.PropId;
+  if (contribution.MaximumLabel > 0)
+  {
+    params.Flags |= VolumeFlagLabelMap;
+  }
+  if (contribution.Transfer2D)
+  {
+    params.Flags |= VolumeFlagTransfer2D;
+    if (contribution.Transfer2DHasYAxisArray)
+    {
+      params.Flags |= VolumeFlagTransfer2DYAxisArray;
+    }
+  }
+  if (contribution.HasMask)
+  {
+    params.Flags |= VolumeFlagMasked;
+    if (contribution.MaskHidesNeighbours)
+    {
+      params.Flags |= VolumeFlagMaskHidesNeighbours;
+    }
+  }
+  if (property->GetShade(appearance - 1) != 0)
+  {
+    params.Flags |= VolumeFlagShade;
+  }
+  bool anyGradientOpacity = false;
+  for (int component = 0; component < appearance; ++component)
+  {
+    anyGradientOpacity = anyGradientOpacity || property->GetDisableGradientOpacity(component) == 0;
+  }
+  if (anyGradientOpacity)
+  {
+    params.Flags |= VolumeFlagGradientOpacity;
+  }
+  if (mapper->GetComputeNormalFromOpacity())
+  {
+    params.Flags |= VolumeFlagNormalFromOpacity;
+  }
+
+  // The slice blend mode cuts along a plane carried by the property, in world space.
+  if (primaryBlendMode == vtkVolumeMapper::SLICE_BLEND)
+  {
+    if (auto* plane = vtkPlane::SafeDownCast(property->GetSliceFunction()))
+    {
+      double normal[3];
+      double origin[3];
+      plane->GetNormal(normal);
+      plane->GetOrigin(origin);
+      if (vtkMath::Normalize(normal) > 0.0)
+      {
+        for (int i = 0; i < 3; ++i)
+        {
+          params.SlicePlane[i] = static_cast<float>(normal[i]);
+        }
+        params.SlicePlane[3] = static_cast<float>(-vtkMath::Dot(normal, origin));
+      }
+    }
+    else if (property->GetSliceFunction() != nullptr)
+    {
+      vtkWarningWithObjectMacro(self, << "Only vtkPlane is supported as a slice function.");
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void SetCropping(const vtkWebGPUVolumeRayCastContribution& contribution,
+  vtkMatrix4x4* textureToIndex, VolumeParams& params)
+{
+  vtkWebGPUVolumeRayCastMapper* mapper = contribution.Mapper;
+
+  // Cropping regions are given in the input's own coordinates, so they are brought into the
+  // texture coordinates the march works in the same way the OpenGL mapper does.
+  if (mapper->GetCropping() != 0)
+  {
+    params.Flags |= VolumeFlagCropping;
+    params.CroppingFlags = static_cast<std::uint32_t>(mapper->GetCroppingRegionFlags());
+
+    double planes[6];
+    mapper->GetCroppingRegionPlanes(planes);
+    double dataBounds[6];
+    contribution.Data->GetBounds(dataBounds);
+    for (int axis = 0; axis < 3; ++axis)
+    {
+      for (int side = 0; side < 2; ++side)
+      {
+        double& value = planes[2 * axis + side];
+        value = std::clamp(value, dataBounds[2 * axis], dataBounds[2 * axis + 1]);
+      }
+    }
+
+    vtkNew<vtkMatrix4x4> textureToData;
+    vtkMatrix4x4::Multiply4x4(contribution.IndexToPhysical, textureToIndex, textureToData);
+    vtkNew<vtkMatrix4x4> dataToTexture;
+    vtkMatrix4x4::Invert(textureToData, dataToTexture);
+    for (int axis = 0; axis < 3; ++axis)
+    {
+      for (int side = 0; side < 2; ++side)
+      {
+        double point[4] = { 0.0, 0.0, 0.0, 1.0 };
+        point[axis] = planes[2 * axis + side];
+        double texture[4];
+        dataToTexture->MultiplyPoint(point, texture);
+        const float value = static_cast<float>(texture[axis] / texture[3]);
+        if (side == 0)
+        {
+          params.CroppingLower[axis] = value;
+        }
+        else
+        {
+          params.CroppingUpper[axis] = value;
+        }
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void SetClipPlanes(
+  const vtkWebGPUVolumeRayCastContribution& contribution, vtkObject* self, VolumeParams& params)
+{
+  // Clipping planes belong to the mapper, so each input is clipped by its own.
+  params.NumberOfClipPlanes = 0;
+  if (vtkPlaneCollection* planes = contribution.ClippingPlanes)
+  {
+    vtkCollectionSimpleIterator iterator;
+    planes->InitTraversal(iterator);
+    while (vtkPlane* plane = planes->GetNextPlane(iterator))
+    {
+      if (params.NumberOfClipPlanes >= static_cast<std::uint32_t>(MaxClipPlanes))
+      {
+        vtkWarningWithObjectMacro(
+          self, << "Only " << MaxClipPlanes << " clipping planes are supported.");
+        break;
+      }
+      double normal[3];
+      double origin[3];
+      plane->GetNormal(normal);
+      plane->GetOrigin(origin);
+      if (vtkMath::Normalize(normal) <= 0.0)
+      {
+        continue;
+      }
+      const std::uint32_t slot = params.NumberOfClipPlanes;
+      for (int i = 0; i < 3; ++i)
+      {
+        params.ClipPlanes[slot][i] = static_cast<float>(normal[i]);
+      }
+      params.ClipPlanes[slot][3] = static_cast<float>(-vtkMath::Dot(normal, origin));
+      ++params.NumberOfClipPlanes;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// The camera and the viewport of \a renderer. Hands back the inverse of the view projection
+// matrix in \a inverseViewProjection.
+void SetCamera(vtkRenderer* renderer, vtkMatrix4x4* inverseViewProjection, GlobalUniforms& globals)
+{
+  vtkCamera* camera = renderer->GetActiveCamera();
+  vtkNew<vtkMatrix4x4> view;
+  view->DeepCopy(camera->GetModelViewTransformMatrix());
+  vtkNew<vtkMatrix4x4> projection;
+  projection->DeepCopy(
+    camera->GetProjectionTransformMatrix(renderer->GetTiledAspectRatio(), 0.0, 1.0));
+
+  vtkNew<vtkMatrix4x4> viewProjection;
+  vtkMatrix4x4::Multiply4x4(projection, view, viewProjection);
+  vtkMatrix4x4::Invert(viewProjection, inverseViewProjection);
+  CopyMatrix(viewProjection, globals.ViewProjection);
+  CopyMatrix(inverseViewProjection, globals.InverseViewProjection);
+
+  double cameraPosition[3];
+  camera->GetPosition(cameraPosition);
+  for (int i = 0; i < 3; ++i)
+  {
+    globals.CameraPosition[i] = static_cast<float>(cameraPosition[i]);
+  }
+
+  int viewportSize[2];
+  int viewportOrigin[2];
+  renderer->GetTiledSizeAndOrigin(
+    &viewportSize[0], &viewportSize[1], &viewportOrigin[0], &viewportOrigin[1]);
+  if (auto* vtkWindow = renderer->GetVTKWindow())
+  {
+    const int* actual = vtkWindow->GetActualSize();
+    viewportOrigin[1] = actual[1] - viewportOrigin[1] - viewportSize[1];
+  }
+  globals.Viewport[0] = static_cast<float>(viewportOrigin[0]);
+  globals.Viewport[1] = static_cast<float>(viewportOrigin[1]);
+  globals.Viewport[2] = static_cast<float>(std::max(viewportSize[0], 1));
+  globals.Viewport[3] = static_cast<float>(std::max(viewportSize[1], 1));
+}
+
+//------------------------------------------------------------------------------
+// Whether the near plane can cut into \a box, which is \a diagonal across.
+bool NearPlaneReaches(
+  vtkMatrix4x4* inverseViewProjection, const vtkBoundingBox& box, double diagonal)
+{
+  double bounds[6];
+  box.GetBounds(bounds);
+  vtkBoundingBox nearBox;
+  for (int corner = 0; corner < 4; ++corner)
+  {
+    const double clip[4] = { (corner & 1) != 0 ? 1.0 : -1.0, (corner & 2) != 0 ? 1.0 : -1.0, 0.0,
+      1.0 };
+    double world[4];
+    inverseViewProjection->MultiplyPoint(clip, world);
+    nearBox.AddPoint(world[0] / world[3], world[1] / world[3], world[2] / world[3]);
+  }
+  double nearBounds[6];
+  nearBox.GetBounds(nearBounds);
+  // Relative to the volume, not to any absolute size: a volume a fraction of a unit across is
+  // still a volume, and a fixed margin would swallow it whole.
+  const double margin = 1.0e-4 * diagonal;
+  for (int i = 0; i < 3; ++i)
+  {
+    if (nearBounds[2 * i] > bounds[2 * i + 1] + margin ||
+      nearBounds[2 * i + 1] < bounds[2 * i] - margin)
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+void SetIsoValues(
+  vtkVolumeProperty* property, int primaryBlendMode, vtkObject* self, GlobalUniforms& globals)
+{
+  // Iso values belong to the property, and like the blend mode they describe the march rather
+  // than one volume, so the primary input settles them.
+  globals.NumberOfIsoValues = 0;
+  if (primaryBlendMode == vtkVolumeMapper::ISOSURFACE_BLEND)
+  {
+    vtkContourValues* contours = property->GetIsoSurfaceValues();
+    std::vector<float> values;
+    for (int i = 0; i < contours->GetNumberOfContours(); ++i)
+    {
+      if (static_cast<int>(values.size()) >= MaxIsoValues)
+      {
+        vtkWarningWithObjectMacro(self, << "Only " << MaxIsoValues << " iso values are drawn.");
+        break;
+      }
+      // Kept in data units. Normalizing into the transfer function range would clamp away any
+      // value outside it, and with it the ordering the march relies on.
+      values.push_back(static_cast<float>(contours->GetValue(i)));
+    }
+    // The march walks the values in order, so they have to be in order.
+    std::sort(values.begin(), values.end());
+    for (std::size_t i = 0; i < values.size(); ++i)
+    {
+      globals.IsoValues[i][0] = values[i];
+    }
+    globals.NumberOfIsoValues = static_cast<std::uint32_t>(values.size());
+  }
+}
+
+//------------------------------------------------------------------------------
+void SetLights(vtkRenderer* renderer, vtkObject* self, GlobalUniforms& globals)
+{
+  vtkCamera* camera = renderer->GetActiveCamera();
+  double cameraPosition[3];
+  camera->GetPosition(cameraPosition);
+
+  // Lighting follows vtkOpenGLGPUVolumeRayCastMapper: one enabled head light at full intensity is
+  // the "default lighting" case most baselines were made with; anything else accumulates ambient,
+  // diffuse and specular per light.
+  globals.NumberOfLights = 0;
+  bool defaultLighting = false;
+  if (vtkLightCollection* lightCollection = renderer->GetLights())
+  {
+    vtkCollectionSimpleIterator iterator;
+    lightCollection->InitTraversal(iterator);
+    while (vtkLight* light = lightCollection->GetNextLight(iterator))
+    {
+      if (light->GetSwitch() == 0)
+      {
+        continue;
+      }
+      if (globals.NumberOfLights == 0)
+      {
+        defaultLighting = true;
+      }
+      if (globals.NumberOfLights >= static_cast<std::uint32_t>(MaxLights))
+      {
+        vtkWarningWithObjectMacro(
+          self, << "Only " << MaxLights << " lights are used to shade a volume.");
+        break;
+      }
+      if (globals.NumberOfLights > 0 || light->GetIntensity() != 1.0 ||
+        light->GetLightType() != VTK_LIGHT_TYPE_HEADLIGHT)
+      {
+        defaultLighting = false;
+      }
+
+      LightData& entry = globals.Lights[globals.NumberOfLights];
+      const double intensity = light->GetIntensity();
+      for (int i = 0; i < 3; ++i)
+      {
+        entry.AmbientColor[i] = static_cast<float>(light->GetAmbientColor()[i] * intensity);
+        entry.DiffuseColor[i] = static_cast<float>(light->GetDiffuseColor()[i] * intensity);
+        entry.SpecularColor[i] = static_cast<float>(light->GetSpecularColor()[i] * intensity);
+      }
+
+      double position[3];
+      double focalPoint[3];
+      light->GetTransformedPosition(position);
+      light->GetTransformedFocalPoint(focalPoint);
+      double direction[3] = { focalPoint[0] - position[0], focalPoint[1] - position[1],
+        focalPoint[2] - position[2] };
+      if (vtkMath::Normalize(direction) <= 0.0)
+      {
+        direction[0] = 0.0;
+        direction[1] = 0.0;
+        direction[2] = -1.0;
+      }
+      for (int i = 0; i < 3; ++i)
+      {
+        entry.Direction[i] = static_cast<float>(direction[i]);
+        entry.Position[i] = static_cast<float>(position[i]);
+      }
+
+      entry.Positional = light->GetPositional() != 0 ? 1u : 0u;
+      entry.ConeAngle = static_cast<float>(light->GetConeAngle());
+      entry.Exponent = static_cast<float>(light->GetExponent());
+      const double* attenuation = light->GetAttenuationValues();
+      for (int i = 0; i < 3; ++i)
+      {
+        entry.Attenuation[i] = static_cast<float>(attenuation[i]);
+      }
+      ++globals.NumberOfLights;
+    }
+  }
+  if (globals.NumberOfLights == 0)
+  {
+    // Stand in for the head light the renderer would have created.
+    LightData& entry = globals.Lights[0];
+    double focalPoint[3];
+    camera->GetFocalPoint(focalPoint);
+    double direction[3] = { focalPoint[0] - cameraPosition[0], focalPoint[1] - cameraPosition[1],
+      focalPoint[2] - cameraPosition[2] };
+    vtkMath::Normalize(direction);
+    for (int i = 0; i < 3; ++i)
+    {
+      entry.Direction[i] = static_cast<float>(direction[i]);
+      entry.Position[i] = static_cast<float>(cameraPosition[i]);
+      entry.DiffuseColor[i] = 1.0f;
+      entry.SpecularColor[i] = 1.0f;
+    }
+    entry.Attenuation[0] = 1.0f;
+    entry.ConeAngle = 180.0f;
+    globals.NumberOfLights = 1;
+    defaultLighting = true;
+  }
+  if (defaultLighting)
+  {
+    globals.Flags |= FlagDefaultLighting;
+  }
+  if (renderer->GetTwoSidedLighting())
+  {
+    globals.Flags |= FlagTwoSidedLighting;
+  }
+}
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -969,33 +1447,69 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateDepthView(vtkWebGPUR
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdatePropIds(vtkRenderer* renderer)
+{
+  // Hardware selection numbers props by where the renderer keeps them, and only the renderer can
+  // say. Asking it per volume rather than caching keeps this right when props come and go.
+  auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
+  if (wgpuRenderer == nullptr)
+  {
+    return;
+  }
+  for (auto& contribution : this->Contributions)
+  {
+    contribution.PropId = 0;
+    for (vtkTypeUInt32 id = 0; id < MaxPropsSearched; ++id)
+    {
+      vtkProp* prop = wgpuRenderer->GetPropWithId(id);
+      if (prop == nullptr)
+      {
+        break;
+      }
+      if (prop == contribution.Volume)
+      {
+        contribution.PropId = id;
+        break;
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateTableLayout()
+{
+  // Every volume's pages and cells live in one table each, one volume after another.
+  this->PageOffsets.assign(this->Contributions.size(), 0);
+  this->CellOffsets.assign(this->Contributions.size(), 0);
+  this->PageDimensions.assign(this->Contributions.size(), { 0, 0, 0 });
+  this->VolumeMatrices.assign(this->Contributions.size(), {});
+  const int brickSize = this->Pool.GetBrickSize();
+  std::uint32_t pageCursor = 0;
+  std::uint32_t cellCursor = 0;
+  for (std::size_t index = 0; index < this->Contributions.size(); ++index)
+  {
+    const auto& contribution = this->Contributions[index];
+    std::array<int, 3>& grid = this->PageDimensions[index];
+    for (int axis = 0; axis < 3; ++axis)
+    {
+      grid[axis] = std::max(1, (contribution.Dimensions[axis] - 1) / brickSize + 1);
+    }
+    this->PageOffsets[index] = pageCursor;
+    pageCursor += static_cast<std::uint32_t>(grid[0]) * grid[1] * grid[2];
+
+    const int* cellGrid = contribution.CellDimensions;
+    this->CellOffsets[index] = cellCursor;
+    cellCursor += static_cast<std::uint32_t>(cellGrid[0]) * cellGrid[1] * cellGrid[2];
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
   vtkWebGPURenderWindow* window, vtkRenderer* renderer)
 {
   auto configuration = window->GetWGPUConfiguration();
 
-  // Hardware selection numbers props by where the renderer keeps them, and only the renderer can
-  // say. Asking it per volume rather than caching keeps this right when props come and go.
-  if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
-  {
-    for (auto& contribution : this->Contributions)
-    {
-      contribution.PropId = 0;
-      for (vtkTypeUInt32 id = 0; id < MaxPropsSearched; ++id)
-      {
-        vtkProp* prop = wgpuRenderer->GetPropWithId(id);
-        if (prop == nullptr)
-        {
-          break;
-        }
-        if (prop == contribution.Volume)
-        {
-          contribution.PropId = id;
-          break;
-        }
-      }
-    }
-  }
+  this->UpdatePropIds(renderer);
 
   // Check if volumes can overlap and if they all have the same blend mode
   int primaryBlendMode = 0;
@@ -1033,29 +1547,8 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
   std::vector<VolumeParams> parameters(MaxVolumes);
   std::memset(parameters.data(), 0, parameters.size() * sizeof(VolumeParams));
 
-  // Every volume's pages and cells live in one table each, one volume after another.
-  this->PageOffsets.assign(this->Contributions.size(), 0);
-  this->CellOffsets.assign(this->Contributions.size(), 0);
-  this->PageDimensions.assign(this->Contributions.size(), { 0, 0, 0 });
-  this->VolumeMatrices.assign(this->Contributions.size(), {});
+  this->UpdateTableLayout();
   const int brickSize = this->Pool.GetBrickSize();
-  std::uint32_t pageCursor = 0;
-  std::uint32_t cellCursor = 0;
-  for (std::size_t index = 0; index < this->Contributions.size(); ++index)
-  {
-    const auto& contribution = this->Contributions[index];
-    std::array<int, 3>& grid = this->PageDimensions[index];
-    for (int axis = 0; axis < 3; ++axis)
-    {
-      grid[axis] = std::max(1, (contribution.Dimensions[axis] - 1) / brickSize + 1);
-    }
-    this->PageOffsets[index] = pageCursor;
-    pageCursor += static_cast<std::uint32_t>(grid[0]) * grid[1] * grid[2];
-
-    const int* cellGrid = contribution.CellDimensions;
-    this->CellOffsets[index] = cellCursor;
-    cellCursor += static_cast<std::uint32_t>(cellGrid[0]) * cellGrid[1] * cellGrid[2];
-  }
 
   bool interactive = false;
   double smallestStep = VTK_DOUBLE_MAX;
@@ -1064,37 +1557,21 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
   {
     const auto& contribution = this->Contributions[index];
     VolumeParams& params = parameters[index];
-    vtkVolumeProperty* property = contribution.Property;
     vtkWebGPUVolumeRayCastMapper* mapper = contribution.Mapper;
 
     interactive = interactive || contribution.Volume->GetAllocatedRenderTime() < 1.0;
 
-    // Point samples sit on the edges of the volume, so the texture spans centre to centre; cell
-    // samples sit half a cell in, so it spans the whole of the grid instead.
-    double extent[3];
-    for (int i = 0; i < 3; ++i)
-    {
-      extent[i] = contribution.CellData ? contribution.Dimensions[i]
-                                        : std::max(contribution.Dimensions[i] - 1, 1);
-    }
-
     vtkNew<vtkMatrix4x4> textureToIndex;
-    textureToIndex->Identity();
-    for (int i = 0; i < 3; ++i)
-    {
-      textureToIndex->SetElement(i, i, extent[i]);
-    }
-
-    vtkNew<vtkMatrix4x4> indexToWorld;
-    vtkMatrix4x4::Multiply4x4(contribution.WorldMatrix, contribution.IndexToPhysical, indexToWorld);
-
     vtkNew<vtkMatrix4x4> volumeMatrix;
-    vtkMatrix4x4::Multiply4x4(indexToWorld, textureToIndex, volumeMatrix);
-    vtkNew<vtkMatrix4x4> inverseVolumeMatrix;
-    vtkMatrix4x4::Invert(volumeMatrix, inverseVolumeMatrix);
-
-    CopyMatrix(volumeMatrix, params.VolumeMatrix);
-    CopyMatrix(inverseVolumeMatrix, params.InverseVolumeMatrix);
+    // One voxel is the sample distance vtkOpenGLGPUVolumeRayCastMapper settles on, which keeps
+    // the two backends comparable. Adaptive sampling refines it from here.
+    double step = PlaceVolume(contribution, textureToIndex, volumeMatrix, params);
+    if (mapper->GetAutoAdjustSampleDistances() == 0 && mapper->GetSampleDistance() > 0.0f)
+    {
+      step = mapper->GetSampleDistance();
+    }
+    params.BaseStep = static_cast<float>(step);
+    smallestStep = std::min(smallestStep, step);
     std::copy_n(volumeMatrix->GetData(), 16, this->VolumeMatrices[index].begin());
 
     // Grow the proxy box by the eight corners of this input.
@@ -1107,232 +1584,17 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
       box.AddPoint(world);
     }
 
-    // How long one voxel is once the volume is placed in the world.
-    double voxel[3];
-    for (int axis = 0; axis < 3; ++axis)
-    {
-      double column[3];
-      for (int row = 0; row < 3; ++row)
-      {
-        column[row] = indexToWorld->GetElement(row, axis);
-      }
-      voxel[axis] = std::max(vtkMath::Norm(column), 1.0e-9);
-      params.Spacing[axis] = static_cast<float>(voxel[axis]);
-    }
-
-    // One voxel is the sample distance vtkOpenGLGPUVolumeRayCastMapper settles on, which keeps
-    // the two backends comparable. Adaptive sampling refines it from here.
-    double step = std::min({ voxel[0], voxel[1], voxel[2] });
-    if (mapper->GetAutoAdjustSampleDistances() == 0 && mapper->GetSampleDistance() > 0.0f)
-    {
-      step = mapper->GetSampleDistance();
-    }
-    params.BaseStep = static_cast<float>(step);
-    smallestStep = std::min(smallestStep, step);
-
     for (int i = 0; i < 3; ++i)
     {
-      params.Dimensions[i] = static_cast<float>(contribution.Dimensions[i]);
       params.PageDimensions[i] = static_cast<float>(this->PageDimensions[index][i]);
-      params.CellDimensions[i] = static_cast<float>(contribution.CellDimensions[i]);
     }
-
-    const int components = contribution.NumberOfComponents;
-    // Dependent components share the first set of transfer functions, so only that set is
-    // consulted for the appearance settings that come in per component.
-    const int appearance = contribution.IndependentComponents ? components : 1;
-    params.NumberOfComponents = static_cast<std::uint32_t>(components);
-    for (int component = 0; component < 4; ++component)
-    {
-      params.ValueScale[component] = contribution.ValueScale;
-      params.ValueBias[component] = contribution.ValueBias;
-      params.ScalarRangeMinimum[component] =
-        static_cast<float>(contribution.ScalarRange[component][0]);
-      params.ScalarRangeScale[component] = static_cast<float>(
-        1.0 / (contribution.ScalarRange[component][1] - contribution.ScalarRange[component][0]));
-
-      const double gradientExtent =
-        contribution.GradientRange[component][1] - contribution.GradientRange[component][0];
-      params.GradientOpacityMinimum[component] =
-        static_cast<float>(contribution.GradientRange[component][0]);
-      params.GradientOpacityScale[component] =
-        static_cast<float>(gradientExtent > 0.0 ? 1.0 / gradientExtent : 1.0);
-
-      params.ComponentWeights[component] =
-        component < components ? static_cast<float>(property->GetComponentWeight(component)) : 0.0f;
-    }
-
     params.PageOffset = this->PageOffsets[index];
     params.CellOffset = this->CellOffsets[index];
-    // The pool the bricks were uploaded to, which is chosen by channels rather than components:
-    // a second transfer function axis array rides in a channel of its own.
-    params.PoolKind = static_cast<std::uint32_t>(
-      (contribution.BytePool ? 0 : 1) + (contribution.PoolChannels > 1 ? 2 : 0));
     params.BrickSize = static_cast<float>(std::max(brickSize, 1));
-    params.CellSize = static_cast<float>(std::max(contribution.CellSize, 1));
-    params.OpacityUnitDistance =
-      static_cast<float>(std::max(property->GetScalarOpacityUnitDistance(appearance - 1), 1.0e-6));
-    params.Ambient = static_cast<float>(property->GetAmbient(appearance - 1));
-    params.Diffuse = static_cast<float>(property->GetDiffuse(appearance - 1));
-    params.Specular = static_cast<float>(property->GetSpecular(appearance - 1));
-    params.SpecularPower = static_cast<float>(property->GetSpecularPower(appearance - 1));
-    params.PrimaryComponent = static_cast<std::uint32_t>(contribution.PrimaryComponent);
-    params.BlendMode = static_cast<std::uint32_t>(mapper->GetBlendMode());
 
-    params.Flags = 0;
-    if (contribution.IndependentComponents)
-    {
-      params.Flags |= VolumeFlagIndependentComponents;
-    }
-    if (contribution.CellData)
-    {
-      params.Flags |= VolumeFlagCellData;
-    }
-    if (property->GetInterpolationType() == VTK_NEAREST_INTERPOLATION)
-    {
-      params.Flags |= VolumeFlagNearest;
-    }
-    params.MaskBlendFactor = std::clamp(contribution.MaskBlendFactor, 0.0f, 1.0f);
-    params.PropId = contribution.PropId;
-    if (contribution.MaximumLabel > 0)
-    {
-      params.Flags |= VolumeFlagLabelMap;
-    }
-    if (contribution.Transfer2D)
-    {
-      params.Flags |= VolumeFlagTransfer2D;
-      if (contribution.Transfer2DHasYAxisArray)
-      {
-        params.Flags |= VolumeFlagTransfer2DYAxisArray;
-      }
-    }
-    if (contribution.HasMask)
-    {
-      params.Flags |= VolumeFlagMasked;
-      if (contribution.MaskHidesNeighbours)
-      {
-        params.Flags |= VolumeFlagMaskHidesNeighbours;
-      }
-    }
-    if (property->GetShade(appearance - 1) != 0)
-    {
-      params.Flags |= VolumeFlagShade;
-    }
-    bool anyGradientOpacity = false;
-    for (int component = 0; component < appearance; ++component)
-    {
-      anyGradientOpacity =
-        anyGradientOpacity || property->GetDisableGradientOpacity(component) == 0;
-    }
-    if (anyGradientOpacity)
-    {
-      params.Flags |= VolumeFlagGradientOpacity;
-    }
-    if (mapper->GetComputeNormalFromOpacity())
-    {
-      params.Flags |= VolumeFlagNormalFromOpacity;
-    }
-
-    // The slice blend mode cuts along a plane carried by the property, in world space.
-    if (primaryBlendMode == vtkVolumeMapper::SLICE_BLEND)
-    {
-      if (auto* plane = vtkPlane::SafeDownCast(property->GetSliceFunction()))
-      {
-        double normal[3];
-        double origin[3];
-        plane->GetNormal(normal);
-        plane->GetOrigin(origin);
-        if (vtkMath::Normalize(normal) > 0.0)
-        {
-          for (int i = 0; i < 3; ++i)
-          {
-            params.SlicePlane[i] = static_cast<float>(normal[i]);
-          }
-          params.SlicePlane[3] = static_cast<float>(-vtkMath::Dot(normal, origin));
-        }
-      }
-      else if (property->GetSliceFunction() != nullptr)
-      {
-        vtkWarningWithObjectMacro(this->Self, << "Only vtkPlane is supported as a slice function.");
-      }
-    }
-
-    // Cropping regions are given in the input's own coordinates, so they are brought into the
-    // texture coordinates the march works in the same way the OpenGL mapper does.
-    if (mapper->GetCropping() != 0)
-    {
-      params.Flags |= VolumeFlagCropping;
-      params.CroppingFlags = static_cast<std::uint32_t>(mapper->GetCroppingRegionFlags());
-
-      double planes[6];
-      mapper->GetCroppingRegionPlanes(planes);
-      double dataBounds[6];
-      contribution.Data->GetBounds(dataBounds);
-      for (int axis = 0; axis < 3; ++axis)
-      {
-        for (int side = 0; side < 2; ++side)
-        {
-          double& value = planes[2 * axis + side];
-          value = std::clamp(value, dataBounds[2 * axis], dataBounds[2 * axis + 1]);
-        }
-      }
-
-      vtkNew<vtkMatrix4x4> textureToData;
-      vtkMatrix4x4::Multiply4x4(contribution.IndexToPhysical, textureToIndex, textureToData);
-      vtkNew<vtkMatrix4x4> dataToTexture;
-      vtkMatrix4x4::Invert(textureToData, dataToTexture);
-      for (int axis = 0; axis < 3; ++axis)
-      {
-        for (int side = 0; side < 2; ++side)
-        {
-          double point[4] = { 0.0, 0.0, 0.0, 1.0 };
-          point[axis] = planes[2 * axis + side];
-          double texture[4];
-          dataToTexture->MultiplyPoint(point, texture);
-          const float value = static_cast<float>(texture[axis] / texture[3]);
-          if (side == 0)
-          {
-            params.CroppingLower[axis] = value;
-          }
-          else
-          {
-            params.CroppingUpper[axis] = value;
-          }
-        }
-      }
-    }
-
-    // Clipping planes belong to the mapper, so each input is clipped by its own.
-    params.NumberOfClipPlanes = 0;
-    if (vtkPlaneCollection* planes = contribution.ClippingPlanes)
-    {
-      vtkCollectionSimpleIterator iterator;
-      planes->InitTraversal(iterator);
-      while (vtkPlane* plane = planes->GetNextPlane(iterator))
-      {
-        if (params.NumberOfClipPlanes >= static_cast<std::uint32_t>(MaxClipPlanes))
-        {
-          vtkWarningWithObjectMacro(
-            this->Self, << "Only " << MaxClipPlanes << " clipping planes are supported.");
-          break;
-        }
-        double normal[3];
-        double origin[3];
-        plane->GetNormal(normal);
-        plane->GetOrigin(origin);
-        if (vtkMath::Normalize(normal) <= 0.0)
-        {
-          continue;
-        }
-        const std::uint32_t slot = params.NumberOfClipPlanes;
-        for (int i = 0; i < 3; ++i)
-        {
-          params.ClipPlanes[slot][i] = static_cast<float>(normal[i]);
-        }
-        params.ClipPlanes[slot][3] = static_cast<float>(-vtkMath::Dot(normal, origin));
-        ++params.NumberOfClipPlanes;
-      }
-    }
+    SetAppearance(contribution, primaryBlendMode, this->Self, params);
+    SetCropping(contribution, textureToIndex, params);
+    SetClipPlanes(contribution, this->Self, params);
   }
 
   double bounds[6];
@@ -1358,19 +1620,10 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
   GlobalUniforms globals;
   std::memset(&globals, 0, sizeof(globals));
 
-  vtkCamera* camera = renderer->GetActiveCamera();
-  vtkNew<vtkMatrix4x4> view;
-  view->DeepCopy(camera->GetModelViewTransformMatrix());
-  vtkNew<vtkMatrix4x4> projection;
-  projection->DeepCopy(
-    camera->GetProjectionTransformMatrix(renderer->GetTiledAspectRatio(), 0.0, 1.0));
-
-  vtkNew<vtkMatrix4x4> viewProjection;
-  vtkMatrix4x4::Multiply4x4(projection, view, viewProjection);
   vtkNew<vtkMatrix4x4> inverseViewProjection;
-  vtkMatrix4x4::Invert(viewProjection, inverseViewProjection);
-  CopyMatrix(viewProjection, globals.ViewProjection);
-  CopyMatrix(inverseViewProjection, globals.InverseViewProjection);
+  SetCamera(renderer, inverseViewProjection, globals);
+  std::copy(
+    std::begin(globals.Viewport), std::end(globals.Viewport), std::begin(this->ViewportRectangle));
 
   for (int i = 0; i < 3; ++i)
   {
@@ -1378,55 +1631,9 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
     globals.BoundsMaximum[i] = static_cast<float>(bounds[2 * i + 1]);
   }
 
-  double cameraPosition[3];
-  camera->GetPosition(cameraPosition);
-  for (int i = 0; i < 3; ++i)
-  {
-    globals.CameraPosition[i] = static_cast<float>(cameraPosition[i]);
-  }
-
-  int viewportSize[2];
-  int viewportOrigin[2];
-  renderer->GetTiledSizeAndOrigin(
-    &viewportSize[0], &viewportSize[1], &viewportOrigin[0], &viewportOrigin[1]);
-  if (auto* vtkWindow = renderer->GetVTKWindow())
-  {
-    const int* actual = vtkWindow->GetActualSize();
-    viewportOrigin[1] = actual[1] - viewportOrigin[1] - viewportSize[1];
-  }
-  this->ViewportRectangle[0] = static_cast<float>(viewportOrigin[0]);
-  this->ViewportRectangle[1] = static_cast<float>(viewportOrigin[1]);
-  this->ViewportRectangle[2] = static_cast<float>(std::max(viewportSize[0], 1));
-  this->ViewportRectangle[3] = static_cast<float>(std::max(viewportSize[1], 1));
-  std::copy(std::begin(this->ViewportRectangle), std::end(this->ViewportRectangle),
-    std::begin(globals.Viewport));
-
   // The back faces of the proxy box stop covering every pixel once the near plane cuts into it,
   // so fall back to a full screen triangle when the two can meet.
-  vtkBoundingBox nearBox;
-  for (int corner = 0; corner < 4; ++corner)
-  {
-    const double clip[4] = { (corner & 1) != 0 ? 1.0 : -1.0, (corner & 2) != 0 ? 1.0 : -1.0, 0.0,
-      1.0 };
-    double world[4];
-    inverseViewProjection->MultiplyPoint(clip, world);
-    nearBox.AddPoint(world[0] / world[3], world[1] / world[3], world[2] / world[3]);
-  }
-  double nearBounds[6];
-  nearBox.GetBounds(nearBounds);
-  // Relative to the volume, not to any absolute size: a volume a fraction of a unit across is
-  // still a volume, and a fixed margin would swallow it whole.
-  const double margin = 1.0e-4 * diagonal;
-  this->DrawFullScreen = true;
-  for (int i = 0; i < 3; ++i)
-  {
-    if (nearBounds[2 * i] > bounds[2 * i + 1] + margin ||
-      nearBounds[2 * i + 1] < bounds[2 * i] - margin)
-    {
-      this->DrawFullScreen = false;
-      break;
-    }
-  }
+  this->DrawFullScreen = NearPlaneReaches(inverseViewProjection, box, diagonal);
 
   globals.NumberOfVolumes = static_cast<std::uint32_t>(this->Contributions.size());
   globals.JitterScale = static_cast<float>(smallestStep);
@@ -1441,32 +1648,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
 
   // Iso values belong to the property, and like the blend mode they describe the march rather
   // than one volume, so the primary input settles them.
-  globals.NumberOfIsoValues = 0;
-  if (primaryBlendMode == vtkVolumeMapper::ISOSURFACE_BLEND)
-  {
-    const auto& contribution = this->Contributions.front();
-    vtkContourValues* contours = contribution.Property->GetIsoSurfaceValues();
-    std::vector<float> values;
-    for (int i = 0; i < contours->GetNumberOfContours(); ++i)
-    {
-      if (static_cast<int>(values.size()) >= MaxIsoValues)
-      {
-        vtkWarningWithObjectMacro(
-          this->Self, << "Only " << MaxIsoValues << " iso values are drawn.");
-        break;
-      }
-      // Kept in data units. Normalizing into the transfer function range would clamp away any
-      // value outside it, and with it the ordering the march relies on.
-      values.push_back(static_cast<float>(contours->GetValue(i)));
-    }
-    // The march walks the values in order, so they have to be in order.
-    std::sort(values.begin(), values.end());
-    for (std::size_t i = 0; i < values.size(); ++i)
-    {
-      globals.IsoValues[i][0] = values[i];
-    }
-    globals.NumberOfIsoValues = static_cast<std::uint32_t>(values.size());
-  }
+  SetIsoValues(this->Contributions.front().Property, primaryBlendMode, this->Self, globals);
 
   // Window and level over the finished picture, as vtkGPUVolumeRayCastMapper defines them. Like
   // the blend mode this describes the pass, not one volume, so the primary input settles it.
@@ -1530,104 +1712,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
     globals.Flags |= FlagPerVolumeBlend;
   }
 
-  // Lighting follows vtkOpenGLGPUVolumeRayCastMapper: one enabled head light at full intensity is
-  // the "default lighting" case most baselines were made with; anything else accumulates ambient,
-  // diffuse and specular per light.
-  globals.NumberOfLights = 0;
-  bool defaultLighting = false;
-  if (vtkLightCollection* lightCollection = renderer->GetLights())
-  {
-    vtkCollectionSimpleIterator iterator;
-    lightCollection->InitTraversal(iterator);
-    while (vtkLight* light = lightCollection->GetNextLight(iterator))
-    {
-      if (light->GetSwitch() == 0)
-      {
-        continue;
-      }
-      if (globals.NumberOfLights == 0)
-      {
-        defaultLighting = true;
-      }
-      if (globals.NumberOfLights >= static_cast<std::uint32_t>(MaxLights))
-      {
-        vtkWarningWithObjectMacro(
-          this->Self, << "Only " << MaxLights << " lights are used to shade a volume.");
-        break;
-      }
-      if (globals.NumberOfLights > 0 || light->GetIntensity() != 1.0 ||
-        light->GetLightType() != VTK_LIGHT_TYPE_HEADLIGHT)
-      {
-        defaultLighting = false;
-      }
-
-      LightData& entry = globals.Lights[globals.NumberOfLights];
-      const double intensity = light->GetIntensity();
-      for (int i = 0; i < 3; ++i)
-      {
-        entry.AmbientColor[i] = static_cast<float>(light->GetAmbientColor()[i] * intensity);
-        entry.DiffuseColor[i] = static_cast<float>(light->GetDiffuseColor()[i] * intensity);
-        entry.SpecularColor[i] = static_cast<float>(light->GetSpecularColor()[i] * intensity);
-      }
-
-      double position[3];
-      double focalPoint[3];
-      light->GetTransformedPosition(position);
-      light->GetTransformedFocalPoint(focalPoint);
-      double direction[3] = { focalPoint[0] - position[0], focalPoint[1] - position[1],
-        focalPoint[2] - position[2] };
-      if (vtkMath::Normalize(direction) <= 0.0)
-      {
-        direction[0] = 0.0;
-        direction[1] = 0.0;
-        direction[2] = -1.0;
-      }
-      for (int i = 0; i < 3; ++i)
-      {
-        entry.Direction[i] = static_cast<float>(direction[i]);
-        entry.Position[i] = static_cast<float>(position[i]);
-      }
-
-      entry.Positional = light->GetPositional() != 0 ? 1u : 0u;
-      entry.ConeAngle = static_cast<float>(light->GetConeAngle());
-      entry.Exponent = static_cast<float>(light->GetExponent());
-      const double* attenuation = light->GetAttenuationValues();
-      for (int i = 0; i < 3; ++i)
-      {
-        entry.Attenuation[i] = static_cast<float>(attenuation[i]);
-      }
-      ++globals.NumberOfLights;
-    }
-  }
-  if (globals.NumberOfLights == 0)
-  {
-    // Stand in for the head light the renderer would have created.
-    LightData& entry = globals.Lights[0];
-    double focalPoint[3];
-    camera->GetFocalPoint(focalPoint);
-    double direction[3] = { focalPoint[0] - cameraPosition[0], focalPoint[1] - cameraPosition[1],
-      focalPoint[2] - cameraPosition[2] };
-    vtkMath::Normalize(direction);
-    for (int i = 0; i < 3; ++i)
-    {
-      entry.Direction[i] = static_cast<float>(direction[i]);
-      entry.Position[i] = static_cast<float>(cameraPosition[i]);
-      entry.DiffuseColor[i] = 1.0f;
-      entry.SpecularColor[i] = 1.0f;
-    }
-    entry.Attenuation[0] = 1.0f;
-    entry.ConeAngle = 180.0f;
-    globals.NumberOfLights = 1;
-    defaultLighting = true;
-  }
-  if (defaultLighting)
-  {
-    globals.Flags |= FlagDefaultLighting;
-  }
-  if (renderer->GetTwoSidedLighting())
-  {
-    globals.Flags |= FlagTwoSidedLighting;
-  }
+  SetLights(renderer, this->Self, globals);
 
   if (this->GlobalUniformBuffer == nullptr)
   {
