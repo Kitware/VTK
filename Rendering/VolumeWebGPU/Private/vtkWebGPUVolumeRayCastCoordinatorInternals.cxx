@@ -6,6 +6,7 @@
 
 #include "vtkWebGPUVolumeRayCastMapper.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkContourValues.h"
 #include "vtkImageData.h"
@@ -1027,8 +1028,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
   // Get reference to primary mapper for settings that describe the march
   vtkWebGPUVolumeRayCastMapper* primary = this->Contributions.front().Mapper;
 
-  double bounds[6] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN,
-    VTK_DOUBLE_MAX, VTK_DOUBLE_MIN };
+  vtkBoundingBox box;
 
   std::vector<VolumeParams> parameters(MaxVolumes);
   std::memset(parameters.data(), 0, parameters.size() * sizeof(VolumeParams));
@@ -1104,11 +1104,7 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
         static_cast<double>((corner >> 1) & 1), static_cast<double>((corner >> 2) & 1), 1.0 };
       double world[4];
       volumeMatrix->MultiplyPoint(point, world);
-      for (int i = 0; i < 3; ++i)
-      {
-        bounds[2 * i] = std::min(bounds[2 * i], world[i]);
-        bounds[2 * i + 1] = std::max(bounds[2 * i + 1], world[i]);
-      }
+      box.AddPoint(world);
     }
 
     // How long one voxel is once the volume is placed in the world.
@@ -1339,8 +1335,9 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
     }
   }
 
-  const double diagonal = std::sqrt(std::pow(bounds[1] - bounds[0], 2.0) +
-    std::pow(bounds[3] - bounds[2], 2.0) + std::pow(bounds[5] - bounds[4], 2.0));
+  double bounds[6];
+  box.GetBounds(bounds);
+  const double diagonal = box.GetDiagonalLength();
 
   // While the scene is being interacted with, cap how many samples a ray may take by spreading
   // them over the whole box instead of refusing to finish the frame.
@@ -1406,21 +1403,17 @@ void vtkWebGPUVolumeRayCastCoordinator::vtkInternals::UpdateUniforms(
 
   // The back faces of the proxy box stop covering every pixel once the near plane cuts into it,
   // so fall back to a full screen triangle when the two can meet.
-  double nearBounds[6] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN,
-    VTK_DOUBLE_MAX, VTK_DOUBLE_MIN };
+  vtkBoundingBox nearBox;
   for (int corner = 0; corner < 4; ++corner)
   {
     const double clip[4] = { (corner & 1) != 0 ? 1.0 : -1.0, (corner & 2) != 0 ? 1.0 : -1.0, 0.0,
       1.0 };
     double world[4];
     inverseViewProjection->MultiplyPoint(clip, world);
-    for (int i = 0; i < 3; ++i)
-    {
-      const double value = world[i] / world[3];
-      nearBounds[2 * i] = std::min(nearBounds[2 * i], value);
-      nearBounds[2 * i + 1] = std::max(nearBounds[2 * i + 1], value);
-    }
+    nearBox.AddPoint(world[0] / world[3], world[1] / world[3], world[2] / world[3]);
   }
+  double nearBounds[6];
+  nearBox.GetBounds(nearBounds);
   // Relative to the volume, not to any absolute size: a volume a fraction of a unit across is
   // still a volume, and a fixed margin would swallow it whole.
   const double margin = 1.0e-4 * diagonal;
