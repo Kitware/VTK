@@ -53,6 +53,7 @@ set(classes
   vtkWebGPUTexture
   vtkWebGPUTextureDeviceResource
   vtkWebGPUTextureView
+  vtkWebGPUToneMappingPass
   vtkWebGPUUniforms
   vtkWebGPUContextDevice2D
   vtkWebGPUContextActor)
@@ -136,7 +137,8 @@ set(webgpu_overrides
   # NI: TextActor
   # NI: TextActor3D
   # NI: TextMapper
-  Texture)
+  Texture
+  ToneMappingPass)
 
 unset(wgsl_shader_sources)
 unset(private_wgsl_shader_headers)

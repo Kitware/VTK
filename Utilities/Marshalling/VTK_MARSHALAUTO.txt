@@ -838,6 +838,7 @@ Rendering/WebGPU/vtkWebGPUSkybox.h
 Rendering/WebGPU/vtkWebGPUTexture.h
 Rendering/WebGPU/vtkWebGPUTextureDeviceResource.h
 Rendering/WebGPU/vtkWebGPUTextureView.h
+Rendering/WebGPU/vtkWebGPUToneMappingPass.h
 Rendering/WebXR/vtkWebXRCamera.h
 Rendering/WebXR/vtkWebXRInteractorStyle.h
 Rendering/WebXR/vtkWebXRModel.h

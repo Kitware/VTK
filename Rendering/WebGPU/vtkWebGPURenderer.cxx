@@ -39,6 +39,7 @@
 #include "vtkWebGPUPolyDataMapper2D.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPUTexture.h"
+#include "vtkWebGPUToneMappingPass.h"
 
 #include "vtkCamera.h"
 #include "vtkImageData.h"
@@ -440,6 +441,10 @@ void vtkWebGPURenderer::CreateBuffers()
 //------------------------------------------------------------------------------
 WGPUTextureView vtkWebGPURenderer::GetColorTextureView()
 {
+  if (this->ToneMappingPass)
+  {
+    return this->ToneMappingPass->GetColorTextureView(this);
+  }
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow);
   return wgpuRenderWindow ? wgpuRenderWindow->GetOffscreenColorAttachmentView() : nullptr;
 }
@@ -447,6 +452,10 @@ WGPUTextureView vtkWebGPURenderer::GetColorTextureView()
 //------------------------------------------------------------------------------
 WGPUTextureFormat vtkWebGPURenderer::GetColorTextureFormat()
 {
+  if (this->ToneMappingPass)
+  {
+    return this->ToneMappingPass->GetColorTextureFormat();
+  }
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow);
   return wgpuRenderWindow ? wgpuRenderWindow->GetOffscreenColorTextureFormat()
                           : WGPUTextureFormat_Undefined;
@@ -455,7 +464,7 @@ WGPUTextureFormat vtkWebGPURenderer::GetColorTextureFormat()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderer::Clear()
 {
-  if (!this->DrawBackgroundInClearPass)
+  if (!this->DrawBackgroundInClearPass || this->RenderStage != RenderStageEnum::RecordingCommands)
   {
     return;
   }
@@ -800,6 +809,12 @@ void vtkWebGPURenderer::RecordRenderCommands()
       /*clearColor=*/false, /*clearDepth=*/false, /*clearStencil=*/false);
     renderPassDescriptor.label =
       WGPUStringView{ "vtkWebGPURenderer::RecordRenderCommands", WGPU_STRLEN };
+    if (this->ToneMappingPass && this->DrawBackgroundInClearPass)
+    {
+      // The color texture of the pass only holds this renderer's frame, unless an occlusion culler
+      // already drew part of the frame into it.
+      renderPassDescriptor.ColorAttachments[0].loadOp = WGPULoadOp_Clear;
+    }
     vtkWebGPU::ReleaseAndNull(this->WGPURenderEncoder, wgpuRenderPassEncoderRelease);
     this->WGPURenderEncoder =
       wgpuRenderWindow->NewRenderPass(static_cast<WGPURenderPassDescriptor&>(renderPassDescriptor));
@@ -895,8 +910,37 @@ bool vtkWebGPURenderer::PropSupportsReusingRenderBundle(vtkProp* prop) const
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPURenderer::ConfigurePasses()
+{
+  this->ToneMappingPass = nullptr;
+  if (this->Pass != nullptr)
+  {
+    this->RenderStage = RenderStageEnum::ConfiguringPasses;
+    vtkRenderState s(this);
+    s.SetPropArrayAndCount(nullptr, 0);
+    s.SetFrameBuffer(nullptr);
+    this->Pass->Render(&s);
+  }
+  const WGPUTextureFormat colorFormat = this->GetColorTextureFormat();
+  if (this->LastColorTextureFormat != WGPUTextureFormat_Undefined &&
+    colorFormat != this->LastColorTextureFormat)
+  {
+    // The pipelines of the props target the previous format.
+    vtkCollectionSimpleIterator pit;
+    vtkProp* prop = nullptr;
+    for (this->Props->InitTraversal(pit); (prop = this->Props->GetNextProp(pit));)
+    {
+      prop->ReleaseGraphicsResources(this->RenderWindow);
+    }
+    this->InvalidateBundle();
+  }
+  this->LastColorTextureFormat = colorFormat;
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderer::UpdateBuffers()
 {
+  this->ConfigurePasses();
   this->RenderStage = RenderStageEnum::SyncDeviceResources;
   this->UpdateEnvironmentMap();
   this->SetupBindGroupLayouts();
@@ -1445,6 +1489,10 @@ bool vtkWebGPURenderer::PrepareDeepFramebuffer()
 void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Superclass::ReleaseGraphicsResources(w);
+  if (w && this->Pass)
+  {
+    this->Pass->ReleaseGraphicsResources(w);
+  }
   // These are owned references. Dropping the pointer does not release them; the
   // wgpu:: wrapper members these replaced did that in their destructor.
   vtkWebGPU::ReleaseAndNull(this->Bundle, wgpuRenderBundleRelease);
@@ -1863,6 +1911,11 @@ void vtkWebGPURenderer::EndRecording()
       wgpuRenderPassEncoderRelease(resolveEncoder);
     }
   }
+
+  if (this->ToneMappingPass)
+  {
+    this->ToneMappingPass->Resolve(this);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1893,6 +1946,10 @@ void vtkWebGPURenderer::PostRasterizationRender()
   }
 
   this->PostRasterizationProps.clear();
+  // The pass may be removed before the next frame configures the render passes again. Keep it
+  // until the end of this one, as an occlusion culler makes the renderer record the frame twice
+  // but configure its passes only once.
+  this->ToneMappingPass = nullptr;
   this->RenderStage = RenderStageEnum::AwaitingPreparation; // for next frame.
 }
 

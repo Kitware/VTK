@@ -27,6 +27,7 @@ class vtkWebGPUComputeOcclusionCuller;
 class vtkWebGPUDeepFramebuffer;
 class vtkWebGPUEnvironmentMap;
 class vtkWebGPUTexture;
+class vtkWebGPUToneMappingPass;
 
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPURenderer : public vtkRenderer
 {
@@ -57,7 +58,10 @@ public:
     SyncDeviceResources,
     RecordingCommands,
     Finished,
-    RenderPostRasterization
+    RenderPostRasterization,
+    // The render passes run without props before the device resources are synchronized, so that
+    // they can tell the renderer how to draw this frame.
+    ConfiguringPasses
   };
 
   /**
@@ -155,6 +159,13 @@ public:
   WGPUTextureView GetColorTextureView();
   WGPUTextureFormat GetColorTextureFormat();
   ///@}
+
+  /**
+   * Draw the geometry of this frame into the color texture of `pass`, which tone maps it into the
+   * render window once the renderer has recorded its commands. The pass calls this while the
+   * renderer configures its render passes.
+   */
+  void SetToneMappingPass(vtkWebGPUToneMappingPass* pass) { this->ToneMappingPass = pass; }
 
   WGPURenderBundleEncoder GetRenderBundleEncoder() { return this->WGPUBundleEncoder; }
   WGPUBindGroup GetSceneBindGroup() { return this->SceneBindGroup; }
@@ -350,6 +361,7 @@ private:
   std::size_t WriteSceneTransformsBuffer(std::size_t offset = 0);
   void WriteIBLUniformBuffer();
   void UpdateEnvironmentMap();
+  void ConfigurePasses();
 
   /**
    * Sets the device and adapter of the render window of this renderer to the given pipeline
@@ -439,6 +451,8 @@ private:
   int PBRDebugView = PBR_DEBUG_VIEW_NONE;
   bool EnvironmentIsSRGB = false;
   std::unique_ptr<vtkWebGPUEnvironmentMap> EnvironmentMap;
+  vtkWebGPUToneMappingPass* ToneMappingPass = nullptr;
+  WGPUTextureFormat LastColorTextureFormat = WGPUTextureFormat_Undefined;
 
   bool UseDeepFramebufferTransparency = true;
   bool DeepFramebufferPopulated = false;
