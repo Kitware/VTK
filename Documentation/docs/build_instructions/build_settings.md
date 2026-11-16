@@ -159,6 +159,13 @@ that the above condition is always met on all supported platforms.
     want those extensions. See the [`VTK::RenderingWebGPU`
     README](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/WebGPU/README.md)
     for how to obtain Dawn.
+  * `VTK_USE_SLANG` (default `OFF`; requires `VTK_ENABLE_WEBGPU` and a
+    platform other than Emscripten): Let the WebGPU backend compile its
+    shaders from Slang with [SlangKit](https://github.com/sankhesh/SlangKit)
+    0.1 or newer. Point `SlangKit_DIR` at the directory holding its CMake
+    package; configuration fails if it is not found. Without it, the WebGPU
+    backend renders with its WGSL shaders and requests for Slang shading
+    report that Slang is unavailable.
   * `VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN` (default `OFF`): Whether to default
     to offscreen render windows by default or not.
   * `VTK_USE_OPENGL_DELAYED_LOAD` (default `OFF`; requires Windows and CMake >=
