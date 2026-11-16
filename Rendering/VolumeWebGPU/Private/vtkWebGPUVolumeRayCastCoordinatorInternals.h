@@ -33,10 +33,6 @@ class vtkWebGPURenderWindow;
 class vtkWebGPUVolumeRayCastCoordinator::vtkInternals
 {
 public:
-  static constexpr int MaximumVolumes = vtkWebGPUVolumeRayCastCoordinator::MaximumNumberOfVolumes;
-  static constexpr int MaximumLights = 6;
-  static constexpr int MaximumClipPlanes = 6;
-  static constexpr int MaximumIsoValues = 16;
   static constexpr int TableSize = vtkWebGPUVolumeTransferFunctionSize;
 
   explicit vtkInternals(vtkWebGPUVolumeRayCastCoordinator* self)

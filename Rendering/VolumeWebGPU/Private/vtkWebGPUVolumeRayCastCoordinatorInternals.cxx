@@ -35,12 +35,12 @@ VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
-using Internals = vtkWebGPUVolumeRayCastCoordinator::vtkInternals;
-constexpr int MaxVolumes = Internals::MaximumVolumes;
-constexpr int MaxLights = Internals::MaximumLights;
-constexpr int MaxClipPlanes = Internals::MaximumClipPlanes;
+// Lengths of the fixed arrays in VolumeRayCast.wgsl, which has to agree with each of them.
+constexpr int MaxVolumes = vtkWebGPUVolumeRayCastCoordinator::MaximumNumberOfVolumes;
+constexpr int MaxLights = 6;
+constexpr int MaxClipPlanes = 6;
 constexpr int MaxComponents = 4;
-constexpr int MaxIsoValues = Internals::MaximumIsoValues;
+constexpr int MaxIsoValues = 16;
 constexpr int Table2DSize = vtkWebGPUVolumeTransferFunction2DSize;
 /// A renderer numbers its props from zero without gaps, so the search stops at the first gap; this
 /// only bounds it against a renderer that somehow never reports one.

@@ -190,6 +190,6 @@ than at what the transfer functions make of them.
   buffers, and of the arrays a ray keeps while it marches. A scene that asks for
   more gets the first ones, with a warning. Raising a limit means changing the
   constant in `wgsl/VolumeRayCast.wgsl` and its twin in
-  `vtkWebGPUVolumeRayCastCoordinatorInternals.h`.
+  `vtkWebGPUVolumeRayCastCoordinatorInternals.cxx`.
 - Rectilinear grids, volumetric scattering and reduced image sample distances are
   not implemented.
