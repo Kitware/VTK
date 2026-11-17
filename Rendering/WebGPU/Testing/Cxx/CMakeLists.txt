@@ -4,6 +4,8 @@ endif ()
 # (vtk/vtk#19322): Add baselines for these unit tests
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestComputeDoublePipelineRenderBuffer.cxx,NO_DATA
+  TestDeepFramebufferCapacity.cxx,NO_DATA,NO_SERDES
+  TestDeepFramebufferTraversalLimit.cxx,NO_DATA,NO_VALID
   TestDeepFramebufferImageBasedLighting.cxx,NO_DATA,NO_VALID
   TestDeepFramebufferManyLayers.cxx,NO_DATA,NO_VALID
   TestDeepFramebufferMappers.cxx,NO_DATA,NO_VALID
