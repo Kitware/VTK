@@ -1,8 +1,10 @@
 # note, to enable testing the vtkParallelMPI module should be enabled
 if (TARGET VTK::ParallelMPI)
+  set(TestParallelXMLAMRBlanking_NUMPROCS 4)
   vtk_add_test_mpi(vtkIOParallelXMLCxxTests tests
     TESTING_DATA NO_VALID
     TestParallelPartitionedDataSetIO.cxx
+    TestParallelXMLAMRBlanking.cxx
     TestParallelUnstructuredGridIO.cxx
     TestXMLReaderChangingBlocksOverTime.cxx)
 else()
