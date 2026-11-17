@@ -110,8 +110,8 @@ public:
   struct BufferView
   {
     int Buffer;
-    int ByteOffset;
-    int ByteLength;
+    unsigned int ByteOffset;
+    unsigned int ByteLength;
     int ByteStride;
     int Target;
     std::string Name;
@@ -138,8 +138,8 @@ public:
       struct MeshoptCompression
       {
         int Buffer = -1;
-        int ByteOffset = 0;
-        int ByteLength = 0;
+        unsigned int ByteOffset = 0;
+        unsigned int ByteLength = 0;
         int ByteStride = 0;
         int Count = 0;
         MeshoptMode Mode = MeshoptMode::ATTRIBUTES;
@@ -172,7 +172,7 @@ public:
       int ValuesByteOffset;
     };
     int BufferView;
-    int ByteOffset;
+    unsigned int ByteOffset;
     ComponentType ComponentTypeValue;
     bool Normalized;
     int Count;

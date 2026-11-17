@@ -214,13 +214,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadAccessor(
   accessor.BufferView = -1;
   vtkGLTFUtils::GetIntValue(root, "bufferView", accessor.BufferView);
   accessor.ByteOffset = 0;
-  vtkGLTFUtils::GetIntValue(root, "byteOffset", accessor.ByteOffset);
-  if (accessor.ByteOffset < 0)
-  {
-    vtkErrorWithObjectMacro(
-      this->Self, "Invalid accessor.byteOffset value for accessor " << accessor.Name);
-    return false;
-  }
+  vtkGLTFUtils::GetUIntValue(root, "byteOffset", accessor.ByteOffset);
   int integerComponentType = 0;
   if (!vtkGLTFUtils::GetIntValue(root, "componentType", integerComponentType))
   {
@@ -499,7 +493,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadBufferView(
       this->Self, "Invalid bufferView.buffer value for bufferView " << bufferView.Name);
     return false;
   }
-  if (!vtkGLTFUtils::GetIntValue(root, "byteLength", bufferView.ByteLength))
+  if (!vtkGLTFUtils::GetUIntValue(root, "byteLength", bufferView.ByteLength))
   {
     vtkErrorWithObjectMacro(
       this->Self, "Invalid bufferView.bytelength value for bufferView " << bufferView.Name);
@@ -508,7 +502,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadBufferView(
   bufferView.ByteOffset = 0;
   bufferView.ByteStride = 0;
   bufferView.Target = 0;
-  vtkGLTFUtils::GetIntValue(root, "byteOffset", bufferView.ByteOffset);
+  vtkGLTFUtils::GetUIntValue(root, "byteOffset", bufferView.ByteOffset);
   vtkGLTFUtils::GetIntValue(root, "byteStride", bufferView.ByteStride);
   vtkGLTFUtils::GetIntValue(root, "target", bufferView.Target);
   if (bufferView.Target != 0 &&
@@ -534,8 +528,8 @@ bool vtkGLTFDocumentLoaderInternals::LoadBufferView(
         vtkGLTFDocumentLoader::BufferView::Extensions::MeshoptCompression& meshComp =
           bufferView.ExtensionMetaData.MeshoptMetaData;
         vtkGLTFUtils::GetIntValue(extension.value(), "buffer", meshComp.Buffer);
-        vtkGLTFUtils::GetIntValue(extension.value(), "byteOffset", meshComp.ByteOffset);
-        vtkGLTFUtils::GetIntValue(extension.value(), "byteLength", meshComp.ByteLength);
+        vtkGLTFUtils::GetUIntValue(extension.value(), "byteOffset", meshComp.ByteOffset);
+        vtkGLTFUtils::GetUIntValue(extension.value(), "byteLength", meshComp.ByteLength);
         vtkGLTFUtils::GetIntValue(extension.value(), "byteStride", meshComp.ByteStride);
         vtkGLTFUtils::GetIntValue(extension.value(), "count", meshComp.Count);
 
