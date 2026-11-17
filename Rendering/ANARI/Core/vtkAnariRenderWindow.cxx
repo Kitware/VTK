@@ -145,6 +145,12 @@ unsigned char* vtkAnariRenderWindow::SampleSourceColorBuffer(
 unsigned char* vtkAnariRenderWindow::SampleSourceColorBuffer(
   int x1, int y1, int x2, int y2, int channelCount, bool& success)
 {
+  if (!this->AnariSceneGraph)
+  {
+    success = false;
+    return nullptr;
+  }
+
   // Re-order rectangle
   int xBegin = std::min(x1, x2);
   int xEnd = std::max(x1, x2);
