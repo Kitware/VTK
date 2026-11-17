@@ -77,9 +77,18 @@ public:
 
   //--------------- Distributed ---------------
   /**
-   * Collect offsets from all distributed partitions in the object using collective operartions.
+   * Collect temporal file extents, then add the current partition offsets.
+   * Return false on failure.
    */
-  bool CollectPartitionOffsets(vtkDataObject* input);
+  bool CollectOffsets(hid_t group, vtkDataObject* input);
+
+  /**
+   * Create an empty dataobject on all ranks with an empty input,
+   * of the same type and with the same arrays that the first rank with non-null input.
+   * This is used to make sure that all ranks share the same structure before collective writes.
+   * At least 1 rank should have a non null partition.
+   */
+  vtkSmartPointer<vtkDataObject> CreateEmptyPartition(vtkSmartPointer<vtkDataObject> input);
 
   ///@{
   /**
@@ -229,6 +238,13 @@ public:
   vtkHDF::ScopedH5GHandle GetSubfileNonNullPart(const std::string& blockPath, int& type);
 
   /**
+   * Recover a block type, attributes, and field arrays from subfiles.
+   * Null when no subfiles have the dataset.
+   */
+  bool CreateRepresentativeFromSubfile(
+    const std::string& blockPath, vtkSmartPointer<vtkDataObject>& representative);
+
+  /**
    * Initialize empty data object array structures from a base group.
    * Used to get meta information for composite subfiles when all subfiles do not have non-null
    * data.
@@ -240,7 +256,7 @@ public:
 
 private:
   /**
-   * Store write offsets for a partition in the current time step.
+   * Store absolute file offsets for a partition in the current time step.
    * This is used to allocate HDF5 dataset sizes and collective writes.
    */
   struct UnstructuredGridOffset
@@ -255,20 +271,25 @@ private:
 
     // Polyhedron support (to be completed)
     vtkIdType FaceOffset;
-    vtkIdType FacePartOffset;
     vtkIdType FaceConnectivityOffset;
-    vtkIdType PolyhedronOffset;
     vtkIdType PolyhedronToFaceOffset;
   };
   struct PartitionedOffsets
   {
-    std::vector<vtkIdType> PartOffsets;            // size = nRanks + 1
-    std::vector<UnstructuredGridOffset> UgOffsets; // size = nParts + 1
+    std::vector<vtkIdType> PartOffsets;            // offset per rank,       size = nRanks + 1
+    std::vector<UnstructuredGridOffset> UgOffsets; // absolute file offsets, size = nParts + 1
   };
+
+  /**
+   * Collect temporal offsets from the file currently open.
+   * Return false on failure.
+   */
+  bool CollectTemporalOffsets(hid_t group, UnstructuredGridOffset& offsets);
+
   /**
    * Collect partitioned information for the current time step, append to existing temporal data
    */
-  bool CollectPartitionOffsets(vtkDataObject* input, const UnstructuredGridOffset& temporalOffsets);
+  void CollectPartitionOffsets(vtkDataObject* input, const UnstructuredGridOffset& temporalOffsets);
 
   /**
    * Print offsets as debug info.
@@ -321,6 +342,12 @@ private:
    */
   vtkHDF::ScopedH5SHandle CreateDataspaceFromArray(
     vtkAbstractArray* dataArray, const std::vector<hsize_t>& dims = {});
+
+  /**
+   * Append a single value in a Steps dataset using values from all ranks.
+   */
+  bool AddStepsRow(hid_t group, unsigned int partId, const char* name,
+    const std::vector<vtkIdType>& values, bool offset, bool trim);
 
   /**
    * Set a single row of the dataset
@@ -379,11 +406,12 @@ private:
   bool CreateVirtualDataset(hid_t group, const char* name, hid_t type, int numComp);
   /**
    * Set `totalSize` as the the sum of the subfiles dataset's size given a path to the dataset.
+   * If provided, use fallbackPath's row count for missing datasets.
    * Return false on failure (dataset does not exist on every subfile). `totalSize` value should not
    * be used in this case.
    */
-  bool GetSubFilesDatasetSize(
-    const std::string& datasetPath, const std::string& groupName, hsize_t& totalSize);
+  bool GetSubFilesDatasetSize(const std::string& datasetPath, const std::string& groupName,
+    hsize_t& totalSize, const std::string& fallbackPath = "");
 
   /**
    * Copy the datatype from dataset in subfile
@@ -397,6 +425,10 @@ private:
     Points,
     Cells,
     Connectivity,
+    FaceConnectivity,
+    FaceOffsets,
+    PolyhedronToFaces,
+    PolyhedronOffsets,
     TreeDepths,
     Trees,
     Descriptor,
@@ -416,6 +448,15 @@ private:
    */
   vtkHDF::ScopedH5DHandle AllocateDataset(
     hid_t group, const char* name, std::vector<hsize_t> dimensions);
+
+  /**
+   * Return true if the current partition in the current rank is a placeholder used only for
+   * collective writing.
+   * This happens when a rank has more non-null partitions than others, but all write must be
+   * collective. Ranks with a "missing partition" participate in collective operations but don't
+   * write anything.
+   */
+  bool IsMissingPartition(unsigned int partId) const;
 
   /**
    * Create a dataset and allocate it

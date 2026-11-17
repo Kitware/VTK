@@ -5,6 +5,8 @@
 #include "vtkAbstractArray.h"
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
+#include "vtkCellType.h"
+#include "vtkCommunicator.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataAssemblyUtilities.h"
 #include "vtkDataObjectTree.h"
@@ -20,6 +22,7 @@
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -38,6 +41,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTable.h"
 #include "vtkType.h"
+#include "vtkTypeInt64Array.h"
 #include "vtkTypeUInt32Array.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -75,7 +79,7 @@ std::string getBlockName(vtkPartitionedDataSetCollection* pdc, unsigned int data
  * Return the filename for an external file containing <blockname>, made from
  * the original <filename>.
  */
-std::string GetExternalBlockFileName(const std::string&& filename, const std::string& blockname)
+std::string GetExternalBlockFileName(const std::string& filename, const std::string& blockname)
 {
   size_t lastDotPos = filename.find_last_of('.');
   if (lastDotPos != std::string::npos)
@@ -90,12 +94,60 @@ std::string GetExternalBlockFileName(const std::string&& filename, const std::st
 }
 
 /**
- * Check if the given unstructured grid has polyhedra cells.
+ * Check if the given unstructured grid has polyhedron topology, including
+ * empty topology added to keep partition datasets aligned.
  */
 bool HasPolyhedra(vtkUnstructuredGrid* input)
 {
-  return input && input->GetOrientedPolyhedronFaces() != nullptr &&
-    input->GetOrientedPolyhedronFaces()->GetNumberOfCells() > 0;
+  return input && input->GetOrientedPolyhedronFaces() != nullptr;
+}
+
+/**
+ * Return true if any of the input data objects are UG and have polyhedrons.
+ */
+bool AnyPartHasPolyhedra(
+  const std::vector<vtkSmartPointer<vtkDataObject>> parts, vtkMultiProcessController* controller)
+{
+  int hasPolyhedra = 0;
+  for (const auto& part : parts)
+  {
+    hasPolyhedra |= HasPolyhedra(vtkUnstructuredGrid::SafeDownCast(part)) ? 1 : 0;
+  }
+  if (controller)
+  {
+    int globalHasPolyhedra = 0;
+    controller->AllReduce(&hasPolyhedra, &globalHasPolyhedra, 1, vtkCommunicator::MAX_OP);
+    hasPolyhedra = globalHasPolyhedra;
+  }
+  return hasPolyhedra != 0;
+}
+
+/**
+ * Add empty polyhedron topology when needed without modifying the input grids.
+ * This is used as a normalization step to make sure all parts are coherent polyhedron-wise
+ */
+void AddEmptyPolyhedrons(std::vector<vtkSmartPointer<vtkDataObject>>& grids)
+{
+  for (size_t i = 0; i < grids.size(); i++)
+  {
+    auto* grid = vtkUnstructuredGrid::SafeDownCast(grids[i]);
+    if (grid && !::HasPolyhedra(grid))
+    {
+      vtkNew<vtkUnstructuredGrid> normalized;
+      normalized->ShallowCopy(grid);
+      vtkNew<vtkCellArray> faces;
+      vtkNew<vtkCellArray> locations;
+
+      // Input does not actually has faces, so just allocate an empty offset array
+      vtkNew<vtkIdTypeArray> offsets;
+      offsets->SetNumberOfValues(grid->GetNumberOfCells() + 1);
+      offsets->FillValue(0);
+      vtkNew<vtkIdTypeArray> connectivity;
+      locations->SetData(offsets, connectivity);
+      normalized->SetPolyhedralCells(grid->GetCellTypes(), grid->GetCells(), locations, faces);
+      grids[i] = normalized;
+    }
+  }
 }
 
 /**
@@ -122,35 +174,62 @@ std::vector<::PolyDataTopos> GetCellArraysForTopos(vtkPolyData* polydata)
     { "Strips", polydata->GetStrips() },
   };
 }
+
+/**
+ * Determine if the distributed single file mode works for the given input.
+ * Fallback on distributed multi-file.
+ */
+bool IsDistributedSingleFileSupported(vtkDataObject* input, vtkMultiProcessController* controller)
+{
+  int supported = !input || vtkUnstructuredGrid::SafeDownCast(input);
+  int hasInput = input != nullptr;
+  if (auto* tree = vtkDataObjectTree::SafeDownCast(input))
+  {
+    supported = 1;
+    hasInput = 0;
+    vtkSmartPointer<vtkDataObjectTreeIterator> iterator;
+    iterator.TakeReference(tree->NewTreeIterator());
+    iterator->VisitOnlyLeavesOn();
+    iterator->SetSkipEmptyNodes(false);
+    for (iterator->InitTraversal(); !iterator->IsDoneWithTraversal(); iterator->GoToNextItem())
+    {
+      hasInput = 1;
+      if (!vtkUnstructuredGrid::SafeDownCast(iterator->GetCurrentDataObject()))
+      {
+        supported = 0;
+        break;
+      }
+    }
+  }
+  int allSupported = 0;
+  int anyInput = 0;
+  controller->AllReduce(&supported, &allSupported, 1, vtkCommunicator::MIN_OP);
+  controller->AllReduce(&hasInput, &anyInput, 1, vtkCommunicator::MAX_OP);
+  return allSupported && anyInput;
+}
 }
 
 //------------------------------------------------------------------------------
 vtkHDFWriter::vtkHDFWriter()
   : Impl(new Implementation(this))
 {
-  this->Controller = vtkMultiProcessController::GetGlobalController();
+  this->SetController(vtkMultiProcessController::GetGlobalController());
   if (this->Controller == nullptr)
   {
     // No multi-process controller has been set, use a dummy one.
     // Mark that it has been created by this process so we can destroy it
     // After the filter execution.
     this->UsesDummyController = true;
-    this->SetController(vtkDummyController::New());
+    vtkNew<vtkDummyController> controller;
+    this->SetController(controller);
   }
-
-  this->NbPieces = this->Controller->GetNumberOfProcesses();
-  this->CurrentPiece = this->Controller->GetLocalProcessId();
 }
 
 //------------------------------------------------------------------------------
 vtkHDFWriter::~vtkHDFWriter()
 {
   this->SetFileName(nullptr);
-  if (this->UsesDummyController)
-  {
-    this->Controller->Delete();
-    this->SetController(nullptr);
-  }
+  this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -177,6 +256,9 @@ vtkTypeBool vtkHDFWriter::ProcessRequest(
 int vtkHDFWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
+  this->NbPieces = this->Controller ? this->Controller->GetNumberOfProcesses() : 1;
+  this->CurrentPiece = this->Controller ? this->Controller->GetLocalProcessId() : 0;
+
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
@@ -293,10 +375,30 @@ bool vtkHDFWriter::WriteDataAndReturn()
   this->Impl->SetCompressionLevel(this->CompressionLevel);
   this->Impl->SetChunkSize(this->ChunkSize);
 
-  // For now, distributed writing is only available for non-partitioned, non-temporal
-  // UnstructuredGrid. Other distributed inputs use external files.
-  this->Impl->SetUseDistributedWriting(!this->UseExternalDistributed && this->NbPieces > 1 &&
-    !this->IsTemporal && vtkUnstructuredGrid::SafeDownCast(input));
+  if (this->IsTemporal)
+  {
+    // Temporal + composite writing can currently only be done in a single file.
+    // The current writer implementation makes External<X> difficult when time is involved,
+    // because we rely on writers outside of the current pipeline that simply write a data object.
+    // Supporting these cases would require to give the writer the ability to add timesteps to an
+    // existing file.
+    if (this->UseExternalPartitions || this->UseExternalComposite)
+    {
+      vtkWarningMacro("Writing composite blocks/partitions as external VTKHDF files is "
+                      "currently not supported for time-dependant datasets, disabling "
+                      "UseExternal[Composite/Partitions]");
+    }
+    this->SetUseExternalComposite(false);
+    this->SetUseExternalPartitions(false);
+  }
+
+  // For now, distributed writing is only available for (partitioned) UnstructuredGrid.
+  // And is not compatible with other external files options.
+  // Other distributed inputs use external files.
+  bool singleFileEnabled = !this->UseExternalDistributed && !this->UseExternalPartitions &&
+    !this->UseExternalComposite && !this->UseExternalTimeSteps && this->NbPieces > 1;
+  this->Impl->SetUseDistributedWriting(
+    singleFileEnabled && ::IsDistributedSingleFileSupported(input, this->Controller));
 
   // Root file group only needs to be opened for the first timestep
   if (this->CurrentTimeIndex == 0)
@@ -326,23 +428,6 @@ bool vtkHDFWriter::WriteDataAndReturn()
   // Wait for the file to be created
   this->Controller->Barrier();
 
-  if (this->IsTemporal)
-  {
-    // Temporal + composite writing can currently only be done in a single file.
-    // The current writer implementation makes External<X> difficult when time is involved,
-    // because we rely on writers outside of the current pipeline that simply write a data object.
-    // Supporting these cases would require to give the writer the ability to add timesteps to an
-    // existing file.
-    if (this->UseExternalPartitions || this->UseExternalComposite)
-    {
-      vtkWarningMacro("Writing composite blocks/partitions as external VTKHDF files is "
-                      "currently not supported for time-dependant datasets, disabling "
-                      "UseExternal[Composite/Partitions]");
-    }
-    this->SetUseExternalComposite(false);
-    this->SetUseExternalPartitions(false);
-  }
-
   // Write the time step data in an external file
   if (this->NbPieces == 1 && this->IsTemporal && this->UseExternalTimeSteps)
   {
@@ -371,6 +456,14 @@ bool vtkHDFWriter::WriteDataAndReturn()
       // On the last timestep, the implementation creates virtual datasets referencing all
       // Subfiles. This can only be done once we know the size of all sub-datasets.
       this->Impl->SetSubFilesReady(true);
+    }
+  }
+
+  if (!this->UseExternalDistributed && !this->Impl->GetSubFilesReady())
+  {
+    if (!this->Impl->CollectOffsets(this->Impl->GetRoot(), input))
+    {
+      return false;
     }
   }
 
@@ -431,7 +524,17 @@ bool vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
     instead of writing the data actually associated to the input data object,
     write commands will instead gather information from all previously written distributed
     pieces, and create virtual datasets referencing them. */
-    if (!this->DispatchDataObject(this->Impl->GetRoot(), input))
+    vtkSmartPointer<vtkDataObject> representative = input;
+    auto* pointSet = vtkPointSet::SafeDownCast(input);
+    if (pointSet && pointSet->GetNumberOfPoints() == 0)
+    {
+      if (!this->Impl->CreateRepresentativeFromSubfile(
+            vtkHDFUtilities::VTKHDF_ROOT_PATH, representative))
+      {
+        return false;
+      }
+    }
+    if (!this->DispatchDataObject(this->Impl->GetRoot(), representative))
     {
       vtkErrorMacro("Failed to write meta data object");
       return false;
@@ -694,9 +797,14 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPolyData* input, unsigned 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, unsigned int partId)
 {
-  if (this->Impl->GetUseDistributedWriting() && !this->Impl->GetSubFilesReady())
+  const bool hasPolyhedra = ::AnyPartHasPolyhedra(
+    { input }, this->Impl->GetUseDistributedWriting() ? this->Controller : nullptr);
+
+  std::vector<vtkSmartPointer<vtkDataObject>> normalized{ input };
+  if (hasPolyhedra)
   {
-    this->Impl->CollectPartitionOffsets(input);
+    ::AddEmptyPolyhedrons(normalized);
+    input = vtkUnstructuredGrid::SafeDownCast(normalized.front());
   }
 
   if (this->CurrentTimeIndex == 0 && partId == 0)
@@ -707,7 +815,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, u
       return false;
     }
 
-    if (::HasPolyhedra(input) && !this->InitializeTemporalPolyhedra(group))
+    if (hasPolyhedra && !this->InitializeTemporalPolyhedra(group))
     {
       vtkErrorMacro(<< "Temporal initialization failed for polyhedra in Unstructured grid "
                     << this->FileName);
@@ -728,7 +836,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkUnstructuredGrid* input, u
     writeSuccess &= this->AppendCellTypes(group, partId, input);
     writeSuccess &= this->AppendConnectivity(group, partId, cells);
 
-    if (::HasPolyhedra(input))
+    if (hasPolyhedra)
     {
       writeSuccess &=
         this->AppendNumberOfFaceConnectivityIds(group, partId, input->GetOrientedPolyhedronFaces());
@@ -903,27 +1011,84 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkHyperTreeGrid* input, unsi
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
 {
-  bool ret = true;
-  int nonNullPartCount = 0;
-  vtkDataObject* partition = nullptr;
-  for (unsigned int partIndex = 0; partIndex < input->GetNumberOfPartitions(); partIndex++)
+  // For distributed writing all MPI ranks need to write synchronously,
+  // So they need to write an equal number of partitions.
+  // Find the maximum number of partitions a rank holds to loop
+  std::vector<vtkSmartPointer<vtkDataObject>> nonNullParts;
+  for (unsigned int i = 0; i < input->GetNumberOfPartitions(); i++)
   {
-    if (!input->GetPartitionAsDataObject(partIndex))
+    if (auto* obj = input->GetPartitionAsDataObject(i))
     {
-      continue;
+      nonNullParts.emplace_back(obj);
     }
+  }
+  vtkIdType numNonNullParts = static_cast<vtkIdType>(nonNullParts.size());
+  const bool hasPolyhedra = ::AnyPartHasPolyhedra(nonNullParts,
+    this->NbPieces > 1 && !this->Impl->GetSubFilesReady() ? this->Controller : nullptr);
+  if (hasPolyhedra)
+  {
+    // In case at least 1 part in any rank has polyhedron, all parts must also have polyhedrons.
+    ::AddEmptyPolyhedrons(nonNullParts);
+  }
 
-    partition = input->GetPartitionAsDataObject(partIndex);
-    vtkDebugMacro(<< "Processing partition #" << nonNullPartCount + 1 << " at time step "
+  if (numNonNullParts == 0 && this->Impl->GetSubFilesReady())
+  {
+    // No local non-null partitions but we need to write the meta-file,
+    // build one using data from subfiles
+    vtkSmartPointer<vtkDataObject> representative;
+    if (!this->Impl->CreateRepresentativeFromSubfile(
+          this->Impl->GetGroupName(group), representative))
+    {
+      return false;
+    }
+    return !representative || this->DispatchDataObject(group, representative);
+  }
+  vtkIdType maxNonNullParts = numNonNullParts;
+  if (this->Impl->GetUseDistributedWriting())
+  {
+    this->Controller->AllReduce(&numNonNullParts, &maxNonNullParts, 1, vtkCommunicator::MAX_OP);
+  }
+  vtkDebugMacro(<< "Partitioned input has " << numNonNullParts
+                << " maximum non null parts across ranks");
+
+  bool success = true;
+  int nonNullPartCount = 0;
+  vtkSmartPointer<vtkDataObject> partition;
+  for (vtkIdType partIndex = 0; partIndex < maxNonNullParts; partIndex++)
+  {
+    vtkDebugMacro(<< "Processing partition #" << partIndex << " at time step "
                   << this->CurrentTimeIndex);
 
+    // Create empty placeholder partition with the same arrays as the non null part when null
+    if (this->Impl->GetUseDistributedWriting())
+    {
+      partition = this->Impl->CreateEmptyPartition(
+        partIndex < numNonNullParts ? nonNullParts[partIndex] : nullptr);
+    }
+    else
+    {
+      partition = nonNullParts[partIndex];
+    }
+
+    if (partition == nullptr)
+    {
+      vtkErrorMacro(
+        "Unexpected null partition: at least one partition across all ranks should be non null");
+      return false;
+    }
+
     // Write individual partitions in different files
-    if (this->UseExternalPartitions)
+    if (this->UseExternalPartitions && !this->Impl->GetSubFilesReady())
     {
       const std::string partitionSuffix = "part" + vtk::to_string(nonNullPartCount);
-      const std::string subFilePath =
-        ::GetExternalBlockFileName(std::string(this->FileName), partitionSuffix);
+      const std::string container = this->NbPieces > 1 && !this->Impl->GetUseDistributedWriting()
+        ? ::GetExternalBlockFileName(this->FileName, "part" + vtk::to_string(this->CurrentPiece))
+        : std::string(this->FileName);
+      const std::string subFilePath = ::GetExternalBlockFileName(container, partitionSuffix);
       vtkNew<vtkHDFWriter> writer;
+      // We don't want collective writes on partition files, set another controller
+      vtkNew<vtkDummyController> controller;
+      writer->SetController(controller);
       writer->SetInputData(partition);
       writer->SetFileName(subFilePath.c_str());
       writer->SetCompressionLevel(this->CompressionLevel);
@@ -940,7 +1105,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
     }
     else if (!this->Impl->GetSubFilesReady())
     {
-      ret &= this->DispatchDataObject(group, partition, nonNullPartCount);
+      success &= this->DispatchDataObject(group, partition, nonNullPartCount);
     }
 
     nonNullPartCount++;
@@ -955,10 +1120,10 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
     // Use partId = 0 so datasets are initialized properly before (virtual) content is added,
     // Only when no steps are added, because temporal already initializes datasets properly.
     unsigned int partId = this->IsTemporal && this->NbPieces <= 1 ? nonNullPartCount - 1 : 0;
-    ret &= this->DispatchDataObject(group, partition, partId);
+    success &= this->DispatchDataObject(group, partition, partId);
     this->Impl->SetSubFilesReady(save);
   }
-  return ret;
+  return success;
 }
 
 //------------------------------------------------------------------------------
@@ -1171,12 +1336,13 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input, uns
   if (::HasPolyhedra(input))
   {
     result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "FaceConnectivityOffsets",
-      { input->GetOrientedPolyhedronFaces()->GetNumberOfConnectivityIds() }, true);
+      { input->GetOrientedPolyhedronFaces()->GetNumberOfConnectivityIds() }, true, addToLastValue);
     result &= this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "FaceOffsetsOffsets",
-      { input->GetOrientedPolyhedronFaces()->GetNumberOfCells() }, true);
+      { input->GetOrientedPolyhedronFaces()->GetNumberOfCells() }, true, addToLastValue);
     result &=
       this->Impl->AddOrCreateSingleRowDataset(stepsGroup, partId, "PolyhedronToFaceIdOffsets",
-        { input->GetOrientedPolyhedronFaceLocations()->GetNumberOfConnectivityIds() }, true);
+        { input->GetOrientedPolyhedronFaceLocations()->GetNumberOfConnectivityIds() }, true,
+        addToLastValue);
   }
 
   return result;
@@ -2116,6 +2282,14 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
     else
     {
       datasetGroup = this->Impl->CreateHdfGroup(group, currentName.c_str());
+      if (!this->UseExternalDistributed && !this->Impl->GetSubFilesReady())
+      {
+        if (!this->Impl->CollectOffsets(this->Impl->GetRoot(), currentBlock))
+        {
+          return false;
+        }
+      }
+
       this->PreviousStepMeshMTime = this->CompositeMeshMTime[datasetId];
       ret &= this->DispatchDataObject(datasetGroup, currentBlock);
       if (auto ds = vtkDataSet::SafeDownCast(currentBlock->GetPartition(0)))
@@ -2282,10 +2456,15 @@ bool vtkHDFWriter::AppendIterDataObject(
   vtkDataObjectTreeIterator* treeIter, const int& leafIndex, const std::string& uniqueSubTreeName)
 {
   this->PreviousStepMeshMTime = this->CompositeMeshMTime[leafIndex];
-
-  if (!this->DispatchDataObject(
-        this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()),
-        treeIter->GetCurrentDataObject()))
+  auto group = this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str());
+  if (!this->UseExternalDistributed && !this->Impl->GetSubFilesReady())
+  {
+    if (!this->Impl->CollectOffsets(group, treeIter->GetCurrentDataObject()))
+    {
+      return false;
+    }
+  }
+  if (!this->DispatchDataObject(group, treeIter->GetCurrentDataObject()))
   {
     return false;
   }
@@ -2330,67 +2509,15 @@ bool vtkHDFWriter::AppendCompositeSubfilesDataObject(const std::string& uniqueSu
   const std::string blockPath = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" +
     uniqueSubTreeName; // All blocks are located on root group and have the same name
                        // for all subfiles
-  int type = -1;
-
-  vtkHDF::ScopedH5GHandle nonNullPart = this->Impl->GetSubfileNonNullPart(blockPath, type);
-  if (nonNullPart == H5I_INVALID_HID)
+  vtkSmartPointer<vtkDataObject> representative;
+  if (!this->Impl->CreateRepresentativeFromSubfile(blockPath, representative))
   {
-    return true; // Leaf is null for every subfile
+    return false;
   }
-
-  bool ret = false;
-  if (type == VTK_UNSTRUCTURED_GRID)
-  {
-    // Get all arrays from the non null part
-    vtkNew<vtkUnstructuredGrid> ug;
-    this->Impl->CreateArraysFromNonNullPart(nonNullPart, ug);
-    ret = this->DispatchDataObject(
-      this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()), ug);
-  }
-  else if (type == VTK_POLY_DATA)
-  {
-    vtkNew<vtkPolyData> pd;
-    this->Impl->CreateArraysFromNonNullPart(nonNullPart, pd);
-    ret = this->DispatchDataObject(
-      this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()), pd);
-  }
-  else if (type == VTK_HYPER_TREE_GRID)
-  {
-    vtkNew<vtkHyperTreeGrid> htg;
-    htg->Initialize();
-    if (H5Lexists(nonNullPart, "Mask", H5P_DEFAULT) > 0)
-    {
-      vtkNew<vtkBitArray> mask;
-      mask->SetNumberOfTuples(1); // Required for the mask to be detected
-      htg->SetMask(mask);
-    }
-
-    // Copy attributes, because we have no way to know the HTG dimensions only present in other
-    // parts
-    int branchFactor = 0;
-    vtkHDFUtilities::GetAttribute(nonNullPart, "BranchFactor", 1, &branchFactor);
-    htg->SetBranchFactor(branchFactor);
-    int transposedRoot = 0;
-    vtkHDFUtilities::GetAttribute(nonNullPart, "TransposedRootIndexing", 1, &transposedRoot);
-    htg->SetTransposedRootIndexing(transposedRoot);
-    std::array<int, 3> dimensions;
-    vtkHDFUtilities::GetAttribute(nonNullPart, "Dimensions", 3, dimensions.data());
-    htg->SetDimensions(dimensions.data());
-    if (H5Aexists(nonNullPart, "InterfaceNormalsName") > 0)
-    {
-      std::string tmp;
-      vtkHDFUtilities::GetStringAttribute(nonNullPart, "InterfaceInterceptsName", tmp);
-      htg->SetInterfaceInterceptsName(tmp.c_str());
-      vtkHDFUtilities::GetStringAttribute(nonNullPart, "InterfaceNormalsName", tmp);
-      htg->SetInterfaceNormalsName(tmp.c_str());
-      htg->SetHasInterface(true);
-    }
-
-    this->Impl->CreateArraysFromNonNullPart(nonNullPart, htg);
-    ret = this->DispatchDataObject(
-      this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()), htg);
-  }
-  return ret;
+  return !representative ||
+    this->DispatchDataObject(
+      this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()),
+      representative);
 }
 
 //------------------------------------------------------------------------------
@@ -2475,7 +2602,20 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(hid_t baseGroup, vtkAbstractArray* 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::HasGeometryChangedFromPreviousStep(vtkDataSet* input)
 {
-  return this->CurrentTimeIndex != 0 && input->GetMeshMTime() != this->PreviousStepMeshMTime;
+  // When writing an "external" rank file, never reuse geometry
+  // so the metafile does not mess up offsets
+  const bool externalRankFile = this->NbPieces > 1 && !this->Impl->GetUseDistributedWriting() &&
+    !this->Impl->GetSubFilesReady();
+  int localGeometryChanged = this->UseExternalTimeSteps || externalRankFile ||
+    input->GetMeshMTime() != this->PreviousStepMeshMTime;
+  if (!this->Impl->GetUseDistributedWriting() || this->Impl->GetSubFilesReady())
+  {
+    return this->CurrentTimeIndex != 0 && localGeometryChanged;
+  }
+  int anyGeometryChanged = 0;
+  this->Controller->AllReduce(
+    &localGeometryChanged, &anyGeometryChanged, 1, vtkCommunicator::MAX_OP);
+  return this->CurrentTimeIndex != 0 && anyGeometryChanged;
 }
 
 //------------------------------------------------------------------------------
