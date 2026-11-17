@@ -46,6 +46,8 @@
 #include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -60,6 +62,13 @@ struct IBLBlock
   vtkTypeUInt32 Pad[2] = {};
 };
 static_assert(sizeof(IBLBlock) == 64, "IBLBlock must match the WGSL IBLParameters layout");
+
+std::uint32_t GetBackgroundFlags(
+  vtkViewport::GradientModes mode, bool dither, bool premultipliedAlpha)
+{
+  const auto gradientMode = std::min(static_cast<std::uint32_t>(mode), 3u);
+  return (1u << gradientMode) | ((dither ? 1u : 0u) << 4) | ((premultipliedAlpha ? 1u : 0u) << 5);
+}
 
 const char* backgroundShaderSource = R"(
     struct VertexOutput {
@@ -107,14 +116,30 @@ const char* backgroundQuadShaderSource = R"(
       // These differ from (1,1,0,0) only when the window is rendered in tiles,
       // where the encoder viewport covers just the visible slice of the renderer.
       tcoordScaleOffset: vec4<f32>,
-      // 0 = vertical, 1 = horizontal,
-      // 2 = radial farthest side, 3 = radial farthest corner.
-      mode: u32,
-      dither: u32,
-      premultipliedAlpha: u32,
+      flags: u32,
     }
     @group(0) @binding(0) var<uniform> background: BackgroundOptions;
     //VTK::Background::Dec
+
+    const VTK_GRADIENT_VERTICAL: u32 = 0x1u;
+    const VTK_GRADIENT_HORIZONTAL: u32 = 0x2u;
+    const VTK_GRADIENT_RADIAL_VIEWPORT_FARTHEST_SIDE: u32 = 0x4u;
+    const VTK_GRADIENT_RADIAL_VIEWPORT_FARTHEST_CORNER: u32 = 0x8u;
+    const BIT_MASK_GRADIENT_MODE: u32 = 0xfu;
+    const BIT_POSITION_DITHER: u32 = 4u;
+    const BIT_POSITION_PREMULTIPLIED_ALPHA: u32 = 5u;
+
+    fn getGradientMode(flags: u32) -> u32 {
+      return flags & BIT_MASK_GRADIENT_MODE;
+    }
+
+    fn usesDither(flags: u32) -> bool {
+      return ((flags >> BIT_POSITION_DITHER) & 0x1u) != 0u;
+    }
+
+    fn hasPremultipliedAlpha(flags: u32) -> bool {
+      return ((flags >> BIT_POSITION_PREMULTIPLIED_ALPHA) & 0x1u) != 0u;
+    }
 
     struct VertexOutput {
       @builtin(position) position: vec4<f32>,
@@ -160,19 +185,20 @@ const char* backgroundQuadShaderSource = R"(
     }
   )";
 const char* gradientBackgroundColor = R"(
+      let mode = getGradientMode(background.flags);
       var value: f32 = 0.0;
-      if (background.mode == 0u) {
+      if (mode == VTK_GRADIENT_VERTICAL) {
         value = tcoord.y;
-      } else if (background.mode == 1u) {
+      } else if (mode == VTK_GRADIENT_HORIZONTAL) {
         value = tcoord.x;
-      } else if (background.mode == 2u) {
+      } else if (mode == VTK_GRADIENT_RADIAL_VIEWPORT_FARTHEST_SIDE) {
         value = clamp(length(tcoord - vec2<f32>(0.5, 0.5)) * 2.0, 0.0, 1.0);
       } else {
         value = length(tcoord - vec2<f32>(0.5, 0.5)) * sqrt(2.0);
       }
 
       var rgb: vec3<f32> = mix(background.stopColor0.rgb, background.stopColor1.rgb, value);
-      if (background.dither != 0u) {
+      if (usesDither(background.flags)) {
         let noise = mix(-DITHERING_GRANULARITY, DITHERING_GRANULARITY,
                         generateRandom(tcoord));
         rgb = rgb + vec3<f32>(noise);
@@ -547,14 +573,14 @@ void vtkWebGPURenderer::ClearBackground(vtkWebGPUTexture* texture)
     float StopColor0[4];
     float StopColor1[4];
     float TCoordScaleOffset[4];
-    std::uint32_t Mode;
-    std::uint32_t Dither;
-    std::uint32_t PremultipliedAlpha;
-    std::uint32_t Padding;
+    std::uint32_t Flags;
+    std::uint32_t Padding[3];
   };
   static_assert(sizeof(BackgroundOptions) == 64, "BackgroundOptions must match WGSL");
+  static_assert(offsetof(BackgroundOptions, Flags) == 48, "Background flags must match WGSL");
   BackgroundOptions options = {};
-  options.PremultipliedAlpha = texture && texture->GetPremultipliedAlpha() ? 1u : 0u;
+  options.Flags = GetBackgroundFlags(
+    this->GradientMode, this->DitherGradient, texture && texture->GetPremultipliedAlpha());
   for (int i = 0; i < 3; ++i)
   {
     options.StopColor0[i] = static_cast<float>(this->Background[i]);
@@ -562,8 +588,6 @@ void vtkWebGPURenderer::ClearBackground(vtkWebGPUTexture* texture)
   }
   options.StopColor0[3] = static_cast<float>(this->BackgroundAlpha);
   options.StopColor1[3] = static_cast<float>(this->BackgroundAlpha);
-  options.Mode = static_cast<std::uint32_t>(this->GradientMode);
-  options.Dither = this->DitherGradient ? 1u : 0u;
 
   // vtkWebGPUCamera::UpdateViewport() sets the encoder viewport to the part of
   // this renderer visible in the current tile, so the quad only covers that
@@ -663,7 +687,7 @@ void vtkWebGPURenderer::ClearBackground(vtkWebGPUTexture* texture)
     }
     // Match a textured overlay over the renderer's solid background, including alpha.
     colorCode +=
-      R"(let rgb = select(color.rgb * color.a, color.rgb, background.premultipliedAlpha != 0u);
+      R"(let rgb = select(color.rgb * color.a, color.rgb, hasPremultipliedAlpha(background.flags));
       output.color = vec4<f32>(
       rgb + background.stopColor0.rgb * (1.0 - color.a),
       color.a + background.stopColor0.a * (1.0 - color.a));)";
