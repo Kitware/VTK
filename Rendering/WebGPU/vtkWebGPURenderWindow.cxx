@@ -25,6 +25,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkWebGPUCommandEncoderDebugGroup.h"
 #include "vtkWebGPUConfiguration.h"
+#include "vtkWebGPUDeepFramebuffer.h"
 #include "vtkWebGPUHelpers.h"
 #include "vtkWebGPURenderer.h"
 #if !defined(__EMSCRIPTEN__)
@@ -463,6 +464,54 @@ void vtkWebGPURenderWindow::Render()
     this->HardwareWindow->Render();
   }
   this->Superclass::Render();
+}
+
+bool vtkWebGPURenderWindow::RenderWithCheckedDeepFramebuffer(int maxFrames)
+{
+  if (this->InRender || this->StereoRender || maxFrames < 1 || maxFrames > 16)
+  {
+    vtkErrorMacro(<< "Checked deep framebuffer rendering requires a non-reentrant mono render "
+                     "and maxFrames between 1 and 16.");
+    return false;
+  }
+  for (int frame = 0; frame < maxFrames; ++frame)
+  {
+    this->Render();
+    if (this->AbortRender || !this->Initialized)
+    {
+      return false;
+    }
+    bool complete = true;
+    for (auto renderer : vtk::Range(this->Renderers))
+    {
+      auto* webgpu = vtkWebGPURenderer::SafeDownCast(renderer);
+      if (!webgpu || !webgpu->GetDraw())
+      {
+        continue;
+      }
+      const int status = webgpu->ReadDeepFramebufferStatistics(true);
+      if (status == vtkWebGPUDeepFramebuffer::Complete)
+      {
+        continue;
+      }
+      auto* framebuffer = webgpu->GetDeepFramebuffer();
+      if (status != vtkWebGPUDeepFramebuffer::FragmentPoolOverflow ||
+        !framebuffer->GetAutoResize() ||
+        framebuffer->GetFragmentNodeCapacity() >= framebuffer->GetMaximumFragmentNodeCapacity())
+      {
+        vtkWarningMacro(<< "Incomplete deep framebuffer (status " << status
+                        << "); configured limits prevent a complete image.");
+        return false;
+      }
+      complete = false;
+    }
+    if (complete)
+    {
+      return true;
+    }
+  }
+  vtkWarningMacro(<< "Deep framebuffer recovery exceeded " << maxFrames << " frames.");
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -1588,6 +1637,16 @@ void vtkWebGPURenderWindow::Frame()
   }
 
   this->ReleaseRGBAPixelData(nullptr);
+
+  // Geometry and resolve commands have been submitted. Read back only the small
+  // diagnostics buffer, without waiting for it on the interactive render path.
+  for (auto renderer : vtk::Range(this->Renderers))
+  {
+    if (auto* webgpu = vtkWebGPURenderer::SafeDownCast(renderer); webgpu && webgpu->GetDraw())
+    {
+      webgpu->UpdateDeepFramebufferStatistics();
+    }
+  }
 
 #ifndef NDEBUG
   // This lets the implementation execute all callbacks so that validation errors are output in

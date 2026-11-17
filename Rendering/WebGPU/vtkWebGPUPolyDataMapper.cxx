@@ -3924,7 +3924,7 @@ struct FragmentNode
 
 @group(0) @binding(2) var<storage, read_write> abufferHeads: array<atomic<u32>>;
 @group(0) @binding(3) var<storage, read_write> abufferNodes: array<FragmentNode>;
-@group(0) @binding(4) var<storage, read_write> abufferCounter: atomic<u32>;
+@group(0) @binding(4) var<storage, read_write> abufferCounter: array<atomic<u32>>;
 
 const ABUFFER_END: u32 = 0xFFFFFFFFu;)";
   }
@@ -4564,7 +4564,10 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderMainEnd(
   let abufferWidth = u32(scene_transform.viewport.z);
   let abufferPixel = abufferCoord.x + abufferCoord.y * abufferWidth;
   if (abufferPixel < arrayLength(&abufferHeads)) {
-    let abufferNode = atomicAdd(&abufferCounter, 1u);
+    let abufferNode = atomicAdd(&abufferCounter[0], 1u);
+    if (abufferNode == 0xFFFFFFFFu) {
+      atomicOr(&abufferCounter[1], 2u);
+    }
     if (abufferNode < arrayLength(&abufferNodes)) {
       let abufferPrev = atomicExchange(&abufferHeads[abufferPixel], abufferNode);
       abufferNodes[abufferNode].color = pack4x8unorm(output.color);

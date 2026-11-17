@@ -10,10 +10,11 @@
  *   first fragment, or `InvalidIndex` when it has none.
  * - FragmentNodes: a pool of 28 byte records,
  *   `{ color, depth, cellId, propId, compositeId, processId, next }`. All four
- *   id channels are carried because a translucent fragment is discarded after
- *   being recorded and so never reaches the id attachment on its own;
+ *   id channels are carried because a translucent fragment is recorded with
+ *   color attachment writes disabled and never reaches the id attachment on its own;
  *   vtkHardwareSelector treats a zero composite id as "nothing was drawn here".
- * - FragmentCounter: a single `atomic<u32>` handing out node indices.
+ * - FragmentCounter: two `atomic<u32>` values, handing out node indices and
+ *   recording resolve/traversal truncation flags.
  *
  * A shader appends with `atomicAdd` on the counter then `atomicExchange` on the
  * head pointer, so a list is in reverse insertion order and must be sorted by
@@ -33,6 +34,7 @@
 #include "vtk_wgpu.h"                 // for the WebGPU C API
 
 #include <cstdint> // for fixed width types
+#include <memory>  // for asynchronous readback state
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkWebGPUConfiguration;
@@ -58,6 +60,47 @@ public:
   vtkGetMacro(MaximumMemoryInBytes, vtkTypeUInt64);
   ///@}
 
+  ///@{
+  /** Grow after observed overflow, within the memory/device limit. On by default. */
+  vtkSetMacro(AutoResize, bool);
+  vtkGetMacro(AutoResize, bool);
+  vtkBooleanMacro(AutoResize, bool);
+  ///@}
+
+  ///@{
+  /** Frames between automatic samples after a complete result (default 8).
+   * New allocations and incomplete results are sampled immediately.
+   * Explicit ReadStatistics() calls bypass this interval.
+   */
+  vtkSetClampMacro(StatisticsInterval, int, 1, 64);
+  vtkGetMacro(StatisticsInterval, int);
+  ///@}
+
+  /** Request asynchronous feedback at the configured sampling interval. */
+  VTK_MAYSUSPEND void RequestStatistics();
+
+  /** Completeness flags for the most recent statistics readback. */
+  enum FrameStatus
+  {
+    Complete = 0,
+    Pending = 1,
+    FragmentPoolOverflow = 2,
+    LayerLimitExceeded = 4,
+    TraversalLimitExceeded = 8,
+    ReadbackFailed = 16
+  };
+
+  /**
+   * Read statistics after the frame's commands have been submitted. Without
+   * wait, at most one map is in flight and Pending is returned until the current
+   * frame's result is available. With wait, process events until it is available.
+   * The returned flags describe dropped fragments, not color quantization.
+   */
+  VTK_MAYSUSPEND int ReadStatistics(bool wait = false);
+  vtkGetMacro(LastFrameStatus, int);
+  vtkGetMacro(LastFragmentCount, vtkTypeUInt32);
+  vtkGetMacro(MaximumFragmentNodeCapacity, vtkTypeUInt32);
+
   /**
    * The configuration used to allocate the buffers. Must be set before Resize().
    */
@@ -65,10 +108,10 @@ public:
 
   /**
    * Allocate the buffers for a `width` x `height` viewport, reallocating only
-   * when the dimensions or effective capacity changed. Returns false if allocation failed, in which
-   * case the buffers are left released and transparency must fall back.
+   * when the dimensions or effective capacity changed. Returns false if the
+   * requested allocation is unavailable, in which case transparency must fall back.
    */
-  bool Resize(int width, int height);
+  VTK_MAYSUSPEND bool Resize(int width, int height);
 
   /**
    * Reset the counter to zero and every head pointer to InvalidIndex. Must run
@@ -95,7 +138,7 @@ public:
   /**
    * Release the buffers.
    */
-  void ReleaseGraphicsResources();
+  VTK_MAYSUSPEND void ReleaseGraphicsResources();
 
 protected:
   vtkWebGPUDeepFramebuffer();
@@ -121,6 +164,7 @@ private:
   WGPUBuffer HeadPointersBuffer = nullptr;
   WGPUBuffer FragmentNodesBuffer = nullptr;
   WGPUBuffer FragmentCounterBuffer = nullptr;
+  WGPUBuffer StatisticsReadbackBuffer = nullptr;
 
   int Width = 0;
   int Height = 0;
@@ -128,6 +172,18 @@ private:
   std::uint32_t FragmentNodeCapacity = 0;
   vtkTypeUInt64 MaximumMemoryInBytes = 0;
   vtkTypeUInt64 AllocationGeneration = 0;
+  vtkTypeUInt32 MaximumFragmentNodeCapacity = 0;
+  bool AutoResize = true;
+  int StatisticsInterval = 8;
+  vtkTypeUInt32 AllocatedAverageLayers = 0;
+  vtkTypeUInt64 AllocatedMemoryLimit = 0;
+  vtkTypeUInt64 FrameNumber = 0;
+  int LastFrameStatus = Pending;
+  vtkTypeUInt32 LastFragmentCount = 0;
+  int WarnedStatus = Complete;
+  struct Readback;
+  std::shared_ptr<Readback> Statistics;
+  void UpdateStatistics();
 };
 VTK_ABI_NAMESPACE_END
 

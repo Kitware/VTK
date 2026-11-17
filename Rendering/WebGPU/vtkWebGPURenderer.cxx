@@ -1299,12 +1299,50 @@ vtkTypeUInt64 vtkWebGPURenderer::GetDeepFramebufferMaximumMemoryInBytes()
   return this->GetDeepFramebuffer()->GetMaximumMemoryInBytes();
 }
 
+void vtkWebGPURenderer::SetDeepFramebufferAutoResize(bool enable)
+{
+  auto* framebuffer = this->GetDeepFramebuffer();
+  if (framebuffer->GetAutoResize() != enable)
+  {
+    framebuffer->SetAutoResize(enable);
+    this->Modified();
+  }
+}
+
+bool vtkWebGPURenderer::GetDeepFramebufferAutoResize()
+{
+  return this->GetDeepFramebuffer()->GetAutoResize();
+}
+
+int vtkWebGPURenderer::ReadDeepFramebufferStatistics(bool wait)
+{
+  if (this->DeepFramebufferFailed)
+  {
+    return vtkWebGPUDeepFramebuffer::ReadbackFailed;
+  }
+  if (!this->UseDeepFramebufferTransparency || !this->DeepFramebufferPopulated)
+  {
+    return vtkWebGPUDeepFramebuffer::Complete;
+  }
+  return this->DeepFramebuffer->ReadStatistics(wait);
+}
+
+void vtkWebGPURenderer::UpdateDeepFramebufferStatistics()
+{
+  if (this->UseDeepFramebufferTransparency && this->DeepFramebufferPopulated &&
+    !this->DeepFramebufferFailed)
+  {
+    this->DeepFramebuffer->RequestStatistics();
+  }
+}
+
 bool vtkWebGPURenderer::PrepareDeepFramebuffer()
 {
   if (!this->UseDeepFramebufferTransparency)
   {
     return false;
   }
+  this->DeepFramebufferFailed = false;
 
   bool hasTranslucentGeometry = false;
   for (auto* prop : this->PropArray)
@@ -1336,6 +1374,8 @@ bool vtkWebGPURenderer::PrepareDeepFramebuffer()
     vtkWarningMacro(<< "Could not allocate a deep framebuffer for " << width << "x" << height
                     << "; falling back to ordinary translucent blending.");
     this->UseDeepFramebufferTransparency = false;
+    this->DeepFramebufferFailed = true;
+    this->InvalidateBundle();
     return false;
   }
 
@@ -1631,6 +1671,7 @@ void vtkWebGPURenderer::ResolveDeepFramebuffer(WGPURenderPassEncoder encoder)
   {
     return;
   }
+  this->DeepFramebufferFailed = true;
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
   if (wgpuRenderWindow == nullptr)
   {
@@ -1696,6 +1737,9 @@ void vtkWebGPURenderer::ResolveDeepFramebuffer(WGPURenderPassEncoder encoder)
   pipelineDesc.layout = pipelineLayout;
 
   std::string shaderSource = ABufferResolve;
+  vtkWebGPURenderPipelineCache::Substitute(shaderSource, "const MAX_LAYERS: u32 = 16u;",
+    "const MAX_LAYERS: u32 = " + std::to_string(this->DeepFramebufferMaximumLayersPerPixel) + "u;",
+    /*all=*/true);
   if (this->LastUseIBL)
   {
     shaderSource += "\n// SceneBindGroupLayout with image based lighting\n";
@@ -1717,6 +1761,7 @@ void vtkWebGPURenderer::ResolveDeepFramebuffer(WGPURenderPassEncoder encoder)
   wgpuRenderPassEncoderSetBindGroup(encoder, 0, this->SceneBindGroup, 0, nullptr);
   wgpuRenderPassEncoderSetBindGroup(encoder, 1, this->DeepFramebufferResolveBindGroup, 0, nullptr);
   wgpuRenderPassEncoderDraw(encoder, 4, 1, 0, 0);
+  this->DeepFramebufferFailed = false;
 }
 
 //------------------------------------------------------------------------------
