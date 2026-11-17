@@ -109,6 +109,8 @@ public:
    * to be called from anywhere else.
    */
   void Render(vtkRenderer* renderer);
+  void ReleaseGraphicsResources(vtkWebGPUVolumeRayCastMapper* mapper);
+  ///@}
 
   ///@{
   /**
@@ -118,8 +120,6 @@ public:
    */
   bool GetImageColor(vtkImageData* output);
   bool GetImageDepth(int scalarType, vtkImageData* output);
-  ///@}
-  void ReleaseGraphicsResources(vtkWebGPUVolumeRayCastMapper* mapper);
   ///@}
 
   /// Device side state, defined in a private header so that no WebGPU type reaches this one.
