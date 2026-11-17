@@ -37,6 +37,10 @@ set(Viskores_ENABLE_TESTING_LIBRARY_ISSET ON)
 set(Viskores_ENABLE_TESTING OFF)
 set(Viskores_ENABLE_TUTORIALS OFF)
 
+# VTK does not use the particle advection filters, and their CUDA build runs
+# ptxas out of memory.
+set(Viskores_MODULE_ENABLE_viskores_filter_flow NO)
+
 set(Viskores_NO_ASSERT OFF)
 set(Viskores_NO_ASSERT_CUDA ON)
 set(Viskores_NO_ASSERT_HIP ON)
