@@ -204,9 +204,21 @@ public:
 
   /**
    * The per-pixel fragment lists used when UseDeepFramebufferTransparency is on.
-   * Created on demand; null until then.
+   * Created on demand, including before the first render. GPU storage is allocated
+   * only when translucent geometry is rendered.
    */
   vtkWebGPUDeepFramebuffer* GetDeepFramebuffer();
+
+  ///@{
+  /** Initial node-pool budget, in average layers per window pixel (default 8). */
+  void SetDeepFramebufferAverageLayersPerPixel(vtkTypeUInt32 layers);
+  vtkTypeUInt32 GetDeepFramebufferAverageLayersPerPixel();
+  ///@}
+  ///@{
+  /** Maximum node-pool bytes. Zero (default) uses the device limit. */
+  void SetDeepFramebufferMaximumMemoryInBytes(vtkTypeUInt64 bytes);
+  vtkTypeUInt64 GetDeepFramebufferMaximumMemoryInBytes();
+  ///@}
 
   /**
    * Ensure the deep framebuffer and its bind group exist and match the current

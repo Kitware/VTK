@@ -1260,7 +1260,43 @@ void vtkWebGPURenderer::SetEnvironmentTexture(vtkTexture* texture, bool isSRGB /
 //------------------------------------------------------------------------------
 vtkWebGPUDeepFramebuffer* vtkWebGPURenderer::GetDeepFramebuffer()
 {
+  if (this->DeepFramebuffer == nullptr)
+  {
+    this->DeepFramebuffer = vtk::TakeSmartPointer(vtkWebGPUDeepFramebuffer::New());
+  }
   return this->DeepFramebuffer;
+}
+
+void vtkWebGPURenderer::SetDeepFramebufferAverageLayersPerPixel(vtkTypeUInt32 layers)
+{
+  auto* framebuffer = this->GetDeepFramebuffer();
+  const auto previous = framebuffer->GetMTime();
+  framebuffer->SetAverageLayersPerPixel(layers);
+  if (framebuffer->GetMTime() != previous)
+  {
+    this->Modified();
+  }
+}
+
+vtkTypeUInt32 vtkWebGPURenderer::GetDeepFramebufferAverageLayersPerPixel()
+{
+  return this->GetDeepFramebuffer()->GetAverageLayersPerPixel();
+}
+
+void vtkWebGPURenderer::SetDeepFramebufferMaximumMemoryInBytes(vtkTypeUInt64 bytes)
+{
+  auto* framebuffer = this->GetDeepFramebuffer();
+  const auto previous = framebuffer->GetMTime();
+  framebuffer->SetMaximumMemoryInBytes(bytes);
+  if (framebuffer->GetMTime() != previous)
+  {
+    this->Modified();
+  }
+}
+
+vtkTypeUInt64 vtkWebGPURenderer::GetDeepFramebufferMaximumMemoryInBytes()
+{
+  return this->GetDeepFramebuffer()->GetMaximumMemoryInBytes();
 }
 
 bool vtkWebGPURenderer::PrepareDeepFramebuffer()
@@ -1289,17 +1325,12 @@ bool vtkWebGPURenderer::PrepareDeepFramebuffer()
     return false;
   }
 
-  if (this->DeepFramebuffer == nullptr)
-  {
-    this->DeepFramebuffer = vtk::TakeSmartPointer(vtkWebGPUDeepFramebuffer::New());
-    this->DeepFramebuffer->SetWGPUConfiguration(wgpuRenderWindow->GetWGPUConfiguration());
-  }
+  this->GetDeepFramebuffer()->SetWGPUConfiguration(wgpuRenderWindow->GetWGPUConfiguration());
 
   const int* size = wgpuRenderWindow->GetSize();
   const int width = size[0];
   const int height = size[1];
-  const bool resized =
-    width != this->DeepFramebuffer->GetWidth() || height != this->DeepFramebuffer->GetHeight();
+  const auto generation = this->DeepFramebuffer->GetAllocationGeneration();
   if (!this->DeepFramebuffer->Resize(width, height))
   {
     vtkWarningMacro(<< "Could not allocate a deep framebuffer for " << width << "x" << height
@@ -1308,9 +1339,13 @@ bool vtkWebGPURenderer::PrepareDeepFramebuffer()
     return false;
   }
 
-  if (resized && this->SceneTransformBuffer != nullptr && this->SceneLightsBuffer != nullptr)
+  if (generation != this->DeepFramebuffer->GetAllocationGeneration())
   {
-    this->SetupSceneBindGroup();
+    this->InvalidateBundle();
+    if (this->SceneTransformBuffer != nullptr && this->SceneLightsBuffer != nullptr)
+    {
+      this->SetupSceneBindGroup();
+    }
   }
   return true;
 }

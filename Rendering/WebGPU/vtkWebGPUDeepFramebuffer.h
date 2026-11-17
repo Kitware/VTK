@@ -49,8 +49,14 @@ public:
    * costs memory proportional to the viewport; lowering it drops more fragments
    * in heavily layered regions.
    */
-  vtkGetMacro(AverageLayersPerPixel, std::uint32_t);
-  vtkSetClampMacro(AverageLayersPerPixel, std::uint32_t, 1, 64);
+  vtkGetMacro(AverageLayersPerPixel, vtkTypeUInt32);
+  vtkSetClampMacro(AverageLayersPerPixel, vtkTypeUInt32, 1, 64);
+
+  ///@{
+  /** Maximum node-pool size in bytes. Zero (default) uses the device limit. */
+  vtkSetMacro(MaximumMemoryInBytes, vtkTypeUInt64);
+  vtkGetMacro(MaximumMemoryInBytes, vtkTypeUInt64);
+  ///@}
 
   /**
    * The configuration used to allocate the buffers. Must be set before Resize().
@@ -59,7 +65,7 @@ public:
 
   /**
    * Allocate the buffers for a `width` x `height` viewport, reallocating only
-   * when the size actually changed. Returns false if allocation failed, in which
+   * when the dimensions or effective capacity changed. Returns false if allocation failed, in which
    * case the buffers are left released and transparency must fall back.
    */
   bool Resize(int width, int height);
@@ -83,7 +89,8 @@ public:
    */
   vtkGetMacro(Width, int);
   vtkGetMacro(Height, int);
-  vtkGetMacro(FragmentNodeCapacity, std::uint32_t);
+  vtkGetMacro(FragmentNodeCapacity, vtkTypeUInt32);
+  vtkGetMacro(AllocationGeneration, vtkTypeUInt64);
 
   /**
    * Release the buffers.
@@ -119,6 +126,8 @@ private:
   int Height = 0;
   std::uint32_t AverageLayersPerPixel = 8;
   std::uint32_t FragmentNodeCapacity = 0;
+  vtkTypeUInt64 MaximumMemoryInBytes = 0;
+  vtkTypeUInt64 AllocationGeneration = 0;
 };
 VTK_ABI_NAMESPACE_END
 

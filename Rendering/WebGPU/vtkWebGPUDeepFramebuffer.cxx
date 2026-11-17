@@ -42,13 +42,6 @@ bool vtkWebGPUDeepFramebuffer::Resize(int width, int height)
     vtkErrorMacro(<< "Cannot allocate a deep framebuffer without a vtkWebGPUConfiguration.");
     return false;
   }
-  if (width == this->Width && height == this->Height && this->HeadPointersBuffer != nullptr)
-  {
-    return true;
-  }
-
-  this->ReleaseGraphicsResources();
-
   const std::uint64_t pixelCount = static_cast<std::uint64_t>(width) * height;
   std::uint64_t nodeCount = pixelCount * this->AverageLayersPerPixel;
 
@@ -57,11 +50,24 @@ bool vtkWebGPUDeepFramebuffer::Resize(int width, int height)
   if (WGPUDevice device = this->WGPUConfiguration->GetDevice())
   {
     WGPULimits limits = WGPU_LIMITS_INIT;
-    wgpuDeviceGetLimits(device, &limits);
-    if (limits.maxStorageBufferBindingSize > 0)
+    if (wgpuDeviceGetLimits(device, &limits) != WGPUStatus_Success ||
+      pixelCount * sizeof(std::uint32_t) > limits.maxStorageBufferBindingSize)
     {
-      maxNodeCount = std::min(maxNodeCount, limits.maxStorageBufferBindingSize / FragmentNodeSize);
+      vtkErrorMacro(<< "Cannot bind the deep framebuffer head pointers.");
+      return false;
     }
+    maxNodeCount = std::min(maxNodeCount,
+      std::min(limits.maxStorageBufferBindingSize, limits.maxBufferSize) / FragmentNodeSize);
+  }
+  else
+  {
+    vtkErrorMacro(<< "Cannot allocate a deep framebuffer without a device.");
+    return false;
+  }
+  if (this->MaximumMemoryInBytes != 0)
+  {
+    maxNodeCount =
+      std::min<std::uint64_t>(maxNodeCount, this->MaximumMemoryInBytes / FragmentNodeSize);
   }
 
   if (maxNodeCount == 0)
@@ -77,6 +83,13 @@ bool vtkWebGPUDeepFramebuffer::Resize(int width, int height)
                   << maxNodeCount << " fragment nodes, " << nodeCount << " requested.");
     nodeCount = maxNodeCount;
   }
+
+  if (width == this->Width && height == this->Height && nodeCount == this->FragmentNodeCapacity &&
+    this->HeadPointersBuffer != nullptr)
+  {
+    return true;
+  }
+  this->ReleaseGraphicsResources();
 
   const auto storage =
     static_cast<WGPUBufferUsage>(WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
@@ -106,6 +119,7 @@ bool vtkWebGPUDeepFramebuffer::Resize(int width, int height)
   this->Width = width;
   this->Height = height;
   this->FragmentNodeCapacity = static_cast<std::uint32_t>(nodeCount);
+  ++this->AllocationGeneration;
 
   this->Clear();
   this->Modified();
@@ -147,6 +161,7 @@ void vtkWebGPUDeepFramebuffer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Height: " << this->Height << '\n';
   os << indent << "AverageLayersPerPixel: " << this->AverageLayersPerPixel << '\n';
   os << indent << "FragmentNodeCapacity: " << this->FragmentNodeCapacity << '\n';
+  os << indent << "MaximumMemoryInBytes: " << this->MaximumMemoryInBytes << '\n';
   os << indent << "HeadPointersBuffer: " << this->HeadPointersBuffer << '\n';
   os << indent << "FragmentNodesBuffer: " << this->FragmentNodesBuffer << '\n';
   os << indent << "FragmentCounterBuffer: " << this->FragmentCounterBuffer << '\n';
