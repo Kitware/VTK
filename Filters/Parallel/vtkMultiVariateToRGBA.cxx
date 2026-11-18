@@ -750,6 +750,21 @@ void vtkMultiVariateToRGBA::SetVerticesRotation(double rotation)
 }
 
 //------------------------------------------------------------------------------
+void vtkMultiVariateToRGBA::SetVerticesAndLensRotation(double rotation)
+{
+  if (!std::isfinite(rotation))
+  {
+    vtkErrorMacro("Invalid rotation: " << rotation << ", it must be finite");
+    return;
+  }
+  const double oldRotation = this->VerticesRotation;
+  this->SetVerticesRotation(rotation);
+  std::array<double, 2> center =
+    vtkMultiVariateToRGBA::RotateLensCenter(this->LensCenter, this->VerticesRotation - oldRotation);
+  this->SetLensCenter(center[0], center[1]);
+}
+
+//------------------------------------------------------------------------------
 void vtkMultiVariateToRGBA::SetCustomRange(const std::vector<double>& customRange)
 {
   vtkDebugMacro(<< " setting CustomRange to " << fmt::format("{}", customRange));
@@ -1609,6 +1624,15 @@ std::array<double, 2> vtkMultiVariateToRGBA::GetLensCenter(
     std::copy(lensCenter, lensCenter + 2, newLensCenter.begin());
   }
   return newLensCenter;
+}
+
+std::array<double, 2> vtkMultiVariateToRGBA::RotateLensCenter(
+  const double* lensCenter, double angle)
+{
+  const double radians = vtkMath::RadiansFromDegrees(angle);
+  const double c = std::cos(radians);
+  const double s = std::sin(radians);
+  return { c * lensCenter[0] - s * lensCenter[1], s * lensCenter[0] + c * lensCenter[1] };
 }
 
 void vtkMultiVariateToRGBA::SetLensCenter(double centerX, double centerY)

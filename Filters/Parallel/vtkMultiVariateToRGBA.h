@@ -113,6 +113,13 @@ public:
    */
   virtual void SetVerticesRotation(double rotation);
   vtkGetMacro(VerticesRotation, double);
+  /**
+   * Set VerticesRotation and rotate LensCenter around the origin by the same
+   * change in angle. The lens then covers the same data points (GBC positions
+   * rotate with the vertices), so only the colors change. A non-finite
+   * rotation is an error and leaves the rotation and the lens unchanged.
+   */
+  void SetVerticesAndLensRotation(double rotation);
 
   ///@{
   /**
@@ -157,6 +164,11 @@ public:
   virtual void SetInvertLens(bool invert);
   vtkGetMacro(InvertLens, bool);
   vtkBooleanMacro(InvertLens, bool);
+  /**
+   * Return lensCenter rotated around the origin by angle degrees,
+   * counter-clockwise, as the vertices are rotated by VerticesRotation.
+   */
+  static std::array<double, 2> RotateLensCenter(const double* lensCenter, double angle);
   /**
    * Clamp the lens circle (lensCenter, lensRadius) so that it intersects the
    * reference circle (center, radius). GetLensRadius returns the adjusted

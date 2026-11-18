@@ -255,6 +255,14 @@ public:
    */
   virtual void SetVerticesRotation(double rotation);
   vtkGetMacro(VerticesRotation, double);
+  /**
+   * Set VerticesRotation and rotate LensCenter around the origin by the same
+   * change in angle. The lens then covers the same data points, so only the
+   * colors change. A non-finite rotation is an error and leaves the
+   * rotation and the lens unchanged.
+   * @sa vtkMultiVariateToRGBA::SetVerticesAndLensRotation
+   */
+  void SetVerticesAndLensRotation(double rotation);
   ///@}
 
   ///@{

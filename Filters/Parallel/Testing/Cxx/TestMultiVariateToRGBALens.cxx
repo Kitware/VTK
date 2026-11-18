@@ -6,8 +6,9 @@
  * that setting the visible variables they already have keeps the last
  * results, and that the output object follows the input type. Lens-only
  * changes are also checked for table rows of mixed types and cell data.
- * Also check that a negative lens radius is rejected and that Print shows
- * the lens.
+ * Also check that a negative lens radius is rejected, that Print shows
+ * the lens, that rotating the vertices and the lens together changes
+ * only the colors, and that a non-finite rotation is rejected.
  */
 
 #include <vtkCellData.h>
@@ -31,6 +32,7 @@
 #include <cmath>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -327,5 +329,51 @@ int TestMultiVariateToRGBALens(int, char*[])
   }
   cellImage->GetCellData()->SetScalars(cellValues);
   CHECK(LensReusesCache(cellImage, vtkDataObject::CELL));
+
+  // rotating the vertices and the lens together keeps the points in the
+  // lens, so the alpha, and changes only the colors
+  {
+    vtkNew<vtkMultiVariateToRGBA> rotated;
+    rotated->SetController(nullptr);
+    rotated->SetInputData(image);
+    rotated->SetOutsideLensAlpha(0.1);
+    rotated->SetLensRadius(0.4);
+    rotated->SetLensCenter(0.4, 0);
+    rotated->SetVerticesRotation(30);
+    rotated->Update();
+    vtkNew<vtkDoubleArray> before;
+    before->DeepCopy(GetArray(rotated, "rgba"));
+    rotated->SetVerticesAndLensRotation(120);
+    CHECK(rotated->GetVerticesRotation() == 120);
+    CHECK(std::fabs(rotated->GetLensCenter()[0]) < 1e-12 &&
+      std::fabs(rotated->GetLensCenter()[1] - 0.4) < 1e-12);
+    rotated->Update();
+    vtkDataArray* after = GetArray(rotated, "rgba");
+    bool colorsChanged = false;
+    bool someInside = false;
+    bool someOutside = false;
+    for (vtkIdType i = 0; i < after->GetNumberOfTuples(); ++i)
+    {
+      CHECK(std::fabs(after->GetComponent(i, 3) - before->GetComponent(i, 3)) < 1e-9);
+      someInside = someInside || after->GetComponent(i, 3) > 0.1;
+      someOutside = someOutside || after->GetComponent(i, 3) <= 0.1;
+      colorsChanged = colorsChanged || after->GetComponent(i, 0) != before->GetComponent(i, 0);
+    }
+    // the lens holds some points, so the alpha check above can fail
+    CHECK(someInside && someOutside && colorsChanged);
+
+    // a non-finite rotation is rejected, which would make the lens center NaN
+    vtkNew<vtkTest::ErrorObserver> errorObserver;
+    rotated->AddObserver(vtkCommand::ErrorEvent, errorObserver);
+    for (double rotation :
+      { std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::infinity() })
+    {
+      errorObserver->Clear();
+      rotated->SetVerticesAndLensRotation(rotation);
+      CHECK(errorObserver->HasErrorMessage("Invalid rotation"));
+      CHECK(rotated->GetVerticesRotation() == 120);
+      CHECK(std::fabs(rotated->GetLensCenter()[1] - 0.4) < 1e-12);
+    }
+  }
   return EXIT_SUCCESS;
 }
