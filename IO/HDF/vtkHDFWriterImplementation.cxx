@@ -14,6 +14,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPointData.h"
+#include "vtkPointSet.h"
 #include "vtkPolyData.h"
 #include "vtkSetGet.h"
 #include "vtkType.h"
@@ -195,10 +196,10 @@ bool vtkHDFWriter::Implementation::CollectOffsets(hid_t group, vtkDataObject* in
 {
   if (!this->GetUseDistributedWriting())
   {
-    this->UgOffsets = {};
+    this->GeoOffsets = {};
     return true;
   }
-  UnstructuredGridOffset temporalOffsets{};
+  GeometryOffset temporalOffsets{};
   if (!this->CollectTemporalOffsets(group, temporalOffsets))
   {
     return false;
@@ -208,8 +209,7 @@ bool vtkHDFWriter::Implementation::CollectOffsets(hid_t group, vtkDataObject* in
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::CollectTemporalOffsets(
-  hid_t group, UnstructuredGridOffset& offsets)
+bool vtkHDFWriter::Implementation::CollectTemporalOffsets(hid_t group, GeometryOffset& offsets)
 {
   offsets = {};
   auto readRows = [](hid_t dataGroup, std::string_view name, vtkIdType& offset)
@@ -248,6 +248,22 @@ bool vtkHDFWriter::Implementation::CollectTemporalOffsets(
     offsets.FaceOffset -= offsets.PartOffset;
   }
 
+  // Collect polydata information
+  for (std::size_t topology = 0; topology < vtkHDFUtilities::NUM_POLY_DATA_TOPOS; ++topology)
+  {
+    const auto& name = vtkHDFUtilities::POLY_DATA_TOPOS[topology];
+    if (H5Lexists(group, name.c_str(), H5P_DEFAULT) > 0)
+    {
+      auto primitive = this->OpenExistingGroup(group, name.c_str());
+      if (!readRows(primitive, "Offsets", offsets.PrimitiveCellOffsets[topology]) ||
+        !readRows(primitive, "Connectivity", offsets.PrimitiveConnectivityOffsets[topology]))
+      {
+        return false;
+      }
+      offsets.PrimitiveCellOffsets[topology] -= offsets.PartOffset;
+    }
+  }
+
   // Field arrays: offsets should be identical, use the first array (if any) to get the offset
   for (int association : { vtkDataObject::POINT, vtkDataObject::CELL })
   {
@@ -279,27 +295,27 @@ bool vtkHDFWriter::Implementation::CollectTemporalOffsets(
 
 //------------------------------------------------------------------------------
 void vtkHDFWriter::Implementation::CollectPartitionOffsets(
-  vtkDataObject* input, const UnstructuredGridOffset& temporalOffsets)
+  vtkDataObject* input, const GeometryOffset& temporalOffsets)
 {
-  this->UgOffsets = {};
+  this->GeoOffsets = {};
 
-  // Collect local partitions
-  std::vector<vtkUnstructuredGrid*> localPartitions;
+  // Collect local partitions. vtkPointSet covers both supported types, PD and UG
+  std::vector<vtkPointSet*> localPartitions;
   auto pds = vtkPartitionedDataSet::SafeDownCast(input);
   if (pds)
   {
     localPartitions.reserve(pds->GetNumberOfPartitions());
     for (unsigned int partition = 0; partition < pds->GetNumberOfPartitions(); ++partition)
     {
-      if (auto ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartitionAsDataObject(partition)))
+      if (auto ptSet = vtkPointSet::SafeDownCast(pds->GetPartitionAsDataObject(partition)))
       {
-        localPartitions.emplace_back(ug);
+        localPartitions.emplace_back(ptSet);
       }
     }
   }
-  else if (auto ug = vtkUnstructuredGrid::SafeDownCast(input))
+  else if (auto ptSet = vtkPointSet::SafeDownCast(input))
   {
-    localPartitions.emplace_back(ug);
+    localPartitions.emplace_back(ptSet);
   }
 
   // Share number of partitions in each rank
@@ -326,27 +342,43 @@ void vtkHDFWriter::Implementation::CollectPartitionOffsets(
   }
 
   // Share size attributes using the UnstructuredGridOffset structure to store sizes
-  std::vector<UnstructuredGridOffset> localSizes(localNumberOfPartitions);
+  std::vector<GeometryOffset> localSizes(localNumberOfPartitions);
   for (vtkIdType partition = 0; partition < localNumberOfPartitions; ++partition)
   {
     localSizes[partition].PartOffset = 1;
-    auto* grid = localPartitions[partition];
-    vtkCellArray* cells = grid->GetCells();
     localSizes[partition].PointOffset = localPartitions[partition]->GetNumberOfPoints();
     localSizes[partition].CellOffset = localPartitions[partition]->GetNumberOfCells();
     localSizes[partition].PointDataOffset = localSizes[partition].PointOffset;
     localSizes[partition].CellDataOffset = localSizes[partition].CellOffset;
-    localSizes[partition].ConnectivityOffset = cells ? cells->GetNumberOfConnectivityIds() : 0;
-    auto* faces = grid->GetOrientedPolyhedronFaces();
-    auto* polyhedra = grid->GetOrientedPolyhedronFaceLocations();
-    localSizes[partition].FaceOffset = faces ? faces->GetNumberOfCells() : 0;
-    localSizes[partition].FaceConnectivityOffset = faces ? faces->GetNumberOfConnectivityIds() : 0;
-    localSizes[partition].PolyhedronToFaceOffset =
-      polyhedra ? polyhedra->GetNumberOfConnectivityIds() : 0;
+
+    if (auto* ug = vtkUnstructuredGrid::SafeDownCast(localPartitions[partition]))
+    {
+      vtkCellArray* cells = ug->GetCells();
+      localSizes[partition].ConnectivityOffset = cells ? cells->GetNumberOfConnectivityIds() : 0;
+      auto* faces = ug->GetOrientedPolyhedronFaces();
+      auto* polyhedra = ug->GetOrientedPolyhedronFaceLocations();
+      localSizes[partition].FaceOffset = faces ? faces->GetNumberOfCells() : 0;
+      localSizes[partition].FaceConnectivityOffset =
+        faces ? faces->GetNumberOfConnectivityIds() : 0;
+      localSizes[partition].PolyhedronToFaceOffset =
+        polyhedra ? polyhedra->GetNumberOfConnectivityIds() : 0;
+    }
+    else if (auto* pd = vtkPolyData::SafeDownCast(localPartitions[partition]))
+    {
+      const std::array<vtkCellArray*, 4> primitives{ pd->GetVerts(), pd->GetLines(), pd->GetPolys(),
+        pd->GetStrips() };
+      for (std::size_t topology = 0; topology < primitives.size(); ++topology)
+      {
+        localSizes[partition].PrimitiveCellOffsets[topology] =
+          primitives[topology]->GetNumberOfCells();
+        localSizes[partition].PrimitiveConnectivityOffsets[topology] =
+          primitives[topology]->GetNumberOfConnectivityIds();
+      }
+    }
   }
 
-  result.UgOffsets.resize(result.PartOffsets.back() + 1);
-  const vtkIdType recordSize = static_cast<vtkIdType>(sizeof(UnstructuredGridOffset));
+  result.GeoOffsets.resize(result.PartOffsets.back() + 1);
+  const vtkIdType recordSize = static_cast<vtkIdType>(sizeof(GeometryOffset));
   std::vector<vtkIdType> receiveLengths(numRanks);
   std::vector<vtkIdType> receiveOffsets(numRanks);
   for (int rank = 0; rank < numRanks; ++rank)
@@ -354,16 +386,16 @@ void vtkHDFWriter::Implementation::CollectPartitionOffsets(
     receiveLengths[rank] = recordSize * numberOfPartitions[rank];
     receiveOffsets[rank] = recordSize * result.PartOffsets[rank];
   }
-  controller->GetCommunicator()->AllGatherVVoidArray(localSizes.data(), result.UgOffsets.data(),
+  controller->GetCommunicator()->AllGatherVVoidArray(localSizes.data(), result.GeoOffsets.data(),
     recordSize * localNumberOfPartitions, receiveLengths.data(), receiveOffsets.data(),
     VTK_UNSIGNED_CHAR);
 
   // Add partition sizes to the temporal base
-  UnstructuredGridOffset current = temporalOffsets;
-  for (std::size_t partition = 0; partition + 1 < result.UgOffsets.size(); ++partition)
+  GeometryOffset current = temporalOffsets;
+  for (std::size_t partition = 0; partition + 1 < result.GeoOffsets.size(); ++partition)
   {
-    const auto sizes = result.UgOffsets[partition];
-    result.UgOffsets[partition] = current;
+    const auto sizes = result.GeoOffsets[partition];
+    result.GeoOffsets[partition] = current;
     current.PartOffset += sizes.PartOffset;
     current.PointOffset += sizes.PointOffset;
     current.CellOffset += sizes.CellOffset;
@@ -373,11 +405,17 @@ void vtkHDFWriter::Implementation::CollectPartitionOffsets(
     current.FaceOffset += sizes.FaceOffset;
     current.FaceConnectivityOffset += sizes.FaceConnectivityOffset;
     current.PolyhedronToFaceOffset += sizes.PolyhedronToFaceOffset;
+    for (std::size_t topology = 0; topology < current.PrimitiveCellOffsets.size(); ++topology)
+    {
+      current.PrimitiveCellOffsets[topology] += sizes.PrimitiveCellOffsets[topology];
+      current.PrimitiveConnectivityOffsets[topology] +=
+        sizes.PrimitiveConnectivityOffsets[topology];
+    }
   }
-  result.UgOffsets.back() = current;
-  this->UgOffsets = std::move(result);
+  result.GeoOffsets.back() = current;
+  this->GeoOffsets = std::move(result);
 
-  this->PrintOffsetInformation(this->UgOffsets);
+  this->PrintOffsetInformation(this->GeoOffsets);
 }
 
 void vtkHDFWriter::Implementation::PrintOffsetInformation(PartitionedOffsets& offsets)
@@ -389,18 +427,26 @@ void vtkHDFWriter::Implementation::PrintOffsetInformation(PartitionedOffsets& of
   for (std::size_t i = 0; i < offsets.PartOffsets.size(); ++i)
   {
     vtkDebugWithObjectMacro(
-      this->Writer, "PartOffset[" << i << "]" << " =" << offsets.PartOffsets[i]);
+      this->Writer, "PartOffset[" << i << "]" << "=" << offsets.PartOffsets[i]);
   }
-  for (std::size_t i = 0; i < offsets.UgOffsets.size(); ++i)
+  for (std::size_t i = 0; i < offsets.GeoOffsets.size(); ++i)
   {
-    [[maybe_unused]] const auto& o = offsets.UgOffsets[i];
+    [[maybe_unused]] const auto& o = offsets.GeoOffsets[i];
     vtkDebugWithObjectMacro(this->Writer,
-      "UnstructuredGridOffset[" << i << "]"
-                                << " Part=" << o.PartOffset << " Point=" << o.PointOffset
-                                << " Cell=" << o.CellOffset << " Connectivity="
-                                << o.ConnectivityOffset << " Face=" << o.FaceOffset
-                                << " FaceConnectivity=" << o.FaceConnectivityOffset
-                                << " PolyhedronToFace=" << o.PolyhedronToFaceOffset);
+      "GeoOffset[" << i << "]"
+                   << " Part=" << o.PartOffset << " Point=" << o.PointOffset
+                   << " Cell=" << o.CellOffset << " PointData=" << o.PointDataOffset
+                   << " CellData=" << o.CellDataOffset << " Connectivity=" << o.ConnectivityOffset
+                   << " Face=" << o.FaceOffset << " FaceConnectivity=" << o.FaceConnectivityOffset
+                   << " PolyhedronToFace=" << o.PolyhedronToFaceOffset
+                   << " Vertex=" << o.PrimitiveCellOffsets.at(0)
+                   << " VertexConnectivity=" << o.PrimitiveConnectivityOffsets.at(0)
+                   << " Lines=" << o.PrimitiveCellOffsets.at(1)
+                   << " LinesConnectivity=" << o.PrimitiveConnectivityOffsets.at(1)
+                   << " Polygons=" << o.PrimitiveCellOffsets.at(2)
+                   << " PolygonsConnectivity=" << o.PrimitiveConnectivityOffsets.at(2)
+                   << " Strips=" << o.PrimitiveCellOffsets.at(3)
+                   << " StripsConnectivity=" << o.PrimitiveConnectivityOffsets.at(3));
   }
 }
 
@@ -409,136 +455,198 @@ vtkSmartPointer<vtkDataObject> vtkHDFWriter::Implementation::CreateEmptyPartitio
   vtkSmartPointer<vtkDataObject> input)
 {
   auto* controller = this->Writer->GetController();
-  const int numParts = controller ? controller->GetNumberOfProcesses() : 1;
-  const int localPart = controller ? controller->GetLocalProcessId() : 0;
-
-  // Find the rank with the first non null part
+  const int numParts = controller->GetNumberOfProcesses();
+  const int localPart = controller->GetLocalProcessId();
   auto* pointSet = vtkPointSet::SafeDownCast(input);
-  const bool emptyInput = pointSet && pointSet->GetNumberOfPoints() == 0;
-  const int nonNullPart = input && !emptyInput ? localPart : numParts;
+  int nonNullPart = pointSet && pointSet->GetNumberOfPoints() > 0 ? localPart : numParts;
   int referenceRank = 0;
-  controller->AllReduce(&nonNullPart, &referenceRank, 1, vtkCommunicator::MAX_OP);
-  if (referenceRank < numParts)
-  {
-    // All parts are non null, exit early
-    return input;
-  }
   controller->AllReduce(&nonNullPart, &referenceRank, 1, vtkCommunicator::MIN_OP);
   if (referenceRank == numParts)
   {
-    // No non-null part
-    return input;
-  }
-
-  auto clearGeometry = [](vtkPointSet* empty)
-  {
-    empty->GetPoints()->SetNumberOfPoints(0);
-    if (auto* grid = vtkUnstructuredGrid::SafeDownCast(empty))
+    // No parts have no null points, fall back on finding the non-nullptr part
+    nonNullPart = pointSet ? localPart : numParts;
+    controller->AllReduce(&nonNullPart, &referenceRank, 1, vtkCommunicator::MIN_OP);
+    if (referenceRank == numParts)
     {
-      vtkNew<vtkCellArray> cells;
-      vtkNew<vtkUnsignedCharArray> types;
-      grid->SetCells(types, cells);
-    }
-    else if (auto* polyData = vtkPolyData::SafeDownCast(empty))
-    {
-      vtkNew<vtkCellArray> cells;
-      polyData->SetVerts(cells);
-      polyData->SetLines(cells);
-      polyData->SetPolys(cells);
-      polyData->SetStrips(cells);
-    }
-    for (int association : { vtkDataObject::POINT, vtkDataObject::CELL })
-    {
-      auto* attributes = empty->GetAttributes(association);
-      for (int array = 0; array < attributes->GetNumberOfArrays(); ++array)
-      {
-        attributes->GetAbstractArray(array)->SetNumberOfTuples(0);
-      }
-    }
-  };
-
-  // Share data type
-  int dataType = 0;
-  if (localPart == referenceRank)
-  {
-    dataType = input->GetDataObjectType();
-  }
-  controller->GetCommunicator()->Broadcast(&dataType, 1, referenceRank);
-
-  // Create an empty data object from the non empty rank
-  if (dataType == VTK_UNSTRUCTURED_GRID)
-  {
-    auto empty = vtkSmartPointer<vtkUnstructuredGrid>::New();
-
-    if (localPart == referenceRank)
-    {
-      // Copy UnstructuredGrid properties and arrays
-      auto* inputUG = vtkUnstructuredGrid::SafeDownCast(input);
-      vtkNew<vtkPoints> points;
-      if (inputUG->GetPoints())
-      {
-        points->SetDataType(inputUG->GetPoints()->GetDataType());
-      }
-      empty->SetPoints(points);
-      points->InsertNextPoint(0, 0, 0);
-      vtkNew<vtkCellArray> cells;
-      vtkNew<vtkUnsignedCharArray> types;
-      const vtkIdType pointId = 0;
-      cells->InsertNextCell(1, &pointId);
-      types->InsertNextValue(VTK_VERTEX);
-      empty->SetCells(types, cells);
-
-      ::CopyAttributeSchema(inputUG->GetPointData(), empty->GetPointData());
-      ::CopyAttributeSchema(inputUG->GetCellData(), empty->GetCellData());
-      ::CopyAttributeSchema(inputUG->GetFieldData(), empty->GetFieldData());
-    }
-    controller->GetCommunicator()->Broadcast(empty, referenceRank);
-    if (input && !emptyInput)
-    {
+      // No non-null parts
       return input;
     }
-    if (emptyInput)
-    {
-      clearGeometry(empty);
-    }
-    return empty;
-  }
-  if (dataType == VTK_POLY_DATA)
-  {
-    auto empty = vtkSmartPointer<vtkPolyData>::New();
-    if (localPart == referenceRank)
-    {
-      auto* source = vtkPolyData::SafeDownCast(input);
-      vtkNew<vtkPoints> points;
-      if (source->GetPoints())
-      {
-        points->SetDataType(source->GetPoints()->GetDataType());
-      }
-      points->InsertNextPoint(0, 0, 0);
-      empty->SetPoints(points);
-      vtkNew<vtkCellArray> vertices;
-      const vtkIdType point = 0;
-      vertices->InsertNextCell(1, &point);
-      empty->SetVerts(vertices);
-      for (int association : { vtkDataObject::POINT, vtkDataObject::CELL })
-      {
-        ::CopyAttributeSchema(
-          source->GetAttributes(association), empty->GetAttributes(association));
-      }
-    }
-    controller->GetCommunicator()->Broadcast(empty, referenceRank);
-    if (input && !emptyInput)
-    {
-      return input;
-    }
-    if (emptyInput)
-    {
-      clearGeometry(empty);
-    }
-    return empty;
   }
 
-  return nullptr;
+  int dataType = pointSet ? pointSet->GetDataObjectType() : -1;
+  controller->Broadcast(&dataType, 1, referenceRank);
+
+  // Exchange schemas with one dummy value  so it is sent properly
+  vtkNew<vtkUnstructuredGrid> localSchema;
+  vtkNew<vtkPoints> points;
+  if (pointSet && pointSet->GetPoints())
+  {
+    points->SetDataType(pointSet->GetPoints()->GetDataType());
+  }
+  points->InsertNextPoint(0, 0, 0);
+  localSchema->SetPoints(points);
+  localSchema->Allocate(1);
+  const vtkIdType point = 0;
+  localSchema->InsertNextCell(VTK_VERTEX, 1, &point);
+  if (pointSet)
+  {
+    ::CopyAttributeSchema(pointSet->GetPointData(), localSchema->GetPointData());
+    ::CopyAttributeSchema(pointSet->GetCellData(), localSchema->GetCellData());
+  }
+  std::vector<vtkSmartPointer<vtkDataObject>> schemas;
+  if (!controller->GetCommunicator()->AllGather(localSchema, schemas))
+  {
+    vtkErrorWithObjectMacro(this->Writer, "Could not synchronize point/cell array names");
+    return nullptr;
+  }
+
+  vtkSmartPointer<vtkPointSet> partition = pointSet;
+  if (!partition)
+  {
+    if (dataType == VTK_UNSTRUCTURED_GRID)
+    {
+      partition = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    }
+    else if (dataType == VTK_POLY_DATA)
+    {
+      partition = vtkSmartPointer<vtkPolyData>::New();
+    }
+    else
+    {
+      return nullptr;
+    }
+    vtkNew<vtkPoints> emptyPoints;
+    emptyPoints->SetDataType(
+      vtkPointSet::SafeDownCast(schemas[referenceRank])->GetPoints()->GetDataType());
+    partition->SetPoints(emptyPoints);
+  }
+  vtkSmartPointer<vtkPointSet> normalized = partition;
+  for (int association : { vtkDataObject::POINT, vtkDataObject::CELL })
+  {
+    std::map<std::string, vtkSmartPointer<vtkAbstractArray>> arraysByName;
+    std::map<int, std::string> activeNames;
+    for (const auto& schema : schemas)
+    {
+      auto* attributes = schema->GetAttributes(association);
+      for (int index = 0; index < attributes->GetNumberOfArrays(); ++index)
+      {
+        auto* array = attributes->GetAbstractArray(index);
+        if (array->GetName())
+        {
+          arraysByName.emplace(array->GetName(), array);
+          const int role = attributes->IsArrayAnAttribute(index);
+          if (role >= 0)
+          {
+            activeNames.emplace(role, array->GetName());
+          }
+        }
+      }
+    }
+
+    auto* source = partition->GetAttributes(association);
+    bool needsNormalization =
+      static_cast<std::size_t>(source->GetNumberOfArrays()) != arraysByName.size();
+    int index = 0;
+    for (const auto& entry : arraysByName)
+    {
+      const char* localName = source->GetArrayName(index++);
+      needsNormalization |= !localName || entry.first != localName;
+    }
+    for (const auto& active : activeNames)
+    {
+      auto* attribute = source->GetAbstractAttribute(active.first);
+      needsNormalization |=
+        !attribute || !attribute->GetName() || active.second != attribute->GetName();
+    }
+    if (!needsNormalization)
+    {
+      continue;
+    }
+    if (normalized == partition)
+    {
+      normalized.TakeReference(partition->NewInstance());
+      normalized->ShallowCopy(partition);
+    }
+    auto* destination = normalized->GetAttributes(association);
+    destination->Initialize();
+    const vtkIdType tuples = association == vtkDataObject::POINT ? partition->GetNumberOfPoints()
+                                                                 : partition->GetNumberOfCells();
+    for (const auto& entry : arraysByName)
+    {
+      vtkSmartPointer<vtkAbstractArray> array = source->GetAbstractArray(entry.first.c_str());
+      if (!array)
+      {
+        array.TakeReference(entry.second->NewInstance());
+        array->SetName(entry.first.c_str());
+        array->SetNumberOfComponents(entry.second->GetNumberOfComponents());
+        array->SetNumberOfTuples(tuples);
+        if (auto* numeric = vtkDataArray::SafeDownCast(array))
+        {
+          numeric->Fill(0);
+        }
+      }
+      destination->AddArray(array);
+    }
+    for (const auto& active : activeNames)
+    {
+      destination->SetActiveAttribute(active.second.c_str(), active.first);
+    }
+  }
+  return normalized;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::CollectSubfileAttributes(hid_t group, vtkDataObject* data)
+{
+  const std::string basePath = this->GetGroupName(group);
+  for (int association : { vtkDataObject::POINT, vtkDataObject::CELL })
+  {
+    const std::string attributePath = basePath + "/" +
+      std::string(association == vtkDataObject::POINT ? PATH::POINT_DATA : PATH::CELL_DATA);
+    auto* attributes = data->GetAttributes(association);
+    for (const auto& file : this->Subfiles)
+    {
+      if (!this->DatasetAndGroupExist(attributePath, file))
+      {
+        continue;
+      }
+      auto sourceGroup = this->OpenExistingGroup(file, attributePath.c_str());
+      const std::map<int, hid_t> groups{ { association, sourceGroup } };
+      for (const auto& name : vtkHDFUtilities::GetArrayNames(groups, association))
+      {
+        if (attributes->GetAbstractArray(name.c_str()))
+        {
+          continue;
+        }
+        auto array = vtk::TakeSmartPointer(
+          vtkHDFUtilities::NewArrayForGroup(sourceGroup, name.c_str(), { 0, 0 }));
+        if (!array)
+        {
+          return false;
+        }
+        array->SetName(name.c_str());
+        attributes->AddArray(array);
+        auto source = this->OpenDataset(sourceGroup, name.c_str());
+        if (H5Aexists(source, "Attribute") > 0)
+        {
+          std::string role;
+          if (!vtkHDFUtilities::GetStringAttribute(source, "Attribute", role))
+          {
+            return false;
+          }
+          for (int attribute = 0; attribute < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attribute)
+          {
+            if (role == vtkDataSetAttributes::GetAttributeTypeAsString(attribute))
+            {
+              attributes->SetActiveAttribute(name.c_str(), attribute);
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -1128,20 +1236,20 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateAndAllocateDataSet(h
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::IsMissingPartition(unsigned int partId) const
 {
-  if (!this->GetUseDistributedWriting() || this->UgOffsets.PartOffsets.empty())
+  if (!this->GetUseDistributedWriting() || this->GeoOffsets.PartOffsets.empty())
   {
     return false;
   }
   const int rank = this->Writer->CurrentPiece;
   const vtkIdType currentRankNumParts =
-    this->UgOffsets.PartOffsets[rank + 1] - this->UgOffsets.PartOffsets[rank];
+    this->GeoOffsets.PartOffsets[rank + 1] - this->GeoOffsets.PartOffsets[rank];
   return static_cast<vtkIdType>(partId) >= currentRankNumParts;
 }
 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::UsesDistributedOffsets(const std::string& path)
 {
-  const auto& parts = this->UgOffsets.PartOffsets;
+  const auto& parts = this->GeoOffsets.PartOffsets;
   if (!this->GetUseDistributedWriting() || PATH::ContainsAny(path, { PATH::STEPS }) ||
     parts.empty() || parts.back() == parts.front())
   {
@@ -1169,7 +1277,7 @@ hsize_t vtkHDFWriter::Implementation::GetDatasetWriteOffset(
     const hsize_t rows = trim ? 1 : localRows;
     return extent[0] >= rows ? extent[0] - rows : H5S_UNLIMITED;
   }
-  const auto& parts = this->UgOffsets.PartOffsets;
+  const auto& parts = this->GeoOffsets.PartOffsets;
   const int rank = this->Writer->CurrentPiece;
   if (rank < 0 || static_cast<std::size_t>(rank) + 1 >= parts.size() ||
     static_cast<vtkIdType>(partId) >= parts[rank + 1] - parts[rank])
@@ -1284,21 +1392,28 @@ bool vtkHDFWriter::Implementation::AddStepsRow(hid_t group, unsigned int partId,
   if (std::string(name) == "NumberOfParts")
   {
     // Special case for NumberOfParts: use the part count from collected offsets
-    globalValues[0] = this->UgOffsets.PartOffsets.back() - this->UgOffsets.PartOffsets.front();
+    globalValues[0] = this->GeoOffsets.PartOffsets.back() - this->GeoOffsets.PartOffsets.front();
   }
 
-  if (!this->InitDynamicDataset(group, name, H5T_STD_I64LE, 0, { SMALL_CHUNK }))
+  std::vector<hsize_t> dimensions{ 0 };
+  std::vector<hsize_t> chunks{ SMALL_CHUNK };
+  if (values.size() > 1)
+  {
+    dimensions.push_back(values.size());
+    chunks.push_back(values.size());
+  }
+  if (!this->InitDynamicDataset(group, name, H5T_STD_I64LE, dimensions, chunks))
   {
     return false;
   }
   auto dataset = this->OpenDataset(group, name);
   const hsize_t current = this->GetDataSetSize(group, name);
-  const hsize_t rows = current + (trim ? 0 : 1);
-  if (rows != current && H5Dset_extent(dataset, &rows) < 0)
+  dimensions[0] = current + (trim ? 0 : 1);
+  if (dimensions[0] != current && H5Dset_extent(dataset, dimensions.data()) < 0)
   {
     return false;
   }
-  return this->WriteOneRowDataset(dataset, globalValues, rows - 1, offset, trim);
+  return this->WriteOneRowDataset(dataset, globalValues, dimensions[0] - 1, offset, trim);
 }
 
 //------------------------------------------------------------------------------
@@ -1713,7 +1828,13 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
         // Skip datasets not present everywhere
         if (!this->DatasetAndGroupExist(datasetPath, this->Subfiles[file]))
         {
-          if (name == PATH::OFFSETS || (padEmptyPolyhedronParts && !isStaticMesh))
+          if (PATH::ContainsAny(groupPath, { PATH::POINT_DATA, PATH::CELL_DATA }))
+          {
+            // Unmapped regions use HDF5's zero fill, but still occupy the
+            // partition's full point/cell extent in the destination.
+            mappingOffset += this->GetSubfileFieldSize(datasetPath, file, partOffset + part, 1);
+          }
+          else if (name == PATH::OFFSETS || (padEmptyPolyhedronParts && !isStaticMesh))
           {
             mappingOffset++; // Offset by 1 the next offset, because even for 0 cells, we need 1
                              // offset value.
@@ -1996,13 +2117,47 @@ bool vtkHDFWriter::Implementation::WriteSumSteps(hid_t group, const char* name)
   {
     return false;
   }
+  const std::string basePath = PATH::GetBasePath(this->GetGroupName(group));
+  const std::string namePath(name);
+  bool paddedAttributes = this->Writer->NbPieces > 1 &&
+    (namePath.find(std::string(PATH::POINT_DATA) + "Offsets/") == 0 ||
+      namePath.find(std::string(PATH::CELL_DATA) + "Offsets/") == 0);
+  if (paddedAttributes)
+  {
+    int type = -1;
+    auto representative = this->GetSubfileNonNullPart(basePath, type);
+    paddedAttributes =
+      representative != H5I_INVALID_HID && (type == VTK_UNSTRUCTURED_GRID || type == VTK_POLY_DATA);
+  }
+  vtkIdType attributeOffset = 0;
   for (int step = 0; step < this->Writer->NumberOfTimeSteps; step++)
   {
     vtkIdType totalForTimeStep = 0;
     for (std::size_t file = 0; file < this->Subfiles.size(); file++)
     {
-      totalForTimeStep += this->GetSubfileNumberOf(PATH::GetBasePath(this->GetGroupName(group)),
-        std::string(PATH::STEPS) + "/" + name, file, step);
+      if (paddedAttributes)
+      {
+        if (step > 0 &&
+          this->DatasetAndGroupExist(
+            basePath + "/" + std::string(PATH::STEPS_PART_OFFSETS), this->Subfiles[file]))
+        {
+          const hsize_t partOffset =
+            this->GetSubfileNumberOf(basePath, PATH::STEPS_PART_OFFSETS, file, step - 1);
+          const hsize_t parts =
+            this->GetSubfileNumberOf(basePath, PATH::STEPS_NUMBER_OF_PARTS, file, step - 1);
+          attributeOffset +=
+            this->GetSubfileFieldSize(basePath + "/" + namePath, file, partOffset, parts);
+        }
+      }
+      else
+      {
+        totalForTimeStep +=
+          this->GetSubfileNumberOf(basePath, std::string(PATH::STEPS) + "/" + name, file, step);
+      }
+    }
+    if (paddedAttributes)
+    {
+      totalForTimeStep = attributeOffset;
     }
 
     if (!this->WriteOneRowDataset(dataset, { totalForTimeStep }, step, false, false))
@@ -2245,15 +2400,59 @@ bool vtkHDFWriter::Implementation::DatasetAndGroupExist(const std::string& datas
 }
 
 //------------------------------------------------------------------------------
+hsize_t vtkHDFWriter::Implementation::GetSubfileFieldSize(
+  const std::string& datasetPath, std::size_t file, hsize_t partOffset, hsize_t parts)
+{
+  const std::string basePath = PATH::GetBasePath(datasetPath);
+  if (!this->DatasetAndGroupExist(
+        basePath + "/" + std::string(PATH::NUMBER_OF_POINTS), this->Subfiles[file]))
+  {
+    return 0;
+  }
+  const bool pointData = PATH::ContainsAny(datasetPath, { PATH::POINT_DATA });
+  int type = -1;
+  auto sourceGroup = this->OpenExistingGroup(this->Subfiles[file], basePath.c_str());
+  if (!vtkHDFUtilities::ReadDataSetType(sourceGroup, type))
+  {
+    return 0;
+  }
+  hsize_t tuples = 0;
+  for (hsize_t part = 0; part < parts; ++part)
+  {
+    tuples += pointData
+      ? this->GetSubfileNumberOf(basePath, PATH::NUMBER_OF_POINTS, file, partOffset + part)
+      : this->GetNumberOfCellsSubfile(
+          basePath, file, partOffset + part, type == VTK_POLY_DATA, datasetPath);
+  }
+  return tuples;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::GetSubFilesDatasetSize(const std::string& datasetPath,
   const std::string& groupName, hsize_t& totalSize, const std::string& fallbackPath)
 {
   totalSize = 0;
-  for (auto& fileRoot : this->Subfiles)
+  for (std::size_t file = 0; file < this->Subfiles.size(); ++file)
   {
+    const auto& fileRoot = this->Subfiles[file];
     if (H5Lexists(fileRoot, groupName.c_str(), H5P_DEFAULT) <= 0 ||
       H5Lexists(fileRoot, datasetPath.c_str(), H5P_DEFAULT) <= 0)
     {
+      if (PATH::ContainsAny(groupName, { PATH::POINT_DATA, PATH::CELL_DATA }))
+      {
+        const std::string pointsPath =
+          PATH::GetBasePath(groupName) + "/" + std::string(PATH::NUMBER_OF_POINTS);
+        if (this->DatasetAndGroupExist(pointsPath, fileRoot))
+        {
+          const auto dimensions = vtkHDFUtilities::GetDimensions(fileRoot, pointsPath.c_str());
+          if (dimensions.empty())
+          {
+            return false;
+          }
+          totalSize += this->GetSubfileFieldSize(datasetPath, file, 0, dimensions[0]);
+        }
+        continue;
+      }
       if (!fallbackPath.empty() && this->DatasetAndGroupExist(fallbackPath, fileRoot))
       {
         const auto dimensions = vtkHDFUtilities::GetDimensions(fileRoot, fallbackPath.c_str());
@@ -2328,41 +2527,59 @@ hsize_t vtkHDFWriter::Implementation::GetDatasetValueOffset(
   {
     case IndexingMode::Points:
       offset = PATH::ContainsAny(datasetPath, { PATH::POINT_DATA })
-        ? this->UgOffsets.UgOffsets[partition].PointDataOffset
-        : this->UgOffsets.UgOffsets[partition].PointOffset;
+        ? this->GeoOffsets.GeoOffsets[partition].PointDataOffset
+        : this->GeoOffsets.GeoOffsets[partition].PointOffset;
       break;
     case IndexingMode::Cells:
     {
       offset = PATH::ContainsAny(datasetPath, { PATH::CELL_DATA })
-        ? this->UgOffsets.UgOffsets[partition].CellDataOffset
-        : this->UgOffsets.UgOffsets[partition].CellOffset;
+        ? this->GeoOffsets.GeoOffsets[partition].CellDataOffset
+        : this->GeoOffsets.GeoOffsets[partition].CellOffset;
+      for (std::size_t topology = 0; topology < vtkHDFUtilities::NUM_POLY_DATA_TOPOS; ++topology)
+      {
+        if (datasetPath.find("/" + vtkHDFUtilities::POLY_DATA_TOPOS[topology] + "/") !=
+          std::string::npos)
+        {
+          offset = this->GeoOffsets.GeoOffsets[partition].PrimitiveCellOffsets[topology];
+          break;
+        }
+      }
       // 'Offset' dataset has size (nCells + nPart)
       const std::size_t lastSlash = datasetPath.find_last_of('/');
       if (lastSlash != std::string::npos && datasetPath.substr(lastSlash + 1) == PATH::OFFSETS)
       {
-        offset += this->UgOffsets.UgOffsets[partition].PartOffset;
+        offset += this->GeoOffsets.GeoOffsets[partition].PartOffset;
       }
       break;
     }
     case IndexingMode::Connectivity:
-      offset = this->UgOffsets.UgOffsets[partition].ConnectivityOffset;
+      offset = this->GeoOffsets.GeoOffsets[partition].ConnectivityOffset;
+      for (std::size_t topology = 0; topology < vtkHDFUtilities::NUM_POLY_DATA_TOPOS; ++topology)
+      {
+        if (datasetPath.find("/" + vtkHDFUtilities::POLY_DATA_TOPOS[topology] + "/") !=
+          std::string::npos)
+        {
+          offset = this->GeoOffsets.GeoOffsets[partition].PrimitiveConnectivityOffsets[topology];
+          break;
+        }
+      }
       break;
     case IndexingMode::FaceConnectivity:
-      offset = this->UgOffsets.UgOffsets[partition].FaceConnectivityOffset;
+      offset = this->GeoOffsets.GeoOffsets[partition].FaceConnectivityOffset;
       break;
     case IndexingMode::FaceOffsets:
-      offset = this->UgOffsets.UgOffsets[partition].FaceOffset +
-        this->UgOffsets.UgOffsets[partition].PartOffset;
+      offset = this->GeoOffsets.GeoOffsets[partition].FaceOffset +
+        this->GeoOffsets.GeoOffsets[partition].PartOffset;
       break;
     case IndexingMode::PolyhedronToFaces:
-      offset = this->UgOffsets.UgOffsets[partition].PolyhedronToFaceOffset;
+      offset = this->GeoOffsets.GeoOffsets[partition].PolyhedronToFaceOffset;
       break;
     case IndexingMode::PolyhedronOffsets:
-      offset = this->UgOffsets.UgOffsets[partition].CellOffset +
-        this->UgOffsets.UgOffsets[partition].PartOffset;
+      offset = this->GeoOffsets.GeoOffsets[partition].CellOffset +
+        this->GeoOffsets.GeoOffsets[partition].PartOffset;
       break;
     case IndexingMode::MetaData:
-      offset = this->UgOffsets.UgOffsets[partition].PartOffset;
+      offset = this->GeoOffsets.GeoOffsets[partition].PartOffset;
       break;
     default:
       vtkErrorWithObjectMacro(this->Writer,
@@ -2381,7 +2598,7 @@ hsize_t vtkHDFWriter::Implementation::GetDatasetValueOffset(
 hsize_t vtkHDFWriter::Implementation::GetDistributedDatasetSize(const std::string& datasetPath)
 {
   const IndexingMode indexMode = this->GetDatasetIndexationMode(datasetPath);
-  size_t partition = this->UgOffsets.PartOffsets.back() - this->UgOffsets.PartOffsets.front();
+  size_t partition = this->GeoOffsets.PartOffsets.back() - this->GeoOffsets.PartOffsets.front();
   const hsize_t datasetSize = this->GetDatasetValueOffset(partition, datasetPath, indexMode);
   vtkDebugWithObjectMacro(
     this->Writer, << "Dataset " << datasetPath << " has size: " << datasetSize);

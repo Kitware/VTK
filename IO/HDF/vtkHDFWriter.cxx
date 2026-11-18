@@ -181,7 +181,9 @@ std::vector<::PolyDataTopos> GetCellArraysForTopos(vtkPolyData* polydata)
  */
 bool IsDistributedSingleFileSupported(vtkDataObject* input, vtkMultiProcessController* controller)
 {
-  int supported = !input || vtkUnstructuredGrid::SafeDownCast(input);
+  auto isSupportedType = [](vtkDataObject* obj)
+  { return vtkUnstructuredGrid::SafeDownCast(obj) || vtkPolyData::SafeDownCast(obj); };
+  int supported = !input || isSupportedType(input);
   int hasInput = input != nullptr;
   if (auto* tree = vtkDataObjectTree::SafeDownCast(input))
   {
@@ -194,7 +196,7 @@ bool IsDistributedSingleFileSupported(vtkDataObject* input, vtkMultiProcessContr
     for (iterator->InitTraversal(); !iterator->IsDoneWithTraversal(); iterator->GoToNextItem())
     {
       hasInput = 1;
-      if (!vtkUnstructuredGrid::SafeDownCast(iterator->GetCurrentDataObject()))
+      if (!isSupportedType(iterator->GetCurrentDataObject()))
       {
         supported = 0;
         break;
@@ -392,13 +394,15 @@ bool vtkHDFWriter::WriteDataAndReturn()
     this->SetUseExternalPartitions(false);
   }
 
-  // For now, distributed writing is only available for (partitioned) UnstructuredGrid.
+  // For now, distributed writing is only available for (partitioned) UnstructuredGrid/PolyData.
   // And is not compatible with other external files options.
   // Other distributed inputs use external files.
   bool singleFileEnabled = !this->UseExternalDistributed && !this->UseExternalPartitions &&
     !this->UseExternalComposite && !this->UseExternalTimeSteps && this->NbPieces > 1;
   this->Impl->SetUseDistributedWriting(
     singleFileEnabled && ::IsDistributedSingleFileSupported(input, this->Controller));
+  vtkDebugMacro(<< "Using single file distributed mode? "
+                << (this->Impl->GetUseDistributedWriting() ? "yes" : "no"));
 
   // Root file group only needs to be opened for the first timestep
   if (this->CurrentTimeIndex == 0)
@@ -690,7 +694,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkStructuredGrid* input, uns
 {
   if (this->CurrentTimeIndex == 0 && partId == 0 && !this->InitializeTemporalStructuredGrid(group))
   {
-    vtkErrorMacro(<< "Temporal polydata initialization failed for RectilinearGrid "
+    vtkErrorMacro(<< "Temporal structured grid initialization failed for RectilinearGrid "
                   << this->FileName);
   }
 
@@ -1370,7 +1374,9 @@ bool vtkHDFWriter::UpdateStepsGroup(hid_t group, vtkPolyData* input, unsigned in
   const std::vector<vtkIdType> numCellsByTopo = { input->GetNumberOfVerts(),
     input->GetNumberOfLines(), input->GetNumberOfPolys(), input->GetNumberOfStrips() };
 
-  if (this->CurrentTimeIndex > 0 && !this->HasGeometryChangedFromPreviousStep(input))
+  bool staticMesh = this->CurrentTimeIndex > 0 && !this->HasGeometryChangedFromPreviousStep(input);
+  vtkDebugMacro(<< "Using static mesh PD? " << (staticMesh ? "yes" : "no"));
+  if (staticMesh)
   {
     // When dealing with a static mesh, points & cells from current step have not been written,
     // so we subtract current number of points/cells/etc. from last offset value to nullify the
@@ -2010,6 +2016,30 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input, unsig
 bool vtkHDFWriter::AppendDataSetAttributes(hid_t baseGroup, vtkDataObject* input,
   unsigned int partId, vtkIdList* cellIdMap, const std::vector<int>& dims)
 {
+  // Make sure that all ranks/subfiles have the same arrays to avoid possible desync
+  vtkSmartPointer<vtkDataObject> synchronizedInput;
+  bool isUnstructured =
+    vtkUnstructuredGrid::SafeDownCast(input) || vtkPolyData::SafeDownCast(input);
+  if (this->Impl->GetSubFilesReady() && isUnstructured)
+  {
+    synchronizedInput.TakeReference(input->NewInstance());
+    synchronizedInput->ShallowCopy(input);
+    if (!this->Impl->CollectSubfileAttributes(baseGroup, synchronizedInput))
+    {
+      return false;
+    }
+    input = synchronizedInput;
+  }
+  else if (this->Impl->GetUseDistributedWriting() && isUnstructured)
+  {
+    synchronizedInput = this->Impl->CreateEmptyPartition(input);
+    if (!synchronizedInput)
+    {
+      return false;
+    }
+    input = synchronizedInput;
+  }
+
   constexpr std::array<int, 3> attributeTypes = { vtkDataObject::AttributeTypes::POINT,
     vtkDataObject::AttributeTypes::CELL, vtkDataObject::AttributeTypes::ROW };
   constexpr std::array<const char*, 3> groupNames = { "PointData", "CellData", "RowData" };
@@ -2284,7 +2314,7 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
       datasetGroup = this->Impl->CreateHdfGroup(group, currentName.c_str());
       if (!this->UseExternalDistributed && !this->Impl->GetSubFilesReady())
       {
-        if (!this->Impl->CollectOffsets(this->Impl->GetRoot(), currentBlock))
+        if (!this->Impl->CollectOffsets(datasetGroup, currentBlock))
         {
           return false;
         }
