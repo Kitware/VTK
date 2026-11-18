@@ -35,11 +35,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Ensure the right type of ANARICamera object is being held.
+   * Find the ANARI scene graph and device.
    */
   void Build(bool prepass) override;
   /**
-   * Sync ANARICamera parameters with vtkCamera.
+   * Sync ANARILight parameters with vtkLight, retaining the handle for the same subtype.
    */
   void Synchronize(bool prepass) override;
   /**

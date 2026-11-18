@@ -46,6 +46,11 @@ public:
    */
   vtkGetObjectMacro(AnariRenderer, vtkAnariRenderer);
 
+  /**
+   * Return the scene graph, or nullptr before the first render.
+   */
+  virtual vtkAnariSceneGraph* GetSceneGraph();
+
   ///@{
   /**
    * If true, the ANARI device will be wrapped to a debug layer, giving validation info about

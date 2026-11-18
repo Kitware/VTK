@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAnariLightNode.h"
 
-#include "vtkAnariCameraNode.h"
 #include "vtkAnariDevice.h"
 #include "vtkAnariProfiling.h"
 #include "vtkAnariSceneGraph.h"
@@ -13,17 +12,20 @@
 #include "vtkInformationDoubleKey.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
+#include "vtkWeakPointer.h"
 
 #include <anari/anari_cpp.hpp>
 #include <anari/anari_cpp/ext/std.h>
 
 #include <algorithm>
 #include <cmath>
+#include <string>
 #include <type_traits>
 #include <vector>
 
@@ -33,6 +35,20 @@ VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
+
+vtkMTimeType GetLightTime(vtkLight* light)
+{
+  auto mtime = light->GetMTime();
+  if (auto* info = light->GetInformation())
+  {
+    mtime = std::max(mtime, info->GetMTime());
+  }
+  if (auto* transform = light->GetTransformMatrix())
+  {
+    mtime = std::max(mtime, transform->GetMTime());
+  }
+  return mtime;
+}
 
 // The ANARI 1.0 specification's KHR_AREA_LIGHTS extension for light visibility was removed in
 // ANARI 1.1.
@@ -47,18 +63,6 @@ struct AnariHasPrimaryVisibility<ExtensionsT,
   : std::true_type
 {
 };
-
-// Modification time of the camera a light may be positioned against.
-vtkMTimeType GetRendererCameraTime(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return 0;
-  }
-
-  vtkCamera* camera = renderer->GetActiveCamera();
-  return camera ? camera->GetMTime() : 0;
-}
 
 template <typename ExtensionsT>
 bool AnariSupportsLightVisibility(const ExtensionsT& extensions)
@@ -78,11 +82,37 @@ bool AnariSupportsLightVisibility(const ExtensionsT& extensions)
 struct vtkAnariLightNodeInternals
 {
   vtkAnariSceneGraph* RendererNode{ nullptr };
+  vtkSmartPointer<vtkAnariDevice> AnariDevice;
   anari::Light AnariLight{ nullptr };
+  std::string LightSubtype;
   vtkTexture* EnvironmentTexture{ nullptr };
   vtkMTimeType EnvironmentTextureTime{ 0 };
+  vtkWeakPointer<vtkCamera> Camera;
   vtkMTimeType CameraTime{ 0 };
+  vtkTransform* UserLightTransform{ nullptr };
+  vtkMTimeType UserLightTransformTime{ 0 };
   bool UseImageBasedLighting{ false };
+
+  anari::Light UpdateLight(const std::string& subtype)
+  {
+    if (this->LightSubtype != subtype)
+    {
+      auto previousLight = this->AnariLight;
+      this->AnariLight = subtype.empty()
+        ? nullptr
+        : anari::newObject<anari::Light>(this->AnariDevice->GetHandle(), subtype.c_str());
+      this->LightSubtype = subtype;
+      if (previousLight)
+      {
+        anari::release(this->AnariDevice->GetHandle(), previousLight);
+      }
+      if (previousLight || this->AnariLight)
+      {
+        this->RendererNode->InvalidateSceneStructure();
+      }
+    }
+    return this->AnariLight;
+  }
 };
 
 //============================================================================
@@ -102,6 +132,7 @@ vtkAnariLightNode::vtkAnariLightNode()
 //----------------------------------------------------------------------------
 vtkAnariLightNode::~vtkAnariLightNode()
 {
+  this->ClearLight();
   delete this->Internals;
 }
 
@@ -214,7 +245,7 @@ void vtkAnariLightNode::Invalidate(bool prepass)
 void vtkAnariLightNode::Build(bool prepass)
 {
   vtkAnariProfiling startProfiling("vtkAnariLightNode::Build", vtkAnariProfiling::BROWN);
-  if (!prepass || !LightWasModified())
+  if (!prepass)
   {
     return;
   }
@@ -223,6 +254,7 @@ void vtkAnariLightNode::Build(bool prepass)
   {
     this->Internals->RendererNode =
       static_cast<vtkAnariSceneGraph*>(this->GetFirstAncestorOfType("vtkAnariSceneGraph"));
+    this->Internals->AnariDevice = this->Internals->RendererNode->GetDevice();
   }
 }
 
@@ -236,46 +268,39 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   }
 
   vtkLight* light = this->GetVtkLight();
-  this->RenderTime = light->GetMTime();
-  this->Internals->CameraTime = ::GetRendererCameraTime(
-    this->Internals->RendererNode ? this->Internals->RendererNode->GetRenderer() : nullptr);
+  this->RenderTime = ::GetLightTime(light);
 
-  vtkSmartPointer<vtkAnariDevice> anariDevice = this->Internals->RendererNode->GetDevice();
+  auto* anariDevice = this->Internals->AnariDevice.GetPointer();
   auto vtkRenderer = this->Internals->RendererNode->GetRenderer();
-  auto anariExtensions = this->Internals->RendererNode->GetDevice()->GetExtensions();
-
-  this->ClearLight();
+  const auto& anariExtensions = anariDevice->GetExtensions();
+  auto* camera = vtkRenderer->GetActiveCamera();
+  this->Internals->Camera = camera;
+  this->Internals->CameraTime = camera->GetMTime();
 
   vtkTransform* userLightTransform = vtkRenderer->GetUserLightTransform();
-
-  vtkNew<vtkMatrix4x4> cameraTransform;
-  vtkNew<vtkMatrix4x4> invCameraTransform;
-
-  if (userLightTransform)
+  this->Internals->UserLightTransform = userLightTransform;
+  this->Internals->UserLightTransformTime = userLightTransform ? userLightTransform->GetMTime() : 0;
+  if (!light->LightTypeIsSceneLight())
   {
-    vtkAnariCameraNode* anariCameraNode = static_cast<vtkAnariCameraNode*>(
-      this->Internals->RendererNode->GetFirstChildOfType("vtkAnariCameraNode"));
-    vtkCamera* vtkCamera = vtkCamera::SafeDownCast(anariCameraNode->GetRenderable());
-    vtkCamera->GetModelViewTransformObject()->GetMatrix(cameraTransform);
-    vtkMatrix4x4::Invert(cameraTransform, invCameraTransform);
+    this->RenderTime = std::max(
+      { this->RenderTime, this->Internals->CameraTime, this->Internals->UserLightTransformTime });
   }
 
   // Light Position
-  double position[3];
-  light->GetPosition(position);
+  double position[4] = { 0.0, 0.0, 0.0, 1.0 };
+  light->GetTransformedPosition(position);
 
   // Light Direction
-  double focalPoint[3];
-  light->GetFocalPoint(focalPoint);
-
-  if (light->LightTypeIsCameraLight())
-  {
-    light->GetTransformedPosition(position);
-    light->GetTransformedFocalPoint(focalPoint);
-  }
+  double focalPoint[4] = { 0.0, 0.0, 0.0, 1.0 };
+  light->GetTransformedFocalPoint(focalPoint);
 
   if (!light->LightTypeIsSceneLight() && userLightTransform)
   {
+    vtkNew<vtkMatrix4x4> cameraTransform;
+    vtkNew<vtkMatrix4x4> invCameraTransform;
+    camera->GetModelViewTransformObject()->GetMatrix(cameraTransform);
+    vtkMatrix4x4::Invert(cameraTransform, invCameraTransform);
+
     cameraTransform->MultiplyPoint(position, position);
     userLightTransform->TransformPoint(position, position);
     invCameraTransform->MultiplyPoint(position, position);
@@ -312,88 +337,95 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   anari::Light anariLight = nullptr;
   vtkTexture* envTexture = vtkRenderer->GetEnvironmentTexture();
   bool useHDRI = vtkRenderer->GetUseImageBasedLighting() && envTexture;
-  this->Internals->EnvironmentTexture = envTexture;
-  this->Internals->UseImageBasedLighting = vtkRenderer->GetUseImageBasedLighting();
-  this->Internals->EnvironmentTextureTime = 0;
+  vtkMTimeType environmentTextureTime = 0;
   if (useHDRI)
   {
     envTexture->Update();
-    this->Internals->EnvironmentTextureTime = envTexture->GetMTime();
+    environmentTextureTime = envTexture->GetMTime();
     if (auto* image = envTexture->GetInput())
     {
-      this->Internals->EnvironmentTextureTime =
-        std::max(this->Internals->EnvironmentTextureTime, image->GetMTime());
+      environmentTextureTime = std::max(environmentTextureTime, image->GetMTime());
     }
   }
+  const bool updateRadiance = this->Internals->LightSubtype != "hdri" ||
+    this->Internals->EnvironmentTexture != envTexture ||
+    this->Internals->EnvironmentTextureTime < environmentTextureTime;
+  this->Internals->EnvironmentTexture = envTexture;
+  this->Internals->UseImageBasedLighting = vtkRenderer->GetUseImageBasedLighting();
+  this->Internals->EnvironmentTextureTime = environmentTextureTime;
 
   if (useHDRI)
   {
     if (anariExtensions.ANARI_KHR_LIGHT_HDRI)
     {
-      anariLight = anari::newObject<anari::Light>(anariDevice->GetHandle(), "hdri");
+      anariLight = this->Internals->UpdateLight("hdri");
 
       // Direction to which the center of the texture will be mapped to
       anari::setParameter(anariDevice->GetHandle(), anariLight, "direction", lightDirection);
 
-      // Environment map
-      vtkImageData* imageData = envTexture->GetInput();
-      if (!imageData || !imageData->GetPointData()->GetScalars())
+      if (updateRadiance)
       {
-        vtkWarningMacro(<< "Cannot create an HDRI light from an empty environment texture.");
-        anari::release(anariDevice->GetHandle(), anariLight);
-        return;
-      }
-
-      int comps = imageData->GetNumberOfScalarComponents();
-      comps = comps > 3 ? 3 : comps;
-      std::vector<vec3> floatData;
-      const float colorScale = imageData->GetScalarType() == VTK_UNSIGNED_CHAR ? 1.f / 255.f : 1.f;
-      const bool isSRGB = envTexture->GetUseSRGBColorSpace();
-
-      // Get the needed image data attributes
-      int extent[6];
-      imageData->GetExtent(extent);
-      int xsize = (extent[1] - extent[0]) + 1;
-      int ysize = (extent[3] - extent[2]) + 1;
-      if (xsize <= 0 || ysize <= 0)
-      {
-        vtkWarningMacro(<< "Cannot create an HDRI light from an empty environment texture.");
-        anari::release(anariDevice->GetHandle(), anariLight);
-        return;
-      }
-      floatData.reserve(static_cast<size_t>(xsize) * ysize);
-
-      for (int i = 0; i < ysize; i++)
-      {
-        for (int j = 0; j < xsize; j++)
+        // Environment map
+        vtkImageData* imageData = envTexture->GetInput();
+        if (!imageData || !imageData->GetPointData()->GetScalars())
         {
-          vec3 value;
-
-          for (int k = 0; k < comps; k++)
-          {
-            // HDRI radiance is linear; byte colors must first be normalized.
-            value[k] =
-              imageData->GetScalarComponentAsFloat(j + extent[0], i + extent[2], extent[4], k) *
-              colorScale;
-            if (isSRGB)
-            {
-              value[k] = value[k] <= 0.04045f ? value[k] / 12.92f
-                                              : std::pow((value[k] + 0.055f) / 1.055f, 2.4f);
-            }
-          }
-
-          for (int k = comps; k < 3; k++)
-          {
-            value[k] = 0.0f;
-          }
-
-          floatData.emplace_back(value);
+          vtkWarningMacro(<< "Cannot create an HDRI light from an empty environment texture.");
+          this->Internals->UpdateLight("");
+          return;
         }
-      }
 
-      auto array2D = anariNewArray2D(anariDevice->GetHandle(), floatData.data(), nullptr, nullptr,
-        ANARI_FLOAT32_VEC3, xsize, ysize);
-      anari::setAndReleaseParameter(anariDevice->GetHandle(), anariLight, "radiance", array2D);
+        int comps = imageData->GetNumberOfScalarComponents();
+        comps = comps > 3 ? 3 : comps;
+        std::vector<vec3> floatData;
+        const float colorScale =
+          imageData->GetScalarType() == VTK_UNSIGNED_CHAR ? 1.f / 255.f : 1.f;
+        const bool isSRGB = envTexture->GetUseSRGBColorSpace();
+
+        // Get the needed image data attributes
+        int extent[6];
+        imageData->GetExtent(extent);
+        int xsize = (extent[1] - extent[0]) + 1;
+        int ysize = (extent[3] - extent[2]) + 1;
+        if (xsize <= 0 || ysize <= 0)
+        {
+          vtkWarningMacro(<< "Cannot create an HDRI light from an empty environment texture.");
+          this->Internals->UpdateLight("");
+          return;
+        }
+        floatData.reserve(static_cast<size_t>(xsize) * ysize);
+
+        for (int i = 0; i < ysize; i++)
+        {
+          for (int j = 0; j < xsize; j++)
+          {
+            vec3 value;
+
+            for (int k = 0; k < comps; k++)
+            {
+              // HDRI radiance is linear; byte colors must first be normalized.
+              value[k] =
+                imageData->GetScalarComponentAsFloat(j + extent[0], i + extent[2], extent[4], k) *
+                colorScale;
+              if (isSRGB)
+              {
+                value[k] = value[k] <= 0.04045f ? value[k] / 12.92f
+                                                : std::pow((value[k] + 0.055f) / 1.055f, 2.4f);
+              }
+            }
+
+            for (int k = comps; k < 3; k++)
+            {
+              value[k] = 0.0f;
+            }
+
+            floatData.emplace_back(value);
+          }
+        }
+
+        auto array2D = anariNewArray2D(anariDevice->GetHandle(), floatData.data(), nullptr, nullptr,
+          ANARI_FLOAT32_VEC3, xsize, ysize);
+        anari::setAndReleaseParameter(anariDevice->GetHandle(), anariLight, "radiance", array2D);
+      }
     }
     else
     {
@@ -410,7 +442,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     {
       if (anariExtensions.ANARI_KHR_LIGHT_POINT)
       {
-        anariLight = anari::newObject<anari::Light>(anariDevice->GetHandle(), "point");
+        anariLight = this->Internals->UpdateLight("point");
         vtkDebugMacro(<< "Point Light");
 
         // The position of the point light
@@ -431,7 +463,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     {
       if (anariExtensions.ANARI_KHR_LIGHT_SPOT)
       {
-        anariLight = anari::newObject<anari::Light>(anariDevice->GetHandle(), "spot");
+        anariLight = this->Internals->UpdateLight("spot");
         vtkDebugMacro(<< "Spot Light");
 
         // The overall amount of light emitted by the light in a direction in W/sr
@@ -459,7 +491,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   {
     if (anariExtensions.ANARI_KHR_LIGHT_DIRECTIONAL)
     {
-      anariLight = anari::newObject<anari::Light>(anariDevice->GetHandle(), "directional");
+      anariLight = this->Internals->UpdateLight("directional");
       vtkDebugMacro(<< "Directional Light");
 
       // main emission direction of the directional light
@@ -483,11 +515,6 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     }
   }
 
-  // The light handle just replaced the one the world is holding, so the scene
-  // has to be re-collected; otherwise the world keeps pointing at the released
-  // light and the scene is lit by whatever the camera first saw.
-  this->Internals->RendererNode->InvalidateSceneStructure();
-
   if (anariLight != nullptr)
   {
     // All light sources accept the following parameters
@@ -507,7 +534,10 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     anari::commitParameters(anariDevice->GetHandle(), anariLight);
   }
 
-  this->Internals->AnariLight = anariLight;
+  if (!anariLight)
+  {
+    this->Internals->UpdateLight("");
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -528,16 +558,12 @@ void vtkAnariLightNode::Render(bool prepass)
 
 void vtkAnariLightNode::ClearLight()
 {
-  if (this->Internals->RendererNode != nullptr)
+  if (this->Internals->AnariDevice && this->Internals->AnariLight)
   {
-    vtkSmartPointer<vtkAnariDevice> anariDevice = this->Internals->RendererNode->GetDevice();
-
-    if (anariDevice)
-    {
-      anari::release(anariDevice->GetHandle(), this->Internals->AnariLight);
-      this->Internals->AnariLight = nullptr;
-    }
+    anari::release(this->Internals->AnariDevice->GetHandle(), this->Internals->AnariLight);
+    this->Internals->AnariLight = nullptr;
   }
+  this->Internals->LightSubtype.clear();
 }
 
 vtkLight* vtkAnariLightNode::GetVtkLight() const
@@ -547,23 +573,23 @@ vtkLight* vtkAnariLightNode::GetVtkLight() const
 
 bool vtkAnariLightNode::LightWasModified() const
 {
-  if (this->RenderTime < GetVtkLight()->GetMTime())
+  if (this->RenderTime < ::GetLightTime(this->GetVtkLight()))
   {
     return true;
   }
 
   auto* renderer = this->Internals->RendererNode->GetRenderer();
-
-  // Headlights and camera lights are placed relative to the camera, which moves
-  // without touching the light's own MTime. Track the camera too, otherwise the
-  // light stays frozen where the camera first was and the scene goes dark as
-  // soon as it is rotated away from there.
-  if (!GetVtkLight()->LightTypeIsSceneLight() &&
-    this->Internals->CameraTime < ::GetRendererCameraTime(renderer))
+  if (!this->GetVtkLight()->LightTypeIsSceneLight())
   {
-    return true;
+    auto* camera = renderer->GetActiveCamera();
+    auto* transform = renderer->GetUserLightTransform();
+    if (this->Internals->Camera != camera || this->Internals->CameraTime < camera->GetMTime() ||
+      this->Internals->UserLightTransform != transform ||
+      (transform && this->Internals->UserLightTransformTime < transform->GetMTime()))
+    {
+      return true;
+    }
   }
-
   auto* texture = renderer->GetEnvironmentTexture();
   if (this->Internals->UseImageBasedLighting != renderer->GetUseImageBasedLighting() ||
     this->Internals->EnvironmentTexture != texture)
