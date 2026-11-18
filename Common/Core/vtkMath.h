@@ -842,6 +842,16 @@ public:
   static void LinearSolve3x3(const double A[3][3], const double x[3], double y[3]);
   ///@}
 
+  /**
+   * Solve A^T y = x for y, where A^T is the transpose of the 3x3 matrix A, and
+   * place the result in y. A is not modified. Unlike LinearSolve3x3(), this
+   * detects a singular matrix: it returns false and leaves y alone then.
+   * (For example, the gradient of a field in world coordinates is the solution
+   * of J^T g = p, where J is the Jacobian of the mapping from parametric to
+   * world coordinates and p is the field's gradient in parametric coordinates.)
+   */
+  static bool LinearSolveTransposed3x3(const double A[3][3], const double x[3], double y[3]);
+
   ///@{
   /**
    * Multiply a vector by a 3x3 matrix.  The result is placed in out.

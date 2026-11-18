@@ -54,6 +54,7 @@ static int TestDeterminant3x3();
 static int TestLUFactor3x3();
 static int TestLUSolve3x3();
 static int TestLinearSolve3x3();
+static int TestLinearSolveTransposed3x3();
 static int TestMultiply3x3();
 static int TestMultiplyMatrix();
 static int TestTranspose3x3();
@@ -131,6 +132,7 @@ int UnitTestMath(int, char*[])
   status += TestLUFactor3x3();
   status += TestLUSolve3x3();
   status += TestLinearSolve3x3();
+  status += TestLinearSolveTransposed3x3();
   status += TestMultiply3x3();
   status += TestMultiplyMatrix();
   status += TestTranspose3x3();
@@ -1883,6 +1885,62 @@ int TestLinearSolve3x3()
 
   status += LinearSolve3x3<double>();
   status += LinearSolve3x3<float>();
+
+  if (status)
+  {
+    std::cout << "..FAILED" << std::endl;
+  }
+  else
+  {
+    std::cout << ".PASSED" << std::endl;
+  }
+  return status;
+}
+
+int TestLinearSolveTransposed3x3()
+{
+  int status = 0;
+  std::cout << "LinearSolveTransposed3x3..";
+
+  // A^T y = x for a matrix that is not symmetric, so that A and A^T differ.
+  const double A[3][3] = { { 2., 1., 0. }, { -1., 3., 4. }, { 5., 0., 1. } };
+  const double expected[3] = { 1., -2., 3. };
+  double x[3] = { 0., 0., 0. };
+  for (int i = 0; i < 3; ++i)
+  {
+    for (int j = 0; j < 3; ++j)
+    {
+      x[i] += A[j][i] * expected[j];
+    }
+  }
+  double y[3] = { 0., 0., 0. };
+  if (!vtkMath::LinearSolveTransposed3x3(A, x, y))
+  {
+    std::cout << " LinearSolveTransposed3x3 reported a regular matrix as singular";
+    ++status;
+  }
+  for (int i = 0; i < 3; ++i)
+  {
+    if (!vtkMathUtilities::FuzzyCompare(expected[i], y[i], 1e-12))
+    {
+      std::cout << " LinearSolveTransposed3x3 expected " << expected[i] << " but got " << y[i];
+      ++status;
+    }
+  }
+
+  // A singular matrix is reported, and y is left alone.
+  const double singular[3][3] = { { 1., 2., 3. }, { 0., 0., 0. }, { 4., 5., 6. } };
+  double untouched[3] = { 7., 8., 9. };
+  if (vtkMath::LinearSolveTransposed3x3(singular, x, untouched))
+  {
+    std::cout << " LinearSolveTransposed3x3 did not report a singular matrix";
+    ++status;
+  }
+  if (untouched[0] != 7. || untouched[1] != 8. || untouched[2] != 9.)
+  {
+    std::cout << " LinearSolveTransposed3x3 changed y for a singular matrix";
+    ++status;
+  }
 
   if (status)
   {

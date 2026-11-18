@@ -28,7 +28,9 @@
 #include "vtkStaticPointLocator.h"
 #include "vtkStructuredData.h"
 
+#include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstdlib>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -568,8 +570,13 @@ struct BucketList : public vtkBucketList
     {
       BucketList<T>* bl = this->BList;
       double hMin = std::min({ bl->hX, bl->hY, bl->hZ });
-      this->CheckerboardDimension =
-        1 + (hMin == 0.0 ? 1 : (1 + vtkMath::Floor(tol / (hMin / 2.0))));
+      // A block never needs to span more bins than the locator has. The cap also
+      // keeps the ratio, which is huge when the tolerance is far above the size
+      // of the bins, from overflowing an int.
+      const double maxDimension =
+        std::max({ bl->Divisions[0], bl->Divisions[1], bl->Divisions[2] });
+      this->CheckerboardDimension = static_cast<int>(
+        std::min(2.0 + (hMin == 0.0 ? 0.0 : std::floor(tol / (hMin / 2.0))), maxDimension));
 
       // Determine how many blocks there are in the locater, and determine the
       // dimensions of the blocks.

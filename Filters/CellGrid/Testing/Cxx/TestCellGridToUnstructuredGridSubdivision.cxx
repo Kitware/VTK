@@ -4,6 +4,7 @@
 #include "vtkCell.h"
 #include "vtkCellGrid.h"
 #include "vtkCellGridComputeSides.h"
+#include "vtkCellGridEvaluator.h"
 #include "vtkCellGridReader.h"
 #include "vtkCellGridToUnstructuredGrid.h"
 #include "vtkCellType.h"
@@ -11,9 +12,12 @@
 #include "vtkFiltersCellGrid.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
+#include "vtkStringToken.h"
 #include "vtkTestUtilities.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
+#include "vtkTypeUInt32Array.h"
+#include "vtkTypeUInt64Array.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -508,6 +512,107 @@ bool CheckSides(int argc, char* argv[], const char* dataFile, int sideCellType)
   return CheckLevels(sides, input, input->GetNumberOfCells(), sideCellType, true);
 }
 
+/// Transcribe \a dataFile (of the single cell type \a cellTypeName) with the
+/// arrays saying where each point was sampled, its points merged (\a merge) or
+/// not, and check them: every point is of that cell type, and placing it at its
+/// parametric coordinates in its cell gives back its coordinates. Without
+/// merging, the cells of different input cells must also share no point.
+bool CheckInputCells(
+  int argc, char* argv[], const char* dataFile, const char* cellTypeName, bool merge)
+{
+  std::cout << dataFile << " (sources, " << (merge ? "merged" : "not merged") << "):\n";
+  char* filename =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, (std::string("Data/") + dataFile).c_str(), 0);
+  vtkNew<vtkCellGridReader> reader;
+  reader->SetFileName(filename);
+  delete[] filename;
+  reader->Update();
+  auto* input = reader->GetOutput();
+
+  vtkNew<vtkCellGridToUnstructuredGrid> transcriber;
+  transcriber->SetInputConnection(reader->GetOutputPort());
+  transcriber->SetSubdivisionLevel(2);
+  transcriber->SetMergePoints(merge);
+  transcriber->GenerateInputCellArraysOn();
+  transcriber->Update();
+  auto* output = transcriber->GetOutput();
+  auto* pointData = output->GetPointData();
+  auto* types = vtkTypeUInt32Array::SafeDownCast(pointData->GetArray("CellType"));
+  auto* cellIds = vtkTypeUInt64Array::SafeDownCast(pointData->GetArray("CellId"));
+  auto* parameters = pointData->GetArray("RST");
+  const vtkIdType numPoints = output->GetNumberOfPoints();
+  if (!types || !cellIds || !parameters || types->GetNumberOfTuples() != numPoints ||
+    cellIds->GetNumberOfTuples() != numPoints || parameters->GetNumberOfTuples() != numPoints)
+  {
+    std::cerr << "ERROR: Missing or mis-sized source arrays.\n";
+    return false;
+  }
+
+  const vtkTypeUInt32 cellType = vtkStringToken(cellTypeName).GetId();
+  for (vtkIdType point = 0; point < numPoints; ++point)
+  {
+    if (types->GetValue(point) != cellType)
+    {
+      std::cerr << "ERROR: Point " << point << " is not of the type " << cellTypeName << ".\n";
+      return false;
+    }
+  }
+
+  if (!merge)
+  {
+    for (vtkIdType cell = 0; cell < output->GetNumberOfCells(); ++cell)
+    {
+      vtkIdType numCellPoints;
+      const vtkIdType* cellPoints;
+      output->GetCellPoints(cell, numCellPoints, cellPoints);
+      for (vtkIdType corner = 1; corner < numCellPoints; ++corner)
+      {
+        if (cellIds->GetValue(cellPoints[corner]) != cellIds->GetValue(cellPoints[0]))
+        {
+          std::cerr << "ERROR: Output cell " << cell << " has points of two input cells.\n";
+          return false;
+        }
+      }
+    }
+  }
+
+  // Place the points at their parametric coordinates in their cells.
+  vtkNew<vtkTypeUInt32Array> rangeTypes;
+  rangeTypes->SetNumberOfValues(2);
+  rangeTypes->SetValue(0, cellType);
+  rangeTypes->SetValue(1, vtkStringToken::InvalidHash());
+  vtkNew<vtkTypeUInt64Array> rangeOffsets;
+  rangeOffsets->SetNumberOfValues(2);
+  rangeOffsets->SetValue(0, 0);
+  rangeOffsets->SetValue(1, static_cast<vtkTypeUInt64>(numPoints));
+  vtkNew<vtkCellGridEvaluator> evaluator;
+  evaluator->SetCellAttribute(input->GetShapeAttribute());
+  evaluator->InterpolateCellParameters(rangeTypes, rangeOffsets, cellIds, parameters);
+  if (!input->Query(evaluator))
+  {
+    std::cerr << "ERROR: Could not evaluate the shape at the sources.\n";
+    return false;
+  }
+  auto* placed = evaluator->GetInterpolatedValues();
+  for (vtkIdType point = 0; point < numPoints; ++point)
+  {
+    std::array<double, 3> expected;
+    std::array<double, 3> actual;
+    output->GetPoint(point, expected.data());
+    placed->GetTuple(point, actual.data());
+    for (int axis = 0; axis < 3; ++axis)
+    {
+      if (std::abs(expected[axis] - actual[axis]) > 1e-9)
+      {
+        std::cerr << "ERROR: Point " << point << " is not where its source places it.\n";
+        return false;
+      }
+    }
+  }
+  std::cout << "  " << numPoints << " points\n";
+  return true;
+}
+
 } // anonymous namespace
 
 int TestCellGridToUnstructuredGridSubdivision(int argc, char* argv[])
@@ -529,6 +634,14 @@ int TestCellGridToUnstructuredGridSubdivision(int argc, char* argv[])
   // The quadrilateral sides of hexahedra, which exercise the mapping from a
   // side's reference coordinates into those of the cell it bounds.
   ok &= CheckSides(argc, argv, "dgHexahedra.dg", VTK_QUAD);
+
+  // Where each point was sampled, with its points merged or not; the quadratic
+  // geometry checks that the parametric coordinates are those of curved cells.
+  for (bool merge : { true, false })
+  {
+    ok &= CheckInputCells(argc, argv, "dgHexahedra.dg", "vtkDGHex", merge);
+    ok &= CheckInputCells(argc, argv, "dgQuadraticQuadrilaterals.dg", "vtkDGQuad", merge);
+  }
 
   return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }

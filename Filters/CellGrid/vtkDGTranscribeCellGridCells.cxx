@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDGTranscribeCellGridCells.h"
 
+#include "vtkAffineArray.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellArray.h"
 #include "vtkCellAttribute.h"
@@ -699,8 +700,60 @@ bool SubdivisionIsRepresentable(vtkDGCell* dgCell, vtkIdType subdivisions, std::
   return true;
 }
 
-void vtkCellInfoFromDGType(vtkCellGridToUnstructuredGrid::Query::OutputAllocation& alloc,
-  vtkDGCell* dgCell, vtkIdType subdivisions)
+/// The tuples of one cell source that are transcribed.
+///
+/// Without a selection on the query (see
+/// vtkCellGridToUnstructuredGrid::Query::SetCellsToTranscribe()) every tuple is
+/// transcribed. With one, a cell type it does not list has none, and a listed
+/// one has the cells whose IDs it holds, taken as they are; the IDs are those of
+/// the cells, so the sides of a cell type (its other sources) are not
+/// transcribed. The passes number their output by the position among the
+/// selected tuples, so their counts agree.
+class SourceSelection
+{
+public:
+  SourceSelection(vtkCellGridToUnstructuredGrid::Query* request, vtkDGCell* cellType,
+    const vtkDGCell::Source& source)
+  {
+    if (request->HasCellSelection())
+    {
+      const auto& selection = request->GetCellSelection();
+      auto it = selection.find(vtkStringToken(cellType->GetClassName()));
+      // A source of sides numbers its tuples differently from the cells.
+      if (source.SideType < 0 && it != selection.end() && it->second)
+      {
+        this->Ids = it->second;
+      }
+      else
+      {
+        // A source of sides, or of a cell type that was not requested: no tuples.
+        this->Ids = vtkSmartPointer<vtkIdTypeArray>::New();
+      }
+      return;
+    }
+    // Every tuple, as the IDs 0, 1, 2, ...
+    const vtkIdType numTuples = source.Connectivity ? source.Connectivity->GetNumberOfTuples() : 0;
+    auto all = vtkSmartPointer<vtkAffineArray<vtkIdType>>::New();
+    all->ConstructBackend(1, 0);
+    all->SetNumberOfTuples(numTuples);
+    this->Ids = all;
+  }
+
+  /// The number of tuples transcribed.
+  vtkIdType GetNumberOfTuples() const { return this->Ids->GetNumberOfTuples(); }
+  /// The index in the source of the \a position-th tuple transcribed.
+  vtkIdType GetCellId(vtkIdType position) const
+  {
+    return static_cast<vtkIdType>(this->Ids->GetComponent(position, 0));
+  }
+
+private:
+  vtkSmartPointer<vtkDataArray> Ids;
+};
+
+void vtkCellInfoFromDGType(vtkCellGridToUnstructuredGrid::Query* request,
+  vtkCellGridToUnstructuredGrid::Query::OutputAllocation& alloc, vtkDGCell* dgCell,
+  vtkIdType subdivisions)
 {
   alloc.CellType = vtkCellTypeForDGShape(dgCell->GetShape());
   alloc.NumberOfSamples = 0;
@@ -718,7 +771,8 @@ void vtkCellInfoFromDGType(vtkCellGridToUnstructuredGrid::Query::OutputAllocatio
     const SubdivisionTemplate subdivision =
       GenerateSubdivisionTemplate(shape, static_cast<int>(subdivisions));
     vtkIdType numSamples = subdivision.GetNumberOfPoints();
-    vtkIdType numSourceTuples = source.Connectivity->GetNumberOfTuples();
+    const SourceSelection selection(request, dgCell, source);
+    vtkIdType numSourceTuples = selection.GetNumberOfTuples();
     if (numSamples == 0 || numSourceTuples == 0)
     {
       continue;
@@ -841,7 +895,8 @@ bool vtkDGTranscribeCellGridCells::Query(
         return false;
       }
       auto& alloc(request->GetOutputAllocations());
-      vtkCellInfoFromDGType(alloc[dgCell->GetClassName()], dgCell, request->GetSubdivisionCount());
+      vtkCellInfoFromDGType(
+        request, alloc[dgCell->GetClassName()], dgCell, request->GetSubdivisionCount());
     }
     break;
     case TranscribeQuery::PassType::GenerateSamples:
@@ -922,6 +977,13 @@ void vtkDGTranscribeCellGridCells::GenerateSamples(
   double* contribParameters = contribs.ParametricCoords->GetPointer(0);
   double* sampleCoordinates =
     request->GetSampleCoordinates()->GetPointer(0) + 3 * ait->second.SampleOffset;
+  // Where each sample was taken, when the output is to report it.
+  vtkIdType* sourceCellIds = request->GetSampleCellIds()
+    ? request->GetSampleCellIds()->GetPointer(0) + ait->second.SampleOffset
+    : nullptr;
+  double* sourceParameters = request->GetSampleParameters()
+    ? request->GetSampleParameters()->GetPointer(0) + 3 * ait->second.SampleOffset
+    : nullptr;
 
   // A cell type may offer its cells (source -1) and any number of side sources.
   // After vtkCellGridComputeSides has run, for example, the cells are usually
@@ -938,7 +1000,8 @@ void vtkDGTranscribeCellGridCells::GenerateSamples(
     auto shape = vtkShapeForCellSource(cellType, source);
     const SubdivisionTemplate subdivision = GenerateSubdivisionTemplate(shape, subdivisions);
     vtkIdType numSamples = subdivision.GetNumberOfPoints();
-    vtkIdType numSourceTuples = source.Connectivity->GetNumberOfTuples();
+    const SourceSelection selection(request, cellType, source);
+    vtkIdType numSourceTuples = selection.GetNumberOfTuples();
     if (numSamples == 0 || numSourceTuples == 0)
     {
       continue;
@@ -972,12 +1035,13 @@ void vtkDGTranscribeCellGridCells::GenerateSamples(
           // the cell that side bounds on its own, and it evaluates that cell's
           // basis: the parametric coordinates we supply are always the cell's,
           // never the side's.
-          vtkIdType sourceId = cc + source.Offset;
+          const vtkIdType cellId = selection.GetCellId(cc);
+          vtkIdType sourceId = cellId + source.Offset;
           const std::vector<vtkVector3d>* sampleParameters = &subdivision.Parameters;
           if (source.SideType >= 0)
           {
             // source is a SideSpec; each tuple is a (cellId, sideIndex) pair.
-            source.Connectivity->GetUnsignedTuple(cc, sideTuple.data());
+            source.Connectivity->GetUnsignedTuple(cellId, sideTuple.data());
             sampleParameters = &sideParameters[static_cast<int>(sideTuple[1])];
           }
           for (vtkIdType pp = 0; pp < numSamples; ++pp)
@@ -996,6 +1060,11 @@ void vtkDGTranscribeCellGridCells::GenerateSamples(
           std::copy_n(cellIds->GetPointer(0), numSamples, contribCellIds + base);
           std::copy_n(parameters->GetPointer(0), 3 * numSamples, contribParameters + 3 * base);
           std::copy_n(coordinates->GetPointer(0), 3 * numSamples, sampleCoordinates + 3 * base);
+          if (sourceCellIds)
+          {
+            std::copy_n(cellIds->GetPointer(0), numSamples, sourceCellIds + base);
+            std::copy_n(parameters->GetPointer(0), 3 * numSamples, sourceParameters + 3 * base);
+          }
         }
       });
 
@@ -1051,7 +1120,8 @@ void vtkDGTranscribeCellGridCells::GenerateConnectivity(
     auto shape = vtkShapeForCellSource(cellType, source);
     const SubdivisionTemplate subdivision = GenerateSubdivisionTemplate(shape, subdivisions);
     vtkIdType numSamples = subdivision.GetNumberOfPoints();
-    vtkIdType numSourceTuples = source.Connectivity->GetNumberOfTuples();
+    const SourceSelection selection(request, cellType, source);
+    vtkIdType numSourceTuples = selection.GetNumberOfTuples();
     if (numSamples == 0 || numSourceTuples == 0)
     {
       continue;
