@@ -227,6 +227,16 @@
         - vs2022
         - windows-arm64
 
+.windows_tester_tags_arm64:
+    tags:
+        - vtk # Since this is a bare runner, pin to a project.
+        - msvc-14.44
+        - nonconcurrent
+        - shell
+        - vs2022
+        - windows-arm64
+        # - test # Not needed yet?
+
 .windows_builder_tags_x86-64:
     tags:
         - vtk # Since this is a bare runner, pin to a project.
@@ -337,6 +347,16 @@
     - buildcache --show-stats
     - .gitlab\ci\check_warnings.ps1 -BuildPath . # This will call exit in case of warnings
 
+.script_test_windows: &script_test_windows
+        # Reuse the venv from the build step (avoids version changes between
+        # build and testing). This is set up manually because Activate.ps1
+        # doesn't seem to work for our extracted Python tarball.
+        - Set-Item -Force -Path "env:PATH" -Value "\build\ci-venv\Scripts;$env:PATH"
+        - Set-Item -Force -Path "env:PYTHONPATH" -Value "$pwdpath\build\ci-venv\Lib\site-packages"
+        # Some tests run CMake steps, so we need a compiler environment.
+        - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
+        - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
+
 .cmake_build_windows_arm64:
     stage: build
     extends: .warning_policy
@@ -344,6 +364,17 @@
         - *before_script_windows
         - *before_script_windows_deps
         - *script_windows
+    interruptible: true
+
+.cmake_test_windows_arm64:
+    stage: test
+    script:
+        - *before_script_windows
+        - *before_script_windows_deps
+        - *script_test_windows
+    interruptible: true
+    variables:
+        QT_ENABLE_HIGHDPI_SCALING: "0"
 
 .cmake_build_windows_x86-64:
     stage: build
@@ -365,14 +396,7 @@
         - *before_script_windows_deps
         - *before_script_windows_openxr_deps
         - *before_script_windows_dawn_deps
-        # Reuse the venv from the build step (avoids version changes between
-        # build and testing). This is set up manually because Activate.ps1
-        # doesn't seem to work for our extracted Python tarball.
-        - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\build\ci-venv\Scripts;$env:PATH"
-        - Set-Item -Force -Path "env:PYTHONPATH" -Value "$pwdpath\build\ci-venv\Lib\site-packages"
-        # Some tests run CMake steps, so we need a compiler environment.
-        - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
-        - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
+        - *script_test_windows
     interruptible: true
 
 .cmake_test_external_windows_x86-64:

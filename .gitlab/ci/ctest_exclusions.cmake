@@ -221,6 +221,44 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   )
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows.*_arm64")
+  list(APPEND test_exclusions
+    # Numerical issue on ARM64; also excluded on Linux aarch64.
+    "^VTK::ImagingColorCxx-TestRGBToLAB$"
+
+    # glLineWidth > 1 not supported for glDrawElementsInstanced
+    "^VTK::RenderingCellGridPython-TestCellGridEdgeGaussBasis$"
+
+    # CellGrid rendering differs with the D3D12-based OpenGL driver.
+    "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
+
+    # Heap corruption in the D3D12-based OpenGL driver when rendering CellGrid edges.
+    "^VTK::RenderingCellGridPython-TestCellGridHardwarePicker$"
+    "^VTK::RenderingCellGridPython-TestCellGridRenderedAreaPicker$"
+    "^VTK::RenderingCellGridPython-TestCellGridRenderedAreaPickerWithPolyData$"
+    
+    # Issue with FMA precision
+    "^VTK::FiltersCellGridCxx-TestCellGridFindCriticalPoints$"
+
+    # Issue with specific ARM64 runner configuration (not reproducible locally)
+    # Opened issue: https://gitlab.kitware.com/vtk/vtk/-/work_items/20254
+    "^VTK::RenderingCellGridPython-TestCellGridHexGaussBasis$"
+    "^VTK::RenderingCellGridPython-TestCellGridPyrGaussBasis$"
+    "^VTK::RenderingCellGridPython-TestCellGridWdgGaussBasis$"
+    "^VTK::RenderingCellGridPython-TestCellGridQuadGaussBasis$"
+    "^VTK::RenderingCellGridPython-TestCellGridTetGaussBasis$"
+    "^VTK::RenderingCellGridPython-TestCellGridTriGaussBasis$"
+    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKItem_2$"
+    "^VTK::GUISupportQtQuickCxx-TestQQuickVTKItem_3$"
+    "^VTK::FiltersMeshingCxx-TestVoronoi2DSurfaceNets$"
+    "^VTK::RenderingOpenGL2Cxx-TestSSAAPassMultiViewports$"
+    "^VTK::RenderingOpenGL2Cxx-TestSSAOPassMultiViewports$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestRenderLinesAsTubes$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestRenderLinesAsTubesOrthoCamera$"
+    "^VTK::FiltersCellGridCxx-TestCellGridFindCriticalPoints$"
+    "^VTK::FiltersGeometryPython-geometryFilterGhosts$")
+endif ()
+
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
   list(APPEND test_exclusions
     # Flaky tests. They sometimes pass.
