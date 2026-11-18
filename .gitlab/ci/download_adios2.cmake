@@ -58,3 +58,9 @@ if (res)
   message(FATAL_ERROR
     "Failed to extract ${adios2_file}: ${err}")
 endif ()
+
+# Use a fixed directory name.
+file(REMOVE_RECURSE ".gitlab/adios2")
+file(RENAME
+  ".gitlab/adios2-v${adios2_version}-${adios2_platform}"
+  ".gitlab/adios2")

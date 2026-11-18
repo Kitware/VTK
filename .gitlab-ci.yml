@@ -2599,6 +2599,26 @@ macos-arm64-kits-python-qt-serialization:test:
    needs:
        - macos-arm64-kits-python-qt:build
 
+vtk:macos-arm64-kits-python-qt:build-ext:
+    extends:
+        - .macos_arm64_kits_python_qt_ext_vtk
+        - .cmake_build_external_macos
+        - .macos_arm64_builder_tags
+        - .cmake_build_external_artifacts
+        - .rules
+    needs:
+        - macos-arm64-kits-python-qt:build
+
+vtk:macos-arm64-kits-python-qt:test-ext:
+    extends:
+        - .macos_arm64_kits_python_qt_ext_vtk
+        - .cmake_test_external_macos
+        - .macos_arm64_builder_tags
+        - .cmake_junit_artifacts
+        - .rules
+    needs:
+        - vtk:macos-arm64-kits-python-qt:build-ext
+
 macos-arm64-webgpu:build:
     extends:
         - .macos_arm64_webgpu
@@ -2693,34 +2713,6 @@ macos-x86_64-kits-python-qt-stdthread:test:
     needs:
         - macos-x86_64-kits-python-qt:build
     timeout: 2 hours
-
-# FIXME: This is not working because Qt uses @rpath/ for its library
-# references. Since we're using a `nonconcurrent` runner for this, we can't
-# bake in any paths at build time. However, to install Qt next to it, we need
-# to provide the whole thing to avoid building against one Qt and using another
-# at runtime. The external testing framework can't provide the rpath because
-# tests exists that are just Python scripts, so `vtkpython` needs to work
-# standalone.
-#
-# vtk:macos-x86_64-kits-python-qt:build-ext:
-#     extends:
-#         - .macos_x86_64_kits_python_qt_ext_vtk
-#         - .cmake_build_external_macos
-#         - .macos_x86_64_builder_tags
-#         - .cmake_build_external_artifacts
-#         - .rules
-#     needs:
-#         - macos-x86_64-kits-python-qt:build
-#
-# vtk:macos-x86_64-kits-python-qt:test-ext:
-#     extends:
-#         - .macos_x86_64_kits_python_qt_ext_vtk
-#         - .cmake_test_external_macos
-#         - .macos_x86_64_builder_tags
-#         - .cmake_junit_artifacts
-#         - .rules
-#     needs:
-#         - vtk:macos-x86_64-kits-python-qt:build-ext
 
 ## Python wheel builds
 

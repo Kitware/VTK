@@ -149,11 +149,11 @@
     variables:
         CMAKE_CONFIGURATION: macos_x86_64_kits_python_qt_stdthread
 
-.macos_x86_64_kits_python_qt_ext_vtk:
-    extends: .macos
+.macos_arm64_kits_python_qt_ext_vtk:
+    extends: .macos_build
 
     variables:
-        CMAKE_CONFIGURATION: macos_x86_64_kits_python_qt_ext_vtk
+        CMAKE_CONFIGURATION: macos_arm64_kits_python_qt_ext_vtk
 
 .macos_x86_64_java:
     extends: .macos_build

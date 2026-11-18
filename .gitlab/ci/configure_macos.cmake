@@ -37,6 +37,13 @@ set(rpaths
   # Add rpath entries for Xcode frameworks.
   "$ENV{DEVELOPER_DIR}/Library/Frameworks")
 
+# Add rpath entries for the CI-downloaded Qt, ONNX Runtime and ADIOS2.
+foreach (dir IN ITEMS qt6 onnxruntime adios2)
+  if (EXISTS "$ENV{GIT_CLONE_PATH}/.gitlab/${dir}/lib")
+    list(APPEND rpaths "$ENV{GIT_CLONE_PATH}/.gitlab/${dir}/lib")
+  endif ()
+endforeach ()
+
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "python")
   list(APPEND rpaths
     # Add rpath entry for the CI-downloaded Python.
