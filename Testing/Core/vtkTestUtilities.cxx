@@ -3,6 +3,9 @@
 
 #include "vtkTestUtilities.h"
 
+#include "vtkAMRBox.h"
+#include "vtkAMRDataObject.h"
+#include "vtkAMRMetaData.h"
 #include "vtkAbstractArray.h"
 #include "vtkAbstractPointLocator.h"
 #include "vtkArrayDispatch.h"
@@ -33,6 +36,7 @@
 #include "vtkMatrixUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
@@ -53,6 +57,7 @@
 
 #include "vtksys/SystemTools.hxx"
 
+#include <algorithm>
 #include <array>
 #include <atomic>
 #include <numeric>
@@ -1840,8 +1845,98 @@ struct TestDataObjectsImpl<vtkHyperTreeGrid>
 
 //============================================================================
 /**
+ * Check the AMR metadata of both collections, if they are AMR: the type, the number of blocks per
+ * level, the grid description and, for overlapping AMR, the AMR boxes, the origin and the spacing.
+ * The block bounds are not compared, since they come from the blocks that are present. The blocks
+ * themselves are compared as partitioned datasets, where a block that is null in either
+ * input is skipped, so that a distributed AMR can be compared with a serial one.
+ */
+bool TestAMRMetaData(vtkPartitionedDataSetCollection* t1, vtkPartitionedDataSetCollection* t2)
+{
+  auto amr1 = vtkAMRDataObject::SafeDownCast(t1);
+  auto amr2 = vtkAMRDataObject::SafeDownCast(t2);
+  if (!amr1 && !amr2)
+  {
+    return true;
+  }
+  if (!amr1 || !amr2 || amr1->GetDataObjectType() != amr2->GetDataObjectType())
+  {
+    vtkLog(ERROR, "Only one input is AMR, or the AMR types do not match.");
+    return false;
+  }
+
+  auto metaData1 = amr1->GetAMRMetaData();
+  auto metaData2 = amr2->GetAMRMetaData();
+  if (!metaData1 || !metaData2)
+  {
+    if (metaData1 != metaData2)
+    {
+      vtkLog(ERROR, "Only one AMR has metadata.");
+      return false;
+    }
+    return true;
+  }
+
+  if (*metaData1 != *metaData2)
+  {
+    vtkLog(ERROR, "The AMR number of blocks per level or grid description do not match.");
+    return false;
+  }
+
+  auto overlappingMetaData1 = vtkOverlappingAMRMetaData::SafeDownCast(metaData1);
+  auto overlappingMetaData2 = vtkOverlappingAMRMetaData::SafeDownCast(metaData2);
+  if (!overlappingMetaData1 || !overlappingMetaData2)
+  {
+    return true;
+  }
+
+  // The block bounds are not compared, because they come from the blocks that are present
+  for (unsigned int level = 0; level < overlappingMetaData1->GetNumberOfLevels(); ++level)
+  {
+    for (unsigned int index = 0; index < overlappingMetaData1->GetNumberOfBlocks(level); ++index)
+    {
+      if (overlappingMetaData1->GetAMRBox(level, index) !=
+        overlappingMetaData2->GetAMRBox(level, index))
+      {
+        vtkLog(ERROR, "The AMR boxes of block " << level << "," << index << " do not match.");
+        return false;
+      }
+    }
+
+    double spacing1[3] = { 0.0, 0.0, 0.0 };
+    double spacing2[3] = { 0.0, 0.0, 0.0 };
+    const bool hasSpacing = overlappingMetaData1->HasSpacing(level);
+    if (hasSpacing != overlappingMetaData2->HasSpacing(level))
+    {
+      vtkLog(ERROR, "Only one AMR has the spacing of level " << level << ".");
+      return false;
+    }
+    if (hasSpacing)
+    {
+      overlappingMetaData1->GetSpacing(level, spacing1);
+      overlappingMetaData2->GetSpacing(level, spacing2);
+    }
+    if (!std::equal(spacing1, spacing1 + 3, spacing2))
+    {
+      vtkLog(ERROR, "The AMR spacings of level " << level << " do not match.");
+      return false;
+    }
+  }
+
+  if (!std::equal(overlappingMetaData1->GetOrigin(), overlappingMetaData1->GetOrigin() + 3,
+        overlappingMetaData2->GetOrigin()))
+  {
+    vtkLog(ERROR, "The AMR origins do not match.");
+    return false;
+  }
+  return true;
+}
+
+//============================================================================
+/**
  * Check the equality of both partitioned collections.
  * Test both the equality of each partitioned dataset and the strict equality of the assembly.
+ * An AMR is compared as a collection with one partitioned dataset per level, plus its metadata.
  */
 template <>
 struct TestDataObjectsImpl<vtkPartitionedDataSetCollection>
@@ -1849,6 +1944,11 @@ struct TestDataObjectsImpl<vtkPartitionedDataSetCollection>
   static bool Execute(vtkPartitionedDataSetCollection* t1, vtkPartitionedDataSetCollection* t2,
     double toleranceFactor)
   {
+    if (!::TestAMRMetaData(t1, t2))
+    {
+      return false;
+    }
+
     if (t1->GetNumberOfPartitionedDataSets() != t2->GetNumberOfPartitionedDataSets())
     {
       vtkLog(ERROR,
