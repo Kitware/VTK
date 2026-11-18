@@ -2963,11 +2963,11 @@ wheel-macos-python314t-x86_64:test:
 
 # The build artifacts are too large. It's unclear how big they actually are at
 # the moment, so only upload "tidy" (build only) artifacts right now.
-windows-vs2022-debug-mpi-qt:build:
+windows-vs2022-debug-mpi-qt-x86_64:build:
     extends:
-        - .windows_vs2022_debug_mpi_qt
-        - .cmake_build_windows
-        - .windows_builder_tags
+        - .windows_vs2022_debug_mpi_qt_x86-64
+        - .cmake_build_windows_x86-64
+        - .windows_builder_tags_x86-64
         # - .cmake_build_artifacts
         - .cmake_tidy_artifacts
         - .rules
@@ -2976,21 +2976,21 @@ windows-vs2022-debug-mpi-qt:build:
     timeout: 180 minutes
     needs: []
 
-# windows-vs2022-debug-mpi-qt:test:
+# windows-vs2022-debug-mpi-qt-x86_64:test:
 #     extends:
-#         - .windows_vs2022_debug_mpi_qt
-#         - .cmake_test_windows
-#         - .windows_tester_tags
+#         - .windows_vs2022_debug_mpi_qt_x86-64
+#         - .cmake_test_windows_x86-64
+#         - .windows_tester_tags_x86-64
 #         - .cmake_test_artifacts
 #         - .rules
 #     needs:
-#         - windows-vs2022-debug-mpi-qt:build
+#         - windows-vs2022-debug-mpi-qt-x86_64:build
 
-windows-vs2022-webgpu:build:
+windows-vs2022-webgpu-x86_64:build:
     extends:
-        - .windows_vs2022_webgpu
-        - .cmake_build_windows
-        - .windows_builder_tags
+        - .windows_vs2022_webgpu_x86-64
+        - .cmake_build_windows_x86-64
+        - .windows_builder_tags_x86-64
         - .cmake_build_artifacts
         - .rules
     variables:
@@ -2998,21 +2998,46 @@ windows-vs2022-webgpu:build:
     timeout: 180 minutes
     needs: []
 
-windows-vs2022-webgpu:test:
+windows-vs2022-arm64:build:
     extends:
-        - .windows_vs2022_webgpu
-        - .cmake_test_windows
-        - .windows_tester_tags
+        - .windows_vs2022_basic_arm64
+        - .cmake_build_windows_arm64
+        - .windows_builder_tags_arm64
+        - .cmake_build_artifacts
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
+    timeout: 180 minutes
+    needs: []
+
+windows-vs2022-python-qt-arm64:build:
+    extends:
+        - .windows_vs2022_python_qt_arm64
+        - .cmake_build_windows_arm64
+        - .windows_builder_tags_arm64
+        - .cmake_build_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+    timeout: 180 minutes
+    needs: []
+
+windows-vs2022-webgpu-x86_64:test:
+    extends:
+        - .windows_vs2022_webgpu_x86-64
+        - .cmake_test_windows_x86-64
+        - .windows_tester_tags_x86-64
         - .cmake_test_artifacts
         - .rules
     needs:
-        - windows-vs2022-webgpu:build
+        - windows-vs2022-webgpu-x86_64:build
 
-windows-vs2022-kits-mpi-python-qt:build:
+windows-vs2022-kits-mpi-python-qt-x86_64:build:
     extends:
-        - .windows_vs2022_kits_mpi_python_qt
-        - .cmake_build_windows
-        - .windows_builder_tags
+        - .windows_vs2022_kits_mpi_python_qt_x86-64
+        - .cmake_build_windows_x86-64
+        - .windows_builder_tags_x86-64
         - .cmake_build_artifacts
         - .rules
     variables:
@@ -3020,27 +3045,27 @@ windows-vs2022-kits-mpi-python-qt:build:
     timeout: 180 minutes
     stage: quick
 
-windows-vs2022-kits-mpi-python-qt:test:
+windows-vs2022-kits-mpi-python-qt-x86_64:test:
     extends:
-        - .windows_vs2022_kits_mpi_python_qt
-        - .cmake_test_windows
-        - .windows_tester_tags
+        - .windows_vs2022_kits_mpi_python_qt_x86-64
+        - .cmake_test_windows_x86-64
+        - .windows_tester_tags_x86-64
         - .cmake_test_artifacts
         - .rules
     needs:
-        - windows-vs2022-kits-mpi-python-qt:build
+        - windows-vs2022-kits-mpi-python-qt-x86_64:build
 
-windows-vs2022-kits-mpi-python-qt-stdthread:test:
+windows-vs2022-kits-mpi-python-qt-stdthread-x86_64:test:
     extends:
-        - .windows_vs2022_kits_mpi_python_qt_stdthread
+        - .windows_vs2022_kits_mpi_python_qt_stdthread_x86-64
         - .smp_backend_stdthread_env_variable
         - .ctest_new_cdash_submission
-        - .cmake_test_windows
-        - .windows_tester_tags
+        - .cmake_test_windows_x86-64
+        - .windows_tester_tags_x86-64
         - .cmake_test_artifacts
         - .rules
     needs:
-        - windows-vs2022-kits-mpi-python-qt:build
+        - windows-vs2022-kits-mpi-python-qt-x86_64:build
 
 # This is disabled because Viskores doesn't make a relocatable installation of its
 # imported targets (cf. `viskores::tbb` since it embeds the build-time locations
@@ -3051,21 +3076,21 @@ windows-vs2022-kits-mpi-python-qt-stdthread:test:
 # Also, the `VTK_DLL_PATHS` ends up making a non-relocatable installation. See
 # `.gitlab/ci/configure_windows.cmake` for the relevant code.
 #
-# vtk:windows-vs2022-kits-mpi-python-qt:test-ext:
+# vtk:windows-vs2022-kits-mpi-python-qt-x86_64:test-ext:
 #     extends:
-#         - .windows_vs2022_kits_mpi_python_qt_ext_vtk
-#         - .cmake_test_external_windows
-#         - .windows_ext_builder_tags
+#         - .windows_vs2022_kits_mpi_python_qt_ext_vtk_x86-64
+#         - .cmake_test_external_windows_x86-64
+#         - .windows_ext_builder_tags_x86-64
 #         - .cmake_junit_artifacts
 #         - .rules
 #     needs:
-#         - windows-vs2022-kits-mpi-python-qt:test
+#         - windows-vs2022-kits-mpi-python-qt-x86_64:test
 
-windows-vs2022-mpi-python-qt:build:
+windows-vs2022-mpi-python-qt-x86_64:build:
     extends:
-        - .windows_vs2022_mpi_python_qt
-        - .cmake_build_windows
-        - .windows_builder_tags
+        - .windows_vs2022_mpi_python_qt_x86-64
+        - .cmake_build_windows_x86-64
+        - .windows_builder_tags_x86-64
         - .cmake_build_artifacts
         - .rules
     variables:
@@ -3073,31 +3098,31 @@ windows-vs2022-mpi-python-qt:build:
     timeout: 180 minutes
     needs: []
 
-windows-vs2022-mpi-python-qt:test:
+windows-vs2022-mpi-python-qt-x86_64:test:
     extends:
-        - .windows_vs2022_mpi_python_qt
-        - .cmake_test_windows
-        - .windows_tester_tags
+        - .windows_vs2022_mpi_python_qt_x86-64
+        - .cmake_test_windows_x86-64
+        - .windows_tester_tags_x86-64
         - .cmake_test_artifacts
         - .rules
     needs:
-        - windows-vs2022-mpi-python-qt:build
+        - windows-vs2022-mpi-python-qt-x86_64:build
 
-windows-vs2022-mpi-python-qt-serialization:test:
+windows-vs2022-mpi-python-qt-serialization-x86_64:test:
     extends:
-        - .windows_vs2022_mpi_python_qt_serialization
-        - .cmake_test_windows
-        - .windows_tester_tags
+        - .windows_vs2022_mpi_python_qt_serialization_x86-64
+        - .cmake_test_windows_x86-64
+        - .windows_tester_tags_x86-64
         - .cmake_test_artifacts
         - .rules
     needs:
-        - windows-vs2022-mpi-python-qt:build
+        - windows-vs2022-mpi-python-qt-x86_64:build
 
-windows-vs2022-mpi-python-qt-static:build:
+windows-vs2022-mpi-python-qt-static-x86_64:build:
     extends:
-        - .windows_vs2022_mpi_python_qt_static
-        - .cmake_build_windows
-        - .windows_builder_tags
+        - .windows_vs2022_mpi_python_qt_static_x86-64
+        - .cmake_build_windows_x86-64
+        - .windows_builder_tags_x86-64
         - .cmake_build_artifacts
         - .rules
     variables:
@@ -3105,23 +3130,23 @@ windows-vs2022-mpi-python-qt-static:build:
     timeout: 180 minutes
     needs: []
 
-windows-vs2022-mpi-python-qt-static:test:
+windows-vs2022-mpi-python-qt-static-x86_64:test:
     extends:
-        - .windows_vs2022_mpi_python_qt_static
-        - .cmake_test_windows
-        - .windows_tester_tags
+        - .windows_vs2022_mpi_python_qt_static_x86-64
+        - .cmake_test_windows_x86-64
+        - .windows_tester_tags_x86-64
         - .cmake_test_artifacts
         - .rules
     needs:
-        - windows-vs2022-mpi-python-qt-static:build
+        - windows-vs2022-mpi-python-qt-static-x86_64:build
 
 ## Python wheel builds
 
 wheel-windows-python310-x86_64:build:
     extends:
         - .wheel_windows310_x86_64
-        - .cmake_build_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_build_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
     needs: []
@@ -3129,8 +3154,8 @@ wheel-windows-python310-x86_64:build:
 wheel-windows-python310-x86_64:test:
     extends:
         - .wheel_windows310_x86_64
-        - .cmake_test_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_test_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
     needs:
@@ -3139,8 +3164,8 @@ wheel-windows-python310-x86_64:test:
 wheel-windows-python310-x86_64-osmesa:test:
     extends:
         - .wheel_windows310_x86_64_osmesa
-        - .cmake_test_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_test_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
     needs:
@@ -3149,8 +3174,8 @@ wheel-windows-python310-x86_64-osmesa:test:
 wheel-windows-python311-x86_64:build:
     extends:
         - .wheel_windows311_x86_64
-        - .cmake_build_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_build_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
     needs: []
@@ -3158,8 +3183,8 @@ wheel-windows-python311-x86_64:build:
 wheel-windows-python311-x86_64:test:
     extends:
         - .wheel_windows311_x86_64
-        - .cmake_test_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_test_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
     needs:
@@ -3168,8 +3193,8 @@ wheel-windows-python311-x86_64:test:
 wheel-windows-python311-x86_64-osmesa:test:
     extends:
         - .wheel_windows311_x86_64_osmesa
-        - .cmake_test_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_test_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
     needs:
@@ -3178,8 +3203,8 @@ wheel-windows-python311-x86_64-osmesa:test:
 wheel-windows-python312-x86_64:build:
     extends:
         - .wheel_windows312_x86_64
-        - .cmake_build_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_build_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_older_build
     needs: []
@@ -3187,8 +3212,8 @@ wheel-windows-python312-x86_64:build:
 wheel-windows-python312-x86_64:test:
     extends:
         - .wheel_windows312_x86_64
-        - .cmake_test_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_test_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
     needs:
@@ -3197,8 +3222,8 @@ wheel-windows-python312-x86_64:test:
 wheel-windows-python312-x86_64-osmesa:test:
     extends:
         - .wheel_windows312_x86_64_osmesa
-        - .cmake_test_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_test_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_older_test
     needs:
@@ -3207,8 +3232,8 @@ wheel-windows-python312-x86_64-osmesa:test:
 wheel-windows-python313-x86_64:build:
     extends:
         - .wheel_windows313_x86_64
-        - .cmake_build_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_build_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_previous_build
     needs: []
@@ -3216,8 +3241,8 @@ wheel-windows-python313-x86_64:build:
 wheel-windows-python313-x86_64:test:
     extends:
         - .wheel_windows313_x86_64
-        - .cmake_test_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_test_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .rules
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_previous_test
@@ -3227,8 +3252,8 @@ wheel-windows-python313-x86_64:test:
 wheel-windows-python313-x86_64-osmesa:test:
     extends:
         - .wheel_windows313_x86_64_osmesa
-        - .cmake_test_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_test_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .rules
         - .cdash_annotations_artifacts
         - .rules_variables_wheel_previous_test
@@ -3238,8 +3263,8 @@ wheel-windows-python313-x86_64-osmesa:test:
 wheel-windows-python314-x86_64:build:
     extends:
         - .wheel_windows314_x86_64
-        - .cmake_build_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_build_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_latest_build
     needs: []
@@ -3247,8 +3272,8 @@ wheel-windows-python314-x86_64:build:
 wheel-windows-python314-x86_64:test:
     extends:
         - .wheel_windows314_x86_64
-        - .cmake_test_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_test_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .rules_variables_wheel_latest_test
         - .cdash_annotations_artifacts
     needs:
@@ -3257,8 +3282,8 @@ wheel-windows-python314-x86_64:test:
 wheel-windows-python314-x86_64-osmesa:test:
     extends:
         - .wheel_windows314_x86_64_osmesa
-        - .cmake_test_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_test_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .rules_variables_wheel_latest_test
         - .cdash_annotations_artifacts
     needs:
@@ -3267,8 +3292,8 @@ wheel-windows-python314-x86_64-osmesa:test:
 wheel-windows-python314t-x86_64:build:
     extends:
         - .wheel_windows314t_x86_64
-        - .cmake_build_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_build_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .cmake_wheel_artifacts
         - .rules_variables_wheel_weekly_build
     needs: []
@@ -3276,8 +3301,8 @@ wheel-windows-python314t-x86_64:build:
 wheel-windows-python314t-x86_64:test:
     extends:
         - .wheel_windows314t_x86_64
-        - .cmake_test_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_test_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .rules_variables_wheel_weekly_test
         - .cdash_annotations_artifacts
     needs:
@@ -3286,8 +3311,8 @@ wheel-windows-python314t-x86_64:test:
 wheel-windows-python314t-x86_64-osmesa:test:
     extends:
         - .wheel_windows314t_x86_64_osmesa
-        - .cmake_test_wheel_windows
-        - .windows_wheel_builder_tags
+        - .cmake_test_wheel_windows_x86-64
+        - .windows_wheel_builder_tags_x86-64
         - .rules_variables_wheel_weekly_test
         - .cdash_annotations_artifacts
     needs:
@@ -3415,9 +3440,9 @@ macos-arm64-java11:test:
 
 windows-x86_64-java8:build:
     extends:
-        - .windows_vs2022_java
-        - .cmake_build_java_windows
-        - .windows_builder_tags
+        - .windows_vs2022_java_x86-64
+        - .cmake_build_java_windows_x86-64
+        - .windows_builder_tags_x86-64
         - .cmake_build_artifacts
         - .rules
     variables:
@@ -3430,9 +3455,9 @@ windows-x86_64-java8:build:
 
 windows-x86_64-java8:test:
     extends:
-        - .windows_vs2022_java
-        - .cmake_test_java_windows
-        - .windows_tester_tags
+        - .windows_vs2022_java_x86-64
+        - .cmake_test_java_windows_x86-64
+        - .windows_tester_tags_x86-64
         - .cmake_test_artifacts
         - .rules
     variables:
@@ -3444,9 +3469,9 @@ windows-x86_64-java8:test:
 
 windows-x86_64-java11:build:
     extends:
-        - .windows_vs2022_java
-        - .cmake_build_java_windows
-        - .windows_builder_tags
+        - .windows_vs2022_java_x86-64
+        - .cmake_build_java_windows_x86-64
+        - .windows_builder_tags_x86-64
         - .cmake_build_artifacts
         - .rules
     variables:
@@ -3458,9 +3483,9 @@ windows-x86_64-java11:build:
 
 windows-x86_64-java11:test:
     extends:
-        - .windows_vs2022_java
-        - .cmake_test_java_windows
-        - .windows_tester_tags
+        - .windows_vs2022_java_x86-64
+        - .cmake_test_java_windows_x86-64
+        - .windows_tester_tags_x86-64
         - .cmake_test_artifacts
         - .rules
     variables:

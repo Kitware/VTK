@@ -12,6 +12,6 @@ wslink==1.9.1
 setuptools==75.5.0
 
 # For XArray to vtkNetCDFCFReader connector
-xarray==2024.10.0
-netcdf4==1.7.2
-cftime==1.6.4.post1
+xarray==2026.9.0
+netcdf4==1.7.4
+cftime==1.6.6.1
