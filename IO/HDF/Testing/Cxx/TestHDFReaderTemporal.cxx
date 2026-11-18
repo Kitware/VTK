@@ -1044,45 +1044,11 @@ int TestOverlappingAMRTemporalBase(const std::string& dataRoot, const std::strin
       return EXIT_FAILURE;
     }
 
-    unsigned int numLevels = data->GetNumberOfLevels();
-    if (numLevels != expectedData->GetNumberOfLevels())
-    {
-      std::cerr << "Expected " << expectedData->GetNumberOfLevels() << " levels but got "
-                << numLevels << std::endl;
-      return EXIT_FAILURE;
-    }
-
-    auto origin = data->GetOrigin();
-    auto expectedOrigin = expectedData->GetOrigin();
-    bool wrongOriginX =
-      !vtkMathUtilities::FuzzyCompare(origin[0], expectedOrigin[0], CHECK_TOLERANCE);
-    bool wrongOriginY =
-      !vtkMathUtilities::FuzzyCompare(origin[1], expectedOrigin[1], CHECK_TOLERANCE);
-    bool wrongOriginZ =
-      !vtkMathUtilities::FuzzyCompare(origin[2], expectedOrigin[2], CHECK_TOLERANCE);
-
-    if (wrongOriginX || wrongOriginY || wrongOriginZ)
-    {
-      std::cerr << "Wrong origin, it should be {" << expectedOrigin[0] << "," << expectedOrigin[1]
-                << "," << expectedOrigin[2] << "} but got {" << origin[0] << "," << origin[1] << ","
-                << origin[2] << "}." << std::endl;
-      return EXIT_FAILURE;
-    }
-
     for (unsigned int levelIndex = 0; levelIndex < expectedData->GetNumberOfLevels(); ++levelIndex)
     {
-      if (data->GetNumberOfBlocks(levelIndex) != expectedData->GetNumberOfBlocks(levelIndex))
-      {
-        std::cerr << "Number of blocks does not match for level " << levelIndex
-                  << ". Expected: " << expectedData->GetNumberOfBlocks(0)
-                  << " got: " << data->GetNumberOfBlocks(0) << std::endl;
-        return EXIT_FAILURE;
-      }
-
       for (unsigned int datasetIndex = 0;
            datasetIndex < expectedData->GetNumberOfBlocks(levelIndex); ++datasetIndex)
       {
-        vtkImageData* dataset = data->GetDataSetAsImageData(levelIndex, datasetIndex);
         vtkImageData* expectedDataset =
           expectedData->GetDataSetAsImageData(levelIndex, datasetIndex);
 
@@ -1093,14 +1059,13 @@ int TestOverlappingAMRTemporalBase(const std::string& dataRoot, const std::strin
         // Not written to file
         expectedDataset->GetPointData()->RemoveArray("vtkOriginalPointIds");
         expectedDataset->GetCellData()->RemoveArray("vtkOriginalCellIds");
-
-        if (!vtkTestUtilities::CompareDataObjects(dataset, expectedDataset))
-        {
-          std::cerr << "Datasets does not match for level " << levelIndex << " dataset "
-                    << datasetIndex << std::endl;
-          return EXIT_FAILURE;
-        }
       }
+    }
+
+    if (!vtkTestUtilities::CompareDataObjects(data, expectedData))
+    {
+      std::cerr << "The AMR does not match the expected one at timestep " << iStep << std::endl;
+      return EXIT_FAILURE;
     }
   }
 
