@@ -8,6 +8,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
+#include "vtkDemandDrivenPipeline.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkHDFReader.h"
@@ -15,6 +16,7 @@
 #include "vtkHyperTreeGridSource.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
@@ -63,6 +65,7 @@ int TestOverlappingAMRTemporalLegacy(const std::string& dataRoot);
 int TestPartialArrayWithCompositeDataset(const std::string& dataRoot);
 int TestPDCPolyDataUGTemporal(const std::string& dataRoot);
 int TestMBPolyDataUGTemporal(const std::string& dataRoot);
+int TestFileSwitchInformation(const std::string& dataRoot);
 
 /**
  * Remove time field arrays added by the readers for rigorous data comparisons to succeed.
@@ -103,6 +106,7 @@ int TestHDFReaderTemporal(int argc, char* argv[])
   testUtils->AddArguments(argc, argv);
   std::string dataRoot = testUtils->GetDataRoot();
   int res = ::TestUGTemporal(dataRoot);
+  res |= ::TestFileSwitchInformation(dataRoot);
   res |= ::TestImageDataTemporal(dataRoot);
   res |= ::TestImageDataTemporalCache(dataRoot);
   res |= ::TestPolyDataTemporal(dataRoot);
@@ -1255,6 +1259,37 @@ int TestMBPolyDataUGTemporal(const std::string& dataRoot)
         return EXIT_FAILURE;
       }
     }
+  }
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+int TestFileSwitchInformation(const std::string& dataRoot)
+{
+  // Test that only calling RequestInformation after changing filename correctly updates the number
+  // of steps
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_partitioned_polydata.vtkhdf").c_str());
+  reader->UpdateInformation();
+  if (reader->GetNumberOfSteps() != 12 ||
+    reader->GetOutputInformation(0)->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) != 12)
+  {
+    std::cerr << "Incorrect number of steps" << reader->GetNumberOfSteps() << " != 12" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Call RequestInformation but not RequestDataObject
+  reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_ug.vtkhdf").c_str());
+  vtkNew<vtkInformation> request;
+  request->Set(vtkDemandDrivenPipeline::REQUEST_INFORMATION());
+  vtkNew<vtkInformationVector> output;
+  output->SetInformationObject(0, reader->GetOutputInformation(0));
+  reader->ProcessRequest(request, nullptr, output);
+  if (reader->GetNumberOfSteps() != 10 ||
+    reader->GetOutputInformation(0)->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) != 10)
+  {
+    std::cerr << "Incorrect number of steps" << reader->GetNumberOfSteps() << " != 10" << std::endl;
+    return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
 }
