@@ -101,7 +101,7 @@
             annotations:
                 - build/annotations.json
             junit:
-                - build/junit.xml
+                - build/junit*.xml
         paths:
             # Install tree (if any)
             - build/install/

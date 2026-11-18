@@ -61,6 +61,9 @@ ctest_test(APPEND
 
 # Run tests known to be slow on some runners with a longer timeout.
 if (test_slow)
+  # APPEND merges on CDash; the next ctest_test overwrites the local Test.xml.
+  ctest_submit(PARTS Test)
+
   set(CTEST_TEST_TIMEOUT "${test_slow_timeout}")
   ctest_test(APPEND
     PARALLEL_LEVEL "${nproc}"
