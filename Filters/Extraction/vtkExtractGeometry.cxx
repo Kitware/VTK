@@ -402,7 +402,6 @@ int vtkExtractGeometry::RequestData(
       currentLeaveIdx++;
       outIter->GoToNextItem();
     }
-    this->InvokeCleanupAbortCheck();
     return ret;
   }
   else

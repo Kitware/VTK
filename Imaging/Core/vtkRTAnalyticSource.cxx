@@ -270,8 +270,6 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(
     }
     outPtr += outIncZ;
   }
-
-  this->InvokeCleanupAbortCheck();
 }
 
 void vtkRTAnalyticSource::PrintSelf(ostream& os, vtkIndent indent)

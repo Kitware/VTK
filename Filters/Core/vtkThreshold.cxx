@@ -277,7 +277,6 @@ int vtkThreshold::RequestData(
   }
   if (this->CheckAbortAndInvoke())
   {
-    this->InvokeCleanupAbortCheck();
     return 1;
   }
   // call vtkExtractCells
@@ -300,9 +299,7 @@ int vtkThreshold::RequestData(
   extractCells->SetProgressShiftScale(0.5, 0.5);
   this->SetProgressShiftScale(0.5, 0.5);
 
-  auto result = extractCells->ProcessRequest(request, inputVector, outputVector);
-  this->InvokeCleanupAbortCheck();
-  return result;
+  return extractCells->ProcessRequest(request, inputVector, outputVector);
 }
 
 //------------------------------------------------------------------------------

@@ -330,8 +330,6 @@ int vtkWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
   output->GetCellData()->CopyNormalsOff(); // distorted geometry
   output->GetCellData()->PassData(input->GetCellData());
 
-  this->InvokeCleanupAbortCheck();
-
   if (this->GenerateEnclosure && inputHasBoundary)
   {
     vtkPolyData* polyOutput = vtkPolyData::SafeDownCast(output);

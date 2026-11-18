@@ -273,12 +273,6 @@ bool vtkAlgorithm::CheckAbortAndInvoke()
 }
 
 //------------------------------------------------------------------------------
-void vtkAlgorithm::InvokeCleanupAbortCheck()
-{
-  this->InvokeEvent(vtkCommand::CleanupAbortCheckEvent);
-}
-
-//------------------------------------------------------------------------------
 // Set AbortExecute flag and update LastAbortTime.
 void vtkAlgorithm::SetAbortExecuteAndUpdateTime()
 {

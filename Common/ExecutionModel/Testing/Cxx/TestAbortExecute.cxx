@@ -58,7 +58,6 @@ class vtkCustomRTAnalyticSource : public vtkRTAnalyticSource
 {
 public:
   int AbortEventCounts = 0;
-  int CleanupEventCounts = 0;
 
   static vtkCustomRTAnalyticSource* New();
   vtkTypeMacro(vtkCustomRTAnalyticSource, vtkRTAnalyticSource);
@@ -71,8 +70,6 @@ public:
       this->AbortEventCounts++;
     }
   }
-
-  void CleanupCallback() { this->CleanupEventCounts++; }
 
   // Overridden to avoid races
   void ExecuteDataWithInformation(vtkDataObject* data, vtkInformation* outInfo) override
@@ -118,7 +115,6 @@ class vtkCustomCellCenters : public vtkCellCenters
 {
 public:
   int AbortEventCounts = 0;
-  int CleanupEventCounts = 0;
 
   static vtkCustomCellCenters* New();
   vtkTypeMacro(vtkCustomCellCenters, vtkCellCenters);
@@ -151,8 +147,6 @@ bool AbortExecutePipeline()
   wavelet->SetWholeExtent(0, 50, 0, 50, 0, 50);
   wavelet->AddObserver(
     vtkCommand::AbortCheckEvent, wavelet.Get(), &::vtkCustomRTAnalyticSource::AbortCallback);
-  wavelet->AddObserver(vtkCommand::CleanupAbortCheckEvent, wavelet.Get(),
-    &::vtkCustomRTAnalyticSource::CleanupCallback);
 
   shrink->SetInputConnection(wavelet->GetOutputPort());
 
@@ -171,11 +165,6 @@ bool AbortExecutePipeline()
   if (wavelet->AbortEventCounts == 0)
   {
     vtkLog(ERROR, << "Wavelet did not invoke expected abort check event");
-    return false;
-  }
-  if (wavelet->CleanupEventCounts != 1)
-  {
-    vtkLog(ERROR, "Wavelet did not invoke expected cleanup abort check event");
     return false;
   }
   if (!wavelet->GetAbortExecute())

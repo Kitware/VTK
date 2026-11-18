@@ -565,7 +565,6 @@ int vtkStreamTracer::RequestData(vtkInformation* vtkNotUsed(request),
   seedIds->Delete();
 
   this->InputData->UnRegister(this);
-  this->InvokeCleanupAbortCheck();
   return 1;
 }
 

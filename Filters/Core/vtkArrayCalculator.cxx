@@ -676,8 +676,6 @@ int vtkArrayCalculator::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
 
-    this->InvokeCleanupAbortCheck();
-
     return success;
   }
 
