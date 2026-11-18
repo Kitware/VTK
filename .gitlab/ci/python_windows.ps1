@@ -18,6 +18,8 @@ if ($env:PYTHON_VERSION_SUFFIX) {
     $python_request = $env:PYTHON_VERSION_SUFFIX
 } elseif ("$env:CMAKE_CONFIGURATION" -match "windows3(\d+)") {
     $python_request = "3.$($Matches[1])"
+} elseif ($env:PROCESSOR_ARCHITECTURE -like "arm64") {
+    $python_request += "-aarch64"
 }
 
 & "$pwdpath\.gitlab\uv.exe" python install --no-bin "cpython-$python_request"

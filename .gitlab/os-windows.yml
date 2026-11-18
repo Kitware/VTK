@@ -126,7 +126,7 @@
         # from GitLab-CI by default (it runs as a Windows service).
         QT_OPENGL: desktop
 
-.windows_vs2022:
+.windows_vs2022_x86-64:
     extends: .windows_build
 
     variables:
@@ -134,71 +134,100 @@
         VCVARSPLATFORM: "x64"
         VCVARSVERSION: "14.35.32215"
 
-.windows_vs2022_debug_mpi_qt:
-    extends:
-        - .windows_vs2022
+.windows_vs2022_arm64:
+    extends: .windows_build
 
     variables:
-        CMAKE_CONFIGURATION: windows_vs2022_debug_mpi_qt
+        VCVARSALL: "${VS170COMNTOOLS}\\..\\..\\VC\\Auxiliary\\Build\\vcvarsall.bat"
+        VCVARSPLATFORM: "arm64"
+        VCVARSVERSION: "14.44.35207"
+
+.windows_vs2022_debug_mpi_qt_x86-64:
+    extends:
+        - .windows_vs2022_x86-64
+
+    variables:
+        CMAKE_CONFIGURATION: windows_vs2022_x86_64_debug_mpi_qt
         CMAKE_BUILD_TYPE: Debug
 
-.windows_vs2022_kits_mpi_python_qt:
+.windows_vs2022_kits_mpi_python_qt_x86-64:
     extends:
-        - .windows_vs2022
+        - .windows_vs2022_x86-64
 
     variables:
-        CMAKE_CONFIGURATION: windows_vs2022_kits_mpi_python_qt
+        CMAKE_CONFIGURATION: windows_vs2022_x86_64_kits_mpi_python_qt
 
-.windows_vs2022_kits_mpi_python_qt_stdthread:
+.windows_vs2022_kits_mpi_python_qt_stdthread_x86-64:
     extends:
-        - .windows_vs2022
+        - .windows_vs2022_x86-64
 
     variables:
-        CMAKE_CONFIGURATION: windows_vs2022_kits_mpi_python_qt_stdthread
+        CMAKE_CONFIGURATION: windows_vs2022_x86_64_kits_mpi_python_qt_stdthread
 
-.windows_vs2022_kits_mpi_python_qt_ext_vtk:
+.windows_vs2022_kits_mpi_python_qt_ext_vtk_x86-64:
     extends:
-        - .windows_vs2022
+        - .windows_vs2022_x86-64
 
     variables:
-        CMAKE_CONFIGURATION: windows_vs2022_kits_mpi_python_qt_ext_vtk
+        CMAKE_CONFIGURATION: windows_vs2022_x86_64_kits_mpi_python_qt_ext_vtk
 
-.windows_vs2022_mpi_python_qt:
+.windows_vs2022_mpi_python_qt_x86-64:
     extends:
-        - .windows_vs2022
+        - .windows_vs2022_x86-64
 
     variables:
-        CMAKE_CONFIGURATION: windows_vs2022_mpi_python_qt
+        CMAKE_CONFIGURATION: windows_vs2022_x86_64_mpi_python_qt
 
-.windows_vs2022_mpi_python_qt_serialization:
+.windows_vs2022_mpi_python_qt_serialization_x86-64:
     extends:
-        - .windows_vs2022
+        - .windows_vs2022_x86-64
 
     variables:
-        CMAKE_CONFIGURATION: windows_vs2022_mpi_python_qt_serialization
+        CMAKE_CONFIGURATION: windows_vs2022_x86_64_mpi_python_qt_serialization
 
-.windows_vs2022_mpi_python_qt_static:
+.windows_vs2022_mpi_python_qt_static_x86-64:
     extends:
-        - .windows_vs2022
+        - .windows_vs2022_x86-64
 
     variables:
-        CMAKE_CONFIGURATION: windows_vs2022_mpi_python_qt_static
+        CMAKE_CONFIGURATION: windows_vs2022_x86_64_mpi_python_qt_static
 
-.windows_vs2022_java:
-    extends: .windows_vs2022
+.windows_vs2022_java_x86-64:
+    extends: .windows_vs2022_x86-64
     variables:
-        CMAKE_CONFIGURATION: windows_vs2022_java
+        CMAKE_CONFIGURATION: windows_vs2022_x86_64_java
         VTK_INSTALL: 1
 
-.windows_vs2022_webgpu:
-    extends: .windows_vs2022
+.windows_vs2022_webgpu_x86-64:
+    extends: .windows_vs2022_x86-64
 
     variables:
-        CMAKE_CONFIGURATION: windows_vs2022_webgpu
+        CMAKE_CONFIGURATION: windows_vs2022_x86_64_webgpu
+
+.windows_vs2022_basic_arm64:
+    extends: .windows_vs2022_arm64
+
+    variables:
+        CMAKE_CONFIGURATION: windows_vs2022_arm64
+
+.windows_vs2022_python_qt_arm64:
+    extends: .windows_vs2022_arm64
+
+    variables:
+        CMAKE_CONFIGURATION: windows_vs2022_arm64_qt_python
 
 ## Tags
 
-.windows_builder_tags:
+.windows_builder_tags_arm64:
+    tags:
+        - vtk # Since this is a bare runner, pin to a project.
+        - msvc-14.44
+        - nonconcurrent
+        - shell
+        - vs2022
+        - windows-arm64
+
+.windows_builder_tags_x86-64:
     tags:
         - vtk # Since this is a bare runner, pin to a project.
         - msvc-19.35
@@ -207,7 +236,7 @@
         - vs2022
         - windows-x86_64
 
-.windows_wheel_builder_tags:
+.windows_wheel_builder_tags_x86-64:
     tags:
         - vtk # Since this is a bare runner, pin to a project.
         - msvc-19.35
@@ -216,7 +245,7 @@
         - vs2022
         - windows-x86_64
 
-.windows_tester_tags:
+.windows_tester_tags_x86-64:
     tags:
         - vtk # Since this is a bare runner, pin to a project.
         - msvc-19.35
@@ -226,7 +255,7 @@
         - windows-x86_64
         # - test # Not needed yet?
 
-.windows_ext_builder_tags:
+.windows_ext_builder_tags_x86-64:
     tags:
         - vtk # Since this is a bare runner, pin to a project.
         - msvc-19.35
@@ -308,7 +337,15 @@
     - buildcache --show-stats
     - .gitlab\ci\check_warnings.ps1 -BuildPath . # This will call exit in case of warnings
 
-.cmake_build_windows:
+.cmake_build_windows_arm64:
+    stage: build
+    extends: .warning_policy
+    script:
+        - *before_script_windows
+        - *before_script_windows_deps
+        - *script_windows
+
+.cmake_build_windows_x86-64:
     stage: build
     extends: .warning_policy
     script:
@@ -320,7 +357,7 @@
         - *script_windows
     interruptible: true
 
-.cmake_test_windows:
+.cmake_test_windows_x86-64:
     stage: test
 
     script:
@@ -338,7 +375,7 @@
         - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
     interruptible: true
 
-.cmake_test_external_windows:
+.cmake_test_external_windows_x86-64:
     stage: test-ext
     extends: .warning_policy
 
@@ -358,7 +395,7 @@
 
     interruptible: true
 
-.cmake_build_wheel_windows:
+.cmake_build_wheel_windows_x86-64:
     stage: build
     extends: .warning_policy
 
@@ -396,7 +433,7 @@
         - .gitlab\ci\check_warnings.ps1 -BuildPath . # This will call exit in case of warnings
     interruptible: true
 
-.cmake_test_wheel_windows:
+.cmake_test_wheel_windows_x86-64:
     stage: test
 
     script:
@@ -433,9 +470,9 @@
         - .gitlab\ci\check_warnings.ps1 -BuildPath ./Testing/ExternalWheel
     interruptible: true
 
-.cmake_build_java_windows:
+.cmake_build_java_windows_x86-64:
     stage: build
-    extends: .cmake_build_windows
+    extends: .cmake_build_windows_x86-64
     script:
         - *before_script_windows
         - *before_script_windows_deps
@@ -444,7 +481,7 @@
         - *before_script_java_windows
         - *script_windows
 
-.cmake_test_java_windows:
+.cmake_test_java_windows_x86-64:
     stage: test
     script:
         - *before_script_windows

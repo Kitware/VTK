@@ -22,9 +22,15 @@ endif ()
 
 # Determine the ABI to fetch for Qt.
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "vs2022")
-  set(qt_platform "windows_x86")
-  set(msvc_year "2022")
-  set(qt_abi "win64_msvc${msvc_year}_64")
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "arm64")
+    set(qt_platform "windows_arm64")
+    set(msvc_year "2022")
+    set(qt_abi "win64_msvc${msvc_year}_arm64")
+  else ()
+    set(qt_platform "windows_x86")
+    set(msvc_year "2022")
+    set(qt_abi "win64_msvc${msvc_year}_64")
+  endif ()
 elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
   set(qt_platform "mac_x64")
   set(qt_abi "clang_64")
@@ -59,6 +65,16 @@ if (qt_platform STREQUAL "windows_x86")
   foreach (qt_component IN ITEMS qtbase qtdeclarative qttools)
     list(APPEND qt_files
       "qt.qt6.${qt_version_nodot}.${qt_abi}/${qt_file_name_prefix}${qt_component}-Windows-Windows_11_24H2-MSVC2022-Windows-Windows_11_24H2-X86_64.7z")
+  endforeach ()
+
+  set(qt_subdir "${qt_version}/clang_64")
+elseif (qt_platform STREQUAL "windows_arm64")
+  set(qt_build_stamp "202609280346")
+  set(qt_file_name_prefix "${qt_version}-0-${qt_build_stamp}")
+
+  foreach (qt_component IN ITEMS qtbase qtdeclarative qttools)
+    list(APPEND qt_files
+      "qt.qt6.${qt_version_nodot}${}.${qt_abi}/${qt_file_name_prefix}${qt_component}-Windows-Windows_11_23H2-MSVC2022-Windows-Windows_11_23H2-AARCH64.7z")
   endforeach ()
 
   set(qt_subdir "${qt_version}/clang_64")

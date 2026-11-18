@@ -1,8 +1,17 @@
 $erroractionpreference = "stop"
 
-$version = "1.10.2"
-$sha256sum = "BBDE850D247D2737C5764C927D1071CBB1F1957DCABDA4A130FA8547C12C695F"
-$filename = "ninja-win"
+$version = "1.13.2"
+
+if ("$env:PROCESSOR_ARCHITECTURE" -eq "AMD64") {
+    $sha256sum = "07FC8261B42B20E71D1720B39068C2E14FFCEE6396B76FB7A795FB460B78DC65"
+    $filename = "ninja-win"
+} elseif ("$env:PROCESSOR_ARCHITECTURE" -eq "ARM64") {
+    $sha256sum = "E52F0BDEF9DFB1003229DBD6508A508C4073FD017247002ADC66E5E806CB0391"
+    $filename = "ninja-winarm64"
+} else {
+    throw ('unknown PROCESSOR_ARCHITECTURE: ' + "$env:PROCESSOR_ARCHITECTURE")
+}
+
 $tarball = "$filename.zip"
 
 $outdir = $pwd.Path
