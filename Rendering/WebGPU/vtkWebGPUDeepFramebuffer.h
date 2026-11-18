@@ -61,7 +61,11 @@ public:
   ///@}
 
   ///@{
-  /** Grow after observed overflow, within the memory/device limit. On by default. */
+  /**
+   * Grow after observed overflow, within the memory/device limit. On by default.
+   * If growth allocation fails, keep the current buffers and stop growing until
+   * the dimensions or explicit budgets change, or graphics resources are released.
+   */
   vtkSetMacro(AutoResize, bool);
   vtkGetMacro(AutoResize, bool);
   vtkBooleanMacro(AutoResize, bool);
@@ -108,8 +112,9 @@ public:
 
   /**
    * Allocate the buffers for a `width` x `height` viewport, reallocating only
-   * when the dimensions or effective capacity changed. Returns false if the
-   * requested allocation is unavailable, in which case transparency must fall back.
+   * when the dimensions or effective capacity changed. Failed automatic growth
+   * keeps the existing buffers and lowers MaximumFragmentNodeCapacity. Other
+   * allocation failures return false, in which case transparency must fall back.
    */
   VTK_MAYSUSPEND bool Resize(int width, int height);
 
@@ -173,6 +178,7 @@ private:
   vtkTypeUInt64 MaximumMemoryInBytes = 0;
   vtkTypeUInt64 AllocationGeneration = 0;
   vtkTypeUInt32 MaximumFragmentNodeCapacity = 0;
+  vtkTypeUInt32 FailedGrowthCapacity = 0;
   bool AutoResize = true;
   int StatisticsInterval = 8;
   vtkTypeUInt32 AllocatedAverageLayers = 0;

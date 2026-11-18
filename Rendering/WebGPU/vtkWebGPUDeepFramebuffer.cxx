@@ -98,9 +98,14 @@ bool vtkWebGPUDeepFramebuffer::Resize(int width, int height)
     this->WGPUConfiguration->ProcessEvents();
   }
   this->UpdateStatistics();
-  if (this->AutoResize && width == this->Width && height == this->Height &&
+  const bool sameSettings = width == this->Width && height == this->Height &&
     this->AllocatedAverageLayers == this->AverageLayersPerPixel &&
-    this->AllocatedMemoryLimit == this->MaximumMemoryInBytes)
+    this->AllocatedMemoryLimit == this->MaximumMemoryInBytes && this->HeadPointersBuffer != nullptr;
+  if (!sameSettings)
+  {
+    this->FailedGrowthCapacity = 0;
+  }
+  if (this->AutoResize && sameSettings)
   {
     nodeCount = std::max<std::uint64_t>(nodeCount, this->FragmentNodeCapacity);
     if (this->Statistics && !this->Statistics->InFlight &&
@@ -136,6 +141,10 @@ bool vtkWebGPUDeepFramebuffer::Resize(int width, int height)
     maxNodeCount =
       std::min<std::uint64_t>(maxNodeCount, this->MaximumMemoryInBytes / FragmentNodeSize);
   }
+  if (this->FailedGrowthCapacity != 0)
+  {
+    maxNodeCount = std::min<std::uint64_t>(maxNodeCount, this->FailedGrowthCapacity);
+  }
 
   if (maxNodeCount == 0)
   {
@@ -159,37 +168,53 @@ bool vtkWebGPUDeepFramebuffer::Resize(int width, int height)
     this->AllocatedMemoryLimit = this->MaximumMemoryInBytes;
     return true;
   }
-  this->ReleaseGraphicsResources();
+  const bool automaticGrowth =
+    this->AutoResize && sameSettings && nodeCount > this->FragmentNodeCapacity;
 
+  // Keep working storage until the entire replacement has been validated.
+  // Scene bindings and render bundles also retain the old buffers until the
+  // renderer sees a new allocation generation and refreshes those references.
   wgpuDevicePushErrorScope(this->WGPUConfiguration->GetDevice(), WGPUErrorFilter_OutOfMemory);
   wgpuDevicePushErrorScope(this->WGPUConfiguration->GetDevice(), WGPUErrorFilter_Validation);
   const auto storage =
     static_cast<WGPUBufferUsage>(WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
 
   const std::string headLabel = "DeepFramebuffer-HeadPointers-" + this->GetObjectDescription();
-  this->HeadPointersBuffer = this->WGPUConfiguration->CreateBuffer(
-    pixelCount * sizeof(std::uint32_t), storage, /*mappedAtCreation=*/false, headLabel.c_str());
+  auto heads = vtkWebGPU::Buffer::Acquire(this->WGPUConfiguration->CreateBuffer(
+    pixelCount * sizeof(std::uint32_t), storage, /*mappedAtCreation=*/false, headLabel.c_str()));
 
   const std::string nodeLabel = "DeepFramebuffer-FragmentNodes-" + this->GetObjectDescription();
-  this->FragmentNodesBuffer = this->WGPUConfiguration->CreateBuffer(
-    nodeCount * FragmentNodeSize, storage, /*mappedAtCreation=*/false, nodeLabel.c_str());
+  auto nodes = vtkWebGPU::Buffer::Acquire(this->WGPUConfiguration->CreateBuffer(
+    nodeCount * FragmentNodeSize, storage, /*mappedAtCreation=*/false, nodeLabel.c_str()));
 
   const std::string counterLabel =
     "DeepFramebuffer-FragmentCounter-" + this->GetObjectDescription();
-  this->FragmentCounterBuffer = this->WGPUConfiguration->CreateBuffer(2 * sizeof(std::uint32_t),
-    storage | WGPUBufferUsage_CopySrc,
-    /*mappedAtCreation=*/false, counterLabel.c_str());
+  auto counter = vtkWebGPU::Buffer::Acquire(this->WGPUConfiguration->CreateBuffer(
+    2 * sizeof(std::uint32_t), storage | WGPUBufferUsage_CopySrc,
+    /*mappedAtCreation=*/false, counterLabel.c_str()));
 
   const bool allocated = CheckAllocation(this->WGPUConfiguration);
-  if (!allocated || this->HeadPointersBuffer == nullptr || this->FragmentNodesBuffer == nullptr ||
-    this->FragmentCounterBuffer == nullptr)
+  if (!allocated || !heads || !nodes || !counter)
   {
+    if (automaticGrowth)
+    {
+      this->FailedGrowthCapacity = this->FragmentNodeCapacity;
+      this->MaximumFragmentNodeCapacity = this->FragmentNodeCapacity;
+      vtkWarningMacro(<< "Could not grow the deep framebuffer; retaining "
+                      << this->FragmentNodeCapacity
+                      << " nodes until its dimensions or budget change.");
+      return true;
+    }
     vtkWarningMacro(<< "Failed to allocate the deep framebuffer buffers for " << width << "x"
                     << height << ".");
     this->ReleaseGraphicsResources();
     return false;
   }
 
+  this->ReleaseGraphicsResources();
+  this->HeadPointersBuffer = heads.Release();
+  this->FragmentNodesBuffer = nodes.Release();
+  this->FragmentCounterBuffer = counter.Release();
   this->Width = width;
   this->Height = height;
   this->FragmentNodeCapacity = static_cast<std::uint32_t>(nodeCount);
@@ -385,6 +410,7 @@ void vtkWebGPUDeepFramebuffer::ReleaseGraphicsResources()
   this->Statistics.reset();
   this->LastFrameStatus = Pending;
   this->LastFragmentCount = 0;
+  this->FailedGrowthCapacity = 0;
 }
 
 void vtkWebGPUDeepFramebuffer::PrintSelf(ostream& os, vtkIndent indent)

@@ -21,6 +21,12 @@ changes. Overflow can therefore affect an interactive frame before a later
 frame recovers. Raising the pool budget does not recover layers omitted by the
 per-pixel resolve limit.
 
+If an automatic growth allocation fails, the existing buffers remain active.
+Their capacity becomes the effective ceiling until the dimensions or explicit
+budgets change, or graphics resources are released. Checked rendering reports
+false while overflow remains. Set `DeepFramebufferMaximumMemoryInBytes` to bound
+node-pool memory below the device limit on memory-constrained systems.
+
 After a complete result, automatic feedback samples every eight frames to limit
 readback overhead. New allocations and incomplete results are sampled immediately.
 Use `renderer.GetDeepFramebuffer().SetStatisticsInterval(1)` to sample every
