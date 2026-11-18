@@ -20,6 +20,7 @@ vtk_module_test_data(
   Data/vtkHDF/temporal_partitioned_polydata_cache.vtkhdf
   Data/vtkHDF/temporal_polydata_field_data.vtkhdf
   Data/vtkHDF/temporal_partitioned_ug.vtkhdf
+  Data/vtkHDF/temporal_image_mb.vtkhdf
   Data/vtkHDF/temporal_unstructured_grid.vtkhdf
   Data/vtkHDF/temporal_harmonics.vtkhdf
   Data/vtkHDF/temporal_sphere.vtkhdf

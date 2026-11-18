@@ -67,6 +67,7 @@ int TestPartialArrayWithCompositeDataset(const std::string& dataRoot);
 int TestPDCPolyDataUGTemporal(const std::string& dataRoot);
 int TestMBPolyDataUGTemporal(const std::string& dataRoot);
 int TestFileSwitchInformation(const std::string& dataRoot);
+int TestCompositeImageDataTemporal(const std::string& dataRoot);
 
 /**
  * Remove time field arrays added by the readers for rigorous data comparisons to succeed.
@@ -124,12 +125,38 @@ int TestHDFReaderTemporal(int argc, char* argv[])
   res |= ::TestPartialArrayWithCompositeDataset(dataRoot);
   res |= ::TestPDCPolyDataUGTemporal(dataRoot);
   res |= ::TestMBPolyDataUGTemporal(dataRoot);
+  res |= ::TestCompositeImageDataTemporal(dataRoot);
 
   return res;
 }
 
 namespace
 {
+//------------------------------------------------------------------------------
+int TestCompositeImageDataTemporal(const std::string& dataRoot)
+{
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_image_mb.vtkhdf").c_str());
+  reader->UpdateInformation(); // Runs RequestInfo + RequestDO
+  reader->Update();            // Runs RequestDO again, which should *not* reset time info
+
+  if (reader->GetNumberOfSteps() != 2 || !reader->GetHasTemporalData())
+  {
+    std::cerr << "Temporal information was reset" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  auto output = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+  auto image = output ? vtkImageData::SafeDownCast(output->GetBlock(0)) : nullptr;
+  auto velocity = image ? image->GetPointData()->GetArray("velocity") : nullptr;
+  if (!velocity || velocity->GetNumberOfTuples() != 8)
+  {
+    std::cerr << "Could not read temporal velocity array" << std::endl;
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
+}
+
 //------------------------------------------------------------------------------
 int TestUGTemporal(const std::string& dataRoot)
 {
