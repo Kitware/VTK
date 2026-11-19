@@ -742,7 +742,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     # RenderingCoreCxx tests that fail with WebGPU.
     # see https://gitlab.kitware.com/vtk/vtk/-/issues/19921
     "^VTK::RenderingCoreCxx-WebGPU-TestAreaSelections$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestBackfaceTexture$"
     "^VTK::RenderingCoreCxx-WebGPU-TestCompositePolyDataMapperBlockOpacities$"
     "^VTK::RenderingCoreCxx-WebGPU-TestCompositePolyDataMapperBlockTextures$"
     "^VTK::RenderingCoreCxx-WebGPU-TestCompositePolyDataMapperCameraShiftScale$"
@@ -780,10 +779,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingCoreCxx-WebGPU-TestRenderLinesAsTubesOrthoCamera$"
     "^VTK::RenderingCoreCxx-WebGPU-TestResizingWindowToImageFilter$"
     "^VTK::RenderingCoreCxx-WebGPU-TestSplitViewportStereoHorizontal$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestStereoBackgroundLeft$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestStereoBackgroundRight$"
     "^VTK::RenderingCoreCxx-WebGPU-TestStereoEyeSeparation$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestTexturedBackground$"
     "^VTK::RenderingCoreCxx-WebGPU-TestTexturedCylinder$"
     "^VTK::RenderingCoreCxx-WebGPU-TestTextureSize$"
     "^VTK::RenderingCoreCxx-WebGPU-TestTextureWrap$"
@@ -850,7 +846,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "webgpu")
     # RenderingCoreCxx tests that fail with WebGPU.
     # see https://gitlab.kitware.com/vtk/vtk/-/issues/19921
     "^VTK::RenderingCoreCxx-WebGPU-TestAreaSelections$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestBackfaceTexture$"
     "^VTK::RenderingCoreCxx-WebGPU-TestBlockOpacity$"
     "^VTK::RenderingCoreCxx-WebGPU-TestCompositePolyDataMapperBlockOpacities$"
     "^VTK::RenderingCoreCxx-WebGPU-TestCompositePolyDataMapperBlockTextures$"
@@ -886,10 +881,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "webgpu")
     "^VTK::RenderingCoreCxx-WebGPU-TestRenderLinesAsTubesOrthoCamera$"
     "^VTK::RenderingCoreCxx-WebGPU-TestResizingWindowToImageFilter$"
     "^VTK::RenderingCoreCxx-WebGPU-TestSplitViewportStereoHorizontal$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestStereoBackgroundLeft$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestStereoBackgroundRight$"
     "^VTK::RenderingCoreCxx-WebGPU-TestStereoEyeSeparation$"
-    "^VTK::RenderingCoreCxx-WebGPU-TestTexturedBackground$"
     "^VTK::RenderingCoreCxx-WebGPU-TestTexturedCylinder$"
     "^VTK::RenderingCoreCxx-WebGPU-TestTextureSize$"
     "^VTK::RenderingCoreCxx-WebGPU-TestTextureWrap$"

@@ -4069,7 +4069,21 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderColors(GraphicsPipelineType p
       if (wgpuTexture->GetDeviceResource() != nullptr)
       {
         basicColorFSImpl += R"(
-  let actor_tex_color: vec4<f32> = textureSample(actor_texture, actor_texture_sampler, vertex.uv);
+  var actor_tex_color: vec4<f32> = textureSample(actor_texture, actor_texture_sampler, vertex.uv);
+)";
+        if (pipelineType == GFX_PIPELINE_TRIANGLES ||
+          pipelineType == GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE)
+        {
+          // ReplaceFragmentShaderMainStart declares is_front_facing for triangle pipelines.
+          // Sample before branching so texture derivatives remain in uniform control flow.
+          basicColorFSImpl += R"(
+  if (!is_front_facing && !showTexturesOnBackface(actor.render_options.flags_2))
+  {
+    actor_tex_color = vec4<f32>(1.0);
+  }
+)";
+        }
+        basicColorFSImpl += R"(
   ambient_color = ambient_color * actor_tex_color.rgb;
   diffuse_color = diffuse_color * actor_tex_color.rgb;
   opacity = opacity * actor_tex_color.a;

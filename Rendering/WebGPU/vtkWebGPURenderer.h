@@ -26,6 +26,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkWebGPUComputeOcclusionCuller;
 class vtkWebGPUDeepFramebuffer;
 class vtkWebGPUEnvironmentMap;
+class vtkWebGPUTexture;
 
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPURenderer : public vtkRenderer
 {
@@ -397,20 +398,22 @@ private:
   void RecordRenderCommands();
 
   /**
-   * Draw the viewport-sized quad for a gradient background. Called by Clear()
-   * when GradientBackground is enabled.
+   * Select the background texture for the current stereo eye.
    */
-  void ClearGradientBackground();
+  vtkWebGPUTexture* GetCurrentBackgroundTexture();
+
+  /**
+   * Draw the viewport-sized quad for a textured or gradient background.
+   */
+  void ClearBackground(vtkWebGPUTexture* texture);
 
   WGPURenderPassEncoder WGPURenderEncoder = nullptr;
   WGPURenderBundleEncoder WGPUBundleEncoder = nullptr;
   WGPUBuffer SceneTransformBuffer = nullptr;
   WGPUBuffer SceneLightsBuffer = nullptr;
   WGPUBuffer IBLUniformBuffer = nullptr;
-  // Holds the two gradient stop colors, the gradient mode and the dither flag
-  // for the background quad drawn by Clear(). Only allocated when a gradient
-  // background is requested.
-  WGPUBuffer BackgroundGradientBuffer = nullptr;
+  // Gradient colors/options and tile coordinates shared by textured and gradient backgrounds.
+  WGPUBuffer BackgroundOptionsBuffer = nullptr;
 
   WGPUBindGroup SceneBindGroup = nullptr;
   WGPUBindGroupLayout SceneBindGroupLayout = nullptr;

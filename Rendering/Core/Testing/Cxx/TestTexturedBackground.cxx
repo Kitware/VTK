@@ -4,6 +4,7 @@
 #include "vtkConeSource.h"
 #include "vtkImageData.h"
 #include "vtkJPEGReader.h"
+#include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
@@ -12,6 +13,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
+
+#include <algorithm>
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -33,10 +36,10 @@ int TestTexturedBackground(int argc, char* argv[])
 
   imgReader->Update();
 
-  textr->SetInputConnection(imgReader->GetOutputPort(0));
-
-  // Do not call this.
-  //  textr->Update();
+  image->SetDimensions(2, 2, 1);
+  image->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
+  image->GetPointData()->GetScalars()->Fill(0);
+  textr->SetInputData(image);
 
   map->SetInputConnection(cone->GetOutputPort(0));
   act->SetMapper(map);
@@ -48,10 +51,36 @@ int TestTexturedBackground(int argc, char* argv[])
   ren->SetBackground2(0.1, 0.4, 0.8);
   win->AddRenderer(ren);
   win->SetInteractor(iren);
+  // Prime the texture cache, then replace its input with an image of a different size.
+  win->Render();
+  textr->SetInputConnection(imgReader->GetOutputPort(0));
   win->Render();
   iren->Initialize();
 
   int retVal = vtkRegressionTestImage(win);
+  if (retVal == vtkRegressionTester::FAILED)
+  {
+    return EXIT_FAILURE;
+  }
+
+  VTK_CREATE(vtkImageData, rgbaImage);
+  rgbaImage->SetDimensions(imgReader->GetOutput()->GetDimensions());
+  rgbaImage->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
+  const auto* rgb = static_cast<unsigned char*>(imgReader->GetOutput()->GetScalarPointer());
+  auto* rgba = static_cast<unsigned char*>(rgbaImage->GetScalarPointer());
+  for (vtkIdType i = 0; i < rgbaImage->GetNumberOfPoints(); ++i)
+  {
+    std::copy_n(rgb + 3 * i, 3, rgba + 4 * i);
+    // Valid premultiplied colors over black reproduce the original RGB baseline.
+    rgba[4 * i + 3] = std::max({ rgb[3 * i], rgb[3 * i + 1], rgb[3 * i + 2] });
+  }
+  ren->SetBackground(0.0, 0.0, 0.0);
+  textr->SetInputData(rgbaImage);
+  // Prime the straight-alpha path before changing the texture's alpha convention.
+  win->Render();
+  textr->PremultipliedAlphaOn();
+  win->Render();
+  retVal = vtkRegressionTestImageThreshold(win, 0.02);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

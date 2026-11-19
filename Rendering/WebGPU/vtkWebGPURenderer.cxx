@@ -46,6 +46,8 @@
 #include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -60,6 +62,13 @@ struct IBLBlock
   vtkTypeUInt32 Pad[2] = {};
 };
 static_assert(sizeof(IBLBlock) == 64, "IBLBlock must match the WGSL IBLParameters layout");
+
+std::uint32_t GetBackgroundFlags(
+  vtkViewport::GradientModes mode, bool dither, bool premultipliedAlpha)
+{
+  const auto gradientMode = std::min(static_cast<std::uint32_t>(mode), 3u);
+  return (1u << gradientMode) | ((dither ? 1u : 0u) << 4) | ((premultipliedAlpha ? 1u : 0u) << 5);
+}
 
 const char* backgroundShaderSource = R"(
     struct VertexOutput {
@@ -96,23 +105,41 @@ const char* backgroundShaderSource = R"(
     }
   )";
 
-// Gradient background
+// Gradient and textured backgrounds share the viewport-sized quad and tile coordinates.
 // Unlike the flat background above, this shader writes the color directly
 // instead of relying on the pipeline blend constant.
-const char* gradientBackgroundShaderSource = R"(
-    struct GradientOptions {
+const char* backgroundQuadShaderSource = R"(
+    struct BackgroundOptions {
       stopColor0: vec4<f32>,
       stopColor1: vec4<f32>,
       // Maps the quad's local 0..1 coordinates onto the renderer's full extent.
       // These differ from (1,1,0,0) only when the window is rendered in tiles,
       // where the encoder viewport covers just the visible slice of the renderer.
       tcoordScaleOffset: vec4<f32>,
-      // 0 = vertical, 1 = horizontal,
-      // 2 = radial farthest side, 3 = radial farthest corner.
-      mode: u32,
-      dither: u32,
+      flags: u32,
     }
-    @group(0) @binding(0) var<uniform> gradient: GradientOptions;
+    @group(0) @binding(0) var<uniform> background: BackgroundOptions;
+    //VTK::Background::Dec
+
+    const VTK_GRADIENT_VERTICAL: u32 = 0x1u;
+    const VTK_GRADIENT_HORIZONTAL: u32 = 0x2u;
+    const VTK_GRADIENT_RADIAL_VIEWPORT_FARTHEST_SIDE: u32 = 0x4u;
+    const VTK_GRADIENT_RADIAL_VIEWPORT_FARTHEST_CORNER: u32 = 0x8u;
+    const BIT_MASK_GRADIENT_MODE: u32 = 0xfu;
+    const BIT_POSITION_DITHER: u32 = 4u;
+    const BIT_POSITION_PREMULTIPLIED_ALPHA: u32 = 5u;
+
+    fn getGradientMode(flags: u32) -> u32 {
+      return flags & BIT_MASK_GRADIENT_MODE;
+    }
+
+    fn usesDither(flags: u32) -> bool {
+      return ((flags >> BIT_POSITION_DITHER) & 0x1u) != 0u;
+    }
+
+    fn hasPremultipliedAlpha(flags: u32) -> bool {
+      return ((flags >> BIT_POSITION_PREMULTIPLIED_ALPHA) & 0x1u) != 0u;
+    }
 
     struct VertexOutput {
       @builtin(position) position: vec4<f32>,
@@ -148,33 +175,38 @@ const char* gradientBackgroundShaderSource = R"(
 
     @fragment
     fn fragmentMain(input: VertexOutput) -> FragmentOutput {
-      let tcoord = input.tcoord * gradient.tcoordScaleOffset.xy
-                   + gradient.tcoordScaleOffset.zw;
+      let tcoord = input.tcoord * background.tcoordScaleOffset.xy
+                   + background.tcoordScaleOffset.zw;
 
+      var output: FragmentOutput;
+      //VTK::Background::Impl
+      output.ids = vec4<u32>(0u);
+      return output;
+    }
+  )";
+const char* gradientBackgroundColor = R"(
+      let mode = getGradientMode(background.flags);
       var value: f32 = 0.0;
-      if (gradient.mode == 0u) {
+      if (mode == VTK_GRADIENT_VERTICAL) {
         value = tcoord.y;
-      } else if (gradient.mode == 1u) {
+      } else if (mode == VTK_GRADIENT_HORIZONTAL) {
         value = tcoord.x;
-      } else if (gradient.mode == 2u) {
+      } else if (mode == VTK_GRADIENT_RADIAL_VIEWPORT_FARTHEST_SIDE) {
         value = clamp(length(tcoord - vec2<f32>(0.5, 0.5)) * 2.0, 0.0, 1.0);
       } else {
         value = length(tcoord - vec2<f32>(0.5, 0.5)) * sqrt(2.0);
       }
 
-      var rgb: vec3<f32> = mix(gradient.stopColor0.rgb, gradient.stopColor1.rgb, value);
-      if (gradient.dither != 0u) {
+      var rgb: vec3<f32> = mix(background.stopColor0.rgb, background.stopColor1.rgb, value);
+      if (usesDither(background.flags)) {
         let noise = mix(-DITHERING_GRANULARITY, DITHERING_GRANULARITY,
                         generateRandom(tcoord));
         rgb = rgb + vec3<f32>(noise);
       }
 
-      var output: FragmentOutput;
-      output.color = vec4<f32>(rgb, gradient.stopColor0.a);
-      output.ids = vec4<u32>(0u);
-      return output;
-    }
+      output.color = vec4<f32>(rgb, background.stopColor0.a);
   )";
+
 }
 
 //------------------------------------------------------------------------------
@@ -415,9 +447,12 @@ void vtkWebGPURenderer::Clear()
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow);
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
 
-  if (this->GradientBackground)
+  auto* backgroundTexture =
+    this->TexturedBackground ? this->GetCurrentBackgroundTexture() : nullptr;
+  if (!this->Transparent() &&
+    ((backgroundTexture && backgroundTexture->GetDeviceResource()) || this->GradientBackground))
   {
-    this->ClearGradientBackground();
+    this->ClearBackground(backgroundTexture);
     return;
   }
   vtkWebGPURenderPipelineDescriptorInternals bkgPipelineDescriptor;
@@ -515,23 +550,37 @@ vtkProp* vtkWebGPURenderer::GetPropWithId(vtkTypeUInt32 id)
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderer::ClearGradientBackground()
+vtkWebGPUTexture* vtkWebGPURenderer::GetCurrentBackgroundTexture()
+{
+  if (!this->RenderWindow->GetStereoRender() ||
+    (this->ActiveCamera->GetLeftEye() && this->BackgroundTexture))
+  {
+    return vtkWebGPUTexture::SafeDownCast(this->BackgroundTexture);
+  }
+  return vtkWebGPUTexture::SafeDownCast(this->RightBackgroundTexture);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::ClearBackground(vtkWebGPUTexture* texture)
 {
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow);
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
   auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
 
-  // std140 layout: two vec4 stop colors followed by two u32 scalars.
-  struct GradientOptions
+  // Match the WGSL BackgroundOptions layout, including uniform buffer alignment.
+  struct BackgroundOptions
   {
     float StopColor0[4];
     float StopColor1[4];
     float TCoordScaleOffset[4];
-    std::uint32_t Mode;
-    std::uint32_t Dither;
-    std::uint32_t Padding[2];
+    std::uint32_t Flags;
+    std::uint32_t Padding[3];
   };
-  GradientOptions options = {};
+  static_assert(sizeof(BackgroundOptions) == 64, "BackgroundOptions must match WGSL");
+  static_assert(offsetof(BackgroundOptions, Flags) == 48, "Background flags must match WGSL");
+  BackgroundOptions options = {};
+  options.Flags = GetBackgroundFlags(
+    this->GradientMode, this->DitherGradient, texture && texture->GetPremultipliedAlpha());
   for (int i = 0; i < 3; ++i)
   {
     options.StopColor0[i] = static_cast<float>(this->Background[i]);
@@ -539,12 +588,10 @@ void vtkWebGPURenderer::ClearGradientBackground()
   }
   options.StopColor0[3] = static_cast<float>(this->BackgroundAlpha);
   options.StopColor1[3] = static_cast<float>(this->BackgroundAlpha);
-  options.Mode = static_cast<std::uint32_t>(this->GradientMode);
-  options.Dither = this->DitherGradient ? 1u : 0u;
 
   // vtkWebGPUCamera::UpdateViewport() sets the encoder viewport to the part of
   // this renderer visible in the current tile, so the quad only covers that
-  // slice. Rescale the texture coordinates so the gradient is still evaluated
+  // slice. Rescale the texture coordinates so the background is still evaluated
   // over the renderer's whole extent and stays continuous across tiles.
   options.TCoordScaleOffset[0] = 1.0f;
   options.TCoordScaleOffset[1] = 1.0f;
@@ -570,15 +617,15 @@ void vtkWebGPURenderer::ClearGradientBackground()
     }
   }
 
-  if (this->BackgroundGradientBuffer == nullptr)
+  if (this->BackgroundOptionsBuffer == nullptr)
   {
-    const std::string label = "BackgroundGradient-" + this->GetObjectDescription();
-    this->BackgroundGradientBuffer = wgpuConfiguration->CreateBuffer(sizeof(GradientOptions),
+    const std::string label = "BackgroundOptions-" + this->GetObjectDescription();
+    this->BackgroundOptionsBuffer = wgpuConfiguration->CreateBuffer(sizeof(BackgroundOptions),
       static_cast<WGPUBufferUsage>(WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst), false,
       label.c_str());
   }
   wgpuConfiguration->WriteBuffer(
-    this->BackgroundGradientBuffer, 0, &options, sizeof(options), "BackgroundGradient");
+    this->BackgroundOptionsBuffer, 0, &options, sizeof(options), "BackgroundOptions");
 
   vtkWebGPURenderPipelineDescriptorInternals bkgPipelineDescriptor;
   bkgPipelineDescriptor.vertex.entryPoint = WGPUStringView{ "vertexMain", WGPU_STRLEN };
@@ -606,12 +653,55 @@ void vtkWebGPURenderer::ClearGradientBackground()
   bkgPipelineDescriptor.cFragment.targetCount++;
   bkgPipelineDescriptor.DisableBlending(1);
 
+  std::string shaderSource = backgroundQuadShaderSource;
+  std::string declarations;
+  std::string colorCode = gradientBackgroundColor;
+  auto resource = texture ? texture->GetDeviceResource() : nullptr;
+  bool useSampler = false;
+  if (resource)
+  {
+    using TextureResource = vtkWebGPURenderTextureDeviceResource;
+    if (texture->GetCubeMap() || resource->GetDimension() != TextureResource::DIMENSION_2D ||
+      (resource->GetSampleType() != TextureResource::FLOAT &&
+        resource->GetSampleType() != TextureResource::UNFILTERABLE_FLOAT))
+    {
+      vtkErrorMacro("Background textures must be two-dimensional color textures.");
+      return;
+    }
+    declarations = "@group(0) @binding(1) var backgroundTexture: " +
+      std::string(TextureResource::GetWGSLTexture2DTypeString(resource->GetSampleType())) + ";\n";
+    useSampler = resource->GetSampleType() == TextureResource::FLOAT;
+    if (useSampler)
+    {
+      declarations += "@group(0) @binding(2) var backgroundSampler: sampler;\n";
+      colorCode = "let color = textureSample(backgroundTexture, backgroundSampler, tcoord);\n";
+    }
+    else
+    {
+      // Float32 textures without float32-filterable use nearest-neighbor sampling.
+      // textureLoad also lets the automatic layout infer an unfilterable texture binding.
+      colorCode = R"(let size = vec2<i32>(textureDimensions(backgroundTexture));
+      let pixel = clamp(vec2<i32>(tcoord * vec2<f32>(size)), vec2<i32>(0), size - 1);
+      let color = textureLoad(backgroundTexture, pixel, 0);
+)";
+    }
+    // Match a textured overlay over the renderer's solid background, including alpha.
+    colorCode +=
+      R"(let rgb = select(color.rgb * color.a, color.rgb, hasPremultipliedAlpha(background.flags));
+      output.color = vec4<f32>(
+      rgb + background.stopColor0.rgb * (1.0 - color.a),
+      color.a + background.stopColor0.a * (1.0 - color.a));)";
+  }
+  vtkWebGPURenderPipelineCache::Substitute(
+    shaderSource, "//VTK::Background::Dec", declarations, /*all=*/true);
+  vtkWebGPURenderPipelineCache::Substitute(
+    shaderSource, "//VTK::Background::Impl", colorCode, /*all=*/true);
   const auto pipelineKey =
-    wgpuPipelineCache->GetPipelineKey((&bkgPipelineDescriptor), gradientBackgroundShaderSource);
+    wgpuPipelineCache->GetPipelineKey((&bkgPipelineDescriptor), shaderSource.c_str());
   if (wgpuPipelineCache->GetRenderPipeline(pipelineKey) == nullptr)
   {
     wgpuPipelineCache->CreateRenderPipeline(
-      (&bkgPipelineDescriptor), wgpuRenderWindow, gradientBackgroundShaderSource);
+      (&bkgPipelineDescriptor), wgpuRenderWindow, shaderSource.c_str());
   }
   auto pipeline = wgpuPipelineCache->GetRenderPipeline(pipelineKey);
   WGPURenderPipeline wgpuPipeline = pipeline;
@@ -620,10 +710,22 @@ void vtkWebGPURenderer::ClearGradientBackground()
   // rather than declaring one separately.
   vtkWebGPU::BindGroupLayout autoLayout =
     vtkWebGPU::BindGroupLayout::Acquire(wgpuRenderPipelineGetBindGroupLayout(wgpuPipeline, 0));
-  vtkWebGPU::BindGroup bindGroup = vtkWebGPU::BindGroup::Acquire(
-    vtkWebGPUBindGroupInternals::MakeBindGroup(wgpuConfiguration->GetDevice(), autoLayout,
-      { { 0, this->BackgroundGradientBuffer, 0, sizeof(GradientOptions) } },
-      "BackgroundGradientBindGroup"));
+  std::vector<WGPUBindGroupEntry> entries = {
+    vtkWebGPUBindGroupInternals::BindingInitializationHelper(
+      0, this->BackgroundOptionsBuffer, 0, sizeof(BackgroundOptions))
+      .GetAsBinding()
+  };
+  if (resource)
+  {
+    entries.push_back(resource->MakeTextureViewBindGroupEntry(1));
+    if (useSampler)
+    {
+      entries.push_back(resource->MakeSamplerBindGroupEntry(2));
+    }
+  }
+  vtkWebGPU::BindGroup bindGroup =
+    vtkWebGPU::BindGroup::Acquire(vtkWebGPUBindGroupInternals::MakeBindGroup(
+      wgpuConfiguration->GetDevice(), autoLayout, entries, "BackgroundOptionsBindGroup"));
 
   WGPURenderPassEncoder encoder(this->WGPURenderEncoder);
   wgpuRenderPassEncoderSetPipeline(encoder, wgpuPipeline);
@@ -788,6 +890,15 @@ void vtkWebGPURenderer::UpdateBuffers()
     this->DeepFramebuffer->Clear();
   }
   this->UpdateCamera(); // brings the camera's transform matrices up-to-date.
+  if (this->TexturedBackground && !this->Transparent())
+  {
+    if (auto* texture = this->GetCurrentBackgroundTexture())
+    {
+      // Match vtkOpenGLRenderer's background interpolation and upload before recording.
+      texture->InterpolateOn();
+      texture->Render(this);
+    }
+  }
   this->UpdateLightGeometry();
   this->UpdateLights();
 
@@ -1331,7 +1442,7 @@ void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
     this->EnvironmentMap->ReleaseGraphicsResources();
   }
   this->ImageBasedLightingReady = false;
-  vtkWebGPU::ReleaseAndNull(this->BackgroundGradientBuffer, wgpuBufferRelease);
+  vtkWebGPU::ReleaseAndNull(this->BackgroundOptionsBuffer, wgpuBufferRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneBindGroup, wgpuBindGroupRelease);
   vtkWebGPU::ReleaseAndNull(this->SceneBindGroupLayout, wgpuBindGroupLayoutRelease);
   vtkWebGPU::ReleaseAndNull(this->DeepFramebufferResolveBindGroup, wgpuBindGroupRelease);
