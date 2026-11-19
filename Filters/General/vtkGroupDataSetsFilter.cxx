@@ -306,7 +306,6 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro("Unsupported output type: " << this->OutputType);
     return 0;
   }
-  this->InvokeCleanupAbortCheck();
   return 1;
 }
 

@@ -222,8 +222,6 @@ int vtkWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
 
-  this->InvokeCleanupAbortCheck();
-
   return 1;
 }
 

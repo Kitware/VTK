@@ -136,8 +136,6 @@ bool vtkExtractBlockUsingDataAssembly::vtkInternals::Execute(vtkPartitionedDataS
     mapped_assemblies.emplace_back(oAssembly);
   }
 
-  self->InvokeCleanupAbortCheck();
-
   return true;
 }
 

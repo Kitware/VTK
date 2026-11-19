@@ -4,11 +4,11 @@
 
 VTK now has a more versatile abort checking system.
 Instead of using `CheckAbort()`, VTK filters now can
-call `CheckAbortAndInvoke()` and `InvokeCleanupCheckAbort()`
-in order to trigger event invocations associated with these calls.
+call `CheckAbortAndInvoke()`
+in order to trigger event invocation associated with this call.
 
-While these events have no effect in VTK itself, application
-wanting to implement distributed abort can rely on these event to
+While this event has no effect in VTK itself, application
+wanting to implement distributed abort can rely on this event to
 implement multi process communication in these cases.
 
 The following filters have been moved to the new API:

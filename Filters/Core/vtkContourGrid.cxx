@@ -435,7 +435,6 @@ int vtkContourGrid::RequestData(vtkInformation* vtkNotUsed(request),
     output->ShallowCopy(normalsFilter->GetOutput());
   }
 
-  this->InvokeCleanupAbortCheck();
   return 1;
 }
 

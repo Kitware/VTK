@@ -501,9 +501,7 @@ int vtkCellDataToPointData::RequestData(
   // and vtkUnstructuredGrid.
   if (input->IsA("vtkUnstructuredGrid") || input->IsA("vtkPolyData"))
   {
-    int result = this->RequestDataForUnstructuredData(nullptr, inputVector, outputVector);
-    this->InvokeCleanupAbortCheck();
-    return result;
+    return this->RequestDataForUnstructuredData(nullptr, inputVector, outputVector);
   }
 
   // First, copy the input to the output as a starting point
@@ -545,8 +543,6 @@ int vtkCellDataToPointData::RequestData(
   {
     result = this->InterpolatePointData(input, output, weightArray);
   }
-
-  this->InvokeCleanupAbortCheck();
 
   if (result == 0)
   {

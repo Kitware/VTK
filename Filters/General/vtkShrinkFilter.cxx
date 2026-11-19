@@ -172,8 +172,6 @@ int vtkShrinkFilter::RequestData(
 
   delete[] pointMap;
 
-  this->InvokeCleanupAbortCheck();
-
   return 1;
 }
 VTK_ABI_NAMESPACE_END

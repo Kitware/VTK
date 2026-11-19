@@ -512,8 +512,6 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   this->Locator->Initialize(); // release any extra memory
   output->Squeeze();
 
-  this->InvokeCleanupAbortCheck();
-
   return 1;
 }
 
