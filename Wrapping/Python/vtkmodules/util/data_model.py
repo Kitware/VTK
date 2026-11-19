@@ -731,6 +731,11 @@ class DataSet(object):
 
     @points.setter
     def points(self, pts):
+        """Set the points from a ``vtkPoints``, a ``vtkDataArray`` or
+        anything ``vtkPoints(data=...)`` accepts, such as an (N, 3)
+        numpy array or a list of lists."""
+        if pts is not None and not isinstance(pts, vtkPoints):
+            pts = vtkPoints(data=pts)
         self.SetPoints(pts)
 
     def __eq__(self, other: object) -> bool:
@@ -771,10 +776,10 @@ class DataSet(object):
 class PointSet(DataSet):
     """DataSet subclass for point-containing datasets.
 
-    Uses the auto-generated ``points`` wrapper property, which returns
+    Uses the ``points`` property from ``DataSet``, which returns
     a ``vtkPoints`` object.  The numpy-indexable coordinate array is
-    available as ``dataset.points.data``.  Build a ``vtkPoints`` from
-    array-like data with the ``vtkPoints(data=...)`` constructor.
+    available as ``dataset.points.data``.  Assigning an (N, 3) array
+    to ``points`` builds the ``vtkPoints`` with ``vtkPoints(data=...)``.
     """
     def __init__(self, *args, **kwargs) -> None:
         DataSet.__init__(self, *args, **kwargs)
@@ -1204,23 +1209,37 @@ class Points(vtkPoints):
         pts = vtkPoints(data=np.array([[0,0,0], [1,0,0]]))
         pts = vtkPoints(data=[[0,0,0], [1,0,0]])
         pts = vtkPoints(data=vtk_data_array)
+
+    float32 and float64 numpy arrays keep their type, and a C-contiguous
+    one is used without a copy. Other types (integers, lists) are
+    converted to float64. Passing ``data_type`` as well converts the
+    data to that type.
     """
 
     def __init__(self, *args, **kwargs):
         if args and isinstance(args[0], str):
             return
         data = kwargs.pop("data", None)
+        explicit_type = "data_type" in kwargs
         vtkPoints.__init__(self, *args, **kwargs)
         if data is not None:
-            self._set_data(data)
+            self._set_data(
+                data, self.GetDataType() if explicit_type else None)
 
-    def _set_data(self, data):
+    def _set_data(self, data, data_type=None):
         if isinstance(data, vtkDataArray):
             self.SetData(data)
             return
         if NUMPY_AVAILABLE:
             import numpy as np
-            arr = np.asarray(data, dtype=np.float64)
+            arr = np.asarray(data)
+            if data_type is not None:
+                dtype = numpy_support.get_numpy_array_type(data_type)
+            elif arr.dtype in (np.float32, np.float64):
+                dtype = arr.dtype
+            else:
+                dtype = np.float64
+            arr = arr.astype(dtype, copy=False)
             if arr.ndim == 1:
                 if len(arr) % 3 != 0:
                     raise ValueError(
