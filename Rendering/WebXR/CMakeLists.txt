@@ -7,6 +7,9 @@ set(classes
   vtkWebXRRenderWindowInteractor
 )
 
+# Included by `vtkWebXRRenderWindowInteractor.h`.
+set(headers vtkWebXR.h)
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   # Generate a dummy .cpp file for the webxr library whenever vtkWebXR.js changes
   add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vtkWebXR.cpp
@@ -14,7 +17,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     DEPENDS vtkWebXR.js)
 
   set(sources vtkWebXR.cpp)
-  set(headers vtkWebXR.h)
   set(private_headers vtkWebXRUtilities.h)
   set(webxr_input_files
     vtk_webxr_actions.json
