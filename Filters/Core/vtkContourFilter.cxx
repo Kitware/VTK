@@ -40,6 +40,34 @@
 #include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+
+//------------------------------------------------------------------------------
+void OnProgressCallback(
+  vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eid), void* clientData, void* callData)
+{
+  vtkContourFilter* self = static_cast<vtkContourFilter*>(clientData);
+  double progress = *static_cast<double*>(callData);
+  self->UpdateProgress(progress);
+}
+
+//------------------------------------------------------------------------------
+void OnAbortCheckCallback(
+  vtkObject* caller, unsigned long vtkNotUsed(eid), void* clientData, void* vtkNotUsed(callData))
+{
+  vtkAlgorithm* internalAlgorithm = static_cast<vtkAlgorithm*>(caller);
+  vtkContourFilter* self = static_cast<vtkContourFilter*>(clientData);
+
+  if (self->CheckAbortAndInvoke())
+  {
+    internalAlgorithm->AbortExecuteOn();
+  }
+}
+
+}
+
 vtkObjectFactoryNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter, ScalarTree, vtkScalarTree);
 
@@ -75,8 +103,7 @@ vtkContourFilter::vtkContourFilter()
   this->SynchronizedTemplates2D->SetContainerAlgorithm(this);
   this->SynchronizedTemplates3D->SetContainerAlgorithm(this);
 
-  this->InternalProgressCallbackCommand->SetCallback(
-    &vtkContourFilter::InternalProgressCallbackFunction);
+  this->InternalProgressCallbackCommand->SetCallback(::OnProgressCallback);
   this->InternalProgressCallbackCommand->SetClientData(this);
 
   this->ContourGrid->AddObserver(vtkCommand::ProgressEvent, this->InternalProgressCallbackCommand);
@@ -94,6 +121,26 @@ vtkContourFilter::vtkContourFilter()
     vtkCommand::ProgressEvent, this->InternalProgressCallbackCommand);
   this->SynchronizedTemplates3D->AddObserver(
     vtkCommand::ProgressEvent, this->InternalProgressCallbackCommand);
+
+  this->InternalAbortCheckCallbackCommand->SetCallback(::OnAbortCheckCallback);
+  this->InternalAbortCheckCallbackCommand->SetClientData(this);
+
+  this->ContourGrid->AddObserver(
+    vtkCommand::AbortCheckEvent, this->InternalAbortCheckCallbackCommand);
+  this->Contour3DLinearGrid->AddObserver(
+    vtkCommand::AbortCheckEvent, this->InternalAbortCheckCallbackCommand);
+  this->FlyingEdges2D->AddObserver(
+    vtkCommand::AbortCheckEvent, this->InternalAbortCheckCallbackCommand);
+  this->FlyingEdges3D->AddObserver(
+    vtkCommand::AbortCheckEvent, this->InternalAbortCheckCallbackCommand);
+  this->GridSynchronizedTemplates->AddObserver(
+    vtkCommand::AbortCheckEvent, this->InternalAbortCheckCallbackCommand);
+  this->RectilinearSynchronizedTemplates->AddObserver(
+    vtkCommand::AbortCheckEvent, this->InternalAbortCheckCallbackCommand);
+  this->SynchronizedTemplates2D->AddObserver(
+    vtkCommand::AbortCheckEvent, this->InternalAbortCheckCallbackCommand);
+  this->SynchronizedTemplates3D->AddObserver(
+    vtkCommand::AbortCheckEvent, this->InternalAbortCheckCallbackCommand);
 
   // by default process active point scalars
   this->SetInputArrayToProcess(
@@ -235,6 +282,16 @@ int vtkContourFilter::RequestUpdateExtent(
 int vtkContourFilter::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+  // Make sure all filters are not aborted at this point
+  this->ContourGrid->AbortExecuteOff();
+  this->Contour3DLinearGrid->AbortExecuteOff();
+  this->FlyingEdges2D->AbortExecuteOff();
+  this->FlyingEdges3D->AbortExecuteOff();
+  this->GridSynchronizedTemplates->AbortExecuteOff();
+  this->RectilinearSynchronizedTemplates->AbortExecuteOff();
+  this->SynchronizedTemplates2D->AbortExecuteOff();
+  this->SynchronizedTemplates3D->AbortExecuteOff();
+
   // get the input
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -305,7 +362,6 @@ int vtkContourFilter::RequestData(
     }
     else if (dim == 3)
     {
-      int retVal = 1;
       if (this->FastMode && this->GenerateTriangles)
       {
         this->FlyingEdges3D->SetNumberOfContours(numContours);
@@ -316,7 +372,7 @@ int vtkContourFilter::RequestData(
         this->FlyingEdges3D->SetComputeScalars(this->ComputeScalars);
         this->FlyingEdges3D->SetInterpolateAttributes(true);
         this->FlyingEdges3D->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
-        retVal = this->FlyingEdges3D->ProcessRequest(request, inputVector, outputVector);
+        return this->FlyingEdges3D->ProcessRequest(request, inputVector, outputVector);
       }
       else
       {
@@ -328,9 +384,8 @@ int vtkContourFilter::RequestData(
         this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);
         this->SynchronizedTemplates3D->SetGenerateTriangles(this->GenerateTriangles);
         this->SynchronizedTemplates3D->SetInputArrayToProcess(0, this->GetInputArrayInformation(0));
-        retVal = this->SynchronizedTemplates3D->ProcessRequest(request, inputVector, outputVector);
+        return this->SynchronizedTemplates3D->ProcessRequest(request, inputVector, outputVector);
       }
-      return retVal;
     }
   } // if image data
 
@@ -545,23 +600,38 @@ int vtkContourFilter::RequestData(
       //
       int cellType;
       int dimensionality;
+
+      const vtkIdType contourStepCount = 3 * numCells;
+      const double progressScale = this->GetProgressScale() * (1.0 / contourStepCount);
+      const vtkIdType checkAbortInterval = std::min(numContours / 10 + 1, 50);
+      int contourStepIdx = 0;
+
       // We skip 0d cells (points), because they cannot be cut (generate no data).
-      for (dimensionality = 1; dimensionality <= 3; ++dimensionality)
+      for (dimensionality = 1; dimensionality <= 3 && !abortExecute; ++dimensionality)
       {
         // Loop over all cells; get scalar values for all cell points
         // and process each cell.
         //
-        for (cellId = 0; cellId < numCells && !abortExecute; cellId++)
+        for (cellId = 0; cellId < numCells && !abortExecute; cellId++, contourStepIdx++)
         {
+          this->SetProgressShiftScale(contourStepIdx * progressScale, progressScale);
+
           // I assume that "GetCellType" is fast.
           cellType = input->GetCellType(cellId);
           if (cellType >= VTK_NUMBER_OF_CELL_TYPES)
           { // Protect against new cell types added.
-            vtkErrorMacro("Unknown cell type " << cellType);
+            vtkWarningMacro("Unknown cell type " << cellType);
+            // progress scale will compute the right progress value.
+            // Make sure to update the progress as this step is ignored.
+            this->UpdateProgress(1.0);
             continue;
           }
           if (vtkCellTypeUtilities::GetDimension(cellType) != dimensionality)
           {
+            // progress scale will compute the right progress value.
+            // Make sure to update the progress as this step is ignored.
+            this->UpdateProgress(1.0);
+            abortExecute = this->CheckAbortAndInvoke();
             continue;
           }
           input->GetCell(cellId, cell);
@@ -569,15 +639,19 @@ int vtkContourFilter::RequestData(
           cellScalars->SetNumberOfTuples(cellPts->GetNumberOfIds());
           inScalars->GetTuples(cellPts, cellScalars);
 
-          if (dimensionality == 3 && !(cellId % 5000))
-          {
-            vtkDebugMacro(<< "Contouring #" << cellId);
-            this->UpdateProgress(static_cast<double>(cellId) / numCells);
-            abortExecute = this->CheckAbort();
-          }
-
           for (int i = 0; i < numContours; i++)
           {
+            if (i % checkAbortInterval == 0)
+            {
+              this->UpdateProgress(static_cast<double>(i) / numContours);
+              this->CheckAbortAndInvoke();
+            }
+            if (this->GetAbortOutput())
+            {
+              abortExecute = true;
+              break;
+            }
+
             helper.Contour(cell, values[i], cellScalars, cellId);
           } // for all contour values
         } // for all cells
@@ -760,12 +834,4 @@ void vtkContourFilter::ReportReferences(vtkGarbageCollector* collector)
   vtkGarbageCollectorReport(collector, this->ScalarTree, "ScalarTree");
 }
 
-//------------------------------------------------------------------------------
-void vtkContourFilter::InternalProgressCallbackFunction(
-  vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eid), void* clientData, void* callData)
-{
-  vtkContourFilter* contourFilter = static_cast<vtkContourFilter*>(clientData);
-  double progress = *static_cast<double*>(callData);
-  contourFilter->UpdateProgress(progress);
-}
 VTK_ABI_NAMESPACE_END

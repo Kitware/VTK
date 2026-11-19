@@ -177,15 +177,15 @@ struct vtkContourImageFunctor
     scalars += increments[0] * (updateExt[0] - ext[0]) + increments[1] * (updateExt[2] - ext[2]) +
       increments[2] * (updateExt[4] - ext[4]) + self->GetArrayComponent();
 
-    int checkAbortInterval = std::min(numContours / 10 + 1, (vtkIdType)1000);
+    const vtkIdType checkAbortInterval =
+      std::min(static_cast<vtkIdType>(max0 - min0) / 10 + 1, (vtkIdType)1000);
+    vtkIdType processedIterations = 0;
+    vtkIdType totalIterationCount = numContours * (max1 - min1) * (max0 - min0);
+    bool abort = false;
 
     // for each contour
-    for (vidx = 0; vidx < numContours; vidx++)
+    for (vidx = 0; vidx < numContours && !abort; vidx++)
     {
-      if (vidx % checkAbortInterval == 0 && self->CheckAbort())
-      {
-        break;
-      }
       auto rowPtr = scalars;
 
       lineCases[13] = dim0 * 2;
@@ -196,7 +196,7 @@ struct vtkContourImageFunctor
       value = values[vidx];
 
       // Traverse all pixel cells, generating line segments using templates
-      for (j = min1; j <= max1; j++)
+      for (j = min1; j <= max1 && !abort; j++)
       {
         auto inPtr = rowPtr;
         rowPtr += inc1;
@@ -228,6 +228,18 @@ struct vtkContourImageFunctor
 
         for (i = min0; i < max0; i++)
         {
+          if (i % checkAbortInterval == 0)
+          {
+            processedIterations += checkAbortInterval;
+            double progress = static_cast<double>(processedIterations) / totalIterationCount;
+            self->UpdateProgress(progress);
+            if (self->CheckAbortAndInvoke())
+            {
+              abort = true;
+              break;
+            }
+          }
+
           s0 = s1;
           s1 = *(inPtr + inc0);
           // compute in/out for verts

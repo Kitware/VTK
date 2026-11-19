@@ -222,11 +222,6 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
       //
       for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
       {
-        if (abortExecute)
-        {
-          break;
-        }
-
         cellType = cellIter->GetCellType();
         if (cellType >= VTK_NUMBER_OF_CELL_TYPES)
         { // Protect against new cell types added.

@@ -438,6 +438,7 @@ struct ContourGridFunctor
 
     vtkIdType xdim = exExt[1] - exExt[0] + 1;
     vtkIdType ydim = exExt[3] - exExt[2] + 1;
+    vtkIdType zdim = exExt[5] - exExt[4] + 1;
     // Kens increments, probably to do with edge array
     vtkIdType zstep = xdim * ydim;
     vtkIdType yisectstep = xdim * 3;
@@ -470,7 +471,6 @@ struct ContourGridFunctor
       isect1[((ydim - 1) * xdim + i) * 3 * 2 + 1] = -1;
     }
 
-    int checkAbortInterval = std::min((XMax - XMin) / 10 + 1, 1000);
     bool abort = false;
     vtkIdType numContours = self->GetNumberOfContours();
     double* values = self->GetValues();
@@ -484,6 +484,11 @@ struct ContourGridFunctor
     vtkCellData* outCD = output->GetCellData();
     vtkCellData* inCD = input->GetCellData();
     vtkNew<vtkIdListCollection> polys;
+
+    const int checkAbortInterval = std::min((XMax - XMin) / 10 + 1, 1000);
+    const int totalIterationCount = xdim * ydim * zdim * numContours;
+    int processedIterations = 0;
+
     // for each contour
 
     for (int vidx = 0; vidx < numContours && !abort; vidx++)
@@ -543,10 +548,16 @@ struct ContourGridFunctor
           // inCellId is ised to keep track of ids for copying cell attributes.
           for (int i = XMin; i <= XMax; i++, inCellId++)
           {
-            if (i % checkAbortInterval == 0 && self->CheckAbort())
+            if (i % checkAbortInterval == 0 && i != 0)
             {
-              abort = true;
-              break;
+              processedIterations += checkAbortInterval;
+              double progress = static_cast<double>(processedIterations) / totalIterationCount;
+              self->UpdateProgress(progress);
+              if (self->CheckAbortAndInvoke())
+              {
+                abort = true;
+                break;
+              }
             }
             auto p0 = p1;
             auto s0 = s1;

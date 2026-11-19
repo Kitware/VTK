@@ -5,7 +5,6 @@
 #include "vtkArrayComponents.h"
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
-#include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkImageTransform.h"
 #include "vtkInformation.h"
@@ -202,32 +201,36 @@ public:
   class Pass1
   {
   public:
-    Pass1(vtkFlyingEdges2DAlgorithm* algo, double value, vtkFlyingEdges2D* filter)
-      : Filter(filter)
-    {
-      this->Algo = algo;
-      this->Value = value;
-    }
     vtkFlyingEdges2DAlgorithm* Algo;
     vtkFlyingEdges2D* Filter;
     double Value;
+    vtkIdType TotalIterationCount;
+
+    Pass1(vtkFlyingEdges2DAlgorithm* algo, double value, vtkFlyingEdges2D* filter,
+      vtkIdType totalIterationCount)
+      : Algo(algo)
+      , Filter(filter)
+      , Value(value)
+      , TotalIterationCount(totalIterationCount)
+    {
+    }
+
     void operator()(vtkIdType row, vtkIdType end)
     {
       TPtr rowPtr = this->Algo->Scalars + row * this->Algo->Inc1;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = std::min((end - row) / 10 + 1, (vtkIdType)1000);
+      vtkIdType checkAbortInterval = std::min((end - row) / 10 + 1, static_cast<vtkIdType>(1000));
       for (; row < end; ++row)
       {
-        if (row % checkAbortInterval == 0)
+        if (isFirst && row % checkAbortInterval == 0)
         {
-          if (isFirst)
-          {
-            this->Filter->CheckAbort();
-          }
-          if (this->Filter->GetAbortOutput())
-          {
-            break;
-          }
+          double progress = static_cast<double>(row) / this->TotalIterationCount;
+          this->Filter->UpdateProgress(progress);
+          this->Filter->CheckAbortAndInvoke();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
         }
 
         this->Algo->ProcessXEdge(this->Value, rowPtr, row);
@@ -235,67 +238,78 @@ public:
       } // for all rows in this batch
     }
   };
+
   class Pass2
   {
   public:
-    Pass2(vtkFlyingEdges2DAlgorithm* algo, vtkFlyingEdges2D* filter)
-      : Filter(filter)
-    {
-      this->Algo = algo;
-    }
     vtkFlyingEdges2DAlgorithm* Algo;
     vtkFlyingEdges2D* Filter;
+    vtkIdType TotalIterationCount;
+
+    Pass2(vtkFlyingEdges2DAlgorithm* algo, vtkFlyingEdges2D* filter, vtkIdType totalIterationCount)
+      : Algo(algo)
+      , Filter(filter)
+      , TotalIterationCount(totalIterationCount)
+    {
+    }
+
     void operator()(vtkIdType row, vtkIdType end)
     {
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = std::min((end - row) / 10 + 1, (vtkIdType)1000);
+      vtkIdType checkAbortInterval = std::min((end - row) / 10 + 1, static_cast<vtkIdType>(1000));
       for (; row < end; ++row)
       {
-        if (row % checkAbortInterval == 0)
+        if (isFirst && row % checkAbortInterval == 0)
         {
-          if (isFirst)
-          {
-            this->Filter->CheckAbort();
-          }
-          if (this->Filter->GetAbortOutput())
-          {
-            break;
-          }
+          double progress = static_cast<double>(row) / this->TotalIterationCount;
+          this->Filter->UpdateProgress(progress);
+          this->Filter->CheckAbortAndInvoke();
         }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
+
         this->Algo->ProcessYEdges(row);
       } // for all rows in this batch
     }
   };
+
   class Pass4
   {
   public:
-    Pass4(vtkFlyingEdges2DAlgorithm* algo, double value, vtkFlyingEdges2D* filter)
-      : Filter(filter)
-    {
-      this->Algo = algo;
-      this->Value = value;
-    }
     vtkFlyingEdges2DAlgorithm* Algo;
     double Value;
     vtkFlyingEdges2D* Filter;
+    vtkIdType TotalIterationCount;
+
+    Pass4(vtkFlyingEdges2DAlgorithm* algo, double value, vtkFlyingEdges2D* filter,
+      vtkIdType totalIterationCount)
+      : Algo(algo)
+      , Value(value)
+      , Filter(filter)
+      , TotalIterationCount(totalIterationCount)
+    {
+    }
+
     void operator()(vtkIdType row, vtkIdType end)
     {
       TPtr rowPtr = this->Algo->Scalars + row * this->Algo->Inc1;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = std::min((end - row) / 10 + 1, (vtkIdType)1000);
+      vtkIdType checkAbortInterval = std::min((end - row) / 10 + 1, static_cast<vtkIdType>(1000));
       for (; row < end; ++row)
       {
-        if (row % checkAbortInterval == 0)
+        if (isFirst && row % checkAbortInterval == 0)
         {
-          if (isFirst)
-          {
-            this->Filter->CheckAbort();
-          }
-          if (this->Filter->GetAbortOutput())
-          {
-            break;
-          }
+          double progress = static_cast<double>(row) / this->TotalIterationCount;
+          this->Filter->UpdateProgress(progress);
+          this->Filter->CheckAbortAndInvoke();
         }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
+
         this->Algo->GenerateOutput(this->Value, rowPtr, row);
         rowPtr += this->Algo->Inc1;
       } // for all rows in this batch
@@ -808,26 +822,29 @@ void vtkFlyingEdges2DAlgorithm<TArray>::ContourImage(vtkFlyingEdges2D* self, TAr
   // pass generates polylines from the cases and intersection information.
   // In the final and third pass output points and lines are generated.
 
-  vtkIdType checkAbortInterval = std::min(numContours / 10 + 1, (vtkIdType)1000);
+  const int stepCount = 4;
+  const double progressScale = (1.0 / stepCount) * (1.0 / numContours);
+  vtkIdType stepIdx = 0;
+
   // Loop across each contour value. This encompasses all three passes.
   for (vidx = 0; vidx < numContours; vidx++)
   {
-    if (vidx % checkAbortInterval == 0 && self->CheckAbort())
-    {
-      break;
-    }
     value = values[vidx];
 
     // PASS 1: Traverse all rows generating intersection points and building
     // the case table. Also accumulate information necessary for later allocation.
     // For example the number of output points is computed.
-    Pass1 pass1(&algo, value, self);
+    self->SetProgressShiftScale(stepIdx * progressScale, progressScale);
+    stepIdx++;
+    Pass1 pass1(&algo, value, self, algo.Dims[1]);
     vtkSMPTools::For(0, algo.Dims[1], pass1);
 
     // PASS 2: Traverse all rows and process cell y edges. Continue building
     // case table from y contributions (using computational trimming to reduce
     // work) and keep track of cell y intersections.
-    Pass2 pass2(&algo, self);
+    self->SetProgressShiftScale(stepIdx * progressScale, progressScale);
+    stepIdx++;
+    Pass2 pass2(&algo, self, algo.Dims[1] - 1);
     vtkSMPTools::For(0, algo.Dims[1] - 1, pass2);
 
     // PASS 3: Now allocate and generate output. First we have to update the
@@ -836,24 +853,52 @@ void vtkFlyingEdges2DAlgorithm<TArray>::ContourImage(vtkFlyingEdges2D* self, TAr
     // allocation is complete, process on a row by row basis and produce
     // output points, line primitives, and interpolate point attribute data
     // (if necessary).
-    numOutXPts = startXPts;
-    numOutYPts = startYPts;
-    numOutLines = startLines;
-    for (row = 0; row < algo.Dims[1]; ++row)
     {
-      eMD = algo.EdgeMetaData + row * 5;
-      numXPts = eMD[0];
-      numYPts = eMD[1];
-      numLines = eMD[2];
-      eMD[0] = numOutXPts + numOutYPts;
-      eMD[1] = eMD[0] + numXPts;
-      eMD[2] = numOutLines;
-      numOutXPts += numXPts;
-      numOutYPts += numYPts;
-      numOutLines += numLines;
+      self->SetProgressShiftScale(stepIdx * progressScale, progressScale);
+      stepIdx++;
+
+      numOutXPts = startXPts;
+      numOutYPts = startYPts;
+      numOutLines = startLines;
+
+      const vtkIdType pass3CheckAbortInterval =
+        std::min((algo.Dims[1] / 10) + 1, static_cast<vtkIdType>(1000));
+      vtkIdType pass3ProcessedIterations = 0;
+      for (row = 0; row < algo.Dims[1]; ++row)
+      {
+        if (row % pass3CheckAbortInterval == 0 && row != 0)
+        {
+          pass3ProcessedIterations += pass3CheckAbortInterval;
+          double progress = static_cast<double>(pass3ProcessedIterations) / algo.Dims[1];
+          self->UpdateProgress(progress);
+          if (self->CheckAbortAndInvoke())
+          {
+            break;
+          }
+        }
+
+        eMD = algo.EdgeMetaData + row * 5;
+        numXPts = eMD[0];
+        numYPts = eMD[1];
+        numLines = eMD[2];
+        eMD[0] = numOutXPts + numOutYPts;
+        eMD[1] = eMD[0] + numXPts;
+        eMD[2] = numOutLines;
+        numOutXPts += numXPts;
+        numOutYPts += numYPts;
+        numOutLines += numLines;
+      }
     }
 
     // Output can now be allocated.
+    // If abort was set, the data will be corrupted, breaking the outer loop in that case.
+    if (self->GetAbortOutput())
+    {
+      break;
+    }
+
+    self->SetProgressShiftScale(stepIdx * progressScale, progressScale);
+    stepIdx++;
     vtkIdType totalPts = numOutXPts + numOutYPts;
     if (totalPts > 0)
     {
@@ -873,9 +918,13 @@ void vtkFlyingEdges2DAlgorithm<TArray>::ContourImage(vtkFlyingEdges2D* self, TAr
       }
 
       // PASS 4: Now process each x-row and produce the output primitives.
-      Pass4 pass4(&algo, value, self);
+      Pass4 pass4(&algo, value, self, algo.Dims[1] - 1);
       vtkSMPTools::For(0, algo.Dims[1] - 1, pass4);
     } // if output generated
+    else
+    {
+      self->UpdateProgress(1.0);
+    }
 
     // Handle multiple contours
     startXPts = numOutXPts;

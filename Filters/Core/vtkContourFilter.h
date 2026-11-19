@@ -250,14 +250,13 @@ protected:
   vtkNew<vtkRectilinearSynchronizedTemplates> RectilinearSynchronizedTemplates;
   vtkNew<vtkSynchronizedTemplates2D> SynchronizedTemplates2D;
   vtkNew<vtkSynchronizedTemplates3D> SynchronizedTemplates3D;
-  vtkNew<vtkCallbackCommand> InternalProgressCallbackCommand;
-
-  static void InternalProgressCallbackFunction(
-    vtkObject* caller, unsigned long eid, void* clientData, void* callData);
 
 private:
   vtkContourFilter(const vtkContourFilter&) = delete;
   void operator=(const vtkContourFilter&) = delete;
+
+  vtkNew<vtkCallbackCommand> InternalProgressCallbackCommand;
+  vtkNew<vtkCallbackCommand> InternalAbortCheckCallbackCommand;
 };
 
 /**
