@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.13)
 
+# The Java configurations disable the ONNX module.
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "java")
+  return ()
+endif ()
+
 set(onnx_version "1.22.0")
 
 # Determine the platform.
