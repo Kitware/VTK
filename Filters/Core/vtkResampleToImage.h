@@ -14,6 +14,7 @@
 #define vtkResampleToImage_h
 
 #include "vtkAlgorithm.h"
+#include "vtkCallbackCommand.h"   // for vtkCallbackCommand
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkNew.h"               // For vtkCompositeDataProbeFilter member variable
 #include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
@@ -105,6 +106,9 @@ protected:
 private:
   vtkResampleToImage(const vtkResampleToImage&) = delete;
   void operator=(const vtkResampleToImage&) = delete;
+
+  vtkNew<vtkCallbackCommand> InternalProgressCallback;
+  vtkNew<vtkCallbackCommand> InternalAbortCheckCallback;
 };
 
 VTK_ABI_NAMESPACE_END

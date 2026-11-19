@@ -7,7 +7,6 @@
 #include "vtkCompositeDataProbeFilter.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataSetRange.h"
-#include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -23,6 +22,32 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkResampleToImage);
 
+namespace
+{
+
+//------------------------------------------------------------------------------
+void OnProgressCallback(
+  vtkObject* vtkNotUsed(caller), unsigned long, void* clientData, void* callData)
+{
+  vtkResampleToImage* self = static_cast<vtkResampleToImage*>(clientData);
+  double progress = *static_cast<double*>(callData);
+  self->UpdateProgress(progress);
+}
+
+//------------------------------------------------------------------------------
+void OnAbortCheckCallback(
+  vtkObject* caller, unsigned long, void* clientData, void* vtkNotUsed(callData))
+{
+  vtkResampleToImage* self = static_cast<vtkResampleToImage*>(clientData);
+  vtkAlgorithm* internalAlgorithm = vtkAlgorithm::SafeDownCast(caller);
+  if (self->CheckAbortAndInvoke())
+  {
+    internalAlgorithm->AbortExecuteOn();
+  }
+}
+
+}
+
 //------------------------------------------------------------------------------
 vtkResampleToImage::vtkResampleToImage()
   : UseInputBounds(true)
@@ -33,6 +58,12 @@ vtkResampleToImage::vtkResampleToImage()
   this->SamplingBounds[0] = this->SamplingBounds[2] = this->SamplingBounds[4] = 0;
   this->SamplingBounds[1] = this->SamplingBounds[3] = this->SamplingBounds[5] = 1;
   this->SamplingDimensions[0] = this->SamplingDimensions[1] = this->SamplingDimensions[2] = 10;
+
+  this->InternalProgressCallback->SetClientData(this);
+  this->InternalProgressCallback->SetCallback(::OnProgressCallback);
+
+  this->InternalAbortCheckCallback->SetClientData(this);
+  this->InternalAbortCheckCallback->SetCallback(::OnAbortCheckCallback);
 }
 
 //------------------------------------------------------------------------------
@@ -204,6 +235,8 @@ void vtkResampleToImage::PerformResampling(vtkDataObject* input, const double sa
   structure->SetExtent(probingExtent);
 
   vtkNew<vtkCompositeDataProbeFilter> prober;
+  prober->AddObserver(vtkCommand::ProgressEvent, this->InternalProgressCallback);
+  prober->AddObserver(vtkCommand::AbortCheckEvent, this->InternalAbortCheckCallback);
   prober->SetContainerAlgorithm(this);
   prober->SetInputData(structure);
   prober->SetSourceData(input);
@@ -344,7 +377,7 @@ private:
 
 void vtkResampleToImage::SetBlankPointsAndCells(vtkImageData* data)
 {
-  if (data->GetNumberOfPoints() <= 0)
+  if (data->GetNumberOfPoints() <= 0 || this->GetAbortOutput())
   {
     return;
   }

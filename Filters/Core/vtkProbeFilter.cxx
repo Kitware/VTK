@@ -858,19 +858,19 @@ public:
 
     auto& cell = this->TLGenericCell.Local();
     bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = std::min((cellEnd - cellBegin) / 10 + 1, (vtkIdType)1000);
+    vtkIdType checkAbortInterval =
+      std::min(this->Source->GetNumberOfCells() / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = cellBegin; cellId < cellEnd; ++cellId)
     {
-      if (cellId % checkAbortInterval == 0)
+      if (isFirst && cellId % checkAbortInterval == 0)
       {
-        if (isFirst)
-        {
-          this->ProbeFilter->CheckAbort();
-        }
-        if (this->ProbeFilter->GetAbortOutput())
-        {
-          break;
-        }
+        double progress = static_cast<double>(cellId) / this->Source->GetNumberOfCells();
+        this->ProbeFilter->UpdateProgress(progress);
+        this->ProbeFilter->CheckAbortAndInvoke();
+      }
+      if (this->ProbeFilter->GetAbortOutput())
+      {
+        break;
       }
       if (IsBlankedCell(sourceGhostFlags, cellId))
       {
@@ -922,7 +922,6 @@ namespace
 // Thread local storage
 struct ProbeImageDataPointsThreadLocal
 {
-  bool BaseThread = false;
   vtkSmartPointer<vtkIdList> PointIds;
 };
 
@@ -945,22 +944,16 @@ public:
 
   void Initialize()
   {
-    // BaseThread will be set 'true' for the thread that gets the first piece
     ProbeImageDataPointsThreadLocal& DataPoint = this->Thread.Local();
-    DataPoint.BaseThread = false;
     DataPoint.PointIds = vtkSmartPointer<vtkIdList>::New();
     DataPoint.PointIds->SetNumberOfIds(8);
   }
 
   void operator()(vtkIdType startId, vtkIdType endId)
   {
-    if (startId == 0)
-    {
-      this->Thread.Local().BaseThread = true;
-    }
     this->ProbeFilter->ProbeImageDataPointsSMP(this->Input, this->Source, this->BlockId,
       this->OutPointData, this->MaskArray, this->Thread.Local().PointIds.GetPointer(), startId,
-      endId, this->Thread.Local().BaseThread);
+      endId);
   }
 
   void Reduce() {}
@@ -999,8 +992,7 @@ void vtkProbeFilter::ProbeImageDataPoints(
 
 //------------------------------------------------------------------------------
 void vtkProbeFilter::ProbeImageDataPointsSMP(vtkDataSet* input, vtkImageData* source, int srcIdx,
-  vtkPointData* outPD, char* maskArray, vtkIdList* pointIds, vtkIdType startId, vtkIdType endId,
-  bool baseThread)
+  vtkPointData* outPD, char* maskArray, vtkIdList* pointIds, vtkIdType startId, vtkIdType endId)
 {
   vtkPointData* pd = source->GetPointData();
   vtkCellData* cd = source->GetCellData();
@@ -1031,18 +1023,20 @@ void vtkProbeFilter::ProbeImageDataPointsSMP(vtkDataSet* input, vtkImageData* so
     vtkUnsignedCharArray::SafeDownCast(cd->GetArray(vtkDataSetAttributes::GhostArrayName()));
 
   // Loop over all input points, interpolating source data
-  vtkIdType progressInterval = endId / 20 + 1;
+  const vtkIdType progressInterval = std::min(input->GetNumberOfPoints() / 20 + 1, vtkIdType(1000));
+  bool isFirst = vtkSMPTools::GetSingleThread();
   for (vtkIdType ptId = startId; ptId < endId; ptId++)
   {
-    if (baseThread && !(ptId % progressInterval))
+    if (isFirst && ptId % progressInterval == 0)
     {
       // This is not ideal, because if the base thread executes more than one piece,
       // then the progress will repeat its 0.0 to 1.0 progression for each piece.
-      this->UpdateProgress(static_cast<double>(ptId) / endId);
-      if (this->CheckAbort())
-      {
-        break;
-      }
+      this->UpdateProgress(static_cast<double>(ptId) / input->GetNumberOfPoints());
+      this->CheckAbortAndInvoke();
+    }
+    if (this->GetAbortOutput())
+    {
+      break;
     }
 
     if (maskArray[ptId] == static_cast<char>(1))
