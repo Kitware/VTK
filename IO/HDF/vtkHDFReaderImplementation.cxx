@@ -769,8 +769,16 @@ bool vtkHDFReader::Implementation::ComputeAMROffsetsPerLevels(
 }
 
 //------------------------------------------------------------------------------
+int vtkHDFReader::Implementation::GetAMRBlockPiece(
+  unsigned int absoluteBlockIndex, int numberOfPieces)
+{
+  return numberOfPieces > 1 ? static_cast<int>(absoluteBlockIndex % numberOfPieces) : 0;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::ReadLevelTopology(unsigned int level,
-  const std::string& levelGroupName, vtkOverlappingAMR* data, double origin[3], bool isTemporalData)
+  const std::string& levelGroupName, vtkOverlappingAMR* data, double origin[3], bool isTemporalData,
+  int piece, int numberOfPieces)
 {
   vtkHDF::ScopedH5GHandle levelGroupID =
     H5Gopen(this->VTKGroup, levelGroupName.c_str(), H5P_DEFAULT);
@@ -810,6 +818,15 @@ bool vtkHDFReader::Implementation::ReadLevelTopology(unsigned int level,
     vtkAMRBox amrBox(currentAMRBoxRawData);
 
     data->SetAMRBox(level, dataSetIndex, amrBox);
+
+    // The AMR boxes are the same on all pieces, but only the piece that reads a block holds its
+    // grid
+    const int absoluteBlockIndex = data->GetAbsoluteBlockIndex(level, dataSetIndex);
+    if (Implementation::GetAMRBlockPiece(absoluteBlockIndex, numberOfPieces) != piece)
+    {
+      continue;
+    }
+
     vtkNew<vtkUniformGrid> dataSet;
     dataSet->Initialize();
 
@@ -942,8 +959,8 @@ bool vtkHDFReader::Implementation::ReadAMRBoxRawValues(
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFReader::Implementation::ReadAMRTopology(
-  vtkOverlappingAMR* data, unsigned int maxLevel, double origin[3], bool isTemporalData)
+bool vtkHDFReader::Implementation::ReadAMRTopology(vtkOverlappingAMR* data, unsigned int maxLevel,
+  double origin[3], bool isTemporalData, int piece, int numberOfPieces)
 {
   if (this->AMRInformation.BlocksPerLevel.empty() ||
     maxLevel > this->AMRInformation.BlocksPerLevel.size())
@@ -964,7 +981,8 @@ bool vtkHDFReader::Implementation::ReadAMRTopology(
   for (unsigned int level = 0; level < maxLevel; level++)
   {
     std::string levelGroupName = "Level" + vtk::to_string(level);
-    if (!this->ReadLevelTopology(level, levelGroupName, data, origin, isTemporalData))
+    if (!this->ReadLevelTopology(
+          level, levelGroupName, data, origin, isTemporalData, piece, numberOfPieces))
     {
       vtkErrorWithObjectMacro(this->Reader, << "Can't read group Level" << level);
       return false;

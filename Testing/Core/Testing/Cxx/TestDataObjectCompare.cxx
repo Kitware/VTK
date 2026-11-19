@@ -3,6 +3,7 @@
 
 #include "vtkTestUtilities.h"
 
+#include "vtkAMRBox.h"
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
 #include "vtkDataAssembly.h"
@@ -19,6 +20,8 @@
 #include "vtkMatrix3x3.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
+#include "vtkNonOverlappingAMR.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
@@ -1100,6 +1103,161 @@ bool TestRandomHyperTreeGridCompare()
 
   return true;
 }
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkImageData> MakeAMRGrid(double x, double spacing, float value)
+{
+  const double origin[3] = { x, 0.0, 0.0 };
+
+  auto grid = vtkSmartPointer<vtkImageData>::New();
+  grid->SetOrigin(origin);
+  grid->SetSpacing(spacing, spacing, spacing);
+  grid->SetDimensions(3, 3, 3);
+
+  vtkNew<vtkFloatArray> values;
+  values->SetName("values");
+  values->SetNumberOfTuples(grid->GetNumberOfCells());
+  values->FillValue(value);
+  grid->GetCellData()->AddArray(values);
+  return grid;
+}
+
+//------------------------------------------------------------------------------
+/**
+ * Make an AMR with one block on level 0 and two on level 1. A block is not set if it is not
+ * present, as in a distributed AMR.
+ */
+struct AMROptions
+{
+  double FineSpacing = 0.5;
+  int SecondFineBoxLow = 2;
+  float FineValue = 1.0f;
+  bool HasSecondFineBlock = true;
+};
+
+vtkSmartPointer<vtkOverlappingAMR> MakeOverlappingAMR(const AMROptions& options = AMROptions())
+{
+  const double origin[3] = { 0.0, 0.0, 0.0 };
+  const double spacing[3] = { 1.0, 1.0, 1.0 };
+  const double fineSpacing[3] = { options.FineSpacing, options.FineSpacing, options.FineSpacing };
+
+  auto amr = vtkSmartPointer<vtkOverlappingAMR>::New();
+  amr->Initialize({ 1, 2 });
+  amr->SetOrigin(origin);
+
+  // The spacing of a level is set before the AMR boxes of that level
+  amr->SetSpacing(0, spacing);
+  amr->SetAMRBox(0, 0, vtkAMRBox(0, 0, 0, 1, 1, 1));
+  amr->SetDataSet(0, 0, MakeAMRGrid(0.0, 1.0, 0.0f));
+
+  amr->SetSpacing(1, fineSpacing);
+  amr->SetAMRBox(1, 0, vtkAMRBox(0, 0, 0, 1, 1, 1));
+  amr->SetDataSet(1, 0, MakeAMRGrid(0.0, options.FineSpacing, options.FineValue));
+  const int low = options.SecondFineBoxLow;
+  amr->SetAMRBox(1, 1, vtkAMRBox(low, 0, 0, low + 1, 1, 1));
+  if (options.HasSecondFineBlock)
+  {
+    amr->SetDataSet(1, 1, MakeAMRGrid(1.0, options.FineSpacing, options.FineValue));
+  }
+  return amr;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkNonOverlappingAMR> MakeNonOverlappingAMR(
+  const std::vector<unsigned int>& blocksPerLevel, float value, bool hasLastBlock = true)
+{
+  auto amr = vtkSmartPointer<vtkNonOverlappingAMR>::New();
+  amr->Initialize(blocksPerLevel);
+  for (unsigned int level = 0; level < blocksPerLevel.size(); ++level)
+  {
+    for (unsigned int index = 0; index < blocksPerLevel[level]; ++index)
+    {
+      const bool isLastBlock =
+        level + 1 == blocksPerLevel.size() && index + 1 == blocksPerLevel[level];
+      if (hasLastBlock || !isLastBlock)
+      {
+        amr->SetDataSet(level, index, MakeAMRGrid(index, 1.0, value));
+      }
+    }
+  }
+  return amr;
+}
+
+//------------------------------------------------------------------------------
+bool CheckComparison(
+  const std::string& description, bool expected, vtkDataObject* do1, vtkDataObject* do2)
+{
+  if (vtkTestUtilities::CompareDataObjects(do1, do2) != expected)
+  {
+    vtkLog(ERROR,
+      "The comparison of " << description << " should " << (expected ? "succeed" : "fail")
+                           << ", but it does not.");
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Compare AMR. The blocks of an AMR that are null in either input are skipped, so that a
+ * distributed AMR can be compared with a serial one, but the AMR boxes must match.
+ */
+bool TestAMR()
+{
+  vtkLog(INFO, "### Testing vtkOverlappingAMR and vtkNonOverlappingAMR");
+
+  std::ostringstream logStream;
+  // Turning off ERROR logging so we can test that the utility correctly catches failures
+  TurnOffLogging(logStream);
+
+  bool success = true;
+
+  auto overlapping = MakeOverlappingAMR();
+  success &= CheckComparison("an overlapping AMR with itself", true, overlapping, overlapping);
+  success &= CheckComparison("equal overlapping AMR", true, overlapping, ::MakeOverlappingAMR());
+
+  AMROptions distributedOptions;
+  distributedOptions.HasSecondFineBlock = false;
+  auto distributed = MakeOverlappingAMR(distributedOptions);
+  success &=
+    CheckComparison("an overlapping AMR with a missing block", true, overlapping, distributed);
+  success &=
+    CheckComparison("an overlapping AMR with a missing block", true, distributed, overlapping);
+
+  AMROptions differentSpacingOptions;
+  differentSpacingOptions.FineSpacing = 0.25;
+  success &= CheckComparison("overlapping AMR with different spacings", false, overlapping,
+    MakeOverlappingAMR(differentSpacingOptions));
+
+  AMROptions differentValueOptions;
+  differentValueOptions.FineValue = 2.0f;
+  success &= CheckComparison("overlapping AMR with different blocks", false, overlapping,
+    MakeOverlappingAMR(differentValueOptions));
+
+  // The AMR box of a block that is missing must still match
+  AMROptions differentBoxOptions;
+  differentBoxOptions.SecondFineBoxLow = 4;
+  differentBoxOptions.HasSecondFineBlock = false;
+  success &= CheckComparison("overlapping AMR with different AMR boxes", false, overlapping,
+    MakeOverlappingAMR(differentBoxOptions));
+
+  auto nonOverlapping = MakeNonOverlappingAMR({ 1, 2 }, 1.0f);
+  success &=
+    CheckComparison("a non overlapping AMR with itself", true, nonOverlapping, nonOverlapping);
+  success &= CheckComparison(
+    "equal non overlapping AMR", true, nonOverlapping, MakeNonOverlappingAMR({ 1, 2 }, 1.0f));
+  success &= CheckComparison("a non overlapping AMR with a missing block", true, nonOverlapping,
+    MakeNonOverlappingAMR({ 1, 2 }, 1.0f, false));
+  success &= CheckComparison("non overlapping AMR with different blocks", false, nonOverlapping,
+    MakeNonOverlappingAMR({ 1, 2 }, 2.0f));
+  success &= CheckComparison("non overlapping AMR with different number of blocks", false,
+    nonOverlapping, MakeNonOverlappingAMR({ 1, 1 }, 1.0f));
+
+  success &=
+    CheckComparison("overlapping and non overlapping AMR", false, overlapping, nonOverlapping);
+
+  TurnOnLogging();
+  return success;
+}
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -1128,6 +1286,7 @@ int TestDataObjectCompare(int argc, char* argv[])
   retVal &= ::TestDataSet<vtkMultiBlockDataSet, vtkXMLMultiBlockDataReader>(
     root, "multiblock_dataset_template.vtm");
 
+  retVal &= ::TestAMR();
   retVal &= ::TestTableAndArrays();
 
   return retVal ? EXIT_SUCCESS : EXIT_FAILURE;

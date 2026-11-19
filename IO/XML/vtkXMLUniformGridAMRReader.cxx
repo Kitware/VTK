@@ -336,7 +336,21 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
   auto oamr = vtkOverlappingAMR::SafeDownCast(amr);
   if (oamr && !this->HasBlockRequests)
   {
-    vtkAMRUtilities::BlankCells(oamr);
+    // Each piece only holds some of the blocks, but blanking only needs to know which blocks exist
+    // and their AMR boxes, and not where they are. Only the levels that are read exist.
+    std::vector<int> processMap(oamr->GetNumberOfBlocks(), -1);
+    for (unsigned int level = 0; level < oamr->GetNumberOfLevels(); ++level)
+    {
+      if (this->MaximumLevelsToReadByDefault > 0 && level >= this->MaximumLevelsToReadByDefault)
+      {
+        break;
+      }
+      for (unsigned int index = 0; index < oamr->GetNumberOfBlocks(level); ++index)
+      {
+        processMap[oamr->GetAbsoluteBlockIndex(level, index)] = 0;
+      }
+    }
+    vtkAMRUtilities::BlankCells(oamr, processMap);
   }
 }
 

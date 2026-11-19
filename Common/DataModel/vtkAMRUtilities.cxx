@@ -342,7 +342,7 @@ void vtkAMRUtilities::StripGhostLayers(
 }
 
 //------------------------------------------------------------------------------
-void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr)
+void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr, const std::vector<int>& processMap)
 {
   vtkOverlappingAMRMetaData* amrMData = amr->GetOverlappingAMRMetaData();
   if (!amrMData)
@@ -360,6 +360,16 @@ void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr)
     amrMData->GenerateParentChildInformation();
   }
 
+  unsigned int numLevels = amrMData->GetNumberOfLevels();
+  for (unsigned int i = 0; i < numLevels; i++)
+  {
+    vtkAMRUtilities::BlankGridsAtLevel(amr, i, amrMData->GetChildrenAtLevel(i), processMap);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr)
+{
   if (amr->GetNumberOfBlocks() == 0)
   {
     return;
@@ -377,11 +387,7 @@ void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr)
     processorMap[index] = 0;
   }
 
-  unsigned int numLevels = amrMData->GetNumberOfLevels();
-  for (unsigned int i = 0; i < numLevels; i++)
-  {
-    BlankGridsAtLevel(amr, i, amrMData->GetChildrenAtLevel(i), processorMap);
-  }
+  vtkAMRUtilities::BlankCells(amr, processorMap);
 }
 
 //------------------------------------------------------------------------------

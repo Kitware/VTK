@@ -3,12 +3,16 @@
 
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
+#include "vtkImageData.h"
 #include "vtkMPIController.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
 #include "vtkNew.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkPolyData.h"
 #include "vtkRedistributeDataSetFilter.h"
 #include "vtkSetGet.h"
+#include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 
 #include <iostream>
@@ -39,6 +43,51 @@ bool TestSinglePieceMultiblock(vtkMPIController* controller, const std::string& 
 
   return true;
 }
+
+// Each AMR block is read by one rank only, with the same AMR boxes and the same blanking as a
+// serial read
+bool TestOverlappingAMR(vtkMPIController* controller, const std::string& dataRoot)
+{
+  int myRank = controller->GetLocalProcessId();
+  int nbRanks = controller->GetNumberOfProcesses();
+
+  std::string filename = dataRoot + "/Data/vtkHDF/amr_gaussian_pulse.vtkhdf";
+
+  vtkNew<vtkHDFReader> serialReader;
+  serialReader->SetFileName(filename.c_str());
+  serialReader->UpdatePiece(0, 1, 0);
+  auto serialAMR = vtkOverlappingAMR::SafeDownCast(serialReader->GetOutputDataObject(0));
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(filename.c_str());
+  reader->UpdatePiece(myRank, nbRanks, 0);
+  auto amr = vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
+
+  // The comparison includes the AMR boxes, the blocks that are present and their ghost arrays,
+  // which hold the blanking, and skips the blocks that are on another rank
+  if (!serialAMR || !amr || !vtkTestUtilities::CompareDataObjects(amr, serialAMR))
+  {
+    vtkErrorWithObjectMacro(nullptr, << "The distributed AMR differs from the serial one");
+    return false;
+  }
+
+  // Blocks are dealt out to the ranks in turn, so each block is on exactly one rank
+  for (unsigned int level = 0; level < amr->GetNumberOfLevels(); ++level)
+  {
+    for (unsigned int index = 0; index < amr->GetNumberOfBlocks(level); ++index)
+    {
+      const bool isMine = amr->GetAbsoluteBlockIndex(level, index) % nbRanks == myRank;
+      if ((amr->GetDataSetAsImageData(level, index) != nullptr) != isMine)
+      {
+        vtkErrorWithObjectMacro(
+          nullptr, << "Block " << level << "," << index << " is on the wrong rank");
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
 }
 
 int TestHDFReaderDistributed(int argc, char* argv[])
@@ -57,6 +106,7 @@ int TestHDFReaderDistributed(int argc, char* argv[])
   std::string dataRoot = testHelper->GetDataRoot();
 
   bool res = ::TestSinglePieceMultiblock(controller, dataRoot);
+  res &= ::TestOverlappingAMR(controller, dataRoot);
   controller->Finalize();
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }

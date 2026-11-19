@@ -19,7 +19,6 @@
 #include "vtkGenericCell.h"
 #include "vtkMathUtilities.h"
 #include "vtkOverlappingAMR.h"
-#include "vtkOverlappingAMRMetaData.h"
 #include "vtkPoints.h"
 #include "vtkTestUtilities.h"
 #include "vtkUniformGrid.h"
@@ -333,46 +332,7 @@ bool AMRDataSetsAreEqual(vtkOverlappingAMR* computed, vtkOverlappingAMR* expecte
   assert("pre: computed AMR dataset is nullptr" && (computed != nullptr));
   assert("pre: expected AMR dataset is nullptr" && (expected != nullptr));
 
-  if (computed == expected)
-  {
-    return true;
-  }
-
-  if (computed->GetNumberOfLevels() != expected->GetNumberOfLevels())
-  {
-    return false;
-  }
-
-  if (!(*computed->GetOverlappingAMRMetaData() == *expected->GetOverlappingAMRMetaData()))
-  {
-
-    std::cerr << "ERROR: AMR meta data mismatch!\n";
-    return false;
-  }
-
-  unsigned int levelIdx = 0;
-  for (; levelIdx < computed->GetNumberOfLevels(); ++levelIdx)
-  {
-    if (computed->GetNumberOfBlocks(levelIdx) != expected->GetNumberOfBlocks(levelIdx))
-    {
-      return false;
-    }
-
-    unsigned int dataIdx = 0;
-    for (; dataIdx < computed->GetNumberOfBlocks(levelIdx); ++dataIdx)
-    {
-      vtkImageData* dataset = computed->GetDataSetAsImageData(levelIdx, dataIdx);
-      vtkImageData* expectedDataset = expected->GetDataSetAsImageData(levelIdx, dataIdx);
-      if (!vtkTestUtilities::CompareDataObjects(dataset, expectedDataset))
-      {
-        std::cerr << "Datasets does not match for level " << levelIdx << " dataset " << dataIdx
-                  << std::endl;
-        return EXIT_FAILURE;
-      }
-    } // END for all data
-  } // END for all levels
-
-  return true;
+  return vtkTestUtilities::CompareDataObjects(computed, expected);
 }
 
 //------------------------------------------------------------------------------
