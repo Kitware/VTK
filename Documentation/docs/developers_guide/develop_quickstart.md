@@ -32,6 +32,13 @@ Before you begin, perform your initial setup using the following steps:
 [Fork VTK]: https://gitlab.kitware.com/vtk/vtk/-/forks/new
 [developer setup script]: https://gitlab.kitware.com/vtk/vtk/Utilities/SetupForDevelopment.sh
 
+## AI Policy
+
+VTK has a dedicated [AI policy] in order to ensure the quality of contributions
+and communications, please follow its guidelines.
+
+[AI policy]: https://gitlab.kitware.com/vtk/vtk/AI_POLICY.md
+
 ## Development
 
 Create a local branch for your changes:
@@ -97,7 +104,7 @@ Once you are happy with the state of your development on your fork, the next ste
 
 Open [](https://gitlab.kitware.com/username/vtk/-/merge_requests/new) in a browser, select your branch in the list and create a Merge Request against master.
 
-In the description, write an informative explanation of your added features or bugfix. If there is an associated issue, link it with the `#number` in the description.
+In the description, use the template to write an informative explanation of your added features or bugfix, link issue and disclose AI usage.
 
 Tag some VTK maintainers in the description to ensure someone will see it, see here for the complete [list](./git/develop.md#review-a-merge-request).
 
