@@ -372,6 +372,10 @@ C++ tests
     it does, a second test with the suffix ``SerDes` is created which passes the
     ``--serdes`` flag. Note that only tests that do a regression test on a render
     window and pass ``--serdes`` will do serdes testing.
+  - ``WASM_ALLOW_ERROR_OUTPUT``: For WebAssembly browser tests, allow expected
+    error output and use the test's exit status to determine success. JavaScript
+    exceptions and unhandled promise rejections still fail the test. This option
+    has no effect on native tests.
 
   Additional flags may be passed to tests using the ``${_vtk_build_test}_ARGS``
   variable or the ``<NAME>_ARGS`` variable.
@@ -382,6 +386,7 @@ function (vtk_add_test_cxx exename _tests)
     NO_VALID
     NO_OUTPUT
     NO_SERDES
+    WASM_ALLOW_ERROR_OUTPUT
     TIGHT_VALID
     LOOSE_VALID
     LEGACY_VALID)
@@ -463,6 +468,7 @@ function (vtk_add_test_cxx exename _tests)
         set(_vtk_test_cxx_wasm_args
           "${CMAKE_COMMAND}"
           "-DEXIT_AFTER_TEST=ON"
+          "-DTESTING_WASM_ALLOW_ERROR_OUTPUT=${local_WASM_ALLOW_ERROR_OUTPUT}"
           "-DTESTING_WASM_ENGINE=${VTK_TESTING_WASM_ENGINE}"
           "-DTESTING_WASM_HTML_TEMPLATE=${_vtkModuleTesting_dir}/wasm/vtkWasmTest.html.in"
           "-DTEST_OUTPUT_DIR=${_vtk_build_TEST_OUTPUT_DIRECTORY}"

@@ -18,6 +18,12 @@ property and finally the `vtkWasm-HTTPServerCleanup` is run at the end to shutdo
 The command line for a unit test is set by the CMake functions in vtkModuleTesting.cmake file. It looks like
 "cmake" -D... "CMake/vtkWasmTestRunner.cmake" "/path/to/vtkModuleNameCxxTests.js_file" "TestName" "arg1" "arg2" ... "argn"
 
+Tests that intentionally log errors can add `WASM_ALLOW_ERROR_OUTPUT` to their
+`vtk_add_test_cxx` test options. This passes `TESTING_WASM_ALLOW_ERROR_OUTPUT` to the
+CMake runner with `-D`; the default is off. The browser still logs these messages
+but uses the test's exit status instead of failing on error text. JavaScript
+exceptions and unhandled promise rejections still fail the test.
+
 ## Routes:
 
 1. `/dump?file=/path/to/file.ext`:
