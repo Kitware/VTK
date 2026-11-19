@@ -410,6 +410,27 @@ void vtkWindowToImageFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
+  auto cleanupAndRestore = [&]()
+  {
+    // restore settings
+    // for each renderer
+    rc->InitTraversal(rsit);
+    for (int i = 0; i < numRenderers; ++i)
+    {
+      aren = rc->GetNextRenderer(rsit);
+      // store the old view angle & set the new
+      cam = aren->GetActiveCamera();
+      aren->SetActiveCamera(cams[i]);
+      cams[i]->UnRegister(this);
+      cam->Delete();
+    }
+    delete[] viewAngles;
+    delete[] windowCenters;
+    delete[] parallelScale;
+    delete[] cams;
+    delete[] viewports;
+  };
+
   for (int y = 0; y < num_iterations[1]; y++)
   {
     for (int x = 0; x < num_iterations[0]; x++)
@@ -481,6 +502,13 @@ void vtkWindowToImageFilter::RequestData(vtkInformation* vtkNotUsed(request),
         }
         pixels1 = pixels;
 
+        if (pixels1 == nullptr)
+        {
+          vtkErrorMacro("Null pixel buffer");
+          cleanupAndRestore();
+          return;
+        }
+
         // now write the data to the output image
         if (overlap_viewports)
         {
@@ -547,23 +575,7 @@ void vtkWindowToImageFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  // restore settings
-  // for each renderer
-  rc->InitTraversal(rsit);
-  for (int i = 0; i < numRenderers; ++i)
-  {
-    aren = rc->GetNextRenderer(rsit);
-    // store the old view angle & set the new
-    cam = aren->GetActiveCamera();
-    aren->SetActiveCamera(cams[i]);
-    cams[i]->UnRegister(this);
-    cam->Delete();
-  }
-  delete[] viewAngles;
-  delete[] windowCenters;
-  delete[] parallelScale;
-  delete[] cams;
-  delete[] viewports;
+  cleanupAndRestore();
 
   // render each of the tiles required to fill this request
   this->Input->SetTileScale(tileScale);
