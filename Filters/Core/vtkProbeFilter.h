@@ -351,8 +351,7 @@ private:
   void ProbeImageDataPoints(
     vtkDataSet* input, int srcIdx, vtkImageData* sourceImage, vtkDataSet* output);
   void ProbeImageDataPointsSMP(vtkDataSet* input, vtkImageData* source, int srcIdx,
-    vtkPointData* outPD, char* maskArray, vtkIdList* pointIds, vtkIdType startId, vtkIdType endId,
-    bool baseThread);
+    vtkPointData* outPD, char* maskArray, vtkIdList* pointIds, vtkIdType startId, vtkIdType endId);
 
   class ProbeImageDataPointsWorklet;
 

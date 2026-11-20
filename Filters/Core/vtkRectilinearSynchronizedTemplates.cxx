@@ -357,12 +357,15 @@ struct ContourRectilinearGridFunctor
       //==================================================================
       for (k = zMin; k <= zMax; k++)
       {
-        self->UpdateProgress(
-          (double)vidx / numContours + (k - zMin) / ((zMax - zMin + 1.0) * numContours));
-        if (k % checkAbortInterval == 0 && self->CheckAbort())
+        if (k % checkAbortInterval == 0)
         {
-          abort = true;
-          break;
+          self->UpdateProgress(
+            (double)vidx / numContours + (k - zMin) / ((zMax - zMin + 1.0) * numContours));
+          if (self->CheckAbortAndInvoke())
+          {
+            abort = true;
+            break;
+          }
         }
 
         z = zCoords->GetComponent(k - inExt[4], 0);

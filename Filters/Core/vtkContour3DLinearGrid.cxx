@@ -264,13 +264,18 @@ struct ExtractEdgesBase
     ExtractEdgesBase* Producer;
     EdgeType<IDType>* OutEdges;
     vtkContour3DLinearGrid* Filter;
-    ProduceEdges(
-      ExtractEdgesBase* producer, EdgeType<IDType>* outEdges, vtkContour3DLinearGrid* filter)
+
+    vtkIdType TotalIterationCount;
+
+    ProduceEdges(ExtractEdgesBase* producer, EdgeType<IDType>* outEdges,
+      vtkContour3DLinearGrid* filter, vtkIdType totalIterationCount)
       : Producer(producer)
       , OutEdges(outEdges)
       , Filter(filter)
+      , TotalIterationCount(totalIterationCount)
     {
     }
+
     void operator()(vtkIdType batchId, vtkIdType endBatchId)
     {
       bool isFirst = vtkSMPTools::GetSingleThread();
@@ -278,17 +283,19 @@ struct ExtractEdgesBase
 
       for (; batchId < endBatchId; ++batchId)
       {
-        if (batchId % checkAbortInterval == 0)
+        if (isFirst && batchId % checkAbortInterval == 0)
         {
-          if (isFirst)
-          {
-            this->Filter->CheckAbort();
-          }
-          if (this->Filter->GetAbortOutput())
-          {
-            break;
-          }
+          // This part is the second half of the whole worker, hence multiplying by 0.5 and adding
+          // 0.5.
+          double progress = static_cast<double>(batchId) / this->TotalIterationCount * 0.5 + 0.5;
+          this->Filter->UpdateProgress(progress);
+          this->Filter->CheckAbortAndInvoke();
         }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
+
         auto& batch = this->Producer->CellBatches[batchId];
         vtkIdType edgeNum = batch.Data.PolyConnectivityOffset;
         EdgeType<IDType>* edges = this->OutEdges + edgeNum;
@@ -393,7 +400,8 @@ struct ExtractEdgesBase
     {
       // Copy batch edges to composited edge array.
       this->Edges = new EdgeType<IDType>[this->ConnectivitySize];
-      ProduceEdges produceEdges(this, this->Edges, this->Filter);
+      ProduceEdges produceEdges(
+        this, this->Edges, this->Filter, this->CellBatches.GetNumberOfBatches());
       EXECUTE_SMPFOR(this->Filter->GetSequentialProcessing(),
         this->CellBatches.GetNumberOfBatches(), produceEdges);
     }
@@ -441,17 +449,19 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TScalarsArray, GenerateTri
 
     for (; batchId < endBatchId; ++batchId)
     {
-      if (batchId % checkAbortInterval == 0)
+      if (isFirst && batchId % checkAbortInterval == 0)
       {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
+        // This part is the first half of the whole worker, hence multiplying by 0.5.
+        double progress =
+          static_cast<double>(batchId) / this->CellBatches.GetNumberOfBatches() * 0.5;
+        this->Filter->UpdateProgress(progress);
+        this->Filter->CheckAbortAndInvoke();
       }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
+
       auto& batch = this->CellBatches[batchId];
       auto& batchNumberOfCells = batch.Data.PolyOffset;
       auto& batchPolyConnectivity = batch.Data.PolyConnectivityOffset;
@@ -599,17 +609,19 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray, GenerateT
 
     for (; batchId < endBatchId; ++batchId)
     {
-      if (batchId % checkAbortInterval == 0)
+      if (isFirst && batchId % checkAbortInterval == 0)
       {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
+        // This part is the first half of the whole worker, hence multiplying by 0.5.
+        double progress =
+          static_cast<double>(batchId) / this->CellBatches.GetNumberOfBatches() * 0.5;
+        this->Filter->UpdateProgress(progress);
+        this->Filter->CheckAbortAndInvoke();
       }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
+
       auto& batch = this->CellBatches[batchId];
       auto& batchNumberOfCells = batch.Data.PolyOffset;
       auto& batchPolyConnectivity = batch.Data.PolyConnectivityOffset;
@@ -783,9 +795,11 @@ struct ProducePolys
   int NumThreadsUsed; // placeholder
   vtkContour3DLinearGrid* Filter;
 
+  vtkIdType TotalIterationCount;
+
   ProducePolys(const MergeTupleType* merge, const EdgeGroupsType<IDType>& groups,
     vtkCellArray* polys, vtkIdType totalPts, vtkIdType totalConnectivitySize,
-    vtkContour3DLinearGrid* filter)
+    vtkContour3DLinearGrid* filter, vtkIdType totalIterationCount)
     : MergeArray(merge)
     , Groups(groups)
     , Polys(polys)
@@ -793,6 +807,7 @@ struct ProducePolys
     , TotalConnectivitySize(totalConnectivitySize)
     , NumThreadsUsed(1)
     , Filter(filter)
+    , TotalIterationCount(totalIterationCount)
   {
   }
 
@@ -806,21 +821,12 @@ struct ProducePolys
     {
       using ValueType = GetAPIType<OffsetsT>;
       auto connRange = GetRange(conn);
-      bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
       for (; ptId < endPtId; ++ptId)
       {
-        if (ptId % checkAbortInterval == 0)
+        if (filter->GetAbortOutput())
         {
-          if (isFirst)
-          {
-            filter->CheckAbort();
-          }
-          if (filter->GetAbortOutput())
-          {
-            break;
-          }
+          break;
         }
         const vtkIdType numPtsInGroup = groups.GetGroupSize(ptId);
         const vtkIdType firstEdge = groups.GetGroupOffset(ptId);
@@ -838,6 +844,13 @@ struct ProducePolys
   // all edges in the group are updated to the current merged point id.
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
+    if (vtkSMPTools::GetSingleThread())
+    {
+      double progress = static_cast<double>(endPtId) / this->TotalIterationCount;
+      this->Filter->UpdateProgress(progress);
+      this->Filter->CheckAbortAndInvoke();
+    }
+
     this->Polys->Dispatch(Impl{}, ptId, endPtId, this->TotalPts, this->TotalConnectivitySize,
       this->Groups, this->MergeArray, this->Filter);
   }
@@ -858,9 +871,11 @@ struct ProducePoints
   const vtkIdType TotalPrevPoints;
   const vtkIdType TotalOutputPoints;
 
+  vtkIdType TotalIterationCount;
+
   ProducePoints(vtkContour3DLinearGrid* filter, TInputPointsArray* inPts,
     TOutputPointsArray* outPts, const MergeTupleType* merge, const EdgeGroupsType<IDType>& groups,
-    vtkIdType totalPts)
+    vtkIdType totalPts, vtkIdType totalIterationCount)
     : Filter(filter)
     , InPts(inPts)
     , OutPts(outPts)
@@ -868,6 +883,7 @@ struct ProducePoints
     , Groups(groups)
     , TotalPrevPoints(totalPts)
     , TotalOutputPoints(this->OutPts->GetNumberOfTuples())
+    , TotalIterationCount(totalIterationCount)
   {
   }
 
@@ -884,17 +900,17 @@ struct ProducePoints
 
     for (; ptId < endPtId; ++ptId)
     {
-      if (ptId % checkAbortInterval == 0)
+      if (isFirst && ptId % checkAbortInterval == 0)
       {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
+        double progress = static_cast<double>(ptId) / this->TotalIterationCount;
+        this->Filter->UpdateProgress(progress);
+        this->Filter->CheckAbortAndInvoke();
       }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
+
       mergeTuple = this->MergeArray + this->Groups.GetGroupOffset(ptId);
       v0 = mergeTuple->V0;
       v1 = mergeTuple->V1;
@@ -923,7 +939,7 @@ struct ProducePointsWorker
     const EdgeGroupsType<TIds>& groups, vtkIdType totalPoints, vtkIdType numPts)
   {
     ProducePoints<TInputPointsArray, TOutputPointsArray, TIds> producePoints(
-      filter, inputPointsArray, outputPointsArray, mergeArray, groups, totalPoints);
+      filter, inputPointsArray, outputPointsArray, mergeArray, groups, totalPoints, numPts);
     EXECUTE_SMPFOR(filter->GetSequentialProcessing(), numPts, producePoints);
   }
 };
@@ -939,14 +955,17 @@ struct ProducePointAttributes
   vtkIdType TotalPts;                 // total points / multiple contours computed previously
   vtkContour3DLinearGrid* Filter;
 
+  vtkIdType TotalIterationCount;
+
   ProducePointAttributes(const EdgeTuple<TIds, EdgeDataType<TIds>>* mt,
     const EdgeGroupsType<TIds>& groups, ArrayList* arrays, vtkIdType totalPts,
-    vtkContour3DLinearGrid* filter)
+    vtkContour3DLinearGrid* filter, vtkIdType totalIterationCount)
     : Edges(mt)
     , Groups(groups)
     , Arrays(arrays)
     , TotalPts(totalPts)
     , Filter(filter)
+    , TotalIterationCount(totalIterationCount)
   {
   }
 
@@ -960,17 +979,17 @@ struct ProducePointAttributes
 
     for (; ptId < endPtId; ++ptId)
     {
-      if (ptId % checkAbortInterval == 0)
+      if (isFirst && ptId % checkAbortInterval == 0)
       {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
+        double progress = static_cast<double>(ptId) / this->TotalIterationCount;
+        this->Filter->UpdateProgress(progress);
+        this->Filter->CheckAbortAndInvoke();
       }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
+
       mergeTuple = this->Edges + this->Groups.GetGroupOffset(ptId);
       v0 = mergeTuple->V0;
       v1 = mergeTuple->V1;
@@ -994,12 +1013,15 @@ struct ProduceCellAttributes
   vtkIdType TotalPolys;                     // total polys / multiple contours computed previously
   vtkContour3DLinearGrid* Filter;
 
+  vtkIdType TotalIterationCount;
+
   ProduceCellAttributes(const std::vector<TIds>& originalCellIds, ArrayList* arrays,
-    vtkIdType totalPolys, vtkContour3DLinearGrid* filter)
+    vtkIdType totalPolys, vtkContour3DLinearGrid* filter, vtkIdType totalIterationCount)
     : OriginalCellIds(originalCellIds)
     , Arrays(arrays)
     , TotalPolys(totalPolys)
     , Filter(filter)
+    , TotalIterationCount(totalIterationCount)
   {
   }
 
@@ -1010,17 +1032,17 @@ struct ProduceCellAttributes
     vtkIdType checkAbortInterval = std::min((endCellId - beginCellId) / 10 + 1, (vtkIdType)1000);
     for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
-      if (cellId % checkAbortInterval == 0)
+      if (isFirst && cellId % checkAbortInterval == 0)
       {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
+        double progress = static_cast<double>(cellId) / this->TotalIterationCount;
+        this->Filter->UpdateProgress(progress);
+        this->Filter->CheckAbortAndInvoke();
       }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
+
       this->Arrays->Copy(this->OriginalCellIds[cellId], cellId + this->TotalPolys);
     }
   }
@@ -1035,6 +1057,11 @@ void Process(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* outPts
   ArrayList* cellArrays, int& numThreads, vtkIdType totalPts, vtkIdType totalPolys,
   vtkIdType totalConnectivitySize)
 {
+  const int numberOfSteps = intAttr ? 5 : 3;
+  const double progressScale = filter->GetProgressScale() * (1.0 / numberOfSteps);
+  const double progressShiftBase = filter->GetProgressShift();
+  int stepIndex = 0;
+
   // Extract edges that the contour intersects. Templated on type of scalars.
   // List below the explicit choice of scalars that can be processed.
   vtkIdType numPolys = 0, connectivitySize = 0;
@@ -1044,6 +1071,7 @@ void Process(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* outPts
   // process these scalar types, others could easily be added
   using ScalarsList = vtkTypeList::Create<unsigned int, int, float, double>;
   using DispatcherExtractEdges = vtkArrayDispatch::DispatchByValueType<ScalarsList>;
+  filter->SetProgressShiftScale(stepIndex * progressScale + progressShiftBase, progressScale);
   if (!DispatcherExtractEdges::Execute(inScalars, extractEdgesWorker, filter, input, isoValue, st,
         newPolys, totalPolys, totalConnectivitySize, numPolys, connectivitySize, mergeEdges,
         originalCellIds, numThreads))
@@ -1052,9 +1080,10 @@ void Process(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* outPts
       totalConnectivitySize, numPolys, connectivitySize, mergeEdges, originalCellIds, numThreads);
   }
   int nt = numThreads;
+  stepIndex++;
 
   // Make sure data was produced
-  if (numPolys <= 0)
+  if (numPolys <= 0 || filter->CheckAbortAndInvoke())
   {
     delete[] mergeEdges;
     return;
@@ -1066,15 +1095,23 @@ void Process(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* outPts
   const vtkIdType numPts = groups.GetNumberOfGroups();
 
   // Generate polys.
+  filter->SetProgressShiftScale(stepIndex * progressScale + progressShiftBase, progressScale);
   ProducePolys<TIds> producePolys(
-    mergeEdges, groups, newPolys, totalPts, totalConnectivitySize, filter);
+    mergeEdges, groups, newPolys, totalPts, totalConnectivitySize, filter, numPts);
   EXECUTE_SMPFOR(filter->GetSequentialProcessing(), numPts, producePolys);
   numThreads = nt;
+  stepIndex++;
+
+  if (filter->CheckAbortAndInvoke())
+  {
+    delete[] mergeEdges;
+    return;
+  }
 
   // Generate points (one per unique edge)
   outPts->GetData()->SetNumberOfTuples(numPts + totalPts);
   ProducePointsWorker<TIds> producePointsWorker;
-
+  filter->SetProgressShiftScale(stepIndex * progressScale + progressShiftBase, progressScale);
   using DispatcherProducePoints = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays,
     vtkArrayDispatch::AOSPointArrays>;
   if (!DispatcherProducePoints::Execute(inPts->GetData(), outPts->GetData(), producePointsWorker,
@@ -1082,6 +1119,13 @@ void Process(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* outPts
   {
     producePointsWorker(
       inPts->GetData(), outPts->GetData(), filter, mergeEdges, groups, totalPts, numPts);
+  }
+  stepIndex++;
+
+  if (filter->CheckAbortAndInvoke())
+  {
+    delete[] mergeEdges;
+    return;
   }
 
   // Now process point data attributes if requested
@@ -1105,8 +1149,18 @@ void Process(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* outPts
     {
       pointArrays->Realloc(totalPts + numPts);
     }
-    ProducePointAttributes<TIds> interpolate(mergeEdges, groups, pointArrays, totalPts, filter);
+
+    filter->SetProgressShiftScale(stepIndex * progressScale + progressShiftBase, progressScale);
+    ProducePointAttributes<TIds> interpolate(
+      mergeEdges, groups, pointArrays, totalPts, filter, numPts);
     EXECUTE_SMPFOR(filter->GetSequentialProcessing(), numPts, interpolate);
+    stepIndex++;
+
+    if (filter->CheckAbortAndInvoke())
+    {
+      delete[] mergeEdges;
+      return;
+    }
 
     // interpolate cell data
     if (totalPolys <= 0) // first contour value generating output
@@ -1118,7 +1172,10 @@ void Process(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* outPts
     {
       cellArrays->Realloc(totalPolys + numPolys);
     }
-    ProduceCellAttributes<TIds> interpolateCell(originalCellIds, cellArrays, totalPolys, filter);
+
+    filter->SetProgressShiftScale(stepIndex * progressScale + progressShiftBase, progressScale);
+    ProduceCellAttributes<TIds> interpolateCell(
+      originalCellIds, cellArrays, totalPolys, filter, numPolys);
     EXECUTE_SMPFOR(filter->GetSequentialProcessing(), numPolys, interpolateCell);
   }
 
@@ -1137,12 +1194,16 @@ struct ComputeCellNormals
   vtkContour3DLinearGrid* Filter;
   vtkSMPThreadLocalObject<vtkIdList> TLPointIds;
 
-  ComputeCellNormals(
-    vtkPoints* pts, vtkCellArray* polys, float* cellNormals, vtkContour3DLinearGrid* filter)
+  vtkIdType TotalIterationCount;
+  vtkIdType ProcessedIterations = 0;
+
+  ComputeCellNormals(vtkPoints* pts, vtkCellArray* polys, float* cellNormals,
+    vtkContour3DLinearGrid* filter, vtkIdType totalIterationCount)
     : Points(pts)
     , Polys(polys)
     , CellNormals(cellNormals)
     , Filter(filter)
+    , TotalIterationCount(totalIterationCount)
   {
   }
 
@@ -1155,20 +1216,23 @@ struct ComputeCellNormals
 
     vtkIdType npts = 3;
     const vtkIdType* tri = nullptr;
-    bool isFirst = vtkSMPTools::GetSingleThread();
     vtkIdType checkAbortInterval = std::min((endPolyId - polyId) / 10 + 1, (vtkIdType)1000);
+    bool isFirst = vtkSMPTools::GetSingleThread();
 
     for (; polyId < endPolyId; ++polyId)
     {
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
       if (polyId % checkAbortInterval == 0)
       {
+        this->ProcessedIterations += checkAbortInterval;
         if (isFirst)
         {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
+          double progress =
+            static_cast<double>(this->ProcessedIterations) / this->TotalIterationCount;
+          this->Filter->UpdateProgress(progress);
         }
       }
       this->Polys->GetCellAtId(polyId, npts, tri, lPointIds);
@@ -1201,12 +1265,12 @@ vtkSmartPointer<vtkFloatArray> GeneratePolyNormals(
   // Execute functor over all triangles
   if (filter->GetGenerateTriangles())
   {
-    ComputeCellNormals<true> computeNormals(pts, polys, n, filter);
+    ComputeCellNormals<true> computeNormals(pts, polys, n, filter, numTris);
     EXECUTE_SMPFOR(filter->GetSequentialProcessing(), numTris, computeNormals);
   }
   else
   {
-    ComputeCellNormals<false> computeNormals(pts, polys, n, filter);
+    ComputeCellNormals<false> computeNormals(pts, polys, n, filter, numTris);
     EXECUTE_SMPFOR(filter->GetSequentialProcessing(), numTris, computeNormals);
   }
 
@@ -1222,12 +1286,15 @@ struct AverageNormals
   float* PointNormals;
   vtkContour3DLinearGrid* Filter;
 
+  vtkIdType TotalIterationCount;
+
   AverageNormals(vtkStaticCellLinksTemplate<TId>* links, float* cellNormals, float* ptNormals,
-    vtkContour3DLinearGrid* filter)
+    vtkContour3DLinearGrid* filter, vtkIdType totalIterationCount)
     : Links(links)
     , CellNormals(cellNormals)
     , PointNormals(ptNormals)
     , Filter(filter)
+    , TotalIterationCount(totalIterationCount)
   {
   }
 
@@ -1242,17 +1309,17 @@ struct AverageNormals
 
     for (; ptId < endPtId; ++ptId, n += 3)
     {
-      if (ptId % checkAbortInterval == 0)
+      if (isFirst && ptId % checkAbortInterval == 0)
       {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
+        double progress = static_cast<double>(ptId) / this->TotalIterationCount;
+        this->Filter->UpdateProgress(progress);
+        this->Filter->CheckAbortAndInvoke();
       }
+      if (this->Filter->GetAbortOutput())
+      {
+        break;
+      }
+
       numTris = this->Links->GetNumberOfCells(ptId);
       tris = this->Links->GetCells(ptId);
       n[0] = n[1] = n[2] = 0.0;
@@ -1292,7 +1359,7 @@ void GeneratePointNormals(vtkPoints* pts, vtkCellArray* tris, vtkFloatArray* cel
   links.BuildLinks(dummy);
 
   // Process all points, averaging normals
-  AverageNormals<TId> average(&links, triN, ptN, filter);
+  AverageNormals<TId> average(&links, triN, ptN, filter, numPts);
   EXECUTE_SMPFOR(filter->GetSequentialProcessing(), numPts, average);
 
   // Clean up and get out
@@ -1508,8 +1575,15 @@ void vtkContour3DLinearGrid::ProcessPiece(
 
   // Generate all the merged points and triangles at once (for multiple
   // contours) and then produce the normals if requested.
+  double progressScale = 1.0 / numContours;
+  if (this->ComputeNormals)
+  {
+    progressScale *= 0.5;
+  }
   for (int vidx = 0; vidx < numContours; vidx++)
   {
+    double progressShift = vidx * progressScale;
+    this->SetProgressShiftScale(progressShift, progressScale);
     value = values[vidx];
     if (this->LargeIds)
     {
@@ -1530,13 +1604,21 @@ void vtkContour3DLinearGrid::ProcessPiece(
     totalConnectivitySize = newPolys->GetNumberOfConnectivityIds();
   } // for all contour values
 
+  if (this->GetAbortOutput())
+  {
+    return;
+  }
+
   // If requested, compute normals. Basically triangle normals are averaged
   // on each merged point. Requires building static CellLinks so it is a
   // relatively expensive operation. (This block of code is separate to
   // control .obj object bloat.)
   if (this->ComputeNormals)
   {
+    this->SetProgressShiftScale(0.5, 0.25);
     vtkSmartPointer<vtkFloatArray> triNormals = GeneratePolyNormals(outPts, newPolys, this);
+
+    this->SetProgressShiftScale(0.75, 0.25);
     if (this->LargeIds)
     {
       GeneratePointNormals<vtkIdType>(outPts, newPolys, triNormals, outPD, this);

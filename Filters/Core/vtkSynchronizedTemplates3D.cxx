@@ -10,7 +10,6 @@
 #include "vtkFloatArray.h"
 #include "vtkIdListCollection.h"
 #include "vtkInformation.h"
-#include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -352,12 +351,15 @@ struct ContourImage
       //==================================================================
       for (k = zMin; k <= zMax; k++)
       {
-        self->UpdateProgress(
-          (double)vidx / numContours + (k - zMin) / ((zMax - zMin + 1.0) * numContours));
-        if (k % checkAbortInterval == 0 && self->CheckAbort())
+        if (k % checkAbortInterval == 0)
         {
-          abort = true;
-          break;
+          self->UpdateProgress(
+            (double)vidx / numContours + (k - zMin) / ((zMax - zMin + 1.0) * numContours));
+          if (self->CheckAbortAndInvoke())
+          {
+            abort = true;
+            break;
+          }
         }
         z = origin[2] + spacing[2] * k;
         x[2] = z;

@@ -25,6 +25,16 @@ The following filters have been moved to the new API:
  - vtkThreshold
  - vtkWarpScalar
  - vtkWarpVector
+ - vtkResampleToImage
+ - vtkProbeFilter
+ - vtkContourFilter
+ - vtkFlyingEdges2D
+ - vtkFlyingEdges3D
+ - vtkSynchronizedTemplates2D
+ - vtkSynchronizedTemplates3D
+ - vtkRectilinearSynchronizedTemplates
+ - vtkGridSynchronizedTemplates3D
+ - vtkContour3DLinearGrid
 
 The `CheckAbort` API is not planned for deprecation for now but ultimely should be once
 the new API usage appears more and more.

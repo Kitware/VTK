@@ -12,7 +12,6 @@
 #include "vtkImageData.h"
 #include "vtkImageTransform.h"
 #include "vtkInformation.h"
-#include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkMarchingCellsContourCases.h"
 #include "vtkMath.h"
@@ -298,8 +297,12 @@ public:
     vtkFlyingEdges3DAlgorithm* Algo;
     double Value;
     vtkFlyingEdges3D* Filter;
-    Pass1(vtkFlyingEdges3DAlgorithm* algo, double value, vtkFlyingEdges3D* filter)
+    vtkIdType TotalIterationCount;
+
+    Pass1(vtkFlyingEdges3DAlgorithm* algo, double value, vtkFlyingEdges3D* filter,
+      vtkIdType totalIterationCount)
       : Filter(filter)
+      , TotalIterationCount(totalIterationCount)
     {
       this->Algo = algo;
       this->Value = value;
@@ -309,19 +312,19 @@ public:
       vtkIdType row;
       TPtr rowPtr, slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = std::min((end - slice) / 10 + 1, (vtkIdType)1000);
+      vtkIdType checkAbortInterval =
+        std::min(this->TotalIterationCount / 10 + 1, static_cast<vtkIdType>(1000));
       for (; slice < end; ++slice)
       {
-        if (slice % checkAbortInterval == 0)
+        if (isFirst && slice % checkAbortInterval == 0)
         {
-          if (isFirst)
-          {
-            this->Filter->CheckAbort();
-          }
-          if (this->Filter->GetAbortOutput())
-          {
-            break;
-          }
+          double progress = static_cast<double>(slice) / this->TotalIterationCount;
+          this->Filter->UpdateProgress(progress);
+          this->Filter->CheckAbortAndInvoke();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
         }
 
         for (row = 0, rowPtr = slicePtr; row < this->Algo->Dims[1]; ++row)
@@ -333,33 +336,39 @@ public:
       } // for all slices in this batch
     }
   };
+
   class Pass2
   {
   public:
-    Pass2(vtkFlyingEdges3DAlgorithm* algo, vtkFlyingEdges3D* filter)
+    vtkFlyingEdges3DAlgorithm* Algo;
+    vtkFlyingEdges3D* Filter;
+    vtkIdType TotalIterationCount;
+
+    Pass2(vtkFlyingEdges3DAlgorithm* algo, vtkFlyingEdges3D* filter, vtkIdType totalIterationCount)
       : Filter(filter)
+      , TotalIterationCount(totalIterationCount)
     {
       this->Algo = algo;
     }
-    vtkFlyingEdges3DAlgorithm* Algo;
-    vtkFlyingEdges3D* Filter;
+
     void operator()(vtkIdType slice, vtkIdType end)
     {
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = std::min((end - slice) / 10 + 1, (vtkIdType)1000);
+      vtkIdType checkAbortInterval =
+        std::min(this->TotalIterationCount / 10 + 1, static_cast<vtkIdType>(1000));
       for (; slice < end; ++slice)
       {
-        if (slice % checkAbortInterval == 0)
+        if (isFirst && slice % checkAbortInterval == 0)
         {
-          if (isFirst)
-          {
-            this->Filter->CheckAbort();
-          }
-          if (this->Filter->GetAbortOutput())
-          {
-            break;
-          }
+          double progress = static_cast<double>(slice) / this->TotalIterationCount;
+          this->Filter->UpdateProgress(progress);
+          this->Filter->CheckAbortAndInvoke();
         }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
+
         for (vtkIdType row = 0; row < (this->Algo->Dims[1] - 1); ++row)
         {
           this->Algo->ProcessYZEdges(row, slice);
@@ -367,18 +376,24 @@ public:
       } // for all slices in this batch
     }
   };
+
   class Pass4
   {
   public:
-    Pass4(vtkFlyingEdges3DAlgorithm* algo, double value, vtkFlyingEdges3D* filter)
+    vtkFlyingEdges3DAlgorithm* Algo;
+    vtkFlyingEdges3D* Filter;
+    double Value;
+    vtkIdType TotalIterationCount;
+
+    Pass4(vtkFlyingEdges3DAlgorithm* algo, double value, vtkFlyingEdges3D* filter,
+      vtkIdType totalIterationCount)
       : Filter(filter)
+      , TotalIterationCount(totalIterationCount)
     {
       this->Algo = algo;
       this->Value = value;
     }
-    vtkFlyingEdges3DAlgorithm* Algo;
-    vtkFlyingEdges3D* Filter;
-    double Value;
+
     void operator()(vtkIdType slice, vtkIdType end)
     {
       vtkIdType row;
@@ -386,20 +401,21 @@ public:
       vtkIdType* eMD1 = eMD0 + 6 * this->Algo->Dims[1];
       TPtr rowPtr, slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
       bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = std::min((end - slice) / 10 + 1, (vtkIdType)1000);
+      vtkIdType checkAbortInterval =
+        std::min(this->TotalIterationCount / 10 + 1, static_cast<vtkIdType>(1000));
       for (; slice < end; ++slice)
       {
-        if (slice % checkAbortInterval == 0)
+        if (isFirst && slice % checkAbortInterval == 0)
         {
-          if (isFirst)
-          {
-            this->Filter->CheckAbort();
-          }
-          if (this->Filter->GetAbortOutput())
-          {
-            break;
-          }
+          double progress = static_cast<double>(slice) / this->TotalIterationCount;
+          this->Filter->UpdateProgress(progress);
+          this->Filter->CheckAbortAndInvoke();
         }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
+
         // It's possible to skip entire slices if there is nothing to generate
         if (eMD1[3] > eMD0[3]) // there are triangle primitives!
         {
@@ -419,21 +435,43 @@ public:
   struct ProcessCD
   {
     ArrayList CellArrays;
-    ProcessCD(
-      vtkFlyingEdges3DAlgorithm* algo, vtkIdType numCells, vtkCellData* inCD, vtkCellData* outCD)
+    vtkFlyingEdges3DAlgorithm* Algo;
+    vtkFlyingEdges3D* Filter;
+    vtkIdType TotalIterationCount;
+
+    ProcessCD(vtkFlyingEdges3DAlgorithm* algo, vtkFlyingEdges3D* filter, vtkIdType numCells,
+      vtkCellData* inCD, vtkCellData* outCD, vtkIdType totalIterationCount)
+      : Algo(algo)
+      , Filter(filter)
+      , TotalIterationCount(totalIterationCount)
     {
-      this->Algo = algo;
       outCD->CopyAllocate(inCD, numCells);
       this->CellArrays.AddArrays(numCells, inCD, outCD, /*nullValue*/ 0.0, /*promote*/ false);
     }
-    vtkFlyingEdges3DAlgorithm* Algo;
+
     void operator()(vtkIdType slice, vtkIdType end)
     {
       vtkIdType row;
       vtkIdType* eMD0 = this->Algo->EdgeMetaData + slice * 6 * this->Algo->Dims[1];
       vtkIdType* eMD1 = eMD0 + 6 * this->Algo->Dims[1];
+
+      bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval =
+        std::min(this->TotalIterationCount / 10 + 1, static_cast<vtkIdType>(1000));
+
       for (; slice < end; ++slice)
       {
+        if (isFirst && slice % checkAbortInterval == 0)
+        {
+          double progress = static_cast<double>(slice) / this->TotalIterationCount;
+          this->Filter->UpdateProgress(progress);
+          this->Filter->CheckAbortAndInvoke();
+        }
+        if (this->Filter->GetAbortOutput())
+        {
+          break;
+        }
+
         // It's possible to skip entire slices if there is no data to copy
         if (eMD1[3] > eMD0[3]) // there are triangle primitives!
         {
@@ -1365,27 +1403,30 @@ void vtkFlyingEdges3DAlgorithm<TArray>::Contour(vtkFlyingEdges3D* self, vtkImage
   algo.InterpolateAttributes =
     self->GetInterpolateAttributes() && input->GetPointData()->GetNumberOfArrays() > 1;
 
-  vtkIdType checkAbortInterval = std::min(numContours / 10 + 1, (vtkIdType)1000);
+  const int stepCount = 5;
+  const double progressScale = (1.0 / stepCount) * (1.0 / numContours);
+
   // Loop across each contour value. This encompasses all three passes.
+  int stepIdx = 0;
   for (vidx = 0; vidx < numContours; vidx++)
   {
-    if (vidx % checkAbortInterval == 0 && self->CheckAbort())
-    {
-      break;
-    }
     value = values[vidx];
 
     // PASS 1: Traverse all x-rows building edge cases and counting number of
     // intersections (i.e., accumulate information necessary for later output
     // memory allocation, e.g., the number of output points along the x-rows
     // are counted).
-    Pass1 pass1(&algo, value, self);
+    self->SetProgressShiftScale(stepIdx * progressScale, progressScale);
+    stepIdx++;
+    Pass1 pass1(&algo, value, self, algo.Dims[2]);
     vtkSMPTools::For(0, algo.Dims[2], pass1);
 
     // PASS 2: Traverse all voxel x-rows and process voxel y&z edges.  The
     // result is a count of the number of y- and z-intersections, as well as
     // the number of triangles generated along these voxel rows.
-    Pass2 pass2(&algo, self);
+    self->SetProgressShiftScale(stepIdx * progressScale, progressScale);
+    stepIdx++;
+    Pass2 pass2(&algo, self, algo.Dims[2] - 1);
     vtkSMPTools::For(0, algo.Dims[2] - 1, pass2);
 
     // PASS 3: Now allocate and generate output. First we have to update the
@@ -1403,28 +1444,56 @@ void vtkFlyingEdges3DAlgorithm<TArray>::Contour(vtkFlyingEdges3D* self, vtkImage
     numOutTris = startTris;
 
     // Count number of points and tris generate along each cell row
-    for (slice = 0; slice < algo.Dims[2]; ++slice)
     {
-      zInc = slice * algo.Dims[1];
-      for (row = 0; row < algo.Dims[1]; ++row)
+      self->SetProgressShiftScale(stepIdx * progressScale, progressScale);
+      stepIdx++;
+
+      const vtkIdType pass3TotalIterationCount = algo.Dims[1] * algo.Dims[2];
+      const vtkIdType pass3CheckAbortInterval =
+        std::min(pass3TotalIterationCount / 100 + 1, static_cast<vtkIdType>(1000));
+      bool abort = false;
+      vtkIdType pass3ProcessedIterations = 0;
+      for (slice = 0; slice < algo.Dims[2] && !abort; ++slice)
       {
-        eMD = algo.EdgeMetaData + (zInc + row) * 6;
-        numXPts = eMD[0];
-        numYPts = eMD[1];
-        numZPts = eMD[2];
-        numTris = eMD[3];
-        eMD[0] = numOutXPts + numOutYPts + numOutZPts;
-        eMD[1] = eMD[0] + numXPts;
-        eMD[2] = eMD[1] + numYPts;
-        eMD[3] = numOutTris;
-        numOutXPts += numXPts;
-        numOutYPts += numYPts;
-        numOutZPts += numZPts;
-        numOutTris += numTris;
+        zInc = slice * algo.Dims[1];
+        for (row = 0; row < algo.Dims[1]; ++row)
+        {
+          if (row % pass3CheckAbortInterval == 0 && row != 0)
+          {
+            pass3ProcessedIterations += pass3CheckAbortInterval;
+            double progress =
+              static_cast<double>(pass3ProcessedIterations) / pass3TotalIterationCount;
+            self->UpdateProgress(progress);
+          }
+          if (self->CheckAbortAndInvoke())
+          {
+            abort = true;
+            break;
+          }
+
+          eMD = algo.EdgeMetaData + (zInc + row) * 6;
+          numXPts = eMD[0];
+          numYPts = eMD[1];
+          numZPts = eMD[2];
+          numTris = eMD[3];
+          eMD[0] = numOutXPts + numOutYPts + numOutZPts;
+          eMD[1] = eMD[0] + numXPts;
+          eMD[2] = eMD[1] + numYPts;
+          eMD[3] = numOutTris;
+          numOutXPts += numXPts;
+          numOutYPts += numYPts;
+          numOutZPts += numZPts;
+          numOutTris += numTris;
+        }
       }
     }
 
     // Output can now be allocated.
+    // If abort was set, the data will be corrupted, breaking the outer loop in that case.
+    if (self->GetAbortOutput())
+    {
+      break;
+    }
     vtkIdType totalPts = numOutXPts + numOutYPts + numOutZPts;
     if (totalPts > 0)
     {
@@ -1473,7 +1542,9 @@ void vtkFlyingEdges3DAlgorithm<TArray>::Contour(vtkFlyingEdges3D* self, vtkImage
       // Note that we are simultaneously generating triangles and interpolating
       // points. These could be split into separate, parallel operations for
       // maximum performance.
-      Pass4 pass4(&algo, value, self);
+      self->SetProgressShiftScale(stepIdx * progressScale, progressScale);
+      stepIdx++;
+      Pass4 pass4(&algo, value, self, algo.Dims[2] - 1);
       vtkSMPTools::For(0, algo.Dims[2] - 1, pass4);
     } // if anything generated
 
@@ -1486,10 +1557,17 @@ void vtkFlyingEdges3DAlgorithm<TArray>::Contour(vtkFlyingEdges3D* self, vtkImage
     // Process Cell Data: Some applications require the production of cell
     // data. Since this slows the filter, we only perform this operation if
     // cell data is present, and attribute interpolation is enabled.
+    self->SetProgressShiftScale(stepIdx * progressScale, progressScale);
+    stepIdx++;
     if (self->GetInterpolateAttributes() && input->GetCellData()->GetNumberOfArrays() > 0)
     {
-      ProcessCD processCD(&algo, numOutTris, input->GetCellData(), output->GetCellData());
+      ProcessCD processCD(
+        &algo, self, numOutTris, input->GetCellData(), output->GetCellData(), algo.Dims[2] - 1);
       vtkSMPTools::For(0, algo.Dims[2] - 1, processCD);
+    }
+    else
+    {
+      self->UpdateProgress(1.0);
     }
   } // for all contour values
 
