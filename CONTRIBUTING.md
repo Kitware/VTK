@@ -3,7 +3,7 @@ Contributing
 
 This page documents at a very high level how to contribute to VTK.
 Please check our [developer instructions] for a more detailed guide to
-developing and contributing to the project, and our [VTK Git README]
+developing and contributing to the project, our [VTK Git README] and [AI policy]
 for additional information.
 
 1.  The canonical VTK source is maintained on a GitLab instance
@@ -64,6 +64,7 @@ documentation generated nightly. We have a [VTK Discourse] forum
 to coordinate development and to provide support.
 
 [VTK Git README]: Documentation/docs/developers_guide/git/README.md
+[AI policy]: AI_POLICY.md
 [developer instructions]: Documentation/docs/developers_guide/git/develop.md
 [Create an account]: https://gitlab.kitware.com/users/sign_in
 [Fork VTK]: https://gitlab.kitware.com/vtk/vtk/-/forks/new

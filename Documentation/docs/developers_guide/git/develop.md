@@ -196,6 +196,9 @@ Follow these steps:
 5.  In the "**Description**" field provide a high-level description
     of the change the topic makes and any relevant information about
     how to try it.
+    *   If the MR is not ready for review or merging, mark it as a "Draft" MR.
+    *   Follow the template to fill up all relevant information, especially
+        a proper description, issues and merge requests links and AI usage disclosure.
     *   Use `@username` syntax to draw attention of specific developers.
         This syntax may be used anywhere outside literal text and code
         blocks.  Or, wait until the [next step](#review-a-merge-request)
@@ -208,12 +211,23 @@ Follow these steps:
 
     Example Merge Request Description:
 
-        This branch requires Java 1.x which is not generally available yet.
-        Get Java 1.x from ... in order to try these changes.
+        ## What does this MR do and why?
 
-        ```message
-        Add support for Java 1.x to the wrapping infrastructure.
-        ```
+          Fix an issue with surface LIC rendering when the selected vector is of zero magnitude
+
+        ## Related issues and merge requests
+
+          #1234
+
+        ## Screenshots or screen recordings
+
+          [screenshot.png]()
+
+        ## AI disclosure
+          - [x] I have read the [AI policy](https://gitlab.kitware.com/vtk/vtk/-/blob/master/AI_POLICY.md?ref_type=heads) carefully.
+          - [x] I have reviewed every AI-generated change carefully, certify they match my intentions, and request a review. Feel free to provide more info about usage below.
+
+          Description of AI use (not required but very useful for reviewers): Used Claude to generate test for edge cases
 
         Cc: @user1 @user2
 

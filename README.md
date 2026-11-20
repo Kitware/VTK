@@ -81,6 +81,11 @@ Contributing
 
 See [CONTRIBUTING.md][vtk-contributing] for instructions to contribute.
 
+AI Policy
+=========
+
+VTK has a dedicated [AI policy][vtk-ai-policy], please follow its guidelines.
+
 License
 =======
 
@@ -99,3 +104,4 @@ See [Copyright.txt][vtk-copyright] for details.
 [vtk-examples]: https://kitware.github.io/vtk-examples/site/
 [vtk-homepage]: https://www.vtk.org/
 [vtk-issues]: https://gitlab.kitware.com/vtk/vtk/-/issues
+[vtk-ai-policy]: AI_POLICY.md
