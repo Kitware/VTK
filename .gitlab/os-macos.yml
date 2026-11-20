@@ -26,13 +26,6 @@
         CMAKE_CONFIGURATION: wheel_macos310_arm64
         PYTHON_VERSION_SUFFIX: "3.10"
 
-.wheel_macos311_arm64:
-    extends: .wheel_macos_arm64
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_macos311_arm64
-        PYTHON_VERSION_SUFFIX: "3.11"
-
 .wheel_macos312_arm64:
     extends: .wheel_macos_arm64
 
@@ -103,13 +96,6 @@
     variables:
         CMAKE_CONFIGURATION: wheel_macos310_x86_64
         PYTHON_VERSION_SUFFIX: "3.10"
-
-.wheel_macos311_x86_64:
-    extends: .wheel_macos_x86_64
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_macos311_x86_64
-        PYTHON_VERSION_SUFFIX: "3.11"
 
 .wheel_macos312_x86_64:
     extends: .wheel_macos_x86_64

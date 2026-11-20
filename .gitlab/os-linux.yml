@@ -58,29 +58,6 @@
     variables:
         CMAKE_CONFIGURATION: wheel_linux310_x86_64_egl
 
-.wheel_linux311_x86_64:
-    extends: .manylinux_2_28_x86_64
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_linux311_x86_64
-        PYTHON_PREFIX: /opt/python/cp311-cp311
-
-.wheel_linux311_x86_64_osmesa:
-    extends:
-        - .wheel_linux311_x86_64
-        - .wheel_linux_osmesa_addon
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_linux311_x86_64_osmesa
-
-.wheel_linux311_x86_64_egl:
-    extends:
-        - .wheel_linux311_x86_64
-        - .wheel_linux_egl_addon
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_linux311_x86_64_egl
-
 .wheel_linux312_x86_64:
     extends: .manylinux_2_28_x86_64
 
@@ -242,29 +219,6 @@
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux310_aarch64_egl
-
-.wheel_linux311_aarch64:
-    extends: .manylinux_2_28_aarch64
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_linux311_aarch64
-        PYTHON_PREFIX: /opt/python/cp311-cp311
-
-.wheel_linux311_aarch64_osmesa:
-    extends:
-        - .wheel_linux311_aarch64
-        - .wheel_linux_osmesa_addon
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_linux311_aarch64_osmesa
-
-.wheel_linux311_aarch64_egl:
-    extends:
-        - .wheel_linux311_aarch64
-        - .wheel_linux_egl_addon
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_linux311_aarch64_egl
 
 .wheel_linux312_aarch64:
     extends: .manylinux_2_28_aarch64

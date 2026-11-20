@@ -167,14 +167,6 @@ workflow:
         - .wheels_retry_policy
         - .rules
 
-.rules_variables_wheel_previous_build:
-    extends:
-        - .wheels_retry_policy
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_RUN_MANUALLY: "true"
-
 .rules_variables_wheel_previous_test:
     extends:
         - .wheels_retry_policy

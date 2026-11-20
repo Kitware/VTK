@@ -39,20 +39,6 @@
     variables:
         CMAKE_CONFIGURATION: wheel_windows310_x86_64_osmesa
 
-.wheel_windows311_x86_64:
-    extends: .wheel_windows_x86_64
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_windows311_x86_64
-
-.wheel_windows311_x86_64_osmesa:
-    extends:
-        - .wheel_windows311_x86_64
-        - .wheel_windows_osmesa_addon
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_windows311_x86_64_osmesa
-
 .wheel_windows312_x86_64:
     extends: .wheel_windows_x86_64
 
