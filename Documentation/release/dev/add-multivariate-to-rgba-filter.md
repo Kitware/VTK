@@ -14,6 +14,8 @@ The color and opacity can be used to volume render the dataset.
 A lens (LensCenter, LensRadius) caps the opacity of the points outside
 it (OutsideLensAlpha, InvertLens). When only the lens changes, only the
 opacity is recomputed, so the lens can be dragged interactively.
+SetVerticesAndLensRotation rotates the vertices and the lens together,
+so the lens keeps the same points and only the colors change.
 Variables can be hidden (SetVariableVisibility) and normalized in
 groups (SetPartitionIndices) or to custom ranges (SetCustomRange). The
 filter runs in parallel with a vtkMultiProcessController.
@@ -32,7 +34,9 @@ components. For example, in three-component data, both (0.1, 0.1,
 color but the second point will be 4 times more opaque.
 
 vtkChartRadViz handles the interaction for vtkPlotRadViz: dragging a
-vertex rotates the vertices, and dragging the lens moves or resizes it.
+vertex rotates the vertices and the lens (SetVerticesAndLensRotation),
+so the lens keeps the same points, and dragging the lens moves or
+resizes it.
 
 ![RadViz chart of a vtkDataSet with four components: Ce, Co, Fe, Gd](RadVizChartDataSet.png)
 

@@ -333,11 +333,12 @@ bool vtkChartRadViz::MouseMoveEvent(const vtkContextMouseEvent& mouse)
     vtkVector2f pos{ mouse.GetScenePos() };
     if (this->Internals->DragVertexIndex >= 0)
     {
-      // rotate vertices by the angle swept by the mouse since the press
+      // rotate vertices and lens by the angle swept by the mouse since the
+      // press, so the lens keeps the same data points
       const double* center = this->Internals->Plot->GetSceneCenter();
       double mouseAngle =
         vtkMath::DegreesFromRadians(std::atan2(pos[1] - center[1], pos[0] - center[0]));
-      this->Internals->Plot->SetVerticesRotation(
+      this->Internals->Plot->SetVerticesAndLensRotation(
         this->Internals->DragStartRotation + mouseAngle - this->Internals->DragStartMouseAngle);
       this->Scene->SetDirty(true);
       this->Internals->Plot->InvokeEvent(vtkCommand::InteractionEvent);

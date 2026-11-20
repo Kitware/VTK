@@ -21,7 +21,8 @@
  * that the getters and painting again without changes do not modify the
  * filter, that it draws nothing when the labels leave no room, that
  * drawing the labels leaves LabelsProperties unchanged, and that the mouse
- * finds a vertex or the lens outline anywhere on their drawn width.
+ * finds a vertex or the lens outline anywhere on their drawn width, and that
+ * dragging a vertex rotates the lens with the vertices.
  */
 
 #include "vtkCellData.h"
@@ -54,6 +55,7 @@
 #include <cmath>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -316,8 +318,10 @@ void SetInputConnection(vtkPlotRadViz* plot, vtkDataObject* data)
 /**
  * Checks that the visibility setters modify the plot only when they change
  * the visibility, not when it is unchanged or the change is rejected. Also
- * checks that a tiny negative rotation wraps to 0, that a negative lens
- * radius is rejected, and that Print shows the plot and filter settings.
+ * checks that a tiny negative rotation wraps to 0, that the lens rotates
+ * with the vertices in SetVerticesAndLensRotation, that a non-finite
+ * rotation there and a negative lens radius are rejected, and that Print shows the plot and filter
+ * settings.
  */
 int TestPlotModified()
 {
@@ -379,8 +383,29 @@ int TestPlotModified()
   plot->SetVerticesRotation(-1e-14);
   CHECK(plot->GetVerticesRotation() == 0);
 
-  // rejected: a negative lens radius
+  // the lens rotates with the vertices by the change in rotation
+  plot->SetVerticesRotation(30);
+  plot->SetLensCenter(0.4, 0);
+  CHECK(modifies([&] { plot->SetVerticesAndLensRotation(120); }));
+  CHECK(plot->GetVerticesRotation() == 120);
+  CHECK(std::fabs(plot->GetLensCenter()[0]) < 1e-12 &&
+    std::fabs(plot->GetLensCenter()[1] - 0.4) < 1e-12);
+  CHECK(!modifies([&] { plot->SetVerticesAndLensRotation(120); }));
+
+  // rejected: a non-finite rotation, which would make the lens center NaN
   plot->AddObserver(vtkCommand::ErrorEvent, errors);
+  for (double rotation :
+    { std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::infinity() })
+  {
+    errors->Clear();
+    CHECK(!modifies([&] { plot->SetVerticesAndLensRotation(rotation); }));
+    CHECK(errors->GetError() && plot->GetVerticesRotation() == 120);
+    CHECK(std::fabs(plot->GetLensCenter()[1] - 0.4) < 1e-12);
+  }
+  plot->SetVerticesRotation(0);
+  plot->SetLensCenter(0, 0);
+
+  // rejected: a negative lens radius
   errors->Clear();
   CHECK(!modifies([&] { plot->SetLensRadius(-1); }));
   CHECK(errors->GetError() && plot->GetLensRadius() == 1);
@@ -507,8 +532,43 @@ int TestHitArea()
   return EXIT_SUCCESS;
 }
 
+/**
+ * Checks that dragging a vertex rotates the lens with the vertices, so the
+ * lens keeps the same data points.
+ */
+int TestVertexDragRotatesLens()
+{
+  vtkNew<vtkContextView> view;
+  view->GetRenderWindow()->SetSize(300, 300);
+  vtkNew<vtkChartRadViz> chart;
+  view->GetScene()->AddItem(chart);
+  auto* plot = vtkPlotRadViz::SafeDownCast(chart->AddPlot(0));
+  plot->SetInputData(MakeTable());
+  plot->SetLensVisibility(true);
+  plot->SetLensRadius(0.3);
+  plot->SetLensCenter(0.5, 0);
+  view->GetRenderWindow()->Render();
+
+  // drag the top vertex a quarter turn counter-clockwise, to the left of the center
+  double vertex[2];
+  plot->GetVertices()->GetPoint(0, vertex);
+  const double* center = plot->GetSceneCenter();
+  vtkContextMouseEvent mouse;
+  mouse.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
+  mouse.SetScenePos(vtkVector2f(vertex[0], vertex[1]));
+  chart->MouseButtonPressEvent(mouse);
+  mouse.SetScenePos(vtkVector2f(center[0] - plot->GetSceneRadius(), center[1]));
+  chart->MouseMoveEvent(mouse);
+  chart->MouseButtonReleaseEvent(mouse);
+  CHECK(std::fabs(plot->GetVerticesRotation() - 90) < 1e-3);
+  CHECK(
+    std::fabs(plot->GetLensCenter()[0]) < 1e-4 && std::fabs(plot->GetLensCenter()[1] - 0.5) < 1e-4);
+  return EXIT_SUCCESS;
+}
+
 int TestRadVizChartInput(int, char*[])
 {
+  CHECK(TestVertexDragRotatesLens() == EXIT_SUCCESS);
   CHECK(TestPlotModified() == EXIT_SUCCESS);
   CHECK(TestFilterInput() == EXIT_SUCCESS);
   CHECK(TestHitArea() == EXIT_SUCCESS);

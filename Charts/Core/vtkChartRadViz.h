@@ -5,11 +5,12 @@
  * @class   vtkChartRadViz
  * @brief   Handles the interaction for vtkPlotRadViz
  *
- * You can rotate the vertices by dragging on any vertex
- * position. User feedback is provided by drawing the active vertex using
- * the active color (vtkPlotRadViz::ActiveColor) when the mouse
- * pointer is over the vertex or when the vertices are rotated (by
- * dragging on a vertex).
+ * You can rotate the vertices by dragging on any vertex position. The
+ * data points and the lens rotate with them, so the lens keeps the same
+ * points, and the points change color. User feedback is provided by
+ * drawing the active vertex using the active color
+ * (vtkPlotRadViz::ActiveColor) when the mouse pointer is over the vertex
+ * or when the vertices are rotated (by dragging on a vertex).
  *
  * You can resize the lens by dragging on the lens outline. User
  * feedback is provided by drawing the lens outline using the active

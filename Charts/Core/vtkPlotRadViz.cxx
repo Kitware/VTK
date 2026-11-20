@@ -252,6 +252,21 @@ void vtkPlotRadViz::SetVerticesRotation(double rotation)
   }
 }
 
+//------------------------------------------------------------------------------
+void vtkPlotRadViz::SetVerticesAndLensRotation(double rotation)
+{
+  if (!std::isfinite(rotation))
+  {
+    vtkErrorMacro("Invalid rotation: " << rotation << ", it must be finite");
+    return;
+  }
+  const double oldRotation = this->VerticesRotation;
+  this->SetVerticesRotation(rotation);
+  std::array<double, 2> center =
+    vtkMultiVariateToRGBA::RotateLensCenter(this->LensCenter, this->VerticesRotation - oldRotation);
+  this->SetLensCenter(center[0], center[1]);
+}
+
 vtkStringArray* vtkPlotRadViz::GetLabels()
 {
   return this->Labels;
