@@ -12,6 +12,7 @@
 #include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 #include "vtkAbstractMapper.h"
+#include "vtkAbstractVolumeMapper.h"
 #include "vtkActor2D.h"
 #include "vtkCuller.h"
 #include "vtkCullerCollection.h"
@@ -26,6 +27,7 @@
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
+#include "vtkVolume.h"
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCamera.h"
 #include "vtkWebGPUComputePass.h"
@@ -1856,28 +1858,37 @@ void vtkWebGPURenderer::EndRecording()
 void vtkWebGPURenderer::PostRasterizationRender()
 {
   this->RenderStage = RenderStageEnum::RenderPostRasterization;
-  for (vtkActor* postRasterActor : this->PostRasterizationActors)
+  for (vtkProp3D* prop : this->PostRasterizationProps)
   {
-    vtkWebGPUActor* wgpuActor = vtkWebGPUActor::SafeDownCast(postRasterActor);
-    if (wgpuActor == nullptr)
+    if (auto* actor = vtkActor::SafeDownCast(prop))
     {
-      vtkWarningWithObjectMacro(
-        this, "This vtkWebGPURenderer was trying to render a nullptr actor.");
-
-      continue;
+      if (auto* mapper = actor->GetMapper())
+      {
+        mapper->Render(this, actor);
+      }
     }
-
-    postRasterActor->GetMapper()->Render(this, postRasterActor);
+    else if (auto* volume = vtkVolume::SafeDownCast(prop))
+    {
+      if (auto* mapper = volume->GetMapper())
+      {
+        mapper->Render(this, volume);
+      }
+    }
+    else
+    {
+      vtkWarningMacro(<< "Cannot render " << (prop ? prop->GetClassName() : "a null prop")
+                      << " after rasterization.");
+    }
   }
 
-  this->PostRasterizationActors.clear();
+  this->PostRasterizationProps.clear();
   this->RenderStage = RenderStageEnum::AwaitingPreparation; // for next frame.
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderer::AddPostRasterizationActor(vtkActor* actor)
+void vtkWebGPURenderer::AddPostRasterizationProp(vtkProp3D* prop)
 {
-  this->PostRasterizationActors.push_back(actor);
+  this->PostRasterizationProps.push_back(prop);
 }
 
 //------------------------------------------------------------------------------

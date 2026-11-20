@@ -1,7 +1,4 @@
 set (VolumeCxxTests
-  ProjectedTetrahedraZoomIn.cxx,NO_VALID
-  TestFinalColorWindowLevel.cxx
-  TestFixedPointRayCastLightComponents.cxx
   TestGPURayCastAdditive.cxx
   TestGPURayCastAverageIP.cxx
   TestGPURayCastBlendModes.cxx
@@ -10,6 +7,7 @@ set (VolumeCxxTests
   TestGPURayCastCameraInsideNonUniformScaleTransform.cxx
   TestGPURayCastCameraInsideSmallSpacing.cxx
   TestGPURayCastCameraInsideTransformation.cxx
+  TestGPURayCastChangedArray.cxx
   TestGPURayCastClipping.cxx
   TestGPURayCastClippingPolyData.cxx
   TestGPURayCastClippingUserTransform.cxx
@@ -36,18 +34,20 @@ set (VolumeCxxTests
   TestGPURayCastImageSampleXY.cxx
   TestGPURayCastIndependentComponentsLightParameters.cxx
   TestGPURayCastIndependentVectorMode.cxx
+  TestGPURayCastIsosurface.cxx
   TestGPURayCastLabelMap.cxx
   TestGPURayCastLabelMap1Label.cxx
   TestGPURayCastLabelMapValidity.cxx
-  TestGPURayCastLargeColorTransferFunction.cxx
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
   TestGPURayCastMapperBenchmark.cxx
   TestGPURayCastMapperRectilinearGrid.cxx
   TestGPURayCastMapperSampleDistance.cxx
   TestGPURayCastMapperShadows.cxx
+  TestGPURayCastModelTransformMatrix.cxx
   TestGPURayCastMultiVolumeAddRemove.cxx
   TestGPURayCastMultiVolumeCellData.cxx
+  TestGPURayCastMultiVolumeClipping.cxx
   TestGPURayCastMultiVolumeOverlapping.cxx
   TestGPURayCastMultiVolumeRGBA.cxx
   TestGPURayCastMultiVolumeShade.cxx
@@ -61,6 +61,7 @@ set (VolumeCxxTests
   TestGPURayCastRenderDepthToImage2.cxx
   TestGPURayCastRenderToTexture.cxx
   TestGPURayCastShadedClipping.cxx
+  TestGPURayCastSlicePlane.cxx
   TestGPURayCastThreeComponentsAdditive.cxx
   TestGPURayCastThreeComponentsIndependent.cxx
   TestGPURayCastTransfer2D.cxx
@@ -83,25 +84,52 @@ set (VolumeCxxTests
   TestGPURayCastVolumeUpdate.cxx
   TestGPUVolumeRayCastMapper.cxx
   TestGPUVolumeRayCastMapperManyLights.cxx
-  TestMinIntensityRendering.cxx
   TestMultiBlockMapper.cxx
   TestMultiBlockMapperRectilinearGrid.cxx
+  TestRemoveVolumeNonCurrentContext.cxx
+  TestSmartVolumeMapperImplicitArray.cxx,NO_SERDES
+  TestSmartVolumeMapperVolumeUpdate.cxx
+  )
+
+# These reach for a volume mapper that only the OpenGL backend implements, either the fixed
+# point ray caster and the image display helper behind it, or the tetrahedra and
+# unstructured grid mappers. They cannot run against another backend.
+set (VolumeOpenGLOnlyCxxTests
+  ProjectedTetrahedraZoomIn.cxx,NO_VALID
+  TestFinalColorWindowLevel.cxx
+  TestFixedPointRayCastLightComponents.cxx
+  TestGPURayCastLargeColorTransferFunction.cxx
+  TestMinIntensityRendering.cxx
   TestMultiBlockUnstructuredGridVolumeMapper.cxx
   TestProjectedTetrahedra.cxx
   TestProjectedTetrahedraOffscreen.cxx
   TestProjectedTetrahedraTransform.cxx
   TestProjectedTetrahedraVectorComponent.cxx
-  TestRemoveVolumeNonCurrentContext.cxx
   TestSmartVolumeMapper.cxx
-  TestSmartVolumeMapperImplicitArray.cxx,NO_SERDES
-  TestSmartVolumeMapperVolumeUpdate.cxx
   TestSmartVolumeMapperWindowLevel.cxx
   )
 
-# everyone gets these tests
-vtk_add_test_cxx(vtkRenderingVolumeCxxTests tests
-  ${VolumeCxxTests}
-  )
+# The tests above only talk to the mappers through their base classes, so each backend that is
+# built runs the whole list. The rendering test driver turns --vtk-factory-prefer into a
+# vtkObjectFactory preference, which is what picks the mapper and the render window.
+if (TARGET VTK::RenderingVolumeOpenGL2)
+  set(vtk_test_prefix "OpenGL-")
+  vtk_add_test_cxx(vtkRenderingVolumeCxxTests tests
+    --vtk-factory-prefer RenderingBackend=OpenGL
+    ${VolumeCxxTests}
+    ${VolumeOpenGLOnlyCxxTests}
+    )
+  unset(vtk_test_prefix)
+endif ()
+
+if (TARGET VTK::RenderingVolumeWebGPU)
+  set(vtk_test_prefix "WebGPU-")
+  vtk_add_test_cxx(vtkRenderingVolumeCxxTests tests
+    --vtk-factory-prefer RenderingBackend=WebGPU
+    ${VolumeCxxTests}
+    )
+  unset(vtk_test_prefix)
+endif ()
 
 vtk_test_cxx_executable(vtkRenderingVolumeCxxTests tests
   DISABLE_FLOATING_POINT_EXCEPTIONS

@@ -1,6 +1,8 @@
+# Only tests that reach for something the OpenGL backend alone provides belong here. Anything
+# that talks to vtkGPUVolumeRayCastMapper through its base class lives in VTK::RenderingVolume,
+# where it is run against every backend.
 set (VolumeOpenGL2CxxTests
   TestGPURayCastCellData.cxx
-  TestGPURayCastChangedArray.cxx
   TestGPURayCastDepthPeeling.cxx
   TestGPURayCastDepthPeelingMultiViewport.cxx
   TestGPURayCastDepthPeelingBoxWidget.cxx
@@ -10,11 +12,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastDepthPeelingTransVol.cxx
   TestGPURayCastDepthPeelingTransparentPolyData.cxx
   TestGPURayCastDepthTextureFormat.cxx
-  TestGPURayCastIsosurface.cxx
   TestGPURayCastJittering.cxx
-  TestGPURayCastModelTransformMatrix.cxx
-  TestGPURayCastMultiVolumeClipping.cxx
-  TestGPURayCastSlicePlane.cxx
   TestGPURayCastSSAO.cxx
   TestGPURayCastTextureStreaming.cxx
   TestGPURayCastTextureStreamingMask.cxx

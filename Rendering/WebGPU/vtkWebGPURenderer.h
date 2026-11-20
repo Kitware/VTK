@@ -255,6 +255,18 @@ public:
   vtkGetMacro(RecordingTranslucentPass, bool);
 
   /**
+   * Ask for \a prop to be rendered again in the `RenderPostRasterization` stage, after the main
+   * rasterization pass has been flushed to the device.
+   *
+   * Mappers call this from the `RecordingCommands` stage when they cannot record into the main
+   * render pass, either because they draw with a compute shader or because they need to sample an
+   * attachment of that pass, the depth buffer for instance. The render window owns a command
+   * encoder for the duration of the post rasterization stage, so such a mapper may open its own
+   * render pass with vtkWebGPURenderWindow::NewRenderPass().
+   */
+  void AddPostRasterizationProp(vtkProp3D* prop);
+
+  /**
    * Forces the renderer to re-record draw commands into a render bundle.
    *
    * @note This does not use vtkSetMacro because the actor MTime should not be affected when a
@@ -359,11 +371,6 @@ private:
   void PostRasterizationRender();
 
   /**
-   * Adds an actor to be rendered after the main rasterization pass
-   */
-  void AddPostRasterizationActor(vtkActor* actor);
-
-  /**
    * Compute pipelines (post and pre render) that have been setup and that will be dispatched
    * by the renderer before the rendering passes
    */
@@ -377,13 +384,13 @@ private:
   std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> NotSetupPostRenderComputePipelines;
 
   /**
-   * Actors that will be rendered by PostRasterizationRender() after the main rasterization pass.
-   * Actors are added to this list when the Render() method of an actor is called but the mapper of
-   * this actor determines that it needs to be rendered after the rasterization pass. The mapper
-   * will then add the actor to this list of the renderer so that the renderer can render the actor
+   * Props that will be rendered by PostRasterizationRender() after the main rasterization pass.
+   * Props are added to this list when the Render() method of a prop is called but the mapper of
+   * this prop determines that it needs to be rendered after the rasterization pass. The mapper
+   * will then add the prop to this list of the renderer so that the renderer can render the prop
    * after the rasterization pass.
    */
-  std::vector<vtkActor*> PostRasterizationActors;
+  std::vector<vtkProp3D*> PostRasterizationProps;
 
   /**
    * Encodes a render command for rendering the given props

@@ -75,19 +75,23 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->ClippedCroppingRegionPlanes[5] = VTK_DOUBLE_MIN;
 
   this->MaxMemoryInBytes = 0;
-  vtkGPUInfoList* l = vtkGPUInfoList::New();
-  l->Probe();
-  if (l->GetNumberOfGPUs() > 0)
+  // No factory provides a vtkGPUInfoList on every platform or in every build, so fall through to
+  // the default budget below when the query is unavailable.
+  if (vtkGPUInfoList* l = vtkGPUInfoList::New())
   {
-    vtkGPUInfo* info = l->GetGPUInfo(0);
-    this->MaxMemoryInBytes = info->GetDedicatedVideoMemory();
-    if (this->MaxMemoryInBytes == 0)
+    l->Probe();
+    if (l->GetNumberOfGPUs() > 0)
     {
-      this->MaxMemoryInBytes = info->GetDedicatedSystemMemory();
+      vtkGPUInfo* info = l->GetGPUInfo(0);
+      this->MaxMemoryInBytes = info->GetDedicatedVideoMemory();
+      if (this->MaxMemoryInBytes == 0)
+      {
+        this->MaxMemoryInBytes = info->GetDedicatedSystemMemory();
+      }
+      // we ignore info->GetSharedSystemMemory(); as this is very slow.
     }
-    // we ignore info->GetSharedSystemMemory(); as this is very slow.
+    l->Delete();
   }
-  l->Delete();
 
   if (this->MaxMemoryInBytes == 0) // use some default value: 128MB.
   {

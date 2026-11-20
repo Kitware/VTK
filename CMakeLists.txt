@@ -425,12 +425,15 @@ if (VTK_ENABLE_WEBGPU)
 else ()
   list(APPEND vtk_rejected_modules
     VTK::RenderingWebGPU
-    VTK::RenderingSlang)
+    VTK::RenderingSlang
+    VTK::RenderingVolumeWebGPU)
 endif ()
 set("_vtk_module_reason_VTK::RenderingWebGPU"
   "via `VTK_ENABLE_WEBGPU`")
 set("_vtk_module_reason_VTK::RenderingSlang"
   "via `VTK_ENABLE_WEBGPU` and `VTK_USE_SLANG`")
+set("_vtk_module_reason_VTK::RenderingVolumeWebGPU"
+  "via `VTK_ENABLE_WEBGPU`")
 
 if (VTK_BUILD_TESTING)
   list(APPEND vtk_requested_modules

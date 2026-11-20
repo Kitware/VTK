@@ -1,0 +1,163 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+/**
+ * @struct  vtkWebGPUVolumeRayCastContribution
+ * @brief   One input offered up to be ray cast alongside the others
+ *
+ * A mapper fills one of these in per connected input and hands it to
+ * vtkWebGPUVolumeRayCastCoordinator, which gathers the contributions of every volume prop in the
+ * renderer and marches them together. Everything the coordinator needs to place, sample and shade
+ * the input is here; the mapper keeps owning the memory, which stays valid for the frame.
+ */
+
+#ifndef vtkWebGPUVolumeRayCastContribution_h
+#define vtkWebGPUVolumeRayCastContribution_h
+
+#include "vtkABINamespace.h"
+#include "vtkSetGet.h" // for vtkNotUsed
+#include "vtkType.h"
+
+#include <cstdint>
+#include <vector>
+
+VTK_ABI_NAMESPACE_BEGIN
+
+class vtkImageData;
+class vtkMatrix4x4;
+class vtkPlaneCollection;
+class vtkVolume;
+class vtkVolumeProperty;
+class vtkWebGPUVolumeRayCastMapper;
+
+/// Edge length of a resampled two dimensional transfer function, in texels.
+constexpr int vtkWebGPUVolumeTransferFunction2DSize = 256;
+
+/// Size of every tabulated transfer function, in texels. Matches the width the OpenGL mapper
+/// tabulates at, so that the two resolve a transfer function equally finely.
+constexpr int vtkWebGPUVolumeTransferFunctionSize = 1024;
+
+/**
+ * Where the coordinator gets the voxels of a brick from.
+ *
+ * The mapper never uploads a volume whole: it says how the volume is cut up and answers for one
+ * brick at a time. An implementation may pull the brick through the VTK pipeline when asked, which
+ * is what lets a volume that does not fit in memory, or arrives in pieces, work unchanged.
+ */
+struct vtkWebGPUVolumeBrickSource
+{
+  virtual ~vtkWebGPUVolumeBrickSource() = default;
+
+  /**
+   * Copy the brick at \a brick, with a one voxel apron from its neighbours, into \a voxels, which
+   * holds \a slotSize cubed values in the contribution's pool kind, x fastest. Voxels outside the
+   * volume repeat the nearest one. Returns false when the brick is not available yet, leaving it
+   * out of this frame.
+   */
+  virtual bool FetchBrick(const int brick[3], int slotSize, void* voxels) = 0;
+
+  /**
+   * Fill \a voxels with one byte per voxel of the same brick, non zero where the voxel is not to
+   * be drawn. Returns false when the volume has nothing hidden, which is the usual case.
+   */
+  virtual bool FetchMask(
+    const int vtkNotUsed(brick)[3], int vtkNotUsed(slotSize), unsigned char* vtkNotUsed(voxels))
+  {
+    return false;
+  }
+};
+
+struct vtkWebGPUVolumeRayCastContribution
+{
+  /// Who offered this input, and which of its ports it came from.
+  vtkWebGPUVolumeRayCastMapper* Mapper = nullptr;
+  vtkVolume* Volume = nullptr;
+  int Port = 0;
+
+  vtkImageData* Data = nullptr;
+  vtkVolumeProperty* Property = nullptr;
+  /// Index space to the input's own coordinates. Comes from the mapper rather than from the
+  /// image, because cell data is sampled at cell centres and so sits half a voxel across.
+  vtkMatrix4x4* IndexToPhysical = nullptr;
+  /// Placement of the prop that carries this input.
+  vtkMatrix4x4* WorldMatrix = nullptr;
+  /// Clipping planes of the mapper that owns this input, if any.
+  vtkPlaneCollection* ClippingPlanes = nullptr;
+
+  /// Where the coordinator asks for voxels, and whether they come back as bytes or floats.
+  vtkWebGPUVolumeBrickSource* BrickSource = nullptr;
+  bool BytePool = false;
+  /// How many channels of a pool slot one voxel takes. More than the components alone when a
+  /// second axis array rides along with them.
+  int PoolChannels = 1;
+
+  /// How many components are rendered, at most four, and whether each carries its own transfer
+  /// functions or they describe one colour between them.
+  int NumberOfComponents = 1;
+  bool IndependentComponents = true;
+  /// The component the intensity blend modes and the acceleration structure look at.
+  int PrimaryComponent = 0;
+  /// Whether the samples are the cells rather than the points, which puts them half a cell in
+  /// from the edges of the volume and one fewer of them along each axis.
+  bool CellData = false;
+
+  /// Whether some voxels are hidden, and whether hiding one hides what interpolates through it.
+  /// Ghosts and blanking do, since such a sample is wrong; a binary mask cuts exactly where it
+  /// says.
+  bool HasMask = false;
+  bool MaskHidesNeighbours = false;
+
+  /// Index of this volume's prop in the renderer, which selection reports as the prop id.
+  std::uint32_t PropId = 0;
+
+  /// A label map mask names a transfer function per label, and MaskBlendFactor says how far to
+  /// go from the volume's own transfer functions towards the label's.
+  int MaximumLabel = 0;
+  float MaskBlendFactor = 1.0f;
+  /// RGBA16Float texels, vtkWebGPUVolumeTransferFunctionSize per label, row zero unused.
+  const std::vector<std::uint16_t>* LabelTable = nullptr;
+
+  int Dimensions[3] = { 0, 0, 0 };
+  /// Turns a raw texel back into a scalar: scalar = texel * ValueScale + ValueBias.
+  float ValueScale = 1.0f;
+  float ValueBias = 0.0f;
+
+  /// Range each component's colour and opacity functions were tabulated over.
+  double ScalarRange[4][2] = { { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 } };
+  /// Range each component's gradient opacity function was tabulated over.
+  double GradientRange[4][2] = { { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 }, { 0.0, 1.0 } };
+
+  /// Edge length and count of the acceleration cells, which say where the volume is empty. Not the
+  /// pool's bricks, which are the coordinator's business and usually much larger.
+  int CellSize = 8;
+  int CellDimensions[3] = { 0, 0, 0 };
+  /// Two floats per cell: the largest opacity it maps to, and how much it varies.
+  const std::vector<float>* CellClassification = nullptr;
+
+  /// Whether colour and opacity come from a two dimensional transfer function, and whether its
+  /// second axis is an array of its own rather than the gradient magnitude.
+  bool Transfer2D = false;
+  bool Transfer2DHasYAxisArray = false;
+  /// RGBA16Float texels, vtkWebGPUVolumeTransferFunction2DSize squared per component.
+  const std::vector<std::uint16_t>* Transfer2DTable = nullptr;
+
+  /// RGBA16Float texels, vtkWebGPUVolumeTransferFunctionSize of each, one set per component.
+  const std::vector<std::uint16_t>* ColorTable = nullptr;
+  const std::vector<std::uint16_t>* OpacityTable = nullptr;
+  const std::vector<std::uint16_t>* GradientTable = nullptr;
+
+  /// Bumped whenever any of the data above is rebuilt, so the coordinator can leave the layers
+  /// and blocks it already uploaded alone.
+  vtkMTimeType ContentTime = 0;
+  /// When the voxels themselves last changed. Only this invalidates resident bricks: a new transfer
+  /// function changes what the bricks mean, not what they hold.
+  vtkMTimeType BrickTime = 0;
+  /// When cells were last classified on their own, as bricks of a streamed volume arrive.
+  vtkMTimeType CellsTime = 0;
+  /// Read a brick at a time. A brick fetched from such a volume is also the first look at its
+  /// cells, so the picture keeps changing for a frame after it arrives.
+  bool Streaming = false;
+};
+
+VTK_ABI_NAMESPACE_END
+#endif
+// VTK-HeaderTest-Exclude: vtkWebGPUVolumeRayCastContribution.h

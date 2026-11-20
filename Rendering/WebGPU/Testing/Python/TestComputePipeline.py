@@ -31,7 +31,7 @@ input_buf.SetGroup(0)
 input_buf.SetBinding(0)
 input_buf.SetMode(vtkWebGPUComputeBuffer.READ_ONLY_COMPUTE_STORAGE)
 input_buf.SetData(input_array)
-input_buf.SetDataType(vtkWebGPUComputeBuffer.VTK_DATA_ARRAY)
+input_buf.SetDataType(vtkWebGPUComputeBuffer.DATA_ARRAY)
 
 output_buf = vtkWebGPUComputeBuffer()
 output_buf.SetGroup(0)

@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
+#include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkMultiVolume.h>
 #include <vtkNew.h>
-#include <vtkOpenGLGPUVolumeRayCastMapper.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPlane.h>
 #include <vtkRTAnalyticSource.h>

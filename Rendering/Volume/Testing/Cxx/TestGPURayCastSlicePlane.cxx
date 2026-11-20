@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include <vtkColorTransferFunction.h>
+#include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
-#include <vtkOpenGLGPUVolumeRayCastMapper.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPlane.h>
 #include <vtkRTAnalyticSource.h>
@@ -20,7 +20,7 @@ int TestGPURayCastSlicePlane(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   data->SetWholeExtent(-100, 100, -100, 100, -100, 100);
   data->Update();
 
-  vtkNew<vtkOpenGLGPUVolumeRayCastMapper> mapper;
+  vtkNew<vtkGPUVolumeRayCastMapper> mapper;
   mapper->SetInputConnection(data->GetOutputPort());
   mapper->AutoAdjustSampleDistancesOff();
   mapper->SetSampleDistance(0.5);
