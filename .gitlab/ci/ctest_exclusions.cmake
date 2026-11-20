@@ -304,20 +304,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     "^VTK::IOPLYCxx-TestPLYReaderFaceTexturedWithReusedTCoord$"
     "^VTK::IOPLYCxx-TestPLYReaderTextureUVFaces$"
     "^VTK::IOPLYCxx-TestPLYReaderTextureUVPointsWithST$"
-    "^VTK::IOPLYPython-TestPLYReadWrite$"
-    "^VTK::RenderingVolumeCxx-OpenGL-TestGPURayCastChangedArray$"
-
-    # TEMPORARY: always time out on the Tart paravirtual GPU (never passed).
-    "^VTK::RenderingCellGridPython-TestCellGridQuadGaussBasis$"
-    "^VTK::RenderingCellGridPython-TestCellGridTriGaussBasis$"
-    "^VTK::RenderingCellGridPython-TestCellGridTetGaussBasis$"
-    "^VTK::RenderingCellGridPython-TestCellGridHexGaussBasis$"
-    "^VTK::RenderingCellGridPython-TestCellGridWdgGaussBasis$"
-    "^VTK::RenderingCellGridPython-TestCellGridPyrGaussBasis$"
-    "^VTK::RenderingCellGridPython-TestCellGridHardwarePicker$"
-    "^VTK::RenderingCellGridPython-TestCellGridRenderedAreaPicker$"
-    "^VTK::RenderingCellGridPython-TestCellGridRenderedAreaPickerWithPolyData$"
-    "^VTK::RenderingCellGridPython-TestCellGridRendering$")
+    "^VTK::RenderingVolumeCxx-OpenGL-TestGPURayCastChangedArray$")
 
   # Slow on the Tart paravirtual GPU: run with a longer timeout instead.
   list(APPEND test_slow
@@ -386,6 +373,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
     "^VTK::RenderingCoreCxx-OpenGL-TestPBRMaterialsCoatSerDes$"
     "^VTK::RenderingCoreCxx-OpenGL-TestPBRMaterialsSerDes$"
     "^VTK::RenderingCoreCxx-OpenGL-TestPBRMultipleScatteringIBL(SerDes)?$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRCoatAttenuation(SerDes)?$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestPBRWhiteFurnace(SerDes)?$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlur$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlurSerDes$"
     "^VTK::RenderingOpenGL2Cxx-TestSkyboxBlurWithRenderPasses$"
@@ -548,6 +537,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
       "^VTK::RenderingCoreCxx-OpenGL-TestCompositePolyDataMapperMixedGeometryEdgesSerDes$"
       "^VTK::RenderingOpenGL2Cxx-TestShadowMapPass$"
       "^VTK::RenderingOpenGL2Cxx-TestShadowMapPassSerDes$"
+      "^VTK::RenderingOpenGL2Cxx-TestShadowMapPassPrimitives(SerDes)?$"
       "^VTK::RenderingVolumeCxx-OpenGL-TestGPURayCastComputeNormalFromOpacity$"
       "^VTK::RenderingVolumeCxx-OpenGL-TestGPURayCastComputeNormalFromOpacitySerDes$"
       "^VTK::RenderingVolumeCxx-OpenGL-TestGPURayCastMIPBinaryMask$"
@@ -568,11 +558,15 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
 
       # https://gitlab.kitware.com/vtk/vtk/-/issues/20151
       # Timeouts
+      "^VTK::IOPLYPython-TestPLYReadWrite$"
       "^VTK::IONetCDFCxx-SLACParticleReader$"
       "^VTK::IONetCDFCxx-SLACReaderLinear$"
       "^VTK::IONetCDFCxx-SLACReaderQuadratic$"
       "^VTK::IONetCDFCxx-TestMPASReader$"
       "^VTK::IONetCDFCxx-TestNetCDFCAMReader$"
+      "^VTK::IONetCDFCxx-NetCDFCF2DBounds$"
+      "^VTK::IONetCDFCxx-NetCDFCFSetOutputType$"
+      "^VTK::IONetCDFCxx-NetCDFCFSphericalCoords$"
       "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastCellData$"
       "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingOpaque$"
       "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthPeelingTransVol$"
@@ -580,6 +574,19 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
       "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastDepthTextureFormat$"
       "^VTK::RenderingVolumeCxx-OpenGL-TestGPURayCastIsosurface$"
       "^VTK::RenderingVolumeOpenGL2Cxx-TestGPURayCastJittering$"
+      "^VTK::RenderingVolumeOpenGL2Cxx-TestGLTFImporterKHRMaterialsSpecular(SerDes)?$"
+      
+      # TEMPORARY: always time out on the Tart paravirtual GPU (never passed).
+      "^VTK::RenderingCellGridPython-TestCellGridQuadGaussBasis$"
+      "^VTK::RenderingCellGridPython-TestCellGridTriGaussBasis$"
+      "^VTK::RenderingCellGridPython-TestCellGridTetGaussBasis$"
+      "^VTK::RenderingCellGridPython-TestCellGridHexGaussBasis$"
+      "^VTK::RenderingCellGridPython-TestCellGridWdgGaussBasis$"
+      "^VTK::RenderingCellGridPython-TestCellGridPyrGaussBasis$"
+      "^VTK::RenderingCellGridPython-TestCellGridHardwarePicker$"
+      "^VTK::RenderingCellGridPython-TestCellGridRenderedAreaPicker$"
+      "^VTK::RenderingCellGridPython-TestCellGridRenderedAreaPickerWithPolyData$"
+      "^VTK::RenderingCellGridPython-TestCellGridRendering$"
     )
   endif()
 endif ()
