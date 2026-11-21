@@ -534,11 +534,11 @@ static nlohmann::json Serialize_vtkDataArray(vtkObjectBase* object, vtkSerialize
           // generated serializer appends after this returns. Keep only the ones reported
           // below, or the state grows on every pass.
           auto& superClasses = state["SuperClassNames"];
-          for (auto iter = superClasses.begin(); iter != superClasses.end(); ++iter)
+          for (auto scIter = superClasses.begin(); scIter != superClasses.end(); ++scIter)
           {
-            if (*iter == "vtkAbstractArray")
+            if (*scIter == "vtkAbstractArray")
             {
-              superClasses.erase(iter + 1, superClasses.end());
+              superClasses.erase(scIter + 1, superClasses.end());
               break;
             }
           }
