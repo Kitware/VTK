@@ -313,7 +313,7 @@ int vtkSmoothPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
   numCells = input->GetNumberOfCells();
   if (numPts < 1 || numCells < 1)
   {
-    vtkErrorMacro(<< "No data to smooth!");
+    vtkDebugMacro(<< "No data to smooth!");
     return 1;
   }
 
