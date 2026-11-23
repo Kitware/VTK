@@ -308,7 +308,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   list(APPEND test_exclusions
     # Image size mismatches
     "^VTK::ChartsCoreCxx-TestMultipleScalarsToColors(SerDes)?$"
-    "^VTK::FiltersCorePython-TestOrientedFlyingEdgesPlaneCutter2$"
     "^VTK::RenderingOpenGL2Cxx-TestToneMappingPass(SerDes)?$"
 
     # PATH manipulations needed
