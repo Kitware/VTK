@@ -1147,12 +1147,14 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
 //----------------------------------------------------------------------------
 bool FillTable(vtkTable* output, const conduit_cpp::Node& tableNode)
 {
+  output->Initialize();
   if (!tableNode.has_child("values"))
   {
     vtkLogF(ERROR, "Table '%s' has no 'values' node.", tableNode.name().c_str());
     return false;
   }
   auto values = tableNode["values"];
+  vtkNew<vtkTable> table;
   vtkIdType rows = 0;
   std::string firstName;
   for (conduit_index_t cc = 0, max = values.number_of_children(); cc < max; ++cc)
@@ -1184,8 +1186,9 @@ bool FillTable(vtkTable* output, const conduit_cpp::Node& tableNode)
         firstName.c_str(), static_cast<long long>(rows));
       return false;
     }
-    output->AddColumn(array);
+    table->AddColumn(array);
   }
+  output->ShallowCopy(table);
   return true;
 }
 

@@ -26,6 +26,8 @@
 #include <cassert>
 #include <functional>
 #include <map>
+#include <string>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -42,6 +44,44 @@ void AddChildFieldData(vtkDataObject* dobj, const conduit_cpp::Node& child)
   {
     vtkConduitToDataObject::AddFieldData(dobj, child["fields"]);
   }
+}
+
+bool IsTableMetadata(const std::string& name)
+{
+  return name == "state" || name == "fields";
+}
+
+// The children of a node that are tables, i.e., all but "state" and "fields".
+std::vector<conduit_index_t> TableChildren(const conduit_cpp::Node& node)
+{
+  std::vector<conduit_index_t> children;
+  if (node.dtype().is_object())
+  {
+    for (conduit_index_t cc = 0; cc < node.number_of_children(); ++cc)
+    {
+      if (!IsTableMetadata(node.child(cc).name()))
+      {
+        children.push_back(cc);
+      }
+    }
+  }
+  return children;
+}
+
+// A table with no rows: an empty node, or one that holds only "state" or "fields".
+bool IsEmptyTable(const conduit_cpp::Node& node)
+{
+  return node.dtype().is_empty() || (node.dtype().is_object() && TableChildren(node).empty());
+}
+
+bool IsSingleTable(const conduit_cpp::Node& node)
+{
+  return node.has_child("values") || TableChildren(node).empty();
+}
+
+bool FillTableOrEmpty(vtkTable* table, const conduit_cpp::Node& node)
+{
+  return IsEmptyTable(node) || vtkConduitToDataObject::FillTable(table, node);
 }
 
 void SetAssembly(vtkPartitionedDataSetCollection* pdc, const conduit_cpp::Node& assemblyNode)
@@ -243,26 +283,31 @@ bool vtkConduitSource::GeneratePartitionedDataSetCollection(vtkDataObject* outpu
 bool vtkConduitSource::GenerateTable(vtkDataObject* output)
 {
   const auto& node = this->Internals->Node;
-  if (node.number_of_children() == 0 || node.has_child("values"))
+  if (IsSingleTable(node))
   {
     vtkNew<vtkTable> table;
-    if (node.number_of_children() > 0 && !vtkConduitToDataObject::FillTable(table, node))
+    if (!FillTableOrEmpty(table, node))
     {
       output->Initialize();
       return false;
+    }
+    // "state/fields" is added to every output by RequestData.
+    if (node.has_child("fields"))
+    {
+      vtkConduitToDataObject::AddFieldData(table, node["fields"]);
     }
     output->ShallowCopy(table);
     return true;
   }
 
+  const auto children = TableChildren(node);
   vtkNew<vtkPartitionedDataSetCollection> tables;
-  const auto count = static_cast<unsigned int>(node.number_of_children());
-  tables->SetNumberOfPartitionedDataSets(count);
-  for (unsigned int cc = 0; cc < count; ++cc)
+  tables->SetNumberOfPartitionedDataSets(static_cast<unsigned int>(children.size()));
+  for (unsigned int cc = 0; cc < children.size(); ++cc)
   {
-    const auto child = node.child(cc);
+    const auto child = node.child(children[cc]);
     vtkNew<vtkTable> table;
-    if (child.has_child("values") && !vtkConduitToDataObject::FillTable(table, child))
+    if (!FillTableOrEmpty(table, child))
     {
       output->Initialize();
       return false;
@@ -289,9 +334,7 @@ int vtkConduitSource::RequestDataObject(
   int dataType = VTK_PARTITIONED_DATA_SET; // default
   if (this->UseTableProtocol)
   {
-    const auto& node = this->Internals->Node;
-    const bool manyTables = !node.has_child("values") && node.number_of_children() > 0;
-    if (!manyTables)
+    if (IsSingleTable(this->Internals->Node))
     {
       dataType = VTK_TABLE;
     }
@@ -365,7 +408,8 @@ int vtkConduitSource::RequestData(
     if (allResults[2 * rank + 1] != allResults[1])
     {
       vtkLogF(ERROR,
-        "Process %d produced a %s and process 0 a %s. Every rank must provide the same tables.",
+        "Process %d produced a %s and process 0 a %s. Every rank must produce the same output "
+        "type.",
         rank, vtkDataObjectTypes::GetClassNameFromTypeId(allResults[2 * rank + 1]),
         vtkDataObjectTypes::GetClassNameFromTypeId(allResults[1]));
       return 0;

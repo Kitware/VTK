@@ -62,16 +62,18 @@ public:
    * Set this to true if the node follows the Conduit table blueprint (default is false).
    * It takes precedence over UseAMRMeshProtocol and UseMultiMeshProtocol.
    *
-   * A single table (a node with a "values" child) produces a vtkTable. An empty node
-   * produces an empty vtkTable, so a rank with no rows, such as one that does not hold a
-   * global quantity, can pass an empty node.
+   * A single table (a node with a "values" child) produces a vtkTable. An empty node, or one
+   * holding only "state" and "fields", produces an empty vtkTable, so a rank with no rows, such
+   * as one that does not hold a global quantity, can still pass its state.
    *
    * A node holding several named tables produces a vtkPartitionedDataSetCollection with one
    * table per partitioned dataset, named in its metadata, or a vtkMultiBlockDataSet when
-   * OutputMultiBlock is on. Each table's "state/fields" and "fields" become field data on its
-   * partitioned dataset, and the assembly node applies as for meshes. Every rank must name the
-   * same tables; an empty child gives an empty table on a rank that has no rows for it. Ranks
-   * that produce different output types fail on every rank.
+   * OutputMultiBlock is on. "state" and "fields" children are not tables. Each table's
+   * "state/fields" and "fields" become field data on its partitioned dataset, and the assembly
+   * node applies as for meshes. Every rank must name the same tables; a child that is empty or
+   * holds only "state" and "fields" gives an empty table on a rank that has no rows for it, and
+   * any other child without "values" is an error. Ranks that produce different output types
+   * fail on every rank.
    */
   vtkSetMacro(UseTableProtocol, bool);
   vtkGetMacro(UseTableProtocol, bool);

@@ -64,8 +64,8 @@ VTKIOCATALYSTCONDUIT_EXPORT bool FillAMRMesh(vtkOverlappingAMR* amr, const condu
  * "values" is a column, given as a data array or an mcarray. All columns must have the
  * same length.
  *
- * Return true if data was correctly generated, false if an error occurred, including
- * columns of different lengths.
+ * The output is reset first, and left empty when an error occurs. Return true if data was
+ * correctly generated, false if an error occurred, including columns of different lengths.
  */
 VTKIOCATALYSTCONDUIT_EXPORT bool FillTable(vtkTable* output, const conduit_cpp::Node& tableNode);
 

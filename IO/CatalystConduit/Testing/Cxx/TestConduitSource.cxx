@@ -9,6 +9,7 @@
 #include "vtkConduitSource.h"
 #include "vtkConduitToDataObject.h"
 #include "vtkDataArrayRange.h"
+#include "vtkExecutive.h"
 #include "vtkFieldData.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -1693,6 +1694,40 @@ bool ValidateTable()
       std::string(tables->GetMetaData(1u)->Get(vtkCompositeDataSet::NAME())) == "forces",
     "Expected an empty 'forces' table for an empty child.");
 
+  // "state" and "fields" are not tables.
+  many["state/fields/time"].set_float64(1.5);
+  source->SetNode(conduit_cpp::c_node(&many));
+  source->Update();
+  tables = vtkPartitionedDataSetCollection::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(tables != nullptr && tables->GetNumberOfPartitionedDataSets() == 2,
+    "Expected 2 tables with a top-level 'state'.");
+  many.remove("state");
+
+  // A rank with no rows still passes its state.
+  conduit_cpp::Node stateOnly;
+  stateOnly["state/fields/cycle"].set_int64(7);
+  stateOnly["fields/residual"].set_float64(0.5);
+  source->SetNode(conduit_cpp::c_node(&stateOnly));
+  source->Update();
+  auto stateTable = vtkTable::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(stateTable != nullptr && stateTable->GetNumberOfRows() == 0 &&
+      stateTable->GetFieldData()->GetArray("cycle") != nullptr &&
+      stateTable->GetFieldData()->GetArray("residual") != nullptr,
+    "Expected an empty vtkTable with the state and fields of a node holding only them.");
+
+  // Columns without the "values" level are an error, not empty tables.
+  conduit_cpp::Node noValues;
+  noValues["time"].set_float64_vector({ 0.0, 1.0 });
+  noValues["drag"].set_float64_vector({ 0.3, 0.4 });
+  {
+    const auto cutoff = vtkLogger::GetCurrentVerbosityCutoff();
+    vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_OFF);
+    source->SetNode(conduit_cpp::c_node(&noValues));
+    const int updated = source->GetExecutive()->Update();
+    vtkLogger::SetStderrVerbosity(cutoff);
+    VERIFY(updated == 0, "Children without 'values' should be rejected.");
+  }
+
   // A rank with no rows passes an empty node.
   conduit_cpp::Node empty;
   source->SetNode(conduit_cpp::c_node(&empty));
@@ -1711,6 +1746,13 @@ bool ValidateTable()
   const bool filled = vtkConduitToDataObject::FillTable(unevenTable, uneven);
   vtkLogger::SetStderrVerbosity(verbosity);
   VERIFY(!filled, "Columns of different lengths should be rejected.");
+  VERIFY(
+    unevenTable->GetNumberOfColumns() == 0, "A failed FillTable should leave the table empty.");
+
+  vtkNew<vtkTable> refilled;
+  VERIFY(vtkConduitToDataObject::FillTable(refilled, node) &&
+      vtkConduitToDataObject::FillTable(refilled, node) && refilled->GetNumberOfColumns() == 3,
+    "FillTable should replace the columns of its output.");
   return true;
 }
 

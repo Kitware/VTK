@@ -29,8 +29,13 @@ void TestFailingNode()
 //----------------------------------------------------------------------------
 bool TestMismatchedTables()
 {
+  auto controller = vtkMultiProcessController::GetGlobalController();
+  if (controller->GetNumberOfProcesses() < 2)
+  {
+    return true;
+  }
   conduit_cpp::Node tables;
-  if (vtkMultiProcessController::GetGlobalController()->GetLocalProcessId() == 0)
+  if (controller->GetLocalProcessId() == 0)
   {
     tables["probes/values/time"].set_float64_vector({ 0.0, 1.0 });
     tables["forces/values/drag"].set_float64_vector({ 0.3 });
