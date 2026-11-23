@@ -1349,7 +1349,7 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<TArray>::Contour(vtkFlyingEdgesPlaneCutt
   // the xMin_i and xMax_i (minimum index of first intersection, maximum
   // index of intersection for the ith x-row, the so-called trim edges used
   // for computational trimming).
-  algo.EdgeMetaData = new vtkIdType[algo.NumberOfEdges * 6];
+  algo.EdgeMetaData = new vtkIdType[algo.NumberOfEdges * 6]();
 
   // Configure the interpolation of attribute data. Scalars are required and
   // always interpolated, other attributes are optional.

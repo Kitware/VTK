@@ -808,7 +808,7 @@ void vtkFlyingEdges2DAlgorithm<TArray>::ContourImage(vtkFlyingEdges2D* self, TAr
   // as well as num line primitives, and the xMin_i and xMax_i (minimum
   // index of first intersection, maximum index of intersection for row i,
   // so-called trim edges used for computational trimming).
-  algo.EdgeMetaData = new vtkIdType[algo.Dims[1] * 5];
+  algo.EdgeMetaData = new vtkIdType[algo.Dims[1] * 5]();
 
   // Compute the starting location for scalar data.  We may be operating
   // on a part of the image.
