@@ -27,6 +27,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
+#include <cstring>
 #include <map>
 #include <set>
 
@@ -1103,6 +1104,15 @@ vtkIdType vtkOpenGLGlyph3DMapper::GetMaxNumberOfLOD()
 {
 #ifndef GL_ES_VERSION_3_0
   if (!GLAD_GL_ARB_gpu_shader5 || !GLAD_GL_ARB_transform_feedback3)
+  {
+    return 0;
+  }
+
+  // Mesa's OpenGL-on-D3D12 driver advertises several vertex streams, but the
+  // culling shader's transform feedback to more than one stream never
+  // completes and rendering hangs.
+  const char* glRenderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+  if (glRenderer && std::strncmp(glRenderer, "D3D12 (", 7) == 0)
   {
     return 0;
   }

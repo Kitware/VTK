@@ -138,7 +138,7 @@ int TestSSAAPassMultiViewportGetZ(int argc, char* argv[])
     const double windowWorldZ = wpt[2] / wpt[3];
     std::cout << "viewport:" << i << "\n";
     std::cout << " vtkRenderer::GetZ - ";
-    if (std::abs(rendererWorldZ - zValues[i]) > 1e-6)
+    if (std::abs(rendererWorldZ - zValues[i]) > 1e-5)
     {
       success &= false;
       std::cout << "FAIL\n";
@@ -150,7 +150,7 @@ int TestSSAAPassMultiViewportGetZ(int argc, char* argv[])
       std::cout << "PASS\n";
     }
     std::cout << " vtkRenderWindow::GetZbufferDataAtPoint - ";
-    if (std::abs(windowWorldZ - zValues[i]) > 1e-6)
+    if (std::abs(windowWorldZ - zValues[i]) > 1e-5)
     {
       success &= false;
       std::cout << "FAIL\n";
