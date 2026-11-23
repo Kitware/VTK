@@ -61,6 +61,7 @@ int TestPartitionedPolyDataTemporal(const std::string& dataRoot);
 int TestPolyDataTemporalFieldData(const std::string& dataRoot);
 int TestHyperTreeGridTemporal(const std::string& dataRoot, unsigned int depthLimit);
 int TestHyperTreeGridPartitionedTemporal(const std::string& dataRoot);
+int TestHyperTreeGridChangingPartitionCount(const std::string& dataRoot);
 int TestOverlappingAMRTemporal(const std::string& dataRoot);
 int TestOverlappingAMRTemporalLegacy(const std::string& dataRoot);
 int TestPartialArrayWithCompositeDataset(const std::string& dataRoot);
@@ -120,6 +121,7 @@ int TestHDFReaderTemporal(int argc, char* argv[])
   res |= ::TestHyperTreeGridTemporal(dataRoot, 3);
   res |= ::TestHyperTreeGridTemporal(dataRoot, 1);
   res |= ::TestHyperTreeGridPartitionedTemporal(dataRoot);
+  res |= ::TestHyperTreeGridChangingPartitionCount(dataRoot);
   res |= ::TestOverlappingAMRTemporalLegacy(dataRoot);
   res |= ::TestOverlappingAMRTemporal(dataRoot);
   res |= ::TestPartialArrayWithCompositeDataset(dataRoot);
@@ -132,6 +134,7 @@ int TestHDFReaderTemporal(int argc, char* argv[])
 
 namespace
 {
+
 //------------------------------------------------------------------------------
 int TestCompositeImageDataTemporal(const std::string& dataRoot)
 {
@@ -153,6 +156,56 @@ int TestCompositeImageDataTemporal(const std::string& dataRoot)
   {
     std::cerr << "Could not read temporal velocity array" << std::endl;
     return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+int TestHyperTreeGridChangingPartitionCount(const std::string& dataRoot)
+{
+  // Three steps with 2, 1, and 2 partitions.
+  // Make sure that the reader always creates a partitioned output
+  // when a time step has more than 1 partition.
+  const std::string filename =
+    dataRoot + "/Data/vtkHDF/temporal_htg_changing_partition_count.vtkhdf";
+  for (int initialStep : { 0, 1 })
+  {
+    vtkNew<vtkHDFReader> reader;
+    reader->SetFileName(filename.c_str());
+    reader->SetStep(initialStep);
+    reader->Update();
+
+    for (int step : { 1, 2, 1, 0, 1 })
+    {
+      reader->SetStep(step);
+      reader->Update();
+
+      auto* output = vtkPartitionedDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+      if (!output || output->GetNumberOfPartitions() != (step == 1 ? 1u : 2u))
+      {
+        vtkLog(ERROR, "Unexpected output type or partition count at step " << step);
+        return EXIT_FAILURE;
+      }
+
+      for (unsigned int part = 0; part < output->GetNumberOfPartitions(); ++part)
+      {
+        auto* htg = vtkHyperTreeGrid::SafeDownCast(output->GetPartitionAsDataObject(part));
+        if (!htg || htg->GetNumberOfCells() != 2 || htg->GetNumberOfNonEmptyTrees() != 2)
+        {
+          vtkLog(ERROR, "Unexpected partition contents at step " << step);
+          return EXIT_FAILURE;
+        }
+      }
+    }
+
+    // Switching to a single-grid file must also replace the output cache.
+    reader->SetFileName((dataRoot + "/Data/vtkHDF/temporal_htg.vtkhdf").c_str());
+    reader->Update();
+    if (!vtkHyperTreeGrid::SafeDownCast(reader->GetOutputDataObject(0)))
+    {
+      vtkLog(ERROR, "Unexpected output type after changing files");
+      return EXIT_FAILURE;
+    }
   }
   return EXIT_SUCCESS;
 }
