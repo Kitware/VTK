@@ -1560,6 +1560,40 @@ bool ValidateNullMesh()
   return true;
 }
 
+bool ValidateEmptyMesh()
+{
+  conduit_cpp::Node empty;
+  auto data = Convert(empty);
+  auto pds = vtkPartitionedDataSet::SafeDownCast(data);
+  VERIFY(pds != nullptr && pds->GetNumberOfPartitions() == 0,
+    "Expected a vtkPartitionedDataSet with no partitions for an empty node.");
+
+  conduit_cpp::Node meshes;
+  auto full = meshes["full"];
+  CreateUniformMesh(3, 3, 3, full);
+  meshes["empty"];
+  vtkNew<vtkConduitSource> source;
+  source->SetUseMultiMeshProtocol(true);
+  source->SetNode(conduit_cpp::c_node(&meshes));
+  source->Update();
+  auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(pdc != nullptr && pdc->GetNumberOfPartitionedDataSets() == 2 &&
+      pdc->GetPartitionedDataSet(0)->GetNumberOfPartitions() == 1 &&
+      pdc->GetPartitionedDataSet(1)->GetNumberOfPartitions() == 0,
+    "Expected no partitions for the empty mesh of a multimesh.");
+
+  conduit_cpp::Node noTopologies;
+  noTopologies["fields/pressure/values"].set_float64_vector({ 1.0 });
+  vtkNew<vtkConduitSource> invalid;
+  invalid->SetNode(conduit_cpp::c_node(&noTopologies));
+  const auto verbosity = vtkLogger::GetCurrentVerbosityCutoff();
+  vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_OFF);
+  const int updated = invalid->GetExecutive()->Update();
+  vtkLogger::SetStderrVerbosity(verbosity);
+  VERIFY(updated == 0, "A mesh without topologies should be rejected.");
+  return true;
+}
+
 bool ValidatePolyhedra()
 {
   conduit_cpp::Node mesh;
@@ -1789,7 +1823,7 @@ int TestConduitSource(int argc, char** argv)
       ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D() && ValidateMeshTypeAMR(amrFile) &&
       ValidateAscentGhostCellData() && ValidateAscentGhostPointData() && ValidateMeshTypePoints() &&
       ValidateDistributedAMR() && ValidatePolyhedra() && ValidateInterlacedArrays() &&
-      ValidateNullMesh() && ValidateTable()
+      ValidateNullMesh() && ValidateEmptyMesh() && ValidateTable()
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
 

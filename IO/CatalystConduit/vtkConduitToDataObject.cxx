@@ -499,6 +499,16 @@ struct ReplaceValuesWorker
 //----------------------------------------------------------------------------
 bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node& node)
 {
+  // A rank that holds no part of the mesh passes an empty node.
+  if (node.dtype().is_empty())
+  {
+    return true;
+  }
+  if (!node.has_child("topologies") || !node.has_child("coordsets"))
+  {
+    vtkLogF(ERROR, "Mesh '%s' has no 'topologies' or no 'coordsets'.", node.name().c_str());
+    return false;
+  }
 #if !VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
   // conduit verify_shapes_node dereferences the shapes array to compare
   // values with the values in the shapes_map
