@@ -319,6 +319,12 @@ int vtkHDFWriter::RequestData(vtkInformation* request,
     return 1;
   }
 
+  // Compute external flags based on user-defined options
+  this->ExternalFlags = (this->UseExternalComposite ? ExternalComposite : ExternalNone) |
+    (this->UseExternalTimeSteps ? ExternalTimeSteps : ExternalNone) |
+    (this->UseExternalPartitions ? ExternalPartitions : ExternalNone) |
+    (this->UseExternalDistributed ? ExternalDistributed : ExternalNone);
+
   bool ret = this->WriteDataAndReturn();
 
   if (!ret)
@@ -409,15 +415,11 @@ bool vtkHDFWriter::CheckOptionsCompatibility(vtkDataObject* input)
 {
   if (this->AppendTimeSteps)
   {
-    if (this->UseExternalDistributed || this->UseExternalTimeSteps || this->UseExternalPartitions ||
-      this->UseExternalComposite)
+    if (this->ExternalFlags > 0)
     {
       vtkWarningMacro("AppendTimeSteps disables all external-file options");
     }
-    this->SetUseExternalDistributed(false);
-    this->SetUseExternalTimeSteps(false);
-    this->SetUseExternalPartitions(false);
-    this->SetUseExternalComposite(false);
+    this->ExternalFlags = 0;
   }
 
   if (this->IsTemporal)
@@ -427,21 +429,19 @@ bool vtkHDFWriter::CheckOptionsCompatibility(vtkDataObject* input)
     // because we rely on writers outside of the current pipeline that simply write a data object.
     // Supporting these cases would require to give the writer the ability to add timesteps to an
     // existing file.
-    if (this->UseExternalPartitions || this->UseExternalComposite)
+    if (this->ExternalFlags & (ExternalPartitions | ExternalComposite))
     {
       vtkWarningMacro("Writing composite blocks/partitions as external VTKHDF files is "
                       "currently not supported for time-dependant datasets, disabling "
                       "UseExternal[Composite/Partitions]");
     }
-    this->SetUseExternalComposite(false);
-    this->SetUseExternalPartitions(false);
+    this->ExternalFlags &= ~(ExternalPartitions | ExternalComposite);
   }
 
   // For now, distributed writing is only available for (partitioned) UnstructuredGrid/PolyData.
   // And is not compatible with other external files options.
   // Other distributed inputs use external files.
-  bool singleFileEnabled = !this->UseExternalDistributed && !this->UseExternalPartitions &&
-    !this->UseExternalComposite && !this->UseExternalTimeSteps && this->NbPieces > 1;
+  bool singleFileEnabled = !this->ExternalFlags && this->NbPieces > 1;
   const bool supportedInput = (singleFileEnabled || this->AppendTimeSteps) &&
     ::IsDistributedSingleFileSupported(input, this->Controller);
   if (this->AppendTimeSteps && !supportedInput)
@@ -520,7 +520,7 @@ bool vtkHDFWriter::WriteDataAndReturn()
   this->Controller->Barrier();
 
   // Write the time step data in an external file
-  if (this->NbPieces == 1 && this->IsTemporal && this->UseExternalTimeSteps)
+  if (this->NbPieces == 1 && this->IsTemporal && (this->ExternalFlags & ExternalTimeSteps))
   {
     const std::string timestepSuffix = vtk::to_string(this->CurrentTimeIndex);
     const std::string subFilePath =
@@ -530,8 +530,8 @@ bool vtkHDFWriter::WriteDataAndReturn()
     writer->SetFileName(subFilePath.c_str());
     writer->SetCompressionLevel(this->CompressionLevel);
     writer->SetChunkSize(this->ChunkSize);
-    writer->SetUseExternalComposite(this->UseExternalComposite);
-    writer->SetUseExternalPartitions(this->UseExternalPartitions);
+    writer->SetUseExternalComposite(this->ExternalFlags & ExternalComposite);
+    writer->SetUseExternalPartitions(this->ExternalFlags & ExternalPartitions);
     if (!writer->Write())
     {
       vtkErrorMacro(<< "Could not write timestep file " << subFilePath);
@@ -550,7 +550,7 @@ bool vtkHDFWriter::WriteDataAndReturn()
     }
   }
 
-  if (!this->UseExternalDistributed && !this->Impl->GetSubFilesReady())
+  if (!(this->ExternalFlags & ExternalDistributed) && !this->Impl->GetSubFilesReady())
   {
     if (!this->Impl->CollectOffsets(this->Impl->GetRoot(), input))
     {
@@ -708,7 +708,7 @@ bool vtkHDFWriter::DispatchDataObject(hid_t group, vtkDataObject* input, unsigne
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkImageData* input, unsigned int partId)
 {
-  if (this->UseExternalTimeSteps)
+  if (this->ExternalFlags & ExternalTimeSteps)
   {
     vtkErrorMacro(<< "External time steps are not supported for ImageData " << this->FileName);
     return false;
@@ -757,7 +757,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkRectilinearGrid* input, un
     return false;
   }
 
-  if (this->UseExternalTimeSteps)
+  if (this->ExternalFlags & ExternalTimeSteps)
   {
     vtkErrorMacro(<< "External time steps are not supported for RectilinearGrid "
                   << this->FileName);
@@ -791,7 +791,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkStructuredGrid* input, uns
     return false;
   }
 
-  if (this->UseExternalTimeSteps)
+  if (this->ExternalFlags & ExternalTimeSteps)
   {
     vtkErrorMacro(<< "External time steps are not supported for StructuredGrid " << this->FileName);
     return false;
@@ -1169,7 +1169,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
     }
 
     // Write individual partitions in different files
-    if (this->UseExternalPartitions && !this->Impl->GetSubFilesReady())
+    if ((this->ExternalFlags & ExternalPartitions) && !this->Impl->GetSubFilesReady())
     {
       const std::string partitionSuffix = "part" + vtk::to_string(nonNullPartCount);
       const std::string container = this->NbPieces > 1 && !this->Impl->GetUseDistributedWriting()
@@ -1202,7 +1202,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
     nonNullPartCount++;
   }
 
-  if (partition && (this->UseExternalPartitions || this->Impl->GetSubFilesReady()))
+  if (partition && ((this->ExternalFlags & ExternalPartitions) || this->Impl->GetSubFilesReady()))
   {
     // On the last partition, the implementation creates virtual datasets referencing all
     // Subfiles. This can only be done once we know the size of all sub-datasets.
@@ -1222,11 +1222,11 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkDataObjectTree* input)
 {
   bool writeSuccess = true;
 
-  if (this->GetUseExternalPartitions())
+  if (this->ExternalFlags & ExternalPartitions)
   {
     // When writing partitions in individual files,
     // force writing each vtkPartitionedDataset in a different file.
-    this->SetUseExternalComposite(true);
+    this->ExternalFlags |= ExternalComposite;
   }
 
   if (auto* pdc = vtkPartitionedDataSetCollection::SafeDownCast(input))
@@ -2401,7 +2401,7 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
     vtkPartitionedDataSet* currentBlock = pdc->GetPartitionedDataSet(datasetId);
     const std::string currentName = ::getBlockName(pdc, datasetId);
 
-    if (this->UseExternalComposite)
+    if (this->ExternalFlags & ExternalComposite)
     {
       if (!this->AppendExternalBlock(currentBlock, currentName))
       {
@@ -2412,7 +2412,7 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
     else
     {
       datasetGroup = this->Impl->CreateHdfGroup(group, currentName.c_str());
-      if (!this->UseExternalDistributed && !this->Impl->GetSubFilesReady())
+      if (!(this->ExternalFlags & ExternalDistributed) && !this->Impl->GetSubFilesReady())
       {
         if (!this->Impl->CollectOffsets(datasetGroup, currentBlock))
         {
@@ -2449,8 +2449,8 @@ bool vtkHDFWriter::AppendExternalBlock(vtkDataObject* block, const std::string& 
   writer->SetFileName(subfileName.c_str());
   writer->SetCompressionLevel(this->CompressionLevel);
   writer->SetChunkSize(this->ChunkSize);
-  writer->SetUseExternalComposite(this->UseExternalComposite);
-  writer->SetUseExternalPartitions(this->UseExternalPartitions);
+  writer->SetUseExternalComposite(this->ExternalFlags & ExternalComposite);
+  writer->SetUseExternalPartitions(this->ExternalFlags & ExternalPartitions);
   if (!writer->Write())
   {
     vtkErrorMacro(<< "Could not write block file " << subfileName);
@@ -2542,7 +2542,7 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
     }
     else
     {
-      if (this->UseExternalComposite)
+      if (this->ExternalFlags & ExternalComposite)
       {
         // Create the block in a separate file and link it externally
         if (!this->AppendExternalBlock(treeIter->GetCurrentDataObject(), uniqueSubTreeName))
@@ -2587,7 +2587,7 @@ bool vtkHDFWriter::AppendIterDataObject(
 {
   this->PreviousStepMeshMTime = this->CompositeMeshMTime[leafIndex];
   auto group = this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str());
-  if (!this->UseExternalDistributed && !this->Impl->GetSubFilesReady())
+  if (!(this->ExternalFlags & ExternalDistributed) && !this->Impl->GetSubFilesReady())
   {
     if (!this->Impl->CollectOffsets(group, treeIter->GetCurrentDataObject()))
     {
@@ -2741,7 +2741,7 @@ bool vtkHDFWriter::HasGeometryChangedFromPreviousStep(vtkDataSet* input)
   // so the metafile does not mess up offsets
   const bool externalRankFile = this->NbPieces > 1 && !this->Impl->GetUseDistributedWriting() &&
     !this->Impl->GetSubFilesReady();
-  int localGeometryChanged = this->AppendTimeSteps || this->UseExternalTimeSteps ||
+  int localGeometryChanged = this->AppendTimeSteps || (this->ExternalFlags & ExternalTimeSteps) ||
     externalRankFile || input->GetMeshMTime() != this->PreviousStepMeshMTime;
   if (!this->Impl->GetUseDistributedWriting() || this->Impl->GetSubFilesReady())
   {

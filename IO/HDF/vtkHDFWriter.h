@@ -530,6 +530,17 @@ private:
   int ChunkSize = 25000;
   int CompressionLevel = 0;
 
+  enum ExternalFlag : vtkIdType
+  {
+    ExternalNone = 0,
+    ExternalComposite = 1 << 0,
+    ExternalTimeSteps = 1 << 1,
+    ExternalPartitions = 1 << 2,
+    ExternalDistributed = 1 << 3
+  };
+  // Internal 'external' options
+  vtkIdType ExternalFlags = 0;
+
   // Temporal-related private variables
   std::vector<double> timeSteps;
   bool IsTemporal = false;
