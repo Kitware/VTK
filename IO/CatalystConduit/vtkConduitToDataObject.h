@@ -29,6 +29,7 @@ class vtkPartitionedDataSet;
 class vtkPoints;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
+class vtkTable;
 class vtkUnstructuredGrid;
 VTK_ABI_NAMESPACE_END
 
@@ -57,6 +58,16 @@ VTKIOCATALYSTCONDUIT_EXPORT bool FillPartitionedDataSet(
  * ghost array.
  */
 VTKIOCATALYSTCONDUIT_EXPORT bool FillAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node);
+
+/**
+ * Fill the vtkTable from a node following the Conduit table blueprint: each child of
+ * "values" is a column, given as a data array or an mcarray. All columns must have the
+ * same length. A column takes its node's name, or "Column<i>" when "values" is a list.
+ *
+ * The output is reset first, and left empty when an error occurs. Return true if data was
+ * correctly generated, false if an error occurred, including columns of different lengths.
+ */
+VTKIOCATALYSTCONDUIT_EXPORT bool FillTable(vtkTable* output, const conduit_cpp::Node& tableNode);
 
 /**
  * vtkDataSet creation.

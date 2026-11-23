@@ -7,17 +7,24 @@
 #include "vtkCellIterator.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkConduitSource.h"
+#include "vtkConduitToDataObject.h"
 #include "vtkDataArrayRange.h"
+#include "vtkExecutive.h"
+#include "vtkFieldData.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkLogger.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTable.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
@@ -1609,6 +1616,160 @@ bool ValidatePolyhedra()
 } // end namespace
 
 //----------------------------------------------------------------------------
+bool ValidateTable()
+{
+  conduit_cpp::Node node;
+  auto values = node["values"];
+  values["iteration"].set_int64_vector({ 1, 2, 3 });
+  values["residual"].set_float64_vector({ 0.5, 0.25, 0.125 });
+  values["velocity/x"].set_float64_vector({ 1, 2, 3 });
+  values["velocity/y"].set_float64_vector({ 4, 5, 6 });
+  values["velocity/z"].set_float64_vector({ 7, 8, 9 });
+
+  conduit_cpp::Node info;
+  VERIFY(conduit_cpp::Blueprint::verify("table", node, info), "Node is not a valid table.");
+
+  vtkNew<vtkConduitSource> source;
+  source->SetUseTableProtocol(true);
+  source->SetNode(conduit_cpp::c_node(&node));
+  source->Update();
+
+  auto table = vtkTable::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(table != nullptr, "Expected a vtkTable, got %s.",
+    source->GetOutputDataObject(0)->GetClassName());
+  VERIFY(table->GetNumberOfRows() == 3, "Expected 3 rows, got %lld.",
+    static_cast<long long>(table->GetNumberOfRows()));
+  VERIFY(table->GetNumberOfColumns() == 3, "Expected 3 columns, got %lld.",
+    static_cast<long long>(table->GetNumberOfColumns()));
+  auto residual = vtkDataArray::SafeDownCast(table->GetColumnByName("residual"));
+  VERIFY(
+    residual != nullptr && residual->GetComponent(2, 0) == 0.125, "Incorrect 'residual' column.");
+  auto velocity = vtkDataArray::SafeDownCast(table->GetColumnByName("velocity"));
+  VERIFY(velocity != nullptr && velocity->GetNumberOfComponents() == 3 &&
+      velocity->GetComponent(1, 2) == 8,
+    "Incorrect 'velocity' column.");
+
+  conduit_cpp::Node many;
+  many["probes/values/time"].set_float64_vector({ 0.0, 1.0 });
+  many["probes/values/pressure"].set_float64_vector({ 2.0, 3.0 });
+  many["forces/values/drag"].set_float64_vector({ 0.3 });
+  VERIFY(conduit_cpp::Blueprint::verify("table", many, info), "Node is not a valid set of tables.");
+
+  source->SetNode(conduit_cpp::c_node(&many));
+  source->Update();
+  auto tables = vtkPartitionedDataSetCollection::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(tables != nullptr && tables->GetNumberOfPartitionedDataSets() == 2,
+    "Expected a vtkPartitionedDataSetCollection with 2 tables.");
+  auto forces = vtkTable::SafeDownCast(tables->GetPartitionAsDataObject(1, 0));
+  VERIFY(forces != nullptr && forces->GetNumberOfRows() == 1 &&
+      std::string(tables->GetMetaData(1u)->Get(vtkCompositeDataSet::NAME())) == "forces",
+    "Incorrect 'forces' table.");
+
+  source->SetOutputMultiBlock(true);
+  source->Update();
+  auto blocks = vtkMultiBlockDataSet::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(blocks != nullptr && blocks->GetNumberOfBlocks() == 2,
+    "Expected a vtkMultiBlockDataSet with 2 blocks when OutputMultiBlock is on.");
+  source->SetOutputMultiBlock(false);
+
+  many["forces/state/fields/cycle"].set_int64(7);
+  source->SetNode(conduit_cpp::c_node(&many));
+  source->Update();
+  tables = vtkPartitionedDataSetCollection::SafeDownCast(source->GetOutputDataObject(0));
+  auto cycle = tables->GetPartitionedDataSet(1)->GetFieldData()->GetArray("cycle");
+  VERIFY(cycle != nullptr && cycle->GetComponent(0, 0) == 7,
+    "Expected the 'forces' fields as field data on its partitioned dataset.");
+
+  // A rank with no rows for the tables lists them empty.
+  conduit_cpp::Node emptyMany;
+  emptyMany["probes"];
+  emptyMany["forces"];
+  source->SetNode(conduit_cpp::c_node(&emptyMany));
+  source->Update();
+  tables = vtkPartitionedDataSetCollection::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(tables != nullptr && tables->GetNumberOfPartitionedDataSets() == 2,
+    "Expected 2 tables for empty children.");
+  auto emptyForces = vtkTable::SafeDownCast(tables->GetPartitionAsDataObject(1, 0));
+  VERIFY(emptyForces != nullptr && emptyForces->GetNumberOfRows() == 0 &&
+      std::string(tables->GetMetaData(1u)->Get(vtkCompositeDataSet::NAME())) == "forces",
+    "Expected an empty 'forces' table for an empty child.");
+
+  // "state" and "fields" are not tables.
+  many["state/fields/time"].set_float64(1.5);
+  many["fields/residual"].set_float64(0.5);
+  source->SetNode(conduit_cpp::c_node(&many));
+  source->Update();
+  tables = vtkPartitionedDataSetCollection::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(tables != nullptr && tables->GetNumberOfPartitionedDataSets() == 2 &&
+      tables->GetFieldData()->GetArray("time") != nullptr &&
+      tables->GetFieldData()->GetArray("residual") != nullptr,
+    "Expected 2 tables, with the top-level 'state' and 'fields' as field data.");
+  many.remove("state");
+  many.remove("fields");
+
+  conduit_cpp::Node unnamed;
+  unnamed["values"].append().set_float64_vector({ 1.0, 2.0 });
+  unnamed["values"].append().set_float64_vector({ 3.0, 4.0 });
+  source->SetNode(conduit_cpp::c_node(&unnamed));
+  source->Update();
+  auto unnamedTable = vtkTable::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(unnamedTable != nullptr && unnamedTable->GetColumnByName("Column0") != nullptr &&
+      unnamedTable->GetColumnByName("Column1") != nullptr,
+    "Expected the columns of a 'values' list to be named Column0 and Column1.");
+
+  // A rank with no rows still passes its state.
+  conduit_cpp::Node stateOnly;
+  stateOnly["state/fields/cycle"].set_int64(7);
+  stateOnly["fields/residual"].set_float64(0.5);
+  source->SetNode(conduit_cpp::c_node(&stateOnly));
+  source->Update();
+  auto stateTable = vtkTable::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(stateTable != nullptr && stateTable->GetNumberOfRows() == 0 &&
+      stateTable->GetFieldData()->GetArray("cycle") != nullptr &&
+      stateTable->GetFieldData()->GetArray("residual") != nullptr,
+    "Expected an empty vtkTable with the state and fields of a node holding only them.");
+
+  // Columns without the "values" level are an error, not empty tables.
+  conduit_cpp::Node noValues;
+  noValues["time"].set_float64_vector({ 0.0, 1.0 });
+  noValues["drag"].set_float64_vector({ 0.3, 0.4 });
+  {
+    const auto cutoff = vtkLogger::GetCurrentVerbosityCutoff();
+    vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_OFF);
+    source->SetNode(conduit_cpp::c_node(&noValues));
+    const int updated = source->GetExecutive()->Update();
+    vtkLogger::SetStderrVerbosity(cutoff);
+    VERIFY(updated == 0, "Children without 'values' should be rejected.");
+  }
+
+  // A rank with no rows passes an empty node.
+  conduit_cpp::Node empty;
+  source->SetNode(conduit_cpp::c_node(&empty));
+  source->Update();
+  auto emptyTable = vtkTable::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(emptyTable != nullptr && emptyTable->GetNumberOfRows() == 0 &&
+      emptyTable->GetNumberOfColumns() == 0,
+    "Expected an empty vtkTable for an empty node.");
+
+  conduit_cpp::Node uneven;
+  uneven["values/time"].set_float64_vector({ 0.0, 1.0, 2.0 });
+  uneven["values/drag"].set_float64_vector({ 0.3, 0.4 });
+  vtkNew<vtkTable> unevenTable;
+  const auto verbosity = vtkLogger::GetCurrentVerbosityCutoff();
+  vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_OFF);
+  const bool filled = vtkConduitToDataObject::FillTable(unevenTable, uneven);
+  vtkLogger::SetStderrVerbosity(verbosity);
+  VERIFY(!filled, "Columns of different lengths should be rejected.");
+  VERIFY(
+    unevenTable->GetNumberOfColumns() == 0, "A failed FillTable should leave the table empty.");
+
+  vtkNew<vtkTable> refilled;
+  VERIFY(vtkConduitToDataObject::FillTable(refilled, node) &&
+      vtkConduitToDataObject::FillTable(refilled, node) && refilled->GetNumberOfColumns() == 3,
+    "FillTable should replace the columns of its output.");
+  return true;
+}
+
 int TestConduitSource(int argc, char** argv)
 {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
@@ -1628,7 +1789,7 @@ int TestConduitSource(int argc, char** argv)
       ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D() && ValidateMeshTypeAMR(amrFile) &&
       ValidateAscentGhostCellData() && ValidateAscentGhostPointData() && ValidateMeshTypePoints() &&
       ValidateDistributedAMR() && ValidatePolyhedra() && ValidateInterlacedArrays() &&
-      ValidateNullMesh()
+      ValidateNullMesh() && ValidateTable()
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
 

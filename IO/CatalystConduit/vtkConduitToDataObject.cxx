@@ -28,6 +28,7 @@
 #include "vtkStringFormatter.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTable.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -1141,6 +1142,54 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
   }
 
   return unstructured;
+}
+
+//----------------------------------------------------------------------------
+bool FillTable(vtkTable* output, const conduit_cpp::Node& tableNode)
+{
+  output->Initialize();
+  if (!tableNode.has_child("values"))
+  {
+    vtkLogF(ERROR, "Table '%s' has no 'values' node.", tableNode.name().c_str());
+    return false;
+  }
+  auto values = tableNode["values"];
+  vtkNew<vtkTable> table;
+  vtkIdType rows = 0;
+  std::string firstName;
+  for (conduit_index_t cc = 0, max = values.number_of_children(); cc < max; ++cc)
+  {
+    auto column = values.child(cc);
+    std::string name = column.name();
+    if (name.empty() || values.dtype().is_list())
+    {
+      name = "Column" + vtk::to_string(cc);
+    }
+    auto array = vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&column), name);
+    if (!array)
+    {
+      vtkLogF(ERROR, "Failed to convert column '%s' of table '%s'.", name.c_str(),
+        tableNode.name().c_str());
+      return false;
+    }
+    if (cc == 0)
+    {
+      rows = array->GetNumberOfTuples();
+      firstName = name;
+    }
+    else if (array->GetNumberOfTuples() != rows)
+    {
+      vtkLogF(ERROR,
+        "Column '%s' of table '%s' has %lld rows, but column '%s' has %lld; all columns must "
+        "have the same length.",
+        name.c_str(), tableNode.name().c_str(), static_cast<long long>(array->GetNumberOfTuples()),
+        firstName.c_str(), static_cast<long long>(rows));
+      return false;
+    }
+    table->AddColumn(array);
+  }
+  output->ShallowCopy(table);
+  return true;
 }
 
 //----------------------------------------------------------------------------

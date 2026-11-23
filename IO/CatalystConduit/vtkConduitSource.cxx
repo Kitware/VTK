@@ -6,6 +6,7 @@
 #include "vtkConduitToDataObject.h"
 #include "vtkConvertToMultiBlockDataSet.h"
 #include "vtkDataAssembly.h"
+#include "vtkDataObjectTypes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLogger.h"
@@ -17,6 +18,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTable.h"
 
 #include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
@@ -24,8 +26,136 @@
 #include <cassert>
 #include <functional>
 #include <map>
+#include <string>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+void AddChildFieldData(vtkDataObject* dobj, const conduit_cpp::Node& child)
+{
+  if (child.has_path("state/fields"))
+  {
+    vtkConduitToDataObject::AddFieldData(dobj, child["state/fields"]);
+  }
+  // fields may be located in node at same level as state
+  if (child.has_path("fields"))
+  {
+    vtkConduitToDataObject::AddFieldData(dobj, child["fields"]);
+  }
+}
+
+bool IsTableMetadata(const std::string& name)
+{
+  return name == "state" || name == "fields";
+}
+
+// The children of a node that are tables, i.e., all but "state" and "fields".
+std::vector<conduit_index_t> TableChildren(const conduit_cpp::Node& node)
+{
+  std::vector<conduit_index_t> children;
+  if (node.dtype().is_object())
+  {
+    for (conduit_index_t cc = 0; cc < node.number_of_children(); ++cc)
+    {
+      if (!IsTableMetadata(node.child(cc).name()))
+      {
+        children.push_back(cc);
+      }
+    }
+  }
+  return children;
+}
+
+// A table with no rows: an empty node, or one that holds only "state" or "fields".
+bool IsEmptyTable(const conduit_cpp::Node& node)
+{
+  return node.dtype().is_empty() || (node.dtype().is_object() && TableChildren(node).empty());
+}
+
+bool IsSingleTable(const conduit_cpp::Node& node)
+{
+  return node.has_child("values") || TableChildren(node).empty();
+}
+
+bool FillTableOrEmpty(vtkTable* table, const conduit_cpp::Node& node)
+{
+  return IsEmptyTable(node) || vtkConduitToDataObject::FillTable(table, node);
+}
+
+// A hash of the names of the tables of a node, in order, that ranks compare.
+int TableNamesHash(const conduit_cpp::Node& node)
+{
+  vtkTypeUInt32 hash = 2166136261u;
+  for (const auto cc : TableChildren(node))
+  {
+    for (const char c : node.child(cc).name() + '\n')
+    {
+      hash = (hash ^ static_cast<unsigned char>(c)) * 16777619u;
+    }
+  }
+  return static_cast<int>(hash & 0x7fffffff);
+}
+
+void SetAssembly(vtkPartitionedDataSetCollection* pdc, const conduit_cpp::Node& assemblyNode)
+{
+  std::map<std::string, unsigned int> name_map;
+  for (unsigned int cc = 0; cc < pdc->GetNumberOfPartitionedDataSets(); ++cc)
+  {
+    if (pdc->HasMetaData(cc) && pdc->GetMetaData(cc)->Has(vtkCompositeDataSet::NAME()))
+    {
+      name_map[pdc->GetMetaData(cc)->Get(vtkCompositeDataSet::NAME())] = cc;
+    }
+  }
+
+  vtkNew<vtkDataAssembly> assembly;
+  std::function<void(int, const conduit_cpp::Node&)> helper;
+  helper = [&name_map, &assembly, &helper](int parent, const conduit_cpp::Node& node)
+  {
+    if (node.dtype().is_object())
+    {
+      for (conduit_index_t cc = 0; cc < node.number_of_children(); ++cc)
+      {
+        auto child = node.child(cc);
+        auto nodeName = vtkDataAssembly::MakeValidNodeName(child.name().c_str());
+        auto childId = assembly->AddNode(nodeName.c_str(), parent);
+        assembly->SetAttribute(childId, "label", child.name().c_str());
+        helper(childId, child);
+      }
+    }
+    else if (node.dtype().is_list())
+    {
+      for (conduit_index_t cc = 0; cc < node.number_of_children(); ++cc)
+      {
+        auto child = node.child(cc);
+        if (!child.dtype().is_string())
+        {
+          vtkLogF(ERROR, "list cannot have non-string items!");
+          continue;
+        }
+        helper(parent, node.child(cc));
+      }
+    }
+    else if (node.dtype().is_string())
+    {
+      auto value = node.as_string();
+      auto iter = name_map.find(node.as_string());
+      if (iter != name_map.end())
+      {
+        assembly->AddDataSetIndex(parent, iter->second);
+      }
+      else
+      {
+        vtkLogF(ERROR, "Assembly referring to unknown node '%s'. Skipping.", value.c_str());
+      }
+    }
+  };
+  // assembly->SetRootNodeName(....); What should this be?
+  helper(assembly->GetRootNode(), assemblyNode);
+  pdc->SetDataAssembly(assembly);
+}
+}
 
 class vtkConduitSource::vtkInternals
 {
@@ -43,6 +173,7 @@ vtkConduitSource::vtkConduitSource()
   : Internals(new vtkConduitSource::vtkInternals())
   , UseAMRMeshProtocol(false)
   , UseMultiMeshProtocol(false)
+  , UseTableProtocol(false)
   , OutputMultiBlock(false)
 {
   this->SetNumberOfInputPorts(0);
@@ -136,7 +267,6 @@ bool vtkConduitSource::GeneratePartitionedDataSetCollection(vtkDataObject* outpu
   const auto count = pdc_node.number_of_children();
   pdc_output->SetNumberOfPartitionedDataSets(static_cast<unsigned int>(count));
 
-  std::map<std::string, unsigned int> name_map;
   for (conduit_index_t cc = 0; cc < count; ++cc)
   {
     const auto& child = pdc_node.child(cc);
@@ -149,69 +279,13 @@ bool vtkConduitSource::GeneratePartitionedDataSetCollection(vtkDataObject* outpu
       return false;
     }
 
-    // set the mesh name.
     pdc_output->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(), child.name().c_str());
-    name_map[child.name()] = static_cast<unsigned int>(cc);
-
-    // set field data.
-    if (child.has_path("state/fields"))
-    {
-      vtkConduitToDataObject::AddFieldData(pd, child["state/fields"]);
-    }
-    // fields may be located in node at same level as state
-    if (child.has_path("fields"))
-    {
-      vtkConduitToDataObject::AddFieldData(pd, child["fields"]);
-    }
+    AddChildFieldData(pd, child);
   }
 
   if (this->Internals->AssemblyNodeValid)
   {
-    vtkNew<vtkDataAssembly> assembly;
-    std::function<void(int, const conduit_cpp::Node&)> helper;
-    helper = [&name_map, &assembly, &helper](int parent, const conduit_cpp::Node& node)
-    {
-      if (node.dtype().is_object())
-      {
-        for (conduit_index_t cc = 0; cc < node.number_of_children(); ++cc)
-        {
-          auto child = node.child(cc);
-          auto nodeName = vtkDataAssembly::MakeValidNodeName(child.name().c_str());
-          auto childId = assembly->AddNode(nodeName.c_str(), parent);
-          assembly->SetAttribute(childId, "label", child.name().c_str());
-          helper(childId, child);
-        }
-      }
-      else if (node.dtype().is_list())
-      {
-        for (conduit_index_t cc = 0; cc < node.number_of_children(); ++cc)
-        {
-          auto child = node.child(cc);
-          if (!child.dtype().is_string())
-          {
-            vtkLogF(ERROR, "list cannot have non-string items!");
-            continue;
-          }
-          helper(parent, node.child(cc));
-        }
-      }
-      else if (node.dtype().is_string())
-      {
-        auto value = node.as_string();
-        auto iter = name_map.find(node.as_string());
-        if (iter != name_map.end())
-        {
-          assembly->AddDataSetIndex(parent, iter->second);
-        }
-        else
-        {
-          vtkLogF(ERROR, "Assembly referring to unknown node '%s'. Skipping.", value.c_str());
-        }
-      }
-    };
-    // assembly->SetRootNodeName(....); What should this be?
-    helper(assembly->GetRootNode(), this->Internals->AssemblyNode);
-    pdc_output->SetDataAssembly(assembly);
+    SetAssembly(pdc_output, this->Internals->AssemblyNode);
   }
 
   output->ShallowCopy(pdc_output);
@@ -220,11 +294,76 @@ bool vtkConduitSource::GeneratePartitionedDataSetCollection(vtkDataObject* outpu
 }
 
 //----------------------------------------------------------------------------
+bool vtkConduitSource::GenerateTable(vtkDataObject* output)
+{
+  const auto& node = this->Internals->Node;
+  if (IsSingleTable(node))
+  {
+    vtkNew<vtkTable> table;
+    if (!FillTableOrEmpty(table, node))
+    {
+      output->Initialize();
+      return false;
+    }
+    // "state/fields" is added to every output by RequestData.
+    if (node.has_child("fields"))
+    {
+      vtkConduitToDataObject::AddFieldData(table, node["fields"]);
+    }
+    output->ShallowCopy(table);
+    return true;
+  }
+
+  const auto children = TableChildren(node);
+  vtkNew<vtkPartitionedDataSetCollection> tables;
+  tables->SetNumberOfPartitionedDataSets(static_cast<unsigned int>(children.size()));
+  for (unsigned int cc = 0; cc < children.size(); ++cc)
+  {
+    const auto child = node.child(children[cc]);
+    vtkNew<vtkTable> table;
+    if (!FillTableOrEmpty(table, child))
+    {
+      output->Initialize();
+      return false;
+    }
+    auto pd = tables->GetPartitionedDataSet(cc);
+    pd->SetPartition(0, table);
+    tables->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(), child.name().c_str());
+    AddChildFieldData(pd, child);
+  }
+  // "state/fields" is added to every output by RequestData.
+  if (node.has_child("fields"))
+  {
+    vtkConduitToDataObject::AddFieldData(tables, node["fields"]);
+  }
+
+  if (this->Internals->AssemblyNodeValid)
+  {
+    SetAssembly(tables, this->Internals->AssemblyNode);
+  }
+
+  output->ShallowCopy(tables);
+  return true;
+}
+
+//----------------------------------------------------------------------------
 int vtkConduitSource::RequestDataObject(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   int dataType = VTK_PARTITIONED_DATA_SET; // default
-  if (this->OutputMultiBlock)
+  if (this->UseTableProtocol)
+  {
+    if (IsSingleTable(this->Internals->Node))
+    {
+      dataType = VTK_TABLE;
+    }
+    else
+    {
+      dataType =
+        this->OutputMultiBlock ? VTK_MULTIBLOCK_DATA_SET : VTK_PARTITIONED_DATA_SET_COLLECTION;
+    }
+  }
+  else if (this->OutputMultiBlock)
   {
     dataType = VTK_MULTIBLOCK_DATA_SET;
   }
@@ -250,7 +389,11 @@ int vtkConduitSource::RequestData(
   vtkDataObject* real_output = vtkDataObject::GetData(outputVector, 0);
 
   bool dataGenerated = false;
-  if (this->UseAMRMeshProtocol)
+  if (this->UseTableProtocol)
+  {
+    dataGenerated = this->GenerateTable(real_output);
+  }
+  else if (this->UseAMRMeshProtocol)
   {
     dataGenerated = this->GenerateAMR(real_output);
   }
@@ -263,23 +406,47 @@ int vtkConduitSource::RequestData(
     dataGenerated = this->GeneratePartitionedDataSet(real_output);
   }
 
-  // Check whether all ranks successfully generated the data. If at least one rank failed, we need
-  // to return 0 on every nodes to prevent code hanging in the pipeline.
+  // Check whether all ranks successfully generated the data, of the same type and, for tables,
+  // with the same names. If not, we need to return 0 on every nodes to prevent code hanging in
+  // the pipeline.
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
-  std::vector<int> allDataGenerationResults(controller->GetNumberOfProcesses());
-  int dataGenerationLocalResult = dataGenerated;
-  controller->AllGather(&dataGenerationLocalResult, allDataGenerationResults.data(), 1);
+  const int numRanks = controller->GetNumberOfProcesses();
+  std::vector<int> allResults(3 * numRanks);
+  const int tableNames =
+    this->UseTableProtocol && !IsSingleTable(internals.Node) ? TableNamesHash(internals.Node) : 0;
+  int localResult[3] = { dataGenerated ? 1 : 0, real_output->GetDataObjectType(), tableNames };
+  controller->AllGather(localResult, allResults.data(), 3);
 
-  for (size_t nodeIdx = 0; nodeIdx < allDataGenerationResults.size(); nodeIdx++)
+  for (int rank = 0; rank < numRanks; ++rank)
   {
-    if (!allDataGenerationResults[nodeIdx])
+    if (!allResults[3 * rank])
     {
-      vtkLogF(ERROR, "Data generation failure on process %lu", nodeIdx);
+      vtkLogF(ERROR, "Data generation failure on process %d", rank);
+      return 0;
+    }
+  }
+  for (int rank = 1; rank < numRanks; ++rank)
+  {
+    if (allResults[3 * rank + 1] != allResults[1])
+    {
+      vtkLogF(ERROR,
+        "Process %d produced a %s and process 0 a %s. Every rank must produce the same output "
+        "type.",
+        rank, vtkDataObjectTypes::GetClassNameFromTypeId(allResults[3 * rank + 1]),
+        vtkDataObjectTypes::GetClassNameFromTypeId(allResults[1]));
+      return 0;
+    }
+    if (allResults[3 * rank + 2] != allResults[2])
+    {
+      vtkLogF(ERROR,
+        "Process %d names different tables than process 0. Every rank must name the same tables, "
+        "in the same order.",
+        rank);
       return 0;
     }
   }
 
-  if (this->OutputMultiBlock)
+  if (this->OutputMultiBlock && vtkCompositeDataSet::SafeDownCast(real_output))
   {
     vtkNew<vtkConvertToMultiBlockDataSet> converter;
     converter->SetInputData(real_output);
@@ -339,5 +506,9 @@ int vtkConduitSource::RequestInformation(
 void vtkConduitSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "UseAMRMeshProtocol: " << this->UseAMRMeshProtocol << "\n";
+  os << indent << "UseMultiMeshProtocol: " << this->UseMultiMeshProtocol << "\n";
+  os << indent << "UseTableProtocol: " << this->UseTableProtocol << "\n";
+  os << indent << "OutputMultiBlock: " << this->OutputMultiBlock << "\n";
 }
 VTK_ABI_NAMESPACE_END

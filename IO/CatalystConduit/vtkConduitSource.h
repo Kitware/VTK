@@ -9,8 +9,9 @@
  * Blueprint](https://llnl-conduit.readthedocs.io/en/latest/blueprint_mesh.html#)
  * to describe computational mesh and associated meta-data.
  *
- * vtkConduitSource currently produces a `vtkParitionedDataSet` or
- * `vtkPartitionedDataSetCollection`
+ * vtkConduitSource currently produces a `vtkParitionedDataSet`,
+ * `vtkPartitionedDataSetCollection` or `vtkOverlappingAMR` for meshes, and a `vtkTable`
+ * (or a `vtkPartitionedDataSetCollection` of tables) for the Conduit table blueprint.
  *
  * @sa vtkConduitArrayUtilities
  */
@@ -54,6 +55,31 @@ public:
   vtkSetMacro(UseMultiMeshProtocol, bool);
   vtkGetMacro(UseMultiMeshProtocol, bool);
   vtkBooleanMacro(UseMultiMeshProtocol, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set this to true if the node follows the Conduit table blueprint (default is false).
+   * It takes precedence over UseAMRMeshProtocol and UseMultiMeshProtocol.
+   *
+   * A single table (a node with a "values" child) produces a vtkTable. An empty node, or one
+   * holding only "state" and "fields", produces an empty vtkTable, so a rank with no rows, such
+   * as one that does not hold a global quantity, can still pass its state.
+   *
+   * A node holding several named tables produces a vtkPartitionedDataSetCollection with one
+   * table per partitioned dataset, named in its metadata, or a vtkMultiBlockDataSet when
+   * OutputMultiBlock is on. "state" and "fields" children are not tables. Each table's
+   * "state/fields" and "fields" become field data on its partitioned dataset, the node's own
+   * "fields" become field data on the collection, and the assembly node applies as for meshes.
+   *
+   * Every rank must name the same tables, in the same order. A child that is empty or holds only
+   * "state" and "fields" gives an empty table on a rank that has no rows for it; any other child
+   * without "values" is an error. Ranks that produce different output types, or name different
+   * tables, fail on every rank.
+   */
+  vtkSetMacro(UseTableProtocol, bool);
+  vtkGetMacro(UseTableProtocol, bool);
+  vtkBooleanMacro(UseTableProtocol, bool);
   ///@}
 
   ///@{
@@ -110,6 +136,7 @@ protected:
   bool GenerateAMR(vtkDataObject* output);
   bool GeneratePartitionedDataSet(vtkDataObject* output);
   bool GeneratePartitionedDataSetCollection(vtkDataObject* output);
+  bool GenerateTable(vtkDataObject* output);
   ///@}
 
 private:
@@ -120,6 +147,7 @@ private:
   std::unique_ptr<vtkInternals> Internals;
   bool UseAMRMeshProtocol;
   bool UseMultiMeshProtocol;
+  bool UseTableProtocol;
   bool OutputMultiBlock;
 };
 VTK_ABI_NAMESPACE_END
