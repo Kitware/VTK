@@ -1696,12 +1696,26 @@ bool ValidateTable()
 
   // "state" and "fields" are not tables.
   many["state/fields/time"].set_float64(1.5);
+  many["fields/residual"].set_float64(0.5);
   source->SetNode(conduit_cpp::c_node(&many));
   source->Update();
   tables = vtkPartitionedDataSetCollection::SafeDownCast(source->GetOutputDataObject(0));
-  VERIFY(tables != nullptr && tables->GetNumberOfPartitionedDataSets() == 2,
-    "Expected 2 tables with a top-level 'state'.");
+  VERIFY(tables != nullptr && tables->GetNumberOfPartitionedDataSets() == 2 &&
+      tables->GetFieldData()->GetArray("time") != nullptr &&
+      tables->GetFieldData()->GetArray("residual") != nullptr,
+    "Expected 2 tables, with the top-level 'state' and 'fields' as field data.");
   many.remove("state");
+  many.remove("fields");
+
+  conduit_cpp::Node unnamed;
+  unnamed["values"].append().set_float64_vector({ 1.0, 2.0 });
+  unnamed["values"].append().set_float64_vector({ 3.0, 4.0 });
+  source->SetNode(conduit_cpp::c_node(&unnamed));
+  source->Update();
+  auto unnamedTable = vtkTable::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(unnamedTable != nullptr && unnamedTable->GetColumnByName("Column0") != nullptr &&
+      unnamedTable->GetColumnByName("Column1") != nullptr,
+    "Expected the columns of a 'values' list to be named Column0 and Column1.");
 
   // A rank with no rows still passes its state.
   conduit_cpp::Node stateOnly;

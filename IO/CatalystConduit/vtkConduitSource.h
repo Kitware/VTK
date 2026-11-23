@@ -69,11 +69,13 @@ public:
    * A node holding several named tables produces a vtkPartitionedDataSetCollection with one
    * table per partitioned dataset, named in its metadata, or a vtkMultiBlockDataSet when
    * OutputMultiBlock is on. "state" and "fields" children are not tables. Each table's
-   * "state/fields" and "fields" become field data on its partitioned dataset, and the assembly
-   * node applies as for meshes. Every rank must name the same tables; a child that is empty or
-   * holds only "state" and "fields" gives an empty table on a rank that has no rows for it, and
-   * any other child without "values" is an error. Ranks that produce different output types
-   * fail on every rank.
+   * "state/fields" and "fields" become field data on its partitioned dataset, the node's own
+   * "fields" become field data on the collection, and the assembly node applies as for meshes.
+   *
+   * Every rank must name the same tables, in the same order. A child that is empty or holds only
+   * "state" and "fields" gives an empty table on a rank that has no rows for it; any other child
+   * without "values" is an error. Ranks that produce different output types, or name different
+   * tables, fail on every rank.
    */
   vtkSetMacro(UseTableProtocol, bool);
   vtkGetMacro(UseTableProtocol, bool);

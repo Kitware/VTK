@@ -1161,7 +1161,7 @@ bool FillTable(vtkTable* output, const conduit_cpp::Node& tableNode)
   {
     auto column = values.child(cc);
     std::string name = column.name();
-    if (name.empty())
+    if (name.empty() || values.dtype().is_list())
     {
       name = "Column" + vtk::to_string(cc);
     }

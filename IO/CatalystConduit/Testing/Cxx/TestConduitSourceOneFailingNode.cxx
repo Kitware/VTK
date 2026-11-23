@@ -27,6 +27,14 @@ void TestFailingNode()
 }
 
 //----------------------------------------------------------------------------
+bool UpdateFails(conduit_cpp::Node& tables)
+{
+  vtkNew<vtkConduitSource> source;
+  source->SetUseTableProtocol(true);
+  source->SetNode(conduit_cpp::c_node(&tables));
+  return source->GetExecutive()->Update() == 0;
+}
+
 bool TestMismatchedTables()
 {
   auto controller = vtkMultiProcessController::GetGlobalController();
@@ -34,17 +42,20 @@ bool TestMismatchedTables()
   {
     return true;
   }
-  conduit_cpp::Node tables;
-  if (controller->GetLocalProcessId() == 0)
+  const bool first = controller->GetLocalProcessId() == 0;
+
+  conduit_cpp::Node emptyElsewhere;
+  if (first)
   {
-    tables["probes/values/time"].set_float64_vector({ 0.0, 1.0 });
-    tables["forces/values/drag"].set_float64_vector({ 0.3 });
+    emptyElsewhere["probes/values/time"].set_float64_vector({ 0.0, 1.0 });
+    emptyElsewhere["forces/values/drag"].set_float64_vector({ 0.3 });
   }
 
-  vtkNew<vtkConduitSource> source;
-  source->SetUseTableProtocol(true);
-  source->SetNode(conduit_cpp::c_node(&tables));
-  return source->GetExecutive()->Update() == 0;
+  conduit_cpp::Node otherOrder;
+  otherOrder[first ? "probes" : "forces"];
+  otherOrder[first ? "forces" : "probes"];
+
+  return UpdateFails(emptyElsewhere) && UpdateFails(otherOrder);
 }
 
 //----------------------------------------------------------------------------

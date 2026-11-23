@@ -84,6 +84,20 @@ bool FillTableOrEmpty(vtkTable* table, const conduit_cpp::Node& node)
   return IsEmptyTable(node) || vtkConduitToDataObject::FillTable(table, node);
 }
 
+// A hash of the names of the tables of a node, in order, that ranks compare.
+int TableNamesHash(const conduit_cpp::Node& node)
+{
+  vtkTypeUInt32 hash = 2166136261u;
+  for (const auto cc : TableChildren(node))
+  {
+    for (const char c : node.child(cc).name() + '\n')
+    {
+      hash = (hash ^ static_cast<unsigned char>(c)) * 16777619u;
+    }
+  }
+  return static_cast<int>(hash & 0x7fffffff);
+}
+
 void SetAssembly(vtkPartitionedDataSetCollection* pdc, const conduit_cpp::Node& assemblyNode)
 {
   std::map<std::string, unsigned int> name_map;
@@ -317,6 +331,11 @@ bool vtkConduitSource::GenerateTable(vtkDataObject* output)
     tables->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(), child.name().c_str());
     AddChildFieldData(pd, child);
   }
+  // "state/fields" is added to every output by RequestData.
+  if (node.has_child("fields"))
+  {
+    vtkConduitToDataObject::AddFieldData(tables, node["fields"]);
+  }
 
   if (this->Internals->AssemblyNodeValid)
   {
@@ -387,17 +406,20 @@ int vtkConduitSource::RequestData(
     dataGenerated = this->GeneratePartitionedDataSet(real_output);
   }
 
-  // Check whether all ranks successfully generated the data, and generated the same type. If not,
-  // we need to return 0 on every nodes to prevent code hanging in the pipeline.
+  // Check whether all ranks successfully generated the data, of the same type and, for tables,
+  // with the same names. If not, we need to return 0 on every nodes to prevent code hanging in
+  // the pipeline.
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
   const int numRanks = controller->GetNumberOfProcesses();
-  std::vector<int> allResults(2 * numRanks);
-  int localResult[2] = { dataGenerated ? 1 : 0, real_output->GetDataObjectType() };
-  controller->AllGather(localResult, allResults.data(), 2);
+  std::vector<int> allResults(3 * numRanks);
+  const int tableNames =
+    this->UseTableProtocol && !IsSingleTable(internals.Node) ? TableNamesHash(internals.Node) : 0;
+  int localResult[3] = { dataGenerated ? 1 : 0, real_output->GetDataObjectType(), tableNames };
+  controller->AllGather(localResult, allResults.data(), 3);
 
   for (int rank = 0; rank < numRanks; ++rank)
   {
-    if (!allResults[2 * rank])
+    if (!allResults[3 * rank])
     {
       vtkLogF(ERROR, "Data generation failure on process %d", rank);
       return 0;
@@ -405,13 +427,21 @@ int vtkConduitSource::RequestData(
   }
   for (int rank = 1; rank < numRanks; ++rank)
   {
-    if (allResults[2 * rank + 1] != allResults[1])
+    if (allResults[3 * rank + 1] != allResults[1])
     {
       vtkLogF(ERROR,
         "Process %d produced a %s and process 0 a %s. Every rank must produce the same output "
         "type.",
-        rank, vtkDataObjectTypes::GetClassNameFromTypeId(allResults[2 * rank + 1]),
+        rank, vtkDataObjectTypes::GetClassNameFromTypeId(allResults[3 * rank + 1]),
         vtkDataObjectTypes::GetClassNameFromTypeId(allResults[1]));
+      return 0;
+    }
+    if (allResults[3 * rank + 2] != allResults[2])
+    {
+      vtkLogF(ERROR,
+        "Process %d names different tables than process 0. Every rank must name the same tables, "
+        "in the same order.",
+        rank);
       return 0;
     }
   }

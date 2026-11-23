@@ -9,8 +9,9 @@ empty node, or one holding only `state` and `fields`, gives an empty
 A node holding several named tables produces a
 `vtkPartitionedDataSetCollection` with one table per partitioned dataset (a
 `vtkMultiBlockDataSet` with `OutputMultiBlock`). Every rank must name the same
-tables; a table that is empty or holds only `state` and `fields` gives an empty
-table on a rank with no rows for it. Each table's `state/fields` and `fields`
-become field data, and the assembly node applies as for meshes.
+tables, in the same order; a table that is empty or holds only `state` and
+`fields` gives an empty table on a rank with no rows for it. Each table's
+`state/fields` and `fields` become field data, and the assembly node applies
+as for meshes.
 
 `vtkConduitToDataObject::FillTable` exposes the same conversion directly.
