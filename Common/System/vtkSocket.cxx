@@ -636,7 +636,7 @@ int vtkSocket::Receive(void* data, int length, int readFully /*=1*/)
       return 0;
     }
 #else
-    if (nRecvd < 0)
+    if (nRecvd == vtkSocketErrorReturnMacro)
     {
       int lastError = vtkErrnoMacro;
       if (lastError == ECONNRESET)
