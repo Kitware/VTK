@@ -209,6 +209,21 @@ int vtkHDFReader::Implementation::GetNumberOfPieces(vtkIdType step)
 }
 
 //------------------------------------------------------------------------------
+int vtkHDFReader::Implementation::GetMaximumNumberOfPieces()
+{
+  const auto numberOfSteps = this->GetNumberOfSteps();
+  if (numberOfSteps > 1 && H5Lexists(this->VTKGroup, "Steps/NumberOfParts", H5P_DEFAULT) > 0)
+  {
+    const auto partCounts = this->GetMetadata("Steps/NumberOfParts", numberOfSteps);
+    if (!partCounts.empty())
+    {
+      return static_cast<int>(*std::max_element(partCounts.begin(), partCounts.end()));
+    }
+  }
+  return this->GetNumberOfPieces();
+}
+
+//------------------------------------------------------------------------------
 void vtkHDFReader::Implementation::Close()
 {
   this->DataSetType = -1;
@@ -1397,15 +1412,14 @@ template bool vtkHDFReader::Implementation::GetAttribute<double>(
 VTK_ABI_NAMESPACE_END
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkDataObject> vtkHDFReader::Implementation::GetNewDataSet(
-  int dataSetType, int numPieces)
+vtkSmartPointer<vtkDataObject> vtkHDFReader::Implementation::GetNewDataSet(int dataSetType)
 {
   constexpr std::array partitionedTypes = { VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA,
     VTK_HYPER_TREE_GRID };
   vtkSmartPointer<vtkDataObject> newOutput = nullptr;
-  if (numPieces > 1 &&
-    std::find(partitionedTypes.begin(), partitionedTypes.end(), dataSetType) !=
-      partitionedTypes.end())
+  if (std::find(partitionedTypes.begin(), partitionedTypes.end(), dataSetType) !=
+      partitionedTypes.end() &&
+    this->GetMaximumNumberOfPieces() > 1)
   {
     newOutput = vtkSmartPointer<vtkPartitionedDataSet>::New();
   }

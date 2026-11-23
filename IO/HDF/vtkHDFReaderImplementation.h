@@ -90,6 +90,11 @@ public:
    */
   int GetNumberOfPieces(vtkIdType step = -1);
   /**
+   * Returns the maximum number of partitions across all time steps, or the
+   * number of partitions for a non-temporal dataset.
+   */
+  int GetMaximumNumberOfPieces();
+  /**
    * For an ImageData, sets the extent for 'partitionIndex'. Returns
    * true for success and false otherwise.
    */
@@ -255,10 +260,11 @@ public:
   ///@}
 
   /**
-   * Create a new dataset given its type and the number of pieces.
-   * Create a vtkPartitionedDataSet when the number of pieces is more than 1.
+   * Create a new dataset given its type.
+   * Create a vtkPartitionedDataSet for supported types when the maximum number
+   * of pieces across all time steps is more than 1.
    */
-  vtkSmartPointer<vtkDataObject> GetNewDataSet(int dataSetType, int numPieces);
+  vtkSmartPointer<vtkDataObject> GetNewDataSet(int dataSetType);
 
   /**
    * Read data and build the HyperTreeGrid from descriptors, mask information and cell data array in

@@ -557,14 +557,6 @@ const char* vtkHDFReader::GetCellArrayName(int index)
 int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
-  std::map<int, std::string> typeNameMap = { { VTK_IMAGE_DATA, "vtkImageData" },
-    { VTK_RECTILINEAR_GRID, "vtkRectilinearGrid" }, { VTK_STRUCTURED_GRID, "vtkStructuredGrid" },
-    { VTK_UNSTRUCTURED_GRID, "vtkUnstructuredGrid" }, { VTK_TABLE, "vtkTable" },
-    { VTK_POLY_DATA, "vtkPolyData" }, { VTK_OVERLAPPING_AMR, "vtkOverlappingAMR" },
-    { VTK_HYPER_TREE_GRID, "vtkHyperTreeGrid" },
-    { VTK_PARTITIONED_DATA_SET_COLLECTION, "vtkPartitionedDataSetCollection" },
-    { VTK_MULTIBLOCK_DATA_SET, "vtkMultiBlockDataSet" } };
-
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkDataObject* output = info->Get(vtkDataObject::DATA_OBJECT());
 
@@ -596,12 +588,17 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
                                      << vtkHDFMajorVersion << "." << vtkHDFMinorVersion);
   }
 
-  const int numPieces = this->Impl->GetNumberOfPieces(this->Step);
   const int dataSetType = this->Impl->GetDataSetType();
-  if (!output || !output->IsA(typeNameMap[dataSetType].c_str()))
+  auto newOutput = this->Impl->GetNewDataSet(dataSetType);
+  if (!newOutput)
+  {
+    this->Impl->Close();
+    return 0;
+  }
+  if (!output || output->GetDataObjectType() != newOutput->GetDataObjectType())
   {
     this->Assembly = vtkSmartPointer<vtkDataAssembly>::New();
-    info->Set(vtkDataObject::DATA_OBJECT(), this->Impl->GetNewDataSet(dataSetType, numPieces));
+    info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
     for (const auto& attrType : vtkHDFUtilities::GetAttributeTypes())
     {
       const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attrType);
@@ -1823,7 +1820,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
     else
     {
       // Create data when not available
-      vtkSmartPointer<vtkDataObject> newDataObject = this->Impl->GetNewDataSet(datatype, numPieces);
+      vtkSmartPointer<vtkDataObject> newDataObject = this->Impl->GetNewDataSet(datatype);
       dataObject = newDataObject;
       pds = vtkPartitionedDataSet::SafeDownCast(dataObject);
       if (pds)
@@ -1985,7 +1982,6 @@ int vtkHDFReader::ReadRecursively(
       }
       this->Impl->OpenGroupAsVTKGroup(hdfPath); // Set current path as HDF5 root
 
-      const int numPieces = this->Impl->GetNumberOfPieces(this->Step);
       const int datatype = this->Impl->GetDataSetType();
 
       this->CompositeCachePath = hdfPath;
@@ -1995,7 +1991,7 @@ int vtkHDFReader::ReadRecursively(
       if (!dataObject)
       {
         // Create data if it is not yet available
-        newDataObject = this->Impl->GetNewDataSet(datatype, numPieces);
+        newDataObject = this->Impl->GetNewDataSet(datatype);
         if (vtkPartitionedDataSet::SafeDownCast(newDataObject))
         {
           newDataObject.TakeReference(vtkMultiPieceDataSet::New());
@@ -2288,7 +2284,7 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  if (!this->OutputCache)
+  if (!this->OutputCache || this->OutputCache->GetDataObjectType() != output->GetDataObjectType())
   {
     this->OutputCache = vtkSmartPointer<vtkDataObject>::Take(output->NewInstance());
   }
