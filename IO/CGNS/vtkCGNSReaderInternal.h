@@ -456,7 +456,7 @@ void ReorderMonoCellPointsCGNS2VTK(
 //------------------------------------------------------------------------------
 template <typename T, typename Y>
 int get_XYZ_mesh(int cgioNum, const std::vector<double>& gridChildId,
-  const std::size_t& nCoordsArray, int cellDim, vtkIdType nPts, const cgsize_t* srcStart,
+  const std::size_t& nCoordsArray, int indexDim, vtkIdType nPts, const cgsize_t* srcStart,
   const cgsize_t* srcEnd, const cgsize_t* srcStride, const cgsize_t* memStart,
   const cgsize_t* memEnd, const cgsize_t* memStride, const cgsize_t* memDims, vtkPoints* points)
 {
@@ -524,7 +524,7 @@ int get_XYZ_mesh(int cgioNum, const std::vector<double>& gridChildId,
     if (sameType == true)
     {
       constexpr const char* dtNameT = detail::cgns_type_name<T>();
-      if (cgio_read_data_type(cgioNum, coordId, srcStart, srcEnd, srcStride, dtNameT, cellDim,
+      if (cgio_read_data_type(cgioNum, coordId, srcStart, srcEnd, srcStride, dtNameT, indexDim,
             memEnd, memStart, memEnd, memStride, (void*)currentCoord))
       {
         char message[81];
@@ -545,7 +545,7 @@ int get_XYZ_mesh(int cgioNum, const std::vector<double>& gridChildId,
         std::cerr << "Error allocating buffer array\n";
         break;
       }
-      if (cgio_read_data_type(cgioNum, coordId, srcStart, srcEnd, srcStride, dtNameY, cellDim,
+      if (cgio_read_data_type(cgioNum, coordId, srcStart, srcEnd, srcStride, dtNameY, indexDim,
             memDims, memStart, memDims, memNoStride, (void*)dataArray))
       {
         delete[] dataArray;

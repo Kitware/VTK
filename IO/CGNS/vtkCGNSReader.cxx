@@ -2448,14 +2448,12 @@ int vtkCGNSReader::GetUnstructuredZone(
     if (this->DoublePrecisionMesh != 0) // DOUBLE PRECISION MESHPOINTS
     {
       CGNSRead::get_XYZ_mesh<double, float>(this->cgioNum, gridChildIds, numberOfCoordinateArrays,
-        cellDim, nPts, srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDims,
-        points.Get());
+        1, nPts, srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDims, points.Get());
     }
     else // SINGLE PRECISION MESHPOINTS
     {
       CGNSRead::get_XYZ_mesh<float, double>(this->cgioNum, gridChildIds, numberOfCoordinateArrays,
-        cellDim, nPts, srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDims,
-        points.Get());
+        1, nPts, srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDims, points.Get());
     }
 
     // Add points to cache
