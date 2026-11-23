@@ -6,6 +6,7 @@
 #include "vtkConduitToDataObject.h"
 #include "vtkConvertToMultiBlockDataSet.h"
 #include "vtkDataAssembly.h"
+#include "vtkDataObjectTypes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLogger.h"
@@ -27,6 +28,80 @@
 #include <map>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+void AddChildFieldData(vtkDataObject* dobj, const conduit_cpp::Node& child)
+{
+  if (child.has_path("state/fields"))
+  {
+    vtkConduitToDataObject::AddFieldData(dobj, child["state/fields"]);
+  }
+  // fields may be located in node at same level as state
+  if (child.has_path("fields"))
+  {
+    vtkConduitToDataObject::AddFieldData(dobj, child["fields"]);
+  }
+}
+
+void SetAssembly(vtkPartitionedDataSetCollection* pdc, const conduit_cpp::Node& assemblyNode)
+{
+  std::map<std::string, unsigned int> name_map;
+  for (unsigned int cc = 0; cc < pdc->GetNumberOfPartitionedDataSets(); ++cc)
+  {
+    if (pdc->HasMetaData(cc) && pdc->GetMetaData(cc)->Has(vtkCompositeDataSet::NAME()))
+    {
+      name_map[pdc->GetMetaData(cc)->Get(vtkCompositeDataSet::NAME())] = cc;
+    }
+  }
+
+  vtkNew<vtkDataAssembly> assembly;
+  std::function<void(int, const conduit_cpp::Node&)> helper;
+  helper = [&name_map, &assembly, &helper](int parent, const conduit_cpp::Node& node)
+  {
+    if (node.dtype().is_object())
+    {
+      for (conduit_index_t cc = 0; cc < node.number_of_children(); ++cc)
+      {
+        auto child = node.child(cc);
+        auto nodeName = vtkDataAssembly::MakeValidNodeName(child.name().c_str());
+        auto childId = assembly->AddNode(nodeName.c_str(), parent);
+        assembly->SetAttribute(childId, "label", child.name().c_str());
+        helper(childId, child);
+      }
+    }
+    else if (node.dtype().is_list())
+    {
+      for (conduit_index_t cc = 0; cc < node.number_of_children(); ++cc)
+      {
+        auto child = node.child(cc);
+        if (!child.dtype().is_string())
+        {
+          vtkLogF(ERROR, "list cannot have non-string items!");
+          continue;
+        }
+        helper(parent, node.child(cc));
+      }
+    }
+    else if (node.dtype().is_string())
+    {
+      auto value = node.as_string();
+      auto iter = name_map.find(node.as_string());
+      if (iter != name_map.end())
+      {
+        assembly->AddDataSetIndex(parent, iter->second);
+      }
+      else
+      {
+        vtkLogF(ERROR, "Assembly referring to unknown node '%s'. Skipping.", value.c_str());
+      }
+    }
+  };
+  // assembly->SetRootNodeName(....); What should this be?
+  helper(assembly->GetRootNode(), assemblyNode);
+  pdc->SetDataAssembly(assembly);
+}
+}
 
 class vtkConduitSource::vtkInternals
 {
@@ -138,7 +213,6 @@ bool vtkConduitSource::GeneratePartitionedDataSetCollection(vtkDataObject* outpu
   const auto count = pdc_node.number_of_children();
   pdc_output->SetNumberOfPartitionedDataSets(static_cast<unsigned int>(count));
 
-  std::map<std::string, unsigned int> name_map;
   for (conduit_index_t cc = 0; cc < count; ++cc)
   {
     const auto& child = pdc_node.child(cc);
@@ -151,69 +225,13 @@ bool vtkConduitSource::GeneratePartitionedDataSetCollection(vtkDataObject* outpu
       return false;
     }
 
-    // set the mesh name.
     pdc_output->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(), child.name().c_str());
-    name_map[child.name()] = static_cast<unsigned int>(cc);
-
-    // set field data.
-    if (child.has_path("state/fields"))
-    {
-      vtkConduitToDataObject::AddFieldData(pd, child["state/fields"]);
-    }
-    // fields may be located in node at same level as state
-    if (child.has_path("fields"))
-    {
-      vtkConduitToDataObject::AddFieldData(pd, child["fields"]);
-    }
+    AddChildFieldData(pd, child);
   }
 
   if (this->Internals->AssemblyNodeValid)
   {
-    vtkNew<vtkDataAssembly> assembly;
-    std::function<void(int, const conduit_cpp::Node&)> helper;
-    helper = [&name_map, &assembly, &helper](int parent, const conduit_cpp::Node& node)
-    {
-      if (node.dtype().is_object())
-      {
-        for (conduit_index_t cc = 0; cc < node.number_of_children(); ++cc)
-        {
-          auto child = node.child(cc);
-          auto nodeName = vtkDataAssembly::MakeValidNodeName(child.name().c_str());
-          auto childId = assembly->AddNode(nodeName.c_str(), parent);
-          assembly->SetAttribute(childId, "label", child.name().c_str());
-          helper(childId, child);
-        }
-      }
-      else if (node.dtype().is_list())
-      {
-        for (conduit_index_t cc = 0; cc < node.number_of_children(); ++cc)
-        {
-          auto child = node.child(cc);
-          if (!child.dtype().is_string())
-          {
-            vtkLogF(ERROR, "list cannot have non-string items!");
-            continue;
-          }
-          helper(parent, node.child(cc));
-        }
-      }
-      else if (node.dtype().is_string())
-      {
-        auto value = node.as_string();
-        auto iter = name_map.find(node.as_string());
-        if (iter != name_map.end())
-        {
-          assembly->AddDataSetIndex(parent, iter->second);
-        }
-        else
-        {
-          vtkLogF(ERROR, "Assembly referring to unknown node '%s'. Skipping.", value.c_str());
-        }
-      }
-    };
-    // assembly->SetRootNodeName(....); What should this be?
-    helper(assembly->GetRootNode(), this->Internals->AssemblyNode);
-    pdc_output->SetDataAssembly(assembly);
+    SetAssembly(pdc_output, this->Internals->AssemblyNode);
   }
 
   output->ShallowCopy(pdc_output);
@@ -244,14 +262,22 @@ bool vtkConduitSource::GenerateTable(vtkDataObject* output)
   {
     const auto child = node.child(cc);
     vtkNew<vtkTable> table;
-    if (!vtkConduitToDataObject::FillTable(table, child))
+    if (child.has_child("values") && !vtkConduitToDataObject::FillTable(table, child))
     {
       output->Initialize();
       return false;
     }
-    tables->GetPartitionedDataSet(cc)->SetPartition(0, table);
+    auto pd = tables->GetPartitionedDataSet(cc);
+    pd->SetPartition(0, table);
     tables->GetMetaData(cc)->Set(vtkCompositeDataSet::NAME(), child.name().c_str());
+    AddChildFieldData(pd, child);
   }
+
+  if (this->Internals->AssemblyNodeValid)
+  {
+    SetAssembly(tables, this->Internals->AssemblyNode);
+  }
+
   output->ShallowCopy(tables);
   return true;
 }
@@ -318,18 +344,30 @@ int vtkConduitSource::RequestData(
     dataGenerated = this->GeneratePartitionedDataSet(real_output);
   }
 
-  // Check whether all ranks successfully generated the data. If at least one rank failed, we need
-  // to return 0 on every nodes to prevent code hanging in the pipeline.
+  // Check whether all ranks successfully generated the data, and generated the same type. If not,
+  // we need to return 0 on every nodes to prevent code hanging in the pipeline.
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
-  std::vector<int> allDataGenerationResults(controller->GetNumberOfProcesses());
-  int dataGenerationLocalResult = dataGenerated;
-  controller->AllGather(&dataGenerationLocalResult, allDataGenerationResults.data(), 1);
+  const int numRanks = controller->GetNumberOfProcesses();
+  std::vector<int> allResults(2 * numRanks);
+  int localResult[2] = { dataGenerated ? 1 : 0, real_output->GetDataObjectType() };
+  controller->AllGather(localResult, allResults.data(), 2);
 
-  for (size_t nodeIdx = 0; nodeIdx < allDataGenerationResults.size(); nodeIdx++)
+  for (int rank = 0; rank < numRanks; ++rank)
   {
-    if (!allDataGenerationResults[nodeIdx])
+    if (!allResults[2 * rank])
     {
-      vtkLogF(ERROR, "Data generation failure on process %lu", nodeIdx);
+      vtkLogF(ERROR, "Data generation failure on process %d", rank);
+      return 0;
+    }
+  }
+  for (int rank = 1; rank < numRanks; ++rank)
+  {
+    if (allResults[2 * rank + 1] != allResults[1])
+    {
+      vtkLogF(ERROR,
+        "Process %d produced a %s and process 0 a %s. Every rank must provide the same tables.",
+        rank, vtkDataObjectTypes::GetClassNameFromTypeId(allResults[2 * rank + 1]),
+        vtkDataObjectTypes::GetClassNameFromTypeId(allResults[1]));
       return 0;
     }
   }

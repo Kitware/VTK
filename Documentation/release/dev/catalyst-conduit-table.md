@@ -6,5 +6,8 @@
 empty node gives an empty `vtkTable`, so ranks without rows can pass one. A
 node holding several named tables produces a `vtkPartitionedDataSetCollection`
 with one table per partitioned dataset (a `vtkMultiBlockDataSet` with
-`OutputMultiBlock`); every rank must then provide the same tables.
+`OutputMultiBlock`). Every rank must name the same tables, and an empty
+child gives an empty table on a rank with no rows for it. Each table's
+`state/fields` and `fields` become field data, and the assembly node applies
+as for meshes.
 `vtkConduitToDataObject::FillTable` exposes the same conversion directly.

@@ -1,5 +1,6 @@
 #include "vtkConduitSource.h"
 #include "vtkDataObjectToConduit.h"
+#include "vtkExecutive.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
@@ -26,6 +27,22 @@ void TestFailingNode()
 }
 
 //----------------------------------------------------------------------------
+bool TestMismatchedTables()
+{
+  conduit_cpp::Node tables;
+  if (vtkMultiProcessController::GetGlobalController()->GetLocalProcessId() == 0)
+  {
+    tables["probes/values/time"].set_float64_vector({ 0.0, 1.0 });
+    tables["forces/values/drag"].set_float64_vector({ 0.3 });
+  }
+
+  vtkNew<vtkConduitSource> source;
+  source->SetUseTableProtocol(true);
+  source->SetNode(conduit_cpp::c_node(&tables));
+  return source->GetExecutive()->Update() == 0;
+}
+
+//----------------------------------------------------------------------------
 int TestConduitSourceOneFailingNode(int argc, char** argv)
 {
 
@@ -38,8 +55,9 @@ int TestConduitSourceOneFailingNode(int argc, char** argv)
   // As we expect error messages, we disable it for this test
   vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_OFF);
   TestFailingNode();
+  const bool mismatchFails = TestMismatchedTables();
 
   controller->Finalize();
 
-  return EXIT_SUCCESS;
+  return mismatchFails ? EXIT_SUCCESS : EXIT_FAILURE;
 }

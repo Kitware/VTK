@@ -9,6 +9,7 @@
 #include "vtkConduitSource.h"
 #include "vtkConduitToDataObject.h"
 #include "vtkDataArrayRange.h"
+#include "vtkFieldData.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
@@ -1669,6 +1670,28 @@ bool ValidateTable()
   VERIFY(blocks != nullptr && blocks->GetNumberOfBlocks() == 2,
     "Expected a vtkMultiBlockDataSet with 2 blocks when OutputMultiBlock is on.");
   source->SetOutputMultiBlock(false);
+
+  many["forces/state/fields/cycle"].set_int64(7);
+  source->SetNode(conduit_cpp::c_node(&many));
+  source->Update();
+  tables = vtkPartitionedDataSetCollection::SafeDownCast(source->GetOutputDataObject(0));
+  auto cycle = tables->GetPartitionedDataSet(1)->GetFieldData()->GetArray("cycle");
+  VERIFY(cycle != nullptr && cycle->GetComponent(0, 0) == 7,
+    "Expected the 'forces' fields as field data on its partitioned dataset.");
+
+  // A rank with no rows for the tables lists them empty.
+  conduit_cpp::Node emptyMany;
+  emptyMany["probes"];
+  emptyMany["forces"];
+  source->SetNode(conduit_cpp::c_node(&emptyMany));
+  source->Update();
+  tables = vtkPartitionedDataSetCollection::SafeDownCast(source->GetOutputDataObject(0));
+  VERIFY(tables != nullptr && tables->GetNumberOfPartitionedDataSets() == 2,
+    "Expected 2 tables for empty children.");
+  auto emptyForces = vtkTable::SafeDownCast(tables->GetPartitionAsDataObject(1, 0));
+  VERIFY(emptyForces != nullptr && emptyForces->GetNumberOfRows() == 0 &&
+      std::string(tables->GetMetaData(1u)->Get(vtkCompositeDataSet::NAME())) == "forces",
+    "Expected an empty 'forces' table for an empty child.");
 
   // A rank with no rows passes an empty node.
   conduit_cpp::Node empty;
