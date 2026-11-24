@@ -1053,6 +1053,7 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
       offset = this->Impl->GetArrayOffset(this->Step, vtkDataObject::FIELD, name);
       if (size[0] == 0 && size[1] == 0)
       {
+        data->GetAttributesAsFieldData(vtkDataObject::FIELD)->RemoveArray(name.c_str());
         continue;
       }
     }
@@ -1079,16 +1080,17 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
         return 0;
       }
       array->SetName(name.c_str());
-    }
-
-    if (!cacheHit)
-    {
-      data->GetAttributesAsFieldData(vtkDataObject::FIELD)->AddArray(array);
       // VTK_DEPRECATED_IN_9_7_0 Remove this->UseCache
       if (this->UseCache)
       {
         this->Cache->Set(vtkDataObject::FIELD, name, offset, size[1], array);
       }
+    }
+
+    vtkFieldData* attributes = data->GetAttributesAsFieldData(vtkDataObject::FIELD);
+    if (!cacheHit || attributes->GetAbstractArray(name.c_str()) != array.GetPointer())
+    {
+      attributes->AddArray(array);
     }
   }
   if (this->GetHasTemporalData())
