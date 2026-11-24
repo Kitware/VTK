@@ -594,9 +594,7 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
                                      << vtkHDFMajorVersion << "." << vtkHDFMinorVersion);
   }
 
-  this->NumberOfSteps = this->Impl->GetNumberOfSteps();
   const int numPieces = this->Impl->GetNumberOfPieces(this->Step);
-  this->SetHasTemporalData(this->NumberOfSteps > 1);
   const int dataSetType = this->Impl->GetDataSetType();
   if (!output || !output->IsA(typeNameMap[dataSetType].c_str()))
   {
@@ -678,6 +676,8 @@ int vtkHDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 //------------------------------------------------------------------------------
 int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
 {
+  this->NumberOfSteps = this->Impl->GetNumberOfSteps();
+
   int dataSetType = this->Impl->GetDataSetType();
   if (dataSetType == VTK_IMAGE_DATA)
   {
