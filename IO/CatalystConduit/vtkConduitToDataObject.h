@@ -42,6 +42,8 @@ VTK_ABI_NAMESPACE_BEGIN
  * Create concrete vtkDataSet subclass to set it as partition and add arrays in its
  * DataSetAttributes.
  *
+ * An empty node gives no partitions, for a rank that holds no part of the mesh.
+ *
  * Return true if data was correctly generated, false if an error occurred.
  * Do not throw errors.
  */
