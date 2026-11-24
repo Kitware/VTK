@@ -28,6 +28,7 @@ vtk_module_test_data(
   Data/vtkHDF/wavelet_cell_data.vtkhdf
   Data/vtkHDF/wavelet_cell_data.vti
   Data/vtkHDF/hdf_poly_data_twin.vtp
+  Data/vtkHDF/one_step.vtkhdf
   Data/vtkHDF/temporal_partitioned_polydata_cache_0.vtpd
   Data/vtkHDF/temporal_partitioned_polydata_cache_1.vtpd
   Data/vtkHDF/temporal_partitioned_polydata_cache_2.vtpd
