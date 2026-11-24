@@ -2,6 +2,7 @@ vtk_add_test_cxx(vtkCommonSystemCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
   TestDirectory.cxx
   TestExecutableRunner.cxx
+  TestSocketReceiveError.cxx
   otherTimerLog.cxx
   )
 

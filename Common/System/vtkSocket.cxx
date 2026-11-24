@@ -635,6 +635,20 @@ int vtkSocket::Receive(void* data, int length, int readFully /*=1*/)
       vtkSocketErrorMacro(vtkErrnoMacro, "Socket error in call to recv.");
       return 0;
     }
+#else
+    if (nRecvd == vtkSocketErrorReturnMacro)
+    {
+      int lastError = vtkErrnoMacro;
+      if (lastError == ECONNRESET)
+      {
+        // As with WSAECONNABORTED above, the receiver cannot know whether the
+        // reset is expected, so output a trace instead of an error.
+        vtkLog(TRACE, "Socket error: connection reset.");
+        return 0;
+      }
+      vtkSocketErrorMacro(lastError, "Socket error in call to recv.");
+      return 0;
+    }
 #endif
 
     total += nRecvd;
