@@ -26,7 +26,7 @@
 int TestToneMappingPass(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindow> renWin;
-  renWin->SetSize(900, 900);
+  renWin->SetSize(600, 600);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
