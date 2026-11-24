@@ -27,6 +27,9 @@ from vtkmodules.vtkFiltersSources import vtkSphereSource
 from vtkmodules.vtkImagingSources import vtkImageGridSource
 from vtkmodules.test import Testing
 
+if hasattr(sys, "_is_gil_enabled") and not sys._is_gil_enabled():
+    import gc
+
 class vtkCustomObject(vtkObject):
     def __init__(self, extra=None):
         """Initialize all attributes."""
@@ -116,6 +119,12 @@ class TestSubclass(Testing.vtkTest):
         c.AddItem(o)
         i = id(o)
         del o
+
+        # Force garbage collection to ensure object is deallocated
+        # This is especially important in free-threading mode
+        if hasattr(sys, "_is_gil_enabled") and not sys._is_gil_enabled():
+            gc.collect()
+
         o = vtkObject()
         o = c.GetItemAsObject(0)
         # make sure the id has changed, but class the same
