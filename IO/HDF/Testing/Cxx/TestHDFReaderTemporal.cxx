@@ -885,19 +885,35 @@ int TestPolyDataTemporalFieldData(const std::string& dataRoot)
 //------------------------------------------------------------------------------
 int TestTemporalFieldDataCache(const std::string& dataRoot)
 {
+  // Test 2 things:
+  // - Static field data
+  // - Composite field data caching is not mixed up
   vtkNew<vtkHDFReader> reader;
   const std::string filename = dataRoot + "/Data/vtkHDF/field_cache.vtkhdf";
   vtkLog(INFO, "Testing: " << filename);
   reader->SetFileName(filename.c_str());
-  for (int step = 0; step < 2; step++)
+  for (const int step : { 0, 1, 0 })
   {
     reader->SetStep(step);
     reader->Update();
-    auto field = reader->GetOutputDataObject(0)->GetFieldData()->GetArray("constant");
-    if (!field || field->GetTuple1(0) != 42.0)
+    auto* blocks = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+    if (!blocks || blocks->GetNumberOfBlocks() != 2)
     {
-      std::cerr << "Expected constant field value 42.0 at step " << step << std::endl;
+      std::cerr << "Expected two field-cache test blocks at step " << step << std::endl;
       return EXIT_FAILURE;
+    }
+    for (unsigned int block = 0; block < 2; ++block)
+    {
+      auto* leaf = blocks->GetBlock(block);
+      auto* field = leaf ? leaf->GetFieldData()->GetArray("constant") : nullptr;
+      const double expected = block == 0 ? 42.0 : 84.0;
+      if (!field || field->GetNumberOfComponents() != 1 || field->GetNumberOfTuples() != 1 ||
+        field->GetTuple1(0) != expected)
+      {
+        std::cerr << "Expected constant field value " << expected << " on block " << block
+                  << " at step " << step << std::endl;
+        return EXIT_FAILURE;
+      }
     }
   }
   return EXIT_SUCCESS;
