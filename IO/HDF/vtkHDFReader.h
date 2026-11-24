@@ -80,7 +80,7 @@ public:
   /**
    * Get/Set the name of the input file.
    */
-  vtkSetFilePathMacro(FileName);
+  virtual void SetFileName(VTK_FILEPATH const char* fileName);
   vtkGetFilePathMacro(FileName);
   ///@}
 
@@ -337,6 +337,11 @@ private:
 
   class Implementation;
   Implementation* Impl;
+
+  /**
+   * Discard cached arrays and output after setting or modifying the input.
+   */
+  void InvalidateCache();
 
   /**
    * Read data requested in 'outInfo', dispatching to the right specialized method
