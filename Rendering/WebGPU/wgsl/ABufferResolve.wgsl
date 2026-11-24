@@ -22,7 +22,7 @@ const MAX_LIST_STEPS: u32 = 4096u;
 @group(0) @binding(0) var<uniform> scene_transform: SceneTransform;
 @group(0) @binding(2) var<storage, read_write> abufferHeads: array<atomic<u32>>;
 @group(0) @binding(3) var<storage, read_write> abufferNodes: array<FragmentNode>;
-@group(0) @binding(4) var<storage, read_write> abufferCounter: atomic<u32>;
+@group(0) @binding(4) var<storage, read_write> abufferCounter: array<atomic<u32>>;
 @group(1) @binding(0) var opaqueDepth: texture_depth_2d;
 
 struct ResolveOutput
@@ -62,6 +62,7 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
   var nearestComposite: u32 = 0u;
   var nearestProcess: u32 = 0u;
   var count: u32 = 0u;
+  var visibleCount: u32 = 0u;
   var node: u32 = atomicLoad(&abufferHeads[pixel]);
   var steps: u32 = 0u;
   loop {
@@ -80,6 +81,7 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
     if (nodeDepth > opaqueDepthValue) {
       continue;
     }
+    visibleCount = visibleCount + 1u;
 
     if (nodeDepth < nearestDepth) {
       nearestDepth = nodeDepth;
@@ -117,6 +119,14 @@ fn resolveFragmentMain(@builtin(position) position: vec4<f32>) -> ResolveOutput
     }
   }
 
+  // These bits match vtkWebGPUDeepFramebuffer::FrameStatus. Only pixels that
+  // lose fragments contend on the shared diagnostic word.
+  if (visibleCount > MAX_LAYERS) {
+    atomicOr(&abufferCounter[1], 4u);
+  }
+  if (node != ABUFFER_END) {
+    atomicOr(&abufferCounter[1], 8u);
+  }
   if (count == 0u) {
     discard;
     return output;

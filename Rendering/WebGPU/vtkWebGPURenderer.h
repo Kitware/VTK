@@ -205,9 +205,41 @@ public:
 
   /**
    * The per-pixel fragment lists used when UseDeepFramebufferTransparency is on.
-   * Created on demand; null until then.
+   * Created on demand, including before the first render. GPU storage is allocated
+   * only when translucent geometry is rendered.
    */
   vtkWebGPUDeepFramebuffer* GetDeepFramebuffer();
+
+  ///@{
+  /** Initial node-pool budget, in average layers per window pixel (default 8). */
+  void SetDeepFramebufferAverageLayersPerPixel(vtkTypeUInt32 layers);
+  vtkTypeUInt32 GetDeepFramebufferAverageLayersPerPixel();
+  ///@}
+  ///@{
+  /** Maximum node-pool bytes. Zero (default) uses the device limit. */
+  void SetDeepFramebufferMaximumMemoryInBytes(vtkTypeUInt64 bytes);
+  vtkTypeUInt64 GetDeepFramebufferMaximumMemoryInBytes();
+  ///@}
+  ///@{
+  /** Automatically grow the node pool after overflow. On by default. */
+  void SetDeepFramebufferAutoResize(bool enable);
+  bool GetDeepFramebufferAutoResize();
+  vtkBooleanMacro(DeepFramebufferAutoResize, bool);
+  ///@}
+  ///@{
+  /** Nearest fragments retained per pixel, from 1 to 64 (default 16). */
+  vtkSetClampMacro(DeepFramebufferMaximumLayersPerPixel, int, 1, 64);
+  vtkGetMacro(DeepFramebufferMaximumLayersPerPixel, int);
+  ///@}
+  /**
+   * Return vtkWebGPUDeepFramebuffer::FrameStatus flags for the current frame.
+   * Call after Render(). With wait, finish readback before returning. Ordinary
+   * Render() requests asynchronous statistics automatically.
+   */
+  VTK_MAYSUSPEND int ReadDeepFramebufferStatistics(bool wait = false);
+
+  /** Request automatic feedback after the window has submitted this frame. */
+  VTK_MAYSUSPEND void UpdateDeepFramebufferStatistics();
 
   /**
    * Ensure the deep framebuffer and its bind group exist and match the current
@@ -432,6 +464,8 @@ private:
 
   bool UseDeepFramebufferTransparency = true;
   bool DeepFramebufferPopulated = false;
+  bool DeepFramebufferFailed = false;
+  int DeepFramebufferMaximumLayersPerPixel = 16;
   vtkSmartPointer<vtkWebGPUDeepFramebuffer> DeepFramebuffer;
   WGPUBuffer DeepFramebufferPlaceholders[3] = { nullptr, nullptr, nullptr };
 

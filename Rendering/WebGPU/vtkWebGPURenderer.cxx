@@ -1373,7 +1373,80 @@ void vtkWebGPURenderer::SetEnvironmentTexture(vtkTexture* texture, bool isSRGB /
 //------------------------------------------------------------------------------
 vtkWebGPUDeepFramebuffer* vtkWebGPURenderer::GetDeepFramebuffer()
 {
+  if (this->DeepFramebuffer == nullptr)
+  {
+    this->DeepFramebuffer = vtk::TakeSmartPointer(vtkWebGPUDeepFramebuffer::New());
+  }
   return this->DeepFramebuffer;
+}
+
+void vtkWebGPURenderer::SetDeepFramebufferAverageLayersPerPixel(vtkTypeUInt32 layers)
+{
+  auto* framebuffer = this->GetDeepFramebuffer();
+  const auto previous = framebuffer->GetMTime();
+  framebuffer->SetAverageLayersPerPixel(layers);
+  if (framebuffer->GetMTime() != previous)
+  {
+    this->Modified();
+  }
+}
+
+vtkTypeUInt32 vtkWebGPURenderer::GetDeepFramebufferAverageLayersPerPixel()
+{
+  return this->GetDeepFramebuffer()->GetAverageLayersPerPixel();
+}
+
+void vtkWebGPURenderer::SetDeepFramebufferMaximumMemoryInBytes(vtkTypeUInt64 bytes)
+{
+  auto* framebuffer = this->GetDeepFramebuffer();
+  const auto previous = framebuffer->GetMTime();
+  framebuffer->SetMaximumMemoryInBytes(bytes);
+  if (framebuffer->GetMTime() != previous)
+  {
+    this->Modified();
+  }
+}
+
+vtkTypeUInt64 vtkWebGPURenderer::GetDeepFramebufferMaximumMemoryInBytes()
+{
+  return this->GetDeepFramebuffer()->GetMaximumMemoryInBytes();
+}
+
+void vtkWebGPURenderer::SetDeepFramebufferAutoResize(bool enable)
+{
+  auto* framebuffer = this->GetDeepFramebuffer();
+  if (framebuffer->GetAutoResize() != enable)
+  {
+    framebuffer->SetAutoResize(enable);
+    this->Modified();
+  }
+}
+
+bool vtkWebGPURenderer::GetDeepFramebufferAutoResize()
+{
+  return this->GetDeepFramebuffer()->GetAutoResize();
+}
+
+int vtkWebGPURenderer::ReadDeepFramebufferStatistics(bool wait)
+{
+  if (this->DeepFramebufferFailed)
+  {
+    return vtkWebGPUDeepFramebuffer::ReadbackFailed;
+  }
+  if (!this->UseDeepFramebufferTransparency || !this->DeepFramebufferPopulated)
+  {
+    return vtkWebGPUDeepFramebuffer::Complete;
+  }
+  return this->DeepFramebuffer->ReadStatistics(wait);
+}
+
+void vtkWebGPURenderer::UpdateDeepFramebufferStatistics()
+{
+  if (this->UseDeepFramebufferTransparency && this->DeepFramebufferPopulated &&
+    !this->DeepFramebufferFailed)
+  {
+    this->DeepFramebuffer->RequestStatistics();
+  }
 }
 
 bool vtkWebGPURenderer::PrepareDeepFramebuffer()
@@ -1382,6 +1455,7 @@ bool vtkWebGPURenderer::PrepareDeepFramebuffer()
   {
     return false;
   }
+  this->DeepFramebufferFailed = false;
 
   bool hasTranslucentGeometry = false;
   for (auto* prop : this->PropArray)
@@ -1402,28 +1476,29 @@ bool vtkWebGPURenderer::PrepareDeepFramebuffer()
     return false;
   }
 
-  if (this->DeepFramebuffer == nullptr)
-  {
-    this->DeepFramebuffer = vtk::TakeSmartPointer(vtkWebGPUDeepFramebuffer::New());
-    this->DeepFramebuffer->SetWGPUConfiguration(wgpuRenderWindow->GetWGPUConfiguration());
-  }
+  this->GetDeepFramebuffer()->SetWGPUConfiguration(wgpuRenderWindow->GetWGPUConfiguration());
 
   const int* size = wgpuRenderWindow->GetSize();
   const int width = size[0];
   const int height = size[1];
-  const bool resized =
-    width != this->DeepFramebuffer->GetWidth() || height != this->DeepFramebuffer->GetHeight();
+  const auto generation = this->DeepFramebuffer->GetAllocationGeneration();
   if (!this->DeepFramebuffer->Resize(width, height))
   {
     vtkWarningMacro(<< "Could not allocate a deep framebuffer for " << width << "x" << height
                     << "; falling back to ordinary translucent blending.");
     this->UseDeepFramebufferTransparency = false;
+    this->DeepFramebufferFailed = true;
+    this->InvalidateBundle();
     return false;
   }
 
-  if (resized && this->SceneTransformBuffer != nullptr && this->SceneLightsBuffer != nullptr)
+  if (generation != this->DeepFramebuffer->GetAllocationGeneration())
   {
-    this->SetupSceneBindGroup();
+    this->InvalidateBundle();
+    if (this->SceneTransformBuffer != nullptr && this->SceneLightsBuffer != nullptr)
+    {
+      this->SetupSceneBindGroup();
+    }
   }
   return true;
 }
@@ -1709,6 +1784,7 @@ void vtkWebGPURenderer::ResolveDeepFramebuffer(WGPURenderPassEncoder encoder)
   {
     return;
   }
+  this->DeepFramebufferFailed = true;
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
   if (wgpuRenderWindow == nullptr)
   {
@@ -1774,6 +1850,9 @@ void vtkWebGPURenderer::ResolveDeepFramebuffer(WGPURenderPassEncoder encoder)
   pipelineDesc.layout = pipelineLayout;
 
   std::string shaderSource = ABufferResolve;
+  vtkWebGPURenderPipelineCache::Substitute(shaderSource, "const MAX_LAYERS: u32 = 16u;",
+    "const MAX_LAYERS: u32 = " + std::to_string(this->DeepFramebufferMaximumLayersPerPixel) + "u;",
+    /*all=*/true);
   if (this->LastUseIBL)
   {
     shaderSource += "\n// SceneBindGroupLayout with image based lighting\n";
@@ -1795,6 +1874,7 @@ void vtkWebGPURenderer::ResolveDeepFramebuffer(WGPURenderPassEncoder encoder)
   wgpuRenderPassEncoderSetBindGroup(encoder, 0, this->SceneBindGroup, 0, nullptr);
   wgpuRenderPassEncoderSetBindGroup(encoder, 1, this->DeepFramebufferResolveBindGroup, 0, nullptr);
   wgpuRenderPassEncoderDraw(encoder, 4, 1, 0, 0);
+  this->DeepFramebufferFailed = false;
 }
 
 //------------------------------------------------------------------------------

@@ -100,6 +100,16 @@ public:
   void Render() override;
 
   /**
+   * Render and check all active deep framebuffers. Render at most maxFrames
+   * times (1-16), retrying pool overflow when automatic growth has room. Returns false on
+   * allocation/readback failure or any remaining pool, layer or traversal loss.
+   * This blocks for GPU feedback; ordinary Render() remains asynchronous.
+   * For capture, call this first and set vtkWindowToImageFilter::ShouldRerenderOff().
+   * Stereo rendering and reentrant calls are not supported by this checked path.
+   */
+  VTK_MAYSUSPEND bool RenderWithCheckedDeepFramebuffer(int maxFrames = 4);
+
+  /**
    * Intermediate method performs operations required between the rendering
    * of the left and right eye.
    */
