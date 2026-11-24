@@ -13,7 +13,7 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestDeepFramebufferTransparency.cxx,NO_DATA,NO_VALID
   TestComputeFrustumCulling.cxx,NO_DATA,NO_VALID
   TestSelectorPropIds.cxx,NO_DATA,NO_VALID
-  TestShaderCompilationMessages.cxx,NO_DATA,NO_VALID
+  TestShaderCompilationMessages.cxx,NO_DATA,NO_VALID,WASM_ALLOW_ERROR_OUTPUT
   TestComputeOcclusionCulling.cxx,NO_DATA,NO_VALID
   TestComputeOcclusionCullingResize.cxx,NO_DATA,NO_VALID
   TestComputeModifyPointColors.cxx,NO_DATA,NO_SERDES

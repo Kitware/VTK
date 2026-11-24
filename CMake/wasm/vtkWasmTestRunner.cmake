@@ -57,6 +57,10 @@ function(generate_index_html js test_args exit_after_test url output_file)
   # Get file name from test executable
   get_filename_component(js_filename "${js}" NAME)
   set(close_window "")
+  set(allow_error_output false)
+  if (TESTING_WASM_ALLOW_ERROR_OUTPUT)
+    set(allow_error_output true)
+  endif ()
   # right now we only use webgpu for the unit tests in the RenderingWebGPU module.
   set(graphics_backend "OPENGL") # default equivalent to WebGL2
   if (exit_after_test)
