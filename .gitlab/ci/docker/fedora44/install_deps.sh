@@ -10,6 +10,10 @@ dnf install -y --setopt=install_weak_deps=False \
 dnf install -y --setopt=install_weak_deps=False \
     doxygen perl-Digest-MD5
 
+# English locale, since ParaView's tests expect its number formatting.
+dnf install -y --setopt=install_weak_deps=False \
+    glibc-langpack-en
+
 # Development tools
 dnf install -y --setopt=install_weak_deps=False \
     libasan libtsan libubsan clang-tools-extra \
@@ -75,6 +79,8 @@ python3 -m pip install 'wslink>=1.0.4'
 dnf install --releasever=41 -y --setopt=install_weak_deps=False \
     java-11-openjdk-devel xmlstarlet
 
+# OpenTURNS has no aarch64 packages for Fedora 44, and nasm is an x86
+# assembler.
 if [ "$( uname -m )" = "x86_64" ]; then
     # Openturns dependencies
     # FIXME: using Fedora 44 repo as a hotfix since the Fedora 42 repo is not available anymore

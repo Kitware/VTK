@@ -3,7 +3,7 @@
 set -e
 
 readonly conduit_repo="https://github.com/llnl/conduit.git"
-readonly conduit_commit="v0.9.7"
+readonly conduit_commit="v0.9.10"
 
 readonly conduit_root="$HOME/conduit"
 readonly conduit_src="$conduit_root/src"

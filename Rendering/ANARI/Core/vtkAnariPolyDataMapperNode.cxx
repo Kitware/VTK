@@ -2904,6 +2904,8 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
 
         cellValueTextureCoords[j] = tcoord;
       }
+      // The mesh texture coordinates would otherwise take precedence.
+      pointValueTextureCoords.clear();
 
       tmpAlbedoTex = vtkSmartPointer<vtkTexture>::New();
       tmpAlbedoTex->SetInputData(mapperColorTextureMap);

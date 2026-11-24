@@ -1018,10 +1018,8 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "helide")
   list(APPEND test_exclusions
-    # ANARI test requires the latest changes from anari-sdk PR
-    # (https://github.com/KhronosGroup/ANARI-SDK/pull/335)
-    "^VTK::RenderingAnariCoreCxx-TestAnariPolyDataTexture$"
-    "^VTK::RenderingAnariCoreCxx-TestAnariRenderMesh$"
+    # https://gitlab.kitware.com/vtk/vtk/-/work_items/20257
+    "^VTK::RenderingAnariCoreCxx-TestAnariPBRMapping$"
     # https://gitlab.kitware.com/vtk/vtk/-/work_items/20216
     "^VTK::RenderingAnariCoreCxx-TestAnariGPUVolumeRayCastMapper$")
 endif ()

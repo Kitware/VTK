@@ -313,7 +313,7 @@
 
 .fedora44:
     extends: .linux
-    image: "kitware/vtk:ci-fedora44-20260903"
+    image: "kitware/vtk:ci-fedora44-20261111"
 
 .fedora44_x86_64:
     extends: .fedora44
@@ -343,9 +343,8 @@
 .fedora_cuda_x86_64_addon:
     extends: .fedora44_x86_64
     variables:
-        CUDACC: "/usr/local/cuda-13.3/bin/nvcc"
-        CUDACXX: "/usr/local/cuda-13.3/bin/nvcc"
-        CUDAHOSTCXX: "/usr/bin/g++-15"
+        CUDACC: "/usr/local/cuda-13.5/bin/nvcc"
+        CUDACXX: "/usr/local/cuda-13.5/bin/nvcc"
 
 .fedora_mpich_addon:
     variables:
@@ -712,25 +711,7 @@
 ## Linux-specific scripts
 
 .before_script_linux: &before_script_linux
-    - .gitlab/ci/cmake.sh
-    - '( echo "$CMAKE_CONFIGURATION" | grep -q "mindeps" ) && env CMAKE_SUFFIX=-mindeps .gitlab/ci/cmake-mindeps.sh'
-    - .gitlab/ci/ninja.sh
-    - export PATH=$PWD/.gitlab:$PWD/.gitlab/cmake/bin:$PATH
-    # Download Qt
-    - cmake -P .gitlab/ci/download_qt6.cmake
-    - export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$PWD/.gitlab/qt6
-    - cmake --version
-    - ninja --version
-    - $LAUNCHER cmake -P "$PWD/.gitlab/ci/fetch_tags.cmake"
-    # Load any modules that may be necessary.
-    - '[ -n "$MODULES" ] && . /etc/profile.d/modules.sh && module load $MODULES'
-    # Load a venv
-    - '[ -n "$VENV_ROOT" ] && . $VENV_ROOT/bin/activate'
-    # activate does not set PYTHONPATH which is needed for vtkpython to pickup packages installed in a separate venv.
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/19539
-    - '[ -n "$VENV_ROOT" ] && export PYTHONPATH=$VENV_ROOT/lib/$SITE_PACKAGES_DIR/site-packages'
-    # Enable the Intel compiler if required.
-    - '[ "$CC" = "icx" ] && source /opt/intel/oneapi/setvars.sh || true'
+    - . .gitlab/ci/before_script_linux.sh
 
 .before_script_java_linux: &before_script_java_linux
     - *before_script_linux
@@ -776,16 +757,31 @@
 
     interruptible: true
 
-.cmake_test_external_linux:
-    stage: test-ext
+.cmake_build_external_linux:
+    stage: build-ext
     extends: .warning_policy
 
     script:
         - *before_script_linux
         - cmake -P .gitlab/ci/download_onnxruntime.cmake
         - export LD_LIBRARY_PATH=$PWD/.gitlab/onnxruntime/lib64:/usr/local/lib
-        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external.cmake
+        - .gitlab/ci/sccache.sh
+        - sccache --start-server
+        - sccache --show-stats
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_build_external.cmake
+        - sccache --show-stats
         - exec .gitlab/ci/check_warnings.sh ./Testing/External
+
+    interruptible: true
+
+.cmake_test_external_linux:
+    stage: test-ext
+
+    script:
+        - *before_script_linux
+        - cmake -P .gitlab/ci/download_onnxruntime.cmake
+        - export LD_LIBRARY_PATH=$PWD/.gitlab/onnxruntime/lib64:/usr/local/lib
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test.cmake
 
     interruptible: true
 

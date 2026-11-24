@@ -5,11 +5,23 @@ set(annotation_report_file "${CTEST_BINARY_DIRECTORY}/annotations.json")
 set(annotation_report)
 
 set(CTEST_SOURCE_DIRECTORY "${CTEST_SOURCE_DIRECTORY}/Testing/External")
+# The build directory holds VTK's build tree from the artifacts, so ignore its
+# cache.
 set(cmake_args
+  "--fresh"
   "-DCMAKE_BUILD_TYPE:STRING=Release"
   "-DCMAKE_PREFIX_PATH:PATH=${CTEST_BINARY_DIRECTORY}/install"
   "-DVTK_USE_LARGE_DATA:BOOL=ON"
   "--no-warn-unused-cli")
+
+# Use sccache when the job sets it up.
+find_program(sccache_executable sccache)
+if (sccache_executable)
+  list(APPEND cmake_args
+    "-DCMAKE_C_COMPILER_LAUNCHER:STRING=${sccache_executable}"
+    "-DCMAKE_CXX_COMPILER_LAUNCHER:STRING=${sccache_executable}"
+    "-DCMAKE_CUDA_COMPILER_LAUNCHER:STRING=${sccache_executable}")
+endif ()
 
 # This project does not use the `.gitlab/ci/configure_*.cmake` files, so any
 # policy defaults needed by the dependencies found through `find_package(VTK)`
@@ -44,6 +56,8 @@ ctest_submit(PARTS Configure
   BUILD_ID build_id)
 
 if (DEFINED build_id)
+  # The tests run in another job, which submits to this build.
+  store_build_id("${build_id}")
   list(APPEND annotation_report
     "Build Summary" "https://open.cdash.org/build/${build_id}"
     "Update" "https://open.cdash.org/build/${build_id}/update"
@@ -110,42 +124,5 @@ endif ()
 
 file(WRITE "${CTEST_SOURCE_DIRECTORY}/compile_num_warnings.log" "${num_warnings}")
 
-# Default to a reasonable test timeout.
-set(CTEST_TEST_TIMEOUT 100)
-
-set(include_or_exclude_serdes "")
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "serialization")
-  list(APPEND include_or_exclude_serdes INCLUDE_LABEL SERDES)
-else ()
-  list(APPEND include_or_exclude_serdes EXCLUDE_LABEL SERDES)
-endif ()
-
-include("${CMAKE_CURRENT_LIST_DIR}/ctest_exclusions.cmake")
-ctest_test(APPEND
-  PARALLEL_LEVEL "${nproc}"
-  TEST_LOAD "${nproc}"
-  RETURN_VALUE test_result
-  EXCLUDE "${test_exclusions}"
-  ${include_or_exclude_serdes}
-  OUTPUT_JUNIT "${CTEST_BINARY_DIRECTORY}/junit.xml"
-  REPEAT UNTIL_PASS:3)
-ctest_submit(PARTS Test)
-
-if (DEFINED build_id)
-  list(APPEND annotation_report
-    "All Tests"     "https://open.cdash.org/viewTest.php?buildid=${build_id}"
-    "Test Failures" "https://open.cdash.org/viewTest.php?onlyfailed&buildid=${build_id}"
-    "Tests Not Run" "https://open.cdash.org/viewTest.php?onlynotrun&buildid=${build_id}"
-    "Test Passes"   "https://open.cdash.org/viewTest.php?onlypassed&buildid=${build_id}"
-  )
-endif ()
-
-if (test_result)
-  ctest_annotation_report("${annotation_report_file}" ${annotation_report})
-  ctest_submit(PARTS Done)
-  message(FATAL_ERROR
-    "Failed to test")
-endif ()
-
+# The tests run in another job, using `ctest_test.cmake`.
 ctest_annotation_report("${annotation_report_file}" ${annotation_report})
-ctest_submit(PARTS Done)

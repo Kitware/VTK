@@ -113,7 +113,7 @@ private:
 
     viskores::cont::internal::TransferredBuffer transfer = buffer.TakeHostBufferOwnership();
     auto srcMemory = reinterpret_cast<T*>(transfer.Memory);
-    assert(transfer.Size >= (size * sizeof(T)));
+    assert(transfer.Size >= static_cast<viskores::BufferSizeType>(size * sizeof(T)));
     if (transfer.Memory == transfer.Container)
     { // transfer the memory ownership over to VTK instead of copy
       output->SetVoidArray(srcMemory, size, 0, vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED);
@@ -184,7 +184,7 @@ private:
 
       viskores::cont::internal::TransferredBuffer transfer = buffer.TakeHostBufferOwnership();
       auto srcMemory = reinterpret_cast<T*>(transfer.Memory);
-      assert(transfer.Size >= (size * sizeof(T)));
+      assert(transfer.Size >= static_cast<viskores::BufferSizeType>(size * sizeof(T)));
       if (transfer.Memory == transfer.Container)
       { // transfer the memory ownership over to VTK instead of copy
         output->SetArray(

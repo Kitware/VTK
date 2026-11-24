@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.13)
 
+# The Java configurations disable the ADIOS2 module.
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "java")
+  return ()
+endif ()
+
 # Input variables.
 set(adios2_version "2.9.2")
 set(adios2_build_date "20231220.0")
@@ -53,3 +58,9 @@ if (res)
   message(FATAL_ERROR
     "Failed to extract ${adios2_file}: ${err}")
 endif ()
+
+# Use a fixed directory name.
+file(REMOVE_RECURSE ".gitlab/adios2")
+file(RENAME
+  ".gitlab/adios2-v${adios2_version}-${adios2_platform}"
+  ".gitlab/adios2")

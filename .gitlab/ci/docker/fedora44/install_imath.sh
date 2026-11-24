@@ -3,7 +3,7 @@
 set -e
 
 readonly imath_repo="https://github.com/AcademySoftwareFoundation/Imath.git"
-readonly imath_commit="v3.2.2"
+readonly imath_commit="v3.2.3"
 
 readonly imath_root="$HOME/imath"
 readonly imath_src="$imath_root/src"

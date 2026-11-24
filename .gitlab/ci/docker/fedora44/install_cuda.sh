@@ -2,6 +2,7 @@
 
 set -e
 
+# NVIDIA's fedora44 sbsa repository has no CUDA toolkit.
 if [ "$( uname -m )" != "x86_64" ]; then
     exit 0
 fi
@@ -14,12 +15,8 @@ dnf install -y --setopt=install_weak_deps=False \
 dnf config-manager addrepo \
     --from-repofile=https://developer.download.nvidia.com/compute/cuda/repos/fedora44/x86_64/cuda-fedora44.repo
 
-# CUDA supports up to gcc 15, not 16 which is fedora 44's default
-dnf install -y --setopt=install_weak_deps=False \
-    gcc15 gcc15-c++
-
 # CUDA toolchain
 dnf install -y --setopt=install_weak_deps=False \
-    cuda-compiler-13-3 cuda-cudart-devel-13-3 cuda-toolkit-13-3
+    cuda-compiler-13-5 cuda-cudart-devel-13-5 cuda-toolkit-13-5
 
 dnf clean all

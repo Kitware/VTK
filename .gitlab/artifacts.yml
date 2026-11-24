@@ -92,6 +92,33 @@
             - compile_output.log
             - build/cdash-build-id
 
+.cmake_build_external_artifacts:
+    artifacts:
+        expire_in: 1d
+        # Because build logs are in here, we should always upload artifacts.
+        when: always
+        reports:
+            annotations:
+                - build/annotations.json
+        paths:
+            # VTK's install tree and the virtual environment.
+            - build/install/
+            - build/ci-venv/
+
+            # The external project's test executables.
+            - build/**/Testing/Cxx/
+
+            # CTest files.
+            - build/**/CTestCustom.cmake
+            - build/**/CTestTestfile.cmake
+            - build/**/DartConfiguration.tcl
+            - build/ExternalData/
+            - build/Testing/
+
+            - build/cdash-build-id
+        exclude:
+            - build/**/CMakeFiles/**/*
+
 .cmake_test_artifacts:
     artifacts:
         expire_in: 1d
