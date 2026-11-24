@@ -41,6 +41,7 @@
 #include "vtkXMLUniformGridAMRReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
+#include <array>
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -800,6 +801,36 @@ bool WriteTestData(vtkDataObject* data, const std::string& fileName)
 }
 
 //----------------------------------------------------------------------------
+int TestFileChange(const std::string& tempDir)
+{
+  // Test that changing file name invalidates read cache
+  const std::array<vtkSmartPointer<vtkStructuredGrid>, 2> inputs = { MakeStructuredGrid(0),
+    MakeStructuredGrid(1) };
+  const std::array<std::string, 2> files = { tempDir + "/HDFReaderFileChange0.vtkhdf",
+    tempDir + "/HDFReaderFileChange1.vtkhdf" };
+  for (int index = 0; index < 2; ++index)
+  {
+    if (!WriteTestData(inputs[index], files[index]))
+    {
+      return EXIT_FAILURE;
+    }
+  }
+
+  vtkNew<vtkHDFReader> reader;
+  for (const int index : { 0, 1, 0 })
+  {
+    reader->SetFileName(files[index].c_str());
+    reader->Update();
+    if (!vtkTestUtilities::CompareDataObjects(reader->GetOutput(), inputs[index]))
+    {
+      std::cerr << "Stale data after switching to " << files[index] << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+  return EXIT_SUCCESS;
+}
+
+//----------------------------------------------------------------------------
 int TestUnstructuredGridArraySelection(const std::string& tempDir)
 {
   vtkSmartPointer<vtkUnstructuredGrid> expected = MakeUnstructuredGrid();
@@ -1297,6 +1328,7 @@ int TestHDFReader(int argc, char* argv[])
   failure |= TestHyperTreeGridPartitionedCoords(dataRoot);
   failure |= TestPartitionedHyperTreeGrid(dataRoot);
   failure |= TestHyperTreeGridWithInterfaces(dataRoot);
+  failure |= TestFileChange(tempDir);
   failure |= TestUnstructuredGridArraySelection(tempDir);
   failure |= TestPolyDataArraySelection(tempDir);
   failure |= TestImageDataArraySelection(tempDir);
