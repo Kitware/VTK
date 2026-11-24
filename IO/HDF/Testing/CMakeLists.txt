@@ -16,6 +16,7 @@ vtk_module_test_data(
   Data/vtkHDF/amr_gaussian_pulse/amr_gaussian_pulse_0.vti
   Data/vtkHDF/amr_gaussian_pulse/amr_gaussian_pulse_1.vti
   Data/vtkHDF/amr_gaussian_pulse/amr_gaussian_pulse_2.vti
+  Data/vtkHDF/field_cache.vtkhdf
   Data/vtkHDF/test_poly_data.vtkhdf
   Data/vtkHDF/temporal_partitioned_polydata_cache.vtkhdf
   Data/vtkHDF/temporal_polydata_field_data.vtkhdf

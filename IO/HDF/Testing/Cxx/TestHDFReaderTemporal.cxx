@@ -59,6 +59,7 @@ int TestPartitionedUGTemporal(const std::string& dataRoot);
 int TestUGTemporalPolyhedron(const std::string& dataRoot);
 int TestPartitionedPolyDataTemporal(const std::string& dataRoot);
 int TestPolyDataTemporalFieldData(const std::string& dataRoot);
+int TestTemporalFieldDataCache(const std::string& dataRoot);
 int TestHyperTreeGridTemporal(const std::string& dataRoot, unsigned int depthLimit);
 int TestHyperTreeGridPartitionedTemporal(const std::string& dataRoot);
 int TestHyperTreeGridChangingPartitionCount(const std::string& dataRoot);
@@ -118,6 +119,7 @@ int TestHDFReaderTemporal(int argc, char* argv[])
   res |= ::TestUGTemporalPolyhedron(dataRoot);
   res |= ::TestPartitionedPolyDataTemporal(dataRoot);
   res |= ::TestPolyDataTemporalFieldData(dataRoot);
+  res |= ::TestTemporalFieldDataCache(dataRoot);
   res |= ::TestHyperTreeGridTemporal(dataRoot, 3);
   res |= ::TestHyperTreeGridTemporal(dataRoot, 1);
   res |= ::TestHyperTreeGridPartitionedTemporal(dataRoot);
@@ -877,6 +879,27 @@ int TestPolyDataTemporalFieldData(const std::string& dataRoot)
     }
   }
 
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+int TestTemporalFieldDataCache(const std::string& dataRoot)
+{
+  vtkNew<vtkHDFReader> reader;
+  const std::string filename = dataRoot + "/Data/vtkHDF/field_cache.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
+  for (int step = 0; step < 2; step++)
+  {
+    reader->SetStep(step);
+    reader->Update();
+    auto field = reader->GetOutputDataObject(0)->GetFieldData()->GetArray("constant");
+    if (!field || field->GetTuple1(0) != 42.0)
+    {
+      std::cerr << "Expected constant field value 42.0 at step " << step << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
   return EXIT_SUCCESS;
 }
 
