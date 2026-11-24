@@ -256,7 +256,7 @@ protected:
    * Read the field arrays from the file and add them to the dataset.
    */
   VTK_DEPRECATED_IN_9_7_0("This method is deprecated, do not use")
-  int AddFieldArrays(vtkDataObject* data);
+  int AddFieldArrays(vtkDataObject* data, const std::string& cachePath);
 
   /**
    * Modify this object when an array selection is changed.

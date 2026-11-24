@@ -1028,7 +1028,7 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkTable* data)
 }
 
 //------------------------------------------------------------------------------
-int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
+int vtkHDFReader::AddFieldArrays(vtkDataObject* data, const std::string& cachePath)
 {
   if (!data)
   {
@@ -1058,12 +1058,13 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
       }
     }
 
+    const std::string cacheName = cachePath + "/" + name;
     bool cacheHit = false;
     // VTK_DEPRECATED_IN_9_7_0 Remove this->UseCache
     if (this->UseCache &&
-      this->Cache->CheckExistsAndEqual(vtkDataObject::FIELD, name, offset, size[1]))
+      this->Cache->CheckExistsAndEqual(vtkDataObject::FIELD, cacheName, offset, size[1]))
     {
-      array = this->Cache->Get(vtkDataObject::FIELD, name);
+      array = this->Cache->Get(vtkDataObject::FIELD, cacheName);
       if (!array)
       {
         vtkErrorMacro("Error retrieving array " + name + " from cache.");
@@ -1083,7 +1084,7 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
       // VTK_DEPRECATED_IN_9_7_0 Remove this->UseCache
       if (this->UseCache)
       {
-        this->Cache->Set(vtkDataObject::FIELD, name, offset, size[1], array);
+        this->Cache->Set(vtkDataObject::FIELD, cacheName, offset, size[1], array);
       }
     }
 
@@ -1877,7 +1878,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
 
     for (unsigned int idx = 0; idx < pds->GetNumberOfPartitions(); ++idx)
     {
-      this->AddFieldArrays(pds->GetPartitionAsDataObject(idx));
+      this->AddFieldArrays(pds->GetPartitionAsDataObject(idx), datasetName);
     }
   }
 
@@ -2036,7 +2037,7 @@ int vtkHDFReader::ReadRecursively(
         return 0;
       }
 
-      this->AddFieldArrays(dataMB->GetBlock(i));
+      this->AddFieldArrays(dataMB->GetBlock(i), hdfPath);
     }
     else
     {
@@ -2336,6 +2337,7 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
 //----------------------------------------------------------------------------
 bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
 {
+  const std::string cachePath = this->CompositeCachePath;
   int ok = 1;
   if (this->GetHasTemporalData())
   {
@@ -2409,7 +2411,7 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
     return false;
   }
 
-  return ok && this->AddFieldArrays(data);
+  return ok && this->AddFieldArrays(data, cachePath);
 }
 
 //----------------------------------------------------------------------------
