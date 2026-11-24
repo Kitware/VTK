@@ -192,8 +192,7 @@ std::size_t vtkHDFReader::Implementation::GetNumberOfSteps()
 //------------------------------------------------------------------------------
 int vtkHDFReader::Implementation::GetNumberOfPieces(vtkIdType step)
 {
-  if (step < 0 || this->GetNumberOfSteps() == 1 ||
-    H5Lexists(this->VTKGroup, "Steps/NumberOfParts", H5P_DEFAULT) <= 0)
+  if (step < 0 || !this->HasDataset("Steps") || !this->HasDataset("Steps/NumberOfParts"))
   {
     return this->NumberOfPieces;
   }

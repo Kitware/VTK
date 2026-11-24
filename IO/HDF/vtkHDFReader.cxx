@@ -676,6 +676,7 @@ int vtkHDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
 {
   this->NumberOfSteps = this->Impl->GetNumberOfSteps();
+  this->SetHasTemporalData(this->Impl->HasDataset("Steps"));
 
   int dataSetType = this->Impl->GetDataSetType();
   if (dataSetType == VTK_IMAGE_DATA)
@@ -757,7 +758,6 @@ int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
   }
 
   // Recover temporal data information
-  this->SetHasTemporalData(this->NumberOfSteps > 1);
   if (this->GetHasTemporalData())
   {
     std::vector<double> values(this->NumberOfSteps, 0.0);
@@ -1904,9 +1904,9 @@ bool vtkHDFReader::RetrieveStepsFromAssembly()
     this->Impl->OpenGroupAsVTKGroup(hdfPathName);
     std::size_t nStep = this->Impl->GetNumberOfSteps();
 
-    if (nStep > 1)
+    if (this->Impl->HasDataset("Steps"))
     {
-      if (this->NumberOfSteps > 1 && this->NumberOfSteps != static_cast<vtkIdType>(nStep))
+      if (this->GetHasTemporalData() && this->NumberOfSteps != static_cast<vtkIdType>(nStep))
       {
         vtkErrorMacro("This composite file has mismatching number of steps between datasets : "
           << this->NumberOfSteps << " and " << nStep
