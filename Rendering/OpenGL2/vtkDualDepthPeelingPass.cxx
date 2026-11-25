@@ -221,7 +221,7 @@ bool vtkDualDepthPeelingPass::PostReplaceTranslucentShaderValues(
         "  float oDepth = texelFetch(opaqueDepth, pixel, 0).y;\n"
         "  if (oDepth != -1. && gl_FragDepth > oDepth)\n"
         "    { // Ignore fragments that are occluded by opaque geometry:\n"
-        "    gl_FragData[1].xy = vec2(-1., oDepth);\n"
+        "    gl_FragData[1].xy = vec2(-1.);\n"
         "    return;\n"
         "    }\n"
         "  else\n"
@@ -471,7 +471,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
       // At this point, both CopyOpaqueDepthBuffer and InitializeDepth have run.
       //
       // DepthSource (inner) has either:
-      // a. Same as outer/DepthDestination, or
+      // a. (-1, -1), or
       // b. (-transGeoDepthMin, transGeoDepthMax)
       // (a) if no transparent geo in front of opaque, (b) otherwise.
       //
@@ -483,11 +483,11 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
       //
       // We'll check both of the depth buffers:
       //
-      // 1) If the inner.y < 0, there is no geometry here. Render volume from
+      // 1) If neither buffer has geometry, render volume from
       //    0 --> 1 into the back buffer.
-      // 2) If the outer.x == -1 and inner.y < 0, we have only opaque geometry
+      // 2) If only the outer buffer has geometry, we have only opaque geometry
       //    here. Render volumes from 0 --> outer.y into the back buffer.
-      // 3) If the 'max' depth differs between the buffers, then peel:
+      // 3) If the inner buffer has translucent geometry, then peel:
       //    0 --> -inner.x into front buffer
       //    inner.y --> outer.y into back buffer. If outer.y < 0, replace with 1
 
@@ -530,7 +530,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
         "  else if (!hasTranslucentGeometry)\n"
         "  { // Opaque geometry only.\n"
 #ifndef DEBUG_VOLUME_PREPASS_PIXELS
-        "    float opaqueDepth = inner.y;\n"
+        "    float opaqueDepth = outer.y;\n"
         "    backRange = vec2(0.f, opaqueDepth);\n"
 #else  // not DEBUG_VOLUME_PREPASS_PIXELS
         "    back = vec4(0.f, 1.f, 0.f, 1.f);\n"
@@ -1088,13 +1088,10 @@ void vtkDualDepthPeelingPass::CopyOpaqueDepthBuffer()
   this->State->PushDrawFramebufferBinding();
   this->Framebuffer->Bind(GL_DRAW_FRAMEBUFFER);
 
-  // Fill both depth buffers with the opaque fragment depths. InitializeDepth
-  // will compare translucent fragment depths with values in DepthDestination
-  // and write to DepthSource using MAX blending, so we need both to have opaque
-  // fragments (src/dst seem reversed because they're named for their usage in
-  // PeelRender).
-  std::array<TextureName, 2> targets = { { this->DepthSource, this->DepthDestination } };
-  this->ActivateDrawBuffers(targets);
+  // Keep opaque depths in DepthDestination for InitializeDepth's occlusion test
+  // and the volume prepass. DepthSource must contain only translucent depths so
+  // the first back peel is not pinned to an opaque surface.
+  this->ActivateDrawBuffer(this->DepthDestination);
   this->Textures[OpaqueDepth]->Activate();
 
   this->State->vtkglDisable(GL_BLEND);
@@ -1113,7 +1110,7 @@ void vtkDualDepthPeelingPass::CopyOpaqueDepthBuffer()
       "    { // If no depth value has been written, discard the frag:\n"
       "    discard;\n"
       "    }\n"
-      "  gl_FragData[0] = gl_FragData[1] = vec4(-1, d, 0., 0.);\n");
+      "  gl_FragData[0] = vec4(-1., d, 0., 0.);\n");
     this->CopyDepthHelper = new vtkOpenGLQuadHelper(renWin, nullptr, fragShader.c_str(), nullptr);
   }
   else
