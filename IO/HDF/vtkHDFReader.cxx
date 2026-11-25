@@ -351,7 +351,7 @@ bool vtkHDFReader::ReadStructuredData(
 
       vtkDataSetAttributes* attributes = data->GetAttributes(attributeType);
       // Restore cached arrays removed by selections or replaced by a different extent.
-      if (!cacheHit || attributes->GetAbstractArray(name.c_str()) != array.GetPointer())
+      if (!cacheHit || attributes->GetAbstractArray(name.c_str()) != array)
       {
         this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
         attributes->AddArray(array);
@@ -1028,11 +1028,18 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkTable* data)
 }
 
 //------------------------------------------------------------------------------
-int vtkHDFReader::AddFieldArrays(vtkDataObject* data, const std::string& cachePath)
+int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
+{
+  const std::string nullPath;
+  return this->ReadFieldArrays(data, nullPath);
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFReader::ReadFieldArrays(vtkDataObject* data, const std::string& cachePath)
 {
   if (!data)
   {
-    return 1;
+    return true;
   }
 
   const std::vector<std::string> names = this->Impl->GetArrayNames(vtkDataObject::FIELD);
@@ -1068,7 +1075,7 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data, const std::string& cachePa
       if (!array)
       {
         vtkErrorMacro("Error retrieving array " + name + " from cache.");
-        return 0;
+        return false;
       }
       cacheHit = true;
     }
@@ -1078,7 +1085,7 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data, const std::string& cachePa
              this->Impl->NewFieldArray(name.c_str(), offset, size[1], size[0]))) == nullptr)
       {
         vtkErrorMacro("Error reading array " << name);
-        return 0;
+        return false;
       }
       array->SetName(name.c_str());
       // VTK_DEPRECATED_IN_9_7_0 Remove this->UseCache
@@ -1089,7 +1096,7 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data, const std::string& cachePa
     }
 
     vtkFieldData* attributes = data->GetAttributesAsFieldData(vtkDataObject::FIELD);
-    if (!cacheHit || attributes->GetAbstractArray(name.c_str()) != array.GetPointer())
+    if (!cacheHit || attributes->GetAbstractArray(name.c_str()) != array)
     {
       attributes->AddArray(array);
     }
@@ -1103,7 +1110,7 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data, const std::string& cachePa
     time->SetValue(0, this->TimeValue);
     data->GetAttributesAsFieldData(vtkDataObject::FIELD)->AddArray(time);
   }
-  return 1;
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -1415,7 +1422,7 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
         }
         vtkDataSetAttributes* attributes = pieceData->GetAttributes(attributeType);
         // Restore cached arrays removed by the selection mechanism.
-        if (!cacheArray || attributes->GetAbstractArray(name.c_str()) != array.GetPointer())
+        if (!cacheArray || attributes->GetAbstractArray(name.c_str()) != array)
         {
           array->SetName(name.c_str());
           this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
@@ -1737,7 +1744,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
           }
           vtkDataSetAttributes* attributes = pieceData->GetAttributes(attributeType);
           // Restore cached arrays removed by the selection mechanism.
-          if (!cacheArray || attributes->GetAbstractArray(name.c_str()) != array.GetPointer())
+          if (!cacheArray || attributes->GetAbstractArray(name.c_str()) != array)
           {
             array->SetName(name.c_str());
             this->Impl->AttachDatasetAttributeToArray(attributeType, array, attributes);
@@ -1878,7 +1885,10 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
 
     for (unsigned int idx = 0; idx < pds->GetNumberOfPartitions(); ++idx)
     {
-      this->AddFieldArrays(pds->GetPartitionAsDataObject(idx), datasetName);
+      if (!this->ReadFieldArrays(pds->GetPartitionAsDataObject(idx), datasetName))
+      {
+        return 0;
+      }
     }
   }
 
@@ -2037,7 +2047,10 @@ int vtkHDFReader::ReadRecursively(
         return 0;
       }
 
-      this->AddFieldArrays(dataMB->GetBlock(i), hdfPath);
+      if (!this->ReadFieldArrays(dataMB->GetBlock(i), hdfPath))
+      {
+        return 0;
+      }
     }
     else
     {
@@ -2411,7 +2424,7 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
     return false;
   }
 
-  return ok && this->AddFieldArrays(data, cachePath);
+  return ok && this->ReadFieldArrays(data, cachePath);
 }
 
 //----------------------------------------------------------------------------
