@@ -164,6 +164,7 @@ vtk_module_test_data(
   Data/vtkHDF/simple_htg.vtkhdf
   Data/vtkHDF/shell_3d.vtkhdf
   Data/vtkHDF/temporal_htg.vtkhdf
+  Data/vtkHDF/temporal_htg_changing_partition_count.vtkhdf
 
   Data/vtkHDF/temporal_rectilinear.vtkhdf
   Data/vtkHDF/temporal_structured.vtkhdf
