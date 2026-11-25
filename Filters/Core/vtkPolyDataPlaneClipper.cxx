@@ -735,7 +735,7 @@ void GenerateCap(vtkCellArray* lines, vtkPolyData* pd)
       bool closed = true;
       polygon->PointIds->Reset();
       polygon->Points->Reset();
-      while (closed && nextPt != startPt)
+      do
       {
         // By inserting the points at the beginning of this while() loop, the
         // last point is not inserted, which is what we want for a polygon (i.e.,
@@ -753,7 +753,7 @@ void GenerateCap(vtkCellArray* lines, vtkPolyData* pd)
         GetLine(currentLine, lineConn, npts, pts);
         currentPt = nextPt;
         nextPt = (pts[0] != nextPt ? pts[0] : pts[1]);
-      }
+      } while (closed && currentPt != startPt);
 
       // If the last loop is closed, triangulate the polygon and then feed
       // the resulting triangles into the filter output.
