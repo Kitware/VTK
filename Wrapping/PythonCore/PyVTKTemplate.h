@@ -16,9 +16,10 @@
 #include "vtkSystemIncludes.h"
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 
-extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKTemplate_Type;
+// Heap type created with PyType_FromSpec; null until first PyVTKTemplate_New.
+extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject* PyVTKTemplate_Type;
 
-#define PyVTKTemplate_Check(obj) (Py_TYPE(obj) == &PyVTKTemplate_Type)
+#define PyVTKTemplate_Check(obj) (Py_TYPE((PyObject*)(obj)) == PyVTKTemplate_Type)
 
 extern "C"
 {

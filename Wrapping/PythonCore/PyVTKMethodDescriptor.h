@@ -17,9 +17,26 @@
 #include "vtkSystemIncludes.h"
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 
-extern PyTypeObject PyVTKMethodDescriptor_Type;
+// Our own descriptor object.  CPython's PyMethodDescrObject struct (accessed
+// via the PyDescr_TYPE/PyDescr_NAME macros) is not available under the
+// Limited API, so the data is stored in our own fields instead.
+struct PyVTKMethodDescriptor
+{
+  PyObject_HEAD
+  PyTypeObject* meth_class; // the type the method belongs to (exposed as __objclass__)
+  PyObject* meth_name;      // interned method name (exposed as __name__)
+  PyMethodDef* meth_def;    // the method definition
+};
 
-#define PyVTKMethodDescriptor_Check(obj) (Py_TYPE(obj) == &PyVTKMethodDescriptor_Type)
+// The descriptor type is a heap type created with PyType_FromSpec; this pointer
+// is null until PyVTKMethodDescriptor_ClassNew() has been called.
+extern PyTypeObject* PyVTKMethodDescriptor_Type;
+
+#define PyVTKMethodDescriptor_Check(obj) (Py_TYPE((PyObject*)(obj)) == PyVTKMethodDescriptor_Type)
+
+// Create the method descriptor type object.  Returns false (with a Python
+// exception set) on failure.  Safe to call more than once.
+bool PyVTKMethodDescriptor_ClassNew();
 
 extern "C"
 {

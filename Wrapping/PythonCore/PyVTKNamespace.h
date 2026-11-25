@@ -14,9 +14,10 @@
 #include "vtkSystemIncludes.h"
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 
-extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKNamespace_Type;
+// Heap type created with PyType_FromSpec; null until first PyVTKNamespace_New.
+extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject* PyVTKNamespace_Type;
 
-#define PyVTKNamespace_Check(obj) (Py_TYPE(obj) == &PyVTKNamespace_Type)
+#define PyVTKNamespace_Check(obj) (Py_TYPE((PyObject*)(obj)) == PyVTKNamespace_Type)
 
 extern "C"
 {

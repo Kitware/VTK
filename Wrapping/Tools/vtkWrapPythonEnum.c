@@ -86,27 +86,25 @@ void vtkWrapPython_AddEnumType(FILE* fp, const char* indent, const char* dictvar
     fprintf(fp, "  /* Deprecated %s */\n", (cls->DeprecatedReason ? cls->DeprecatedReason : ""));
   }
 
-  fprintf(fp, "%sPyType_Ready(&Py%s%s%s_Type);\n", indent, (scope ? scope : ""), (scope ? "_" : ""),
-    cls->Name);
+  /* create the enum type (a heap type); TypeNew also registers it */
+  fprintf(fp, "%s%s = (PyObject *)Py%s%s%s_TypeNew();\n", indent, objvar, (scope ? scope : ""),
+    (scope ? "_" : ""), cls->Name);
+  fprintf(fp,
+    "%sif (%s)\n"
+    "%s{\n",
+    indent, objvar, indent);
 
   if (cls->NumberOfConstants)
   {
     fprintf(fp,
-      "%s// members of %s%s%s\n"
-      "%s{\n"
+      "%s  // members of %s%s%s\n"
       "%s  PyObject *enumval;\n"
-      "%s  PyObject *enumdict = PyDict_New();\n"
-      "%s  Py%s%s%s_Type.tp_dict = enumdict;\n"
-      "\n",
-      indent, (scope ? scope : ""), (scope ? "::" : ""), cls->Name, indent, indent, indent, indent,
-      (scope ? scope : ""), (scope ? "_" : ""), cls->Name);
-
-    fprintf(fp,
       "%s  typedef %s%s%s cxx_enum_type;\n"
       "%s  static const struct {\n"
       "%s    const char *name; cxx_enum_type value;\n"
       "%s  } constants[%d] = {\n",
-      indent, (scope ? scope : ""), (scope ? "::" : ""), cls->Name, indent, indent, indent,
+      indent, (scope ? scope : ""), (scope ? "::" : ""), cls->Name, indent, indent,
+      (scope ? scope : ""), (scope ? "::" : ""), cls->Name, indent, indent, indent,
       cls->NumberOfConstants);
 
     for (j = 0; j < cls->NumberOfConstants; j++)
@@ -128,32 +126,20 @@ void vtkWrapPython_AddEnumType(FILE* fp, const char* indent, const char* dictvar
       "%s    enumval = Py%s%s%s_FromEnum(constants[c].value);\n"
       "%s    if (enumval)\n"
       "%s    {\n"
-      "%s      PyDict_SetItemString(enumdict, constants[c].name, enumval);\n"
+      "%s      PyObject_SetAttrString(%s, constants[c].name, enumval);\n"
       "%s      Py_DECREF(enumval);\n"
       "%s    }\n"
       "%s  }\n",
       indent, cls->NumberOfConstants, indent, indent, (scope ? scope : ""), (scope ? "_" : ""),
-      cls->Name, indent, indent, indent, indent, indent, indent);
-
-    fprintf(fp,
-      "%s}\n"
-      "\n",
-      indent);
+      cls->Name, indent, indent, indent, objvar, indent, indent, indent);
   }
 
+  /* add the enum type to the enclosing scope (a module/namespace dict or a
+   * wrapped type); the scope holds the reference, ours is borrowed */
   fprintf(fp,
-    "%sPyVTKEnum_Add(&Py%s%s%s_Type, \"%s%s%s\");\n"
-    "\n",
-    indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name, (scope ? scope : ""),
-    (scope ? "." : ""), cls->Name);
-  fprintf(fp,
-    "%s%s = (PyObject *)&Py%s%s%s_Type;\n"
-    "%sif (PyDict_SetItemString(%s, \"%s\", %s) != 0)\n"
-    "%s{\n"
-    "%s  Py_DECREF(%s);\n"
+    "%s  vtkPythonUtil::AddToScope(%s, \"%s\", %s);\n"
     "%s}\n",
-    indent, objvar, (scope ? scope : ""), (scope ? "_" : ""), cls->Name, indent, dictvar, cls->Name,
-    objvar, indent, indent, objvar, indent);
+    indent, dictvar, cls->Name, objvar, indent);
 }
 
 /* -------------------------------------------------------------------- */
@@ -178,87 +164,57 @@ void vtkWrapPython_GenerateEnumType(
 
   /* generate all functions and protocols needed for the type */
 
-  /* generate the TypeObject */
-  fprintf(fp,
-    "#ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION\n"
-    "#pragma GCC diagnostic ignored \"-Wdeprecated-declarations\"\n"
-    "#endif\n"
-    "\n"
-    "static PyTypeObject Py%s_Type = {\n"
-    "  PyVarObject_HEAD_INIT(&PyType_Type, 0)\n"
-    "  PYTHON_PACKAGE_SCOPE \"%s.%s\", // tp_name\n"
-    "  sizeof(PyLongObject), // tp_basicsize\n"
-    "  0, // tp_itemsize\n"
-    "  nullptr, // tp_dealloc\n"
-    "#if PY_VERSION_HEX >= 0x03080000\n"
-    "  0, // tp_vectorcall_offset\n"
-    "#else\n"
-    "  nullptr, // tp_print\n"
-    "#endif\n"
-    "  nullptr, // tp_getattr\n"
-    "  nullptr, // tp_setattr\n"
-    "  nullptr, // tp_compare\n"
-    "  nullptr, // tp_repr\n",
-    enumname, module, tpname);
+  /* generate the type as a heap type created with PyType_FromSpec (a subclass
+   * of int), so that the wrapping can be built against the Limited API */
+  fprintf(fp, "static PyTypeObject *Py%s_Type = nullptr;\n\n", enumname);
 
   fprintf(fp,
-    "  nullptr, // tp_as_number\n"
-    "  nullptr, // tp_as_sequence\n"
-    "  nullptr, // tp_as_mapping\n"
-    "  nullptr, // tp_hash\n"
-    "  nullptr, // tp_call\n"
-    "  nullptr, // tp_str\n"
-    "  nullptr, // tp_getattro\n"
-    "  nullptr, // tp_setattro\n"
-    "  nullptr, // tp_as_buffer\n"
+    "static PyType_Slot Py%s_Slots[] = {\n"
+    "  { 0, nullptr }\n"
+    "};\n"
+    "\n"
+    "static PyType_Spec Py%s_Spec = {\n"
+    "  PYTHON_PACKAGE_SCOPE \"%s.%s\", // tp_name\n"
+    "  0, // tp_basicsize (inherited from PyLong_Type)\n"
+    "  0, // tp_itemsize\n"
     "  Py_TPFLAGS_DEFAULT\n"
     "#if PY_VERSION_HEX >= 0x030A0000\n"
     "    | Py_TPFLAGS_DISALLOW_INSTANTIATION\n"
     "#endif\n"
     "  , // tp_flags\n"
-    "  nullptr, // tp_doc\n"
-    "  nullptr, // tp_traverse\n"
-    "  nullptr, // tp_clear\n"
-    "  nullptr, // tp_richcompare\n"
-    "  0, // tp_weaklistoffset\n");
-
-  fprintf(fp,
-    "  nullptr, // tp_iter\n"
-    "  nullptr, // tp_iternext\n"
-    "  nullptr, // tp_methods\n"
-    "  nullptr, // tp_members\n"
-    "  nullptr, // tp_getset\n"
-    "  &PyLong_Type, // tp_base\n"
-    "  nullptr, // tp_dict\n"
-    "  nullptr, // tp_descr_get\n"
-    "  nullptr, // tp_descr_set\n"
-    "  0, // tp_dictoffset\n"
-    "  nullptr, // tp_init\n"
-    "  nullptr, // tp_alloc\n"
-    "  nullptr, // tp_new\n"
-    "  PyObject_Del, // tp_free\n"
-    "  nullptr, // tp_is_gc\n");
-
-  /* fields set by python itself */
-  fprintf(fp,
-    "  nullptr, // tp_bases\n"
-    "  nullptr, // tp_mro\n"
-    "  nullptr, // tp_cache\n"
-    "  nullptr, // tp_subclasses\n"
-    "  nullptr, // tp_weaklist\n");
-
-  /* internal struct members */
-  fprintf(fp,
-    "  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED\n"
+    "  Py%s_Slots\n"
     "};\n"
-    "\n");
+    "\n",
+    enumname, enumname, module, tpname, enumname);
+
+  /* create the enum type as a subclass of int (idempotent) */
+  fprintf(fp,
+    "static PyTypeObject *Py%s_TypeNew()\n"
+    "{\n"
+    "  if (Py%s_Type == nullptr)\n"
+    "  {\n"
+    "    PyObject *bases = PyTuple_Pack(1, (PyObject *)&PyLong_Type);\n"
+    "    if (bases)\n"
+    "    {\n"
+    "      Py%s_Type = (PyTypeObject *)PyType_FromSpecWithBases(&Py%s_Spec, bases);\n"
+    "      Py_DECREF(bases);\n"
+    "      if (Py%s_Type)\n"
+    "      {\n"
+    "        PyVTKEnum_Add(Py%s_Type, \"%s\");\n"
+    "      }\n"
+    "    }\n"
+    "  }\n"
+    "  return Py%s_Type;\n"
+    "}\n"
+    "\n",
+    enumname, enumname, enumname, enumname, enumname, enumname, tpname, enumname);
 
   /* conversion method: construct from enum value */
   fprintf(fp,
     "template<class T>\n"
     "static PyObject *Py%s_FromEnum(T val)\n"
     "{\n"
-    "  return PyVTKEnum_New(&Py%s_Type, static_cast<int>(val));\n"
+    "  return PyVTKEnum_New(Py%s_TypeNew(), static_cast<int>(val));\n"
     "}\n"
     "\n",
     enumname, enumname);

@@ -144,13 +144,14 @@ static PyMethodDef PyVTKExtras_Methods[] = {
 // Exported method called by vtkCommonCorePythonInit
 void PyVTKAddFile_PyVTKExtras(PyObject* dict)
 {
-  // It is necessary to call PyType_Ready() on all subclasses
-  PyType_Ready(&PyVTKNumberReference_Type);
-  PyType_Ready(&PyVTKStringReference_Type);
-  PyType_Ready(&PyVTKTupleReference_Type);
+  // Create the reference type objects (heap types built with PyType_FromSpec).
+  if (!PyVTKReference_ClassNew())
+  {
+    return;
+  }
 
   // Add the "mutable" object (used for C++ pass-by-reference)
-  PyObject* o = (PyObject*)&PyVTKReference_Type;
+  PyObject* o = (PyObject*)PyVTKReference_Type;
   PyDict_SetItemString(dict, "reference", o); // new name (as of VTK 8.1)
   PyDict_SetItemString(dict, "mutable", o);   // old name
 

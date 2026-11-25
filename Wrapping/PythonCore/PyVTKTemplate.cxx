@@ -222,13 +222,6 @@ static PyObject* PyVTKTemplate_GetItem(PyObject* ob, PyObject* key)
 }
 
 //------------------------------------------------------------------------------
-static PyMappingMethods PyVTKTemplate_AsMapping = {
-  PyVTKTemplate_Size,    // mp_length
-  PyVTKTemplate_GetItem, // mp_subscript
-  nullptr,               // mp_ass_subscript
-};
-
-//------------------------------------------------------------------------------
 static PyObject* PyVTKTemplate_Repr(PyObject* self)
 {
   return PyUnicode_FromFormat("<template %s>", PyModule_GetName(self));
@@ -244,64 +237,39 @@ static PyObject* PyVTKTemplate_Call(PyObject*, PyObject*, PyObject*)
   return nullptr;
 }
 
-#ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 //------------------------------------------------------------------------------
-// clang-format off
-PyTypeObject PyVTKTemplate_Type = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "vtkmodules.vtkCommonCore.template", // tp_name
-  0,                        // tp_basicsize
-  0,                        // tp_itemsize
-  nullptr,                  // tp_dealloc
-#if PY_VERSION_HEX >= 0x03080000
-  0,                        // tp_vectorcall_offset
-#else
-  nullptr,                  // tp_print
-#endif
-  nullptr,                  // tp_getattr
-  nullptr,                  // tp_setattr
-  nullptr,                  // tp_compare
-  PyVTKTemplate_Repr,       // tp_repr
-  nullptr,                  // tp_as_number
-  nullptr,                  // tp_as_sequence
-  &PyVTKTemplate_AsMapping, // tp_as_mapping
-  nullptr,                  // tp_hash
-  PyVTKTemplate_Call,       // tp_call
-  nullptr,                  // tp_string
-  PyObject_GenericGetAttr,  // tp_getattro
-  nullptr,                  // tp_setattro
-  nullptr,                  // tp_as_buffer
-  Py_TPFLAGS_DEFAULT,       // tp_flags
-  PyVTKTemplate_Doc,        // tp_doc
-  nullptr,                  // tp_traverse
-  nullptr,                  // tp_clear
-  nullptr,                  // tp_richcompare
-  0,                        // tp_weaklistoffset
-  nullptr,                  // tp_iter
-  nullptr,                  // tp_iternext
-  PyVTKTemplate_Methods,    // tp_methods
-  nullptr,                  // tp_members
-  nullptr,                  // tp_getset
-  &PyModule_Type,           // tp_base
-  nullptr,                  // tp_dict
-  nullptr,                  // tp_descr_get
-  nullptr,                  // tp_descr_set
-  0,                        // tp_dictoffset
-  nullptr,                  // tp_init
-  nullptr,                  // tp_alloc
-  nullptr,                  // tp_new
-  nullptr,                  // tp_free
-  nullptr,                  // tp_is_gc
-  nullptr,                  // tp_bases
-  nullptr,                  // tp_mro
-  nullptr,                  // tp_cache
-  nullptr,                  // tp_subclasses
-  nullptr,                  // tp_weaklist
-  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED };
-// clang-format on
+// Heap type created with PyType_FromSpec, as a subclass of the module type.
+PyTypeObject* PyVTKTemplate_Type = nullptr;
+
+static PyType_Slot PyVTKTemplate_Slots[] = {
+  { Py_tp_repr, (void*)PyVTKTemplate_Repr },
+  { Py_tp_call, (void*)PyVTKTemplate_Call },
+  { Py_tp_getattro, (void*)PyObject_GenericGetAttr },
+  { Py_tp_doc, (void*)PyVTKTemplate_Doc },
+  { Py_tp_methods, (void*)PyVTKTemplate_Methods },
+  { Py_mp_length, (void*)PyVTKTemplate_Size },
+  { Py_mp_subscript, (void*)PyVTKTemplate_GetItem },
+  { 0, nullptr },
+};
+
+static PyType_Spec PyVTKTemplate_Spec = { "vtkmodules.vtkCommonCore.template", // tp_name
+  0, // tp_basicsize (inherited from PyModule_Type)
+  0, // tp_itemsize
+  Py_TPFLAGS_DEFAULT, PyVTKTemplate_Slots };
+
+static PyTypeObject* PyVTKTemplate_GetType()
+{
+  if (PyVTKTemplate_Type == nullptr)
+  {
+    PyObject* bases = PyTuple_Pack(1, (PyObject*)&PyModule_Type);
+    if (bases)
+    {
+      PyVTKTemplate_Type = (PyTypeObject*)PyType_FromSpecWithBases(&PyVTKTemplate_Spec, bases);
+      Py_DECREF(bases);
+    }
+  }
+  return PyVTKTemplate_Type;
+}
 
 //------------------------------------------------------------------------------
 // Generate mangled name from the given template args
@@ -835,11 +803,16 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
 //------------------------------------------------------------------------------
 PyObject* PyVTKTemplate_New(const char* name, const char* docstring)
 {
-  // make sure python has readied the type object
-  PyType_Ready(&PyVTKTemplate_Type);
-  // call the superclass new function
+  PyTypeObject* pytype = PyVTKTemplate_GetType();
+  if (pytype == nullptr)
+  {
+    return nullptr;
+  }
+  // call the superclass (module type) new and init functions
+  newfunc moduleNew = (newfunc)PyType_GetSlot(&PyModule_Type, Py_tp_new);
+  initproc moduleInit = (initproc)PyType_GetSlot(&PyModule_Type, Py_tp_init);
   PyObject* empty = PyTuple_New(0);
-  PyObject* self = PyVTKTemplate_Type.tp_base->tp_new(&PyVTKTemplate_Type, empty, nullptr);
+  PyObject* self = moduleNew(pytype, empty, nullptr);
   Py_DECREF(empty);
   // call the superclass init function
   PyObject* pyname = PyUnicode_FromString(name);
@@ -847,7 +820,7 @@ PyObject* PyVTKTemplate_New(const char* name, const char* docstring)
   PyObject* args = PyTuple_Pack(2, pyname, pydoc);
   Py_DECREF(pyname);
   Py_DECREF(pydoc);
-  PyVTKTemplate_Type.tp_base->tp_init(self, args, nullptr);
+  moduleInit(self, args, nullptr);
   Py_DECREF(args);
 
   return self;

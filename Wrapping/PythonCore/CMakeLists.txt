@@ -26,12 +26,21 @@ get_property(vtk_python_version_major GLOBAL
 get_property(vtk_python_version_minor GLOBAL
   PROPERTY _vtk_python_version_minor)
 
+# The runtime support library is normally tagged with the Python version so
+# per-version builds can coexist. When built against the Limited API it is
+# version-neutral (one binary serves every interpreter above the floor), so tag
+# it "abi3" instead.
+set(vtk_pythoncore_name_suffix "${vtk_python_version_major}.${vtk_python_version_minor}")
+if (VTK_PYTHON_LIMITED_API)
+  set(vtk_pythoncore_name_suffix "abi3")
+endif ()
+
 vtk_module_add_module(VTK::WrappingPythonCore
   CLASSES ${classes}
   HEADERS ${headers}
   PRIVATE_CLASSES ${private_classes}
   PRIVATE_HEADERS ${private_headers}
-  LIBRARY_NAME_SUFFIX "${vtk_python_version_major}.${vtk_python_version_minor}")
+  LIBRARY_NAME_SUFFIX "${vtk_pythoncore_name_suffix}")
 
 if (NOT VTK_ABI_NAMESPACE_NAME STREQUAL "<DEFAULT>" AND NOT DEFINED ENV{CI})
   message(WARNING "Wrappings::PythonCore ABI does not not support the VTK_ABI_NAMESPACE_NAME "

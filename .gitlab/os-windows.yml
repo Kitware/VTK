@@ -39,20 +39,6 @@
     variables:
         CMAKE_CONFIGURATION: wheel_windows310_x86_64_osmesa
 
-.wheel_windows311_x86_64:
-    extends: .wheel_windows_x86_64
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_windows311_x86_64
-
-.wheel_windows311_x86_64_osmesa:
-    extends:
-        - .wheel_windows311_x86_64
-        - .wheel_windows_osmesa_addon
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_windows311_x86_64_osmesa
-
 .wheel_windows312_x86_64:
     extends: .wheel_windows_x86_64
 
@@ -109,6 +95,38 @@
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows314t_x86_64_osmesa
+
+.wheel_windows_abi3_x86_64:
+    extends: .wheel_windows_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_windows_abi3_x86_64
+
+.wheel_windows_abi3_x86_64_osmesa:
+    extends:
+        - .wheel_windows_abi3_x86_64
+        - .wheel_windows_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_windows_abi3_x86_64_osmesa
+
+.wheel_windows_abi3_x86_64_py312_test:
+    extends: .wheel_windows_abi3_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_windows_abi3_x86_64_py312_test
+
+.wheel_windows_abi3_x86_64_py313_test:
+    extends: .wheel_windows_abi3_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_windows_abi3_x86_64_py313_test
+
+.wheel_windows_abi3_x86_64_py314_test:
+    extends: .wheel_windows_abi3_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_windows_abi3_x86_64_py314_test
 
 ### Build and test
 
@@ -459,11 +477,13 @@
         - '& "python$env:PYTHON_VERSION_SUFFIX" -m venv venv'
         - . .\venv\Scripts\Activate.ps1
         - pip install setuptools
-        - pip install wheel
-        - python setup.py bdist_wheel
+        - pip install wheel packaging
+        - if ( "$env:CMAKE_CONFIGURATION" -match "abi3" ) { python setup.py bdist_wheel --py-limited-api=cp311 } else { python setup.py bdist_wheel }
         - python "$env:GIT_CLONE_PATH\.gitlab\ci\create_wheel_sdk_archive.py"
         - cd wheel_sdks # wheel sdk is built in a subdirectory to prevent any clash with normal wheel process
         - python -m pip wheel .
+        # The vtk-sdk wheel must carry the same tags as the vtk wheel.
+        - python "$env:GIT_CLONE_PATH\.gitlab\ci\retag_sdk_wheel.py" (Get-ChildItem ..\dist\vtk-*.whl).FullName (Get-ChildItem vtk_sdk-*.whl).FullName
         - cd ..
         - pip install delvewheel
         - delvewheel show --add-path "bin" (Get-ChildItem dist\*.whl | % FullName) | Out-File -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
@@ -489,6 +509,8 @@
         - . .\venv\Scripts\Activate.ps1
         - pip install twine
         - twine check (Get-ChildItem build\dist\*.whl | % FullName)
+        - if ( "$env:CMAKE_CONFIGURATION" -match "abi3" ) { pip install abi3audit; abi3audit -R -o abi3-report.json (Get-ChildItem build\dist\*.whl | % FullName); $global:LASTEXITCODE = 0 }
+        - if ( "$env:CMAKE_CONFIGURATION" -match "abi3" ) { python "$env:GIT_CLONE_PATH\.gitlab\ci\check_abi3_report.py" abi3-report.json }
         - pip install (Get-ChildItem build\dist\*.whl | % FullName)
         - $PYTHON_REQUIREMENTS_VERSION=python -c "import sys;print(f'{sys.version_info[0]}.{sys.version_info[1]}')"
         # Python xarray deps not available yet for free threading.

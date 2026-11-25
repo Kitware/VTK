@@ -9,6 +9,11 @@ vtk_module_add_module(VTK::PythonInterpreter
   CLASSES ${classes}
   HEADERS ${headers})
 
+# Interpreter APIs are not included in abi3.
+vtk_module_definitions(VTK::PythonInterpreter
+  PRIVATE
+    VTK_PYTHON_NO_LIMITED_API)
+
 if (Python3_VERSION VERSION_LESS "3.7" AND NOT CMAKE_VERSION VERSION_LESS "3.19")
   include(CheckCompilerFlag)
   set(old_python_ignore_warning_flag "-Wno-writable-strings")

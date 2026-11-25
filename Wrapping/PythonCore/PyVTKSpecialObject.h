@@ -59,9 +59,12 @@ VTK_ABI_NAMESPACE_END
 
 extern "C"
 {
+  // Create a special (non-vtkObjectBase) type as a heap type from a spec and
+  // populate it with the methods and getsets.  The PyType_FromSpec analog of
+  // the former PyVTKSpecialType_Add; the caller must cache the returned type.
   VTKWRAPPINGPYTHONCORE_EXPORT
-  PyTypeObject* PyVTKSpecialType_Add(PyTypeObject* pytype, PyMethodDef* methods,
-    PyGetSetDef* getsets, PyMethodDef* constructors, vtkcopyfunc copyfunc);
+  PyTypeObject* PyVTKSpecialType_AddHeapType(PyType_Spec* spec, PyObject* base,
+    PyMethodDef* methods, PyGetSetDef* getsets, PyMethodDef* constructors, vtkcopyfunc copyfunc);
 
   VTKWRAPPINGPYTHONCORE_EXPORT
   PyObject* PyVTKSpecialObject_New(const char* classname, void* ptr);

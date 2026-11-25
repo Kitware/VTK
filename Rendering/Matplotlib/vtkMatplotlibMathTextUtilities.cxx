@@ -137,10 +137,9 @@ vtkMatplotlibMathTextUtilities::Availability vtkMatplotlibMathTextUtilities::Che
     vtkSmartPyObject valueStr(PyObject_Str(value));
     vtkMplStartUpDebugMacro("Error during matplotlib import:\n"
       << "\nStack:\n"
-      << (tracebackStr ? const_cast<char*>(PyUnicode_AsUTF8(tracebackStr)) : "(none)")
-      << "\nValue:\n"
-      << (valueStr ? const_cast<char*>(PyUnicode_AsUTF8(valueStr)) : "(none)") << "\nType:\n"
-      << (typeStr ? const_cast<char*>(PyUnicode_AsUTF8(typeStr)) : "(none)"));
+      << (tracebackStr ? PyUnicode_AsUTF8AndSize(tracebackStr, nullptr) : "(none)") << "\nValue:\n"
+      << (valueStr ? PyUnicode_AsUTF8AndSize(valueStr, nullptr) : "(none)") << "\nType:\n"
+      << (typeStr ? PyUnicode_AsUTF8AndSize(typeStr, nullptr) : "(none)"));
     PyErr_Clear();
     vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = UNAVAILABLE;
   }
@@ -363,12 +362,11 @@ bool vtkMatplotlibMathTextUtilities::CheckForError()
       vtkSmartPyObject valueStr(PyObject_Str(value));
       vtkWarningMacro(<< "Python exception raised:\n"
                       << "\nStack:\n"
-                      << (tracebackStr ? const_cast<char*>(PyUnicode_AsUTF8(tracebackStr))
-                                       : "(none)")
+                      << (tracebackStr ? PyUnicode_AsUTF8AndSize(tracebackStr, nullptr) : "(none)")
                       << "\nValue:\n"
-                      << (valueStr ? const_cast<char*>(PyUnicode_AsUTF8(valueStr)) : "(none)")
+                      << (valueStr ? PyUnicode_AsUTF8AndSize(valueStr, nullptr) : "(none)")
                       << "\nType:\n"
-                      << (typeStr ? const_cast<char*>(PyUnicode_AsUTF8(typeStr)) : "(none)"));
+                      << (typeStr ? PyUnicode_AsUTF8AndSize(typeStr, nullptr) : "(none)"));
     }
     PyErr_Clear();
     return true;
@@ -1579,7 +1577,7 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(
     // convert to smart pointers afterwards.
     PyObject* pyVertXObj = nullptr;
     PyObject* pyVertYObj = nullptr;
-    if (pyVert->ob_type == &PyTuple_Type)
+    if (PyTuple_CheckExact(pyVert))
     {
       pyVertXObj = PyTuple_GetItem(pyVert, 0);
       pyVertYObj = PyTuple_GetItem(pyVert, 1);

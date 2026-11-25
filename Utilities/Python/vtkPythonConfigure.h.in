@@ -14,6 +14,12 @@
 /* Whether the real python debug library has been provided.  */
 #cmakedefine VTK_WINDOWS_PYTHON_DEBUGGABLE
 
+/* Build against the CPython Limited API (stable ABI / abi3).  */
+#cmakedefine01 VTK_PYTHON_LIMITED_API
+
+/* PY_VERSION_HEX floor used when VTK_PYTHON_LIMITED_API is enabled.  */
+#define VTK_PYTHON_LIMITED_API_VERSION @VTK_PYTHON_LIMITED_API_VERSION@
+
 /* build specific site-packages suffix. This is used to setup Python
  * module paths during initialization.
  */

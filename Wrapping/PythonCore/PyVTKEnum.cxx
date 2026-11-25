@@ -27,7 +27,8 @@ PyObject* PyVTKEnum_New(PyTypeObject* pytype, int val)
 {
   // our enums are subtypes of Python's int() type
   PyObject* args = Py_BuildValue("(i)", val);
-  PyObject* obj = PyLong_Type.tp_new(pytype, args, nullptr);
+  newfunc longNew = (newfunc)PyType_GetSlot(&PyLong_Type, Py_tp_new);
+  PyObject* obj = longNew(pytype, args, nullptr);
   Py_DECREF(args);
   return obj;
 }

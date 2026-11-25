@@ -49,9 +49,14 @@ endif ()
 
 # Export location of python module dirs in install and build tree for every vtkpython module to use
 # As long as those modules depend on vtkpython, they can retrieve and use these
+# When VTK_PYTHON_LIMITED_API (abi3) is ON, the top-level CMakeLists.txt has
+# already chosen a version-neutral suffix (no pythonX.Y component); this fallback
+# only runs when the suffix was not computed there.
 if (NOT VTK_PYTHON_SITE_PACKAGES_SUFFIX)
   if (MSVC)
     set(VTK_PYTHON_SITE_PACKAGES_SUFFIX "Lib/site-packages")
+  elseif (VTK_PYTHON_LIMITED_API)
+    set(VTK_PYTHON_SITE_PACKAGES_SUFFIX "python${Python3_VERSION_MAJOR}/site-packages")
   else ()
     set(VTK_PYTHON_SITE_PACKAGES_SUFFIX
       "python${vtk_python_version_pair}/site-packages")
@@ -87,6 +92,14 @@ else ()
   set(VTK_PYTHON_SITE_PACKAGES_SUFFIX_FIXED "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}")
 endif ()
 
+# PY_VERSION_HEX floor for the Limited API.  3.11 (0x030B0000) is the lowest
+# floor that supports everything the wrappers need (the buffer protocol and
+# PyType_GetName entered the Limited API in 3.11); 3.10 and earlier cannot
+# express the buffer protocol used for array/NumPy interop.
+set(VTK_PYTHON_LIMITED_API_VERSION "0x030B0000" CACHE STRING
+  "Minimum Python version (PY_VERSION_HEX form) for the Limited API floor")
+mark_as_advanced(VTK_PYTHON_LIMITED_API_VERSION)
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkPythonConfigure.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkPythonConfigure.h")
@@ -112,9 +125,39 @@ add_library(PythonUsed INTERFACE)
 add_library(VTK::PythonUsed ALIAS PythonUsed)
 _vtk_module_install(PythonUsed)
 
+# abi3 on Windows: link the stable python3.lib rather than the versioned
+# python3XY.lib.  Once Py_LIMITED_API is defined, CPython's pyconfig.h auto-links
+# python3.lib through `#pragma comment(lib, ...)`, and that import library
+# forwards to python3.dll, which is present for every Python 3.x.  We therefore
+# only expose the Python headers and put the import library directory on the
+# linker search path; we deliberately do not link Python3::Module/Python here,
+# which would otherwise pull in the version-specific import library and tie the
+# module to a single python3XY.dll.  Translation units that opt out of the
+# Limited API (the embedded interpreter) keep emitting the versioned pragma and
+# resolve python3XY.lib from the same directory, so both coexist.
+if (VTK_PYTHON_LIMITED_API AND WIN32)
+  if (DEFINED Python3_LIBRARY_DIRS)
+    set(_vtk_python_limited_libdir "${Python3_LIBRARY_DIRS}")
+  else ()
+    # XXX(cmake-3.24): Use `$<PATH:GET_PARENT_PATH,$<LOCATION:Python::Module>>`.
+    list(GET Python3_LIBRARIES 0 _vtk_python_limited_lib0)
+    get_filename_component(_vtk_python_limited_libdir
+      "${_vtk_python_limited_lib0}" DIRECTORY)
+  endif ()
+  add_library(vtkPythonLimitedABI INTERFACE)
+  add_library(VTK::PythonLimitedABI ALIAS vtkPythonLimitedABI)
+  # XXX(cmake-3.26): Use `$<BUILD_LOCAL_INTERFACE>`.
+  target_include_directories(vtkPythonLimitedABI SYSTEM INTERFACE
+    "$<BUILD_INTERFACE:${Python3_INCLUDE_DIRS}>")
+  target_link_directories(vtkPythonLimitedABI INTERFACE
+    "$<BUILD_INTERFACE:${_vtk_python_limited_libdir}>")
+  _vtk_module_install(vtkPythonLimitedABI)
+  vtk_module_link(VTK::Python
+    INTERFACE
+      VTK::PythonLimitedABI)
 # If we want optional linking and we have a real libpython, set up the forward
 # linking.
-if (VTK_PYTHON_OPTIONAL_LINK AND TARGET "${vtk_python_embed_target}")
+elseif (VTK_PYTHON_OPTIONAL_LINK AND TARGET "${vtk_python_embed_target}")
   # It has been observed that Ubuntu's GCC toolchain defaults require flags,
   # but are not detected here due to the confluence of the flags (basically,
   # the errors only show up in an executable that links to Python-using code,

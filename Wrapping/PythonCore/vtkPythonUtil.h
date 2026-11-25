@@ -269,6 +269,28 @@ public:
   ///@}
 
   /**
+   * Register a property getset for a type, so that inherited get/set halves can
+   * be found by FindGetSetDescriptor without using private descriptor internals.
+   */
+  static void AddGetSetToMap(PyTypeObject* pytype, PyGetSetDef* getset);
+
+  /**
+   * Pre-register a type's full name so GetTypeName can return it without
+   * accessing tp_name (which is unavailable under the Limited API).  A no-op
+   * when not building against the Limited API.
+   */
+  static void AddTypeNameToMap(PyTypeObject* pytype, const char* name);
+
+  /**
+   * Add a value (a constant or an enum/nested type) to an enclosing scope.
+   * The scope is either a module or namespace dict (the value is added as a
+   * dict item) or a wrapped type object (the value is set as a type attribute,
+   * which is the Limited-API-safe way to populate a type, since its tp_dict is
+   * not directly accessible).  Returns 0 on success, -1 on error.
+   */
+  static int AddToScope(PyObject* scope, const char* name, PyObject* value);
+
+  /**
    * Function to check if the attribute has a getset descriptor
    */
   static PyGetSetDef* FindGetSetDescriptor(PyTypeObject* pytype, PyObject* key);

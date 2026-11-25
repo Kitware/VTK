@@ -26,9 +26,12 @@ static void PyVTKNamespace_Delete(PyObject* op)
 {
   // remove from the map so that there is no dangling reference
   vtkPythonUtil::RemoveNamespaceFromMap(op);
+  // An instance of a heap type holds a reference to its type; calling the base
+  // (module) destructor directly does not release it the way subtype_dealloc
+  // would, so release it here.
+  PyTypeObject* type = Py_TYPE(op);
   // call the superclass destructor
 #if PY_VERSION_HEX >= 0x030A0000
-  PyTypeObject* type = Py_TYPE(op);
   PyTypeObject* base = (PyTypeObject*)PyType_GetSlot(type, Py_tp_base);
   if (base)
   {
@@ -36,68 +39,39 @@ static void PyVTKNamespace_Delete(PyObject* op)
     dtor(op);
   }
 #else
-  PyVTKNamespace_Type.tp_base->tp_dealloc(op);
+  PyVTKNamespace_Type->tp_base->tp_dealloc(op);
 #endif
+  Py_DECREF((PyObject*)type);
 }
 
-#ifdef VTK_PYTHON_NEEDS_DEPRECATION_WARNING_SUPPRESSION
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 //------------------------------------------------------------------------------
-// clang-format off
-PyTypeObject PyVTKNamespace_Type = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "vtkmodules.vtkCommonCore.namespace", // tp_name
-  0,                  // tp_basicsize
-  0,                  // tp_itemsize
-  PyVTKNamespace_Delete, // tp_dealloc
-#if PY_VERSION_HEX >= 0x03080000
-  0,                  // tp_vectorcall_offset
-#else
-  nullptr,            // tp_print
-#endif
-  nullptr,            // tp_getattr
-  nullptr,            // tp_setattr
-  nullptr,            // tp_compare
-  nullptr,            // tp_repr
-  nullptr,            // tp_as_number
-  nullptr,            // tp_as_sequence
-  nullptr,            // tp_as_mapping
-  nullptr,            // tp_hash
-  nullptr,            // tp_call
-  nullptr,            // tp_string
-  nullptr,            // tp_getattro
-  nullptr,            // tp_setattro
-  nullptr,            // tp_as_buffer
-  Py_TPFLAGS_DEFAULT, // tp_flags
-  PyVTKNamespace_Doc, // tp_doc
-  nullptr,            // tp_traverse
-  nullptr,            // tp_clear
-  nullptr,            // tp_richcompare
-  0,                  // tp_weaklistoffset
-  nullptr,            // tp_iter
-  nullptr,            // tp_iternext
-  nullptr,            // tp_methods
-  nullptr,            // tp_members
-  nullptr,            // tp_getset
-  &PyModule_Type,     // tp_base
-  nullptr,            // tp_dict
-  nullptr,            // tp_descr_get
-  nullptr,            // tp_descr_set
-  0,                  // tp_dictoffset
-  nullptr,            // tp_init
-  nullptr,            // tp_alloc
-  nullptr,            // tp_new
-  nullptr,            // tp_free
-  nullptr,            // tp_is_gc
-  nullptr,            // tp_bases
-  nullptr,            // tp_mro
-  nullptr,            // tp_cache
-  nullptr,            // tp_subclasses
-  nullptr,            // tp_weaklist
-  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED };
-// clang-format on
+// Heap type created with PyType_FromSpec, as a subclass of the module type.
+PyTypeObject* PyVTKNamespace_Type = nullptr;
+
+static PyType_Slot PyVTKNamespace_Slots[] = {
+  { Py_tp_dealloc, (void*)PyVTKNamespace_Delete },
+  { Py_tp_doc, (void*)PyVTKNamespace_Doc },
+  { 0, nullptr },
+};
+
+static PyType_Spec PyVTKNamespace_Spec = { "vtkmodules.vtkCommonCore.namespace", // tp_name
+  0, // tp_basicsize (inherited from PyModule_Type)
+  0, // tp_itemsize
+  Py_TPFLAGS_DEFAULT, PyVTKNamespace_Slots };
+
+static PyTypeObject* PyVTKNamespace_GetType()
+{
+  if (PyVTKNamespace_Type == nullptr)
+  {
+    PyObject* bases = PyTuple_Pack(1, (PyObject*)&PyModule_Type);
+    if (bases)
+    {
+      PyVTKNamespace_Type = (PyTypeObject*)PyType_FromSpecWithBases(&PyVTKNamespace_Spec, bases);
+      Py_DECREF(bases);
+    }
+  }
+  return PyVTKNamespace_Type;
+}
 
 //------------------------------------------------------------------------------
 PyObject* PyVTKNamespace_New(const char* name)
@@ -110,17 +84,22 @@ PyObject* PyVTKNamespace_New(const char* name)
   }
   else
   {
-    // make sure python has readied the type object
-    PyType_Ready(&PyVTKNamespace_Type);
-    // call the superclass new function
+    PyTypeObject* pytype = PyVTKNamespace_GetType();
+    if (pytype == nullptr)
+    {
+      return nullptr;
+    }
+    // call the superclass (module type) new and init functions
+    newfunc moduleNew = (newfunc)PyType_GetSlot(&PyModule_Type, Py_tp_new);
+    initproc moduleInit = (initproc)PyType_GetSlot(&PyModule_Type, Py_tp_init);
     PyObject* empty = PyTuple_New(0);
-    self = PyVTKNamespace_Type.tp_base->tp_new(&PyVTKNamespace_Type, empty, nullptr);
+    self = moduleNew(pytype, empty, nullptr);
     Py_DECREF(empty);
     // call the superclass init function
     PyObject* pyname = PyUnicode_FromString(name);
     PyObject* args = PyTuple_Pack(1, pyname);
     Py_DECREF(pyname);
-    PyVTKNamespace_Type.tp_base->tp_init(self, args, nullptr);
+    moduleInit(self, args, nullptr);
     Py_DECREF(args);
     // remember the object for later reference
     vtkPythonUtil::AddNamespaceToMap(self);

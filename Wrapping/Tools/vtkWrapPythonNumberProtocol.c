@@ -72,47 +72,6 @@ int vtkWrapPython_GenerateNumberProtocolDefintions(FILE* fp, const ClassInfo* cl
     "}\n\n",
     classInfo->Name);
 
-  fprintf(fp,
-    "static PyNumberMethods Py%s_AsNumber = {\n"
-    "  nullptr, // nb_add\n"
-    "  nullptr, // nb_subtract\n"
-    "  nullptr, // nb_multiply\n"
-    "  nullptr, // nb_remainder\n"
-    "  nullptr, // nb_divmod\n"
-    "  nullptr, // nb_power\n"
-    "  nullptr, // nb_negative\n"
-    "  nullptr, // nb_positive\n"
-    "  nullptr, // nb_absolute\n"
-    "  nullptr, // nb_bool\n"
-    "  nullptr, // nb_invert\n"
-    "  nullptr, // nb_lshift\n"
-    "  Py%s_RShift, // nb_rshift\n"
-    "  nullptr, // nb_and\n"
-    "  nullptr, // nb_xor\n"
-    "  nullptr, // nb_or\n"
-    "  nullptr, // nb_int\n"
-    "  nullptr, // nb_reserved;\n"
-    "  nullptr, // nb_float\n"
-    "  nullptr, // nb_inplace_add\n"
-    "  nullptr, // nb_inplace_subtract\n"
-    "  nullptr, // nb_inplace_multiply\n"
-    "  nullptr, // nb_inplace_remainder\n"
-    "  nullptr, // nb_inplace_power\n"
-    "  nullptr, // nb_inplace_lshift\n"
-    "  nullptr, // nb_inplace_rshift\n"
-    "  nullptr, // nb_inplace_and\n"
-    "  nullptr, // nb_inplace_xor\n"
-    "  nullptr, // nb_inplace_or\n"
-    "  nullptr, // nb_floor_divide\n"
-    "  nullptr, // nb_true_divide\n"
-    "  nullptr, // nb_inplace_floor_divide\n"
-    "  nullptr, // nb_inplace_true_divide\n"
-    "  nullptr, // nb_index\n"
-    "  nullptr, // nb_matrix_multiply\n"
-    "  nullptr, // nb_inplace_matrix_multiply\n"
-    "};\n\n",
-    classInfo->Name, classInfo->Name);
-
   return 1;
 }
 

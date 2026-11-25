@@ -564,8 +564,22 @@ endif ()
 
 if ("VTK::Python" IN_LIST vtk_modules)
   include(vtkModuleWrapPython)
+  # Build the Python wrappers against the CPython Limited API
+  # (stable ABI / "abi3") so a single binary loads on any Python 3.x interpreter
+  # at or above the chosen floor.  Defined here, the earliest point Python is
+  # known to be enabled, because it controls both the module install layout
+  # immediately below and the "abi3" SOABI tag further down.
+  option(VTK_PYTHON_LIMITED_API
+    "Build Python wrappers against the CPython Limited API (abi3)" OFF)
+  mark_as_advanced(VTK_PYTHON_LIMITED_API)
   if (NOT DEFINED VTK_PYTHON_SITE_PACKAGES_SUFFIX)
     vtk_module_python_default_destination(VTK_PYTHON_SITE_PACKAGES_SUFFIX)
+    if (VTK_PYTHON_LIMITED_API AND NOT MSVC)
+      # abi3 modules are version-independent, so collapse the pythonX.Y component
+      # of the default lib/pythonX.Y/site-packages layout to a neutral python3.
+      string(REGEX REPLACE "/python[0-9]+\\.[0-9]+/" "/python3/"
+        VTK_PYTHON_SITE_PACKAGES_SUFFIX "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}")
+    endif ()
   endif ()
 endif ()
 
@@ -709,6 +723,24 @@ if (VTK_WRAP_PYTHON)
     "${vtk_web_python_modules}\n")
   get_property(vtk_soabi GLOBAL
     PROPERTY  _vtk_python_soabi)
+  if (VTK_PYTHON_LIMITED_API)
+    # Built against the CPython Limited API: a single binary is loadable by any
+    # Python interpreter at or above the configured floor instead of being locked
+    # to the building interpreter's version.
+    if (WIN32)
+      # Windows has no ".abi3.pyd" entry in importlib's EXTENSION_SUFFIXES, so an
+      # ".abi3.pyd" module is invisible to the standard import machinery (only
+      # vtkmodules' custom finder would see it, not e.g. the `vtk` compatibility
+      # package or third party importers).  The stable-ABI convention on Windows
+      # is therefore a bare "<module>.pyd", which is also what setuptools and pip
+      # produce for abi3 wheels.  Use no SOABI tag here.
+      set(vtk_soabi "")
+    else ()
+      # Unix recognises ".abi3.so" as an extension suffix, so tag the modules to
+      # mark them as stable-ABI (matching setuptools' abi3 naming).
+      set(vtk_soabi "abi3")
+    endif ()
+  endif ()
   cmake_dependent_option(VTK_WINDOWS_PYTHON_DEBUGGABLE "Append `_d` to Python module names" OFF
     "WIN32;VTK_WRAP_PYTHON" OFF)
   mark_as_advanced(VTK_WINDOWS_PYTHON_DEBUGGABLE)

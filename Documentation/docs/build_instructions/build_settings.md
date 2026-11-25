@@ -272,6 +272,15 @@ More advanced options:
     in VTK will be disabled.
   * `VTK_PYTHON_FULL_THREADSAFE` (default `ON`): If set, lock the Python GIL
     for Python C API calls, to make it safe to allow Python thread concurrency.
+  * `VTK_PYTHON_LIMITED_API` (default `OFF`; requires `VTK_WRAP_PYTHON`): Build
+    the Python wrappers against the CPython Limited API (stable ABI, "abi3") so
+    that a single binary loads on any Python at or above the minimum version.
+    The `PythonInterpreter` module, which embeds the interpreter, is not
+    covered.
+  * `VTK_PYTHON_LIMITED_API_VERSION` (default `0x030B0000`; used with
+    `VTK_PYTHON_LIMITED_API`): The minimum Python version, in `PY_VERSION_HEX`
+    form, that the Limited API build supports. Python 3.11 is the lowest
+    version that provides all the features that VTK requires.
   * `VTK_SERIAL_TESTS_USE_MPIEXEC` (default `OFF`): Used on HPC to run
     serial tests on compute nodes. If set, it prefixes serial tests with
     "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" "1" ${MPIEXEC_PREFLAGS}
