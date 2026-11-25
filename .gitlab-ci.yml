@@ -2228,18 +2228,6 @@ windows-vs2022-webgpu-x86_64:build:
     timeout: 180 minutes
     needs: []
 
-windows-vs2022-arm64:build:
-    extends:
-        - .windows_vs2022_basic_arm64
-        - .cmake_build_windows_arm64
-        - .windows_builder_tags_arm64
-        - .cmake_build_artifacts
-        - .rules
-    variables:
-        VTK_CI_RUN_MANUALLY: "true"
-    timeout: 180 minutes
-    needs: []
-
 windows-vs2022-python-qt-arm64:build:
     extends:
         - .windows_vs2022_python_qt_arm64
@@ -2248,8 +2236,7 @@ windows-vs2022-python-qt-arm64:build:
         - .cmake_build_artifacts
         - .rules
     variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 240 minutes
     needs: []
 
@@ -2260,9 +2247,6 @@ windows-vs2022-python-qt-arm64:test:
         - .windows_tester_tags_arm64
         - .cmake_test_artifacts
         - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
     timeout: 240 minutes
     needs:
         - windows-vs2022-python-qt-arm64:build

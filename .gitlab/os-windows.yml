@@ -222,12 +222,6 @@
     variables:
         CMAKE_CONFIGURATION: windows_vs2022_x86_64_webgpu
 
-.windows_vs2022_basic_arm64:
-    extends: .windows_vs2022_arm64
-
-    variables:
-        CMAKE_CONFIGURATION: windows_vs2022_arm64
-
 .windows_vs2022_python_qt_arm64:
     extends: .windows_vs2022_arm64
 
