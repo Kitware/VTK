@@ -82,6 +82,9 @@ public:
    */
   bool CollectOffsets(hid_t group, vtkDataObject* input);
 
+  // Seed the current step's geometry offsets from existing dataset extents.
+  bool InitializeAppendOffsets(hid_t group, vtkDataObject* input);
+
   /**
    * Create placeholders for empty inputs to make sure all ranks have the same data type,
    * and synchronize point/cell array names on all ranks.
@@ -250,11 +253,31 @@ public:
     const std::string& blockPath, vtkSmartPointer<vtkDataObject>& representative);
 
   /**
+   * Read the existing timestep count, including composite leaves. Return -1 on failure.
+   */
+  int ReadNumberOfTimeSteps();
+
+  /**
+   * Update the step count and write only the appended time value.
+   */
+  bool AppendTimeValue(hid_t group, hid_t numberOfSteps, int count, double value);
+
+  /**
+   * Write all time values into an extendible dataset for subsequent appends.
+   */
+  bool WriteTimeValues(hid_t group, const std::vector<double>& values);
+
+  /**
+   * Create a variable-length string datatype.
+   */
+  vtkHDF::ScopedH5THandle GetStringType();
+
+  /**
    * Initialize empty data object array structures from a base group.
    * Used to get meta information for composite subfiles when all subfiles do not have non-null
    * data.
    */
-  void CreateArraysFromNonNullPart(hid_t group, vtkDataObject* data);
+  bool CreateArraysFromNonNullPart(hid_t group, vtkDataObject* data);
 
   Implementation(vtkHDFWriter* writer);
   virtual ~Implementation();

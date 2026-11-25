@@ -17,6 +17,7 @@
 #include "vtkPointSet.h"
 #include "vtkPolyData.h"
 #include "vtkSetGet.h"
+#include "vtkStringArray.h"
 #include "vtkType.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -84,6 +85,13 @@ constexpr std::string_view POINT_DATA = "PointData";
 constexpr std::string_view FIELD_DATA = "FieldData";
 
 constexpr std::string_view STEPS = "Steps";
+constexpr std::string_view PART_OFFSETS = "PartOffsets";
+constexpr std::string_view POINT_OFFSETS = "PointOffsets";
+constexpr std::string_view CELL_OFFSETS = "CellOffsets";
+constexpr std::string_view CONNECTIVITY_ID_OFFSETS = "ConnectivityIdOffsets";
+constexpr std::string_view FACE_CONNECTIVITY_OFFSETS = "FaceConnectivityOffsets";
+constexpr std::string_view FACE_OFFSETS_OFFSETS = "FaceOffsetsOffsets";
+constexpr std::string_view POLYHEDRON_TO_FACE_ID_OFFSETS = "PolyhedronToFaceIdOffsets";
 constexpr std::string_view STEPS_PART_OFFSETS = "Steps/PartOffsets";
 constexpr std::string_view STEPS_NUMBER_OF_PARTS = "Steps/NumberOfParts";
 
@@ -205,6 +213,62 @@ bool vtkHDFWriter::Implementation::CollectOffsets(hid_t group, vtkDataObject* in
     return false;
   }
   this->CollectPartitionOffsets(input, temporalOffsets);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::InitializeAppendOffsets(hid_t group, vtkDataObject* input)
+{
+  if (!vtkUnstructuredGrid::SafeDownCast(input) && !vtkPolyData::SafeDownCast(input))
+  {
+    return false;
+  }
+  GeometryOffset geometry{};
+  if (!this->CollectTemporalOffsets(group, geometry))
+  {
+    return false;
+  }
+  const hid_t steps = this->GetStepsGroup(group);
+  std::map<std::string_view, std::vector<vtkIdType>> offsets;
+  offsets[PATH::PART_OFFSETS] = { geometry.PartOffset };
+  offsets[PATH::POINT_OFFSETS] = { geometry.PointOffset };
+  offsets[PATH::CELL_OFFSETS] = { geometry.CellOffset };
+  offsets[PATH::CONNECTIVITY_ID_OFFSETS] = { geometry.ConnectivityOffset };
+  offsets[PATH::FACE_CONNECTIVITY_OFFSETS] = { geometry.FaceConnectivityOffset };
+  offsets[PATH::FACE_OFFSETS_OFFSETS] = { geometry.FaceOffset };
+  offsets[PATH::POLYHEDRON_TO_FACE_ID_OFFSETS] = { geometry.PolyhedronToFaceOffset };
+  if (vtkPolyData::SafeDownCast(input))
+  {
+    offsets[PATH::CELL_OFFSETS].clear();
+    offsets[PATH::CONNECTIVITY_ID_OFFSETS].clear();
+    for (std::size_t topology = 0; topology < vtkHDFUtilities::NUM_POLY_DATA_TOPOS; ++topology)
+    {
+      offsets[PATH::CELL_OFFSETS].push_back(geometry.PrimitiveCellOffsets[topology]);
+      offsets[PATH::CONNECTIVITY_ID_OFFSETS].push_back(
+        geometry.PrimitiveConnectivityOffsets[topology]);
+    }
+  }
+  for (const auto& [name, values] : offsets)
+  {
+    const std::string datasetName(name);
+    if (H5Lexists(steps, datasetName.c_str(), H5P_DEFAULT) <= 0)
+    {
+      continue;
+    }
+    auto dataset = this->OpenDataset(steps, datasetName.c_str());
+    auto dimensions = vtkHDFUtilities::GetDimensions(dataset);
+    if (dimensions.empty() || dimensions[0] != static_cast<hsize_t>(this->Writer->CurrentTimeIndex))
+    {
+      vtkErrorWithObjectMacro(this->Writer, "Invalid timestep offset array " << name);
+      return false;
+    }
+    ++dimensions[0];
+    if (H5Dset_extent(dataset, dimensions.data()) < 0 ||
+      !this->WriteOneRowDataset(dataset, values, dimensions[0] - 1, false, false))
+    {
+      return false;
+    }
+  }
   return true;
 }
 
@@ -1596,6 +1660,14 @@ bool vtkHDFWriter::Implementation::AddOrCreateDataset(hid_t group, unsigned int 
     return true;
   }
 
+  if (this->Writer->CurrentTimeIndex > 0 && H5Lexists(group, name, H5P_DEFAULT) <= 0)
+  {
+    vtkErrorWithObjectMacro(this->Writer,
+      "Cannot append array " << this->GetGroupName(group) << "/" << name
+                             << ": it does not exist in the file");
+    return false;
+  }
+
   if (!dims.empty() && H5Lexists(group, name, H5P_DEFAULT) <= 0)
   {
     // Dataset needs to be created
@@ -2306,8 +2378,79 @@ bool vtkHDFWriter::Implementation::CreateRepresentativeFromSubfile(
     points->SetData(coordinates);
     pointSet->SetPoints(points);
   }
-  this->CreateArraysFromNonNullPart(part, representative);
-  return true;
+  return this->CreateArraysFromNonNullPart(part, representative);
+}
+
+//------------------------------------------------------------------------------
+int vtkHDFWriter::Implementation::ReadNumberOfTimeSteps()
+{
+  int count = -1;
+  auto readValues = [](hid_t location, const char* name, const H5O_info_t* object,
+                      void* context) -> herr_t
+  {
+    const std::string path = "/" + std::string(name);
+    const std::string suffix = "/Steps/Values";
+    if (object->type != H5O_TYPE_DATASET || path.size() < suffix.size() ||
+      path.compare(path.size() - suffix.size(), suffix.size(), suffix) != 0)
+    {
+      return 0;
+    }
+    vtkHDF::ScopedH5DHandle dataset = H5Dopen(location, name, H5P_DEFAULT);
+    const auto dimensions = vtkHDFUtilities::GetDimensions(dataset);
+    if (dimensions.size() != 1)
+    {
+      return -1;
+    }
+    *static_cast<int*>(context) = static_cast<int>(dimensions[0]);
+    return 1;
+  };
+
+  // Iterate recursively datasets, find Steps/Values in composite leaves to get the number of steps
+  return H5Ovisit(this->Root, H5_INDEX_NAME, H5_ITER_NATIVE, readValues, &count) == 1 ? count : -1;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::AppendTimeValue(
+  hid_t group, hid_t numberOfSteps, int count, double value)
+{
+  if (!this->InitDynamicDataset(
+        group, "Values", H5T_IEEE_F64LE, 1, { static_cast<hsize_t>(this->ChunkSize) }))
+  {
+    return false;
+  }
+  const hsize_t size = count;
+  auto dataset = this->OpenDataset(group, "Values");
+  if (dataset == H5I_INVALID_HID || H5Dset_extent(dataset, &size) < 0 ||
+    !this->WriteDataset(dataset, H5T_NATIVE_DOUBLE, { size - 1 }, { 1 }, &value))
+  {
+    return false;
+  }
+  return H5Awrite(numberOfSteps, H5T_NATIVE_INT, &count) >= 0;
+}
+
+//------------------------------------------------------------------------------
+vtkHDF::ScopedH5THandle vtkHDFWriter::Implementation::GetStringType()
+{
+  vtkHDF::ScopedH5THandle type = H5Tcopy(H5T_C_S1);
+  if (type == H5I_INVALID_HID || H5Tset_size(type, H5T_VARIABLE) < 0)
+  {
+    return H5I_INVALID_HID;
+  }
+  return type;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::WriteTimeValues(hid_t group, const std::vector<double>& values)
+{
+  if (!this->InitDynamicDataset(
+        group, "Values", H5T_IEEE_F64LE, 1, { static_cast<hsize_t>(this->ChunkSize) }))
+  {
+    return false;
+  }
+  auto dataset = this->OpenDataset(group, "Values");
+  const hsize_t size = values.size();
+  return dataset != H5I_INVALID_HID && H5Dset_extent(dataset, &size) >= 0 &&
+    this->WriteDataset(dataset, H5T_NATIVE_DOUBLE, { 0 }, { size }, values.data());
 }
 
 //------------------------------------------------------------------------------
@@ -2731,7 +2874,7 @@ bool vtkHDFWriter::Implementation::InitDynamicDataset(hid_t group, const char* n
 }
 
 //------------------------------------------------------------------------------
-void vtkHDFWriter::Implementation::CreateArraysFromNonNullPart(hid_t group, vtkDataObject* data)
+bool vtkHDFWriter::Implementation::CreateArraysFromNonNullPart(hid_t group, vtkDataObject* data)
 {
   std::map<int, hid_t> attributeDataGroup;
   attributeDataGroup[vtkDataObject::POINT] = H5I_INVALID_HID;
@@ -2751,8 +2894,12 @@ void vtkHDFWriter::Implementation::CreateArraysFromNonNullPart(hid_t group, vtkD
       for (const std::string& name : vtkHDFUtilities::GetArrayNames(attributeDataGroup, i))
       {
         std::vector<hsize_t> extent = { 0, 0 };
-        vtkSmartPointer<vtkDataArray> array = vtk::TakeSmartPointer(
+        auto array = vtk::TakeSmartPointer(
           vtkHDFUtilities::NewArrayForGroup(attributeDataGroup[i], name.c_str(), extent));
+        if (!array)
+        {
+          return false;
+        }
         array->SetName(name.c_str());
         if (i == vtkDataObject::AttributeTypes::FIELD)
         {
@@ -2765,6 +2912,7 @@ void vtkHDFWriter::Implementation::CreateArraysFromNonNullPart(hid_t group, vtkD
       }
     }
   }
+  return true;
 }
 //------------------------------------------------------------------------------
 vtkHDFWriter::Implementation::Implementation(vtkHDFWriter* writer)

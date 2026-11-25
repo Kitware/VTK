@@ -19,6 +19,7 @@
 #include "vtkPointSet.h"
 #include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <cstdlib>
 #include <iostream>
@@ -27,7 +28,7 @@
 
 namespace HDFWriterDistributedTestUtilities
 {
-void WriteToFile(vtkHDFWriter* writer, vtkDataObjectAlgorithm* source, const Configuration& config,
+bool WriteToFile(vtkHDFWriter* writer, vtkDataObjectAlgorithm* source, const Configuration& config,
   vtkMPIController* controller, const std::string& filebase)
 {
   const std::string filename = filebase + ".vtkhdf";
@@ -35,7 +36,8 @@ void WriteToFile(vtkHDFWriter* writer, vtkDataObjectAlgorithm* source, const Con
   writer->SetUseExternalComposite(config.External & ExternalType::Composite);
   writer->SetUseExternalPartitions(config.External & ExternalType::Partitions);
   writer->SetUseExternalTimeSteps(config.External & ExternalType::Time);
-  writer->SetUseExternalDistributed(config.External & ExternalType::Distributed);
+  writer->SetUseExternalDistributed(
+    controller->GetNumberOfProcesses() > 1 && (config.External & ExternalType::Distributed));
   writer->SetWriteAllTimeSteps(true);
   writer->SetController(controller);
   // Compressed collective writes can hang with the CI's MPICH
@@ -51,7 +53,34 @@ void WriteToFile(vtkHDFWriter* writer, vtkDataObjectAlgorithm* source, const Con
   {
     writer->SetInputConnection(source->GetOutputPort(0));
   }
-  writer->Write();
+  if (config.Temporal == TemporalType::AddTemporal)
+  {
+    if (controller->GetLocalProcessId() == 0)
+    {
+      vtksys::SystemTools::RemoveFile(filename);
+    }
+    controller->Barrier();
+    writer->SetAppendTimeSteps(true);
+    vtkSmartPointer<vtkAlgorithm> inputSource = writer->GetInputAlgorithm();
+
+    // Loop on time steps, append them one by one
+    for (int step = 0; step < NumberOfSteps; ++step)
+    {
+      inputSource->UpdateTimeStep(
+        step, controller->GetLocalProcessId(), controller->GetNumberOfProcesses(), 0);
+      writer->SetInputDataObject(inputSource->GetOutputDataObject(0));
+      if (config.StaticMesh == StaticMeshType::Static)
+      {
+        writer->SetCurrentTimeValue(2.0 * step);
+      }
+      if (!writer->Write())
+      {
+        return false;
+      }
+    }
+    return true;
+  }
+  return writer->Write() != 0;
 }
 
 bool ComparePDS(vtkPartitionedDataSet* actual, vtkPartitionedDataSet* expected, unsigned int offset,
@@ -213,7 +242,11 @@ bool ReadAndCompareStep(vtkDataObjectAlgorithm* source, const Configuration& con
   source->UpdateTimeStep(step, myRank, nbRanks, 0);
   vtkDataObject* mainSourceOutput = source->GetOutputDataObject(0);
 
-  if ((numberOfSteps > 1 && reader->GetTimeValue() != step) ||
+  const double expectedTime =
+    config.Temporal == TemporalType::AddTemporal && config.StaticMesh == StaticMeshType::Static
+    ? 2.0 * step
+    : step;
+  if ((numberOfSteps > 1 && reader->GetTimeValue() != expectedTime) ||
     !CompareReadOutput(mainReaderOutput, mainSourceOutput, config, myRank, true))
   {
     vtkLog(ERROR, << "Failed comparison for " << mainFilename << " at step " << step);
@@ -221,7 +254,7 @@ bool ReadAndCompareStep(vtkDataObjectAlgorithm* source, const Configuration& con
   }
 
   // Compare _partX.vtkhdf files from external distributed
-  if ((config.External & ExternalType::Distributed) &&
+  if (nbRanks > 1 && (config.External & ExternalType::Distributed) &&
     (config.PartitionCounts.empty() || config.PartitionCounts[myRank] > 0))
   {
     const std::string partFilename = filebase + "_part" + vtk::to_string(myRank) + ".vtkhdf";
@@ -250,7 +283,7 @@ bool ReadAndCompareStep(vtkDataObjectAlgorithm* source, const Configuration& con
 bool ReadAndCompareAllSteps(vtkDataObjectAlgorithm* source, const Configuration& config,
   vtkMPIController* controller, const std::string& filebase)
 {
-  const int numberOfSteps = config.Temporal == TemporalType::Temporal ? NumberOfSteps : 1;
+  const int numberOfSteps = config.Temporal != TemporalType::NoTemporal ? NumberOfSteps : 1;
   bool success = true;
   for (int step = 0; step < numberOfSteps; ++step)
   {
@@ -267,10 +300,15 @@ bool RunTestConfig(const Configuration& config, std::size_t id, vtkMPIController
 {
   auto source = MakeConfigurationSource(config);
 
-  std::string filebase = tmpDir + "/hdfwriter_config_" + vtk::to_string(id) + "_" + config.Name;
+  const std::string prefix = controller->GetNumberOfProcesses() == 1 ? "serial_" : "distributed_";
+  std::string filebase =
+    tmpDir + "/" + prefix + "hdfwriter_config_" + vtk::to_string(id) + "_" + config.Name;
 
   vtkNew<vtkHDFWriter> writer;
-  WriteToFile(writer, source, config, controller, filebase);
+  if (!WriteToFile(writer, source, config, controller, filebase))
+  {
+    return false;
+  }
   controller->Barrier();
 
   return ReadAndCompareAllSteps(source, config, controller, filebase);

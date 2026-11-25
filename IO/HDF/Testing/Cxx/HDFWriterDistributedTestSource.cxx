@@ -147,7 +147,12 @@ protected:
     uint32_t rank, uint32_t step, DataType type)
   {
     vtkNew<vtkPartitionedDataSet> pds;
-    pds->SetNumberOfPartitions(this->Config.PartitionCounts[rank]);
+    const auto& counts = this->Config.PartitionCounts;
+    const unsigned int partitions =
+      vtkMPIController::GetGlobalController()->GetNumberOfProcesses() == 1
+      ? std::accumulate(counts.begin(), counts.end(), 0u)
+      : counts[rank];
+    pds->SetNumberOfPartitions(partitions);
     for (uint8_t partId = 0; partId < static_cast<uint8_t>(pds->GetNumberOfPartitions()); partId++)
     {
       if (type == DataType::UnstructuredGrid)
@@ -200,7 +205,7 @@ protected:
     vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) override
   {
     auto* outInfo = outputVector->GetInformationObject(0);
-    if (this->Config.Temporal == TemporalType::Temporal)
+    if (this->Config.Temporal != TemporalType::NoTemporal)
     {
       std::array<double, NumberOfSteps> times;
       std::iota(times.begin(), times.end(), 0.0);

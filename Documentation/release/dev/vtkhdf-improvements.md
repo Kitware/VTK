@@ -18,3 +18,23 @@ ImageData temporal cache had a cache invalidation issue when switching between t
 ## vtkHDFReader: cache fixes
 
 Fixed `vtkHDFReader` caching when re-enabling point or cell arrays, changing structured extents, and reading structured composite leaves with matching array names and extents.
+
+## vtkHDFWriter: distributed single-file mode
+
+You can now write UnstructuredGrid and PolyData partitions collectively into one HDF5 file,
+including polyhedra, temporal data, and composites containing these leaf types.
+
+Previously, parallel writing was only available using one file per rank,
+referenced by the 'main' file using HDF5 external links.
+Using a single file and collective writes is a more performant approach at scale.
+
+`UseExternalDistributed` is now set to false by default.
+
+## vtkHDFWriter: append timesteps
+
+The new `AppendTimeSteps` option (off by default) can append new time steps to an existing file,
+given that this file already contains temporal metadata, and that the data type and field arrays are fully compatible.
+Only UnstructuredGrid and PolyData and composite types are supported.
+`SetUseExternal*` options are not used
+
+Set `CurrentTimeValue` before each call to `Write()` to specify an explicit time value.

@@ -46,7 +46,8 @@ std::vector<Configuration> GenerateConfigurations(const std::vector<Configuratio
       }
       for (const auto distributed : { ExternalType::NoExternal, ExternalType::Distributed })
       {
-        for (const auto temporal : { TemporalType::NoTemporal, TemporalType::Temporal })
+        for (const auto temporal :
+          { TemporalType::NoTemporal, TemporalType::Temporal, TemporalType::AddTemporal })
         {
           for (const auto externalTime : { ExternalType::NoExternal, ExternalType::Time })
           {
@@ -59,6 +60,11 @@ std::vector<Configuration> GenerateConfigurations(const std::vector<Configuratio
               }
               const auto external =
                 static_cast<ExternalType>(base.External | externalPartitions | externalTime);
+              if (temporal == TemporalType::AddTemporal &&
+                (external != ExternalType::NoExternal || distributed != ExternalType::NoExternal))
+              {
+                continue;
+              }
               // Currently external distributed is forced by other external types
               if (distributed == ExternalType::Distributed && external != ExternalType::NoExternal)
               {
@@ -71,6 +77,7 @@ std::vector<Configuration> GenerateConfigurations(const std::vector<Configuratio
               config.Name += externalPartitions == ExternalType::Partitions ? "_extpart" : "";
               config.Name += distributed == ExternalType::Distributed ? "_extdistr" : "";
               config.Name += temporal == TemporalType::Temporal ? "_temp" : "";
+              config.Name += temporal == TemporalType::AddTemporal ? "_addtemp" : "";
               config.Name += externalTime == ExternalType::Time ? "_exttemp" : "";
               config.Name += staticMesh == StaticMeshType::Static ? "_static" : "";
               configurations.push_back(std::move(config));

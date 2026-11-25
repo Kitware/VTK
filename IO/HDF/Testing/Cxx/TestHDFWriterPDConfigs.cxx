@@ -7,7 +7,7 @@
 
 using namespace HDFWriterDistributedTestUtilities;
 
-int TestHDFWriterDistributedPDConfigs(int argc, char* argv[])
+int TestHDFWriterPDConfigs(int argc, char* argv[])
 {
   auto configs = GenerateConfigurations(MakeBaseConfigurations(DataType::PolyData));
   return RunDistributedConfigurations(argc, argv, std::move(configs)) ? EXIT_SUCCESS : EXIT_FAILURE;
