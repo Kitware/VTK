@@ -685,6 +685,7 @@ Rendering/Core/vtkTextProperty.h
 Rendering/Core/vtkTextPropertyCollection.h
 Rendering/Core/vtkTextRenderer.h
 Rendering/Core/vtkTexturedActor2D.h
+Rendering/Core/vtkToneMappingPass.h
 Rendering/Core/vtkTransformCoordinateSystems.h
 Rendering/Core/vtkTransformInterpolator.h
 Rendering/Core/vtkTranslucentPass.h
@@ -765,6 +766,7 @@ Rendering/OpenGL2/vtkOpenGLTextureComputeShaderNormalization.h
 Rendering/OpenGL2/vtkOpenGLTextureCPUNormalization.h
 Rendering/OpenGL2/vtkOpenGLTextureFramebufferNormalization.h
 Rendering/OpenGL2/vtkOpenGLTextureNormalizationHelper.h
+Rendering/OpenGL2/vtkOpenGLToneMappingPass.h
 Rendering/OpenGL2/vtkOrderIndependentTranslucentPass.h
 Rendering/OpenGL2/vtkOSOpenGLRenderWindow.h
 Rendering/OpenGL2/vtkOutlineGlowPass.h
@@ -781,7 +783,6 @@ Rendering/OpenGL2/vtkSSAAPass.h
 Rendering/OpenGL2/vtkSSAOPass.h
 Rendering/OpenGL2/vtkStencilMaskPass.h
 Rendering/OpenGL2/vtkTextureObject.h
-Rendering/OpenGL2/vtkToneMappingPass.h
 Rendering/OpenGL2/vtkValuePass.h
 Rendering/OpenGL2/vtkWebAssemblyOpenGLRenderWindow.h
 Rendering/OpenGL2/vtkWin32OpenGLRenderWindow.h
@@ -837,6 +838,7 @@ Rendering/WebGPU/vtkWebGPUSkybox.h
 Rendering/WebGPU/vtkWebGPUTexture.h
 Rendering/WebGPU/vtkWebGPUTextureDeviceResource.h
 Rendering/WebGPU/vtkWebGPUTextureView.h
+Rendering/WebGPU/vtkWebGPUToneMappingPass.h
 Rendering/WebXR/vtkWebXRCamera.h
 Rendering/WebXR/vtkWebXRInteractorStyle.h
 Rendering/WebXR/vtkWebXRModel.h

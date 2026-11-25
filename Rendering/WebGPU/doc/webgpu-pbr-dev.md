@@ -73,3 +73,14 @@ the compile time choices into a key, and the pipelines are rebuilt when the key 
 - WGSL compilation errors and warnings are logged with the offending line and its neighbors.
 - Every compute and render pass of the environment generation has a label, visible in GPU capture
   tools such as RenderDoc or the Xcode frame debugger.
+
+## High dynamic range
+
+`vtkWebGPUToneMappingPass` makes its renderer draw into a RGBA16Float texture and resolves it into
+the color attachment of the render window with one of the operators of `vtkToneMappingPass`. The
+shaders keep writing gamma encoded colors, which the resolve linearizes before tone mapping, so the
+same shader serves both cases. Because a pipeline is created for one color format, the renderer runs
+its render passes without props before it synchronizes the device resources, which is when the tone
+mapping pass redirects it, and it releases the graphics resources of its props when the format
+changes. Pipelines that draw the geometry of a renderer must take their color format from
+`vtkWebGPURenderer::GetColorTextureFormat()`.

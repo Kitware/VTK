@@ -11,13 +11,14 @@
 #include "vtkCameraPass.h"
 #include "vtkLight.h"
 #include "vtkLightsPass.h"
+#include "vtkMath.h"
 #include "vtkOpaquePass.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderPassCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSequencePass.h"
 #include "vtkSphereSource.h"
 #include "vtkToneMappingPass.h"
@@ -25,7 +26,7 @@
 int TestToneMappingPass(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindow> renWin;
-  renWin->SetSize(900, 900);
+  renWin->SetSize(600, 600);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
@@ -90,7 +91,7 @@ int TestToneMappingPass(int argc, char* argv[])
     }
     toneMappingP->SetDelegatePass(cameraP);
 
-    vtkOpenGLRenderer::SafeDownCast(renderer)->SetPass(toneMappingP);
+    renderer->SetPass(toneMappingP);
 
     double oneThird = 1.0 / 3.0;
 

@@ -18,6 +18,7 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestShaderCompilationMessages.cxx,NO_DATA,NO_VALID,WASM_ALLOW_ERROR_OUTPUT
   TestComputeOcclusionCulling.cxx,NO_DATA,NO_VALID
   TestComputeOcclusionCullingResize.cxx,NO_DATA,NO_VALID
+  TestComputeOcclusionCullingToneMapping.cxx,NO_DATA,NO_VALID
   TestComputeModifyPointColors.cxx,NO_DATA,NO_SERDES
   TestComputeModifyCellColors.cxx,NO_DATA,NO_SERDES
   TestComputePass.cxx,NO_DATA,NO_VALID

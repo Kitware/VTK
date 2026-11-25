@@ -252,8 +252,9 @@ bool vtkWebGPUSkybox::GetUnfilterableTexture()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
+void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderer* wgpuRenderer)
 {
+  auto* renWin = vtkWebGPURenderWindow::SafeDownCast(wgpuRenderer->GetRenderWindow());
   auto* wgpuPipelineCache = renWin->GetWGPUPipelineCache();
   auto* wgpuConfiguration = renWin->GetWGPUConfiguration();
   const auto& device = wgpuConfiguration->GetDevice();
@@ -315,7 +316,7 @@ void vtkWebGPUSkybox::CreatePipeline(vtkWebGPURenderWindow* renWin)
   pipelineDescriptor.vertex.entryPoint = WGPUStringView{ "vertexMain", WGPU_STRLEN };
   pipelineDescriptor.vertex.bufferCount = 0;
   pipelineDescriptor.cFragment.entryPoint = WGPUStringView{ "fragmentMain", WGPU_STRLEN };
-  pipelineDescriptor.cTargets[0].format = renWin->GetOffscreenColorTextureFormat();
+  pipelineDescriptor.cTargets[0].format = wgpuRenderer->GetColorTextureFormat();
   // Prepare selection ids output.
   pipelineDescriptor.cTargets[1].format = renWin->GetPreferredSelectorIdsTextureFormat();
   pipelineDescriptor.cFragment.targetCount++;
@@ -508,7 +509,7 @@ void vtkWebGPUSkybox::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(mapper))
     if (this->LastProjection != this->Projection || this->LastGammaCorrect != this->GammaCorrect ||
       this->LastUnfilterableTexture != this->GetUnfilterableTexture() || !this->Pipeline)
     {
-      this->CreatePipeline(renWin);
+      this->CreatePipeline(wgpuRen);
       // Force bind group recreation since pipeline layout changed
       vtkWebGPU::ReleaseAndNull(this->BindGroup, wgpuBindGroupRelease);
     }

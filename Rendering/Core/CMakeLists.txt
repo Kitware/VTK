@@ -115,6 +115,7 @@ set(classes
   vtkTextActor3D
   vtkTexture
   vtkTexturedActor2D
+  vtkToneMappingPass
   vtkTransformCoordinateSystems
   vtkTransformInterpolator
   vtkTranslucentPass

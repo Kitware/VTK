@@ -78,23 +78,28 @@ void vtkWebGPUCameraPass::Render(const vtkRenderState* s)
     ren->ResetCamera();
   }
 
-  auto rpassEncoder = reinterpret_cast<vtkWebGPURenderer*>(ren)->GetRenderPassEncoder();
-  auto [originX, originY, width, height] = this->ComputeYInvertedViewport(ren);
-  // Set viewport frustum
-  wgpuRenderPassEncoderSetViewport(rpassEncoder, originX, originY, static_cast<float>(width),
-    static_cast<float>(height), 0.0, 1.0);
-
-  if (width > 0 && height > 0)
+  auto* wgpuRenderer = reinterpret_cast<vtkWebGPURenderer*>(ren);
+  // Before recording, the render passes only configure the renderer.
+  if (wgpuRenderer->GetRenderStage() == vtkWebGPURenderer::RenderStageEnum::RecordingCommands)
   {
-    // zero width/height case causes validation error. it can happen for certail tiled
-    // configurations.
-    wgpuRenderPassEncoderSetScissorRect(
-      rpassEncoder, originX, originY, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
-  }
+    auto rpassEncoder = wgpuRenderer->GetRenderPassEncoder();
+    auto [originX, originY, width, height] = this->ComputeYInvertedViewport(ren);
+    // Set viewport frustum
+    wgpuRenderPassEncoderSetViewport(rpassEncoder, originX, originY, static_cast<float>(width),
+      static_cast<float>(height), 0.0, 1.0);
 
-  if (ren->GetRenderWindow()->GetErase() && ren->GetErase())
-  {
-    ren->Clear();
+    if (width > 0 && height > 0)
+    {
+      // zero width/height case causes validation error. it can happen for certail tiled
+      // configurations.
+      wgpuRenderPassEncoderSetScissorRect(rpassEncoder, originX, originY,
+        static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+    }
+
+    if (ren->GetRenderWindow()->GetErase() && ren->GetErase())
+    {
+      ren->Clear();
+    }
   }
 
   if (this->DelegatePass != nullptr)

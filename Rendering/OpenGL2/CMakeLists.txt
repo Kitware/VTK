@@ -80,6 +80,7 @@ set(classes
   vtkOpenGLTextureComputeShaderNormalization
   vtkOpenGLTextureFramebufferNormalization
   vtkOpenGLTextureNormalizationHelper
+  vtkOpenGLToneMappingPass
   vtkOpenGLUniforms
   vtkOpenGLVertexArrayObject
   vtkOpenGLVertexBufferObject
@@ -105,7 +106,6 @@ set(classes
   vtkStencilMaskPass
   vtkTextureObject
   vtkTextureUnitManager
-  vtkToneMappingPass
   vtkTransformFeedback
   vtkValuePass)
 
@@ -252,7 +252,8 @@ set(opengl_overrides
   TextActor
   TextActor3D
   TextMapper
-  Texture)
+  Texture
+  ToneMappingPass)
 
 include(vtkOpenGLOptions)
 if (VTK_OPENGL_USE_GLES)

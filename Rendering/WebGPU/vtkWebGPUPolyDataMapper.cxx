@@ -2400,7 +2400,7 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   descriptor.vertex.entryPoint = WGPUStringView{ "vertexMain", WGPU_STRLEN };
   descriptor.cFragment.entryPoint = WGPUStringView{ "fragmentMain", WGPU_STRLEN };
   descriptor.EnableBlending(0);
-  descriptor.cTargets[0].format = wgpuRenderWindow->GetOffscreenColorTextureFormat();
+  descriptor.cTargets[0].format = wgpuRenderer->GetColorTextureFormat();
   ///@{ TODO: Only for valid depth stencil formats
   auto depthState = descriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
   const bool usesDeepFramebuffer =

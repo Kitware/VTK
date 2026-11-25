@@ -434,7 +434,10 @@ WGPURenderPipeline vtkWebGPUContextDevice2D::CreatePipelineWithConstants(
     return nullptr;
   }
 
-  WGPUTextureFormat colorFormat = this->RenderWindow->GetOffscreenColorTextureFormat();
+  auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(this->Renderer);
+  WGPUTextureFormat colorFormat = wgpuRenderer
+    ? wgpuRenderer->GetColorTextureFormat()
+    : this->RenderWindow->GetOffscreenColorTextureFormat();
 
   std::array<WGPUConstantEntry, 2> constants = {
     {

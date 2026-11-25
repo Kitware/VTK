@@ -180,7 +180,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   list(APPEND test_exclusions
     # Image size mismatches
     "^VTK::ChartsCoreCxx-TestMultipleScalarsToColors(SerDes)?$"
-    "^VTK::RenderingOpenGL2Cxx-TestToneMappingPass(SerDes)?$"
+    "^VTK::RenderingCoreCxx-OpenGL-TestToneMappingPass(SerDes)?$"
 
     # PATH manipulations needed
     "^VTKExample-ImageProcessing/Cxx$"

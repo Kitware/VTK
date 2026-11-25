@@ -27,7 +27,6 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix3x3;
 class vtkOverrideAttribute;
 class vtkWebGPUConfiguration;
-class vtkWebGPURenderWindow;
 class vtkWebGPURenderer;
 
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUSkybox : public vtkSkybox
@@ -65,7 +64,7 @@ private:
   /**
    * Create or recreate the render pipeline when projection or gamma settings change.
    */
-  void CreatePipeline(vtkWebGPURenderWindow* wgpuRenderWindow);
+  void CreatePipeline(vtkWebGPURenderer* wgpuRenderer);
 
   /**
    * Returns whether the environment texture can only be sampled by a non-filtering sampler,
