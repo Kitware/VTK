@@ -189,6 +189,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     "^VTKExample-Modelling/Cxx$"
     "^VTKExample-Modules/UsingVTK$"
     "^VTKExample-Modules/Wrapping$"
+    "^VTKExample-Slang/Cxx/CustomShading$"
 
     # Blank test image
     "^VTK::GUISupportQtCxx-TestQVTKOpenGLWindowWithDisabledInteractor$"

@@ -80,6 +80,7 @@ set(private_headers
   "Private/vtkWebGPURenderPassDescriptorInternals.h"
   "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
   "Private/vtkWebGPUShaderModuleInternals.h"
+  "Private/vtkWebGPUSlangInternals.h"
   "Private/vtkWebGPUTextureInternals.h"
   "Private/vtkWebGPUBatchedLabeledDataMapperInternals.h"
   "Private/vtkWebGPUContextDevice2DPrivate.h")
@@ -104,6 +105,7 @@ set(private_sources
   "Private/vtkWebGPURenderPassDescriptorInternals.cxx"
   "Private/vtkWebGPURenderPipelineDescriptorInternals.cxx"
   "Private/vtkWebGPUShaderModuleInternals.cxx"
+  "Private/vtkWebGPUSlangInternals.cxx"
   "Private/vtkWebGPUTextureInternals.cxx"
   "Private/vtkWebGPUBatchedLabeledDataMapperInternals.cxx")
 
@@ -171,7 +173,8 @@ set(private_shader_files
   wgsl/vtkPolyData2DVSWGSL.wgsl
   wgsl/vtkPolyData2DFSWGSL.wgsl
   wgsl/vtkPolyDataVSWGSL.wgsl
-  wgsl/vtkPolyDataFSWGSL.wgsl)
+  wgsl/vtkPolyDataFSWGSL.wgsl
+  slang/vtkPolyDataSurfaceSlang.slang)
 
 set(public_shader_files
   Testing/Cxx/TestShaders/TestComputePassShader.wgsl

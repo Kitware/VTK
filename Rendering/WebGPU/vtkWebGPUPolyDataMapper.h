@@ -14,6 +14,7 @@
 
 #include <array>         // for ivar
 #include <unordered_set> // for the not set compute render buffers
+#include <utility>       // for std::pair
 #include <vector>        // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -305,6 +306,19 @@ protected:
    */
   virtual void ApplyShaderReplacements(GraphicsPipelineType pipelineType,
     vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss, std::string& fss);
+
+  virtual bool BuildSlangShaders(vtkWebGPURenderer* renderer, vtkWebGPUActor* actor,
+    GraphicsPipelineType pipelineType, std::string& wgsl);
+
+  bool PrepareSlangShaders(vtkWebGPUActor* actor, vtkRenderer* renderer);
+
+  virtual std::vector<std::pair<std::string, std::string>> GetSlangDefines(
+    vtkWebGPUActor* actor, GraphicsPipelineType pipelineType);
+  static vtkMTimeType GetShaderStateMTime(vtkActor* actor);
+  bool SlangShadersEnabled = false;
+  std::string SlangUnsupportedCustomizations;
+  std::string SlangIgnoredSpecializations;
+  std::string SlangCompileError;
 
   virtual void ReplaceShaderConstantsDef(GraphicsPipelineType pipelineType,
     vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss, std::string& fss);
@@ -722,6 +736,7 @@ private:
     vtkProperty::LineJoinType LastLineJoin = vtkProperty::LineJoinType::NoJoin;
     bool LastSelectingPoints = false;
     vtkTypeUInt32 LastShadingFeatures = 0;
+    vtkMTimeType LastShaderPropertyMTime = 0;
   };
   std::map<std::pair<vtkActor*, vtkRenderer*>, ActorState> CachedActorRendererProperties;
 };
