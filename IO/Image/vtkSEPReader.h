@@ -38,6 +38,8 @@ VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkCharArray;
+
 class VTKIOIMAGE_EXPORT vtkSEPReader : public vtkImageAlgorithm
 {
 public:
@@ -105,7 +107,27 @@ protected:
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation* request, vtkInformationVector**, vtkInformationVector*) override;
 
-  bool ReadHeader();
+  /**
+   * Method to read the header file (.H) of a SEP file.
+   * A header file contains information about dimensions, spacing, origin, data format
+   * of the structured data
+   **/
+  virtual bool ReadHeader();
+
+  /**
+   * Read the header file and store it into a character array.
+   */
+  bool ReadHeaderInternal(vtkCharArray* fileLines);
+
+  /**
+   * Store header information into the class from a character array.
+   */
+  bool ReadHeader(vtkCharArray* fileLines);
+
+  /**
+   * Read the raw data file (.H@) and store it into the image data
+   * on the requested update extent.
+   */
   bool ReadData(vtkImageData* imageData, VTK_FUTURE_CONST int updateExtents[6]);
 
   /**
@@ -136,6 +158,11 @@ private:
     XDR_DOUBLE = 2
   };
 
+  vtkSEPReader(const vtkSEPReader&) = delete;
+  void operator=(const vtkSEPReader&) = delete;
+
+  void ReadDataPiece(FILE* file, char*& dataOutput, vtkIdType offset, vtkIdType range);
+
   /**
    * Internal Variables
    */
@@ -153,11 +180,6 @@ private:
   int ZArrayId = details::SEP_READER_MAX_DIMENSION;
   int FixedDimension1ArrayId = details::SEP_READER_MAX_DIMENSION;
   int FixedDimension2ArrayId = details::SEP_READER_MAX_DIMENSION;
-
-  void ReadDataPiece(FILE* file, char*& dataOutput, vtkIdType offset, vtkIdType range);
-
-  vtkSEPReader(const vtkSEPReader&) = delete;
-  void operator=(const vtkSEPReader&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END

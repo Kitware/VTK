@@ -4,6 +4,7 @@
 #include "vtkSEPReader.h"
 
 #include <vtkByteSwap.h>
+#include <vtkCharArray.h>
 #include <vtkDataArray.h>
 #include <vtkDoubleArray.h>
 #include <vtkExtentTranslator.h>
@@ -26,6 +27,8 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <sstream>
+#include <string>
 
 namespace details
 {
@@ -238,8 +241,8 @@ int vtkSEPReader::RequestData(vtkInformation* vtkNotUsed(request),
   return this->ReadData(imageData, updateExtent);
 }
 
-//----------------------------------------------------------------------------
-bool vtkSEPReader::ReadHeader()
+//------------------------------------------------------------------------------
+bool vtkSEPReader::ReadHeaderInternal(vtkCharArray* headerBuffer)
 {
   if (this->FileName.empty())
   {
@@ -266,9 +269,42 @@ bool vtkSEPReader::ReadHeader()
     return false;
   }
 
-  std::string line;
-  while (vtksys::SystemTools::GetLineFromStream(file, line))
+  headerBuffer->SetNumberOfTuples(fs.st_size + 1);
+  file.read(headerBuffer->GetPointer(0), fs.st_size);
+  headerBuffer->SetValue(fs.st_size, '\0');
+
+  file.close();
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkSEPReader::ReadHeader()
+{
+  vtkNew<vtkCharArray> headerBuffer;
+  if (!this->ReadHeaderInternal(headerBuffer))
   {
+    return false;
+  }
+
+  return this->ReadHeader(headerBuffer);
+}
+
+//----------------------------------------------------------------------------
+bool vtkSEPReader::ReadHeader(vtkCharArray* headerBuffer)
+{
+  const char* headerStringBuffer = headerBuffer->GetPointer(0);
+  std::stringstream header(headerStringBuffer);
+
+  std::string line;
+  while (std::getline(header, line))
+  {
+    if (line.empty() || line[0] == '#')
+    {
+      // Comment or empty line, ignore
+      continue;
+    }
+
     std::vector<std::string> splittedLine = vtksys::SystemTools::SplitString(line, '=');
     if (splittedLine.size() == 2)
     {
@@ -399,8 +435,6 @@ bool vtkSEPReader::ReadHeader()
       this->Label[i] = "Dimension " + vtk::to_string(i + 1);
     }
   }
-
-  file.close();
 
   return true;
 }
