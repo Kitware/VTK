@@ -69,6 +69,7 @@ int TestPDCPolyDataUGTemporal(const std::string& dataRoot);
 int TestMBPolyDataUGTemporal(const std::string& dataRoot);
 int TestFileSwitchInformation(const std::string& dataRoot);
 int TestCompositeImageDataTemporal(const std::string& dataRoot);
+int TestSingleTimeStep(const std::string& dataRoot);
 
 /**
  * Remove time field arrays added by the readers for rigorous data comparisons to succeed.
@@ -128,6 +129,7 @@ int TestHDFReaderTemporal(int argc, char* argv[])
   res |= ::TestPDCPolyDataUGTemporal(dataRoot);
   res |= ::TestMBPolyDataUGTemporal(dataRoot);
   res |= ::TestCompositeImageDataTemporal(dataRoot);
+  res |= ::TestSingleTimeStep(dataRoot);
 
   return res;
 }
@@ -204,6 +206,42 @@ int TestHyperTreeGridChangingPartitionCount(const std::string& dataRoot)
     if (!vtkHyperTreeGrid::SafeDownCast(reader->GetOutputDataObject(0)))
     {
       vtkLog(ERROR, "Unexpected output type after changing files");
+      return EXIT_FAILURE;
+    }
+  }
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+int TestSingleTimeStep(const std::string& dataRoot)
+{
+  vtkNew<vtkHDFReader> reader;
+  std::string filename = dataRoot + "/Data/vtkHDF/one_step.vtkhdf";
+  vtkLog(INFO, "Testing: " << filename);
+  reader->SetFileName(filename.c_str());
+  reader->Update();
+
+  auto info = reader->GetOutputInformation(0);
+  auto times = vtkStreamingDemandDrivenPipeline::TIME_STEPS();
+  bool temporal = reader->GetHasTemporalData() && reader->GetNumberOfSteps() == 1;
+  if (!temporal || info->Get(times, 0) != 2.5 || reader->GetTimeValue() != 2.5)
+  {
+    std::cerr << "Incorrect temporal information for a single timestep" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  auto data = vtkDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+  auto temperature = data ? data->GetPointData()->GetArray("temperature") : nullptr;
+  if (!temperature || temperature->GetNumberOfTuples() != 8)
+  {
+    std::cerr << "Could not read single-timestep temperature array" << std::endl;
+    return EXIT_FAILURE;
+  }
+  for (vtkIdType i = 0; i < 8; ++i)
+  {
+    if (temperature->GetTuple1(i) != 1.0)
+    {
+      std::cerr << "Incorrect single-timestep temperature value" << std::endl;
       return EXIT_FAILURE;
     }
   }
