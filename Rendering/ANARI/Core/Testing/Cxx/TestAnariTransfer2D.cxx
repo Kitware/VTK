@@ -4,7 +4,6 @@
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkFloatArray.h"
-#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
@@ -21,6 +20,7 @@
 
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
+#include "vtkAnariVolumeMapper.h"
 
 typedef vtkSmartPointer<vtkImageData> Transfer2DPtr;
 Transfer2DPtr Create2DTransfer()
@@ -140,13 +140,8 @@ int TestAnariTransfer2D(int argc, char* argv[])
   renWin->AddRenderer(ren);
   ren->SetBackground(0.0, 0.0, 0.0);
 
-  vtkNew<vtkGPUVolumeRayCastMapper> mapper;
+  vtkNew<vtkAnariVolumeMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
-
-  // If UseJittering is on, each ray traversal direction will be
-  // perturbed slightly using a noise-texture to get rid of wood-grain
-  // effect.
-  mapper->SetUseJittering(1);
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(mapper);

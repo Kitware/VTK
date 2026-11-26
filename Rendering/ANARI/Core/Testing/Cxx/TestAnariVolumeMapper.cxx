@@ -4,7 +4,6 @@
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkDataSet.h"
-#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageResize.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
@@ -19,12 +18,13 @@
 
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
+#include "vtkAnariVolumeMapper.h"
 
 /**
  * This test verifies that we can hot swap ANARI Volume rendering and
  * GL volume rendering for float volume data.
  */
-int TestAnariGPUVolumeRayCastMapper(int argc, char* argv[])
+int TestAnariVolumeMapper(int argc, char* argv[])
 {
   bool useDebugDevice = false;
 
@@ -51,7 +51,7 @@ int TestAnariGPUVolumeRayCastMapper(int argc, char* argv[])
   resample->SetResizeMethodToOutputDimensions();
   resample->SetOutputDimensions(512, 512, 512);
 
-  vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
+  vtkNew<vtkAnariVolumeMapper> volumeMapper;
   volumeMapper->SetInputConnection(resample->GetOutputPort());
   volumeMapper->Update();
 

@@ -8,7 +8,6 @@ set(tests_with_baseline
   TestAnariCompositePolyDataMapper
   TestAnariCylinder
   TestAnariDynamicObject
-  TestAnariGPUVolumeRayCastMapper
   TestAnariImplicits
   TestAnariLights
   TestAnariMaterialLibrary
@@ -30,6 +29,7 @@ set(tests_with_baseline
   TestAnariSphere
   TestAnariTransfer2D
   TestAnariVolumeLightKit
+  TestAnariVolumeMapper
   TestAnariVolumeWavelet
 )
 
