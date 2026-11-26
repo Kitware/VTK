@@ -51,7 +51,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHDFReader);
-vtkCxxSetSmartPointerMacro(vtkHDFReader, Stream, vtkResourceStream);
 
 namespace
 {
@@ -406,6 +405,37 @@ vtkHDFReader::~vtkHDFReader()
 }
 
 //----------------------------------------------------------------------------
+void vtkHDFReader::SetFileName(const char* fileName)
+{
+  char* copy = nullptr;
+  if (fileName)
+  {
+    copy = new char[std::strlen(fileName) + 1];
+    std::strcpy(copy, fileName);
+  }
+  delete[] this->FileName;
+  this->FileName = copy;
+  this->InvalidateCache();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkHDFReader::SetStream(vtkResourceStream* stream)
+{
+  this->Stream = stream;
+  this->InvalidateCache();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkHDFReader::InvalidateCache()
+{
+  this->Cache = std::make_shared<DataCache>();
+  this->OutputCache = nullptr;
+  this->CompositeCachePath.clear();
+}
+
+//------------------------------------------------------------------------------
 vtkResourceStream* vtkHDFReader::GetStream()
 {
   return this->Stream;
