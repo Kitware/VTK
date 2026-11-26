@@ -2448,14 +2448,12 @@ int vtkCGNSReader::GetUnstructuredZone(
     if (this->DoublePrecisionMesh != 0) // DOUBLE PRECISION MESHPOINTS
     {
       CGNSRead::get_XYZ_mesh<double, float>(this->cgioNum, gridChildIds, numberOfCoordinateArrays,
-        cellDim, nPts, srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDims,
-        points.Get());
+        1, nPts, srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDims, points.Get());
     }
     else // SINGLE PRECISION MESHPOINTS
     {
       CGNSRead::get_XYZ_mesh<float, double>(this->cgioNum, gridChildIds, numberOfCoordinateArrays,
-        cellDim, nPts, srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDims,
-        points.Get());
+        1, nPts, srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDims, points.Get());
     }
 
     // Add points to cache
@@ -2889,8 +2887,7 @@ int vtkCGNSReader::GetUnstructuredZone(
           vtkIdType* localConnectivity = &(connectivityPointer[startArraySec[id]]);
           cgsize_t memDim[2];
           cgsize_t npe = numPointsPerCell;
-          // How to handle per process reading for unstructured mesh
-          // + npe* ( wantedstartperprocess-start ) ; startoffset
+          //
           srcStart[0] = 1;
           srcStart[1] = 1;
 
@@ -2901,16 +2898,16 @@ int vtkCGNSReader::GetUnstructuredZone(
 
           memStart[0] = 1;
           memStart[1] = 1;
-          memEnd[0] = npe;
-          memEnd[1] = elementSize;
+          memEnd[0] = elementSize * npe;
+          memEnd[1] = 1;
           memStride[0] = 1;
           memStride[1] = 1;
-          memDim[0] = npe;
-          memDim[1] = elementSize;
+          memDim[0] = elementSize * npe;
+          memDim[1] = 1;
 
           memset(localConnectivity, 1, sizeof(vtkIdType) * npe * elementSize);
 
-          CGNSRead::get_section_connectivity(this->cgioNum, cgioSectionId, 2, srcStart, srcEnd,
+          CGNSRead::get_section_connectivity(this->cgioNum, cgioSectionId, 1, srcStart, srcEnd,
             srcStride, memStart, memEnd, memStride, memDim, localConnectivity);
 
           // Add -1 on indices due to indexing from 1
@@ -3968,15 +3965,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                       (sectionInfoList[curSec].range[1] - sectionInfoList[curSec].range[0] + 1))
                     {
                       // Read whole section
-                      if (elemType != CGNS_ENUMV(MIXED))
-                      {
-                        sizeAlloc = sectionInfoList[curSec].elemDataSize + numBndElemToRead;
-                      }
-                      else
-                      {
-                        sizeAlloc = sectionInfoList[curSec].elemDataSize;
-                      }
-
+                      sizeAlloc = sectionInfoList[curSec].elemDataSize;
                       startReadingPos = 0;
                     }
                     else
@@ -3992,7 +3981,7 @@ int vtkCGNSReader::GetUnstructuredZone(
                           vtkErrorMacro(<< "Invalid numPointsPerCell\n");
                         }
 
-                        sizeAlloc = (numPointsPerCell + 1) * numBndElemToRead;
+                        sizeAlloc = (numPointsPerCell)*numBndElemToRead;
                         startReadingPos = startBndElemId - sectionInfoList[curSec].range[0];
                         startReadingPos *= static_cast<cgsize_t>(numPointsPerCell);
                       }
@@ -4127,32 +4116,28 @@ int vtkCGNSReader::GetUnstructuredZone(
                       srcStride[0] = 1;
                       srcStride[1] = 1;
 
-                      memStart[0] = 2;
+                      memStart[0] = 1;
                       memStart[1] = 1;
-                      memEnd[0] = npe + 1;
-                      memEnd[1] = numBndElemToRead;
+                      memEnd[0] = numBndElemToRead * npe;
+                      memEnd[1] = 1;
                       memStride[0] = 1;
                       memStride[1] = 1;
-                      memDim[0] = npe + 1;
-                      memDim[1] = numBndElemToRead;
+                      memDim[0] = numBndElemToRead * npe;
+                      memDim[1] = 1;
 
-                      CGNSRead::get_section_connectivity(this->cgioNum, elemIdList[curSec], 2,
+                      CGNSRead::get_section_connectivity(this->cgioNum, elemIdList[curSec], 1,
                         srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDim,
                         localBndElements);
 
-                      // Add numptspercell and do -1 on indexes
+                      // do -1 on indexes
                       for (vtkIdType icell = 0; icell < numBndElemToRead; ++icell)
                       {
-                        vtkIdType pos = icell * (npe + 1);
-                        localBndElements[pos] = static_cast<vtkIdType>(npe);
                         vtkIdList* nodes = bcCellsPointIds[icell + startBndElemId - bcStartFaceId];
                         nodes->SetNumberOfIds(npe);
 
                         for (vtkIdType ip = 0; ip < npe; ip++)
                         {
-                          pos++;
-                          localBndElements[pos] = localBndElements[pos] - 1;
-                          nodes->SetId(ip, localBndElements[pos]);
+                          nodes->SetId(ip, localBndElements[icell * npe + ip] - 1);
                         }
                       }
                     }
@@ -4307,32 +4292,21 @@ int vtkCGNSReader::GetUnstructuredZone(
                         srcStride[0] = 1;
                         srcStride[1] = 1;
 
-                        memStart[0] = 2;
+                        memStart[0] = 1;
                         memStart[1] = 1;
-                        memEnd[0] = numPointsPerCell + 1;
-                        memEnd[1] = numElemToRead;
+                        memEnd[0] = numPointsPerCell * numElemToRead;
+                        memEnd[1] = 1;
                         memStride[0] = 1;
                         memStride[1] = 1;
-                        memDim[0] = numPointsPerCell + 1;
-                        memDim[1] = numElemToRead;
+                        memDim[0] = numPointsPerCell * numElemToRead;
+                        memDim[1] = 1;
 
-                        bcElementsArr.resize((numPointsPerCell + 1) * numElemToRead);
+                        bcElementsArr.resize(numPointsPerCell * numElemToRead);
 
                         CGNSRead::get_section_connectivity(this->cgioNum, elemIdList[curSec], 2,
                           srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDim,
                           bcElementsArr.data());
-                        // Add numptspercell and do -1 on indexes
-                        for (vtkIdType icell = 0; icell < numElemToRead; ++icell)
-                        {
-                          vtkIdType pos = icell * (numPointsPerCell + 1);
-                          bcElementsArr[pos] = static_cast<vtkIdType>(numPointsPerCell);
-                          for (vtkIdType ip = 0; ip < numPointsPerCell; ip++)
-                          {
-                            pos++;
-                            bcElementsArr[pos] = bcElementsArr[pos] - 1;
-                          }
-                        }
-                        // Now append
+                        // Now do -1 and append
                         for (vtkIdType nelem = 0; nelem < numElemToRead; ++nelem)
                         {
                           vtkIdList* nodes =
@@ -4341,8 +4315,7 @@ int vtkCGNSReader::GetUnstructuredZone(
 
                           for (vtkIdType nn = 0; nn < numPointsPerCell; ++nn)
                           {
-                            vtkIdType nodeID =
-                              bcElementsArr[nelem * (numPointsPerCell + 1) + 1 + nn];
+                            vtkIdType nodeID = bcElementsArr[nelem * numPointsPerCell + nn] - 1;
                             nodes->SetId(nn, nodeID);
                           }
 
