@@ -1,11 +1,15 @@
 set(classes
   vtkMPIImageReader
-  vtkPNrrdReader)
+  vtkPNrrdReader
+  vtkPSEPReader)
 
 # Now to generate our object factory.
 vtk_object_factory_declare(
   BASE      vtkNrrdReader
   OVERRIDE  vtkPNrrdReader)
+vtk_object_factory_declare(
+  BASE      vtkSEPReader
+  OVERRIDE  vtkPSEPReader)
 vtk_object_factory_declare(
   BASE      vtkImageReader
   OVERRIDE  vtkMPIImageReader)
