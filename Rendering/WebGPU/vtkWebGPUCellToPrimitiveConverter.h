@@ -13,6 +13,11 @@
  *
  * This class can process millions of polygons, lines, vertices very quickly in parallel.
  *
+ * The dispatch methods write WebGPU buffers into the caller's `WGPUBuffer` slots. The caller owns
+ * a reference to every buffer written into a slot and must release it. A slot is overwritten
+ * without releasing the buffer it held, so the caller must release the previous buffer whenever a
+ * slot changes.
+ *
  * @sa
  * vtkPolyDataMapper2D
  */
@@ -31,6 +36,7 @@
 #include "vtk_wgpu.h" // for webgpu C API
 
 #include <array>   // for std::array
+#include <memory>  // for std::unique_ptr
 #include <utility> // for std::pair
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -38,6 +44,7 @@ class vtkWebGPUConfiguration;
 class vtkPolyData;
 class vtkCellArray;
 class vtkDataArray;
+class vtkWebGPUComputeBuffer;
 class vtkWebGPUComputePass;
 class vtkWebGPUComputePipeline;
 
@@ -68,7 +75,7 @@ public:
     // Used to draw only the points of each line segment.
     // Activated when `vtkProperty::Representation` == `VTK_POINTS`
     TOPOLOGY_SOURCE_LINE_POINTS,
-    // Used to draw VTK_QUAD, VTK_TRIANGLE and VTK_POLYGON cell types.
+    // Used to draw VTK_QUAD, VTK_TRIANGLE, VTK_POLYGON and VTK_TRIANGLE_STRIP cell types.
     TOPOLOGY_SOURCE_POLYGONS,
     // Used to draw only the corner points of each face.
     // Activated when `vtkProperty::Representation` == `VTK_POINTS`
@@ -85,7 +92,7 @@ public:
    * This function calls DispatchCellToPrimitiveComputePipeline() for
    * - vtkPolyData::GetVerts()
    * - vtkPolyData::GetLines()
-   * - vtkPolyData::GetPolys()
+   * - vtkPolyData::GetPolys() and vtkPolyData::GetStrips()
    * This method will initialize the vertexCounts, connectivityBuffers and edgeArrayBuffers
    * after dispatching the compute pipelines.
    * Returns false if no buffers have changed, else returns true.
@@ -112,7 +119,7 @@ public:
    * This function calls DispatchCellArraysToPrimitiveComputePipeline() for
    * - vtkPolyData::GetVerts()
    * - vtkPolyData::GetLines()
-   * - vtkPolyData::GetPolys()
+   * - vtkPolyData::GetPolys() and vtkPolyData::GetStrips()
    * This method will initialize the vertexOffsetAndCounts, connectivityBuffers and
    * edgeArrayBuffers after dispatching the compute pipelines. Returns false if no buffers have
    * changed, else returns true.
@@ -158,7 +165,7 @@ public:
    * This function calls DispatchCellToPrimitiveComputePipeline() for
    * - vtkPolyData::GetVerts()
    * - vtkPolyData::GetLines()
-   * - vtkPolyData::GetPolys()
+   * - vtkPolyData::GetPolys() and vtkPolyData::GetStrips()
    * This method will initialize the vertexOffsetAndCounts, connectivityBuffers and edgeArrayBuffers
    * after dispatching the compute pipelines.
    * Returns false if no buffers have changed, else returns true.
@@ -225,6 +232,14 @@ protected:
   ~vtkWebGPUCellToPrimitiveConverter() override;
 
 private:
+  // Gives the caller its own reference to a buffer owned by the compute pipeline, which is
+  // replaced on every rebuild. A member so that it can use the pipeline's friendship.
+  static bool RetainRegisteredBuffer(
+    vtkWebGPUComputePipeline* pipeline, vtkWebGPUComputeBuffer* computeBuffer, WGPUBuffer& output);
+
+  class vtkInternals;
+  std::unique_ptr<vtkInternals> Internals;
+
   vtkWebGPUCellToPrimitiveConverter(const vtkWebGPUCellToPrimitiveConverter&) = delete;
   void operator=(const vtkWebGPUCellToPrimitiveConverter&) = delete;
 

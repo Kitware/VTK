@@ -70,6 +70,7 @@ void vtkWebGPUActor::ReleaseGraphicsResources(vtkWindow* window)
   internals.ActorBindGroupLayout = nullptr;
   internals.ActorBindGroup = nullptr;
   internals.ActorBuffer = nullptr;
+  internals.BoundActorTexture = nullptr;
   internals.MapperHasOpaqueGeometry = {};
   internals.MapperHasTranslucentPolygonalGeometry = {};
   this->Superclass::ReleaseGraphicsResources(window);
@@ -114,7 +115,7 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
         break;
       case vtkWebGPURenderer::SyncDeviceResources:
       {
-        if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(this->GetTexture()))
+        if (auto* wgpuTexture = vtkWebGPUActorInternals::GetActorTexture(this))
         {
           wgpuTexture->Render(renderer);
         }
@@ -487,7 +488,12 @@ bool vtkWebGPUActor::NeedToRecreateBindGroups()
   {
     return true;
   }
-  if (auto* texture = this->GetTexture())
+  auto* texture = vtkWebGPUActorInternals::GetActorTexture(this);
+  if (texture != internals.BoundActorTexture)
+  {
+    return true;
+  }
+  if (texture)
   {
     if (texture->GetMTime() > internals.DeviceResourcesBuildTimestamp)
     {
@@ -499,9 +505,9 @@ bool vtkWebGPUActor::NeedToRecreateBindGroups()
   {
     return true;
   }
-  for (auto* texture : pbrTextures)
+  for (auto* pbrTexture : pbrTextures)
   {
-    if (texture && texture->GetMTime() > internals.DeviceResourcesBuildTimestamp)
+    if (pbrTexture && pbrTexture->GetMTime() > internals.DeviceResourcesBuildTimestamp)
     {
       return true;
     }
@@ -513,6 +519,15 @@ bool vtkWebGPUActor::NeedToRecreateBindGroups()
 void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
 {
   auto& internals = (*this->Internals);
+  internals.BoundActorTexture = vtkWebGPUActorInternals::GetActorTexture(this);
+  auto* property = this->GetProperty();
+  if (!internals.BoundActorTexture && property->GetInterpolation() != VTK_PBR &&
+    property->GetNumberOfTextures() > 1)
+  {
+    vtkWarningMacro(<< "WebGPU renders only one property texture, so the "
+                    << property->GetNumberOfTextures() << " textures of "
+                    << property->GetObjectDescription() << " are ignored.");
+  }
   const auto& device = wgpuConfiguration->GetDevice();
 
   const auto actorDescription = this->GetObjectDescription();
@@ -529,7 +544,7 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
     vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ bindingIdBGL++,
       WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, WGPUBufferBindingType_ReadOnlyStorage });
   // Actor texture
-  if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(this->GetTexture()))
+  if (auto* wgpuTexture = vtkWebGPUActorInternals::GetActorTexture(this))
   {
     if (auto devRc = wgpuTexture->GetDeviceResource())
     {
@@ -568,7 +583,7 @@ void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
     internals.ActorBuffer, 0, bufferSize };
   bgEntries.emplace_back(actorBindingInit.GetAsBinding());
   // Actor texture
-  if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(this->GetTexture()))
+  if (auto* wgpuTexture = vtkWebGPUActorInternals::GetActorTexture(this))
   {
     if (auto devRc = wgpuTexture->GetDeviceResource())
     {

@@ -667,6 +667,7 @@ vtkTypeUInt32 vtkWebGPUPolyDataMapper::GetShadingFeatures(vtkActor* actor, vtkRe
 {
   vtkProperty* property = actor->GetProperty();
   vtkTypeUInt32 features = static_cast<vtkTypeUInt32>(property->GetInterpolation());
+  features |= vtkWebGPUActorInternals::GetActorTexture(actor) ? 0x8u : 0u;
   if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
   {
     features |= wgpuRenderer->HasImageBasedLighting() ? 0x4u : 0u;
@@ -693,7 +694,12 @@ vtkWebGPUPolyDataMapper::vtkWebGPUPolyDataMapper()
 }
 
 //------------------------------------------------------------------------------
-vtkWebGPUPolyDataMapper::~vtkWebGPUPolyDataMapper() = default;
+vtkWebGPUPolyDataMapper::~vtkWebGPUPolyDataMapper()
+{
+  // A mapper can be destroyed without a call to ReleaseGraphicsResources(), for example after
+  // vtkActor::SetMapper() replaces it.
+  this->ReleaseTopologyBindGroupInfos();
+}
 
 //------------------------------------------------------------------------------
 vtkOverrideAttribute* vtkWebGPUPolyDataMapper::CreateOverrideAttributes()
@@ -2289,9 +2295,14 @@ void vtkWebGPUPolyDataMapper::UpdateMeshTopologyBuffers(
   std::array<WGPUBuffer*, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
     cellIdOffsetUniformBuffers;
 
+  std::array<std::array<WGPUBuffer, 4>,
+    vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
+    previousBuffers;
   for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
   {
     auto& bgInfo = this->TopologyBindGroupInfos[i];
+    previousBuffers[i] = { bgInfo.ConnectivityBuffer, bgInfo.CellIdBuffer, bgInfo.EdgeArrayBuffer,
+      bgInfo.CellIdOffsetUniformBuffer };
     vertexCounts[i] = &(bgInfo.VertexCount);
     connectivityBuffers[i] = &(bgInfo.ConnectivityBuffer);
     cellIdBuffers[i] = &(bgInfo.CellIdBuffer);
@@ -2317,6 +2328,15 @@ void vtkWebGPUPolyDataMapper::UpdateMeshTopologyBuffers(
   {
     const auto topologySourceType = vtkWebGPUCellToPrimitiveConverter::TopologySourceType(i);
     auto& bgInfo = this->TopologyBindGroupInfos[i];
+    const std::array<WGPUBuffer, 4> currentBuffers = { bgInfo.ConnectivityBuffer,
+      bgInfo.CellIdBuffer, bgInfo.EdgeArrayBuffer, bgInfo.CellIdOffsetUniformBuffer };
+    for (std::size_t j = 0; j < currentBuffers.size(); ++j)
+    {
+      if (previousBuffers[i][j] != currentBuffers[j])
+      {
+        vtkWebGPU::ReleaseAndNull(previousBuffers[i][j], wgpuBufferRelease);
+      }
+    }
     // setup bind group
     if (updateTopologyBindGroup && bgInfo.VertexCount > 0)
     {
@@ -3102,7 +3122,7 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderActorBindings(
   std::stringstream codeStream;
   codeStream << "@group(" << GROUP_ACTOR << ") @binding(" << bindingId++
              << ") var<storage, read> actor: Actor;";
-  if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(wgpuActor->GetTexture()))
+  if (auto* wgpuTexture = vtkWebGPUActorInternals::GetActorTexture(wgpuActor))
   {
     if (auto devRc = wgpuTexture->GetDeviceResource())
     {
@@ -4303,7 +4323,7 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderColors(GraphicsPipelineType p
 
   if (this->HasPointAttributes[POINT_UVS])
   {
-    if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(wgpuActor->GetTexture()))
+    if (auto* wgpuTexture = vtkWebGPUActorInternals::GetActorTexture(wgpuActor))
     {
       if (wgpuTexture->GetDeviceResource() != nullptr)
       {
@@ -4971,6 +4991,20 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReleaseTopologyBindGroupInfos()
+{
+  for (auto& info : this->TopologyBindGroupInfos)
+  {
+    vtkWebGPU::ReleaseAndNull(info.ConnectivityBuffer, wgpuBufferRelease);
+    vtkWebGPU::ReleaseAndNull(info.CellIdBuffer, wgpuBufferRelease);
+    vtkWebGPU::ReleaseAndNull(info.EdgeArrayBuffer, wgpuBufferRelease);
+    vtkWebGPU::ReleaseAndNull(info.CellIdOffsetUniformBuffer, wgpuBufferRelease);
+    vtkWebGPU::ReleaseAndNull(info.BindGroup, wgpuBindGroupRelease);
+    info = TopologyBindGroupInfo{};
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->Superclass::ReleaseGraphicsResources(w);
@@ -5002,10 +5036,7 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
   vtkWebGPU::ReleaseAndNull(this->MeshAttributeBindGroup, wgpuBindGroupRelease);
 
   // Release topology conversion pipelines and reset their build timestamps.
-  for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
-  {
-    this->TopologyBindGroupInfos[i] = TopologyBindGroupInfo{};
-  }
+  this->ReleaseTopologyBindGroupInfos();
   this->CellConverter->ReleaseGraphicsResources(w);
   this->RebuildGraphicsPipelines = true;
   this->LastNumClipPlanes = VTK_TYPE_UINT32_MAX;

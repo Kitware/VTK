@@ -7,6 +7,7 @@
 #include "vtk_wgpu.h" // for WebGPU C API
 
 #include <cstdlib>
+#include <initializer_list>
 
 #include <iostream>
 
@@ -103,7 +104,7 @@ int TestFastCellToGraphicsPrimitiveConversion(int argc, char* argv[])
       WGPUBuffer CellIdBuffer;
       WGPUBuffer EdgeArrayBuffer;
       WGPUBuffer CellIdOffsetUniformBuffer;
-    } converterData;
+    } converterData{};
     vtkLogStartScope(INFO, "Compute triangle lists in GPU");
     converter->DispatchCellArrayToPrimitiveComputePipeline(wgpuConfig, triangles, VTK_SURFACE,
       VTK_POLYGON, 0, &converterData.VertexCount, &converterData.ConnectivityBuffer,
@@ -180,6 +181,15 @@ int TestFastCellToGraphicsPrimitiveConversion(int argc, char* argv[])
         {
           wgpuConfig->ProcessEvents();
         }
+      }
+    }
+    // The converter hands the caller a reference to each buffer it writes.
+    for (WGPUBuffer* buffer : { &converterData.ConnectivityBuffer, &converterData.CellIdBuffer,
+           &converterData.EdgeArrayBuffer, &converterData.CellIdOffsetUniformBuffer })
+    {
+      if (*buffer != nullptr)
+      {
+        wgpuBufferRelease(*buffer);
       }
     }
     delete mapData;

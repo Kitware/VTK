@@ -20,6 +20,9 @@
 #include "vtkWebGPUComputeBuffer.h"
 #include "vtkWebGPUComputePipeline.h"
 
+#include <algorithm>
+#include <unordered_map>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 namespace
@@ -27,6 +30,40 @@ namespace
 const std::array<std::string, vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES>
   TopologyConversionShaderEntrypoints = { "poly_vertex_to_vertex", "poly_line_to_line",
     "cell_to_points", "polygon_to_triangle", "cell_to_points", "polygon_edges_to_lines" };
+
+vtkIdType GetPrimitiveCount(vtkIdType cellSize, int representation, int cellType,
+  vtkIdType primitiveSizeOffset, bool triangleStrip)
+{
+  if (representation == VTK_POINTS)
+  {
+    return cellSize;
+  }
+  if (triangleStrip)
+  {
+    return cellSize < 3 ? 0 : (representation == VTK_WIREFRAME ? 2 * cellSize - 3 : cellSize - 2);
+  }
+  if (representation == VTK_WIREFRAME && cellType == VTK_POLYGON)
+  {
+    return cellSize;
+  }
+  return std::max<vtkIdType>(0, cellSize - primitiveSizeOffset);
+}
+
+vtkSmartPointer<vtkWebGPUComputeBuffer> MakeStripFlagsBuffer(std::vector<vtkTypeUInt32>& flags)
+{
+  if (std::all_of(flags.begin(), flags.end(), [](vtkTypeUInt32 flag) { return flag == 0; }))
+  {
+    // No strips. A single zero keeps the binding valid without a flag per cell.
+    flags.assign(1, 0);
+  }
+  auto buffer = vtkSmartPointer<vtkWebGPUComputeBuffer>::New();
+  buffer->SetGroup(0);
+  buffer->SetBinding(8);
+  buffer->SetLabel("TriangleStripCells");
+  buffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
+  buffer->SetData(flags);
+  return buffer;
+}
 
 // Function to factor the number into three multiples
 int Factorize(vtkTypeUInt32 n, std::array<vtkTypeUInt32, 3>& result)
@@ -69,7 +106,97 @@ int Factorize(vtkTypeUInt32 n, std::array<vtkTypeUInt32, 3>& result)
 vtkStandardNewMacro(vtkWebGPUCellToPrimitiveConverter);
 
 //------------------------------------------------------------------------------
-vtkWebGPUCellToPrimitiveConverter::vtkWebGPUCellToPrimitiveConverter() = default;
+bool vtkWebGPUCellToPrimitiveConverter::RetainRegisteredBuffer(
+  vtkWebGPUComputePipeline* pipeline, vtkWebGPUComputeBuffer* computeBuffer, WGPUBuffer& output)
+{
+  WGPUBuffer buffer = nullptr;
+  if (!pipeline->GetRegisteredBuffer(computeBuffer, buffer))
+  {
+    return false;
+  }
+  auto retained = vtkWebGPU::Buffer::Reference(buffer);
+  output = retained.Release();
+  return true;
+}
+
+//------------------------------------------------------------------------------
+class vtkWebGPUCellToPrimitiveConverter::vtkInternals
+{
+  struct SurfaceCellArray
+  {
+    vtkSmartPointer<vtkCellArray> Polys;
+    vtkSmartPointer<vtkCellArray> Strips;
+    vtkSmartPointer<vtkCellArray> Cells;
+    vtkTimeStamp BuildTime;
+  };
+  std::vector<SurfaceCellArray> SurfaceCellArrays;
+  std::unordered_map<vtkCellArray*, vtkIdType> PolygonCounts;
+
+public:
+  void Resize(std::size_t size)
+  {
+    for (std::size_t i = size; i < this->SurfaceCellArrays.size(); ++i)
+    {
+      this->PolygonCounts.erase(this->SurfaceCellArrays[i].Cells);
+    }
+    this->SurfaceCellArrays.resize(size);
+  }
+
+  // Returns the polygons of `mesh` followed by its triangle strips. Only a mesh with strips pays
+  // for a merged copy of its polygons.
+  vtkCellArray* GetSurfaceCells(vtkPolyData* mesh, std::size_t index,
+    vtkTimeStamp (&topologyBuildTimestamps)[NUM_TOPOLOGY_SOURCE_TYPES])
+  {
+    auto& entry = this->SurfaceCellArrays[index];
+    auto* polys = mesh->GetPolys();
+    auto* strips = mesh->GetStrips();
+    if (strips->GetNumberOfCells() == 0)
+    {
+      if (entry.Cells)
+      {
+        // The strips were removed, so drop the merged copy. The polygons can be older than the
+        // topology built from that copy, so their MTime alone would not trigger a rebuild.
+        this->PolygonCounts.erase(entry.Cells);
+        entry = SurfaceCellArray{};
+        topologyBuildTimestamps[TOPOLOGY_SOURCE_POLYGONS] = vtkTimeStamp();
+        topologyBuildTimestamps[TOPOLOGY_SOURCE_POLYGON_POINTS] = vtkTimeStamp();
+        topologyBuildTimestamps[TOPOLOGY_SOURCE_POLYGON_EDGES] = vtkTimeStamp();
+      }
+      return polys;
+    }
+    if (entry.Polys != polys || entry.Strips != strips || polys->GetMTime() > entry.BuildTime ||
+      strips->GetMTime() > entry.BuildTime)
+    {
+      if (!entry.Cells)
+      {
+        entry.Cells = vtkSmartPointer<vtkCellArray>::New();
+      }
+      entry.Cells->DeepCopy(polys);
+      entry.Cells->Append(strips);
+      entry.Polys = polys;
+      entry.Strips = strips;
+      this->PolygonCounts[entry.Cells] = polys->GetNumberOfCells();
+      entry.BuildTime.Modified();
+    }
+    return entry.Cells;
+  }
+
+  vtkIdType GetPolygonCount(vtkCellArray* cells, int cellType) const
+  {
+    if (cellType == VTK_TRIANGLE_STRIP)
+    {
+      return 0;
+    }
+    const auto it = this->PolygonCounts.find(cells);
+    return it == this->PolygonCounts.end() ? cells->GetNumberOfCells() : it->second;
+  }
+};
+
+//------------------------------------------------------------------------------
+vtkWebGPUCellToPrimitiveConverter::vtkWebGPUCellToPrimitiveConverter()
+  : Internals(new vtkInternals())
+{
+}
 
 //------------------------------------------------------------------------------
 vtkWebGPUCellToPrimitiveConverter::~vtkWebGPUCellToPrimitiveConverter() = default;
@@ -83,6 +210,7 @@ void vtkWebGPUCellToPrimitiveConverter::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkWebGPUCellToPrimitiveConverter::ReleaseGraphicsResources(vtkWindow*)
 {
+  this->Internals->Resize(0);
   // Release topology conversion pipelines and reset their build timestamps.
   for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
   {
@@ -102,9 +230,8 @@ vtkIdType vtkWebGPUCellToPrimitiveConverter::GetTessellatedPrimitiveSizeOffsetFo
   {
     case VTK_POLYGON:
     case VTK_QUAD:
-      return 2;
     case VTK_TRIANGLE_STRIP:
-      return 1;
+      return 2;
     case VTK_TRIANGLE:
       return 0;
     case VTK_POLY_LINE:
@@ -301,12 +428,14 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchMeshesToPrimitiveComputePipeline
   std::vector<vtkCellArray*> cellArrayGroups[3]; // verts, lines, polys
   std::vector<vtkIdType> numberOfPoints;
   std::vector<vtkDataArray*> pointCoordinates; // per-mesh, for polygon ear clipping
+  this->Internals->Resize(meshes.size());
   for (std::size_t i = 0; i < meshes.size(); ++i)
   {
     auto& mesh = meshes[i];
     cellArrayGroups[0].emplace_back(mesh->GetVerts());
     cellArrayGroups[1].emplace_back(mesh->GetLines());
-    cellArrayGroups[2].emplace_back(mesh->GetPolys());
+    cellArrayGroups[2].emplace_back(
+      this->Internals->GetSurfaceCells(mesh, i, this->TopologyBuildTimestamp));
     numberOfPoints.emplace_back(mesh->GetNumberOfPoints());
     pointCoordinates.emplace_back(mesh->GetPoints() ? mesh->GetPoints()->GetData() : nullptr);
   }
@@ -338,6 +467,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchMeshToPrimitiveComputePipeline(
 {
   bool buffersUpdated = false;
   vtkTypeUInt32 cellIdOffset = 0;
+  this->Internals->Resize(1);
   {
     const auto idx = this->GetTopologySourceTypeForCellType(VTK_POLY_VERTEX, representation);
     buffersUpdated = this->DispatchCellArrayToPrimitiveComputePipeline(wgpuConfiguration,
@@ -364,9 +494,9 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchMeshToPrimitiveComputePipeline(
     vtkDataArray* pointCoordinates =
       (mesh && mesh->GetPoints()) ? mesh->GetPoints()->GetData() : nullptr;
     buffersUpdated |= this->DispatchCellArrayToPrimitiveComputePipeline(wgpuConfiguration,
-      mesh ? mesh->GetPolys() : nullptr, representation, VTK_POLYGON, cellIdOffset,
-      vertexCounts[idx], connectivityBuffers[idx], cellIdBuffers[idx], edgeArrayBuffers[idx],
-      cellIdOffsetUniformBuffers[idx], pointCoordinates);
+      mesh ? this->Internals->GetSurfaceCells(mesh, 0, this->TopologyBuildTimestamp) : nullptr,
+      representation, VTK_POLYGON, cellIdOffset, vertexCounts[idx], connectivityBuffers[idx],
+      cellIdBuffers[idx], edgeArrayBuffers[idx], cellIdOffsetUniformBuffers[idx], pointCoordinates);
   }
   return buffersUpdated;
 }
@@ -474,11 +604,17 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
     totalNumberOfIndices += ids->GetDataSize();
     lastHomogenousCellSize = fixedCellSize;
   }
-  if (!needToRebuild)
-  {
-    return false;
-  }
   if (totalNumberOfCells == 0)
+  {
+    bool changed = false;
+    for (auto& count : *vertexOffsetAndCounts)
+    {
+      changed |= count.second != 0;
+      count = { 0, 0 };
+    }
+    return changed;
+  }
+  if (!needToRebuild)
   {
     return false;
   }
@@ -562,6 +698,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
                   << nWorkGroupsPerDimension[1] << 'x' << nWorkGroupsPerDimension[2]);
     const auto primitiveSizeOffset = this->GetTessellatedPrimitiveSizeOffsetForCellType(cellType);
     std::vector<vtkTypeUInt32> primitiveCounts;
+    std::vector<vtkTypeUInt32> stripFlags;
     std::vector<vtkTypeUInt32> idsToUpload;
     std::vector<vtkTypeUInt32> offsetsToUpload{ 0 };
     vtkTypeUInt32 numberOfPrimitives = 0;
@@ -587,6 +724,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
       const auto applyPointOffset = [offset = static_cast<vtkTypeUInt32>(pointOffset)](
                                       vtkIdType pointId) -> vtkTypeUInt32
       { return pointId + offset; };
+      const auto polygonCount = this->Internals->GetPolygonCount(cellArray, cellType);
       auto cellIterator = vtk::TakeSmartPointer(cellArray->NewIterator());
       for (cellIterator->GoToFirstCell(); !cellIterator->IsDoneWithTraversal();
            cellIterator->GoToNextCell())
@@ -598,25 +736,21 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
           cellPts, cellPts + cellSize, std::back_inserter(idsToUpload), applyPointOffset);
         offsetsToUpload.emplace_back(offsetsToUpload.back() + cellSize);
         primitiveCounts.emplace_back(numberOfPrimitives);
-        if (representation == VTK_WIREFRAME && cellType == VTK_POLYGON)
-        {
-          // number of sides in polygon.
-          numberOfPrimitives += cellSize;
-        }
-        else if (representation == VTK_POINTS)
-        {
-          // number of points in cell.
-          numberOfPrimitives += cellSize;
-        }
-        else
-        {
-          numberOfPrimitives += (cellSize - primitiveSizeOffset);
-        }
+        const bool triangleStrip = cellIterator->GetCurrentCellId() >= polygonCount;
+        stripFlags.emplace_back(triangleStrip ? 1u : 0u);
+        numberOfPrimitives +=
+          GetPrimitiveCount(cellSize, representation, cellType, primitiveSizeOffset, triangleStrip);
       } // end for cell
       vertexCount = numberOfPrimitives * static_cast<vtkTypeUInt32>(primitiveSize) - vertexOffset;
       pointOffset += numberOfPoints[i];
     } // end for element in batch
     primitiveCounts.emplace_back(numberOfPrimitives);
+    if (numberOfPrimitives == 0)
+    {
+      this->UpdateCellToPrimitiveComputePipelineTimestamp(idx);
+      return true;
+    }
+    auto stripFlagsBuffer = MakeStripFlagsBuffer(stripFlags);
     // create input buffer for connectivity ids
     vtkNew<vtkWebGPUComputeBuffer> inputConnectivityBuffer;
     inputConnectivityBuffer->SetGroup(0);
@@ -755,14 +889,15 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
     pass->AddBuffer(outputCellIdBuffer);               // not used in cpu
     pass->AddBuffer(edgeArrayComputeBuffer);           // not used in cpu
     pass->AddBuffer(pointCoordinatesBuffer);           // binding 7, point coordinates
+    pass->AddBuffer(stripFlagsBuffer);                 // binding 8, triangle strip flags
     // the topology and edge_array buffers are populated by compute pipeline and their contents
     // read in the graphics pipeline within the vertex and fragment shaders
     // keep reference to the output of compute pipeline, reuse it in the vertex, fragment shaders.
-    if (!pipeline->GetRegisteredBuffer(outputConnectivityBuffer, *connectivityBuffer))
+    if (!RetainRegisteredBuffer(pipeline, outputConnectivityBuffer, *connectivityBuffer))
     {
       vtkErrorMacro(<< "Failed to get registered buffer for output connectivity.");
     }
-    if (!pipeline->GetRegisteredBuffer(outputCellIdBuffer, *cellIdBuffer))
+    if (!RetainRegisteredBuffer(pipeline, outputCellIdBuffer, *cellIdBuffer))
     {
       vtkErrorMacro(<< "Failed to get registered buffer for output cell ids.");
     }
@@ -771,7 +906,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArraysToPrimitiveComputePipe
     {
       if (primitiveSize == 3)
       {
-        if (!pipeline->GetRegisteredBuffer(edgeArrayComputeBuffer, *edgeArrayBuffer))
+        if (!RetainRegisteredBuffer(pipeline, edgeArrayComputeBuffer, *edgeArrayBuffer))
         {
           vtkErrorMacro(<< "edgeArray compute buffer for " << primitiveTypeAsString
                         << " is not registered!");
@@ -906,6 +1041,8 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
       this->GetTessellatedPrimitiveSizeOffsetForCellType(cellType);
     vtkTypeUInt32 numberOfPrimitives = 0;
     std::vector<vtkTypeUInt32> primitiveCounts;
+    std::vector<vtkTypeUInt32> stripFlags;
+    const auto polygonCount = this->Internals->GetPolygonCount(cellArray, cellType);
     auto cellIterator = vtk::TakeSmartPointer(cellArray->NewIterator());
     for (cellIterator->GoToFirstCell(); !cellIterator->IsDoneWithTraversal();
          cellIterator->GoToNextCell())
@@ -914,22 +1051,19 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
       vtkIdType cellSize;
       cellIterator->GetCurrentCell(cellSize, cellPts);
       primitiveCounts.emplace_back(numberOfPrimitives);
-      if (representation == VTK_WIREFRAME && cellType == VTK_POLYGON)
-      {
-        // number of sides in polygon.
-        numberOfPrimitives += cellSize;
-      }
-      else if (representation == VTK_POINTS)
-      {
-        // number of points in cell.
-        numberOfPrimitives += cellSize;
-      }
-      else
-      {
-        numberOfPrimitives += (cellSize - primitiveSizeOffset);
-      }
+      const bool triangleStrip = cellIterator->GetCurrentCellId() >= polygonCount;
+      stripFlags.emplace_back(triangleStrip ? 1u : 0u);
+      numberOfPrimitives +=
+        GetPrimitiveCount(cellSize, representation, cellType, primitiveSizeOffset, triangleStrip);
     }
     primitiveCounts.emplace_back(numberOfPrimitives);
+    if (numberOfPrimitives == 0)
+    {
+      *vertexCount = 0;
+      this->UpdateCellToPrimitiveComputePipelineTimestamp(idx);
+      return true;
+    }
+    auto stripFlagsBuffer = MakeStripFlagsBuffer(stripFlags);
     // create input buffer for connectivity ids
     vtkNew<vtkWebGPUComputeBuffer> inputConnectivityBuffer;
     inputConnectivityBuffer->SetGroup(0);
@@ -1078,10 +1212,11 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
     pass->AddBuffer(outputCellIdBuffer);       // not used in cpu
     pass->AddBuffer(edgeArrayComputeBuffer);   // not used in cpu
     pass->AddBuffer(pointCoordinatesBuffer);   // binding 7, polygon_to_triangle only
+    pass->AddBuffer(stripFlagsBuffer);         // binding 8, triangle strip flags
     // the topology and edge_array buffers are populated by compute pipeline and their contents
     // read in the graphics pipeline within the vertex and fragment shaders
     // keep reference to the output of compute pipeline, reuse it in the vertex, fragment shaders.
-    if (pipeline->GetRegisteredBuffer(outputConnectivityBuffer, *connectivityBuffer))
+    if (RetainRegisteredBuffer(pipeline, outputConnectivityBuffer, *connectivityBuffer))
     {
       *vertexCount = static_cast<vtkTypeUInt32>(numberOfPrimitives * primitiveSize);
     }
@@ -1089,13 +1224,13 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
     {
       *vertexCount = 0;
     }
-    pipeline->GetRegisteredBuffer(outputCellIdBuffer, *cellIdBuffer);
+    RetainRegisteredBuffer(pipeline, outputCellIdBuffer, *cellIdBuffer);
     // do the same for the edge array buffer only when output primitives are triangles.
     if (edgeArrayBuffer)
     {
       if (primitiveSize == 3)
       {
-        if (!pipeline->GetRegisteredBuffer(edgeArrayComputeBuffer, *edgeArrayBuffer))
+        if (!RetainRegisteredBuffer(pipeline, edgeArrayComputeBuffer, *edgeArrayBuffer))
         {
           vtkErrorMacro(<< "edgeArray compute buffer for " << primitiveTypeAsString
                         << " is not registered!");
@@ -1107,8 +1242,8 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellArrayToPrimitiveComputePipel
       }
     }
     // repeat for cellIdOffset
-    if (!pipeline->GetRegisteredBuffer(
-          cellIfOffsetUniformComputeBuffer, *cellIdOffsetUniformBuffer))
+    if (!RetainRegisteredBuffer(
+          pipeline, cellIfOffsetUniformComputeBuffer, *cellIdOffsetUniformBuffer))
     {
       vtkErrorMacro(<< "cellIdOffsetUniform compute buffer for " << primitiveTypeAsString
                     << " is not registered!");

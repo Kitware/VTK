@@ -11,6 +11,7 @@
 #include "vtk_wgpu.h" // for WebGPU C API
 
 #include <cstdlib>
+#include <initializer_list>
 #include <set>
 #include <sstream>
 #include <vector>
@@ -270,7 +271,7 @@ int TestComputeTriangulation(int argc, char* argv[])
       WGPUBuffer CellIdBuffer;
       WGPUBuffer EdgeArrayBuffer;
       WGPUBuffer CellIdOffsetUniformBuffer;
-    } converterData;
+    } converterData{};
     vtkLogStartScope(INFO, "Compute triangle lists in GPU");
     converter->DispatchCellArrayToPrimitiveComputePipeline(wgpuConfig, polygons, VTK_SURFACE,
       VTK_POLYGON, 0, &converterData.VertexCount, &converterData.ConnectivityBuffer,
@@ -409,6 +410,15 @@ int TestComputeTriangulation(int argc, char* argv[])
       {
         vtkLog(ERROR, << "Triangulation invariant check failed for " << scopeId);
         testStatus = EXIT_FAILURE;
+      }
+    }
+    // The converter hands the caller a reference to each buffer it writes.
+    for (WGPUBuffer* buffer : { &converterData.ConnectivityBuffer, &converterData.CellIdBuffer,
+           &converterData.EdgeArrayBuffer, &converterData.CellIdOffsetUniformBuffer })
+    {
+      if (*buffer != nullptr)
+      {
+        wgpuBufferRelease(*buffer);
       }
     }
     delete mapData;
