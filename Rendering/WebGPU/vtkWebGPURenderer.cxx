@@ -807,6 +807,29 @@ void vtkWebGPURenderer::RecordRenderCommands()
       { this->GetColorTextureView(), wgpuRenderWindow->GetHardwareSelectorAttachmentView() },
       wgpuRenderWindow->GetDepthStencilView(),
       /*clearColor=*/false, /*clearDepth=*/false, /*clearStencil=*/false);
+    // Clear() draws a quad, which loads every attachment and then writes every pixel. When the
+    // quad would cover the whole window, the load operations leave the same values for less.
+    const bool clearWithLoadOperations = this->CanClearWithLoadOperations();
+    if (clearWithLoadOperations)
+    {
+      // The background quad blends to the background color, or keeps the color of a
+      // transparent renderer, writes zero ids and depth 1, and leaves the stencil alone.
+      if (!this->Transparent())
+      {
+        auto& color = renderPassDescriptor.ColorAttachments[0];
+        color.loadOp = WGPULoadOp_Clear;
+        color.clearValue = { this->Background[0], this->Background[1], this->Background[2],
+          this->BackgroundAlpha };
+      }
+      auto& ids = renderPassDescriptor.ColorAttachments[1];
+      ids.loadOp = WGPULoadOp_Clear;
+      ids.clearValue = { 0.0, 0.0, 0.0, 0.0 };
+      if (!this->PreserveDepthBuffer)
+      {
+        renderPassDescriptor.DepthStencilAttachmentInfo.depthLoadOp = WGPULoadOp_Clear;
+        renderPassDescriptor.DepthStencilAttachmentInfo.depthClearValue = 1.0f;
+      }
+    }
     renderPassDescriptor.label =
       WGPUStringView{ "vtkWebGPURenderer::RecordRenderCommands", WGPU_STRLEN };
     if (this->ToneMappingPass && this->DrawBackgroundInClearPass)
@@ -834,8 +857,8 @@ void vtkWebGPURenderer::RecordRenderCommands()
       // 1. Draw the background color/texture.
       // updates viewport and scissor rectangles on the render pass encoder.
       this->ActiveCamera->UpdateViewport(this);
-      // clear the viewport rectangle to background color.
-      if (this->RenderWindow->GetErase() && this->Erase)
+      // clear the viewport rectangle to background color, unless the render pass already did.
+      if (this->RenderWindow->GetErase() && this->Erase && !clearWithLoadOperations)
       {
         this->Clear();
       }
@@ -849,6 +872,25 @@ void vtkWebGPURenderer::RecordRenderCommands()
     vtkErrorMacro(
       << "Cannot record render commands because RenderWindow is not a vtkWebGPURenderWindow!");
   }
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPURenderer::CanClearWithLoadOperations()
+{
+  // A render pass (this->Pass) clears through its own Clear() call, a gradient or a texture
+  // needs the quad, and a scissor rectangle limits the quad to part of the viewport.
+  if (this->Pass != nullptr || !this->DrawBackgroundInClearPass || this->GradientBackground ||
+    !this->RenderWindow->GetErase() || !this->Erase || this->ActiveCamera == nullptr ||
+    this->ActiveCamera->GetUseScissor() ||
+    (this->TexturedBackground && this->GetCurrentBackgroundTexture() != nullptr))
+  {
+    return false;
+  }
+  // Load operations clear the whole attachment, so the viewport has to cover all of it.
+  int width = 0, height = 0, originX = 0, originY = 0;
+  this->GetTiledSizeAndOrigin(&width, &height, &originX, &originY);
+  const int* windowSize = this->RenderWindow->GetActualSize();
+  return originX == 0 && originY == 0 && width == windowSize[0] && height == windowSize[1];
 }
 
 //------------------------------------------------------------------------------

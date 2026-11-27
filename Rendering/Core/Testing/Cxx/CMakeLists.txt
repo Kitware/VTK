@@ -154,6 +154,7 @@ set(cxx_tests
   TestRemoveActors.cxx,NO_DATA,NO_VALID
   TestRenderLinesAsTubes.cxx
   TestRenderPointsAsSpheres.cxx,NO_DATA
+  TestRendererLayersClear.cxx,NO_DATA,NO_VALID
   TestResetCameraModelTransformMatrix.cxx,NO_DATA,NO_VALID
   TestResetCameraScreenSpace.cxx
   TestResetCameraVerticalAspectRatio.cxx

@@ -468,6 +468,13 @@ private:
    */
   void ClearBackground(vtkWebGPUTexture* texture);
 
+  /**
+   * Whether the render pass can clear the attachments through its load operations instead of
+   * Clear() drawing a background quad. This holds when the renderer erases a flat background
+   * over the whole window, so both leave the same color, ids and depth.
+   */
+  bool CanClearWithLoadOperations();
+
   WGPURenderPassEncoder WGPURenderEncoder = nullptr;
   WGPURenderBundleEncoder WGPUBundleEncoder = nullptr;
   WGPUBuffer SceneTransformBuffer = nullptr;
