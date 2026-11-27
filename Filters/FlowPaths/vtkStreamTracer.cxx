@@ -869,6 +869,9 @@ struct TracerIntegrator
   bool GenerateNormalsInIntegrate;
   bool Sequential;
 
+  // Use only for the first thread
+  vtkIdType NumberOfIterationsSinceLastProgressEvent = 0;
+
   TracerIntegrator(vtkStreamTracer* streamTracer, vtkCompositeDataSet* inputData, bool matchingAttr,
     vtkDataSetAttributes* protoPD, vtkDataArray* seedSource, vtkIdList* seedIds,
     vtkIntArray* intDirs, TracerOffsets& offsets, vtkAbstractInterpolatedVelocityField* func,
@@ -995,18 +998,18 @@ struct TracerIntegrator
 
     bool isFirst = this->Sequential || vtkSMPTools::GetSingleThread();
 
-    constexpr vtkIdType minCheckAbortInterval = 1000;
-    vtkIdType checkAbortInterval =
-      std::min(this->SeedIds->GetNumberOfIds() / 10 + 1, minCheckAbortInterval);
+    const vtkIdType checkAbortThreshold = this->Sequential ? 1000 : 100;
 
     // We will interpolate all point attributes of the input on each point of
     // the output (unless they are turned off). Note that we are using only
     // the first input, if there are more than one, the attributes have to match.
     double velocity[3];
+    const vtkIdType startSeedNum = seedNum;
     for (; seedNum < endSeedNum; ++seedNum)
     {
-      if (isFirst && seedNum % checkAbortInterval == 0)
+      if (isFirst && this->NumberOfIterationsSinceLastProgressEvent >= checkAbortThreshold)
       {
+        this->NumberOfIterationsSinceLastProgressEvent = 0;
         this->StreamTracer->UpdateProgress(
           static_cast<double>(seedNum) / this->SeedIds->GetNumberOfIds());
         this->StreamTracer->CheckAbortAndInvoke();
@@ -1377,6 +1380,10 @@ struct TracerIntegrator
         this->InIntegrationTime = integrationTime;
       }
     } // for all seeds in this batch
+    if (isFirst)
+    {
+      this->NumberOfIterationsSinceLastProgressEvent += endSeedNum - startSeedNum + 1;
+    }
   }
 
   // Perform the final compositing operation to assemble the
