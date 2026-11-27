@@ -425,7 +425,7 @@ private:
   /**
    * Read the field arrays from the file and add them to the dataset.
    */
-  bool ReadFieldArrays(vtkDataObject* data);
+  bool ReadFieldArrays(vtkDataObject* data, const std::string& cachePath);
 
   vtkSmartPointer<vtkDataObject> OutputCache;
 
