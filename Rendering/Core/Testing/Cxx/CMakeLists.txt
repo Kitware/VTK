@@ -61,6 +61,7 @@ set(cxx_tests
   TestCompositePolyDataMapperPartialPointData.cxx,NO_DATA
   TestCompositePolyDataMapperPickability.cxx,NO_DATA
   TestCompositePolyDataMapperPicking.cxx,NO_DATA
+  TestCompositePolyDataMapperReplacedArrays.cxx,NO_DATA,NO_VALID
   TestCompositePolyDataMapperScalars.cxx,NO_DATA
 # TestCompositePolyDataMapperScalarsSurfaceOpacity.cxx,NO_DATA #19221
   TestCompositePolyDataMapperSharedArray.cxx,NO_DATA
@@ -147,6 +148,7 @@ set(cxx_tests
   TestPolyDataMapper2D.cxx,NO_DATA
   TestPolyDataMapperClipPlanes.cxx,NO_DATA
   TestPolyDataMapperNormals.cxx
+  TestPolyDataMapperReplacedArrays.cxx,NO_DATA,NO_VALID
   TestPolygonSelection.cxx,NO_DATA
   TestQuad.cxx,NO_DATA
   TestQuadPointRep.cxx,NO_DATA

@@ -7,6 +7,7 @@
 
 #include "vtkProperty.h"                       // for VTK_SURFACE constants
 #include "vtkRenderingWebGPUModule.h"          // for export macro
+#include "vtkWeakPointer.h"                    // for ivar
 #include "vtkWebGPUCellToPrimitiveConverter.h" // for TopologySourceType
 #include "vtkWebGPUComputePipeline.h"          // for ivar
 #include "vtkWrappingHints.h"                  // For VTK_MARSHALAUTO
@@ -489,6 +490,23 @@ the actor's display properties select it and it matches the required topology so
     uint64_t Size = 0;
     uint64_t Watermark = 0;
     bool Touched = false;
+    // What each upload since BeginUpdateMeshGeometryBuffers() wrote, and where. A batched
+    // mapper writes several meshes into one buffer.
+    struct Upload
+    {
+      // Weak, so that an array allocated at the address of a freed one does not compare equal.
+      vtkWeakPointer<vtkDataArray> Array;
+      uint64_t Offset = 0;
+    };
+    std::vector<Upload> Uploads;
+    std::size_t NumberOfUploads = 0;
+
+    /**
+     * Record `array` as the next upload, at the current watermark, and return whether it must
+     * be written. Besides arrays modified after `buildTime`, that includes an array that
+     * replaced the one written last time, which can be older than the buffer contents.
+     */
+    bool RecordUpload(vtkDataArray* array, vtkMTimeType buildTime);
   };
   AttributeBuffer PointBuffers[POINT_NB_ATTRIBUTES];
   AttributeBuffer CellBuffers[CELL_NB_ATTRIBUTES];
